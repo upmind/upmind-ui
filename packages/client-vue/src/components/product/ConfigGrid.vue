@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     v-if="hasItems"
     :class="styles.product.config.grid.root"
     :label="label"
@@ -11,13 +11,13 @@
     variant="flat"
     layout="stacked"
   >
-    <h-radio-group
+    <HRadioGroup
       :model-value="modelValue"
       @update:model-value="doResolve"
       as="ul"
       :class="styles.product.config.grid.items"
     >
-      <h-radio-group-option
+      <HRadioGroupOption
         as="template"
         v-for="(item, index) in items"
         :key="`item-${index}`"
@@ -33,7 +33,7 @@
             )
           "
         >
-          <upw-radio
+          <UpwRadio
             :class="styles.product.config.grid.item.input"
             :model-value="checked"
             no-feedback
@@ -48,7 +48,7 @@
             </span>
 
             <template v-for="promotion in item?.promotions" :key="promotion.id">
-              <uw-badge
+              <Badge
                 color="promotion"
                 :label="
                   $tc(
@@ -95,9 +95,9 @@
             </strong>
           </div>
         </li>
-      </h-radio-group-option>
-    </h-radio-group>
-  </upw-input>
+      </HRadioGroupOption>
+    </HRadioGroup>
+  </UpwInput>
 
   <pre v-if="errors">{{ errors }}</pre>
 </template>
@@ -115,8 +115,7 @@ import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { UpwRadio, UpwInput } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge);
+import { Badge } from "@upmind/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -125,6 +124,7 @@ import { isNil } from "lodash-es";
 export default defineComponent({
   name: "UpmProductConfigGrid",
   components: {
+    Badge,
     UpwInput,
     UpwRadio,
     HRadioGroup: RadioGroup,

@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'uw-dialog' : 'div'"
+    :is="modal ? 'Dialog' : 'div'"
     :modelValue="isOpen"
     size="xl"
     persistent
@@ -9,14 +9,14 @@
     skrim="light"
   >
     <section :class="styles.session.expired.root">
-      <uw-avatar v-bind="avatar" />
+      <Avatar v-bind="avatar" />
 
       <h3 :class="styles.session.expired.title">{{ title }}</h3>
 
       <p :class="styles.session.expired.text">{{ text }}</p>
 
       <footer>
-        <uw-button
+        <Button
           v-if="hasAction"
           v-bind="action"
           @click.stop="doAction"
@@ -29,7 +29,7 @@
 
 <script>
 // --- external
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/headless-vue";
@@ -37,10 +37,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwDialog);
-useCustomElement(UwAvatar);
-useCustomElement(UwButton);
+import { Avatar, Button, Dialog } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
@@ -48,6 +45,11 @@ import { isEmpty, isFunction } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmSessionExpired",
+  components: {
+    Avatar,
+    Button,
+    Dialog,
+  },
   props: {
     modal: { type: Boolean },
     auto: { type: Boolean },

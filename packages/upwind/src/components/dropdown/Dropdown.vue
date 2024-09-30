@@ -25,14 +25,14 @@
           {{ prependText }}
         </span>
 
-        <UpwAvatar
+        <Avatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           v-bind="prependAvatar"
           size="full"
         />
 
-        <UpwIcon
+        <Icon
           v-if="prependIcon"
           :class="styles.dropdown.icon"
           :icon="prependIcon"
@@ -62,13 +62,13 @@
           loading,
         }"
       >
-        <UpwIcon
+        <Icon
           v-if="appendIcon"
           :class="styles.dropdown.icon"
           :icon="appendIcon"
         />
 
-        <UpwAvatar
+        <Avatar
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
@@ -87,7 +87,7 @@
           aria-hidden="true"
         />
 
-        <UpwIcon
+        <Icon
           v-else-if="toggle"
           :icon="toggle"
           :class="styles.dropdown.toggle"
@@ -145,8 +145,8 @@ import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 
 // --- components
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
-import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
+import Avatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
@@ -166,8 +166,8 @@ export default defineComponent({
     HMenu: Menu,
     HMenuButton: MenuButton,
     HMenuItems: MenuItems,
-    UpwIcon,
-    UpwAvatar,
+    Icon,
+    Avatar,
     UpwSpinner,
     UpwDropdownItem,
   },

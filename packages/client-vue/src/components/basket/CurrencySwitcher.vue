@@ -1,5 +1,5 @@
 <template>
-  <uw-combobox
+  <Combobox
     v-if="currencies?.length > 1 || meta.isLoading"
     v-model="selected"
     :items="currencies"
@@ -9,7 +9,7 @@
     :upwind-config="{ listboxButton: config.currencySwitcher }"
     :loading="meta.isLoading || meta.isProcessing"
   >
-  </uw-combobox>
+  </Combobox>
 </template>
 
 <script>
@@ -17,8 +17,7 @@
 import { defineComponent, computed } from "vue";
 
 // --- custom elements
-import { UwCombobox, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwCombobox);
+import { Combobox } from "@upmind/upwind";
 
 // --- internal
 import { useBasketCurrency } from "@upmind/headless-vue";
@@ -35,6 +34,9 @@ import { map } from "lodash-es";
 
 export default defineComponent({
   name: "UpmCurrencySwitcher",
+  components: {
+    Combobox,
+  },
   emits: [],
   props: {
     size: {

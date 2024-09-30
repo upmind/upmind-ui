@@ -67,7 +67,7 @@ export const useProductConfig = (actor: any) => {
       !!state.value?.context?.model?.term,
   }));
 
-  const summary = computed(() => state.value.context.summary);
+  const summary = computed(() => state.value.context?.summary);
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed

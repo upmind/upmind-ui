@@ -14,7 +14,7 @@ export const buttonVariants = cva(
         tonal: "border border-transparent",
       },
       color: {
-        base: "border-base bg-base-foreground text-base-background",
+        base: "border-base bg-base-background text-base-foreground",
         primary: "border-primary bg-primary text-primary-foreground",
         secondary: "border-secondary bg-secondary text-secondary-foreground",
         accent: "border-accent bg-accent text-accent-foreground",

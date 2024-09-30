@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="dialog ? 'uw-dialog' : 'section'"
+    :is="dialog ? 'Dialog' : 'section'"
     @reject="onClose"
     size="xl"
     title="Change address"
@@ -14,16 +14,16 @@
       </header>
 
       <div v-if="!meta.isAvailable">
-        <upm-auth no-tabs />
+        <UpmAuth no-tabs />
       </div>
 
-      <upw-skeleton-list
+      <UpwSkeletonList
         :class="styles.clientListings.loading"
         v-else-if="meta.isLoading"
       />
 
       <template v-else>
-        <upw-textbox
+        <UpwTextbox
           v-if="!noFilter && meta.canFilter"
           @input="filter($event?.currentTarget?.value)"
           :placeholder="$t(`client.${type}.actions.filter`)"
@@ -31,7 +31,7 @@
         />
 
         <div :class="styles.clientListings.items">
-          <upm-card
+          <UpmCard
             v-for="item in sortedItems"
             :key="item.id"
             :model-value="item"
@@ -46,10 +46,10 @@
         </div>
 
         <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-          <upm-empty :i18nKey="type" />
+          <UpmEmpty :i18nKey="type" />
         </slot>
 
-        <upm-item
+        <UpmItem
           v-if="meta.isEditing || meta.isAdding"
           :model-value="selected"
           :key="selected?.id"
@@ -61,7 +61,7 @@
           :class="styles.clientListings.actions"
           v-if="!meta.isAdding && !meta.isEditing && !meta.isLoading && !dialog"
         >
-          <uw-button
+          <Button
             :label="$t(`client.${type}.actions.add`)"
             variant="ghost"
             @click="add"
@@ -75,7 +75,7 @@
       </footer>
 
       <div slot="footer">
-        <uw-button
+        <Button
           v-for="(action, key) in actions"
           :key="key"
           v-bind="action"
@@ -116,9 +116,7 @@ import UpmItem from "./Item.vue";
 import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
-import { UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
-useCustomElement(UwDialog);
+import { Button, Dialog } from "@upmind/upwind";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -128,6 +126,8 @@ import { isFunction } from "lodash-es";
 export default defineComponent({
   name: "UpmClientListings",
   components: {
+    Button,
+    Dialog,
     UpwTextbox,
     UpwSkeletonList,
     // ---

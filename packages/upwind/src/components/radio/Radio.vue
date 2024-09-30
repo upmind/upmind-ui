@@ -37,7 +37,7 @@
         @input="onChange"
         :aria-invalid="meta.isInvalid"
       />
-      <UpwIcon
+      <Icon
         :class="styles.radio.icon"
         :icon="computedIcon"
         v-if="computedIcon"
@@ -67,7 +67,7 @@ import config from "./config.cva";
 
 // --- components
 import UpwInput from "../input/Input.vue";
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -85,7 +85,7 @@ export default defineComponent({
   emits: ["update:modelValue"],
   components: {
     UpwInput,
-    UpwIcon,
+    Icon,
   },
 
   props: {

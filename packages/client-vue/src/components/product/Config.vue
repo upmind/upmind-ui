@@ -1,5 +1,8 @@
 <template>
-  <form :class="styles.product.config.root" @submit.prevent="doResolve">
+  <form
+    :class="cn(styles.product.config.root, $props.class)"
+    @submit.prevent="doResolve"
+  >
     <header
       :class="styles.product.config.header"
       v-if="!meta.isLoading && !!$slots.header"
@@ -21,13 +24,13 @@
         <!-- heading -->
         <div :class="styles.product.config.heading">
           <div :class="styles.product.config.headingContent">
-            <uw-badge
+            <Badge
               v-if="product?.hasFreeTrial"
               color="secondary"
               :label="$t('product.trail')"
             />
 
-            <uw-badge
+            <Badge
               v-if="product?.isOnPromotion"
               color="promotion"
               :label="$t('product.promotion')"
@@ -41,12 +44,9 @@
           <div :class="styles.product.config.summary">
             <!-- quantity -->
 
-            <upw-spinner
-              v-if="meta.isLoading || meta.isCalculating"
-              size="sm"
-            />
+            <UpwSpinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
 
-            <upw-quantitybox
+            <UpwQuantitybox
               v-if="product?.canChangeQuantity"
               :disabled="meta.isProcessing"
               :min="product?.min_order_quantity"
@@ -80,35 +80,35 @@
             </span>
           </div>
 
-          <upw-lineclamp
+          <UpwLineclamp
             :class="styles.product.config.text"
             :lines="2"
             :labelMore="$tc('product.actions.more', 1)"
             :labelLess="$tc('product.actions.more', 0)"
           >
-            <upw-markdown
+            <UpwMarkdown
               v-if="product?.description"
               :model-value="product.description"
             />
-          </upw-lineclamp>
+          </UpwLineclamp>
 
-          <upw-lineclamp
+          <UpwLineclamp
             :class="styles.product.config.text"
             :lines="2"
             labelMore=""
             labelLess=""
           >
-            <upw-markdown
+            <UpwMarkdown
               v-if="product?.short_description"
               :model-value="product.short_description"
             />
-          </upw-lineclamp>
+          </UpwLineclamp>
         </div>
 
         <!-- fields -->
         <div :class="cn(styles.product.config.fields)">
           <!-- terms -->
-          <upm-config-grid
+          <UpmConfigGrid
             v-if="meta.hasTerms"
             :errors="errors?.term"
             :items="terms"
@@ -120,7 +120,7 @@
           />
 
           <!-- options -->
-          <upm-config-nested
+          <UpmConfigNested
             v-if="meta.hasOptions"
             :errors="errors?.options"
             :items="options"
@@ -132,7 +132,7 @@
           />
 
           <!-- attributes -->
-          <upm-config-nested
+          <UpmConfigNested
             v-if="meta.hasAttributes"
             :errors="errors?.attributes"
             :items="attributes"
@@ -143,7 +143,7 @@
           />
 
           <!-- provisional fields -->
-          <upm-config-form
+          <UpmConfigForm
             v-if="meta.hasProvisioning"
             :processing="meta.isProcessing || meta.isLoading"
             :additional-errors="errors?.provision_fields?.data"
@@ -157,7 +157,7 @@
 
     <!-- footer -->
     <footer :class="styles.product.config.footer" v-if="!meta.isLoading">
-      <uw-button
+      <Button
         type="reset"
         tabindex="1"
         :label="$t('product.actions.reject')"
@@ -174,12 +174,13 @@
         </strong>
       </span>
 
-      <uw-button
+      <Button
         type="submit"
         tabindex="0"
         :label="$t('product.actions.resolve')"
         :loading="meta.isProcessing"
         :disabled="meta.isLoading || !meta.isConfigured"
+        color="secondary"
       />
     </footer>
   </form>
@@ -206,9 +207,7 @@ import UpmConfigNested from "./ConfigNested.vue";
 import UpmConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
-import { UwBadge, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge);
-useCustomElement(UwButton);
+import { Badge, Button } from "@upmind/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -218,6 +217,8 @@ export default defineComponent({
   name: "UpmProductConfig",
   inheritAttrs: false,
   components: {
+    Badge,
+    Button,
     UpwQuantitybox,
     UpwSpinner,
     UpmConfigGrid,
@@ -243,6 +244,10 @@ export default defineComponent({
     required: {
       type: Boolean,
       default: false,
+    },
+    class: {
+      type: String,
+      default: "",
     },
   },
   setup(props, { emit }) {

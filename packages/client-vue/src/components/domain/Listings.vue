@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="dialog ? 'uw-drawer' : 'div'"
+    :is="dialog ? 'Drawer' : 'div'"
     size="2xl"
     :title="title"
     :modelValue="isOpen"
@@ -19,13 +19,13 @@
         :leave-from-class="styles.domain.transitions.fade.leave.from"
         :leave-to-class="styles.domain.transitions.fade.leave.to"
       >
-        <upm-empty
+        <UpmEmpty
           :title="$t('domain.empty.title')"
           :text="$t('domain.empty.text')"
           v-if="!meta.isLoading && meta.isEmpty"
         />
 
-        <upw-checkbox-list
+        <UpwCheckboxList
           v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
           :class="styles.domain.listings.items"
           :items="items"
@@ -41,7 +41,7 @@
               <span :class="styles.domain.card.badges">
                 <span :class="styles.domain.card.text" v-if="item.is_owned">
                   <span :class="styles.domain.card.owned.icon">
-                    <uw-icon icon="lock" size="full" />
+                    <Icon icon="lock" size="full" />
                   </span>
                   {{ $t("domain.card.owned.label") }}
                 </span>
@@ -51,7 +51,7 @@
                   v-else-if="item.in_basket"
                 >
                   <span :class="styles.domain.card.basket.icon">
-                    <uw-icon icon="basket" size="full" />
+                    <Icon icon="basket" size="full" />
                   </span>
                   {{ $t("domain.card.basket.label") }}
                 </span>
@@ -61,20 +61,20 @@
                   :class="styles.domain.card.text"
                 >
                   <span :class="styles.domain.card.available.icon">
-                    <uw-icon icon="check" size="full" />
+                    <Icon icon="check" size="full" />
                   </span>
                   {{ $t("domain.card.available.label") }}
                 </span>
 
                 <span :class="styles.domain.card.text" v-else>
                   <span :class="styles.domain.card.transfer.icon">
-                    <uw-icon icon="transfer" size="full" />
+                    <Icon icon="transfer" size="full" />
                   </span>
 
                   {{ $t("domain.card.transfer.label") }}
                 </span>
 
-                <uw-badge
+                <Badge
                   v-if="item?.is_discounted"
                   color="promotion"
                   :label="$t('domain.card.promotion')"
@@ -198,7 +198,7 @@
                 </template>
 
                 <template #[`action`]>
-                  <uw-button
+                  <Button
                     :class="styles.domain.card.transfer.action"
                     :disabled="meta.isDisabled || isSelected(item.domain)"
                     :label="$t('domain.card.transfer.action')"
@@ -238,7 +238,7 @@
 
               <div :class="styles.domain.card.actions">
                 <template v-if="!item.is_owned && !item.in_basket">
-                  <uw-button
+                  <Button
                     v-if="item.is_available"
                     :class="styles.domain.card.available.action"
                     :disabled="meta.isDisabled"
@@ -258,7 +258,7 @@
                     size="sm"
                   />
 
-                  <uw-button
+                  <Button
                     v-else-if="isSelected(item.domain)"
                     :class="styles.domain.card.transfer.action"
                     :disabled="meta.isDisabled"
@@ -281,9 +281,9 @@
               </div>
             </div>
           </template>
-        </upw-checkbox-list>
+        </UpwCheckboxList>
 
-        <upw-skeleton-list
+        <UpwSkeletonList
           v-if="meta.isLoading"
           :class="styles.domain.listings.loading"
           :rows="3"
@@ -312,14 +312,7 @@ import {
 } from "@upmind/upwind";
 
 // --- custom elements
-import {
-  UwIcon,
-  UwBadge,
-  UwButton,
-  UwDialog,
-  useCustomElement,
-} from "@upmind/upwind";
-useCustomElement(UwBadge, UwButton, UwDialog, UwIcon);
+import { Icon, Badge, Button, Dialog } from "@upmind/upwind";
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
 
@@ -330,6 +323,10 @@ export default defineComponent({
   name: "UpmDomainListings",
   directives: { autoAnimate: vAutoAnimate },
   components: {
+    Icon,
+    Badge,
+    Button,
+    Dialog,
     UpwTextbox,
     UpwCheckboxList,
     UpwRadioList,

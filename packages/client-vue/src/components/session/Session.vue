@@ -29,7 +29,7 @@
             tag="p"
           >
             <template #[`action`]>
-              <uw-button
+              <Button
                 variant="link"
                 @click.prevent="logout"
                 :label="$t('session.authenticated.footer.action')"
@@ -52,7 +52,7 @@
       </slot>
     </header>
 
-    <upm-auth
+    <UpmAuth
       v-if="!meta.isAuthenticated"
       :class="styles.session.content"
       :block-tabs="blockTabs"
@@ -61,7 +61,7 @@
       :color="color"
       :model-value="show"
     >
-    </upm-auth>
+    </UpmAuth>
 
     <footer :class="styles.session.footer" v-if="noFooter || !!$slots.footer">
       <slot name="footer" v-bind="{ meta, user }"> </slot>
@@ -82,8 +82,7 @@ import config from "./config.cva";
 import UpmAuth from "./Auth.vue";
 
 // --- custom elements
-import { UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
+import { Button } from "@upmind/upwind";
 
 // --- types
 import type { PropType } from "vue";
@@ -95,6 +94,7 @@ export default defineComponent({
   name: "UpmSession",
   components: {
     UpmAuth,
+    Button,
   },
   props: {
     show: {

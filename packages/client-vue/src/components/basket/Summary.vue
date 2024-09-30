@@ -45,7 +45,7 @@
               </strong>
 
               <template v-else>
-                <uw-button
+                <Button
                   type="button"
                   size="sm"
                   class="!p-0"
@@ -56,7 +56,7 @@
                   @click="$emit('edit', product.id)"
                   disabled
                 />
-                <uw-button
+                <Button
                   type="button"
                   size="sm"
                   class="!p-0"
@@ -73,7 +73,7 @@
       </dl>
 
       <!-- promotions -->
-      <upm-promotions :class="styles.basket.summary.form" />
+      <UpmPromotions :class="styles.basket.summary.form" />
 
       <!-- subtotals -->
       <dl
@@ -87,7 +87,7 @@
               $tc("basket.summary.discount.title", products.length)
             }}</span>
             <!-- TODO -->
-            <!-- <uw-icon
+            <!-- <icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
@@ -105,7 +105,7 @@
               $tc("basket.summary.subtotal.title", products.length)
             }}</span>
             <!-- TODO -->
-            <!-- <uw-icon
+            <!-- <icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
@@ -121,7 +121,7 @@
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{ key }}</span>
             <!-- TODO -->
-            <!-- <uw-icon
+            <!-- <icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
@@ -153,7 +153,7 @@
 
     <footer :class="styles.basket.summary.footer" v-auto-animate>
       <div :class="styles.basket.summary.actions">
-        <uw-button
+        <Button
           :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           @click.prevent="checkout"
           class="w-full"
@@ -168,7 +168,7 @@
         :key="`footer-foreground-${index}`"
         :class="styles.basket.summary.text"
       >
-        <uw-icon
+        <Icon
           v-if="$rt(content?.icon)"
           :class="styles.basket.summary.icon"
           :icon="$rt(content?.icon)"
@@ -188,8 +188,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import UpmPromotions from "./Promotions.vue";
 
 // --- custom elements
-import { UwIcon, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwIcon, UwButton);
+import { Icon, Button } from "@upmind/upwind";
 
 // --- internal
 import { useBasket } from "@upmind/headless-vue";
@@ -200,7 +199,7 @@ import config from "./config.cva";
 
 export default defineComponent({
   name: "UpmBasketSummary",
-  components: { UpmPromotions },
+  components: { UpmPromotions, Icon, Button },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {

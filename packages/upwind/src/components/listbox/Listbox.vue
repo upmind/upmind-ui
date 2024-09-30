@@ -26,13 +26,13 @@
             {{ selectedPrependText }}
           </span>
 
-          <UpwAvatar
+          <Avatar
             v-if="selectedPrependAvatar"
             :class="styles.listbox.avatar"
             :avatar="selectedPrependAvatar"
           />
 
-          <UpwIcon
+          <Icon
             v-if="selectedPrependIcon"
             :class="styles.listbox.icon"
             :icon="selectedPrependIcon"
@@ -62,13 +62,13 @@
             loading,
           }"
         >
-          <UpwIcon
+          <Icon
             v-if="selectedAppendIcon"
             :class="styles.listbox.icon"
             :icon="selectedAppendIcon"
           />
 
-          <UpwAvatar
+          <Avatar
             v-if="selectedAppendAvatar"
             class="avatar"
             :class="styles.listbox.avatar"
@@ -86,7 +86,7 @@
             aria-hidden="true"
           />
 
-          <UpwIcon
+          <Icon
             v-else-if="toggle"
             :icon="toggle"
             :class="styles.listbox.toggle"
@@ -152,13 +152,13 @@
                   {{ item.prependText }}
                 </span>
 
-                <UpwAvatar
+                <Avatar
                   v-if="item.prependAvatar"
                   :class="styles.listbox.avatar"
                   :avatar="item.prependAvatar"
                 />
 
-                <UpwIcon
+                <Icon
                   v-if="item.prependIcon"
                   :class="styles.listbox.icon"
                   :icon="item.prependIcon"
@@ -182,13 +182,13 @@
                   ...item,
                 }"
               >
-                <UpwIcon
+                <Icon
                   v-if="item.appendIcon"
                   :class="styles.listbox.icon"
                   :icon="item.appendIcon"
                 />
 
-                <UpwAvatar
+                <Avatar
                   v-if="item.appendAvatar"
                   class="avatar"
                   :class="styles.listbox.avatar"
@@ -210,7 +210,7 @@
                   :size="size"
                 />
 
-                <UpwIcon
+                <Icon
                   v-if="iconSelected"
                   :icon="iconSelected"
                   :class="[
@@ -240,8 +240,8 @@ import {
   ListboxOptions,
   ListboxOption,
 } from "@headlessui/vue";
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
-import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
+import Avatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
@@ -265,8 +265,8 @@ export default defineComponent({
     HListboxButton: ListboxButton,
     HListboxOptions: ListboxOptions,
     HListboxOption: ListboxOption,
-    UpwIcon,
-    UpwAvatar,
+    Icon,
+    Avatar,
     UpwSpinner,
   },
   emits: ["update:modelValue"],

@@ -1,7 +1,11 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <ButtonRoot v-bind="forwarded" :class="cn(variants.button, props.class)">
+  <ButtonRoot
+    :as="props.as"
+    :class="cn(variants.button, props.class)"
+    :disabled="props.disabled"
+  >
     <slot name="prepend"></slot>
 
     <slot>
@@ -15,7 +19,6 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { useForwardProps } from "radix-vue";
 
 // --- internal
 import config from "./button.config";
@@ -46,8 +49,6 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   upwindConfig: () => ({ button: {} }),
   class: "",
 });
-
-const forwarded = useForwardProps(props);
 
 const meta = computed(() => ({
   size: props.size,

@@ -6,7 +6,7 @@
 
     <transition name="fade">
       <p v-if="truncated" :class="styles.lineclamp.actions">
-        <UButton
+        <Button
           variant="link"
           size="xs"
           @click="open = !open"
@@ -23,7 +23,7 @@
 import { defineComponent, ref, computed } from "vue";
 
 // --- internal
-import UButton from "../../ui/button/Button.ce.vue";
+import Button from "../../ui/button/Button.ce.vue";
 import config from "./config.cva";
 
 // --- utils
@@ -32,7 +32,7 @@ import { cn, useStyles } from "../../utils";
 // ---------------------------------------------------------------------------
 export default defineComponent({
   name: "UwpwLineclamp",
-  components: { UButton },
+  components: { Button },
   props: {
     labelMore: { type: String, default: "Show more" },
     labelLess: { type: String, default: "Show less" },

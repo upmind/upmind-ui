@@ -52,7 +52,7 @@
             name="prepend.avatar"
             v-bind="{ meta, styles: styles.input, avatar: prependAvatar }"
           >
-            <UpwIcon
+            <Icon
               v-if="prependAvatar"
               class="avatar"
               :class="styles.input.avatar"
@@ -64,7 +64,7 @@
             name="prepend.icon"
             v-bind="{ meta, styles: styles.input, icon: prependIcon }"
           >
-            <UpwIcon
+            <Icon
               v-if="prependIcon"
               :class="styles.input.icon"
               :icon="prependIcon"
@@ -121,7 +121,7 @@
             name="append.icon"
             v-bind="{ meta, styles: styles.input, icon: appendIcon }"
           >
-            <UpwIcon
+            <Icon
               v-if="appendIcon"
               :class="styles.input.icon"
               :icon="appendIcon"
@@ -132,7 +132,7 @@
             name="append.avatar"
             v-bind="{ meta, styles: styles.input, avatar: appendAvatar }"
           >
-            <UpwIcon
+            <Icon
               v-if="appendAvatar"
               class="avatar"
               :class="styles.input.avatar"
@@ -168,7 +168,7 @@
           styles: styles.input,
         }"
       >
-        <UpwIcon
+        <Icon
           :class="styles.input.feedback.icon"
           :icon="feedbackIcon"
           v-if="meta.hasFeedback"
@@ -181,11 +181,11 @@
 
 <script lang="ts">
 // --- external
-import { defineComponent, computed, ref, watch } from "vue";
+import { defineComponent, computed, ref } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- components
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
 import UpwLabel from "../label/Label.vue";
 
 // --- local
@@ -202,7 +202,7 @@ import type { InputProps, IconProps } from "./types";
 export default defineComponent({
   name: "UwpwInput",
   components: {
-    UpwIcon,
+    Icon,
     UpwLabel,
   },
   directives: { "intersection-observer": vIntersectionObserver },

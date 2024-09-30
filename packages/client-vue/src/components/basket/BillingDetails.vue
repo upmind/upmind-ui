@@ -4,7 +4,7 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <upw-skeleton-list
+    <UpwSkeletonList
       :class="styles.client.loading"
       v-if="
         meta.isLoading || (meta.isAdding && !meta.isEmpty) || meta.isEditing
@@ -12,7 +12,7 @@
     />
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
-    <upm-item
+    <UpmItem
       v-if="
         !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
       "
@@ -26,7 +26,7 @@
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
         {{ $t("client.title") }}
-        <uw-button
+        <Button
           variant="link"
           :label="$t('client.actions.change')"
           size="sm"
@@ -34,7 +34,7 @@
         />
       </h5>
 
-      <upm-card
+      <UpmCard
         i18nKey="unified"
         :model-value="selected"
         selected
@@ -44,7 +44,7 @@
       />
 
       <div :class="styles.client.actions">
-        <uw-button
+        <Button
           :key="selected?.id"
           variant="link"
           :label="$t('client.actions.convert')"
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <upm-listings
+    <UpmListings
       v-model="activeDialog"
       type="unified"
       i18nKey="unified"
@@ -89,8 +89,7 @@ import UpmListings from "../Client/Listings.vue";
 import { UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
-import { UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
+import { Button } from "@upmind/upwind";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
@@ -100,6 +99,7 @@ export default defineComponent({
   name: "UpmClient",
   components: {
     UpwSkeletonList,
+    Button,
     // ---
     UpmItem,
     UpmCard,

@@ -10,7 +10,7 @@
         {{ label }}
       </span>
       <slot name="icon" v-bind="{ meta, icon: icon }">
-        <UpwIcon v-if="icon" :class="styles.tab.icon" :icon="icon" />
+        <Icon v-if="icon" :class="styles.tab.icon" :icon="icon" />
       </slot>
     </slot>
   </button>
@@ -24,7 +24,7 @@ import { defineComponent, computed } from "vue";
 import config from "./config.cva";
 
 // --- components
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -38,7 +38,7 @@ import type { TabProps } from "./types";
 export default defineComponent({
   name: "UwButton",
   components: {
-    UpwIcon,
+    Icon,
   },
 
   props: {

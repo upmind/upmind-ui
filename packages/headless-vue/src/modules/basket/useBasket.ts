@@ -18,6 +18,7 @@ import {
   useState,
 } from "../../utils";
 import { some, filter } from "lodash-es";
+import type { IProductModel } from "../../../../headless/src/modules/product/types";
 
 // --------------------------------------------------------
 
@@ -221,7 +222,15 @@ export const useBasket: any = () => {
     checkout,
     // ---
     // Item Methods
-    addItem,
+    async addItem(
+      model: IProductModel,
+      { awaitStates = ["available.configured"] }: { awaitStates?: string[] }
+    ) {
+      return addItem(model, { awaitStates }).then(item => {
+        const actor = useActor(item);
+        return { id: item.id, ...actor };
+      });
+    },
     updateItem,
     removeItem,
   };

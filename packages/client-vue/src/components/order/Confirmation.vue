@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'uw-dialog' : 'div'"
+    :is="modal ? 'Dialog' : 'div'"
     :modelValue="isOpen"
     size="xl"
     persistent
@@ -9,14 +9,14 @@
     skrim="light"
   >
     <section :class="styles.order.confirmation.root">
-      <uw-avatar v-bind="avatar" />
+      <Avatar v-bind="avatar" />
 
       <h3 :class="styles.order.confirmation.title">{{ title }}</h3>
 
       <p :class="styles.order.confirmation.text">{{ text }}</p>
 
       <footer :class="styles.basket.processing.actions">
-        <uw-button
+        <Button
           v-if="hasAction"
           v-bind="action"
           @click.stop="doAction"
@@ -37,10 +37,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwAvatar, UwButton, UwDialog, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwDialog);
-useCustomElement(UwAvatar);
-useCustomElement(UwButton);
+import { Avatar, Button, Dialog } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
@@ -48,6 +45,11 @@ import { isEmpty, isFunction } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmOrderConfirmation",
+  components: {
+    Avatar,
+    Button,
+    Dialog,
+  },
   props: {
     modal: { type: Boolean },
     title: { type: String },
