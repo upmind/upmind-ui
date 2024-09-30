@@ -16,7 +16,7 @@
     >
       <span :class="styles.label.text" v-if="text">
         {{ text }}
-        <UpwBadge
+        <Badge
           v-if="altText"
           :class="styles.label.alt"
           :label="altText"
@@ -55,7 +55,7 @@ import config from "./config.cva";
 // --- components
 
 // --- custom elements
-import UpwBadge from "../../ui/badge/Badge.ce.vue";
+import Badge from "../../ui/badge/Badge.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -71,7 +71,7 @@ export default defineComponent({
   name: "UwpwLabel",
   inheritAttrs: false,
   emits: ["update:modelValue", "change"],
-  components: { UpwBadge },
+  components: { Badge },
 
   props: {
     id: { type: String },

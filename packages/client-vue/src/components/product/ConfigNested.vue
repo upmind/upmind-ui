@@ -1,6 +1,6 @@
 <template>
   <template v-for="item in items" :key="item.id">
-    <upw-input
+    <UpwInput
       v-if="item.values?.length"
       :class="styles.product.config.list.root"
       :label="item.name"
@@ -39,7 +39,7 @@
                 v-for="promotion in value?.price?.promotions"
                 :key="promotion.id"
               >
-                <uw-badge
+                <Badge
                   color="promotion"
                   :label="
                     $tc(
@@ -58,9 +58,9 @@
 
         <template #append="{ item: value }">
           <div :class="styles.product.config.list.item.footer">
-            <upw-spinner v-if="loading" size="xs" />
+            <UpwSpinner v-if="loading" size="xs" />
 
-            <upw-quantitybox
+            <UpwQuantitybox
               v-if="
                 value.canChangeQuantity && modelValue?.[item.id]?.[value.id]
               "
@@ -102,7 +102,7 @@
           </div>
         </template>
       </component>
-    </upw-input>
+    </UpwInput>
   </template>
 </template>
 
@@ -126,8 +126,7 @@ import {
 } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge);
+import { Badge } from "@upmind/upwind";
 
 // --- utils
 import { some, has, reduce, map, get, first, isArray } from "lodash-es";
@@ -136,6 +135,7 @@ import { some, has, reduce, map, get, first, isArray } from "lodash-es";
 export default defineComponent({
   name: "UpmProductConfigNested",
   components: {
+    Badge,
     UpwInput,
     UpwRadio,
     UpwRadioList,

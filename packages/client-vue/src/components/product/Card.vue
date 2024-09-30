@@ -12,13 +12,13 @@
     <div :class="styles.product.card.wrapper">
       <!-- header -->
       <header :class="styles.product.card.header">
-        <uw-badge
+        <Badge
           color="secondary"
           v-if="product?.hasFreeTrial"
           :label="$t('product.trail')"
         />
 
-        <uw-badge
+        <Badge
           color="promotion"
           v-if="product?.isOnPromotion"
           :label="$t('product.promotion')"
@@ -38,7 +38,7 @@
             {{ $t(`product.${termSummary.key}`, termSummary) }}
           </span>
 
-          <uw-button
+          <Button
             variant="link"
             @click="toggle = !toggle"
             size="sm"
@@ -47,15 +47,16 @@
             :class="styles.product.card.more"
             v-if="hasSummaryDetails"
           >
-            <uw-icon
-              slot="append"
-              icon="arrow-down"
-              :class="styles.product.card.toggle"
-              :aria-checked="toggle"
-              :aria-controls="`product-${product?.id}-toggle`"
-              aria-hidden="true"
-            />
-          </uw-button>
+            <template #append>
+              <Icon
+                icon="arrow-down"
+                :class="styles.product.card.toggle"
+                :aria-checked="toggle"
+                :aria-controls="`product-${product?.id}-toggle`"
+                aria-hidden="true"
+              />
+            </template>
+          </Button>
         </div>
       </header>
 
@@ -93,7 +94,7 @@
               >
                 {{ detail.name }}
               </span>
-              <uw-button
+              <Button
                 v-else-if="detail.invalid"
                 size="xs"
                 variant="link"
@@ -107,7 +108,7 @@
 
       <!-- footer -->
       <footer :class="styles.product.card.footer">
-        <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
+        <UpwSpinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
             v-if="!!summary?.discount"
@@ -130,7 +131,7 @@
 
         <!-- actions -->
         <div :class="styles.product.card.actions">
-          <uw-button
+          <Button
             :disabled="
               meta.isLoading ||
               meta.isCalculating ||
@@ -148,7 +149,7 @@
             :variant="meta.hasErrors || meta.isNew ? 'flat' : 'ghost'"
           />
 
-          <uw-button
+          <Button
             :disabled="
               meta.isLoading || meta.isCalculating || meta.isProcessing
             "
@@ -180,8 +181,7 @@ import config from "./config.cva";
 import { UpwSpinner } from "@upmind/upwind";
 
 // --- custom elements
-import { UwIcon, UwBadge, UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge, UwButton, UwIcon);
+import { Icon, Badge, Button } from "@upmind/upwind";
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -190,7 +190,7 @@ import { isNil, find, reject } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwSpinner },
+  components: { UpwSpinner, Icon, Badge, Button },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

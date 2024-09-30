@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'uw-drawer' : 'div'"
+    :is="modal ? 'Drawer' : 'div'"
     :modelValue="isOpen"
     size="xl"
     persistent
@@ -9,14 +9,14 @@
     skrim="light"
   >
     <section :class="styles.domain.empty.root">
-      <uw-avatar v-bind="avatar" />
+      <Avatar v-bind="avatar" />
 
       <h3 :class="styles.domain.empty.title">{{ title }}</h3>
 
       <p :class="styles.domain.empty.text">{{ text }}</p>
 
       <footer :class="styles.domain.empty.actions">
-        <uw-button
+        <Button
           v-if="hasAction"
           v-bind="action"
           @click.stop="doAction"
@@ -36,8 +36,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { UwAvatar, UwButton, UwDrawer, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwAvatar, UwButton, UwDrawer);
+import { Avatar, Button, Drawer } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
@@ -45,6 +44,11 @@ import { isEmpty, isFunction } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmDomainEmpty",
+  components: {
+    Avatar,
+    Button,
+    Drawer,
+  },
   props: {
     modal: { type: Boolean },
     title: { type: String },

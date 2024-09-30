@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="dialog ? 'uw-dialog' : 'section'"
+    :is="dialog ? 'Dialog' : 'section'"
     @reject="onClose"
     size="xl"
     :actions="actions"
@@ -9,7 +9,7 @@
     @update:modelValue="onClose"
     skrim="light"
   >
-    <upw-form
+    <UpwForm
       :class="styles.clientForm.root"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -38,13 +38,12 @@ import { UpwForm } from "@upmind/upwind";
 import { isEmpty, omit } from "lodash-es";
 
 // --- custom elements
-import { UwDialog, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwDialog);
+import { Dialog } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClientForm",
-  components: { UpwForm },
+  components: { UpwForm, Dialog },
   props: {
     modelValue: {
       type: Object, // xstate actor

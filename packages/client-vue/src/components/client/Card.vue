@@ -1,6 +1,6 @@
 <template>
   <article :class="styles.clientCard.root">
-    <upw-radio
+    <UpwRadio
       :model-value="!!selected"
       @input="onSelect"
       no-feedback
@@ -13,7 +13,7 @@
         <h4 :class="styles.clientCard.title">
           {{ title }}
 
-          <uw-badge
+          <Badge
             v-for="(badge, index) in badges"
             :key="`badge-${index}`"
             v-bind="badge"
@@ -34,7 +34,7 @@
     </div>
 
     <footer :class="styles.clientCard.actions">
-      <upw-dropdown
+      <UpwDropdown
         v-if="!noActions"
         toggle="navigation-menu-vertical"
         :toggle-rotate="false"
@@ -58,8 +58,7 @@ import config from "./config.cva";
 import { UpwRadio, UpwDropdown } from "@upmind/upwind";
 
 // --- custom elements
-import { UwBadge, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwBadge);
+import { Badge } from "@upmind/upwind";
 
 // --- utils
 import { useClipboard } from "@vueuse/core";
@@ -68,7 +67,7 @@ import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmClientCard",
-  components: { UpwRadio, UpwDropdown },
+  components: { Badge, UpwRadio, UpwDropdown },
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {

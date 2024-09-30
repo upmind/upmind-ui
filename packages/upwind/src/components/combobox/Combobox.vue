@@ -43,7 +43,7 @@
             v-if="meta.isProcessing"
           />
 
-          <UpwIcon
+          <Icon
             v-else-if="toggleIcon && items?.length"
             :icon="toggleIcon"
             :class="styles.combobox.toggle"
@@ -100,7 +100,7 @@
                   }}{{ itemCustomAppend }}
                 </em>
 
-                <UpwIcon
+                <Icon
                   v-if="selectedIcon"
                   :icon="selectedIcon"
                   :class="[
@@ -120,7 +120,7 @@
                 v-if="item?.as == 'separator'"
                 :class="styles.combobox.item.separator"
               >
-                <UpwIcon
+                <Icon
                   v-if="item.avatar"
                   :icon="item.avatar"
                   class="avatar"
@@ -128,7 +128,7 @@
                   aria-hidden="true"
                 />
 
-                <UpwIcon
+                <Icon
                   v-if="item.icon"
                   :icon="item.icon"
                   :class="styles.combobox.item.icon"
@@ -150,7 +150,7 @@
                 :disabled="item?.disabled"
               >
                 <li :class="styles.combobox.item.root">
-                  <UButton
+                  <Button
                     v-bind="item"
                     :prepend-avatar="item.avatar"
                     :prepend-icon="item.icon"
@@ -173,7 +173,7 @@
                     selected ? styles.combobox.item.selected : '',
                   ]"
                 >
-                  <UpwIcon
+                  <Icon
                     v-if="item.avatar"
                     :icon="item.avatar"
                     class="avatar"
@@ -181,7 +181,7 @@
                     aria-hidden="true"
                   />
 
-                  <UpwIcon
+                  <Icon
                     v-if="item.icon"
                     :icon="item.icon"
                     :class="styles.combobox.item.icon"
@@ -192,7 +192,7 @@
                     item[itemLabel]
                   }}</span>
 
-                  <UpwIcon
+                  <Icon
                     v-if="selectedIcon"
                     :icon="selectedIcon"
                     :class="[
@@ -230,8 +230,8 @@ import {
   ComboboxOption,
   ComboboxInput,
 } from "@headlessui/vue";
-import UButton from "../../ui/button/Button.ce.vue";
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
+import Button from "../../ui/button/Button.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
 import UpwInput from "../input/Input.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
@@ -272,8 +272,8 @@ export default defineComponent({
     UpwInput,
     UpwSpinner,
     // ---
-    UpwIcon,
-    UButton,
+    Icon,
+    Button,
   },
   props: {
     id: {

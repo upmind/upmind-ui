@@ -33,13 +33,13 @@
           {{ prependText }}
         </span>
 
-        <UpwAvatar
+        <Avatar
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           :avatar="prependAvatar"
         />
 
-        <UpwIcon
+        <Icon
           v-if="prependIcon"
           :class="styles.dropdown.icon"
           :icon="prependIcon"
@@ -66,13 +66,13 @@
           loading,
         }"
       >
-        <UpwIcon
+        <Icon
           v-if="appendIcon"
           :class="styles.dropdown.icon"
           :icon="appendIcon"
         />
 
-        <UpwAvatar
+        <Avatar
           v-if="appendAvatar"
           class="avatar"
           :class="styles.dropdown.avatar"
@@ -105,8 +105,8 @@ import { defineComponent, toRefs } from "vue";
 // --- components
 import { RouterLink } from "vue-router";
 import { MenuItem } from "@headlessui/vue";
-import UpwIcon from "../../ui/icon/Icon.ce.vue";
-import UpwAvatar from "../../ui/avatar/Avatar.ce.vue";
+import Icon from "../../ui/icon/Icon.ce.vue";
+import Avatar from "../../ui/avatar/Avatar.ce.vue";
 import UpwSpinner from "../spinner/Spinner.vue";
 
 // --- local
@@ -128,8 +128,8 @@ export default defineComponent({
   components: {
     RouterLink,
     HMenuItem: MenuItem,
-    UpwIcon,
-    UpwAvatar,
+    Icon,
+    Avatar,
     UpwSpinner,
   },
   props: {

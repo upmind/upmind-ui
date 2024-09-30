@@ -10,7 +10,7 @@
         :leave-to-class="styles.bannerTransitionLeave.to"
         appear
       >
-        <upm-message
+        <UpmMessage
           v-for="notification in notifications"
           :key="notification.id"
           :item="notification"
@@ -21,14 +21,14 @@
       </transition-group>
     </aside>
 
-    <uw-sonner
+    <Sonner
       position="bottom-right"
       close-button
       rich-colors
       :visible-toasts="6"
     />
 
-    <upm-track-event v-for="event in events" :key="event.id" :item="event" />
+    <UpmTrackEvent v-for="event in events" :key="event.id" :item="event" />
   </div>
 </template>
 
@@ -42,8 +42,7 @@ import { useStyles, toast } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UwSonner, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwSonner);
+import { Sonner } from "@upmind/upwind";
 import UpmMessage from "./Message.vue";
 import UpmTrackEvent from "./TrackEvent.vue";
 
@@ -55,6 +54,7 @@ import { forEach, some } from "lodash-es";
 export default defineComponent({
   name: "UpmFeedback",
   components: {
+    Sonner,
     UpmMessage,
     UpmTrackEvent,
   },

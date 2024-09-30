@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base text-base-content relative  flex flex-wrap items-stretch gap-6 rounded-lg border p-6 ",
+        "bg-base text-base-content relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6",
         {
           variants: {
             isProcessing: {
@@ -121,19 +121,22 @@ export default {
     },
 
     config: {
-      root: cva("bg-base text-base-content overflow-hidden rounded-lg border", {
-        variants: {
-          isDisabled: {
-            true: "pointer-events-none",
+      root: cva(
+        "bg-base text-base-content w-full overflow-hidden rounded-lg border",
+        {
+          variants: {
+            isDisabled: {
+              true: "pointer-events-none",
+            },
+            hasErrors: {
+              true: "border-error",
+            },
+            isNew: {
+              true: "border-accent",
+            },
           },
-          hasErrors: {
-            true: "border-error",
-          },
-          isNew: {
-            true: "border-accent",
-          },
-        },
-      }),
+        }
+      ),
 
       header: cva(
         "flex items-center justify-center gap-2  px-6 py-1 text-center text-sm",

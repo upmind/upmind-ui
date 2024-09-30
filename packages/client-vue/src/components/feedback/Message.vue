@@ -1,5 +1,5 @@
 <template>
-  <uw-alert
+  <Alert
     v-bind="message"
     :model-value="meta.isActive || (scheduled && meta.isScheduled)"
     :icon="message.icon"
@@ -21,8 +21,7 @@ import { defineComponent } from "vue";
 import { useMessage } from "@upmind/headless-vue";
 
 // custom elements
-import { UwAlert, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwAlert);
+import { Alert } from "@upmind/upwind";
 
 // --- utils
 import { useTimestamp } from "@vueuse/core";
@@ -33,6 +32,9 @@ import { endsWith, startsWith } from "lodash-es";
 
 export default defineComponent({
   name: "UpmMessage",
+  components: {
+    Alert,
+  },
   props: {
     item: {
       type: Object, // xstate actor

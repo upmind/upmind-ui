@@ -2,11 +2,11 @@
   <div :class="styles.domain.root">
     <!-- loader -->
 
-    <upw-skeleton-list v-if="meta.isLoading" :rows="3" />
+    <UpwSkeletonList v-if="meta.isLoading" :rows="3" />
 
     <template v-else>
       <!-- type -->
-      <upw-radio-list
+      <UpwRadioList
         :class="styles.domain.choices"
         v-if="meta.showChoices"
         :items="i18nChoices"
@@ -16,7 +16,7 @@
 
       <!-- register/transfer -->
       <template v-if="meta.showDac">
-        <upm-dac
+        <UpmDac
           :complete="meta.showPrimaryDomain"
           :continue="meta.showContinue"
           :items="available"
@@ -37,7 +37,7 @@
       </template>
 
       <!-- existing -->
-      <uw-combobox
+      <Combobox
         v-else-if="meta.showExisting"
         :class="styles.domain.existing"
         :errors="errors"
@@ -53,7 +53,7 @@
 
       <!-- basket -->
 
-      <upm-domain-values
+      <UpmDomainValues
         v-if="meta.showBasket"
         :model-value="selected"
         :items="basket"
@@ -80,8 +80,6 @@ import UpmDomainValues from "./Values.vue";
 import { UpwRadioList, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
-import { UwAlert, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwAlert);
 
 // --- utils
 import { debounce, map } from "lodash-es";
