@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, unref, toRaw } from "vue";
+import { computed, unref, toRaw } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -15,17 +15,14 @@ import {
 
 import { isEqual, isFunction } from "lodash-es";
 
-// --- types
-import type { ActorRef } from "xstate";
-
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketPaymentGateway = (actor?: ActorRef<any, any>) => {
+export const useBasketPaymentGateway = () => {
   const payment_details = useBasketPaymentDetails();
-  const payment_gateway = actor ? ref(actor) : payment_details.gateway; // payment details provides a computed gateway we can use
-
+  const payment_gateway = payment_details.gateway; // payment details provides a computed gateway we can use
+  debugger;
   // --------------------------------------------------------
 
   return {

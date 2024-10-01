@@ -41,7 +41,12 @@ import {
 import { calculateSubscription } from "./services";
 
 // ---types
-import type { ProductConfigContext, ProductConfigEvent } from "./types";
+import type {
+  ProductConfigContext,
+  ProductConfigEvent,
+  IProductModel,
+  IProductConfig,
+} from "./types";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default createMachine(
@@ -462,23 +467,26 @@ export default createMachine(
         }
       ),
 
-      setBasketHelper: assign(({ basketHelper }: any) => {
+      setBasketHelper: assign(({ basketHelper }: ProductConfigContext) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: (item: any) => parseModel(item),
-          itemMapper: (item: any) => ({ id: item.id }),
-          basketItemBuilder: (item: any) => buildBasketItem(item),
-          basketItemMapper: (item: any) => ({
+          itemBuilder: (item: IProductModel) => parseModel(item),
+          itemMapper: (item: IProductConfig) => ({ id: item.id }),
+          basketItemBuilder: (item: IProductModel) => buildBasketItem(item),
+          basketItemMapper: (item: IProductConfig) => ({
             id: item.id,
           }),
-        };
+        } as Partial<ProductConfigContext>;
       }),
       // ---
 
       setLookups: assign({
-        raw: (_context, { data }: any) => data.product,
+        raw: (_context, { data }: ProductConfigEvent) => data.product,
 
-        lookups: ({ model, basket_product }: any, { data }) => {
+        lookups: (
+          { model, basket_product }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           return {
             product: parseProduct(data.product, basket_product),
             terms: parseTerms(data.product.prices, data.promotion_display_type),
@@ -499,15 +507,18 @@ export default createMachine(
       }),
 
       setBaseModel: assign({
-        baseModel: ({ model }: any, _event) => cloneDeep(model),
+        baseModel: ({ model }: ProductConfigContext, _event) =>
+          cloneDeep(model),
       }),
       setModel: assign({
-        model: (_context, { data }: any) => parseModel(data?.product),
+        model: (_context, { data }: ProductConfigEvent) =>
+          parseModel(data?.product),
       }),
 
       // restroring the model + errors to its prev state
       resetModel: assign({
-        model: ({ baseModel }: any, _event) => cloneDeep(baseModel),
+        model: ({ baseModel }: ProductConfigContext, _event) =>
+          cloneDeep(baseModel),
         error: ({ error, errorExternal }, _event) =>
           merge({}, error, errorExternal),
       }),
@@ -515,7 +526,10 @@ export default createMachine(
       // ---
 
       setSummary: assign({
-        summary: ({ model, lookups, error }: any, { data }) =>
+        summary: (
+          { model, lookups, error }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) =>
           parseSummary({
             summary: data,
             model,
@@ -525,13 +539,13 @@ export default createMachine(
       }),
 
       setSummaryCalculating: assign({
-        summary: ({ summary }: any, _event) => {
+        summary: ({ summary }: ProductConfigContext, _event) => {
           set(summary, "isCalculating", true);
           return summary;
         },
       }),
       clearSummaryCalculating: assign({
-        summary: ({ summary }: any, _event) => {
+        summary: ({ summary }: ProductConfigContext, _event) => {
           set(summary, "isCalculating", false);
           return summary;
         },
@@ -539,7 +553,10 @@ export default createMachine(
 
       calculate: sendTo(
         ({ calculateCallback }, _event) => calculateCallback,
-        ({ currency_id, prices, model, lookups }: any, _event) => ({
+        (
+          { currency_id, prices, model, lookups }: ProductConfigContext,
+          _event
+        ) => ({
           type: "CALCULATE",
           data: { currency_id, prices, model, lookups },
         })
@@ -547,7 +564,10 @@ export default createMachine(
 
       //  ---
       setQuantity: assign({
-        model: ({ model }: any, { data }) => {
+        model: (
+          { model }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
           set(model, "quantity", Math.max(1, quantity)); //TODO: min check? step check
           return model;
@@ -555,12 +575,15 @@ export default createMachine(
       }),
 
       setTerm: assign({
-        model: ({ model }: any, { data }) => {
+        model: (
+          { model }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           const term = get(data, "term");
           set(model, "term", term);
           return model;
         },
-        lookups: ({ lookups, raw }, { data }) => {
+        lookups: ({ lookups, raw }, { data }: ProductConfigEvent) => {
           // reset the lookup options options based on the term selected,
           //  as this may impact what price and options are available
           const billing_cycle_months = get(data, "term.billing_cycle_months");
@@ -572,43 +595,64 @@ export default createMachine(
           );
           return lookups;
         },
-        prices: ({ prices }, { data }: any) => {
+        prices: (
+          { prices }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           if (!data?.price) return prices;
           return { ...prices, term: data.price };
         },
       }),
 
       setAttributes: assign({
-        model: ({ model }: any, { data }) => {
+        model: (
+          { model }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           const attributes = get(data, "attributes");
           set(model, "attributes", attributes);
           return model;
         },
-        prices: ({ prices }: any, { data }: any) => {
+        prices: (
+          { prices }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           if (!data?.price) return prices;
           return { ...prices, attributes: data.price };
         },
       }),
 
       setOptions: assign({
-        model: ({ model }: any, { data }) => {
+        model: (
+          { model }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           const options = get(data, "options");
           set(model, "options", options);
           return model;
         },
-        prices: ({ prices }, { data }: any) => {
+        prices: (
+          { prices }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           if (!data?.price) return prices;
           return { ...prices, options: data.price };
         },
       }),
 
       setProvisioning: assign({
-        model: ({ model }: any, { data }) => {
+        model: (
+          { model }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           const provision_fields = get(data, "provision_fields");
           set(model, "provision_fields", provision_fields);
           return model;
         },
-        error: ({ error }: any, { data }) => {
+        error: (
+          { error }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
@@ -633,8 +677,14 @@ export default createMachine(
       // ---
 
       setError: assign({
-        errorExternal: (_context, { data }: any) => data?.error,
-        error: ({ error }: any, { data }) => {
+        errorExternal: (
+          _context: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => data?.error,
+        error: (
+          { error }: ProductConfigContext,
+          { data }: ProductConfigEvent
+        ) => {
           let err = data?.error;
 
           if (!err) return error;
@@ -650,32 +700,6 @@ export default createMachine(
           return merge({}, error, err);
         },
       }),
-
-      // setProvisioningErrors: assign({
-      //   error: ({ error, errorExternal }, { data }) => {
-      //     const cleanedError = merge({}, error, errorExternal);
-
-      //     // lets parse/override our error message and data, specifically external errors.
-      //     // For any dirty/hydrated field, remove any external error to allow for normal validation
-      //     // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-      //     const provision_fields = get(data, "provision_fields");
-
-      //     if (!cleanedError?.provision_fields?.data?.length)
-      //       return cleanedError;
-
-      //     forEach(provision_fields, (field, key) => {
-      //       if (!isNil(field)) {
-      //         remove(cleanedError.provision_fields.data, ["schemaPath", key]);
-      //       }
-      //     });
-
-      //     // housekeeping, if we have no cleanedErrors, remove the provision_fields key
-      //     if (isEmpty(cleanedError?.provision_fields?.data))
-      //       unset(cleanedError, "provision_fields");
-
-      //     return cleanedError;
-      //   },
-      // }),
 
       clearError: assign({
         error: {},

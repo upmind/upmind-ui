@@ -1,5 +1,7 @@
 // --- external
 import { computed, toRef, watch } from "vue";
+import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 
@@ -19,12 +21,15 @@ import {
   forEach,
 } from "lodash-es";
 
+// --- types
+import type { ActorRef } from "xstate";
+
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useProductConfig = (actor: any) => {
-  const { state, send } = actor;
+export const useProductConfig = (service: ActorRef<any, any>) => {
+  const { state, send } = useActor(service);
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
   // syntactic sugar
@@ -80,41 +85,37 @@ export const useProductConfig = (actor: any) => {
   // --------------------------------------------------------
 
   // --- QUANTITY
-  const updateQuantity = (value?: number) => {
+  const updateQuantity = async (value?: number) => {
     send({
       type: "SET.QUANTITY",
       data: {
         quantity: value || model.value.quantity,
       },
     });
+
+    return waitFor(service, state => state.matches("available.configured"));
   };
 
-  function incrementQuantity() {
+  async function incrementQuantity() {
     // sanity check
     if (!lookups.value.product?.canChangeQuantity) return;
 
     const qty = get(model.value, "quantity", 0);
-    set(
-      model.value,
-      "quantity",
-      add(qty, lookups.value.product?.unit_quantity || 1)
-    );
+
     // emit the event
-    updateQuantity();
+    return updateQuantity(add(qty, lookups.value.product?.unit_quantity || 1));
   }
 
-  function decrementQuantity() {
+  async function decrementQuantity() {
     // sanity check
     if (!lookups.value.product?.canChangeQuantity) return;
 
     const qty = get(model.value, "quantity", 0);
-    set(
-      model.value,
-      "quantity",
+
+    // emit the event
+    return updateQuantity(
       subtract(qty, lookups.value.product?.unit_quantity || 1)
     );
-    // emit the event
-    updateQuantity();
   }
 
   // --- TERMS

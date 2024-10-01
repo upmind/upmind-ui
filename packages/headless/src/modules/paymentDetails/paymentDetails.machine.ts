@@ -15,6 +15,7 @@ import { useSchema, useUischema } from "./utils";
 import { set, unset, forEach } from "lodash-es";
 
 // --- types
+import type { ActorRef } from "xstate";
 import type { PaymentDetailsContext, RefreshEvent } from "./types";
 import { responseCodes } from "../api";
 
@@ -325,7 +326,7 @@ export default createMachine(
           };
         },
         actors: ({ actors }, { data: basket }: any) => {
-          forEach(actors, (actor: any) => {
+          forEach(actors, (actor: ActorRef<any, any>) => {
             if (actor?.send && !actor?.state?.done) {
               actor.send({
                 type: "REFRESH",
@@ -374,7 +375,7 @@ export default createMachine(
 
       // @ts-ignore
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
-        forEach(actors, (actor: any) => {
+        forEach(actors, (actor: ActorRef<any, any>) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }

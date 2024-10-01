@@ -1,5 +1,8 @@
 // --- extrnal
 
+// --- types
+import type { RequestError } from "..//api/types";
+import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 
@@ -20,7 +23,7 @@ export interface Basket {
   brand_id: string; //IBrand["id"];
   category: string; //IBasketCategory;
   category_id: string; // IBasketCategory["id"];
-  client: Object; //IClient;
+  client: IClient;
   client_id: string; //IClient["id"];
   company_id: null | string; //ICompany["id"];
   consolidation_invoice_id: null | string; //IInvoice["id"];
@@ -32,7 +35,7 @@ export interface Basket {
   credited: number;
   currency: Object; //ICurrency;
   currency_id: string; //ICurrency["id"];
-  custom_fields: Array; //ICustomFieldValue[];
+  custom_fields: any[]; //ICustomFieldValue[];
   deleted_at: string | number;
   due_date: string;
   gateway_id: string; //IGateway["id"];
@@ -77,9 +80,9 @@ export interface Basket {
   user_id: string; //IUser["id"];
   tax_amount: number;
   tax_amount_formatted: string;
-  taxes: Array; //IAppliedTax[];
+  taxes: any[]; //IAppliedTax[];
   ip: string;
-  warning_notes: Array; //IWarningNote[];
+  warning_notes: any[]; //IWarningNote[];
 }
 
 // --------------------------------------------------------
@@ -89,19 +92,18 @@ export interface BasketContext {
   basket?: Basket;
   invoice?: Object;
   // ---
-  items?: Array; // Array of actors
-  bin?: Array;
-  queue?: Array;
+  items?: ActorRef<any, any>[]; // Array of actors
+
   error?: RequestError;
   controller?: AbortController;
   summary?: Object;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    billing_details?: Object;
-    currency?: Object;
-    custom_fields?: Object;
-    payment_details?: Object;
-    promotions?: Object;
+    billing_details?: ActorRef<any, any>;
+    currency?: ActorRef<any, any>;
+    custom_fields?: ActorRef<any, any>;
+    payment_details?: ActorRef<any, any>;
+    promotions?: ActorRef<any, any>;
   };
   // --- Payments
   paymentDetails?: Object;

@@ -1,3 +1,8 @@
+// --- types
+import type { ActorRef } from "xstate";
+
+import type { RequestError } from "../api/types";
+
 // --------------------------------------------------------
 // ENUMS
 
@@ -6,7 +11,6 @@
 
 export interface ProductConfigContext {
   id: string;
-  basket_id: string; //IBasket["id"];
   client_id: string; //IClient["id"];
   currency_id: IProductPrice["currency_id"];
   promotions: IProductPromotion[];
