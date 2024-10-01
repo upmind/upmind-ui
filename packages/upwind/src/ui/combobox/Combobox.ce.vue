@@ -47,7 +47,7 @@
             <CommandItem
               v-for="item in items"
               :key="item.value"
-              :value="item"
+              :value="item.value"
               @select="handleSelect(item)"
               class="group flex cursor-pointer items-center justify-between"
               :class="variants.item"
@@ -59,7 +59,6 @@
                   size="xxxs"
                   class="mr-2"
                 />
-
                 <span class="mt-[1px] leading-none">{{ item.label }}</span>
               </div>
 
