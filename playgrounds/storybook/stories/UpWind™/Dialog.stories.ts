@@ -185,7 +185,7 @@ export const Hero: Story = {
               <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
 
               <DialogClose>
-                <Button label="Get Started for free" appendIcon="arrow-right" :block="true"/>
+                <Button label="Get Started for free" appendIcon="arrow-right" :block/>
               <DialogClose />
             </div>
           </div>

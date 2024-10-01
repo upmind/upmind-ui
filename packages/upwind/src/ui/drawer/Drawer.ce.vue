@@ -18,7 +18,7 @@
           <DrawerClose v-if="showClose">
             <slot name="close">
               <!-- Shorthand block not working? -->
-              <Button label="Close" :block="true" />
+              <Button label="Close" block />
             </slot>
           </DrawerClose>
         </DrawerFooter>
