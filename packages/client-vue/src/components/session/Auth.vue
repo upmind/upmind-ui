@@ -14,7 +14,7 @@
       "
     />
 
-    <upw-form
+    <UpwForm
       :key="active"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
@@ -28,7 +28,7 @@
       :class="styles.session.auth.form"
       :actions="authActions"
     >
-    </upw-form>
+    </UpwForm>
   </div>
   <Button variant="ghost" block type="reset" @click.prevent="logout" v-else>
     logout
@@ -140,18 +140,6 @@ export default defineComponent({
       // }
 
       return actions;
-    },
-    tabs() {
-      return [
-        {
-          value: "register",
-          label: this.$t("auth.register"),
-        },
-        {
-          value: "login",
-          label: this.$t("auth.login"),
-        },
-      ];
     },
   },
   methods: {

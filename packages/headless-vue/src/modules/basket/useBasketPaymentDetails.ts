@@ -59,6 +59,7 @@ export const useBasketPaymentDetails = (actor?: ActorRef<any, any>) => {
       isProcessing: stateMatches(payment_details, ["checking", "processing"]),
       isValid: stateMatches(payment_details, ["valid"]),
       isDirty: contextMatches(payment_details, ["dirty"]),
+      hasGateway: contextMatches(payment_details, ["actors.gateway"]),
       isComplete:
         !contextValue(payment_details, "model.amount") ||
         stateValue(payment_details, "done", false) ||
@@ -68,6 +69,7 @@ export const useBasketPaymentDetails = (actor?: ActorRef<any, any>) => {
     model: computed(() => contextValue(payment_details, "model")),
     schema: computed(() => contextValue(payment_details, "schema")),
     uischema: computed(() => contextValue(payment_details, "uischema")),
+    gateways: computed(() => contextValue(payment_details, "gateways")),
     gateway: computed(() => contextActor(payment_details, "actors.gateway")),
 
     // ---

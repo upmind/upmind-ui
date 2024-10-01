@@ -76,7 +76,7 @@ export const MockedAsyncAction: Story = {
         :description="seconds + ' seconds remaining'"
         :showClose="false"
       >
-        <Button @click="start" :loading="loading" block="true">Begin</Button>
+        <Button @click="start" :loading="loading" block>Begin</Button>
       </Drawer>
     `,
   }),
