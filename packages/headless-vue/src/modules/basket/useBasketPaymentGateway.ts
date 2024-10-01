@@ -22,7 +22,6 @@ import { isEqual, isFunction } from "lodash-es";
 export const useBasketPaymentGateway = () => {
   const payment_details = useBasketPaymentDetails();
   const payment_gateway = payment_details.gateway; // payment details provides a computed gateway we can use
-  debugger;
   // --------------------------------------------------------
 
   return {
