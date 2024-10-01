@@ -1,6 +1,9 @@
 // --- external
 import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
 
+// --- internal
+import type { RequestError } from "../../api/types";
+
 // ---
 // Contexts
 

@@ -14,12 +14,13 @@ import {
   stateMatches,
   useChildActor,
   useContext,
-  useContextActor,
   useState,
 } from "../../utils";
 import { some, filter } from "lodash-es";
 import type { IProductModel } from "../../../../headless/src/modules/product/types";
 
+// --- types
+import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 
 // --------------------------------------------------------
@@ -184,13 +185,13 @@ export const useBasket: any = () => {
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    items: useContextActor(state, "items", []),
+    items: useContext(state, "items", []),
     itemsPending: computed(() => {
-      const items = contextActor(state, "items", []);
+      const items = contextValue(state, "items", []);
       return filter(items, item => !contextMatches(item, ["basket_product"]));
     }),
     itemsInvalid: computed(() => {
-      const items = contextActor(state, "items", []);
+      const items = contextValue(state, "items", []);
       return filter(
         items,
         item =>
@@ -199,7 +200,7 @@ export const useBasket: any = () => {
       );
     }),
     itemsConfigured: computed(() => {
-      const items = contextActor(state, "items", []);
+      const items = contextValue(state, "items", []);
       return filter(
         items,
         item =>
@@ -222,15 +223,7 @@ export const useBasket: any = () => {
     checkout,
     // ---
     // Item Methods
-    async addItem(
-      model: IProductModel,
-      { awaitStates = ["available.configured"] }: { awaitStates?: string[] }
-    ) {
-      return addItem(model, { awaitStates }).then(item => {
-        const actor = useActor(item);
-        return { id: item.id, ...actor };
-      });
-    },
+    addItem,
     updateItem,
     removeItem,
   };

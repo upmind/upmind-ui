@@ -37,9 +37,9 @@ import {
 } from "lodash-es";
 
 // --- types
+import type { ActorRef } from "xstate";
 import type { BasketContext, BasketEvent } from "./types";
 import { responseCodes } from "../api";
-
 import { PaymentTypes } from "../paymentDetails/types";
 import { GatewayTypes } from "../paymentDetails/gateways/types";
 
@@ -499,7 +499,7 @@ export default createMachine(
           return [];
         },
         actors: ({ actors }) => {
-          forEach(actors, (actor: any) => {
+          forEach(actors, (actor: ActorRef<any, any>) => {
             if (!actor?.state?.done && actor?.stop) actor.stop();
           });
           return {
@@ -557,7 +557,7 @@ export default createMachine(
 
       // @ts-ignore
       refreshActors: pure(({ basket, actors }) => {
-        forEach(actors, (actor: any) => {
+        forEach(actors, (actor: ActorRef<any, any>) => {
           if (actor?.send && !actor?.state?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }

@@ -1,11 +1,11 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
+// --- internal
+import type { RequestError } from "../../api/types";
+
 // --- types
-import type { IGateway } from "@/modules/payment/types";
-import type { ICurrency } from "@/modules/system/types";
-import type { GatewayTypes } from "../services";
-import type { GatewayContext } from "./types";
+import type { ICurrency } from "../../system/types";
 
 // --------------------------------------------------------
 // ENUMS

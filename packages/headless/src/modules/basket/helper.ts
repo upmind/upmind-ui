@@ -2,7 +2,6 @@
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-// import type { ActorRef } from "xstate";
 import { useBasket } from ".";
 import productServices from "./items/services";
 
@@ -17,6 +16,8 @@ import {
   pickBy,
   reduce,
 } from "lodash-es";
+
+// --- types
 import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
@@ -73,8 +74,8 @@ async function add(
   item: any,
   context: any,
   basket: any
-): Promise<ActorRef<any, any>> {
-  if (isEmpty(item)) return Promise.resolve();
+): Promise<ActorRef<any, any> | null> {
+  if (isEmpty(item)) return Promise.resolve(null);
 
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
@@ -125,12 +126,16 @@ async function sync(items: any, context: any, basket: any) {
   const promises = isEmpty(items)
     ? [Promise.resolve([])]
     : map(items, item =>
-        add(item, context, basket).then(async actor => {
-          await waitFor(actor, actorState =>
-            actorState.matches("available.configured")
-          );
-          return actor;
-        })
+        add(item, context, basket).then(
+          async (actor: ActorRef<any, any> | null) => {
+            if (!actor) return Promise.resolve(null);
+
+            await waitFor(actor, actorState =>
+              actorState.matches("available.configured")
+            );
+            return actor;
+          }
+        )
       );
 
   // then update the basket

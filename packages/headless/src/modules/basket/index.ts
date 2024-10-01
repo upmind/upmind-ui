@@ -1,4 +1,5 @@
 // --- external
+import type { ActorRef } from "xstate";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -6,7 +7,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import { every, find, get, some, omitBy, isEmpty } from "lodash-es";
+import { every, find, get, some, omitBy, isEmpty, isFunction } from "lodash-es";
 import { responseCodes } from "../api";
 
 // --- types
@@ -35,8 +36,9 @@ const exists = (items = [], mapping: any, context = null) => {
   );
 };
 
-const sendToItem = (itemId: any, type: any, data: any) => {
+const sendToItem = async (itemId: any, type: any, data: any) => {
   const item = find(service.getSnapshot()?.context?.items, ["id", itemId]);
+
   if (item) {
     item.send({ type, data });
     return Promise.resolve(item);
@@ -94,20 +96,15 @@ export const useBasket = () => {
         "state.context.model"
       ),
 
-    addItem: async (
-      {
-        id,
-        product_id,
-        quantity,
-        term,
-        attributes,
-        options,
-        provision_fields,
-      }: IProductModel,
-      {
-        awaitStates = ["available.configured"],
-      }: { awaitStates?: Array<string> } = {}
-    ) => {
+    addItem: async ({
+      id,
+      product_id,
+      quantity,
+      term,
+      attributes,
+      options,
+      provision_fields,
+    }: IProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
         // lets add the new product base don the provided config to the basket
@@ -146,7 +143,7 @@ export const useBasket = () => {
               })
             );
           }
-        );
+        ) as ActorRef<any, any>;
       });
     },
 

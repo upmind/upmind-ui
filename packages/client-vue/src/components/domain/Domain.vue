@@ -37,7 +37,7 @@
       </template>
 
       <!-- existing -->
-      <Combobox
+      <UpwCombobox
         v-else-if="meta.showExisting"
         :class="styles.domain.existing"
         :errors="errors"
@@ -77,9 +77,7 @@ import config from "./config.cva";
 // --- components
 import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
-import { UpwRadioList, UpwSkeletonList } from "@upmind/upwind";
-
-// --- custom elements
+import { UpwRadioList, UpwSkeletonList, UpwCombobox } from "@upmind/upwind";
 
 // --- utils
 import { debounce, map } from "lodash-es";
@@ -90,6 +88,7 @@ import { debounce, map } from "lodash-es";
 export default defineComponent({
   name: "UpmDomain",
   components: {
+    UpwCombobox,
     UpwRadioList,
     UpmDac,
     UpmDomainValues,

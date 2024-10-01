@@ -1,5 +1,8 @@
 // --- extrnal
 
+// --- internal
+import type { RequestError } from "..//api/types";
+
 // --------------------------------------------------------
 // ENUMS
 

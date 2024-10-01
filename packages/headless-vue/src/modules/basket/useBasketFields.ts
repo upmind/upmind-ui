@@ -1,5 +1,6 @@
 // --- external
 import { computed, ref, unref, toRaw } from "vue";
+import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -23,18 +24,20 @@ import type { ActorRef } from "xstate";
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketFields = (actor?: ActorRef<any, any>) => {
-  const { service, getSnapshot } = useBasket();
-  const custom_fields = ref(actor);
+export const useBasketFields = (service?: ActorRef<any, any>) => {
+  const { service: basket } = useBasket();
+  const custom_fields = ref();
 
-  if (!actor) {
+  if (!service) {
     waitFor(
-      service,
+      basket,
       newstate => contextMatches(newstate, ["actors.custom_fields"]),
       { timeout: Infinity }
     ).then(validState => {
       custom_fields.value = contextActor(validState, "actors.custom_fields");
     });
+  } else {
+    custom_fields.value = useActor(service);
   }
 
   // --------------------------------------------------------
