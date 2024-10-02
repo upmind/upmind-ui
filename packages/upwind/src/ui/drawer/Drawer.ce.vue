@@ -10,7 +10,6 @@
       :classOverlay="variants.drawer.overlay"
     >
       <DrawerHeader
-        :class="props.classHeader"
         v-if="
           $slots.header ||
           title ||
@@ -19,33 +18,51 @@
           $slots.description
         "
       >
-        <slot name="header">
-          <DrawerTitle v-if="title || $slots.title" v-bind="forwarded">
-            <slot name="title">{{ title }}</slot>
-          </DrawerTitle>
-          <DrawerDescription
-            v-if="description || $slots.description"
-            v-bind="forwarded"
-          >
-            <slot name="description">{{ description }}</slot>
-          </DrawerDescription>
-        </slot>
+        <div :class="cn(variants.drawer.container, props.classHeader)">
+          <slot name="header">
+            <DrawerTitle v-if="title || $slots.title" v-bind="forwarded">
+              <slot name="title">{{ title }}</slot>
+            </DrawerTitle>
+            <DrawerDescription
+              v-if="description || $slots.description"
+              v-bind="forwarded"
+            >
+              <slot name="description">{{ description }}</slot>
+            </DrawerDescription>
+          </slot>
+        </div>
       </DrawerHeader>
 
       <div
-        :class="cn('max-h-[75vh] overflow-auto p-4 pb-0', props.classContent)"
+        :class="
+          cn(
+            variants.drawer.inner,
+            variants.drawer.container,
+            props.classContent
+          )
+        "
       >
         <slot />
       </div>
 
-      <DrawerFooter :class="props.classFooter">
-        <slot name="footer" />
+      <DrawerFooter>
+        <div
+          :class="
+            cn(
+              'flex flex-col gap-2',
+              variants.drawer.container,
+              props.classFooter
+            )
+          "
+        >
+          <slot name="footer" />
 
-        <DrawerClose v-if="$slots.close" @click="forceClose">
-          <slot name="close" />
-        </DrawerClose>
+          <DrawerClose v-if="$slots.close" @click="forceClose">
+            <slot name="close" />
+          </DrawerClose>
 
-        <slot name="actions" />
+          <slot name="actions" />
+        </div>
       </DrawerFooter>
     </DrawerContent>
   </Drawer>
@@ -80,15 +97,19 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   title: "",
   description: "",
   // --- variants
-  size: "md",
+  size: "app",
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
   // --- styles
   upwindConfig: () => ({
     drawer: {
+      container: {},
       content: {},
       overlay: {},
+      inner: {},
+      header: [],
+      footer: [],
     },
   }),
   class: "",
@@ -111,7 +132,16 @@ const variants = useStyles(
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ drawer: { content: string; overlay: string } }>;
+) as ComputedRef<{
+  drawer: {
+    container: string;
+    overlay: string;
+    content: string;
+    inner: string;
+    header: string;
+    footer: string;
+  };
+}>;
 
 // --- state
 const isOpen = ref(props.open);

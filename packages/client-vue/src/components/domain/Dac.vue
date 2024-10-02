@@ -12,9 +12,8 @@
   </div>
   <Drawer
     v-else
-    fit="cover"
     persistent
-    size="full"
+    fit="cover"
     open
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
