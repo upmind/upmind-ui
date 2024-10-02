@@ -21,10 +21,12 @@ export interface ComboboxProps {
   loading?: boolean;
   searchMessage?: string;
   emptyMessage?: string;
+  hideLabel?: boolean;
   // --- variants
   width?: ButtonVariantProps["width"];
   color?: ItemVariantProps["color"];
   // --- styles
   upwindConfig?: { alert: Partial<ComboboxProps> };
   class?: HTMLAttributes["class"];
+  popoverClass?: HTMLAttributes["class"];
 }
