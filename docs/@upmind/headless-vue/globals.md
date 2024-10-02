@@ -26,7 +26,7 @@
 | [useBasketPaymentDetails](functions/useBasketPaymentDetails.md) | - |
 | [useBasketPaymentGateway](functions/useBasketPaymentGateway.md) | - |
 | [useBasketPromotions](functions/useBasketPromotions.md) | - |
-| [useBrand](functions/useBrand.md) | - |
+| [useBrand](functions/useBrand.md) | A composable that provides a simplified interface for interacting with the Brand API state machine. It uses the `useUpmindBrand` composable to access the state machine service and provides helpers for managing state, sending events, and accessing context data and errors. |
 | [useClientAddress](functions/useClientAddress.md) | - |
 | [useClientAddresses](functions/useClientAddresses.md) | - |
 | [useClientCompanies](functions/useClientCompanies.md) | - |
