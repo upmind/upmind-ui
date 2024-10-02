@@ -33,7 +33,7 @@ export default {
         root: cva("m-0 items-end"),
         ownership: cva("font-semibold"),
         icon: cva(
-          "bg-accent text-accent-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+          "bg-accent text-accent-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
@@ -46,7 +46,7 @@ export default {
         ownership: cva("font-semibold"),
         tld: cva("uppercase not-italic"),
         icon: cva(
-          "bg-accent text-accent-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+          "bg-accent text-accent-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
@@ -58,7 +58,7 @@ export default {
         ownership: cva("font-medium"),
         tld: cva("uppercase not-italic"),
         icon: cva(
-          "bg-primary text-primary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+          "bg-primary text-primary-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
         price: cva("m-0 text-lg font-semibold not-italic tracking-wide"),
@@ -70,7 +70,7 @@ export default {
         ownership: cva("font-normal"),
         tld: cva("uppercase not-italic"),
         icon: cva(
-          "bg-secondary text-secondary-content inline-flex size-5 items-center justify-center rounded-full p-0.5"
+          "bg-secondary text-secondary-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
