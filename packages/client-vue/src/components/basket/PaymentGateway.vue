@@ -101,7 +101,7 @@ export default defineComponent({
           props.variant ||
           meta.value?.hasRenderer ||
           meta.value?.hasInstructions
-            ? "outlined"
+            ? "outline"
             : "",
       })),
       config

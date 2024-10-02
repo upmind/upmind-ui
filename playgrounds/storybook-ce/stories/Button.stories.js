@@ -29,7 +29,7 @@ export default {
         labels: {
           flat: "Flat",
           ghost: "Ghost",
-          outline: "Outline",
+          outline: "Outlined",
           link: "Link",
           tonal: "Tonal",
         },

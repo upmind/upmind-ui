@@ -1,35 +1,49 @@
 <template>
-  <Drawer v-bind="forwarded">
-    <DrawerTrigger>
+  <Drawer v-bind="forwarded" v-model:open="isOpen">
+    <DrawerTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DrawerTrigger>
-    <DrawerContent v-bind="forwarded">
-      <div :class="cn(variants.container, props.class)">
-        <DrawerHeader>
+
+    <DrawerContent
+      v-bind="forwarded"
+      :class="cn(variants.drawer.container, props.class)"
+      :classOverlay="variants.drawer.overlay"
+    >
+      <DrawerHeader
+        :class="props.classHeader"
+        v-if="$slots.header || title || description"
+      >
+        <slot name="header">
           <DrawerTitle>{{ title }}</DrawerTitle>
           <DrawerDescription>{{ description }}</DrawerDescription>
-        </DrawerHeader>
-        <div class="p-4 pb-0">
-          <slot />
-        </div>
-        <DrawerFooter>
-          <slot name="footer" />
+        </slot>
+      </DrawerHeader>
 
-          <DrawerClose v-if="showClose">
-            <slot name="close">
-              <!-- Shorthand block not working? -->
-              <Button label="Close" block />
-            </slot>
-          </DrawerClose>
-        </DrawerFooter>
+      <div
+        :class="cn('max-h-[75vh] overflow-auto p-4 pb-0', props.classContent)"
+      >
+        <slot />
       </div>
+
+      <DrawerFooter :class="props.classFooter">
+        <slot name="footer" />
+
+        <DrawerClose v-if="$slots.close">
+          <slot name="close">
+            <!-- Shorthand block not working? -->
+            <Button label="Close" block />
+          </slot>
+        </DrawerClose>
+
+        <slot name="actions" />
+      </DrawerFooter>
     </DrawerContent>
   </Drawer>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
 
 // --- internal
@@ -53,27 +67,46 @@ import { DrawerTrigger, DrawerClose } from "vaul-vue";
 
 const props = withDefaults(defineProps<DrawerProps>(), {
   // --- props
+  open: false,
   title: "",
   description: "",
-  showClose: true,
+
   // --- variants
-  maxWidth: "md",
+  size: "md",
+  skrim: "dark",
   // --- styles
-  upwindConfig: () => ({ alert: {} }),
+  upwindConfig: () => ({
+    drawer: {
+      container: {},
+      overlay: {},
+    },
+  }),
   class: "",
+  classHeader: "",
+  classContent: "",
+  classFooter: "",
 });
 
 const emits = defineEmits<DrawerRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
-  maxWidth: props.maxWidth,
+  size: props.size,
+  skrim: props.skrim,
 }));
 
 const variants = useStyles(
-  "container",
+  ["drawer"],
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ container: string }>;
+) as ComputedRef<{ drawer: { container: string; overlay: string } }>;
+
+// --- state
+const isOpen = ref(props.open);
+
+watch(
+  () => props.open,
+  value => (isOpen.value = value)
+);
 </script>

@@ -17,7 +17,7 @@ export default {
     }),
 
     wrapper: cva(
-      "group flex min-h-full w-full items-start items-center rounded-lg ring-0",
+      "group flex min-h-full w-full items-center rounded-lg ring-0",
       {
         variants: {
           variant: {

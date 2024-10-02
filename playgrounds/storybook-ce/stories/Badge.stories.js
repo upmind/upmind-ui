@@ -22,7 +22,7 @@ export default {
         type: "select",
         labels: {
           flat: "Flat",
-          outline: "Outline",
+          outline: "Outlined",
           tonal: "Tonal",
         },
       },

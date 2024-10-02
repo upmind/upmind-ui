@@ -169,7 +169,7 @@ export const useDomain: any = (
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),
 
-      showContinue:
+      isValid:
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
         ) && !!state.value.context?.model?.length,

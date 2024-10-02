@@ -3,27 +3,27 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "focus-visible:ring-ring relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
+  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
         flat: "border-transparent hover:bg-opacity-90",
-        outline: "bg-opacity-0 hover:border-opacity-80 hover:text-opacity-80",
-        ghost: "border-transparent bg-opacity-0 hover:bg-opacity-90",
-        link: "border-none border-transparent bg-transparent !px-0 underline-offset-4 hover:underline",
-        tonal: "border border-transparent",
+        outline: "bg-transparent",
+        ghost: "border-transparent",
+        link: "border-none !bg-transparent !px-0 underline-offset-4 hover:underline",
+        tonal: "border-transparent",
       },
       color: {
-        base: "bg-base-background text-base-foreground",
-        primary: "bg-primary text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground",
-        accent: "bg-accent text-accent-foreground",
-        promotion: "bg-promotion text-promotion-foreground",
-        destructive: "bg-error text-error-foreground",
-        success: "bg-success text-success-foreground",
-        info: "bg-info text-info-foreground",
-        error: "bg-error text-error-foreground",
-        warning: "bg-warning text-warning-foreground",
+        base: "",
+        primary: "",
+        secondary: "",
+        accent: "",
+        promotion: "",
+        destructive: "",
+        success: "",
+        info: "",
+        error: "",
+        warning: "",
       },
       size: {
         md: "h-10 gap-x-2 px-4 py-1",
@@ -39,52 +39,104 @@ export const buttonVariants = cva(
     },
 
     compoundVariants: [
+      //  --- flat
+      {
+        color: "base",
+        variant: "flat",
+        class: "bg-base-foreground text-base-background",
+      },
+      {
+        color: "primary",
+        variant: "flat",
+        class: "bg-primary text-primary-foreground",
+      },
+      {
+        color: "secondary",
+        variant: "flat",
+        class: "bg-secondary text-secondary-foreground",
+      },
+      {
+        color: "accent",
+        variant: "flat",
+        class: "bg-accent text-accent-foreground",
+      },
+      {
+        color: "promotion",
+        variant: "flat",
+        class: "bg-promotion text-promotion-foreground",
+      },
+      {
+        color: "destructive",
+        variant: "flat",
+        class: "bg-destructive text-destructive-foreground",
+      },
+      {
+        color: "success",
+        variant: "flat",
+        class: "bg-success text-success-foreground",
+      },
+      { color: "info", variant: "flat", class: "bg-info text-info-foreground" },
+      {
+        color: "error",
+        variant: "flat",
+        class: "bg-error text-error-foreground",
+      },
+      {
+        color: "warning",
+        variant: "flat",
+        class: "bg-warning text-warning-foreground",
+      },
+
       // --- outline
       {
         color: "base",
         variant: "outline",
-        class: "border-base-foreground text-base-foreground",
+        class: "border-base-foreground text-base-foreground hover:bg-base-200",
       },
       {
         color: "primary",
         variant: "outline",
-        class: "border-primary text-primary",
+        class: "border-primary text-primary hover:bg-primary-50",
       },
       {
         color: "secondary",
         variant: "outline",
-        class: "border-secondary text-secondary",
+        class: "border-secondary text-secondary hover:bg-secondary-50",
       },
       {
         color: "accent",
         variant: "outline",
-        class: "border-accent text-accent",
+        class: "border-accent text-accent hover:bg-accent-50",
       },
       {
         color: "promotion",
         variant: "outline",
-        class: "border-promotion text-promotion",
+        class: "border-promotion text-promotion hover:bg-promotion-50",
       },
       {
         color: "destructive",
         variant: "outline",
-        class: "border-error text-error",
+        class: "border-destructive text-destructive hover:bg-destructive-50",
       },
       {
         color: "success",
         variant: "outline",
-        class: "border-success text-success",
+        class: "border-success text-success hover:bg-success-50",
       },
-      { color: "info", variant: "outline", class: "border-info text-info" },
+      {
+        color: "info",
+        variant: "outline",
+        class: "border-info text-info hover:bg-info-50",
+      },
       {
         color: "error",
         variant: "outline",
-        class: "border-error text-error",
+        class: "border-error text-error hover:bg-error-50",
       },
       {
         color: "warning",
         variant: "outline",
-        class: "border-warning text-warning",
+        class: "border-warning text-warning hover:bg-warning-50",
       },
 
       // --- tonal
@@ -116,7 +168,7 @@ export const buttonVariants = cva(
       {
         color: "destructive",
         variant: "tonal",
-        class: "bg-error-50 text-error hover:bg-error-100",
+        class: "bg-destructive-50 text-destructive hover:bg-destructive-100",
       },
       {
         color: "success",
@@ -143,45 +195,53 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "ghost",
-        class: "bg-base-200 text-base-foreground",
+        class: "bg-base-50 text-base-foreground hover:bg-base-100",
       },
       {
         color: "primary",
         variant: "ghost",
-        class: "bg-primary-50 text-primary",
+        class: "bg-primary-50 text-primary hover:bg-primary-100",
       },
       {
         color: "secondary",
         variant: "ghost",
-        class: "bg-secondary-50 text-secondary",
+        class: "bg-secondary-50 text-secondary hover:bg-secondary-100",
       },
       {
         color: "accent",
         variant: "ghost",
-        class: "bg-accent-50 text-accent",
+        class: "bg-accent-50 text-accent hover:bg-accent-100",
       },
       {
         color: "promotion",
         variant: "ghost",
-        class: "bg-promotion-50 text-promotion",
+        class: "bg-promotion-50 text-promotion hover:bg-promotion-100 ",
       },
       {
         color: "destructive",
         variant: "ghost",
-        class: "bg-error-50 text-error",
+        class: "bg-destructive-50 text-destructive hover:bg-destructive-100 ",
       },
 
       {
         color: "success",
         variant: "ghost",
-        class: "bg-success-50 text-success",
+        class: "bg-success-50 text-success hover:bg-success-100",
       },
-      { color: "info", variant: "ghost", class: "bg-info-50 text-info" },
-      { color: "error", variant: "ghost", class: "bg-error-50 text-error" },
+      {
+        color: "info",
+        variant: "ghost",
+        class: "bg-info-50 text-info hover:bg-info-100",
+      },
+      {
+        color: "error",
+        variant: "ghost",
+        class: "bg-error-50 text-error hover:bg-error-100 ",
+      },
       {
         color: "warning",
         variant: "ghost",
-        class: "bg-warning-50 text-warning",
+        class: "bg-warning-50 text-warning hover:bg-warning-100",
       },
 
       // --- link
@@ -213,7 +273,7 @@ export const buttonVariants = cva(
       {
         color: "destructive",
         variant: "link",
-        class: "bg-transparent text-error",
+        class: "bg-transparent text-destructive",
       },
       {
         color: "success",

@@ -1,13 +1,28 @@
 <template>
-  <component
-    :is="meta.showDialog ? 'Drawer' : 'div'"
-    :modelValue="true"
+  <div v-if="!meta.showDialog">
+    <UpwTextbox
+      :class="styles.domain.search"
+      @update:modelValue="onSearch"
+      :prependIcon="meta.showComplete ? null : 'search'"
+      :placeholder="$t('domain.dac.search')"
+      autofocus
+      autocomplete="url"
+      :model-value="query"
+    />
+  </div>
+  <Drawer
+    v-else
     fit="cover"
     persistent
     size="full"
     skrim="light"
+    open
+    :class="styles.domain.drawer.root"
+    :class-header="styles.domain.drawer.header"
+    :class-content="styles.domain.drawer.content"
+    :class-footer="styles.domain.drawer.footer"
   >
-    <div :class="styles.domain.root">
+    <template #header>
       <UpwTextbox
         :class="styles.domain.search"
         @update:modelValue="onSearch"
@@ -17,15 +32,15 @@
         autocomplete="url"
         :model-value="query"
       />
+    </template>
 
+    <div :class="styles.domain.root">
       <UpmDomainListings
-        v-if="meta.showDialog"
         :model-value="values"
         :items="items"
         :offset="offset"
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
-        @update:modelValue="onUpdate"
         @toggle="onUpdate"
       />
 
@@ -39,23 +54,27 @@
       />
     </div>
 
-    <template #actions>
-      <!-- <div :class="styles.domain.dialog.container"> -->
+    <template #close>
       <Button
         @click="onReject"
         :label="$t('domain.dac.actions.cancel')"
         variant="link"
       />
+    </template>
+
+    <template #actions>
+      <!-- <div :class="styles.domain.dialog.container"> -->
+
       <Button
         :loading="meta.isProcessing"
-        :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
+        :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
         :label="$tc('domain.dac.actions.continue', values?.length)"
         prependIcon="plus-circle"
       />
       <!-- </div> -->
     </template>
-  </component>
+  </Drawer>
 </template>
 
 <script>
@@ -67,11 +86,8 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwTextbox } from "@upmind/upwind";
+import { UpwTextbox, Button, Drawer } from "@upmind/upwind";
 import UpmDomainListings from "./Listings.vue";
-
-// --- custom elements
-import { Button, Drawer } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 
@@ -87,31 +103,28 @@ export default defineComponent({
   emits: ["toggle", "search", "search:more", "resolve", "reject"],
   props: {
     modelValue: { type: String },
-    query: { type: String, default: "" },
+    query: { type: String },
     offset: { type: Number, default: 0 },
     values: { type: Array, default: () => [] },
     items: { type: Array, default: () => [] },
     dialog: { type: Boolean, default: true },
     // ---
-    loading: { type: Boolean, default: false },
-    processing: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    continue: { type: Boolean, default: false },
-    complete: { type: Boolean, default: false },
-    hasMore: { type: Boolean, default: false },
+    loading: { type: Boolean },
+    processing: { type: Boolean },
+    disabled: { type: Boolean },
+    complete: { type: Boolean },
+    more: { type: Boolean },
   },
   setup(props) {
     const meta = computed(() => ({
       hasDomain: !!props.modelValue,
       isEmpty: !props.values?.length,
       hasItems: !!props.items?.length,
-      hasMore: props.hasMore,
+      hasMore: props.more,
       isLoading: props.loading,
       isDisabled: props.disabled,
       isProcessing: props.processing,
-      showContinue: props.continue,
       showComplete: props.complete,
-      hasSynced: props.synced,
 
       // ---
       showDialog:
@@ -119,7 +132,7 @@ export default defineComponent({
         !props.complete &&
         (props.loading || props.processing || !!props.items?.length),
     }));
-    const styles = useStyles(["domain"], meta, config);
+    const styles = useStyles(["domain", "domain.drawer"], meta, config);
 
     return {
       styles,
@@ -144,7 +157,9 @@ export default defineComponent({
       this.$emit("search:more", value);
     },
     onUpdate(value) {
-      if (this.meta.isDisabled || this.meta.isProcessing) return;
+      debugger;
+      if (this.meta.isProcessing) return;
+      debugger;
       this.$emit("toggle", value);
     },
   },

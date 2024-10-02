@@ -7,7 +7,10 @@ import DrawerOverlay from "./DrawerOverlay.vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  DialogContentProps & { class?: HtmlHTMLAttributes["class"] }
+  DialogContentProps & {
+    class?: HtmlHTMLAttributes["class"];
+    classOverlay?: HtmlHTMLAttributes["class"];
+  }
 >();
 const emits = defineEmits<DialogContentEmits>();
 
@@ -16,12 +19,12 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 <template>
   <DrawerPortal>
-    <DrawerOverlay />
+    <DrawerOverlay :class="props.classOverlay" />
     <DrawerContent
       v-bind="forwarded"
       :class="
         cn(
-          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background',
+          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col  rounded-t-[10px] border bg-background',
           props.class
         )
       "

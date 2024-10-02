@@ -108,19 +108,19 @@ export default {
       wrapper: cva("flex flex-col items-center justify-center gap-6", {
         variants: {
           variant: {
-            outlined: "rounded-lg border p-6 ",
+            outline: "rounded-lg border p-6 ",
             flat: "",
           },
         },
         compoundVariants: [
           // {
-          //   variant: "outlined",
+          //   variant: "outline",
           //   hasErrors: false,
           //   class:
           //     "focus-within:border-control-active focus-within:ring-control-active focus-within:ring-4 focus-within:ring-opacity-20",
           // },
           {
-            variant: "outlined",
+            variant: "outline",
             hasErrors: true,
             class:
               "border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",

@@ -11,7 +11,7 @@ import { keys } from "lodash-es";
 // --- types
 enum variants {
   flat = "Flat",
-  outline = "Outline",
+  outline = "Outlined",
   tonal = "Tonal",
 }
 // -----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ export const Variants: Story = {
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
         <Badge v-bind="args" variant="flat" label="Flat" />
-        <Badge v-bind="args" variant="outlined" label="Outlined" />
+        <Badge v-bind="args" variant="outline" label="Outlined" />
         <Badge v-bind="args" variant="tonal" label="Tonal" />
       </section>
     `,
