@@ -56,6 +56,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
         <DialogClose
           class="absolute right-3 top-3 rounded-md p-0.5 transition-colors hover:bg-secondary"
+          @click="$emit('close')"
         >
           <X class="h-4 w-4" />
           <span class="sr-only">Close</span>

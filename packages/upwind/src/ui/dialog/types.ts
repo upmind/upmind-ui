@@ -3,8 +3,10 @@ import { type HTMLAttributes } from "vue";
 import { type VariantProps } from "class-variance-authority";
 
 // --- internal
-import type { contentVariant } from "./dialog.config";
+import type { contentVariant, overlayVariant } from "./dialog.config";
 type DialogContentVariantProps = VariantProps<typeof contentVariant>;
+type DialogOverlayVariantProps = VariantProps<typeof overlayVariant>;
+
 import type {
   DialogRootProps,
   DialogContentProps,
@@ -21,13 +23,24 @@ export interface DialogProps
     DialogTriggerProps {
   title?: string;
   description?: string;
-  modelValue?: boolean;
-  persistent: boolean;
   // ---
+  open?: boolean;
+  persistent: boolean;
+  // --- variants
   size?: DialogContentVariantProps["size"];
   overflow?: DialogContentVariantProps["overflow"];
   fit?: DialogContentVariantProps["fit"];
+  skrim?: DialogOverlayVariantProps["skrim"];
+
   // ---
-  upwindConfig?: { alert: Partial<DialogProps> };
+  upwindConfig?: {
+    dialog: {
+      content: Partial<DialogOverlayVariantProps>;
+      overlay: Partial<DialogContentVariantProps>;
+    };
+  };
   class?: HTMLAttributes["class"];
+  classHeader?: HTMLAttributes["class"];
+  classContent?: HTMLAttributes["class"];
+  classFooter?: HTMLAttributes["class"];
 }

@@ -90,7 +90,7 @@ export default {
       root: cva(""),
       header: cva(""),
       content: cva(""),
-      footer: cva("flex-row items-center justify-between gap-4"),
+      footer: cva("flex-row items-center justify-between gap-x-4"),
     },
 
     transitions: {

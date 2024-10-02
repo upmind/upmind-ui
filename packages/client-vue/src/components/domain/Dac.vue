@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!meta.showDialog">
+  <div v-show="!meta.showDialog">
     <UpwTextbox
       :class="styles.domain.search"
       @update:modelValue="onSearch"
@@ -7,16 +7,13 @@
       :placeholder="$t('domain.dac.search')"
       autofocus
       autocomplete="url"
-      :model-value="query"
+      v-model="queryValue"
     />
   </div>
   <Drawer
-    v-else
     fit="cover"
-    persistent
-    size="full"
-    skrim="light"
-    open
+    skrim="primary"
+    :open="meta.showDialog"
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
     :class-content="styles.domain.drawer.content"
@@ -30,7 +27,7 @@
         :placeholder="$t('domain.dac.search')"
         autofocus
         autocomplete="url"
-        :model-value="query"
+        v-model="queryValue"
       />
     </template>
 
@@ -79,7 +76,7 @@
 
 <script>
 // --- external
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref } from "vue";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -139,6 +136,7 @@ export default defineComponent({
       cn,
       meta,
       config,
+      queryValue: ref(props.query),
     };
   },
 
