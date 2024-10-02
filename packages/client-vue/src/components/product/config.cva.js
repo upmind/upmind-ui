@@ -9,7 +9,7 @@ export default {
 
     card: {
       root: cva(
-        "bg-base text-base-content relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6",
+        "bg-base text-base-foreground relative flex w-full flex-wrap items-stretch gap-6 rounded-lg border p-6",
         {
           variants: {
             isProcessing: {
@@ -113,16 +113,16 @@ export default {
         root: cva("m-0 grid w-full list-none grid-cols-4 gap-6 px-0 py-4"),
         item: cva("m-0 flex flex-wrap gap-0 p-0 "),
         title: cva(
-          "text-base-500 m-0 m-0 w-full p-0 text-sm font-normal tracking-wide "
+          "text-base-500 m-0 w-full p-0 text-sm font-normal tracking-wide "
         ),
-        text: cva("m-0 m-0 p-0 text-sm tracking-wide "),
+        text: cva("m-0 p-0 text-sm tracking-wide "),
         invalid: cva("text-error"),
       },
     },
 
     config: {
       root: cva(
-        "bg-base text-base-content w-full overflow-hidden rounded-lg border",
+        "bg-base text-base-foreground w-full overflow-hidden rounded-lg border",
         {
           variants: {
             isDisabled: {
@@ -143,10 +143,10 @@ export default {
         {
           variants: {
             hasErrors: {
-              true: "bg-error text-error-content",
+              true: "bg-error text-error-foreground",
             },
             isNew: {
-              true: "bg-accent text-accent-content",
+              true: "bg-accent text-accent-foreground",
             },
           },
         }

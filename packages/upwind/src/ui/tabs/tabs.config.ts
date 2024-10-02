@@ -42,48 +42,48 @@ export const tabsListVariants = cva(
       {
         variant: "flat",
         color: "primary",
-        class: "text-primary-content bg-primary",
+        class: "bg-primary text-primary-foreground",
       },
       {
         variant: "flat",
         color: "secondary",
-        class: "text-secondary-content bg-secondary",
+        class: "bg-secondary text-secondary-foreground",
       },
       {
         variant: "flat",
         color: "accent",
-        class: "text-accent-content bg-accent",
+        class: "bg-accent text-accent-foreground",
       },
       {
         variant: "flat",
         color: "success",
-        class: "text-success-content bg-success",
+        class: "bg-success text-success-foreground",
       },
       {
         variant: "flat",
         color: "error",
-        class: "text-error-content bg-error",
+        class: "bg-error text-error-foreground",
       },
       {
         variant: "flat",
         color: "warning",
-        class: "text-warning-content bg-warning",
+        class: "bg-warning text-warning-foreground",
       },
       {
         variant: "flat",
         color: "info",
-        class: "text-info-content bg-info",
+        class: "bg-info text-info-foreground",
       },
       {
         variant: "flat",
         color: "promotion",
-        class: "text-promotion-content bg-promotion",
+        class: "bg-promotion text-promotion-foreground",
       },
 
       {
         variant: "outline",
         color: "base",
-        class: "text-base-content border-base-300",
+        class: "border-base-300 text-base-foreground",
       },
       {
         variant: "outline",
@@ -129,47 +129,47 @@ export const tabsListVariants = cva(
       {
         variant: "tonal",
         color: "base",
-        class: "text-base-content bg-base-400",
+        class: "bg-base-400 text-base-foreground",
       },
       {
         variant: "tonal",
         color: "primary",
-        class: "text-primary-content bg-primary",
+        class: "bg-primary text-primary-foreground",
       },
       {
         variant: "tonal",
         color: "secondary",
-        class: "text-secondary-content bg-secondary",
+        class: "bg-secondary text-secondary-foreground",
       },
       {
         variant: "tonal",
         color: "accent",
-        class: "text-accent-content bg-accent",
+        class: "bg-accent text-accent-foreground",
       },
       {
         variant: "tonal",
         color: "success",
-        class: "text-success-content bg-success",
+        class: "bg-success text-success-foreground",
       },
       {
         variant: "tonal",
         color: "error",
-        class: "text-error-content bg-error",
+        class: "bg-error text-error-foreground",
       },
       {
         variant: "tonal",
         color: "warning",
-        class: "text-warning-content bg-warning",
+        class: "bg-warning text-warning-foreground",
       },
       {
         variant: "tonal",
         color: "info",
-        class: "text-info-content bg-info",
+        class: "bg-info text-info-foreground",
       },
       {
         variant: "tonal",
         color: "promotion",
-        class: "text-promotion-content bg-promotion",
+        class: "bg-promotion text-promotion-foreground",
       },
     ],
     defaultVariants: {
@@ -212,42 +212,42 @@ export const tabsTriggerVariants = cva(
       {
         variant: "flat",
         color: "primary",
-        class: "text-primary-content data-[state=active]:text-primary",
+        class: "text-primary-foreground data-[state=active]:text-primary",
       },
       {
         variant: "flat",
         color: "secondary",
-        class: "text-secondary-content data-[state=active]:text-secondary",
+        class: "text-secondary-foreground data-[state=active]:text-secondary",
       },
       {
         variant: "flat",
         color: "accent",
-        class: "text-accent-content data-[state=active]:text-accent",
+        class: "text-accent-foreground data-[state=active]:text-accent",
       },
       {
         variant: "flat",
         color: "success",
-        class: "text-success-content data-[state=active]:text-success",
+        class: "text-success-foreground data-[state=active]:text-success",
       },
       {
         variant: "flat",
         color: "error",
-        class: "text-error-content data-[state=active]:text-error",
+        class: "text-error-foreground data-[state=active]:text-error",
       },
       {
         variant: "flat",
         color: "warning",
-        class: "text-warning-content data-[state=active]:text-warning",
+        class: "text-warning-foreground data-[state=active]:text-warning",
       },
       {
         variant: "flat",
         color: "info",
-        class: "text-info-content data-[state=active]:text-info",
+        class: "text-info-foreground data-[state=active]:text-info",
       },
       {
         variant: "flat",
         color: "promotion",
-        class: "text-promotion-content data-[state=active]:text-promotion",
+        class: "text-promotion-foreground data-[state=active]:text-promotion",
       },
 
       {
