@@ -6,7 +6,7 @@
         role="combobox"
         color="primary"
         :aria-expanded="open"
-        class="w-[200px] justify-between"
+        class="justify-between"
         :disabled="loading"
         :class="cn(variants.button, props.class)"
       >
@@ -20,14 +20,14 @@
             class="mr-2 shrink-0"
             aria-hidden="true"
           />
-          <span>{{ value?.label || label }}</span>
+          <span v-if="!hideLabel">{{ value?.label || label }}</span>
         </span>
 
         <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
 
         <Icon
           v-if="!loading"
-          class="ml-2 h-4 w-4 shrink-0 rotate-180 opacity-50 transition-all duration-200"
+          class="ml-2 h-4 w-4 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
           icon="arrow-up"
         />
 
@@ -38,7 +38,14 @@
         />
       </Button>
     </PopoverTrigger>
-    <PopoverContent :class="cn(variants.content, props.class)">
+    <PopoverContent
+      :class="
+        cn(
+          variants.content,
+          props.popoverClass ? props.popoverClass : props.class
+        )
+      "
+    >
       <Command>
         <CommandInput auto-focus :placeholder="searchMessage" />
         <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
@@ -117,12 +124,14 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   loading: false,
   emptyMessage: "No Results",
   searchMessage: "Search...",
+  hideLabel: false,
   // -- variants
   color: "base",
   width: "md",
   // --- styles
   upwindConfig: () => ({ alert: {} }),
   class: "",
+  popoverClass: "",
 });
 
 const emit = defineEmits(["update:modelValue", "input"]);
