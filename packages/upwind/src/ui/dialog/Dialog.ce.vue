@@ -1,15 +1,26 @@
 <template>
-  <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <DialogRoot v-bind="forwarded">
-    <DialogTrigger v-bind="forwarded" as-child>
+  <Dialog v-bind="forwarded" :open="isOpen" @update:modelValue="onOpen">
+    <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>
+
     <DialogScrollContent
       v-bind="forwarded"
-      :class="cn(variants.content, props.class)"
+      :class="cn(variants.dialog.content, props.class)"
+      :classOverlay="variants.dialog.overlay"
+      @update:modelValue="onOpen"
     >
-      <DialogHeader class="flex flex-col gap-y-2 text-center sm:text-left">
-        <div v-if="title || $slots.title || description || $slots.description">
+      <DialogHeader
+        :class="props.classHeader"
+        v-if="
+          $slots.header ||
+          title ||
+          $slots.title ||
+          description ||
+          $slots.description
+        "
+      >
+        <slot name="header">
           <DialogTitle
             v-if="title || $slots.title"
             v-bind="forwarded"
@@ -25,22 +36,21 @@
           >
             <slot name="description">{{ description }}</slot>
           </DialogDescription>
-        </div>
+        </slot>
       </DialogHeader>
 
       <slot />
 
-      <DialogFooter
-        class="flex flex-col-reverse items-baseline sm:flex-row sm:justify-end sm:gap-x-2"
-      >
+      <DialogFooter :class="props.classFooter">
         <slot name="footer" />
 
-        <DialogClose @click="forceClose">
+        <DialogClose @click="forceClose" v-if="$slots.close">
           <slot name="close" />
         </DialogClose>
+        <slot name="actions" />
       </DialogFooter>
     </DialogScrollContent>
-  </DialogRoot>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -53,7 +63,7 @@ import { cn, useStyles } from "../../utils";
 import config from "./dialog.config";
 
 // --- components
-import DialogRoot from "./Dialog.vue";
+import Dialog from "./Dialog.vue";
 import DialogTrigger from "./DialogTrigger.vue";
 import DialogScrollContent from "./DialogScrollContent.vue";
 import DialogHeader from "./DialogHeader.vue";
@@ -69,17 +79,25 @@ import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
 
 const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
+  open: false,
   title: "",
   description: "",
-  modelValue: false,
   // --- variants
   size: "md",
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
   // --- styles
-  upwindConfig: () => ({ alert: {} }),
+  upwindConfig: () => ({
+    dialog: {
+      content: {},
+      overlay: {},
+    },
+  }),
   class: "",
+  classHeader: "",
+  classContent: "",
+  classFooter: "",
 });
 
 const emits = defineEmits<DialogRootEmits & DialogContentEmits>();
@@ -93,17 +111,19 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  ["content", "overlay"],
+  ["dialog"],
   meta,
   config,
-  props.upwindConfig
-) as ComputedRef<{ content: string }>;
+  props.upwindConfig ?? {}
+) as ComputedRef<{ dialog: { content: string; overlay: string } }>;
 
-const open = ref(props.modelValue);
+// --- state
+const isOpen = ref(props.open);
 
 const onOpen = (value: boolean, force: boolean = false) => {
+  debugger;
   if (props.persistent && !value && !force) return;
-  open.value = value;
+  isOpen.value = value;
   emits("update:open", value);
 };
 
@@ -112,10 +132,10 @@ const forceClose = () => {
 };
 
 watch(
-  () => props.modelValue,
+  () => props.open,
   (value, oldValue) => {
     if (value === oldValue) return;
-    open.value = value;
+    isOpen.value = value;
   }
 );
 </script>
