@@ -115,7 +115,7 @@ const meta: Meta<typeof Dialog> = {
     },
   },
   args: {
-    modelValue: false,
+    open: false,
     persistent: false,
     title: "Proident id magna in velit",
     description:
@@ -133,7 +133,7 @@ export const Base: Story = {
     setup() {
       return {
         toggleOpen: () => {
-          updateArgs({ modelValue: !args.modelValue });
+          updateArgs({ open: !args.open });
         },
         args,
       };
@@ -158,11 +158,11 @@ export const Hero: Story = {
     setup() {
       return {
         toggleOpen: () => {
-          updateArgs({ modelValue: !args.modelValue });
+          updateArgs({ open: !args.open });
         },
         onOpen: ({ detail }) => {
           const { isOpen = false } = first(detail);
-          updateArgs({ modelValue: isOpen });
+          updateArgs({ open: isOpen });
         },
         args,
       };
@@ -194,7 +194,7 @@ export const Hero: Story = {
     `,
   }),
   args: {
-    modelValue: true,
+    open: true,
     title: "",
     description: "",
     size: "4xl",

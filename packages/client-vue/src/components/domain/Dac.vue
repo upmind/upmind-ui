@@ -15,7 +15,6 @@
     fit="cover"
     persistent
     size="full"
-    skrim="light"
     open
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
