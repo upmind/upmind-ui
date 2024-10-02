@@ -19,7 +19,7 @@ Optional function that can inspect the session's state and context changes.
 
 `any`
 
-Returns an object containing:
+The composable returns an object containing the following values:
 - `state`: The current state of the session (e.g., `idle`, `login`, `register`, etc.).
 - `context`: The session context holding additional information like form data.
 - `errors`: Errors, if any, during the session.
