@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const contentVariant = cva("mx-auto w-full", {
+export const containerVariant = cva("mx-auto w-full ", {
   variants: {
     size: {
       xs: "max-w-xs",
@@ -12,7 +12,40 @@ export const contentVariant = cva("mx-auto w-full", {
       "2xl": "max-w-2xl",
       "3xl": "max-w-3xl",
       "4xl": "max-w-4xl",
+      app: "max-w-app",
       full: "max-w-none",
+    },
+  },
+  defaultVariants: {
+    size: "app",
+  },
+});
+
+export const contentVariant = cva("mx-auto  w-full ", {
+  variants: {
+    fit: {
+      cover: "p-0",
+      contain: "p-6",
+    },
+  },
+  defaultVariants: {
+    fit: "contain",
+  },
+});
+
+export const innerVariant = cva("mx-auto max-h-[75vh] w-full ", {
+  variants: {
+    size: {
+      xs: "",
+      sm: "",
+      md: "",
+      lg: "",
+      xl: "",
+      "2xl": "",
+      "3xl": "",
+      "4xl": "",
+      app: "",
+      full: "px-4",
     },
     overflow: {
       auto: "overflow-auto",
@@ -20,15 +53,10 @@ export const contentVariant = cva("mx-auto w-full", {
       visible: "overflow-visible",
       scroll: "overflow-scroll",
     },
-    fit: {
-      cover: "p-0",
-      contain: "p-6",
-    },
   },
   defaultVariants: {
-    size: "lg",
-    overflow: "visible",
-    fit: "contain",
+    size: "app",
+    overflow: "auto",
   },
 });
 
@@ -46,7 +74,11 @@ export const overlayVariant = cva("", {
 
 export default {
   drawer: {
-    content: contentVariant,
     overlay: overlayVariant,
+    container: containerVariant,
+    content: contentVariant,
+    inner: innerVariant,
+    header: "",
+    footer: "",
   },
 };

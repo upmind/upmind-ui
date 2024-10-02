@@ -1,21 +1,28 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import { type VariantProps } from "class-variance-authority";
+import { type VariantProps, type CxOptions } from "class-variance-authority";
 
 // --- internal
-import type { contentVariant, overlayVariant } from "./drawer.config";
+import type {
+  contentVariant,
+  overlayVariant,
+  containerVariant,
+  innerVariant,
+} from "./drawer.config";
 type DrawerContentVariantProps = VariantProps<typeof contentVariant>;
 type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
+type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
+type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;
 
 export interface DrawerProps {
   title?: string;
   description?: string;
   // ---
   open?: boolean;
-  persistent: boolean;
+  persistent?: boolean;
   // --- variants
-  size?: DrawerContentVariantProps["size"];
-  overflow?: DrawerContentVariantProps["overflow"];
+  size?: DrawerContainerVariantProps["size"];
+  overflow?: DrawerInnerVariantProps["overflow"];
   fit?: DrawerContentVariantProps["fit"];
   skrim?: DrawerOverlayVariantProps["skrim"];
   // --- styles
@@ -23,6 +30,10 @@ export interface DrawerProps {
     drawer: {
       content: Partial<DrawerOverlayVariantProps>;
       overlay: Partial<DrawerContentVariantProps>;
+      container: Partial<DrawerContainerVariantProps>;
+      inner: Partial<DrawerInnerVariantProps>;
+      header: CxOptions;
+      footer: CxOptions;
     };
   };
   class?: HTMLAttributes["class"];
