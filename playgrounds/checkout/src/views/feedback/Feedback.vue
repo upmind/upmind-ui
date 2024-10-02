@@ -24,7 +24,7 @@
       </h2>
 
       <uw-button
-        variant="outlined"
+        variant="outline"
         size="sm"
         @click="processMessages()"
         :disabled="meta.isProcessing"
@@ -32,7 +32,7 @@
       />
 
       <uw-button
-        variant="outlined"
+        variant="outline"
         size="sm"
         @click="processMessages('toast')"
         :disabled="meta.isProcessing"
@@ -40,7 +40,7 @@
       />
 
       <uw-button
-        variant="outlined"
+        variant="outline"
         size="sm"
         @click="processMessages('notification')"
         :disabled="meta.isProcessing"

@@ -18,13 +18,13 @@
       <template v-if="meta.showDac">
         <UpmDac
           :complete="meta.showPrimaryDomain"
-          :continue="meta.showContinue"
+          :disabled="!meta.isValid"
           :items="available"
-          :has-more="meta.hasMoreSearchResults"
           :key="type"
           :loading="meta.isSearching"
-          :offset="searchOffset"
           :model-value="selected"
+          :more="meta.hasMoreSearchResults"
+          :offset="searchOffset"
           :processing="meta.isSyncing"
           :values="model"
           @search="search"

@@ -21,7 +21,7 @@ export default {
       badges: cva("flex items-center gap-2"),
       title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(
-        "items-cnter text-base-700 m-0 inline inline-flex gap-2 text-xs font-normal leading-5"
+        "items-cnter text-base-700 m-0  inline-flex gap-2 text-xs font-normal leading-5"
       ),
 
       // ---
@@ -86,31 +86,13 @@ export default {
       text: cva("text-base-700 m-0 text-center"),
       icon: cva("text-base-700 size-8"),
     },
-    dialog: {
-      content: cva("justify-end p-0"),
-      transition: {
-        enter: {
-          active: cva("duration-300 ease-out"),
-          from: cva("translate-y-10 scale-100 opacity-0"),
-          to: cva("translate-y-0 scale-100 opacity-100"),
-        },
-        leave: {
-          active: cva("duration-200 ease-in"),
-          from: cva("translate-y-0 scale-100 opacity-100"),
-          to: cva("translate-y-10 scale-100 opacity-0"),
-        },
-      },
-      panel: {
-        wrapper: cva("px-4 shadow-inner sm:px-6 lg:px-20"),
-        content: cva(
-          "mx-auto !min-h-min max-w-screen-2xl px-10  transition-all"
-        ),
-        actions: cva("-mx-4 w-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-20 lg:px-20"),
-      },
-      container: cva(
-        "mx-auto flex w-full max-w-screen-2xl items-center justify-between gap-2 px-10 "
-      ),
+    drawer: {
+      root: cva(""),
+      header: cva(""),
+      content: cva(""),
+      footer: cva("flex-row items-center justify-between gap-4"),
     },
+
     transitions: {
       fade: {
         enter: {

@@ -12,7 +12,7 @@ import { keys } from "lodash-es";
 // --- types
 enum variants {
   flat = "Flat",
-  outline = "Outline",
+  outline = "Outlined",
   tonal = "Tonal",
 }
 

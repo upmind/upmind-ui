@@ -12,7 +12,7 @@ import { keys, isFunction } from "lodash-es";
 // --- types
 enum variants {
   flat = "Flat",
-  outline = "Outline",
+  outline = "Outlined",
   ghost = "Ghost",
   link = "Link",
   tonal = "Tonal",
@@ -82,7 +82,7 @@ export const Variants: Story = {
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
         <Button v-bind="args" variant="flat" label="Flat" />
-        <Button v-bind="args" variant="outline" label="Outline" />
+        <Button v-bind="args" variant="outline" label="Outlined" />
         <Button v-bind="args" variant="ghost" label="Ghost" />
         <Button v-bind="args" variant="link" label="Link" />
       </section>
@@ -219,7 +219,7 @@ export const outlineColorVariants: Story = {
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">outline Color Variants</h1>
+        <h1 class="w-full mt-0">Outlined Color Variants</h1>
         <Button v-bind="args" variant="outline" color="base" label="Base" />
         <Button v-bind="args" variant="outline" color="primary" label="Primary" />
         <Button v-bind="args" variant="outline" color="secondary" label="Secondary" />

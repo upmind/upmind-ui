@@ -10,7 +10,7 @@ import { keys } from "lodash-es";
 
 // --- types
 enum variants {
-  outline = "Outline",
+  outline = "Outlined",
   solid = "Solid",
 }
 

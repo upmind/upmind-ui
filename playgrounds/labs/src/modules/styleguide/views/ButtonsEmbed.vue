@@ -5,7 +5,7 @@
     <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Types/Variants</h3>
       <upw-button variant="flat" label="Flat (Solid)" />
-      <upw-button variant="outlined" label="Outlined" />
+      <upw-button variant="outline" label="Outlined" />
       <upw-button variant="ghost" label="Ghost" />
       <upw-button variant="link" label="Link" />
     </section>
@@ -160,14 +160,14 @@
 
     <section class="flex w-full flex-wrap items-center gap-2">
       <h3 class="w-full">Outlined Color Variants</h3>
-      <upw-button variant="outlined" color="primary" label="Primary" />
-      <upw-button variant="outlined" color="secondary" label="Secondary" />
-      <upw-button variant="outlined" color="accent" label="Accent" />
-      <upw-button variant="outlined" color="neutral" label="Neutral" />
-      <upw-button variant="outlined" color="info" label="Info" />
-      <upw-button variant="outlined" color="success" label="Success" />
-      <upw-button variant="outlined" color="error" label="Error" />
-      <upw-button variant="outlined" color="warning" label="Warning" />
+      <upw-button variant="outline" color="primary" label="Primary" />
+      <upw-button variant="outline" color="secondary" label="Secondary" />
+      <upw-button variant="outline" color="accent" label="Accent" />
+      <upw-button variant="outline" color="neutral" label="Neutral" />
+      <upw-button variant="outline" color="info" label="Info" />
+      <upw-button variant="outline" color="success" label="Success" />
+      <upw-button variant="outline" color="error" label="Error" />
+      <upw-button variant="outline" color="warning" label="Warning" />
     </section>
 
     <section class="flex w-full flex-wrap items-center gap-2">
