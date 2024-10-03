@@ -13,11 +13,12 @@
   <Drawer
     fit="cover"
     skrim="primary"
-    :open="meta.showDialog"
     :class="styles.domain.drawer.root"
     :class-header="styles.domain.drawer.header"
     :class-content="styles.domain.drawer.content"
     :class-footer="styles.domain.drawer.footer"
+    v-model:open="open"
+    persistent
   >
     <template #header>
       <UpwTextbox
@@ -76,7 +77,7 @@
 
 <script>
 // --- external
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -113,6 +114,12 @@ export default defineComponent({
     more: { type: Boolean },
   },
   setup(props) {
+    // our internal drawer state
+    const open = ref(false);
+    watch(props, ({ complete, items, loading, processing }) => {
+      open.value = !complete && (loading || processing || !!items?.length);
+    });
+
     const meta = computed(() => ({
       hasDomain: !!props.modelValue,
       isEmpty: !props.values?.length,
@@ -124,11 +131,9 @@ export default defineComponent({
       showComplete: props.complete,
 
       // ---
-      showDialog:
-        props.dialog &&
-        !props.complete &&
-        (props.loading || props.processing || !!props.items?.length),
+      showDialog: props.dialog && open.value,
     }));
+
     const styles = useStyles(["domain", "domain.drawer"], meta, config);
 
     return {
@@ -137,6 +142,7 @@ export default defineComponent({
       meta,
       config,
       queryValue: ref(props.query),
+      open,
     };
   },
 
@@ -155,9 +161,7 @@ export default defineComponent({
       this.$emit("search:more", value);
     },
     onUpdate(value) {
-      debugger;
       if (this.meta.isProcessing) return;
-      debugger;
       this.$emit("toggle", value);
     },
   },

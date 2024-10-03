@@ -1,5 +1,5 @@
 <template>
-  <Drawer v-bind="forwarded" :open="isOpen" @update:modelValue="onOpen">
+  <Drawer v-bind="forwarded" v-model:open="value">
     <DrawerTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DrawerTrigger>
@@ -70,8 +70,9 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
+import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { useStyles, cn } from "../../utils";
@@ -143,24 +144,5 @@ const variants = useStyles(
   };
 }>;
 
-// --- state
-const isOpen = ref(props.open);
-
-const onOpen = (value: boolean, force: boolean = false) => {
-  if (props.persistent && !value && !force) return;
-  isOpen.value = value;
-  emits("update:open", value);
-};
-
-const forceClose = () => {
-  onOpen(false, true);
-};
-
-watch(
-  () => props.open,
-  (value, oldValue) => {
-    if (value === oldValue) return;
-    isOpen.value = value;
-  }
-);
+const value = useVModel(props, "open", emits);
 </script>

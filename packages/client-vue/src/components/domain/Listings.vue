@@ -272,7 +272,7 @@
       <UpwSkeletonList
         v-if="meta.isLoading"
         :class="styles.domain.listings.loading"
-        :rows="3"
+        :rows="6"
         key="more"
       />
     </transition-group>
