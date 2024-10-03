@@ -44,5 +44,5 @@
 | [useProductConfig](functions/useProductConfig.md) | - |
 | [useRecaptcha](functions/useRecaptcha.md) | - |
 | [useSession](functions/useSession.md) | Composable function to manage session-related logic using Vue. It provides state, context and helpers for session, login and registration processes. |
-| [useSystem](functions/useSystem.md) | - |
+| [useSystem](functions/useSystem.md) | The `useSystem` composable provides a simple interface to interact with the system API through a state machine and includes utility methods for fetching data. |
 | [useUpload](functions/useUpload.md) | - |
