@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-bind="forwarded" :open="value" @update:open="onOpen">
+  <DialogRoot v-bind="forwarded" :open="value" @update:open="onOpen">
     <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>
@@ -51,7 +51,7 @@
         <slot name="actions" />
       </DialogFooter>
     </DialogContent>
-  </Dialog>
+  </DialogRoot>
 </template>
 
 <script setup lang="ts">
@@ -65,7 +65,7 @@ import { useStyles, cn } from "../../utils";
 import config from "./dialog.config";
 
 // --- components
-import Dialog from "./Dialog.vue";
+import { DialogRoot } from "radix-vue";
 import DialogContent from "./DialogContent.vue";
 import DialogHeader from "./DialogHeader.vue";
 import DialogFooter from "./DialogFooter.vue";
