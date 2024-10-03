@@ -1,5 +1,5 @@
 export interface BasketModalProps {
-  open: boolean;
+  open?: boolean;
   modal?: boolean;
   // ---
   title?: string;
