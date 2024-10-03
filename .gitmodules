@@ -1,0 +1,3 @@
+[submodule "playgrounds/velia"]
+	path = playgrounds/velia
+	url = git@git.upmind.io:upmind/groups/frontend-team/velia-checkout.git
