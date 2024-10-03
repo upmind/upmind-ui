@@ -1,13 +1,21 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Dialog' : 'div'"
-    :modelValue="isOpen"
-    size="xl"
-    persistent
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
     fit="cover"
-    skrim="light"
+    no-close
+    no-header
+    persistent
   >
+    <template #header>
+      <div />
+    </template>
+
     <section :class="styles.basket.loading.root">
       <Avatar v-bind="avatar" />
 
@@ -27,78 +35,55 @@
   </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- custom elements
-import { Avatar, Button, Dialog } from "@upmind/upwind";
+// --- components
+import { Avatar, Dialog, Button } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
 
+// --- types
+import type { BasketModalProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmBasketloading",
-  components: {
-    Avatar,
-    Button,
-    Dialog,
-  },
-  props: {
-    modal: { type: Boolean },
-    title: { type: String },
-    text: { type: String },
-    action: { type: Object, default: () => null },
-    modelValue: { type: Boolean, default: true },
-    avatar: {
-      type: Object,
-      default: () => ({
-        size: "lg",
-        shape: "circle",
-        color: "primary",
-        icon: "basket",
-        fit: "contain",
-      }),
-    },
-  },
-  setup() {
-    const { meta } = useBasket();
 
-    const styles = useStyles(["basket.loading"], meta, config);
-
-    // ---
-
-    return {
-      meta,
-      processing: ref(false),
-      styles,
-    };
-  },
-  computed: {
-    isOpen() {
-      const value = true;
-      return value || this.modelValue;
-    },
-    hasAction() {
-      return !isEmpty(this.action);
-    },
-  },
-  methods: {
-    doAction() {
-      if (isFunction(this.action?.handler)) {
-        this.processing = true;
-        this.action.handler().finally(() => {
-          this.processing = false;
-        });
-      }
-    },
-  },
+const props = withDefaults(defineProps<BasketModalProps>(), {
+  open: true,
+  modal: false,
+  skrim: "primary",
+  size: "app",
+  avatar: () => ({
+    size: "md",
+    shape: "circle",
+    color: "primary",
+    icon: "basket",
+    fit: "contain",
+  }),
 });
+
+const { meta } = useBasket();
+
+const styles = useStyles(["basket.loading"], meta, config);
+
+const processing = ref(false);
+const isOpen = computed(() => meta.value.isLoading || props.open);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+async function doAction() {
+  if (isFunction(this.action?.handler)) {
+    this.processing = true;
+    await this.action.handler();
+    this.processing = false;
+  }
+}
 </script>
-.
