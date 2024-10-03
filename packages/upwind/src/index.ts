@@ -39,6 +39,15 @@ import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -65,6 +74,15 @@ export {
   Tabs,
   type TabItems,
   Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   // --- Custom Elements
   UwAlert,
   UwAvatar,
