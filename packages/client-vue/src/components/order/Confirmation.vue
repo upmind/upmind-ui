@@ -1,13 +1,21 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Dialog' : 'div'"
-    :modelValue="isOpen"
-    size="xl"
-    persistent
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
     fit="cover"
-    skrim="light"
+    no-close
+    no-header
+    persistent
   >
+    <template #header>
+      <div />
+    </template>
+
     <section :class="styles.order.confirmation.root">
       <Avatar v-bind="avatar" />
 
@@ -27,105 +35,76 @@
   </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref, toRefs } from "vue";
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 
 // --- internal
 import { useSession, utils } from "@upmind/headless-vue";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
-// --- custom elements
-import { Avatar, Button, Dialog } from "@upmind/upwind";
+// --- components
+import { Avatar, Dialog, Button } from "@upmind/upwind";
 
 // --- utils
-import { isEmpty, isFunction } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
+// --- types
+import type { OrderConfirmationProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmOrderConfirmation",
-  components: {
-    Avatar,
-    Button,
-    Dialog,
-  },
-  props: {
-    modal: { type: Boolean },
-    title: { type: String },
-    text: { type: String },
-    action: { type: Object, default: () => null },
-    modelValue: { type: Boolean, default: true },
-    avatar: {
-      type: Object,
-      default: () => ({
-        size: "lg",
-        shape: "circle",
-        color: "primary",
-        icon: "paying",
-        fit: "contain",
-      }),
-    },
-    orderId: { type: String },
-    success: { type: Boolean },
-  },
-  setup(props) {
-    const { transfer, meta } = useSession();
-    const styles = useStyles(["order.confirmation"], toRefs(props), config);
+const router = useRouter();
 
-    // ---
-
-    return {
-      meta,
-      transferSession: transfer,
-      processing: ref(false),
-      styles,
-    };
-  },
-  computed: {
-    isOpen() {
-      const value = this.meta.isProcessing;
-      return value || this.modelValue;
-    },
-    hasAction() {
-      return !isEmpty(this.action);
-    },
-  },
-  methods: {
-    doAction() {
-      if (isFunction(this.action?.handler)) {
-        this.processing = true;
-        this.action.handler().finally(() => {
-          this.processing = false;
-        });
-      }
-    },
-    doTransfer() {
-      if (!this.meta.isAuthenticated) {
-        this.processing = false;
-        return;
-      }
-
-      this.processing = true;
-      this.transferSession()
-        .then(transfer => {
-          if (transfer?.code) {
-            window.location.href = utils.useUrl(
-              "auth/transfer",
-              {
-                code: transfer.code,
-                redirect: `/billing/orders/${this.orderId}/overview`,
-              },
-              { base: transfer.redirect_url, context: "" }
-            );
-          }
-        })
-        .catch(() => {
-          this.processing = false;
-          this.$router.push("/");
-        });
-    },
-  },
+const props = withDefaults(defineProps<OrderConfirmationProps>(), {
+  modal: false,
+  skrim: "primary",
+  size: "app",
+  avatar: () => ({
+    size: "md",
+    shape: "circle",
+    color: "primary",
+    icon: "paying",
+    fit: "contain",
+  }),
 });
+
+const { transfer: transferSession, meta } = useSession();
+
+const styles = useStyles(["order.confirmation"], meta, config);
+
+const processing = ref(false);
+const isOpen = computed(() => meta.value.isProcessing || props.open);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+function doAction() {
+  if (!meta.value.isAuthenticated) {
+    processing.value = false;
+    return;
+  }
+
+  processing.value = true;
+  transferSession()
+    .then(transfer => {
+      if (transfer?.code) {
+        window.location.href = utils
+          .useUrl(
+            "auth/transfer",
+            {
+              code: transfer.code,
+              redirect: `/billing/orders/${props.orderId}/overview`,
+            },
+            { base: transfer.redirect_url, context: "" }
+          )
+          .toString();
+      }
+    })
+    .catch(() => {
+      processing.value = false;
+      router.push("/");
+    });
+}
 </script>
-.
