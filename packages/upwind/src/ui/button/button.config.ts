@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
+  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
@@ -26,12 +26,12 @@ export const buttonVariants = cva(
         warning: "",
       },
       size: {
-        md: "h-10 gap-x-2 px-4 py-1",
-        xs: "h-7 gap-x-1 px-2 py-1",
-        sm: "h-9 gap-x-2 px-3 py-1",
-        lg: "h-11 gap-x-2 px-8 py-1",
+        xs: "h-7 gap-x-1 px-2 py-1 text-xs",
+        sm: "h-9 gap-x-2 px-3 py-1 text-sm",
+        md: "h-10 gap-x-2 px-4 py-1 text-md",
+        lg: "h-11 gap-x-2 px-8 py-1 text-lg",
         icon: "h-10 w-10 gap-x-2 px-2 py-1 ",
-        badge: "px-1 py-0",
+        badge: "px-1 py-0 text-xs",
       },
       block: {
         true: "w-full basis-full",
