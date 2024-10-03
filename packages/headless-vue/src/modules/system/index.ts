@@ -12,10 +12,18 @@ import { useSystem as useUpmindSystem } from "@upmind/headless";
 // --- utils
 import { omit, sample, get, isEmpty, filter, has } from "lodash-es";
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
-//  with some state helpers
-
+/**
+ * The `useSystem` composable provides a simple interface to interact with the system API
+ * through a state machine and includes utility methods for fetching data.
+ *
+ * @returns {Object} The composable returns an object containing the following values:
+ * - `send`: Sends events to the system state machine.
+ * - `state`: The current state of the system.
+ * - `context`: Contains the state machine's context, including fetched data.
+ * - `errors`: Any errors present in the system context.
+ * - `responses`: The responses from the system, excluding errors.
+ * - `meta`: Metadata with various flags about status of system data like `isLoading` and `isReady`.
+ */
 export const useSystem = (): any => {
   const system = useUpmindSystem();
   const { state, send } = useActor(system.service);

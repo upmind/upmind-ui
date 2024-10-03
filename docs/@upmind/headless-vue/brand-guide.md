@@ -4,7 +4,7 @@ The `useBrand` composable provides a simple interface for interacting with the b
 
 ## API Reference
 
-Please refer to the full API reference on useBrand [here](./functions/useBrand.md).
+Please refer to the full API reference on `useBrand` [here](./functions/useBrand.md).
 
 ## Usage
 

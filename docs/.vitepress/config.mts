@@ -36,7 +36,7 @@ export default defineConfig({
             { text: 'Getting Started', link: '/@upmind/headless-vue/getting-started' },
             { text: 'Auth', link: '/@upmind/headless-vue/auth-guide' },
             { text: 'Brand', link: '/@upmind/headless-vue/brand-guide' },
-            // { text: 'Feature 1', link: '/headless-vue/feature1' }
+            { text: 'System', link: '/@upmind/headless-vue/system-guide' },
           ]
         },
         {
