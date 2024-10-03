@@ -1,6 +1,6 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import { type VariantProps, type CxOptions } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+import type { VariantProps, CxOptions } from "class-variance-authority";
 
 // --- internal
 import type {
@@ -19,7 +19,6 @@ export interface DrawerProps {
   description?: string;
   // ---
   open?: boolean;
-  persistent?: boolean;
   // --- variants
   size?: DrawerContainerVariantProps["size"];
   overflow?: DrawerInnerVariantProps["overflow"];
@@ -28,8 +27,8 @@ export interface DrawerProps {
   // --- styles
   upwindConfig?: {
     drawer: {
-      content: Partial<DrawerOverlayVariantProps>;
       overlay: Partial<DrawerContentVariantProps>;
+      content: Partial<DrawerOverlayVariantProps>;
       container: Partial<DrawerContainerVariantProps>;
       inner: Partial<DrawerInnerVariantProps>;
       header: CxOptions;

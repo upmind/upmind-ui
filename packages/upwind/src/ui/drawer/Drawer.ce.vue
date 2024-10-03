@@ -106,8 +106,8 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   upwindConfig: () => ({
     drawer: {
       container: {},
-      content: {},
       overlay: {},
+      content: {},
       inner: {},
       header: [],
       footer: [],
@@ -124,6 +124,7 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
   size: props.size,
+  overflow: props.overflow,
   fit: props.fit,
   skrim: props.skrim,
 }));
@@ -135,8 +136,8 @@ const variants = useStyles(
   props.upwindConfig ?? {}
 ) as ComputedRef<{
   drawer: {
-    container: string;
     overlay: string;
+    container: string;
     content: string;
     inner: string;
     header: string;
@@ -144,5 +145,6 @@ const variants = useStyles(
   };
 }>;
 
+// --- state
 const value = useVModel(props, "open", emits);
 </script>

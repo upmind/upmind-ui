@@ -5,7 +5,7 @@ import { type VariantProps } from "class-variance-authority";
 // --- internal
 import type { IconProps } from "../icon";
 import type { avatarVariants } from "./avatar.config";
-type AvatarVariantProps = VariantProps<typeof avatarVariants>;
+export type AvatarVariantProps = VariantProps<typeof avatarVariants>;
 
 export interface AvatarProps {
   src?: string;

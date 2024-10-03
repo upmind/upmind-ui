@@ -1,19 +1,35 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Dialog' : 'div'"
-    :modelValue="isOpen"
-    size="xl"
-    persistent
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :title="title"
     fit="cover"
+    no-header
+    no-close
+    persistent
+    size="xl"
     skrim="light"
   >
-    <section :class="styles.session.expired.root">
+    <template #header>
+      <div />
+    </template>
+
+    <section
+      class="text-primary relative flex w-full flex-col flex-wrap items-center justify-center gap-4 py-6 text-center"
+    >
       <Avatar v-bind="avatar" />
 
-      <h3 :class="styles.session.expired.title">{{ title }}</h3>
+      <h3 class="text-primary m-0 text-center text-3xl">
+        {{ title }}
+      </h3>
 
-      <p :class="styles.session.expired.text">{{ text }}</p>
+      <p
+        class="text-base-500 m-0 mb-4 text-center text-sm leading-5 tracking-tight"
+      >
+        {{ text }}
+      </p>
 
       <footer>
         <Button
@@ -27,84 +43,73 @@
   </component>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { ref, computed, watch } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
-import config from "./config.cva";
 
-// --- custom elements
-import { Avatar, Button, Dialog } from "@upmind/upwind";
+// --- components
+import { Avatar, Dialog, Button } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
 
+// --- types
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmSessionExpired",
-  components: {
-    Avatar,
-    Button,
-    Dialog,
-  },
-  props: {
-    modal: { type: Boolean },
-    auto: { type: Boolean },
-    title: { type: String },
-    text: { type: String },
-    action: { type: Object, default: () => null },
-    modelValue: { type: Boolean, default: true },
-    avatar: {
-      type: Object,
-      default: () => ({
-        size: "lg",
-        shape: "circle",
-        color: "primary",
-        icon: "basket",
-        fit: "contain",
-      }),
-    },
-  },
-  setup(props) {
-    const { meta } = useSession();
+interface ExpiredProps {
+  modal?: boolean;
+  title?: string;
+  text?: string;
+  avatar?: {
+    size?: string;
+    shape?: string;
+    color?: string;
+    icon?: string;
+    fit?: string;
+  };
+  action?: {
+    label?: string;
+    color?: string;
+    handler?: () => void;
+    auto?: boolean;
+  };
+}
 
-    const styles = useStyles(["session.expired"], meta, config);
+const props = withDefaults(defineProps<ExpiredProps>(), {
+  modal: true,
+  avatar: () => ({
+    size: "md",
+    shape: "circle",
+    color: "primary",
+    icon: "basket",
+    fit: "contain",
+  }),
+  action: () => ({
+    label: "Reload",
+    color: "base",
+    handler: () => window.location.reload(),
+    auto: false,
+  }),
+});
 
-    // ---
+const { meta } = useSession();
+const processing = ref(false);
+const isOpen = computed(() => meta.value.hasExpired && !props.action?.auto);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
 
-    return {
-      meta,
-      processing: ref(false),
-      styles,
-    };
-  },
-  computed: {
-    isOpen() {
-      const value = this.meta.hasExpired;
-      return (value || this.modelValue) && !this.auto;
-    },
-    hasAction() {
-      return !isEmpty(this.action);
-    },
-  },
-  methods: {
-    doAction() {
-      if (isFunction(this.action?.handler)) {
-        this.processing = true;
-        this.action.handler().finally(() => {
-          this.processing = false;
-        });
-      }
-    },
-  },
-  watch: {
-    meta({ hasExpired }) {
-      if (this.auto && hasExpired) window.location.reload();
-    },
-  },
+async function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    await props.action.handler();
+    processing.value = false;
+  }
+}
+
+watch(meta, ({ hasExpired }) => {
+  if (props.action?.auto && hasExpired) doAction();
 });
 </script>
-.

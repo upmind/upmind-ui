@@ -19,6 +19,8 @@
     :class-footer="styles.domain.drawer.footer"
     v-model:open="open"
     persistent
+    :title="$t('domain.dac.title')"
+    :description="$t('domain.dac.description')"
   >
     <template #header>
       <UpwTextbox

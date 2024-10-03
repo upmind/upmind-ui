@@ -12,6 +12,7 @@ export const contentVariant = cva("mx-auto w-full", {
       "2xl": "max-w-2xl",
       "3xl": "max-w-3xl",
       "4xl": "max-w-4xl",
+      app: "max-w-app",
       full: "max-w-none",
     },
     overflow: {
@@ -26,8 +27,8 @@ export const contentVariant = cva("mx-auto w-full", {
     },
   },
   defaultVariants: {
-    size: "lg",
-    overflow: "visible",
+    size: "app",
+    overflow: "auto",
     fit: "contain",
   },
 });
@@ -37,6 +38,9 @@ export const overlayVariant = cva("", {
     skrim: {
       dark: "bg-black/80",
       light: "bg-white/80",
+      primary: "bg-primary-950/90",
+      secondary: "bg-secondary-950/90",
+      accent: "bg-accent-950/90",
     },
     defaultVariants: {
       skrim: "dark",
