@@ -1,15 +1,15 @@
 <template>
-  <div v-show="!meta.showDialog">
-    <UpwTextbox
-      :class="styles.domain.search"
-      @update:modelValue="onSearch"
-      :prependIcon="meta.showComplete ? null : 'search'"
-      :placeholder="$t('domain.dac.search')"
-      autofocus
-      autocomplete="url"
-      v-model="queryValue"
-    />
-  </div>
+  <UpwTextbox
+    v-if="!meta.showDialog"
+    :class="styles.domain.search"
+    @update:modelValue="onSearch"
+    :prependIcon="meta.showComplete ? null : 'search'"
+    :placeholder="$t('domain.dac.search')"
+    autofocus
+    autocomplete="url"
+    v-model="queryValue"
+  />
+
   <Drawer
     fit="cover"
     skrim="primary"
