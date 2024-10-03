@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-bind="forwarded" :open="value" @update:oen="onOpen">
+  <Dialog v-bind="forwarded" :open="value" @update:open="onOpen">
     <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>

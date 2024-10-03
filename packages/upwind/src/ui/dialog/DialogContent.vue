@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { type HTMLAttributes, computed } from "vue";
 import {
-  DialogClose,
   DialogContent,
-  type DialogContentEmits,
-  type DialogContentProps,
-  DialogOverlay,
   DialogPortal,
   useForwardPropsEmits,
+  type DialogContentEmits,
+  type DialogContentProps,
 } from "radix-vue";
-import { X } from "lucide-vue-next";
+
+import DialogClose from "./DialogClose.vue";
+import DialogOverlay from "./DialogOverlay.vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  DialogContentProps & { persistent?: boolean; class?: HTMLAttributes["class"] }
+  DialogContentProps & {
+    persistent?: boolean;
+    class?: HTMLAttributes["class"];
+    classOverlay?: HTMLAttributes["class"];
+  }
 >();
 const emits = defineEmits<DialogContentEmits>();
 
@@ -27,9 +31,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
 <template>
   <DialogPortal>
-    <DialogOverlay
-      class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-    />
+    <DialogOverlay :class="props.classOverlay" />
     <DialogContent
       v-bind="forwarded"
       :class="
@@ -41,13 +43,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     >
       <slot />
 
-      <DialogClose
-        v-if="!props.persistent"
-        class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-      >
-        <X class="h-4 w-4" />
-        <span class="sr-only">Close</span>
-      </DialogClose>
+      <DialogClose v-if="!props.persistent" class="absolute right-0 top-0" />
     </DialogContent>
   </DialogPortal>
 </template>
