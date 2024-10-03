@@ -141,10 +141,10 @@ export const Colors: Story = {
   }),
 };
 
-// <uw-tabs :default-value="color + '2'">
-// <uw-tabs-list v-bind="args" :color="color">
-//   <uw-tabs-trigger v-bind="args" :color="color" v-for="(tab, index) in 5" :key="color + index" :value="color + index" class="capitalize">
+// <Tabs :default-value="color + '2'">
+// <Tabs-list v-bind="args" :color="color">
+//   <Tabs-trigger v-bind="args" :color="color" v-for="(tab, index) in 5" :key="color + index" :value="color + index" class="capitalize">
 //     {{ color }} {{ index + 1 }}
-//   </uw-tabs-trigger>
-// </uw-tabs-list>
-// </uw-tabs>
+//   </Tabs-trigger>
+// </Tabs-list>
+// </Tabs>

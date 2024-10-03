@@ -1,23 +1,24 @@
 <template>
-  <Dialog v-bind="forwarded" :open="isOpen" @update:modelValue="onOpen">
+  <Dialog v-bind="forwarded" :open="value" @update:oen="onOpen">
     <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>
 
-    <DialogScrollContent
+    <DialogContent
       v-bind="forwarded"
       :class="cn(variants.dialog.content, props.class)"
       :classOverlay="variants.dialog.overlay"
-      @update:modelValue="onOpen"
+      @update:open="onOpen"
     >
       <DialogHeader
         :class="props.classHeader"
         v-if="
-          $slots.header ||
-          title ||
-          $slots.title ||
-          description ||
-          $slots.description
+          !props.noHeader &&
+          ($slots.header ||
+            title ||
+            $slots.title ||
+            description ||
+            $slots.description)
         "
       >
         <slot name="header">
@@ -44,32 +45,33 @@
       <DialogFooter :class="props.classFooter">
         <slot name="footer" />
 
-        <DialogClose @click="forceClose" v-if="$slots.close">
+        <DialogClose @click="forceClose" v-if="$slots.close && !persistent">
           <slot name="close" />
         </DialogClose>
         <slot name="actions" />
       </DialogFooter>
-    </DialogScrollContent>
+    </DialogContent>
   </Dialog>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
+import { useVModel } from "@vueuse/core";
 
 // --- internal
-import { cn, useStyles } from "../../utils";
+import { useStyles, cn } from "../../utils";
 import config from "./dialog.config";
 
 // --- components
 import Dialog from "./Dialog.vue";
-import DialogTrigger from "./DialogTrigger.vue";
-import DialogScrollContent from "./DialogScrollContent.vue";
+import DialogContent from "./DialogContent.vue";
 import DialogHeader from "./DialogHeader.vue";
 import DialogFooter from "./DialogFooter.vue";
 import DialogTitle from "./DialogTitle.vue";
 import DialogDescription from "./DialogDescription.vue";
+import DialogTrigger from "./DialogTrigger.vue";
 import DialogClose from "./DialogClose.vue";
 
 // --- types
@@ -80,18 +82,21 @@ import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
 const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
   open: false,
+  persistent: false,
   title: "",
   description: "",
   // --- variants
-  size: "md",
+  size: "app",
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
   // --- styles
   upwindConfig: () => ({
     dialog: {
-      content: {},
       overlay: {},
+      content: {},
+      header: [],
+      footer: [],
     },
   }),
   class: "",
@@ -115,27 +120,19 @@ const variants = useStyles(
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ dialog: { content: string; overlay: string } }>;
+) as ComputedRef<{
+  dialog: { overlay: string; content: string; header: string; footer: string };
+}>;
 
 // --- state
-const isOpen = ref(props.open);
+const value = useVModel(props, "open", emits);
 
-const onOpen = (value: boolean, force: boolean = false) => {
-  debugger;
-  if (props.persistent && !value && !force) return;
-  isOpen.value = value;
-  emits("update:open", value);
+const onOpen = (open: boolean, force: boolean = false) => {
+  if (props.persistent && !open && !force) return;
+  value.value = open;
 };
 
 const forceClose = () => {
   onOpen(false, true);
 };
-
-watch(
-  () => props.open,
-  (value, oldValue) => {
-    if (value === oldValue) return;
-    isOpen.value = value;
-  }
-);
 </script>

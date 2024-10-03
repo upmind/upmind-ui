@@ -22,7 +22,7 @@
       </component>
 
       <div class="flex flex-1 items-center justify-end gap-4">
-        <upw-listbox
+        <UpwListbox
           v-if="$i18n?.locale && locales.length > 1"
           size="sm"
           v-model="$i18n.locale"
@@ -34,7 +34,7 @@
           :items="locales"
         />
 
-        <upm-currency />
+        <UpmCurrency />
 
         <router-link
           to="/"
@@ -42,26 +42,26 @@
           v-slot="{ href, navigate }"
           v-if="!isBasketView"
         >
-          <uw-button
+          <Button
             :href="meta.isAvailable ? href : null"
             @click="meta.isAvailable && navigate"
             :as="meta.isAvailable ? (href ? 'a' : 'button') : 'button'"
             :disabled="!meta.isAvailable"
             variant="ghost"
           >
-            <uw-icon icon="basket" slot="prepend" size="xs" />
-            <uw-indicator
+            <Icon icon="basket" slot="prepend" size="xs" />
+            <Indicator
               slot="append"
               :key="items?.length"
               :modelValue="items.length"
               color="primary"
               class="absolute right-0 top-0"
             >
-            </uw-indicator>
-          </uw-button>
+            </Indicator>
+          </Button>
         </router-link>
 
-        <upm-profile />
+        <UpmProfile />
       </div>
     </nav>
   </header>
@@ -76,14 +76,7 @@ import {
   UpmCurrency,
 } from "@upmind/client-vue";
 
-import {
-  UwAvatar,
-  UwIcon,
-  UwIndicator,
-  UwButton,
-  useCustomElement,
-} from "@upmind/upwind";
-useCustomElement(UwAvatar, UwIcon, UwIndicator, UwButton);
+import { Avatar, Icon, Indicator, Button } from "@upmind/upwind";
 
 export default defineComponent({
   name: "UpmHeader",
@@ -91,6 +84,10 @@ export default defineComponent({
     UpwListbox,
     UpmProfile,
     UpmCurrency,
+    Avatar,
+    Icon,
+    Indicator,
+    Button,
   },
   props: {
     noHome: {

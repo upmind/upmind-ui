@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps, CxOptions } from "class-variance-authority";
 
 // --- internal
 import type { contentVariant, overlayVariant } from "./dialog.config";
@@ -24,8 +24,10 @@ export interface DialogProps
   title?: string;
   description?: string;
   // ---
+  noHeader?: boolean;
+  // ---
   open?: boolean;
-  persistent: boolean;
+  persistent?: boolean;
   // --- variants
   size?: DialogContentVariantProps["size"];
   overflow?: DialogContentVariantProps["overflow"];
@@ -35,8 +37,10 @@ export interface DialogProps
   // ---
   upwindConfig?: {
     dialog: {
-      content: Partial<DialogOverlayVariantProps>;
       overlay: Partial<DialogContentVariantProps>;
+      content: Partial<DialogOverlayVariantProps>;
+      header: CxOptions;
+      footer: CxOptions;
     };
   };
   class?: HTMLAttributes["class"];

@@ -113,17 +113,17 @@ export function useCustomElement(
 
 declare module "vue" {
   export interface GlobalComponents {
-    UwAlert: typeof UwAlert;
-    UwAvatar: typeof UwAvatar;
-    UwBadge: typeof UwBadge;
-    UwButton: typeof UwButton;
-    UwCombobox: typeof UwCombobox;
-    UwDrawer: typeof UwDrawer;
-    UwDialog: typeof UwDialog;
-    UwIcon: typeof UwIcon;
-    UwIndicator: typeof UwIndicator;
-    UwSonner: typeof UwSonner;
-    UwTabs: typeof UwTabs;
-    UwTooltip: typeof UwTooltip;
+    Alert: typeof Alert;
+    Avatar: typeof Avatar;
+    Badge: typeof Badge;
+    Button: typeof Button;
+    Combobox: typeof Combobox;
+    Drawer: typeof Drawer;
+    Dialog: typeof Dialog;
+    Icon: typeof Icon;
+    Indicator: typeof Indicator;
+    Sonner: typeof Sonner;
+    Tabs: typeof Tabs;
+    Tooltip: typeof Tooltip;
   }
 }

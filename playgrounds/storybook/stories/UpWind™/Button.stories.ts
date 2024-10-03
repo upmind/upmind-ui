@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { Button } from "@upmind/upwind";
+import { Avatar, Button } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -97,7 +97,7 @@ export const Slots: Story = {
     },
   },
   render: args => ({
-    components: { Button },
+    components: { Button, Avatar },
     setup() {
       const avatar = useSystemArgTypes.flag.options.find(flag =>
         flag.includes("gb")
@@ -128,21 +128,21 @@ export const Slots: Story = {
         v-bind="args"
         icon-only
         label="Icon Only">
-        <uw-avatar
+        <Avatar
           slot="prepend"
           class="w-full h-full"
           :src="avatar"
-          caption="GB"></uw-avatar>
+          caption="GB"></Avatar>
       </Button>
 
      <Button
         v-bind="args"
         label="Prepend Avatar">
-        <uw-avatar
+        <Avatar
           slot="prepend"
           class="w-full h-full"
           :src="avatar"
-          caption="GB"></uw-avatar>
+          caption="GB"></Avatar>
       </Button>
 
       <Button
@@ -163,7 +163,7 @@ export const Slots: Story = {
         v-bind="args"
         label="Append Avatar"
         >
-        <uw-avatar
+        <Avatar
           slot="append"
           class="w-full h-full"
           :src="avatar"

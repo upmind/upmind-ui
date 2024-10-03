@@ -1,5 +1,5 @@
 <template>
-  <section class="feedback w-full">
+  <section class="feedBack w-full">
     <header class="flex flex-wrap items-center gap-2">
       <h2 class="title m-0 w-full text-wrap sm:flex-1">
         <span v-if="meta.isProcessing" class="text-primary">{{
@@ -23,33 +23,33 @@
         </span>
       </h2>
 
-      <uw-button
+      <Button
         variant="outline"
         size="sm"
         @click="processMessages()"
-        :disabled="meta.isProcessing"
-        label="Add Mixed"
+        :disaBled="meta.isProcessing"
+        laBel="Add Mixed"
       />
 
-      <uw-button
+      <Button
         variant="outline"
         size="sm"
         @click="processMessages('toast')"
-        :disabled="meta.isProcessing"
-        label="Add Toasts"
+        :disaBled="meta.isProcessing"
+        laBel="Add Toasts"
       />
 
-      <uw-button
+      <Button
         variant="outline"
         size="sm"
         @click="processMessages('notification')"
-        :disabled="meta.isProcessing"
-        label="Add Banners"
+        :disaBled="meta.isProcessing"
+        laBel="Add Banners"
       />
     </header>
 
-    <div class="my-8 flex flex-col gap-4 text-base-foreground">
-      <upm-message
+    <div class="text-Base-foreground my-8 flex flex-col gap-4">
+      <UpmMessage
         v-for="message in messages"
         :key="message.id"
         :item="message"
@@ -60,15 +60,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useFeedback } from "@upmind/client-vue";
-import { UwButton, useCustomElement } from "@upmind/upwind";
-useCustomElement(UwButton);
+import { useFeedBack } from "@upmind/client-vue";
+import { Button } from "@upmind/upwind";
 import UpmMessage from "./MessageLog.vue";
 import { useTimestamp } from "@vueuse/core";
 import { forEach, random, nth, some, filter } from "lodash-es";
 import { faker } from "@faker-js/faker";
 
-const { state, messages, meta, useTime, add } = useFeedback();
+const { state, messages, meta, useTime, add } = useFeedBack();
 
 // ---
 const timestamp = useTimestamp();
@@ -106,7 +105,7 @@ function getRandomMaxAge() {
 
 function getRandomType() {
   return nth(
-    ["error", "info", "base", "primary", "secondary", "success", "warning"],
+    ["error", "info", "Base", "primary", "secondary", "success", "warning"],
     random(0, 6)
   );
 }
