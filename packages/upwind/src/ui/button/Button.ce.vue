@@ -4,15 +4,22 @@
   <ButtonRoot
     :as="props.as"
     :class="cn(variants.button, props.class)"
-    :disabled="props.disabled"
+    :disabled="props.disabled || props.loading"
+    :loading="props.loading"
   >
-    <slot name="prepend"></slot>
+    <template v-if="!props.loading">
+      <slot name="prepend"></slot>
 
-    <slot>
-      <span class="truncate">{{ label }}</span>
-    </slot>
+      <slot>
+        <span class="truncate">{{ label }}</span>
+      </slot>
 
-    <slot name="append"></slot>
+      <slot name="append"></slot>
+    </template>
+
+    <template v-else>
+      <UpwSpinner size="xs" />
+    </template>
   </ButtonRoot>
 </template>
 
@@ -30,6 +37,7 @@ import {
 
 // --- components
 import ButtonRoot from "./Button.vue";
+import { UpwSpinner } from "@upmind/upwind";
 
 // --- types
 import type { ComputedRef } from "vue";
