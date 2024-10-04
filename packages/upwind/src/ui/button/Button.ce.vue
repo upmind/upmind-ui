@@ -7,7 +7,7 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
   >
-    <div :class="props.loading ? 'select-none opacity-0' : ''">
+    <div :class="variants.content">
       <slot name="prepend"></slot>
 
       <slot>
@@ -66,9 +66,9 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  "button",
+  ["button", "content"],
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ button: string }>;
+) as ComputedRef<{ button: string; content: string }>;
 </script>
