@@ -29,11 +29,7 @@ import { computed } from "vue";
 
 // --- internal
 import config from "./button.config";
-import {
-  useStyles,
-  cn,
-  //stylesheet
-} from "../../utils";
+import { useStyles, cn } from "../../utils";
 
 // --- components
 import ButtonRoot from "./Button.vue";
@@ -42,7 +38,6 @@ import { UpwSpinner } from "@upmind/upwind";
 // --- types
 import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<ButtonProps>(), {
   // --- props
