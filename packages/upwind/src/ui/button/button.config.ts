@@ -10,7 +10,7 @@ export const buttonVariants = cva(
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-transparent",
         ghost: "border-transparent",
-        link: "border-none !bg-transparent !px-0 underline-offset-4 hover:underline",
+        link: "border-none !bg-transparent !px-0",
         tonal: "border-transparent",
       },
       color: {
@@ -35,10 +35,6 @@ export const buttonVariants = cva(
       },
       block: {
         true: "w-full basis-full",
-      },
-      loading: {
-        true: "select-none opacity-0",
-        false: "",
       },
     },
 
@@ -304,9 +300,12 @@ export const buttonVariants = cva(
 );
 
 export const contentVariants = cva(
-  "inline-flex select-none items-center justify-center whitespace-nowrap font-medium no-underline",
+  "inline-flex items-center justify-center whitespace-nowrap font-medium",
   {
     variants: {
+      variant: {
+        link: "underline-offset-4 hover:underline",
+      },
       loading: {
         true: "select-none opacity-0",
         false: "",
