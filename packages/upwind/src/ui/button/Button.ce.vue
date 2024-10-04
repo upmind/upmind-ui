@@ -19,7 +19,7 @@
 
     <span
       v-if="props.loading"
-      class="absolute inset-0 flex items-center justify-center"
+      class="absolute flex items-center justify-center"
     >
       <UpwSpinner size="xs" />
     </span>
