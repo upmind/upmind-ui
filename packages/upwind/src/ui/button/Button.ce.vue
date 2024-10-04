@@ -7,7 +7,7 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
   >
-    <template v-if="!props.loading">
+    <div :class="props.loading ? 'select-none opacity-0' : ''">
       <slot name="prepend"></slot>
 
       <slot>
@@ -15,11 +15,14 @@
       </slot>
 
       <slot name="append"></slot>
-    </template>
+    </div>
 
-    <template v-else>
+    <div
+      v-if="props.loading"
+      class="absolute inset-0 flex items-center justify-center"
+    >
       <UpwSpinner size="xs" />
-    </template>
+    </div>
   </ButtonRoot>
 </template>
 
