@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "relative inline-flex select-none items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
+  "relative rounded-md border ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
@@ -35,6 +35,10 @@ export const buttonVariants = cva(
       },
       block: {
         true: "w-full basis-full",
+      },
+      loading: {
+        true: "select-none opacity-0",
+        false: "",
       },
     },
 
@@ -294,6 +298,19 @@ export const buttonVariants = cva(
       variant: "flat",
       color: "base",
       size: "md",
+      loading: false,
+    },
+  }
+);
+
+export const contentVariants = cva(
+  "inline-flex select-none items-center justify-center whitespace-nowrap font-medium no-underline",
+  {
+    variants: {
+      loading: {
+        true: "select-none opacity-0",
+        false: "",
+      },
     },
   }
 );
@@ -301,4 +318,5 @@ export const buttonVariants = cva(
 // -----------------------------------------------------------------------------
 export default {
   button: buttonVariants,
+  content: contentVariants,
 };
