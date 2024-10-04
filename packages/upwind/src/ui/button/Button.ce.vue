@@ -7,7 +7,7 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
   >
-    <div :class="variants.content">
+    <span :class="variants.content">
       <slot name="prepend"></slot>
 
       <slot>
@@ -15,14 +15,14 @@
       </slot>
 
       <slot name="append"></slot>
-    </div>
+    </span>
 
-    <div
+    <span
       v-if="props.loading"
       class="absolute inset-0 flex items-center justify-center"
     >
       <UpwSpinner size="xs" />
-    </div>
+    </span>
   </ButtonRoot>
 </template>
 
