@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "relative flex items-center justify-center space-x-2 whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
+  "relative inline-flex items-center justify-center space-x-2 whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
@@ -300,7 +300,7 @@ export const buttonVariants = cva(
 );
 
 export const contentVariants = cva(
-  "flex items-center justify-center whitespace-nowrap font-medium",
+  "inline-flex items-center justify-center whitespace-nowrap font-medium",
   {
     variants: {
       variant: {
