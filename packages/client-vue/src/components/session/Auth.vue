@@ -106,11 +106,11 @@ export default defineComponent({
       return [
         {
           value: "register",
-          label: this.$t("auth.register"),
+          label: this.$t("auth.actions.toggle.register"),
         },
         {
           value: "login",
-          label: this.$t("auth.login"),
+          label: this.$t("auth.actions.toggle.login"),
         },
       ];
     },

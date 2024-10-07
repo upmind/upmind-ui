@@ -47,7 +47,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/firstname",
-        i18n: "auth.firstname",
+        i18n: "auth.register.firstname",
         options: {
           focus: true,
           autocomplete: "given-name",
@@ -57,7 +57,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/lastname",
-        i18n: "auth.lastname",
+        i18n: "auth.register.lastname",
         options: {
           autocomplete: "family-name",
           placeholder: "Doe, Smith, ...",
@@ -66,7 +66,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/email",
-        i18n: "auth.email",
+        i18n: "auth.register.email",
         options: {
           autocomplete: "email",
           placeholder: "name@email.com",
@@ -75,7 +75,7 @@ export const useRegisterUischemaParser = (data: any) => {
       {
         type: "Control",
         scope: "#/properties/password",
-        i18n: "auth.password",
+        i18n: "auth.register.password",
         options: {
           type: "password",
           autocomplete: "current-password",
@@ -129,7 +129,7 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/email",
-        i18n: "auth.email",
+        i18n: "auth.login.email",
         options: {
           autocomplete: "email",
           placeholder: "name@email.com",
@@ -138,7 +138,7 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/password",
-        i18n: "auth.password",
+        i18n: "auth.login.password",
         options: {
           autocomplete: "current-password",
           placeholder: "password or passphrase",
