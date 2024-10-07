@@ -26,9 +26,9 @@ export default defineComponent({
   props: {
     size: {
       type: String,
-      default: "md",
+      default: "auto",
       validator: (value: string) =>
-        ["auto", "badge", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
+        ["auto", "xs", "sm", "md", "lg", "xl", "2xl"].includes(value),
     },
     // --- Provide a way to add custom styles for a specific instance of the component
     upwindConfig: { type: [Object, Array], default: () => ({}) },

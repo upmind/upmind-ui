@@ -19,9 +19,9 @@
 
     <span
       v-if="props.loading"
-      class="absolute flex items-center justify-center"
+      class="absolute bottom-0 top-0 m-auto flex items-center justify-center"
     >
-      <UpwSpinner size="xs" />
+      <UpwSpinner size="auto" />
     </span>
   </ButtonRoot>
 </template>
