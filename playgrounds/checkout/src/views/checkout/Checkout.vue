@@ -1,13 +1,13 @@
 <template>
   <article :class="styles.checkout.root">
-    <upm-basket-loading
+    <UpmBasketLoading
       v-if="meta.isLoading || !animationComplete"
       :class="styles.checkout.section.root"
       :title="$t('basket.loading.title')"
       :text="$t('basket.loading.text')"
     />
 
-    <upm-basket-empty
+    <UpmBasketEmpty
       v-else-if="meta.isEmpty"
       :class="styles.checkout.section.root"
       :title="$t('basket.empty.title')"
@@ -21,14 +21,10 @@
     />
 
     <template v-else>
-      <upw-steps
-        :model-value="activeSection"
-        :steps="steps"
-        @update:model-value="scrollTo"
-      />
+      <UpwSteps :open="activeSection" :steps="steps" @update:open="scrollTo" />
 
       <!-- Overview -->
-      <upm-basket-items
+      <UpmBasketItems
         id="overview"
         ref="overview"
         :aria-disabled="!meta.isAvailable"
@@ -85,7 +81,7 @@
         <div :class="styles.checkout.section.wrapper">
           <div :class="styles.checkout.section.content" v-auto-animate>
             <!-- account -->
-            <upm-session
+            <UpmSession
               id="account"
               ref="account"
               v-if="!meta.hasAccount && !meta.isClaiming"
@@ -94,19 +90,19 @@
               :aria-disabled="meta.hasAccount"
               :aria-active="activeSection === 'account'"
             >
-            </upm-session>
+            </UpmSession>
 
             <template v-if="meta.hasAccount">
               <!-- billing details -->
-              <upm-billing-details
-                :model-value="billingDetailsModel"
+              <UpmBillingDetails
+                :open="billingDetailsModel"
                 @update:modelValue="billingDetailsUpdate"
               />
 
               <!-- custom fields  -->
-              <upw-form
+              <UpwForm
                 :additional-errors="fieldsErrors?.data"
-                :model-value="fieldsModel"
+                :open="fieldsModel"
                 :processing="fieldsMeta.isProcessing"
                 :schema="fieldsSchema"
                 :uischema="fieldsUischema"
@@ -118,7 +114,7 @@
               />
 
               <!-- payment details -->
-              <upm-payment-details
+              <UpmPaymentDetails
                 id="payment"
                 ref="payment"
                 v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
@@ -129,7 +125,7 @@
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
-            <upm-basket-summary no-actions />
+            <UpmBasketSummary no-actions />
           </aside>
         </div>
 
@@ -137,16 +133,16 @@
       </section>
 
       <!-- Basket procesing -->
-      <upm-basket-processing
-        :model-value="meta.isCheckout"
+      <UpmBasketProcessing
+        :open="meta.isCheckout"
         :class="styles.checkout.section.root"
         :title="processingTitle"
         :text="processingText"
       />
 
       <!-- Order confirmation -->
-      <upm-order-confirmation
-        :model-value="meta.isComplete"
+      <UpmOrderConfirmation
+        :open="meta.isComplete"
         :order-id="invoice?.id"
         :success="meta.hasPaid"
         :class="styles.checkout.section.root"
