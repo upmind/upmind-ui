@@ -294,7 +294,6 @@ export const buttonVariants = cva(
       variant: "flat",
       color: "base",
       size: "md",
-      loading: false,
     },
   }
 );
@@ -318,6 +317,10 @@ export const contentVariants = cva(
         true: "select-none opacity-0",
         false: "",
       },
+    },
+    defaultVariants: {
+      size: "md",
+      loading: false,
     },
   }
 );
