@@ -29,7 +29,6 @@
           v-if="prependAvatar"
           :class="styles.dropdown.avatar"
           v-bind="prependAvatar"
-          size="full"
         />
 
         <Icon
@@ -73,7 +72,6 @@
           class="avatar"
           :class="styles.dropdown.avatar"
           v-bind="appendAvatar"
-          size="full"
         />
 
         <span :class="styles.dropdown.append" v-if="appendText">
@@ -81,7 +79,7 @@
         </span>
 
         <!-- loading / toggle -->
-        <UpwSpinner
+        <Spinner
           v-if="loading"
           :class="styles.dropdown.loading"
           aria-hidden="true"
@@ -147,7 +145,7 @@ import { useFloating, offset, flip, shift } from "@floating-ui/vue";
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import Icon from "../../ui/icon/Icon.ce.vue";
 import Avatar from "../../ui/avatar/Avatar.ce.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import Spinner from "../../ui/spinner/Spinner.ce.vue";
 import UpwDropdownItem from "./DropdownItem.vue";
 
 // --- local
@@ -168,7 +166,7 @@ export default defineComponent({
     HMenuItems: MenuItems,
     Icon,
     Avatar,
-    UpwSpinner,
+    Spinner,
     UpwDropdownItem,
   },
   props: {

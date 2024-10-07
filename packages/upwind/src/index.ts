@@ -16,7 +16,6 @@ export { default as UpwRadioList } from "./components/radio/RadioList.vue";
 export { default as UpwSelect } from "./components/select/Select.vue";
 export { default as UpwSkeletonForm } from "./components/skeleton/SkeletonForm.vue";
 export { default as UpwSkeletonList } from "./components/skeleton/SkeletonList.vue";
-export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
 export { default as UpwSteps } from "./components/steps/Steps.vue";
 export { default as UpwTabs } from "./components/tabs/Tabs.vue";
 export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
@@ -37,6 +36,7 @@ import { UwDrawer, Drawer } from "./ui/drawer";
 import { UwIcon, Icon } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
+import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
@@ -71,6 +71,7 @@ export {
   Icon,
   Indicator,
   Sonner,
+  Spinner,
   Tabs,
   type TabItems,
   Tooltip,
@@ -110,6 +111,7 @@ export function register() {
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-sonner", UwSonner);
+  customElements.define("uw-spinner", UwSpinner);
   customElements.define("uw-tabs", UwTabs);
   customElements.define("uw-tooltip", UwTooltip);
 }
@@ -141,6 +143,7 @@ declare module "vue" {
     Icon: typeof Icon;
     Indicator: typeof Indicator;
     Sonner: typeof Sonner;
+    Spinner: typeof Spinner;
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
   }

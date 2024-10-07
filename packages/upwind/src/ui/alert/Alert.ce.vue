@@ -2,7 +2,7 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Alert :class="cn(variants.alert, props.class)">
-    <Icon v-if="icon" :icon="icon" size="xxs" />
+    <Icon v-if="icon" :icon="icon" size="2xs" />
     <AlertTitle
       class="mb-1 flex items-center gap-2 font-medium leading-none tracking-tight"
     >

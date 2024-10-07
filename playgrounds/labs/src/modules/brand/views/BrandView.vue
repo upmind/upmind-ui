@@ -1,9 +1,6 @@
 <template>
   <div class="relative mx-auto flex w-full flex-wrap">
-    <upw-spinner
-      class="w-full justify-center text-center"
-      v-if="meta.isLoading"
-    />
+    <Spinner class="w-full justify-center text-center" v-if="meta.isLoading" />
 
     <div
       class="mx-4 h-screen max-h-full w-full items-start justify-center overflow-auto p-6"
@@ -87,7 +84,7 @@
 <script setup lang="ts">
 import { useBrand } from "@upmind/headless-vue";
 import { startCase, isArray, isObject } from "lodash-es";
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 
 const { meta, responses } = useBrand(message =>
   window?.top?.postMessage(message, "*")

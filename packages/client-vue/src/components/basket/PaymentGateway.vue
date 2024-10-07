@@ -11,7 +11,7 @@
       :leave-to-class="styles.basket.paymentGateway.transition.leave.to"
       appear
     >
-      <upw-spinner size="xs" v-if="meta.isLoading" key="spinner" />
+      <Spinner size="xs" v-if="meta.isLoading" key="spinner" />
 
       <!-- Instructions -->
       <upw-markdown
@@ -58,13 +58,13 @@ import { useStyles, cn, UpwMarkdown } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, UpwSpinner } from "@upmind/upwind";
+import { UpwForm, Spinner } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmBasketPaymentGateway",
-  components: { UpwForm, UpwSpinner, UpwMarkdown },
+  components: { UpwForm, Spinner, UpwMarkdown },
   props: {
     id: {
       type: String,

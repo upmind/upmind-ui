@@ -6,13 +6,13 @@
       <Icon
         v-if="meta.hasIcon"
         :icon="icon"
-        class="relative z-10 h-full w-full object-cover"
+        class="relative z-10 object-cover"
       />
       <AvatarImage
         v-else-if="meta.hasImage"
         :src="src"
         alt="avatar"
-        class="relative z-10 h-full w-full object-cover"
+        class="relative z-10 object-cover"
       />
       <!-- forced caption for caption shinethrough -->
       <span
@@ -59,7 +59,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   color: "base",
   fit: "cover",
   shape: "circle",
-  size: "md",
+  size: "auto",
   // --- styles
   upwindConfig: () => ({ avatar: {} }),
   class: "",
