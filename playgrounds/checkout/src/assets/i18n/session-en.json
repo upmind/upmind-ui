@@ -1,37 +1,58 @@
 {
   "auth": {
-    "register": "New customer",
-    "login": "Existing customer",
-    "email": {
-      "label": "Your email address",
-      "placeholder": "name@email.com",
-      "error": "A valid email address is required",
-      "description": "Please use an active email address as we will send you a confirmation email to complete your registration."
+    "register": {
+      "email": {
+        "label": "Your email address",
+        "placeholder": "name@email.com",
+        "error": "A valid email address is required",
+        "description": "Please use an active email address as we will send you a confirmation email to complete your registration."
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password or passphrase",
+        "error": "A strong password is required",
+        "description": "Please use a strong password that is at least 8 characters long and includes a mix of letters, numbers and symbols."
+      },
+      "firstname": {
+        "label": "First name",
+        "error": "Your first name is required",
+        "description": null
+      },
+      "lastname": {
+        "label": "Last name",
+        "error": "Your last name is required",
+        "description": null
+      },
+      "fields": {
+        "label": "Custom fields"
+      }
     },
-    "password": {
-      "label": "Password",
-      "placeholder": "Password or passphrase",
-      "error": "A strong password is required",
-      "description": "Please use a strong password that is at least 8 characters long and includes a mix of letters, numbers and symbols."
-    },
-    "firstname": {
-      "label": "First name",
-      "error": "Your first name is required",
-      "description": null
-    },
-    "lastname": {
-      "label": "Last name",
-      "error": "Your last name is required",
-      "description": null
-    },
-    "fields": {
-      "label": "Custom fields",
-      "what_is_your_favourite_team": {
-        "label": "What is your favourite?",
-        "description": "Could be your favourite sports team, band, or anything else you're passionate about."
+    "login": {
+      "email": {
+        "label": "Your email address",
+        "placeholder": "name@email.com",
+        "error": "A valid email address is required",
+        "description": null
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password or passphrase",
+        "error": "A strong password is required",
+        "description": null
+      },
+      "actions": {
+        "register": "Create new account",
+        "login": "Log into my account",
+        "continue": "Continue",
+        "logout": "Log out",
+        "forgot": "Forgot password"
       }
     },
     "actions": {
+      "toggle": {
+        "register": "New customer",
+        "login": "Existing customer"
+      },
       "register": "Create new account",
       "login": "Log into my account",
       "continue": "Continue",
@@ -45,6 +66,18 @@
     "terms_and_conditions": "Terms & Conditions"
   },
   "session": {
+    "hero": {
+      "register": {
+        "title": "New here?",
+        "description": "No problem, signing up is quick and easy. See you on the other side!",
+        "action": "Create an account"
+      },
+      "login": {
+        "title": "Already have an account?",
+        "description": "Sign in for a faster checkout.",
+        "action": "Sign in"
+      }
+    },
     "unauthenticated": {
       "header": {
         "register": {
@@ -70,12 +103,15 @@
     "expired": {
       "title": "Your session has expired",
       "text": "Please restart your checkout to continue.",
-      "avatar": "basket",
       "actions": {
-        "continue": {
-          "label": "Restart checkout"
-        }
+        "continue": "Restart checkout"
       }
+    },
+    "account_dropdown": {
+      "my_account": "My Account",
+      "not_logged_in": "Not logged in",
+      "basket": "Basket",
+      "log_out": "Log out"
     }
   }
 }
