@@ -11,6 +11,7 @@
   />
 
   <Drawer
+    v-else
     fit="cover"
     skrim="primary"
     :class="styles.domain.drawer.root"
