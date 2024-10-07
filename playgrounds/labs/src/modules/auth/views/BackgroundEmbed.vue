@@ -11,7 +11,7 @@
     <div
       class="z-index-1 relative mx-4 flex h-screen max-h-full w-full items-center justify-center overflow-auto md:mx-8 xl:mx-12"
     >
-      <upw-spinner
+      <Spinner
         class="w-full justify-center text-center"
         v-if="meta.isProcessing"
       />
@@ -69,7 +69,7 @@ import { watch } from "vue";
 import { useSession } from "@upmind/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 
 // ---
 // lets set up an inspector on the session

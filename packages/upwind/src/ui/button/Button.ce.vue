@@ -11,7 +11,9 @@
       <slot name="prepend"></slot>
 
       <slot>
-        <span class="truncate">{{ label }}</span>
+        <span class="truncate" :class="{ 'sr-only': props.iconOnly }">{{
+          label
+        }}</span>
       </slot>
 
       <slot name="append"></slot>
@@ -19,9 +21,9 @@
 
     <span
       v-if="props.loading"
-      class="absolute bottom-0 top-0 m-auto flex items-center justify-center"
+      class="absolute bottom-1 left-1 right-1 top-1 m-auto"
     >
-      <UpwSpinner size="auto" />
+      <Spinner />
     </span>
   </ButtonRoot>
 </template>
@@ -36,7 +38,7 @@ import { useStyles, cn } from "../../utils";
 
 // --- components
 import ButtonRoot from "./Button.vue";
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -46,6 +48,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   // --- props
   disabled: false,
   loading: false,
+  iconOnly: false,
   // --- variants
   size: "md",
   color: "base",

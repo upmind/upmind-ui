@@ -8,7 +8,7 @@ const props = defineProps<DialogCloseProps>();
 <template>
   <DialogClose v-bind="props" :as="Button" size="icon" variant="ghost">
     <slot>
-      <Icon icon="close" size="xxs" />
+      <Icon icon="close" size="auto" />
       <span class="sr-only">Close</span>
     </slot>
   </DialogClose>

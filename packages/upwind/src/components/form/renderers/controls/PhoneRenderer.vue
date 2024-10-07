@@ -14,7 +14,6 @@
         :model-value="control.data?.country || defaultCountryCode"
         :items="countries"
         has-search
-        icon-only
         @update:modelValue="onChangeCountry"
         grouped
         size="sm"

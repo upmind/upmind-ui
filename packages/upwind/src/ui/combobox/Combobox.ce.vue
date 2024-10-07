@@ -14,7 +14,7 @@
           <Avatar
             v-if="value?.icon"
             :icon="value.icon"
-            size="xxxs"
+            size="3xs"
             shape="circle"
             fit="cover"
             class="mr-2 shrink-0"
@@ -31,11 +31,7 @@
           icon="arrow-up"
         />
 
-        <UpwSpinner
-          size="xs"
-          v-else
-          class="-mr-1 ml-2 mt-1 shrink-0 opacity-50"
-        />
+        <Spinner size="xs" v-else class="-mr-1 ml-2 mt-1 shrink-0 opacity-50" />
       </Button>
     </PopoverTrigger>
     <PopoverContent
@@ -63,7 +59,7 @@
                 <Avatar
                   v-if="item.icon"
                   :icon="item.icon"
-                  size="xxxs"
+                  size="3xs"
                   class="mr-2"
                 />
                 <span class="mt-[1px] leading-none">{{ item.label }}</span>
@@ -98,7 +94,7 @@ import config from "./combobox.config";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
-import UpwSpinner from "../../components/spinner/Spinner.vue";
+import Spinner from "../spinner/Spinner.ce.vue";
 import {
   Command,
   CommandEmpty,

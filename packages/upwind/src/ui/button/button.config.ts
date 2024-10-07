@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "relative inline-flex items-center justify-center space-x-2 whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
+  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:!opacity-50",
   {
     variants: {
       variant: {
@@ -26,11 +26,11 @@ export const buttonVariants = cva(
         warning: "",
       },
       size: {
-        xs: "h-7 gap-x-1 px-2 py-1 text-xs",
-        sm: "h-9 gap-x-2 px-3 py-1 text-sm",
-        md: "h-10 gap-x-2 px-4 py-1 text-md",
-        lg: "h-11 gap-x-2 px-8 py-1 text-lg",
-        icon: "h-10 w-10 gap-x-2 px-2 py-1 ",
+        xs: "h-7 px-2 py-1 text-xs",
+        sm: "h-9 px-3 py-1 text-sm",
+        md: "h-10 px-4 py-1 text-md",
+        lg: "h-11 px-8 py-1 text-lg",
+        icon: "h-10 w-10 px-2 py-1 ",
         badge: "px-1 py-0 text-xs",
       },
       block: {
@@ -300,9 +300,17 @@ export const buttonVariants = cva(
 );
 
 export const contentVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap font-medium",
+  "inline-flex h-full w-fit items-center justify-center whitespace-nowrap font-medium",
   {
     variants: {
+      size: {
+        xs: "gap-x-1",
+        sm: "gap-x-2",
+        md: "gap-x-2",
+        lg: "gap-x-2 ",
+        icon: "gap-x-2 ",
+        badge: "gap-x-1",
+      },
       variant: {
         link: "!hover:underline !underline-offset-4",
       },

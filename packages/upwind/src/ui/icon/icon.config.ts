@@ -2,11 +2,11 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const iconVariants = cva(
-  "inline-flex flex-shrink-0 align-middle [&>svg]:h-full [&>svg]:w-full",
+  "inline-flex aspect-square flex-shrink-0 align-middle [&>svg]:size-full",
   {
     variants: {
       size: {
-        full: "h-full w-full",
+        auto: "h-full",
         "3xs": "size-3",
         "2xs": "size-4",
         xs: "size-6",

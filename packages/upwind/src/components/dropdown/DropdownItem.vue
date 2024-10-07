@@ -88,11 +88,7 @@
         </span>
 
         <!-- loading  -->
-        <UpwSpinner
-          :class="styles.dropdown.loading"
-          v-if="loading"
-          :size="size"
-        />
+        <Spinner :class="styles.dropdown.loading" v-if="loading" :size="size" />
       </slot>
     </component>
   </HMenuItem>
@@ -107,7 +103,7 @@ import { RouterLink } from "vue-router";
 import { MenuItem } from "@headlessui/vue";
 import Icon from "../../ui/icon/Icon.ce.vue";
 import Avatar from "../../ui/avatar/Avatar.ce.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import Spinner from "../../ui/spinner/Spinner.ce.vue";
 
 // --- local
 import config from "./config.cva";
@@ -130,7 +126,7 @@ export default defineComponent({
     HMenuItem: MenuItem,
     Icon,
     Avatar,
-    UpwSpinner,
+    Spinner,
   },
   props: {
     group: {
