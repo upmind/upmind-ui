@@ -76,7 +76,7 @@ export const useSession = (inspector?: Function) => {
   const model = computed(() => guest.value?.context?.model);
   const schema = computed(() => guest.value?.context?.schema);
   const uischema = computed(() => guest.value?.context?.uischema);
-  const errors = computed(() => guest.value.context?.error);
+  const errors = computed(() => guest.value?.context?.error);
 
   // --------------------------------------------------------
   function showLogin() {
