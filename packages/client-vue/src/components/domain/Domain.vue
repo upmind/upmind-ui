@@ -42,7 +42,7 @@
         :class="styles.domain.existing"
         :errors="errors"
         :items="ownedDomains"
-        v-model="selected"
+        :model-value="selected"
         @update:modelValue="update"
         autocomplete="url"
         autofocus
