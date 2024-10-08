@@ -45,24 +45,22 @@
         <slot />
       </div>
 
-      <DrawerFooter>
-        <div
-          :class="
-            cn(
-              'flex flex-col gap-2',
-              variants.drawer.container,
-              props.classFooter
-            )
-          "
-        >
-          <slot name="footer" />
+      <DrawerFooter
+        :class="
+          cn(
+            'flex flex-col gap-2',
+            variants.drawer.container,
+            props.classFooter
+          )
+        "
+      >
+        <slot name="footer" />
 
-          <DrawerClose v-if="$slots.close">
-            <slot name="close" />
-          </DrawerClose>
+        <DrawerClose v-if="$slots.close">
+          <slot name="close" />
+        </DrawerClose>
 
-          <slot name="actions" />
-        </div>
+        <slot name="actions" />
       </DrawerFooter>
     </DrawerContent>
   </Drawer>

@@ -25,8 +25,8 @@ export const avatarVariants = cva(
       },
       size: {
         full: "h-full w-full text-inherit",
-        xxxs: "h-4 w-4 text-xs",
-        xxs: "h-6 w-6 text-xs",
+        "3xs": "h-4 w-4 text-xs",
+        "2xs": "h-6 w-6 text-xs",
         xs: "h-8 w-8 text-xs",
         sm: "h-12 w-12 text-sm",
         md: "h-16 w-16 text-2xl",

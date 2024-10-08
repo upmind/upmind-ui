@@ -16,19 +16,40 @@
       v-if="!meta.isLoading && (meta.isAdding || meta.isEditing) && !open"
       i18nKey="unified"
       :model-value="selected"
-      :modal="!meta.isEmpty"
+      :key="selected?.id"
+      :color="color"
     />
 
     <!-- otherwise show the default address as a card -->
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
         {{ $t("client.title") }}
-        <Button
-          variant="link"
-          :label="$t('client.actions.change')"
+
+        <DropdownMenu
+          v-if="!noActions"
+          toggle="navigation-menu-vertical"
+          :toggle-rotate="false"
+          :items="actions"
           size="sm"
-          @click="onChange"
+          grouped
         />
+
+        <!-- <span :class="styles.client.actions">
+          <Button
+            :key="selected?.id"
+            variant="tonal"
+            :label="$t('client.actions.convert')"
+            size="xs"
+            @click="onEdit"
+            v-if="!selected?.state?.value?.context?.model?.company_details"
+          />
+          <Button
+            variant="tonal"
+            :label="$t('client.actions.change')"
+            size="xs"
+            @click="onChange"
+          />
+        </span> -->
       </h5>
 
       <UpmCard
@@ -41,14 +62,14 @@
       />
 
       <div :class="styles.client.actions">
-        <Button
+        <!-- <Button
           :key="selected?.id"
-          variant="link"
+          variant="tonal"
           :label="$t('client.actions.convert')"
-          size="sm"
+          size="xs"
           @click="onEdit"
           v-if="!selected?.state?.value?.context?.model?.company_details"
-        />
+        /> -->
       </div>
     </div>
 
@@ -58,7 +79,8 @@
       i18nKey="unified"
       modal
       no-filter
-      @update:modelValue="onClose"
+      @update:open="onClose"
+      :color="color"
     />
 
     <footer :class="styles.client.footer">
@@ -83,10 +105,7 @@ import config from "../client/config.cva";
 import UpmItem from "../Client/Item.vue";
 import UpmCard from "../Client/Card.vue";
 import UpmListings from "../Client/Listings.vue";
-import { UpwSkeletonList } from "@upmind/upwind";
-
-// --- custom elements
-import { Button } from "@upmind/upwind";
+import { UpwSkeletonList, Button, DropdownMenu } from "@upmind/upwind";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
@@ -98,6 +117,7 @@ export default defineComponent({
   components: {
     UpwSkeletonList,
     Button,
+    DropdownMenu,
     // ---
     UpmItem,
     UpmCard,
@@ -107,6 +127,7 @@ export default defineComponent({
   props: {
     i18nKey: { type: String },
     modelValue: { type: Object },
+    color: { type: String, default: "base" },
   },
   setup() {
     const client = useClientUnifiedAddresses();
@@ -139,6 +160,24 @@ export default defineComponent({
     };
   },
 
+  computed: {
+    actions() {
+      return {
+        convert: {
+          // variant: "tonal",
+          // size: "xs",
+          label: this.$t("client.actions.convert"),
+          handler: () => this.onEdit(),
+        },
+        change: {
+          // variant: "tonal",
+          // size: "xs",
+          label: this.$t("client.actions.change"),
+          handler: () => this.onChange(),
+        },
+      };
+    },
+  },
   methods: {
     onChange() {
       this.open = true;
@@ -150,8 +189,8 @@ export default defineComponent({
       // force the company details to be shown
       client.input({ ...model, company_details: true });
     },
-    onClose() {
-      this.open = false;
+    onClose(value) {
+      this.open = value;
     },
   },
 

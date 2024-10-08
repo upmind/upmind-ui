@@ -8,8 +8,8 @@ export default {
     loading: cva(""),
     footer: cva(""),
     title: cva("flex items-center justify-between gap-4"),
-    content: cva(" flex flex-col gap-4 rounded-lg border p-4"),
-    actions: cva(""),
+    content: cva("flex flex-col gap-4 rounded-lg"),
+    actions: cva("flex gap-2"),
   },
   clientListings: {
     root: cva("bg-base w-full ", {
@@ -22,8 +22,7 @@ export default {
         dialog: false,
       },
     }),
-    header: cva(""),
-    footer: cva(""),
+    footer: cva("flex-row items-center justify-between gap-x-4"),
     items: cva("grid gap-4", {
       variants: {
         cols: {
@@ -43,7 +42,7 @@ export default {
     actions: cva(""),
   },
   clientForm: {
-    root: cva("bg-base w-full max-w-xl", {
+    root: cva("bg-base w-full max-w-xl py-8", {
       variants: {
         hasErrors: {
           true: "border-error",

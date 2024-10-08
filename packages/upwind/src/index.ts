@@ -27,6 +27,7 @@ export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 export * from "./components/form/renderers/utils";
 
 // --- Web Components
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
 import { UwAvatar, Avatar } from "./ui/avatar";
 import { UwBadge, Badge } from "./ui/badge";
@@ -34,20 +35,12 @@ import { UwButton, Button } from "./ui/button";
 import { UwCombobox, Combobox } from "./ui/combobox";
 import { UwDialog, Dialog, DialogClose } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
+import { UwDropdownMenu, DropdownMenu } from "./ui/dropdown-menu";
 import { UwIcon, Icon } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
-import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -68,21 +61,16 @@ export {
   Dialog,
   DialogClose,
   Drawer,
+  DropdownMenu,
   Icon,
   Indicator,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Sonner,
   Tabs,
-  type TabItems,
   Tooltip,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+
   // --- Custom Elements
   UwAlert,
   UwAvatar,
@@ -91,6 +79,7 @@ export {
   UwCombobox,
   UwDialog,
   UwDrawer,
+  UwDropdownMenu,
   UwIcon,
   UwIndicator,
   UwSonner,
@@ -107,6 +96,7 @@ export function register() {
   customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-drawer", UwDrawer);
+  customElements.define("uw-dropdown-menu", UwDropdownMenu);
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-sonner", UwSonner);
@@ -136,12 +126,18 @@ declare module "vue" {
     Badge: typeof Badge;
     Button: typeof Button;
     Combobox: typeof Combobox;
-    Drawer: typeof Drawer;
     Dialog: typeof Dialog;
+    DialogClose: typeof DialogClose;
+    Drawer: typeof Drawer;
+    DropdownMenu: typeof DropdownMenu;
     Icon: typeof Icon;
     Indicator: typeof Indicator;
+    Popover: typeof Popover;
+    PopoverContent: typeof PopoverContent;
+    PopoverTrigger: typeof PopoverTrigger;
     Sonner: typeof Sonner;
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
+    TabItems: TabItems;
   }
 }

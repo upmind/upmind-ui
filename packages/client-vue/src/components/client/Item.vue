@@ -6,8 +6,8 @@
     :title="safeTitle"
     :open="modal"
     @update:open="onClose"
-    size="2xl"
-    skrim="light"
+    size="3xl"
+    :skrim="color"
   >
     <UpwForm
       :class="styles.clientForm.root"
@@ -45,11 +45,10 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, Button } from "@upmind/upwind";
-import { isEmpty, omit } from "lodash-es";
+import { UpwForm, Button, Dialog } from "@upmind/upwind";
 
-// --- custom elements
-import { Dialog } from "@upmind/upwind";
+// --- utils
+import { isEmpty, omit, isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
@@ -63,6 +62,7 @@ export default defineComponent({
     i18nKey: { type: String, required: true },
     modal: { type: Boolean, default: true },
     autosave: { type: Boolean, default: false },
+    color: { type: String, default: "base" },
   },
   setup(props) {
     const useClient = inject("client");
@@ -80,19 +80,23 @@ export default defineComponent({
       const actions = {
         cancel: {
           label: this?.$t(`client.${this.i18nKey}.actions.cancel`),
-          variant: "link",
+          variant: "ghost",
+          color: this.color,
           disabled: this?.meta?.isProcessing,
+          block: true,
           handler: () => this.cancel(),
         },
 
         submit: {
           type: "submit",
           variant: "flat",
+          color: this.color,
           label: this?.$tc(
             `client.${this.i18nKey}.actions.submit`,
             this.model?.company_details ? 0 : 1
           ),
           disabled: !this?.meta?.isValid || this?.meta?.isProcessing,
+          block: true,
           handler: ({ model }) => this.update(model),
         },
       };
