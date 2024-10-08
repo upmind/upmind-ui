@@ -11,9 +11,12 @@
       <slot name="prepend"></slot>
 
       <slot>
-        <span class="truncate" :class="{ 'sr-only': props.iconOnly }">{{
-          label
-        }}</span>
+        <span
+          v-if="label"
+          class="truncate"
+          :class="{ 'sr-only': props.iconOnly }"
+          >{{ label }}</span
+        >
       </slot>
 
       <slot name="append"></slot>

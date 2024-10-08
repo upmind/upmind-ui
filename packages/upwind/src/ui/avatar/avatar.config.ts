@@ -21,7 +21,7 @@ export const avatarVariants = cva(
       },
       fit: {
         cover: "object-cover",
-        contain: "object-contain px-[0.5em]",
+        contain: "object-contain p-[0.5em]",
       },
       size: {
         auto: "h-full text-inherit",
