@@ -2,24 +2,19 @@
 
 # @upmind/headless-vue
 
-## Namespaces
+## Interfaces
 
-| Namespace | Description |
+| Interface | Description |
 | ------ | ------ |
-| [utils](namespaces/utils/index.md) | - |
-
-## Variables
-
-| Variable | Description |
-| ------ | ------ |
-| [useBasket](variables/useBasket.md) | - |
-| [useDomain](variables/useDomain.md) | - |
+| [IUseSession](interfaces/IUseSession.md) | Represents the session management composable interface in the application. Provides functionality for managing user sessions, including authentication, registration, 2FA, and ReCaptcha verification. |
+| [IUseSessionMeta](interfaces/IUseSessionMeta.md) | Represents the metadata for the session state, providing flags that reflect the current status of the session and its components such as forms, authentication, and processing states. |
 
 ## Functions
 
 | Function | Description |
 | ------ | ------ |
 | [useApi](functions/useApi.md) | A composable function that provides an interface to the API request machine with state helpers. This function connects to the Upmind API and provides useful methods and computed properties for interacting with the API's state and context. |
+| [useBasket](functions/useBasket.md) | - |
 | [useBasketBillingDetails](functions/useBasketBillingDetails.md) | - |
 | [useBasketCurrency](functions/useBasketCurrency.md) | - |
 | [useBasketFields](functions/useBasketFields.md) | - |
@@ -37,6 +32,7 @@
 | [useClientPhones](functions/useClientPhones.md) | - |
 | [useClientUnifiedAddress](functions/useClientUnifiedAddress.md) | - |
 | [useClientUnifiedAddresses](functions/useClientUnifiedAddresses.md) | - |
+| [useDomain](functions/useDomain.md) | - |
 | [useFeedback](functions/useFeedback.md) | - |
 | [useLookup](functions/useLookup.md) | - |
 | [useLookupItem](functions/useLookupItem.md) | - |

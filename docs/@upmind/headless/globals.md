@@ -2,12 +2,6 @@
 
 # @upmind/headless
 
-## Namespaces
-
-| Namespace | Description |
-| ------ | ------ |
-| [utils](namespaces/utils/index.md) | - |
-
 ## Enumerations
 
 | Enumeration | Description |
