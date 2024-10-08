@@ -48,6 +48,7 @@
         <DialogClose @click="forceClose" v-if="$slots.close && !persistent">
           <slot name="close" />
         </DialogClose>
+
         <slot name="actions" />
       </DialogFooter>
     </DialogContent>

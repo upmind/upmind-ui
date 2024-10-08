@@ -343,6 +343,11 @@ export default defineComponent({
         return;
       }
 
+      if (isFunction(item.handler)) {
+        item.handler({ model: this.model.value, meta: this.meta.value });
+        return;
+      }
+
       if (item.action) {
         this.$emit(item.action, {
           model: this.model.value,

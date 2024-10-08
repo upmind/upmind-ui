@@ -1,12 +1,12 @@
 <template>
   <component
-    :is="dialog ? 'Dialog' : 'section'"
+    :is="modal ? 'Dialog' : 'section'"
     @reject="onClose"
-    size="xl"
     :actions="actions"
     :title="safeTitle"
-    :modelValue="dialog"
-    @update:modelValue="onClose"
+    :open="modal"
+    @update:open="onClose"
+    size="2xl"
     skrim="light"
   >
     <UpwForm
@@ -22,6 +22,17 @@
       :actions="actions"
       :no-actions="hideActions"
     />
+
+    <template #actions>
+      <Button
+        v-for="(action, key) in actions"
+        :key="key"
+        v-bind="action"
+        :loading="action.loading"
+        :disabled="action?.disabled"
+        @click="doAction(action)"
+      />
+    </template>
   </component>
 </template>
 
@@ -34,7 +45,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm, Button } from "@upmind/upwind";
 import { isEmpty, omit } from "lodash-es";
 
 // --- custom elements
@@ -43,14 +54,14 @@ import { Dialog } from "@upmind/upwind";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClientForm",
-  components: { UpwForm, Dialog },
+  components: { UpwForm, Dialog, Button },
   props: {
     modelValue: {
       type: Object, // xstate actor
       required: true,
     },
     i18nKey: { type: String, required: true },
-    dialog: { type: Boolean, default: true },
+    modal: { type: Boolean, default: true },
     autosave: { type: Boolean, default: false },
   },
   setup(props) {
@@ -71,7 +82,7 @@ export default defineComponent({
           label: this?.$t(`client.${this.i18nKey}.actions.cancel`),
           variant: "link",
           disabled: this?.meta?.isProcessing,
-          action: () => this.cancel(),
+          handler: () => this.cancel(),
         },
 
         submit: {
@@ -82,20 +93,20 @@ export default defineComponent({
             this.model?.company_details ? 0 : 1
           ),
           disabled: !this?.meta?.isValid || this?.meta?.isProcessing,
-          action: ({ model }) => this.update(model),
+          handler: ({ model }) => this.update(model),
         },
       };
 
-      return this.dialog ? actions : omit(actions, "cancel");
+      return this.modal ? actions : omit(actions, "cancel");
     },
     hideActions() {
-      // always hide actions in dialog,
+      // always hide actions in modal,
       // always show the actions if we are not autosaving
       // otherwise, if we have autosave,
       //            and the user chooses to manually enter the address,
       //            or the place is missing info (e.g. no street address)
       // then show the actions
-      if (this.dialog) return true;
+      if (this.modal) return true;
       if (!this.autosave) return false;
       return !this.model?.manualPlace;
     },
@@ -115,11 +126,11 @@ export default defineComponent({
   },
   methods: {
     onClose() {
-      this.$emit("update:modelValue", false);
+      this.$emit("update:open", false);
       this.cancel();
     },
     onUpdate(model) {
-      this.$emit("update:modelValue", false);
+      this.$emit("update:open", false);
       this.update(model);
     },
 
@@ -133,6 +144,11 @@ export default defineComponent({
         this.$nextTick(() => {
           this.update(this.model);
         });
+      }
+    },
+    doAction(item) {
+      if (isFunction(item?.handler)) {
+        item.handler();
       }
     },
   },

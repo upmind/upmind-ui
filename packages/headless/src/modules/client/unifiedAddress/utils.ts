@@ -427,13 +427,13 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                 },
               },
             ],
-            rule: {
-              effect: "SHOW",
-              condition: {
-                scope: "#/properties/manualPlace",
-                schema: { const: true },
-              },
-            },
+            // rule: {
+            //   effect: "SHOW",
+            //   condition: {
+            //     scope: "#/properties/manualPlace",
+            //     schema: { const: true },
+            //   },
+            // },
           },
         ],
         rule: {

@@ -13,13 +13,10 @@
 
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <UpmItem
-      v-if="
-        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
-      "
+      v-if="!meta.isLoading && (meta.isAdding || meta.isEditing) && !open"
       i18nKey="unified"
       :model-value="selected"
-      :dialog="!meta.isEmpty"
-      :autosave="meta.isEmpty"
+      :modal="!meta.isEmpty"
     />
 
     <!-- otherwise show the default address as a card -->
@@ -56,10 +53,10 @@
     </div>
 
     <UpmListings
-      v-model="activeDialog"
+      :open="open"
       type="unified"
       i18nKey="unified"
-      drawer
+      modal
       no-filter
       @update:modelValue="onClose"
     />
@@ -137,13 +134,13 @@ export default defineComponent({
       styles,
       addresses,
       // ---
-      activeDialog: ref(false),
+      open: ref(false),
     };
   },
 
   methods: {
     onChange() {
-      this.activeDialog = true;
+      this.open = true;
     },
     onEdit() {
       const client = this.useClientUnifiedAddress(this.selected);
@@ -153,7 +150,7 @@ export default defineComponent({
       client.input({ ...model, company_details: true });
     },
     onClose() {
-      this.activeDialog = false;
+      this.open = false;
     },
   },
 

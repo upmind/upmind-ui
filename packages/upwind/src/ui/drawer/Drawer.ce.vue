@@ -57,7 +57,7 @@
         >
           <slot name="footer" />
 
-          <DrawerClose v-if="$slots.close" @click="forceClose">
+          <DrawerClose v-if="$slots.close">
             <slot name="close" />
           </DrawerClose>
 
