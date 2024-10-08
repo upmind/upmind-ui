@@ -301,7 +301,7 @@ export const buttonVariants = cva(
 );
 
 export const contentVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap font-medium",
+  "inline-flex w-full items-center justify-center whitespace-nowrap font-medium",
   {
     variants: {
       variant: {

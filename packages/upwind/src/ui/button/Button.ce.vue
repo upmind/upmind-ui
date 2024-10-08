@@ -7,7 +7,7 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
   >
-    <span :class="variants.content">
+    <span :class="cn(variants.content, props.contentClass)">
       <slot name="prepend"></slot>
 
       <slot>
@@ -54,6 +54,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   // --- styles
   upwindConfig: () => ({ button: {} }),
   class: "",
+  contentClass: "",
 });
 
 const meta = computed(() => ({

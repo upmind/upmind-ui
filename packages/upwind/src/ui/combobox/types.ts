@@ -10,6 +10,8 @@ type ItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface ComboboxItem {
   label: string;
+  sublabel?: string;
+  tag?: string;
   value: string;
   icon?: IconProps["icon"];
 }

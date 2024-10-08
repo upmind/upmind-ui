@@ -31,7 +31,7 @@ import { UwAlert, Alert } from "./ui/alert";
 import { UwAvatar, Avatar } from "./ui/avatar";
 import { UwBadge, Badge } from "./ui/badge";
 import { UwButton, Button } from "./ui/button";
-import { UwCombobox, Combobox } from "./ui/combobox";
+import { UwCombobox, Combobox, type ComboboxItem } from "./ui/combobox";
 import { UwDialog, Dialog, DialogClose } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
 import { UwIcon, Icon } from "./ui/icon";
@@ -66,6 +66,7 @@ export {
   Badge,
   Button,
   Combobox,
+  type ComboboxItem,
   Dialog,
   DialogClose,
   Drawer,
