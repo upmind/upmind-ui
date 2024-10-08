@@ -304,7 +304,7 @@ export const contentVariants = cva(
   {
     variants: {
       variant: {
-        link: "!hover:underline !underline-offset-4",
+        link: "underline-offset-4 hover:underline",
       },
       loading: {
         true: "select-none opacity-0",
