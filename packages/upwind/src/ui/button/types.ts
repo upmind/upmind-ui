@@ -20,4 +20,5 @@ export interface ButtonProps {
   // ---
   upwindConfig?: { button: Partial<ButtonProps> };
   class?: HTMLAttributes["class"];
+  contentClass?: HTMLAttributes["class"];
 }

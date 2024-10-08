@@ -9,43 +9,52 @@
         class="justify-between"
         :disabled="loading"
         :class="cn(variants.button, props.class)"
+        block
       >
-        <span class="flex items-center truncate">
-          <Avatar
-            v-if="value?.icon"
-            :icon="value.icon"
-            size="xxxs"
-            shape="circle"
-            fit="cover"
-            class="mr-2 shrink-0"
-            aria-hidden="true"
-          />
-          <span v-if="!hideLabel">{{ value?.label || label }}</span>
-        </span>
+        <slot>
+          <div class="flex w-full items-center justify-between">
+            <div class="flex items-center truncate">
+              <Avatar
+                v-if="value?.icon"
+                :icon="value.icon"
+                size="xxxs"
+                shape="circle"
+                fit="cover"
+                class="mr-2 shrink-0"
+                aria-hidden="true"
+              />
+              <div v-if="!hideLabel" class="text-left">
+                <div class="mt-[1px] leading-none">
+                  {{ value?.label || label }}
+                </div>
+                <div
+                  v-if="value?.sublabel"
+                  class="mt-1 leading-none opacity-50"
+                >
+                  {{ value.sublabel }}
+                </div>
+              </div>
+            </div>
+            <div v-if="value?.tag" class="ml-2 flex items-center">
+              <span class="font-bold leading-none">{{ value.tag }}</span>
+            </div>
+          </div>
+        </slot>
 
         <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
 
-        <Icon
-          v-if="!loading"
-          class="ml-2 h-4 w-4 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
-          icon="arrow-up"
-        />
+        <div class="ml-1">
+          <Icon
+            v-if="!loading"
+            class="-mt-1 h-5 w-5 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
+            icon="arrow-up"
+          />
 
-        <UpwSpinner
-          size="xs"
-          v-else
-          class="-mr-1 ml-2 mt-1 shrink-0 opacity-50"
-        />
+          <UpwSpinner size="xs" v-else class="-mr-1 mt-1 shrink-0 opacity-50" />
+        </div>
       </Button>
     </PopoverTrigger>
-    <PopoverContent
-      :class="
-        cn(
-          variants.content,
-          props.popoverClass ? props.popoverClass : props.class
-        )
-      "
-    >
+    <PopoverContent :class="cn(variants.content, props.popoverClass)">
       <Command>
         <CommandInput auto-focus :placeholder="searchMessage" />
         <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
@@ -66,18 +75,26 @@
                   size="xxxs"
                   class="mr-2"
                 />
-                <span class="mt-[1px] leading-none">{{ item.label }}</span>
+                <div>
+                  <div class="mt-[1px] leading-none">{{ item.label }}</div>
+                  <div class="mt-1 leading-none opacity-50">
+                    {{ item.sublabel }}
+                  </div>
+                </div>
               </div>
 
-              <Icon
-                icon="check"
-                :class="
-                  cn(
-                    'h-3 w-3',
-                    value?.value === item.value ? 'opacity-100' : 'opacity-0'
-                  )
-                "
-              />
+              <div class="flex items-center">
+                <span class="mr-1 font-bold leading-none">{{ item.tag }}</span>
+                <Icon
+                  icon="check"
+                  :class="
+                    cn(
+                      'h-3 w-3',
+                      value?.value === item.value ? 'opacity-100' : 'opacity-0'
+                    )
+                  "
+                />
+              </div>
             </CommandItem>
           </CommandGroup>
         </CommandList>
