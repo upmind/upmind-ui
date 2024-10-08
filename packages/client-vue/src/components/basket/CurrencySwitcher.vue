@@ -1,7 +1,7 @@
 <template>
   <Combobox
     v-if="currencies?.length > 1 || meta.isLoading"
-    v-model="selected"
+    :model-value="selected"
     :items="currencies"
     :size="size"
     :placement="placement"

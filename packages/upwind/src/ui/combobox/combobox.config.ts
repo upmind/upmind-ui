@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 
-export const buttonVariants = cva("flex items-center justify-between", {
+export const buttonVariants = cva("justify-between", {
   variants: {
     color: {
       base: "border-opacity-10 hover:border-opacity-10",
@@ -62,7 +62,9 @@ export const itemVariants = cva("flex w-full items-center p-2 px-3 text-sm", {
 });
 
 export default {
-  button: buttonVariants,
-  content: contentVariants,
-  item: itemVariants,
+  combobox: {
+    button: buttonVariants,
+    content: contentVariants,
+    item: itemVariants,
+  },
 };

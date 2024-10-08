@@ -23,7 +23,7 @@
       <div
         class="col-span-1 mx-4 self-center px-4 py-8 sm:mx-6 sm:px-6 lg:mx-8 lg:px-8"
       >
-        <upw-spinner
+        <Spinner
           class="w-full justify-center text-center"
           v-if="meta.isProcessing"
         />
@@ -79,7 +79,7 @@ import { watch } from "vue";
 import { useSession } from "@upmind/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 // ---
 
 // ---

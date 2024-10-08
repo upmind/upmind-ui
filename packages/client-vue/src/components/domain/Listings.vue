@@ -34,14 +34,14 @@
             <span :class="styles.domain.card.badges">
               <span :class="styles.domain.card.text" v-if="item.is_owned">
                 <span :class="styles.domain.card.owned.icon">
-                  <Icon icon="lock" size="full" />
+                  <Icon icon="lock" />
                 </span>
                 {{ $t("domain.card.owned.label") }}
               </span>
 
               <span :class="styles.domain.card.text" v-else-if="item.in_basket">
                 <span :class="styles.domain.card.basket.icon">
-                  <Icon icon="basket" size="full" />
+                  <Icon icon="basket" />
                 </span>
                 {{ $t("domain.card.basket.label") }}
               </span>
@@ -51,14 +51,14 @@
                 :class="styles.domain.card.text"
               >
                 <span :class="styles.domain.card.available.icon">
-                  <Icon icon="check" size="full" />
+                  <Icon icon="check" />
                 </span>
                 {{ $t("domain.card.available.label") }}
               </span>
 
               <span :class="styles.domain.card.text" v-else>
                 <span :class="styles.domain.card.transfer.icon">
-                  <Icon icon="transfer" size="full" />
+                  <Icon icon="transfer" />
                 </span>
 
                 {{ $t("domain.card.transfer.label") }}

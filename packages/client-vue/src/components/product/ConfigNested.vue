@@ -58,7 +58,7 @@
 
         <template #append="{ item: value }">
           <div :class="styles.product.config.list.item.footer">
-            <UpwSpinner v-if="loading" size="xs" />
+            <Spinner v-if="loading" size="xs" />
 
             <UpwQuantitybox
               v-if="
@@ -122,7 +122,7 @@ import {
   UpwCheckboxList,
   UpwInput,
   UpwQuantitybox,
-  UpwSpinner,
+  Spinner,
 } from "@upmind/upwind";
 
 // --- custom elements
@@ -142,7 +142,7 @@ export default defineComponent({
     UpwCheckbox,
     UpwCheckboxList,
     UpwQuantitybox,
-    UpwSpinner,
+    Spinner,
   },
   emits: ["update:modelValue", "update:quantity"],
   props: {

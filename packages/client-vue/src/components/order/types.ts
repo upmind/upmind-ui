@@ -1,24 +1,23 @@
+import type { AvatarProps, DialogProps, ButtonProps } from "@upmind/upwind";
+// ---
+export interface ActionProps extends ButtonProps {
+  type?: HTMLButtonElement["type"];
+  handler?: Function | string;
+  auto?: boolean;
+}
+
 export interface OrderConfirmationProps {
   orderId: string;
   success: boolean;
-  open: boolean;
   // ---
   modal?: boolean;
-  title?: string;
-  text?: string;
-  avatar?: {
-    size?: string;
-    shape?: string;
-    color?: string;
-    icon?: string;
-    fit?: string;
-  };
-  action?: {
-    label?: string;
-    color?: string;
-    handler?: () => void;
-    auto?: boolean;
-  };
-  size?: string;
-  skrim?: string;
+  open?: DialogProps["open"];
+  // ---
+  title?: DialogProps["title"];
+  text?: DialogProps["description"];
+  avatar?: AvatarProps;
+  action?: ActionProps;
+  // ---
+  size?: DialogProps["size"];
+  skrim?: DialogProps["skrim"];
 }

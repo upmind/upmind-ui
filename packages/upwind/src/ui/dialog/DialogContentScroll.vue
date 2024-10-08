@@ -19,6 +19,7 @@ const props = defineProps<
     classOverlay?: HTMLAttributes["class"];
   }
 >();
+
 const emits = defineEmits<DialogContentEmits>();
 
 const delegatedProps = computed(() => {
@@ -38,7 +39,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
         v-bind="forwarded"
         :class="
           cn(
-            'relative z-50 my-8 grid gap-4 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full',
+            'max-h-[90dvh] grid-rows-[auto_minmax(0,1fr)_auto] p-0 sm:max-w-[425px]',
+            'relative z-50 my-8 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full',
             props.class
           )
         "
