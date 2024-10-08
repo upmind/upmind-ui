@@ -8,45 +8,62 @@
         :aria-expanded="open"
         :loading="loading"
         :class="cn(variants.combobox.button, props.class)"
-        :label="value?.label || label"
+        block
       >
-        <template #prepend>
-          <Avatar
-            v-if="value?.avatar"
-            v-bind="value.avatar"
-            size="3xs"
-            shape="circle"
-            fit="cover"
-            aria-hidden="true"
-          />
-          <Icon
-            v-if="value?.icon"
-            :icon="value.icon"
-            shape="circle"
-            size="3xs"
-            fit="cover"
-            aria-hidden="true"
-          />
-        </template>
+        <slot>
+          <div class="flex w-full items-center justify-between">
+            <div class="flex items-center truncate">
+              <div v-if="value?.avatar || value?.icon" class="mr-2">
+                <Avatar
+                  v-if="value?.avatar"
+                  v-bind="value.avatar"
+                  size="3xs"
+                  shape="circle"
+                  fit="cover"
+                  aria-hidden="true"
+                />
+                <Icon
+                  v-if="value?.icon"
+                  :icon="value.icon"
+                  shape="circle"
+                  size="3xs"
+                  fit="cover"
+                  aria-hidden="true"
+                />
+              </div>
+              <div class="text-left">
+                <div class="mt-[1px] leading-none">
+                  {{ value?.label || label }}
+                </div>
+                <div
+                  v-if="value?.sublabel"
+                  class="mt-1 leading-none opacity-50"
+                >
+                  {{ value.sublabel }}
+                </div>
+              </div>
+            </div>
+            <div v-if="value?.tag" class="flex items-center">
+              <span class="font-bold leading-none">{{ value.tag }}</span>
+            </div>
+          </div>
+        </slot>
 
         <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
-        <template #append>
-          <Icon
-            class="rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
-            icon="arrow-up"
-            size="xs"
-          />
-        </template>
+        <Icon
+          v-if="!loading"
+          class="h-4 w-4 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
+          icon="arrow-up"
+        />
+
+        <UpwSpinner
+          size="xs"
+          v-else
+          class="-mr-1 ml-2 mt-1 shrink-0 opacity-50"
+        />
       </Button>
     </PopoverTrigger>
-    <PopoverContent
-      :class="
-        cn(
-          variants.combobox.content,
-          props.popoverClass ? props.popoverClass : props.class
-        )
-      "
-    >
+    <PopoverContent :class="cn(variants.combobox.content, props.popoverClass)">
       <Command>
         <CommandInput auto-focus :placeholder="searchMessage" />
         <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
@@ -63,16 +80,26 @@
               <div class="items center flex gap-2">
                 <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
                 <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
-                <span>{{ item.label }}</span>
+                <div>
+                  <div class="mt-[1px] leading-none">{{ item.label }}</div>
+                  <div class="mt-1 leading-none opacity-50">
+                    {{ item.sublabel }}
+                  </div>
+                </div>
               </div>
 
-              <Icon
-                icon="check"
-                size="3xs"
-                :class="
-                  cn(value?.value === item.value ? 'opacity-100' : 'opacity-0')
-                "
-              />
+              <div class="flex items-center">
+                <span class="mr-1 font-bold leading-none">{{ item.tag }}</span>
+                <Icon
+                  icon="check"
+                  :class="
+                    cn(
+                      'h-3 w-3',
+                      value?.value === item.value ? 'opacity-100' : 'opacity-0'
+                    )
+                  "
+                />
+              </div>
             </CommandItem>
           </CommandGroup>
         </CommandList>
