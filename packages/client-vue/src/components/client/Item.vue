@@ -152,7 +152,7 @@ export default defineComponent({
     },
     doAction(item) {
       if (isFunction(item?.handler)) {
-        item.handler();
+        item.handler({ model: this.model, meta: this.meta });
       }
     },
   },
