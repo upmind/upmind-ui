@@ -5,93 +5,6 @@
     "collapsed": true,
     "items": [
       {
-        "text": "Namespaces",
-        "collapsed": true,
-        "items": [
-          {
-            "text": "utils",
-            "link": "/@upmind/headless/namespaces/utils/",
-            "collapsed": true,
-            "items": [
-              {
-                "text": "Functions",
-                "collapsed": true,
-                "items": [
-                  {
-                    "text": "compactDeep",
-                    "link": "/@upmind/headless/namespaces/utils/functions/compactDeep.md"
-                  },
-                  {
-                    "text": "isDeepEmpty",
-                    "link": "/@upmind/headless/namespaces/utils/functions/isDeepEmpty.md"
-                  },
-                  {
-                    "text": "useCookies",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useCookies.md"
-                  },
-                  {
-                    "text": "useFieldsModelParser",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useFieldsModelParser.md"
-                  },
-                  {
-                    "text": "useFieldsSchemaParser",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useFieldsSchemaParser.md"
-                  },
-                  {
-                    "text": "useFieldsUischemaParser",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useFieldsUischemaParser.md"
-                  },
-                  {
-                    "text": "useModelParser",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useModelParser.md"
-                  },
-                  {
-                    "text": "useMoney",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useMoney.md"
-                  },
-                  {
-                    "text": "useRelativeTime",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useRelativeTime.md"
-                  },
-                  {
-                    "text": "useTime",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useTime.md"
-                  },
-                  {
-                    "text": "useTracking",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useTracking.md"
-                  },
-                  {
-                    "text": "useTranslateField",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useTranslateField.md"
-                  },
-                  {
-                    "text": "useTranslateName",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useTranslateName.md"
-                  },
-                  {
-                    "text": "useUrl",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useUrl.md"
-                  },
-                  {
-                    "text": "useUrlParams",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useUrlParams.md"
-                  },
-                  {
-                    "text": "useValidation",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useValidation.md"
-                  },
-                  {
-                    "text": "useValidationParser",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useValidationParser.md"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
         "text": "Enumerations",
         "collapsed": true,
         "items": [
@@ -229,103 +142,16 @@
     "collapsed": true,
     "items": [
       {
-        "text": "Namespaces",
+        "text": "Interfaces",
         "collapsed": true,
         "items": [
           {
-            "text": "utils",
-            "link": "/@upmind/headless-vue/namespaces/utils/",
-            "collapsed": true,
-            "items": [
-              {
-                "text": "Functions",
-                "collapsed": true,
-                "items": [
-                  {
-                    "text": "childActor",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/childActor.md"
-                  },
-                  {
-                    "text": "contextActor",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/contextActor.md"
-                  },
-                  {
-                    "text": "contextMatches",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/contextMatches.md"
-                  },
-                  {
-                    "text": "contextValue",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/contextValue.md"
-                  },
-                  {
-                    "text": "machineMatches",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/machineMatches.md"
-                  },
-                  {
-                    "text": "stateMatches",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/stateMatches.md"
-                  },
-                  {
-                    "text": "stateValue",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/stateValue.md"
-                  },
-                  {
-                    "text": "useChildActor",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useChildActor.md"
-                  },
-                  {
-                    "text": "useContext",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useContext.md"
-                  },
-                  {
-                    "text": "useContextActor",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useContextActor.md"
-                  },
-                  {
-                    "text": "useCookies",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useCookies.md"
-                  },
-                  {
-                    "text": "useMoney",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useMoney.md"
-                  },
-                  {
-                    "text": "useRelativeTime",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useRelativeTime.md"
-                  },
-                  {
-                    "text": "useState",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useState.md"
-                  },
-                  {
-                    "text": "useTime",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useTime.md"
-                  },
-                  {
-                    "text": "useTracking",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useTracking.md"
-                  },
-                  {
-                    "text": "useUrl",
-                    "link": "/@upmind/headless-vue/namespaces/utils/functions/useUrl.md"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "text": "Variables",
-        "collapsed": true,
-        "items": [
-          {
-            "text": "useBasket",
-            "link": "/@upmind/headless-vue/variables/useBasket.md"
+            "text": "IUseSession",
+            "link": "/@upmind/headless-vue/interfaces/IUseSession.md"
           },
           {
-            "text": "useDomain",
-            "link": "/@upmind/headless-vue/variables/useDomain.md"
+            "text": "IUseSessionMeta",
+            "link": "/@upmind/headless-vue/interfaces/IUseSessionMeta.md"
           }
         ]
       },
@@ -336,6 +162,10 @@
           {
             "text": "useApi",
             "link": "/@upmind/headless-vue/functions/useApi.md"
+          },
+          {
+            "text": "useBasket",
+            "link": "/@upmind/headless-vue/functions/useBasket.md"
           },
           {
             "text": "useBasketBillingDetails",
@@ -404,6 +234,10 @@
           {
             "text": "useClientUnifiedAddresses",
             "link": "/@upmind/headless-vue/functions/useClientUnifiedAddresses.md"
+          },
+          {
+            "text": "useDomain",
+            "link": "/@upmind/headless-vue/functions/useDomain.md"
           },
           {
             "text": "useFeedback",

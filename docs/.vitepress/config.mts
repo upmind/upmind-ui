@@ -20,7 +20,6 @@ export default defineConfig({
           items: [
             { text: 'Introduction', link: '/@upmind/headless/' },
             { text: 'Getting Started', link: '/@upmind/headless/getting-started' },
-            // { text: 'Feature 1', link: '/upflow/feature1' }
           ]
         },
         {
