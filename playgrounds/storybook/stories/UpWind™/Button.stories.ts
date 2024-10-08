@@ -1,9 +1,8 @@
 // --- external
 import type { Meta, StoryObj } from "@storybook/vue3";
-import { ref } from "vue";
 
 // -- components
-import { Avatar, Button } from "@upmind/upwind";
+import { Icon, Avatar, Button } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -29,24 +28,9 @@ const meta: Meta<typeof Button> = {
         labels: variants,
       },
     },
-
     size: useSystemArgTypes.size,
     color: useSystemArgTypes.color,
-    // prependAvatar: {
-    //   ...useSystemArgTypes.flag,
-    //   if: { arg: "iconOnly", truthy: false },
-    // },
-    // prependIcon: useSystemArgTypes.icon,
-    // appendIcon: {
-    //   ...useSystemArgTypes.icon,
-    //   if: { arg: "iconOnly", truthy: false },
-    // },
-    // appendAvatar: {
-    //   ...useSystemArgTypes.flag,
-    //   if: { arg: "iconOnly", truthy: false },
-    // },
-
-    iconOnly: { control: "boolean", if: { arg: "prependIcon" } },
+    iconOnly: { control: "boolean" },
   },
   args: {
     label: "A compelling call to action",
@@ -57,7 +41,7 @@ const meta: Meta<typeof Button> = {
     iconOnly: false,
     block: false,
     // ---
-    // loading: false,
+    loading: false,
     disabled: false,
   },
 };
@@ -93,84 +77,43 @@ export const Variants: Story = {
 export const Slots: Story = {
   parameters: {
     controls: {
-      exclude: ["label", "block"],
+      exclude: ["label", "block", "iconOnly"],
     },
   },
   render: args => ({
-    components: { Button, Avatar },
+    components: { Button, Avatar, Icon },
     setup() {
-      const avatar = useSystemArgTypes.flag.options.find(flag =>
-        flag.includes("gb")
-      );
-      const icon = ref();
-      const iconSvg = useSystemArgTypes.icon.options[16];
-      if (isFunction(iconSvg))
-        iconSvg().then(value => {
-          icon.value = value;
-        });
-
       return {
         args,
-        avatar,
-        icon,
       };
     },
     template: `
-     <section class="flex w-full flex-wrap items-center gap-2">
-      <h1 class="w-full mt-0">Slots</h1>
-      <p class="w-full mt-0">Buttons with all slots activated in ALL sizes<br /></p>
+    <section class="flex w-full flex-wrap items-center justify-start gap-2">
+      <h1 class="mt-0 w-full">Slots</h1>
+      <p class="mt-0 w-full">
+        Buttons with all slots activated in ALL sizes<br />
+      </p>
 
-      <Button
-        v-bind="args"
-        label="Label Only" />
+      <Button v-bind="args" label="Label Only" />
 
-      <Button
-        v-bind="args"
-        icon-only
-        label="Icon Only">
-        <Avatar
-          slot="prepend"
-          class="w-full h-full"
-          :src="avatar"
-          caption="GB"></Avatar>
+      <Button v-bind="args" icon-only label="Icon Only" label="Great Britain">
+        <template #prepend>
+          <Avatar icon="gb" caption="GB" />
+        </template>
       </Button>
 
-     <Button
-        v-bind="args"
-        label="Prepend Avatar">
-        <Avatar
-          slot="prepend"
-          class="w-full h-full"
-          :src="avatar"
-          caption="GB"></Avatar>
+      <Button v-bind="args" label="Prepend icon">
+        <template #prepend>
+          <Icon icon="arrow-left" />
+        </template>
       </Button>
 
-      <Button
-        v-bind="args"
-        label="Prepend icon">
-        <span slot="prepend"></span>
+      <Button v-bind="args" label="Append icon">
+        <template #append>
+          <Icon icon="arrow-right" />
+        </template>
       </Button>
-
-      <Button
-        v-bind="args"
-        label="Append icon"
-        ><span
-          v-html="icon"
-          slot="append"
-      /></Button>
-
-      <Button
-        v-bind="args"
-        label="Append Avatar"
-        >
-        <Avatar
-          slot="append"
-          class="w-full h-full"
-          :src="avatar"
-          caption="GB" />
-        </Button>
     </section>
-
     `,
   }),
 };
@@ -324,36 +267,6 @@ export const TonalColorVariants: Story = {
     `,
   }),
 };
-
-// export const LoadingColorVariants: Story = {
-//   parameters: {
-//     controls: { exclude: ["label", "color"] },
-//   },
-//   render: args => ({
-//     components: {  },
-//     setup() {
-//       return { args };
-//     },
-//     template: `
-//     <section class="flex w-full flex-wrap items-center gap-2">
-//     <h1 class="w-full mt-0">Loading Color Variants</h1>
-//         <Button v-bind="args" color="base" label="Base" />
-//         <Button v-bind="args" color="primary" label="Primary" />
-//         <Button v-bind="args" color="secondary" label="Secondary" />
-//         <Button v-bind="args" color="accent" label="Accent" />
-//         <Button v-bind="args" color="promotion" label="Promotion" />
-//         <Button v-bind="args" color="destructive" label="Destructive" />
-//         <Button v-bind="args" color="success" label="Success" />
-//         <Button v-bind="args" color="info" label="Info" />
-//         <Button v-bind="args" color="error" label="Error" />
-//         <Button v-bind="args" color="warning" label="Warning" />
-//       </section>
-//     `,
-//   }),
-//   args: {
-//     loading: true,
-//   },
-// };
 
 export const DisabledColorVariants: Story = {
   parameters: {

@@ -80,7 +80,7 @@
           </span>
 
           <!-- loading / toggle -->
-          <UpwSpinner
+          <Spinner
             :class="styles.listbox.loading"
             v-if="loading"
             aria-hidden="true"
@@ -204,7 +204,7 @@
                 </span>
 
                 <!-- loading  -->
-                <UpwSpinner
+                <Spinner
                   :class="styles.listbox.loading"
                   v-if="item.loading"
                   :size="size"
@@ -242,7 +242,7 @@ import {
 } from "@headlessui/vue";
 import Icon from "../../ui/icon/Icon.ce.vue";
 import Avatar from "../../ui/avatar/Avatar.ce.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import Spinner from "../../ui/spinner/Spinner.ce.vue";
 
 // --- local
 import config from "./config.cva";
@@ -267,7 +267,7 @@ export default defineComponent({
     HListboxOption: ListboxOption,
     Icon,
     Avatar,
-    UpwSpinner,
+    Spinner,
   },
   emits: ["update:modelValue"],
   props: {

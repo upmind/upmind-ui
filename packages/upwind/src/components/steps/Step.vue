@@ -8,7 +8,7 @@
     :class="styles.step.root"
     replace
   >
-    <UpwSpinner v-if="loading" size="xs" :class="styles.step.loading" />
+    <Spinner v-if="loading" size="xs" :class="styles.step.loading" />
 
     <Avatar
       v-else
@@ -29,7 +29,7 @@ import { defineComponent, toRefs } from "vue";
 // -- components
 import Avatar from "../../ui/avatar/Avatar.ce.vue";
 import Button from "../../ui/button/Button.ce.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import Spinner from "../../ui/spinner/Spinner.ce.vue";
 
 // --- local
 import config from "./config.cva";
@@ -40,7 +40,7 @@ import { useStyles } from "../../utils";
 // ----------------------------------------------------------------------------
 export default defineComponent({
   name: "UwpwStep",
-  components: { Avatar, Button, UpwSpinner },
+  components: { Avatar, Button, Spinner },
   emits: ["update:modelValue"],
   props: {
     modelValue: { type: Boolean },
