@@ -14,7 +14,7 @@
       </div>
 
       <div class="px-4 py-8 sm:px-6 md:col-span-2 lg:col-auto lg:px-8">
-        <upw-spinner
+        <Spinner
           class="w-full justify-center text-center"
           v-if="meta.isProcessing"
         />
@@ -73,7 +73,7 @@ import { inject, watch } from "vue";
 import { useSession } from "@upmind/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 // ---
 const { activeTheme } = inject("upwind");
 

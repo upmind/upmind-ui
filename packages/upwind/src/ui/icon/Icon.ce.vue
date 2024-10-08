@@ -35,7 +35,7 @@ import type { IconProps } from ".";
 
 const props = withDefaults(defineProps<IconProps>(), {
   //  --- variants
-  size: "full",
+  size: "auto",
   // --- styles
   upwindConfig: () => ({ icon: {} }),
   class: "",

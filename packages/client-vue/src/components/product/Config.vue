@@ -44,7 +44,7 @@
           <div :class="styles.product.config.summary">
             <!-- quantity -->
 
-            <UpwSpinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
+            <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
 
             <UpwQuantitybox
               v-if="product?.canChangeQuantity"
@@ -198,7 +198,7 @@ import config from "./config.cva";
 // --- components
 import {
   UpwQuantitybox,
-  UpwSpinner,
+  Spinner,
   UpwMarkdown,
   UpwLineclamp,
 } from "@upmind/upwind";
@@ -220,7 +220,7 @@ export default defineComponent({
     Badge,
     Button,
     UpwQuantitybox,
-    UpwSpinner,
+    Spinner,
     UpmConfigGrid,
     UpmConfigNested,
     UpmConfigForm,

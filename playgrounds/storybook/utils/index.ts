@@ -23,11 +23,6 @@ enum colors {
   error = "Error",
   warning = "Warning",
 }
-enum baseSizes {
-  sm = "Small",
-  md = "Medium",
-  lg = "Large",
-}
 
 enum sizes {
   xs = "Extra Small",
@@ -37,12 +32,16 @@ enum sizes {
   icon = "Icon",
 }
 enum allSizes {
+  auto = "Auto",
+  "3xs" = "Extra Extra Extra Small",
+  "2xs" = "Extra Extra Small",
   xs = "Extra Small",
   sm = "Small",
   md = "Medium",
   lg = "Large",
   xl = "Extra Large",
-  "2xl" = "2 Extra Large",
+  "2xl" = "Extra Extra Large",
+  "3xl" = "Extra Extra Extra Large",
 }
 
 enum placements {
@@ -83,13 +82,7 @@ export const useSystemArgTypes = {
       labels: sizes,
     },
   },
-  baseSizes: {
-    options: keys(baseSizes),
-    control: {
-      type: "radio",
-      labels: baseSizes,
-    },
-  },
+
   allSizes: {
     options: keys(allSizes),
     control: {

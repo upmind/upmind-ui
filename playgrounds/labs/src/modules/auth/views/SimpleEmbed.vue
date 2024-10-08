@@ -1,6 +1,6 @@
 <template>
   <div class="mx-auto flex max-w-md flex-wrap items-center p-6">
-    <upw-spinner
+    <Spinner
       class="w-full justify-center text-center"
       v-if="meta.isProcessing"
     />
@@ -54,7 +54,7 @@ import { watch } from "vue";
 import { useSession } from "@upmind/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 // ---
 
 // ---
