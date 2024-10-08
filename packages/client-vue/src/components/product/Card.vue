@@ -108,7 +108,7 @@
 
       <!-- footer -->
       <footer :class="styles.product.card.footer">
-        <UpwSpinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
+        <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
             v-if="!!summary?.discount"
@@ -178,7 +178,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwSpinner } from "@upmind/upwind";
+import { Spinner } from "@upmind/upwind";
 
 // --- custom elements
 import { Icon, Badge, Button } from "@upmind/upwind";
@@ -190,7 +190,7 @@ import { isNil, find, reject } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmProductCard",
-  components: { UpwSpinner, Icon, Badge, Button },
+  components: { Spinner, Icon, Badge, Button },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

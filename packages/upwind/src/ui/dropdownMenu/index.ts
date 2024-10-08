@@ -1,6 +1,11 @@
-export { DropdownMenuPortal } from "radix-vue";
+// --- external
+import { defineCustomElement } from "vue";
 
-export { default as DropdownMenu } from "./DropdownMenu.vue";
+// --- vue elements
+export { default as DropdownMenu } from "./DropdownMenu.ce.vue";
+
+export { DropdownMenuPortal } from "radix-vue";
+export { default as DropdownMenuRoot } from "./DropdownMenu.vue";
 export { default as DropdownMenuTrigger } from "./DropdownMenuTrigger.vue";
 export { default as DropdownMenuContent } from "./DropdownMenuContent.vue";
 export { default as DropdownMenuGroup } from "./DropdownMenuGroup.vue";
@@ -14,3 +19,11 @@ export { default as DropdownMenuLabel } from "./DropdownMenuLabel.vue";
 export { default as DropdownMenuSub } from "./DropdownMenuSub.vue";
 export { default as DropdownMenuSubTrigger } from "./DropdownMenuSubTrigger.vue";
 export { default as DropdownMenuSubContent } from "./DropdownMenuSubContent.vue";
+
+export { type DropdownMenuProps } from "./types";
+
+// --- custom elements
+import DropdownMenu from "./DropdownMenu.ce.vue";
+export const UwDropdownMenu = defineCustomElement(DropdownMenu);
+
+// ---

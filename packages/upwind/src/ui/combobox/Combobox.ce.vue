@@ -6,55 +6,47 @@
         role="combobox"
         color="primary"
         :aria-expanded="open"
-        class="justify-between"
-        :disabled="loading"
-        :class="cn(variants.button, props.class)"
-        block
+        :loading="loading"
+        :class="cn(variants.combobox.button, props.class)"
+        :label="value?.label || label"
       >
-        <slot>
-          <div class="flex w-full items-center justify-between">
-            <div class="flex items-center truncate">
-              <Avatar
-                v-if="value?.icon"
-                :icon="value.icon"
-                size="xxxs"
-                shape="circle"
-                fit="cover"
-                class="mr-2 shrink-0"
-                aria-hidden="true"
-              />
-              <div v-if="!hideLabel" class="text-left">
-                <div class="mt-[1px] leading-none">
-                  {{ value?.label || label }}
-                </div>
-                <div
-                  v-if="value?.sublabel"
-                  class="mt-1 leading-none opacity-50"
-                >
-                  {{ value.sublabel }}
-                </div>
-              </div>
-            </div>
-            <div v-if="value?.tag" class="ml-2 flex items-center">
-              <span class="font-bold leading-none">{{ value.tag }}</span>
-            </div>
-          </div>
-        </slot>
+        <template #prepend>
+          <Avatar
+            v-if="value?.avatar"
+            v-bind="value.avatar"
+            size="3xs"
+            shape="circle"
+            fit="cover"
+            aria-hidden="true"
+          />
+          <Icon
+            v-if="value?.icon"
+            :icon="value.icon"
+            shape="circle"
+            size="3xs"
+            fit="cover"
+            aria-hidden="true"
+          />
+        </template>
 
         <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
-
-        <div class="ml-1">
+        <template #append>
           <Icon
-            v-if="!loading"
-            class="-mt-1 h-5 w-5 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
+            class="rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
             icon="arrow-up"
+            size="xs"
           />
-
-          <UpwSpinner size="xs" v-else class="-mr-1 mt-1 shrink-0 opacity-50" />
-        </div>
+        </template>
       </Button>
     </PopoverTrigger>
-    <PopoverContent :class="cn(variants.content, props.popoverClass)">
+    <PopoverContent
+      :class="
+        cn(
+          variants.combobox.content,
+          props.popoverClass ? props.popoverClass : props.class
+        )
+      "
+    >
       <Command>
         <CommandInput auto-focus :placeholder="searchMessage" />
         <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
@@ -66,35 +58,21 @@
               :value="item.value"
               @select="handleSelect(item)"
               class="group flex cursor-pointer items-center justify-between"
-              :class="variants.item"
+              :class="variants.combobox.item"
             >
-              <div class="flex">
-                <Avatar
-                  v-if="item.icon"
-                  :icon="item.icon"
-                  size="xxxs"
-                  class="mr-2"
-                />
-                <div>
-                  <div class="mt-[1px] leading-none">{{ item.label }}</div>
-                  <div class="mt-1 leading-none opacity-50">
-                    {{ item.sublabel }}
-                  </div>
-                </div>
+              <div class="items center flex gap-2">
+                <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
+                <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
+                <span>{{ item.label }}</span>
               </div>
 
-              <div class="flex items-center">
-                <span class="mr-1 font-bold leading-none">{{ item.tag }}</span>
-                <Icon
-                  icon="check"
-                  :class="
-                    cn(
-                      'h-3 w-3',
-                      value?.value === item.value ? 'opacity-100' : 'opacity-0'
-                    )
-                  "
-                />
-              </div>
+              <Icon
+                icon="check"
+                size="3xs"
+                :class="
+                  cn(value?.value === item.value ? 'opacity-100' : 'opacity-0')
+                "
+              />
             </CommandItem>
           </CommandGroup>
         </CommandList>
@@ -115,7 +93,6 @@ import config from "./combobox.config";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
-import UpwSpinner from "../../components/spinner/Spinner.vue";
 import {
   Command,
   CommandEmpty,
@@ -141,12 +118,11 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   loading: false,
   emptyMessage: "No Results",
   searchMessage: "Search...",
-  hideLabel: false,
   // -- variants
   color: "base",
   width: "md",
   // --- styles
-  upwindConfig: () => ({ alert: {} }),
+  upwindConfig: () => ({ combobox: {} }),
   class: "",
   popoverClass: "",
 });
@@ -159,11 +135,13 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  ["button", "content", "item"],
+  ["combobox"],
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ content: string; button: string; item: string }>;
+) as ComputedRef<{
+  combobox: { content: string; button: string; item: string };
+}>;
 
 const open = ref(false);
 const selected = isString(props.modelValue)
@@ -186,6 +164,5 @@ const handleSelect = (item: any) => {
   value.value = item; // Use the ref value
   open.value = false; // Use the ref value
   emit("update:modelValue", item); // Use the emit function directly
-  emit("input", item); // Use the emit function directly
 };
 </script>

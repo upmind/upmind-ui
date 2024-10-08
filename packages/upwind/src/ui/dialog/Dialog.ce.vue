@@ -40,7 +40,11 @@
         </slot>
       </DialogHeader>
 
-      <slot />
+      <div class="grid gap-4 overflow-y-auto px-1 py-4">
+        <div class="flex h-[300dvh] flex-col justify-start">
+          <slot />
+        </div>
+      </div>
 
       <DialogFooter :class="props.classFooter">
         <slot name="footer" />

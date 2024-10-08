@@ -12,6 +12,7 @@ export interface ButtonProps {
   // ---
   disabled?: boolean;
   loading?: boolean;
+  iconOnly?: boolean;
   // ---
   block?: boolean;
   variant?: ButtonVariantProps["variant"];

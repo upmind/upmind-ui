@@ -16,7 +16,6 @@ export { default as UpwRadioList } from "./components/radio/RadioList.vue";
 export { default as UpwSelect } from "./components/select/Select.vue";
 export { default as UpwSkeletonForm } from "./components/skeleton/SkeletonForm.vue";
 export { default as UpwSkeletonList } from "./components/skeleton/SkeletonList.vue";
-export { default as UpwSpinner } from "./components/spinner/Spinner.vue";
 export { default as UpwSteps } from "./components/steps/Steps.vue";
 export { default as UpwTabs } from "./components/tabs/Tabs.vue";
 export { default as UpwTextarea } from "./components/textarea/Textarea.vue";
@@ -27,27 +26,39 @@ export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 export * from "./components/form/renderers/utils";
 
 // --- Web Components
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
-import { UwAvatar, Avatar } from "./ui/avatar";
-import { UwBadge, Badge } from "./ui/badge";
-import { UwButton, Button } from "./ui/button";
+import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
+import { UwBadge, Badge, type BadgeProps } from "./ui/badge";
+import { UwButton, Button, type ButtonProps } from "./ui/button";
 import { UwCombobox, Combobox, type ComboboxItem } from "./ui/combobox";
-import { UwDialog, Dialog, DialogClose } from "./ui/dialog";
+import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
-import { UwIcon, Icon } from "./ui/icon";
+import {
+  UwDropdownMenu,
+  DropdownMenu,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuRadioGroup,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem,
+  DropdownMenuShortcut,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "./ui/dropdownMenu";
+import { UwIcon, Icon, type IconProps } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
+import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
-import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
 
 // --- uw component utils
@@ -68,24 +79,42 @@ export {
   Combobox,
   type ComboboxItem,
   Dialog,
-  DialogClose,
   Drawer,
+  DropdownMenu,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuRadioGroup,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem,
+  DropdownMenuShortcut,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
   Icon,
   Indicator,
-  Sonner,
-  Tabs,
-  type TabItems,
-  Tooltip,
   Popover,
-  PopoverTrigger,
   PopoverContent,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  PopoverTrigger,
   Separator,
+  Sonner,
+  Spinner,
+  Tabs,
+  Tooltip,
+
+  // --- Types
+  type AvatarProps,
+  type BadgeProps,
+  type ButtonProps,
+  type DialogProps,
+  type IconProps,
+  type TabItems,
+
   // --- Custom Elements
   UwAlert,
   UwAvatar,
@@ -94,6 +123,7 @@ export {
   UwCombobox,
   UwDialog,
   UwDrawer,
+  UwDropdownMenu,
   UwIcon,
   UwIndicator,
   UwSonner,
@@ -110,9 +140,11 @@ export function register() {
   customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-drawer", UwDrawer);
+  customElements.define("uw-dropdown-menu", UwDropdownMenu);
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-sonner", UwSonner);
+  customElements.define("uw-spinner", UwSpinner);
   customElements.define("uw-tabs", UwTabs);
   customElements.define("uw-tooltip", UwTooltip);
 }
@@ -139,11 +171,17 @@ declare module "vue" {
     Badge: typeof Badge;
     Button: typeof Button;
     Combobox: typeof Combobox;
-    Drawer: typeof Drawer;
     Dialog: typeof Dialog;
+    Drawer: typeof Drawer;
+    DropdownMenu: typeof DropdownMenu;
     Icon: typeof Icon;
     Indicator: typeof Indicator;
+    Popover: typeof Popover;
+    PopoverContent: typeof PopoverContent;
+    PopoverTrigger: typeof PopoverTrigger;
+    Separator: typeof Separator;
     Sonner: typeof Sonner;
+    Spinner: typeof Spinner;
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
   }

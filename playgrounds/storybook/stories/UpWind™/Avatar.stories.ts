@@ -22,7 +22,7 @@ const meta: Meta<typeof Avatar> = {
   component: Avatar,
   argTypes: {
     icon: useSystemArgTypes.icon,
-    size: useSystemArgTypes.baseSizes,
+    size: useSystemArgTypes.allSizes,
     shape: {
       options: keys(shapes),
       control: {

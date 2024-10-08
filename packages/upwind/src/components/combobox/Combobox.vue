@@ -38,7 +38,7 @@
         />
 
         <HComboboxButton :class="styles.combobox.button">
-          <UpwSpinner
+          <Spinner
             :class="styles.combobox.item.avatar"
             v-if="meta.isProcessing"
           />
@@ -233,7 +233,7 @@ import {
 import Button from "../../ui/button/Button.ce.vue";
 import Icon from "../../ui/icon/Icon.ce.vue";
 import UpwInput from "../input/Input.vue";
-import UpwSpinner from "../spinner/Spinner.vue";
+import Spinner from "../../ui/spinner/Spinner.ce.vue";
 
 // --- utils
 import { useStyles } from "../../utils";
@@ -270,7 +270,7 @@ export default defineComponent({
     HComboboxOption: ComboboxOption,
     HComboboxInput: ComboboxInput,
     UpwInput,
-    UpwSpinner,
+    Spinner,
     // ---
     Icon,
     Button,
