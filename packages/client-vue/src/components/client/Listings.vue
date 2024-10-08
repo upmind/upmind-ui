@@ -1,18 +1,20 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Drawer' : 'Section'"
+    :is="modal ? 'Dialog' : 'Section'"
     title="Change address"
     :open="isOpen"
     @reject="onClose"
     @update:open="onClose"
-    skrim="light"
+    size="3xl"
+    :skrim="color"
     :class="styles.clientListings.root"
+    :class-footer="styles.clientListings.footer"
     v-auto-animate
   >
-    <header :class="styles.clientListings.header">
+    <template #header>
       <slot name="header" v-bind="{ meta }"></slot>
-    </header>
+    </template>
 
     <div v-if="!meta.isAvailable">
       <UpmAuth no-tabs />
@@ -37,11 +39,11 @@
           :key="item.id"
           :model-value="item"
           :selected="item.id === selected?.id"
-          @update:modelValue="onSelect"
           :hidden="meta.isAdding && item.id === selected?.id"
           :disabled="meta.isEditing && item.id === selected?.id"
           :i18nKey="i18nKey"
           :no-actions="noActions"
+          @update:modelValue="onSelect"
           @click:action="onClose"
         />
       </div>
@@ -56,6 +58,7 @@
         :key="selected?.id"
         :i18nKey="i18nKey"
         @reject="onClose"
+        :color="color"
       />
 
       <div
@@ -71,9 +74,9 @@
       </div>
     </template>
 
-    <footer :class="styles.clientListings.footer">
+    <template #footer>
       <slot name="footer" v-bind="{ meta }"></slot>
-    </footer>
+    </template>
 
     <template #actions>
       <Button
@@ -117,7 +120,7 @@ import UpmItem from "./Item.vue";
 import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
-import { Button, Drawer } from "@upmind/upwind";
+import { Button, Dialog } from "@upmind/upwind";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -126,10 +129,10 @@ import { isFunction } from "lodash-es";
 
 export default defineComponent({
   name: "UpmClientListings",
-  directive: { autoAnimate: vAutoAnimate },
+  directives: { autoAnimate: vAutoAnimate },
   components: {
     Button,
-    Drawer,
+    Dialog,
     UpwTextbox,
     UpwSkeletonList,
     Section,
@@ -149,6 +152,7 @@ export default defineComponent({
     i18nKey: { type: String, required: true },
     open: { type: Boolean },
     modal: { type: Boolean, default: false },
+    color: { type: String, default: "base" },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
@@ -202,12 +206,21 @@ export default defineComponent({
   computed: {
     actions() {
       return {
-        add: {
-          label: this?.$t(`client.${this.type}.actions.add`),
-          variant: "flat",
+        cancel: {
+          label: this?.$t(`client.${this.type}.actions.cancel`),
+          variant: "ghost",
+          color: this.color,
           block: true,
           handler: () => {
             this.$emit("update:open", false);
+          },
+        },
+        add: {
+          label: this?.$t(`client.${this.type}.actions.add`),
+          variant: "flat",
+          color: this.color,
+          block: true,
+          handler: () => {
             this.add();
           },
         },
@@ -226,13 +239,13 @@ export default defineComponent({
     },
   },
   methods: {
-    onClose() {
-      this.$emit("update:open", false);
+    onClose(value) {
+      this.$emit("update:open", value);
     },
 
     onSelect(item) {
       this.select(item.id);
-      this.$emit("update:open", true);
+      this.$emit("update:open", false);
     },
     doAction(item) {
       if (isFunction(item?.handler)) {

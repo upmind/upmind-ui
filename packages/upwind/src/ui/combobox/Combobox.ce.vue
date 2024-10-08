@@ -6,42 +6,46 @@
         role="combobox"
         color="primary"
         :aria-expanded="open"
-        class="justify-between"
-        :disabled="loading"
-        :class="cn(variants.button, props.class)"
+        :loading="loading"
+        :class="cn(variants.combobox.button, props.class)"
       >
-        <span class="flex items-center truncate">
+        <template #prepend>
           <Avatar
-            v-if="value?.icon"
-            :icon="value.icon"
-            size="xxxs"
+            v-if="value?.avatar"
+            v-bind="value.avatar"
+            size="3xs"
             shape="circle"
             fit="cover"
-            class="mr-2 shrink-0"
             aria-hidden="true"
           />
+          <Icon
+            v-if="value?.icon"
+            :icon="value.icon"
+            size="3xs"
+            shape="circle"
+            fit="cover"
+            aria-hidden="true"
+          />
+        </template>
+
+        <span class="flex items-center truncate">
           <span v-if="!hideLabel">{{ value?.label || label }}</span>
         </span>
 
         <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
-
-        <Icon
-          v-if="!loading"
-          class="ml-2 h-4 w-4 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
-          icon="arrow-up"
-        />
-
-        <UpwSpinner
-          size="xs"
-          v-else
-          class="-mr-1 ml-2 mt-1 shrink-0 opacity-50"
-        />
+        <template #append>
+          <Icon
+            class="rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
+            icon="arrow-up"
+            size="xs"
+          />
+        </template>
       </Button>
     </PopoverTrigger>
     <PopoverContent
       :class="
         cn(
-          variants.content,
+          variants.combobox.content,
           props.popoverClass ? props.popoverClass : props.class
         )
       "
@@ -57,25 +61,19 @@
               :value="item.value"
               @select="handleSelect(item)"
               class="group flex cursor-pointer items-center justify-between"
-              :class="variants.item"
+              :class="variants.combobox.item"
             >
-              <div class="flex">
-                <Avatar
-                  v-if="item.icon"
-                  :icon="item.icon"
-                  size="xxxs"
-                  class="mr-2"
-                />
-                <span class="mt-[1px] leading-none">{{ item.label }}</span>
+              <div class="items center flex gap-2">
+                <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
+                <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
+                <span>{{ item.label }}</span>
               </div>
 
               <Icon
                 icon="check"
+                size="2xs"
                 :class="
-                  cn(
-                    'h-3 w-3',
-                    value?.value === item.value ? 'opacity-100' : 'opacity-0'
-                  )
+                  cn(value?.value === item.value ? 'opacity-100' : 'opacity-0')
                 "
               />
             </CommandItem>
@@ -142,11 +140,13 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  ["button", "content", "item"],
+  ["combobox"],
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ content: string; button: string; item: string }>;
+) as ComputedRef<{
+  combobox: { content: string; button: string; item: string };
+}>;
 
 const open = ref(false);
 const selected = isString(props.modelValue)
