@@ -48,6 +48,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Separator } from "./ui/separator";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -83,6 +84,7 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Separator,
   // --- Custom Elements
   UwAlert,
   UwAvatar,
