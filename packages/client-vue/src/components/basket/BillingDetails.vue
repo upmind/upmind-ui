@@ -1,5 +1,5 @@
 <template>
-  <section :class="styles.client.root">
+  <section :class="styles.client.root" v-auto-animate>
     <header :class="styles.client.header">
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
@@ -70,7 +70,7 @@
 <script>
 // --- external
 import { defineComponent, provide, ref } from "vue";
-
+import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useClientUnifiedAddress,
@@ -94,6 +94,7 @@ import { get, isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClient",
+  directives: { autoAnimate: vAutoAnimate },
   components: {
     UpwSkeletonList,
     Button,

@@ -8,6 +8,7 @@
     @update:open="onClose"
     skrim="light"
     :class="styles.clientListings.root"
+    v-auto-animate
   >
     <header :class="styles.clientListings.header">
       <slot name="header" v-bind="{ meta }"></slot>
@@ -90,7 +91,7 @@
 <script>
 // --- external
 import { defineComponent, provide, ref } from "vue";
-
+import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useClientEmails,
@@ -125,6 +126,7 @@ import { isFunction } from "lodash-es";
 
 export default defineComponent({
   name: "UpmClientListings",
+  directive: { autoAnimate: vAutoAnimate },
   components: {
     Button,
     Drawer,
