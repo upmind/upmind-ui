@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Dialog, DialogClose, Button, UpwForm } from "@upmind/upwind";
+import { Dialog, Button, UpwForm } from "@upmind/upwind";
 
 // --- utils
 import { keys, first } from "lodash-es";
@@ -153,7 +153,7 @@ export const Base: Story = {
 
 export const Hero: Story = {
   render: (args, { updateArgs }) => ({
-    components: { Button, Dialog, DialogClose },
+    components: { Button, Dialog },
 
     setup() {
       return {
@@ -184,9 +184,9 @@ export const Hero: Story = {
               <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
               <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
 
-              <DialogClose>
+              <template #close>
                 <Button label="Get Started for free" appendIcon="arrow-right" :block/>
-              <DialogClose />
+              <template />
             </div>
           </div>
         </section>
