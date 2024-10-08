@@ -59,6 +59,7 @@ import { UwSonner, Sonner } from "./ui/sonner";
 import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
+import { Separator } from "./ui/separator";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -99,6 +100,7 @@ export {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Separator,
   Sonner,
   Spinner,
   Tabs,
@@ -176,11 +178,10 @@ declare module "vue" {
     Popover: typeof Popover;
     PopoverContent: typeof PopoverContent;
     PopoverTrigger: typeof PopoverTrigger;
+    Separator: typeof Separator;
     Sonner: typeof Sonner;
     Spinner: typeof Spinner;
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
-    TabItems: TabItems;
-    ButtonProps: ButtonProps;
   }
 }
