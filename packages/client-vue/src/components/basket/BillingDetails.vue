@@ -25,14 +25,7 @@
       <h5 :class="styles.client.title">
         {{ $t("client.title") }}
 
-        <DropdownMenu
-          v-if="!noActions"
-          toggle="navigation-menu-vertical"
-          :toggle-rotate="false"
-          :items="actions"
-          size="sm"
-          grouped
-        />
+        <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
 
         <!-- <span :class="styles.client.actions">
           <Button

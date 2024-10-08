@@ -34,14 +34,7 @@
     </div>
 
     <footer :class="styles.clientCard.actions">
-      <UpwDropdown
-        v-if="!noActions"
-        toggle="navigation-menu-vertical"
-        :toggle-rotate="false"
-        :items="actions"
-        size="sm"
-        grouped
-      />
+      <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
     </footer>
   </article>
 </template>
@@ -55,7 +48,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwRadio, UpwDropdown } from "@upmind/upwind";
+import { UpwRadio, DropdownMenu } from "@upmind/upwind";
 
 // --- custom elements
 import { Badge } from "@upmind/upwind";
@@ -67,7 +60,7 @@ import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmClientCard",
-  components: { Badge, UpwRadio, UpwDropdown },
+  components: { Badge, UpwRadio, DropdownMenu },
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {
