@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 
-export const buttonVariants = cva("", {
+export const buttonVariants = cva("justify-between", {
   variants: {
     color: {
       base: "border-opacity-10 hover:border-opacity-10",

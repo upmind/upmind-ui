@@ -28,14 +28,32 @@ export * from "./components/form/renderers/utils";
 // --- Web Components
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
-import { UwAvatar, Avatar } from "./ui/avatar";
-import { UwBadge, Badge } from "./ui/badge";
-import { UwButton, Button } from "./ui/button";
+import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
+import { UwBadge, Badge, type BadgeProps } from "./ui/badge";
+import { UwButton, Button, type ButtonProps } from "./ui/button";
 import { UwCombobox, Combobox } from "./ui/combobox";
-import { UwDialog, Dialog, DialogClose } from "./ui/dialog";
+import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
-import { UwDropdownMenu, DropdownMenu } from "./ui/dropdown-menu";
-import { UwIcon, Icon } from "./ui/icon";
+import {
+  UwDropdownMenu,
+  DropdownMenu,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuRadioGroup,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem,
+  DropdownMenuShortcut,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "./ui/dropdownMenu";
+import { UwIcon, Icon, type IconProps } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
 import { UwSpinner, Spinner } from "./ui/spinner";
@@ -59,9 +77,23 @@ export {
   Button,
   Combobox,
   Dialog,
-  DialogClose,
   Drawer,
   DropdownMenu,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuRadioGroup,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem,
+  DropdownMenuShortcut,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
   Icon,
   Indicator,
   Popover,
@@ -71,6 +103,14 @@ export {
   Spinner,
   Tabs,
   Tooltip,
+
+  // --- Types
+  type AvatarProps,
+  type BadgeProps,
+  type ButtonProps,
+  type DialogProps,
+  type IconProps,
+  type TabItems,
 
   // --- Custom Elements
   UwAlert,
@@ -129,7 +169,6 @@ declare module "vue" {
     Button: typeof Button;
     Combobox: typeof Combobox;
     Dialog: typeof Dialog;
-    DialogClose: typeof DialogClose;
     Drawer: typeof Drawer;
     DropdownMenu: typeof DropdownMenu;
     Icon: typeof Icon;
@@ -142,5 +181,6 @@ declare module "vue" {
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
     TabItems: TabItems;
+    ButtonProps: ButtonProps;
   }
 }

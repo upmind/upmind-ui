@@ -10,7 +10,7 @@
       name="loading"
       v-bind="{ styles: styles.form.loading }"
     >
-      <!-- <upw-skeleton-form :class="styles.form.loading" /> -->
+      <UpwSkeletonList :class="styles.form.loading" />
     </slot>
 
     <JsonForms
@@ -65,7 +65,7 @@ import { JsonForms } from "@jsonforms/vue";
 // --- custom elements
 import Button from "../../ui/button/Button.ce.vue";
 
-import UpwSkeletonForm from "../skeleton/SkeletonForm.vue";
+import UpwSkeletonList from "../skeleton/SkeletonList.vue";
 
 // --- local
 import config from "./config.cva";
@@ -111,7 +111,7 @@ export default defineComponent({
   components: {
     Button,
     JsonForms,
-    UpwSkeletonForm,
+    UpwSkeletonList,
   },
 
   inheritAttrs: false,

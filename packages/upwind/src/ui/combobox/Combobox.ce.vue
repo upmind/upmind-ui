@@ -8,6 +8,7 @@
         :aria-expanded="open"
         :loading="loading"
         :class="cn(variants.combobox.button, props.class)"
+        :label="value?.label || label"
       >
         <template #prepend>
           <Avatar
@@ -21,16 +22,12 @@
           <Icon
             v-if="value?.icon"
             :icon="value.icon"
-            size="3xs"
             shape="circle"
+            size="3xs"
             fit="cover"
             aria-hidden="true"
           />
         </template>
-
-        <span class="flex items-center truncate">
-          <span v-if="!hideLabel">{{ value?.label || label }}</span>
-        </span>
 
         <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
         <template #append>
@@ -71,7 +68,7 @@
 
               <Icon
                 icon="check"
-                size="2xs"
+                size="3xs"
                 :class="
                   cn(value?.value === item.value ? 'opacity-100' : 'opacity-0')
                 "
@@ -96,7 +93,6 @@ import config from "./combobox.config";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
-import UpwSpinner from "../../components/spinner/Spinner.vue";
 import {
   Command,
   CommandEmpty,
@@ -122,12 +118,11 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   loading: false,
   emptyMessage: "No Results",
   searchMessage: "Search...",
-  hideLabel: false,
   // -- variants
   color: "base",
   width: "md",
   // --- styles
-  upwindConfig: () => ({ alert: {} }),
+  upwindConfig: () => ({ combobox: {} }),
   class: "",
   popoverClass: "",
 });
@@ -169,6 +164,5 @@ const handleSelect = (item: any) => {
   value.value = item; // Use the ref value
   open.value = false; // Use the ref value
   emit("update:modelValue", item); // Use the emit function directly
-  emit("input", item); // Use the emit function directly
 };
 </script>
