@@ -39,8 +39,12 @@ export const useSession = (inspector?: Function) => {
   const meta = computed(() => ({
     isLoading:
       state.value.matches("checking") ||
-      (guest.value?.matches && guest.value.matches("loading")) ||
-      (client.value?.matches && client.value.matches("loading")),
+      (guest.value?.matches &&
+        ["loading", "login.loading", "register.loading"].some(
+          guest.value.matches
+        )) ||
+      client.value?.matches("loading") ||
+      false,
 
     isProcessing:
       (guest.value?.matches &&
