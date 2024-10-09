@@ -77,12 +77,12 @@
           :key="`radio-select-item-${index}`"
           variant="control"
           :color="props.color"
-          block
-          class="m-0 h-14 border-t-0 !border-opacity-75"
+          :class="cn(variants.radioSelect.trigger, props.class)"
+          class="border-t-0 !border-opacity-75"
           @click="doSelect(item)"
         >
           <span
-            class="flex w-full flex-row items-center justify-between space-x-4 text-left"
+            class="flex w-full flex-row items-center justify-between text-left"
             :class="variants.radioSelect.content"
           >
             <span class="flex flex-row items-center space-x-1">
