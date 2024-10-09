@@ -71,7 +71,7 @@
       </Button>
     </CollapsibleTrigger>
     <div v-auto-animate>
-      <div v-if="isOpen">
+      <template v-if="isOpen">
         <Button
           v-for="(item, index) in props.items"
           :key="`radio-select-item-${index}`"
@@ -112,7 +112,7 @@
             </span>
           </span>
         </Button>
-      </div>
+      </template>
     </div>
   </Collapsible>
 </template>
