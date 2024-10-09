@@ -3,35 +3,58 @@
     <DropdownMenuTrigger as-child>
       <slot name="trigger">
         <Button
-          :variant="variant"
-          :color="color"
-          :loading="loading"
-          :class="props.class"
-          :label="label"
-          :size="size"
+          :variant="props.variant"
+          :color="props.color"
+          :loading="props.loading"
+          :class="cn(variants.dropdownMenu.trigger, props.class)"
+          :label="props.label"
+          :size="props.size"
           :aria-expanded="open"
         >
           <template #prepend>
             <Avatar
-              v-if="avatar"
-              v-bind="avatar"
+              v-if="props.avatar"
+              v-bind="props.avatar"
               size="3xs"
               shape="circle"
               fit="cover"
               aria-hidden="true"
             />
             <Icon
-              v-if="icon"
-              :icon="icon"
+              v-if="props.icon"
+              :icon="props.icon"
               shape="circle"
               size="3xs"
               fit="cover"
               aria-hidden="true"
             />
           </template>
+
+          <span class="flex flex-col gap-y-1">
+            <span v-if="props?.label" class="truncate leading-none">
+              {{ props.label }}
+            </span>
+
+            <span v-if="props?.sublabel" class="leading-none opacity-50">
+              {{ props.sublabel }}
+            </span>
+
+            <span v-if="props?.tag" class="text-center font-bold leading-none">
+              {{ props.tag }}
+            </span>
+          </span>
+
+          <template #append>
+            <Icon
+              size="2xs"
+              class="rotate-180 opacity-50 transition-all duration-200"
+              icon="arrow-up"
+            />
+          </template>
         </Button>
       </slot>
     </DropdownMenuTrigger>
+
     <DropdownMenuContent
       :align="align"
       :class="
@@ -58,7 +81,7 @@
           >
             <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
             <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
-            <span>{{ item.label }}</span>
+            <span v-if="item.label" class="leading-none">{{ item.label }}</span>
           </DropdownMenuItem>
         </template>
       </DropdownMenuGroup>
@@ -120,6 +143,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
 
 const meta = computed(() => ({
   color: props.color,
+  size: props.size,
 }));
 
 const open = ref(false);
@@ -133,7 +157,7 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  dropdownMenu: { content: string; item: string };
+  dropdownMenu: { trigger: string; content: string; item: string };
 }>;
 // ---
 

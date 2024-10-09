@@ -7,24 +7,22 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
   >
-    <span :class="cn(variants.content, props.contentClass)">
-      <slot name="prepend"></slot>
+    <slot name="prepend"></slot>
 
-      <slot>
-        <span
-          v-if="label"
-          class="truncate"
-          :class="{ 'sr-only': props.iconOnly }"
-          >{{ label }}</span
-        >
-      </slot>
+    <slot>
+      <span
+        v-if="label"
+        class="truncate"
+        :class="{ 'sr-only': props.iconOnly }"
+        >{{ label }}</span
+      >
+    </slot>
 
-      <slot name="append"></slot>
-    </span>
+    <slot name="append"></slot>
 
     <span
       v-if="props.loading"
-      class="absolute bottom-1 left-1 right-1 top-1 m-auto"
+      class="spinner absolute bottom-1 left-1 right-1 top-1 m-auto"
     >
       <Spinner />
     </span>
