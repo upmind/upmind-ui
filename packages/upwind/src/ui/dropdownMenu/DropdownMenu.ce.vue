@@ -30,7 +30,10 @@
             />
           </template>
 
-          <span class="flex flex-col gap-y-1">
+          <span
+            class="flex flex-col gap-y-1"
+            v-if="props.label || props.sublabel || props.tag"
+          >
             <span v-if="props?.label" class="truncate leading-none">
               {{ props.label }}
             </span>
@@ -43,14 +46,6 @@
               {{ props.tag }}
             </span>
           </span>
-
-          <template #append>
-            <Icon
-              size="2xs"
-              class="rotate-180 opacity-50 transition-all duration-200"
-              icon="arrow-up"
-            />
-          </template>
         </Button>
       </slot>
     </DropdownMenuTrigger>
@@ -69,7 +64,9 @@
       <DropdownMenuGroup>
         <template v-for="(item, index) in items" :key="`item-${index}`">
           <DropdownMenuItem
+            v-if="!item.hidden"
             :value="item.value"
+            :disabled="item.disabled"
             :class="
               cn(
                 'group flex cursor-pointer items-center justify-start gap-4',

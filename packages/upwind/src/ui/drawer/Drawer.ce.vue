@@ -92,7 +92,6 @@ import type { DrawerRootEmits } from "vaul-vue";
 
 const props = withDefaults(defineProps<DrawerProps>(), {
   // --- props
-  open: false,
   title: "",
   description: "",
   // --- variants

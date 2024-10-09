@@ -18,6 +18,7 @@
       :model-value="selected"
       :key="selected?.id"
       :color="color"
+      :open="meta.isEditing"
     />
 
     <!-- otherwise show the default address as a card -->

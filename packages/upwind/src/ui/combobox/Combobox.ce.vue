@@ -188,7 +188,7 @@ const variants = useStyles(
 // --- methods
 const doSelect = (item: String | ComboboxItemProps) => {
   const selected = isString(item) ? find(props.items, { value: item }) : item;
-  const hasChanged = selected?.value !== value.value;
+  const hasChanged = selected !== value.value;
 
   // Use the ref value
   if (hasChanged) {

@@ -12,18 +12,9 @@ export default {
     actions: cva("flex gap-2"),
   },
   clientListings: {
-    root: cva("bg-base w-full ", {
-      variants: {
-        dialog: {
-          false: "flex flex-col gap-4",
-        },
-      },
-      defaultVariants: {
-        dialog: false,
-      },
-    }),
+    root: cva("bg-base w-full"),
     footer: cva("flex-row items-center justify-between gap-x-4"),
-    items: cva("grid gap-4", {
+    items: cva("grid gap-4 p-1", {
       variants: {
         cols: {
           full: "grid-cols-1",
@@ -42,7 +33,9 @@ export default {
     actions: cva(""),
   },
   clientForm: {
-    root: cva("bg-base w-full max-w-xl py-8", {
+    root: cva("bg-base w-full"),
+    footer: cva("flex-row items-center justify-between gap-x-4"),
+    content: cva("bg-base mx-auto w-full py-8", {
       variants: {
         hasErrors: {
           true: "border-error",
