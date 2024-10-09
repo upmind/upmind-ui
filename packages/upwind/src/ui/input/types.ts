@@ -27,7 +27,7 @@ export interface InputProps {
   readonly?: Booleanish;
   required?: Booleanish;
   size?: Numberish;
-  step?: Numberish;
+  // step?: Numberish;
   type?: InputTypeHTMLAttribute;
   width?: Numberish;
   // ---
