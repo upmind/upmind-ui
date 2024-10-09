@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export const containerVariant = cva("mx-auto w-full ", {
   variants: {
-    size: {
+    width: {
       xs: "max-w-xs",
       sm: "max-w-sm",
       md: "max-w-md",
@@ -17,13 +17,13 @@ export const containerVariant = cva("mx-auto w-full ", {
     },
   },
   defaultVariants: {
-    size: "app",
+    width: "app",
   },
 });
 
 export const innerVariant = cva("mx-auto max-h-[75vh] w-full ", {
   variants: {
-    size: {
+    width: {
       xs: "",
       sm: "",
       md: "",
@@ -47,7 +47,7 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full ", {
     },
   },
   defaultVariants: {
-    size: "app",
+    width: "app",
     overflow: "auto",
     fit: "contain",
   },

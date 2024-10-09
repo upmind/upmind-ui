@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { DialogClose, type DialogCloseProps } from "radix-vue";
 import { Button } from "../button";
 import { Icon } from "../icon";

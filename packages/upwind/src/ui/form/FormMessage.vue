@@ -16,10 +16,10 @@ import { toValue, computed } from "vue";
 import { isArray } from "lodash-es";
 
 const props = defineProps<{
-  name: string;
   formMessageId: string;
-  class?: HTMLAttributes["class"];
+  name: string;
   errors: string[] | string;
+  class?: HTMLAttributes["class"];
 }>();
 
 const safeErrors = computed(() =>

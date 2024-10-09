@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { type HTMLAttributes, computed } from "vue";
 import type { ComboboxRootEmits, ComboboxRootProps } from "radix-vue";
 import { ComboboxRoot, useForwardPropsEmits } from "radix-vue";

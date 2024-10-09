@@ -12,7 +12,8 @@ import type { IconProps } from "../icon";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 
-import type { itemVariants } from "./dropdownMenu.config";
+import type { contentVariants, itemVariants } from "./dropdownMenu.config";
+type ContentVariantProps = VariantProps<typeof contentVariants>;
 type ItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface DropdownMenuItemProps {
@@ -43,7 +44,7 @@ export interface DropdownMenuProps
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
   size: ButtonProps["size"];
-  width: ItemVariantProps["width"];
+  width: ContentVariantProps["width"];
   // --- styles
   upwindConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
   class?: HTMLAttributes["class"];

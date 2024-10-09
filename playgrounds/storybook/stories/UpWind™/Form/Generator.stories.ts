@@ -1,18 +1,18 @@
 // --- external
 import { ref, computed } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
-
+import { useI18n } from "vue-i18n";
 // --- internal
 import * as messages from "./locales";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { Form } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, omitBy } from "lodash-es";
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwForm> = {
+const meta: Meta<typeof Form> = {
   parameters: {
     controls: {
       exclude: [
@@ -25,10 +25,11 @@ const meta: Meta<typeof UpwForm> = {
       ],
     },
   },
-  component: UpwForm,
+  component: Form,
   render: args => ({
-    components: { UpwForm },
+    components: { Form },
     setup() {
+      const { t } = useI18n();
       const isValid = ref(false);
       const model = ref({});
 
@@ -37,6 +38,7 @@ const meta: Meta<typeof UpwForm> = {
       function doResolve(value) {}
 
       return {
+        t,
         args,
         model,
         isValid,
@@ -49,16 +51,16 @@ const meta: Meta<typeof UpwForm> = {
     },
     i18n: { messages },
     template: `
-      <upw-form
+      <Form
        :locale="$i18n.locale"
-       :translator="$t"
+       :translator="t"
         v-bind="args"
         v-model="model"
         @valid="isValid = $event"
       />
 
       <div class="w-full flex-1 self-stretch rounded-lg bg-background-100 p-4 mt-8">
-        <strong class="font-mono uppercase">{{$tc("form.model", formStatus)}}</strong>
+        <strong class="font-mono uppercase">{{t("form.model", formStatus)}}</strong>
         <pre class="sticky top-0 text-wrap">{{ model }}</pre>
       </div>
     `,
@@ -150,13 +152,13 @@ const meta: Meta<typeof UpwForm> = {
           required: ["weight", "height", "drivingSkill"],
         },
       },
-      required: ["name", "dob", "postalCode", "nationality"],
+      required: ["name"],
     },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwForm>;
+type Story = StoryObj<typeof Form>;
 
 export const Base: Story = {};
 

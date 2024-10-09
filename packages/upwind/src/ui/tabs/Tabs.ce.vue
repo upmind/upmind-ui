@@ -23,7 +23,7 @@
   </Tabs>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // ---external
 import { computed } from "vue";
 import { useForwardPropsEmits } from "radix-vue";

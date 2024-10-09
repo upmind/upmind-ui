@@ -13,7 +13,7 @@ export const enum ComboboxPosition {
   "right-end" = "right-end",
 }
 
-export interface ComboboxItem {
+export interface ComboboxItemProps {
   id: string;
   label?: string;
   icon?: string;
@@ -22,4 +22,4 @@ export interface ComboboxItem {
   disabled?: boolean;
 }
 
-export interface ComboboxItems extends Record<string, ComboboxItem> {}
+export interface ComboboxItems extends Record<string, ComboboxItemProps> {}

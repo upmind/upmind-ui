@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useForwardPropsEmits } from "radix-vue";
 import type { DialogRootEmits, DialogRootProps } from "radix-vue";
 import Command from "./Command.vue";

@@ -18,7 +18,9 @@
       :class="variants.form.content"
     />
 
-    <slot name="footer" v-bind="{ meta }"></slot>
+    <slot name="footer" v-bind="{ meta }">
+      <pre>{{ { meta, errors } }}</pre>
+    </slot>
 
     <!-- actions -->
     <div v-if="actions && !noActions" :class="variants.form.actions">
@@ -67,13 +69,13 @@ import {
 // --- types
 import type { ComputedRef } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
-import type { JsonFormsI18nState } from "@jsonforms/core";
-import type { FormProps, FormAction } from "./types";
+import type { JsonFormsI18nState, ValidationMode } from "@jsonforms/core";
+import type { FormProps, FormActionProps } from "./types";
+import type { ErrorObject } from "ajv";
 // ----------------------------------------------
 
 const props = withDefaults(defineProps<FormProps>(), {
   as: "form",
-  mode: "ValidateAndShow",
   // ---
   modelValue: () => ({}),
   additionalRenderers: () => [],
@@ -95,14 +97,13 @@ const emits = defineEmits<{
 // --- state
 const { ajv } = useValidation(props.ajv);
 
+const baseModel = props.modelValue;
 const model = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: {},
 });
-
-import type { ErrorObject } from "ajv";
-
 const errors = ref<ErrorObject[]>([]);
+const touched = ref(false);
 
 // ---
 
@@ -111,7 +112,8 @@ const meta = computed(() => {
     isLoading: props.loading,
     isProcessing: props.processing,
     isPristine: isDeepEmpty(model.value),
-    isDirty: props.modelValue !== model.value,
+    isDirty: baseModel !== model.value,
+    isTouched: touched.value,
     isValid: isEmpty(errors.value),
   };
 });
@@ -131,7 +133,7 @@ const renderers = Object.freeze([
 ]);
 
 // --- computed
-const actions = computed<Record<string, FormAction>>(() => {
+const actions = computed<Record<string, FormActionProps>>(() => {
   const defaultActions = {
     submit: {
       type: "submit",
@@ -139,18 +141,18 @@ const actions = computed<Record<string, FormAction>>(() => {
       disabled: !meta.value.isValid || meta.value.isProcessing,
       loading: meta.value.isProcessing,
       handler: () => doSubmit(),
-    } as FormAction,
+    } as FormActionProps,
     reset: {
       label: "Cancel",
       variant: "ghost",
       disabled: meta.value.isProcessing,
       handler: () => doReject(),
-    } as FormAction,
+    } as FormActionProps,
   };
 
   let actions = props.actions || defaultActions;
 
-  return mapValues(actions, (action: FormAction) => {
+  return mapValues(actions, (action: FormActionProps) => {
     return {
       ...action,
       loading:
@@ -160,14 +162,12 @@ const actions = computed<Record<string, FormAction>>(() => {
         action?.disabled ||
         (action.needsValid && !meta.value.isValid),
     };
-  }) as Record<string, FormAction>;
+  }) as Record<string, FormActionProps>;
 });
 
-const mode = computed<string>(() => {
-  // only show errors if we have some data,, prevents ugly errors on first load
-  return meta.value.isPristine || !meta.value.isDirty
-    ? "ValidateAndHide"
-    : props.mode || "ValidateAndShow";
+const mode = computed<ValidationMode>(() => {
+  // only show errors if we have interacted with the form
+  return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
 });
 
 // --- i18n
@@ -206,7 +206,6 @@ const i18n = computed<JsonFormsI18nState>(() => {
 // --- methods
 function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   errors.value = newErrors ?? [];
-
   data ??= {};
   model.value ??= {};
   // finally check if the data has actually changed and emit the update event
@@ -215,6 +214,7 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   const rawModel = JSON.parse(JSON.stringify(model.value));
 
   if (!isEqual(rawData, rawModel)) {
+    touched.value = true;
     model.value = data;
     emits("update:modelValue", model.value);
   }
@@ -224,7 +224,7 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   if (isValid && props.autosave) doSubmit();
 }
 
-function doAction(item: FormAction, $event: HTMLElementEventMap["click"]) {
+function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
   if (meta.value.isProcessing) {
     $event.preventDefault();
     return;

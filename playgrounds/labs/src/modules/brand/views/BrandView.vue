@@ -81,7 +81,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useBrand } from "@upmind/headless-vue";
 import { startCase, isArray, isObject } from "lodash-es";
 import { Spinner } from "@upmind/upwind";
