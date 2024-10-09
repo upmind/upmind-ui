@@ -28,17 +28,19 @@ export interface DropdownMenuProps
   extends DropdownMenuRootProps,
     DropdownMenuContentProps,
     DropdownMenuTriggerProps {
-  items: DropdownMenuItemProps[];
   title?: string;
   label?: string;
+  sublabel?: string;
+  tag?: string;
+  avatar?: Partial<AvatarProps>;
+  icon?: IconProps["icon"];
+  // --- state
+  items: DropdownMenuItemProps[];
   loading?: boolean;
   // --- variants
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
   size: ButtonProps["size"];
-  // ---
-  avatar?: Partial<AvatarProps>;
-  icon?: IconProps["icon"];
   // --- styles
   upwindConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
   class?: HTMLAttributes["class"];

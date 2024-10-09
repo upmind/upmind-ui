@@ -1,105 +1,109 @@
 <template>
   <Popover v-model:open="open">
     <PopoverTrigger as-child>
-      <Button
-        variant="outline"
-        role="combobox"
-        color="primary"
-        :aria-expanded="open"
-        :loading="loading"
-        :class="cn(variants.combobox.button, props.class)"
-        block
-      >
-        <slot>
-          <div class="flex w-full items-center justify-between">
-            <div class="flex items-center truncate">
-              <div v-if="value?.avatar || value?.icon" class="mr-2">
-                <Avatar
-                  v-if="value?.avatar"
-                  v-bind="value.avatar"
-                  size="3xs"
-                  shape="circle"
-                  fit="cover"
-                  aria-hidden="true"
-                />
-                <Icon
-                  v-if="value?.icon"
-                  :icon="value.icon"
-                  shape="circle"
-                  size="3xs"
-                  fit="cover"
-                  aria-hidden="true"
-                />
-              </div>
-              <div class="text-left">
-                <div class="mt-[1px] leading-none">
-                  {{ value?.label || label }}
-                </div>
-                <div
-                  v-if="value?.sublabel"
-                  class="mt-1 leading-none opacity-50"
-                >
-                  {{ value.sublabel }}
-                </div>
-              </div>
-            </div>
-            <div v-if="value?.tag" class="flex items-center">
-              <span class="font-bold leading-none">{{ value.tag }}</span>
-            </div>
-          </div>
-        </slot>
+      <slot name="trigger">
+        <Button
+          :variant="props.variant"
+          :color="props.color"
+          :loading="props.loading"
+          :class="cn(variants.combobox.trigger, props.class)"
+          :size="props.size"
+          :aria-expanded="open"
+        >
+          <template #prepend>
+            <Avatar
+              v-if="value?.avatar || props.avatar"
+              v-bind="value?.avatar ? value.avatar : props?.avatar"
+              size="3xs"
+              shape="circle"
+              fit="cover"
+              aria-hidden="true"
+            />
+            <Icon
+              v-if="value?.icon || props.icon"
+              :icon="value?.icon ? value.icon : props?.icon"
+              shape="circle"
+              size="3xs"
+              fit="cover"
+              aria-hidden="true"
+            />
+          </template>
 
-        <!-- <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" /> -->
-        <Icon
-          v-if="!loading"
-          class="h-4 w-4 shrink-0 rotate-180 bg-transparent bg-opacity-0 opacity-50 transition-all duration-200"
-          icon="arrow-up"
-        />
+          <span class="flex flex-col gap-y-1">
+            <span
+              class="truncate leading-none"
+              v-if="value?.label || props?.label"
+            >
+              {{ value?.label || props.label }}
+            </span>
 
-        <UpwSpinner
-          size="xs"
-          v-else
-          class="-mr-1 ml-2 mt-1 shrink-0 opacity-50"
-        />
-      </Button>
+            <span
+              v-if="value?.sublabel || props?.sublabel"
+              class="leading-none opacity-50"
+            >
+              {{ value?.sublabel || props.sublabel }}
+            </span>
+
+            <span
+              v-if="value?.tag || props?.tag"
+              class="text-center font-bold leading-none"
+            >
+              {{ value?.tag || props.tag }}
+            </span>
+          </span>
+
+          <template #append>
+            <Icon
+              v-if="!props.loading"
+              size="2xs"
+              class="ml-auto rotate-180 opacity-50 transition-all duration-200"
+              icon="arrow-up"
+            />
+          </template>
+        </Button>
+      </slot>
     </PopoverTrigger>
-    <PopoverContent :class="cn(variants.combobox.content, props.popoverClass)">
+
+    <PopoverContent
+      :align="align"
+      :class="
+        cn(
+          variants.combobox.content,
+          props.popoverClass ? props.popoverClass : props.class
+        )
+      "
+    >
       <Command>
-        <CommandInput auto-focus :placeholder="searchMessage" />
-        <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+        <template v-if="props.searchable">
+          <CommandInput auto-focus :placeholder="searchMessage" />
+          <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+        </template>
         <CommandList>
           <CommandGroup>
             <CommandItem
               v-for="item in items"
               :key="item.value"
               :value="item.value"
-              @select="handleSelect(item)"
-              class="group flex cursor-pointer items-center justify-between"
+              @select="doSelect(item)"
+              class="group flex cursor-pointer items-center justify-start gap-4"
               :class="variants.combobox.item"
             >
-              <div class="items center flex gap-2">
-                <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
-                <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
-                <div>
-                  <div class="mt-[1px] leading-none">{{ item.label }}</div>
-                  <div class="mt-1 leading-none opacity-50">
-                    {{ item.sublabel }}
-                  </div>
-                </div>
-              </div>
+              <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
+              <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
+              <span v-if="item.label" class="leading-none">{{
+                item.label
+              }}</span>
 
-              <div class="flex items-center">
-                <span class="mr-1 font-bold leading-none">{{ item.tag }}</span>
-                <Icon
-                  icon="check"
-                  :class="
-                    cn(
-                      'h-3 w-3',
-                      value?.value === item.value ? 'opacity-100' : 'opacity-0'
-                    )
-                  "
-                />
-              </div>
+              <Icon
+                icon="check"
+                size="3xs"
+                :class="
+                  cn(
+                    'ml-auto',
+                    value?.value === item.value ? 'opacity-100' : 'opacity-0'
+                  )
+                "
+              />
             </CommandItem>
           </CommandGroup>
         </CommandList>
@@ -134,7 +138,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { find, isString } from "lodash-es";
 
 // --- types
-import type { ComboboxProps } from "./types";
+import type { ComboboxProps, ComboboxItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
@@ -143,23 +147,34 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   items: () => [],
   modelValue: "",
   loading: false,
+  searchable: false,
   emptyMessage: "No Results",
   searchMessage: "Search...",
   // -- variants
   color: "base",
-  width: "md",
+  size: "auto",
+  variant: "control",
+  align: "end",
+  // ---
+  icon: "",
+
   // --- styles
   upwindConfig: () => ({ combobox: {} }),
   class: "",
   popoverClass: "",
 });
 
-const emit = defineEmits(["update:modelValue", "input"]);
+const emit = defineEmits(["update:modelValue"]);
 
 const meta = computed(() => ({
   color: props.color,
-  width: props.width,
+  size: props.size,
 }));
+
+const open = ref(false);
+const value = ref();
+
+// ---
 
 const variants = useStyles(
   ["combobox"],
@@ -167,29 +182,24 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  combobox: { content: string; button: string; item: string };
+  combobox: { trigger: string; content: string; item: string };
 }>;
 
-const open = ref(false);
-const selected = isString(props.modelValue)
-  ? find(props.items, { value: props.modelValue })
-  : props.modelValue;
-const value = ref(selected);
+// --- methods
+const doSelect = (item: String | ComboboxItemProps) => {
+  const selected = isString(item) ? find(props.items, { value: item }) : item;
+  const hasChanged = selected?.value !== value.value;
 
-watch(
-  () => props.modelValue,
-  newValue => {
-    const selected = isString(newValue)
-      ? find(props.items, { value: newValue })
-      : newValue;
+  // Use the ref value
+  if (hasChanged) {
     value.value = selected;
-  },
-  { immediate: true }
-);
-
-const handleSelect = (item: any) => {
-  value.value = item; // Use the ref value
-  open.value = false; // Use the ref value
-  emit("update:modelValue", item); // Use the emit function directly
+    emit("update:modelValue", item); // Use the emit function directly
+  }
+  // finnaly close the popover
+  open.value = false;
 };
+
+// --- side effect
+doSelect(props.modelValue);
+watch(() => props.modelValue, doSelect, { immediate: true });
 </script>
