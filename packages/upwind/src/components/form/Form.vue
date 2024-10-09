@@ -1,7 +1,7 @@
 <template>
   <component
     :is="as"
-    :class="styles.form.root"
+    :class="cn(styles.form.root, $attrs.class)"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
@@ -74,7 +74,7 @@ import { upwindRenderers } from "./renderers";
 
 // --- utils
 
-import { useStyles, isDeepEmpty, useValidation } from "../../utils";
+import { cn, useStyles, isDeepEmpty, useValidation } from "../../utils";
 import {
   isArray,
   isEqual,
@@ -221,6 +221,7 @@ export default defineComponent({
         ...upwindRenderers,
         ...props.additionalRenderers,
       ]),
+      cn,
       styles,
       safeValue,
       safeAjv: ajv,

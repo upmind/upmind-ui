@@ -129,38 +129,41 @@ export default defineComponent({
       return [
         {
           label: this.$tc(`client.${this.i18nKey}.actions.select`),
-          disabled: this.meta.isDefault, //|| !this.meta.isVerified,
-          action: () => {
-            // this.$emit("click:action", {
-            //   action: "default",
-            //   value: this.modelValue,
-            // });
+          hidden: this.meta.isDefault, //|| !this.meta.isVerified,
+          icon: "check-square",
+          handler: () => {
             this.open = false;
             this.setDefault();
           },
         },
         {
+          icon: "edit",
           label: this.$tc(`client.${this.i18nKey}.actions.edit`),
-          action: () => {
+          handler: () => {
             this.open = false;
             this.edit();
           },
         },
         {
+          icon: "remove",
           label: this.$tc(`client.${this.i18nKey}.actions.delete`),
-          disabled: !this.meta.canRemove,
-          action: () => {
+          hidden: !this.meta.canRemove,
+          class:
+            "text-destructive data-[highlighted]:bg-destructive-50 data-[highlighted]:text-destructive",
+
+          handler: () => {
             this.open = false;
             this.remove();
           },
         },
         {
+          icon: "copy",
           label: this.$tc(
             `client.${this.i18nKey}.actions.copy`,
             this.copied ? 0 : 1
           ),
-          disabled: !this.isSupported,
-          action: () => {
+          hidden: !this.isSupported,
+          handler: () => {
             this.open = false;
             this.copy(this.description);
           },
