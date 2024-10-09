@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@floating-ui/vue": "^1.0.6",
+    "@formkit/auto-animate": "^0.8.2",
     "@headlessui/vue": "^1.7.19",
     "@jsonforms/core": "^3.2.1",
     "@jsonforms/vue": "^3.2.1",
