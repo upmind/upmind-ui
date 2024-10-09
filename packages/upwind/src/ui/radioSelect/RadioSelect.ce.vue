@@ -53,7 +53,6 @@
             <Badge
               class="text-center font-bold leading-none"
               :color="props.color"
-              variant="tonal"
               size="xs"
             >
               {{ value?.badge || props.badge }}
@@ -71,48 +70,50 @@
         </template>
       </Button>
     </CollapsibleTrigger>
-    <CollapsibleContent v-auto-animate>
-      <Button
-        v-for="(item, index) in props.items"
-        :key="`radio-select-item-${index}`"
-        variant="control"
-        :color="props.color"
-        block
-        class="m-0 h-14 border-t-0 !border-opacity-25"
-        @click="doSelect(item)"
-      >
-        <span
-          class="flex w-full flex-row items-center justify-between space-x-4 text-left"
-          :class="variants.radioSelect.content"
+    <div v-auto-animate>
+      <div v-if="isOpen">
+        <Button
+          v-for="(item, index) in props.items"
+          :key="`radio-select-item-${index}`"
+          variant="control"
+          :color="props.color"
+          block
+          class="m-0 h-14 border-t-0 !border-opacity-75"
+          @click="doSelect(item)"
         >
-          <span class="flex flex-row items-center space-x-1">
-            <span>
-              <UpwCheckbox :model-value="item.value === value?.value" />
-            </span>
-            <span class="flex flex-col gap-y-1">
-              <span v-if="item?.label" class="truncate leading-none">
-                {{ item?.label }}
+          <span
+            class="flex w-full flex-row items-center justify-between space-x-4 text-left"
+            :class="variants.radioSelect.content"
+          >
+            <span class="flex flex-row items-center space-x-1">
+              <span>
+                <UpwCheckbox :model-value="item.value === value?.value" />
               </span>
+              <span class="flex flex-col gap-y-1">
+                <span v-if="item?.label" class="truncate leading-none">
+                  {{ item?.label }}
+                </span>
 
-              <span v-if="item?.sublabel" class="leading-none opacity-50">
-                {{ item?.sublabel }}
+                <span v-if="item?.sublabel" class="leading-none opacity-50">
+                  {{ item?.sublabel }}
+                </span>
               </span>
+            </span>
+
+            <span class="flex items-center space-x-4 pr-2">
+              <Badge
+                class="text-center font-bold leading-none"
+                :color="props.color"
+                variant="tonal"
+                size="xs"
+              >
+                {{ item?.badge }}
+              </Badge>
             </span>
           </span>
-
-          <span class="flex items-center space-x-4 pr-2">
-            <Badge
-              class="text-center font-bold leading-none"
-              :color="props.color"
-              variant="tonal"
-              size="xs"
-            >
-              {{ item?.badge }}
-            </Badge>
-          </span>
-        </span>
-      </Button>
-    </CollapsibleContent>
+        </Button>
+      </div>
+    </div>
   </Collapsible>
 </template>
 
