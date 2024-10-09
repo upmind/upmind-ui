@@ -27,10 +27,10 @@
         </template>
 
         <span
-          class="flex w-full flex-row items-center justify-between space-x-4 text-left"
+          class="flex w-full flex-col items-start justify-start space-y-1 text-left text-sm md:flex-row md:items-center md:justify-between md:space-x-4 md:space-y-0"
           :class="variants.radioSelect.content"
         >
-          <span class="flex flex-col gap-y-1">
+          <span class="flex flex-col space-y-1 md:gap-y-0">
             <span
               v-if="value?.label || props?.label"
               class="truncate leading-none"
@@ -48,10 +48,10 @@
 
           <span
             v-if="value?.badge || props?.badge"
-            class="flex items-center space-x-4"
+            class="flex md:items-center md:space-x-4"
           >
             <Badge
-              class="text-center font-bold leading-none"
+              class="!m-0 !p-0 font-bold leading-none md:text-center"
               :color="props.color"
               size="xs"
             >
@@ -82,7 +82,7 @@
           @click="doSelect(item)"
         >
           <span
-            class="flex w-full flex-row items-center justify-between text-left"
+            class="flex w-full flex-col items-start justify-start space-y-1 text-left text-sm md:flex-row md:items-center md:justify-between md:space-x-4 md:space-y-0"
             :class="variants.radioSelect.content"
           >
             <span class="flex flex-row items-center space-x-1">
@@ -97,10 +97,21 @@
                 <span v-if="item?.sublabel" class="leading-none opacity-50">
                   {{ item?.sublabel }}
                 </span>
+
+                <span class="flex items-center space-x-4 pr-2 md:hidden">
+                  <Badge
+                    class="text-center font-bold leading-none"
+                    :color="props.color"
+                    variant="tonal"
+                    size="xs"
+                  >
+                    {{ item?.badge }}
+                  </Badge>
+                </span>
               </span>
             </span>
 
-            <span class="flex items-center space-x-4 pr-2">
+            <span class="hidden items-center space-x-4 pr-2 md:flex">
               <Badge
                 class="text-center font-bold leading-none"
                 :color="props.color"
