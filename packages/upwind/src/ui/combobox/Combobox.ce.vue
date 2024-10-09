@@ -29,10 +29,10 @@
             />
           </template>
 
-          <span class="flex flex-col gap-y-1">
+          <span class="flex flex-col justify-start gap-y-2 text-left">
             <span
-              class="truncate leading-none"
               v-if="value?.label || props?.label"
+              class="truncate leading-none"
             >
               {{ value?.label || props.label }}
             </span>
@@ -44,11 +44,15 @@
               {{ value?.sublabel || props.sublabel }}
             </span>
 
-            <span
-              v-if="value?.tag || props?.tag"
-              class="text-center font-bold leading-none"
-            >
-              {{ value?.tag || props.tag }}
+            <span v-if="value?.tag || props?.tag" class="flex flex-wrap">
+              <Badge
+                class="text-center font-bold leading-none"
+                :color="props.color"
+                variant="tonal"
+                size="xs"
+              >
+                {{ value?.tag || props.tag }}
+              </Badge>
             </span>
           </span>
 
@@ -66,19 +70,14 @@
 
     <PopoverContent
       :align="align"
-      :class="
-        cn(
-          variants.combobox.content,
-          props.popoverClass ? props.popoverClass : props.class
-        )
-      "
+      :class="cn(variants.combobox.content, props.popoverClass)"
     >
       <Command>
         <template v-if="props.searchable">
           <CommandInput auto-focus :placeholder="searchMessage" />
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
         </template>
-        <CommandList>
+        <CommandList class="w-full max-w-full">
           <CommandGroup>
             <CommandItem
               v-for="item in items"
@@ -123,6 +122,7 @@ import config from "./combobox.config";
 // --- components
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
+import Badge from "../badge/Badge.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
 import {
   Command,
@@ -153,6 +153,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   // -- variants
   color: "base",
   size: "md",
+  width: "xl",
   variant: "control",
   align: "end",
   // ---
@@ -169,6 +170,7 @@ const emit = defineEmits(["update:modelValue"]);
 const meta = computed(() => ({
   color: props.color,
   size: props.size,
+  width: props.width,
 }));
 
 const open = ref(false);
