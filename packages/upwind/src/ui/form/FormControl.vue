@@ -1,5 +1,6 @@
 <template>
   <Slot
+    ref="target"
     :id="props.formItemId"
     :aria-describedby="
       !props.invalid
@@ -14,6 +15,7 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, watchEffect } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 import { Slot } from "radix-vue";
 
@@ -28,6 +30,7 @@ const props = defineProps<{
 }>();
 
 // --- state
+const target = ref<HTMLObjectElement | null>(null);
 
 // --- computed
 
@@ -52,4 +55,11 @@ function maybeFocus([section]: IntersectionObserverEntry[]) {
 // --- lifecycle
 
 // --- side effects
+watchEffect(() => {
+  // if (props.autofocus && target.value) {
+  //   target.value.focus();
+  // }
+
+  target.value?.$el?.setCustomValidity(props.invalid ? "Invalid" : "");
+});
 </script>
