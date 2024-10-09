@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 
-export const triggerVariants = cva("h-24 p-6 text-sm md:h-20", {
+export const triggerVariants = cva("!p-6 !py-12 text-sm md:!p-8 md:!py-10", {
   variants: {
     width: {
       full: "w-full",
