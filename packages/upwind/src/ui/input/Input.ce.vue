@@ -1,13 +1,8 @@
 <template>
-  <input
+  <Input
     v-model="modelValue"
     v-bind="delegatedProps"
-    :class="
-      cn(
-        'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-        props.class
-      )
-    "
+    :class="cn(variants.input, props.class)"
   />
 </template>
 
@@ -16,14 +11,20 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
+// --- components
+import Input from "./Input.vue";
+
 // --- internal
-import { cn } from "../../utils";
+import config from "./input.config";
+import { useStyles, cn } from "../../utils";
 
 // --- utils
 import { omit } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { InputProps } from "./types";
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InputProps>(), {
@@ -43,4 +44,13 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
+
+const meta = computed(() => ({}));
+
+const variants = useStyles(
+  ["input"],
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ input: string }>;
 </script>
