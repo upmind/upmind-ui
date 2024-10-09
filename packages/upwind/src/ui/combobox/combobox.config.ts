@@ -13,7 +13,6 @@ export const triggerVariants = cva(
         xl: "w-dropdown-xl",
         "2xl": "w-dropdown-2xl",
         full: "w-full",
-        auto: "w-auto",
       },
     },
   }
@@ -32,7 +31,6 @@ export const contentVariants = cva(
         xl: "w-dropdown-xl",
         "2xl": "w-dropdown-2xl",
         full: "w-full",
-        auto: "w-auto",
       },
     },
   }

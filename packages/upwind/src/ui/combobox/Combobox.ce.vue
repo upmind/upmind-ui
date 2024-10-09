@@ -152,7 +152,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   searchMessage: "Search...",
   // -- variants
   color: "base",
-  size: "auto",
+  size: "md",
   variant: "control",
   align: "end",
   // ---
