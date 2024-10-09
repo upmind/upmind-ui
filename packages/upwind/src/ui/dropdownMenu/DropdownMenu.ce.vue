@@ -127,6 +127,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   // -- variants
   color: "base",
   size: "md",
+  width: "md",
   variant: "ghost",
   align: "end",
   // ---
@@ -140,6 +141,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
 
 const meta = computed(() => ({
   color: props.color,
+  width: props.width,
   size: props.size,
 }));
 

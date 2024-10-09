@@ -18,7 +18,7 @@ type ItemVariantProps = VariantProps<typeof itemVariants>;
 export interface ComboboxItemProps {
   label: string;
   sublabel?: string;
-  tag?: string;
+  tag?: string | string[];
   value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
@@ -48,6 +48,7 @@ export interface ComboboxProps
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
+  width?: ItemVariantProps["width"];
   // --- styles
   upwindConfig?: { combobox: Partial<ComboboxProps> };
   class?: HTMLAttributes["class"];
