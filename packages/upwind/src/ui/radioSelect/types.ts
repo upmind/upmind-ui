@@ -10,10 +10,10 @@ import type { triggerVariants } from "./radioSelect.config";
 import type { VariantProps } from "class-variance-authority";
 type TriggerVariantsProp = VariantProps<typeof triggerVariants>;
 
-export interface RadioSelectItemProps {
+export interface RadioSelectItem {
   label: string;
   sublabel?: string;
-  tag?: string | string[];
+  badge?: string | string[];
   value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
@@ -24,12 +24,12 @@ export interface RadioSelectItemProps {
 export interface RadioSelectProps {
   label?: string;
   sublabel?: string;
-  tag?: string;
+  badge?: string;
   avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
   // --- state
-  items: RadioSelectItemProps[];
-  modelValue?: string | RadioSelectItemProps;
+  items: RadioSelectItem[];
+  modelValue?: string | RadioSelectItem;
   loading?: boolean;
   // ---
   color?: ButtonProps["color"];

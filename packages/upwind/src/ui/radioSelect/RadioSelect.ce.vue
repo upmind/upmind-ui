@@ -47,7 +47,7 @@
           </span>
 
           <span
-            v-if="value?.tag || props?.tag"
+            v-if="value?.badge || props?.badge"
             class="flex items-center space-x-4"
           >
             <Badge
@@ -56,7 +56,7 @@
               variant="tonal"
               size="xs"
             >
-              {{ value?.tag || props.tag }}
+              {{ value?.badge || props.badge }}
             </Badge>
           </span>
         </span>
@@ -72,8 +72,46 @@
       </Button>
     </CollapsibleTrigger>
     <CollapsibleContent>
-      Yes. Free to use for personal and commercial projects. No attribution
-      required.
+      <Button
+        v-for="(item, index) in props.items"
+        :key="`radio-select-item-${index}`"
+        variant="control"
+        :color="props.color"
+        block
+        class="m-0 h-14 border-t-0 !border-opacity-25"
+        @click="doSelect(item)"
+      >
+        <span
+          class="flex w-full flex-row items-center justify-between space-x-4 text-left"
+          :class="variants.radioSelect.content"
+        >
+          <span class="flex flex-row items-center space-x-1">
+            <span>
+              <UpwCheckbox :model-value="item.value === value?.value" />
+            </span>
+            <span class="flex flex-col gap-y-1">
+              <span v-if="item?.label" class="truncate leading-none">
+                {{ item?.label }}
+              </span>
+
+              <span v-if="item?.sublabel" class="leading-none opacity-50">
+                {{ item?.sublabel }}
+              </span>
+            </span>
+          </span>
+
+          <span class="flex items-center space-x-4 pr-2">
+            <Badge
+              class="text-center font-bold leading-none"
+              :color="props.color"
+              variant="tonal"
+              size="xs"
+            >
+              {{ item?.badge }}
+            </Badge>
+          </span>
+        </span>
+      </Button>
     </CollapsibleContent>
   </Collapsible>
 </template>
@@ -94,12 +132,13 @@ import {
 } from "../collapsible";
 import { Button } from "../button";
 import { Icon } from "../icon";
+import UpwCheckbox from "../../components/checkbox/Checkbox.vue";
 
 // --- utils
 import { find, isString } from "lodash-es";
 
 // --- types
-import type { RadioSelectProps, RadioSelectItemProps } from "./types";
+import type { RadioSelectProps, RadioSelectItem } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -135,7 +174,7 @@ const variants = useStyles(
 }>;
 
 // --- methods
-const doSelect = (item: String | RadioSelectItemProps) => {
+const doSelect = (item: String | RadioSelectItem) => {
   const selected = isString(item) ? find(props.items, { value: item }) : item;
   const hasChanged = selected?.value !== value.value;
 
