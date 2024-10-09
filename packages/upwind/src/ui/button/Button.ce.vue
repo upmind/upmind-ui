@@ -71,9 +71,9 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  ["button", "content"],
+  ["button"],
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ button: string; content: string }>;
+) as ComputedRef<{ button: string }>;
 </script>
