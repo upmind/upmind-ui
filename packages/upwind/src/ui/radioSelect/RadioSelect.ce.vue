@@ -87,7 +87,7 @@
           >
             <span class="flex flex-row items-center space-x-1">
               <span>
-                <UpwCheckbox :model-value="item.value === value?.value" />
+                <UpwRadio :model-value="item.value === value?.value" />
               </span>
               <span class="flex flex-col gap-y-1">
                 <span v-if="item?.label" class="truncate leading-none">
@@ -138,14 +138,10 @@ import { cn, useStyles } from "../../utils";
 import config from "./radioSelect.config";
 
 // --- components
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../collapsible";
+import { Collapsible, CollapsibleTrigger } from "../collapsible";
 import { Button } from "../button";
 import { Icon } from "../icon";
-import UpwCheckbox from "../../components/checkbox/Checkbox.vue";
+import UpwRadio from "../../components/radio/Radio.vue";
 
 // --- utils
 import { find, isString } from "lodash-es";
