@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { type HTMLAttributes, computed } from "vue";
 import type { ComboboxEmptyProps } from "radix-vue";
 import { ComboboxEmpty } from "radix-vue";

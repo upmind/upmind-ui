@@ -1,7 +1,7 @@
 <template>
-  <div :class="cn('space-y-2', props.class)">
+  <fieldset :class="cn('space-y-2', props.class)">
     <slot />
-  </div>
+  </fieldset>
 </template>
 
 <script lang="ts" setup>

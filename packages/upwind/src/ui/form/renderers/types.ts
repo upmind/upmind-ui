@@ -1,4 +1,3 @@
-import type { InputSize } from "./controls/types";
 import type { IconProps } from "../../icon/types";
 
 // --------------------------------------------
@@ -16,6 +15,6 @@ export interface Options {
   prependAvatar?: IconProps;
   prependIcon?: IconProps;
   requiredText?: String;
-  size?: InputSize;
+  size?: "sm" | "md" | "lg";
   suffix?: String;
 }

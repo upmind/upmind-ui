@@ -1,8 +1,5 @@
 <template>
-  <UpwLabel
-    v-bind="{ ...label, ...appliedOptions }"
-    :disabled="!label.enabled"
-  />
+  <Label v-bind="{ ...label, ...appliedOptions }" />
 </template>
 
 <script lang="ts">
@@ -12,7 +9,7 @@ import { uiTypeIs } from "@jsonforms/core";
 import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
 
 // --- components
-import UpwLabel from "../../../label/Label.vue";
+import { Label } from "../../../label";
 
 // --- utils
 import { useUpwindLabelRenderer } from "../utils";
@@ -26,7 +23,7 @@ import type { RendererProps } from "@jsonforms/vue";
 export default defineComponent({
   name: "LabelRenderer",
   components: {
-    UpwLabel,
+    Label,
   },
   props: {
     ...rendererProps<LabelElement>(),

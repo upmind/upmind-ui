@@ -8,11 +8,11 @@
       )
     "
   >
-    <slot />
+    <slot></slot>
   </Label>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed } from "vue";
 import { Label } from "radix-vue";
 import { cn } from "../../utils";
@@ -24,5 +24,7 @@ const props = withDefaults(defineProps<LabelProps>(), {
   class: "",
 });
 
-const delegatedProps = computed(() => omit(props, ["class", "upwindConfig"]));
+const delegatedProps = computed(() =>
+  omit(props, ["class", "upwindConfig", "label"])
+);
 </script>

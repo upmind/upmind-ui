@@ -31,7 +31,12 @@ import { UwAlert, Alert } from "./ui/alert";
 import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
 import { UwBadge, Badge, type BadgeProps } from "./ui/badge";
 import { UwButton, Button, type ButtonProps } from "./ui/button";
-import { UwCombobox, Combobox, type ComboboxItem } from "./ui/combobox";
+import {
+  UwCombobox,
+  Combobox,
+  type ComboboxProps,
+  type ComboboxItemProps,
+} from "./ui/combobox";
 import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
 import {
@@ -53,6 +58,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "./ui/dropdownMenu";
+import { UwForm, Form, type FormProps } from "./ui/form";
 import { UwIcon, Icon, type IconProps } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwSonner, Sonner } from "./ui/sonner";
@@ -77,7 +83,6 @@ export {
   Badge,
   Button,
   Combobox,
-  type ComboboxItem,
   Dialog,
   Drawer,
   DropdownMenu,
@@ -96,6 +101,7 @@ export {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  Form,
   Icon,
   Indicator,
   Popover,
@@ -111,7 +117,10 @@ export {
   type AvatarProps,
   type BadgeProps,
   type ButtonProps,
+  type ComboboxProps,
+  type ComboboxItemProps,
   type DialogProps,
+  type FormProps,
   type IconProps,
   type TabItems,
 
@@ -124,6 +133,7 @@ export {
   UwDialog,
   UwDrawer,
   UwDropdownMenu,
+  UwForm,
   UwIcon,
   UwIndicator,
   UwSonner,
@@ -141,6 +151,7 @@ export function register() {
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-drawer", UwDrawer);
   customElements.define("uw-dropdown-menu", UwDropdownMenu);
+  customElements.define("uw-form", UwForm);
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-sonner", UwSonner);
@@ -174,6 +185,7 @@ declare module "vue" {
     Dialog: typeof Dialog;
     Drawer: typeof Drawer;
     DropdownMenu: typeof DropdownMenu;
+    Form: typeof Form;
     Icon: typeof Icon;
     Indicator: typeof Indicator;
     Popover: typeof Popover;

@@ -86,7 +86,7 @@
   </DropdownMenu>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // --- external
 import { ref, computed } from "vue";
 

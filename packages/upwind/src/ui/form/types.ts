@@ -1,8 +1,8 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { VariantProps, CxOptions } from "class-variance-authority";
 import type {
-  ValidationMode,
+  // ValidationMode,
   JsonSchema,
   UISchemaElement,
   Internationalizable,
@@ -17,7 +17,7 @@ type FormVariantProps = VariantProps<typeof formVariants>;
 
 // --- types
 export interface FormProps {
-  as: string;
+  as?: string;
   translator?: Function;
   locale?: string;
   // ---
@@ -27,7 +27,7 @@ export interface FormProps {
   modelValue: Object;
   additionalRenderers?: Array<any>;
   // ---
-  actions?: Record<string, FormAction>;
+  actions?: Record<string, FormActionProps>;
   noActions?: Boolean;
   autosave?: Boolean;
   // ---
@@ -37,15 +37,63 @@ export interface FormProps {
   processing?: Boolean;
   disabled?: Boolean;
   // ---
-  mode?: ValidationMode;
+  // mode?: ValidationMode;
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   // --- Provide a way to add custom variants for a specific instance of the component
   upwindConfig?: { form: Partial<FormProps> };
   class?: HTMLAttributes["class"];
 }
 
-export interface FormAction extends ButtonProps {
+export interface FormActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   needsValid?: boolean;
+}
+
+export interface FormControlProps {
+  // --- required
+  id: string;
+  name: string;
+  // --- optional
+  label?: string;
+  text?: string;
+  tags?: string[];
+  description?: string;
+  errors?: string | string[];
+  // --- variants
+  size?: "sm" | "md" | "lg";
+  // ---state
+  required?: boolean;
+  visible?: boolean;
+  disabled?: boolean;
+  dirty?: boolean;
+  // --- styles
+  upwindConfig?: {
+    form: {
+      root: CxOptions;
+      loading: CxOptions;
+      content: CxOptions;
+      actions: CxOptions;
+    };
+  };
+  class?: HTMLAttributes["class"];
+}
+
+interface SharedBindingObject<TValue = any> {
+  name: string;
+  onBlur: (e: Event) => void;
+  onInput: (e: Event | unknown) => void;
+  onChange: (e: Event | unknown) => void;
+  "onUpdate:modelValue"?: ((e: TValue) => unknown) | undefined;
+}
+
+export interface FieldBindingObject<TValue = any>
+  extends SharedBindingObject<TValue> {
+  value?: TValue;
+  checked?: boolean;
+}
+
+export interface ComponentFieldBindingObject<TValue = any>
+  extends SharedBindingObject<TValue> {
+  modelValue?: TValue;
 }

@@ -17,7 +17,7 @@ import { Label } from "../label";
 const props = defineProps<
   LabelProps & {
     formItemId: string;
-    invalid: boolean;
+    invalid?: boolean;
     class?: HTMLAttributes["class"];
   }
 >();

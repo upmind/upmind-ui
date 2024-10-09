@@ -66,7 +66,7 @@
   </Drawer>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // --- external
 import { computed } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
@@ -95,7 +95,8 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   title: "",
   description: "",
   // --- variants
-  size: "app",
+  size: "md",
+  width: "app",
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
@@ -104,7 +105,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
     drawer: {
       container: {},
       overlay: {},
-      content: {},
+      content: [],
       inner: {},
       header: [],
       footer: [],
@@ -120,7 +121,7 @@ const emits = defineEmits<DrawerRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
-  size: props.size,
+  width: props.width,
   overflow: props.overflow,
   fit: props.fit,
   skrim: props.skrim,

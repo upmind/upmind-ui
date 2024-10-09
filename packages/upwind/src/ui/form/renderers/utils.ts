@@ -14,10 +14,10 @@ import { rankWith } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 
 export const useUpwindRenderer = <
-  I extends { control: any; handleChange: any },
+  I extends { control: any; handleChange: Function },
 >(
   input: I,
-  adaptTarget: (target: any) => any = v => v.value
+  adaptTarget: (target: any) => any = v => v?.value || v || null
 ) => {
   const appliedOptions = computed(() =>
     merge(
@@ -27,17 +27,14 @@ export const useUpwindRenderer = <
     )
   );
 
-  const onChange = (event: Event) => {
-    input.handleChange(
-      input.control.value.path,
-      adaptTarget(event.currentTarget)
-    );
+  const onInput = (value: any) => {
+    input.handleChange(input.control.value.path, adaptTarget(value));
   };
 
   return {
     ...input,
     appliedOptions,
-    onChange,
+    onInput,
   };
 };
 
@@ -71,7 +68,9 @@ export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
   };
 };
 
-export const useUpwindArrayRenderer = <I extends { control: any }>(
+export const useUpwindArrayRenderer = <
+  I extends { control: any; addItem: Function; removeItem: Function },
+>(
   input: I
 ) => {
   const appliedOptions = computed(() =>
@@ -112,8 +111,17 @@ export const useUpwindArrayRenderer = <I extends { control: any }>(
   };
 
   const onChange = (event: Event) => {
-    const checked = event.currentTarget.checked;
-    const value = event.currentTarget.value;
+    const { checked, value } = event.currentTarget as HTMLInputElement;
+
+    if (checked) {
+      input.addItem(input.control.value.path, value);
+    } else {
+      input.removeItem(input.control.value.path, value);
+    }
+  };
+
+  const onInput = (checked: boolean, value: any) => {
+    debugger;
     if (checked) {
       input.addItem(input.control.value.path, value);
     } else {
@@ -127,6 +135,7 @@ export const useUpwindArrayRenderer = <I extends { control: any }>(
     childUiSchema,
     childLabelForIndex,
     onChange,
+    onInput,
   };
 };
 

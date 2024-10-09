@@ -111,7 +111,7 @@
   </Popover>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // --- external
 import { ref, watch, computed } from "vue";
 

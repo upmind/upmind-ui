@@ -13,7 +13,7 @@
 </template>
 
 <!-- eslint-disable vue/component-api-style -->
-<script setup lang="ts">
+<script lang="ts" setup>
 // --- types
 import type { HTMLAttributes } from "vue";
 

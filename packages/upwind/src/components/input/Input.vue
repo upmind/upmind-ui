@@ -26,7 +26,6 @@
     <!-- input wrapper -->
     <div :class="styles.input.wrapper">
       <!-- prepend slot-->
-
       <span :class="styles.input.prependWrapper">
         <slot
           name="prepend"
@@ -189,10 +188,10 @@ import Icon from "../../ui/icon/Icon.ce.vue";
 import UpwLabel from "../label/Label.vue";
 
 // --- local
+import { useStyles } from "../../utils";
 import config from "./config.cva";
 
 // --- utils
-import { useStyles } from "../../utils";
 import { has, isEmpty } from "lodash-es";
 
 // --- types

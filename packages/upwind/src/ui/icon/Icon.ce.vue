@@ -11,7 +11,7 @@
   />
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // --- external
 import { computed, ref, watchEffect } from "vue";
 

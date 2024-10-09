@@ -3,7 +3,7 @@ import { defineCustomElement } from "vue";
 
 // --- vue elements
 export { default as Combobox } from "./Combobox.ce.vue";
-export { type ComboboxProps, type ComboboxItem } from "./types";
+export * from "./types";
 
 // --- custom elements
 import Combobox from "./Combobox.ce.vue";
