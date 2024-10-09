@@ -60,6 +60,7 @@ import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
 import { Separator } from "./ui/separator";
+import { RadioSelect } from "./ui/radioSelect";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -106,6 +107,7 @@ export {
   Spinner,
   Tabs,
   Tooltip,
+  RadioSelect,
 
   // --- Types
   type AvatarProps,
