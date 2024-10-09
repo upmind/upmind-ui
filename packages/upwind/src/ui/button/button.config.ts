@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline shadow-sm ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ",
+  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ",
   {
     variants: {
       variant: {
@@ -13,7 +13,7 @@ export const buttonVariants = cva(
         link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4",
         tonal: "border-transparent",
         control:
-          "!hover:bg-opacity-80 !border-input !bg-control !text-control-foreground ring-offset-background",
+          "!hover:bg-opacity-80 !border-input !bg-control !text-control-foreground shadow-sm ring-offset-background",
       },
       color: {
         base: "",
