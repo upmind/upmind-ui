@@ -43,6 +43,7 @@ export interface DropdownMenuProps
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
   size: ButtonProps["size"];
+  width: ItemVariantProps["width"];
   // --- styles
   upwindConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
   class?: HTMLAttributes["class"];
