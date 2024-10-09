@@ -21,6 +21,8 @@ export interface DropdownMenuItemProps {
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
   handler?: Function;
+  disabled?: boolean;
+  hidden?: boolean;
   class?: HTMLAttributes["class"];
 }
 
