@@ -1,16 +1,21 @@
 <template>
   <component
-    :is="modal ? 'Dialog' : 'section'"
-    @reject="onClose"
-    :actions="actions"
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? 'Drawer' : 'section'"
     :title="safeTitle"
-    :open="modal"
-    @update:open="onClose"
-    size="3xl"
+    :open="isOpen"
+    :actions="actions"
     :skrim="color"
+    :class="styles.clientForm.root"
+    :class-footer="styles.clientForm.footer"
+    fit="cover"
+    v-auto-animate
+    @reject="onClose"
+    @update:open="onClose"
+    size="2xl"
   >
     <UpwForm
-      :class="styles.clientForm.root"
+      :class="styles.clientForm.content"
       :processing="meta.isProcessing"
       :model-value="model"
       :schema="schema"
@@ -39,13 +44,14 @@
 <script>
 // --- external
 import { defineComponent, inject } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, Button, Dialog } from "@upmind/upwind";
+import { UpwForm, Button, Drawer } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";
@@ -53,13 +59,15 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "UpmClientForm",
-  components: { UpwForm, Dialog, Button },
+  directives: { autoAnimate: vAutoAnimate },
+  components: { UpwForm, Drawer, Button },
   props: {
     modelValue: {
       type: Object, // xstate actor
       required: true,
     },
     i18nKey: { type: String, required: true },
+    open: { type: Boolean },
     modal: { type: Boolean, default: true },
     autosave: { type: Boolean, default: false },
     color: { type: String, default: "base" },
@@ -83,7 +91,6 @@ export default defineComponent({
           variant: "ghost",
           color: this.color,
           disabled: this?.meta?.isProcessing,
-          block: true,
           handler: () => this.cancel(),
         },
 
@@ -96,7 +103,6 @@ export default defineComponent({
             this.model?.company_details ? 0 : 1
           ),
           disabled: !this?.meta?.isValid || this?.meta?.isProcessing,
-          block: true,
           handler: ({ model }) => this.update(model),
         },
       };
@@ -114,6 +120,10 @@ export default defineComponent({
       if (!this.autosave) return false;
       return !this.model?.manualPlace;
     },
+    isOpen() {
+      return this.open;
+    },
+
     safeTitle() {
       if (this.model?.company_details) {
         return this.$tc(
@@ -129,10 +139,11 @@ export default defineComponent({
     },
   },
   methods: {
-    onClose() {
-      this.$emit("update:open", false);
-      this.cancel();
+    onClose(value) {
+      this.$emit("update:open", value);
+      if (!value) this.cancel();
     },
+
     onUpdate(model) {
       this.$emit("update:open", false);
       this.update(model);

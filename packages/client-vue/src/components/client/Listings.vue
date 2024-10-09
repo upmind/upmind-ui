@@ -1,16 +1,16 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Dialog' : 'Section'"
+    :is="modal ? 'Drawer' : 'Section'"
     title="Change address"
     :open="isOpen"
     @reject="onClose"
     @update:open="onClose"
-    size="3xl"
     :skrim="color"
     :class="styles.clientListings.root"
     :class-footer="styles.clientListings.footer"
     v-auto-animate
+    size="2xl"
   >
     <template #header>
       <slot name="header" v-bind="{ meta }"></slot>
@@ -59,6 +59,7 @@
         :i18nKey="i18nKey"
         @reject="onClose"
         :color="color"
+        open
       />
 
       <div
@@ -120,7 +121,7 @@ import UpmItem from "./Item.vue";
 import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
-import { Button, Dialog } from "@upmind/upwind";
+import { Button, Drawer } from "@upmind/upwind";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -132,7 +133,7 @@ export default defineComponent({
   directives: { autoAnimate: vAutoAnimate },
   components: {
     Button,
-    Dialog,
+    Drawer,
     UpwTextbox,
     UpwSkeletonList,
     Section,

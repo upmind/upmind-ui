@@ -21,18 +21,6 @@ export const containerVariant = cva("mx-auto w-full ", {
   },
 });
 
-export const contentVariant = cva("mx-auto  w-full ", {
-  variants: {
-    fit: {
-      cover: "p-0",
-      contain: "p-6",
-    },
-  },
-  defaultVariants: {
-    fit: "contain",
-  },
-});
-
 export const innerVariant = cva("mx-auto max-h-[75vh] w-full ", {
   variants: {
     size: {
@@ -53,10 +41,15 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full ", {
       visible: "overflow-visible",
       scroll: "overflow-scroll",
     },
+    fit: {
+      cover: "p-0",
+      contain: "py-6",
+    },
   },
   defaultVariants: {
     size: "app",
     overflow: "auto",
+    fit: "contain",
   },
 });
 
@@ -79,7 +72,7 @@ export default {
   drawer: {
     overlay: overlayVariant,
     container: containerVariant,
-    content: contentVariant,
+    content: cva("w-full"),
     inner: innerVariant,
     header: "",
     footer: "",
