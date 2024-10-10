@@ -1,6 +1,6 @@
 // --- external
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { inputVariants } from "./input.config";
@@ -10,23 +10,25 @@ export interface InputProps {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
+  id: string;
+  name?: string;
+  type?: InputTypeHTMLAttribute;
+  placeholder?: string;
+  // ---
   autocomplete?: string;
   autofocus?: boolean;
   disabled?: boolean;
-  // list?: string;
-  max?: number;
-  maxlength?: number;
-  min?: number;
-  minlength?: number;
-  // multiple?: boolean;
-  name?: string;
-  placeholder?: string;
   readonly?: boolean;
   required?: boolean;
-  size?: number;
-  // step?: number;
-  type?: InputTypeHTMLAttribute;
-  width?: number;
+  // ---
+  maxlength?: number;
+  minlength?: number;
+  // ---
+  max?: number;
+  min?: number;
+  step?: number;
+  // --- variants
+  size?: InputVariantProps["size"];
   // ---
   upwindConfig?: { input: Partial<InputVariantProps> };
   class?: HTMLAttributes["class"];

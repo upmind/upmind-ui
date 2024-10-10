@@ -2,7 +2,7 @@
 import { type HTMLAttributes } from "vue";
 import { type LabelProps as RootLabelProps } from "radix-vue";
 
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { labelVariants } from "./label.config";
