@@ -1,36 +1,33 @@
 // --- external
-import type { InputTypeHTMLAttribute, InputHTMLAttributes } from "vue";
+import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 import { type VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { inputVariants } from "./input.config";
 type InputVariantProps = VariantProps<typeof inputVariants>;
 
-type Booleanish = boolean | "true" | "false";
-type Numberish = number | string;
-
 export interface InputProps {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
   autocomplete?: string;
-  autofocus?: Booleanish;
-  disabled?: Booleanish;
+  autofocus?: boolean;
+  disabled?: boolean;
   // list?: string;
-  max?: Numberish;
-  maxlength?: Numberish;
-  min?: Numberish;
-  minlength?: Numberish;
-  // multiple?: Booleanish;
+  max?: number;
+  maxlength?: number;
+  min?: number;
+  minlength?: number;
+  // multiple?: boolean;
   name?: string;
   placeholder?: string;
-  readonly?: Booleanish;
-  required?: Booleanish;
-  size?: Numberish;
-  // step?: Numberish;
+  readonly?: boolean;
+  required?: boolean;
+  size?: number;
+  // step?: number;
   type?: InputTypeHTMLAttribute;
-  width?: Numberish;
+  width?: number;
   // ---
   upwindConfig?: { input: Partial<InputVariantProps> };
-  class?: InputHTMLAttributes["class"];
+  class?: HTMLAttributes["class"];
 }
