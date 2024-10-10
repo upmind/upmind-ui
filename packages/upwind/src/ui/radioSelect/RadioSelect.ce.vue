@@ -73,7 +73,7 @@
         </template>
       </Button>
     </CollapsibleTrigger>
-    <CollapsibleContent v-auto-animate>
+    <CollapsibleContent>
       <Button
         v-for="(item, index) in itemsList"
         :key="`radio-select-item-${index}`"
@@ -132,7 +132,6 @@
 <script setup lang="ts">
 // ---external
 import { watch, ref, computed } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
