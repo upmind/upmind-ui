@@ -1,46 +1,48 @@
 <template>
-  <FormItem
-    :formItemId="control.id"
+  <FormField
+    v-bind="{ ...delegatedProps, ...appliedOptions }"
     class="flex flex-row items-start gap-x-3 space-y-0"
   >
-    <!-- input -->
-    <FormControl
-      :invalid="!!control.errors"
-      :formItemId="control.id"
-      :formDescriptionId="`form-item-description-${control.id}`"
-      :formMessageId="`form-item-message-${control.id}`"
-    >
-      <Checkbox
-        :id="control.id"
-        :disabled="!control.enabled"
-        :checked="control.data"
-        @update:checked="onInput"
-      />
-    </FormControl>
-
-    <div class="space-y-1 leading-none" v-auto-animate>
-      <!-- label -->
-      <FormLabel :formItemId="control.id" :invalid="!!control.errors">
-        {{ control.label }}
-      </FormLabel>
-
-      <!-- validation messages -->
-      <FormMessage
-        v-if="!!control.errors"
-        :formMessageId="`form-item-message-${control.id}`"
-        :name="control.path"
-        :errors="control.errors"
-      />
-
-      <!-- description -->
-      <FormDescription
-        v-if="control?.description"
+    <template #field>
+      <!-- input -->
+      <FormControl
+        :invalid="!!control.errors"
+        :formItemId="control.id"
         :formDescriptionId="`form-item-description-${control.id}`"
+        :formMessageId="`form-item-message-${control.id}`"
       >
-        {{ control.description }}
-      </FormDescription>
-    </div>
-  </FormItem>
+        <Checkbox
+          :id="control.id"
+          :disabled="!control.enabled"
+          :checked="control.data"
+          @update:checked="onInput"
+        />
+      </FormControl>
+
+      <div class="w-full space-y-1 leading-none" v-auto-animate>
+        <!-- label -->
+        <FormLabel :formItemId="control.id" :invalid="!!control.errors">
+          {{ control.label }}
+        </FormLabel>
+
+        <!-- validation messages -->
+        <FormMessage
+          v-if="!!control.errors"
+          :formMessageId="`form-item-message-${control.id}`"
+          :name="control.path"
+          :errors="control.errors"
+        />
+
+        <!-- description -->
+        <FormDescription
+          v-if="control?.description"
+          :formDescriptionId="`form-item-description-${control.id}`"
+        >
+          {{ control.description }}
+        </FormDescription>
+      </div>
+    </template>
+  </FormField>
 </template>
 
 <script lang="ts">
@@ -52,7 +54,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
 import { Checkbox } from "../../../checkbox";
-import FormItem from "../../FormItem.vue";
+import FormField from "../../FormField.vue";
 import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
@@ -70,7 +72,7 @@ export default defineComponent({
   name: "BooleanRenderer",
   directives: { autoAnimate: vAutoAnimate },
   components: {
-    FormItem,
+    FormField,
     FormLabel,
     FormControl,
     FormDescription,

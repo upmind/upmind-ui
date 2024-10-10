@@ -1,6 +1,6 @@
 <template>
   <Label
-    :class="cn(props.invalid && 'text-destructive', props.class)"
+    :class="cn('w-full', props.invalid && 'text-control-error', props.class)"
     :for="props.formItemId"
   >
     <slot />
