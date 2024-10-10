@@ -31,7 +31,9 @@
           :class="variants.radioSelect.content"
         >
           <span
-            v-if="value && value.label !== 'None'"
+            v-if="
+              value && value.label !== 'None' && value.label !== props.noneText
+            "
             class="flex flex-col md:gap-y-0"
           >
             <span v-if="value?.label || props?.label" class="mb-1 leading-none">
@@ -66,7 +68,7 @@
         <template #append>
           <Icon
             class="opacity-50 transition-all duration-300 group-hover:opacity-100"
-            :class="{ 'rotate-180': !isOpen }"
+            :class="{ 'rotate-180': isOpen }"
             icon="arrow-down"
             size="xs"
           />
@@ -190,7 +192,7 @@ const variants = useStyles(
 
 const itemsList = computed(() => {
   if (!props.required && value.value) {
-    return [...props.items, { value: null, label: "None" }];
+    return [...props.items, { value: null, label: props.noneText || "None" }];
   }
   return props.items;
 });
