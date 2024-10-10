@@ -18,8 +18,7 @@ export default defineConfig({
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/headless/' },
-            { text: 'Getting Started', link: '/@upmind/headless/getting-started' },
+            { text: 'Introduction', link: '/@upmind/headless/' }
           ]
         },
         {
@@ -32,7 +31,6 @@ export default defineConfig({
           text: 'Guides',
           items: [
             { text: 'Introduction', link: '/@upmind/headless-vue/' },
-            { text: 'Getting Started', link: '/@upmind/headless-vue/getting-started' },
             { text: 'Auth', link: '/@upmind/headless-vue/auth-guide' },
             { text: 'Brand', link: '/@upmind/headless-vue/brand-guide' },
             { text: 'System', link: '/@upmind/headless-vue/system-guide' },

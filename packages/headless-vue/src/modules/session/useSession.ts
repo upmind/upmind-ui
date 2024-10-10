@@ -7,6 +7,7 @@ import { useSession as useUpmindSession } from "@upmind/headless";
 
 // --- utils
 import { isFunction } from "lodash-es";
+
 import type { IUseSession, IUseSessionMeta } from "./types";
 
 /**

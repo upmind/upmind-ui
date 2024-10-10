@@ -15,6 +15,9 @@ import { isEmpty } from "lodash-es";
 // a composable that provides a simple interface to the recaptchas machine
 //  with some state helpers
 
+/**
+ * @ignore
+ */
 export const useRecaptcha = () => {
   const { service, destroy, generate, clear } = useSystemRecaptcha();
   const { state } = useActor(service);

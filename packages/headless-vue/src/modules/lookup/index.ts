@@ -15,6 +15,9 @@ const maybeActor = (item: any) =>
   item?.state ? { id: item.id, ...item.state.context } : item;
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export function useLookup(lookup: Function) {
   const { service } = lookup();
   const { state, send }: any = useActor(service);
@@ -80,6 +83,9 @@ export function useLookup(lookup: Function) {
   };
 }
 
+/**
+ * @ignore
+ */
 export function useLookupItem({ item }: any, { emit }: any) {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
 
