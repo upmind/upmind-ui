@@ -34,13 +34,13 @@
             v-if="value && value.label !== 'None'"
             class="flex flex-col md:gap-y-0"
           >
-            <span v-if="value?.label || props?.label" class="leading-tight">
+            <span v-if="value?.label || props?.label" class="mb-1 leading-none">
               {{ value?.label || props.label }}
             </span>
 
             <span
               v-if="value?.sublabel || props?.sublabel"
-              class="leading-tight opacity-50"
+              class="mb-1 leading-none opacity-50"
             >
               {{ value?.sublabel || props.sublabel }}
             </span>
@@ -51,7 +51,7 @@
 
           <span
             v-if="value?.badge || props?.badge"
-            class="mt-1 flex md:items-center md:space-x-4"
+            class="flex md:items-center md:space-x-4"
           >
             <Badge
               class="!m-0 !p-0 font-bold leading-none md:text-center"
@@ -91,16 +91,16 @@
             <span class="-ml-1">
               <UpwRadio :model-value="item.value === value?.value" />
             </span>
-            <span class="flex flex-col gap-y-0">
-              <span v-if="item?.label" class="leading-tight">
+            <span class="flex flex-col">
+              <span v-if="item?.label" class="mb-1 leading-none">
                 {{ item?.label }}
               </span>
 
-              <span v-if="item?.sublabel" class="leading-tight opacity-50">
+              <span v-if="item?.sublabel" class="mb-1 leading-none opacity-50">
                 {{ item?.sublabel }}
               </span>
 
-              <span class="mt-1 flex items-center space-x-4 pr-2 md:hidden">
+              <span class="flex items-center space-x-4 pr-2 md:hidden">
                 <Badge
                   class="text-center font-bold leading-none"
                   :color="props.color"
