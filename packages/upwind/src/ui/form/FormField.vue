@@ -16,7 +16,7 @@
       :formDescriptionId="`form-item-description-${props.id}`"
       :formMessageId="`form-item-message-${props.id}`"
     >
-      <slot v-bind="{}"></slot>
+      <slot></slot>
     </FormControl>
 
     <!-- validation messages -->
@@ -112,14 +112,15 @@ const meta = computed(() => ({
     !isEmpty(props.errors),
 }));
 
-const styles = useStyles(
+const variants = useStyles(
   ["input", "input.feedback"],
   meta,
   config,
   target,
   props.upwindConfig
 );
-console.log("FormField", styles);
+
+console.log("FormField", variants);
 // --- methods
 
 // --- side effects
