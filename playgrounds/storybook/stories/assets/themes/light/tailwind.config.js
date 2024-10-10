@@ -208,10 +208,14 @@ const colors = {
     active: {
       DEFAULT: "#5E36E8",
       muted: "#5E36E820",
+      foreground: "#ffffff",
+      background: "#5E36E8",
     },
     error: {
       DEFAULT: "#EF4444",
       muted: "#EF444420",
+      foreground: "#ffffff",
+      background: "#EF4444",
     },
   },
 };
@@ -259,6 +263,7 @@ export default {
     DEFAULT: colors.base[300],
     input: colors.base[300],
     control: colors.base[300],
+    active: colors.control.active.DEFAULT,
   },
   borderRadius: {
     DEFAULT: ".5rem",
