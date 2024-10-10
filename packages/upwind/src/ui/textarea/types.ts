@@ -10,7 +10,7 @@ export interface TextareaProps {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
-  id: string;
+  id?: string;
   name?: string;
   placeholder?: string;
   // ---

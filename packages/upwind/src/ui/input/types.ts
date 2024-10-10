@@ -10,7 +10,7 @@ export interface InputProps {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
-  id: string;
+  id?: string;
   name?: string;
   type?: InputTypeHTMLAttribute;
   placeholder?: string;
