@@ -10,6 +10,9 @@ import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useClientUnifiedAddress = (item: any, context?: any) => {
   const { service } = useUpmindClientUnifiedAddresses();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
@@ -76,6 +79,9 @@ export const useClientUnifiedAddress = (item: any, context?: any) => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useClientUnifiedAddresses = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 

@@ -184,106 +184,6 @@ useTime: () => object;
 
 `object`
 
-##### ERROR
-
-```ts
-ERROR: number = 3000;
-```
-
-##### IMMIDIATE
-
-```ts
-IMMIDIATE: number = 0;
-```
-
-##### MILLISECOND
-
-```ts
-MILLISECOND: number = 1;
-```
-
-##### POLL
-
-```ts
-POLL: number = 500;
-```
-
-##### WAIT
-
-```ts
-WAIT: number = 10;
-```
-
-##### DAY
-
-```ts
-get DAY(): number
-```
-
-###### Returns
-
-`number`
-
-##### HOUR
-
-```ts
-get HOUR(): number
-```
-
-###### Returns
-
-`number`
-
-##### MINUTE
-
-```ts
-get MINUTE(): number
-```
-
-###### Returns
-
-`number`
-
-##### MONTH
-
-```ts
-get MONTH(): number
-```
-
-###### Returns
-
-`number`
-
-##### SECOND
-
-```ts
-get SECOND(): number
-```
-
-###### Returns
-
-`number`
-
-##### WEEK
-
-```ts
-get WEEK(): number
-```
-
-###### Returns
-
-`number`
-
-##### YEAR
-
-```ts
-get YEAR(): number
-```
-
-###### Returns
-
-`number`
-
 ### useUrl()
 
 ```ts
@@ -303,10 +203,6 @@ The path to append to the base URL.
 The query parameters to include in the URL.
 
 • **instance?**
-
-• **instance.base?**: `string`
-
-• **instance.context?**: `string`
 
 #### Returns
 

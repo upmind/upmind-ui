@@ -23,6 +23,9 @@ import type { ActorRef } from "xstate";
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
+/**
+ * @ignore
+ */
 export const useBasketPaymentDetails = (actor?: ActorRef<any, any>) => {
   const { service, getSnapshot } = useBasket();
   const payment_details = ref(actor);
