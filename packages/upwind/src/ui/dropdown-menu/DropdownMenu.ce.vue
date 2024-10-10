@@ -92,7 +92,7 @@ import { ref, computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
-import config from "./dropdownMenu.config";
+import config from "./dropdown-menu.config";
 
 // --- components
 import Button from "../button/Button.ce.vue";
