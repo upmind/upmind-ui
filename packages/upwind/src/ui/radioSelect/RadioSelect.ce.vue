@@ -73,61 +73,59 @@
         </template>
       </Button>
     </CollapsibleTrigger>
-    <div v-auto-animate>
-      <template v-if="isOpen">
-        <Button
-          v-for="(item, index) in itemsList"
-          :key="`radio-select-item-${index}`"
-          variant="control"
-          :color="props.color"
-          :class="cn(variants.radioSelect.trigger, props.class)"
-          class="border-t-0 !border-opacity-75"
-          @click="doSelect(item)"
+    <CollapsibleContent v-auto-animate>
+      <Button
+        v-for="(item, index) in itemsList"
+        :key="`radio-select-item-${index}`"
+        variant="control"
+        :color="props.color"
+        :class="cn(variants.radioSelect.trigger, props.class)"
+        class="border-t-0 !border-opacity-75"
+        @click="doSelect(item)"
+      >
+        <span
+          class="flex w-full flex-col items-start justify-start space-y-1 text-left text-sm md:flex-row md:items-center md:justify-between md:space-x-4 md:space-y-0"
+          :class="variants.radioSelect.content"
         >
-          <span
-            class="flex w-full flex-col items-start justify-start space-y-1 text-left text-sm md:flex-row md:items-center md:justify-between md:space-x-4 md:space-y-0"
-            :class="variants.radioSelect.content"
-          >
-            <span class="flex flex-row items-center space-x-1">
-              <span class="-ml-1">
-                <UpwRadio :model-value="item.value === value?.value" />
-              </span>
-              <span class="flex flex-col gap-y-0">
-                <span v-if="item?.label" class="leading-tight">
-                  {{ item?.label }}
-                </span>
-
-                <span v-if="item?.sublabel" class="leading-tight opacity-50">
-                  {{ item?.sublabel }}
-                </span>
-
-                <span class="mt-1 flex items-center space-x-4 pr-2 md:hidden">
-                  <Badge
-                    class="text-center font-bold leading-none"
-                    :color="props.color"
-                    variant="tonal"
-                    size="xs"
-                  >
-                    {{ item?.badge }}
-                  </Badge>
-                </span>
-              </span>
+          <span class="flex flex-row items-center space-x-1">
+            <span class="-ml-1">
+              <UpwRadio :model-value="item.value === value?.value" />
             </span>
+            <span class="flex flex-col gap-y-0">
+              <span v-if="item?.label" class="leading-tight">
+                {{ item?.label }}
+              </span>
 
-            <span class="hidden items-center space-x-4 pr-2 md:flex">
-              <Badge
-                class="text-center font-bold leading-none"
-                :color="props.color"
-                variant="tonal"
-                size="xs"
-              >
-                {{ item?.badge }}
-              </Badge>
+              <span v-if="item?.sublabel" class="leading-tight opacity-50">
+                {{ item?.sublabel }}
+              </span>
+
+              <span class="mt-1 flex items-center space-x-4 pr-2 md:hidden">
+                <Badge
+                  class="text-center font-bold leading-none"
+                  :color="props.color"
+                  variant="tonal"
+                  size="xs"
+                >
+                  {{ item?.badge }}
+                </Badge>
+              </span>
             </span>
           </span>
-        </Button>
-      </template>
-    </div>
+
+          <span class="hidden items-center space-x-4 pr-2 md:flex">
+            <Badge
+              class="text-center font-bold leading-none"
+              :color="props.color"
+              variant="tonal"
+              size="xs"
+            >
+              {{ item?.badge }}
+            </Badge>
+          </span>
+        </span>
+      </Button>
+    </CollapsibleContent>
   </Collapsible>
 </template>
 
@@ -141,7 +139,11 @@ import { cn, useStyles } from "../../utils";
 import config from "./radioSelect.config";
 
 // --- components
-import { Collapsible, CollapsibleTrigger } from "../collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../collapsible";
 import { Button } from "../button";
 import { Icon } from "../icon";
 import UpwRadio from "../../components/radio/Radio.vue";
