@@ -31,6 +31,7 @@ import { UwAlert, Alert } from "./ui/alert";
 import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
 import { UwBadge, Badge, type BadgeProps } from "./ui/badge";
 import { UwButton, Button, type ButtonProps } from "./ui/button";
+import { UwCheckbox, Checkbox, type CheckboxProps } from "./ui/checkbox";
 import {
   UwCombobox,
   Combobox,
@@ -89,6 +90,7 @@ export {
   Avatar,
   Badge,
   Button,
+  Checkbox,
   Combobox,
   Dialog,
   Drawer,
@@ -127,6 +129,7 @@ export {
   type AvatarProps,
   type BadgeProps,
   type ButtonProps,
+  type CheckboxProps,
   type ComboboxProps,
   type ComboboxItemProps,
   type DialogProps,
@@ -143,6 +146,7 @@ export {
   UwAvatar,
   UwBadge,
   UwButton,
+  UwCheckbox,
   UwCombobox,
   UwDialog,
   UwDrawer,
@@ -163,6 +167,7 @@ export function register() {
   customElements.define("uw-avatar", UwAvatar);
   customElements.define("uw-badge", UwBadge);
   customElements.define("uw-button", UwButton);
+  customElements.define("uw-checkbox", UwCheckbox);
   customElements.define("uw-combobox", UwCombobox);
   customElements.define("uw-dialog", UwDialog);
   customElements.define("uw-drawer", UwDrawer);
@@ -199,6 +204,7 @@ declare module "vue" {
     Avatar: typeof Avatar;
     Badge: typeof Badge;
     Button: typeof Button;
+    Checkbox: typeof Checkbox;
     Combobox: typeof Combobox;
     Dialog: typeof Dialog;
     Drawer: typeof Drawer;

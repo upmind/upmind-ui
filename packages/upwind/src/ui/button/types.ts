@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { buttonVariants } from "./button.config";

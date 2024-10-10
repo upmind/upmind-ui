@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { textareaVariants } from "./textarea.config";
@@ -10,20 +10,23 @@ export interface TextareaProps {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
-  autocomplete?: string;
-  autofocus?: boolean;
-  cols?: number;
-  disabled?: boolean;
-  maxlength?: number;
-  minlength?: number;
+  id: string;
   name?: string;
   placeholder?: string;
+  // ---
+  cols?: number;
+  rows?: number;
+  // ---
+  autocomplete?: string;
+  autofocus?: boolean;
+  disabled?: boolean;
   readonly?: boolean;
   required?: boolean;
-  rows?: number;
-  size?: number;
-  // step?: number;
-  width?: number;
+  // ---
+  maxlength?: number;
+  minlength?: number;
+  // --- variants
+  size?: TextareaVariantProps["size"];
   // ---
   upwindConfig?: { textarea: Partial<TextareaVariantProps> };
   class?: HTMLAttributes["class"];
