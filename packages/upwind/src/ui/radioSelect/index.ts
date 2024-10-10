@@ -9,4 +9,4 @@ import RadioSelect from "./RadioSelect.ce.vue";
 export const UwRadioSelect = defineCustomElement(RadioSelect);
 
 // --- types
-export type { RadioSelectItemProps } from "./types";
+export type { RadioSelectItemProps, RadioSelectItem } from "./types";

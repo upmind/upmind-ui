@@ -61,6 +61,15 @@ import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
 import { Separator } from "./ui/separator";
 import { RadioSelect, type RadioSelectItem } from "./ui/radioSelect";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -109,6 +118,15 @@ export {
   Tooltip,
   RadioSelect,
   type RadioSelectItem,
+
+  // --- Needs consoliated component
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 
   // --- Types
   type AvatarProps,
