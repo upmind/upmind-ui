@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const checkboxVariants = cva(
-  "bg-control-background invalid:!ring-invalid peer shrink-0 rounded-sm border border-control text-control-foreground ring-offset-background invalid:!ring-2 invalid:!ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+  "bg-control-background invalid:!ring-invalid data-[state=checked]:text-control-active-foreground data-[state=checked]:border-active peer shrink-0 rounded-sm border border-control text-control-foreground ring-offset-background invalid:!ring-2 invalid:!ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-control-active",
   {
     variants: {
       size: {

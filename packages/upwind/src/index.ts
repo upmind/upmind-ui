@@ -58,11 +58,16 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-} from "./ui/dropdownMenu";
+} from "./ui/dropdown-menu";
 import { UwForm, Form, type FormProps } from "./ui/form";
 import { UwIcon, Icon, type IconProps } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwInput, Input, type InputProps } from "./ui/input";
+import {
+  UwNumberField,
+  NumberField,
+  type NumberFieldProps,
+} from "./ui/number-field";
 import { UwSonner, Sonner } from "./ui/sonner";
 import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
@@ -114,6 +119,7 @@ export {
   Icon,
   Indicator,
   Input,
+  NumberField,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -136,6 +142,7 @@ export {
   type FormProps,
   type IconProps,
   type InputProps,
+  type NumberFieldProps,
   type RadioSelectProps,
   type RadioSelectItemProps,
   type TabItems,
@@ -155,6 +162,7 @@ export {
   UwIcon,
   UwIndicator,
   UwInput,
+  UwNumberField,
   UwSonner,
   UwTabs,
   UwTooltip,
@@ -176,6 +184,7 @@ export function register() {
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-input", UwInput);
+  customElements.define("uw-number-field", UwNumberField);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-spinner", UwSpinner);
   customElements.define("uw-tabs", UwTabs);
@@ -213,6 +222,7 @@ declare module "vue" {
     Icon: typeof Icon;
     Indicator: typeof Indicator;
     Input: typeof Input;
+    NumberField: typeof NumberField;
     Popover: typeof Popover;
     PopoverContent: typeof PopoverContent;
     PopoverTrigger: typeof PopoverTrigger;

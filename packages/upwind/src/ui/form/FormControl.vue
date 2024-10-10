@@ -18,6 +18,7 @@
 import { ref, watchEffect } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 import { Slot } from "radix-vue";
+import { isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -59,7 +60,8 @@ watchEffect(() => {
   // if (props.autofocus && target.value) {
   //   target.value.focus();
   // }
-
-  target.value?.$el?.setCustomValidity(props.invalid ? "Invalid" : "");
+  if (isFunction(target.value?.setCustomValidity)) {
+    target.value?.setCustomValidity(props.invalid ? "Invalid" : "");
+  }
 });
 </script>
