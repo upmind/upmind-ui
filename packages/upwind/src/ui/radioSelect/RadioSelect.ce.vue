@@ -30,7 +30,7 @@
           class="flex w-full flex-col items-start justify-start space-y-1 text-left text-sm md:flex-row md:items-center md:justify-between md:space-x-4 md:space-y-0"
           :class="variants.radioSelect.content"
         >
-          <span class="flex flex-col space-y-1 md:gap-y-0">
+          <span v-if="value" class="flex flex-col space-y-1 md:gap-y-0">
             <span
               v-if="value?.label || props?.label"
               class="truncate leading-none"
@@ -44,6 +44,9 @@
             >
               {{ value?.sublabel || props.sublabel }}
             </span>
+          </span>
+          <span v-else class="text-sm opacity-50">
+            {{ props.placeholder || "Select an option" }}
           </span>
 
           <span
@@ -86,7 +89,7 @@
             :class="variants.radioSelect.content"
           >
             <span class="flex flex-row items-center space-x-1">
-              <span>
+              <span class="-ml-2">
                 <UpwRadio :model-value="item.value === value?.value" />
               </span>
               <span class="flex flex-col gap-y-1">
@@ -156,6 +159,7 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   label: "",
   modelValue: "",
   loading: false,
+  placeholder: "Select an option",
   // -- variants
   color: "base",
   variant: "control",
