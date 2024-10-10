@@ -1,5 +1,5 @@
-import theme from "./tailwind.config";
-import upwind from "./upwind.config";
+import theme from "./tailwind.config.js";
+import upwind from "./upwind.config.js";
 
 export default {
   id: "dark",

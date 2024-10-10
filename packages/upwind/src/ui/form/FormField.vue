@@ -1,5 +1,5 @@
 <template>
-  <FormItem :formItemId="id">
+  <FormItem :formItemId="id" v-auto-animate>
     <!-- label -->
     <FormLabel :formItemId="id" :invalid="meta.isInvalid">
       {{ label }}
@@ -19,27 +19,31 @@
       <slot v-bind="{}"></slot>
     </FormControl>
 
-    <!-- description -->
-    <FormDescription
-      v-if="description"
-      :formDescriptionId="`form-item-description-${props.id}`"
-    >
-      {{ description }}
-    </FormDescription>
-
     <!-- validation messages -->
     <FormMessage
+      v-if="meta.isInvalid"
       :formMessageId="`form-item-message-${props.id}`"
       :name="name"
       :errors="errors"
     />
+
+    <!-- description -->
+    <FormDescription
+      v-if="meta.hasDescription"
+      :formDescriptionId="`form-item-description-${props.id}`"
+    >
+      {{ description }}
+    </FormDescription>
   </FormItem>
-  <pre>{{ props }}</pre>
+
+  <!-- debug -->
+  <!-- <pre>{{ props }}</pre> -->
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { ref, computed } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useStyles } from "../../utils";
@@ -102,6 +106,7 @@ const meta = computed(() => ({
   isRequired: props.required,
   isVisible: props.visible,
   isDisabled: props.disabled,
+  hasDescription: !isEmpty(props.description),
   hasFeedback:
     (isEmpty(props.errors) && !isEmpty(props.description)) ||
     !isEmpty(props.errors),
