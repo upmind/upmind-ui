@@ -2,7 +2,7 @@
   <p
     :id="props.formMessageId"
     :name="toValue(props.name)"
-    class="flex flex-col gap-1 text-sm font-medium text-destructive"
+    class="flex flex-col gap-1 text-sm font-medium text-control-error"
   >
     <span v-for="(error, index) in safeErrors" :key="`error-${index}`">
       {{ error }}

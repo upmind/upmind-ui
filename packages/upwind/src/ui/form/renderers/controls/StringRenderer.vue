@@ -2,9 +2,9 @@
   <FormField v-bind="{ ...delegatedProps, ...appliedOptions }">
     <Input
       :disabled="!control.enabled"
-      :model-value="control.data"
       :max="safeMax"
       :min="safeMin"
+      :model-value="control.data"
       @update:modelValue="onInput"
     />
   </FormField>

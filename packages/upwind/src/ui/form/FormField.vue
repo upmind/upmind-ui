@@ -1,39 +1,41 @@
 <template>
-  <FormItem :formItemId="id" v-auto-animate>
-    <!-- label -->
-    <FormLabel :formItemId="id" :invalid="meta.isInvalid">
-      {{ label }}
-    </FormLabel>
+  <FormItem :formItemId="id" v-auto-animate :class="props.class">
+    <slot name="field">
+      <!-- label -->
+      <FormLabel :formItemId="id" :invalid="meta.isInvalid">
+        {{ label }}
+      </FormLabel>
 
-    <!-- text -->
+      <!-- text -->
 
-    <!-- tags -->
+      <!-- tags -->
 
-    <!-- input -->
-    <FormControl
-      :invalid="meta.isInvalid"
-      :formItemId="props.id"
-      :formDescriptionId="`form-item-description-${props.id}`"
-      :formMessageId="`form-item-message-${props.id}`"
-    >
-      <slot></slot>
-    </FormControl>
+      <!-- input -->
+      <FormControl
+        :invalid="meta.isInvalid"
+        :formItemId="props.id"
+        :formDescriptionId="`form-item-description-${props.id}`"
+        :formMessageId="`form-item-message-${props.id}`"
+      >
+        <slot></slot>
+      </FormControl>
 
-    <!-- validation messages -->
-    <FormMessage
-      v-if="meta.isInvalid"
-      :formMessageId="`form-item-message-${props.id}`"
-      :name="name"
-      :errors="errors"
-    />
+      <!-- validation messages -->
+      <FormMessage
+        v-if="meta.isInvalid"
+        :formMessageId="`form-item-message-${props.id}`"
+        :name="name"
+        :errors="errors"
+      />
 
-    <!-- description -->
-    <FormDescription
-      v-if="meta.hasDescription"
-      :formDescriptionId="`form-item-description-${props.id}`"
-    >
-      {{ description }}
-    </FormDescription>
+      <!-- description -->
+      <FormDescription
+        v-if="meta.hasDescription"
+        :formDescriptionId="`form-item-description-${props.id}`"
+      >
+        {{ description }}
+      </FormDescription>
+    </slot>
   </FormItem>
 
   <!-- debug -->

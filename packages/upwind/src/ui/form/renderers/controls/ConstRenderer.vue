@@ -1,10 +1,7 @@
 <template>
-  <input
-    :id="control.id + '-input'"
-    type="hidden"
-    :value="control.data"
-    @change="onChange"
-  />
+  <FormField v-bind="{ ...delegatedProps, ...appliedOptions }">
+    <input type="hidden" :value="control.data" />
+  </FormField>
 </template>
 
 <script lang="ts">
@@ -12,6 +9,9 @@
 import { defineComponent } from "vue";
 import { uiTypeIs, formatIs, schemaMatches, and, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+
+// --- components
+import FormField from "../../FormField.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -24,18 +24,29 @@ import type { RendererProps } from "@jsonforms/vue";
 
 export default defineComponent({
   name: "HiddenRenderer",
-  components: {},
+  components: {
+    FormField,
+  },
   props: {
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      target => target.value || undefined
-    );
+    const renderer = useUpwindRenderer(useJsonFormsControl(props));
     return {
       ...renderer,
     };
+  },
+  computed: {
+    delegatedProps() {
+      return {
+        id: this.control.id,
+        name: this.control.path,
+        errors: this.control.errors,
+        // ---
+        required: this.control.required,
+        disabled: !this.control.enabled,
+      };
+    },
   },
 });
 

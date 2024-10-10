@@ -1,6 +1,6 @@
 import themer from "tailwindcss-themer";
 import typography from "@tailwindcss/typography";
-
+import aria from "tailwindcss-aria-attributes";
 // --- utils
 import { find, omit } from "lodash-es";
 
@@ -22,6 +22,7 @@ export default {
   ],
   plugins: [
     typography,
+    aria,
     themer({
       defaultTheme,
       themes,
