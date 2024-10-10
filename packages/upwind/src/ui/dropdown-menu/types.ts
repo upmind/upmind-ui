@@ -12,7 +12,7 @@ import type { IconProps } from "../icon";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 
-import type { contentVariants, itemVariants } from "./dropdownMenu.config";
+import type { contentVariants, itemVariants } from "./dropdown-menu.config";
 type ContentVariantProps = VariantProps<typeof contentVariants>;
 type ItemVariantProps = VariantProps<typeof itemVariants>;
 
