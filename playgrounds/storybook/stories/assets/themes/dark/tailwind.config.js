@@ -213,15 +213,19 @@ const colors = {
 
   control: {
     DEFAULT: "#ffffff",
-    background: "#ffffff",
     foreground: "#000000",
+    background: "#ffffff",
     active: {
       DEFAULT: "#5E36E8",
       muted: "#5E36E820",
+      foreground: "#ffffff",
+      background: "#5E36E8",
     },
     error: {
       DEFAULT: "#EF4444",
       muted: "#EF444420",
+      foreground: "#ffffff",
+      background: "#EF4444",
     },
   },
 };
@@ -295,5 +299,6 @@ export default {
     DEFAULT: colors.control.active.muted,
     ring: colors.control.active.muted,
     invalid: colors.control.error.muted,
+    active: colors.control.active.DEFAULT,
   },
 };

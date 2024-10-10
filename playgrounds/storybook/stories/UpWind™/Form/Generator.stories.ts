@@ -75,9 +75,15 @@ const meta: Meta<typeof Form> = {
         name: {
           type: "string",
           minLength: 3,
+          maxLength: 10,
           title: "What is your name?",
           description: "Please enter your full name",
           i18n: "form.name",
+        },
+        age: {
+          type: "integer",
+          title: "How old are you?",
+          i18n: "form.age",
         },
         dob: {
           type: "string",
@@ -90,6 +96,18 @@ const meta: Meta<typeof Form> = {
           maxLength: 5,
           title: "What is your postal/zip code?",
           i18n: "form.postalCode",
+        },
+        about: {
+          type: "string",
+          title: "Tell us about yourself",
+          maxLength: 280,
+          i18n: "form.about",
+        },
+        accept: {
+          type: "boolean",
+          title: "Do you accept the terms and conditions?",
+          i18n: "form.accept",
+          enum: [true],
         },
 
         personalData: {
@@ -152,7 +170,45 @@ const meta: Meta<typeof Form> = {
           required: ["weight", "height", "drivingSkill"],
         },
       },
-      required: ["name"],
+      required: ["name", "accept"],
+      errorMessage: {
+        properties: {
+          accept: "You must accept the terms and conditions",
+        },
+      },
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/name",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/age",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/dob",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/postalCode",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/about",
+          options: {
+            multi: true,
+            autosize: true,
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/accept",
+        },
+      ],
     },
   },
 };
