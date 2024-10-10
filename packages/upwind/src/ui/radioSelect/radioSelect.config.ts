@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const triggerVariants = cva(
-  "overflow-hidden !p-6 !py-12 text-sm md:!p-8 md:!py-10",
+  "static h-auto overflow-hidden !p-6 !py-5 text-sm",
   {
     variants: {
       width: {
