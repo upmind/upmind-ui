@@ -1,0 +1,24 @@
+// ---  external
+import { cva } from "class-variance-authority";
+// -----------------------------------------------------------------------------
+
+export const textareaVariants = cva(
+  "bg-control-background invalid:!ring-invalid flex w-full rounded-md border border-control text-control-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground invalid:!ring-2 invalid:!ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  {
+    variants: {
+      size: {
+        sm: "min-h-16 px-3 py-2 text-sm ",
+        md: "min-h-20 px-3 py-2 text-md ",
+        lg: "min-h-24 px-3 py-2 text-lg ",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+    },
+  }
+);
+
+// -----------------------------------------------------------------------------
+export default {
+  textarea: textareaVariants,
+};
