@@ -1,0 +1,24 @@
+// ---  external
+import { cva } from "class-variance-authority";
+// -----------------------------------------------------------------------------
+
+export const checkboxVariants = cva(
+  "bg-control-background invalid:!ring-invalid peer shrink-0 rounded-sm border border-control text-control-foreground ring-offset-background invalid:!ring-2 invalid:!ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+  {
+    variants: {
+      size: {
+        sm: "h-3 w-3",
+        md: "h-4 w-4",
+        lg: "h-6 w-6",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+    },
+  }
+);
+
+// -----------------------------------------------------------------------------
+export default {
+  checkbox: checkboxVariants,
+};

@@ -1,0 +1,19 @@
+// --- external
+import type { HTMLAttributes } from "vue";
+import type { VariantProps } from "class-variance-authority";
+import type { CheckboxRootProps } from "radix-vue";
+// --- internal
+import type { checkboxVariants } from "./checkbox.config";
+type CheckboxVariantProps = VariantProps<typeof checkboxVariants>;
+
+export interface CheckboxProps extends CheckboxRootProps {
+  // ---
+  indeterminate?: boolean;
+  autofocus?: boolean;
+  readonly?: boolean;
+  // --- variants
+  size?: CheckboxVariantProps["size"];
+  // ---
+  upwindConfig?: { checkbox: Partial<CheckboxVariantProps> };
+  class?: HTMLAttributes["class"];
+}
