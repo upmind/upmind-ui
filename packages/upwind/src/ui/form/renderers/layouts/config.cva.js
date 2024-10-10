@@ -3,15 +3,15 @@ import { cva } from "class-variance-authority";
 
 export default {
   group: {
-    root: cva("flex flex-col gap-4 border-t border-base-100 pt-4"),
+    root: cva("flex flex-col space-y-6 border-t border-base-100 pt-4"),
     label: cva("w-full text-xs font-medium text-base-500"),
     item: cva(""),
   },
   layout: {
-    root: cva("flex w-full gap-2", {
+    root: cva("flex w-full space-y-6", {
       variants: {
         isHorizontal: {
-          true: "flex-row flex-wrap",
+          true: "flex-row flex-wrap space-x-4 ",
           false: "flex-col",
         },
       },

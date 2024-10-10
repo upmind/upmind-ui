@@ -204,8 +204,15 @@ const colors = {
   control: {
     DEFAULT: "#ffffff",
     foreground: "#000000",
-    active: "#5E36E8",
-    error: "#EF4444",
+    background: "#ffffff",
+    active: {
+      DEFAULT: "#5E36E8",
+      muted: "#5E36E820",
+    },
+    error: {
+      DEFAULT: "#EF4444",
+      muted: "#EF444420",
+    },
   },
 };
 
@@ -251,6 +258,7 @@ export default {
   borderColor: {
     DEFAULT: colors.base[300],
     input: colors.base[300],
+    control: colors.base[300],
   },
   borderRadius: {
     DEFAULT: ".5rem",
@@ -274,6 +282,8 @@ export default {
     none: "none",
   },
   ringColor: {
-    DEFAULT: colors.control.active,
+    DEFAULT: colors.control.active.muted,
+    ring: colors.control.active.muted,
+    invalid: colors.control.error.muted,
   },
 };

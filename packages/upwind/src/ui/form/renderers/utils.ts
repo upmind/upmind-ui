@@ -10,6 +10,7 @@ import {
 
 import type { Tester } from "@jsonforms/core";
 import { rankWith } from "@jsonforms/core";
+import { debounce } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -27,9 +28,9 @@ export const useUpwindRenderer = <
     )
   );
 
-  const onInput = (value: any) => {
+  const onInput = debounce((value: any) => {
     input.handleChange(input.control.value.path, adaptTarget(value));
-  };
+  }, 350);
 
   return {
     ...input,
@@ -120,14 +121,14 @@ export const useUpwindArrayRenderer = <
     }
   };
 
-  const onInput = (checked: boolean, value: any) => {
+  const onInput = debounce((checked: boolean, value: any) => {
     debugger;
     if (checked) {
       input.addItem(input.control.value.path, value);
     } else {
       input.removeItem(input.control.value.path, value);
     }
-  };
+  }, 350);
 
   return {
     ...input,
