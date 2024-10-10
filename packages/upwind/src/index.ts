@@ -2,7 +2,7 @@ import "./assets/main.css";
 
 // --- eternal
 
-// --- upw
+// --- DEPRECATED Components
 export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
 export { default as UpwCheckboxList } from "./components/checkbox/CheckboxList.vue";
 export { default as UpwCombobox } from "./components/combobox/Combobox.vue";
@@ -25,7 +25,7 @@ export { default as UpwMarkdown } from "./components/markdown/Markdown.vue";
 export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 export * from "./components/form/renderers/utils";
 
-// --- Web Components
+// --- UI Components / Custom elements
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
 import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
@@ -61,12 +61,18 @@ import {
 import { UwForm, Form, type FormProps } from "./ui/form";
 import { UwIcon, Icon, type IconProps } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
+import { UwInput, Input, type InputProps } from "./ui/input";
 import { UwSonner, Sonner } from "./ui/sonner";
 import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
+import { UwTextarea, Textarea, type TextareaProps } from "./ui/textarea";
 import { Separator } from "./ui/separator";
-import { RadioSelect, type RadioSelectItem } from "./ui/radioSelect";
+import {
+  RadioSelect,
+  type RadioSelectProps,
+  type RadioSelectItemProps,
+} from "./ui/radioSelect";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -105,16 +111,17 @@ export {
   Form,
   Icon,
   Indicator,
+  Input,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  RadioSelect,
   Separator,
   Sonner,
   Spinner,
   Tabs,
+  Textarea,
   Tooltip,
-  RadioSelect,
-  type RadioSelectItem,
 
   // --- Types
   type AvatarProps,
@@ -125,7 +132,11 @@ export {
   type DialogProps,
   type FormProps,
   type IconProps,
+  type InputProps,
+  type RadioSelectProps,
+  type RadioSelectItemProps,
   type TabItems,
+  type TextareaProps,
 
   // --- Custom Elements
   UwAlert,
@@ -139,9 +150,11 @@ export {
   UwForm,
   UwIcon,
   UwIndicator,
+  UwInput,
   UwSonner,
   UwTabs,
   UwTooltip,
+  UwTextarea,
 };
 
 // --- utility for registering all custom elements
@@ -157,10 +170,12 @@ export function register() {
   customElements.define("uw-form", UwForm);
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-indicator", UwIndicator);
+  customElements.define("uw-input", UwInput);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-spinner", UwSpinner);
   customElements.define("uw-tabs", UwTabs);
   customElements.define("uw-tooltip", UwTooltip);
+  customElements.define("uw-textarea", UwTextarea);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
@@ -191,13 +206,16 @@ declare module "vue" {
     Form: typeof Form;
     Icon: typeof Icon;
     Indicator: typeof Indicator;
+    Input: typeof Input;
     Popover: typeof Popover;
     PopoverContent: typeof PopoverContent;
     PopoverTrigger: typeof PopoverTrigger;
+    RadioSelect: typeof RadioSelect;
     Separator: typeof Separator;
     Sonner: typeof Sonner;
     Spinner: typeof Spinner;
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
+    Textarea: typeof Textarea;
   }
 }
