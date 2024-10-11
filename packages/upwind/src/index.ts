@@ -63,7 +63,7 @@ import { Separator } from "./ui/separator";
 import { RadioSelect, type RadioSelectItem } from "./ui/radioSelect";
 import { Select } from "./ui/select";
 import { Skeleton } from "./ui/skeleton";
-
+import { NumberField } from "./ui/number-field";
 // --- uw component utils
 export { toast } from "./ui/sonner";
 
@@ -111,6 +111,7 @@ export {
   Spinner,
   Tabs,
   Tooltip,
+  NumberField,
   RadioSelect,
   type RadioSelectItem,
 

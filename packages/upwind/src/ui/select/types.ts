@@ -43,7 +43,7 @@ export interface SelectProps
   // --- variants
   variant?: TriggerVariantProps["variant"];
   color?: RootVariantProps["color"];
-  width: TriggerVariantProps["width"];
+  width?: TriggerVariantProps["width"];
   // --- styles
   upwindConfig?: {};
   class?: HTMLAttributes["class"];
