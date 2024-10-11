@@ -62,6 +62,7 @@ import { UwTooltip, Tooltip } from "./ui/tooltip";
 import { Separator } from "./ui/separator";
 import { RadioSelect, type RadioSelectItem } from "./ui/radioSelect";
 import { Select } from "./ui/select";
+import { Skeleton } from "./ui/skeleton";
 
 // --- uw component utils
 export { toast } from "./ui/sonner";
@@ -105,6 +106,7 @@ export {
   PopoverTrigger,
   Separator,
   Select,
+  Skeleton,
   Sonner,
   Spinner,
   Tabs,
