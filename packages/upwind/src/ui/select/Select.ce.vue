@@ -1,25 +1,35 @@
 <template>
-  <div v-if="label" class="mb-1 text-sm font-medium text-primary">
-    {{ label }}
-  </div>
-  <SelectRoot v-bind="forwarded">
-    <SelectTrigger v-bind="forwarded">
-      <SelectValue v-bind="forwarded" class="text-sm text-primary" />
-    </SelectTrigger>
-    <SelectContent v-bind="forwarded">
-      <SelectGroup v-bind="forwarded">
-        <SelectItem
+  <div :class="variants.select.root">
+    <div v-if="label" class="mb-1 text-sm font-medium">
+      {{ label }}
+    </div>
+    <SelectRoot v-bind="forwarded">
+      <SelectTrigger
+        v-bind="forwarded"
+        :class="cn(variants.select.trigger, props.class)"
+      >
+        <SelectValue
+          :class="variants.select.root"
           v-bind="forwarded"
-          v-for="item in items"
-          :key="item.value"
-          :value="item.value"
-          class="text-sm text-primary"
-        >
-          {{ item.label }}
-        </SelectItem>
-      </SelectGroup>
-    </SelectContent>
-  </SelectRoot>
+          class="text-sm"
+        />
+      </SelectTrigger>
+      <SelectContent v-bind="forwarded">
+        <SelectGroup v-bind="forwarded">
+          <SelectItem
+            v-bind="forwarded"
+            v-for="item in items"
+            :key="item.value"
+            :value="item.value"
+            class="text-sm"
+            :class="variants.select.root"
+          >
+            {{ item.label }}
+          </SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </SelectRoot>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -51,9 +61,9 @@ const props = withDefaults(defineProps<SelectProps>(), {
   label: "",
   items: () => [],
   // -- variants
-  color: "base",
   width: "full",
   variant: "control",
+  color: "base",
   // --- styles
   upwindConfig: () => ({ select: {} }),
   class: "",
@@ -64,6 +74,7 @@ const emits = defineEmits<SelectRootEmits & SelectContentEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
+  variant: props.variant,
   color: props.color,
   width: props.width,
 }));
@@ -74,6 +85,6 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  select: { trigger: string };
+  select: { root: string; trigger: string };
 }>;
 </script>
