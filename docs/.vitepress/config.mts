@@ -7,8 +7,10 @@ export default defineConfig({
   description: "Upmind open-source libs documentation",
   srcDir: './',
   outDir: './dist',
+  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: '/logo.svg',
     nav: [
       { text: 'Headless', link: '/@upmind/headless' },
       { text: 'Headless-vue', link: '/@upmind/headless-vue' }
