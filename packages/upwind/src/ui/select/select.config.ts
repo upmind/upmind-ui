@@ -21,12 +21,12 @@ export const triggerVariants = cva("", {
   },
 });
 
-export const rootVariants = cva("", {
+export const colorVariants = cva("", {
   variants: {
     color: {
       base: "text-base hover:text-base",
       primary: "text-primary hover:text-primary",
-      secondary: "text-secondary hover:text-secondary",
+      secondary: "text-secondary hover:text-secondary focus:text-secondary",
       accent: "text-accent hover:text-accent",
       promotion: "text-promotion hover:text-promotion",
       destructive: "text-destructive hover:text-destructive",
@@ -43,7 +43,7 @@ export const rootVariants = cva("", {
 
 export default {
   select: {
-    root: rootVariants,
+    color: colorVariants,
     trigger: triggerVariants,
   },
 };
