@@ -22,7 +22,7 @@
             :key="item.value"
             :value="item.value"
             class="text-sm"
-            :class="variants.select.color"
+            :class="cn(variants.select.item, variants.select.color)"
           >
             {{ item.label }}
           </SelectItem>
@@ -85,6 +85,6 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  select: { root: string; color: string };
+  select: { root: string; color: string; item: string };
 }>;
 </script>

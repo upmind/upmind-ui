@@ -21,6 +21,26 @@ export const triggerVariants = cva("", {
   },
 });
 
+export const itemVariants = cva("", {
+  variants: {
+    color: {
+      base: "focus:bg-base-50",
+      primary: "focus:bg-primary-50",
+      secondary: "focus:bg-secondary-50",
+      accent: "focus:bg-accent-50",
+      promotion: "focus:bg-promotion-50",
+      destructive: "focus:bg-destructive-50",
+      success: "focus:bg-success-50",
+      info: "focus:bg-info-50",
+      error: "focus:bg-error-50",
+      warning: "focus:bg-warning-50",
+    },
+  },
+  defaultVariants: {
+    color: "base",
+  },
+});
+
 export const colorVariants = cva("", {
   variants: {
     color: {
@@ -45,5 +65,6 @@ export default {
   select: {
     color: colorVariants,
     trigger: triggerVariants,
+    item: itemVariants,
   },
 };
