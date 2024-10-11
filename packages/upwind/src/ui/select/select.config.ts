@@ -21,7 +21,7 @@ export const triggerVariants = cva("", {
   },
 });
 
-export const rootVariants = cva("hello", {
+export const rootVariants = cva("", {
   variants: {
     color: {
       base: "text-base hover:text-base",
