@@ -23,6 +23,9 @@ import {
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
+/**
+ * @ignore
+ */
 export const useProductConfig = (actor: any) => {
   const { state, send } = actor;
   const model = toRef(state.value.context, "model");

@@ -11,6 +11,9 @@ const debugging = import.meta.env.DEV || queryParams.has("debug");
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export function test() {
   return "Upmind Headless";
 }

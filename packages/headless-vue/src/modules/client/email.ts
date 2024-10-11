@@ -10,6 +10,9 @@ import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useClientEmail = (item: any, context?: any) => {
   const { service } = useUpmindClientEmails();
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
@@ -73,6 +76,9 @@ export const useClientEmail = (item: any, context?: any) => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useClientEmails = () => {
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
 

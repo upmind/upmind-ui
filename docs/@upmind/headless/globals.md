@@ -2,54 +2,17 @@
 
 # @upmind/headless
 
-## Namespaces
-
-| Namespace | Description |
-| ------ | ------ |
-| [utils](namespaces/utils/index.md) | - |
-
 ## Enumerations
 
 | Enumeration | Description |
 | ------ | ------ |
-| [BrandConfigKeys](enumerations/BrandConfigKeys.md) | - |
-| [DomainTypes](enumerations/DomainTypes.md) | - |
-| [responseCodes](enumerations/responseCodes.md) | - |
-
-## Interfaces
-
-| Interface | Description |
-| ------ | ------ |
-| [DomainContext](interfaces/DomainContext.md) | - |
-| [IDomainProduct](interfaces/IDomainProduct.md) | - |
-
-## Type Aliases
-
-| Type alias | Description |
-| ------ | ------ |
-| [AddEvent](type-aliases/AddEvent.md) | - |
-| [DomainEvents](type-aliases/DomainEvents.md) | - |
-| [RemoveEvent](type-aliases/RemoveEvent.md) | - |
-| [ResetEvent](type-aliases/ResetEvent.md) | - |
-| [SearchEvent](type-aliases/SearchEvent.md) | - |
+| [BrandConfigKeys](enumerations/BrandConfigKeys.md) | Enum representing the various configuration keys available for branding settings. These keys are used to configure and manage various aspects of the brand system, including invoicing, billing, UI settings, analytics, and more. |
 
 ## Functions
 
 | Function | Description |
 | ------ | ------ |
-| [authSubscription](functions/authSubscription.md) | - |
-| [test](functions/test.md) | - |
-| [useApi](functions/useApi.md) | - |
-| [useBasket](functions/useBasket.md) | - |
 | [useBrand](functions/useBrand.md) | - |
-| [useClientAddresses](functions/useClientAddresses.md) | - |
-| [useClientCompanies](functions/useClientCompanies.md) | - |
-| [useClientEmails](functions/useClientEmails.md) | - |
-| [useClientPhones](functions/useClientPhones.md) | - |
-| [useClientUnifiedAddresses](functions/useClientUnifiedAddresses.md) | - |
 | [useDomain](functions/useDomain.md) | - |
-| [useFeedback](functions/useFeedback.md) | - |
 | [useSession](functions/useSession.md) | - |
 | [useSystem](functions/useSystem.md) | - |
-| [useSystemRecaptcha](functions/useSystemRecaptcha.md) | - |
-| [useSystemUpload](functions/useSystemUpload.md) | - |
