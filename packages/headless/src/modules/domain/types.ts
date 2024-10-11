@@ -8,6 +8,9 @@
 //   existing = "I will use my existing domain and update my nameservers",
 //   basket = "I will use a domain from my basket",
 // }
+/**
+ * @ignore
+ */
 export enum DomainTypes {
   register = "register",
   transfer = "transfer",
@@ -17,6 +20,9 @@ export enum DomainTypes {
 
 // --- Interfaces
 
+/**
+ * @ignore
+ */
 export interface IDomainProduct {
   // TODO:
   // type?: DomainTypes.New | DomainTypes.Internal;
@@ -40,6 +46,9 @@ export interface IDomainProduct {
   is_primary?: boolean;
 }
 
+/**
+ * @ignore
+ */
 export interface IDomain {
   // TODO:
   // type: DomainTypes.External;
@@ -51,6 +60,9 @@ export interface IDomain {
   is_primary: boolean;
 }
 
+/**
+ * @ignore
+ */
 export interface IDomainSearch {
   domain: string;
   offset: number;
@@ -58,6 +70,9 @@ export interface IDomainSearch {
 
 // --- Contexts
 
+/**
+ * @ignore
+ */
 export interface DomainContext {
   // TODO:
   // choices: Object<DomainTypes>;
@@ -96,25 +111,40 @@ export interface DomainContext {
 }
 
 // --- Events
+/**
+ * @ignore
+ */
 export type SearchEvent = {
   type: "SEARCH";
   data: IDomainSearch;
 };
 
+/**
+ * @ignore
+ */
 export type AddEvent = {
   type: "ADD";
   data: IDomainProduct | IDomain;
 };
 
+/**
+ * @ignore
+ */
 export type RemoveEvent = {
   type: "REMOVE";
   data: string;
 };
 
+/**
+ * @ignore
+ */
 export type ResetEvent = {
   type: "CLEAR";
 };
 
 // Create a type which represents only one of the above types
 // but you aren't sure which it is yet.
+/**
+ * @ignore
+ */
 export type DomainEvents = ResetEvent | AddEvent | RemoveEvent | SearchEvent;
