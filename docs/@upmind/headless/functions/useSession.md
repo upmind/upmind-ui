@@ -13,7 +13,7 @@ function useSession(): object
 ### authSubscription()
 
 ```ts
-authSubscription: (_context, _event) => (callback, onReceive) => Promise<() => void>;
+authSubscription: (_context, _event) => object;
 ```
 
 #### Parameters
@@ -24,17 +24,7 @@ authSubscription: (_context, _event) => (callback, onReceive) => Promise<() => v
 
 #### Returns
 
-`Function`
-
-##### Parameters
-
-• **callback**: `any`
-
-• **onReceive**: `any`
-
-##### Returns
-
-`Promise`\<() => `void`\>
+`object`
 
 ### getHistory()
 

@@ -16,7 +16,7 @@ function useDomain(__namedParameters): object
 
 • **\_\_namedParameters.sync?**: `boolean`
 
-• **\_\_namedParameters.type?**: [`DomainTypes`](../enumerations/DomainTypes.md)
+• **\_\_namedParameters.type?**: `DomainTypes`
 
 ## Returns
 
@@ -30,7 +30,7 @@ destroy: () => Interpreter<DomainContext, any, AnyEventObject, object, ResolveTy
 
 #### Returns
 
-`Interpreter`\<[`DomainContext`](../interfaces/DomainContext.md), `any`, `AnyEventObject`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`Interpreter`\<`DomainContext`, `any`, `AnyEventObject`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### getSnapshot()
 
@@ -40,7 +40,7 @@ getSnapshot: () => State<DomainContext, AnyEventObject, any, object, ResolveType
 
 #### Returns
 
-`State`\<[`DomainContext`](../interfaces/DomainContext.md), `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
+`State`\<`DomainContext`, `AnyEventObject`, `any`, `object`, `ResolveTypegenMeta`\<`TypegenDisabled`, `AnyEventObject`, `BaseActionObject`, `ServiceMap`\>\>
 
 ### service
 

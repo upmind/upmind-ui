@@ -1,5 +1,8 @@
 // --------------------------------------------------------
 // ENUMS
+/**
+ * @ignore
+ */
 export enum responseCodes {
   "OK" = 200,
   "No_Content" = 204,

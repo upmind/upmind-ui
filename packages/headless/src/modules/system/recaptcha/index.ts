@@ -33,6 +33,10 @@ function clear() {
   service.send({ type: "CLEAR" });
 }
 // --------------------------------------------------------
+
+/**
+ * @ignore
+ */
 export const useSystemRecaptcha = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it

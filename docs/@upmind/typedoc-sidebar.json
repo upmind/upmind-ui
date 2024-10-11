@@ -11,62 +11,6 @@
           {
             "text": "BrandConfigKeys",
             "link": "/@upmind/headless/enumerations/BrandConfigKeys.md"
-          },
-          {
-            "text": "DomainTypes",
-            "link": "/@upmind/headless/enumerations/DomainTypes.md"
-          },
-          {
-            "text": "responseCodes",
-            "link": "/@upmind/headless/enumerations/responseCodes.md"
-          }
-        ]
-      },
-      {
-        "text": "Interfaces",
-        "collapsed": true,
-        "items": [
-          {
-            "text": "DomainContext",
-            "link": "/@upmind/headless/interfaces/DomainContext.md"
-          },
-          {
-            "text": "IDomain",
-            "link": "/@upmind/headless/interfaces/IDomain.md"
-          },
-          {
-            "text": "IDomainProduct",
-            "link": "/@upmind/headless/interfaces/IDomainProduct.md"
-          },
-          {
-            "text": "IDomainSearch",
-            "link": "/@upmind/headless/interfaces/IDomainSearch.md"
-          }
-        ]
-      },
-      {
-        "text": "Type Aliases",
-        "collapsed": true,
-        "items": [
-          {
-            "text": "AddEvent",
-            "link": "/@upmind/headless/type-aliases/AddEvent.md"
-          },
-          {
-            "text": "DomainEvents",
-            "link": "/@upmind/headless/type-aliases/DomainEvents.md"
-          },
-          {
-            "text": "RemoveEvent",
-            "link": "/@upmind/headless/type-aliases/RemoveEvent.md"
-          },
-          {
-            "text": "ResetEvent",
-            "link": "/@upmind/headless/type-aliases/ResetEvent.md"
-          },
-          {
-            "text": "SearchEvent",
-            "link": "/@upmind/headless/type-aliases/SearchEvent.md"
           }
         ]
       },
@@ -75,46 +19,12 @@
         "collapsed": true,
         "items": [
           {
-            "text": "authSubscription",
-            "link": "/@upmind/headless/functions/authSubscription.md"
-          },
-          { "text": "test", "link": "/@upmind/headless/functions/test.md" },
-          { "text": "useApi", "link": "/@upmind/headless/functions/useApi.md" },
-          {
-            "text": "useBasket",
-            "link": "/@upmind/headless/functions/useBasket.md"
-          },
-          {
             "text": "useBrand",
             "link": "/@upmind/headless/functions/useBrand.md"
           },
           {
-            "text": "useClientAddresses",
-            "link": "/@upmind/headless/functions/useClientAddresses.md"
-          },
-          {
-            "text": "useClientCompanies",
-            "link": "/@upmind/headless/functions/useClientCompanies.md"
-          },
-          {
-            "text": "useClientEmails",
-            "link": "/@upmind/headless/functions/useClientEmails.md"
-          },
-          {
-            "text": "useClientPhones",
-            "link": "/@upmind/headless/functions/useClientPhones.md"
-          },
-          {
-            "text": "useClientUnifiedAddresses",
-            "link": "/@upmind/headless/functions/useClientUnifiedAddresses.md"
-          },
-          {
             "text": "useDomain",
             "link": "/@upmind/headless/functions/useDomain.md"
-          },
-          {
-            "text": "useFeedback",
-            "link": "/@upmind/headless/functions/useFeedback.md"
           },
           {
             "text": "useSession",
@@ -123,14 +33,6 @@
           {
             "text": "useSystem",
             "link": "/@upmind/headless/functions/useSystem.md"
-          },
-          {
-            "text": "useSystemRecaptcha",
-            "link": "/@upmind/headless/functions/useSystemRecaptcha.md"
-          },
-          {
-            "text": "useSystemUpload",
-            "link": "/@upmind/headless/functions/useSystemUpload.md"
           }
         ]
       }
