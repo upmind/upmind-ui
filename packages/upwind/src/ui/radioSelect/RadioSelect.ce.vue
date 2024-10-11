@@ -69,7 +69,7 @@
           <Icon
             class="opacity-50 transition-all duration-300 group-hover:opacity-100"
             :class="{ 'rotate-180': isOpen }"
-            icon="arrow-down"
+            icon="arrow-up"
             size="xs"
           />
         </template>
