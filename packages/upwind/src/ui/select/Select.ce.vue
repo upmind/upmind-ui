@@ -1,15 +1,15 @@
 <template>
-  <div :class="variants.select.root">
+  <div :class="variants.select.color">
     <div v-if="label" class="mb-1 text-sm font-medium">
       {{ label }}
     </div>
     <SelectRoot v-bind="forwarded">
       <SelectTrigger
         v-bind="forwarded"
-        :class="cn(variants.select.trigger, props.class)"
+        :class="cn(variants.select.color, props.class)"
       >
         <SelectValue
-          :class="variants.select.root"
+          :class="variants.select.color"
           v-bind="forwarded"
           class="text-sm"
         />
@@ -22,7 +22,7 @@
             :key="item.value"
             :value="item.value"
             class="text-sm"
-            :class="variants.select.root"
+            :class="variants.select.color"
           >
             {{ item.label }}
           </SelectItem>
@@ -85,6 +85,6 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  select: { root: string; trigger: string };
+  select: { root: string; color: string };
 }>;
 </script>
