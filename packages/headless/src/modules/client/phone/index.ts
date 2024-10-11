@@ -28,6 +28,9 @@ const service = interpret(listingsMachine.withConfig({ actions, services }), {
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useClientPhones = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it

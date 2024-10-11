@@ -10,6 +10,9 @@ import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useClientPhone = (item: any, context?: any) => {
   const { service } = useUpmindClientPhones();
   // this will change to be a manager of ALL phones, for now its a single instance (add/update)
@@ -73,6 +76,9 @@ export const useClientPhone = (item: any, context?: any) => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useClientPhones = () => {
   // this will change to be a manager of ALL phones, for now its a single instance (add/update)
 

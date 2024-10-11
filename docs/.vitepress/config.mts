@@ -7,8 +7,10 @@ export default defineConfig({
   description: "Upmind open-source libs documentation",
   srcDir: './',
   outDir: './dist',
+  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: '/logo.svg',
     nav: [
       { text: 'Headless', link: '/@upmind/headless' },
       { text: 'Headless-vue', link: '/@upmind/headless-vue' }
@@ -18,9 +20,7 @@ export default defineConfig({
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/headless/' },
-            { text: 'Getting Started', link: '/@upmind/headless/getting-started' },
-            // { text: 'Feature 1', link: '/upflow/feature1' }
+            { text: 'Introduction', link: '/@upmind/headless/' }
           ]
         },
         {
@@ -33,8 +33,9 @@ export default defineConfig({
           text: 'Guides',
           items: [
             { text: 'Introduction', link: '/@upmind/headless-vue/' },
-            { text: 'Getting Started', link: '/@upmind/headless-vue/getting-started' },
-            // { text: 'Feature 1', link: '/headless-vue/feature1' }
+            { text: 'Auth', link: '/@upmind/headless-vue/auth-guide' },
+            { text: 'Brand', link: '/@upmind/headless-vue/brand-guide' },
+            { text: 'System', link: '/@upmind/headless-vue/system-guide' },
           ]
         },
         {

@@ -48,6 +48,9 @@ const sendToItem = (itemId: any, type: any, data: any) => {
   }
 };
 
+/**
+ * @ignore
+ */
 export const useBasket = () => {
   return {
     service: service.start(),

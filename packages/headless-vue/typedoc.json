@@ -1,6 +1,6 @@
 {
   "entryPoints": ["src/index.ts"],
-  "exclude": ["*.d.ts", "*.md"],
+  "exclude": ["*.d.ts", "*.md", "src/utils/*"],
   "includeVersion": true,
   "readme": "./README.md"
 }

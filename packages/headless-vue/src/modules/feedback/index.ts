@@ -12,6 +12,9 @@ import { map, reduce, isEmpty, sortBy } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
+/**
+ * @ignore
+ */
 export const useFeedback = (): any => {
   const { service, dismiss, add, addError, addSuccess, trackEvent } =
     useUpmindFeedback();
@@ -116,6 +119,9 @@ export const useFeedback = (): any => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useMessage = (item: any) => {
   const { state, send } = item;
 
