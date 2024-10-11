@@ -15,11 +15,10 @@ import type {
   SelectValueProps,
 } from "radix-vue";
 
-// --- internal
-import type { ButtonProps } from "../button";
-
-import type { triggerVariants } from "./select.config";
+// --- types
+import type { triggerVariants, rootVariants } from "./select.config";
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
+type RootVariantProps = VariantProps<typeof rootVariants>;
 
 export interface SelectItem {
   label: string;
@@ -42,8 +41,8 @@ export interface SelectProps
   label?: string;
   items: SelectItem[];
   // --- variants
-  color?: ButtonProps["color"];
-  variant?: ButtonProps["variant"];
+  variant?: TriggerVariantProps["variant"];
+  color?: RootVariantProps["color"];
   width: TriggerVariantProps["width"];
   // --- styles
   upwindConfig?: {};
