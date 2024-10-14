@@ -1,8 +1,12 @@
 <template>
-  <NumberField v-bind="delegatedProps" v-model:modelValue="modelValue">
+  <NumberField
+    v-bind="delegatedProps"
+    v-model:modelValue="modelValue"
+    :class="variants.numberField.root"
+  >
     <NumberFieldContent>
       <NumberFieldDecrement />
-      <NumberFieldInput :class="cn(variants.numberField, props.class)" />
+      <NumberFieldInput :class="cn(variants.numberField.input, props.class)" />
       <NumberFieldIncrement />
     </NumberFieldContent>
   </NumberField>
@@ -19,6 +23,11 @@ import config from "./numberField.config";
 
 // --- components
 import NumberField from "./NumberField.vue";
+import NumberFieldContent from "./NumberFieldContent.vue";
+import NumberFieldDecrement from "./NumberFieldDecrement.vue";
+import NumberFieldInput from "./NumberFieldInput.vue";
+import NumberFieldIncrement from "./NumberFieldIncrement.vue";
+
 // --- utils
 import { omit } from "lodash-es";
 
@@ -31,6 +40,7 @@ import type { NumberFieldProps } from "./types";
 const props = withDefaults(defineProps<NumberFieldProps>(), {
   // -- variants
   size: "md",
+  width: "auto",
   // --- styles
   upwindConfig: () => ({ numberField: {} }),
   class: "",
@@ -41,7 +51,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upwindConfig", "modelValue", "modelValue"])
+  omit(props, ["class", "upwindConfig", "modelValue", "size", "width"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -51,6 +61,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   size: props.size,
+  width: props.width,
 }));
 
 const variants = useStyles(
@@ -58,5 +69,10 @@ const variants = useStyles(
   meta,
   config,
   props.upwindConfig ?? {}
-) as ComputedRef<{ numberField: string }>;
+) as ComputedRef<{
+  numberField: {
+    root: string;
+    input: string;
+  };
+}>;
 </script>

@@ -8,7 +8,11 @@ import type {
 } from "radix-vue";
 
 // --- types
-import type { numberFieldVariants } from "./numberField.config";
+import type {
+  numberFieldVariants,
+  numberFieldRootVariants,
+} from "./numberField.config";
+type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
 
 export interface NumberFieldProps
@@ -17,6 +21,7 @@ export interface NumberFieldProps
     NumberFieldIncrementProps {
   // --- variants
   size?: NumberFieldVariants["size"];
+  width?: NumberFieldRootVariants["width"];
 
   // --- styles
   upwindConfig?: {};

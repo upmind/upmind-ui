@@ -1,6 +1,6 @@
 <template>
   <FormField
-    v-bind="{ ...delegatedProps, ...appliedOptions }"
+    v-bind="delegatedProps"
     class="flex flex-row items-start gap-x-3 space-y-0"
   >
     <template #field>
@@ -62,6 +62,7 @@ import FormMessage from "../../FormMessage.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
+import { get } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -91,6 +92,8 @@ export default defineComponent({
   },
   computed: {
     delegatedProps() {
+      const options = get(this.appliedOptions, "options", {});
+
       return {
         id: this.control.id,
         name: this.control.path,
@@ -102,6 +105,7 @@ export default defineComponent({
         required: this.control.required,
         disabled: !this.control.enabled,
         visible: this.control.visible,
+        ...options,
       };
     },
   },

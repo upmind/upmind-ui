@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="{ ...delegatedProps, ...appliedOptions }">
+  <FormField v-bind="delegatedProps">
     <input type="hidden" :value="control.data" />
   </FormField>
 </template>

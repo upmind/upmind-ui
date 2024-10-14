@@ -83,6 +83,8 @@ const meta: Meta<typeof Form> = {
         age: {
           type: "integer",
           title: "How old are you?",
+          exclusiveMinimum: 0,
+          exclusiveMaximum: 120,
           i18n: "form.age",
         },
         dob: {
@@ -170,7 +172,7 @@ const meta: Meta<typeof Form> = {
           required: ["weight", "height", "drivingSkill"],
         },
       },
-      required: ["name", "accept"],
+      required: ["name", "accept", "age"],
       errorMessage: {
         properties: {
           accept: "You must accept the terms and conditions",
