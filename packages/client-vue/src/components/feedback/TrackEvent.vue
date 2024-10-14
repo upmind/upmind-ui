@@ -8,7 +8,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useMessage } from "@upmind/headless-vue";
+import { useMessage } from "@upmind-automation/headless-vue";
 
 // --- utils
 import { isEmpty } from "lodash-es";

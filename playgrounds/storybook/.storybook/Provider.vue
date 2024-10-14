@@ -20,7 +20,7 @@ import { defineComponent, ref } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 
 // --- internal
-import { useThemes } from "@upmind/upwind";
+import { useThemes } from "@upmind-automation/upwind";
 import themes from "@/assets/themes";
 
 // --- utils

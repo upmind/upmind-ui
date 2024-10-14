@@ -40,9 +40,9 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { useSession } from "@upmind/headless-vue";
-import { UpwForm, UpwTabs, UpwButton } from "@upmind/upwind";
-import { useStyles } from "@upmind/upwind";
+import { useSession } from "@upmind-automation/headless-vue";
+import { UpwForm, UpwTabs, UpwButton } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- types

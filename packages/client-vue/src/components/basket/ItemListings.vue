@@ -39,8 +39,8 @@ import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components

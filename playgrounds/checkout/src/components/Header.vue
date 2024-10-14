@@ -69,7 +69,7 @@ import {
   UpmCurrency,
   UpwAvatar,
   UpwButton,
-} from "@upmind/client-vue";
+} from "@upmind-automation/client-vue";
 
 export default defineComponent({
   name: "UpmHeader",

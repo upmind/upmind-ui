@@ -85,9 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { useBrand } from "@upmind/headless-vue";
+import { useBrand } from "@upmind-automation/headless-vue";
 import { startCase, isArray, isObject } from "lodash-es";
-import { UpwSpinner } from "@upmind/upwind";
+import { UpwSpinner } from "@upmind-automation/upwind";
 
 const { meta, responses } = useBrand(message =>
   window?.top?.postMessage(message, "*")

@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: Headless-vue
-      link: /@upmind/headless-vue
+      link: /@upmind-automation/headless-vue
     - theme: alt
       text: Headless
-      link: /@upmind/headless
+      link: /@upmind-automation/headless
 
 features:
   - title: Developer Experience

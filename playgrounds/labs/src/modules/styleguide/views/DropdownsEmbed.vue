@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind-automation/upwind";
 
 const items = {
   group1: {

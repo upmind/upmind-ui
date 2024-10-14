@@ -1,5 +1,5 @@
 {
-  "name": "@upmind/labs",
+  "name": "@upmind-automation/labs",
   "private": true,
   "version": "0.0.0",
   "description": "",
@@ -17,8 +17,8 @@
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
     "@floating-ui/vue": "^1.0.6",
-    "@upmind/client-vue": "^0.0.0",
-    "@upmind/upwind": "^0.0.0",
+    "@upmind-automation/client-vue": "^0.0.0",
+    "@upmind-automation/upwind": "^0.0.0",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
     "lodash-es": "^4.17.21",

@@ -41,7 +41,7 @@
 
 <script>
 import { computed, defineComponent } from "vue";
-import { UpmSession, useBrand } from "@upmind/client-vue";
+import { UpmSession, useBrand } from "@upmind-automation/client-vue";
 import { getLocalMessages } from "@/utils";
 
 export default defineComponent({

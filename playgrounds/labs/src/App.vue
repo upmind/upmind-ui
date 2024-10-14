@@ -159,7 +159,7 @@ import { useRouter, useRoute } from "vue-router";
 import UpmDrawer from "@/components/Drawer.vue";
 import UpmHeader from "@/components/Header.vue";
 import themes from "@themes";
-import { useThemes } from "@upmind/upwind";
+import { useThemes } from "@upmind-automation/upwind";
 
 // --- utils
 import { startCase, set } from "lodash-es";

@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";

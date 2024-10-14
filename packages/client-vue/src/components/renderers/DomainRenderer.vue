@@ -24,7 +24,7 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import UpmDomain from "../domain/Domain.vue";
 
 // --- utils
-import { useUpwindRenderer, UpwInput } from "@upmind/upwind";
+import { useUpwindRenderer, UpwInput } from "@upmind-automation/upwind";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";

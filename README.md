@@ -9,7 +9,7 @@ Upmind is a monorepo that houses all the second-generation packages and UI compo
 ### Adding a new pkg
 
 ```bash
-npm init -y --scope @upmind -w packages/XXX
+npm init -y --scope @upmind-automation -w packages/XXX
 ```
 
 **Packages:**

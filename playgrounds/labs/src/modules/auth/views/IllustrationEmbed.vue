@@ -70,10 +70,10 @@
 <script setup>
 import { inject, watch } from "vue";
 
-import { useSession } from "@upmind/headless-vue";
+import { useSession } from "@upmind-automation/headless-vue";
 import UpmAuthForm from "../components/Form.vue";
 import UpmProfile from "../components/Profile.vue";
-import { UpwSpinner } from "@upmind/upwind";
+import { UpwSpinner } from "@upmind-automation/upwind";
 // ---
 const { activeTheme } = inject("upwind");
 

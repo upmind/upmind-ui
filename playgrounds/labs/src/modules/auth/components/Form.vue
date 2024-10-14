@@ -38,9 +38,9 @@
 
 <script>
 import { defineComponent } from "vue";
-import { useSession } from "@upmind/headless-vue";
+import { useSession } from "@upmind-automation/headless-vue";
 
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm } from "@upmind-automation/upwind";
 
 export default defineComponent({
   name: "AuthForm",

@@ -93,8 +93,8 @@ import {
   useClientCompany,
   useClientUnifiedAddresses,
   useClientUnifiedAddress,
-} from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+} from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -107,7 +107,7 @@ import {
   UpwButton,
   UpwSkeletonList,
   UpwDialog,
-} from "@upmind/upwind";
+} from "@upmind-automation/upwind";
 
 // --- utils
 

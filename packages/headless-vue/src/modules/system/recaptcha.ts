@@ -3,8 +3,8 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-// import type { ImageObjectTypes } from "@upmind/headless";
-import { useSystemRecaptcha } from "@upmind/headless";
+// import type { ImageObjectTypes } from "@upmind-automation/headless";
+import { useSystemRecaptcha } from "@upmind-automation/headless";
 
 // --- utils
 import { isEmpty } from "lodash-es";

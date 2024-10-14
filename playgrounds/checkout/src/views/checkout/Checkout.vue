@@ -148,7 +148,7 @@ import { useRoute, useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // -- components
@@ -172,7 +172,7 @@ import {
   UpwForm,
   // ---
   UpwSteps,
-} from "@upmind/client-vue";
+} from "@upmind-automation/client-vue";
 
 // -- utils
 import { vIntersectionObserver } from "@vueuse/components";

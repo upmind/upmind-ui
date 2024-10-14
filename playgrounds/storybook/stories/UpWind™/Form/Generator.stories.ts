@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import * as messages from "./locales";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty, omitBy } from "lodash-es";
