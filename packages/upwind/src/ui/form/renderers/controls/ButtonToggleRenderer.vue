@@ -47,8 +47,8 @@
 <script lang="ts">
 // --- external
 import { defineComponent } from "vue";
-import { isBooleanControl } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { isBooleanControl, and, formatIs } from "@jsonforms/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -67,7 +67,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "BooleanToggleRenderer",
+  name: "ButtonToggleRenderer",
   directives: { autoAnimate: vAutoAnimate },
   components: {
     FormField,
@@ -104,5 +104,8 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 4, controlType: isBooleanControl };
+export const tester = {
+  rank: 2,
+  controlType: and(isBooleanControl, formatIs("toggle")),
+};
 </script>
