@@ -1,25 +1,24 @@
 <template>
-  <div ref="control">
-    <Slot
-      :id="props.formItemId"
-      :aria-describedby="
-        !props.invalid
-          ? `${props.formDescriptionId}`
-          : `${props.formDescriptionId} ${props.formMessageId}`
-      "
-      :aria-invalid="!!props.invalid"
-      v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
-    >
-      <slot />
-    </Slot>
-  </div>
+  <Slot
+    ref="control"
+    :id="props.formItemId"
+    :aria-describedby="
+      !props.invalid
+        ? `${props.formDescriptionId}`
+        : `${props.formDescriptionId} ${props.formMessageId}`
+    "
+    :aria-invalid="!!props.invalid"
+    v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+  >
+    <slot />
+  </Slot>
 </template>
 
 <script lang="ts" setup>
 import { useTemplateRef, watchEffect } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 import { Slot } from "radix-vue";
-import { isFunction } from "lodash-es";
+// import { isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 

@@ -83,6 +83,8 @@ const meta: Meta<typeof Form> = {
         age: {
           type: "integer",
           title: "How old are you?",
+          exclusiveMinimum: 0,
+          exclusiveMaximum: 120,
           i18n: "form.age",
         },
         dob: {
@@ -103,6 +105,7 @@ const meta: Meta<typeof Form> = {
           maxLength: 280,
           i18n: "form.about",
         },
+
         accept: {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
@@ -170,7 +173,7 @@ const meta: Meta<typeof Form> = {
           required: ["weight", "height", "drivingSkill"],
         },
       },
-      required: ["name", "accept"],
+      required: ["name", "accept", "age"],
       errorMessage: {
         properties: {
           accept: "You must accept the terms and conditions",
@@ -203,6 +206,10 @@ const meta: Meta<typeof Form> = {
             multi: true,
             autosize: true,
           },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/personalData/properties/nationality",
         },
         {
           type: "Control",

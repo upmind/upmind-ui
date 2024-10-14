@@ -29,6 +29,8 @@ import type { CheckboxProps } from "./types";
 
 const props = withDefaults(defineProps<CheckboxProps>(), {
   upwindConfig: () => ({ checkbox: {} }),
+  size: "md",
+  width: "full",
   class: "",
 });
 

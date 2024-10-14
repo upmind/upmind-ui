@@ -1,7 +1,7 @@
 <template>
   <FormField
-    v-bind="{ ...delegatedProps, ...appliedOptions }"
-    class="flex flex-row items-start gap-x-3 space-y-0"
+    v-bind="delegatedProps"
+    class="flex flex-row flex-nowrap items-start gap-x-3 space-y-0"
   >
     <template #field>
       <!-- input -->
@@ -45,11 +45,10 @@
   </FormField>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
-import { isBooleanControl } from "@jsonforms/core";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { computed } from "vue";
+import { useJsonFormsControl } from "@jsonforms/vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -62,50 +61,40 @@ import FormMessage from "../../FormMessage.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
+import { get } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
-export default defineComponent({
-  name: "BooleanRenderer",
-  directives: { autoAnimate: vAutoAnimate },
-  components: {
-    FormField,
-    FormLabel,
-    FormControl,
-    FormDescription,
-    FormMessage,
-    Checkbox,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(useJsonFormsControl(props), v => !!v);
+const props = defineProps<RendererProps<ControlElement>>();
 
-    return {
-      ...renderer,
-    };
-  },
-  computed: {
-    delegatedProps() {
-      return {
-        id: this.control.id,
-        name: this.control.path,
-        errors: this.control.errors,
-        // ---
-        label: this.control.label,
-        description: this.control.description,
-        // ---
-        required: this.control.required,
-        disabled: !this.control.enabled,
-        visible: this.control.visible,
-      };
-    },
-  },
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props),
+  v => !!v
+);
+
+const delegatedProps = computed(() => {
+  const options = get(appliedOptions.value, "options", {});
+
+  return {
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
+    // ---
+    label: control.value.label,
+    description: control.value.description,
+    // ---
+    required: control.value.required,
+    disabled: !control.value.enabled,
+    visible: control.value.visible,
+    ...options,
+  };
 });
+</script>
 
+<script lang="ts">
+import { isBooleanControl } from "@jsonforms/core";
 export const tester = { rank: 2, controlType: isBooleanControl };
 </script>

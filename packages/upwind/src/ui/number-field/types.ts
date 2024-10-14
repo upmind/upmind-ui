@@ -1,18 +1,29 @@
 // --- external
 import type { HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
-import type { NumberFieldRootProps } from "radix-vue";
-// --- internal
-import type { numberFieldVariants } from "./number-field.config";
-type NumberFieldVariantProps = VariantProps<typeof numberFieldVariants>;
+import type {
+  NumberFieldRootProps,
+  NumberFieldDecrementProps,
+  NumberFieldIncrementProps,
+} from "radix-vue";
 
-export interface NumberFieldProps extends NumberFieldRootProps {
-  // ---
-  autofocus?: boolean;
-  readonly?: boolean;
+// --- types
+import type {
+  numberFieldVariants,
+  numberFieldRootVariants,
+} from "./numberField.config";
+type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
+type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
+
+export interface NumberFieldProps
+  extends NumberFieldRootProps,
+    NumberFieldDecrementProps,
+    NumberFieldIncrementProps {
   // --- variants
-  size?: NumberFieldVariantProps["size"];
-  // ---
-  upwindConfig?: { numberField: Partial<NumberFieldVariantProps> };
+  size?: NumberFieldVariants["size"];
+  width?: NumberFieldRootVariants["width"];
+
+  // --- styles
+  upwindConfig?: {};
   class?: HTMLAttributes["class"];
 }
