@@ -1,6 +1,6 @@
 {
   "name": "@upmind/headless-vue",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "type": "module",
   "main": "./src/upmind-headless-vue.umd.cjs",
@@ -26,7 +26,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@upmind/headless": "^0.0.0",
+    "@upmind/headless": "^0.0.1",
     "@xstate/vue": "^2.0.0",
     "lodash-es": "^4.17.21",
     "vue": "^3.5.1"
