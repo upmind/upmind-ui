@@ -2,20 +2,19 @@
   <FormField v-bind="delegatedProps">
     <NumberField
       :disabled="!control.enabled"
-      :max="safeMax"
-      :min="safeMin"
-      :step="safeStep"
+      :max="min"
+      :min="max"
+      :step="step"
       :model-value="control.data"
       @update:modelValue="onInput"
     />
   </FormField>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent, computed } from "vue";
-import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { computed } from "vue";
+import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import FormField from "../../FormField.vue";
@@ -26,91 +25,81 @@ import { useUpwindRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
+const props = defineProps<RendererProps<ControlElement>>();
 
-export default defineComponent({
-  name: "NumberRenderer",
-  components: {
-    FormField,
-    NumberField,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      (value: string) => {
-        return !isNumber(value)
-          ? undefined
-          : isInteger.value
-            ? parseInt(value)
-            : parseFloat(value);
-      }
-    );
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props),
+  (value: string) => {
+    return !isNumber(value)
+      ? undefined
+      : isInteger.value
+        ? parseInt(value)
+        : parseFloat(value);
+  }
+);
 
-    const isInteger = computed(() => {
-      let type = renderer.control.value.schema.type;
-      let types = isArray(type) ? type : [type];
-      return includes(types, "integer");
-    });
-
-    return {
-      ...renderer,
-      isInteger,
-    };
-  },
-  computed: {
-    delegatedProps() {
-      const options = get(this.appliedOptions, "options", {});
-      return {
-        id: this.control.id,
-        name: this.control.path,
-        errors: this.control.errors,
-        // ---
-        label: this.control.label,
-        description: this.control.description,
-        // ---
-        required: this.control.required,
-        disabled: !this.control.enabled,
-        visible: this.control.visible,
-        ...options,
-      };
-    },
-    safeStep(): number {
-      const defaultStep = this.isInteger ? 1 : 0.1;
-      const multipleOf = get(this.control, "schema.multipleOf", defaultStep);
-      return get(this.appliedOptions, "step", multipleOf);
-    },
-    safeMin(): number | undefined {
-      const applied = this.appliedOptions?.min;
-      if (isNumber(applied)) return applied;
-
-      const minimum = this.control?.schema?.minimum;
-      if (isNumber(minimum)) return minimum;
-
-      const exclusiveMinimum = this.control?.schema?.exclusiveMinimum;
-      if (isNumber(exclusiveMinimum)) return exclusiveMinimum + this.safeStep;
-
-      return undefined;
-    },
-    safeMax(): number | undefined {
-      const applied = this.appliedOptions?.max;
-      if (isNumber(applied)) return applied;
-
-      const maximum = this.control?.schema?.maximum;
-      if (isNumber(maximum)) return maximum;
-
-      const exclusiveMaximum = this.control?.schema?.exclusiveMaximum;
-      if (isNumber(exclusiveMaximum)) return exclusiveMaximum - this.safeStep;
-
-      return undefined;
-    },
-  },
+const isInteger = computed(() => {
+  let type = control.value.schema.type;
+  let types = isArray(type) ? type : [type];
+  return includes(types, "integer");
 });
 
+const delegatedProps = computed(() => {
+  const options = get(appliedOptions, "options", {});
+  return {
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
+    // ---
+    label: control.value.label,
+    description: control.value.description,
+    // ---
+    required: control.value.required,
+    disabled: !control.value.enabled,
+    visible: control.value.visible,
+    ...options,
+  };
+});
+
+const step: ComputedRef<number> = computed(() => {
+  const defaultStep = isInteger.value ? 1 : 0.1;
+  const multipleOf = get(control, "schema.multipleOf", defaultStep);
+  return get(appliedOptions, "step", multipleOf);
+});
+
+const max: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.min;
+  if (isNumber(applied)) return applied;
+
+  const minimum = control.value?.schema?.minimum;
+  if (isNumber(minimum)) return minimum;
+
+  const exclusiveMinimum = control.value?.schema?.exclusiveMinimum;
+  if (isNumber(exclusiveMinimum)) return exclusiveMinimum + step.value;
+
+  return undefined;
+});
+
+const min: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.max;
+  if (isNumber(applied)) return applied;
+
+  const maximum = control.value?.schema?.maximum;
+  if (isNumber(maximum)) return maximum;
+
+  const exclusiveMaximum = control.value?.schema?.exclusiveMaximum;
+  if (isNumber(exclusiveMaximum)) return exclusiveMaximum - step.value;
+
+  return undefined;
+});
+</script>
+
+<script lang="ts">
+import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
 export const tester = {
   rank: 1,
   controlType: or(isNumberControl, isIntegerControl),

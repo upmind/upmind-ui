@@ -9,11 +9,10 @@
   </FormField>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
-import { isEnumControl } from "@jsonforms/core";
-import { rendererProps, useJsonFormsEnumControl } from "@jsonforms/vue";
+import { computed } from "vue";
+import { useJsonFormsEnumControl } from "@jsonforms/vue";
 // --- components
 import FormField from "../../FormField.vue";
 import { Select } from "../../../select";
@@ -26,41 +25,31 @@ import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
-export default defineComponent({
-  name: "EnumRenderer",
-  components: {
-    FormField,
-    Select,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(useJsonFormsEnumControl(props));
-    return {
-      ...renderer,
-    };
-  },
-  computed: {
-    delegatedProps() {
-      const options = get(this.appliedOptions, "options", {});
+const props = defineProps<RendererProps<ControlElement>>();
 
-      return {
-        id: this.control.id,
-        name: this.control.path,
-        errors: this.control.errors,
-        // ---
-        label: this.control.label,
-        description: this.control.description,
-        // ---
-        required: this.control.required,
-        disabled: !this.control.enabled,
-        visible: this.control.visible,
-        ...options,
-      };
-    },
-  },
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsEnumControl(props)
+);
+const delegatedProps = computed(() => {
+  const options = get(appliedOptions.value, "options", {});
+
+  return {
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
+    // ---
+    label: control.value.label,
+    description: control.value.description,
+    // ---
+    required: control.value.required,
+    disabled: !control.value.enabled,
+    visible: control.value.visible,
+    ...options,
+  };
 });
+</script>
 
+<script lang="ts">
+import { isEnumControl } from "@jsonforms/core";
 export const tester = { rank: 2, controlType: isEnumControl };
 </script>

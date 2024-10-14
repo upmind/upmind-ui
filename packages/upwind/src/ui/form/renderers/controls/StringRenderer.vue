@@ -10,11 +10,10 @@
   </FormField>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
-import { isStringControl } from "@jsonforms/core";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { computed } from "vue";
+import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import FormField from "../../FormField.vue";
@@ -25,65 +24,57 @@ import { useUpwindRenderer } from "../utils";
 import { isNil, get } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
-export default defineComponent({
-  name: "StringRenderer",
-  components: {
-    FormField,
-    Input,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(useJsonFormsControl(props));
+const props = defineProps<RendererProps<ControlElement>>();
 
-    return {
-      ...renderer,
-    };
-  },
-  computed: {
-    delegatedProps() {
-      const options = get(this.appliedOptions, "options", {});
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props)
+);
 
-      return {
-        id: this.control.id,
-        name: this.control.path,
-        errors: this.control.errors,
-        // ---
-        label: this.control.label,
-        description: this.control.description,
-        // ---
-        required: this.control.required,
-        disabled: !this.control.enabled,
-        visible: this.control.visible,
-        ...options,
-      };
-    },
+const delegatedProps = computed(() => {
+  const options = get(appliedOptions.value, "options", {});
 
-    safeMin(): number | undefined {
-      const applied = this.appliedOptions?.min;
-      if (!isNil(applied)) return applied;
-
-      const minimum = this.control?.schema?.minimum;
-      if (!isNil(minimum)) return minimum;
-
-      return undefined;
-    },
-    safeMax(): number | undefined {
-      const applied = this.appliedOptions?.max;
-      if (!isNil(applied)) return applied;
-
-      const maximum = this.control?.schema?.maximum;
-      if (!isNil(maximum)) return maximum;
-
-      return undefined;
-    },
-  },
+  return {
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
+    // ---
+    label: control.value.label,
+    description: control.value.description,
+    // ---
+    required: control.value.required,
+    disabled: !control.value.enabled,
+    visible: control.value.visible,
+    ...options,
+  };
 });
 
+const safeMin: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.min;
+  if (!isNil(applied)) return applied;
+
+  const minimum = control.value?.schema?.minimum;
+  if (!isNil(minimum)) return minimum;
+
+  return undefined;
+});
+
+const safeMax: ComputedRef<number | undefined> = computed(() => {
+  const applied = appliedOptions.value?.max;
+  if (!isNil(applied)) return applied;
+
+  const maximum = control.value?.schema?.maximum;
+  if (!isNil(maximum)) return maximum;
+
+  return undefined;
+});
+</script>
+
+<script lang="ts">
+import { isStringControl } from "@jsonforms/core";
 export const tester = { rank: 1, controlType: isStringControl };
 </script>

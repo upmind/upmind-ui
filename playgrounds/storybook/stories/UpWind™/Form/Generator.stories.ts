@@ -105,6 +105,7 @@ const meta: Meta<typeof Form> = {
           maxLength: 280,
           i18n: "form.about",
         },
+
         accept: {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
@@ -205,6 +206,10 @@ const meta: Meta<typeof Form> = {
             multi: true,
             autosize: true,
           },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/personalData/properties/nationality",
         },
         {
           type: "Control",
