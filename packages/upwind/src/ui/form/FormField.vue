@@ -1,5 +1,9 @@
 <template>
-  <FormItem :formItemId="id" v-auto-animate :class="props.class">
+  <FormItem
+    :formItemId="id"
+    v-auto-animate
+    :class="cn('flex flex-wrap', props.class)"
+  >
     <slot name="field">
       <!-- label -->
       <FormLabel :formItemId="id" :invalid="meta.isInvalid">
@@ -48,7 +52,7 @@ import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useStyles } from "../../utils";
+import { cn, useStyles } from "../../utils";
 import config from "./form.config";
 
 // -- components

@@ -8,6 +8,8 @@ import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import BooleanSwitchRenderer, {
   tester as BooleanSwitchTest,
 } from "./BooleanSwitchRenderer.vue";
+import NumberRenderer, { tester as NumberTest } from "./NumberRenderer.vue";
+import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -16,4 +18,6 @@ export const controlRenderers = [
   registerEntry(StringRenderer, StringTest),
   registerEntry(BooleanRenderer, BooleanTest),
   registerEntry(BooleanSwitchRenderer, BooleanSwitchTest),
+  registerEntry(NumberRenderer, NumberTest),
+  registerEntry(EnumRenderer, EnumTest),
 ];
