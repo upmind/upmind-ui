@@ -1,6 +1,6 @@
 <template>
-  <Select v-bind="forwarded" :class="cn(variants.select, props.class)">
-    <SelectTrigger>
+  <Select v-bind="forwarded">
+    <SelectTrigger :class="cn(variants.select, props.class)">
       <SelectValue :placeholder="placeholder" />
     </SelectTrigger>
 
@@ -41,6 +41,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   items: () => [],
   // -- variants
   size: "md",
+  width: "full",
   // --- styles
   upwindConfig: () => ({ select: {} }),
   class: "",
@@ -51,6 +52,7 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 const meta = computed(() => ({
   size: props.size,
+  width: props.width,
 }));
 
 const variants = useStyles(

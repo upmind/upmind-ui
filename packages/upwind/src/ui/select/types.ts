@@ -19,7 +19,8 @@ export interface SelectProps
   // --- state
   items: ({ label?: string } & SelectItemProps)[];
   // --- variants
-  size: SelectVariants["size"];
+  size?: SelectVariants["size"];
+  width?: SelectVariants["width"];
   // --- styles
   upwindConfig?: {};
   class?: HTMLAttributes["class"];

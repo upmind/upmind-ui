@@ -18,7 +18,7 @@ export const checkboxVariants = cva(
     },
     defaultVariants: {
       size: "md",
-      width: "auto",
+      width: "full",
     },
   }
 );

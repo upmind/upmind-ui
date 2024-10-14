@@ -26,7 +26,7 @@ export const numberFieldRootVariants = cva("group inline-block", {
     },
   },
   defaultVariants: {
-    width: "auto",
+    width: "full",
   },
 });
 

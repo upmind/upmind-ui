@@ -18,7 +18,7 @@ export const inputVariants = cva(
     },
     defaultVariants: {
       size: "md",
-      width: "auto",
+      width: "full",
     },
   }
 );

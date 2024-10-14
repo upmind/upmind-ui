@@ -6,6 +6,7 @@ import ConstRenderer, { tester as ConstTest } from "./StringRenderer.vue";
 import StringRenderer, { tester as StringTest } from "./StringRenderer.vue";
 import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import NumberRenderer, { tester as NumberTest } from "./NumberRenderer.vue";
+import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -14,4 +15,5 @@ export const controlRenderers = [
   registerEntry(StringRenderer, StringTest),
   registerEntry(BooleanRenderer, BooleanTest),
   registerEntry(NumberRenderer, NumberTest),
+  registerEntry(EnumRenderer, EnumTest),
 ];
