@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { UpwForm } from "@upmind/upwind";
+import { UpwForm } from "@upmind-automation/upwind";
 import { onMounted, ref } from "vue";
 import { delay } from "lodash-es";
 import { useDateFormat, useNow } from "@vueuse/core";

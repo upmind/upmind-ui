@@ -45,7 +45,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import { useMessage, utils } from "@upmind/client-vue";
+import { useMessage, utils } from "@upmind-automation/client-vue";
 import { useTimestamp } from "@vueuse/core";
 
 import { endsWith, startsWith } from "lodash-es";

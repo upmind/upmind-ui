@@ -1,6 +1,6 @@
 {
-  "name": "@upmind/headless",
-  "version": "0.0.1",
+  "name": "@upmind-automation/headless",
+  "version": "0.0.2",
   "description": "",
   "type": "module",
   "main": "./src/upmind-headless.umd.cjs",

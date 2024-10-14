@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitepress'
-import typedocSidebar from '../@upmind/typedoc-sidebar.json'
+import typedocSidebar from '../@upmind-automation/typedoc-sidebar.json'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -12,15 +12,15 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     logo: '/logo.svg',
     nav: [
-      { text: 'Headless', link: '/@upmind/headless' },
-      { text: 'Headless-vue', link: '/@upmind/headless-vue' }
+      { text: 'Headless', link: '/@upmind-automation/headless' },
+      { text: 'Headless-vue', link: '/@upmind-automation/headless-vue' }
     ],
     sidebar: {
-      '/@upmind/headless/': [
+      '/@upmind-automation/headless/': [
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/headless/' }
+            { text: 'Introduction', link: '/@upmind-automation/headless/' }
           ]
         },
         {
@@ -28,14 +28,14 @@ export default defineConfig({
           items: typedocSidebar[0].items
         }
       ],
-      '/@upmind/headless-vue/': [
+      '/@upmind-automation/headless-vue/': [
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/headless-vue/' },
-            { text: 'Auth', link: '/@upmind/headless-vue/auth-guide' },
-            { text: 'Brand', link: '/@upmind/headless-vue/brand-guide' },
-            { text: 'System', link: '/@upmind/headless-vue/system-guide' },
+            { text: 'Introduction', link: '/@upmind-automation/headless-vue/' },
+            { text: 'Auth', link: '/@upmind-automation/headless-vue/auth-guide' },
+            { text: 'Brand', link: '/@upmind-automation/headless-vue/brand-guide' },
+            { text: 'System', link: '/@upmind-automation/headless-vue/system-guide' },
           ]
         },
         {

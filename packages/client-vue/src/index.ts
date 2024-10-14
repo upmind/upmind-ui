@@ -1,7 +1,7 @@
 // --- expose our package exports
 
-export * from "@upmind/headless-vue";
-export * from "@upmind/upwind";
+export * from "@upmind-automation/headless-vue";
+export * from "@upmind-automation/upwind";
 
 // --- expose our modules & components
 export { default as UpmFeedback } from "./components/feedback/Feedback.vue";

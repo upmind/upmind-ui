@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind/headless](../index.md) / useSystem
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useSystem
 
 # useSystem()
 

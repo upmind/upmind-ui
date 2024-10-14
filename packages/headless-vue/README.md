@@ -18,11 +18,11 @@ npm i @upmind/headless-vue
 
 ## Usage simple example
 
-Simply importing the composables (functions) you need from `@upmind/headless-vue`.
+Simply importing the composables (functions) you need from `@upmind-automation/headless-vue`.
 
 ```vue
 <script setup>
-import { useSession } from '@upmind/headless-vue'
+import { useSession } from '@upmind-automation/headless-vue'
 
 const {
   meta,

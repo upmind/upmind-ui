@@ -198,11 +198,11 @@ import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwButton, UpwIcon } from "@upmind/upwind";
+import { UpwButton, UpwIcon } from "@upmind-automation/upwind";
 import UpmPromotions from "./Promotions.vue";
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- utils

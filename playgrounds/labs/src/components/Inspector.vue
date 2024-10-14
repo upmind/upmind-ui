@@ -48,7 +48,7 @@
 <script>
 import { defineComponent, ref } from "vue";
 import { startCase, defaultsDeep, omitBy, isEmpty, get } from "lodash-es";
-import { UpwIcon } from "@upmind/upwind";
+import { UpwIcon } from "@upmind-automation/upwind";
 
 export default defineComponent({
   name: "UpmInspctor",

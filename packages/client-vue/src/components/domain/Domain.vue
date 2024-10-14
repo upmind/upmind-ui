@@ -70,14 +70,14 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useDomain } from "@upmind/headless-vue";
+import { useDomain } from "@upmind-automation/headless-vue";
 import {
   useStyles,
   mergeStyles,
   UpwRadioList,
   UpwCombobox,
   UpwSkeletonList,
-} from "@upmind/upwind";
+} from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components

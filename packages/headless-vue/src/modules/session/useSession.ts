@@ -3,7 +3,7 @@ import { computed, unref, watch, toRaw } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useSession as useUpmindSession } from "@upmind/headless";
+import { useSession as useUpmindSession } from "@upmind-automation/headless";
 
 // --- utils
 import { isFunction } from "lodash-es";

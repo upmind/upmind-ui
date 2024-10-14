@@ -3,7 +3,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientEmails as useUpmindClientEmails } from "@upmind/headless";
+import { useClientEmails as useUpmindClientEmails } from "@upmind-automation/headless";
 
 // --- utils
 import { get, map, debounce, isEmpty } from "lodash-es";

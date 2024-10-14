@@ -1,5 +1,10 @@
 import type { App, Plugin } from "vue";
-import { useApi, useBrand, useSession, useSystem } from "@upmind/headless-vue";
+import {
+  useApi,
+  useBrand,
+  useSession,
+  useSystem,
+} from "@upmind-automation/headless-vue";
 
 const upmindPlugin: Plugin = {
   install: (app: App): void => {

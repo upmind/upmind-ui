@@ -78,15 +78,15 @@ import { defineComponent, provide, ref } from "vue";
 import {
   useClientUnifiedAddress,
   useClientUnifiedAddresses,
-} from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+} from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "../client/config.cva";
 
 // --- components
 import UpmItem from "../Client/Item.vue";
 import UpmCard from "../Client/Card.vue";
 import UpmListings from "../Client/Listings.vue";
-import { UpwSkeletonList, UpwButton } from "@upmind/upwind";
+import { UpwSkeletonList, UpwButton } from "@upmind-automation/upwind";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";

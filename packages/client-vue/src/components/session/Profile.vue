@@ -19,11 +19,11 @@
 import { defineComponent } from "vue";
 
 // --- components
-import { UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind-automation/upwind";
 
 // --- internal
-import { useSession } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useSession } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- types

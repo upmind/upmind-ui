@@ -24,11 +24,11 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
 
 // --- utils
 import { get } from "lodash-es";

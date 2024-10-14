@@ -26,7 +26,7 @@ The **Session Manager** module will invoke the appropriate session handler based
 
 ### Installation
 
-To use the **Session Manager** module, you can import it from the `@upmind/headless` package in your JavaScript project.
+To use the **Session Manager** module, you can import it from the `@upmind-automation/headless` package in your JavaScript project.
 
 (For specific installation details within the **Upmind Headless** framework, please refer to the main framework README.)
 
@@ -51,7 +51,7 @@ The module operates as a state machine with built-in context to manage user sess
 ## Usage
 
 ```javascript
-import { useSession as useUpmindSession } from `@upmind/headless`;
+import { useSession as useUpmindSession } from `@upmind-automation/headless`;
 import { useActor } from "@xstate/vue"; // or @xstate/react, @xstate/svelte, etc.
 
 // Its a good idea to create a composable

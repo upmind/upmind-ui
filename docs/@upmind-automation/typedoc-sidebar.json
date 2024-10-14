@@ -1,7 +1,7 @@
 [
   {
-    "text": "@upmind/headless",
-    "link": "/@upmind/headless/",
+    "text": "@upmind-automation/headless",
+    "link": "/@upmind-automation/headless/",
     "collapsed": true,
     "items": [
       {
@@ -10,7 +10,7 @@
         "items": [
           {
             "text": "BrandConfigKeys",
-            "link": "/@upmind/headless/enumerations/BrandConfigKeys.md"
+            "link": "/@upmind-automation/headless/enumerations/BrandConfigKeys.md"
           }
         ]
       },
@@ -20,27 +20,23 @@
         "items": [
           {
             "text": "useBrand",
-            "link": "/@upmind/headless/functions/useBrand.md"
-          },
-          {
-            "text": "useDomain",
-            "link": "/@upmind/headless/functions/useDomain.md"
+            "link": "/@upmind-automation/headless/functions/useBrand.md"
           },
           {
             "text": "useSession",
-            "link": "/@upmind/headless/functions/useSession.md"
+            "link": "/@upmind-automation/headless/functions/useSession.md"
           },
           {
             "text": "useSystem",
-            "link": "/@upmind/headless/functions/useSystem.md"
+            "link": "/@upmind-automation/headless/functions/useSystem.md"
           }
         ]
       }
     ]
   },
   {
-    "text": "@upmind/headless-vue",
-    "link": "/@upmind/headless-vue/",
+    "text": "@upmind-automation/headless-vue",
+    "link": "/@upmind-automation/headless-vue/",
     "collapsed": true,
     "items": [
       {
@@ -49,27 +45,27 @@
         "items": [
           {
             "text": "IUseBrand",
-            "link": "/@upmind/headless-vue/interfaces/IUseBrand.md"
+            "link": "/@upmind-automation/headless-vue/interfaces/IUseBrand.md"
           },
           {
             "text": "IUseBrandMeta",
-            "link": "/@upmind/headless-vue/interfaces/IUseBrandMeta.md"
+            "link": "/@upmind-automation/headless-vue/interfaces/IUseBrandMeta.md"
           },
           {
             "text": "IUseSession",
-            "link": "/@upmind/headless-vue/interfaces/IUseSession.md"
+            "link": "/@upmind-automation/headless-vue/interfaces/IUseSession.md"
           },
           {
             "text": "IUseSessionMeta",
-            "link": "/@upmind/headless-vue/interfaces/IUseSessionMeta.md"
+            "link": "/@upmind-automation/headless-vue/interfaces/IUseSessionMeta.md"
           },
           {
             "text": "IUseSystem",
-            "link": "/@upmind/headless-vue/interfaces/IUseSystem.md"
+            "link": "/@upmind-automation/headless-vue/interfaces/IUseSystem.md"
           },
           {
             "text": "IUseSystemMeta",
-            "link": "/@upmind/headless-vue/interfaces/IUseSystemMeta.md"
+            "link": "/@upmind-automation/headless-vue/interfaces/IUseSystemMeta.md"
           }
         ]
       },
@@ -79,19 +75,15 @@
         "items": [
           {
             "text": "useBrand",
-            "link": "/@upmind/headless-vue/functions/useBrand.md"
+            "link": "/@upmind-automation/headless-vue/functions/useBrand.md"
           },
           {
             "text": "useSession",
-            "link": "/@upmind/headless-vue/functions/useSession.md"
+            "link": "/@upmind-automation/headless-vue/functions/useSession.md"
           },
           {
             "text": "useSystem",
-            "link": "/@upmind/headless-vue/functions/useSystem.md"
-          },
-          {
-            "text": "useUpload",
-            "link": "/@upmind/headless-vue/functions/useUpload.md"
+            "link": "/@upmind-automation/headless-vue/functions/useSystem.md"
           }
         ]
       }

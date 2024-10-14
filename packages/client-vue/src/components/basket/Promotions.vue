@@ -67,11 +67,11 @@ import { defineComponent, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwButton, UpwIcon, UpwForm } from "@upmind/upwind";
+import { UpwButton, UpwIcon, UpwForm } from "@upmind-automation/upwind";
 
 // --- internal
-import { useBasketPromotions } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useBasketPromotions } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 import { set } from "lodash-es";
 

@@ -27,8 +27,8 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { UpmDomain } from "@upmind/client-vue";
-import { useStyles } from "@upmind/upwind";
+import { UpmDomain } from "@upmind-automation/client-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- utils

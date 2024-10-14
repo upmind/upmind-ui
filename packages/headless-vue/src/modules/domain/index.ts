@@ -5,8 +5,8 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import type { DomainTypes } from "@upmind/headless";
-import { useDomain as useUpmindDomain } from "@upmind/headless";
+import type { DomainTypes } from "@upmind-automation/headless";
+import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 
 // --- utils
 import { map, some, find, isArray, get, first } from "lodash-es";

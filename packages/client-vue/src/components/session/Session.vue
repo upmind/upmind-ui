@@ -70,13 +70,13 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useSession } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useSession } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import UpmAuth from "./Auth.vue";
-import { UpwButton } from "@upmind/upwind";
+import { UpwButton } from "@upmind-automation/upwind";
 
 // --- types
 import type { PropType } from "vue";

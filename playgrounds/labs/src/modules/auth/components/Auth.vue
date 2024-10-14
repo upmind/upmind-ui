@@ -105,7 +105,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { useSession } from "@upmind/headless-vue";
+import { useSession } from "@upmind-automation/headless-vue";
 
 export default defineComponent({
   name: "Auth",

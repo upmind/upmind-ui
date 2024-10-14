@@ -17,11 +17,11 @@
 import { defineComponent, computed } from "vue";
 
 // --- components
-import { UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind-automation/upwind";
 
 // --- internal
-import { useBasketCurrency } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useBasketCurrency } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 import currencyMap from "./currencies";
 

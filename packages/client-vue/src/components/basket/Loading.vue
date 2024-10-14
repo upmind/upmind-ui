@@ -28,12 +28,12 @@
 import { defineComponent, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwAvatar } from "@upmind/upwind";
+import { UpwAvatar } from "@upmind-automation/upwind";
 
 // --- types
 
