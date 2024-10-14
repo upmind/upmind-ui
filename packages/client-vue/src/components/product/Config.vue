@@ -190,8 +190,8 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -202,7 +202,7 @@ import {
   UpwSpinner,
   UpwMarkdown,
   UpwLineclamp,
-} from "@upmind/upwind";
+} from "@upmind-automation/upwind";
 import UpmConfigGrid from "./ConfigGrid.vue";
 import UpmConfigNested from "./ConfigNested.vue";
 import UpmConfigForm from "./ConfigForm.vue";

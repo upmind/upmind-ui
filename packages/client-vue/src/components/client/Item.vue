@@ -29,11 +29,11 @@
 import { defineComponent, inject } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, UpwDialog } from "@upmind/upwind";
+import { UpwForm, UpwDialog } from "@upmind-automation/upwind";
 import { isEmpty, omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------

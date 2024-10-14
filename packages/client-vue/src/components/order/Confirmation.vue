@@ -40,12 +40,12 @@
 import { defineComponent, ref, toRefs } from "vue";
 
 // --- internal
-import { useSession, utils } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useSession, utils } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
 
 // --- types
 

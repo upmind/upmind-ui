@@ -111,7 +111,7 @@
 import { defineComponent, toRefs, ref } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -124,7 +124,7 @@ import {
   UpwInput,
   UpwQuantitybox,
   UpwSpinner,
-} from "@upmind/upwind";
+} from "@upmind-automation/upwind";
 
 // --- utils
 import { some, has, reduce, map, get, first, isArray } from "lodash-es";

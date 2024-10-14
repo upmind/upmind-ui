@@ -1,5 +1,5 @@
 {
-  "name": "@upmind/storybook",
+  "name": "@upmind-automation/storybook",
   "private": true,
   "version": "1.0.0",
   "description": "",
@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@upmind/upwind": "^0.0.0",
+    "@upmind-automation/upwind": "^0.0.0",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {

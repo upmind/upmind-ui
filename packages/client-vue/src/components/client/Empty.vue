@@ -14,7 +14,7 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // -----------------------------------------------------------------------------

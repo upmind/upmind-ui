@@ -61,11 +61,11 @@
 import { computed, defineComponent } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwTextbox, UpwButton, UpwDialog } from "@upmind/upwind";
+import { UpwTextbox, UpwButton, UpwDialog } from "@upmind-automation/upwind";
 import UpmDomainListings from "./Listings.vue";
 
 // --- utils

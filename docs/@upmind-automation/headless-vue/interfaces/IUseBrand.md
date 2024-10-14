@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind/headless-vue](../index.md) / IUseBrand
+[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseBrand
 
 # IUseBrand
 
@@ -52,6 +52,10 @@ getConfig: any;
 
 Get brand configuration.
 
+#### Returns
+
+The configuration data for the brand.
+
 ***
 
 ### isReady
@@ -61,6 +65,10 @@ isReady: any;
 ```
 
 Method that checks if the brand data is fully ready.
+
+#### Returns
+
+Returns true if the brand data is ready.
 
 ***
 

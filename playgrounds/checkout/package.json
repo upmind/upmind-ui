@@ -1,5 +1,5 @@
 {
-  "name": "@upmind/checkout",
+  "name": "@upmind-automation/checkout",
   "private": true,
   "version": "0.0.0",
   "description": "",
@@ -28,7 +28,7 @@
     "@jsonforms/vue-vanilla": "^3.2.1",
     "@sentry/vite-plugin": "^2.22.4",
     "@sentry/vue": "^8.17.0",
-    "@upmind/client-vue": "^0.0.0",
+    "@upmind-automation/client-vue": "^0.0.0",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
     "lodash-es": "^4.17.21",

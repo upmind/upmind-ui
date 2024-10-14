@@ -34,12 +34,12 @@
 import { defineComponent, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind/upwind";
+import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
 
 // --- types
 

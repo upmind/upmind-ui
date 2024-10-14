@@ -37,7 +37,7 @@
 import { computed, defineComponent } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -47,7 +47,7 @@ import {
   UpwSkeletonList,
   UpwRadioList,
   UpwIcon,
-} from "@upmind/upwind";
+} from "@upmind-automation/upwind";
 
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";

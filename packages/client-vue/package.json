@@ -1,5 +1,5 @@
 {
-  "name": "@upmind/client-vue",
+  "name": "@upmind-automation/client-vue",
   "version": "0.0.0",
   "description": "",
   "type": "module",
@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
-    "@upmind/headless-vue": "^0.0.1",
-    "@upmind/upwind": "^0.0.0",
+    "@upmind-automation/headless-vue": "^0.0.2",
+    "@upmind-automation/upwind": "^0.0.0",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
     "lodash-es": "^4.17.21",

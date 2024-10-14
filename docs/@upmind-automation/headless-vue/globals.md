@@ -1,6 +1,6 @@
-[Upmind](../packages.md) / @upmind/headless-vue
+[Upmind](../packages.md) / @upmind-automation/headless-vue
 
-# @upmind/headless-vue
+# @upmind-automation/headless-vue
 
 ## Interfaces
 
@@ -20,4 +20,3 @@
 | [useBrand](functions/useBrand.md) | A composable that provides a simplified interface for interacting with the Brand API state machine. It uses the `useUpmindBrand` composable to access the state machine service and provides helpers for managing state, sending events, and accessing context data and errors. |
 | [useSession](functions/useSession.md) | Composable function to manage session-related logic using Vue. It provides state, context and helpers for session, login and registration processes. |
 | [useSystem](functions/useSystem.md) | The `useSystem` composable provides a simple interface to interact with the system API through a state machine and includes utility methods for fetching data. |
-| [useUpload](functions/useUpload.md) | - |

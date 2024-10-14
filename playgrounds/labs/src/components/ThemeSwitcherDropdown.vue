@@ -10,7 +10,7 @@
 
 <script>
 import { inject, defineComponent, computed } from "vue";
-import { UpwDropdown } from "@upmind/upwind";
+import { UpwDropdown } from "@upmind-automation/upwind";
 import { startCase } from "lodash-es";
 
 export default defineComponent({
