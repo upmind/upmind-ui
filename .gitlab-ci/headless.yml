@@ -60,4 +60,4 @@
     - dependencies
     - (headless) publish internal
   script:
-    - npm --workspace packages/headless-vue publish
+    - npm --workspace packages/headless-vue publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
