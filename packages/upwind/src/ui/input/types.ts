@@ -29,6 +29,7 @@ export interface InputProps {
   step?: number;
   // --- variants
   size?: InputVariantProps["size"];
+  width?: InputVariantProps["width"];
   // ---
   upwindConfig?: { input: Partial<InputVariantProps> };
   class?: HTMLAttributes["class"];
