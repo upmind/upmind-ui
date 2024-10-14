@@ -13,6 +13,8 @@ hero:
     - theme: alt
       text: Headless
       link: /@upmind-automation/headless
+  image:
+    src: /logo.svg
 
 features:
   - title: Developer Experience
