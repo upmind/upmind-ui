@@ -47,7 +47,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue,
 });
 
-const meta = computed(() => ({}));
+const meta = computed(() => ({
+  variant: props.variant,
+  size: props.size,
+}));
 
 const variants = useStyles(
   ["toggle"],

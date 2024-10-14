@@ -16,12 +16,15 @@ export interface ToggleProps {
   name?: string;
   type?: InputTypeHTMLAttribute;
   // ---
+  variant?: ToggleVariantProps["variant"];
+  size?: ToggleVariantProps["size"];
+  // ---
   autocomplete?: string;
   autofocus?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;
   // ---
-  upwindConfig?: { input: Partial<InputVariantProps> };
+  upwindConfig?: { input: Partial<ToggleVariantProps> };
   class?: HTMLAttributes["class"];
 }
