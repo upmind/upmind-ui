@@ -1,7 +1,7 @@
 <template>
   <FormField
     v-bind="{ ...delegatedProps, ...appliedOptions }"
-    class="flex flex-row flex-nowrap items-center gap-x-3 space-y-0"
+    class="flex flex-row items-start gap-x-3 space-y-0"
   >
     <template #field>
       <!-- input -->
@@ -11,20 +11,19 @@
         :formDescriptionId="`form-item-description-${control.id}`"
         :formMessageId="`form-item-message-${control.id}`"
       >
-        <Switch
+        <Toggle
           :id="control.id"
           :disabled="!control.enabled"
           :checked="control.data"
+          :aria-label="control.label"
           @update:checked="onInput"
-        />
+        >
+          <!-- label -->
+          {{ control.label }}
+        </Toggle>
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
-        <!-- label -->
-        <FormLabel :formItemId="control.id" :invalid="!!control.errors">
-          {{ control.label }}
-        </FormLabel>
-
         <!-- validation messages -->
         <FormMessage
           v-if="!!control.errors"
@@ -53,9 +52,8 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
-import { Switch } from "../../../switch";
+import { Toggle } from "../../../toggle";
 import FormField from "../../FormField.vue";
-import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
@@ -69,15 +67,14 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
 export default defineComponent({
-  name: "BooleanSwitchRenderer",
+  name: "BooleanToggleRenderer",
   directives: { autoAnimate: vAutoAnimate },
   components: {
     FormField,
-    FormLabel,
     FormControl,
     FormDescription,
     FormMessage,
-    Switch,
+    Toggle,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -107,5 +104,5 @@ export default defineComponent({
   },
 });
 
-export const tester = { rank: 3, controlType: isBooleanControl };
+export const tester = { rank: 4, controlType: isBooleanControl };
 </script>
