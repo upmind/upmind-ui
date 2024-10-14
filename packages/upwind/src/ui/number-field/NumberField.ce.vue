@@ -13,13 +13,12 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
+// --- internal
+import { cn, useStyles } from "../../utils";
+import config from "./numberField.config";
+
 // --- components
 import NumberField from "./NumberField.vue";
-
-// --- internal
-import config from "./number-field.config";
-import { useStyles, cn } from "../../utils";
-
 // --- utils
 import { omit } from "lodash-es";
 
@@ -30,6 +29,9 @@ import type { NumberFieldProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<NumberFieldProps>(), {
+  // -- variants
+  size: "md",
+  // --- styles
   upwindConfig: () => ({ numberField: {} }),
   class: "",
 });

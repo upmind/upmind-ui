@@ -1,16 +1,19 @@
 import { cva } from "class-variance-authority";
 
-export const triggerVariants = cva("!p-6 !py-12 text-sm md:!p-8 md:!py-10", {
-  variants: {
-    width: {
-      full: "w-full",
-      auto: "w-auto",
+export const triggerVariants = cva(
+  "static h-auto overflow-hidden !p-6 !py-5 text-sm",
+  {
+    variants: {
+      width: {
+        full: "w-full",
+        auto: "w-auto",
+      },
     },
-  },
-  defaultVariants: {
-    width: "auto",
-  },
-});
+    defaultVariants: {
+      width: "auto",
+    },
+  }
+);
 
 export const contentVariants = cva("", {
   variants: {
