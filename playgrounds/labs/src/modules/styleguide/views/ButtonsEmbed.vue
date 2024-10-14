@@ -221,7 +221,7 @@
 </template>
 
 <script setup>
-import { UpwButton } from "@upmind/upwind";
+import { UpwButton } from "@upmind-automation/upwind";
 import { onMounted, ref } from "vue";
 
 const isLoading = ref(true);

@@ -1,4 +1,4 @@
-[Upmind](../packages.md) / @upmind/headless
+[Upmind](../packages.md) / @upmind-automation/headless
 
 # Upmind Headless
 

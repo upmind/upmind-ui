@@ -176,12 +176,17 @@
 import { defineComponent, ref } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind/headless-vue";
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwBadge, UpwButton, UpwIcon, UpwSpinner } from "@upmind/upwind";
+import {
+  UpwBadge,
+  UpwButton,
+  UpwIcon,
+  UpwSpinner,
+} from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";

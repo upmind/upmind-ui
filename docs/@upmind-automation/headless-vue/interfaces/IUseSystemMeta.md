@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind/headless-vue](../index.md) / IUseSystemMeta
+[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseSystemMeta
 
 # IUseSystemMeta
 

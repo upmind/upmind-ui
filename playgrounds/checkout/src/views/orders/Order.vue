@@ -15,14 +15,14 @@ import { defineComponent } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // -- components
 import {
   // useBasket,
   UpmOrderConfirmation,
-} from "@upmind/client-vue";
+} from "@upmind-automation/client-vue";
 
 // --- utils
 import { getLocalMessages } from "@/utils";

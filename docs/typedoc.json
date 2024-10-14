@@ -17,5 +17,5 @@
     "title.memberPage": "{name}"
   },
   "cleanOutputDir": false,
-  "out": "./@upmind"
+  "out": "./@upmind-automation"
 }

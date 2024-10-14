@@ -53,9 +53,13 @@
 import { computed, defineComponent, ref, watch } from "vue";
 
 // --- internal
-import { useProductConfig, useBasket, utils } from "@upmind/headless-vue";
+import {
+  useProductConfig,
+  useBasket,
+  utils,
+} from "@upmind-automation/headless-vue";
 const { stateMatches } = utils;
-import { useStyles, mergeStyles, UpwBadge } from "@upmind/upwind";
+import { useStyles, mergeStyles, UpwBadge } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components

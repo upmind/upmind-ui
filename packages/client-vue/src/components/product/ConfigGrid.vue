@@ -107,12 +107,12 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { UpwRadio, UpwBadge, UpwInput } from "@upmind/upwind";
+import { UpwRadio, UpwBadge, UpwInput } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";

@@ -1,6 +1,6 @@
-[Upmind](../packages.md) / @upmind/headless
+[Upmind](../packages.md) / @upmind-automation/headless
 
-# @upmind/headless
+# @upmind-automation/headless
 
 ## Enumerations
 
@@ -13,6 +13,5 @@
 | Function | Description |
 | ------ | ------ |
 | [useBrand](functions/useBrand.md) | - |
-| [useDomain](functions/useDomain.md) | - |
 | [useSession](functions/useSession.md) | - |
 | [useSystem](functions/useSystem.md) | - |

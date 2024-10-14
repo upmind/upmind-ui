@@ -23,7 +23,7 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import { UpwIcon } from "@upmind/upwind";
+import { UpwIcon } from "@upmind-automation/upwind";
 
 export default defineComponent({
   name: "UpmEmbedView",

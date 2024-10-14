@@ -1,5 +1,5 @@
 {
-  "name": "upmind",
+  "name": "upmind-automation",
   "version": "0.0.0",
   "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Headless) and Vue.js implementations (Headless-vue), along with playgrounds demonstrating UI integration using",
   "private": true,

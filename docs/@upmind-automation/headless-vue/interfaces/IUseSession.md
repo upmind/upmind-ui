@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind/headless-vue](../index.md) / IUseSession
+[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseSession
 
 # IUseSession
 
@@ -57,6 +57,10 @@ login: Function;
 
 Initiates the login process for a user, typically used in conjunction with a form and model data.
 
+#### Returns
+
+A promise that resolves when the login operation is completed.
+
 ***
 
 ### logout
@@ -66,6 +70,10 @@ logout: Function;
 ```
 
 Logs out the currently authenticated user.
+
+#### Returns
+
+A promise that resolves when the logout operation is completed.
 
 ***
 
@@ -96,6 +104,10 @@ register: Function;
 ```
 
 Registers a new user, typically used with a form and model data.
+
+#### Returns
+
+A promise that resolves when the registration operation is completed.
 
 ***
 
@@ -202,6 +214,10 @@ Verifies the 2-factor authentication (2FA) code provided by the user.
 
 The 2FA code entered by the user.
 
+#### Returns
+
+A promise that resolves when the verification is successful.
+
 ***
 
 ### verifyReCaptcha
@@ -215,3 +231,7 @@ Verifies the ReCaptcha challenge response from the user.
 #### Param
 
 The ReCaptcha response token from the user.
+
+#### Returns
+
+A promise that resolves when the verification is successful.

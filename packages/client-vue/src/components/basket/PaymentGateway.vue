@@ -53,12 +53,12 @@
 import { defineComponent, onMounted, watch, ref, computed } from "vue";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind/headless-vue";
-import { useStyles, mergeStyles, UpwMarkdown } from "@upmind/upwind";
+import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
+import { useStyles, mergeStyles, UpwMarkdown } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, UpwSpinner } from "@upmind/upwind";
+import { UpwForm, UpwSpinner } from "@upmind-automation/upwind";
 
 // --- utils
 

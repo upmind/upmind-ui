@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { UpwListbox } from "@upmind/upwind";
+import { UpwListbox } from "@upmind-automation/upwind";
 
 const items = {
   typography: { label: "Typography", value: "typography" },

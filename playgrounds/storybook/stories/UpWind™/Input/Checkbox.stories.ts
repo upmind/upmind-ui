@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwCheckbox, UpwInput } from "@upmind/upwind";
+import { UpwCheckbox, UpwInput } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";

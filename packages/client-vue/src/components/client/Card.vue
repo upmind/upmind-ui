@@ -51,11 +51,16 @@
 import { defineComponent, inject, toRefs } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwIcon, UpwRadio, UpwDropdown, UpwBadge } from "@upmind/upwind";
+import {
+  UpwIcon,
+  UpwRadio,
+  UpwDropdown,
+  UpwBadge,
+} from "@upmind-automation/upwind";
 
 // --- utils
 import { useClipboard } from "@vueuse/core";

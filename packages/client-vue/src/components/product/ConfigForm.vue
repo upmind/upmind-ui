@@ -30,11 +30,11 @@
 import { defineComponent, toRefs } from "vue";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind/upwind";
+import { useStyles, mergeStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 import { additionalRenderers } from "../renderers";
 // --- components
-import { UpwForm, UpwInput } from "@upmind/upwind";
+import { UpwForm, UpwInput } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";

@@ -25,7 +25,7 @@
 
 <script>
 import { inject, defineComponent } from "vue";
-import { UpwIcon } from "@upmind/upwind";
+import { UpwIcon } from "@upmind-automation/upwind";
 import { startCase } from "lodash-es";
 
 export default defineComponent({

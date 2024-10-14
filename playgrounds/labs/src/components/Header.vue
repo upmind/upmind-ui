@@ -56,7 +56,7 @@
 <script>
 import { defineComponent } from "vue";
 import LogoIcon from "@/assets/logo.svg";
-import { UpwIcon } from "@upmind/upwind";
+import { UpwIcon } from "@upmind-automation/upwind";
 import UpmThemeSwitcher from "@/components/ThemeSwitcherDropdown.vue";
 import UpmResolutionSwitcher from "@/components/ResolutionSwitcher.vue";
 
