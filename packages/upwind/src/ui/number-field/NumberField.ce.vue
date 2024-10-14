@@ -40,7 +40,7 @@ import type { NumberFieldProps } from "./types";
 const props = withDefaults(defineProps<NumberFieldProps>(), {
   // -- variants
   size: "md",
-  width: "auto",
+  width: "full",
   // --- styles
   upwindConfig: () => ({ numberField: {} }),
   class: "",

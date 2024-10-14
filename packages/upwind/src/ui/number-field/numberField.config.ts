@@ -21,7 +21,7 @@ export const numberFieldVariants = cva(
 export const numberFieldRootVariants = cva("group inline-block", {
   variants: {
     width: {
-      auto: "auto min-w-[3.75rem]",
+      auto: "w-auto min-w-[3.75rem]",
       full: "w-full",
     },
   },

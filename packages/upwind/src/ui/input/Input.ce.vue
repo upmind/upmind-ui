@@ -28,6 +28,9 @@ import type { InputProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InputProps>(), {
+  size: "md",
+  width: "auto",
+  // ---
   upwindConfig: () => ({ input: {} }),
   class: "",
 });
@@ -47,6 +50,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   size: props.size,
+  width: props.width,
 }));
 
 const variants = useStyles(
