@@ -27,6 +27,9 @@ export interface RadioSelectProps {
   badge?: string;
   avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
+  placeholder?: string;
+  noneText?: string;
+  required?: boolean;
   // --- state
   items: RadioSelectItemProps[];
   modelValue?: string | RadioSelectItemProps;

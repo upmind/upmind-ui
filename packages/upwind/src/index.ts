@@ -79,7 +79,8 @@ import {
   type RadioSelectProps,
   type RadioSelectItemProps,
 } from "./ui/radioSelect";
-
+import { UwSelect, Select, type SelectProps } from "./ui/select";
+import { UwSkeleton, Skeleton } from "./ui/skeleton";
 // --- uw component utils
 export { toast } from "./ui/sonner";
 
@@ -125,6 +126,8 @@ export {
   PopoverTrigger,
   RadioSelect,
   Separator,
+  Select,
+  Skeleton,
   Sonner,
   Spinner,
   Tabs,
@@ -145,6 +148,7 @@ export {
   type NumberFieldProps,
   type RadioSelectProps,
   type RadioSelectItemProps,
+  type SelectProps,
   type TabItems,
   type TextareaProps,
 
@@ -163,6 +167,8 @@ export {
   UwIndicator,
   UwInput,
   UwNumberField,
+  UwSelect,
+  UwSkeleton,
   UwSonner,
   UwTabs,
   UwTooltip,
@@ -187,6 +193,8 @@ export function register() {
   customElements.define("uw-number-field", UwNumberField);
   customElements.define("uw-sonner", UwSonner);
   customElements.define("uw-spinner", UwSpinner);
+  customElements.define("uw-select", UwSelect);
+  customElements.define("uw-skeleton", UwSkeleton);
   customElements.define("uw-tabs", UwTabs);
   customElements.define("uw-tooltip", UwTooltip);
   customElements.define("uw-textarea", UwTextarea);
@@ -229,7 +237,9 @@ declare module "vue" {
     RadioSelect: typeof RadioSelect;
     Separator: typeof Separator;
     Sonner: typeof Sonner;
+    Skeleton: typeof Skeleton;
     Spinner: typeof Spinner;
+    Select: typeof Select;
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
     Textarea: typeof Textarea;
