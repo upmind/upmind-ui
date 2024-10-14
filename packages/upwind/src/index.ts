@@ -74,6 +74,7 @@ import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
 import { UwTooltip, Tooltip } from "./ui/tooltip";
 import { UwTextarea, Textarea, type TextareaProps } from "./ui/textarea";
 import { Separator } from "./ui/separator";
+import { Switch } from "./ui/switch";
 import {
   RadioSelect,
   type RadioSelectProps,
@@ -127,6 +128,7 @@ export {
   Separator,
   Sonner,
   Spinner,
+  Switch,
   Tabs,
   Textarea,
   Tooltip,
