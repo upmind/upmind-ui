@@ -4,6 +4,7 @@
       :disabled="!control.enabled"
       :model-value="control.data"
       @update:modelValue="onInput"
+      type="email"
     />
   </FormField>
 </template>
