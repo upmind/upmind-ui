@@ -5,25 +5,25 @@ import { type HTMLAttributes } from "vue";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 import type { IconProps } from "../icon";
+import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 
 import type { triggerVariants } from "./radioSelect.config";
 import type { VariantProps } from "class-variance-authority";
 type TriggerVariantsProp = VariantProps<typeof triggerVariants>;
 
-export interface RadioSelectItemProps {
+export interface RadioSelectItemProps extends RadioGroupItemProps {
+  // ---
   label: string;
-  sublabel?: string;
+  text?: string;
   badge?: string | string[];
-  value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
-  handler?: Function;
   class?: HTMLAttributes["class"];
 }
 
-export interface RadioSelectProps {
+export interface RadioSelectProps extends RadioGroupRootProps {
   label?: string;
-  sublabel?: string;
+  text?: string;
   badge?: string;
   avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
@@ -32,7 +32,6 @@ export interface RadioSelectProps {
   required?: boolean;
   // --- state
   items: RadioSelectItemProps[];
-  modelValue?: string | RadioSelectItemProps;
   loading?: boolean;
   // ---
   color?: ButtonProps["color"];
