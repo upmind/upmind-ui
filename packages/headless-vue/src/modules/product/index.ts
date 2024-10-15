@@ -34,6 +34,16 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   const lookups = computed(() => state.value.context.lookups);
   // syntactic sugar
   const product = computed(() => state.value.context?.lookups?.product);
+  const productImage = (size: string = "400x400") => {
+    const product = state.value.context?.lookups?.product;
+
+    if (!product?.full_url) return null;
+
+    const url = new URL(product.full_url);
+    url.searchParams.set("size", size);
+    return url.toString();
+  };
+
   const terms = computed(() => state.value.context?.lookups?.terms);
   const attributes = computed(() => state.value.context?.lookups?.attributes);
   const options = computed(() => state.value.context?.lookups?.options);
@@ -268,6 +278,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     // ---
     lookups,
     product,
+    productImage,
     terms,
     options,
     attributes,

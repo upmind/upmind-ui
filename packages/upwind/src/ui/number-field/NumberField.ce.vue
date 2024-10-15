@@ -47,7 +47,7 @@ const props = withDefaults(defineProps<NumberFieldProps>(), {
 });
 
 const emits = defineEmits<{
-  (e: "update:modelValue", payload: string | number): void;
+  (e: "update:modelValue", payload: number): void;
 }>();
 
 const delegatedProps = computed(() =>

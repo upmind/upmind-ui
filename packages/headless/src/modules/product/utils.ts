@@ -3,7 +3,7 @@ import { useSystem } from "../system";
 import { TrialEndActionTypes } from "./services";
 
 // --- utils
-import { useTranslateName } from "../../utils";
+import { useTranslateName, useTranslateField } from "../../utils";
 import {
   find,
   forEach,
@@ -182,12 +182,22 @@ export const parseSubproduct = (
         pick(rawSubproduct.category, [
           "id",
           "name",
+          "description",
+          "short_description",
           "multiple",
           "required",
           "price_override",
         ])
       );
       option.name = useTranslateName(rawSubproduct.category);
+      option.description = useTranslateField(
+        rawSubproduct.category,
+        "description"
+      );
+      option.short_description = useTranslateField(
+        rawSubproduct.category,
+        "short_description"
+      );
       // get the prev values...if there are any
       const values = get(option, "values", []);
 
@@ -203,6 +213,11 @@ export const parseSubproduct = (
         "min_order_quantity",
       ]);
       value.name = useTranslateName(rawSubproduct);
+      value.description = useTranslateField(rawSubproduct, "description");
+      value.short_description = useTranslateField(
+        rawSubproduct,
+        "short_description"
+      );
       value.canChangeQuantity = rawSubproduct.order_type == 2;
 
       // get the prices for this subproduct
@@ -279,6 +294,11 @@ export const parsePromotion = (
     return map(data.promotions, rawPromo => {
       const promo: any = pick(rawPromo, ["amount", "amount_formatted", "code"]);
       promo.name = useTranslateName(rawPromo);
+      promo.description = useTranslateField(rawPromo, "description");
+      promo.short_description = useTranslateField(
+        rawPromo,
+        "short_description"
+      );
       promo.display = promotion_display_type;
       promo.mixed = data.mixed_promotions;
       return promo;

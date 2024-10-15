@@ -149,7 +149,7 @@ export const useBasket = () => {
 
     // --- Item CRUD
 
-    updateItem: async (itemId: any) => {
+    updateItem: async (itemId: string): Promise<ActorRef<any, any>> => {
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
         return waitFor(item, state => !state.matches("processing")).then(
           state => {
@@ -163,7 +163,7 @@ export const useBasket = () => {
       });
     },
 
-    removeItem: async (itemId: any) => {
+    removeItem: async (itemId: any): Promise<any> => {
       return sendToItem(itemId, "REMOVE", { itemId }).then(item => {
         return waitFor(item, state =>
           ["available.complete", "complete", "error"].some(state.matches)
@@ -171,7 +171,7 @@ export const useBasket = () => {
           if (state.matches("error")) {
             return Promise.reject(state.context.error);
           }
-          return Promise.resolve(item);
+          return Promise.resolve();
         });
         // .finally(() => service.send({ type: "REFRESH" }));
       });
