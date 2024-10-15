@@ -66,8 +66,8 @@
                     "link": "/@upmind/headless/namespaces/utils/functions/useTranslateField.md"
                   },
                   {
-                    "text": "useTranslateName",
-                    "link": "/@upmind/headless/namespaces/utils/functions/useTranslateName.md"
+                    "text": "useTranslateField",
+                    "link": "/@upmind/headless/namespaces/utils/functions/useTranslateField.md"
                   },
                   {
                     "text": "useUrl",
@@ -165,8 +165,14 @@
             "text": "authSubscription",
             "link": "/@upmind/headless/functions/authSubscription.md"
           },
-          { "text": "test", "link": "/@upmind/headless/functions/test.md" },
-          { "text": "useApi", "link": "/@upmind/headless/functions/useApi.md" },
+          {
+            "text": "test",
+            "link": "/@upmind/headless/functions/test.md"
+          },
+          {
+            "text": "useApi",
+            "link": "/@upmind/headless/functions/useApi.md"
+          },
           {
             "text": "useBasket",
             "link": "/@upmind/headless/functions/useBasket.md"

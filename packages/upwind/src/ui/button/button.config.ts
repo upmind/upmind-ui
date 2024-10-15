@@ -40,7 +40,7 @@ export const buttonVariants = cva(
         true: "w-full basis-full",
       },
       loading: {
-        true: "pointer-events-none [&>not(.spinner)]:opacity-50",
+        true: "pointer-events-none [&>:not(.spinner)]:opacity-50",
       },
     },
 
@@ -300,6 +300,7 @@ export const buttonVariants = cva(
       variant: "flat",
       color: "base",
       size: "md",
+      loading: false,
     },
   }
 );
