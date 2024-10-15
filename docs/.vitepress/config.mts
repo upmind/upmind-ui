@@ -6,6 +6,7 @@ export default defineConfig({
   title: "Upmind",
   description: "Upmind open-source libs documentation",
   srcDir: './',
+  srcExclude: ['**/README.md'],
   outDir: './dist',
   head: [['link', { rel: 'icon', href: '/logo.svg' }]],
   themeConfig: {
