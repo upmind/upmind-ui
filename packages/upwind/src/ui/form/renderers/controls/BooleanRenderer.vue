@@ -96,5 +96,5 @@ const delegatedProps = computed(() => {
 
 <script lang="ts">
 import { isBooleanControl } from "@jsonforms/core";
-export const tester = { rank: 2, controlType: isBooleanControl };
+export const tester = { rank: 1, controlType: isBooleanControl };
 </script>
