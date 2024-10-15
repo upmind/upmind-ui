@@ -17,6 +17,7 @@ type ItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface ComboboxItemProps {
   label: string;
+  selectedLabel: string;
   sublabel?: string;
   tag?: string | string[];
   value: string;
