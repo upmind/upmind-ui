@@ -123,7 +123,6 @@ export const useUpwindArrayRenderer = <
   };
 
   const onInput = debounce((checked: boolean, value: any) => {
-    debugger;
     if (checked) {
       input.addItem(input.control.value.path, value);
     } else {
