@@ -41,23 +41,23 @@ export const itemVariants = cva(
   {
     variants: {
       color: {
-        base: "data-[highlighted]:bg-base-50 data-[highlighted]:text-base-foreground",
+        base: "data-[highlighted]:bg-base-100 data-[highlighted]:text-base-foreground",
         primary:
-          "data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary",
+          "data-[highlighted]:bg-primary-100 data-[highlighted]:text-primary",
         secondary:
-          "data-[highlighted]:bg-secondary-50 data-[highlighted]:text-secondary",
+          "data-[highlighted]:bg-secondary-100 data-[highlighted]:text-secondary",
         accent:
-          "data-[highlighted]:bg-accent-50 data-[highlighted]:text-accent",
+          "data-[highlighted]:bg-accent-100 data-[highlighted]:text-accent",
         promotion:
-          "data-[highlighted]:bg-promotion-50 data-[highlighted]:text-promotion",
+          "data-[highlighted]:bg-promotion-100 data-[highlighted]:text-promotion",
         destructive:
-          "data-[highlighted]:bg-destructive-50 data-[highlighted]:text-destructive",
+          "data-[highlighted]:bg-destructive-100 data-[highlighted]:text-destructive",
         success:
-          "data-[highlighted]:bg-success-50 data-[highlighted]:text-success",
-        info: "data-[highlighted]:bg-info-50 data-[highlighted]:text-info",
-        error: "data-[highlighted]:bg-error-50 data-[highlighted]:text-error",
+          "data-[highlighted]:bg-success-100 data-[highlighted]:text-success",
+        info: "data-[highlighted]:bg-info-100 data-[highlighted]:text-info",
+        error: "data-[highlighted]:bg-error-100 data-[highlighted]:text-error",
         warning:
-          "data-[highlighted]:bg-warning-50 data-[highlighted]:text-warning",
+          "data-[highlighted]:bg-warning-100 data-[highlighted]:text-warning",
       },
     },
     defaultVariants: {

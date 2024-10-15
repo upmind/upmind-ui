@@ -49,6 +49,7 @@ export interface ComboboxProps
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
   width?: ItemVariantProps["width"];
+  iconSize?: IconProps["size"];
   // --- styles
   upwindConfig?: { combobox: Partial<ComboboxProps> };
   class?: HTMLAttributes["class"];
