@@ -3,8 +3,9 @@
     <div class="group flex w-full" :class="containerClasses">
       <Combobox
         :items="countryItems"
-        class="!w-44 rounded-r-none border-r-0 !text-opacity-50 focus:outline-none"
-        popover-class="!w-44"
+        class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50 focus:outline-none"
+        popover-class="!w-72 ml-8"
+        width="full"
         icon-size="3xs"
         searchable
       />
@@ -13,7 +14,7 @@
         :model-value="control.data"
         :focus="false"
         @update:modelValue="onInput"
-        type="url"
+        type="tel"
         class="rounded-l-none focus:outline-none"
       />
     </div>
@@ -22,7 +23,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { and, isStringControl, optionIs } from "@jsonforms/core";
 
@@ -36,7 +37,7 @@ import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { isNil, get } from "lodash-es";
+import { get } from "lodash-es";
 import { ringClasses, invalidRingClasses } from "../../../input/input.config";
 
 // --- types
@@ -52,9 +53,10 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
         country.countryCallingCodes && country.countryCallingCodes.length > 0
     )
     .map(country => ({
-      label: country.alpha3,
-      // tag: country.countryCallingCodes[0],
-      value: country.countryCallingCodes[0],
+      label: country.name,
+      selectedLabel: country.countryCallingCodes[0],
+      tag: country.countryCallingCodes[0],
+      value: country.name,
     }))
 );
 
