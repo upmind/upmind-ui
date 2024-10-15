@@ -16,6 +16,8 @@ import PasswordRenderer, {
 } from "./PasswordRenderer.vue";
 import NumberRenderer, { tester as NumberTest } from "./NumberRenderer.vue";
 import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
+import UrlRenderer, { tester as UrlTest } from "./UrlRenderer.vue";
+import EmailRenderer, { tester as EmailTest } from "./EmailRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -28,4 +30,6 @@ export const controlRenderers = [
   registerEntry(NumberRenderer, NumberTest),
   registerEntry(EnumRenderer, EnumTest),
   registerEntry(PasswordRenderer, PasswordTest),
+  registerEntry(UrlRenderer, UrlTest),
+  registerEntry(EmailRenderer, EmailTest),
 ];
