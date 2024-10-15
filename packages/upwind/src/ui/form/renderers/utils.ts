@@ -152,3 +152,17 @@ export function registerEntry(
   };
   return entry;
 }
+
+export function replaceClassNames(
+  classStrings: string[],
+  replacements: Record<string, string>
+): string[] {
+  return classStrings.flatMap(classes => {
+    let updatedClasses = classes;
+    Object.entries(replacements).forEach(([from, to]) => {
+      const regex = new RegExp(`\\b${from}\\b`, "g");
+      updatedClasses = updatedClasses.replace(regex, to);
+    });
+    return updatedClasses.split(" ");
+  });
+}

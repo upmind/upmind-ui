@@ -4,7 +4,7 @@
       <Combobox
         v-model="selectedCountry"
         :items="countryItems"
-        class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50 focus:outline-none"
+        class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
         popover-class="!w-72 ml-8"
         width="full"
         icon-size="3xs"
@@ -37,7 +37,7 @@ import { Input } from "../../../input";
 import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpwindRenderer, replaceClassNames } from "../utils";
 import { get, isEmpty } from "lodash-es";
 import { ringClasses, invalidRingClasses } from "../../../input/input.config";
 
@@ -60,10 +60,9 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
 
 const selectedCountry = ref("");
 
-const containerClasses = computed(() => {
-  const updatedRingClasses = ringClasses.replace(/\bvisible\b/g, "within");
-  return [updatedRingClasses, invalidRingClasses].join(" ");
-});
+const containerClasses = computed(() =>
+  replaceClassNames([ringClasses, invalidRingClasses], { visible: "within" })
+);
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
