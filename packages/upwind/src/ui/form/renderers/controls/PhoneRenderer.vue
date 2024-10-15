@@ -19,6 +19,11 @@
         class="rounded-l-none focus:outline-none"
       />
     </div>
+
+    <!-- Avoid purge -->
+    <span
+      class="ring-invalid hidden ring-2 ring-ring ring-offset-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+    ></span>
   </FormField>
 </template>
 
