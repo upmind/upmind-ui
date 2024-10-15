@@ -59,7 +59,7 @@
           <template #append>
             <Icon
               v-if="!props.loading"
-              size="2xs"
+              :size="props.iconSize"
               class="ml-auto rotate-180 opacity-50 transition-all duration-200"
               icon="arrow-up"
             />
@@ -95,7 +95,7 @@
 
               <Icon
                 icon="check"
-                size="3xs"
+                :size="props.iconSize"
                 :class="
                   cn(
                     'ml-auto',
@@ -158,6 +158,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   align: "end",
   // ---
   icon: "",
+  iconSize: "2xs",
 
   // --- styles
   upwindConfig: () => ({ combobox: {} }),

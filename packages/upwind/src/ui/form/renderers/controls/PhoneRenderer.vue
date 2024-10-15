@@ -1,0 +1,94 @@
+<template>
+  <FormField v-bind="delegatedProps">
+    <div class="group flex w-full" :class="containerClasses">
+      <Combobox
+        :items="countryItems"
+        class="!w-44 rounded-r-none border-r-0 !text-opacity-50 focus:outline-none"
+        popover-class="!w-44"
+        icon-size="3xs"
+        searchable
+      />
+      <Input
+        :disabled="!control.enabled"
+        :model-value="control.data"
+        :focus="false"
+        @update:modelValue="onInput"
+        type="url"
+        class="rounded-l-none focus:outline-none"
+      />
+    </div>
+  </FormField>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { computed, ref } from "vue";
+import { useJsonFormsControl } from "@jsonforms/vue";
+import { and, isStringControl, optionIs } from "@jsonforms/core";
+
+// --- internal
+import { countries } from "country-data";
+
+// --- components
+import FormField from "../../FormField.vue";
+import { Input } from "../../../input";
+import { Combobox, type ComboboxItemProps } from "../../../combobox";
+
+// --- utils
+import { useUpwindRenderer } from "../utils";
+import { isNil, get } from "lodash-es";
+import { ringClasses, invalidRingClasses } from "../../../input/input.config";
+
+// --- types
+import type { ControlElement } from "@jsonforms/core";
+import type { RendererProps } from "@jsonforms/vue";
+// ----------------------------------------------
+
+const props = defineProps<RendererProps<ControlElement>>();
+const countryItems = computed<ComboboxItemProps[]>(() =>
+  countries.all
+    .filter(
+      country =>
+        country.countryCallingCodes && country.countryCallingCodes.length > 0
+    )
+    .map(country => ({
+      label: country.alpha3,
+      // tag: country.countryCallingCodes[0],
+      value: country.countryCallingCodes[0],
+    }))
+);
+
+const containerClasses = computed(() => {
+  const updatedRingClasses = ringClasses.replace(/\bvisible\b/g, "within");
+  return [updatedRingClasses, invalidRingClasses].join(" ");
+});
+
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props)
+);
+
+const delegatedProps = computed(() => {
+  const options = get(appliedOptions.value, "options", {});
+
+  return {
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
+    // ---
+    label: control.value.label,
+    description: control.value.description,
+    // ---
+    required: control.value.required,
+    disabled: !control.value.enabled,
+    visible: control.value.visible,
+    ...options,
+  };
+});
+</script>
+
+<script lang="ts">
+export const tester = {
+  rank: 2,
+  controlType: and(isStringControl, optionIs("format", "phone")),
+};
+</script>
