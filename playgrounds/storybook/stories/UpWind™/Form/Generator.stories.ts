@@ -80,6 +80,12 @@ const meta: Meta<typeof Form> = {
           description: "Please enter your full name",
           i18n: "form.name",
         },
+
+        password: {
+          type: "string",
+          title: "Password",
+        },
+
         age: {
           type: "integer",
           title: "How old are you?",
@@ -110,7 +116,6 @@ const meta: Meta<typeof Form> = {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
           i18n: "form.accept",
-          enum: [true],
         },
 
         personalData: {
@@ -189,6 +194,13 @@ const meta: Meta<typeof Form> = {
         },
         {
           type: "Control",
+          scope: "#/properties/password",
+          options: {
+            format: "password",
+          },
+        },
+        {
+          type: "Control",
           scope: "#/properties/age",
         },
         {
@@ -214,6 +226,10 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/accept",
+          format: "switch",
+          options: {
+            format: "switch",
+          },
         },
       ],
     },
