@@ -83,7 +83,7 @@ const meta: Meta<typeof Form> = {
 
         password: {
           type: "string",
-          title: "Passwprd",
+          title: "Password",
         },
 
         age: {
@@ -116,7 +116,6 @@ const meta: Meta<typeof Form> = {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
           i18n: "form.accept",
-          format: "switch",
         },
 
         personalData: {
