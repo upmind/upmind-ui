@@ -2,6 +2,7 @@
   <FormField v-bind="delegatedProps">
     <div class="group flex w-full" :class="containerClasses">
       <Combobox
+        v-model="selectedCountry"
         :items="countryItems"
         class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50 focus:outline-none"
         popover-class="!w-72 ml-8"
@@ -11,7 +12,7 @@
       />
       <Input
         :disabled="!control.enabled"
-        :model-value="control.data"
+        :model-value="control.data?.number"
         :focus="false"
         @update:modelValue="onInput"
         type="tel"
@@ -23,7 +24,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { and, isStringControl, optionIs } from "@jsonforms/core";
 
@@ -37,7 +38,7 @@ import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get } from "lodash-es";
+import { get, isEmpty } from "lodash-es";
 import { ringClasses, invalidRingClasses } from "../../../input/input.config";
 
 // --- types
@@ -48,17 +49,16 @@ import type { RendererProps } from "@jsonforms/vue";
 const props = defineProps<RendererProps<ControlElement>>();
 const countryItems = computed<ComboboxItemProps[]>(() =>
   countries.all
-    .filter(
-      country =>
-        country.countryCallingCodes && country.countryCallingCodes.length > 0
-    )
+    .filter(country => !isEmpty(get(country, "countryCallingCodes")))
     .map(country => ({
       label: country.name,
       selectedLabel: country.countryCallingCodes[0],
       tag: country.countryCallingCodes[0],
-      value: country.name,
+      value: `${country.name}||${country.countryCallingCodes[0]}`,
     }))
 );
+
+const selectedCountry = ref("");
 
 const containerClasses = computed(() => {
   const updatedRingClasses = ringClasses.replace(/\bvisible\b/g, "within");
