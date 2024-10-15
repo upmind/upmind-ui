@@ -1,25 +1,39 @@
 <template>
   <FormField v-bind="delegatedProps">
-    <Input
-      :disabled="!control.enabled"
-      :max="safeMax"
-      :min="safeMin"
-      :model-value="control.data"
-      @update:modelValue="onInput"
-      :type="unmask ? 'text' : 'password'"
-    />
+    <div class="relative w-full">
+      <Input
+        class="pr-12"
+        :disabled="!control.enabled"
+        :max="safeMax"
+        :min="safeMin"
+        :model-value="control.data"
+        @update:modelValue="onInput"
+        :type="unmask ? 'text' : 'password'"
+      />
+      <Button
+        class="absolute right-0 top-0 my-auto mr-2 transition-all duration-300"
+        :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
+        variant="link"
+        size="sm"
+        @click="unmask = !unmask"
+      >
+        <Icon icon="view" size="xs" />
+      </Button>
+    </div>
   </FormField>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import { and, formatIs } from "@jsonforms/core";
+import { and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import FormField from "../../FormField.vue";
 import { Input } from "../../../input";
+import { Button } from "../../../button";
+import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -82,6 +96,6 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 import { isStringControl } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, formatIs("password")),
+  controlType: and(isStringControl, optionIs("format", "password")),
 };
 </script>
