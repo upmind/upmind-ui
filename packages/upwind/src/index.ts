@@ -79,7 +79,13 @@ import {
   RadioSelect,
   type RadioSelectProps,
   type RadioSelectItemProps,
-} from "./ui/radioSelect";
+} from "./ui/radio-select";
+import {
+  RadioCards,
+  type RadioCardsProps,
+  type RadioCardsItemProps,
+} from "./ui/radio-cards";
+
 import { UwSelect, Select, type SelectProps } from "./ui/select";
 import { UwSkeleton, Skeleton } from "./ui/skeleton";
 // --- uw component utils
@@ -126,6 +132,7 @@ export {
   PopoverContent,
   PopoverTrigger,
   RadioSelect,
+  RadioCards,
   Separator,
   Select,
   Skeleton,
@@ -150,6 +157,8 @@ export {
   type NumberFieldProps,
   type RadioSelectProps,
   type RadioSelectItemProps,
+  type RadioCardsProps,
+  type RadioCardsItemProps,
   type SelectProps,
   type TabItems,
   type TextareaProps,
@@ -237,6 +246,7 @@ declare module "vue" {
     PopoverContent: typeof PopoverContent;
     PopoverTrigger: typeof PopoverTrigger;
     RadioSelect: typeof RadioSelect;
+    RadioCards: typeof RadioCards;
     Separator: typeof Separator;
     Sonner: typeof Sonner;
     Skeleton: typeof Skeleton;
