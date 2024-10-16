@@ -30,7 +30,6 @@ export interface InputProps {
   // --- variants
   size?: InputVariantProps["size"];
   width?: InputVariantProps["width"];
-  focus?: InputVariantProps["focus"];
   // ---
   upwindConfig?: { input: Partial<InputVariantProps> };
   class?: HTMLAttributes["class"];
