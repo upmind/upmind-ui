@@ -44,7 +44,7 @@ export interface ComboboxProps
   searchable?: boolean;
   searchMessage?: string;
   emptyMessage?: string;
-
+  filterFunction?: (val: any, term: any) => any;
   // --- variants
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
