@@ -1,31 +1,31 @@
 <template>
   <Collapsible v-model:open="open">
-    <CollapsibleTrigger class="group w-full">
-      <Button
-        :color="props.color"
-        :variant="props.variant"
-        :class="cn(variants.radioSelect.trigger, props.class)"
-        block
-        size="sm"
-      >
-        <span v-if="selected">
-          <slot name="selected" v-bind="{ item: selected }">
-            {{ selected?.label || props.label }}
-          </slot>
-        </span>
+    <CollapsibleTrigger
+      :as="Button"
+      type="button"
+      :color="props.color"
+      :variant="props.variant"
+      :class="cn('group w-full', variants.radioSelect.trigger, props.class)"
+      block
+      size="sm"
+    >
+      <span v-if="selected">
+        <slot name="selected" v-bind="{ item: selected }">
+          {{ selected?.label || props.label }}
+        </slot>
+      </span>
 
-        <span v-else class="opacity-50">
-          <slot name="placeholder">{{ props.placeholder }}</slot>
-        </span>
-      </Button>
+      <span v-else class="opacity-50">
+        <slot name="placeholder">{{ props.placeholder }}</slot>
+      </span>
     </CollapsibleTrigger>
 
     <CollapsibleContent>
       <RadioGroup
-        v-model="modelValue"
+        :model-value="modelValue"
         :default-value="defaultValue"
         :class="variants.radioSelect.items"
-        @update:model-value="open = !open"
+        @update:model-value="onChange"
       >
         <div
           v-for="(item, index) in items"
@@ -45,29 +45,6 @@
           >
             <slot name="item" v-bind="{ item, index }">
               {{ item.label }}
-            </slot>
-          </Label>
-        </div>
-
-        <!-- Reset/Clear/None Item -->
-        <div :class="cn(variants.radioSelect.item)">
-          <RadioGroupItem
-            :id="`${props.name}-none`"
-            :value="undefined"
-            :name="props.noneText"
-            :class="variants.radioSelect.input"
-          />
-
-          <Label
-            :for="`${props.name}-none`"
-            :class="cn(variants.radioSelect.label)"
-            v-if="noneText"
-          >
-            <slot
-              name="none"
-              v-bind="{ item: { value: null, label: props.noneText } }"
-            >
-              {{ props.noneText }}
             </slot>
           </Label>
         </div>
@@ -93,7 +70,7 @@ import {
 } from "../collapsible";
 import { Button } from "../button";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
-
+import { Label } from "../label";
 // --- utils
 import { find } from "lodash-es";
 
@@ -107,7 +84,6 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   loading: false,
   placeholder: "Select an option",
   required: false,
-  noneText: "None",
   // -- variants
   color: "base",
   variant: "control",
@@ -125,7 +101,6 @@ const open = ref(false);
 
 const meta = computed(() => ({
   color: props.color,
-  width: props.width,
 }));
 
 const variants = useStyles(
@@ -134,8 +109,23 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  radioSelect: { trigger: string; content: string };
+  radioSelect: {
+    trigger: string;
+    items: string;
+    item: string;
+    input: string;
+    label: string;
+  };
 }>;
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
+
+// allow for toggle of selected item
+function onChange(value: any) {
+  if (!props.required && modelValue.value == value)
+    modelValue.value = undefined;
+  else modelValue.value = value;
+
+  open.value = false;
+}
 </script>

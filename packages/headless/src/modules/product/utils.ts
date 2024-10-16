@@ -419,6 +419,21 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   // an d allow for easy i18n
   const details = [];
 
+  //  product category
+  details.push({
+    key: "category",
+    name: lookups.product.category,
+    category: undefined,
+    cycle: undefined,
+    quantity: undefined,
+    discount: undefined,
+    total: undefined,
+    formatted: undefined,
+    invalid: false,
+  });
+
+  //  product meta
+
   // term
   const term = find(lookups.terms, [
     "billing_cycle_months",

@@ -63,7 +63,11 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
       "lookups.options",
       "lookups.provision_fields.properties",
     ]),
-    isConfigured: stateMatches(state, ["available.configured"]),
+    isConfigured: stateMatches(state, [
+      "available.configured",
+      "available.complete",
+      "complete",
+    ]),
     isCalculating: contextMatches(state, ["summary.isCalculating"]),
     isProcessing: stateMatches(state, ["processing", "complete"]),
     // ---
@@ -191,6 +195,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   }
 
   function setOptions(option: any, values: any) {
+    debugger;
     const safeValues = isArray(values) ? values : [values];
     set(model.value.options, option.id, {}); // reset all previous options
     forEach(safeValues, value => {
