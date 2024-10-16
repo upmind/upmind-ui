@@ -167,6 +167,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   // ---
   icon: "",
   iconSize: "2xs",
+  emitValue: false,
 
   // --- styles
   upwindConfig: () => ({ combobox: {} }),
@@ -209,7 +210,10 @@ const doSelect = (item: String | ComboboxItemProps) => {
   // Use the ref value
   if (hasChanged) {
     value.value = selected;
-    emit("update:modelValue", item); // Use the emit function directly
+    emit(
+      "update:modelValue",
+      props.emitValue && !isString(item) ? value.value.value : item
+    ); // Use the emit function directly
   }
   // finnaly close the popover
   open.value = false;
