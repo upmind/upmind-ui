@@ -3,7 +3,6 @@
     <InputContainer class="flex">
       <Combobox
         @update:modelValue="onCountyInput"
-        :model-value="control.data?.country"
         :items="countryItems"
         class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
         popover-class="!w-72 ml-8"
@@ -11,7 +10,6 @@
         icon-size="3xs"
         searchable
         :filter-function="filterFunction"
-        emit-value
       />
       <Input
         :disabled="!control.enabled"
@@ -80,7 +78,8 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 const phone = ref({ ...control.value.data });
 
 const onCountyInput = (value: ComboboxItemProps) => {
-  set(phone.value, "country", value);
+  set(phone.value, "country", value.value);
+  set(phone.value, "countryCallingCode", value.tag);
   onInput({
     ...phone.value,
     currentTarget: { value: phone.value },
