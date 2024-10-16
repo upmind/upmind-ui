@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { useI18n } from "vue-i18n";
 // --- internal
 import * as messages from "./locales";
+import { countries } from "country-data";
 
 // --- components
 import { Form } from "@upmind/upwind";
@@ -82,7 +83,20 @@ const meta: Meta<typeof Form> = {
         },
 
         phone: {
-          type: "string",
+          type: "object",
+          title: "Phone",
+          isPhoneNumber: "true",
+          properties: {
+            number: {
+              type: ["string", "null"],
+              title: "Phone number ( with dailing code )",
+            },
+
+            country: {
+              type: ["string", "null"],
+              title: "Country",
+            },
+          },
         },
 
         age: {
@@ -194,9 +208,6 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/phone",
-          options: {
-            format: "phone",
-          },
         },
         {
           type: "Control",

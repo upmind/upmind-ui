@@ -2,7 +2,8 @@
   <FormField v-bind="delegatedProps">
     <div class="group flex w-full" :class="containerClasses">
       <Combobox
-        v-model="selectedCountry"
+        @update:modelValue="onCountyInput"
+        :model-value="control.data?.country"
         :items="countryItems"
         class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
         popover-class="!w-72 ml-8"
@@ -10,12 +11,12 @@
         icon-size="3xs"
         searchable
         :filter-function="filterFunction"
+        emit-value
       />
       <Input
         :disabled="!control.enabled"
         :model-value="control.data?.number"
-        :focus="false"
-        @update:modelValue="onInput"
+        @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"
       />
@@ -32,7 +33,6 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { and, isStringControl, optionIs } from "@jsonforms/core";
 
 // --- internal
 import { countries } from "country-data";
@@ -44,13 +44,17 @@ import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
 import { useUpwindRenderer, replaceClassNames } from "../utils";
-import { get, isEmpty } from "lodash-es";
+import { get, isEmpty, set } from "lodash-es";
 import { ringClasses, invalidRingClasses } from "../../../input/input.config";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
+
+defineOptions({
+  name: "PhoneRenderer",
+});
 
 const props = defineProps<RendererProps<ControlElement>>();
 const countryItems = computed<ComboboxItemProps[]>(() =>
@@ -63,8 +67,6 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
       value: country.alpha2,
     }))
 );
-
-const selectedCountry = ref("");
 
 const filterFunction = (list: ComboboxItemProps[], term: string) => {
   return list.filter(country => {
@@ -83,6 +85,23 @@ const containerClasses = computed(() =>
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
+
+const phone = ref({ ...control.value.data });
+const onCountyInput = (value: ComboboxItemProps) => {
+  set(phone.value, "country", value);
+  onInput({
+    ...phone.value,
+    currentTarget: { value: phone.value },
+  });
+};
+
+const onPhoneInput = (value: string | number) => {
+  set(phone.value, "number", value);
+  onInput({
+    ...phone.value,
+    currentTarget: { value: phone.value },
+  });
+};
 
 const delegatedProps = computed(() => {
   const options = get(appliedOptions.value, "options", {});
@@ -104,8 +123,13 @@ const delegatedProps = computed(() => {
 </script>
 
 <script lang="ts">
+import { and, isObjectControl, schemaMatches } from "@jsonforms/core";
+
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, optionIs("format", "phone")),
+  controlType: and(
+    isObjectControl,
+    schemaMatches(schema => !!schema?.isPhoneNumber)
+  ),
 };
 </script>

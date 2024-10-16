@@ -40,6 +40,7 @@ export interface ComboboxProps
   items: ComboboxItemProps[];
   modelValue?: string | ComboboxItemProps;
   loading?: boolean;
+  emitValue?: boolean;
   // --- Search
   searchable?: boolean;
   searchMessage?: string;
