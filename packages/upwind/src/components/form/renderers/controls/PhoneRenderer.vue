@@ -37,7 +37,7 @@ import UpwListbox from "../../../listbox/Listbox.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get, set, reduce, keys } from "lodash-es";
+import { get, set, reduce } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";

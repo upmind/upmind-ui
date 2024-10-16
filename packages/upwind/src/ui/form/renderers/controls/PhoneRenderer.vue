@@ -1,6 +1,6 @@
 <template>
   <FormField v-bind="delegatedProps">
-    <div class="group flex w-full" :class="containerClasses">
+    <InputContainer class="flex">
       <Combobox
         @update:modelValue="onCountyInput"
         :model-value="control.data?.country"
@@ -20,12 +20,7 @@
         type="tel"
         class="rounded-l-none focus:outline-none"
       />
-    </div>
-
-    <!-- Avoid purge -->
-    <span
-      class="ring-invalid hidden ring-2 ring-ring ring-offset-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-    ></span>
+    </InputContainer>
   </FormField>
 </template>
 
@@ -39,13 +34,13 @@ import { countries } from "country-data";
 
 // --- components
 import FormField from "../../FormField.vue";
+import InputContainer from "../containers/InputContainer.vue";
 import { Input } from "../../../input";
 import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
-import { useUpwindRenderer, replaceClassNames } from "../utils";
+import { useUpwindRenderer } from "../utils";
 import { get, isEmpty, set } from "lodash-es";
-import { ringClasses, invalidRingClasses } from "../../../input/input.config";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -78,15 +73,12 @@ const filterFunction = (list: ComboboxItemProps[], term: string) => {
   });
 };
 
-const containerClasses = computed(() =>
-  replaceClassNames([ringClasses, invalidRingClasses], { visible: "within" })
-);
-
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
 
 const phone = ref({ ...control.value.data });
+
 const onCountyInput = (value: ComboboxItemProps) => {
   set(phone.value, "country", value);
   onInput({
