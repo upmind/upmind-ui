@@ -9,6 +9,7 @@
         width="full"
         icon-size="3xs"
         searchable
+        :filter-function="filterFunction"
       />
       <Input
         :disabled="!control.enabled"
@@ -59,11 +60,21 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
       label: country.name,
       selectedLabel: country.countryCallingCodes[0],
       tag: country.countryCallingCodes[0],
-      value: `${country.name}||${country.countryCallingCodes[0]}`,
+      value: country.alpha2,
     }))
 );
 
 const selectedCountry = ref("");
+
+const filterFunction = (list: ComboboxItemProps[], term: string) => {
+  return list.filter(country => {
+    return (
+      country.label.toLowerCase().includes(term.toLowerCase()) ||
+      country.selectedLabel.toLowerCase().includes(term.toLowerCase()) ||
+      country.value.toLowerCase().includes(term.toLowerCase())
+    );
+  });
+};
 
 const containerClasses = computed(() =>
   replaceClassNames([ringClasses, invalidRingClasses], { visible: "within" })
