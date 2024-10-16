@@ -89,12 +89,17 @@ const meta: Meta<typeof Form> = {
           properties: {
             number: {
               type: ["string", "null"],
-              title: "Phone number ( with dailing code )",
+              title: "Phone number",
             },
 
             country: {
               type: ["string", "null"],
               title: "Country",
+            },
+
+            countryCallingCode: {
+              type: ["string", "null"],
+              title: "Country calling code",
             },
           },
         },
