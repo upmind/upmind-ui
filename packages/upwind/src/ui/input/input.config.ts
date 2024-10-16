@@ -2,10 +2,20 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
+export const ringClasses =
+  "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md";
+
+export const invalidRingClasses =
+  "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
+
 export const inputVariants = cva(
-  "bg-control-background aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2 flex rounded-md border border-control text-control-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  `bg-control-background flex rounded-md border border-control text-control-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50`,
   {
     variants: {
+      focus: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "focus-visible:ring-0 focus-visible:ring-offset-0",
+      },
       width: {
         auto: "w-auto min-w-[3.75rem]",
         full: "w-full",

@@ -81,9 +81,8 @@ const meta: Meta<typeof Form> = {
           i18n: "form.name",
         },
 
-        password: {
+        phone: {
           type: "string",
-          title: "Password",
         },
 
         age: {
@@ -194,9 +193,9 @@ const meta: Meta<typeof Form> = {
         },
         {
           type: "Control",
-          scope: "#/properties/password",
+          scope: "#/properties/phone",
           options: {
-            format: "password",
+            format: "phone",
           },
         },
         {

@@ -31,35 +31,17 @@
 
           <span class="flex flex-col justify-start gap-y-2 text-left">
             <span
-              v-if="value?.label || props?.label"
+              v-if="value?.selectedLabel || value?.label || props?.label"
               class="truncate leading-none"
             >
-              {{ value?.label || props.label }}
-            </span>
-
-            <span
-              v-if="value?.sublabel || props?.sublabel"
-              class="leading-none opacity-50"
-            >
-              {{ value?.sublabel || props.sublabel }}
-            </span>
-
-            <span v-if="value?.tag || props?.tag" class="flex flex-wrap">
-              <Badge
-                class="text-center font-bold leading-none"
-                :color="props.color"
-                variant="tonal"
-                size="xs"
-              >
-                {{ value?.tag || props.tag }}
-              </Badge>
+              {{ value?.selectedLabel || value?.label || props.label }}
             </span>
           </span>
 
           <template #append>
             <Icon
               v-if="!props.loading"
-              size="2xs"
+              :size="props.iconSize"
               class="ml-auto rotate-180 opacity-50 transition-all duration-200"
               icon="arrow-up"
             />
@@ -89,13 +71,19 @@
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="3xs" />
               <Icon v-if="item.icon" :icon="item.icon" size="3xs" />
-              <span v-if="item.label" class="leading-none">{{
-                item.label
-              }}</span>
+              <span class="flex w-full items-center justify-between">
+                <span v-if="item.label" class="leading-none">{{
+                  item.label
+                }}</span>
+                <span v-if="item.tag" class="leading-none opacity-50">{{
+                  item.tag
+                }}</span>
+              </span>
 
               <Icon
+                v-if="value?.value === item.value"
                 icon="check"
-                size="3xs"
+                :size="props.iconSize"
                 :class="
                   cn(
                     'ml-auto',
@@ -158,6 +146,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   align: "end",
   // ---
   icon: "",
+  iconSize: "2xs",
 
   // --- styles
   upwindConfig: () => ({ combobox: {} }),
