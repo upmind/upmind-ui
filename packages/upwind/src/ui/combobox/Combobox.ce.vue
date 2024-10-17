@@ -54,7 +54,7 @@
       :align="align"
       :class="cn(variants.combobox.content, props.popoverClass)"
     >
-      <Command v-model:searchTerm="searchTerm">
+      <Command>
         <template v-if="props.searchable">
           <span class="flex items-center overflow-hidden border-b pl-4">
             <Icon
