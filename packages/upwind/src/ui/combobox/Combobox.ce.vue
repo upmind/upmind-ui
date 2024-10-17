@@ -54,17 +54,31 @@
       :align="align"
       :class="cn(variants.combobox.content, props.popoverClass)"
     >
-      <Command>
-        <template v-if="props.searchable">
-          <CommandInput auto-focus :placeholder="searchMessage" />
+      <Command v-model:searchTerm="searchTerm">
+        <div
+          v-if="props.searchable"
+          class="flex items-center overflow-hidden border-b pl-4"
+        >
+          <Icon
+            icon="search"
+            size="2xs"
+            class="text-control-foreground opacity-50"
+          />
+          <Input
+            v-model="searchTerm"
+            autofocus
+            class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
+            :placeholder="searchMessage"
+          >
+          </Input>
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
-        </template>
+        </div>
         <CommandList class="w-full max-w-full">
           <CommandGroup>
             <CommandItem
-              v-for="item in items"
-              :key="item.value"
-              :value="item.value"
+              v-for="(item, index) in filteredItems"
+              :key="item.value + index"
+              :value="item.value + index"
               @select="doSelect(item)"
               class="group flex cursor-pointer items-center justify-start gap-4"
               :class="variants.combobox.item"
@@ -110,17 +124,16 @@ import config from "./combobox.config";
 // --- components
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import Badge from "../badge/Badge.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "../command";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import { Input } from "../input";
 
 // --- utils
 import { find, isString } from "lodash-es";
@@ -138,6 +151,13 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   searchable: false,
   emptyMessage: "No Results",
   searchMessage: "Search...",
+  filterFunction: (items: Array<ComboboxItemProps>, term: string) => {
+    return items.filter(
+      item =>
+        item?.label?.toLowerCase().includes(term.toLowerCase()) ||
+        item?.value?.toLowerCase().includes(term.toLowerCase())
+    );
+  },
   // -- variants
   color: "base",
   size: "md",
@@ -147,6 +167,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   // ---
   icon: "",
   iconSize: "2xs",
+  emitValue: false,
 
   // --- styles
   upwindConfig: () => ({ combobox: {} }),
@@ -176,6 +197,11 @@ const variants = useStyles(
   combobox: { trigger: string; content: string; item: string };
 }>;
 
+const searchTerm = ref("");
+const filteredItems = computed(() => {
+  return props.filterFunction(props.items, searchTerm.value);
+});
+
 // --- methods
 const doSelect = (item: String | ComboboxItemProps) => {
   const selected = isString(item) ? find(props.items, { value: item }) : item;
@@ -184,7 +210,10 @@ const doSelect = (item: String | ComboboxItemProps) => {
   // Use the ref value
   if (hasChanged) {
     value.value = selected;
-    emit("update:modelValue", item); // Use the emit function directly
+    emit(
+      "update:modelValue",
+      props.emitValue && !isString(item) ? value.value.value : item
+    ); // Use the emit function directly
   }
   // finnaly close the popover
   open.value = false;
