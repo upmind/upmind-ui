@@ -9,6 +9,6 @@
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 defineOptions({
-  name: "InputContainer",
+  name: "InputGroup",
 });
 </script>
