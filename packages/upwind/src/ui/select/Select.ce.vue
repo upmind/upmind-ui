@@ -6,8 +6,12 @@
 
     <SelectContent>
       <SelectGroup>
-        <SelectItem v-for="item in items" :key="item.value" :value="item.value">
-          {{ item?.label || item.textValue }}
+        <SelectItem
+          v-for="item in items"
+          :key="item.value"
+          :value="item.const || item.value"
+        >
+          {{ item?.label || item?.title || item?.textValue }}
         </SelectItem>
       </SelectGroup>
     </SelectContent>
