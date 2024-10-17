@@ -1,35 +1,36 @@
 <template>
-  <RadioGroup
+  <CheckboxGroup
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
     :disabled="props.disabled"
-    :class="cn(variants.radioCards.root, props.class)"
+    :class="cn(variants.checkboxCards.root, props.class)"
     @update:model-value="onChange"
   >
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
-      :class="cn(variants.radioCards.item)"
+      :class="cn(variants.checkboxCards.item)"
     >
-      <RadioGroupItem
+      <CheckboxGroupItem
         :id="`${props.name}-${index}`"
         :value="item.value"
         :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
-        :class="variants.radioCards.input"
-      />
-      <Label
-        :for="`${props.name}-${index}`"
-        :class="cn(variants.radioCards.label)"
+        :class="variants.checkboxCards.input"
       >
-        <slot name="item" v-bind="{ item, index }">
-          {{ item.label }}
-        </slot>
-      </Label>
+        <Label
+          :for="`${props.name}-${index}`"
+          :class="cn(variants.checkboxCards.label)"
+        >
+          <slot name="item" v-bind="{ item, index }">
+            {{ item.label }}
+          </slot>
+        </Label>
+      </CheckboxGroupItem>
     </div>
-  </RadioGroup>
+  </CheckboxGroup>
 </template>
 
 <script setup lang="ts">
@@ -39,21 +40,21 @@ import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
-import config from "./radioCards.config";
+import config from "./checkboxCards.config";
 
 // --- components
-import { RadioGroup, RadioGroupItem } from "../radio-group";
+import { CheckboxGroup, CheckboxGroupItem } from "../checkbox-group";
 import { Label } from "../label";
 
 // --- utils
 import { find } from "lodash-es";
 
 // --- types
-import type { RadioCardsProps } from "./types";
+import type { CheckboxCardsProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-const props = withDefaults(defineProps<RadioCardsProps>(), {
+const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   // --- props
   loading: false,
   placeholder: "Select an option",
@@ -76,12 +77,12 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  ["radioCards"],
+  ["checkboxCards"],
   meta,
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  radioCards: {
+  checkboxCards: {
     trigger: string;
     root: string;
     item: string;
