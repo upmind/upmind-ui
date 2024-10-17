@@ -17,7 +17,11 @@ export interface SelectProps
     SelectContentProps,
     SelectValueProps {
   // --- state
-  items: ({ label?: string } & SelectItemProps)[];
+  items: ({
+    label?: string;
+    title?: string;
+    const?: string;
+  } & SelectItemProps)[];
   // --- variants
   size?: SelectVariants["size"];
   width?: SelectVariants["width"];

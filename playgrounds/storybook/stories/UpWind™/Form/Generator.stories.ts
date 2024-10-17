@@ -192,6 +192,37 @@ const meta: Meta<typeof Form> = {
               title: "What is your nationality?",
               i18n: "form.nationality",
             },
+            nationalityDetailed: {
+              type: "string",
+              oneOf: [
+                {
+                  title: "Germany",
+                  const: "DE",
+                },
+                {
+                  title: "Italy",
+                  const: "IT",
+                },
+                {
+                  title: "Japan",
+                  const: "JP",
+                },
+                {
+                  title: "United States",
+                  const: "US",
+                },
+                {
+                  title: "Russia",
+                  const: "RU",
+                },
+                {
+                  title: "Other",
+                  const: "Other",
+                },
+              ],
+              title: "What is your nationality?",
+              i18n: "form.nationality",
+            },
             occupation: {
               type: "string",
               title: "What is your occupation?",
@@ -249,6 +280,10 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/personalData/properties/nationality",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/personalData/properties/nationalityDetailed",
         },
         {
           type: "Control",
