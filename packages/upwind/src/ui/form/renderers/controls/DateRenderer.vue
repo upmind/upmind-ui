@@ -4,7 +4,7 @@
       :disabled="!control.enabled"
       :model-value="control.data"
       @update:modelValue="onInput"
-      type="date"
+      :type="isDateTime ? 'datetime-local' : 'date'"
     />
   </FormField>
 </template>
@@ -13,14 +13,14 @@
 // --- external
 import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-
+import { isArray, includes } from "lodash-es";
 // --- components
 import FormField from "../../FormField.vue";
 import { Input } from "../../../input";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { isNil, get } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -50,12 +50,24 @@ const delegatedProps = computed(() => {
     ...options,
   };
 });
+
+const isDateTime = computed(() => {
+  const type = control.value.schema.type;
+  const format = control.value.schema?.format;
+  const typeArray = isArray(type) ? type : type ? [type] : [];
+  const formatArray = isArray(format) ? format : format ? [format] : [];
+
+  return includes(typeArray, "string") && includes(formatArray, "date-time");
+});
 </script>
 
 <script lang="ts">
-import { and, isStringControl, optionIs } from "@jsonforms/core";
+import { and, isStringControl, or, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, optionIs("format", "date")),
+  controlType: and(
+    isStringControl,
+    or(optionIs("format", "date"), optionIs("format", "date-time"))
+  ),
 };
 </script>
