@@ -195,7 +195,6 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   }
 
   function setOptions(option: any, values: any) {
-    debugger;
     const safeValues = isArray(values) ? values : [values];
     set(model.value.options, option.id, {}); // reset all previous options
     forEach(safeValues, value => {
