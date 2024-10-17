@@ -25,6 +25,8 @@ import OneOfRadioRenderer, {
   tester as OneOfRadioTest,
 } from "./OneOfRadioRenderer.vue";
 
+import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
+
 // -----------------------------------------------------------------------------
 
 export const controlRenderers = [
@@ -42,4 +44,5 @@ export const controlRenderers = [
   registerEntry(DateRenderer, DateTest),
   registerEntry(OneOfRenderer, OneOfTest),
   registerEntry(OneOfRadioRenderer, OneOfRadioTest),
+  registerEntry(LookupRenderer, lookupTest),
 ];
