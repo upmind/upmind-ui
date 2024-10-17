@@ -40,11 +40,12 @@ export interface ComboboxProps
   items: ComboboxItemProps[];
   modelValue?: string | ComboboxItemProps;
   loading?: boolean;
+  emitValue?: boolean;
   // --- Search
   searchable?: boolean;
   searchMessage?: string;
   emptyMessage?: string;
-
+  filterFunction?: (val: any, term: any) => any;
   // --- variants
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];

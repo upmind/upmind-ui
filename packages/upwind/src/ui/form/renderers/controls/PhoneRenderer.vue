@@ -1,29 +1,24 @@
 <template>
   <FormField v-bind="delegatedProps">
-    <div class="group flex w-full" :class="containerClasses">
+    <InputContainer class="flex">
       <Combobox
-        v-model="selectedCountry"
+        @update:modelValue="onCountyInput"
         :items="countryItems"
         class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
         popover-class="!w-72 ml-8"
         width="full"
         icon-size="3xs"
         searchable
+        :filter-function="filterFunction"
       />
       <Input
         :disabled="!control.enabled"
         :model-value="control.data?.number"
-        :focus="false"
-        @update:modelValue="onInput"
+        @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"
       />
-    </div>
-
-    <!-- Avoid purge -->
-    <span
-      class="ring-invalid hidden ring-2 ring-ring ring-offset-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-    ></span>
+    </InputContainer>
   </FormField>
 </template>
 
@@ -31,25 +26,28 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { and, isStringControl, optionIs } from "@jsonforms/core";
 
 // --- internal
 import { countries } from "country-data";
 
 // --- components
 import FormField from "../../FormField.vue";
+import InputContainer from "../containers/InputContainer.vue";
 import { Input } from "../../../input";
 import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
-import { useUpwindRenderer, replaceClassNames } from "../utils";
-import { get, isEmpty } from "lodash-es";
-import { ringClasses, invalidRingClasses } from "../../../input/input.config";
+import { useUpwindRenderer } from "../utils";
+import { get, isEmpty, set } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
+
+defineOptions({
+  name: "PhoneRenderer",
+});
 
 const props = defineProps<RendererProps<ControlElement>>();
 const countryItems = computed<ComboboxItemProps[]>(() =>
@@ -59,19 +57,42 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
       label: country.name,
       selectedLabel: country.countryCallingCodes[0],
       tag: country.countryCallingCodes[0],
-      value: `${country.name}||${country.countryCallingCodes[0]}`,
+      value: country.alpha2,
     }))
 );
 
-const selectedCountry = ref("");
-
-const containerClasses = computed(() =>
-  replaceClassNames([ringClasses, invalidRingClasses], { visible: "within" })
-);
+const filterFunction = (list: ComboboxItemProps[], term: string) => {
+  return list.filter(country => {
+    return (
+      country.label.toLowerCase().includes(term.toLowerCase()) ||
+      country.selectedLabel.toLowerCase().includes(term.toLowerCase()) ||
+      country.value.toLowerCase().includes(term.toLowerCase())
+    );
+  });
+};
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
+
+const phone = ref({ ...control.value.data });
+
+const onCountyInput = (value: ComboboxItemProps) => {
+  set(phone.value, "country", value.value);
+  set(phone.value, "countryCallingCode", value.tag);
+  onInput({
+    ...phone.value,
+    currentTarget: { value: phone.value },
+  });
+};
+
+const onPhoneInput = (value: string | number) => {
+  set(phone.value, "number", value);
+  onInput({
+    ...phone.value,
+    currentTarget: { value: phone.value },
+  });
+};
 
 const delegatedProps = computed(() => {
   const options = get(appliedOptions.value, "options", {});
@@ -93,8 +114,13 @@ const delegatedProps = computed(() => {
 </script>
 
 <script lang="ts">
+import { and, isObjectControl, schemaMatches } from "@jsonforms/core";
+
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, optionIs("format", "phone")),
+  controlType: and(
+    isObjectControl,
+    schemaMatches(schema => !!schema?.isPhoneNumber)
+  ),
 };
 </script>

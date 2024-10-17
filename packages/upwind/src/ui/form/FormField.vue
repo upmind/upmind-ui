@@ -126,7 +126,6 @@ const variants = useStyles(
   props.upwindConfig
 );
 
-console.log("FormField", variants);
 // --- methods
 
 // --- side effects
