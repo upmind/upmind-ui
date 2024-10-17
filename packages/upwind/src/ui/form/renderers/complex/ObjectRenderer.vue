@@ -11,19 +11,15 @@
   />
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { defineComponent } from "vue";
-import { Generate, findUISchema, isObjectControl } from "@jsonforms/core";
+import { computed } from "vue";
+import { Generate, findUISchema } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsControlWithDetail,
 } from "@jsonforms/vue";
-
-// --- components
-
-// --- local
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -35,57 +31,51 @@ import type {
   GroupLayout,
   UISchemaElement,
 } from "@jsonforms/core";
-import type { RendererProps } from "@jsonforms/vue";
+import type { ComputedRef } from "vue";
+
 // ----------------------------------------------
-
-export default defineComponent({
+defineOptions({
   name: "ObjectRenderer",
-  components: {
-    DispatchRenderer,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(useJsonFormsControlWithDetail(props));
-
-    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
-    return {
-      ...renderer,
-    };
-  },
-  computed: {
-    detailUiSchema(): UISchemaElement {
-      const uiSchemaGenerator = () => {
-        const uiSchema = Generate.uiSchema(
-          this.control.schema,
-          "Group",
-          undefined,
-          this.control.rootSchema
-        );
-        if (isEmpty(this.control.path)) {
-          uiSchema.type = "VerticalLayout";
-        } else {
-          (uiSchema as GroupLayout).label = this.control.label;
-        }
-        return uiSchema;
-      };
-
-      const result = findUISchema(
-        this.control.uischemas,
-        this.control.schema,
-        this.control.uischema.scope,
-        this.control.path,
-        uiSchemaGenerator,
-        this.control.uischema,
-        this.control.rootSchema
-      );
-
-      return result;
-    },
-  },
 });
 
+const props = defineProps({
+  ...rendererProps<ControlElement>(),
+});
+
+const { control } = useUpwindRenderer(useJsonFormsControlWithDetail(props));
+
+const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
+  const uiSchemaGenerator = () => {
+    const uiSchema = Generate.uiSchema(
+      control.value.schema,
+      "Group",
+      undefined,
+      control.value.rootSchema
+    );
+    if (isEmpty(control.value.path)) {
+      uiSchema.type = "VerticalLayout";
+    } else {
+      (uiSchema as GroupLayout).label = control.value.label;
+    }
+    return uiSchema;
+  };
+
+  const result = findUISchema(
+    control.value.uischemas,
+    control.value.schema,
+    control.value.uischema.scope,
+    control.value.path,
+    uiSchemaGenerator,
+    control.value.uischema,
+    control.value.rootSchema
+  );
+
+  return result;
+});
+</script>
+
+<script lang="ts">
+import { isObjectControl } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: isObjectControl,
