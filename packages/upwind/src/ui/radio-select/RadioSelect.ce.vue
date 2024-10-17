@@ -18,6 +18,13 @@
       <span v-else class="opacity-50">
         <slot name="placeholder">{{ props.placeholder }}</slot>
       </span>
+
+      <Icon
+        class="ml-auto opacity-50 transition-all duration-300 group-hover:opacity-100"
+        :class="{ 'rotate-180': !open }"
+        icon="arrow-up"
+        size="xs"
+      />
     </CollapsibleTrigger>
 
     <CollapsibleContent>
@@ -68,6 +75,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../collapsible";
+import { Icon } from "../icon";
 import { Button } from "../button";
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
