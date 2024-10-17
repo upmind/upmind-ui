@@ -25,17 +25,17 @@ export interface FormProps {
   schema: JsonSchema;
   uischema?: UISchemaElement & Internationalizable;
   modelValue: Object;
-  additionalRenderers?: Array<any>;
+  additionalRenderers?: any[];
   // ---
   actions?: Record<string, FormActionProps>;
-  noActions?: Boolean;
-  autosave?: Boolean;
+  noActions?: boolean;
+  autosave?: boolean;
   // ---
   size?: FormVariantProps["size"];
   // ---
-  loading?: Boolean;
-  processing?: Boolean;
-  disabled?: Boolean;
+  loading?: boolean;
+  processing?: boolean;
+  disabled?: boolean;
   // ---
   // mode?: ValidationMode;
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
@@ -56,6 +56,7 @@ export interface FormControlProps {
   name: string;
   // --- optional
   label?: string;
+  tooltip?: string;
   text?: string;
   tags?: string[];
   description?: string;

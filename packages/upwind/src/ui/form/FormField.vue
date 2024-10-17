@@ -7,7 +7,23 @@
     <slot name="field">
       <!-- label -->
       <FormLabel :formItemId="id" :invalid="meta.isInvalid">
-        {{ label }}
+        <slot name="label" :label="label">
+          <span class="inline-flex items-center gap-x-1">
+            <span>{{ label }}</span>
+            <Tooltip
+              v-if="tooltip"
+              :label="tooltip"
+              side="right"
+              color="primary"
+            >
+              <Icon
+                icon="information-circle-alt"
+                size="2xs"
+                class="opacity-50 transition-all duration-300 hover:opacity-100"
+              />
+            </Tooltip>
+          </span>
+        </slot>
       </FormLabel>
 
       <!-- text -->
@@ -63,6 +79,8 @@ import {
   FormDescription,
   FormMessage,
 } from ".";
+import { Tooltip } from "../tooltip";
+import { Icon } from "../icon";
 
 // --- utils
 import { isEmpty } from "lodash-es";
