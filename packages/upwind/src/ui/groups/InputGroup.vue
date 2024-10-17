@@ -13,13 +13,26 @@
 // --- external
 import { computed } from "vue";
 
-// --- utils
-import { replaceClassNames } from "../utils";
-import { ringClasses, invalidRingClasses } from "../../../input/input.config";
+// --- utils=
+import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 defineOptions({
   name: "InputContainer",
 });
+
+const replaceClassNames = (
+  classStrings: string[],
+  replacements: Record<string, string>
+): string[] => {
+  return classStrings.flatMap(classes => {
+    let updatedClasses = classes;
+    Object.entries(replacements).forEach(([from, to]) => {
+      const regex = new RegExp(`\\b${from}\\b`, "g");
+      updatedClasses = updatedClasses.replace(regex, to);
+    });
+    return updatedClasses.split(" ");
+  });
+};
 
 const containerClasses = computed(() =>
   replaceClassNames([ringClasses, invalidRingClasses], { visible: "within" })
