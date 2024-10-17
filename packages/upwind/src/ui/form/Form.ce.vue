@@ -291,9 +291,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
 
     // map additional i18n, json forms just does title & description
     if (child?.i18n) {
-      debugger;
       const values: Record<string, any> = tm(child.i18n);
-      debugger;
       merge(child.options, values);
     }
   });

@@ -33,6 +33,12 @@ import { UwBadge, Badge, type BadgeProps } from "./ui/badge";
 import { UwButton, Button, type ButtonProps } from "./ui/button";
 import { UwCheckbox, Checkbox, type CheckboxProps } from "./ui/checkbox";
 import {
+  CheckboxCards,
+  type CheckboxCardsProps,
+  type CheckboxCardsItemProps,
+} from "./ui/checkbox-cards";
+
+import {
   UwCombobox,
   Combobox,
   type ComboboxProps,
@@ -59,7 +65,16 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "./ui/dropdown-menu";
-import { UwForm, Form, type FormProps } from "./ui/form";
+import {
+  UwForm,
+  Form,
+  FormField,
+  FormControl,
+  FormLabel,
+  FormDescription,
+  FormMessage,
+  type FormProps,
+} from "./ui/form";
 import { UwIcon, Icon, type IconProps } from "./ui/icon";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwInput, Input, type InputProps } from "./ui/input";
@@ -104,6 +119,7 @@ export {
   Badge,
   Button,
   Checkbox,
+  CheckboxCards,
   Combobox,
   Dialog,
   Drawer,
@@ -124,6 +140,11 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
   Form,
+  FormField,
+  FormControl,
+  FormLabel,
+  FormDescription,
+  FormMessage,
   Icon,
   Indicator,
   Input,
@@ -148,6 +169,8 @@ export {
   type BadgeProps,
   type ButtonProps,
   type CheckboxProps,
+  type CheckboxCardsProps,
+  type CheckboxCardsItemProps,
   type ComboboxProps,
   type ComboboxItemProps,
   type DialogProps,
@@ -216,7 +239,6 @@ export function useCustomElement(
   ...constructors: CustomElementConstructor[]
 ): void {
   forEach(constructors, constructor => {
-    // debugger;
     const componentName = kebabCase(constructor.name); // no more name in definition as we use setup scripts
     if (!customElements.get(componentName)) {
       customElements.define(componentName, constructor);
@@ -233,11 +255,17 @@ declare module "vue" {
     Badge: typeof Badge;
     Button: typeof Button;
     Checkbox: typeof Checkbox;
+    CheckboxCards: typeof CheckboxCards;
     Combobox: typeof Combobox;
     Dialog: typeof Dialog;
     Drawer: typeof Drawer;
     DropdownMenu: typeof DropdownMenu;
     Form: typeof Form;
+    FormField: typeof FormField;
+    FormControl: typeof FormControl;
+    FormLabel: typeof FormLabel;
+    FormDescription: typeof FormDescription;
+    FormMessage: typeof FormMessage;
     Icon: typeof Icon;
     Indicator: typeof Indicator;
     Input: typeof Input;

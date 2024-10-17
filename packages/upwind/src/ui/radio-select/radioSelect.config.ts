@@ -1,7 +1,8 @@
 import { cva } from "class-variance-authority";
+import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "static h-auto min-h-10 justify-start overflow-hidden text-left",
+  "static h-auto min-h-10 justify-start overflow-hidden rounded-md text-left",
   {
     variants: {
       width: {
@@ -17,6 +18,7 @@ export const triggerVariants = cva(
 
 export default {
   radioSelect: {
+    root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded-md`),
     trigger: triggerVariants,
     items: cva("gap-0"),
     item: cva(
