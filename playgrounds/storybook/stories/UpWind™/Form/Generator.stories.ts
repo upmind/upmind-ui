@@ -284,6 +284,9 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/personalData/properties/nationalityDetailed",
+          options: {
+            format: "radio",
+          },
         },
         {
           type: "Control",
