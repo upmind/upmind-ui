@@ -220,32 +220,6 @@ const meta: Meta<typeof Form> = {
                   const: "Other",
                 },
               ],
-              lookup: [
-                {
-                  title: "Germany",
-                  const: "DE",
-                },
-                {
-                  title: "Italy",
-                  const: "IT",
-                },
-                {
-                  title: "Japan",
-                  const: "JP",
-                },
-                {
-                  title: "United States",
-                  const: "US",
-                },
-                {
-                  title: "Russia",
-                  const: "RU",
-                },
-                {
-                  title: "Other",
-                  const: "Other",
-                },
-              ],
               title: "What is your nationality?",
               i18n: "form.nationality",
             },
@@ -310,6 +284,9 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/personalData/properties/nationalityDetailed",
+          options: {
+            format: "radio",
+          },
         },
         {
           type: "Control",
