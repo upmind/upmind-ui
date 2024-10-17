@@ -1,5 +1,9 @@
 <template>
-  <Collapsible v-model:open="open">
+  <Collapsible
+    v-model:open="open"
+    :disabled="props.disabled"
+    :class="variants.radioSelect.root"
+  >
     <CollapsibleTrigger
       :as="Button"
       type="button"
@@ -29,6 +33,7 @@
 
     <CollapsibleContent>
       <RadioGroup
+        :disabled="props.disabled"
         :model-value="modelValue"
         :default-value="defaultValue"
         :class="variants.radioSelect.items"
@@ -43,6 +48,8 @@
             :id="`${props.name}-${index}`"
             :value="item.value"
             :name="props.name"
+            :required="props.required"
+            :disabled="props.disabled"
             :class="variants.radioSelect.input"
           />
 
@@ -118,6 +125,7 @@ const variants = useStyles(
   props.upwindConfig ?? {}
 ) as ComputedRef<{
   radioSelect: {
+    root: string;
     trigger: string;
     items: string;
     item: string;

@@ -9,6 +9,7 @@
     "
     :aria-invalid="!!props.invalid"
     v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+    class="w-full"
   >
     <slot />
   </Slot>
