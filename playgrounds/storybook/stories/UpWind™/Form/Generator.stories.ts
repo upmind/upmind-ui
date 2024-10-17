@@ -82,6 +82,11 @@ const meta: Meta<typeof Form> = {
           i18n: "form.name",
         },
 
+        date: {
+          type: "string",
+          // formatMinimum: new Date(Date.now()).toLocaleString(),
+        },
+
         phone: {
           type: "object",
           title: "Phone",
@@ -209,6 +214,13 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/name",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/date",
+          options: {
+            format: "date",
+          },
         },
         {
           type: "Control",
