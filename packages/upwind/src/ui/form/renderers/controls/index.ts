@@ -21,6 +21,9 @@ import EmailRenderer, { tester as EmailTest } from "./EmailRenderer.vue";
 import PhoneRenderer, { tester as PhoneTest } from "./PhoneRenderer.vue";
 import DateRenderer, { tester as DateTest } from "./DateRenderer.vue";
 import OneOfRenderer, { tester as OneOfTest } from "./OneOfRenderer.vue";
+import OneOfRadioRenderer, {
+  tester as OneOfRadioTest,
+} from "./OneOfRadioRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -38,4 +41,5 @@ export const controlRenderers = [
   registerEntry(PhoneRenderer, PhoneTest),
   registerEntry(DateRenderer, DateTest),
   registerEntry(OneOfRenderer, OneOfTest),
+  registerEntry(OneOfRadioRenderer, OneOfRadioTest),
 ];
