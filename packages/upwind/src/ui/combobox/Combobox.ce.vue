@@ -54,25 +54,24 @@
       :align="align"
       :class="cn(variants.combobox.content, props.popoverClass)"
     >
-      <Command v-model:searchTerm="searchTerm">
-        <div
-          v-if="props.searchable"
-          class="flex items-center overflow-hidden border-b pl-4"
-        >
-          <Icon
-            icon="search"
-            size="2xs"
-            class="text-control-foreground opacity-50"
-          />
-          <Input
-            v-model="searchTerm"
-            autofocus
-            class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
-            :placeholder="searchMessage"
-          >
-          </Input>
+      <Command>
+        <template v-if="props.searchable">
+          <span class="flex items-center overflow-hidden border-b pl-4">
+            <Icon
+              icon="search"
+              size="2xs"
+              class="text-control-foreground opacity-50"
+            />
+            <Input
+              v-model="searchTerm"
+              autofocus
+              class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
+              :placeholder="searchMessage"
+            >
+            </Input>
+          </span>
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
-        </div>
+        </template>
         <CommandList class="w-full max-w-full">
           <CommandGroup>
             <CommandItem

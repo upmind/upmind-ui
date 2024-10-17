@@ -1,6 +1,6 @@
 <template>
   <FormField v-bind="delegatedProps">
-    <InputContainer class="flex">
+    <InputGroup class="flex">
       <Combobox
         @update:modelValue="onCountyInput"
         :items="countryItems"
@@ -18,7 +18,7 @@
         type="tel"
         class="rounded-l-none focus:outline-none"
       />
-    </InputContainer>
+    </InputGroup>
   </FormField>
 </template>
 
@@ -32,7 +32,7 @@ import { countries } from "country-data";
 
 // --- components
 import FormField from "../../FormField.vue";
-import InputContainer from "../containers/InputContainer.vue";
+import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
 import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
