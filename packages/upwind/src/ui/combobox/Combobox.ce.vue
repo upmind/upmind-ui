@@ -42,8 +42,8 @@
             <Icon
               v-if="!props.loading"
               :size="props.iconSize"
-              class="ml-auto rotate-180 opacity-50 transition-all duration-200"
-              icon="arrow-up"
+              class="ml-auto rotate-180 opacity-75 transition-all duration-200"
+              icon="arrow-up-down"
             />
           </template>
         </Button>

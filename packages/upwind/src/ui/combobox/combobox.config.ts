@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const triggerVariants = cva(
-  "justify-between border-opacity-10 hover:border-opacity-10",
+  "justify-between border-opacity-10 transition-all duration-300 hover:border-opacity-10 hover:bg-base-100",
   {
     variants: {
       width: {
