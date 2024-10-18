@@ -60,7 +60,7 @@
 // --- external
 import { defineComponent } from "vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
-import { isBooleanControl, and, formatIs } from "@jsonforms/core";
+import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -122,6 +122,6 @@ export default defineComponent({
 
 export const tester = {
   rank: 2,
-  controlType: and(isBooleanControl, formatIs("toggle")),
+  controlType: and(isBooleanControl, optionIs("format", "toggle")),
 };
 </script>
