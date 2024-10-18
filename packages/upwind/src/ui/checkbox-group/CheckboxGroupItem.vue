@@ -12,7 +12,7 @@
     <span
       :class="
         cn(
-          'absolute left-0 top-0 flex aspect-square h-4 w-4 items-center justify-center rounded-sm border border-control text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group-disabled:cursor-not-allowed group-disabled:opacity-50',
+          'absolute left-0 top-0 flex aspect-square h-4 w-4 items-center justify-center rounded-sm border border-control bg-base text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group-disabled:cursor-not-allowed group-disabled:opacity-50',
           props.class
         )
       "

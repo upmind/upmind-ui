@@ -62,6 +62,7 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   // -- variants
   color: "base",
   variant: "control",
+  layout: "list",
   // --- styles
   class: "",
 });
@@ -74,6 +75,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   color: props.color,
+  layout: props.layout,
 }));
 
 const variants = useStyles(
