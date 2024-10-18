@@ -1,10 +1,11 @@
 <template>
   <FormField v-bind="delegatedProps">
     <Input
+      v-bind="appliedOptions"
       :disabled="!control.enabled"
       :model-value="control.data"
       @update:modelValue="onInput"
-      :type="isDateTime ? 'datetime-local' : 'date'"
+      type="date"
     />
   </FormField>
 </template>

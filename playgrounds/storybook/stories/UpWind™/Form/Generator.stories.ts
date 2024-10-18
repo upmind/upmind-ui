@@ -87,8 +87,8 @@ const meta: Meta<typeof Form> = {
         },
 
         date: {
+          title: "What is your date of birth?",
           type: "string",
-          // formatMinimum: new Date(Date.now()).toLocaleString(),
         },
 
         categories: {
@@ -264,13 +264,6 @@ const meta: Meta<typeof Form> = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/categories",
-          options: {
-            format: "checkbox-cards",
-          },
-        },
-        {
-          type: "Control",
           scope: "#/properties/name",
         },
         {
@@ -285,6 +278,18 @@ const meta: Meta<typeof Form> = {
           scope: "#/properties/date",
           options: {
             format: "date",
+            max: (() => {
+              const date = new Date();
+              date.setFullYear(date.getFullYear() - 18);
+              return date.toISOString().split("T")[0];
+            })(),
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/categories",
+          options: {
+            format: "checkbox-cards",
           },
         },
         {
@@ -359,6 +364,10 @@ export const Formatted: Story = {
             {
               type: "Control",
               scope: "#/properties/dob",
+              options: {
+                format: "date",
+                min: "2024-10-16",
+              },
             },
             {
               type: "Control",
