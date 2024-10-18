@@ -144,7 +144,6 @@ const meta: Meta<typeof Form> = {
           maxLength: 280,
           i18n: "form.about",
         },
-
         accept: {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
