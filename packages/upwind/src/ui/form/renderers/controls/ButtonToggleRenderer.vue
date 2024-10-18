@@ -56,10 +56,10 @@
   </FormField>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { computed } from "vue";
+import { useJsonFormsControl } from "@jsonforms/vue";
 import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -80,46 +80,27 @@ import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
-export default defineComponent({
-  name: "ButtonToggleRenderer",
-  directives: { autoAnimate: vAutoAnimate },
-  components: {
-    FormField,
-    FormControl,
-    FormDescription,
-    FormMessage,
-    Toggle,
-    FormLabelGroup,
-    FormRequiredLabel,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(useJsonFormsControl(props), v => !!v);
+const props = defineProps<RendererProps<ControlElement>>();
 
-    return {
-      ...renderer,
-    };
-  },
-  computed: {
-    delegatedProps() {
-      return {
-        id: this.control.id,
-        name: this.control.path,
-        errors: this.control.errors,
-        // ---
-        label: this.control.label,
-        description: this.control.description,
-        // ---
-        required: this.control.required,
-        disabled: !this.control.enabled,
-        visible: this.control.visible,
-      };
-    },
-  },
-});
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props)
+);
 
+const delegatedProps = computed(() => ({
+  id: control.value.id,
+  name: control.value.path,
+  errors: control.value.errors,
+  // ---
+  label: control.value.label,
+  description: control.value.description,
+  // ---
+  required: control.value.required,
+  disabled: !control.value.enabled,
+  visible: control.value.visible,
+}));
+</script>
+
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: and(isBooleanControl, optionIs("format", "toggle")),

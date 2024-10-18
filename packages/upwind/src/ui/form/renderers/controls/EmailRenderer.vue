@@ -20,10 +20,9 @@ import { Input } from "../../../input";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { isNil, get } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------

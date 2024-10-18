@@ -51,15 +51,6 @@ const delegatedProps = computed(() => {
     ...options,
   };
 });
-
-const isDateTime = computed(() => {
-  const type = control.value.schema.type;
-  const format = control.value.schema?.format;
-  const typeArray = isArray(type) ? type : type ? [type] : [];
-  const formatArray = isArray(format) ? format : format ? [format] : [];
-
-  return includes(typeArray, "string") && includes(formatArray, "date-time");
-});
 </script>
 
 <script lang="ts">
