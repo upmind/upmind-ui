@@ -11,9 +11,9 @@ export const checkboxVariants = cva(
         full: "w-full",
       },
       size: {
-        sm: "h-3 w-3",
-        md: "h-4 w-4",
-        lg: "h-6 w-6",
+        sm: "!h-3 !w-3",
+        md: "!h-4 !w-4",
+        lg: "!h-6 !w-6",
       },
     },
     defaultVariants: {

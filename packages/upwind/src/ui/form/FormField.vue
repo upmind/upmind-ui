@@ -30,11 +30,7 @@
         </template>
 
         <template #requiredLabelGroup>
-          <FormRequiredLabel :required="meta.isRequired" :formItemId="id">
-            <slot name="requiredLabel">
-              <span class="text-xs opacity-50">Required</span>
-            </slot>
-          </FormRequiredLabel>
+          <FormRequiredLabel :required="meta.isRequired" :formItemId="id" />
         </template>
       </FormLabelGroup>
 

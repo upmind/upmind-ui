@@ -147,7 +147,24 @@ const meta: Meta<typeof Form> = {
         accept: {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
+          description: "Must be accepted to use our service",
           i18n: "form.accept",
+        },
+        switch: {
+          type: "boolean",
+          title: "Do you accept the terms and conditions?",
+          description: "Must be accepted to use our service",
+          i18n: "form.accept",
+        },
+        toggle: {
+          type: "boolean",
+          title: "Do you accept the terms and conditions?",
+          description: "Must be accepted to use our service",
+          i18n: "form.accept",
+          options: {
+            format: "toggle",
+          },
+          format: "toggle",
         },
 
         personalData: {
@@ -241,7 +258,7 @@ const meta: Meta<typeof Form> = {
           required: ["weight", "height", "drivingSkill"],
         },
       },
-      required: ["name", "accept", "age"],
+      required: ["name", "accept", "age", "switch", "toggle"],
       errorMessage: {
         properties: {
           accept: "You must accept the terms and conditions",
@@ -307,9 +324,21 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/accept",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/switch",
           format: "switch",
           options: {
             format: "switch",
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/toggle",
+          format: "toggle",
+          options: {
+            format: "toggle",
           },
         },
       ],

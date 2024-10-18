@@ -12,7 +12,7 @@ export { default as FormMessage } from "./FormMessage.vue";
 export { default as FormDescription } from "./FormDescription.vue";
 export { default as FormRequiredLabel } from "./FormRequiredLabel.vue";
 export { default as FormLabelGroup } from "./FormLabelGroup.vue";
-
+export { default as FormBooleanLabelGroup } from "./FormBooleanLabelGroup.vue";
 // --- types
 export * from "./types";
 
