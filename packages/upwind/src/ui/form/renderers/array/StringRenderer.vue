@@ -1,10 +1,9 @@
 <template>
   <FormField v-bind="delegatedProps">
-    <Input
+    <CheckboxCards
       :disabled="!control.enabled"
-      :max="safeMax"
-      :min="safeMin"
       :model-value="control.data"
+      :items="control.options"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -17,14 +16,13 @@ import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 
 // --- components
 import FormField from "../../FormField.vue";
-import { Input } from "../../../input";
+import { CheckboxCards } from "../../../checkbox-cards";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { isNil, get } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 
@@ -54,26 +52,6 @@ const delegatedProps = computed(() => {
     visible: control.value.visible,
     ...options,
   };
-});
-
-const safeMin: ComputedRef<number | undefined> = computed(() => {
-  const applied = appliedOptions.value?.min;
-  if (!isNil(applied)) return applied;
-
-  const minimum = control.value?.schema?.minimum;
-  if (!isNil(minimum)) return minimum;
-
-  return undefined;
-});
-
-const safeMax: ComputedRef<number | undefined> = computed(() => {
-  const applied = appliedOptions.value?.max;
-  if (!isNil(applied)) return applied;
-
-  const maximum = control.value?.schema?.maximum;
-  if (!isNil(maximum)) return maximum;
-
-  return undefined;
 });
 </script>
 
