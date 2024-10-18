@@ -61,6 +61,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   // -- variants
   color: "base",
   variant: "control",
+  layout: "list",
   // --- styles
   class: "",
 });
