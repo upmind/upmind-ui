@@ -20,10 +20,33 @@
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
-        <!-- label -->
-        <FormLabel :formItemId="control.id" :invalid="!!control.errors">
-          {{ control.label }}
-        </FormLabel>
+        <FormBooleanLabelGroup>
+          <!-- label -->
+          <template #labelGroup>
+            <FormLabel :formItemId="control.id" :invalid="!!control.errors">
+              {{ control.label }}
+            </FormLabel>
+          </template>
+
+          <!-- description -->
+          <template #descriptionGroup>
+            <FormDescription
+              v-if="control?.description"
+              :formDescriptionId="`form-item-description-${control.id}`"
+              class="!my-0"
+            >
+              {{ control.description }}
+            </FormDescription>
+          </template>
+
+          <!-- required -->
+          <template #requiredLabelGroup>
+            <FormRequiredLabel
+              :required="control.required"
+              :formItemId="control.id"
+            />
+          </template>
+        </FormBooleanLabelGroup>
 
         <!-- validation messages -->
         <FormMessage
@@ -32,14 +55,6 @@
           :name="control.path"
           :errors="control.errors"
         />
-
-        <!-- description -->
-        <FormDescription
-          v-if="control?.description"
-          :formDescriptionId="`form-item-description-${control.id}`"
-        >
-          {{ control.description }}
-        </FormDescription>
       </div>
     </template>
   </FormField>
@@ -58,6 +73,8 @@ import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
+import FormBooleanLabelGroup from "../../FormBooleanLabelGroup.vue";
+import FormRequiredLabel from "../../FormRequiredLabel.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";

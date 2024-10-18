@@ -11,16 +11,28 @@
         :formDescriptionId="`form-item-description-${control.id}`"
         :formMessageId="`form-item-message-${control.id}`"
       >
-        <Toggle
-          :id="control.id"
-          :disabled="!control.enabled"
-          :checked="control.data"
-          :aria-label="control.label"
-          @update:checked="onInput"
-        >
-          <!-- label -->
-          {{ control.label }}
-        </Toggle>
+        <!-- label -->
+        <FormLabelGroup class="!justify-start space-x-2">
+          <template #labelGroup>
+            <Toggle
+              :id="control.id"
+              :disabled="!control.enabled"
+              :checked="control.data"
+              :aria-label="control.label"
+              @update:checked="onInput"
+            >
+              <!-- label -->
+              {{ control.label }}
+            </Toggle>
+          </template>
+
+          <template #requiredLabelGroup>
+            <FormRequiredLabel
+              :required="control.required"
+              :formItemId="control.id"
+            />
+          </template>
+        </FormLabelGroup>
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
@@ -57,6 +69,8 @@ import FormField from "../../FormField.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
+import FormLabelGroup from "../../FormLabelGroup.vue";
+import FormRequiredLabel from "../../FormRequiredLabel.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -75,6 +89,8 @@ export default defineComponent({
     FormDescription,
     FormMessage,
     Toggle,
+    FormLabelGroup,
+    FormRequiredLabel,
   },
   props: {
     ...rendererProps<ControlElement>(),

@@ -1,10 +1,13 @@
 <template>
   <Label
     v-if="props.required"
-    :class="cn('!w-auto w-full text-right', props.class)"
+    :class="cn('text-right', props.class)"
     :for="props.formItemId"
   >
-    <slot />
+    <slot>
+      <!-- TODO: i18n, or do we want an icon here? -->
+      <span class="text-xs opacity-50">Required</span>
+    </slot>
   </Label>
 </template>
 
