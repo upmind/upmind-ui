@@ -13,7 +13,7 @@ export const buttonVariants = cva(
         link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4",
         tonal: "border-transparent",
         control:
-          "!hover:bg-opacity-80 !border-input !bg-control !text-control-foreground shadow-sm ring-offset-background",
+          "!hover:bg-opacity-80 !border-input bg-control !text-control-foreground shadow-sm ring-offset-background",
       },
       color: {
         base: "",
