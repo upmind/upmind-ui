@@ -264,6 +264,13 @@ const meta: Meta<typeof Form> = {
       elements: [
         {
           type: "Control",
+          scope: "#/properties/personalData/properties/nationalityDetailed",
+          options: {
+            format: "radio",
+          },
+        },
+        {
+          type: "Control",
           scope: "#/properties/name",
         },
         {
@@ -314,13 +321,6 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/personalData/properties/nationality",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/personalData/properties/nationalityDetailed",
-          options: {
-            format: "radio",
-          },
         },
         {
           type: "Control",

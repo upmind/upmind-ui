@@ -2,11 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 export default {
   radioCards: {
-    root: cva(`${ringClasses} ${invalidRingClasses} w-full gap-0`),
-    item: cva(
-      "flex cursor-pointer items-start space-x-2 border border-control shadow-sm"
+    root: cva(
+      `${ringClasses} ${invalidRingClasses} w-full gap-0 border border-b-0`
     ),
-    label: cva("m-0 h-full w-full rounded-md  py-3 pr-6 text-xs "),
-    input: cva("my-4 ml-3 mr-1 leading-normal"),
+    item: cva(
+      "flex cursor-pointer items-start space-x-2 border-b shadow-sm hover:bg-base-100"
+    ),
+    label: cva("m-0 h-full w-full rounded-md  py-3 pr-6 text-xs"),
+    input: cva("my-3 ml-3 mr-1 leading-normal"),
   },
 };
