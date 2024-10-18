@@ -8,6 +8,11 @@ import type {
   ListboxItemProps,
   // RadioGroupItemProps,
 } from "radix-vue";
+import type { VariantProps } from "class-variance-authority";
+
+// --- internal
+import type { rootVariants } from "./checkboxCards.config";
+type CheckboxCardsVariantProps = VariantProps<typeof rootVariants>;
 
 export interface CheckboxCardsItemProps extends ListboxItemProps {
   label: string;
@@ -30,6 +35,7 @@ export interface CheckboxCardsProps extends ListboxRootProps {
   // ---
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
+  layout?: CheckboxCardsVariantProps["layout"];
   // ---
   upwindConfig?: { tooltip: Partial<CheckboxCardsProps> };
   class?: HTMLAttributes["class"];
