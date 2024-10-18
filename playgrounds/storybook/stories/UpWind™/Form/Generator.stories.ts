@@ -156,16 +156,6 @@ const meta: Meta<typeof Form> = {
           description: "Must be accepted to use our service",
           i18n: "form.accept",
         },
-        toggle: {
-          type: "boolean",
-          title: "Do you accept the terms and conditions?",
-          description: "Must be accepted to use our service",
-          i18n: "form.accept",
-          options: {
-            format: "toggle",
-          },
-          format: "toggle",
-        },
 
         personalData: {
           type: "object",
@@ -331,14 +321,6 @@ const meta: Meta<typeof Form> = {
           format: "switch",
           options: {
             format: "switch",
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/toggle",
-          format: "toggle",
-          options: {
-            format: "toggle",
           },
         },
       ],
