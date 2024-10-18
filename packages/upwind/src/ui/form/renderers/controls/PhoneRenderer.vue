@@ -2,6 +2,7 @@
   <FormField v-bind="delegatedProps">
     <InputGroup class="flex">
       <Combobox
+        :model-value="control.data?.country || defaultCountryCode"
         @update:modelValue="onCountyInput"
         :items="countryItems"
         class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
@@ -50,6 +51,7 @@ defineOptions({
 });
 
 const props = defineProps<RendererProps<ControlElement>>();
+
 const countryItems = computed<ComboboxItemProps[]>(() =>
   countries.all
     .filter(country => !isEmpty(get(country, "countryCallingCodes")))
@@ -74,6 +76,8 @@ const filterFunction = (list: ComboboxItemProps[], term: string) => {
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
+
+const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
 
 const phone = ref({ ...control.value.data });
 
