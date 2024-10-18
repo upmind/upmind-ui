@@ -130,12 +130,6 @@ const meta: Meta<typeof Form> = {
           exclusiveMaximum: 120,
           i18n: "form.age",
         },
-        dob: {
-          type: "string",
-          format: "date",
-          title: "What is your date of birth?",
-          i18n: "form.dob",
-        },
         postalCode: {
           type: "string",
           maxLength: 5,
@@ -299,10 +293,6 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/age",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/dob",
         },
         {
           type: "Control",
