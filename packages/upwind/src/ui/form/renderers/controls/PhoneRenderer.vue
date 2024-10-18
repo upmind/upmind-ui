@@ -2,7 +2,7 @@
   <FormField v-bind="delegatedProps">
     <InputGroup class="flex">
       <Combobox
-        :model-value="control.data?.country || defaultCountryCode"
+        :model-value="control.data?.country"
         @update:modelValue="onCountyInput"
         :items="countryItems"
         class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
@@ -39,7 +39,7 @@ import { Combobox, type ComboboxItemProps } from "../../../combobox";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get, isEmpty, set } from "lodash-es";
+import { get, isEmpty, set, find } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -77,17 +77,17 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
 
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
-
 const phone = ref({ ...control.value.data });
 
 const onCountyInput = (value: ComboboxItemProps) => {
-  set(phone.value, "country", value.value);
-  set(phone.value, "countryCallingCode", value.tag);
-  onInput({
-    ...phone.value,
-    currentTarget: { value: phone.value },
-  });
+  if (value.tag) {
+    set(phone.value, "country", value.value);
+    set(phone.value, "countryCallingCode", value.tag);
+    onInput({
+      ...phone.value,
+      currentTarget: { value: phone.value },
+    });
+  }
 };
 
 const onPhoneInput = (value: string | number) => {
@@ -97,6 +97,15 @@ const onPhoneInput = (value: string | number) => {
     currentTarget: { value: phone.value },
   });
 };
+
+const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const defaultCountry = find(
+  countryItems.value,
+  item => item.value === defaultCountryCode
+);
+if (defaultCountry) {
+  onCountyInput(defaultCountry);
+}
 
 const delegatedProps = computed(() => {
   const options = get(appliedOptions.value, "options", {});
