@@ -264,9 +264,9 @@ const meta: Meta<typeof Form> = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/personalData/properties/nationalityDetailed",
+          scope: "#/properties/categories",
           options: {
-            format: "radio",
+            format: "checkbox-cards",
           },
         },
         {
@@ -285,13 +285,6 @@ const meta: Meta<typeof Form> = {
           scope: "#/properties/date",
           options: {
             format: "date",
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/categories",
-          options: {
-            format: "checkbox-cards",
           },
         },
         {
@@ -321,6 +314,13 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/personalData/properties/nationality",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/personalData/properties/nationalityDetailed",
+          options: {
+            format: "radio",
+          },
         },
         {
           type: "Control",
