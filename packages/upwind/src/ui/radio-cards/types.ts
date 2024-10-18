@@ -4,6 +4,9 @@ import { type HTMLAttributes } from "vue";
 // --- types
 import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
+import type { VariantProps } from "class-variance-authority";
+import type { rootVariants } from "./radioCards.config";
+type RadioCardsVariantProps = VariantProps<typeof rootVariants>;
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
   // ---
@@ -21,6 +24,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   // ---
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
+  layout?: RadioCardsVariantProps["layout"];
   // ---
   upwindConfig?: { tooltip: Partial<RadioCardsProps> };
   class?: HTMLAttributes["class"];

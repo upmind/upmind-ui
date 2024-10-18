@@ -11,7 +11,7 @@ export const rootVariants = cva(
       },
     },
     defaultVariants: {
-      layout: "grid",
+      layout: "list",
     },
   }
 );
@@ -26,7 +26,7 @@ export const itemVariants = cva(
       },
     },
     defaultVariants: {
-      layout: "grid",
+      layout: "list",
     },
   }
 );

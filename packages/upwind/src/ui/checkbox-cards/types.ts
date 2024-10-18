@@ -3,14 +3,8 @@ import { type HTMLAttributes } from "vue";
 
 // --- types
 import type { ButtonProps } from "../button";
-import type {
-  ListboxRootProps,
-  ListboxItemProps,
-  // RadioGroupItemProps,
-} from "radix-vue";
+import type { ListboxRootProps, ListboxItemProps } from "radix-vue";
 import type { VariantProps } from "class-variance-authority";
-
-// --- internal
 import type { rootVariants } from "./checkboxCards.config";
 type CheckboxCardsVariantProps = VariantProps<typeof rootVariants>;
 
