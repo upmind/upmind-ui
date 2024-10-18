@@ -87,6 +87,16 @@ const meta: Meta<typeof Form> = {
           // formatMinimum: new Date(Date.now()).toLocaleString(),
         },
 
+        categories: {
+          type: "array",
+          uniqueItems: true,
+          items: {
+            type: "string",
+            enum: ["Work", "Personal", "Urgent", "Long-term", "Short-term"],
+          },
+          i18n: "taskform.categories",
+        },
+
         phone: {
           type: "object",
           title: "Phone",
@@ -251,6 +261,13 @@ const meta: Meta<typeof Form> = {
           scope: "#/properties/date",
           options: {
             format: "date",
+          },
+        },
+        {
+          type: "Control",
+          scope: "#/properties/categories",
+          options: {
+            format: "checkbox-cards",
           },
         },
         {
