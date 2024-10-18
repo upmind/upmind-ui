@@ -24,8 +24,8 @@ export interface InputProps {
   maxlength?: number;
   minlength?: number;
   // ---
-  max?: number;
-  min?: number;
+  max?: number | string;
+  min?: number | string;
   step?: number;
   // --- variants
   size?: InputVariantProps["size"];
