@@ -82,6 +82,10 @@ const meta: Meta<typeof Form> = {
           i18n: "form.name",
         },
 
+        password: {
+          type: "string",
+        },
+
         date: {
           type: "string",
           // formatMinimum: new Date(Date.now()).toLocaleString(),
@@ -261,6 +265,13 @@ const meta: Meta<typeof Form> = {
         {
           type: "Control",
           scope: "#/properties/name",
+        },
+        {
+          type: "Control",
+          scope: "#/properties/password",
+          options: {
+            format: "password",
+          },
         },
         {
           type: "Control",
