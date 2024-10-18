@@ -6,25 +6,37 @@
   >
     <slot name="field">
       <!-- label -->
-      <FormLabel :formItemId="id" :invalid="meta.isInvalid">
-        <slot name="label" :label="label">
-          <span class="inline-flex items-center gap-x-1">
-            <span>{{ label }}</span>
-            <Tooltip
-              v-if="tooltip"
-              :label="tooltip"
-              side="right"
-              color="primary"
-            >
-              <Icon
-                icon="information-circle-alt"
-                size="2xs"
-                class="opacity-50 transition-all duration-300 hover:opacity-100"
-              />
-            </Tooltip>
-          </span>
-        </slot>
-      </FormLabel>
+      <FormLabelGroup>
+        <template #labelGroup>
+          <FormLabel :formItemId="id" :invalid="meta.isInvalid">
+            <slot name="label" :label="label">
+              <span class="inline-flex items-center gap-x-1">
+                <span>{{ label }}</span>
+                <Tooltip
+                  v-if="tooltip"
+                  :label="tooltip"
+                  side="right"
+                  color="primary"
+                >
+                  <Icon
+                    icon="information-circle-alt"
+                    size="2xs"
+                    class="opacity-50 transition-all duration-300 hover:opacity-100"
+                  />
+                </Tooltip>
+              </span>
+            </slot>
+          </FormLabel>
+        </template>
+
+        <template #requiredLabelGroup>
+          <FormRequiredLabel :required="meta.isRequired" :formItemId="id">
+            <slot name="requiredLabel">
+              <span class="text-xs opacity-50">Required</span>
+            </slot>
+          </FormRequiredLabel>
+        </template>
+      </FormLabelGroup>
 
       <!-- text -->
 
@@ -75,6 +87,8 @@ import config from "./form.config";
 import {
   FormItem,
   FormLabel,
+  FormLabelGroup,
+  FormRequiredLabel,
   FormControl,
   FormDescription,
   FormMessage,
