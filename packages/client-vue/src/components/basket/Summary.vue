@@ -3,7 +3,7 @@
     <div :class="styles.basket.summary.content">
       <header :class="styles.basket.summary.header">
         <h3 :class="styles.basket.summary.title">
-          {{ $t("basket.summary.title") }}
+          {{ t("basket.summary.title") }}
         </h3>
       </header>
 
@@ -84,7 +84,7 @@
         <template v-if="summary?.discount">
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{
-              $tc("basket.summary.discount.title", products.length)
+              t("basket.summary.discount.title", products.length)
             }}</span>
             <!-- TODO -->
             <!-- <icon
@@ -92,7 +92,7 @@
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
-            {{ $t("basket.summary.discount.tooltip") }}
+            {{ t("basket.summary.discount.tooltip") }}
           </p> -->
           </dt>
 
@@ -102,7 +102,7 @@
         <template v-if="summary?.subtotal">
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{
-              $tc("basket.summary.subtotal.title", products.length)
+              t("basket.summary.subtotal.title", products.length)
             }}</span>
             <!-- TODO -->
             <!-- <icon
@@ -110,7 +110,7 @@
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
-            {{ $t("basket.summary.discount.tooltip") }}
+            {{ t("basket.summary.discount.tooltip") }}
           </p> -->
           </dt>
 
@@ -126,7 +126,7 @@
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
-            {{ $t("basket.summary.taxes.tooltip") }}
+            {{ t("basket.summary.taxes.tooltip") }}
           </p> -->
           </dt>
 
@@ -141,7 +141,7 @@
             cn(styles.basket.summary.heading, styles.basket.summary.total)
           "
         >
-          {{ $t("basket.summary.total") }}
+          {{ t("basket.summary.total") }}
         </dt>
         <dd
           :class="cn(styles.basket.summary.value, styles.basket.summary.total)"
@@ -159,21 +159,21 @@
           class="w-full"
           color="primary"
           block
-          :label="$t('basket.summary.actions.submit')"
+          :label="t('basket.summary.actions.submit')"
         />
       </div>
 
       <p
-        v-for="(content, index) in $tm('basket.summary.footer')"
+        v-for="(content, index) in tm('basket.summary.footer')"
         :key="`footer-foreground-${index}`"
         :class="styles.basket.summary.text"
       >
         <Icon
-          v-if="$rt(content?.icon)"
+          v-if="rt(content?.icon)"
           :class="styles.basket.summary.icon"
-          :icon="$rt(content?.icon)"
+          :icon="rt(content?.icon)"
         />
-        <span>{{ $rt(content.text) }}</span>
+        <span>{{ rt(content.text) }}</span>
       </p>
     </footer>
   </aside>
@@ -183,6 +183,7 @@
 // --- external
 import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- components
 import UpmPromotions from "./Promotions.vue";
@@ -209,11 +210,16 @@ export default defineComponent({
     },
   },
   setup() {
+    const { t, tm, rt } = useI18n();
+
     const { meta, checkout, removeItem, products, summary } = useBasket();
 
     const styles = useStyles(["basket.summary"], meta, config);
 
     return {
+      t,
+      tm,
+      rt,
       meta,
       products,
       summary,

@@ -45,6 +45,7 @@
 // --- external
 import { defineComponent, inject } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
@@ -73,11 +74,13 @@ export default defineComponent({
     color: { type: String, default: "base" },
   },
   setup(props) {
+    const { t } = useI18n();
     const useClient = inject("client");
     const clientForm = useClient(props.modelValue);
     const styles = useStyles(["clientForm"], clientForm.meta, config);
 
     return {
+      t,
       styles,
       ...clientForm,
     };
@@ -87,7 +90,7 @@ export default defineComponent({
     actions() {
       const actions = {
         cancel: {
-          label: this?.$t(`client.${this.i18nKey}.actions.cancel`),
+          label: this?.t(`client.${this.i18nKey}.actions.cancel`),
           variant: "ghost",
           color: this.color,
           disabled: this?.meta?.isProcessing,
@@ -98,7 +101,7 @@ export default defineComponent({
           type: "submit",
           variant: "flat",
           color: this.color,
-          label: this?.$tc(
+          label: this?.t(
             `client.${this.i18nKey}.actions.submit`,
             this.model?.company_details ? 0 : 1
           ),
@@ -126,13 +129,13 @@ export default defineComponent({
 
     safeTitle() {
       if (this.model?.company_details) {
-        return this.$tc(
+        return this.t(
           `client.${this.i18nKey}.form.title.company`,
           this?.meta?.isNew ? 1 : 0
         );
       }
 
-      return this.$tc(
+      return this.t(
         `client.${this.i18nKey}.form.title.address`,
         this?.meta?.isNew ? 1 : 0
       );
