@@ -20,33 +20,29 @@
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
-        <FormBooleanLabelGroup>
+        <div
+          class="flex w-full flex-row flex-nowrap items-center justify-between"
+        >
           <!-- label -->
-          <template #labelGroup>
-            <FormLabel :formItemId="control.id" :invalid="!!control.errors">
-              {{ control.label }}
-            </FormLabel>
-          </template>
+          <FormLabel :formItemId="control.id" :invalid="!!control.errors">
+            {{ control.label }}
+          </FormLabel>
 
           <!-- description -->
-          <template #descriptionGroup>
-            <FormDescription
-              v-if="control?.description"
-              :formDescriptionId="`form-item-description-${control.id}`"
-              class="!my-0"
-            >
-              {{ control.description }}
-            </FormDescription>
-          </template>
+          <FormDescription
+            v-if="control?.description"
+            :formDescriptionId="`form-item-description-${control.id}`"
+            class="!my-0"
+          >
+            {{ control.description }}
+          </FormDescription>
 
           <!-- required -->
-          <template #requiredLabelGroup>
-            <FormRequiredLabel
-              :required="control.required"
-              :formItemId="control.id"
-            />
-          </template>
-        </FormBooleanLabelGroup>
+          <FormRequiredIndicator
+            v-if="control.required"
+            :formItemId="control.id"
+          />
+        </div>
 
         <!-- validation messages -->
         <FormMessage
@@ -63,7 +59,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { get } from "lodash-es";
 
@@ -74,8 +69,7 @@ import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
-import FormRequiredLabel from "../../FormRequiredLabel.vue";
-import FormBooleanLabelGroup from "../../FormBooleanLabelGroup.vue";
+import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -89,7 +83,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props),
-  v => !!v
+  value => !!value // Ensure bool value is set to the opposite value rather than null
 );
 
 const delegatedProps = computed(() => {
@@ -112,6 +106,7 @@ const delegatedProps = computed(() => {
 </script>
 
 <script lang="ts">
+import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isBooleanControl, optionIs("format", "switch")),
