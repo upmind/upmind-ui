@@ -16,9 +16,9 @@ import { useJsonFormsEnumControl } from "@jsonforms/vue";
 // --- components
 import FormField from "../../FormField.vue";
 import { Select } from "../../../select";
+
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -31,7 +31,7 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsEnumControl(props)
 );
 const delegatedProps = computed(() => {
-  const options = get(appliedOptions.value, "options", {});
+  const options = appliedOptions.value || {};
 
   return {
     id: control.value.id,

@@ -4,15 +4,12 @@
       :disabled="!control.enabled"
       :max="safeMax"
       :min="safeMin"
-      :placeholder="appliedOptions?.placeholder"
       :type="appliedOptions?.type"
+      :placeholder="appliedOptions?.placeholder"
       :autocomplete="appliedOptions?.autocomplete"
-      :autofocus="appliedOptions?.autofocus"
       :maxlength="appliedOptions?.maxLength"
       :minlength="appliedOptions?.minLength"
-      :pattern="appliedOptions?.pattern"
       :readonly="appliedOptions?.readonly"
-      :required="appliedOptions?.required"
       :model-value="control.data"
       @update:modelValue="onInput"
     />
@@ -45,8 +42,7 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 );
 
 const delegatedProps = computed(() => {
-  const options = get(appliedOptions.value, "options", {});
-
+  const options = appliedOptions.value || {};
   return {
     id: control.value.id,
     name: control.value.path,

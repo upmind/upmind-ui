@@ -31,7 +31,7 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsOneOfEnumControl(props)
 );
 const delegatedProps = computed(() => {
-  const options = get(appliedOptions.value, "options", {});
+  const options = appliedOptions.value || {};
 
   return {
     id: control.value.id,

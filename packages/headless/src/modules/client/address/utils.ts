@@ -161,7 +161,7 @@ export const useUischema = () => {
         type: "Control",
         scope: "#/properties/name",
         options: {
-          focus: true,
+          autofocus: true,
           autocomplete: "off",
           placeholder: "My home address, etc...",
         },
@@ -220,7 +220,7 @@ export const useUischema = () => {
             scope: "#/properties/address_1",
             label: "Address", // ensure we  show the title for BOTH address fields
             options: {
-              focus: true,
+              autofocus: true,
               autocomplete: "address-line1",
               placeholder: "Address first line...",
             },

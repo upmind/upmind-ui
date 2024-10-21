@@ -124,7 +124,7 @@ export const useUischema = () => {
         type: "Control",
         scope: "#/properties/name",
         options: {
-          focus: true,
+          autofocus: true,
           autocomplete: "off",
           placeholder: "My company name",
         },

@@ -67,7 +67,6 @@ export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
           format: "radio",
           stretch: true,
           layout: "stacked",
-          noRequired: true,
           noLabel: true,
           items: map(
             stored_payment_methods,
