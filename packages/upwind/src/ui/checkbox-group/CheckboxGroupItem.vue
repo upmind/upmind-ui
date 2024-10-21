@@ -4,8 +4,7 @@
     as="button"
     :class="
       cn(
-        'group relative !m-0 flex w-full select-none items-start rounded pl-10 text-start leading-none outline-none',
-        props.class
+        'group relative !m-0 flex w-full select-none items-start rounded pl-10 text-start leading-none outline-none'
       )
     "
   >

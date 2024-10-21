@@ -24,7 +24,7 @@ export default {
     item: cva(
       "flex cursor-pointer items-start space-x-2 border border-t-0 border-control"
     ),
-    label: cva("m-0 h-full w-full rounded-md py-3 pr-6 text-xs "),
-    input: cva("my-4 ml-3 mr-1 leading-normal"),
+    label: cva("m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-xs"),
+    input: cva("my-4 ml-3 mr-1 leading-normal text-control-active"),
   },
 };
