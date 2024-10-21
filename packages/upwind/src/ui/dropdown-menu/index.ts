@@ -20,7 +20,7 @@ export { default as DropdownMenuSub } from "./DropdownMenuSub.vue";
 export { default as DropdownMenuSubTrigger } from "./DropdownMenuSubTrigger.vue";
 export { default as DropdownMenuSubContent } from "./DropdownMenuSubContent.vue";
 
-export { type DropdownMenuProps } from "./types";
+export { type DropdownMenuProps, type DropdownMenuItemProps } from "./types";
 
 // --- custom elements
 import DropdownMenu from "./DropdownMenu.ce.vue";

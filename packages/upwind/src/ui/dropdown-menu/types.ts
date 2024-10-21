@@ -49,4 +49,5 @@ export interface DropdownMenuProps
   upwindConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
+  itemClass?: HTMLAttributes["class"];
 }

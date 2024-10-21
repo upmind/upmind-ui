@@ -35,7 +35,11 @@ export default {
   checkboxCards: {
     root: rootVariants,
     item: itemVariants,
-    label: cva("m-0 h-full w-full rounded-md py-3 pr-6 text-xs "),
-    input: cva("my-3 ml-3 mr-1 border-control leading-normal"),
+    label: cva(
+      "m-0 h-full w-full rounded-md py-3 pr-6 text-xs leading-tight text-primary"
+    ),
+    input: cva(
+      "my-3 ml-3 mr-1 border-control leading-normal text-control-active"
+    ),
   },
 };
