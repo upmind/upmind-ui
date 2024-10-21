@@ -59,7 +59,9 @@
         )
       "
     >
-      <DropdownMenuLabel v-if="props.title">{{ title }}</DropdownMenuLabel>
+      <DropdownMenuLabel v-if="props.title || $slots.label" class="border-b">
+        <slot name="label">{{ title }}</slot>
+      </DropdownMenuLabel>
 
       <DropdownMenuGroup>
         <template v-for="(item, index) in items" :key="`item-${index}`">
@@ -71,7 +73,8 @@
               cn(
                 'group flex cursor-pointer items-center justify-start gap-4',
                 variants.dropdownMenu.item,
-                item.class
+                item.class,
+                props.itemClass
               )
             "
             @click="doAction(item)"
@@ -137,6 +140,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   upwindConfig: () => ({ dropdownMenu: {} }),
   class: "",
   popoverClass: "",
+  itemClass: "",
 });
 
 const meta = computed(() => ({
