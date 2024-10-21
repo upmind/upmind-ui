@@ -20,33 +20,29 @@
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
-        <FormBooleanLabelGroup>
+        <div
+          class="flex w-full flex-row flex-nowrap items-center justify-between"
+        >
           <!-- label -->
-          <template #labelGroup>
-            <FormLabel :formItemId="control.id" :invalid="!!control.errors">
-              {{ control.label }}
-            </FormLabel>
-          </template>
+          <FormLabel :formItemId="control.id" :invalid="!!control.errors">
+            {{ control.label }}
+          </FormLabel>
 
           <!-- description -->
-          <template #descriptionGroup>
-            <FormDescription
-              v-if="control?.description"
-              :formDescriptionId="`form-item-description-${control.id}`"
-              class="!my-0"
-            >
-              {{ control.description }}
-            </FormDescription>
-          </template>
+          <FormDescription
+            v-if="control?.description"
+            :formDescriptionId="`form-item-description-${control.id}`"
+            class="!my-0"
+          >
+            {{ control.description }}
+          </FormDescription>
 
           <!-- required -->
-          <template #requiredLabelGroup>
-            <FormRequiredLabel
-              :required="control.required"
-              :formItemId="control.id"
-            />
-          </template>
-        </FormBooleanLabelGroup>
+          <FormRequiredLabel
+            :required="control.required"
+            :formItemId="control.id"
+          />
+        </div>
 
         <!-- validation messages -->
         <FormMessage

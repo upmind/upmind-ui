@@ -6,33 +6,31 @@
   >
     <slot name="field">
       <!-- label -->
-      <FormLabelGroup>
-        <template #labelGroup>
-          <FormLabel :formItemId="id" :invalid="meta.isInvalid">
-            <slot name="label" :label="label">
-              <span class="inline-flex items-center gap-x-1">
-                <span>{{ label }}</span>
-                <Tooltip
-                  v-if="tooltip"
-                  :label="tooltip"
-                  side="right"
-                  color="primary"
-                >
-                  <Icon
-                    icon="information-circle-alt"
-                    size="2xs"
-                    class="opacity-50 transition-all duration-300 hover:opacity-100"
-                  />
-                </Tooltip>
-              </span>
-            </slot>
-          </FormLabel>
-        </template>
+      <div
+        class="flex w-full flex-row flex-nowrap items-center justify-between"
+      >
+        <FormLabel :formItemId="id" :invalid="meta.isInvalid">
+          <slot name="label" :label="label">
+            <span class="inline-flex items-center gap-x-1">
+              <span>{{ label }}</span>
+              <Tooltip
+                v-if="tooltip"
+                :label="tooltip"
+                side="right"
+                color="primary"
+              >
+                <Icon
+                  icon="information-circle-alt"
+                  size="2xs"
+                  class="opacity-50 transition-all duration-300 hover:opacity-100"
+                />
+              </Tooltip>
+            </span>
+          </slot>
+        </FormLabel>
 
-        <template #requiredLabelGroup>
-          <FormRequiredLabel :required="meta.isRequired" :formItemId="id" />
-        </template>
-      </FormLabelGroup>
+        <FormRequiredLabel :required="meta.isRequired" :formItemId="id" />
+      </div>
 
       <!-- text -->
 
