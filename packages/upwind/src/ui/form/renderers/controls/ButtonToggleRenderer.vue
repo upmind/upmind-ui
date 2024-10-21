@@ -12,27 +12,25 @@
         :formMessageId="`form-item-message-${control.id}`"
       >
         <!-- label -->
-        <FormLabelGroup class="!justify-start space-x-2">
-          <template #labelGroup>
-            <Toggle
-              :id="control.id"
-              :disabled="!control.enabled"
-              :checked="control.data"
-              :aria-label="control.label"
-              @update:checked="onInput"
-            >
-              <!-- label -->
-              {{ control.label }}
-            </Toggle>
-          </template>
+        <div
+          class="flex w-full flex-row flex-nowrap items-center justify-between"
+        >
+          <Toggle
+            :id="control.id"
+            :disabled="!control.enabled"
+            :checked="control.data"
+            :aria-label="control.label"
+            @update:checked="onInput"
+          >
+            <!-- label -->
+            {{ control.label }}
+          </Toggle>
 
-          <template #requiredLabelGroup>
-            <FormRequiredLabel
-              :required="control.required"
-              :formItemId="control.id"
-            />
-          </template>
-        </FormLabelGroup>
+          <FormRequiredLabel
+            :required="control.required"
+            :formItemId="control.id"
+          />
+        </div>
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
