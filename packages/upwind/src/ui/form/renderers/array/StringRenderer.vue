@@ -19,7 +19,7 @@ import FormField from "../../FormField.vue";
 import { CheckboxCards } from "../../../checkbox-cards";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpwindArrayRenderer } from "../utils";
 import { get } from "lodash-es";
 
 // --- types
@@ -32,7 +32,7 @@ defineOptions({
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, appliedOptions, onInput } = useUpwindArrayRenderer(
   useJsonFormsMultiEnumControl(props)
 );
 
