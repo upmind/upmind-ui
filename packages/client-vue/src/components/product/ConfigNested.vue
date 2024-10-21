@@ -42,7 +42,7 @@
                 <Badge
                   color="promotion"
                   :label="
-                    $tc(
+                    t(
                       'product.promo_save',
                       promotion.mixed || !promotion.amount ? 1 : 0,
                       {
@@ -88,7 +88,7 @@
                     ? value.price?.price_discounted_formatted
                     : value.price.price
                       ? value.price?.price_formatted
-                      : $t("product.free")
+                      : t("product.free")
                 }}
               </strong>
 
@@ -109,6 +109,7 @@
 <script>
 // --- external
 import { defineComponent, toRefs, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -168,6 +169,8 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    const { t } = useI18n();
+
     const styles = useStyles(
       ["product.config.list", "product.config.list.item"],
       toRefs(props),
@@ -175,6 +178,7 @@ export default defineComponent({
     );
 
     return {
+      t,
       styles,
       cn,
       blurred: ref({}),
@@ -186,7 +190,7 @@ export default defineComponent({
       const hasPrices = this.hasPrices(item);
 
       if (hasPrices && item?.price_override) {
-        return this.$tc("product.adds_overrides", item?.price_override ? 1 : 0);
+        return this.t("product.adds_overrides", item?.price_override ? 1 : 0);
       }
 
       return null;

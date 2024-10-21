@@ -279,7 +279,7 @@ export default defineComponent({
 
     safeI18n() {
       // if we are given an i18n object, use it
-      // otherwise, if we have vue-i18n enabled, it will provide the$locale & $t function, use that
+      // otherwise, if we have vue-i18n enabled, it will provide the$locale & t function, use that
       // otherwise, return null
 
       const createTranslator = locale => (key, defaultMessage) => {
@@ -290,8 +290,8 @@ export default defineComponent({
 
         // If we have been given a translator function, use it
         if (isFunction(this.translator)) value = this.translator(key);
-        // otherwise, if we have vue-i18n enabled, it will provide the $locale & $t function, use that
-        else if (this?.$t) value = this?.$t(key);
+        // otherwise, if we have vue-i18n enabled, it will provide the $locale & t function, use that
+        else if (this?.t) value = this?.t(key);
 
         // otherwise return the default message
         if (!value || value == key) value = defaultMessage;
@@ -391,7 +391,7 @@ export default defineComponent({
 
         // map additional i18n, json forms just does title & description
         if (child.i18n) {
-          const values = this?.$tm(child.i18n);
+          const values = this?.tm(child.i18n);
           forEach(values, (value, key) => {
             set(child.options, key, value);
           });

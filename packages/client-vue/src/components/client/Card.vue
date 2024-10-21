@@ -42,6 +42,7 @@
 <script>
 // --- external
 import { defineComponent, inject, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
@@ -77,6 +78,8 @@ export default defineComponent({
     selectable: { type: Boolean, default: true },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const useClient = inject("client");
 
     const { selected, loading, hidden, disabled, selectable } = toRefs(props);
@@ -98,6 +101,7 @@ export default defineComponent({
     // ------------------------------------------------
 
     return {
+      t,
       config,
       styles,
       ...clientCard,
@@ -112,13 +116,13 @@ export default defineComponent({
     badges() {
       return [
         {
-          label: this.$t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
+          label: this.t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
           variant: "tonal",
           color: "base",
           visible: !!this.meta?.type,
         },
         {
-          label: this.$t(`client.${this.i18nKey}.badges.default`),
+          label: this.t(`client.${this.i18nKey}.badges.default`),
           variant: "tonal",
           color: "base",
           visible: this.meta.isDefault,
@@ -128,7 +132,7 @@ export default defineComponent({
     actions() {
       return [
         {
-          label: this.$tc(`client.${this.i18nKey}.actions.select`),
+          label: this.t(`client.${this.i18nKey}.actions.select`),
           hidden: this.meta.isDefault, //|| !this.meta.isVerified,
           icon: "check-square",
           handler: () => {
@@ -138,7 +142,7 @@ export default defineComponent({
         },
         {
           icon: "edit",
-          label: this.$tc(`client.${this.i18nKey}.actions.edit`),
+          label: this.t(`client.${this.i18nKey}.actions.edit`),
           handler: () => {
             this.open = false;
             this.edit();
@@ -146,7 +150,7 @@ export default defineComponent({
         },
         {
           icon: "remove",
-          label: this.$tc(`client.${this.i18nKey}.actions.delete`),
+          label: this.t(`client.${this.i18nKey}.actions.delete`),
           hidden: !this.meta.canRemove,
           class:
             "text-destructive data-[highlighted]:bg-destructive-50 data-[highlighted]:text-destructive",
@@ -158,7 +162,7 @@ export default defineComponent({
         },
         {
           icon: "copy",
-          label: this.$tc(
+          label: this.t(
             `client.${this.i18nKey}.actions.copy`,
             this.copied ? 0 : 1
           ),

@@ -14,9 +14,9 @@
     @update:term="updateTerm"
   >
     <template #header>
-      <span v-if="meta.isNew">{{ $t("basket.items.pending.title") }}</span>
+      <span v-if="meta.isNew">{{ t("basket.items.pending.title") }}</span>
       <span v-else-if="meta.hasErrors">{{
-        $t("basket.items.invalid.title")
+        t("basket.items.invalid.title")
       }}</span>
     </template>
   </UpmProductConfig>
@@ -34,7 +34,7 @@
         variant="flat"
         :class="styles.basket.item.ping.root"
       >
-        {{ $t("basket.items.pending.badge") }}
+        {{ t("basket.items.pending.badge") }}
       </Badge>
       <Badge
         v-else-if="meta.hasErrors"
@@ -42,7 +42,7 @@
         variant="flat"
         :class="styles.basket.item.ping.root"
       >
-        {{ $t("basket.items.invalid.badge") }}
+        {{ t("basket.items.invalid.badge") }}
       </Badge>
     </template>
   </UpmProductCard>
@@ -51,6 +51,7 @@
 <script>
 // --- external
 import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useProductConfig, useBasket, utils } from "@upmind/headless-vue";
@@ -88,6 +89,8 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const { removeItem, updateItem } = useBasket();
 
     const {
@@ -107,6 +110,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       meta,
       removeItem,
       updateItem,

@@ -12,8 +12,8 @@
     layout="stacked"
   >
     <Form
-      :locale="$i18n.locale"
-      :translator="$t"
+      :locale="locale"
+      :translator="t"
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
@@ -28,6 +28,7 @@
 <script>
 // --- external
 import { defineComponent, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -76,9 +77,14 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    const { t, locale } = useI18n();
+
     const styles = useStyles(["product.config.form"], toRefs(props), config);
 
     return {
+      locale,
+      t,
+
       styles,
       cn,
       additionalRenderers,

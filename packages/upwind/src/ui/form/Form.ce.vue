@@ -5,19 +5,8 @@
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
-    <!-- <JsonForms
-      :i18n="i18n"
-      :ajv="ajv"
-      :data="model"
-      :schema="schema"
-      :uischema="uischema"
-      :renderers="renderers"
-      :validationMode="mode"
-      :additionalErrors="additionalErrors"
-      @change="onChange"
-      :class="variants.form.content"
-    /> -->
     <JsonForms
+      :i18n="i18n"
       :ajv="ajv"
       :data="model"
       :schema="schema"
@@ -52,7 +41,7 @@
 // --- external
 import { ref, watch, computed } from "vue";
 import { useVModel } from "@vueuse/core";
-// import { useI18n } from "vue-i18n";
+import { useI18n } from "vue-i18n";
 
 // --- components
 import { iterateSchema } from "@jsonforms/core";
@@ -183,37 +172,37 @@ const mode = computed<ValidationMode>(() => {
 });
 
 // --- i18n
-// const { t, tm, locale } = useI18n();
+const { t, tm, locale } = useI18n();
 
-// const i18n = computed<JsonFormsI18nState>(() => {
-//   // if we are given an i18n object, use it
-//   // otherwise, if we have vue-i18n enabled, it will provide the$locale & t function, use that
-//   // otherwise, return null
+const i18n = computed<JsonFormsI18nState>(() => {
+  // if we are given an i18n object, use it
+  // otherwise, if we have vue-i18n enabled, it will provide the$locale & t function, use that
+  // otherwise, return null
 
-//   const createTranslator =
-//     (_locale: string) => (key: string, defaultMessage: string) => {
-//       let value = null;
-//       // console.debug(
-//       //   `Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`
-//       // );
+  const createTranslator =
+    (_locale: string) => (key: string, defaultMessage: string) => {
+      let value = null;
+      // console.debug(
+      //   `Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`
+      // );
 
-//       // If we have been given a translator function, use it
-//       if (isFunction(props.translator)) value = props.translator(key);
-//       // otherwise, if we have vue-i18n enabled, it will provide the $locale & t function, use that
-//       else if (isFunction(t)) value = t(key);
+      // If we have been given a translator function, use it
+      if (isFunction(props.translator)) value = props.translator(key);
+      // otherwise, if we have vue-i18n enabled, it will provide the $locale & t function, use that
+      else if (isFunction(t)) value = t(key);
 
-//       // otherwise return the default message
-//       if (!value || value == key) value = defaultMessage;
+      // otherwise return the default message
+      if (!value || value == key) value = defaultMessage;
 
-//       return value;
-//     };
+      return value;
+    };
 
-//   const safeLocale: string = props.locale || locale.value;
-//   return {
-//     locale: safeLocale,
-//     translate: createTranslator(safeLocale),
-//   } as JsonFormsI18nState;
-// });
+  const safeLocale: string = props.locale || locale.value;
+  return {
+    locale: safeLocale,
+    translate: createTranslator(safeLocale),
+  } as JsonFormsI18nState;
+});
 
 // --- methods
 function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
@@ -301,10 +290,10 @@ function updateUischema(uischema: FormProps["uischema"]) {
     child.options.size ??= props.size; // only set if not already set
 
     // map additional i18n, json forms just does title & description
-    // if (child?.i18n) {
-    //   const values: Record<string, any> = tm(child.i18n);
-    //   merge(child.options, values);
-    // }
+    if (child?.i18n) {
+      const values: Record<string, any> = tm(child.i18n);
+      merge(child.options, values);
+    }
   });
 }
 

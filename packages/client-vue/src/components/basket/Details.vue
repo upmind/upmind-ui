@@ -3,11 +3,11 @@
     <header :class="styles.basket.details.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.details.text">
-          {{ $t("basket.details.text") }}
+          {{ t("basket.details.text") }}
         </span>
 
         <h1 :class="styles.basket.details.title">
-          {{ $t("basket.details.title", summary) }}
+          {{ t("basket.details.title", summary) }}
         </h1>
       </slot>
     </header>
@@ -51,6 +51,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
@@ -83,6 +84,8 @@ export default defineComponent({
   },
   props: {},
   setup() {
+    const { t } = useI18n();
+
     const { meta, summary } = useBasket();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
@@ -92,6 +95,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       meta,
       billingDetailsModel: billingDetails.model,
       billingDetailsUpdate: billingDetails.update,

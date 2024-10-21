@@ -24,7 +24,7 @@
     <!-- otherwise show the default address as a card -->
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
-        {{ $t("client.title") }}
+        {{ t("client.title") }}
 
         <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
 
@@ -32,14 +32,14 @@
           <Button
             :key="selected?.id"
             variant="tonal"
-            :label="$t('client.actions.convert')"
+            :label="t('client.actions.convert')"
             size="xs"
             @click="onEdit"
             v-if="!selected?.state?.value?.context?.model?.company_details"
           />
           <Button
             variant="tonal"
-            :label="$t('client.actions.change')"
+            :label="t('client.actions.change')"
             size="xs"
             @click="onChange"
           />
@@ -59,7 +59,7 @@
         <!-- <Button
           :key="selected?.id"
           variant="tonal"
-          :label="$t('client.actions.convert')"
+          :label="t('client.actions.convert')"
           size="xs"
           @click="onEdit"
           v-if="!selected?.state?.value?.context?.model?.company_details"
@@ -87,6 +87,8 @@
 // --- external
 import { defineComponent, provide, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
+
 // --- internal
 import {
   useClientUnifiedAddress,
@@ -124,6 +126,7 @@ export default defineComponent({
     color: { type: String, default: "base" },
   },
   setup() {
+    const { t } = useI18n();
     const client = useClientUnifiedAddresses();
     const styles = useStyles(["client"], client.meta, config);
     // ---
@@ -142,6 +145,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       add,
       selected,
       select,
@@ -160,13 +164,13 @@ export default defineComponent({
         convert: {
           // variant: "tonal",
           // size: "xs",
-          label: this.$t("client.actions.convert"),
+          label: this.t("client.actions.convert"),
           handler: () => this.onEdit(),
         },
         change: {
           // variant: "tonal",
           // size: "xs",
-          label: this.$t("client.actions.change"),
+          label: this.t("client.actions.change"),
           handler: () => this.onChange(),
         },
       };

@@ -27,13 +27,13 @@
             <Badge
               v-if="product?.hasFreeTrial"
               color="secondary"
-              :label="$t('product.trail')"
+              :label="t('product.trail')"
             />
 
             <Badge
               v-if="product?.isOnPromotion"
               color="promotion"
-              :label="$t('product.promotion')"
+              :label="t('product.promotion')"
             />
 
             <h3 :class="styles.product.config.title">
@@ -65,7 +65,7 @@
                 {{
                   summary?.subtotal
                     ? summary?.subtotal_formatted
-                    : $t("product.free")
+                    : t("product.free")
                 }}
               </span>
 
@@ -74,7 +74,7 @@
                 v-if="!isNil(summary?.total)"
               >
                 {{
-                  summary?.total ? summary?.total_formatted : $t("product.free")
+                  summary?.total ? summary?.total_formatted : t("product.free")
                 }}
               </strong>
             </span>
@@ -83,8 +83,8 @@
           <UpwLineclamp
             :class="styles.product.config.text"
             :lines="2"
-            :labelMore="$tc('product.actions.more', 1)"
-            :labelLess="$tc('product.actions.more', 0)"
+            :labelMore="t('product.actions.more', 1)"
+            :labelLess="t('product.actions.more', 0)"
           >
             <UpwMarkdown
               v-if="product?.description"
@@ -112,7 +112,7 @@
             v-if="meta.hasTerms"
             :errors="errors?.term"
             :items="terms"
-            :label="$t('product.terms.label')"
+            :label="t('product.terms.label')"
             :model-value="model?.term?.billing_cycle_months || 0"
             :processing="meta.isProcessing || meta.isLoading"
             @update:modelValue="updateTerm"
@@ -160,7 +160,7 @@
       <Button
         type="reset"
         tabindex="1"
-        :label="$t('product.actions.reject')"
+        :label="t('product.actions.reject')"
         :disabled="meta.isProcessing || required"
         @click="doReject"
         color="current"
@@ -168,7 +168,7 @@
       />
 
       <span :class="styles.product.config.itemtotal" v-if="summary?.total">
-        <span>{{ $t("product.total") }}</span>
+        <span>{{ t("product.total") }}</span>
         <strong :class="styles.product.config.bold">
           {{ summary?.total_formatted }}
         </strong>
@@ -177,7 +177,7 @@
       <Button
         type="submit"
         tabindex="0"
-        :label="$t('product.actions.resolve')"
+        :label="t('product.actions.resolve')"
         :loading="meta.isProcessing"
         :disabled="meta.isLoading || !meta.isConfigured"
         color="secondary"
@@ -189,6 +189,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useProductConfig } from "@upmind/headless-vue";
@@ -251,6 +252,8 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
+
     const {
       lookups,
       // ---
@@ -286,6 +289,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       lookups,
       // ---
       product,

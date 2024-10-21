@@ -17,6 +17,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- components
 import { UpwDropdown } from "@upmind/upwind";
@@ -49,11 +50,14 @@ export default defineComponent({
     },
   },
   setup() {
+    const { t } = useI18n();
+
     const { meta, user, logout } = useSession();
 
     const styles = useStyles(["session.profile"], meta, config);
 
     return {
+      t,
       meta,
       user,
       styles,
@@ -67,7 +71,7 @@ export default defineComponent({
 
       return [
         {
-          label: this.$t("auth.actions.logout"),
+          label: this.t("auth.actions.logout"),
           icon: "logout",
           action: this.logout,
         },
