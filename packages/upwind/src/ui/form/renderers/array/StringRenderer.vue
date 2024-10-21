@@ -35,7 +35,7 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 );
 
 const delegatedProps = computed(() => {
-  const options = get(appliedOptions.value, "options", {});
+  const options = appliedOptions.value || {};
 
   return {
     id: control.value.id,
@@ -53,9 +53,7 @@ const delegatedProps = computed(() => {
 });
 
 function doAddRemove(value: string) {
-  debugger;
   const checked = !includes(control.value.data, value);
-  debugger;
   onInput(checked, value);
 }
 </script>
