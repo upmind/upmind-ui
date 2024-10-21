@@ -22,9 +22,9 @@ export default {
     trigger: triggerVariants,
     items: cva("gap-0"),
     item: cva(
-      "flex cursor-pointer items-start space-x-2 border border-t-0 border-control"
+      "flex items-start space-x-2 border border-t-0 border-control transition-all duration-300 hover:bg-base-100"
     ),
     label: cva("m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-xs"),
-    input: cva("my-4 ml-3 mr-1 leading-normal text-control-active"),
+    input: cva("my-4 ml-3 mr-1 leading-normal"),
   },
 };
