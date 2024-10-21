@@ -92,15 +92,15 @@ const meta: Meta<typeof Form> = {
           format: "date",
         },
 
-        categories: {
-          type: "array",
-          uniqueItems: true,
-          items: {
-            type: "string",
-            enum: ["Work", "Personal", "Urgent", "Long-term", "Short-term"],
-          },
-          i18n: "taskform.categories",
-        },
+        // categories: {
+        //   type: "array",
+        //   uniqueItems: true,
+        //   items: {
+        //     type: "string",
+        //     enum: ["Work", "Personal", "Urgent", "Long-term", "Short-term"],
+        //   },
+        //   i18n: "taskform.categories",
+        // },
 
         phone: {
           type: "object",
@@ -144,12 +144,6 @@ const meta: Meta<typeof Form> = {
           i18n: "form.about",
         },
         accept: {
-          type: "boolean",
-          title: "Do you accept the terms and conditions?",
-          description: "Must be accepted to use our service",
-          i18n: "form.accept",
-        },
-        switch: {
           type: "boolean",
           title: "Do you accept the terms and conditions?",
           description: "Must be accepted to use our service",
