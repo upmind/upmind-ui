@@ -32,6 +32,7 @@ export interface FormProps {
   autosave?: boolean;
   // ---
   size?: FormVariantProps["size"];
+
   // ---
   loading?: boolean;
   processing?: boolean;
@@ -63,7 +64,9 @@ export interface FormControlProps {
   errors?: string | string[];
   // --- variants
   size?: "sm" | "md" | "lg";
+  noLabel?: boolean;
   // ---state
+  autofocus?: boolean;
   required?: boolean;
   visible?: boolean;
   disabled?: boolean;

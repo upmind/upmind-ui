@@ -428,7 +428,7 @@ export const Task: Story = {
           type: "Control",
           scope: "#/properties/name",
           options: {
-            focus: true,
+            autofocus: true,
           },
         },
 

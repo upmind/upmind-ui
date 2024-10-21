@@ -36,7 +36,7 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 );
 
 const delegatedProps = computed(() => {
-  const options = get(appliedOptions.value, "options", {});
+  const options = appliedOptions.value || {};
 
   return {
     id: control.value.id,

@@ -49,7 +49,7 @@ export const useRegisterUischemaParser = (data: any) => {
         scope: "#/properties/firstname",
         i18n: "auth.register.firstname",
         options: {
-          focus: true,
+          autofocus: true,
           autocomplete: "given-name",
           placeholder: "Jay,Jane,John,... ",
         },

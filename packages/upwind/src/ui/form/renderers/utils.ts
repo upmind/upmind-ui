@@ -113,18 +113,14 @@ export const useUpwindArrayRenderer = <
   };
 
   const onInput = debounce((checked: boolean, value: any) => {
-    debugger;
     if (checked) {
-      debugger;
       if (isFunction(input?.addItem)) {
-        debugger;
         input.addItem(input.control.value.path, value);
       } else {
         //
       }
     } else {
       if (isFunction(input?.removeItem)) {
-        debugger;
         input?.removeItem(input.control.value.path, value);
       } else {
         //
