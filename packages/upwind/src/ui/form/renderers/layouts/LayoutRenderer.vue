@@ -17,9 +17,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { computed, defineComponent } from "vue";
+import { computed } from "vue";
 import { isLayout } from "@jsonforms/core";
 import {
   DispatchRenderer,
@@ -41,39 +41,29 @@ import type { InputProps } from "../controls/types";
 
 // -------------------------------------------------------------------
 
-export default defineComponent({
-  name: "LayoutRenderer",
-  components: {
-    DispatchRenderer,
+const props = defineProps({
+  ...rendererProps<Layout>(),
+  // ---  Additional Attributes
+  size: {
+    type: String as PropType<InputProps["size"]>,
+    default: null,
   },
-  props: {
-    ...rendererProps<Layout>(),
-    // ---  Additional Attributes
-    size: {
-      type: String as PropType<InputProps["size"]>,
-      default: null,
-    },
-    // --- Provide a way to add custom styles for a specific instance of the component
-    upwindConfig: { type: [Object, Array], default: () => ({}) },
-  },
-  setup(props: RendererProps<Layout>) {
-    const meta = computed(() => ({
-      isVisible: renderer.layout.value.visible,
-      isDisabled: !renderer.layout.value.enabled,
-      isHorizontal: renderer.layout.value.direction === "row",
-    }));
-
-    const styles = useStyles(["layout"], meta, config, props.upwindConfig);
-    const renderer = useUpwindLayoutRenderer(useJsonFormsLayout(props));
-    // we dont process styles as  we are using an upwind control, so rather pass the configs and allow the control to handle it
-    return {
-      ...renderer,
-      meta,
-      styles,
-      config, // pass the config to the  component
-    };
-  },
+  // --- Provide a way to add custom styles for a specific instance of the component
+  upwindConfig: { type: [Object, Array], default: () => ({}) },
 });
 
+const meta = computed(() => ({
+  isVisible: layout.value.visible,
+  isDisabled: !layout.value.enabled,
+  isHorizontal: layout.value.direction === "row",
+}));
+
+const styles = useStyles(["layout"], meta, config, props.upwindConfig);
+const { layout, appliedOptions } = useUpwindLayoutRenderer(
+  useJsonFormsLayout(props)
+);
+</script>
+
+<script lang="ts">
 export const tester = { rank: 1, controlType: isLayout };
 </script>

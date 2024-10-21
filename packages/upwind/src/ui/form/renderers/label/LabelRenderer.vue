@@ -2,11 +2,9 @@
   <Label v-bind="{ ...label, ...appliedOptions }" />
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // --- external
-import { defineComponent } from "vue";
-import { uiTypeIs } from "@jsonforms/core";
-import { rendererProps, useJsonFormsLabel } from "@jsonforms/vue";
+import { useJsonFormsLabel } from "@jsonforms/vue";
 
 // --- components
 import { Label } from "../../../label";
@@ -20,22 +18,16 @@ import type { RendererProps } from "@jsonforms/vue";
 
 // -------------------------------------------------------------------
 
-export default defineComponent({
-  name: "LabelRenderer",
-  components: {
-    Label,
-  },
-  props: {
-    ...rendererProps<LabelElement>(),
-  },
-  setup(props: RendererProps<LabelElement>) {
-    const renderer = useUpwindLabelRenderer(useJsonFormsLabel(props));
-    return {
-      ...renderer,
-    };
-  },
-});
+const props = defineProps<RendererProps<LabelElement>>();
 
+const renderer = useUpwindLabelRenderer(useJsonFormsLabel(props));
+
+// Destructure renderer properties
+const { label, appliedOptions } = renderer;
+</script>
+
+<script lang="ts">
+import { uiTypeIs } from "@jsonforms/core";
 export const tester = {
   rank: 1,
   controlType: uiTypeIs("Label"),

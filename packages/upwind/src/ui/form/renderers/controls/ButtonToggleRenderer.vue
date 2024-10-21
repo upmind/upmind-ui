@@ -1,6 +1,6 @@
 <template>
   <FormField
-    v-bind="{ ...delegatedProps, ...appliedOptions }"
+    v-bind="delegatedProps"
     class="flex flex-row items-start gap-x-3 space-y-0"
   >
     <template #field>
@@ -60,7 +60,6 @@
 // --- external
 import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
@@ -74,6 +73,7 @@ import FormRequiredLabel from "../../FormRequiredLabel.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
+import { get } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -83,24 +83,31 @@ import type { RendererProps } from "@jsonforms/vue";
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
-  useJsonFormsControl(props)
+  useJsonFormsControl(props),
+  v => !!v
 );
 
-const delegatedProps = computed(() => ({
-  id: control.value.id,
-  name: control.value.path,
-  errors: control.value.errors,
-  // ---
-  label: control.value.label,
-  description: control.value.description,
-  // ---
-  required: control.value.required,
-  disabled: !control.value.enabled,
-  visible: control.value.visible,
-}));
+const delegatedProps = computed(() => {
+  const options = get(appliedOptions.value, "options", {});
+
+  return {
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
+    // ---
+    label: control.value.label,
+    description: control.value.description,
+    // ---
+    required: control.value.required,
+    disabled: !control.value.enabled,
+    visible: control.value.visible,
+    ...options,
+  };
+});
 </script>
 
 <script lang="ts">
+import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isBooleanControl, optionIs("format", "toggle")),
