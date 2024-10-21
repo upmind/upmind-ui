@@ -84,7 +84,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props),
-  v => !!v
+  value => !!value // Ensure bool value is set to the opposite value rather than null
 );
 
 const delegatedProps = computed(() => {
