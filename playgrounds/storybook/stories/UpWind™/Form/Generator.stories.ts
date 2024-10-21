@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { useI18n } from "vue-i18n";
 // --- internal
 import * as messages from "./locales";
-import { countries } from "country-data";
+// import { countries } from "country-data";
 
 // --- components
 import { Form } from "@upmind/upwind";
@@ -20,8 +20,8 @@ const meta: Meta<typeof Form> = {
         "ajv",
         "mode",
         "additionalErrors",
-        // "schema",
-        // "uischema",
+        "schema",
+        "uischema",
         "modelValue",
       ],
     },
@@ -89,6 +89,7 @@ const meta: Meta<typeof Form> = {
         date: {
           title: "What is your date of birth?",
           type: "string",
+          format: "date",
         },
 
         categories: {
@@ -247,89 +248,11 @@ const meta: Meta<typeof Form> = {
         },
       },
       required: ["name", "accept", "age", "switch", "toggle"],
-      errorMessage: {
-        properties: {
-          accept: "You must accept the terms and conditions",
-        },
-      },
-    },
-    uischema: {
-      type: "VerticalLayout",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/name",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/password",
-          options: {
-            format: "password",
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/date",
-          options: {
-            format: "date",
-            max: (() => {
-              const date = new Date();
-              date.setFullYear(date.getFullYear() - 18);
-              return date.toISOString().split("T")[0];
-            })(),
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/categories",
-          options: {
-            format: "checkbox-cards",
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/phone",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/age",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/postalCode",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/about",
-          options: {
-            multi: true,
-            autosize: true,
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/personalData/properties/nationality",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/personalData/properties/nationalityDetailed",
-          options: {
-            format: "radio",
-          },
-        },
-        {
-          type: "Control",
-          scope: "#/properties/accept",
-        },
-        {
-          type: "Control",
-          scope: "#/properties/switch",
-          format: "switch",
-          options: {
-            format: "switch",
-          },
-        },
-      ],
+      // errorMessage: {
+      //   properties: {
+      //     accept: "We require you accept our Terms and Conditions",
+      //   },
+      // },
     },
   },
 };
@@ -337,7 +260,9 @@ const meta: Meta<typeof Form> = {
 export default meta;
 type Story = StoryObj<typeof Form>;
 
-export const Base: Story = {};
+export const Base: Story = {
+  args: {},
+};
 
 export const Formatted: Story = {
   args: {
