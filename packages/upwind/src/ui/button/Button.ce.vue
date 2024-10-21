@@ -6,6 +6,7 @@
     :class="cn(variants.button, props.class)"
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
+    :type="props.type || 'button'"
   >
     <slot name="prepend"></slot>
 
@@ -50,6 +51,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   disabled: false,
   loading: false,
   iconOnly: false,
+  type: "button",
   // --- variants
   size: "md",
   color: "base",
