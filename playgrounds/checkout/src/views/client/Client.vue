@@ -5,7 +5,7 @@
         class="relative mx-auto flex w-full flex-wrap items-end gap-4 sm:flex sm:justify-between"
       >
         <h1 class="m-0 text-nowrap">
-          {{ $t("client.title") }}
+          {{ t("client.title") }}
         </h1>
 
         <div class="flex items-center justify-end gap-4 text-sm">
@@ -14,7 +14,7 @@
             class="hover:underline"
             exactActiveClass="text-primary underline"
           >
-            {{ $t("client.nav.basket") }}
+            {{ t("client.nav.basket") }}
           </RouterLink>
 
           <RouterLink
@@ -22,7 +22,7 @@
             class="hover:underline"
             exactActiveClass="text-primary underline"
           >
-            {{ $t("client.nav.addresses") }}
+            {{ t("client.nav.addresses") }}
           </RouterLink>
 
           <RouterLink
@@ -30,7 +30,7 @@
             class="hover:underline"
             exactActiveClass="text-primary underline"
           >
-            {{ $t("client.nav.emails") }}
+            {{ t("client.nav.emails") }}
           </RouterLink>
 
           <RouterLink
@@ -38,7 +38,7 @@
             class="hover:underline"
             exactActiveClass="text-primary underline"
           >
-            {{ $t("client.nav.phones") }}
+            {{ t("client.nav.phones") }}
           </RouterLink>
 
           <RouterLink
@@ -46,7 +46,7 @@
             class="hover:underline"
             exactActiveClass="text-primary underline"
           >
-            {{ $t("client.nav.companies") }}
+            {{ t("client.nav.companies") }}
           </RouterLink>
         </div>
       </nav>
@@ -56,14 +56,8 @@
   </section>
 </template>
 
-<script>
-import { defineComponent } from "vue";
-import { getLocalMessages } from "@/utils";
+<script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  name: "Client",
-  i18n: {
-    messages: getLocalMessages("client"),
-  },
-});
+const { t } = useI18n();
 </script>

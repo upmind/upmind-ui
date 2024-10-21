@@ -1,6 +1,6 @@
 <template>
   <article class="flex flex-col gap-4">
-    <upm-session show="register" class="max-w-3xl py-16">
+    <UpmSession show="register" class="max-w-3xl py-16">
       <template #footer="{ meta }">
         <template v-if="meta.showRegisterForm">
           <i18n-t keypath="auth.google_recaptcha_terms" tag="p" class="mb-0">
@@ -10,7 +10,7 @@
                 href="https://policies.google.com/privacy"
                 target="_blank"
               >
-                {{ $t("auth.privacy_policy") }}
+                {{ t("auth.privacy_policy") }}
               </a>
             </template>
             <template #[`termsOfService`]>
@@ -19,7 +19,7 @@
                 href="https://policies.google.com/terms"
                 target="_blank"
               >
-                {{ $t("auth.terms_of_service") }}
+                {{ t("auth.terms_of_service") }}
               </a>
             </template>
           </i18n-t>
@@ -35,23 +35,14 @@
           </i18n-t>
         </template>
       </template>
-    </upm-session>
+    </UpmSession>
   </article>
 </template>
 
-<script>
-import { computed, defineComponent } from "vue";
+<script lang="ts" setup>
+import { computed } from "vue";
 import { UpmSession, useBrand } from "@upmind/client-vue";
-import { getLocalMessages } from "@/utils";
 
-export default defineComponent({
-  name: "Session",
-  i18n: { messages: getLocalMessages("session") },
-  components: { UpmSession },
-  setup() {
-    const { context } = useBrand();
-
-    return { brandName: computed(() => context.value.name) };
-  },
-});
+const { context } = useBrand();
+const brandName = computed(() => context.value.name);
 </script>

@@ -7,7 +7,7 @@
       aria-label="Global"
     >
       <component
-        :is="noHome ? 'a' : 'router-link'"
+        :is="props.noHome ? 'a' : 'router-link'"
         class="flex h-10 w-auto items-center justify-between gap-3 text-xl font-semibold"
         to="/"
         aria-label="Brand"
@@ -16,7 +16,7 @@
           <source srcset="/logo.png" type="image/png" />
           <img src="/logo.svg" class="h-full w-auto" />
           <span class="sr-only text-nowrap tracking-widest">
-            {{ $t("header.title") }}
+            {{ t("header.title") }}
           </span>
         </picture>
       </component>
@@ -67,8 +67,7 @@
   </header>
 </template>
 
-<script>
-import { defineComponent } from "vue";
+<script lang="ts" setup>
 import {
   useBasket,
   UpwListbox,
@@ -76,48 +75,27 @@ import {
   UpmCurrency,
 } from "@upmind/client-vue";
 
-import { Avatar, Icon, Indicator, Button } from "@upmind/upwind";
+import { Icon, Indicator, Button } from "@upmind/upwind";
 
-export default defineComponent({
-  name: "UpmHeader",
-  components: {
-    UpwListbox,
-    UpmProfile,
-    UpmCurrency,
-    Avatar,
-    Icon,
-    Indicator,
-    Button,
-  },
-  props: {
-    noHome: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
-    const { meta, items } = useBasket();
+const props = defineProps<{
+  noHome?: boolean;
+}>();
 
-    return {
-      meta,
-      items,
-    };
-  },
-  computed: {
-    isBasketView() {
-      return this.$route.name === "basket";
+const { meta, items } = useBasket();
+
+const isBasketView = computed(() => {
+  return this.$route.name === "basket";
+});
+
+const locales = computed(() => {
+  return this.$i18n.availableLocales.map(locale => ({
+    label: locale.toUpperCase(),
+    value: locale,
+    prependAvatar: {
+      path: "flags",
+      name: locale,
     },
-    locales() {
-      return this.$i18n.availableLocales.map(locale => ({
-        label: locale.toUpperCase(),
-        value: locale,
-        prependAvatar: {
-          path: "flags",
-          name: locale,
-        },
-      }));
-    },
-  },
+  }));
 });
 </script>
 
