@@ -12,27 +12,25 @@
         :formMessageId="`form-item-message-${control.id}`"
       >
         <!-- label -->
-        <FormLabelGroup class="!justify-start space-x-2">
-          <template #labelGroup>
-            <Toggle
-              :id="control.id"
-              :disabled="!control.enabled"
-              :checked="control.data"
-              :aria-label="control.label"
-              @update:checked="onInput"
-            >
-              <!-- label -->
-              {{ control.label }}
-            </Toggle>
-          </template>
+        <div
+          class="flex w-full flex-row flex-nowrap items-center justify-between"
+        >
+          <Toggle
+            :id="control.id"
+            :disabled="!control.enabled"
+            :checked="control.data"
+            :aria-label="control.label"
+            @update:checked="onInput"
+          >
+            <!-- label -->
+            {{ control.label }}
+          </Toggle>
 
-          <template #requiredLabelGroup>
-            <FormRequiredLabel
-              :required="control.required"
-              :formItemId="control.id"
-            />
-          </template>
-        </FormLabelGroup>
+          <FormRequiredIndicator
+            v-if="control.required"
+            :formItemId="control.id"
+          />
+        </div>
       </FormControl>
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
@@ -68,8 +66,7 @@ import FormField from "../../FormField.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
-import FormLabelGroup from "../../FormLabelGroup.vue";
-import FormRequiredLabel from "../../FormRequiredLabel.vue";
+import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -84,7 +81,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props),
-  v => !!v
+  value => !!value // Ensure bool value is set to the opposite value rather than null
 );
 
 const delegatedProps = computed(() => {
