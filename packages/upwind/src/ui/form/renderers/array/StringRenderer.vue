@@ -4,7 +4,8 @@
       :disabled="!control.enabled"
       :model-value="control.data"
       :items="control.options"
-      @update:modelValue="onInput"
+      @update:modelValue="doAddRemove"
+      multiple
     />
   </FormField>
 </template>
@@ -19,20 +20,17 @@ import FormField from "../../FormField.vue";
 import { CheckboxCards } from "../../../checkbox-cards";
 
 // --- utils
-import { useUpwindArrayRenderer } from "../utils";
-import { get } from "lodash-es";
+import { useUpwindRenderer } from "../utils";
+import { get, includes } from "lodash-es";
 
 // --- types
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 
-defineOptions({
-  name: "ArrayStringRenderer",
-});
-
+// ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindArrayRenderer(
+const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsMultiEnumControl(props)
 );
 
@@ -53,6 +51,13 @@ const delegatedProps = computed(() => {
     ...options,
   };
 });
+
+function doAddRemove(value: string) {
+  debugger;
+  const checked = !includes(control.value.data, value);
+  debugger;
+  onInput(checked, value);
+}
 </script>
 
 <script lang="ts">

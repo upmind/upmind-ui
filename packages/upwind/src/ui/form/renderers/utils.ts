@@ -10,7 +10,7 @@ import {
 
 import type { Tester } from "@jsonforms/core";
 import { rankWith } from "@jsonforms/core";
-import { debounce } from "lodash-es";
+import { debounce, isFunction } from "lodash-es";
 import type { Options } from "./types";
 import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
 };
 
 export const useUpwindArrayRenderer = <
-  I extends { control: any; addItem: Function; removeItem: Function },
+  I extends { control: any; addItem?: Function; removeItem?: Function },
 >(
   input: I
 ) => {
@@ -112,21 +112,23 @@ export const useUpwindArrayRenderer = <
     return `${labelValue}`;
   };
 
-  const onChange = (event: Event) => {
-    const { checked, value } = event.currentTarget as HTMLInputElement;
-
-    if (checked) {
-      input.addItem(input.control.value.path, value);
-    } else {
-      input.removeItem(input.control.value.path, value);
-    }
-  };
-
   const onInput = debounce((checked: boolean, value: any) => {
+    debugger;
     if (checked) {
-      input.addItem(input.control.value.path, value);
+      debugger;
+      if (isFunction(input?.addItem)) {
+        debugger;
+        input.addItem(input.control.value.path, value);
+      } else {
+        //
+      }
     } else {
-      input.removeItem(input.control.value.path, value);
+      if (isFunction(input?.removeItem)) {
+        debugger;
+        input?.removeItem(input.control.value.path, value);
+      } else {
+        //
+      }
     }
   }, 350);
 
@@ -135,7 +137,6 @@ export const useUpwindArrayRenderer = <
     appliedOptions,
     childUiSchema,
     childLabelForIndex,
-    onChange,
     onInput,
   };
 };

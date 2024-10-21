@@ -46,10 +46,6 @@ import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 
-defineOptions({
-  name: "PhoneRenderer",
-});
-
 const props = defineProps<RendererProps<ControlElement>>();
 
 const countryItems = computed<ComboboxItemProps[]>(() =>
@@ -83,19 +79,13 @@ const onCountyInput = (value: ComboboxItemProps) => {
   if (value.tag) {
     set(phone.value, "country", value.value);
     set(phone.value, "countryCallingCode", value.tag);
-    onInput({
-      ...phone.value,
-      currentTarget: { value: phone.value },
-    });
+    onInput(phone.value);
   }
 };
 
 const onPhoneInput = (value: string | number) => {
   set(phone.value, "number", value);
-  onInput({
-    ...phone.value,
-    currentTarget: { value: phone.value },
-  });
+  onInput(phone.value);
 };
 
 const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
