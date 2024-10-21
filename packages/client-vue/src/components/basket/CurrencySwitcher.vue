@@ -8,8 +8,7 @@
     :disabled="meta.isLoading || meta.isProcessing"
     :upwind-config="{ listboxButton: config.currencySwitcher }"
     :loading="meta.isLoading || meta.isProcessing"
-  >
-  </Combobox>
+  />
 </template>
 
 <script>
@@ -82,10 +81,7 @@ export default defineComponent({
 
         return {
           label: code,
-          prependAvatar: {
-            name: currencyMap[code?.toUpperCase()]?.country_code?.toLowerCase(),
-            path: "flags",
-          },
+          icon: currencyMap[code?.toUpperCase()]?.country_code?.toLowerCase(),
         };
       }),
 
@@ -98,6 +94,9 @@ export default defineComponent({
             ]?.country_code?.toLowerCase(),
             path: "flags",
           },
+          icon: currencyMap[
+            currency?.code?.toUpperCase()
+          ]?.country_code?.toLowerCase(),
           label: currency.code,
           value: currency.code,
           selected: currency.code === model.value.code,
