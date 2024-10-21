@@ -13,7 +13,7 @@
       block
       size="sm"
     >
-      <span v-if="selected">
+      <span v-if="selected" class="w-full">
         <slot name="selected" v-bind="{ item: selected }">
           {{ selected?.label || props.label }}
         </slot>
