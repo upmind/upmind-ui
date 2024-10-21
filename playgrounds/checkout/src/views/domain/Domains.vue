@@ -3,17 +3,17 @@
     <section :class="styles.domains.section.root">
       <header :class="styles.domains.section.header">
         <span :class="styles.domains.section.text">
-          {{ $tc("domains.header.text", isEmpty(selected) ? 0 : 1) }}
+          {{ t("domains.header.text", isEmpty(selected) ? 0 : 1) }}
         </span>
 
         <h1 :class="styles.domains.section.title">
-          {{ $tc("domains.header.title", isEmpty(selected) ? 0 : 1) }}
+          {{ t("domains.header.title", isEmpty(selected) ? 0 : 1) }}
         </h1>
       </header>
 
       <div :class="styles.domains.section.wrapper">
         <div :class="styles.domains.section.content">
-          <upm-domain sync v-model="selected" />
+          <UpmDomain sync v-model="selected" />
         </div>
       </div>
 
@@ -22,9 +22,10 @@
   </article>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { UpmDomain } from "@upmind/client-vue";
@@ -32,17 +33,9 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- utils
-import { getLocalMessages } from "@/utils";
 import { isEmpty } from "lodash-es";
 
-export default defineComponent({
-  name: "domains",
-  i18n: { messages: getLocalMessages("domains") },
-  components: { UpmDomain },
-  setup() {
-    const styles = useStyles(["domains", "domains.section"], null, config);
-    return { styles, selected: ref(), isEmpty };
-  },
-  methods: {},
-});
+const { t } = useI18n();
+const selected = ref<string[]>([]);
+const styles = useStyles(["domains", "domains.section"], null, config);
 </script>

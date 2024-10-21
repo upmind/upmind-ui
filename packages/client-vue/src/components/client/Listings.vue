@@ -29,7 +29,7 @@
       <UpwTextbox
         v-if="!noFilter && meta.canFilter"
         @input="filter($event?.currentTarget?.value)"
-        :placeholder="$t(`client.${type}.actions.filter`)"
+        :placeholder="t(`client.${type}.actions.filter`)"
         size="sm"
       />
 
@@ -67,7 +67,7 @@
         v-if="!meta.isAdding && !meta.isEditing && !meta.isLoading && !modal"
       >
         <Button
-          :label="$t(`client.${type}.actions.add`)"
+          :label="t(`client.${type}.actions.add`)"
           variant="ghost"
           @click="add"
           block
@@ -96,6 +96,8 @@
 // --- external
 import { defineComponent, provide, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
+
 // --- internal
 import {
   useClientEmails,
@@ -160,6 +162,8 @@ export default defineComponent({
     cols: { type: [String, Number], default: 1 },
   },
   setup(props) {
+    const { t } = useI18n();
+
     let clientListings, client;
 
     switch (props.type) {
@@ -198,6 +202,7 @@ export default defineComponent({
       .then(() => (active.value = clientListings.selected.value));
 
     return {
+      t,
       ...clientListings,
       active,
       styles,
@@ -208,7 +213,7 @@ export default defineComponent({
     actions() {
       return {
         cancel: {
-          label: this?.$t(`client.${this.type}.actions.cancel`),
+          label: this?.t(`client.${this.type}.actions.cancel`),
           variant: "ghost",
           color: this.color,
           block: true,
@@ -217,7 +222,7 @@ export default defineComponent({
           },
         },
         add: {
-          label: this?.$t(`client.${this.type}.actions.add`),
+          label: this?.t(`client.${this.type}.actions.add`),
           variant: "flat",
           color: this.color,
           block: true,

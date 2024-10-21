@@ -13,8 +13,8 @@
       :leave-to-class="styles.domain.transitions.fade.leave.to"
     >
       <UpmEmpty
-        :title="$t('domain.empty.title')"
-        :text="$t('domain.empty.text')"
+        :title="t('domain.empty.title')"
+        :text="t('domain.empty.text')"
         v-if="!meta.isLoading && meta.isEmpty"
       />
 
@@ -36,14 +36,14 @@
                 <span :class="styles.domain.card.owned.icon">
                   <Icon icon="lock" />
                 </span>
-                {{ $t("domain.card.owned.label") }}
+                {{ t("domain.card.owned.label") }}
               </span>
 
               <span :class="styles.domain.card.text" v-else-if="item.in_basket">
                 <span :class="styles.domain.card.basket.icon">
                   <Icon icon="basket" />
                 </span>
-                {{ $t("domain.card.basket.label") }}
+                {{ t("domain.card.basket.label") }}
               </span>
 
               <span
@@ -53,7 +53,7 @@
                 <span :class="styles.domain.card.available.icon">
                   <Icon icon="check" />
                 </span>
-                {{ $t("domain.card.available.label") }}
+                {{ t("domain.card.available.label") }}
               </span>
 
               <span :class="styles.domain.card.text" v-else>
@@ -61,13 +61,13 @@
                   <Icon icon="transfer" />
                 </span>
 
-                {{ $t("domain.card.transfer.label") }}
+                {{ t("domain.card.transfer.label") }}
               </span>
 
               <Badge
                 v-if="item?.is_discounted"
                 color="promotion"
-                :label="$t('domain.card.promotion')"
+                :label="t('domain.card.promotion')"
               />
             </span>
 
@@ -92,7 +92,7 @@
 
               <template #[`ownership`]>
                 <strong :class="styles.domain.card.owned.ownership">{{
-                  $t("domain.card.owned.ownership")
+                  t("domain.card.owned.ownership")
                 }}</strong>
               </template>
 
@@ -117,7 +117,7 @@
 
               <template #[`ownership`]>
                 <strong :class="styles.domain.card.basket.ownership">{{
-                  $t("domain.card.basket.ownership")
+                  t("domain.card.basket.ownership")
                 }}</strong>
               </template>
 
@@ -142,7 +142,7 @@
 
               <template #[`ownership`]>
                 <strong :class="styles.domain.card.available.ownership">{{
-                  $t("domain.card.available.ownership")
+                  t("domain.card.available.ownership")
                 }}</strong>
               </template>
 
@@ -160,7 +160,7 @@
                         ? item.price_discounted_formatted
                         : item?.price
                           ? item.price_formatted
-                          : $t("product.free")
+                          : t("product.free")
                     }}
                   </em>
                 </span>
@@ -183,7 +183,7 @@
 
               <template #[`ownership`]>
                 <span :class="styles.domain.card.transfer.ownership">{{
-                  $t("domain.card.transfer.ownership")
+                  t("domain.card.transfer.ownership")
                 }}</span>
               </template>
 
@@ -191,7 +191,7 @@
                 <Button
                   :class="styles.domain.card.transfer.action"
                   :disabled="meta.isDisabled || isSelected(item.domain)"
-                  :label="$t('domain.card.transfer.action')"
+                  :label="t('domain.card.transfer.action')"
                   variant="link"
                   @click.prevent="onUpdate(item.domain)"
                   size="sm"
@@ -213,7 +213,7 @@
                         ? item.price_discounted_formatted
                         : item?.price
                           ? item.price_formatted
-                          : $t("product.free")
+                          : t("product.free")
                     }}
                   </span>
                 </span>
@@ -231,7 +231,7 @@
                   :class="styles.domain.card.available.action"
                   :disabled="meta.isDisabled"
                   :label="
-                    $tc(
+                    t(
                       'domain.card.available.action',
                       isSelected(item.domain) ? 0 : 1
                     )
@@ -251,7 +251,7 @@
                   :class="styles.domain.card.transfer.action"
                   :disabled="meta.isDisabled"
                   :label="
-                    $tc(
+                    t(
                       'domain.card.transfer.action',
                       isSelected(item.domain) ? 0 : 1
                     )
@@ -283,6 +283,8 @@
 // --- external
 import { computed, defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
+
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
@@ -327,6 +329,8 @@ export default defineComponent({
     disabled: { type: Boolean, default: false },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const meta = computed(() => ({
       isLoading: props.loading,
       isLoadingMore: props.loading && props.offset > 0,
@@ -350,6 +354,7 @@ export default defineComponent({
     );
 
     return {
+      t,
       styles,
       cn,
       meta,
@@ -363,7 +368,7 @@ export default defineComponent({
       return value || this.modelValue;
     },
     translations() {
-      return this.$tm(this.i18nKey);
+      return this.tm(this.i18nKey);
     },
     title() {
       return get(this.translations, "title", "Select your domain");

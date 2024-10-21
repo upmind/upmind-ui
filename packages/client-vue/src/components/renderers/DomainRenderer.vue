@@ -1,17 +1,17 @@
 <template>
-  <upw-input
+  <UpwInput
     v-bind="{ ...control, ...appliedOptions }"
     :dirty="!!control.data"
     variant="flat"
   >
-    <upm-domain
+    <UpmDomain
       v-bind="{ ...control, ...appliedOptions }"
       :id="control.id + '-domain'"
       :disabled="!control.enabled"
       :model-value="control.data"
       @change="onChange"
     />
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script lang="ts">

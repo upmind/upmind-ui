@@ -7,7 +7,6 @@ export { default as UpwCheckbox } from "./components/checkbox/Checkbox.vue";
 export { default as UpwCheckboxList } from "./components/checkbox/CheckboxList.vue";
 export { default as UpwCombobox } from "./components/combobox/Combobox.vue";
 export { default as UpwDropdown } from "./components/dropdown/Dropdown.vue";
-export { default as UpwForm } from "./components/form/Form.vue";
 export { default as UpwInput } from "./components/input/Input.vue";
 export { default as UpwListbox } from "./components/listbox/Listbox.vue";
 export { default as UpwQuantitybox } from "./components/quantitybox/Quantitybox.vue";

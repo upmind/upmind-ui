@@ -14,7 +14,7 @@
       "
     />
 
-    <UpwForm
+    <Form
       :key="active"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
@@ -28,7 +28,7 @@
       :class="styles.session.auth.form"
       :actions="authActions"
     >
-    </UpwForm>
+    </Form>
   </div>
   <Button variant="ghost" block type="reset" @click.prevent="logout" v-else>
     logout
@@ -38,10 +38,11 @@
 <script lang="ts">
 // --- external
 import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind/headless-vue";
-import { UpwForm } from "@upmind/upwind";
+import { Form } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -55,7 +56,7 @@ import type { AuthProps } from "./types";
 
 export default defineComponent({
   name: "UpmAuth",
-  components: { UpwForm, Tabs, Button },
+  components: { Form, Tabs, Button },
 
   emits: ["update:modelValue"],
   props: {
@@ -69,6 +70,8 @@ export default defineComponent({
     color: { type: String },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const {
       meta,
       errors,
@@ -85,6 +88,7 @@ export default defineComponent({
     const styles = useStyles(["session.auth"], meta, config);
 
     return {
+      t,
       meta,
       errors,
       styles,
@@ -106,11 +110,11 @@ export default defineComponent({
       return [
         {
           value: "register",
-          label: this.$t("auth.actions.toggle.register"),
+          label: this.t("auth.actions.toggle.register"),
         },
         {
           value: "login",
-          label: this.$t("auth.actions.toggle.login"),
+          label: this.t("auth.actions.toggle.login"),
         },
       ];
     },
@@ -119,10 +123,10 @@ export default defineComponent({
         submit: {
           type: "submit",
           label: this.meta.showLoginForm
-            ? this.$t("auth.actions.login")
+            ? this.t("auth.actions.login")
             : this.meta.showRegisterForm
-              ? this.$t("auth.actions.register")
-              : this.$t("auth.actions.continue"),
+              ? this.t("auth.actions.register")
+              : this.t("auth.actions.continue"),
           block: true,
           needsValid: true,
         },
@@ -131,7 +135,7 @@ export default defineComponent({
       // TODO: implement forgot password flow
       // if (this.meta.showLoginForm) {
       //   actions.forgot = {
-      //     label: this.$t("auth.actions.forgot"),
+      //     label: this.t("auth.actions.forgot"),
       //     block: true,
       //     variant: "link",
       //     size: "sm",

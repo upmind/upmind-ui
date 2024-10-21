@@ -14,7 +14,7 @@
     @update:open="onClose"
     size="2xl"
   >
-    <UpwForm
+    <Form
       :class="styles.clientForm.content"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -45,13 +45,14 @@
 // --- external
 import { defineComponent, inject } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, Button, Drawer } from "@upmind/upwind";
+import { Form, Button, Drawer } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";
@@ -60,7 +61,7 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 export default defineComponent({
   name: "UpmClientForm",
   directives: { autoAnimate: vAutoAnimate },
-  components: { UpwForm, Drawer, Button },
+  components: { Form, Drawer, Button },
   props: {
     modelValue: {
       type: Object, // xstate actor
@@ -73,11 +74,13 @@ export default defineComponent({
     color: { type: String, default: "base" },
   },
   setup(props) {
+    const { t } = useI18n();
     const useClient = inject("client");
     const clientForm = useClient(props.modelValue);
     const styles = useStyles(["clientForm"], clientForm.meta, config);
 
     return {
+      t,
       styles,
       ...clientForm,
     };
@@ -87,7 +90,7 @@ export default defineComponent({
     actions() {
       const actions = {
         cancel: {
-          label: this?.$t(`client.${this.i18nKey}.actions.cancel`),
+          label: this?.t(`client.${this.i18nKey}.actions.cancel`),
           variant: "ghost",
           color: this.color,
           disabled: this?.meta?.isProcessing,
@@ -98,7 +101,7 @@ export default defineComponent({
           type: "submit",
           variant: "flat",
           color: this.color,
-          label: this?.$tc(
+          label: this?.t(
             `client.${this.i18nKey}.actions.submit`,
             this.model?.company_details ? 0 : 1
           ),
@@ -126,13 +129,13 @@ export default defineComponent({
 
     safeTitle() {
       if (this.model?.company_details) {
-        return this.$tc(
+        return this.t(
           `client.${this.i18nKey}.form.title.company`,
           this?.meta?.isNew ? 1 : 0
         );
       }
 
-      return this.$tc(
+      return this.t(
         `client.${this.i18nKey}.form.title.address`,
         this?.meta?.isNew ? 1 : 0
       );

@@ -4,21 +4,21 @@
       <slot name="header" v-bind="{ meta, user }">
         <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
-            {{ $t("session.unauthenticated.header.register.text") }}
+            {{ t("session.unauthenticated.header.register.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ $t("session.unauthenticated.header.register.title") }}
+            {{ t("session.unauthenticated.header.register.title") }}
           </h1>
         </template>
 
         <template v-if="!meta.isAuthenticated && meta.showLoginForm">
           <span :class="styles.session.text">
-            {{ $t("session.unauthenticated.header.login.text") }}
+            {{ t("session.unauthenticated.header.login.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ $t("session.unauthenticated.header.login.title") }}
+            {{ t("session.unauthenticated.header.login.title") }}
           </h1>
         </template>
 
@@ -32,7 +32,7 @@
               <Button
                 variant="link"
                 @click.prevent="logout"
-                :label="$t('session.authenticated.footer.action')"
+                :label="t('session.authenticated.footer.action')"
               />
             </template>
           </i18n-t>
@@ -72,6 +72,7 @@
 <script lang="ts">
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind/headless-vue";
@@ -116,9 +117,11 @@ export default defineComponent({
   },
 
   setup(props, { slots }) {
+    const { t } = useI18n();
     const styles = useStyles(["session"], props, config);
 
     return {
+      t,
       ...useSession(),
       styles,
     };

@@ -4,7 +4,7 @@
     :class="styles.domain.search"
     @update:modelValue="onSearch"
     :prependIcon="meta.showComplete ? null : 'search'"
-    :placeholder="$t('domain.dac.search')"
+    :placeholder="t('domain.dac.search')"
     autofocus
     autocomplete="url"
     v-model="queryValue"
@@ -20,15 +20,15 @@
     :class-footer="styles.domain.drawer.footer"
     v-model:open="open"
     persistent
-    :title="$t('domain.dac.title')"
-    :description="$t('domain.dac.description')"
+    :title="t('domain.dac.title')"
+    :description="t('domain.dac.description')"
   >
     <template #header>
       <UpwTextbox
         :class="styles.domain.search"
         @update:modelValue="onSearch"
         :prependIcon="meta.showComplete ? null : 'search'"
-        :placeholder="$t('domain.dac.search')"
+        :placeholder="t('domain.dac.search')"
         autofocus
         autocomplete="url"
         v-model="queryValue"
@@ -47,7 +47,7 @@
 
       <Button
         v-if="meta.showDialog && meta.hasItems && meta.hasMore"
-        :label="$t('domain.dac.actions.more')"
+        :label="t('domain.dac.actions.more')"
         :loading="meta.isLoading"
         @click="onSearchOffset"
         block
@@ -58,7 +58,7 @@
     <template #close>
       <Button
         @click="onReject"
-        :label="$t('domain.dac.actions.cancel')"
+        :label="t('domain.dac.actions.cancel')"
         variant="link"
       />
     </template>
@@ -70,7 +70,7 @@
         :loading="meta.isProcessing"
         :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
-        :label="$tc('domain.dac.actions.continue', values?.length)"
+        :label="t('domain.dac.actions.continue', values?.length)"
         prependIcon="plus-circle"
       />
       <!-- </div> -->
@@ -81,6 +81,7 @@
 <script>
 // --- external
 import { computed, defineComponent, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -117,6 +118,8 @@ export default defineComponent({
     more: { type: Boolean },
   },
   setup(props) {
+    const { t } = useI18n();
+
     // our internal drawer state
     const open = ref(false);
     watch(props, ({ complete, items, loading, processing }) => {
@@ -140,6 +143,7 @@ export default defineComponent({
     const styles = useStyles(["domain", "domain.drawer"], meta, config);
 
     return {
+      t,
       styles,
       cn,
       meta,

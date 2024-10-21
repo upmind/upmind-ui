@@ -6,7 +6,7 @@
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
-        :label="$t('basket.promotions.title')"
+        :label="t('basket.promotions.title')"
       >
         <template #append>
           <Icon
@@ -19,7 +19,7 @@
       </Button>
     </header>
 
-    <UpwForm
+    <Form
       v-if="toggle"
       size="sm"
       :class="styles.basket.promotions.content"
@@ -42,7 +42,7 @@
       v-auto-animate
     >
       <h4 :class="styles.basket.promotions.title">
-        {{ $t("basket.promotions.active.title") }}
+        {{ t("basket.promotions.active.title") }}
       </h4>
 
       <Button
@@ -65,9 +65,10 @@
 // --- external
 import { defineComponent, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { Form } from "@upmind/upwind";
 
 // --- custom elements
 import { Button, Icon } from "@upmind/upwind";
@@ -84,11 +85,13 @@ import { set } from "lodash-es";
 
 export default defineComponent({
   name: "UpmBasketPromotions",
-  components: { UpwForm, Button, Icon },
+  components: { Form, Button, Icon },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {},
   setup() {
+    const { t } = useI18n();
+
     const {
       meta,
       errors,
@@ -105,6 +108,7 @@ export default defineComponent({
     const styles = useStyles(["basket.promotions"], meta, config);
 
     return {
+      t,
       meta,
       errors,
       model,
@@ -135,7 +139,7 @@ export default defineComponent({
       return {
         submit: {
           type: "submit",
-          label: this.$t("basket.promotions.actions.submit"),
+          label: this.t("basket.promotions.actions.submit"),
           size: "sm",
           variant: "ghost",
           needsValid: true,

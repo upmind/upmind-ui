@@ -3,11 +3,11 @@
     <header :class="styles.basket.items.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.items.text">
-          {{ $tc("basket.items.text", items?.length) }}
+          {{ t("basket.items.text", items?.length) }}
         </span>
 
         <h1 :class="styles.basket.items.title">
-          {{ $t("basket.items.title") }}
+          {{ t("basket.items.title") }}
         </h1>
       </slot>
     </header>
@@ -18,7 +18,7 @@
       v-if="!meta.isLoading"
       v-auto-animate
     >
-      <upm-basket-item
+      <UpmBasketItem
         v-for="(item, index) in items"
         :key="`item-${item.id}-${index}`"
         :model-value="item.id"
@@ -37,6 +37,7 @@
 // --- external
 import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasket } from "@upmind/headless-vue";
@@ -56,6 +57,7 @@ export default defineComponent({
   directives: { autoAnimate: vAutoAnimate },
   props: {},
   setup() {
+    const { t } = useI18n();
     const { meta, items, itemsPending, itemsInvalid, itemsConfigured } =
       useBasket();
 
@@ -68,6 +70,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       meta,
       items,
       itemsPending,

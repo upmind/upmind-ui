@@ -48,7 +48,7 @@
         autofocus
         item-label="domain"
         item-value="value"
-        :searchPlaceholder="$t('domain.existing.search')"
+        :searchPlaceholder="t('domain.existing.search')"
       />
 
       <!-- basket -->
@@ -68,6 +68,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useDomain } from "@upmind/headless-vue";
@@ -109,6 +110,8 @@ export default defineComponent({
     // ---
   },
   setup(props) {
+    const { t, tm } = useI18n();
+
     const {
       // state,
       // ---
@@ -146,6 +149,8 @@ export default defineComponent({
     // ---
 
     return {
+      t,
+      tm,
       state,
       meta,
       choices,
@@ -176,7 +181,7 @@ export default defineComponent({
   computed: {
     i18nChoices() {
       return map(this.choices, choice => {
-        const i18n = this.$tm(`domain.choices.${choice.value}`);
+        const i18n = this.tm(`domain.choices.${choice.value}`);
         return {
           ...choice,
           label: this.$rt(i18n.label) || choice.label,
@@ -190,7 +195,7 @@ export default defineComponent({
         {
           as: "separator",
           persist: true,
-          domain: this.$t("domain.existing.owned"),
+          domain: this.t("domain.existing.owned"),
         },
         ...this.owned,
       ];
