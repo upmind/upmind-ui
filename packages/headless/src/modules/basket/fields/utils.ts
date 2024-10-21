@@ -43,7 +43,7 @@ export const useUischema = ({ fields }: FieldsContext) => {
         i18n: "basket.fields.notes",
         options: {
           multi: true,
-          focus: true,
+          autofocus: true,
           autosize: true,
           autocomplete: "off",
         },

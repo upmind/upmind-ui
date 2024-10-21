@@ -6,7 +6,13 @@ import { Button } from "../button";
 </script>
 
 <template>
-  <TooltipTrigger v-bind="props" :as="Button" size="auto" variant="link">
+  <TooltipTrigger
+    v-bind="props"
+    :as="Button"
+    size="auto"
+    variant="link"
+    click.prevent
+  >
     <slot />
   </TooltipTrigger>
 </template>

@@ -26,7 +26,7 @@
         "title": "Active discounts"
       },
       "promocode": {
-        "label": "",
+        // "label": "",
         "error": "Invalid promo code",
         "description": "",
         "placeholder": "Enter code here"
