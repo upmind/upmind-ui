@@ -18,7 +18,7 @@
       v-if="!meta.isLoading"
       v-auto-animate
     >
-      <upm-basket-item
+      <UpmBasketItem
         v-for="(item, index) in items"
         :key="`item-${item.id}-${index}`"
         :model-value="item.id"

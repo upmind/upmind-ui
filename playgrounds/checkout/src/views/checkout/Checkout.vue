@@ -100,7 +100,7 @@
               />
 
               <!-- custom fields  -->
-              <UpwForm
+              <Form
                 :additional-errors="fieldsErrors?.data"
                 :open="fieldsModel"
                 :processing="fieldsMeta.isProcessing"
@@ -187,7 +187,7 @@ import {
   useBasketBillingDetails,
   useBasketFields,
   UpmSession,
-  UpwForm,
+  Form,
   // ---
   UpwSteps,
 } from "@upmind/client-vue";
@@ -211,7 +211,7 @@ export default defineComponent({
     UpmOrderConfirmation,
     UpmPaymentDetails,
     UpmSession,
-    UpwForm,
+    Form,
     // ---
     UpwSteps,
   },

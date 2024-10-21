@@ -6,18 +6,27 @@
         :disabled="!control.enabled"
         :max="safeMax"
         :min="safeMin"
+        :placeholder="appliedOptions?.placeholder"
+        :type="unmask ? 'text' : 'password'"
+        :autocomplete="appliedOptions?.autocomplete || 'current-password'"
+        :autofocus="appliedOptions?.autofocus"
+        :maxlength="appliedOptions?.maxLength"
+        :minlength="appliedOptions?.minLength"
+        :pattern="appliedOptions?.pattern"
+        :readonly="appliedOptions?.readonly"
+        :required="appliedOptions?.required"
         :model-value="control.data"
         @update:modelValue="onInput"
-        :type="unmask ? 'text' : 'password'"
       />
       <Button
         class="absolute right-0 top-0 my-auto mr-3 mt-0.5 transition-all duration-300"
         :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
         variant="link"
         size="sm"
-        @click="unmask = !unmask"
+        @click.prevent="unmask = !unmask"
       >
-        <Icon icon="view" size="xs" />
+        <Icon v-if="unmask" icon="view" size="2xs" />
+        <Icon v-else icon="view-off" size="2xs" />
       </Button>
     </InputGroup>
   </FormField>
@@ -26,7 +35,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import { and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -94,9 +102,13 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 </script>
 
 <script lang="ts">
-import { isStringControl } from "@jsonforms/core";
+import { isStringControl, and, or, optionIs, formatIs } from "@jsonforms/core";
+
 export const tester = {
   rank: 2,
-  controlType: and(isStringControl, optionIs("format", "password")),
+  controlType: and(
+    isStringControl,
+    or(formatIs("password"), optionIs("type", "password"))
+  ),
 };
 </script>

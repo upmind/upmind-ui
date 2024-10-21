@@ -14,7 +14,7 @@
     @update:open="onClose"
     size="2xl"
   >
-    <UpwForm
+    <Form
       :class="styles.clientForm.content"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -51,7 +51,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, Button, Drawer } from "@upmind/upwind";
+import { Form, Button, Drawer } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";
@@ -60,7 +60,7 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 export default defineComponent({
   name: "UpmClientForm",
   directives: { autoAnimate: vAutoAnimate },
-  components: { UpwForm, Drawer, Button },
+  components: { Form, Drawer, Button },
   props: {
     modelValue: {
       type: Object, // xstate actor
