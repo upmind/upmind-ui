@@ -15,13 +15,13 @@
         <Badge
           color="secondary"
           v-if="product?.hasFreeTrial"
-          :label="$t('product.trail')"
+          :label="t('product.trail')"
         />
 
         <Badge
           color="promotion"
           v-if="product?.isOnPromotion"
-          :label="$t('product.promotion')"
+          :label="t('product.promotion')"
         />
 
         <h3 :class="styles.product.card.title">
@@ -35,7 +35,7 @@
 
         <div :class="styles.product.card.meta">
           <span v-if="termSummary">
-            {{ $t(`product.${termSummary.key}`, termSummary) }}
+            {{ t(`product.${termSummary.key}`, termSummary) }}
           </span>
 
           <Button
@@ -43,7 +43,7 @@
             @click="toggle = !toggle"
             size="sm"
             color="current"
-            :label="$tc('product.actions.more', toggle ? 0 : 1)"
+            :label="t('product.actions.more', toggle ? 0 : 1)"
             :class="styles.product.card.more"
             v-if="hasSummaryDetails"
           >
@@ -98,7 +98,7 @@
                 v-else-if="detail.invalid"
                 size="xs"
                 variant="link"
-                :label="$t('product.actions.invalid')"
+                :label="t('product.actions.invalid')"
                 @click="doResolve"
               />
             </li>
@@ -117,7 +117,7 @@
             {{
               summary?.subtotal
                 ? summary?.subtotal_formatted
-                : $t("product.free")
+                : t("product.free")
             }}
           </span>
 
@@ -125,7 +125,7 @@
             :class="styles.product.card.total"
             v-if="!isNil(summary?.total)"
           >
-            {{ summary?.total ? summary?.total_formatted : $t("product.free") }}
+            {{ summary?.total ? summary?.total_formatted : t("product.free") }}
           </strong>
         </div>
 
@@ -141,7 +141,7 @@
             :color="
               meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'
             "
-            :label="$t('product.actions.configure')"
+            :label="t('product.actions.configure')"
             @click="doResolve"
             icon-only
             prependIcon="edit"
@@ -153,7 +153,7 @@
             :disabled="
               meta.isLoading || meta.isCalculating || meta.isProcessing
             "
-            :label="$t('product.actions.remove')"
+            :label="t('product.actions.remove')"
             :loading="meta.isProcessing"
             @click="doReject"
             color="current"
@@ -171,6 +171,7 @@
 <script>
 // --- external
 import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useProductConfig } from "@upmind/headless-vue";
@@ -203,6 +204,8 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
+
     const { state, product, model, meta, summary } = useProductConfig(
       props.item
     );
@@ -216,6 +219,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       state,
       product,
       model,

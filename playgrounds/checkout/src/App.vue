@@ -14,10 +14,10 @@
         <router-view :key="$route.fullPath" class="view" />
 
         <UpmSessionExpired
-          :title="$t('session.expired.title')"
-          :text="$t('session.expired.text')"
+          :title="t('session.expired.title')"
+          :text="t('session.expired.text')"
           :action="{
-            label: $t('session.expired.actions.continue'),
+            label: t('session.expired.actions.continue'),
             color: 'primary',
             handler: reload,
             auto: false,
@@ -32,6 +32,7 @@
 
 <script setup>
 // --- external
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useThemes } from "@upmind/upwind";
@@ -43,6 +44,8 @@ import DotHeader from "@/components/Header.vue";
 import DotFooter from "@/components/Footer.vue";
 
 const { activeTheme } = useThemes(theme);
+
+const { t } = useI18n();
 
 function reload() {
   window.location.reload();

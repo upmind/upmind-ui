@@ -17,13 +17,13 @@ const app = createApp(App);
 // ---------------------
 
 const i18n = createI18n({
-  // legacy: false, // you must set `false` to use Composition API
-  // missingWarn: false,
-  // fallbackWarn: false,
+  legacy: false,
   locale: "en",
   fallbackLocale: "en",
   messages: getGlobalMessages(),
   // ---
+  missingWarn: false,
+  fallbackWarn: false,
   silentTranslationWarn: true,
   silentFallbackWarn: true,
 });

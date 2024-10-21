@@ -4,7 +4,7 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <upw-skeleton-list
+    <UpwSkeletonList
       :class="styles.domain.listings.loading"
       v-if="meta.isLoading"
       :rows="items?.length || 3"
@@ -12,10 +12,10 @@
 
     <template v-else>
       <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <upm-empty />
+        <UpmEmpty />
       </slot>
 
-      <upw-radio-list
+      <UpwRadioList
         v-else
         :class="styles.domain.listings.items"
         :items="items"
@@ -23,7 +23,7 @@
         @update:modelValue="onUpdate"
       >
         <template #label="{ item }"> {{ item.sld }}{{ item.tld }} </template>
-      </upw-radio-list>
+      </UpwRadioList>
     </template>
 
     <!-- <footer :class="styles.domain.listings.footer">
@@ -35,6 +35,7 @@
 <script>
 // --- external
 import { computed, defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -69,6 +70,8 @@ export default defineComponent({
     disabled: { type: Boolean, default: false },
   },
   setup(props) {
+    const { t, tm } = useI18n();
+
     const meta = computed(() => ({
       isLoading: props.loading,
       isEmpty: !props.items?.length,
@@ -87,6 +90,8 @@ export default defineComponent({
     );
 
     return {
+      t,
+      tm,
       styles,
       cn,
       meta,
@@ -96,7 +101,7 @@ export default defineComponent({
 
   computed: {
     translations() {
-      return this.$tm(this.i18nKey);
+      return this.tm(this.i18nKey);
     },
     title() {
       return get(this.translations, "title", "Select your domain");

@@ -3,20 +3,20 @@
     <UpmBasketLoading
       v-if="meta.isLoading || !animationComplete"
       :class="styles.checkout.section.root"
-      :title="$t('basket.loading.title')"
-      :text="$t('basket.loading.text')"
+      :title="t('basket.loading.title')"
+      :text="t('basket.loading.text')"
     />
 
     <UpmBasketEmpty
       v-else-if="meta.isEmpty"
       :class="styles.checkout.section.root"
-      :title="$t('basket.empty.title')"
-      :text="$t('basket.empty.text')"
+      :title="t('basket.empty.title')"
+      :text="t('basket.empty.text')"
       :action="{
         variant: 'ghost',
         href: storefrontUrl,
         prependIcon: 'arrow-left',
-        label: $t('basket.empty.actions.continue'),
+        label: t('basket.empty.actions.continue'),
       }"
     />
 
@@ -38,11 +38,11 @@
         <header :class="styles.checkout.section.header">
           <template v-if="!session.isAuthenticated && session.showRegisterForm">
             <span :class="styles.checkout.section.text">
-              {{ $t("session.unauthenticated.header.register.text") }}
+              {{ t("session.unauthenticated.header.register.text") }}
             </span>
 
             <h1 :class="styles.checkout.section.title">
-              {{ $t("session.unauthenticated.header.register.title") }}
+              {{ t("session.unauthenticated.header.register.title") }}
             </h1>
           </template>
 
@@ -50,11 +50,11 @@
             v-else-if="!session.isAuthenticated && session.showLoginForm"
           >
             <span :class="styles.checkout.section.text">
-              {{ $t("session.unauthenticated.header.login.text") }}
+              {{ t("session.unauthenticated.header.login.text") }}
             </span>
 
             <h1 :class="styles.checkout.section.title">
-              {{ $t("session.unauthenticated.header.login.title") }}
+              {{ t("session.unauthenticated.header.login.title") }}
             </h1>
           </template>
 
@@ -100,7 +100,7 @@
               />
 
               <!-- custom fields  -->
-              <UpwForm
+              <Form
                 :additional-errors="fieldsErrors?.data"
                 :open="fieldsModel"
                 :processing="fieldsMeta.isProcessing"
@@ -146,13 +146,13 @@
         :order-id="invoice?.id"
         :success="meta.hasPaid"
         :class="styles.checkout.section.root"
-        :title="$t('basket.empty.title', meta)"
-        :text="$t('basket.empty.text', meta)"
+        :title="t('basket.empty.title', meta)"
+        :text="t('basket.empty.text', meta)"
         :action="{
           variant: 'ghost',
           href: storefrontUrl,
           prependIcon: 'arrow-left',
-          label: $t('basket.empty.actions.continue'),
+          label: t('basket.empty.actions.continue'),
         }"
       />
     </template>
@@ -164,6 +164,7 @@
 import { defineComponent, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
@@ -187,7 +188,7 @@ import {
   useBasketBillingDetails,
   useBasketFields,
   UpmSession,
-  UpwForm,
+  Form,
   // ---
   UpwSteps,
 } from "@upmind/client-vue";
@@ -211,7 +212,7 @@ export default defineComponent({
     UpmOrderConfirmation,
     UpmPaymentDetails,
     UpmSession,
-    UpwForm,
+    Form,
     // ---
     UpwSteps,
   },
@@ -220,6 +221,7 @@ export default defineComponent({
     autoAnimate: vAutoAnimate,
   },
   setup() {
+    const { t, tm } = useI18n();
     const { meta: session, user } = useSession();
     const { state, meta, summary, addItem, invoice, isReady } = useBasket();
     const { update: updateCurrency } = useBasketCurrency();
@@ -318,6 +320,8 @@ export default defineComponent({
     // ---------------------------------------------------
 
     return {
+      t,
+      tm,
       styles,
       // ---
       state,
@@ -413,77 +417,77 @@ export default defineComponent({
     },
     processingTitle() {
       if (this.meta.needsApproval) {
-        return this.$t("basket.processing.approval.title");
+        return this.t("basket.processing.approval.title");
       }
 
       if (this.meta.isConverting) {
-        return this.$t("basket.processing.converting.title");
+        return this.t("basket.processing.converting.title");
       }
 
       if (this.meta.isPaying) {
-        return this.$t("basket.processing.paying.title");
+        return this.t("basket.processing.paying.title");
       }
 
       if (this.meta.isCheckout) {
-        return this.$t("basket.processing.default.title");
+        return this.t("basket.processing.default.title");
       }
 
-      return this.$t("basket.processing.invalid.title");
+      return this.t("basket.processing.invalid.title");
     },
 
     processingText() {
       if (this.meta.needsApproval) {
-        return this.$t("basket.processing.approval.text");
+        return this.t("basket.processing.approval.text");
       }
 
       if (this.meta.isConverting) {
-        return this.$t("basket.processing.converting.text");
+        return this.t("basket.processing.converting.text");
       }
 
       if (this.meta.isPaying) {
-        return this.$t("basket.processing.paying.text");
+        return this.t("basket.processing.paying.text");
       }
 
       if (this.meta.isCheckout) {
-        return this.$t("basket.processing.default.text");
+        return this.t("basket.processing.default.text");
       }
 
-      return this.$t("basket.processing.invalid.text");
+      return this.t("basket.processing.invalid.text");
     },
 
     orderTitle() {
       if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.title");
+        return this.tm("order.confirmation.invalid.title");
 
-      if (this.success) return this.$t("order.confirmation.success.title");
+      if (this.success) return this.t("order.confirmation.success.title");
 
-      return this.$t("order.confirmation.failed.title");
+      return this.t("order.confirmation.failed.title");
     },
 
     orderText() {
       if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.text");
+        return this.tm("order.confirmation.invalid.text");
 
-      if (this.success) return this.$t("order.confirmation.success.text");
+      if (this.success) return this.t("order.confirmation.success.text");
 
-      return this.$t("order.confirmation.failed.text");
+      return this.t("order.confirmation.failed.text");
     },
 
     orderAction() {
       if (!this.meta.isAuthenticated)
         return {
-          label: this.$tm("order.confirmation.invalid.actions.continue"),
+          label: this.tm("order.confirmation.invalid.actions.continue"),
         };
 
       if (!this.orderId) return null;
 
       if (this.meta.hasPaid)
         return {
-          label: this.$tm("order.confirmation.success.actions.continue"),
+          label: this.tm("order.confirmation.success.actions.continue"),
         };
 
       return {
-        label: this.$tm("order.confirmation.failed.actions.continue"),
+        label: this.tm("order.confirmation.failed.actions.continue"),
       };
     },
   },

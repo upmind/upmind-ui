@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     v-if="hasFields"
     :class="styles.product.config.form.root"
     :label="label"
@@ -11,9 +11,9 @@
     variant="flat"
     layout="stacked"
   >
-    <upw-form
-      :locale="$i18n.locale"
-      :translator="$t"
+    <Form
+      :locale="locale"
+      :translator="t"
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
@@ -22,19 +22,20 @@
       no-actions
       as="fieldset"
     />
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script>
 // --- external
 import { defineComponent, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 import { additionalRenderers } from "../renderers";
 // --- components
-import { UpwForm, UpwInput } from "@upmind/upwind";
+import { Form, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -43,7 +44,7 @@ import { isEmpty } from "lodash-es";
 
 export default defineComponent({
   name: "UpmProductConfigForm",
-  components: { UpwForm, UpwInput },
+  components: { Form, UpwInput },
   emits: ["update:modelValue"],
   props: {
     disabled: {
@@ -76,9 +77,14 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    const { t, locale } = useI18n();
+
     const styles = useStyles(["product.config.form"], toRefs(props), config);
 
     return {
+      locale,
+      t,
+
       styles,
       cn,
       additionalRenderers,

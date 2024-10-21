@@ -51,7 +51,7 @@
               <Badge
                 color="promotion"
                 :label="
-                  $tc(
+                  t(
                     'product.promo_save',
                     promotion.mixed || !promotion.amount ? 1 : 0,
                     {
@@ -68,7 +68,7 @@
               v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
             >
               {{
-                $t("product.cycle", {
+                t("product.cycle", {
                   value: item?.monthly_price_from_discounted
                     ? item.monthly_price_from_discounted_formatted
                     : item.monthly_price_from_formatted,
@@ -90,7 +90,7 @@
                   ? item.price_discounted_formatted
                   : item?.price
                     ? item.price_formatted
-                    : $t("product.free")
+                    : t("product.free")
               }}
             </strong>
           </div>
@@ -105,6 +105,7 @@
 <script>
 // --- external
 import { defineComponent, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind/upwind";
@@ -165,6 +166,8 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    const { t } = useI18n();
+
     const styles = useStyles(
       ["product.config.grid", "product.config.grid.item"],
       toRefs(props),
@@ -172,6 +175,7 @@ export default defineComponent({
     );
 
     return {
+      t,
       styles,
       cn,
     };
