@@ -26,8 +26,8 @@
             {{ control.label }}
           </Toggle>
 
-          <FormRequiredLabel
-            :required="control.required"
+          <FormRequiredIndicator
+            v-if="control.required"
             :formItemId="control.id"
           />
         </div>
@@ -66,8 +66,7 @@ import FormField from "../../FormField.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
-import FormLabelGroup from "../../FormLabelGroup.vue";
-import FormRequiredLabel from "../../FormRequiredLabel.vue";
+import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";

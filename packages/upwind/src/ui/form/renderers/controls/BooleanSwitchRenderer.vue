@@ -38,8 +38,8 @@
           </FormDescription>
 
           <!-- required -->
-          <FormRequiredLabel
-            :required="control.required"
+          <FormRequiredIndicator
+            v-if="control.required"
             :formItemId="control.id"
           />
         </div>
@@ -70,8 +70,7 @@ import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
-import FormRequiredLabel from "../../FormRequiredLabel.vue";
-import FormBooleanLabelGroup from "../../FormBooleanLabelGroup.vue";
+import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
