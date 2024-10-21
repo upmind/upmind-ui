@@ -59,7 +59,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { get } from "lodash-es";
 
@@ -107,6 +106,7 @@ const delegatedProps = computed(() => {
 </script>
 
 <script lang="ts">
+import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isBooleanControl, optionIs("format", "switch")),
