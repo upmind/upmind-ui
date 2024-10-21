@@ -34,9 +34,6 @@ import type {
 import type { ComputedRef } from "vue";
 
 // ----------------------------------------------
-defineOptions({
-  name: "ObjectRenderer",
-});
 
 const props = defineProps({
   ...rendererProps<ControlElement>(),
