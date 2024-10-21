@@ -21,11 +21,16 @@
 
       <div class="w-full space-y-1 leading-none" v-auto-animate>
         <div
-          class="flex w-full flex-row flex-nowrap items-center justify-between"
+          class="flex w-full flex-col flex-nowrap items-center justify-between"
         >
           <!-- label -->
           <FormLabel :formItemId="control.id" :invalid="!!control.errors">
             {{ control.label }}
+
+            <FormRequiredIndicator
+              v-if="control.required"
+              :formItemId="control.id"
+            />
           </FormLabel>
 
           <!-- description -->
@@ -36,12 +41,6 @@
           >
             {{ control.description }}
           </FormDescription>
-
-          <!-- required -->
-          <FormRequiredLabel
-            :required="control.required"
-            :formItemId="control.id"
-          />
         </div>
 
         <!-- validation messages -->
@@ -69,8 +68,7 @@ import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
 import FormMessage from "../../FormMessage.vue";
-import FormBooleanLabelGroup from "../../FormBooleanLabelGroup.vue";
-import FormRequiredLabel from "../../FormRequiredLabel.vue";
+import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";

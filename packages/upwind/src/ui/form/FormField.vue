@@ -13,6 +13,9 @@
           <slot name="label" :label="label">
             <span class="inline-flex items-center gap-x-1">
               <span>{{ label }}</span>
+
+              <FormRequiredIndicator v-if="meta.isRequired" :formItemId="id" />
+
               <Tooltip
                 v-if="tooltip"
                 :label="tooltip"
@@ -28,8 +31,6 @@
             </span>
           </slot>
         </FormLabel>
-
-        <FormRequiredLabel :required="meta.isRequired" :formItemId="id" />
       </div>
 
       <!-- text -->
@@ -81,8 +82,7 @@ import config from "./form.config";
 import {
   FormItem,
   FormLabel,
-  FormLabelGroup,
-  FormRequiredLabel,
+  FormRequiredIndicator,
   FormControl,
   FormDescription,
   FormMessage,
