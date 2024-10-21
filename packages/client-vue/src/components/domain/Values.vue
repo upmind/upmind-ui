@@ -4,7 +4,7 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <upw-skeleton-list
+    <UpwSkeletonList
       :class="styles.domain.listings.loading"
       v-if="meta.isLoading"
       :rows="items?.length || 3"
@@ -12,10 +12,10 @@
 
     <template v-else>
       <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <upm-empty />
+        <UpmEmpty />
       </slot>
 
-      <upw-radio-list
+      <UpwRadioList
         v-else
         :class="styles.domain.listings.items"
         :items="items"
@@ -23,7 +23,7 @@
         @update:modelValue="onUpdate"
       >
         <template #label="{ item }"> {{ item.sld }}{{ item.tld }} </template>
-      </upw-radio-list>
+      </UpwRadioList>
     </template>
 
     <!-- <footer :class="styles.domain.listings.footer">

@@ -14,7 +14,7 @@
       <Spinner size="xs" v-if="meta.isLoading" key="spinner" />
 
       <!-- Instructions -->
-      <upw-markdown
+      <UpwMarkdown
         v-if="instructions"
         :class="styles.basket.paymentGateway.instructions"
         :model-value="instructions"
@@ -29,7 +29,7 @@
       ></div>
 
       <!-- gateway Form (* IF Provided) -->
-      <upw-form
+      <Form
         key="form"
         v-if="schema && uischema"
         v-show="!meta.isLoading"
@@ -58,13 +58,13 @@ import { useStyles, cn, UpwMarkdown } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, Spinner } from "@upmind/upwind";
+import { Form, Spinner } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
   name: "UpmBasketPaymentGateway",
-  components: { UpwForm, Spinner, UpwMarkdown },
+  components: { Form, Spinner, UpwMarkdown },
   props: {
     id: {
       type: String,

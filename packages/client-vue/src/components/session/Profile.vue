@@ -1,5 +1,5 @@
 <template>
-  <upw-dropdown
+  <UpwDropdown
     v-if="meta.isAuthenticated || meta.isProcessing"
     :items="items"
     :size="size"

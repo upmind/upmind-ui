@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     v-if="hasFields"
     :class="styles.product.config.form.root"
     :label="label"
@@ -11,7 +11,7 @@
     variant="flat"
     layout="stacked"
   >
-    <upw-form
+    <Form
       :locale="$i18n.locale"
       :translator="$t"
       :schema="fields"
@@ -22,7 +22,7 @@
       no-actions
       as="fieldset"
     />
-  </upw-input>
+  </UpwInput>
 </template>
 
 <script>
@@ -34,7 +34,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 import { additionalRenderers } from "../renderers";
 // --- components
-import { UpwForm, UpwInput } from "@upmind/upwind";
+import { Form, UpwInput } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -43,7 +43,7 @@ import { isEmpty } from "lodash-es";
 
 export default defineComponent({
   name: "UpmProductConfigForm",
-  components: { UpwForm, UpwInput },
+  components: { Form, UpwInput },
   emits: ["update:modelValue"],
   props: {
     disabled: {

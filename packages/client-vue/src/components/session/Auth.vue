@@ -14,7 +14,7 @@
       "
     />
 
-    <UpwForm
+    <Form
       :key="active"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
@@ -28,7 +28,7 @@
       :class="styles.session.auth.form"
       :actions="authActions"
     >
-    </UpwForm>
+    </Form>
   </div>
   <Button variant="ghost" block type="reset" @click.prevent="logout" v-else>
     logout
@@ -41,7 +41,7 @@ import { defineComponent, ref } from "vue";
 
 // --- internal
 import { useSession } from "@upmind/headless-vue";
-import { UpwForm } from "@upmind/upwind";
+import { Form } from "@upmind/upwind";
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
@@ -55,7 +55,7 @@ import type { AuthProps } from "./types";
 
 export default defineComponent({
   name: "UpmAuth",
-  components: { UpwForm, Tabs, Button },
+  components: { Form, Tabs, Button },
 
   emits: ["update:modelValue"],
   props: {

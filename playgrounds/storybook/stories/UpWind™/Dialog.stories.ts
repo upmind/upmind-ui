@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Dialog, Button, UpwForm } from "@upmind/upwind";
+import { Dialog, Button, Form } from "@upmind/upwind";
 
 // --- utils
 import { keys, first } from "lodash-es";
@@ -203,7 +203,7 @@ export const Hero: Story = {
 
 export const Form: Story = {
   render: (args, { updateArgs }) => ({
-    components: { Dialog, UpwForm, Button },
+    components: { Dialog, Form, Button },
     setup() {
       const model = ref({});
       const open = ref(false);
@@ -238,7 +238,7 @@ export const Form: Story = {
 
 export const ScrollableDialog: Story = {
   render: () => ({
-    components: { Dialog, Button, UpwForm },
+    components: { Dialog, Button, Form },
     setup(args) {
       const model = ref({});
 

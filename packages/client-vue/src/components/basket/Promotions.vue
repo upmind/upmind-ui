@@ -19,7 +19,7 @@
       </Button>
     </header>
 
-    <UpwForm
+    <Form
       v-if="toggle"
       size="sm"
       :class="styles.basket.promotions.content"
@@ -67,7 +67,7 @@ import { defineComponent, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { UpwForm } from "@upmind/upwind";
+import { Form } from "@upmind/upwind";
 
 // --- custom elements
 import { Button, Icon } from "@upmind/upwind";
@@ -84,7 +84,7 @@ import { set } from "lodash-es";
 
 export default defineComponent({
   name: "UpmBasketPromotions",
-  components: { UpwForm, Button, Icon },
+  components: { Form, Button, Icon },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {},
