@@ -9,6 +9,7 @@ type ButtonVariantProps = VariantProps<typeof buttonVariants>;
 export interface ButtonProps {
   label?: string;
   as?: string;
+  type?: "button" | "submit" | "reset";
   // ---
   disabled?: boolean;
   loading?: boolean;
