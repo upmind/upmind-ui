@@ -23,13 +23,18 @@
 
       <p :class="styles.order.confirmation.text">{{ text }}</p>
 
-      <footer :class="styles.basket.processing.actions">
+      <footer :class="styles.order.confirmation.actions">
         <Button
           v-if="hasAction"
           v-bind="action"
           @click.stop="doAction"
           :loading="processing"
-        />
+          :label="action?.label"
+        >
+          <template #prepend>
+            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+          </template>
+        </Button>
       </footer>
     </section>
   </component>
@@ -47,7 +52,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button } from "@upmind/upwind";
+import { Icon, Avatar, Dialog, Button } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -89,7 +94,9 @@ function doAction() {
   processing.value = true;
   transferSession()
     .then(transfer => {
-      if (transfer?.code) {
+      if (hasAction.value && props.action?.href) {
+        window.location.href = props.action.href;
+      } else if (transfer?.code) {
         window.location.href = utils
           .useUrl(
             "auth/transfer",
