@@ -29,7 +29,14 @@
           v-bind="action"
           @click.stop="doAction"
           :loading="processing"
-        />
+        >
+          <Icon
+            v-if="action?.prependIcon"
+            :icon="action.prependIcon"
+            size="xs"
+          />
+          {{ action?.label }}
+        </Button>
       </footer>
     </section>
   </component>
@@ -46,7 +53,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button } from "@upmind/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
