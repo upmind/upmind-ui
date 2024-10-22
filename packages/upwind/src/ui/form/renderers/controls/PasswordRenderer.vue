@@ -3,7 +3,6 @@
     <InputGroup class="relative w-full">
       <Input
         class="pr-12"
-        :disabled="!control.enabled"
         :max="safeMax"
         :min="safeMin"
         :placeholder="appliedOptions?.placeholder"
@@ -15,6 +14,7 @@
         :pattern="appliedOptions?.pattern"
         :readonly="appliedOptions?.readonly"
         :required="appliedOptions?.required"
+        autocomplete="current-password"
         :model-value="control.data"
         @update:modelValue="onInput"
       />

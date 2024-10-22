@@ -6,7 +6,9 @@
     <template #field>
       <!-- input -->
       <FormControl
-        :invalid="!!control.errors"
+        :invalid="!!control?.errors"
+        :disabled="!control?.enabled"
+        :required="control?.required"
         :formItemId="control.id"
         :formDescriptionId="`form-item-description-${control.id}`"
         :formMessageId="`form-item-message-${control.id}`"

@@ -65,6 +65,7 @@ export interface FormControlProps {
   // --- variants
   size?: "sm" | "md" | "lg";
   noLabel?: boolean;
+
   // ---state
   autofocus?: boolean;
   required?: boolean;

@@ -201,7 +201,7 @@ export const Hero: Story = {
   },
 };
 
-export const Form: Story = {
+export const DialogForm: Story = {
   render: (args, { updateArgs }) => ({
     components: { Dialog, Form, Button },
     setup() {
