@@ -3,7 +3,7 @@
     v-if="currencies?.length > 1 || meta.isLoading"
     class="w-dropdown-xs md:w-dropdown-2xs bg-base text-primary"
     popoverClass="w-dropdown-xs md:w-dropdown-2xs"
-    :modelValue="selected"
+    :modelValue="selected?.value"
     :items="currencies"
     :loading="meta.isLoading"
     @update:modelValue="updateCurrency"

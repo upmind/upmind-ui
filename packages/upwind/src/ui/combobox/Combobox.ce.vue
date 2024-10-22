@@ -133,7 +133,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -208,7 +208,9 @@ const meta = computed(() => ({
 
 const open = ref(false);
 const processing = ref(false);
-const modelValue = ref();
+const modelValue = ref(
+  find(props.items, [props.itemValue, props.modelValue]) || props.modelValue
+);
 const searchValue = ref();
 
 // ---
@@ -286,5 +288,5 @@ function isSelected(item: ComboboxItemProps) {
   );
 }
 // --- side effect
-// watch(() => props.modelValue, doSelect, { immediate: true });
+watch(() => props.modelValue, doSelect);
 </script>
