@@ -1,5 +1,5 @@
 // --- external
-import { computed, toRef, watch } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -32,6 +32,8 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   const { state, send } = useActor(service);
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
+  const touched = ref(false);
+
   // syntactic sugar
   const product = computed(() => state.value.context?.lookups?.product);
   const productImage = (size: string = "400x400") => {
@@ -55,6 +57,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basket_product"]),
     isDirty: stateMatches(state, ["available.configured"]),
+    isTouched: touched.value,
     isFound:
       !isEmpty(state.value.context?.lookups) ||
       stateMatches(state, ["subscribing", "loading"]),
@@ -103,6 +106,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
   // --- QUANTITY
   const updateQuantity = async (value?: number) => {
+    touched.value = true;
     send({
       type: "SET.QUANTITY",
       data: {
@@ -145,7 +149,8 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     return value;
   }
 
-  const updateTerm = (term: any) =>
+  const updateTerm = (term: any) => {
+    touched.value = true;
     send({
       type: "SET.TERM",
       data: {
@@ -153,17 +158,20 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
         term: isObject(term) ? term.billing_cycle_months : term,
       },
     });
+  };
   //emit("update:term",{itemId: props.id,...);
 
   // --- ATTRIBUTES
 
-  const updateAttributes = () =>
+  const updateAttributes = () => {
+    touched.value = true;
     send({
       type: "SET.ATTRIBUTES",
       data: {
         attributes: model.value.attributes,
       },
     });
+  };
 
   function isSelectedAttribute(attributeId: any, value: any) {
     return some(model.value.attributes[attributeId], ["product_id", value]);
@@ -185,13 +193,15 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
   // --- OPTIONS
 
-  const updateOptions = () =>
+  const updateOptions = () => {
+    touched.value = true;
     send({
       type: "SET.OPTIONS",
       data: {
         options: model.value.options,
       },
     });
+  };
 
   function isSelectedOption(optionId: any, value: any) {
     return some(model.value.options[optionId], ["product_id", value]);
@@ -269,6 +279,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   }
 
   const updateProvisioning = () => {
+    touched.value = true;
     send({
       type: "SET.PROVISIONING",
       data: { provision_fields: model.value.provision_fields },
