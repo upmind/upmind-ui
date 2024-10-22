@@ -277,9 +277,13 @@ function doSelect(item: String | ComboboxItemProps) {
     modelValue.value = selected;
     emits("update:modelValue", value); // NB emit only the value
   }
+
+  // if we have a search value,  set it to the selected value = seamless ui
+  if (searchValue.value) {
+    searchValue.value = get(selected, props.itemLabel, searchValue.value);
+  }
+
   // finnaly close the popover
-  searchValue.value =
-    modelValue.value?.[props.itemLabel] || searchValue.value || "";
   open.value = false;
 }
 
