@@ -64,7 +64,11 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
     size: "md",
     shape: "circle",
     color: "primary",
-    icon: "basket",
+    animatedIcon: {
+      icon: "basket",
+      primaryColor: "base",
+      secondaryColor: "secondary",
+    },
     fit: "contain",
   }),
 });
