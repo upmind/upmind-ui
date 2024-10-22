@@ -24,7 +24,8 @@ import type { ActorRef } from "xstate";
 
 export const useBasketPromotions = (service?: ActorRef<any, any>) => {
   const { service: basket } = useBasket();
-  const promotions = ref();
+  const promotionsService = ref(service);
+  const actor = ref();
 
   if (!service) {
     waitFor(
@@ -32,42 +33,65 @@ export const useBasketPromotions = (service?: ActorRef<any, any>) => {
       newstate => contextMatches(newstate, ["actors.promotions"]),
       { timeout: Infinity }
     ).then(validState => {
-      promotions.value = contextActor(validState, "actors.promotions");
+      promotionsService.value = contextValue(validState, "actors.promotions");
+      actor.value = contextActor(validState, "actors.promotions");
     });
   } else {
-    promotions.value = useActor(service);
+    actor.value = useActor(service);
   }
 
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(promotions, "value")),
-    context: computed(() => stateValue(promotions, "context")),
-    errors: computed(() => contextValue(promotions, "error")),
+    state: computed(() => stateValue(actor, "value")),
+    context: computed(() => stateValue(actor, "context")),
+    errors: computed(() => contextValue(actor, "error")),
 
     // ---
     meta: computed(() => ({
-      isLoading: !promotions.value || stateMatches(promotions, ["loading"]),
-      hasErrors: stateMatches(promotions, ["error"]),
-      isProcessing: stateMatches(promotions, ["checking", "processing"]),
-      isValid: stateMatches(promotions, ["valid"]),
-      isDirty: contextMatches(promotions, ["dirty"]),
+      isLoading: !actor.value || stateMatches(actor, ["loading"]),
+      hasErrors: stateMatches(actor, ["error"]),
+      isProcessing: stateMatches(actor, ["checking", "processing"]),
+      isValid: stateMatches(actor, ["valid"]),
+      isDirty: contextMatches(actor, ["dirty"]),
       isComplete:
-        stateValue(promotions, "done", false) ||
-        stateMatches(promotions, ["processed", "complete"]),
-      hasPromotions: contextMatches(promotions, ["promotions"]),
+        stateValue(actor, "done", false) ||
+        stateMatches(actor, ["processed", "complete"]),
+      hasPromotions: contextMatches(actor, ["promotions"]),
     })),
     // ---
-    model: computed(() => contextValue(promotions, "model")),
-    schema: computed(() => contextValue(promotions, "schema")),
-    uischema: computed(() => contextValue(promotions, "uischema")),
-    promotions: computed(() => contextValue(promotions, "promotions")), // ---
-    clear: () => promotions.value?.send({ type: "CLEAR" }),
+    model: computed(() => contextValue(actor, "model")),
+    schema: computed(() => contextValue(actor, "schema")),
+    uischema: computed(() => contextValue(actor, "uischema")),
+    promotions: computed(() => contextValue(actor, "promotions")), // ---
+    clear: () => actor.value?.send({ type: "CLEAR" }),
     // @ts-ignore
-    input: model => promotions.value?.send({ type: "SET", data: model }),
-    add: () => promotions.value?.send({ type: "ADD" }),
-    remove: (promotion: any) =>
-      // @ts-ignore
-      promotions.value?.send({ type: "REMOVE", data: promotion }),
+    input: model => actor.value?.send({ type: "SET", data: model }),
+    add: async () => {
+      actor.value?.send({ type: "ADD" });
+      return waitFor(promotionsService.value as ActorRef<any, any>, state => {
+        return ["processed", "complete", "processing.error"].some(
+          state.matches
+        );
+      }).then(state => {
+        if (["processing.error"].some(state.matches)) {
+          return Promise.reject(state.context.error);
+        }
+        return Promise.resolve();
+      });
+    },
+    remove: (promotion: any) => {
+      actor.value?.send({ type: "REMOVE", data: promotion });
+      return waitFor(promotionsService.value as ActorRef<any, any>, state => {
+        return ["processed", "complete", "processing.error"].some(
+          state.matches
+        );
+      }).then(state => {
+        if (["processing.error"].some(state.matches)) {
+          return Promise.reject(state.context.error);
+        }
+        return Promise.resolve();
+      });
+    },
   };
 };
