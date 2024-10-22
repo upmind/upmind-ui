@@ -55,6 +55,9 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basket_product"]),
     isDirty: stateMatches(state, ["available.configured"]),
+    isFound:
+      !isEmpty(state.value.context?.lookups) ||
+      stateMatches(state, ["subscribing", "loading"]),
     hasErrors:
       stateMatches(state, ["available.error", "error"]) ||
       contextMatches(state, ["error"]),
