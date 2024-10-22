@@ -1,9 +1,16 @@
-import type { AvatarProps, DialogProps, ButtonProps } from "@upmind/upwind";
+import type {
+  AvatarProps,
+  DialogProps,
+  ButtonProps,
+  IconProps,
+} from "@upmind/upwind";
 // ---
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
+  href?: string;
+  prependIcon?: IconProps["icon"];
 }
 
 export interface BasketModalProps {
