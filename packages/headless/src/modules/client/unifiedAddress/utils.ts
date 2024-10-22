@@ -5,6 +5,7 @@ import { spawn } from "xstate";
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
+
 // --- utils
 import {
   get,
@@ -329,6 +330,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
               autocomplete: "off",
               align: "start",
               side: "bottom",
+              placeholder: "Search for address ...",
               items: compact([
                 lookups.addresses?.length
                   ? {
@@ -338,15 +340,15 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                     }
                   : null,
                 ...lookups.addresses,
-                {
-                  label: "Enter manually",
-                  i18n: "client.unified.form.fields.manual",
-                  value: "manual",
-                  as: "button",
-                  variant: "link",
-                  size: "sm",
-                  persist: true,
-                },
+                // {
+                //   label: "Enter manually",
+                //   i18n: "client.unified.form.fields.manual",
+                //   value: "manual",
+                //   as: "button",
+                //   variant: "link",
+                //   size: "sm",
+                //   persist: true,
+                // },
               ]),
             },
             rule: {
