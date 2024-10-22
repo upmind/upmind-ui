@@ -1,16 +1,46 @@
 <template>
-  <lord-icon :src="iconSrc" :trigger="trigger" class="h-10 w-10" />
+  <lord-icon
+    :src="iconSrc"
+    :trigger="trigger"
+    :class="cn(variants.icon, props.class)"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+// --- external
+import { ref, watchEffect, computed } from "vue";
+
+// --- internal
+import { useStyles, cn } from "../../utils";
+import config from "./iconAnimated.config";
+
+// --- types
+import type { ComputedRef } from "vue";
 import type { AnimatedIconProps } from "./types";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
   primaryColor: "primary",
   secondaryColor: "secondary",
+  // ---
+  size: "auto",
+  // ---
+  upwindConfig: () => ({ icon: {} }),
+  class: "",
 });
+
+const meta = computed(() => ({
+  size: props.size,
+}));
+
+const variants = useStyles(
+  "icon",
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{ icon: string }>;
+
+// ---
 
 const iconSrc = ref("");
 

@@ -61,7 +61,11 @@ import {
   type FormProps,
 } from "./ui/form";
 import { UwIcon, Icon, type IconProps } from "./ui/icon";
-import { IconAnimated } from "./ui/icon-animated";
+import {
+  UwIconAnimated,
+  IconAnimated,
+  type AnimatedIconProps,
+} from "./ui/icon-animated";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwInput, Input, type InputProps } from "./ui/input";
 import {
@@ -155,6 +159,7 @@ export {
   type DialogProps,
   type FormProps,
   type IconProps,
+  type AnimatedIconProps,
   type InputProps,
   type NumberFieldProps,
   type RadioSelectProps,
@@ -178,6 +183,7 @@ export {
   UwDropdownMenu,
   UwForm,
   UwIcon,
+  UwIconAnimated,
   UwIndicator,
   UwInput,
   UwNumberField,
@@ -202,6 +208,7 @@ export function register() {
   customElements.define("uw-dropdown-menu", UwDropdownMenu);
   customElements.define("uw-form", UwForm);
   customElements.define("uw-icon", UwIcon);
+  customElements.define("uw-icon-animated", UwIconAnimated);
   customElements.define("uw-indicator", UwIndicator);
   customElements.define("uw-input", UwInput);
   customElements.define("uw-number-field", UwNumberField);
@@ -247,6 +254,7 @@ declare module "vue" {
     FormDescription: typeof FormDescription;
     FormMessage: typeof FormMessage;
     Icon: typeof Icon;
+    IconAnimated: typeof IconAnimated;
     Indicator: typeof Indicator;
     Input: typeof Input;
     NumberField: typeof NumberField;
