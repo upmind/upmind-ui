@@ -73,13 +73,7 @@ export const ItemActions = {
   }),
 
   setModel: assign({
-    model: (
-      // TODO: { schema, baseModel }: UnifiedAddressContext,
-      { schema, baseModel }: any,
-      { data }: UnifiedAddressEvent
-    ) => {
-      const model = useModelParser(schema, data, baseModel);
-      return model;
-    },
+    model: ({ schema, baseModel }: any, { data }: UnifiedAddressEvent) =>
+      useModelParser(schema, data, baseModel),
   }),
 };
