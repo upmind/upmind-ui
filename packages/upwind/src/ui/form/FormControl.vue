@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTemplateRef, watchEffect } from "vue";
+import { useTemplateRef } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 import { Slot } from "radix-vue";
 // import { isFunction } from "lodash-es";
@@ -56,26 +56,4 @@ function maybeFocus([section]: IntersectionObserverEntry[]) {
 // --- lifecycle
 
 // --- side effects
-watchEffect(() => {
-  if (target.value) {
-    // NB Radix Slot component is a wrapper and the ref is on the inner element
-    // const el: HTMLElement = target.value;
-    // const input: HTMLInputElement = el.querySelector(
-    //   "input, textarea, select, [role='checkbox']"
-    // ) as HTMLInputElement;
-    // console.log("FormControl input", input);
-    // if (props.autofocus && target.value) {
-    //   target.value.focus();
-    // }
-    // if (isFunction(input?.setCustomValidity)) {
-    //   console.log("FormControl", "setCustomValidity", props.invalid);
-    //   input.setCustomValidity(props.invalid ? "Invalid" : "");
-    // } else {
-    //   console.warn(
-    //     "FormControl element does not support setCustomValidity",
-    //     input
-    //   );
-    // }
-  }
-});
 </script>

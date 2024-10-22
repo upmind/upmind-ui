@@ -13,7 +13,7 @@
           <template #prepend>
             <Avatar
               v-if="modelValue?.avatar || props.avatar"
-              v-bind="modelValue?.avatar ? modelValue.avatar : props?.avatar"
+              v-bind="modelValue?.avatar || props?.avatar"
               size="3xs"
               shape="circle"
               fit="cover"
@@ -21,7 +21,7 @@
             />
             <Icon
               v-if="modelValue?.icon || props.icon"
-              :icon="modelValue?.icon ? modelValue.icon : props?.icon"
+              :icon="modelValue?.icon || props?.icon"
               shape="circle"
               size="3xs"
               fit="cover"
@@ -34,6 +34,7 @@
               v-if="
                 modelValue?.selectedLabel ||
                 modelValue?.[props.itemLabel] ||
+                searchValue ||
                 props?.label
               "
               class="truncate leading-none"
@@ -41,6 +42,7 @@
               {{
                 modelValue?.selectedLabel ||
                 modelValue?.[props.itemLabel] ||
+                searchValue ||
                 props.label
               }}
             </span>
@@ -271,12 +273,13 @@ function doSelect(item: String | ComboboxItemProps) {
   const value = get(selected, props.itemValue);
   const oldValue = get(modelValue.value, props.itemValue);
   const hasChanged = !isEqual(value, oldValue);
-
   if (hasChanged) {
     modelValue.value = selected;
     emits("update:modelValue", value); // NB emit only the value
   }
   // finnaly close the popover
+  searchValue.value =
+    modelValue.value?.[props.itemLabel] || searchValue.value || "";
   open.value = false;
 }
 

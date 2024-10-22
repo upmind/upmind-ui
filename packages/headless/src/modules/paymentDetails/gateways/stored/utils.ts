@@ -34,7 +34,6 @@ export const useSchema = (context: GatewayContext) => {
               title: name,
             })),
       },
-
       return_url: {
         type: "string",
         title: "Return URL",
@@ -68,6 +67,7 @@ export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
           stretch: true,
           layout: "stacked",
           noLabel: true,
+          required: true,
           items: map(
             stored_payment_methods,
             ({ id, name, card_type, card_expire_date }) => {

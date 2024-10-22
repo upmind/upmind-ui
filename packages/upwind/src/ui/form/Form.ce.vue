@@ -20,7 +20,7 @@
 
     <slot name="footer" v-bind="{ meta }">
       <!-- debugging -->
-      <!-- <pre>{{ { meta, errors } }}</pre> -->
+      <!-- <pre>{{ { model, meta, errors } }}</pre> -->
     </slot>
 
     <!-- actions -->

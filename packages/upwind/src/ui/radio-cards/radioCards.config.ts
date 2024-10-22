@@ -35,7 +35,9 @@ export default {
   radioCards: {
     root: rootVariants,
     item: itemVariants,
-    label: cva("m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-xs"),
-    input: cva("text-current-active my-3 ml-3 mr-1 leading-normal"),
+    label: cva(
+      "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+    ),
+    input: cva("my-3 ml-3 mr-1 leading-normal text-control-active"),
   },
 };
