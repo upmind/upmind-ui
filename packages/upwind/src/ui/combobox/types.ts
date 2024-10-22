@@ -12,7 +12,8 @@ import type { IconProps } from "../icon";
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 
-import type { itemVariants } from "./combobox.config";
+import type { itemVariants, contentVariants } from "./combobox.config";
+type ContentVariantsProps = VariantProps<typeof contentVariants>;
 type ItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface ComboboxItemProps {
@@ -25,6 +26,11 @@ export interface ComboboxItemProps {
   avatar?: Partial<AvatarProps>;
   handler?: Function;
   class?: HTMLAttributes["class"];
+  persist?: boolean;
+}
+
+export interface ComboboxSearchFunction {
+  (value: string, items?: ComboboxItemProps[]): ComboboxItemProps[];
 }
 
 export interface ComboboxProps
@@ -36,21 +42,22 @@ export interface ComboboxProps
   tag?: string;
   avatar?: Partial<AvatarProps>;
   icon?: IconProps["icon"];
+  itemLabel?: string;
+  itemValue?: string;
   // --- state
   items: ComboboxItemProps[];
   modelValue?: string | ComboboxItemProps;
   loading?: boolean;
-  emitValue?: boolean;
   // --- Search
-  searchable?: boolean;
+  search?: boolean | ComboboxSearchFunction;
+  // searchValue?: string;
   searchMessage?: string;
   emptyMessage?: string;
-  filterFunction?: (val: any, term: any) => any;
   // --- variants
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
-  width?: ItemVariantProps["width"];
+  width?: ContentVariantsProps["width"];
   iconSize?: IconProps["size"];
   // --- styles
   upwindConfig?: { combobox: Partial<ComboboxProps> };

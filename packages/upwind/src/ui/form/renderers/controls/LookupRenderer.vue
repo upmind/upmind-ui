@@ -3,9 +3,13 @@
     <Combobox
       :disabled="!control.enabled"
       :model-value="control.data"
-      :items="control.options"
+      :items="control?.options || appliedOptions?.items"
       @update:modelValue="onInput"
-      searchable
+      :search="doSearch"
+      :itemValue="appliedOptions?.itemValue"
+      :itemLabel="appliedOptions?.itemLabel"
+      :align="appliedOptions?.align"
+      :side="appliedOptions?.side"
       width="full"
     />
   </FormField>
@@ -32,6 +36,9 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsOneOfEnumControl(props)
 );
+
+const doSearch = get(control.value, "schema.lookup");
+
 const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
 

@@ -153,6 +153,10 @@ export const useUischema = () => {
         options: {
           autocomplete: "off",
           placeholder: "Select an Address...",
+          itemLabel: "name",
+          itemValue: "id",
+          align: "start",
+          side: "bottom",
         },
       },
       {
@@ -161,6 +165,10 @@ export const useUischema = () => {
         options: {
           autocomplete: "off",
           placeholder: "Select an email...",
+          itemLabel: "email",
+          itemValue: "id",
+          align: "start",
+          side: "bottom",
         },
       },
       {
@@ -169,6 +177,10 @@ export const useUischema = () => {
         options: {
           autocomplete: "country",
           placeholder: "Please select a Phone Number  ...",
+          itemLabel: "full_phone",
+          itemValue: "id",
+          align: "start",
+          side: "bottom",
         },
       },
       // ---

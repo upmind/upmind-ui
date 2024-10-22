@@ -525,6 +525,8 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
               itemLabel: "email",
               itemValue: "email",
               items: lookups.emails,
+              align: "start",
+              side: "bottom",
             },
           },
           {
@@ -537,6 +539,8 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
               itemLabel: "number",
               itemValue: "number",
               items: lookups.phones,
+              align: "start",
+              side: "bottom",
             },
           },
         ],
