@@ -9,7 +9,7 @@
       :id="control.id + '-domain'"
       :disabled="!control.enabled"
       :model-value="control.data"
-      @change="onChange"
+      @update:modelValue="onChange"
     />
   </UpwInput>
 </template>

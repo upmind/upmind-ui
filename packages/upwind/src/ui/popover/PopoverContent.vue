@@ -4,6 +4,7 @@ import {
   PopoverContent,
   type PopoverContentEmits,
   type PopoverContentProps,
+  type PopoverPortalProps,
   PopoverPortal,
   useForwardPropsEmits,
 } from "radix-vue";
@@ -14,7 +15,10 @@ defineOptions({
 });
 
 const props = withDefaults(
-  defineProps<PopoverContentProps & { class?: HTMLAttributes["class"] }>(),
+  defineProps<
+    PopoverContentProps &
+      PopoverPortalProps & { class?: HTMLAttributes["class"] }
+  >(),
   {
     align: "center",
     sideOffset: 4,
@@ -32,7 +36,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <PopoverPortal>
+  <PopoverPortal :disabled="props?.disabled">
     <PopoverContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="
