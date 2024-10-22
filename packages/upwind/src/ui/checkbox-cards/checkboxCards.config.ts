@@ -17,7 +17,7 @@ export const rootVariants = cva(
 );
 
 export const itemVariants = cva(
-  "flex !cursor-pointer items-start space-x-2 transition-all duration-300 hover:bg-base-100",
+  "flex items-start space-x-2 transition-all duration-300 hover:bg-base-100",
   {
     variants: {
       layout: {
@@ -36,7 +36,7 @@ export default {
     root: rootVariants,
     item: itemVariants,
     label: cva(
-      "m-0 h-full w-full rounded-md py-3 pr-6 text-xs leading-tight text-primary"
+      "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-xs leading-tight"
     ),
     input: cva(
       "my-3 ml-3 mr-1 border-control leading-normal text-control-active"
