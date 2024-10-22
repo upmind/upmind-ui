@@ -77,6 +77,9 @@ export const ItemActions = {
       // TODO: { schema, baseModel }: UnifiedAddressContext,
       { schema, baseModel }: any,
       { data }: UnifiedAddressEvent
-    ) => useModelParser(schema, data, baseModel),
+    ) => {
+      const model = useModelParser(schema, data, baseModel);
+      return model;
+    },
   }),
 };

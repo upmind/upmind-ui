@@ -2,6 +2,7 @@
   <FormField v-bind="delegatedProps">
     <RadioCards
       :disabled="!control.enabled"
+      :required="control.required"
       :model-value="control.data"
       :items="control.options"
       @update:modelValue="onInput"

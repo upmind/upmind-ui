@@ -146,14 +146,9 @@
         :order-id="invoice?.id"
         :success="meta.hasPaid"
         :class="styles.checkout.section.root"
-        :title="t('basket.empty.title', meta)"
-        :text="t('basket.empty.text', meta)"
-        :action="{
-          variant: 'ghost',
-          href: storefrontUrl,
-          prependIcon: 'arrow-left',
-          label: t('basket.empty.actions.continue'),
-        }"
+        :title="orderTitle"
+        :text="orderText"
+        :action="orderAction"
       />
     </template>
   </article>

@@ -76,7 +76,7 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Address",
         lookup: places?.search,
-        default: baseModel?.company_details && baseModel?.place,
+        // default: baseModel?.company_details && baseModel?.place,
       },
 
       manualPlace: {
@@ -324,8 +324,11 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             scope: "#/properties/place",
             i18n: "client.unified.form.fields.place",
             options: {
-              prependIcon: "search",
+              autofocus: true,
+              icon: "search",
               autocomplete: "off",
+              align: "start",
+              side: "bottom",
               items: compact([
                 lookups.addresses?.length
                   ? {
@@ -372,7 +375,6 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                 scope: "#/properties/address_1",
                 i18n: "client.unified.form.fields.address_1",
                 options: {
-                  autofocus: true,
                   autocomplete: "address-line1",
                 },
               },
@@ -671,7 +673,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
 
       mappedItem.company_details = false;
       mappedItem.address_id = item.id;
-      mappedItem.place = null;
+      // mappedItem.place = null;
 
       return mappedItem;
     }
