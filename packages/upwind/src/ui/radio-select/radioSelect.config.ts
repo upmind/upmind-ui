@@ -25,8 +25,8 @@ export default {
       "flex items-start space-x-2 border border-t-0 border-control transition-all duration-300 hover:bg-base-100"
     ),
     label: cva(
-      "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
-    input: cva("my-4 ml-3 mr-1 leading-normal text-control-active"),
+    input: cva("my-3 ml-3 mr-1 leading-normal text-control-active"),
   },
 };
