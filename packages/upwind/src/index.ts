@@ -61,6 +61,7 @@ import {
   type FormProps,
 } from "./ui/form";
 import { UwIcon, Icon, type IconProps } from "./ui/icon";
+import { IconAnimated } from "./ui/icon-animated";
 import { UwIndicator, Indicator } from "./ui/indicator";
 import { UwInput, Input, type InputProps } from "./ui/input";
 import {
@@ -92,7 +93,14 @@ import { UwSkeleton, Skeleton } from "./ui/skeleton";
 export { toast } from "./ui/sonner";
 
 // --- utils
-export { useStyles, cn, useThemes, useStyleSheet, useScrollSpy } from "./utils";
+export {
+  useStyles,
+  cn,
+  useThemes,
+  useStyleSheet,
+  useScrollSpy,
+  initializeLottie,
+} from "./utils";
 import { forEach, kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -116,6 +124,7 @@ export {
   FormDescription,
   FormMessage,
   Icon,
+  IconAnimated,
   Indicator,
   Input,
   NumberField,
