@@ -60,9 +60,8 @@ export const ItemActions = {
   setSchemas: assign({
     schema: (context: AddressContext, _event: AddressEvent) =>
       useSchema(context),
-    // TODO: uischema: (context: AddressContext, _event: AddressEvent) =>
-    // TODO: useUischema(context),
-    uischema: (_, _event: AddressEvent) => useUischema(),
+    uischema: (context: AddressContext, _event: AddressEvent) =>
+      useUischema(context),
   }),
 
   setModel: assign({

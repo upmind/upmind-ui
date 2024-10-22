@@ -229,7 +229,6 @@ const variants = useStyles(
 async function safeSearch(value: string | number) {
   processing.value = !!value;
 
-  debugger;
   if (!value) {
     results.value = reject(props.items, "persist");
   } else if (isFunction(props.search, props.items)) {
@@ -281,7 +280,6 @@ function doSelect(item: String | ComboboxItemProps) {
 
   // if we have a search value,  set it to the selected value = seamless ui
   if (searchValue.value) {
-    debugger;
     searchValue.value = get(selected, props.itemLabel, searchValue.value);
   }
 
