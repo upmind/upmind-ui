@@ -1,7 +1,7 @@
 <template>
   <FormItem
     :formItemId="id"
-    v-show="visible"
+    v-show="meta.isVisible"
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
   >
@@ -100,7 +100,7 @@ import { Tooltip } from "../tooltip";
 import { Icon } from "../icon";
 
 // --- utils
-import { isEmpty, some } from "lodash-es";
+import { isEmpty, isNil, some } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";
@@ -112,7 +112,7 @@ const props = withDefaults(defineProps<FormControlProps>(), {
   text: "",
   tags: () => [],
   errors: () => [],
-  size: "md",
+  // size: "md",
   autofocus: false,
   // ---
 
@@ -138,7 +138,7 @@ const target = ref();
 
 // --- computed
 const meta = computed(() => ({
-  size: props.size,
+  // size: props.size,
   // layout: props.layout,
   // variant: props.variant,
   // ---
@@ -149,7 +149,7 @@ const meta = computed(() => ({
   isValid: isEmpty(props.errors) && props.dirty,
   isDirty: props.dirty,
   isRequired: props.required,
-  isVisible: props.visible,
+  isVisible: isNil(props.visible) || props.visible,
   isDisabled: props.disabled,
   hasDescription: !isEmpty(props.description),
   hasLabel: (!isEmpty(props.label) || some(slots, "label")) && !props.noLabel,

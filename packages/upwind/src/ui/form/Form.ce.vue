@@ -287,7 +287,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
     child.options ??= {}; //safety check
 
     // map the form size :- this is the only way to ensure that all children elements have the same size as the form
-    child.options.size ??= props.size; // only set if not already set
+    // child.options.size ??= props.size; // only set if not already set
 
     // map additional i18n, json forms just does title & description
     if (child?.i18n) {
