@@ -4,6 +4,7 @@ export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
+  href?: string;
 }
 
 export interface OrderConfirmationProps {
