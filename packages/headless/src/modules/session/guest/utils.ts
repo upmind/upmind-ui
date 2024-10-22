@@ -131,6 +131,7 @@ export const useLoginUischemaParser = () => {
         scope: "#/properties/email",
         i18n: "auth.login.email",
         options: {
+          autofocus: true,
           autocomplete: "email",
           placeholder: "name@email.com",
         },

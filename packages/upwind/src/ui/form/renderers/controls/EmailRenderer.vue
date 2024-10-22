@@ -1,7 +1,6 @@
 <template>
   <FormField v-bind="delegatedProps">
     <Input
-      :disabled="!control.enabled"
       :model-value="control.data"
       @update:modelValue="onInput"
       type="email"

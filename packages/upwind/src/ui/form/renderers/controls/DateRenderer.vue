@@ -2,7 +2,6 @@
   <FormField v-bind="delegatedProps">
     <Input
       v-bind="appliedOptions"
-      :disabled="!control.enabled"
       :model-value="control.data"
       @update:modelValue="onInput"
       type="date"

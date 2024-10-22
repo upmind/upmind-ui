@@ -1,7 +1,6 @@
 <template>
   <FormField v-bind="delegatedProps">
     <Combobox
-      :disabled="!control.enabled"
       :model-value="control.data"
       :items="control?.options || appliedOptions?.items"
       @update:modelValue="onInput"
