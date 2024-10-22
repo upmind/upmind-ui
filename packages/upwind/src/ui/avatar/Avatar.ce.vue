@@ -8,6 +8,13 @@
         :icon="icon"
         class="relative z-10 object-cover"
       />
+      <IconAnimated
+        v-else-if="meta.hasAnimatedIcon"
+        :icon="animatedIcon.icon"
+        :primary-color="animatedIcon.primaryColor"
+        :secondary-color="animatedIcon.secondaryColor"
+        class="h-12"
+      />
       <AvatarImage
         v-else-if="meta.hasImage"
         :src="src"
@@ -40,7 +47,7 @@ import config from "./avatar.config";
 // --- components
 import { Icon } from "../icon";
 import { AvatarRoot, AvatarImage } from "radix-vue";
-
+import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
 // --- utils
 import { isEmpty } from "lodash-es";
 
@@ -53,6 +60,7 @@ import type { AvatarProps } from ".";
 const props = withDefaults(defineProps<AvatarProps>(), {
   // --- props
   icon: undefined,
+  animatedIcon: undefined,
   src: "",
   caption: "",
   //  --- variants
@@ -74,6 +82,7 @@ const meta = computed(() => ({
   hasIcon: !isEmpty(props.icon),
   hasImage: !isEmpty(props.src),
   hasCaption: !isEmpty(props.caption) || true,
+  hasAnimatedIcon: !isEmpty(props.animatedIcon),
 }));
 
 const variants = useStyles(
