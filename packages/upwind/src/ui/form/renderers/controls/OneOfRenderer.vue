@@ -1,7 +1,6 @@
 <template>
   <FormField v-bind="delegatedProps">
     <Select
-      :disabled="!control.enabled"
       :model-value="control.data"
       :items="control.options"
       @update:modelValue="onInput"

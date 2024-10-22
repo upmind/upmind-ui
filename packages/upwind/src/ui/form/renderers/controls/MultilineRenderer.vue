@@ -1,7 +1,6 @@
 <template>
   <FormField v-bind="delegatedProps">
     <Textarea
-      :disabled="!control.enabled"
       :max="safeMax"
       :min="safeMin"
       :model-value="control.data"

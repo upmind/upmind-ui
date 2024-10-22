@@ -1,6 +1,7 @@
 <template>
   <FormItem
     :formItemId="id"
+    v-show="visible"
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
   >
@@ -44,6 +45,8 @@
       <!-- input -->
       <FormControl
         :invalid="meta.isInvalid"
+        :disabled="props.disabled"
+        :required="props.required"
         :formItemId="props.id"
         :formDescriptionId="`form-item-description-${props.id}`"
         :formMessageId="`form-item-message-${props.id}`"
