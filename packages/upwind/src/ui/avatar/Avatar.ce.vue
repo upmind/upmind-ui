@@ -10,7 +10,7 @@
       />
       <IconAnimated
         v-else-if="meta.hasAnimatedIcon"
-        :icon="animatedIcon.icon"
+        :icon="animatedIcon.icon || animatedIcon"
         :primary-color="animatedIcon.primaryColor"
         :secondary-color="animatedIcon.secondaryColor"
         class="h-12"

@@ -17,7 +17,7 @@ export interface AvatarProps {
   src?: string;
   caption?: string;
   icon?: IconProps["icon"];
-  animatedIcon?: AnimatedIconProps;
+  animatedIcon?: AnimatedIconProps | string;
   // ---
   color?: AvatarVariantProps["color"];
   fit?: AvatarVariantProps["fit"];
