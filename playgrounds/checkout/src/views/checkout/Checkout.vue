@@ -134,18 +134,18 @@
 
       <!-- Basket procesing -->
       <UpmBasketProcessing
-        :open="meta.isCheckout"
         :class="styles.checkout.section.root"
+        :open="meta.isCheckout"
         :title="processingTitle"
         :text="processingText"
       />
 
       <!-- Order confirmation -->
       <UpmOrderConfirmation
+        :class="styles.checkout.section.root"
         :open="meta.isComplete"
         :order-id="invoice?.id"
         :success="meta.hasPaid"
-        :class="styles.checkout.section.root"
         :title="orderTitle"
         :text="orderText"
         :action="orderAction"
