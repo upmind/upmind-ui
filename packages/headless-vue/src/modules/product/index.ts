@@ -1,4 +1,5 @@
 // --- external
+import type { ComputedRef } from "vue";
 import { computed, ref, toRef, watch } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
@@ -32,6 +33,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   const { state, send } = useActor(service);
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
+  const id = computed(() => service.id);
   const touched = ref(false);
 
   // syntactic sugar
@@ -58,9 +60,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     isNew: !contextMatches(state, ["basket_product"]),
     isDirty: stateMatches(state, ["available.configured"]),
     isTouched: touched.value,
-    isFound:
-      !isEmpty(state.value.context?.lookups) ||
-      stateMatches(state, ["subscribing", "loading"]),
+    isUnavailable: stateMatches(state, ["error"]),
     hasErrors:
       stateMatches(state, ["available.error", "error"]) ||
       contextMatches(state, ["error"]),
@@ -289,6 +289,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   // --------------------------------------------------------
 
   return {
+    id,
     state,
     // context,
     errors,
