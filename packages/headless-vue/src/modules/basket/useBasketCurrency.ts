@@ -69,11 +69,12 @@ export const useBasketCurrency = (service?: ActorRef<any, any>) => {
     async update(model: any) {
       // first check if our currency has change, ie: model.code has changed
 
+      const code = model?.code?.toUpperCase();
       const value = contextValue(currency, "model");
 
       // if it has not then bail
-      if (!model?.code || model?.code == value?.code) return;
-      currency.value?.send({ type: "SET", data: model, update: true });
+      if (!code || code == value?.code) return;
+      currency.value?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the payment_gateway actor to be updated
       // @ts-ignore
