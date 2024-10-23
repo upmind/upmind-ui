@@ -2,12 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "static h-auto min-h-10 justify-start overflow-hidden rounded-md text-left !text-primary",
+  "h-auto min-h-10 justify-start overflow-hidden rounded-md text-left !text-primary",
   {
     variants: {
       width: {
         full: "w-full",
         auto: "w-auto",
+        app: "w-app",
       },
     },
     defaultVariants: {

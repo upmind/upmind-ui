@@ -21,6 +21,7 @@ export interface RadioSelectProps extends RadioGroupRootProps {
   // ---
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
   // ---
   upwindConfig?: { tooltip: Partial<RadioSelectProps> };
   class?: HTMLAttributes["class"];
