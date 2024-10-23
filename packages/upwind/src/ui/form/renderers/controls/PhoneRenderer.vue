@@ -87,32 +87,13 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 
 const phone = ref({ ...control.value.data });
 
-function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
-  const phonenumber = isString(value)
-    ? value
-    : value?.nationalNumber || value?.number || "";
-
-  const parsed = parsePhoneNumber(
-    phonenumber,
-    countryCode || defaultCountryCode
-  );
-
-  if (!parsed) {
-    return { country: countryCode, number: phonenumber };
-  }
-
-  console.log("parsed", parsed);
-  return parsed;
-}
-
 const onCountyInput = (value: string) => {
-  console.log("onCountyInput", value);
-  phone.value = parsePhone(phone.value, value as CountryCode);
+  phone.value = { country: value, number: phone.value.number };
   onInput(phone.value);
 };
 
 const onPhoneInput = (value: string | number) => {
-  phone.value = parsePhone(value as string, phone.value?.country);
+  phone.value = { country: phone.value.country, number: value };
   onInput(phone.value);
 };
 
