@@ -12,7 +12,11 @@
         :search="onSearch"
         align="start"
         side="bottom"
-      />
+      >
+        <template #prepend>
+          <Icon icon="plus" size="xs" class="-mr-0.5 opacity-50" />
+        </template>
+      </Autocomplete>
       <Input
         :disabled="!control.enabled"
         :model-value="control.data?.number"
@@ -41,6 +45,7 @@ import {
   Autocomplete,
   type AutocompleteItemProps,
 } from "../../../autocomplete";
+import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -62,7 +67,7 @@ const countryItems = computed<AutocompleteItemProps[]>(() =>
       label: country.name,
       selectedLabel: country.countryCallingCodes[0],
       tag: country.countryCallingCodes[0],
-      value: country.alpha2,
+      value: country.countryCallingCodes[0].replace("+", ""),
     }))
 );
 
@@ -95,6 +100,8 @@ function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
   if (!parsed) {
     return { country: countryCode, number: phonenumber };
   }
+
+  console.log("parsed", parsed);
   return parsed;
 }
 
@@ -109,7 +116,15 @@ const onPhoneInput = (value: string | number) => {
   onInput(phone.value);
 };
 
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const getCountryCallingCode = (countryCode: CountryCode) => {
+  return countries.all
+    .find(country => country.alpha2 === countryCode)
+    ?.countryCallingCodes[0].replace("+", "");
+};
+
+const defaultCountryCode = getCountryCallingCode(
+  get(control.value.schema, "isPhoneNumber")
+);
 
 const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
