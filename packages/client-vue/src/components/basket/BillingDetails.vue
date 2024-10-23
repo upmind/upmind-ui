@@ -14,11 +14,12 @@
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <UpmItem
       v-if="!meta.isLoading && (meta.isAdding || meta.isEditing) && !open"
-      i18nKey="unified"
       :model-value="selected"
+      :modal="meta.isEditing"
       :key="selected?.id"
       :color="color"
-      :open="meta.isEditing"
+      i18nKey="unified"
+      open
     />
 
     <!-- otherwise show the default address as a card -->

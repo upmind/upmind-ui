@@ -61,7 +61,7 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
   skrim: "primary",
   size: "app",
   avatar: () => ({
-    size: "md",
+    size: "lg",
     shape: "circle",
     color: "primary",
     animatedIcon: "basket",
