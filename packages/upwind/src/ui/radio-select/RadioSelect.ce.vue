@@ -12,7 +12,6 @@
         :aria-expanded="open"
         :color="props.color"
         :variant="props.variant"
-        block
       >
         <span v-if="selected" class="w-full">
           <slot name="selected" v-bind="{ item: selected }">
