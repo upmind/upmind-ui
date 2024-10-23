@@ -4,31 +4,34 @@
     :disabled="props.disabled"
     :class="variants.radioSelect.root"
   >
-    <CollapsibleTrigger
-      :as="Button"
-      type="button"
-      :color="props.color"
-      :variant="props.variant"
-      :class="cn('group w-full', variants.radioSelect.trigger, props.class)"
-      block
-      size="sm"
-    >
-      <span v-if="selected" class="w-full">
-        <slot name="selected" v-bind="{ item: selected }">
-          {{ selected?.label || props.label }}
-        </slot>
-      </span>
+    <CollapsibleTrigger as-child>
+      <Button
+        :loading="props.loading"
+        :class="cn('group w-full', variants.radioSelect.trigger, props.class)"
+        :size="props.size"
+        :aria-expanded="open"
+        :color="props.color"
+        :variant="props.variant"
+        block
+      >
+        <span v-if="selected" class="w-full">
+          <slot name="selected" v-bind="{ item: selected }">
+            {{ selected?.label || props.label }}
+          </slot>
+        </span>
 
-      <span v-else class="opacity-50">
-        <slot name="placeholder">{{ props.placeholder }}</slot>
-      </span>
+        <span v-else class="opacity-50">
+          <slot name="placeholder">{{ props.placeholder }}</slot>
+        </span>
 
-      <Icon
-        class="ml-auto opacity-50 transition-all duration-300 group-hover:opacity-100"
-        :class="{ 'rotate-180': !open }"
-        icon="arrow-up"
-        size="xs"
-      />
+        <template #append>
+          <Icon
+            class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
+            icon="arrow-down"
+            size="xs"
+          />
+        </template>
+      </Button>
     </CollapsibleTrigger>
 
     <CollapsibleContent>
@@ -67,7 +70,7 @@
   </Collapsible>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // ---external
 import { ref, computed } from "vue";
 import { useVModel } from "@vueuse/core";
@@ -77,15 +80,16 @@ import { cn, useStyles } from "../../utils";
 import config from "./radioSelect.config";
 
 // --- components
+import { Icon } from "../icon";
+import { Button } from "../button";
+import { Label } from "../label";
+import { RadioGroup, RadioGroupItem } from "../radio-group";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../collapsible";
-import { Icon } from "../icon";
-import { Button } from "../button";
-import { RadioGroup, RadioGroupItem } from "../radio-group";
-import { Label } from "../label";
+
 // --- utils
 import { find } from "lodash-es";
 
@@ -102,6 +106,7 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   // -- variants
   color: "base",
   variant: "control",
+  size: "md",
   // --- styles
   class: "",
 });
