@@ -1,5 +1,4 @@
 <template>
-  <!-- <pre>{{ $props }}</pre> -->
   <component
     v-if="modal || (!modal && isOpen)"
     :is="modal ? 'Drawer' : 'section'"
@@ -15,9 +14,16 @@
     @update:open="onClose"
     size="2xl"
   >
+    <UpwSkeletonList
+      :class="styles.clientListings.loading"
+      v-if="meta.isLoading"
+    />
+
     <Form
+      v-else
       :class="styles.clientForm.content"
       :processing="meta.isProcessing"
+      :loading="meta.isLoading"
       :model-value="model"
       :schema="schema"
       :uischema="uischema"
@@ -53,7 +59,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Form, Button, Drawer } from "@upmind/upwind";
+import { Form, Button, Drawer, UpwSkeletonList } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";
@@ -62,7 +68,7 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 export default defineComponent({
   name: "UpmClientForm",
   directives: { autoAnimate: vAutoAnimate },
-  components: { Form, Drawer, Button },
+  components: { Form, Drawer, Button, UpwSkeletonList },
   props: {
     modelValue: {
       type: Object, // xstate actor
@@ -77,13 +83,21 @@ export default defineComponent({
   setup(props) {
     const { t } = useI18n();
     const useClient = inject("client");
-    const clientForm = useClient(props.modelValue);
-    const styles = useStyles(["clientForm"], clientForm.meta, config);
+    const { state, meta, model, schema, uischema, input, update, cancel } =
+      useClient(props.modelValue);
+    const styles = useStyles(["clientForm"], meta, config);
 
     return {
       t,
       styles,
-      ...clientForm,
+      state,
+      meta,
+      model,
+      schema,
+      uischema,
+      input,
+      update,
+      cancel,
     };
   },
 

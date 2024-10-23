@@ -77,13 +77,20 @@ export default createMachine(
               },
             },
           },
+
           idle: {
             always: [{ target: "empty", cond: "hasNoItems" }],
+            on: {
+              SELECT: {
+                actions: ["setSelected"],
+              },
+            },
           },
 
           processing: {
             always: [{ target: "idle", cond: "isNotProcessing" }],
           },
+
           empty: {
             always: [{ target: "idle", cond: "hasItems" }],
           },
@@ -101,6 +108,7 @@ export default createMachine(
               },
             },
           },
+
           filtered: {
             initial: "empty",
             states: {
@@ -121,7 +129,14 @@ export default createMachine(
                 ],
               },
             },
+            on: {
+              SELECT: {
+                actions: ["setSelected"],
+              },
+            },
           },
+
+          adding: {},
           editing: {},
         },
         on: {
@@ -130,14 +145,10 @@ export default createMachine(
             actions: ["setInitial"],
           },
 
-          SELECT: {
-            actions: ["setSelected"],
-          },
-
           FILTER: [{ target: "available.filtering", actions: ["setFilters"] }],
 
           ADD: {
-            target: "available.editing",
+            target: "available.adding",
             actions: ["add"],
           },
 
@@ -229,7 +240,9 @@ export default createMachine(
         selected: (
           { raw }: ClientListingsContext,
           { data }: ClientListingsEvents
-        ) => find(raw, ["id", data]), // || find(raw, "state.context.model.default")
+        ) => {
+          return find(raw, ["id", data]); // || find(raw, "state.context.model.default")
+        },
       }),
 
       clearSelected: assign({

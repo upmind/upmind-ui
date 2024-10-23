@@ -20,7 +20,7 @@ import { messageDisplays, type Message } from "./types";
 
 let state: any = null;
 
-const service = interpret(feedbackMachine, { devTools: true }).onTransition(
+const service = interpret(feedbackMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
