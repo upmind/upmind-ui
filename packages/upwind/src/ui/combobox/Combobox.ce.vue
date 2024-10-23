@@ -46,7 +46,7 @@
 
         <template #append>
           <Icon
-            class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
+            class="ml-auto opacity-75 transition-all duration-200"
             icon="arrow-up-down"
             size="xs"
           />
