@@ -13,11 +13,9 @@
         <h4 :class="styles.clientCard.title">
           {{ title }}
 
-          <Badge
-            v-for="(badge, index) in badges"
-            :key="`badge-${index}`"
-            v-bind="badge"
-          />
+          <template v-for="(badge, index) in badges" :key="`badge-${index}`">
+            <Badge v-bind="badge" v-if="!badge.hidden" />
+          </template>
         </h4>
       </header>
 
