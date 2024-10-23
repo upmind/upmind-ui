@@ -56,12 +56,12 @@ import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get, isEmpty, filter, includes, isString } from "lodash-es";
+import { get, isEmpty, filter, includes } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { PhoneNumber, CountryCode } from "libphonenumber-js";
+import type { CountryCode } from "libphonenumber-js";
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();

@@ -75,7 +75,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled relative flex cursor-pointer select-none items-center justify-between rounded-md px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-base-100 data-[highlighted]:outline-none"
+      "data-[disabled]:text-control-disabled relative flex !cursor-pointer select-none items-center justify-between rounded-md px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-base-100 data-[highlighted]:outline-none"
     ),
     indicator: cva("pr-2"),
   },

@@ -32,12 +32,17 @@
           :value="item.value"
           :class="variants.autocomplete.item"
         >
-          <div class="flex items-center gap-1">
+          <span class="flex items-center gap-2">
             <ComboboxItemIndicator :class="variants.autocomplete.indicator">
               <Icon icon="check" size="3xs" />
             </ComboboxItemIndicator>
+            <Avatar
+              v-if="item.avatar"
+              v-bind="item.avatar"
+              :size="props.iconSize"
+            />
             <span>{{ item.label }}</span>
-          </div>
+          </span>
           <span class="pl-2 text-sm opacity-50">{{ item.tag }}</span>
         </ComboboxItem>
       </ComboboxViewport>
@@ -57,6 +62,7 @@ import { cn } from "../../utils";
 
 // --- components
 import Icon from "../icon/Icon.ce.vue";
+import Avatar from "../avatar/Avatar.ce.vue";
 import {
   ComboboxAnchor,
   ComboboxContent,
@@ -87,7 +93,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   align: "end",
   side: "bottom",
   // --- styles
-  iconSize: "3xs",
+  iconSize: "2xs",
   upwindConfig: () => ({ autocomplete: {} }),
   class: "",
   popoverClass: "",
