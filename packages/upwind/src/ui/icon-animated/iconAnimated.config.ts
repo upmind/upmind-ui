@@ -13,11 +13,13 @@ export const iconVariants = cva(
         sm: "size-8",
         md: "size-10",
         lg: "size-12",
-        xl: "size-14",
-        "2xl": "size-16",
+        xl: "size-16",
+        "2xl": "size-20",
+        "3xl": "size-24",
+        "4xl": "size-32",
       },
       defaultVariants: {
-        size: "none",
+        size: "md",
       },
     },
   }
