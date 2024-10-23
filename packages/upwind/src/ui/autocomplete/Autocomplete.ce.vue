@@ -1,8 +1,12 @@
 <template>
-  <ComboboxRoot v-model:open="open" :class="variants.autocomplete.root">
+  <ComboboxRoot
+    v-model="modelValue"
+    v-model:open="open"
+    :class="variants.autocomplete.root"
+  >
     <ComboboxAnchor :class="cn(variants.autocomplete.anchor, props.class)">
+      <slot name="prepend" />
       <ComboboxInput
-        v-model="modelValue"
         :class="variants.autocomplete.input"
         :placeholder="placeholder"
       />
@@ -23,14 +27,17 @@
 
         <ComboboxItem
           v-for="item in items"
-          :key="'autocomplete-' + item.value"
-          :value="'autocomplete-' + item.value"
+          :key="item.value"
+          :value="item.value"
           :class="variants.autocomplete.item"
         >
-          <ComboboxItemIndicator :class="variants.autocomplete.indicator">
-            <Icon icon="check" size="2xs" />
-          </ComboboxItemIndicator>
-          <span>{{ item.label }}</span>
+          <div class="flex items-center gap-1">
+            <ComboboxItemIndicator :class="variants.autocomplete.indicator">
+              <Icon icon="check" size="3xs" />
+            </ComboboxItemIndicator>
+            <span>{{ item.label }}</span>
+          </div>
+          <span class="pl-2 text-sm opacity-50">{{ item.tag }}</span>
         </ComboboxItem>
       </ComboboxViewport>
     </ComboboxContent>
