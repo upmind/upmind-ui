@@ -101,6 +101,7 @@ export interface Typegen0 {
   };
   matchesStates:
     | "available"
+    | "available.adding"
     | "available.editing"
     | "available.empty"
     | "available.filtered"
@@ -117,6 +118,7 @@ export interface Typegen0 {
     | "unavailable"
     | {
         available?:
+          | "adding"
           | "editing"
           | "empty"
           | "filtered"

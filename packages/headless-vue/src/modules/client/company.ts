@@ -104,19 +104,15 @@ export const useClientCompanies = () => {
         state.value.matches
       ),
       hasErrors: ["error"].some(state.value.matches),
-      isAdding:
-        ["available.editing"].some(state.value.matches) &&
-        // @ts-ignore
-        !state.value.context.selected?.state.context?.model?.id,
-      isEditing:
-        ["available.editing"].some(state.value.matches) &&
-        // @ts-ignore
-        !!state.value.context.selected?.state.context?.model?.id,
+      isAdding: state.value.matches("available.adding"),
+      isEditing: state.value.matches("available.editing"),
       isEmpty:
         state.value.matches("available") && isEmpty(state.value.context?.items),
       canFilter:
         state.value.matches("available") &&
-        !["available.editing", "available.loading"].some(state.value.matches) &&
+        !["available.editing", "available.adding", "available.loading"].some(
+          state.value.matches
+        ) &&
         state.value.context?.raw?.length > 1,
     })),
     // ---
