@@ -22,12 +22,12 @@ export const anchorVariants = cva(
       width: {
         "3xs": "max-w-dropdown-3xs w-dropdown-3xs",
         "2xs": "max-w-dropdown-2xs w-dropdown-2xs",
-        xs: "w-dropdown-xs",
-        sm: "w-dropdown-sm",
-        md: "w-dropdown-md",
-        lg: "w-dropdown-lg",
-        xl: "w-dropdown-xl",
-        "2xl": "w-dropdown-2xl",
+        xs: "max-w-dropdown-xs w-dropdown-xs",
+        sm: "max-w-dropdown-sm w-dropdown-sm",
+        md: "max-w-dropdown-md w-dropdown-md",
+        lg: "max-w-dropdown-lg w-dropdown-lg",
+        xl: "max-w-dropdown-xl w-dropdown-xl",
+        "2xl": "max-w-dropdown-2xl w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
         app: "w-app",
@@ -36,6 +36,30 @@ export const anchorVariants = cva(
     defaultVariants: {
       size: "md",
       width: "full",
+    },
+  }
+);
+
+export const contentVariants = cva(
+  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 w-full overflow-hidden rounded-lg border border-control bg-base will-change-[opacity,transform]",
+  {
+    variants: {
+      dropdownWidth: {
+        "3xs": "md:max-w-dropdown-3xs w-full md:w-dropdown-3xs",
+        "2xs": "md:max-w-dropdown-2xs w-full md:w-dropdown-2xs",
+        xs: "md:max-w-dropdown-xs w-full md:w-dropdown-xs",
+        sm: "md:max-w-dropdown-sm w-full md:w-dropdown-sm",
+        md: "md:max-w-dropdown-md w-full md:w-dropdown-md",
+        lg: "md:max-w-dropdown-lg w-full md:w-dropdown-lg",
+        xl: "md:max-w-dropdown-xl w-full md:w-dropdown-xl",
+        "2xl": "md:max-w-dropdown-2xl w-full md:w-dropdown-2xl",
+        full: "w-full",
+        auto: "w-auto",
+        app: "w-app",
+      },
+    },
+    defaultVariants: {
+      dropdownWidth: "full",
     },
   }
 );
@@ -49,11 +73,9 @@ export default {
       "ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
     ),
     empty: cva("py-2 text-center text-xs font-medium"),
-    content: cva(
-      "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 w-full min-w-[160px] overflow-hidden rounded-lg border border-control bg-base will-change-[opacity,transform]"
-    ),
+    content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled relative flex h-[25px] select-none items-center rounded-md pl-[25px] pr-[35px] text-[13px] leading-none text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-base-100 data-[highlighted]:outline-none"
+      "data-[disabled]:text-control-disabled relative flex select-none items-center rounded-md px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-base-100 data-[highlighted]:outline-none"
     ),
     indicator: cva(
       "absolute left-0 inline-flex w-[25px] items-center justify-center"

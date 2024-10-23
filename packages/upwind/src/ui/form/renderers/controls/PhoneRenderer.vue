@@ -7,6 +7,7 @@
         :items="countryItems"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
         width="2xs"
+        dropdown-width="lg"
         icon-size="3xs"
         :search="onSearch"
         align="start"
