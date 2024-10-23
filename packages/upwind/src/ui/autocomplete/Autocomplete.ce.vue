@@ -20,7 +20,11 @@
       </ComboboxTrigger>
     </ComboboxAnchor>
 
-    <ComboboxContent avoidCollisions :class="variants.autocomplete.content">
+    <ComboboxContent
+      v-bind="forwarded"
+      avoidCollisions
+      :class="variants.autocomplete.content"
+    >
       <ComboboxViewport>
         <ComboboxEmpty :class="variants.autocomplete.empty">
           {{ emptyMessage }}
@@ -28,6 +32,7 @@
 
         <ComboboxItem
           v-for="item in items"
+          v-bind="forwarded"
           :key="item.value"
           :value="item.value"
           :class="variants.autocomplete.item"
@@ -54,6 +59,7 @@
 // --- external
 import { ref, computed } from "vue";
 import { useVModel } from "@vueuse/core";
+import { omit } from "lodash-es";
 
 // --- internal
 import { useStyles } from "../../utils";
@@ -73,7 +79,6 @@ import {
   ComboboxRoot,
   ComboboxTrigger,
   ComboboxViewport,
-  useForwardPropsEmits,
 } from "radix-vue";
 
 // --- types
@@ -103,7 +108,9 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const forwarded = computed(() =>
+  omit(props, ["class", "upwindConfig", "popoverClass"])
+);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
