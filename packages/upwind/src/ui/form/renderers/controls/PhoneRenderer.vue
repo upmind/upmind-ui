@@ -4,14 +4,7 @@
       <Autocomplete
         :model-value="control.data?.country || defaultCountryCode"
         @update:modelValue="onCountyInput"
-        :display-value="
-          v => {
-            console.log(v);
-            return typeof v === 'string' && v.includes('-')
-              ? v.split('-')[0]
-              : v;
-          }
-        "
+        :display-value="displayCountryCode"
         :items="countryItems"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
         width="2xs"
@@ -132,6 +125,10 @@ const delegatedProps = computed(() => {
     ...options,
   };
 });
+
+const displayCountryCode = (v: any) => {
+  return v && v.includes("-") ? v.split("-")[0] : v;
+};
 </script>
 
 <script lang="ts">
