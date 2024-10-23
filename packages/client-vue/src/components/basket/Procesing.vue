@@ -64,11 +64,7 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
     size: "md",
     shape: "circle",
     color: "primary",
-    animatedIcon: {
-      icon: "tapping-card",
-      primaryColor: "base",
-      secondaryColor: "secondary",
-    },
+    animatedIcon: "tapping-card",
     fit: "contain",
   }),
 });

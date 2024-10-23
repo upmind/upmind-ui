@@ -10,9 +10,9 @@
       />
       <IconAnimated
         v-else-if="meta.hasAnimatedIcon"
-        :icon="animatedIcon.icon || animatedIcon"
-        :primary-color="animatedIcon.primaryColor"
-        :secondary-color="animatedIcon.secondaryColor"
+        :icon="mergedAnimatedIcon.icon"
+        :primary-color="mergedAnimatedIcon.primaryColor"
+        :secondary-color="mergedAnimatedIcon.secondaryColor"
         class="h-12"
       />
       <AvatarImage
@@ -49,7 +49,7 @@ import { Icon } from "../icon";
 import { AvatarRoot, AvatarImage } from "radix-vue";
 import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, isString } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -83,6 +83,18 @@ const meta = computed(() => ({
   hasImage: !isEmpty(props.src),
   hasCaption: !isEmpty(props.caption) || true,
   hasAnimatedIcon: !isEmpty(props.animatedIcon),
+}));
+
+const mergedAnimatedIcon = computed(() => ({
+  icon: isString(props.animatedIcon)
+    ? props.animatedIcon
+    : props.animatedIcon.icon,
+  primaryColor: isString(props.animatedIcon)
+    ? "base"
+    : props.animatedIcon.primaryColor,
+  secondaryColor: isString(props.animatedIcon)
+    ? "secondary"
+    : props.animatedIcon.secondaryColor,
 }));
 
 const variants = useStyles(
