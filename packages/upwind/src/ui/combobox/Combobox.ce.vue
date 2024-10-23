@@ -1,16 +1,21 @@
 <template>
-  <Popover v-model:open="open">
+  <Popover
+    v-model:open="open"
+    :disabled="props.disabled"
+    :class="variants.combobox.root"
+  >
     <PopoverTrigger as-child>
-      <slot name="trigger">
-        <Button
-          :variant="props.variant"
-          :color="props.color"
-          :loading="props.loading"
-          :class="cn(variants.combobox.trigger, props.class)"
-          :size="props.size"
-          :aria-expanded="open"
-        >
-          <template #prepend>
+      <Button
+        :loading="props.loading"
+        :class="cn('group w-full', variants.combobox.trigger, props.class)"
+        :size="props.size"
+        :aria-expanded="open"
+        :color="props.color"
+        :variant="props.variant"
+        block
+      >
+        <template v-if="!isEmpty(modelValue)">
+          <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
               v-if="modelValue?.avatar || props.avatar"
               v-bind="modelValue?.avatar || props?.avatar"
@@ -27,37 +32,27 @@
               fit="cover"
               aria-hidden="true"
             />
-          </template>
 
-          <span class="flex flex-col justify-start gap-y-2 text-left">
-            <span
-              v-if="
-                modelValue?.selectedLabel ||
-                modelValue?.[props.itemLabel] ||
-                searchValue ||
-                props?.label
-              "
-              class="truncate leading-none"
-            >
-              {{
-                modelValue?.selectedLabel ||
-                modelValue?.[props.itemLabel] ||
-                searchValue ||
-                props.label
-              }}
-            </span>
-          </span>
+            {{
+              modelValue?.selectedLabel ||
+              modelValue?.[props.itemLabel] ||
+              searchValue
+            }}
+          </slot>
+        </template>
 
-          <template #append>
-            <Icon
-              v-if="!props.loading"
-              :size="props.iconSize"
-              class="ml-auto rotate-180 opacity-75 transition-all duration-200"
-              icon="arrow-up-down"
-            />
-          </template>
-        </Button>
-      </slot>
+        <span v-else class="opacity-50">
+          <slot name="placeholder">{{ props.placeholder }}</slot>
+        </span>
+
+        <template #append>
+          <Icon
+            class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
+            icon="arrow-up-down"
+            size="xs"
+          />
+        </template>
+      </Button>
     </PopoverTrigger>
 
     <PopoverContent
@@ -79,7 +74,7 @@
               @update:modelValue="onSearch"
               autofocus
               class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
-              :placeholder="searchMessage"
+              :placeholder="placeholder"
             >
             </Input>
           </span>
@@ -135,16 +130,18 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch, watchEffect } from "vue";
+import { ref, computed, watch } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./combobox.config";
 
 // --- components
+import Icon from "../icon/Icon.ce.vue";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import Icon from "../icon/Icon.ce.vue";
+import { Input } from "../input";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import {
   Command,
   CommandEmpty,
@@ -152,20 +149,19 @@ import {
   CommandItem,
   CommandList,
 } from "../command";
-import { Popover, PopoverContent, PopoverTrigger } from "../popover";
-import { Input } from "../input";
 
 // --- utils
 import {
-  find,
-  isString,
-  isFunction,
   debounce,
-  includes,
   filter,
-  reject,
+  find,
   get,
+  includes,
+  isEmpty,
   isEqual,
+  isFunction,
+  isString,
+  reject,
 } from "lodash-es";
 
 // --- types
@@ -180,7 +176,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   loading: false,
   search: false,
   emptyMessage: "No Results",
-  searchMessage: "Search...",
+  placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
   // -- variants
@@ -223,7 +219,7 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  combobox: { trigger: string; content: string; item: string };
+  combobox: { root: string; trigger: string; content: string; item: string };
 }>;
 
 async function safeSearch(value: string | number) {
