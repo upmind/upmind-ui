@@ -4,6 +4,14 @@
       <Autocomplete
         :model-value="control.data?.country || defaultCountryCode"
         @update:modelValue="onCountyInput"
+        :display-value="
+          v => {
+            console.log(v);
+            return typeof v === 'string' && v.includes('-')
+              ? v.split('-')[0]
+              : v;
+          }
+        "
         :items="countryItems"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
         width="2xs"
@@ -32,7 +40,6 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import { countries } from "country-data";
@@ -67,7 +74,8 @@ const countryItems = computed<AutocompleteItemProps[]>(() =>
       label: country.name,
       selectedLabel: country.countryCallingCodes[0],
       tag: country.countryCallingCodes[0],
-      value: country.countryCallingCodes[0].replace("+", ""),
+      value:
+        country.countryCallingCodes[0].replace("+", "") + "-" + country.alpha2,
     }))
 );
 
@@ -88,7 +96,7 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 const phone = ref({ ...control.value.data });
 
 const onCountyInput = (value: string) => {
-  phone.value = { country: value, number: phone.value.number };
+  phone.value = { country: value.split("-")[0], number: phone.value.number };
   onInput(phone.value);
 };
 
