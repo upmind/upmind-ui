@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   secondaryColor: "secondary",
   delay: 250,
   // ---
-  size: "auto",
+  size: "md",
   // ---
   upwindConfig: () => ({ icon: {} }),
   class: "",
