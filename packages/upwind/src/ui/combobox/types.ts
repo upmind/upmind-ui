@@ -48,10 +48,11 @@ export interface ComboboxProps
   items: ComboboxItemProps[];
   modelValue?: string | ComboboxItemProps;
   loading?: boolean;
+  disabled?: boolean;
   // --- Search
   search?: boolean | ComboboxSearchFunction;
   // searchValue?: string;
-  searchMessage?: string;
+  placeholder?: string;
   emptyMessage?: string;
   // --- variants
   color?: ItemVariantProps["color"];
