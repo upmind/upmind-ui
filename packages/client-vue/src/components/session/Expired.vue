@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
   skrim: "primary",
   size: "app",
   avatar: () => ({
-    size: "md",
+    size: "lg",
     shape: "circle",
     color: "primary",
     icon: "basket",
