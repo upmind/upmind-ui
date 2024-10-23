@@ -5,9 +5,8 @@
         :model-value="control.data?.country || defaultCountryCode"
         @update:modelValue="onCountyInput"
         :items="countryItems"
-        class="!w-28 rounded-r-none border-r-0 text-sm !text-opacity-50"
-        popover-class="!w-72"
-        width="full"
+        class="rounded-r-none border-r-0 text-sm !text-opacity-50"
+        width="auto"
         icon-size="3xs"
         :search="onSearch"
         align="start"
@@ -88,6 +87,10 @@ function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
     phonenumber,
     countryCode || defaultCountryCode
   );
+
+  if (!parsed) {
+    return { country: countryCode, number: phonenumber };
+  }
   return parsed;
 }
 

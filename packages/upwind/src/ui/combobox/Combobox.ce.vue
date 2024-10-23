@@ -12,9 +12,8 @@
         :aria-expanded="open"
         :color="props.color"
         :variant="props.variant"
-        block
       >
-        <template v-if="!isEmpty(modelValue)">
+        <template v-if="!isEmpty(modelValue) || searchValue">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
               v-if="modelValue?.avatar || props.avatar"
