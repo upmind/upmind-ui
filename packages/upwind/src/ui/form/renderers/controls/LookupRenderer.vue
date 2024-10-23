@@ -1,10 +1,9 @@
 <template>
   <FormField v-bind="delegatedProps">
-    <Combobox
+    <Autocomplete
       :model-value="control.data"
       :items="control?.options || appliedOptions?.items"
       @update:modelValue="onInput"
-      :search="doSearch"
       :itemValue="appliedOptions?.itemValue"
       :itemLabel="appliedOptions?.itemLabel"
       :align="appliedOptions?.align"
@@ -21,7 +20,7 @@ import { computed } from "vue";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 // --- components
 import FormField from "../../FormField.vue";
-import { Combobox } from "../../../combobox";
+import { Autocomplete } from "../../../autocomplete";
 // --- utils
 import { useUpwindRenderer } from "../utils";
 import { has, get } from "lodash-es";
