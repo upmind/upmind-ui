@@ -25,6 +25,7 @@ export { default as UpwLineclamp } from "./components/lineclamp/Lineclamp.vue";
 export * from "./components/form/renderers/utils";
 
 // --- UI Components / Custom elements
+import { UwAutocomplete, Autocomplete } from "./ui/autocomplete";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
 import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
@@ -112,6 +113,7 @@ import { forEach, kebabCase } from "lodash-es";
 export {
   // --- Components
   Alert,
+  Autocomplete,
   Avatar,
   Badge,
   Button,
@@ -173,6 +175,7 @@ export {
 
   // --- Custom Elements
   UwAlert,
+  UwAutocomplete,
   UwAvatar,
   UwBadge,
   UwButton,
@@ -198,6 +201,7 @@ export {
 // --- utility for registering all custom elements
 export function register() {
   customElements.define("uw-alert", UwAlert);
+  customElements.define("uw-autocomplete", UwAutocomplete);
   customElements.define("uw-avatar", UwAvatar);
   customElements.define("uw-badge", UwBadge);
   customElements.define("uw-button", UwButton);
@@ -238,6 +242,7 @@ export function useCustomElement(
 declare module "vue" {
   export interface GlobalComponents {
     Alert: typeof Alert;
+    Autocomplete: typeof Autocomplete;
     Avatar: typeof Avatar;
     Badge: typeof Badge;
     Button: typeof Button;

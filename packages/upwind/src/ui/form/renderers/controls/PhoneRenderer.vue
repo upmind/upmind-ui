@@ -1,17 +1,23 @@
 <template>
   <FormField v-bind="delegatedProps">
     <InputGroup class="flex">
-      <Combobox
+      <Autocomplete
         :model-value="control.data?.country || defaultCountryCode"
         @update:modelValue="onCountyInput"
+        :display-value="displayCountryCode"
         :items="countryItems"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
-        width="auto"
+        width="2xs"
+        dropdown-width="lg"
         icon-size="3xs"
         :search="onSearch"
         align="start"
         side="bottom"
-      />
+      >
+        <template #prepend>
+          <Icon icon="plus" size="xs" class="-mr-0.5 opacity-50" />
+        </template>
+      </Autocomplete>
       <Input
         :disabled="!control.enabled"
         :model-value="control.data?.number"
@@ -27,7 +33,6 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import { countries } from "country-data";
@@ -36,21 +41,25 @@ import { countries } from "country-data";
 import FormField from "../../FormField.vue";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
-import { Combobox, type ComboboxItemProps } from "../../../combobox";
+import {
+  Autocomplete,
+  type AutocompleteItemProps,
+} from "../../../autocomplete";
+import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get, isEmpty, filter, includes, isString } from "lodash-es";
+import { get, isEmpty, filter, includes } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { PhoneNumber, CountryCode } from "libphonenumber-js";
+import type { CountryCode } from "libphonenumber-js";
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const countryItems = computed<ComboboxItemProps[]>(() =>
+const countryItems = computed<AutocompleteItemProps[]>(() =>
   countries.all
     .filter(country => !isEmpty(get(country, "countryCallingCodes")))
     .map(country => ({
@@ -58,11 +67,12 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
       label: country.name,
       selectedLabel: country.countryCallingCodes[0],
       tag: country.countryCallingCodes[0],
-      value: country.alpha2,
+      value:
+        country.countryCallingCodes[0].replace("+", "") + "-" + country.alpha2,
     }))
 );
 
-function onSearch(value: string): ComboboxItemProps[] {
+function onSearch(value: string): AutocompleteItemProps[] {
   return filter(
     countryItems.value,
     country =>
@@ -78,33 +88,25 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 
 const phone = ref({ ...control.value.data });
 
-function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
-  const phonenumber = isString(value)
-    ? value
-    : value?.nationalNumber || value?.number || "";
-
-  const parsed = parsePhoneNumber(
-    phonenumber,
-    countryCode || defaultCountryCode
-  );
-
-  if (!parsed) {
-    return { country: countryCode, number: phonenumber };
-  }
-  return parsed;
-}
-
 const onCountyInput = (value: string) => {
-  phone.value = parsePhone(phone.value, value as CountryCode);
+  phone.value = { country: value.split("-")[0], number: phone.value.number };
   onInput(phone.value);
 };
 
 const onPhoneInput = (value: string | number) => {
-  phone.value = parsePhone(value as string, phone.value?.country);
+  phone.value = { country: phone.value.country, number: value };
   onInput(phone.value);
 };
 
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const getCountryCallingCode = (countryCode: CountryCode) => {
+  return countries.all
+    .find(country => country.alpha2 === countryCode)
+    ?.countryCallingCodes[0].replace("+", "");
+};
+
+const defaultCountryCode = getCountryCallingCode(
+  get(control.value.schema, "isPhoneNumber")
+);
 
 const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
@@ -123,6 +125,10 @@ const delegatedProps = computed(() => {
     ...options,
   };
 });
+
+const displayCountryCode = (v: any) => {
+  return v && v.includes("-") ? v.split("-")[0] : v;
+};
 </script>
 
 <script lang="ts">
