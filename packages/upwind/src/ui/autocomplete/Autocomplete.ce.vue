@@ -1,6 +1,6 @@
 <template>
   <ComboboxRoot v-model:open="open" :class="variants.autocomplete.root">
-    <ComboboxAnchor :class="variants.autocomplete.anchor">
+    <ComboboxAnchor :class="cn(variants.autocomplete.anchor, props.class)">
       <ComboboxInput
         v-model="modelValue"
         :class="variants.autocomplete.input"
@@ -10,7 +10,7 @@
         <Icon
           :class="variants.autocomplete.anchorIcon"
           icon="arrow-down"
-          size="xs"
+          :size="props.iconSize"
         />
       </ComboboxTrigger>
     </ComboboxAnchor>
@@ -28,14 +28,14 @@
 
         <ComboboxItem
           v-for="item in items"
-          :key="item.value"
-          :value="item.value"
+          :key="'autocomplete-' + item"
+          :value="'autocomplete-' + item"
           :class="variants.autocomplete.item"
         >
           <ComboboxItemIndicator :class="variants.autocomplete.indicator">
             <Icon icon="check" size="2xs" />
           </ComboboxItemIndicator>
-          {{ item.label }}
+          <span>{{ item.label }}</span>
         </ComboboxItem>
       </ComboboxViewport>
     </ComboboxContent>
@@ -50,6 +50,7 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 import { useStyles } from "../../utils";
 import config from "./autocomplete.config";
+import { cn } from "../../utils";
 
 // --- components
 import Icon from "../icon/Icon.ce.vue";
@@ -66,10 +67,10 @@ import {
 } from "radix-vue";
 
 // --- types
-import type { ComboboxProps } from "./types";
+import type { AutocompleteProps } from "./types";
 import type { ComputedRef } from "vue";
 
-const props = withDefaults(defineProps<ComboboxProps>(), {
+const props = withDefaults(defineProps<AutocompleteProps>(), {
   // --- props
   items: () => [],
   modelValue: "",
@@ -81,7 +82,8 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   align: "end",
   side: "bottom",
   // --- styles
-  upwindConfig: () => ({ combobox: {} }),
+  iconSize: "3xs",
+  upwindConfig: () => ({ autocomplete: {} }),
   class: "",
   popoverClass: "",
 });
@@ -95,7 +97,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue,
 });
 
-const meta = computed(() => ({}));
+const meta = computed(() => ({
+  size: props.size,
+  width: props.width,
+}));
 
 const open = ref(false);
 // ---

@@ -6,13 +6,45 @@ export const ringClasses =
 export const invalidRingClasses =
   "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
 
+export const inputVariants = cva(
+  "h-full min-w-0 flex-1 !bg-transparent !leading-none outline-none"
+);
+
+export const anchorVariants = cva(
+  `${ringClasses} ${invalidRingClasses} inline-flex w-dropdown-2xs items-center justify-between rounded-md border border-control pr-3 leading-none outline-none`,
+  {
+    variants: {
+      size: {
+        sm: "h-8 px-3 py-2 !text-sm",
+        md: "h-10 px-3 py-2 !text-md",
+        lg: "h-12 px-3 py-2 !text-lg",
+      },
+      width: {
+        "3xs": "max-w-dropdown-3xs w-dropdown-3xs",
+        "2xs": "max-w-dropdown-2xs w-dropdown-2xs",
+        xs: "w-dropdown-xs",
+        sm: "w-dropdown-sm",
+        md: "w-dropdown-md",
+        lg: "w-dropdown-lg",
+        xl: "w-dropdown-xl",
+        "2xl": "w-dropdown-2xl",
+        full: "w-full",
+        auto: "w-auto",
+        app: "w-app",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+      width: "full",
+    },
+  }
+);
+
 export default {
   autocomplete: {
     root: cva("relative"),
-    input: cva("h-full !bg-transparent outline-none"),
-    anchor: cva(
-      `${ringClasses} ${invalidRingClasses} inline-flex h-[35px] min-w-[160px] items-center justify-between gap-[5px] rounded-md border border-control bg-base px-[15px] text-[13px] leading-none outline-none`
-    ),
+    input: inputVariants,
+    anchor: anchorVariants,
     anchorIcon: cva(
       "ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
     ),
