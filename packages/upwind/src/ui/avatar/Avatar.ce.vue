@@ -13,7 +13,7 @@
         :icon="animatedIcon.icon || animatedIcon"
         :primary-color="animatedIcon.primaryColor"
         :secondary-color="animatedIcon.secondaryColor"
-        class="h-12"
+        class="relative z-10 object-cover"
       />
       <AvatarImage
         v-else-if="meta.hasImage"
