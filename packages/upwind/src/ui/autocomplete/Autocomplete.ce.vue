@@ -15,12 +15,7 @@
       </ComboboxTrigger>
     </ComboboxAnchor>
 
-    <ComboboxContent
-      :align="align"
-      :side="side"
-      avoidCollisions
-      :class="variants.autocomplete.content"
-    >
+    <ComboboxContent avoidCollisions :class="variants.autocomplete.content">
       <ComboboxViewport>
         <ComboboxEmpty :class="variants.autocomplete.empty">
           {{ emptyMessage }}
@@ -28,8 +23,8 @@
 
         <ComboboxItem
           v-for="item in items"
-          :key="'autocomplete-' + item"
-          :value="'autocomplete-' + item"
+          :key="'autocomplete-' + item.value"
+          :value="'autocomplete-' + item.value"
           :class="variants.autocomplete.item"
         >
           <ComboboxItemIndicator :class="variants.autocomplete.indicator">
@@ -79,6 +74,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   placeholder: "Search...",
   // -- variants
   width: "auto",
+  dropdownWidth: "auto",
   align: "end",
   side: "bottom",
   // --- styles
@@ -100,6 +96,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
+  dropdownWidth: props.dropdownWidth,
 }));
 
 const open = ref(false);

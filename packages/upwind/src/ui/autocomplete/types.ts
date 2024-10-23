@@ -3,11 +3,11 @@ import type { HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
 
 // --- internal
-import type { anchorVariants } from "./autocomplete.config";
+import type { anchorVariants, contentVariants } from "./autocomplete.config";
 import type { AvatarProps } from "../avatar";
 import type { IconProps } from "../icon";
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;
-
+type ContentVariantProps = VariantProps<typeof contentVariants>;
 export interface AutocompleteItemProps {
   label: string;
   selectedLabel: string;
@@ -31,6 +31,7 @@ export interface AutocompleteProps {
   // --- variants
   size?: AnchorVariantProps["size"];
   width?: AnchorVariantProps["width"];
+  dropdownWidth?: ContentVariantProps["dropdownWidth"];
   iconSize?: IconProps["size"];
   // --- styles
   upwindConfig?: { autocomplete: Partial<AutocompleteProps> };
