@@ -1,4 +1,5 @@
 <template>
+  <!-- <pre>{{ $props }}</pre> -->
   <component
     v-if="modal || (!modal && isOpen)"
     :is="modal ? 'Drawer' : 'section'"
