@@ -119,13 +119,13 @@ export default defineComponent({
           label: this.t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
           variant: "tonal",
           color: "base",
-          visible: !!this.meta?.type,
+          hidden: !this.meta?.type,
         },
         {
           label: this.t(`client.${this.i18nKey}.badges.default`),
           variant: "tonal",
           color: "base",
-          visible: this.meta.isDefault,
+          hidden: !this.meta.isDefault,
         },
       ];
     },

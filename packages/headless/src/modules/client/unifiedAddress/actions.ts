@@ -19,7 +19,8 @@ export const ListingActions = {
       _context: ClientListingsContext,
       { data }: ClientListingsEvents
     ) => {
-      return spawnItem(data); // spawn an actor for the new raw
+      const item = spawnItem(data); // spawn an actor for the new raw
+      return item;
     },
   }),
   setItems: assign({

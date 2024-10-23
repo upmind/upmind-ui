@@ -42,9 +42,9 @@ export default defineComponent({
       update,
     } = useBasketCurrency();
 
-    const updateCurrency = currency => {
-      update({ code: currency.value });
-    };
+    function updateCurrency(value) {
+      update({ code: value });
+    }
 
     return {
       state,

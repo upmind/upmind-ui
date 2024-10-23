@@ -4,16 +4,10 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <UpwSkeletonList
-      :class="styles.client.loading"
-      v-if="
-        meta.isLoading || (meta.isAdding && !meta.isEmpty) || meta.isEditing
-      "
-    />
-
+    <UpwSkeletonList :class="styles.client.loading" v-if="meta.isLoading" />
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <UpmItem
-      v-if="!meta.isLoading && (meta.isAdding || meta.isEditing) && !open"
+      v-else-if="(meta.isAdding || meta.isEditing) && !open"
       :model-value="selected"
       :modal="meta.isEditing"
       :key="selected?.id"
@@ -132,7 +126,8 @@ export default defineComponent({
     const styles = useStyles(["client"], client.meta, config);
     // ---
 
-    const { select, selected, getSelected, addresses, add, meta } = client;
+    const { select, selected, getSelected, addresses, add, meta, state } =
+      client;
 
     // Provide the client to the form/card components
     provide("client", useClientUnifiedAddress);
@@ -152,6 +147,7 @@ export default defineComponent({
       select,
       useClientUnifiedAddress,
       meta,
+      state,
       styles,
       addresses,
       // ---
@@ -161,32 +157,36 @@ export default defineComponent({
 
   computed: {
     actions() {
-      return {
-        convert: {
-          // variant: "tonal",
-          // size: "xs",
+      return [
+        // {
+        //   label: this.t(
+        //     "client.actions.edit",
+        //     this.selected?.state?.value?.context?.model?.company_details ? 0 : 1
+        //   ),
+        //   handler: () => this.onEdit(),
+        // },
+        {
           label: this.t("client.actions.convert"),
-          handler: () => this.onEdit(),
+          handler: () => this.onEdit(true),
+          hidden: this.selected?.state?.value?.context?.model?.company_details,
         },
-        change: {
-          // variant: "tonal",
-          // size: "xs",
+        {
           label: this.t("client.actions.change"),
           handler: () => this.onChange(),
         },
-      };
+      ];
     },
   },
   methods: {
     onChange() {
       this.open = true;
     },
-    onEdit() {
+    onEdit(company_details = false) {
       const client = this.useClientUnifiedAddress(this.selected);
       const model = client.model.value;
       client.edit();
       // force the company details to be shown
-      client.input({ ...model, company_details: true });
+      client.input({ ...model, company_details });
     },
     onClose(value) {
       this.open = value;
@@ -194,24 +194,19 @@ export default defineComponent({
   },
 
   watch: {
-    modelValue: {
-      immediate: true,
-      handler(model) {
-        if (isEmpty(model)) return;
-        const id = model?.company_id || model?.address_id;
-        this.select(id);
-      },
+    modelValue(model, oldModel) {
+      const id = model?.company_id || model?.address_id;
+      const oldId = oldModel?.company_id || oldModel?.address_id;
+
+      if (id && id != oldId) this.select(id);
     },
-    selected: {
-      immediate: true,
-      handler(value, oldValue) {
-        if (value?.id === oldValue?.id) return;
+    selected(value, oldValue) {
+      if (value?.id === oldValue?.id) return;
 
-        const model = get(value?.state?.value, "context.model", {});
-        if (isEmpty(model)) return;
+      const model = get(value?.state?.value, "context.model", {});
+      if (isEmpty(model)) return;
 
-        this.$emit("update:modelValue", model);
-      },
+      this.$emit("update:modelValue", model);
     },
   },
 });
