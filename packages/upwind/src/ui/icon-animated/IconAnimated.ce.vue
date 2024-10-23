@@ -2,6 +2,7 @@
   <lord-icon
     :src="iconSrc"
     :trigger="trigger"
+    :delay="delay"
     :class="cn(variants.icon, props.class)"
   />
 </template>
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
   primaryColor: "primary",
   secondaryColor: "secondary",
+  delay: 250,
   // ---
   size: "auto",
   // ---

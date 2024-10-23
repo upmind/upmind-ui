@@ -11,6 +11,7 @@ export interface AnimatedIconProps {
   trigger?: string;
   primaryColor?: string;
   secondaryColor?: string;
+  delay?: number;
   // ---
   size?: IconVariantProps["size"];
   // ---
