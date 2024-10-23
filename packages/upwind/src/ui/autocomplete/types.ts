@@ -1,6 +1,7 @@
 // --- external
 import type { HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
+import type { ComboboxRootProps } from "radix-vue";
 
 // --- internal
 import type { anchorVariants, contentVariants } from "./autocomplete.config";
@@ -21,7 +22,7 @@ export interface AutocompleteItemProps {
   persist?: boolean;
 }
 
-export interface AutocompleteProps {
+export interface AutocompleteProps extends ComboboxRootProps {
   // --- state
   items: AutocompleteItemProps[];
   modelValue?: string;

@@ -1,5 +1,6 @@
 <template>
   <ComboboxRoot
+    v-bind="forwarded"
     v-model="modelValue"
     v-model:open="open"
     :class="variants.autocomplete.root"
@@ -66,6 +67,7 @@ import {
   ComboboxRoot,
   ComboboxTrigger,
   ComboboxViewport,
+  useForwardPropsEmits,
 } from "radix-vue";
 
 // --- types
@@ -94,6 +96,8 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
 const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
+
+const forwarded = useForwardPropsEmits(props, emits);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
