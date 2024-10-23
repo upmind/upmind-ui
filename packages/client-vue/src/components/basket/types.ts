@@ -3,6 +3,7 @@ import type {
   DialogProps,
   ButtonProps,
   IconProps,
+  AnimatedIconProps,
 } from "@upmind/upwind";
 // ---
 export interface ActionProps extends ButtonProps {
@@ -20,6 +21,7 @@ export interface BasketModalProps {
   title?: DialogProps["title"];
   text?: DialogProps["description"];
   avatar?: AvatarProps;
+  animatedIcon?: AnimatedIconProps;
   action?: ActionProps;
   // ---
   size?: DialogProps["size"];

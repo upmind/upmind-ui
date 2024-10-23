@@ -17,7 +17,7 @@
     </template>
 
     <section :class="styles.basket.empty.root">
-      <Avatar v-bind="avatar" />
+      <IconAnimated v-bind="props.animatedIcon" />
 
       <h3 :class="styles.basket.empty.title">{{ title }}</h3>
 
@@ -51,7 +51,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button, Icon } from "@upmind/upwind";
+import { Dialog, Button, IconAnimated } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
@@ -65,13 +65,14 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
   modal: false,
   skrim: "primary",
   size: "app",
-  avatar: () => ({
-    size: "lg",
-    shape: "circle",
-    color: "primary",
+  animatedIcon: {
     icon: "basket",
-    fit: "contain",
-  }),
+    delay: 5000,
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+    size: "4xl",
+  },
+  fit: "contain",
 });
 
 const { meta } = useBasket();
