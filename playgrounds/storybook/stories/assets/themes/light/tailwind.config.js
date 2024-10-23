@@ -241,6 +241,8 @@ export default {
     "5xl": "3rem", // 48px
   },
   width: {
+    "dropdown-3xs": "6rem",
+    "dropdown-2xs": "8rem",
     "dropdown-xs": "10rem",
     "dropdown-sm": "12rem",
     "dropdown-md": "14rem",

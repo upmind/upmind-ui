@@ -1,12 +1,12 @@
 <template>
   <FormField v-bind="delegatedProps">
     <InputGroup class="flex">
-      <Combobox
+      <Autocomplete
         :model-value="control.data?.country || defaultCountryCode"
         @update:modelValue="onCountyInput"
         :items="countryItems"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
-        width="auto"
+        width="2xs"
         icon-size="3xs"
         :search="onSearch"
         align="start"
@@ -36,7 +36,10 @@ import { countries } from "country-data";
 import FormField from "../../FormField.vue";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
-import { Combobox, type ComboboxItemProps } from "../../../combobox";
+import {
+  Autocomplete,
+  type AutocompleteItemProps,
+} from "../../../autocomplete";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
@@ -50,7 +53,7 @@ import type { PhoneNumber, CountryCode } from "libphonenumber-js";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const countryItems = computed<ComboboxItemProps[]>(() =>
+const countryItems = computed<AutocompleteItemProps[]>(() =>
   countries.all
     .filter(country => !isEmpty(get(country, "countryCallingCodes")))
     .map(country => ({
@@ -62,7 +65,7 @@ const countryItems = computed<ComboboxItemProps[]>(() =>
     }))
 );
 
-function onSearch(value: string): ComboboxItemProps[] {
+function onSearch(value: string): AutocompleteItemProps[] {
   return filter(
     countryItems.value,
     country =>
@@ -95,6 +98,7 @@ function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
 }
 
 const onCountyInput = (value: string) => {
+  console.log("onCountyInput", value);
   phone.value = parsePhone(phone.value, value as CountryCode);
   onInput(phone.value);
 };
