@@ -9,6 +9,7 @@
       :itemLabel="appliedOptions?.itemLabel"
       :align="appliedOptions?.align"
       :side="appliedOptions?.side"
+      :placeholder="appliedOptions?.placeholder"
       width="full"
     />
   </FormField>
