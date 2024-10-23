@@ -72,16 +72,6 @@ const countryItems = computed<AutocompleteItemProps[]>(() =>
     }))
 );
 
-function onSearch(value: string): AutocompleteItemProps[] {
-  return filter(
-    countryItems.value,
-    country =>
-      includes(country.label?.toLowerCase(), value.toLowerCase()) ||
-      includes(country.selectedLabel?.toLowerCase(), value.toLowerCase()) ||
-      includes(country.value?.toLowerCase(), value.toLowerCase())
-  );
-}
-
 const { control, appliedOptions, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );

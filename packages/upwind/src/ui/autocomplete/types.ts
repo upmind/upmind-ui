@@ -36,6 +36,8 @@ export interface AutocompleteProps
   defaultValue?: string;
   placeholder?: string;
   emptyMessage?: string;
+  itemLabel?: string;
+  itemValue?: string;
   // --- variants
   size?: AnchorVariantProps["size"];
   width?: AnchorVariantProps["width"];
