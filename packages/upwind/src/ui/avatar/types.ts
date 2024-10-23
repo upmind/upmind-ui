@@ -11,6 +11,7 @@ interface AnimatedIconProps {
   icon?: string;
   primaryColor?: string;
   secondaryColor?: string;
+  delay?: number;
 }
 
 export interface AvatarProps {

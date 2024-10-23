@@ -13,6 +13,7 @@
         :icon="mergedAnimatedIcon.icon"
         :primary-color="mergedAnimatedIcon.primaryColor"
         :secondary-color="mergedAnimatedIcon.secondaryColor"
+        :delay="mergedAnimatedIcon.delay"
         class="relative z-10 object-cover"
       />
       <AvatarImage
@@ -95,6 +96,7 @@ const mergedAnimatedIcon = computed(() => ({
   secondaryColor: isString(props.animatedIcon)
     ? "secondary"
     : props.animatedIcon.secondaryColor,
+  delay: isString(props.animatedIcon) ? 1000 : props.animatedIcon.delay,
 }));
 
 const variants = useStyles(
