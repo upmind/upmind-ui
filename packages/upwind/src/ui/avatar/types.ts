@@ -8,7 +8,7 @@ import type { avatarVariants } from "./avatar.config";
 export type AvatarVariantProps = VariantProps<typeof avatarVariants>;
 
 interface AnimatedIconProps {
-  icon: string;
+  icon?: string;
   primaryColor?: string;
   secondaryColor?: string;
 }
