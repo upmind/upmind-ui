@@ -1,19 +1,24 @@
 <template>
   <ComboboxRoot
-    v-bind="forwarded"
-    v-model="modelValue"
+    v-bind="delegatedProps"
+    :model-value="modelValue"
     v-model:open="open"
+    v-model:searchTerm="searchTerm"
+    @update:model-value="doSelect"
+    @update:search-term="onSearch"
+    :filter-function="noFilter"
     :class="variants.autocomplete.root"
-    @update:searchTerm="onSearch"
-    :filterFunction="v => v"
+    :displayValue="displayValue"
+    :resetSearchTermOnBlur="false"
   >
     <ComboboxAnchor :class="cn(variants.autocomplete.anchor, props.class)">
       <slot name="prepend" />
       <ComboboxInput
         :class="variants.autocomplete.input"
         :placeholder="placeholder"
+        :auto-focus="props.autoFocus"
       />
-      <ComboboxTrigger>
+      <ComboboxTrigger class="group">
         <Icon
           :class="variants.autocomplete.anchorIcon"
           icon="arrow-down"
@@ -23,18 +28,19 @@
     </ComboboxAnchor>
 
     <ComboboxContent
-      v-bind="forwarded"
       avoidCollisions
-      :class="variants.autocomplete.content"
+      :class="cn(variants.autocomplete.content, props.popoverClass)"
     >
       <ComboboxViewport>
-        <ComboboxEmpty :class="variants.autocomplete.empty">
+        <!-- <ComboboxEmpty
+          :class="variants.autocomplete.empty"
+          v-if="!results?.length"
+        >
           {{ emptyMessage }}
-        </ComboboxEmpty>
+        </ComboboxEmpty> -->
 
         <ComboboxItem
           v-for="item in results"
-          v-bind="forwarded"
           :key="(item as Record<string, any>)[props.itemValue]"
           :value="(item as Record<string, any>)[props.itemValue]"
           :class="variants.autocomplete.item"
@@ -46,14 +52,20 @@
             >
               <Icon icon="check" size="3xs" />
             </ComboboxItemIndicator>
+
             <Avatar
               v-if="item.avatar"
               v-bind="item.avatar"
               :size="props.iconSize"
             />
+
+            <Icon v-if="item.icon" v-bind="item.icon" :size="props.iconSize" />
+
             <span>{{ item.label }}</span>
           </span>
-          <span class="pl-2 text-sm opacity-50">{{ item.tag }}</span>
+          <span class="text-nowrap pl-2 text-sm opacity-50">{{
+            item.tag
+          }}</span>
         </ComboboxItem>
       </ComboboxViewport>
     </ComboboxContent>
@@ -63,17 +75,6 @@
 <script lang="ts" setup>
 // --- external
 import { ref, computed, watch } from "vue";
-import {
-  omit,
-  find,
-  reject,
-  filter,
-  includes,
-  isEqual,
-  isString,
-  get,
-} from "lodash-es";
-import { debounce } from "lodash-es";
 
 // --- internal
 import { useStyles } from "../../utils";
@@ -95,51 +96,81 @@ import {
   ComboboxViewport,
 } from "radix-vue";
 
+// --- utils
+import {
+  debounce,
+  filter,
+  find,
+  get,
+  includes,
+  isEqual,
+  isFunction,
+  isString,
+  reject,
+  omit,
+  isObject,
+} from "lodash-es";
+
 // --- types
-import type { AutocompleteProps } from "./types";
 import type { ComputedRef } from "vue";
-import type { AutocompleteItemProps } from "./types";
+import type { AutocompleteProps, AutocompleteItemProps } from "./types";
 import type { ComboboxContentEmits, ComboboxRootEmits } from "radix-vue";
 
 const props = withDefaults(defineProps<AutocompleteProps>(), {
   // --- props
   items: () => [],
-  modelValue: "",
-  defaultValue: "",
   emptyMessage: "No Results",
   placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
   // -- variants
   width: "auto",
-  dropdownWidth: "auto",
+  popoverWidth: "auto",
   align: "end",
   side: "bottom",
   // --- styles
   iconSize: "2xs",
   upwindConfig: () => ({ autocomplete: {} }),
-  class: "",
-  popoverClass: "",
 });
 
-const forwarded = computed(() =>
-  omit(props, ["class", "upwindConfig", "popoverClass"])
+const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
+
+const delegatedProps = computed(() =>
+  omit(props, [
+    "itemLabel",
+    "itemValue",
+    "items",
+    "search",
+    "placeholder",
+    "emptyMessage",
+    "size",
+    // "color",
+    // "variant",
+    "width",
+    "popoverWidth",
+    "iconSize",
+    "upwindConfig",
+    "class",
+    "popoverClass",
+    "type",
+    "disabled",
+    "autoFocus",
+  ])
 );
 
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
-  dropdownWidth: props.dropdownWidth,
+  popoverWidth: props.popoverWidth,
 }));
-
-const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
 
 const open = ref(false);
 const processing = ref(false);
-const modelValue = ref(
-  find(props.items, [props.itemValue, props.modelValue]) || props.modelValue
+const modelValue = ref<AutocompleteItemProps | undefined>(
+  find(props.items, [props.itemValue, props.modelValue])
 );
-const searchValue = ref();
+const searchTerm = ref();
+
 // ---
 
 const variants = useStyles(
@@ -160,14 +191,25 @@ const variants = useStyles(
   };
 }>;
 
-async function safeSearch(value: string | number) {
+// -----------------------------------------------------------------------------
+const onSearch = debounce(doSearch, 350);
+const results = ref(props.items || []);
+
+function noFilter(items: any, _term: string) {
+  return items;
+}
+
+async function doSearch(value: string) {
+  if (processing.value) return;
+
   processing.value = !!value;
 
   if (!value) {
     results.value = reject(props.items, "persist");
+  } else if (isFunction(props.search)) {
+    results.value = await props.search(value);
   } else {
-    console.log(props.itemLabel);
-    console.log(props.itemValue);
+    // --- if no search function is provided, just filter the items
     results.value = filter(
       props.items,
       (item: AutocompleteItemProps) =>
@@ -191,31 +233,30 @@ async function safeSearch(value: string | number) {
   }
 
   processing.value = false;
+
+  return results.value;
 }
 
-const onSearch = debounce(safeSearch, 350);
-
-const results = ref(props.items || []);
-
 // --- methods
+
 function doSelect(item: String | AutocompleteItemProps) {
-  const selected: AutocompleteItemProps = isString(item)
-    ? (find(props.items, [props.itemValue, item]) as AutocompleteItemProps)
+  const selected: AutocompleteItemProps | undefined = isString(item)
+    ? (find(results.value, [props.itemValue, item]) as AutocompleteItemProps)
     : (item as AutocompleteItemProps);
+
+  if (!selected) {
+    modelValue.value = undefined;
+    return;
+  }
 
   const value = get(selected, props.itemValue);
   const oldValue = get(modelValue.value, props.itemValue);
   const hasChanged = !isEqual(value, oldValue);
+
   if (hasChanged) {
     modelValue.value = selected;
     emits("update:modelValue", value); // NB emit only the value
   }
-
-  // if we have a search value,  set it to the selected value = seamless ui
-  if (searchValue.value) {
-    searchValue.value = get(selected, props.itemLabel, searchValue.value);
-  }
-
   // finnaly close the popover
   open.value = false;
 }
@@ -227,21 +268,29 @@ function isSelected(item: AutocompleteItemProps) {
       (item as Record<string, any>)?.[props.itemValue]
   );
 }
+
+function displayValue(value: AutocompleteItemProps) {
+  let label;
+
+  const selected = isObject(value)
+    ? value
+    : find(results.value, [props.itemValue, value]);
+
+  if (isFunction(props.displayValue)) {
+    label = props.displayValue(selected || value);
+  } else {
+    label = get(selected, props.itemLabel, searchTerm.value || value);
+  }
+  return label;
+}
 // --- side effect
 
 watch(
   () => props,
   newProps => {
     results.value = newProps.items;
-    doSelect(newProps.modelValue);
-  },
-  { deep: true }
-);
-
-watch(
-  () => modelValue,
-  value => {
-    emits("update:modelValue", value.value);
+    // results.value.push(...newProps.items);
+    doSelect(newProps.modelValue?.toString());
   },
   { deep: true }
 );

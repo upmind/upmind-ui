@@ -2,17 +2,19 @@
   <FormField v-bind="delegatedProps">
     <InputGroup class="flex">
       <Autocomplete
-        :model-value="control.data?.country || defaultCountryCode"
-        @update:modelValue="onCountyInput"
-        :display-value="displayCountryCode"
+        :display-value="displayValue"
         :items="countryItems"
+        :model-value="control.data?.country || defaultCountryCode"
+        :search="onSearch"
+        @update:model-value="onCountyInput"
+        align="start"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
-        width="2xs"
         dropdown-width="lg"
         icon-size="3xs"
-        :search="onSearch"
-        align="start"
+        item-label="label"
+        item-value="value"
         side="bottom"
+        width="2xs"
       >
         <template #prepend>
           <Icon icon="plus" size="xs" class="-mr-0.5 opacity-50" />
@@ -33,9 +35,11 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { countries } from "country-data";
+import { countries, getCountryCode } from "countries-list";
+// Utils
 
 // --- components
 import FormField from "../../FormField.vue";
@@ -49,27 +53,28 @@ import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get, isEmpty, filter, includes } from "lodash-es";
+import { get, map, trimStart, includes, filter, isString } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { CountryCode } from "libphonenumber-js";
+import type { ICountry } from "countries-list";
+import type { PhoneNumber, CountryCode } from "libphonenumber-js";
+
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
 
 const countryItems = computed<AutocompleteItemProps[]>(() =>
-  countries.all
-    .filter(country => !isEmpty(get(country, "countryCallingCodes")))
-    .map(country => ({
-      avatar: { icon: country.alpha2.toLowerCase() },
+  map(countries, (country: ICountry) => {
+    const countryCode = getCountryCode(country.name) as string;
+    return {
+      avatar: { icon: countryCode?.toLowerCase() },
       label: country.name,
-      selectedLabel: country.countryCallingCodes[0],
-      tag: country.countryCallingCodes[0],
-      value:
-        country.countryCallingCodes[0].replace("+", "") + "-" + country.alpha2,
-    }))
+      tag: `+${country.phone.join(", +")}`,
+      value: countryCode?.toUpperCase(),
+    };
+  })
 );
 
 const { control, appliedOptions, onInput } = useUpwindRenderer(
@@ -78,34 +83,53 @@ const { control, appliedOptions, onInput } = useUpwindRenderer(
 
 const phone = ref({ ...control.value.data });
 
+function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
+  const phonenumber = isString(value)
+    ? value
+    : value?.nationalNumber || value?.number || "";
+
+  const parsed = parsePhoneNumber(
+    phonenumber,
+    countryCode || defaultCountryCode
+  );
+
+  if (!parsed) {
+    return { country: countryCode, number: phonenumber };
+  }
+  return parsed;
+}
+
 const onCountyInput = (value: string) => {
-  phone.value = { country: value.split("-")[0], number: phone.value.number };
+  phone.value = parsePhone(phone.value, value as CountryCode);
   onInput(phone.value);
 };
 
 const onPhoneInput = (value: string | number) => {
-  phone.value = { country: phone.value.country, number: value };
+  phone.value = parsePhone(value as string, phone.value?.country);
   onInput(phone.value);
 };
 
-const getCountryCallingCode = (countryCode: CountryCode) => {
-  return countries.all
-    .find(country => country.alpha2 === countryCode)
-    ?.countryCallingCodes[0].replace("+", "");
-};
+async function onSearch(value: string) {
+  return filter(
+    countryItems.value,
+    (item: AutocompleteItemProps) =>
+      includes(item.label.toLowerCase(), value.toLowerCase()) ||
+      includes(item.value.toLowerCase(), value.toLowerCase()) ||
+      includes(item.tag, value.toLowerCase())
+  );
+}
 
-const defaultCountryCode = getCountryCallingCode(
-  get(control.value.schema, "isPhoneNumber")
-);
+function displayValue(item: AutocompleteItemProps) {
+  const label = trimStart(item?.tag, "+");
+  return label;
+}
+
+const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
 
 const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
 
   return {
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-    // ---
     label: control.value.label,
     description: control.value.description,
     // ---
@@ -113,12 +137,12 @@ const delegatedProps = computed(() => {
     disabled: !control.value.enabled,
     visible: control.value.visible,
     ...options,
+    // --- immutable
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
   };
 });
-
-const displayCountryCode = (v: any) => {
-  return v && v.includes("-") ? v.split("-")[0] : v;
-};
 </script>
 
 <script lang="ts">

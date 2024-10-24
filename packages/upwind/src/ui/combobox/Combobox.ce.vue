@@ -13,7 +13,7 @@
         :color="props.color"
         :variant="props.variant"
       >
-        <template v-if="!isEmpty(modelValue) || searchValue">
+        <template v-if="!isEmpty(modelValue) || searchTerm">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
               v-if="modelValue?.avatar || props.avatar"
@@ -35,12 +35,12 @@
             {{
               modelValue?.selectedLabel ||
               modelValue?.[props.itemLabel] ||
-              searchValue
+              searchTerm
             }}
           </slot>
         </template>
 
-        <span v-else class="opacity-50">
+        <span v-else-if="search" class="opacity-50">
           <slot name="placeholder">{{ props.placeholder }}</slot>
         </span>
 
@@ -69,9 +69,9 @@
               class="text-control-foreground opacity-50"
             />
             <Input
-              v-model="searchValue"
+              v-model="searchTerm"
               @update:modelValue="onSearch"
-              autofocus
+              autoFocus
               class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
               :placeholder="placeholder"
             >
@@ -208,7 +208,7 @@ const processing = ref(false);
 const modelValue = ref(
   find(props.items, [props.itemValue, props.modelValue]) || props.modelValue
 );
-const searchValue = ref();
+const searchTerm = ref();
 
 // ---
 
@@ -226,7 +226,7 @@ async function safeSearch(value: string | number) {
 
   if (!value) {
     results.value = reject(props.items, "persist");
-  } else if (isFunction(props.search, props.items)) {
+  } else if (isFunction(props.search)) {
     results.value = await props.search(value.toString());
   } else {
     // --- if no search function is provided, just filter the items
@@ -274,8 +274,8 @@ function doSelect(item: String | ComboboxItemProps) {
   }
 
   // if we have a search value,  set it to the selected value = seamless ui
-  if (searchValue.value) {
-    searchValue.value = get(selected, props.itemLabel, searchValue.value);
+  if (searchTerm.value) {
+    searchTerm.value = get(selected, props.itemLabel, searchTerm.value);
   }
 
   // finnaly close the popover

@@ -102,7 +102,7 @@ export const useUischema = () => {
         type: "Control",
         scope: "#/properties/phone",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "phone",
           placeholder: "My phone number",
         },

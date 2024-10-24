@@ -5,7 +5,7 @@
     @update:modelValue="onSearch"
     :prependIcon="meta.showComplete ? null : 'search'"
     :placeholder="t('domain.dac.search')"
-    autofocus
+    autoFocus
     autocomplete="url"
     v-model="queryValue"
   />
@@ -29,7 +29,7 @@
         @update:modelValue="onSearch"
         :prependIcon="meta.showComplete ? null : 'search'"
         :placeholder="t('domain.dac.search')"
-        autofocus
+        autoFocus
         autocomplete="url"
         v-model="queryValue"
       />

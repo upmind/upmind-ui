@@ -45,7 +45,7 @@
         :model-value="selected"
         @update:modelValue="update"
         autocomplete="url"
-        autofocus
+        autoFocus
         item-label="domain"
         item-value="value"
         :searchPlaceholder="t('domain.existing.search')"

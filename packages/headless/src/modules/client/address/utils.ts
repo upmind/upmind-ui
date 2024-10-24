@@ -187,7 +187,7 @@ export const useUischema = ({ addresses }: any) => {
         type: "Control",
         scope: "#/properties/name",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "off",
           placeholder: "My home address, etc...",
         },
@@ -208,7 +208,7 @@ export const useUischema = ({ addresses }: any) => {
         scope: "#/properties/place",
         i18n: "client.unified.form.fields.place",
         options: {
-          autofocus: true,
+          autoFocus: true,
           icon: "search",
           autocomplete: "off",
           align: "start",
@@ -260,7 +260,7 @@ export const useUischema = ({ addresses }: any) => {
             scope: "#/properties/address_1",
             label: "Address", // ensure we  show the title for BOTH address fields
             options: {
-              autofocus: true,
+              autoFocus: true,
               autocomplete: "address-line1",
               placeholder: "Address first line...",
             },

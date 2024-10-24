@@ -16,7 +16,7 @@ export interface InputProps {
   placeholder?: string;
   // ---
   autocomplete?: string;
-  autofocus?: boolean;
+  autoFocus?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;
