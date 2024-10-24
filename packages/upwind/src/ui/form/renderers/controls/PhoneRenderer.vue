@@ -14,7 +14,7 @@
         item-label="label"
         item-value="value"
         side="bottom"
-        width="2xs"
+        width="3xs"
       >
         <template #prepend>
           <Icon icon="plus" size="xs" class="-mr-0.5 opacity-50" />
