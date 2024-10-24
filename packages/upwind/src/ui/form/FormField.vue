@@ -9,12 +9,9 @@
       <!-- label -->
       <div
         class="flex w-full flex-row flex-nowrap items-center justify-between"
+        v-if="meta.hasLabel"
       >
-        <FormLabel
-          :formItemId="id"
-          :invalid="meta.isInvalid"
-          v-if="meta.hasLabel"
-        >
+        <FormLabel :formItemId="id" :invalid="meta.isInvalid">
           <slot name="label" :label="label">
             <span class="inline-flex items-center gap-x-1">
               <span>{{ label }}</span>
@@ -113,7 +110,7 @@ const props = withDefaults(defineProps<FormControlProps>(), {
   tags: () => [],
   errors: () => [],
   // size: "md",
-  autofocus: false,
+  autoFocus: false,
   // ---
 
   required: false,
@@ -156,7 +153,7 @@ const meta = computed(() => ({
   hasFeedback:
     (isEmpty(props.errors) && !isEmpty(props.description)) ||
     !isEmpty(props.errors),
-  shouldFocus: !!props.autofocus,
+  shouldFocus: !!props.autoFocus,
 }));
 
 const variants = useStyles(

@@ -20,24 +20,24 @@ import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine with some state helpers
-// We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
+// We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
-export const useBasketPromotions = (service?: ActorRef<any, any>) => {
+export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
   const { service: basket } = useBasket();
-  const promotionsService = ref(service);
+  let service = actorRef;
   const actor = ref();
 
-  if (!service) {
+  if (!actorRef) {
     waitFor(
       basket,
       newstate => contextMatches(newstate, ["actors.promotions"]),
       { timeout: Infinity }
     ).then(validState => {
-      promotionsService.value = contextValue(validState, "actors.promotions");
+      service = contextValue(validState, "actors.promotions");
       actor.value = contextActor(validState, "actors.promotions");
     });
   } else {
-    actor.value = useActor(service);
+    actor.value = useActor(actorRef);
   }
 
   // --------------------------------------------------------
@@ -50,6 +50,7 @@ export const useBasketPromotions = (service?: ActorRef<any, any>) => {
     // ---
     meta: computed(() => ({
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
+      hasPromotions: contextMatches(actor, ["promotions"]),
       hasErrors: stateMatches(actor, ["error"]),
       isProcessing: stateMatches(actor, ["checking", "processing"]),
       isValid: stateMatches(actor, ["valid"]),
@@ -57,7 +58,6 @@ export const useBasketPromotions = (service?: ActorRef<any, any>) => {
       isComplete:
         stateValue(actor, "done", false) ||
         stateMatches(actor, ["processed", "complete"]),
-      hasPromotions: contextMatches(actor, ["promotions"]),
     })),
     // ---
     model: computed(() => contextValue(actor, "model")),
@@ -69,7 +69,7 @@ export const useBasketPromotions = (service?: ActorRef<any, any>) => {
     input: model => actor.value?.send({ type: "SET", data: model }),
     add: async () => {
       actor.value?.send({ type: "ADD" });
-      return waitFor(promotionsService.value as ActorRef<any, any>, state => {
+      return waitFor(service as ActorRef<any, any>, state => {
         return ["processed", "complete", "processing.error"].some(
           state.matches
         );
@@ -82,7 +82,7 @@ export const useBasketPromotions = (service?: ActorRef<any, any>) => {
     },
     remove: (promotion: any) => {
       actor.value?.send({ type: "REMOVE", data: promotion });
-      return waitFor(promotionsService.value as ActorRef<any, any>, state => {
+      return waitFor(service as ActorRef<any, any>, state => {
         return ["processed", "complete", "processing.error"].some(
           state.matches
         );

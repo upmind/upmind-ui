@@ -43,7 +43,6 @@ const delegatedProps = computed(() => {
     required: control.value.required,
     disabled: !control.value.enabled,
     visible: control.value.visible,
-    options: options,
     ...options,
   };
 });

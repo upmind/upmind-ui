@@ -20,7 +20,7 @@ export interface ToggleProps {
   size?: ToggleVariantProps["size"];
   // ---
   autocomplete?: string;
-  autofocus?: boolean;
+  autoFocus?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;

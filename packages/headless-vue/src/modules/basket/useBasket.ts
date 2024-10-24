@@ -104,16 +104,10 @@ export const useBasket: any = () => {
             "checkout.available",
           ]) && !stateMatches(state, ["shopping.items.empty"]),
 
-        needsAuth: !stateMatches(state, [
-          "shopping.account.complete",
-          "checkout",
-        ]),
+        needsAuth: !stateMatches(state, ["shopping.account.complete"]),
 
         // ---
-        hasProducts: stateMatches(state, [
-          "shopping.items.complete",
-          "checkout",
-        ]),
+        hasProducts: stateMatches(state, ["shopping.items.complete"]),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 

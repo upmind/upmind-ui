@@ -1,14 +1,21 @@
 import { cva } from "class-variance-authority";
 
-export const ringClasses =
-  "ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded-md group-focus-within:ring-0 group-focus-within:ring-offset-0";
+import { ringClasses, invalidRingClasses } from "../input/input.config";
 
-export const invalidRingClasses =
-  "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
+// ---
 
-export const inputVariants = cva(
-  "h-full min-w-0 flex-1 !bg-transparent !leading-none outline-none"
-);
+export const rootVariants = cva("relative rounded-md", {
+  variants: {
+    width: {
+      full: "w-full",
+      auto: "w-auto",
+      app: "w-app",
+    },
+  },
+  defaultVariants: {
+    width: "full",
+  },
+});
 
 export const anchorVariants = cva(
   `${ringClasses} ${invalidRingClasses} flex w-dropdown-2xs items-center justify-between rounded-md border border-control pr-3 leading-none outline-none`,
@@ -44,7 +51,7 @@ export const contentVariants = cva(
   "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 overflow-hidden rounded-lg border border-control bg-base will-change-[opacity,transform]",
   {
     variants: {
-      dropdownWidth: {
+      popoverWidth: {
         "3xs": "w-dropdown-3xs",
         "2xs": "w-dropdown-2xs",
         xs: "w-dropdown-xs",
@@ -59,15 +66,17 @@ export const contentVariants = cva(
       },
     },
     defaultVariants: {
-      dropdownWidth: "full",
+      popoverWidth: "full",
     },
   }
 );
 
 export default {
   autocomplete: {
-    root: cva("relative"),
-    input: inputVariants,
+    root: rootVariants,
+    input: cva(
+      "h-full min-w-0 flex-1 !bg-transparent !leading-none outline-none"
+    ),
     anchor: anchorVariants,
     anchorIcon: cva(
       "ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"

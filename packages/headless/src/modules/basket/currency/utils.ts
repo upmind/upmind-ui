@@ -40,7 +40,7 @@ export const useUischema = (_context: CurrencyContext) => {
         scope: "#/properties/code",
         i18n: "basket.currency.code",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "off",
           placeholder: "Select currency...",
         },
