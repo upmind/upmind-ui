@@ -18,7 +18,7 @@ export interface TextareaProps {
   rows?: number;
   // ---
   autocomplete?: string;
-  autofocus?: boolean;
+  autoFocus?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;

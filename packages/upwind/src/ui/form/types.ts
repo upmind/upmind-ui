@@ -67,7 +67,7 @@ export interface FormControlProps {
   noLabel?: boolean;
 
   // ---state
-  autofocus?: boolean;
+  autoFocus?: boolean;
   required?: boolean;
   visible?: boolean;
   disabled?: boolean;

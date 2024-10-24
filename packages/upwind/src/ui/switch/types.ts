@@ -15,7 +15,7 @@ export interface SwitchProps {
   type?: InputTypeHTMLAttribute;
   // ---
   autocomplete?: string;
-  autofocus?: boolean;
+  autoFocus?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;

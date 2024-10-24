@@ -58,9 +58,20 @@ export const useBasket = () => {
 
     // --- basket functions
     isReady: async () =>
-      waitFor(service, state => ["shopping"].some(state.matches), {
-        timeout: Infinity, // infinity = no timeout
-      }),
+      waitFor(
+        service,
+        state => {
+          const basketReady = ["shopping"].some(state.matches);
+          // const productsReady = every(
+          //   state.context?.items,
+          //   s => !["subscribing", "loading"].some(s.state.matches)
+          // );
+          return basketReady; //&& productsReady;
+        },
+        {
+          timeout: Infinity, // infinity = no timeout
+        }
+      ),
 
     clear: () => service.send({ type: "CLEAR" }),
 

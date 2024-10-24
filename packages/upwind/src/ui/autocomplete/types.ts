@@ -3,20 +3,20 @@ import type { HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
 import type {
   ComboboxRootProps,
+  ComboboxInputProps,
   ComboboxItemProps,
-  ComboboxContentProps,
 } from "radix-vue";
 
 // --- internal
-import type { anchorVariants, contentVariants } from "./autocomplete.config";
-import type { AvatarProps } from "../avatar";
 import type { IconProps } from "../icon";
+import type { AvatarProps } from "../avatar";
+
+import type { anchorVariants, contentVariants } from "./autocomplete.config";
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;
 type ContentVariantProps = VariantProps<typeof contentVariants>;
-export interface AutocompleteItemProps {
+
+export interface AutocompleteItemProps extends ComboboxItemProps {
   label: string;
-  selectedLabel: string;
-  sublabel?: string;
   tag?: string | string[];
   value: string;
   icon?: IconProps["icon"];
@@ -26,24 +26,36 @@ export interface AutocompleteItemProps {
   persist?: boolean;
 }
 
+export interface AutocompleteSearchFunction {
+  (
+    value: string,
+    items?: AutocompleteItemProps[]
+  ): Promise<AutocompleteItemProps[]>;
+}
+
 export interface AutocompleteProps
   extends ComboboxRootProps,
-    ComboboxContentProps,
-    ComboboxItemProps {
+    ComboboxInputProps {
   // --- state
-  items: AutocompleteItemProps[];
-  modelValue?: string;
-  defaultValue?: string;
-  placeholder?: string;
-  emptyMessage?: string;
   itemLabel?: string;
   itemValue?: string;
+  // --- state
+  items: AutocompleteItemProps[];
+  modelValue?: string | AutocompleteItemProps;
+  defaultValue?: string | AutocompleteItemProps;
+  // --- Search
+  search?: AutocompleteSearchFunction;
+  placeholder?: string;
+  emptyMessage?: string;
   // --- variants
   size?: AnchorVariantProps["size"];
+  // color?: ItemVariantProps["color"];
+  // variant?: ButtonProps["variant"];
   width?: AnchorVariantProps["width"];
-  dropdownWidth?: ContentVariantProps["dropdownWidth"];
+  popoverWidth?: ContentVariantProps["popoverWidth"];
   iconSize?: IconProps["size"];
   // --- styles
   upwindConfig?: { autocomplete: Partial<AutocompleteProps> };
   class?: HTMLAttributes["class"];
+  popoverClass?: HTMLAttributes["class"];
 }

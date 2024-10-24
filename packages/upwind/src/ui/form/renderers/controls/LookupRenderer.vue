@@ -1,14 +1,16 @@
 <template>
   <FormField v-bind="delegatedProps">
     <Autocomplete
-      :model-value="control.data"
-      :items="control?.options || appliedOptions?.items"
-      @update:modelValue="onInput"
-      :itemValue="appliedOptions?.itemValue"
-      :itemLabel="appliedOptions?.itemLabel"
       :align="appliedOptions?.align"
-      :side="appliedOptions?.side"
+      :auto-focus="appliedOptions?.autoFocus"
+      :item-label="appliedOptions?.itemLabel"
+      :item-value="appliedOptions?.itemValue"
+      :items="control?.options || appliedOptions?.items"
+      :model-value="control.data"
       :placeholder="appliedOptions?.placeholder"
+      :search="doSearch"
+      :side="appliedOptions?.side"
+      @update:modelValue="onInput"
       width="full"
     />
   </FormField>
@@ -42,18 +44,17 @@ const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
 
   return {
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-    // ---
     label: control.value.label,
     description: control.value.description,
     // ---
     required: control.value.required,
     disabled: !control.value.enabled,
     visible: control.value.visible,
-    options: options,
     ...options,
+    // --- immutable
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
   };
 });
 </script>

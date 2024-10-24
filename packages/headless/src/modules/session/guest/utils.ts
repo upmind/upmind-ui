@@ -49,7 +49,7 @@ export const useRegisterUischemaParser = (data: any) => {
         scope: "#/properties/firstname",
         i18n: "auth.register.firstname",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "given-name",
           placeholder: "Jay,Jane,John,... ",
         },
@@ -131,7 +131,7 @@ export const useLoginUischemaParser = () => {
         scope: "#/properties/email",
         i18n: "auth.login.email",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "email",
           placeholder: "name@email.com",
         },

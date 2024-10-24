@@ -9,7 +9,7 @@ type CheckboxVariantProps = VariantProps<typeof checkboxVariants>;
 export interface CheckboxProps extends CheckboxRootProps {
   // ---
   indeterminate?: boolean;
-  autofocus?: boolean;
+  autoFocus?: boolean;
   readonly?: boolean;
   // --- variants
   size?: CheckboxVariantProps["size"];

@@ -55,9 +55,9 @@ const preview: Preview = {
     layout: "fullscreen",
     toolbar: {
       zoom: { hidden: true },
-      eject: { hidden: true },
+      // eject: { hidden: true },
       copy: { hidden: true },
-      fullscreen: { hidden: true },
+      // fullscreen: { hidden: true },
     },
   },
 
@@ -96,7 +96,7 @@ const preview: Preview = {
     },
   ],
 
-  tags: ["autodocs", "autodocs", "autodocs"],
+  // tags: ["autodocs"],
 };
 
 export default preview;

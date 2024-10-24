@@ -284,7 +284,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             type: "Control",
             scope: "#/properties/name",
             options: {
-              autofocus: true,
+              autoFocus: true,
               autocomplete: "off",
               placeholder: "My home address, etc...",
             },
@@ -325,7 +325,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             scope: "#/properties/place",
             i18n: "client.unified.form.fields.place",
             options: {
-              autofocus: true,
+              autoFocus: true,
               icon: "search",
               autocomplete: "off",
               align: "start",
@@ -496,7 +496,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             scope: "#/properties/company_name",
             i18n: "client.unified.form.fields.company_name",
             options: {
-              autofocus: true,
+              autoFocus: true,
               autocomplete: "organization",
               placeholder: "My Company Name (PTY) LTD",
               label: "Company Name",

@@ -51,7 +51,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Dialog, Button, Avatar } from "@upmind/upwind";
+import { Dialog, Button, Avatar, Icon } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
@@ -86,10 +86,10 @@ const hasAction = computed(() => {
 });
 
 async function doAction() {
-  if (isFunction(this.action?.handler)) {
-    this.processing = true;
-    await this.action.handler();
-    this.processing = false;
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    await props.action.handler();
+    processing.value = false;
   }
 }
 </script>

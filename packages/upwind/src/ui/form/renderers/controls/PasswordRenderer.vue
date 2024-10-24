@@ -8,7 +8,7 @@
         :placeholder="appliedOptions?.placeholder"
         :type="unmask ? 'text' : 'password'"
         :autocomplete="appliedOptions?.autocomplete || 'current-password'"
-        :autofocus="appliedOptions?.autofocus"
+        :auto-focus="appliedOptions?.autoFocus"
         :maxlength="appliedOptions?.maxLength"
         :minlength="appliedOptions?.minLength"
         :pattern="appliedOptions?.pattern"

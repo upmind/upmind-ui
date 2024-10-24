@@ -238,7 +238,7 @@ export default defineComponent({
       default: "outline",
     },
     // ---
-    autofocus: { type: Boolean },
+    autoFocus: { type: Boolean },
     required: { type: Boolean },
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
@@ -283,7 +283,7 @@ export default defineComponent({
     );
 
     function maybeFocus([section]) {
-      if (props.autofocus && section.isIntersecting) {
+      if (props.autoFocus && section.isIntersecting) {
         let el = section.target;
         if (
           !["input", "textarea", "select", "button"].includes(

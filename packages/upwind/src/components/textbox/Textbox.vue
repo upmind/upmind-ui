@@ -12,7 +12,7 @@
     :prepend-icon="prependIcon"
     :prepend-text="prependText"
     :feedback-icon="feedbackIcon"
-    :autofocus="autofocus"
+    :auto-focus="autoFocus"
     :dirty="meta.isDirty"
     :disabled="meta.isDisabled"
     :visible="meta.isVisible"
@@ -102,7 +102,7 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     disabled: { type: Boolean },
     processing: { type: Boolean },
-    autofocus: { type: Boolean },
+    autoFocus: { type: Boolean },
     // ---
     noRequired: { type: Boolean },
     noStatus: { type: Boolean },

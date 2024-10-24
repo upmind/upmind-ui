@@ -1,7 +1,7 @@
 // --- external
 
 import { createAjv } from "@jsonforms/core";
-import { isValidPhoneNumber, getCountryCallingCode } from "libphonenumber-js";
+import { isValidPhoneNumber } from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
 
 // --- utils
@@ -28,8 +28,9 @@ export const useValidation = (ajv?: Ajv) => {
     type: ["string", "object"],
     schemaType: "string",
     validate: (schema: CountryCode, data: PhoneNumber) => {
-      const country = data?.country || getCountryCallingCode(schema);
-      return isValidPhoneNumber(`+${country}${data.number}`);
+      const value = data?.number || data?.nationalNumber || "";
+      const country = data?.country || schema;
+      return isValidPhoneNumber(value, country);
     },
     error: {
       message: cxt => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
