@@ -61,7 +61,20 @@
 
             <Icon v-if="item.icon" v-bind="item.icon" :size="props.iconSize" />
 
-            <span>{{ item.label }}</span>
+            <span class="flex w-full items-center justify-between">
+              <span
+                v-if="(item as Record<string, any>)?.[props.itemLabel]"
+                class="leading-none"
+              >
+                {{ get(item, props.itemLabel) }}
+              </span>
+
+              <span
+                v-if="item.tag"
+                class="text-nowrap leading-none opacity-50"
+                >{{ item.tag }}</span
+              >
+            </span>
           </span>
           <span class="text-nowrap pl-2 text-sm opacity-50">{{
             item.tag
@@ -109,6 +122,7 @@ import {
   reject,
   omit,
   isObject,
+  uniqBy,
 } from "lodash-es";
 
 // --- types
@@ -271,7 +285,6 @@ function isSelected(item: AutocompleteItemProps) {
 
 function displayValue(value: AutocompleteItemProps) {
   let label;
-
   const selected = isObject(value)
     ? value
     : find(results.value, [props.itemValue, value]);
@@ -288,7 +301,11 @@ function displayValue(value: AutocompleteItemProps) {
 watch(
   () => props,
   newProps => {
-    results.value = newProps.items;
+    // we always keep the results unique so we can have valid modalValues on dynamic searches
+    results.value = uniqBy(
+      [...results.value, ...newProps.items],
+      props.itemValue
+    );
     // results.value.push(...newProps.items);
     doSelect(newProps.modelValue?.toString());
   },
