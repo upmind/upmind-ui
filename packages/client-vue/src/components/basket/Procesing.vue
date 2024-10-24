@@ -17,7 +17,7 @@
     </template>
 
     <section :class="styles.basket.processing.root">
-      <Avatar v-bind="avatar" />
+      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
 
       <h3 :class="styles.basket.processing.title">{{ title }}</h3>
 
@@ -60,13 +60,12 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
   modal: false,
   skrim: "primary",
   size: "app",
-  avatar: () => ({
-    size: "lg",
-    shape: "circle",
-    color: "primary",
-    animatedIcon: "tapping-card",
-    fit: "contain",
-  }),
+  animatedIcon: {
+    icon: "tapping-card",
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+    size: "4xl",
+  },
 });
 
 const { meta } = useBasket();
