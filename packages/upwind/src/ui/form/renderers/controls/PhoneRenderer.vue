@@ -39,7 +39,6 @@ import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import { countries, getCountryCode } from "countries-list";
-// Utils
 
 // --- components
 import FormField from "../../FormField.vue";
