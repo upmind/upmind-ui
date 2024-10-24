@@ -22,7 +22,7 @@
       </Autocomplete>
       <Input
         :disabled="!control.enabled"
-        :model-value="control.data?.number"
+        :model-value="control.data?.nationalNumber || control.data?.number"
         @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"
