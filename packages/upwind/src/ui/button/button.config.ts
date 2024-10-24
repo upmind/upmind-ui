@@ -30,9 +30,9 @@ export const buttonVariants = cva(
       size: {
         xs: "h-7 gap-1 px-2 py-1 text-xs",
         sm: "h-9 gap-2 px-3 py-1 text-sm",
-        md: "h-10 gap-2 px-4 py-1 text-md",
-        lg: "h-11 gap-2 px-8 py-1 text-lg",
-        xl: "h-14 gap-2 px-8 py-1 text-lg",
+        md: "h-10 gap-2 px-4 py-2 text-md",
+        lg: "h-11 gap-2 px-8 py-2 text-lg",
+        xl: "h-14 gap-2 px-8 py-2 text-lg",
         icon: "h-10 w-10 gap-2 px-2 py-1",
         badge: "gap-1 px-1 py-0 text-xs",
       },
