@@ -43,7 +43,7 @@
     "ajv-errors": "^3.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "country-data": "^0.0.31",
+    "countries-list": "^3.1.1",
     "dompurify": "^3.1.6",
     "flag-icons": "^7.1.0",
     "lodash-es": "^4.17.21",

@@ -51,13 +51,12 @@ export interface ComboboxProps
   disabled?: boolean;
   // --- Search
   search?: boolean | ComboboxSearchFunction;
-  // searchValue?: string;
   placeholder?: string;
   emptyMessage?: string;
   // --- variants
+  size?: ButtonProps["size"];
   color?: ItemVariantProps["color"];
   variant?: ButtonProps["variant"];
-  size?: ButtonProps["size"];
   width?: ContentVariantsProps["width"];
   iconSize?: IconProps["size"];
   // --- styles

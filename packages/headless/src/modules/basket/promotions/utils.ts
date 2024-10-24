@@ -36,7 +36,7 @@ export const useUischema = (_context: PromotionsContext) => {
         scope: "#/properties/promocode",
         i18n: "basket.promotions.promocode",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "off",
           placeholder: "Enter code here",
           noLabel: true,

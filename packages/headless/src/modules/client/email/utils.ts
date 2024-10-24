@@ -61,7 +61,7 @@ export const useUischema = () => {
         type: "Control",
         scope: "#/properties/email",
         options: {
-          autofocus: true,
+          autoFocus: true,
           autocomplete: "email",
           placeholder: "name@email.com",
         },

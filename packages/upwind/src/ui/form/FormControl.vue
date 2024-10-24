@@ -27,7 +27,7 @@ const props = defineProps<{
   formItemId: string;
   formDescriptionId: string;
   formMessageId: string;
-  autofocus?: boolean;
+  autoFocus?: boolean;
   invalid?: boolean;
 }>();
 
@@ -37,7 +37,7 @@ const target = useTemplateRef("control");
 
 // --- methods
 function maybeFocus([section]: IntersectionObserverEntry[]) {
-  if (props.autofocus && section.isIntersecting) {
+  if (props.autoFocus && section.isIntersecting) {
     let el: HTMLElement = section.target as HTMLElement;
     if (
       !["input", "textarea", "select", "button"].includes(
