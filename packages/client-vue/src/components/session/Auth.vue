@@ -170,6 +170,9 @@ export default defineComponent({
         this.toggleForm(this.active);
       }
     },
+    modelValue(value) {
+      this.toggleForm(value);
+    },
   },
 });
 </script>
