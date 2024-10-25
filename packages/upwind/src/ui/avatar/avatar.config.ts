@@ -18,7 +18,7 @@ export const avatarVariants = cva(
         info: "bg-info text-info-foreground",
         error: "bg-error text-error-foreground",
         warning: "bg-warning text-warning-foreground",
-        transparent: "bg-transparent",
+        transparent: "bg-transparent text-primary",
       },
       fit: {
         cover: "object-cover",
