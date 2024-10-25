@@ -17,7 +17,7 @@
     </template>
 
     <section :class="styles.product.notFound.root">
-      <Avatar v-bind="avatar" />
+      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
 
       <h3 :class="styles.product.notFound.title">{{ title }}</h3>
 
@@ -64,13 +64,13 @@ const props = withDefaults(defineProps<ProductModalProps>(), {
   modal: false,
   skrim: "primary",
   size: "app",
-  avatar: () => ({
-    size: "lg",
-    shape: "circle",
-    color: "primary",
+  animatedIcon: {
     icon: "basket",
-    fit: "contain",
-  }),
+    delay: 5000,
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+    size: "4xl",
+  },
 });
 
 const { meta } = useBasket();
