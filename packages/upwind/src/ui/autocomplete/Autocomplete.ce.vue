@@ -45,7 +45,7 @@
           :value="(item as Record<string, any>)[props.itemValue]"
           :class="variants.autocomplete.item"
         >
-          <span class="flex items-center gap-2">
+          <span class="flex w-full items-center gap-2">
             <ComboboxItemIndicator
               v-if="isSelected(item)"
               :class="variants.autocomplete.indicator"
@@ -69,16 +69,11 @@
                 {{ get(item, props.itemLabel) }}
               </span>
 
-              <span
-                v-if="item.tag"
-                class="text-nowrap leading-none opacity-50"
-                >{{ item.tag }}</span
-              >
+              <span class="text-nowrap leading-none opacity-50">{{
+                item.tag
+              }}</span>
             </span>
           </span>
-          <span class="text-nowrap pl-2 text-sm opacity-50">{{
-            item.tag
-          }}</span>
         </ComboboxItem>
       </ComboboxViewport>
     </ComboboxContent>
@@ -138,8 +133,8 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   itemLabel: "label",
   itemValue: "value",
   // -- variants
-  width: "auto",
-  popoverWidth: "auto",
+  width: "md",
+  popoverWidth: "md",
   align: "end",
   side: "bottom",
   // --- styles
