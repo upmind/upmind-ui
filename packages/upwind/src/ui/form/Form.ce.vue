@@ -29,6 +29,7 @@
         <Button
           v-for="(action, key) in actions"
           :key="key"
+          :color="color"
           v-bind="action"
           @click="doAction(action, $event)"
         />
