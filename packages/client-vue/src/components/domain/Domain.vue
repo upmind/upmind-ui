@@ -110,7 +110,7 @@ export default defineComponent({
     // ---
   },
   setup(props) {
-    const { t, tm } = useI18n();
+    const { t, tm, rt } = useI18n();
 
     const {
       // state,
@@ -151,6 +151,7 @@ export default defineComponent({
     return {
       t,
       tm,
+      rt,
       state,
       meta,
       choices,
@@ -184,7 +185,7 @@ export default defineComponent({
         const i18n = this.tm(`domain.choices.${choice.value}`);
         return {
           ...choice,
-          label: this.$rt(i18n.label) || choice.label,
+          label: this.rt(i18n.label) || choice.label,
         };
       });
     },
