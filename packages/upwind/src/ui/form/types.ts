@@ -32,6 +32,7 @@ export interface FormProps {
   autosave?: boolean;
   // ---
   size?: FormVariantProps["size"];
+  color?: ButtonProps["color"];
 
   // ---
   loading?: boolean;
