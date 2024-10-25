@@ -10,10 +10,7 @@
       />
       <IconAnimated
         v-else-if="meta.hasAnimatedIcon"
-        :icon="mergedAnimatedIcon.icon"
-        :primary-color="mergedAnimatedIcon.primaryColor"
-        :secondary-color="mergedAnimatedIcon.secondaryColor"
-        :delay="mergedAnimatedIcon.delay"
+        v-bind="mergedAnimatedIcon"
         class="relative z-10 object-cover"
       />
       <AvatarImage
@@ -89,14 +86,15 @@ const meta = computed(() => ({
 const mergedAnimatedIcon = computed(() => ({
   icon: isString(props.animatedIcon)
     ? props.animatedIcon
-    : props.animatedIcon.icon,
+    : props.animatedIcon?.icon,
   primaryColor: isString(props.animatedIcon)
     ? "base"
-    : props.animatedIcon.primaryColor,
+    : props.animatedIcon?.primaryColor,
   secondaryColor: isString(props.animatedIcon)
     ? "secondary"
-    : props.animatedIcon.secondaryColor,
-  delay: isString(props.animatedIcon) ? 1000 : props.animatedIcon.delay,
+    : props.animatedIcon?.secondaryColor,
+  delay: isString(props.animatedIcon) ? 250 : props.animatedIcon?.delay,
+  size: isString(props.animatedIcon) ? "auto" : props.animatedIcon?.size,
 }));
 
 const variants = useStyles(

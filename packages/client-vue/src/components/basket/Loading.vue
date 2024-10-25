@@ -17,7 +17,7 @@
     </template>
 
     <section :class="styles.basket.loading.root">
-      <IconAnimated v-bind="animatedIcon" />
+      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
 
       <h3 :class="styles.basket.loading.title">{{ title }}</h3>
 
@@ -50,7 +50,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { IconAnimated, Dialog, Button, Icon } from "@upmind/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";

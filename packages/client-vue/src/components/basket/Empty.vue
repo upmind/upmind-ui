@@ -17,7 +17,7 @@
     </template>
 
     <section :class="styles.basket.empty.root">
-      <IconAnimated v-bind="props.animatedIcon" />
+      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
 
       <h3 :class="styles.basket.empty.title">{{ title }}</h3>
 
@@ -51,7 +51,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Dialog, Button, IconAnimated, Icon } from "@upmind/upwind";
+import { Dialog, Button, Avatar, Icon } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
