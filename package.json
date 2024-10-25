@@ -59,6 +59,7 @@
     "vite-plugin-dts": "^3.5.3"
   },
   "workspaces": [
+    "docs",
     "packages/headless",
     "packages/headless-vue",
     "packages/upwind",
@@ -66,8 +67,8 @@
     "playgrounds/labs",
     "playgrounds/checkout",
     "playgrounds/velia",
+    "playgrounds/webcentral",
     "playgrounds/storybook",
-    "playgrounds/stoybook-ce",
-    "docs"
+    "playgrounds/stoybook-ce"
   ]
 }
