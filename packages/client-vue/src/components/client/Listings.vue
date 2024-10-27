@@ -212,22 +212,22 @@ export default defineComponent({
   computed: {
     actions() {
       return {
-        cancel: {
-          label: this?.t(`client.${this.type}.actions.cancel`),
+        add: {
+          label: this?.t(`client.${this.type}.actions.add`),
           variant: "ghost",
           color: this.color,
           block: true,
           handler: () => {
-            this.$emit("update:open", false);
+            this.add();
           },
         },
-        add: {
-          label: this?.t(`client.${this.type}.actions.add`),
+        confirm: {
+          label: this?.t(`client.${this.type}.actions.confirm`),
           variant: "flat",
           color: this.color,
           block: true,
           handler: () => {
-            this.add();
+            this.onClose();
           },
         },
       };
