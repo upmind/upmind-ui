@@ -50,14 +50,13 @@ function submitViaForm({
       form.action = url;
       form.style.display = "none";
 
-      forEach(fields, (value, key) => {
+      for (const key in fields || {}) {
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = key;
         input.value = get(fields, key);
         form.appendChild(input);
-      });
-
+      }
       document.body.appendChild(form);
       form.submit();
       document.body.removeChild(form);
