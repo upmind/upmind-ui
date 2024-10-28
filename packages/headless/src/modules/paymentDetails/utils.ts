@@ -164,7 +164,6 @@ export function spawnGateway({
       renderless: true,
     });
   }
-
   if (isStored(gateway)) {
     return spawnStored({
       basket_id,
@@ -173,10 +172,8 @@ export function spawnGateway({
       stored_payment_methods,
     });
   }
-
   if (isStripe(gateway))
     return spawnStripe({ basket_id, gateway, amount, currency });
-
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       basket_id,
@@ -185,7 +182,6 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isDirectDebit(gateway))
     return spawnGenericGateway(GatewayTypes.DIRECT_DEBIT, {
       basket_id,
@@ -194,7 +190,6 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isSEPA(gateway))
     return spawnGenericGateway(GatewayTypes.SEPA, {
       basket_id,
@@ -203,7 +198,6 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
       basket_id,
@@ -212,7 +206,6 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
       basket_id,
@@ -221,10 +214,8 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isExternal(gateway))
     return spawnExternal({ basket_id, gateway, amount, currency });
-
   if (isCard(gateway))
     return spawnCard({ basket_id, gateway, amount, currency });
 
@@ -306,7 +297,8 @@ export function spawnExternal({ basket_id, gateway, amount, currency }: any) {
       gateway,
       amount,
       currency,
-      type: gateway?.gateway_provider.external_store,
+      type: GatewayTypes.CARD,
+      // external: gateway?.gateway_provider.external_payment,
     }),
     { name: gateway.id, sync: true }
   );
@@ -336,4 +328,5 @@ const isMobile = (gateway: any) => gateway.type === GatewayTypes.MOBILE;
 const isOffline = (gateway: any) => gateway.type === GatewayTypes.OFFLINE;
 
 const isExternal = (gateway: any) =>
-  gateway.type === gateway?.gateway_provider.external_store;
+  gateway.type === GatewayTypes.CARD &&
+  gateway?.gateway_provider.external_payment;

@@ -121,6 +121,7 @@
         "filter": "Filter by address or business name",
         "edit": "Edit",
         "delete": "Delete",
+        "confirm": "Confirm",
         "select": "Set as default",
         "copy": "Copy to clipboard | Copied!"
       },
