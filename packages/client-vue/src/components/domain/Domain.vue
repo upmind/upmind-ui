@@ -52,6 +52,7 @@
           item-label="domain"
           item-value="value"
           :placeholder="t('domain.existing.search')"
+          width="full"
         />
       </FormField>
 
