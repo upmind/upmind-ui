@@ -18,7 +18,7 @@
         :placeholder="placeholder"
         :auto-focus="props.autoFocus"
       />
-      <ComboboxTrigger class="group">
+      <ComboboxTrigger class="group" v-if="!!results?.length">
         <Icon
           :class="variants.autocomplete.anchorIcon"
           icon="arrow-down"
@@ -30,6 +30,7 @@
     <ComboboxContent
       avoidCollisions
       :class="cn(variants.autocomplete.content, props.popoverClass)"
+      v-if="!!results?.length"
     >
       <ComboboxViewport>
         <!-- <ComboboxEmpty
