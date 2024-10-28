@@ -30,6 +30,8 @@
           @click.stop="doAction"
           :loading="processing"
           :label="action?.label"
+          :color="action?.color"
+          :variant="action?.variant"
         >
           <template #prepend>
             <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
