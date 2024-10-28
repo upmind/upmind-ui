@@ -16,6 +16,7 @@ import {
   first,
   defaultsDeep,
   pick,
+  some,
 } from "lodash-es";
 
 // --- types
@@ -29,7 +30,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 const whitelistGatewayProviders =
   // @ts-ignore
-  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS.split(",");
+  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS.toLowerCase().split(",");
 // Array<string> = [
 //   "73de7864-2de5-3971-4ef2-1208469530d0",
 //   "72040386-96e5-4721-d9b5-18d9305e7d23",
@@ -109,9 +110,8 @@ async function load(
     // Whitelist payment gateways if provided
     if (whitelistGatewayProviders.length) {
       data = filter(data, ({ gateway }) => {
-        return includes(
-          whitelistGatewayProviders,
-          gateway.gateway_provider.code
+        return some(whitelistGatewayProviders, provider =>
+          includes(gateway.gateway_provider.code.toLowerCase(), provider)
         );
       });
     }
