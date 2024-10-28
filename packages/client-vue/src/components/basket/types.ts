@@ -12,6 +12,7 @@ export interface ActionProps extends ButtonProps {
   auto?: boolean;
   href?: string;
   prependIcon?: IconProps["icon"];
+  variant?: ButtonProps["variant"];
 }
 
 export interface BasketModalProps {
