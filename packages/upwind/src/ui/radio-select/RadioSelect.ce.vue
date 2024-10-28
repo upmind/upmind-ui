@@ -90,7 +90,7 @@ import {
 } from "../collapsible";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, first } from "lodash-es";
 
 // --- types
 import type { RadioSelectProps } from "./types";
@@ -147,5 +147,9 @@ function onChange(value: any) {
   else modelValue.value = value;
 
   open.value = false;
+}
+
+if (props.required && !modelValue.value) {
+  emits("update:modelValue", first(props.items)?.value);
 }
 </script>
