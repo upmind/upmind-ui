@@ -12,13 +12,13 @@
       :leave-from-class="styles.domain.transitions.fade.leave.from"
       :leave-to-class="styles.domain.transitions.fade.leave.to"
     >
-      <UpmEmpty
+      <Empty
         :title="t('domain.empty.title')"
         :text="t('domain.empty.text')"
         v-if="!meta.isLoading && meta.isEmpty"
       />
 
-      <UpwCheckboxList
+      <CheckboxCards
         v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
         :class="styles.domain.listings.items"
         :items="items"
@@ -267,9 +267,9 @@
             </div>
           </div>
         </template>
-      </UpwCheckboxList>
+      </CheckboxCards>
 
-      <UpwSkeletonList
+      <SkeletonList
         v-if="meta.isLoading"
         :class="styles.domain.listings.loading"
         :rows="6"
@@ -292,8 +292,8 @@ import config from "./config.cva";
 // --- components
 import UpmEmpty from "./Empty.vue";
 import {
-  UpwSkeletonList,
-  UpwCheckboxList,
+  SkeletonList,
+  CheckboxCards,
   Icon,
   Badge,
   Button,
@@ -312,8 +312,8 @@ export default defineComponent({
     Icon,
     Badge,
     Button,
-    UpwCheckboxList,
-    UpwSkeletonList,
+    CheckboxCards,
+    SkeletonList,
     // ---
     UpmEmpty,
   },

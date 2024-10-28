@@ -14,7 +14,6 @@
         :pattern="appliedOptions?.pattern"
         :readonly="appliedOptions?.readonly"
         :required="appliedOptions?.required"
-        autocomplete="current-password"
         :model-value="control.data"
         @update:modelValue="onInput"
       />
@@ -46,7 +45,7 @@ import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { isNil, get } from "lodash-es";
+import { isNil } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -64,9 +63,6 @@ const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
 
   return {
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
     // ---
     label: control.value.label,
     description: control.value.description,
@@ -75,6 +71,10 @@ const delegatedProps = computed(() => {
     disabled: !control.value.enabled,
     visible: control.value.visible,
     ...options,
+    // --- immutable
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
   };
 });
 

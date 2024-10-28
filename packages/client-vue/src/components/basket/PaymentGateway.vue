@@ -14,7 +14,7 @@
       <Spinner size="xs" v-if="meta.isLoading" key="spinner" />
 
       <!-- Instructions -->
-      <UpwMarkdown
+      <Markdown
         v-if="instructions"
         :class="styles.basket.paymentGateway.instructions"
         :model-value="instructions"
@@ -54,7 +54,7 @@ import { defineComponent, onMounted, watch, ref, computed } from "vue";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind/headless-vue";
-import { useStyles, cn, UpwMarkdown } from "@upmind/upwind";
+import { useStyles, cn, Markdown } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
@@ -64,7 +64,7 @@ import { Form, Spinner } from "@upmind/upwind";
 
 export default defineComponent({
   name: "UpmBasketPaymentGateway",
-  components: { Form, Spinner, UpwMarkdown },
+  components: { Form, Spinner, Markdown },
   props: {
     id: {
       type: String,

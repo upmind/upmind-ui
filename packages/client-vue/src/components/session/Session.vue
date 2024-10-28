@@ -52,7 +52,7 @@
       </slot>
     </header>
 
-    <UpmAuth
+    <Auth
       v-if="!meta.isAuthenticated"
       :class="styles.session.content"
       :block-tabs="blockTabs"
@@ -61,7 +61,7 @@
       :color="color"
       :model-value="show"
     >
-    </UpmAuth>
+    </Auth>
 
     <footer :class="styles.session.footer" v-if="noFooter || !!$slots.footer">
       <slot name="footer" v-bind="{ meta, user }"> </slot>

@@ -14,7 +14,7 @@
     @update:open="onClose"
     size="2xl"
   >
-    <UpwSkeletonList
+    <SkeletonList
       :class="styles.clientListings.loading"
       v-if="meta.isLoading"
     />
@@ -59,7 +59,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Form, Button, Drawer, UpwSkeletonList } from "@upmind/upwind";
+import { Form, Button, Drawer, SkeletonList } from "@upmind/upwind";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";
@@ -68,7 +68,7 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 export default defineComponent({
   name: "UpmClientForm",
   directives: { autoAnimate: vAutoAnimate },
-  components: { Form, Drawer, Button, UpwSkeletonList },
+  components: { Form, Drawer, Button, SkeletonList },
   props: {
     modelValue: {
       type: Object, // xstate actor

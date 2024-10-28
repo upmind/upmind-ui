@@ -14,7 +14,7 @@
 
     <div :class="styles.basket.details.content">
       <!-- billing details -->
-      <UpmBillingDetails
+      <BillingDetails
         v-if="!meta.needsAuth"
         :model-value="billingDetailsModel"
         @update:modelValue="billingDetailsUpdate"
@@ -37,12 +37,12 @@
       />
 
       <!-- payment details -->
-      <UpmPaymentDetails />
+      <PaymentDetails />
     </div>
 
     <footer :class="styles.basket.details.footer">
       <slot name="footer" v-bind="{ meta }">
-        <UpmBasketSummary no-actions />
+        <BasketSummary no-actions />
       </slot>
     </footer>
   </section>

@@ -74,6 +74,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   color: props.color,
+  layout: props.layout,
+  variant: props.variant,
 }));
 
 const variants = useStyles(

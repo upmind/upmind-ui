@@ -13,7 +13,7 @@
       no-actions
     />
 
-    <UpmPaymentGateway
+    <PaymentGateway
       v-if="gateway"
       :key="gateway?.id"
       :id="gateway?.id"

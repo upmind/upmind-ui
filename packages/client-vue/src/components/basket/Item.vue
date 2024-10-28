@@ -1,5 +1,5 @@
 <template>
-  <UpmProductConfig
+  <ProductConfig
     v-if="open || selected"
     v-bind="$props"
     :class="'styles.basket.item'"
@@ -19,8 +19,8 @@
         t("basket.items.invalid.title")
       }}</span>
     </template>
-  </UpmProductConfig>
-  <UpmProductCard
+  </ProductConfig>
+  <ProductCard
     v-else
     v-bind="$props"
     :class="'styles.basket.item'"
@@ -45,7 +45,7 @@
         {{ t("basket.items.invalid.badge") }}
       </Badge>
     </template>
-  </UpmProductCard>
+  </ProductCard>
 </template>
 
 <script>

@@ -4,9 +4,9 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <UpwSkeletonList :class="styles.client.loading" v-if="meta.isLoading" />
+    <SkeletonList :class="styles.client.loading" v-if="meta.isLoading" />
     <!-- If we dont have any default or selected :- render a form for a new address -->
-    <UpmItem
+    <Item
       v-else-if="(meta.isAdding || meta.isEditing) && !open"
       :model-value="selected"
       :modal="meta.isEditing"
@@ -41,7 +41,7 @@
         </span> -->
       </h5>
 
-      <UpmCard
+      <Card
         i18nKey="unified"
         :model-value="selected"
         selected
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <UpmListings
+    <Listings
       :open="open"
       type="unified"
       i18nKey="unified"
@@ -96,7 +96,7 @@ import config from "../client/config.cva";
 import UpmItem from "../Client/Item.vue";
 import UpmCard from "../Client/Card.vue";
 import UpmListings from "../Client/Listings.vue";
-import { UpwSkeletonList, Button, DropdownMenu } from "@upmind/upwind";
+import { SkeletonList, Button, DropdownMenu } from "@upmind/upwind";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
@@ -106,7 +106,7 @@ export default defineComponent({
   name: "UpmClient",
   directives: { autoAnimate: vAutoAnimate },
   components: {
-    UpwSkeletonList,
+    SkeletonList,
     Button,
     DropdownMenu,
     // ---

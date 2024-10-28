@@ -99,15 +99,15 @@ function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
   return parsed;
 }
 
-const onCountyInput = (value: string) => {
+function onCountyInput(value: any) {
   phone.value = parsePhone(phone.value, value as CountryCode);
   onInput(phone.value);
-};
+}
 
-const onPhoneInput = (value: string | number) => {
+function onPhoneInput(value: string | number) {
   phone.value = parsePhone(value as string, phone.value?.country);
   onInput(phone.value);
-};
+}
 
 async function onSearch(value: string) {
   return filter(
@@ -119,7 +119,7 @@ async function onSearch(value: string) {
   );
 }
 
-function displayValue(item: AutocompleteItemProps) {
+function displayValue(item: any) {
   const label = trimStart(item?.tag, "+");
   return label;
 }
@@ -152,7 +152,9 @@ export const tester = {
   rank: 2,
   controlType: and(
     isObjectControl,
-    schemaMatches(schema => !!schema?.isPhoneNumber)
+    schemaMatches(
+      schema => "isPhoneNumber" in schema && !!(schema as any).isPhoneNumber
+    )
   ),
 };
 </script>

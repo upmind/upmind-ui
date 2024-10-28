@@ -17,16 +17,16 @@
     </template>
 
     <div v-if="!meta.isAvailable">
-      <UpmAuth no-tabs />
+      <Auth no-tabs />
     </div>
 
-    <UpwSkeletonList
+    <SkeletonList
       :class="styles.clientListings.loading"
       v-else-if="meta.isLoading"
     />
 
     <template v-else>
-      <UpwTextbox
+      <Input
         v-if="!noFilter && meta.canFilter"
         @input="filter($event?.currentTarget?.value)"
         :placeholder="t(`client.${type}.actions.filter`)"
@@ -34,7 +34,7 @@
       />
 
       <div :class="styles.clientListings.items">
-        <UpmCard
+        <Card
           v-for="item in sortedItems"
           :key="item.id"
           :model-value="item"
@@ -49,10 +49,10 @@
       </div>
 
       <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <UpmEmpty :i18nKey="type" />
+        <Empty :i18nKey="type" />
       </slot>
 
-      <UpmItem
+      <Item
         v-if="meta.isEditing || meta.isAdding"
         :model-value="selected"
         :key="selected?.id"
@@ -120,7 +120,7 @@ import UpmAuth from "../session/Auth.vue";
 import UpmEmpty from "./Empty.vue";
 import UpmCard from "./Card.vue";
 import UpmItem from "./Item.vue";
-import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
+import { Input, SkeletonList } from "@upmind/upwind";
 
 // --- custom elements
 import { Button, Drawer } from "@upmind/upwind";
@@ -136,8 +136,8 @@ export default defineComponent({
   components: {
     Button,
     Drawer,
-    UpwTextbox,
-    UpwSkeletonList,
+    Input,
+    SkeletonList,
     Section,
     // ---
     UpmAuth,

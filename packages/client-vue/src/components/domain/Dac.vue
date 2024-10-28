@@ -1,5 +1,5 @@
 <template>
-  <UpwTextbox
+  <Input
     v-if="!meta.showDialog"
     :class="styles.domain.search"
     @update:modelValue="onSearch"
@@ -24,7 +24,7 @@
     :description="t('domain.dac.description')"
   >
     <template #header>
-      <UpwTextbox
+      <Input
         :class="styles.domain.search"
         @update:modelValue="onSearch"
         :prependIcon="meta.showComplete ? null : 'search'"
@@ -36,7 +36,7 @@
     </template>
 
     <div :class="styles.domain.root">
-      <UpmDomainListings
+      <DomainListings
         :model-value="values"
         :items="items"
         :offset="offset"
@@ -88,7 +88,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwTextbox, Button, Drawer } from "@upmind/upwind";
+import { Input, Button, Drawer } from "@upmind/upwind";
 import UpmDomainListings from "./Listings.vue";
 
 // -----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ export default defineComponent({
   components: {
     Button,
     Drawer,
-    UpwTextbox,
+    Input,
     // ---
     UpmDomainListings,
   },
