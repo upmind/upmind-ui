@@ -6,4 +6,4 @@ import DomainRenderer, { tester as domainTest } from "./DomainRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
-export const additionalRenderers = [registerEntry(DomainRenderer, domainTest)];
+export const formRenderers = [registerEntry(DomainRenderer, domainTest)];
