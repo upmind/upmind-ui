@@ -16,6 +16,7 @@ export { default as UpmCurrency } from "./components/basket/CurrencySwitcher.vue
 // ---
 export { default as UpmProductConfig } from "./components/product/Config.vue";
 export { default as UpmProductNotFound } from "./components/product/NotFound.vue";
+export * from "./components/renderers";
 
 export { default as UpmBasketItems } from "./components/basket/ItemListings.vue";
 export { default as UpmBillingDetails } from "./components/basket/BillingDetails.vue";
@@ -25,6 +26,7 @@ export { default as UpmBasketProcessing } from "./components/basket/Procesing.vu
 export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
 export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
 export { default as UpmPaymentDetails } from "./components/basket/PaymentDetails.vue";
+
 // ---
 export { default as UpmOrderConfirmation } from "./components/order/Confirmation.vue";
 // ---
