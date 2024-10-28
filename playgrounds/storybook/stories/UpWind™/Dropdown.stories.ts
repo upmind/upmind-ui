@@ -2,20 +2,20 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UpwDropdown } from "@upmind/upwind";
+import { DropdownMenu } from "@upmind/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwDropdown> = {
+const meta: Meta<typeof DropdownMenu> = {
   parameters: {
     controls: {
       exclude: [],
     },
   },
-  component: UpwDropdown,
+  component: DropdownMenu,
   argTypes: {
     size: useSystemArgTypes.size,
     placement: useSystemArgTypes.placement,
@@ -78,6 +78,6 @@ const meta: Meta<typeof UpwDropdown> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwDropdown>;
+type Story = StoryObj<typeof DropdownMenu>;
 
 export const Base: Story = {};

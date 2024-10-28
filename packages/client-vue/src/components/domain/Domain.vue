@@ -2,11 +2,11 @@
   <div :class="styles.domain.root">
     <!-- loader -->
 
-    <UpwSkeletonList v-if="meta.isLoading" :rows="3" />
+    <SkeletonList v-if="meta.isLoading" :rows="3" />
 
     <template v-else>
       <!-- type -->
-      <UpwRadioList
+      <RadioCards
         :class="styles.domain.choices"
         v-if="meta.showChoices"
         :items="i18nChoices"
@@ -16,7 +16,7 @@
 
       <!-- register/transfer -->
       <template v-if="meta.showDac">
-        <UpmDac
+        <Dac
           :complete="meta.showPrimaryDomain"
           :disabled="!meta.isValid"
           :items="available"
@@ -37,23 +37,27 @@
       </template>
 
       <!-- existing -->
-      <UpwCombobox
+      <FormField
         v-else-if="meta.showExisting"
         :class="styles.domain.existing"
         :errors="errors"
-        :items="ownedDomains"
-        :model-value="selected"
-        @update:modelValue="update"
-        autocomplete="url"
-        autoFocus
-        item-label="domain"
-        item-value="value"
-        :searchPlaceholder="t('domain.existing.search')"
-      />
+        id="existing-domain"
+      >
+        <Autocomplete
+          :items="ownedDomains"
+          :model-value="selected"
+          @update:modelValue="update"
+          autocomplete="url"
+          autoFocus
+          item-label="domain"
+          item-value="value"
+          :placeholder="t('domain.existing.search')"
+        />
+      </FormField>
 
       <!-- basket -->
 
-      <UpmDomainValues
+      <DomainValues
         v-if="meta.showBasket"
         :model-value="selected"
         :items="basket"
@@ -78,7 +82,12 @@ import config from "./config.cva";
 // --- components
 import UpmDac from "./Dac.vue";
 import UpmDomainValues from "./Values.vue";
-import { UpwRadioList, UpwSkeletonList, UpwCombobox } from "@upmind/upwind";
+import {
+  RadioCards,
+  SkeletonList,
+  Autocomplete,
+  FormField,
+} from "@upmind/upwind";
 
 // --- utils
 import { debounce, map } from "lodash-es";
@@ -89,11 +98,11 @@ import { debounce, map } from "lodash-es";
 export default defineComponent({
   name: "UpmDomain",
   components: {
-    UpwCombobox,
-    UpwRadioList,
+    Autocomplete,
+    RadioCards,
     UpmDac,
     UpmDomainValues,
-    UpwSkeletonList,
+    SkeletonList,
   },
   emits: ["update:modelValue", "change"],
   props: {

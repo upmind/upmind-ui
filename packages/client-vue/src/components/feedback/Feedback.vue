@@ -10,7 +10,7 @@
         :leave-to-class="styles.bannerTransitionLeave.to"
         appear
       >
-        <UpmMessage
+        <Message
           v-for="notification in notifications"
           :key="notification.id"
           :item="notification"
@@ -28,7 +28,7 @@
       :visible-toasts="6"
     />
 
-    <UpmTrackEvent v-for="event in events" :key="event.id" :item="event" />
+    <TrackEvent v-for="event in events" :key="event.id" :item="event" />
   </div>
 </template>
 

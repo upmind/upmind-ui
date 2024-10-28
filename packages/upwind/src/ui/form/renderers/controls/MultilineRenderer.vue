@@ -20,7 +20,7 @@ import { Textarea } from "../../../textarea";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { isNil, get } from "lodash-es";
+import { isNil } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";

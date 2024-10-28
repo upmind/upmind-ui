@@ -6,6 +6,8 @@ import type {
   JsonSchema,
   UISchemaElement,
   Internationalizable,
+  ControlElement,
+  JsonFormsRendererRegistryEntry,
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";
@@ -102,4 +104,22 @@ export interface FieldBindingObject<TValue = any>
 export interface ComponentFieldBindingObject<TValue = any>
   extends SharedBindingObject<TValue> {
   modelValue?: TValue;
+}
+
+// --------------------------------------------
+
+export interface FormControlRenderProps {
+  uischema: ControlElement;
+  schema: NonNullable<JsonSchema>;
+  path: string;
+  enabled: boolean;
+  renderers: JsonFormsRendererRegistryEntry[];
+  data: any;
+  label: string;
+  description: string;
+  required: boolean;
+  visible: boolean;
+  config: any;
+  id: string;
+  errors: string | string[];
 }

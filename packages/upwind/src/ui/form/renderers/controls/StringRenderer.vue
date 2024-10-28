@@ -31,32 +31,26 @@ import { defaults, set, isNil } from "lodash-es";
 import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { Control, Options } from "../types";
+// import type { FormControlRenderProps, FormControlProps } from "../../types";
 
-interface StringInputOptions extends Options {
-  type?: "text" | "password" | "email" | "number" | "tel" | "url";
-  placeholder?: string;
-  autocomplete?: string;
-  // min?: number;
-  // max?: number;
-  // step?: number;
-  maxLength?: number;
-  minLength?: number;
-}
+// interface StringInputOptions extends FormControlProps {
+//   type?: "text" | "password" | "email" | "number" | "tel" | "url";
+//   placeholder?: string;
+//   autocomplete?: string;
+//   // min?: number;
+//   // max?: number;
+//   // step?: number;
+//   maxLength?: number;
+//   minLength?: number;
+// }
 
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const {
-  control,
-  appliedOptions,
-  onInput,
-}: {
-  control: ComputedRef<Control>;
-  appliedOptions: ComputedRef<StringInputOptions>;
-  onInput: (payload: string | number) => any;
-} = useUpwindRenderer(useJsonFormsControl(props));
+const { control, appliedOptions, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props)
+);
 
 const delegatedProps = computed(() => {
   const options = defaults(

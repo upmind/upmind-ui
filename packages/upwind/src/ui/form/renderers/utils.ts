@@ -11,7 +11,7 @@ import {
 import type { Tester } from "@jsonforms/core";
 import { rankWith } from "@jsonforms/core";
 import { debounce, isFunction } from "lodash-es";
-import type { Options } from "./types";
+import type { FormControlProps } from "../types";
 import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ export const useUpwindRenderer = <
   input: I,
   adaptTarget: (target: any) => any = v => v?.value || v || null
 ) => {
-  const appliedOptions: ComputedRef<Options> = computed(() =>
+  const appliedOptions: ComputedRef<FormControlProps> = computed(() =>
     merge(
       {},
       cloneDeep(input.control.value.config),

@@ -4,7 +4,7 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <UpwSkeletonList
+    <SkeletonList
       :class="styles.domain.listings.loading"
       v-if="meta.isLoading"
       :rows="items?.length || 3"
@@ -12,10 +12,10 @@
 
     <template v-else>
       <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <UpmEmpty />
+        <Empty />
       </slot>
 
-      <UpwRadioList
+      <RadioCards
         v-else
         :class="styles.domain.listings.items"
         :items="items"
@@ -23,7 +23,7 @@
         @update:modelValue="onUpdate"
       >
         <template #label="{ item }"> {{ item.sld }}{{ item.tld }} </template>
-      </UpwRadioList>
+      </RadioCards>
     </template>
 
     <!-- <footer :class="styles.domain.listings.footer">
@@ -43,7 +43,7 @@ import config from "./config.cva";
 
 // --- components
 import UpmEmpty from "./Empty.vue";
-import { UpwSkeletonList, UpwRadioList } from "@upmind/upwind";
+import { SkeletonList, RadioCards } from "@upmind/upwind";
 
 // --- utils
 import { get, includes, isArray, isNil } from "lodash-es";
@@ -54,8 +54,8 @@ import { get, includes, isArray, isNil } from "lodash-es";
 export default defineComponent({
   name: "UpmDomainValues",
   components: {
-    UpwRadioList,
-    UpwSkeletonList,
+    RadioCards,
+    SkeletonList,
     // ---
     UpmEmpty,
   },

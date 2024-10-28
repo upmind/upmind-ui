@@ -1,10 +1,9 @@
 <template>
-  <UpwDropdown
+  <DropdownMenu
     v-if="meta.isAuthenticated || meta.isProcessing"
     :items="items"
     :size="size"
     :placement="placement"
-    grouped
     :disabled="meta.isProcessing"
     :upwind-config="{ dropdown: config.session.profile }"
     :loading="meta.isProcessing"
@@ -20,7 +19,7 @@ import { defineComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { UpwDropdown } from "@upmind/upwind";
+import { DropdownMenu } from "@upmind/upwind";
 
 // --- internal
 import { useSession } from "@upmind/headless-vue";
@@ -34,7 +33,7 @@ import config from "./config.cva";
 export default defineComponent({
   name: "UpmProfile",
   components: {
-    UpwDropdown,
+    DropdownMenu,
   },
 
   emits: [],

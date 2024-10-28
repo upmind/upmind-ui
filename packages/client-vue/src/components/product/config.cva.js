@@ -139,7 +139,7 @@ export default {
       ),
 
       header: cva(
-        "flex items-center justify-center gap-2  px-6 py-1 text-center text-sm",
+        "flex items-center justify-center gap-2 px-6 py-1 text-center text-sm",
         {
           variants: {
             hasErrors: {
@@ -152,17 +152,18 @@ export default {
         }
       ),
 
-      content: cva("flex flex-wrap  items-start gap-x-2"),
+      content: cva("flex flex-wrap items-start gap-x-2 gap-y-10 p-10"),
 
-      media: cva("m-10 mr-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
+      media: cva("m-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
             true: "bg-base-100 text-base-300 border",
           },
         },
       }),
+
       wrapper: cva(
-        "flex w-full flex-1 flex-wrap items-stretch gap-x-6 gap-y-16 p-10 "
+        "flex w-full flex-1 flex-wrap items-stretch gap-x-6 gap-y-16"
       ),
 
       heading: cva("flex w-full flex-wrap items-end gap-x-10"),

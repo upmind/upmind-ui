@@ -3,7 +3,7 @@
     <CheckboxCards
       :model-value="control.data"
       :items="control.options"
-      @update:modelValue="doAddRemove"
+      @update:modelValue="onInput"
       multiple
     />
   </FormField>
@@ -20,7 +20,6 @@ import { CheckboxCards } from "../../../checkbox-cards";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { get, includes } from "lodash-es";
 
 // --- types
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
@@ -29,18 +28,17 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
-  useJsonFormsMultiEnumControl(props)
-);
+const { control, appliedOptions, onInput } = useUpwindRenderer({
+  ...useJsonFormsMultiEnumControl(props),
+  handleChange: () => {
+    debugger;
+  }, // Provide a default handleChange function
+});
 
 const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
 
   return {
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-    // ---
     label: control.value.label,
     description: control.value.description,
     // ---
@@ -48,13 +46,12 @@ const delegatedProps = computed(() => {
     disabled: !control.value.enabled,
     visible: control.value.visible,
     ...options,
+    // --- immutable
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
   };
 });
-
-function doAddRemove(value: string) {
-  const checked = !includes(control.value.data, value);
-  onInput(checked, value);
-}
 </script>
 
 <script lang="ts">

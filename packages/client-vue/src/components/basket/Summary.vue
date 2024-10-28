@@ -73,7 +73,7 @@
       </dl>
 
       <!-- promotions -->
-      <UpmPromotions :class="styles.basket.summary.form" />
+      <Promotions :class="styles.basket.summary.form" />
 
       <!-- subtotals -->
       <dl

@@ -92,9 +92,6 @@ const delegatedProps = computed(() => {
   const options = appliedOptions.value || {};
 
   return {
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
     // ---
     label: control.value.label,
     description: control.value.description,
@@ -103,6 +100,10 @@ const delegatedProps = computed(() => {
     disabled: !control.value.enabled,
     visible: control.value.visible,
     ...options,
+    // --- immutable
+    id: control.value.id,
+    name: control.value.path,
+    errors: control.value.errors,
   };
 });
 </script>

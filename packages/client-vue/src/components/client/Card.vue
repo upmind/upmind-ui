@@ -1,13 +1,5 @@
 <template>
   <article :class="styles.clientCard.root">
-    <UpwRadio
-      :model-value="!!selected"
-      @input="onSelect"
-      no-feedback
-      no-status
-      size="sm"
-      v-if="selectable"
-    />
     <div :class="styles.clientCard.content" @click="onSelect">
       <header :class="styles.clientCard.header">
         <h4 :class="styles.clientCard.title">
@@ -47,7 +39,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwRadio, DropdownMenu } from "@upmind/upwind";
+import { DropdownMenu } from "@upmind/upwind";
 
 // --- custom elements
 import { Badge } from "@upmind/upwind";
@@ -59,7 +51,7 @@ import { useClipboard } from "@vueuse/core";
 
 export default defineComponent({
   name: "UpmClientCard",
-  components: { Badge, UpwRadio, DropdownMenu },
+  components: { Badge, DropdownMenu },
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {
