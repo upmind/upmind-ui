@@ -1,14 +1,14 @@
 <template>
-  <Input
-    v-if="!meta.showDialog"
-    :class="styles.domain.search"
-    @update:modelValue="onSearch"
-    :prependIcon="meta.showComplete ? null : 'search'"
-    :placeholder="t('domain.dac.search')"
-    autoFocus
-    autocomplete="url"
-    v-model="queryValue"
-  />
+  <FormControl v-if="!meta.showDialog" autoFocus :formItemId="id">
+    <Input
+      :class="styles.domain.search"
+      @update:modelValue="onSearch"
+      :prependIcon="meta.showComplete ? null : 'search'"
+      :placeholder="t('domain.dac.search')"
+      autocomplete="url"
+      v-model="queryValue"
+    />
+  </FormControl>
 
   <Drawer
     v-else
@@ -24,15 +24,16 @@
     :description="t('domain.dac.description')"
   >
     <template #header>
-      <Input
-        :class="styles.domain.search"
-        @update:modelValue="onSearch"
-        :prependIcon="meta.showComplete ? null : 'search'"
-        :placeholder="t('domain.dac.search')"
-        autoFocus
-        autocomplete="url"
-        v-model="queryValue"
-      />
+      <FormControl autoFocus :formItemId="id">
+        <Input
+          :class="styles.domain.search"
+          @update:modelValue="onSearch"
+          :prependIcon="meta.showComplete ? null : 'search'"
+          :placeholder="t('domain.dac.search')"
+          autocomplete="url"
+          v-model="queryValue"
+        />
+      </FormControl>
     </template>
 
     <div :class="styles.domain.root">
@@ -78,9 +79,9 @@
   </Drawer>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -88,89 +89,81 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Input, Button, Drawer } from "@upmind/upwind";
+import { Input, Button, Drawer, FormControl } from "@upmind/upwind";
 import DomainListings from "./Listings.vue";
 
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "Dac",
-  components: {
-    Button,
-    Drawer,
-    Input,
-    // ---
-    DomainListings,
-  },
-  emits: ["toggle", "search", "search:more", "resolve", "reject"],
-  props: {
-    modelValue: { type: String },
-    query: { type: String },
-    offset: { type: Number, default: 0 },
-    values: { type: Array, default: () => [] },
-    items: { type: Array, default: () => [] },
-    dialog: { type: Boolean, default: true },
-    // ---
-    loading: { type: Boolean },
-    processing: { type: Boolean },
-    disabled: { type: Boolean },
-    complete: { type: Boolean },
-    more: { type: Boolean },
-  },
-  setup(props) {
-    const { t } = useI18n();
+const emit = defineEmits([
+  "toggle",
+  "search",
+  "search:more",
+  "resolve",
+  "reject",
+]);
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    modelValue: string;
+    query: string;
+    offset: number;
+    values: string[];
+    items: string[];
+    dialog: boolean;
+    loading: boolean;
+    processing: boolean;
+    disabled: boolean;
+    complete: boolean;
+    more: boolean;
+  }>(),
+  {
+    offset: 0,
+    values: () => [],
+    items: () => [],
+    dialog: true,
+  }
+);
 
-    // our internal drawer state
-    const open = ref(false);
-    watch(props, ({ complete, items, loading, processing }) => {
-      open.value = !complete && (loading || processing || !!items?.length);
-    });
+const { t } = useI18n();
 
-    const meta = computed(() => ({
-      hasDomain: !!props.modelValue,
-      isEmpty: !props.values?.length,
-      hasItems: !!props.items?.length,
-      hasMore: props.more,
-      isLoading: props.loading,
-      isDisabled: props.disabled,
-      isProcessing: props.processing,
-      showComplete: props.complete,
-
-      // ---
-      showDialog: props.dialog && open.value,
-    }));
-
-    const styles = useStyles(["domain", "domain.drawer"], meta, config);
-
-    return {
-      t,
-      styles,
-      cn,
-      meta,
-      config,
-      queryValue: ref(props.query),
-      open,
-    };
-  },
-
-  computed: {},
-  methods: {
-    onReject() {
-      this.$emit("reject");
-    },
-    onResolve() {
-      this.$emit("resolve");
-    },
-    onSearch(value) {
-      this.$emit("search", value);
-    },
-    onSearchOffset(value) {
-      this.$emit("search:more", value);
-    },
-    onUpdate(value) {
-      if (this.meta.isProcessing) return;
-      this.$emit("toggle", value);
-    },
-  },
+// our internal drawer state
+const open = ref(false);
+watch(props, ({ complete, items, loading, processing }) => {
+  open.value = !complete && (loading || processing || !!items?.length);
 });
+
+const meta = computed(() => ({
+  hasDomain: !!props.modelValue,
+  isEmpty: !props.values?.length,
+  hasItems: !!props.items?.length,
+  hasMore: props.more,
+  isLoading: props.loading,
+  isDisabled: props.disabled,
+  isProcessing: props.processing,
+  showComplete: props.complete,
+
+  // ---
+  showDialog: props.dialog && open.value,
+}));
+
+const styles = useStyles(["domain", "domain.drawer"], meta, config);
+
+const queryValue = ref(props.query);
+
+function onReject() {
+  emit("reject");
+}
+function onResolve() {
+  emit("resolve");
+}
+function onSearch(value) {
+  emit("search", value);
+}
+function onSearchOffset(value) {
+  emit("search:more", value);
+}
+function onUpdate(value) {
+  if (meta.value.isProcessing) return;
+  emit("toggle", value);
+}
 </script>

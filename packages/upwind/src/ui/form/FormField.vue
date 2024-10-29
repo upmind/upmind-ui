@@ -45,9 +45,9 @@
         :disabled="props.disabled"
         :required="props.required"
         :formItemId="props.id"
+        :auto-focus="props.autoFocus"
         :formDescriptionId="`form-item-description-${props.id}`"
         :formMessageId="`form-item-message-${props.id}`"
-        v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
       >
         <slot></slot>
       </FormControl>
@@ -78,7 +78,6 @@
 // --- external
 import { ref, computed, useSlots } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { vIntersectionObserver } from "@vueuse/components";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -165,23 +164,6 @@ const variants = useStyles(
 );
 
 // --- methods
-
-function maybeFocus([section]) {
-  if (meta.value.shouldFocus && section.isIntersecting) {
-    let el = section.target;
-    if (
-      !["input", "textarea", "select", "button"].includes(
-        el.tagName.toLowerCase()
-      )
-    ) {
-      el = el.querySelector("input");
-    }
-    if (el.getAttribute("tabindex")) {
-      el.setAttribute("tabindex", -1);
-    }
-    el.focus();
-  }
-}
 
 // --- side effects
 
