@@ -21,15 +21,13 @@
         <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
       </slot>
 
-      <slot name="title">
-        <h3 :class="styles.basket.empty.title">
-          {{ title }}
-        </h3>
-      </slot>
+      <h3 :class="styles.basket.empty.title">
+        <slot name="title">{{ title }}</slot>
+      </h3>
 
-      <slot name="text">
-        <p :class="styles.basket.empty.text">{{ text }}</p>
-      </slot>
+      <p :class="styles.basket.empty.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.basket.empty.actions">
         <Button
