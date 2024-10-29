@@ -58,7 +58,7 @@ import { useClipboard } from "@vueuse/core";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmClientCard",
+  name: "ClientCard",
   components: { Badge, UpwRadio, DropdownMenu },
   emits: ["update:modelValue", "click:action"],
   props: {

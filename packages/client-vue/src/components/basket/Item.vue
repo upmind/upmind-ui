@@ -1,5 +1,5 @@
 <template>
-  <UpmProductConfig
+  <ProductConfig
     v-if="open || selected"
     v-bind="$props"
     :class="'styles.basket.item'"
@@ -19,8 +19,8 @@
         t("basket.items.invalid.title")
       }}</span>
     </template>
-  </UpmProductConfig>
-  <UpmProductCard
+  </ProductConfig>
+  <ProductCard
     v-else
     v-bind="$props"
     :class="'styles.basket.item'"
@@ -45,7 +45,7 @@
         {{ t("basket.items.invalid.badge") }}
       </Badge>
     </template>
-  </UpmProductCard>
+  </ProductCard>
 </template>
 
 <script>
@@ -61,8 +61,8 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmProductCard from "../product/Card.vue";
-import UpmProductConfig from "../product/Config.vue";
+import ProductCard from "../product/Card.vue";
+import ProductConfig from "../product/Config.vue";
 
 // --- custom elements
 import { Badge } from "@upmind/upwind";
@@ -71,8 +71,8 @@ import { Badge } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBasketItem",
-  components: { Badge, UpmProductCard, UpmProductConfig },
+  name: "BasketItem",
+  components: { Badge, ProductCard, ProductConfig },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

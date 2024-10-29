@@ -13,7 +13,7 @@
       no-actions
     />
 
-    <UpmPaymentGateway
+    <PaymentGateway
       v-if="gateway"
       :key="gateway?.id"
       :id="gateway?.id"
@@ -33,13 +33,13 @@ import config from "./config.cva";
 
 // --- components
 import { Form } from "@upmind/upwind";
-import UpmPaymentGateway from "./PaymentGateway.vue";
+import PaymentGateway from "./PaymentGateway.vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketPaymentDetails",
-  components: { Form, UpmPaymentGateway },
+  name: "BasketPaymentDetails",
+  components: { Form, PaymentGateway },
   props: {},
   setup(props) {
     const {

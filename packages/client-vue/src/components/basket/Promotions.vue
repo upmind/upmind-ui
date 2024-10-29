@@ -84,7 +84,7 @@ import { set } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketPromotions",
+  name: "BasketPromotions",
   components: { Form, Button, Icon },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],

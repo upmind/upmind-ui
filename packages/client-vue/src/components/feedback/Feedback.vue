@@ -10,7 +10,7 @@
         :leave-to-class="styles.bannerTransitionLeave.to"
         appear
       >
-        <UpmMessage
+        <Message
           v-for="notification in notifications"
           :key="notification.id"
           :item="notification"
@@ -28,7 +28,7 @@
       :visible-toasts="6"
     />
 
-    <UpmTrackEvent v-for="event in events" :key="event.id" :item="event" />
+    <TrackEvent v-for="event in events" :key="event.id" :item="event" />
   </div>
 </template>
 
@@ -43,8 +43,8 @@ import config from "./config.cva";
 
 // --- components
 import { Sonner } from "@upmind/upwind";
-import UpmMessage from "./Message.vue";
-import UpmTrackEvent from "./TrackEvent.vue";
+import Message from "./Message.vue";
+import TrackEvent from "./TrackEvent.vue";
 
 // --- utils
 import { forEach, some } from "lodash-es";
@@ -52,11 +52,11 @@ import { forEach, some } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmFeedback",
+  name: "Feedback",
   components: {
     Sonner,
-    UpmMessage,
-    UpmTrackEvent,
+    Message,
+    TrackEvent,
   },
   props: {
     scheduled: {

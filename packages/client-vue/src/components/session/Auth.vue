@@ -55,7 +55,7 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmAuth",
+  name: "Auth",
   components: { Form, Tabs, Button },
 
   emits: ["update:modelValue"],

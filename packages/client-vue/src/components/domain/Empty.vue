@@ -43,7 +43,7 @@ import { isEmpty, isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmDomainEmpty",
+  name: "DomainEmpty",
   components: {
     Avatar,
     Button,

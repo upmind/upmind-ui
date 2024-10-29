@@ -15,7 +15,7 @@ import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmTrackEvent",
+  name: "TrackEvent",
   props: {
     item: {
       type: Object, // xstate actor

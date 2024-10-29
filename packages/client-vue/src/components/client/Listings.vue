@@ -17,7 +17,7 @@
     </template>
 
     <div v-if="!meta.isAvailable">
-      <UpmAuth no-tabs />
+      <Auth no-tabs />
     </div>
 
     <UpwSkeletonList
@@ -34,7 +34,7 @@
       />
 
       <div :class="styles.clientListings.items">
-        <UpmCard
+        <Card
           v-for="item in sortedItems"
           :key="item.id"
           :model-value="item"
@@ -49,10 +49,10 @@
       </div>
 
       <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <UpmEmpty :i18nKey="type" />
+        <Empty :i18nKey="type" />
       </slot>
 
-      <UpmItem
+      <Item
         v-if="meta.isEditing || meta.isAdding"
         :model-value="selected"
         :key="selected?.id"
@@ -116,10 +116,10 @@ import config from "./config.cva";
 
 // --- components
 import Section from "../Section.vue";
-import UpmAuth from "../session/Auth.vue";
-import UpmEmpty from "./Empty.vue";
-import UpmCard from "./Card.vue";
-import UpmItem from "./Item.vue";
+import Auth from "../session/Auth.vue";
+import Empty from "./Empty.vue";
+import Card from "./Card.vue";
+import Item from "./Item.vue";
 import { UpwTextbox, UpwSkeletonList } from "@upmind/upwind";
 
 // --- custom elements
@@ -131,7 +131,7 @@ import { isFunction } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmClientListings",
+  name: "ClientListings",
   directives: { autoAnimate: vAutoAnimate },
   components: {
     Button,
@@ -140,11 +140,11 @@ export default defineComponent({
     UpwSkeletonList,
     Section,
     // ---
-    UpmAuth,
+    Auth,
     // ---
-    UpmEmpty,
-    UpmCard,
-    UpmItem,
+    Empty,
+    Card,
+    Item,
   },
   emits: ["update:open", "add", "select"],
   props: {

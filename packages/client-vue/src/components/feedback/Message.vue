@@ -31,7 +31,7 @@ import { endsWith, startsWith } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmMessage",
+  name: "Message",
   components: {
     Alert,
   },
