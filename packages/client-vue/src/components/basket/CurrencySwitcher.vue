@@ -2,7 +2,7 @@
   <Combobox
     v-if="currencies?.length > 1 || meta.isLoading"
     class="w-dropdown-xs md:w-dropdown-2xs bg-base text-primary"
-    popoverClass="w-dropdown-xs md:w-dropdown-2xs"
+    :popoverClass="['w-dropdown-xs md:w-dropdown-2xs', popoverClass]"
     :modelValue="selected?.value"
     :items="currencies"
     :loading="meta.isLoading"
@@ -29,6 +29,11 @@ import { map } from "lodash-es";
 export default defineComponent({
   name: "VCurrencySwitcher",
   components: { Combobox },
+
+  props: {
+    popoverClass: { type: String, default: "mt-0" },
+  },
+
   setup() {
     const {
       state,
