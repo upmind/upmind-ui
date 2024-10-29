@@ -19,9 +19,13 @@
     <section :class="styles.product.notFound.root">
       <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
 
-      <h3 :class="styles.product.notFound.title">{{ title }}</h3>
+      <h3 :class="styles.product.notFound.title">
+        <slot name="title">{{ title }}</slot>
+      </h3>
 
-      <p :class="styles.product.notFound.text">{{ text }}</p>
+      <p :class="styles.product.notFound.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.product.notFound.actions">
         <Button
