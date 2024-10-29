@@ -19,13 +19,13 @@ export default {
               // true: "pointer-events-none",
             },
 
-            hasErrors: {
-              true: "border-error",
-            },
+            // hasErrors: {
+            //   true: "border-error",
+            // },
 
-            isNew: {
-              true: "border-accent",
-            },
+            // isNew: {
+            //   true: "border-accent",
+            // },
 
             // isNew: {
             //   true: "rounded-none border-none",
@@ -47,7 +47,7 @@ export default {
 
           defaultVariants: {
             isDisabled: false,
-            hasErrors: false,
+            // hasErrors: false,
             isConfigured: false,
           },
         }
@@ -128,12 +128,12 @@ export default {
             isDisabled: {
               true: "pointer-events-none",
             },
-            hasErrors: {
-              true: "border-error",
-            },
-            isNew: {
-              true: "border-accent",
-            },
+            // hasErrors: {
+            //   true: "border-error",
+            // },
+            // isNew: {
+            //   true: "border-accent",
+            // },
           },
         }
       ),
@@ -142,12 +142,12 @@ export default {
         "flex items-center justify-center gap-2  px-6 py-1 text-center text-sm",
         {
           variants: {
-            hasErrors: {
-              true: "bg-error text-error-foreground",
-            },
-            isNew: {
-              true: "bg-accent text-accent-foreground",
-            },
+            // hasErrors: {
+            //   true: "bg-error text-error-foreground",
+            // },
+            // isNew: {
+            //   true: "bg-accent text-accent-foreground",
+            // },
           },
         }
       ),
