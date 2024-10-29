@@ -81,8 +81,8 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmDac from "./Dac.vue";
-import UpmDomainValues from "./Values.vue";
+import Dac from "./Dac.vue";
+import DomainValues from "./Values.vue";
 import {
   RadioCards,
   SkeletonList,
@@ -97,14 +97,16 @@ import { debounce, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmDomain",
+  name: "Domain",
   components: {
     Autocomplete,
     RadioCards,
-    UpmDac,
-    UpmDomainValues,
+    Dac,
+    DomainValues,
     SkeletonList,
+    FormField,
   },
+
   emits: ["update:modelValue", "change"],
   props: {
     sync: { type: Boolean, default: true },

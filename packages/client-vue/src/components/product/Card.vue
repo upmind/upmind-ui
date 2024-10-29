@@ -190,7 +190,7 @@ import { isNil, find, reject } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductCard",
+  name: "ProductCard",
   components: { Spinner, Icon, Badge, Button },
   emits: ["reject", "resolve"],
   props: {

@@ -45,15 +45,15 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmBasketItem from "./Item.vue";
+import BasketItem from "./Item.vue";
 import { findIndex } from "lodash-es";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBaskeItemListings",
-  components: { UpmBasketItem },
+  name: "BaskeItemListings",
+  components: { BasketItem },
   directives: { autoAnimate: vAutoAnimate },
   props: {},
   setup() {

@@ -64,22 +64,22 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmSession from "../session/Session.vue";
-import UpmBasketSummary from "./Summary.vue";
-import UpmBillingDetails from "./BillingDetails.vue";
-import UpmPaymentDetails from "./PaymentDetails.vue";
+import Session from "../session/Session.vue";
+import BasketSummary from "./Summary.vue";
+import BillingDetails from "./BillingDetails.vue";
+import PaymentDetails from "./PaymentDetails.vue";
 import { Form } from "@upmind/upwind";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBasketDetails",
+  name: "BasketDetails",
   components: {
-    UpmSession,
-    UpmBasketSummary,
-    UpmBillingDetails,
-    UpmPaymentDetails,
+    Session,
+    BasketSummary,
+    BillingDetails,
+    PaymentDetails,
     Form,
   },
   props: {},

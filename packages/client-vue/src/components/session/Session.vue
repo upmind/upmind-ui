@@ -80,7 +80,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmAuth from "./Auth.vue";
+import Auth from "./Auth.vue";
 
 // --- custom elements
 import { Button } from "@upmind/upwind";
@@ -92,9 +92,9 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmSession",
+  name: "Session",
   components: {
-    UpmAuth,
+    Auth,
     Button,
   },
   props: {
