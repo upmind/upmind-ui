@@ -12,29 +12,35 @@
     no-header
     persistent
   >
-    <template #header>
-      <div />
-    </template>
+    <template #header></template>
 
     <section :class="styles.basket.empty.root">
-      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
-      <h3 :class="styles.basket.empty.title">{{ title }}</h3>
+      <slot name="title">
+        <h3 :class="styles.basket.empty.title">{{ title }}</h3>
+      </slot>
 
-      <p :class="styles.basket.empty.text">{{ text }}</p>
+      <slot name="description">
+        <p :class="styles.basket.empty.text">{{ text }}</p>
+      </slot>
 
       <footer :class="styles.basket.empty.actions">
-        <Button
-          v-if="hasAction"
-          v-bind="action"
-          @click.stop="doAction"
-          :loading="processing"
-          :label="action?.label"
-        >
-          <template #prepend>
-            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
-          </template>
-        </Button>
+        <slot name="footer">
+          <Button
+            v-if="hasAction"
+            v-bind="action"
+            @click.stop="doAction"
+            :loading="processing"
+            :label="action?.label"
+          >
+            <template #prepend>
+              <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+            </template>
+          </Button>
+        </slot>
       </footer>
     </section>
   </component>
