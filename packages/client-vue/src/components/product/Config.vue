@@ -24,10 +24,22 @@
       </figure>
 
       <!-- details -->
-      <div :class="styles.product.config.wrapper">
+      <div
+        :class="styles.product.config.wrapper"
+        v-if="
+          !noTitle ||
+          product?.hasFreeTrial ||
+          product?.isOnPromotion ||
+          !!product?.description ||
+          !!product?.short_description
+        "
+      >
         <!-- heading -->
         <div :class="styles.product.config.heading">
-          <div :class="styles.product.config.headingContent">
+          <div
+            :class="styles.product.config.headingContent"
+            v-if="!noTitle || product?.hasFreeTrial || product?.isOnPromotion"
+          >
             <Badge
               v-if="product?.hasFreeTrial"
               color="secondary"
@@ -40,7 +52,7 @@
               :label="t('product.promotion')"
             />
 
-            <h3 :class="styles.product.config.title">
+            <h3 :class="styles.product.config.title" v-if="!noTitle">
               {{ product?.name }}
             </h3>
           </div>
@@ -89,6 +101,7 @@
             :lines="2"
             :labelMore="t('product.actions.more', 1)"
             :labelLess="t('product.actions.more', 0)"
+            v-if="product?.description"
           >
             <Markdown
               v-if="product?.description"
@@ -101,6 +114,7 @@
             :lines="2"
             labelMore=""
             labelLess=""
+            v-if="product?.short_description"
           >
             <Markdown
               v-if="product?.short_description"
@@ -224,6 +238,7 @@ const props = withDefaults(
     disabled?: boolean;
     required?: boolean;
     noHeader?: boolean;
+    noTitle?: boolean;
     noFooter?: boolean;
     class?: hasAttributes["class"];
   }>(),
