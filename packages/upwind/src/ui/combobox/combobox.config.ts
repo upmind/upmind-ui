@@ -25,11 +25,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "flex w-full !cursor-pointer items-center bg-base px-3 py-2 text-sm text-base-foreground",
+  "flex w-full !cursor-pointer items-center bg-base px-3 py-2 text-sm text-control-foreground",
   {
     variants: {
       color: {
-        base: "data-[highlighted]:bg-base-100 data-[highlighted]:text-base-foreground",
+        base: "data-[highlighted]:bg-control-active-muted data-[highlighted]:text-control-foreground",
         primary:
           "data-[highlighted]:bg-primary-100 data-[highlighted]:text-primary",
         secondary:

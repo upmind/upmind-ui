@@ -17,7 +17,7 @@ export const rootVariants = cva(
 );
 
 export const itemVariants = cva(
-  "flex items-start space-x-2 transition-all duration-300 hover:bg-base-100",
+  "hover:bg-control-active-muted  flex items-start space-x-2 bg-control text-control-foreground transition-all duration-300",
   {
     variants: {
       layout: {
