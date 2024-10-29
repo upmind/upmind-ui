@@ -12,7 +12,7 @@
 
     <template v-else>
       <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-        <UpmEmpty />
+        <Empty />
       </slot>
 
       <UpwRadioList
@@ -42,7 +42,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmEmpty from "./Empty.vue";
+import Empty from "./Empty.vue";
 import { UpwSkeletonList, UpwRadioList } from "@upmind/upwind";
 
 // --- utils
@@ -52,12 +52,12 @@ import { get, includes, isArray, isNil } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDomainValues",
+  name: "DomainValues",
   components: {
     UpwRadioList,
     UpwSkeletonList,
     // ---
-    UpmEmpty,
+    Empty,
   },
   emits: ["update:modelValue"],
   props: {

@@ -12,7 +12,7 @@
       :leave-from-class="styles.domain.transitions.fade.leave.from"
       :leave-to-class="styles.domain.transitions.fade.leave.to"
     >
-      <UpmEmpty
+      <Empty
         :title="t('domain.empty.title')"
         :text="t('domain.empty.text')"
         v-if="!meta.isLoading && meta.isEmpty"
@@ -290,7 +290,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmEmpty from "./Empty.vue";
+import Empty from "./Empty.vue";
 import {
   UpwSkeletonList,
   UpwCheckboxList,
@@ -306,7 +306,7 @@ import { get, includes, isArray, isNil } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDomainListings",
+  name: "DomainListings",
   directives: { autoAnimate: vAutoAnimate },
   components: {
     Icon,
@@ -315,7 +315,7 @@ export default defineComponent({
     UpwCheckboxList,
     UpwSkeletonList,
     // ---
-    UpmEmpty,
+    Empty,
   },
   emits: ["update:modelValue", "toggle"],
   props: {

@@ -108,7 +108,7 @@
         <!-- fields -->
         <div :class="cn(styles.product.config.fields)">
           <!-- terms -->
-          <UpmConfigGrid
+          <ConfigGrid
             v-if="meta.hasTerms"
             :errors="errors?.term"
             :items="terms"
@@ -120,7 +120,7 @@
           />
 
           <!-- options -->
-          <UpmConfigNested
+          <ConfigNested
             v-if="meta.hasOptions"
             :errors="errors?.options"
             :items="options"
@@ -132,7 +132,7 @@
           />
 
           <!-- attributes -->
-          <UpmConfigNested
+          <ConfigNested
             v-if="meta.hasAttributes"
             :errors="errors?.attributes"
             :items="attributes"
@@ -143,7 +143,7 @@
           />
 
           <!-- provisional fields -->
-          <UpmConfigForm
+          <ConfigForm
             v-if="meta.hasProvisioning"
             :processing="meta.isProcessing || meta.isLoading"
             :additional-errors="errors?.provision_fields?.data"
@@ -203,9 +203,9 @@ import {
   UpwMarkdown,
   UpwLineclamp,
 } from "@upmind/upwind";
-import UpmConfigGrid from "./ConfigGrid.vue";
-import UpmConfigNested from "./ConfigNested.vue";
-import UpmConfigForm from "./ConfigForm.vue";
+import ConfigGrid from "./ConfigGrid.vue";
+import ConfigNested from "./ConfigNested.vue";
+import ConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
 import { Badge, Button } from "@upmind/upwind";
@@ -215,16 +215,16 @@ import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfig",
+  name: "ProductConfig",
   inheritAttrs: false,
   components: {
     Badge,
     Button,
     UpwQuantitybox,
     Spinner,
-    UpmConfigGrid,
-    UpmConfigNested,
-    UpmConfigForm,
+    ConfigGrid,
+    ConfigNested,
+    ConfigForm,
     UpwMarkdown,
     UpwLineclamp,
   },

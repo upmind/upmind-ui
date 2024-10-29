@@ -66,7 +66,7 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmClientForm",
+  name: "ClientForm",
   directives: { autoAnimate: vAutoAnimate },
   components: { Form, Drawer, Button, UpwSkeletonList },
   props: {

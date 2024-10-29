@@ -52,7 +52,7 @@
       </slot>
     </header>
 
-    <UpmAuth
+    <Auth
       v-if="!meta.isAuthenticated"
       :class="styles.session.content"
       :block-tabs="blockTabs"
@@ -61,7 +61,7 @@
       :color="color"
       :model-value="show"
     >
-    </UpmAuth>
+    </Auth>
 
     <footer :class="styles.session.footer" v-if="noFooter || !!$slots.footer">
       <slot name="footer" v-bind="{ meta, user }"> </slot>
@@ -80,7 +80,7 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmAuth from "./Auth.vue";
+import Auth from "./Auth.vue";
 
 // --- custom elements
 import { Button } from "@upmind/upwind";
@@ -92,9 +92,9 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmSession",
+  name: "Session",
   components: {
-    UpmAuth,
+    Auth,
     Button,
   },
   props: {

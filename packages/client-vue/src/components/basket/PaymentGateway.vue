@@ -63,7 +63,7 @@ import { Form, Spinner } from "@upmind/upwind";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketPaymentGateway",
+  name: "BasketPaymentGateway",
   components: { Form, Spinner, UpwMarkdown },
   props: {
     id: {

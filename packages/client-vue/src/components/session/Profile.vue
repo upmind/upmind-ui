@@ -32,7 +32,7 @@ import config from "./config.cva";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmProfile",
+  name: "Profile",
   components: {
     UpwDropdown,
   },

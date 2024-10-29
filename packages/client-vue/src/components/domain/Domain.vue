@@ -16,7 +16,7 @@
 
       <!-- register/transfer -->
       <template v-if="meta.showDac">
-        <UpmDac
+        <Dac
           :complete="meta.showPrimaryDomain"
           :disabled="!meta.isValid"
           :items="available"
@@ -53,7 +53,7 @@
 
       <!-- basket -->
 
-      <UpmDomainValues
+      <DomainValues
         v-if="meta.showBasket"
         :model-value="selected"
         :items="basket"
@@ -76,8 +76,8 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmDac from "./Dac.vue";
-import UpmDomainValues from "./Values.vue";
+import Dac from "./Dac.vue";
+import DomainValues from "./Values.vue";
 import { UpwRadioList, UpwSkeletonList, UpwCombobox } from "@upmind/upwind";
 
 // --- utils
@@ -87,12 +87,12 @@ import { debounce, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmDomain",
+  name: "Domain",
   components: {
     UpwCombobox,
     UpwRadioList,
-    UpmDac,
-    UpmDomainValues,
+    Dac,
+    DomainValues,
     UpwSkeletonList,
   },
   emits: ["update:modelValue", "change"],

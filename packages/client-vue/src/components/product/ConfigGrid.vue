@@ -123,7 +123,7 @@ import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigGrid",
+  name: "ProductConfigGrid",
   components: {
     Badge,
     UpwInput,

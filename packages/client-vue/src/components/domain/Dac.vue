@@ -36,7 +36,7 @@
     </template>
 
     <div :class="styles.domain.root">
-      <UpmDomainListings
+      <DomainListings
         :model-value="values"
         :items="items"
         :offset="offset"
@@ -89,18 +89,18 @@ import config from "./config.cva";
 
 // --- components
 import { UpwTextbox, Button, Drawer } from "@upmind/upwind";
-import UpmDomainListings from "./Listings.vue";
+import DomainListings from "./Listings.vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDac",
+  name: "Dac",
   components: {
     Button,
     Drawer,
     UpwTextbox,
     // ---
-    UpmDomainListings,
+    DomainListings,
   },
   emits: ["toggle", "search", "search:more", "resolve", "reject"],
   props: {

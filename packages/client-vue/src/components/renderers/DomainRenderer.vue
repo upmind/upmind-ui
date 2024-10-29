@@ -4,7 +4,7 @@
     :dirty="!!control.data"
     variant="flat"
   >
-    <UpmDomain
+    <Domain
       v-bind="{ ...control, ...appliedOptions }"
       :id="control.id + '-domain'"
       :disabled="!control.enabled"
@@ -21,7 +21,7 @@ import { uiTypeIs, formatIs, and, or } from "@jsonforms/core";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import UpmDomain from "../domain/Domain.vue";
+import Domain from "../domain/Domain.vue";
 
 // --- utils
 import { useUpwindRenderer, UpwInput } from "@upmind/upwind";
@@ -34,7 +34,7 @@ import type { RendererProps } from "@jsonforms/vue";
 export default defineComponent({
   name: "DomainRenderer",
   components: {
-    UpmDomain,
+    Domain,
     UpwInput,
   },
   props: {
