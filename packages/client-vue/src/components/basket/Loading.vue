@@ -17,7 +17,9 @@
     </template>
 
     <section :class="styles.basket.loading.root">
-      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
       <slot name="title">
         <h3 :class="styles.basket.loading.title">{{ title }}</h3>
