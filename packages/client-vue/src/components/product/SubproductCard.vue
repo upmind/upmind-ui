@@ -1,6 +1,5 @@
 <template>
   <section class="m-0 w-full">
-    <pre>{{ props }}</pre>
     <header class="flex flex-1 items-start gap-x-1">
       <div class="flex flex-grow flex-col gap-0.5">
         <h5 class="m-0 font-medium">{{ name }}</h5>
