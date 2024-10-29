@@ -220,7 +220,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     updateOptions();
   }
 
-  function updateOptionQuantity(option: any, value: any, qty: any) {
+  function updateOptionQuantity(option: any, value: any, qty: number) {
     // sanity check
     if (!value?.canChangeQuantity) return;
 

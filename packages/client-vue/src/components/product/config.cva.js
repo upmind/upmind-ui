@@ -271,9 +271,7 @@ export default {
           header: cva(
             "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
           ),
-          footer: cva(
-            "flex-shrink-1 flex items-center justify-end gap-1 gap-4"
-          ),
+          footer: cva("flex-shrink-1 flex items-center justify-end  gap-4"),
           title: cva("text-md m-0 font-normal"),
           badges: cva("flex items-center justify-end gap-4 px-4"),
           price: cva("min-w-20 text-right"),
