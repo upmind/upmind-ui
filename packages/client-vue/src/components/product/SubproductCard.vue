@@ -1,5 +1,6 @@
 <template>
   <section class="m-0 w-full">
+    <!-- <pre>{{ props }}</pre> -->
     <header class="flex flex-1 items-start gap-x-1">
       <div class="flex flex-grow flex-col gap-0.5">
         <h5 class="m-0 font-medium">{{ name }}</h5>
@@ -28,6 +29,19 @@
       </div>
 
       <div class="flex flex-col text-right font-semibold">
+        <!-- <NumberField
+          v-if="canChangeQuantity && modelValue?.[item.id]?.[id]"
+          :disabled="processing"
+          :min="value?.min_order_quantity"
+          :max="value?.max_order_quantity"
+          :step="value?.unit_quantity"
+          :model-value="
+            modelValue[item.id][id]?.unit_quantity || value?.unit_quantity
+          "
+          @update:modelValue="doUpdateQuantity(item, value, $event)"
+          size="sm"
+        /> -->
+
         <span
           class="flex flex-shrink-0 items-center justify-end gap-x-1"
           v-if="props.price?.price"
@@ -80,6 +94,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { NumberField } from "@upmind/upwind";
 
 // --- components
 import { Icon, Tooltip, Badge } from "@upmind/upwind";
@@ -105,6 +120,7 @@ const props = defineProps<{
       mixed: boolean;
     }>;
   };
+  canChangeQuantity: boolean;
 }>();
 
 // ---
