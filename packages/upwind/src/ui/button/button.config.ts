@@ -12,6 +12,7 @@ export const buttonVariants = cva(
         ghost: "border-transparent",
         link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4",
         tonal: "border-transparent",
+        inverse: "border-transparent",
         control:
           "!hover:bg-opacity-80 !border-input bg-control !text-control-foreground shadow-sm ring-offset-background",
       },
@@ -293,6 +294,61 @@ export const buttonVariants = cva(
         variant: "link",
         class: "bg-transparent text-warning",
       },
+
+      // --- inverse
+      {
+        color: "base",
+        variant: "inverse",
+        class: "bg-base-background text-base-foreground hover:bg-base-100",
+      },
+      {
+        color: "primary",
+        variant: "inverse",
+        class: "bg-primary-foreground text-primary hover:bg-primary-50",
+      },
+      {
+        color: "secondary",
+        variant: "inverse",
+        class: "bg-secondary-foreground text-secondary hover:bg-secondary-50",
+      },
+      {
+        color: "accent",
+        variant: "inverse",
+        class: "bg-accent-foreground text-accent hover:bg-accent-50",
+      },
+      {
+        color: "promotion",
+        variant: "inverse",
+        class: "bg-promotion-foreground text-promotion hover:bg-promotion-50",
+      },
+      {
+        color: "destructive",
+        variant: "inverse",
+        class:
+          "bg-destructive-foreground text-destructive hover:bg-destructive-50",
+      },
+      {
+        color: "success",
+        variant: "inverse",
+        class: "bg-success-foreground text-success hover:bg-success-50",
+      },
+      {
+        color: "info",
+        variant: "inverse",
+        class: "bg-info-foreground text-info hover:bg-info-50",
+      },
+      {
+        color: "error",
+        variant: "inverse",
+        class: "bg-error-foreground text-error hover:bg-error-50",
+      },
+      {
+        color: "warning",
+        variant: "inverse",
+        class: "bg-warning-foreground text-warning hover:bg-warning-50",
+      },
+
+      // ... existing compound variants ...
     ],
 
     defaultVariants: {
