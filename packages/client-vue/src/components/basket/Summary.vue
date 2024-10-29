@@ -186,7 +186,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import UpmPromotions from "./Promotions.vue";
+import Promotions from "./Promotions.vue";
 
 // --- custom elements
 import { Icon, Button } from "@upmind/upwind";
@@ -199,8 +199,8 @@ import config from "./config.cva";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketSummary",
-  components: { UpmPromotions, Icon, Button },
+  name: "BasketSummary",
+  components: { Promotions, Icon, Button },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {

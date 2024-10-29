@@ -290,7 +290,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmEmpty from "./Empty.vue";
+import Empty from "./Empty.vue";
 import {
   SkeletonList,
   CheckboxCards,
@@ -306,7 +306,7 @@ import { get, includes, isArray, isNil } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDomainListings",
+  name: "DomainListings",
   directives: { autoAnimate: vAutoAnimate },
   components: {
     Icon,
@@ -315,7 +315,7 @@ export default defineComponent({
     CheckboxCards,
     SkeletonList,
     // ---
-    UpmEmpty,
+    Empty,
   },
   emits: ["update:modelValue", "toggle"],
   props: {

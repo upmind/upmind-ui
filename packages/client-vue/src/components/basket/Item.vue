@@ -61,8 +61,8 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmProductCard from "../product/Card.vue";
-import UpmProductConfig from "../product/Config.vue";
+import ProductCard from "../product/Card.vue";
+import ProductConfig from "../product/Config.vue";
 
 // --- custom elements
 import { Badge } from "@upmind/upwind";
@@ -71,8 +71,8 @@ import { Badge } from "@upmind/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBasketItem",
-  components: { Badge, UpmProductCard, UpmProductConfig },
+  name: "BasketItem",
+  components: { Badge, ProductCard, ProductConfig },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {

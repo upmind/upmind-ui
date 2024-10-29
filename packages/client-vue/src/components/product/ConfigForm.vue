@@ -39,7 +39,7 @@ import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmProductConfigForm",
+  name: "ProductConfigForm",
   components: { Form, FormField },
   emits: ["update:modelValue"],
   props: {

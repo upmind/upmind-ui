@@ -129,7 +129,7 @@ import { some, has, reduce, map, get, first, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigNested",
+  name: "ProductConfigNested",
   components: {
     Badge,
     FormField,

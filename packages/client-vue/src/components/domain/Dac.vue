@@ -89,18 +89,18 @@ import config from "./config.cva";
 
 // --- components
 import { Input, Button, Drawer } from "@upmind/upwind";
-import UpmDomainListings from "./Listings.vue";
+import DomainListings from "./Listings.vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDac",
+  name: "Dac",
   components: {
     Button,
     Drawer,
     Input,
     // ---
-    UpmDomainListings,
+    DomainListings,
   },
   emits: ["toggle", "search", "search:more", "resolve", "reject"],
   props: {

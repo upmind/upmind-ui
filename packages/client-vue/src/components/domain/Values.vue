@@ -42,22 +42,22 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmEmpty from "./Empty.vue";
+import Empty from "./Empty.vue";
 import { SkeletonList, RadioCards } from "@upmind/upwind";
 
 // --- utils
-import { get, includes, isArray, isNil } from "lodash-es";
+import { get, includes } from "lodash-es";
 
 // --- types
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmDomainValues",
+  name: "DomainValues",
   components: {
     RadioCards,
     SkeletonList,
     // ---
-    UpmEmpty,
+    Empty,
   },
   emits: ["update:modelValue"],
   props: {
