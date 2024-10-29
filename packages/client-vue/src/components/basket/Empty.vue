@@ -19,9 +19,15 @@
     <section :class="styles.basket.empty.root">
       <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
 
-      <h3 :class="styles.basket.empty.title">{{ title }}</h3>
+      <slot name="title">
+        <h3 :class="styles.basket.empty.title">
+          {{ title }}
+        </h3>
+      </slot>
 
-      <p :class="styles.basket.empty.text">{{ text }}</p>
+      <slot name="text">
+        <p :class="styles.basket.empty.text">{{ text }}</p>
+      </slot>
 
       <footer :class="styles.basket.empty.actions">
         <Button
