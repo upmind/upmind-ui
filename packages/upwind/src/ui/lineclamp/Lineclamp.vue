@@ -35,12 +35,12 @@ import type { ComputedRef } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    labelMore: string;
-    labelLess: string;
-    iconMore: string;
-    iconLess: string;
-    lines: number;
-    forceOpen: boolean;
+    labelMore?: string;
+    labelLess?: string;
+    iconMore?: string;
+    iconLess?: string;
+    lines?: number;
+    forceOpen?: boolean;
   }>(),
   {
     labelMore: "Show more",

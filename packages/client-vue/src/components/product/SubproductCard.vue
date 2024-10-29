@@ -1,6 +1,6 @@
 <template>
   <section class="m-0 w-full">
-    <!-- <pre>{{ props }}</pre> -->
+    <pre>{{ props }}</pre>
     <header class="flex flex-1 items-start gap-x-1">
       <div class="flex flex-grow flex-col gap-0.5">
         <h5 class="m-0 font-medium">{{ name }}</h5>
@@ -28,55 +28,59 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-right font-semibold">
+      <div class="flex items-center gap-2">
         <!-- <NumberField
-          v-if="canChangeQuantity && modelValue?.[item.id]?.[id]"
+          v-if="canChangeQuantity && modelValue"
           :disabled="processing"
-          :min="value?.min_order_quantity"
-          :max="value?.max_order_quantity"
-          :step="value?.unit_quantity"
-          :model-value="
-            modelValue[item.id][id]?.unit_quantity || value?.unit_quantity
-          "
-          @update:modelValue="doUpdateQuantity(item, value, $event)"
+          :min="min_order_quantity"
+          :max="max_order_quantity"
+          :step="unit_quantity"
+          :model-value="modelValue?.unit_quantity || unit_quantity"
+          @update:modelValue="doUpdateQuantity"
           size="sm"
+          width="sm"
         /> -->
 
-        <span
-          class="flex flex-shrink-0 items-center justify-end gap-x-1"
-          v-if="props.price?.price"
-        >
-          <Tooltip v-if="props.price_override" :label="t('product.overrides')">
-            <Icon
-              icon="transfer"
-              size="3xs"
-              class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
-            />
-          </Tooltip>
+        <div class="flex flex-col text-right font-semibold">
+          <span
+            class="flex flex-shrink-0 items-center justify-end gap-x-1"
+            v-if="props.price?.price"
+          >
+            <Tooltip
+              v-if="props.price_override"
+              :label="t('product.overrides')"
+            >
+              <Icon
+                icon="transfer"
+                size="3xs"
+                class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
+              />
+            </Tooltip>
 
-          <Tooltip v-else :label="t('product.adds')">
-            <Icon
-              icon="plus"
-              size="3xs"
-              class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
-            />
-          </Tooltip>
+            <Tooltip v-else :label="t('product.adds')">
+              <Icon
+                icon="plus"
+                size="3xs"
+                class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
+              />
+            </Tooltip>
 
-          {{
-            props.price?.price_discounted
-              ? props.price?.price_discounted_formatted
-              : props.price?.price_formatted
-          }}
-        </span>
+            {{
+              props.price?.price_discounted
+                ? props.price?.price_discounted_formatted
+                : props.price?.price_formatted
+            }}
+          </span>
 
-        <span v-else>{{ t("product.free") }}</span>
+          <span v-else>{{ t("product.free") }}</span>
 
-        <span
-          v-if="props.price?.price_discounted"
-          class="text-2xs text-base-500 leading-none line-through"
-        >
-          {{ props.price?.price_formatted }}
-        </span>
+          <span
+            v-if="props.price?.price_discounted"
+            class="text-2xs text-base-500 leading-none line-through"
+          >
+            {{ props.price?.price_formatted }}
+          </span>
+        </div>
       </div>
     </header>
 
@@ -102,7 +106,7 @@ import { Icon, Tooltip, Badge } from "@upmind/upwind";
 // --- types
 
 // -----------------------------------------------------------------------------
-
+const emit = defineEmits(["update:quantity"]);
 const props = defineProps<{
   id?: string;
   name: string;
@@ -121,9 +125,19 @@ const props = defineProps<{
     }>;
   };
   canChangeQuantity: boolean;
+  min_order_quantity?: number;
+  max_order_quantity?: number;
+  unit_quantity?: number;
+  modelValue?: any;
+  processing?: boolean;
 }>();
 
 // ---
 
 const { t } = useI18n();
+
+function doUpdateQuantity(value: any, quantity: number) {
+  debugger;
+  emit("update:quantity", value, quantity);
+}
 </script>

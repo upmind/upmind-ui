@@ -57,45 +57,6 @@
             </h3>
           </div>
 
-          <!-- <div :class="styles.product.config.summary"> -->
-          <!-- quantity -->
-
-          <!-- <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" /> -->
-
-          <!-- <NumberField
-              v-if="product?.canChangeQuantity"
-              :disabled="meta.isProcessing"
-              :min="product?.min_order_quantity"
-              :max="product?.max_order_quantity"
-              :step="product?.unit_quantity"
-              :model-value="model?.quantity || product?.unit_quantity"
-              @update:modelValue="updateQuantity"
-              width="md"
-            /> -->
-
-          <!-- <span :class="styles.product.config.price">
-              <span
-                v-if="!!summary?.discount"
-                :class="styles.product.config.discount"
-              >
-                {{
-                  summary?.subtotal
-                    ? summary?.subtotal_formatted
-                    : t("product.free")
-                }}
-              </span>
-
-              <strong
-                :class="styles.product.config.total"
-                v-if="!isNil(summary?.total)"
-              >
-                {{
-                  summary?.total ? summary?.total_formatted : t("product.free")
-                }}
-              </strong>
-            </span> -->
-          <!-- </div> -->
-
           <Lineclamp
             :class="styles.product.config.text"
             :lines="2"
@@ -103,10 +64,7 @@
             :labelLess="t('product.actions.more', 0)"
             v-if="product?.description"
           >
-            <Markdown
-              v-if="product?.description"
-              :model-value="product.description"
-            />
+            <Markdown :model-value="product.description" />
           </Lineclamp>
 
           <Lineclamp
@@ -116,10 +74,7 @@
             labelLess=""
             v-if="product?.short_description"
           >
-            <Markdown
-              v-if="product?.short_description"
-              :model-value="product.short_description"
-            />
+            <Markdown :model-value="product.short_description" />
           </Lineclamp>
         </div>
       </div>
@@ -138,27 +93,44 @@
           required
         />
 
-        <!-- options -->
-        <SubproductConfigNested
-          v-if="meta.hasOptions"
-          :errors="errors?.options"
-          :items="options"
-          :model-value="model?.options"
+        <VSubproductCards
+          v-for="option in options"
+          :key="option.id"
+          :subproduct="option"
+          :model-value="getValue('options', option)"
+          :errors="getErrors('options', option)"
+          @update:modelValue="setOptions(option, safeValue(option, $event))"
+          @update:quantity="updateOptionQuantity(option, ...$event)"
+          :required="option.required"
+          :visible="option.values.length"
           :processing="meta.isProcessing || meta.isLoading"
-          @update:modelValue="setOptions"
-          @update:quantity="updateOptionQuantity"
-          itemKey="product_id"
+          :disabled="
+            props.disabled ||
+            meta.isLoading ||
+            meta.isProcessing ||
+            meta.isCalculating
+          "
         />
 
         <!-- attributes -->
-        <SubproductConfigNested
-          v-if="meta.hasAttributes"
-          :errors="errors?.attributes"
-          :items="attributes"
-          :model-value="model?.attributes"
+        <VSubproductCards
+          v-for="attribute in attributes"
+          :key="attribute.id"
+          :subproduct="attribute"
+          :model-value="getValue('attributes', attribute)"
+          :errors="getErrors('attributes', attribute)"
+          :required="attribute.required"
+          :visible="attribute.values.length"
           :processing="meta.isProcessing || meta.isLoading"
-          @update:modelValue="setAttributes"
-          itemKey="product_id"
+          :disabled="
+            props.disabled ||
+            meta.isLoading ||
+            meta.isProcessing ||
+            meta.isCalculating
+          "
+          @update:modelValue="
+            setAttributes(attribute, safeValue(attribute, $event))
+          "
         />
 
         <!-- provisional fields -->
@@ -220,15 +192,21 @@ import config from "./config.cva";
 // --- components
 import { Markdown, Lineclamp } from "@upmind/upwind";
 import TermsConfigGrid from "./TermsConfigGrid.vue";
-import SubproductConfigNested from "./SubproductConfigNested.vue";
+import VSubproductCards from "./SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
 import { Badge, Button } from "@upmind/upwind";
 
 // --- utils
+import { reduce, get, first, isArray } from "lodash-es";
+
+// -- -types
+import type { ActorRef } from "xstate";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
+const emit = defineEmits(["reject", "resolve"]);
 
 const props = withDefaults(
   defineProps<{
@@ -240,7 +218,7 @@ const props = withDefaults(
     noHeader?: boolean;
     noTitle?: boolean;
     noFooter?: boolean;
-    class?: hasAttributes["class"];
+    class?: HTMLAttributes["class"];
   }>(),
   {
     as: "form",
@@ -276,6 +254,41 @@ const {
 } = useProductConfig(props.item);
 
 const styles = useStyles(["product.config"], meta, config);
+
+function safeValue(
+  subproduct: Object,
+  value: string | string[]
+): string | string[] {
+  const shouldBeArray = subproduct?.multiple || subproduct?.values?.length == 1;
+  const safeArray = !isArray(value) ? [value] : value;
+  const safeString = isArray(value) ? first(value) : value;
+  const safeValue = shouldBeArray ? safeArray : safeString;
+  return safeValue || "";
+}
+
+function getValue(
+  type: "options" | "attributes",
+  subproduct: Object
+): string | string[] {
+  const value = reduce(
+    model.value?.[type]?.[subproduct.id],
+    (result: string[], value) => {
+      const val: string = get(value, "product_id");
+      if (val) result.push(val);
+      return result;
+    },
+    []
+  );
+
+  return safeValue(subproduct, value);
+}
+
+function getErrors(type: "options" | "attributes", subproduct: Object) {
+  //  prevent error message from showing if the field has not been touched
+  if (!meta.value.isTouched) return undefined;
+
+  return errors.value?.[type]?.[subproduct?.id]?.join() || undefined;
+}
 
 // ---
 function doReject() {
