@@ -12,15 +12,17 @@
         :items="i18nChoices"
         :model-value="choice"
         @update:modelValue="choose"
+        required
       />
 
       <!-- register/transfer -->
       <template v-if="meta.showDac">
         <Dac
+          :id="`dac-${choice}`"
+          :key="`dac-${choice}`"
           :complete="meta.showPrimaryDomain"
           :disabled="!meta.isValid"
           :items="available"
-          :key="type"
           :loading="meta.isSearching"
           :model-value="selected"
           :more="meta.hasMoreSearchResults"
