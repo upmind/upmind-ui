@@ -121,34 +121,36 @@ export const parseBasket = (data: any) => {
 };
 
 // ---
+export const parseProductSummary = (product: any) => {
+  return {
+    id: product?.id,
+    name: product?.product_name,
+    service_identifier: product?.service_identifier,
+    quantity: product?.quantity,
+    discount_formatted: product?.configuration_total_discount_amount_formatted,
+    discount: product?.configuration_total_discount_amount_converted,
+    subtotal_formatted: product?.configuration_net_amount_formatted,
+    subtotal: product?.configuration_net_amount,
+    total: product?.configuration_net_amount_discounted,
+    total_formatted: product?.configuration_net_amount_discounted_formatted,
+    products: [
+      // todo  add non quantifiable otions here
+      // id: product?.id,
+      // name: product?.product_name,
+      // service_identifier: product?.service_identifier,
+      // quantity: product?.quantity,
+      // discount: product?.configuration_total_discount_amount_converted
+      //   ? product?.configuration_total_discount_amount_formatted
+      //   : null,
+      // subtotal: product?.configuration_net_amount_formatted,
+      // total: product?.configuration_net_amount_discounted_formatted,
+    ],
+  };
+};
 
 export const parseSummary = (data?: any) => {
   const summary = {
-    products: map(get(data, "products"), product => {
-      return {
-        id: product?.id,
-        name: product?.product_name,
-        service_identifier: product?.service_identifier,
-        quantity: product?.quantity,
-        discount: product?.configuration_total_discount_amount_converted
-          ? product?.configuration_total_discount_amount_formatted
-          : null,
-        subtotal: product?.configuration_net_amount_formatted,
-        total: product?.configuration_net_amount_discounted_formatted,
-        products: [
-          // todo  add non quantifiable otions here
-          // id: product?.id,
-          // name: product?.product_name,
-          // service_identifier: product?.service_identifier,
-          // quantity: product?.quantity,
-          // discount: product?.configuration_total_discount_amount_converted
-          //   ? product?.configuration_total_discount_amount_formatted
-          //   : null,
-          // subtotal: product?.configuration_net_amount_formatted,
-          // total: product?.configuration_net_amount_discounted_formatted,
-        ],
-      };
-    }),
+    products: map(get(data, "products"), parseProductSummary),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
