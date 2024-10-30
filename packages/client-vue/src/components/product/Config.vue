@@ -42,6 +42,10 @@
               !props.noTitle || product?.hasFreeTrial || product?.isOnPromotion
             "
           >
+            <h3 :class="styles.product.config.title" v-if="!props.noTitle">
+              {{ product?.name }}
+            </h3>
+
             <Badge
               v-if="product?.hasFreeTrial"
               color="secondary"
@@ -55,10 +59,6 @@
               :label="t('product.promotion')"
               variant="flat"
             />
-
-            <h3 :class="styles.product.config.title" v-if="!props.noTitle">
-              {{ product?.name }}
-            </h3>
           </div>
 
           <Lineclamp

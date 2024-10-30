@@ -162,7 +162,7 @@ export default {
 
       heading: cva("flex w-full flex-wrap items-end gap-x-10"),
 
-      headingContent: cva("flex w-full flex-1 flex-wrap items-start gap-2 "),
+      headingContent: cva("flex w-full flex-1 flex-wrap items-center gap-4"),
 
       summary: cva("inline-flex items-end gap-x-6 gap-y-6", {
         variants: {
@@ -181,7 +181,7 @@ export default {
       ),
       // ---
       loading: cva("size-7"),
-      title: cva("m-0 w-full text-4xl font-normal leading-none tracking-wide"),
+      title: cva("m-0 text-3xl leading-none tracking-wide"),
       meta: cva(
         "text-base-700 m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
