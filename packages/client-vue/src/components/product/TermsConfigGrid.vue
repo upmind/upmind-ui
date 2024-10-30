@@ -40,7 +40,7 @@
             <template v-for="promotion in item?.promotions" :key="promotion.id">
               <Badge
                 color="promotion"
-                variant="tonal"
+                variant="flat"
                 :label="
                   t(
                     'product.promo_save',

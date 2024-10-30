@@ -11,7 +11,7 @@
             <Badge
               color="promotion"
               class="rounded-md px-1 py-0 text-[12px]"
-              variant="tonal"
+              variant="flat"
             >
               {{
                 t(
