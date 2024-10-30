@@ -7,10 +7,12 @@
     <template v-else>
       <!-- type -->
       <RadioCards
-        :class="styles.domain.choices"
         v-if="meta.showChoices"
+        id="domain-type"
+        name="domain-type"
+        :class="styles.domain.choices"
         :items="i18nChoices"
-        :model-value="choice"
+        :model-value="type"
         @update:modelValue="choose"
         required
       />
@@ -18,8 +20,8 @@
       <!-- register/transfer -->
       <template v-if="meta.showDac">
         <Dac
-          :id="`dac-${choice}`"
-          :key="`dac-${choice}`"
+          :id="`dac-${type}`"
+          :key="`dac-${type}`"
           :complete="meta.showPrimaryDomain"
           :disabled="!meta.isValid"
           :items="available"
@@ -31,7 +33,7 @@
           :values="model"
           @search="search"
           @search:more="searchMore"
-          @toggle="toggle"
+          @update:selected="toggle"
           @resolve="syncBasket"
           @reject="reset"
           :query="meta.showPrimaryDomain ? selected : query"
@@ -39,29 +41,26 @@
       </template>
 
       <!-- existing -->
-      <FormField
+
+      <Autocomplete
         v-else-if="meta.showExisting"
         :class="styles.domain.existing"
-        :errors="errors"
-        id="existing-domain"
-      >
-        <Autocomplete
-          :items="ownedDomains"
-          :model-value="selected"
-          @update:modelValue="update"
-          autocomplete="url"
-          autoFocus
-          item-label="domain"
-          item-value="value"
-          :placeholder="t('domain.existing.search')"
-          width="full"
-        />
-      </FormField>
+        :items="ownedDomains"
+        :model-value="selected"
+        @update:modelValue="update"
+        autocomplete="url"
+        autoFocus
+        item-label="domain"
+        item-value="value"
+        :placeholder="t('domain.existing.search')"
+        width="full"
+      />
 
       <!-- basket -->
 
-      <DomainValues
-        v-if="meta.showBasket"
+      <DomainBasketCards
+        v-else-if="meta.showBasket"
+        :class="styles.domain.basket"
         :model-value="selected"
         :items="basket"
         :loading="meta.isSearching"
@@ -72,9 +71,9 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
+import { computed, watch, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -84,152 +83,103 @@ import config from "./config.cva";
 
 // --- components
 import Dac from "./Dac.vue";
-import DomainValues from "./Values.vue";
-import {
-  RadioCards,
-  SkeletonList,
-  Autocomplete,
-  FormField,
-} from "@upmind/upwind";
+import DomainBasketCards from "./DomainBasketCards.vue";
+import { RadioCards, SkeletonList, Autocomplete } from "@upmind/upwind";
 
 // --- utils
-import { debounce, map } from "lodash-es";
+import { map } from "lodash-es";
 
 // --- types
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "Domain",
-  components: {
-    Autocomplete,
-    RadioCards,
-    Dac,
-    DomainValues,
-    SkeletonList,
-    FormField,
-  },
+const emit = defineEmits(["update:modelValue"]);
 
-  emits: ["update:modelValue", "change"],
-  props: {
-    sync: { type: Boolean, default: true },
-    type: {
-      type: String,
-      validator: value =>
-        ["register", "transfer", "existing", "basket"].includes(value),
-    },
-    modelValue: { type: [String, Array], default: () => [] },
-    multiple: { type: Boolean, default: false },
-    parentId: { type: String },
+const props = withDefaults(
+  defineProps<{
+    sync?: boolean;
+    type: "register" | "transfer" | "existing" | "basket";
+    modelValue?: string | string[];
+    multiple?: boolean;
+    parentId?: string;
+  }>(),
+  {
+    sync: true,
+    type: "register",
+    modelValue: "",
+    multiple: false,
+    parentId: "",
+  }
+);
+const { t, tm, rt } = useI18n();
 
-    // ---
-  },
-  setup(props) {
-    const { t, tm, rt } = useI18n();
+const {
+  choices,
+  type,
+  selected,
+  model,
+  query,
+  available,
+  owned,
+  basket,
+  errors,
+  // ---
+  meta,
+  searchOffset,
+  // ---
+  choose,
+  search,
+  searchMore,
+  update,
+  toggle,
+  reset,
+  destroy,
+  syncBasket,
+  setPrimaryDomain,
+} = useDomain({
+  model: props.modelValue,
+  sync: props.sync,
+  type: props.type,
+  parentId: props.parentId,
+});
 
-    const {
-      // state,
-      // ---
-      choices,
-      selected,
-      model,
-      type,
-      query,
-      available,
-      owned,
-      basket,
-      errors,
-      // ---
-      meta,
-      state,
-      searchOffset,
-      // ---
-      choose,
-      search,
-      searchMore,
-      update,
-      toggle,
-      reset,
-      destroy,
-      syncBasket,
-      setPrimaryDomain,
-    } = useDomain({
-      model: props.modelValue,
-      sync: props.sync,
-      type: props.type,
-      parentId: props.parentId,
-    });
-    const styles = useStyles(["domain"], meta, config);
+const styles = useStyles(["domain"], meta, config);
 
-    // ---
+// ---
 
+const i18nChoices = computed(() => {
+  return map(choices.value, choice => {
+    const translations: { label: string } = tm(
+      `domain.choices.${choice.value}`
+    );
     return {
-      t,
-      tm,
-      rt,
-      state,
-      meta,
-      choices,
-      selected,
-      model,
-      available,
-      owned,
-      basket,
-      errors,
-      // ---
-      choice: type,
-      query,
-      // ---
-      choose,
-      search: debounce(search, 500),
-      searchMore,
-      searchOffset,
-      update,
-      toggle,
-      reset,
-      syncBasket,
-      setPrimaryDomain,
-      destroy,
-      // ---
-      styles,
+      ...choice,
+      label: rt(translations?.label) || choice.label,
     };
-  },
-  computed: {
-    i18nChoices() {
-      return map(this.choices, choice => {
-        const i18n = this.tm(`domain.choices.${choice.value}`);
-        return {
-          ...choice,
-          label: this.rt(i18n.label) || choice.label,
-        };
-      });
-    },
+  });
+});
 
-    ownedDomains() {
-      if (!this.owned?.length) return [];
-      return [
-        {
-          as: "separator",
-          persist: true,
-          domain: this.t("domain.existing.owned"),
-        },
-        ...this.owned,
-      ];
+const ownedDomains = computed(() => {
+  if (!owned?.length) return [];
+  return [
+    {
+      as: "separator",
+      persist: true,
+      domain: t("domain.existing.owned"),
     },
-  },
-  methods: {},
-  watch: {
-    selected: {
-      handler: function (value) {
-        this.$emit("update:modelValue", value);
-        // forward the event to our form renderers that will trigger the update
-        // NB: this is not a DOM event so we need to fake one for the renderer
-        this.$emit("change", { currentTarget: { value } });
-      },
-    },
-  },
-  beforeUnmount() {
-    this.destroy();
-  },
+    ...owned,
+  ];
+});
+
+// --- lifecycle
+onBeforeUnmount(() => {
+  destroy();
+});
+
+// --- side effects
+
+watch(selected, value => {
+  choose(value);
+  emit("update:modelValue", value);
 });
 </script>
 .

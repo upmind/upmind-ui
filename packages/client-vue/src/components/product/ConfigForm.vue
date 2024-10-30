@@ -6,6 +6,7 @@
     :disabled="disabled"
     required
     id="product-config-form"
+    name="product-config-form"
   >
     <Form
       :locale="locale"

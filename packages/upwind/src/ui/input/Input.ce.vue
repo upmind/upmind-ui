@@ -28,7 +28,6 @@ import type { InputProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InputProps>(), {
-  size: "md",
   width: "full",
   // ---
   upwindConfig: () => ({ input: {} }),

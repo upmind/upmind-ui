@@ -7,8 +7,8 @@
         : `${props.formDescriptionId} ${props.formMessageId}`
     "
     :aria-invalid="!!props.invalid"
-    :autofocus="undefined"
     class="w-full"
+    v-bind="attributesToRemove"
     v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
   >
     <slot />
@@ -18,9 +18,6 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
-
-// NB its important to NOT set autofocus as we are controlling it via the intersection observer
-// and we DONT want the normal browser behaviour of scrolling to the element
 
 import { Slot } from "radix-vue";
 // import { isFunction } from "lodash-es";
@@ -35,6 +32,14 @@ const props = defineProps<{
   autoFocus?: boolean;
 }>();
 
+// NB its important to remove some attributes that we use, but that ALSO have HTML attributes that dont correspond
+// eg: autofocus >  as we are controlling it via the intersection observer
+//                  and we DONT want the normal browser behaviour of scrolling to the element
+
+const attributesToRemove = {
+  autofocus: undefined,
+  size: undefined,
+};
 // --- state
 
 // --- computed

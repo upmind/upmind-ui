@@ -44,7 +44,6 @@ const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
   // -- variants
-  size: "md",
   width: "full",
   // --- styles
   upwindConfig: () => ({ select: {} }),
