@@ -147,7 +147,11 @@ export default createMachine(
 
                         {
                           target: "valid",
-                          actions: ["setTerm", raise("CHECK.OPTIONS")],
+                          actions: [
+                            "setTerm",
+                            "setSummary",
+                            raise("CHECK.OPTIONS"),
+                          ],
                         },
                       ],
                       onError: [
@@ -163,7 +167,7 @@ export default createMachine(
                         },
                         {
                           target: "invalid",
-                          actions: ["setTerm", "setError"],
+                          actions: ["setTerm", "setSummary", "setError"],
                         },
                       ],
                     },
@@ -187,11 +191,11 @@ export default createMachine(
                       src: "checkAttributes",
                       onDone: {
                         target: "valid",
-                        actions: ["setAttributes"],
+                        actions: ["setAttributes", "setSummary"],
                       },
                       onError: {
                         target: "invalid",
-                        actions: ["setAttributes", "setError"],
+                        actions: ["setAttributes", "setSummary", "setError"],
                       },
                     },
                   },
@@ -224,7 +228,7 @@ export default createMachine(
                         },
                         {
                           target: "valid",
-                          actions: ["setOptions"],
+                          actions: ["setOptions", "setSummary"],
                         },
                       ],
                       onError: [
@@ -240,7 +244,7 @@ export default createMachine(
                         },
                         {
                           target: "invalid",
-                          actions: ["setOptions", "setError"],
+                          actions: ["setOptions", "setSummary", "setError"],
                         },
                       ],
                     },
@@ -263,11 +267,11 @@ export default createMachine(
                       src: "checkProvisioning",
                       onDone: {
                         target: "valid",
-                        actions: ["setProvisioning"],
+                        actions: ["setProvisioning", "setSummary"],
                       },
                       onError: {
                         target: "invalid",
-                        actions: ["setProvisioning", "setError"],
+                        actions: ["setProvisioning", "setSummary", "setError"],
                       },
                     },
                   },
@@ -527,15 +531,16 @@ export default createMachine(
 
       setSummary: assign({
         summary: (
-          { model, lookups, error }: ProductConfigContext,
+          { model, lookups, error, summary }: ProductConfigContext,
           { data }: ProductConfigEvent
-        ) =>
-          parseSummary({
-            summary: data,
+        ) => {
+          return parseSummary({
+            summary: data || summary,
             model,
             lookups,
             error,
-          }),
+          });
+        },
       }),
 
       setSummaryCalculating: assign({
