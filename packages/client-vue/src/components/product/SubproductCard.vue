@@ -28,17 +28,18 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- <NumberField
-          v-if="canChangeQuantity && modelValue"
+        <NumberField
+          v-if="canChangeQuantity && quantity"
           :disabled="processing"
           :min="min_order_quantity"
           :max="max_order_quantity"
           :step="unit_quantity"
-          :model-value="modelValue?.unit_quantity || unit_quantity"
+          :model-value="quantity"
+          :default-value="quantity || unit_quantity"
           @update:modelValue="doUpdateQuantity"
           size="sm"
           width="sm"
-        /> -->
+        />
 
         <div class="flex flex-col text-right font-semibold">
           <span
@@ -127,7 +128,7 @@ const props = defineProps<{
   min_order_quantity?: number;
   max_order_quantity?: number;
   unit_quantity?: number;
-  modelValue?: any;
+  quantity?: number;
   processing?: boolean;
 }>();
 
@@ -135,8 +136,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-function doUpdateQuantity(value: any, quantity: number) {
-  debugger;
-  emit("update:quantity", value, quantity);
+function doUpdateQuantity(quantity: number) {
+  emit("update:quantity", quantity);
 }
 </script>
