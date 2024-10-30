@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "h-auto min-h-10 justify-start overflow-hidden rounded-md border-opacity-10  transition-all duration-300 hover:border-opacity-10 hover:bg-base-100",
+  "hover:bg-base-muted h-auto min-h-10 justify-start overflow-hidden rounded-md  border-opacity-10 transition-all duration-300 hover:border-opacity-10",
   {
     variants: {
       width: {
@@ -31,21 +31,22 @@ export const itemVariants = cva(
       color: {
         base: "data-[highlighted]:bg-control-active-muted data-[highlighted]:text-control-foreground",
         primary:
-          "data-[highlighted]:bg-primary-100 data-[highlighted]:text-primary",
+          "data-[highlighted]:bg-primary-muted data-[highlighted]:text-primary",
         secondary:
-          "data-[highlighted]:bg-secondary-100 data-[highlighted]:text-secondary",
+          "data-[highlighted]:bg-secondary-muted data-[highlighted]:text-secondary",
         accent:
-          "data-[highlighted]:bg-accent-100 data-[highlighted]:text-accent",
+          "data-[highlighted]:bg-accent-muted data-[highlighted]:text-accent",
         promotion:
-          "data-[highlighted]:bg-promotion-100 data-[highlighted]:text-promotion",
+          "data-[highlighted]:bg-promotion-muted data-[highlighted]:text-promotion",
         destructive:
-          "data-[highlighted]:bg-destructive-100 data-[highlighted]:text-destructive",
+          "data-[highlighted]:bg-destructive-muted data-[highlighted]:text-destructive",
         success:
-          "data-[highlighted]:bg-success-100 data-[highlighted]:text-success",
-        info: "data-[highlighted]:bg-info-100 data-[highlighted]:text-info",
-        error: "data-[highlighted]:bg-error-100 data-[highlighted]:text-error",
+          "data-[highlighted]:bg-success-muted data-[highlighted]:text-success",
+        info: "data-[highlighted]:bg-info-muted data-[highlighted]:text-info",
+        error:
+          "data-[highlighted]:bg-error-muted data-[highlighted]:text-error",
         warning:
-          "data-[highlighted]:bg-warning-100 data-[highlighted]:text-warning",
+          "data-[highlighted]:bg-warning-muted data-[highlighted]:text-warning",
       },
     },
     defaultVariants: {

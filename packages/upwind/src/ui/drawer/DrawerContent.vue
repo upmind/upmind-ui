@@ -30,7 +30,7 @@ const forwarded = useForwardPropsEmits(props, emits);
       "
     >
       <div
-        class="drag-handle mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted"
+        class="drag-handle bg-base-muted mx-auto mt-4 h-2 w-[100px] rounded-full"
       />
       <slot />
     </DrawerContent>

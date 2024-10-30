@@ -143,7 +143,7 @@ export default defineComponent({
           label: this.t(`client.${this.i18nKey}.actions.delete`),
           hidden: !this.meta.canRemove,
           class:
-            "text-destructive data-[highlighted]:bg-destructive-50 data-[highlighted]:text-destructive",
+            "text-destructive data-[highlighted]:bg-destructive-muted data-[highlighted]:text-destructive",
 
           handler: () => {
             this.open = false;

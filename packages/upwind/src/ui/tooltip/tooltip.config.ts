@@ -3,11 +3,11 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const tooltipVariants = cva(
-  "z-50 overflow-hidden rounded border-transparent bg-base-800 px-3 py-1.5 text-sm text-white animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+  "z-50 overflow-hidden rounded border-transparent px-3 py-1.5 text-sm  animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
   {
     variants: {
       color: {
-        base: "bg-base-800 text-base-50",
+        base: "bg-base-muted-foreground text-base-muted",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
@@ -19,10 +19,13 @@ export const tooltipVariants = cva(
         warning: "bg-warning text-warning-foreground",
       },
     },
+    defaultVariants: {
+      color: "base",
+    },
   }
 );
 
-export const arrowVariants = cva("text-base-800", {
+export const arrowVariants = cva("", {
   variants: {
     color: {
       base: "text-base-800",
@@ -36,6 +39,9 @@ export const arrowVariants = cva("text-base-800", {
       error: "text-error",
       warning: "text-warning",
     },
+  },
+  defaultVariants: {
+    color: "base",
   },
 });
 

@@ -8,7 +8,7 @@ export const indicatorVariants = cva(
   {
     variants: {
       color: {
-        base: "bg-base-200 text-base-foreground",
+        base: "bg-base-muted text-base-muted-foreground",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",

@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ",
+  "focus-visible:ring-ring relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ",
   {
     variants: {
       variant: {
@@ -98,157 +98,168 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "outline",
-        class: "border-base-foreground text-base-foreground hover:bg-base-200",
+        class:
+          "hover:bg-base-muted border-base-foreground text-base-foreground",
       },
       {
         color: "primary",
         variant: "outline",
-        class: "border-primary text-primary hover:bg-primary-50",
+        class: "hover:bg-primary-muted border-primary text-primary",
       },
       {
         color: "secondary",
         variant: "outline",
-        class: "border-secondary text-secondary hover:bg-secondary-50",
+        class: "hover:bg-secondary-muted border-secondary text-secondary",
       },
       {
         color: "accent",
         variant: "outline",
-        class: "border-accent text-accent hover:bg-accent-50",
+        class: "hover:bg-accent-muted border-accent text-accent",
       },
       {
         color: "promotion",
         variant: "outline",
-        class: "border-promotion text-promotion hover:bg-promotion-50",
+        class: "hover:bg-promotion-muted border-promotion text-promotion",
       },
       {
         color: "destructive",
         variant: "outline",
-        class: "border-destructive text-destructive hover:bg-destructive-50",
+        class: "hover:bg-destructive-muted border-destructive text-destructive",
       },
       {
         color: "success",
         variant: "outline",
-        class: "border-success text-success hover:bg-success-50",
+        class: "hover:bg-success-muted border-success text-success",
       },
       {
         color: "info",
         variant: "outline",
-        class: "border-info text-info hover:bg-info-50",
+        class: "hover:bg-info-muted border-info text-info",
       },
       {
         color: "error",
         variant: "outline",
-        class: "border-error text-error hover:bg-error-50",
+        class: "hover:bg-error-muted border-error text-error",
       },
       {
         color: "warning",
         variant: "outline",
-        class: "border-warning text-warning hover:bg-warning-50",
+        class: "hover:bg-warning-muted border-warning text-warning",
       },
 
       // --- tonal
       {
         color: "base",
         variant: "tonal",
-        class: "bg-base-200 text-base-foreground hover:bg-base-300",
+        class:
+          "bg-base-muted hover:bg-base-muted-active text-base-muted-foreground",
       },
       {
         color: "primary",
         variant: "tonal",
-        class: "bg-primary-50 text-primary hover:bg-primary-100",
+        class:
+          "bg-primary-muted hover:bg-primary-muted-active text-primary-muted-foreground",
       },
       {
         color: "secondary",
         variant: "tonal",
-        class: "bg-secondary-50 text-secondary hover:bg-secondary-100",
+        class:
+          "bg-secondary-muted hover:bg-secondary-muted-active text-secondary-muted-foreground",
       },
       {
         color: "accent",
         variant: "tonal",
-        class: "bg-accent-50 text-accent hover:bg-accent-100",
+        class:
+          "bg-accent-muted hover:bg-accent-muted-active text-accent-muted-foreground",
       },
       {
         color: "promotion",
         variant: "tonal",
-        class: "bg-promotion-50 text-promotion hover:bg-promotion-100",
+        class:
+          "bg-promotion-muted hover:bg-promotion-muted-active text-promotion-muted-foreground",
       },
       {
         color: "destructive",
         variant: "tonal",
-        class: "bg-destructive-50 text-destructive hover:bg-destructive-100",
+        class:
+          "bg-destructive-muted hover:bg-destructive-muted-active text-destructive-muted-foreground",
       },
       {
         color: "success",
         variant: "tonal",
-        class: "bg-success-50 text-success hover:bg-success-100",
+        class:
+          "bg-success-muted hover:bg-success-muted-active text-success-muted-foreground",
       },
       {
         color: "info",
         variant: "tonal",
-        class: "bg-info-50 text-info hover:bg-info-100",
+        class:
+          "bg-info-muted hover:bg-info-muted-active text-info-muted-foreground",
       },
       {
         color: "error",
         variant: "tonal",
-        class: "bg-error-50 text-error hover:bg-error-100",
+        class:
+          "bg-error-muted hover:bg-error-muted-active text-error-muted-foreground",
       },
       {
         color: "warning",
         variant: "tonal",
-        class: "bg-warning-50 text-warning hover:bg-warning-100",
+        class:
+          "bg-warning-muted hover:bg-warning-muted-active text-warning-muted-foreground",
       },
 
       // --- ghost
       {
         color: "base",
         variant: "ghost",
-        class: "text-base-foreground hover:bg-base-50",
+        class: "hover:bg-base-muted text-base-foreground",
       },
       {
         color: "primary",
         variant: "ghost",
-        class: "text-primary hover:bg-primary-50",
+        class: "hover:bg-primary-muted text-primary",
       },
       {
         color: "secondary",
         variant: "ghost",
-        class: "text-secondary hover:bg-secondary-50",
+        class: "hover:bg-secondary-muted text-secondary",
       },
       {
         color: "accent",
         variant: "ghost",
-        class: "text-accent hover:bg-accent-50",
+        class: "hover:bg-accent-muted text-accent",
       },
       {
         color: "promotion",
         variant: "ghost",
-        class: "text-promotion hover:bg-promotion-50 ",
+        class: "hover:bg-promotion-muted text-promotion ",
       },
       {
         color: "destructive",
         variant: "ghost",
-        class: "text-destructive hover:bg-destructive-50 ",
+        class: "hover:bg-destructive-muted text-destructive ",
       },
 
       {
         color: "success",
         variant: "ghost",
-        class: "text-success hover:bg-success-50",
+        class: "hover:bg-success-muted text-success",
       },
       {
         color: "info",
         variant: "ghost",
-        class: "text-info hover:bg-info-50",
+        class: "hover:bg-info-muted text-info",
       },
       {
         color: "error",
         variant: "ghost",
-        class: "text-error hover:bg-error-50 ",
+        class: "hover:bg-error-muted text-error ",
       },
       {
         color: "warning",
         variant: "ghost",
-        class: "text-warning hover:bg-warning-50",
+        class: "hover:bg-warning-muted text-warning",
       },
 
       // --- link
@@ -299,53 +310,56 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "inverse",
-        class: "bg-base-background text-base-foreground hover:bg-base-100",
+        class:
+          "hover:bg-base-muted-active bg-base-background text-base-foreground",
       },
       {
         color: "primary",
         variant: "inverse",
-        class: "bg-primary-foreground text-primary hover:bg-primary-50",
+        class: "hover:bg-primary-muted bg-primary-foreground text-primary",
       },
       {
         color: "secondary",
         variant: "inverse",
-        class: "bg-secondary-foreground text-secondary hover:bg-secondary-50",
+        class:
+          "hover:bg-secondary-muted bg-secondary-foreground text-secondary",
       },
       {
         color: "accent",
         variant: "inverse",
-        class: "bg-accent-foreground text-accent hover:bg-accent-50",
+        class: "hover:bg-accent-muted bg-accent-foreground text-accent",
       },
       {
         color: "promotion",
         variant: "inverse",
-        class: "bg-promotion-foreground text-promotion hover:bg-promotion-50",
+        class:
+          "hover:bg-promotion-muted bg-promotion-foreground text-promotion",
       },
       {
         color: "destructive",
         variant: "inverse",
         class:
-          "bg-destructive-foreground text-destructive hover:bg-destructive-50",
+          "hover:bg-destructive-muted bg-destructive-foreground text-destructive",
       },
       {
         color: "success",
         variant: "inverse",
-        class: "bg-success-foreground text-success hover:bg-success-50",
+        class: "hover:bg-success-muted bg-success-foreground text-success",
       },
       {
         color: "info",
         variant: "inverse",
-        class: "bg-info-foreground text-info hover:bg-info-50",
+        class: "hover:bg-info-muted bg-info-foreground text-info",
       },
       {
         color: "error",
         variant: "inverse",
-        class: "bg-error-foreground text-error hover:bg-error-50",
+        class: "hover:bg-error-muted bg-error-foreground text-error",
       },
       {
         color: "warning",
         variant: "inverse",
-        class: "bg-warning-foreground text-warning hover:bg-warning-50",
+        class: "hover:bg-warning-muted bg-warning-foreground text-warning",
       },
 
       // ... existing compound variants ...

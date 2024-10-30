@@ -80,7 +80,7 @@ export default {
     },
     empty: {
       root: cva(
-        "bg-base-100 flex flex-col items-center justify-center gap-4 rounded-lg p-4"
+        "bg-base-muted flex flex-col items-center justify-center gap-4 rounded-lg p-4"
       ),
       title: cva("m-0 text-inherit"),
       text: cva("text-base-700 m-0 text-center"),

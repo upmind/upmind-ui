@@ -16,12 +16,14 @@
           color="secondary"
           v-if="product?.hasFreeTrial"
           :label="t('product.trail')"
+          variant="tonal"
         />
 
         <Badge
           color="promotion"
           v-if="product?.isOnPromotion"
           :label="t('product.promotion')"
+          variant="tonal"
         />
 
         <h3 :class="styles.product.card.title">

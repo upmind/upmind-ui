@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   group: {
-    root: cva("flex flex-col gap-y-6 border-t border-base-100 pt-4"),
+    root: cva("flex flex-col gap-y-6 border-t border-control pt-4"),
     label: cva("w-full text-xs font-medium text-base-500"),
     item: cva(""),
   },
