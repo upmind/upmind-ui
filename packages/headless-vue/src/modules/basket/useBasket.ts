@@ -17,10 +17,8 @@ import {
   useState,
 } from "../../utils";
 import { some, filter } from "lodash-es";
-import type { IProductModel } from "../../../../headless/src/modules/product/types";
 
 // --- types
-import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 
 // --------------------------------------------------------
