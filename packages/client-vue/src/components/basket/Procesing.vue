@@ -17,11 +17,17 @@
     </template>
 
     <section :class="styles.basket.processing.root">
-      <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
-      <h3 :class="styles.basket.processing.title">{{ title }}</h3>
+      <h3 :class="styles.basket.processing.title">
+        <slot name="title">{{ title }}</slot>
+      </h3>
 
-      <p :class="styles.basket.processing.text">{{ text }}</p>
+      <p :class="styles.basket.processing.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.basket.processing.actions">
         <Button
