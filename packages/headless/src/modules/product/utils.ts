@@ -4,6 +4,7 @@ import { TrialEndActionTypes } from "./services";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
+import { parseProductSummary } from "../basket/utils";
 import {
   find,
   forEach,
@@ -537,6 +538,18 @@ export const parseSummarySubproduct = (
     },
     [] as any[] // Provide initial value as an empty array
   );
+};
+
+export const parseBasketProductSummary = (basket_product: any) => {
+  const summary = parseProductSummary(basket_product);
+  return {
+    discount: summary?.discount,
+    discount_formatted: summary?.discount_formatted,
+    subtotal: summary?.subtotal,
+    subtotal_formatted: summary?.subtotal_formatted,
+    total: summary?.total,
+    total_formatted: summary?.total_formatted,
+  };
 };
 
 // --------------------------------------------------------

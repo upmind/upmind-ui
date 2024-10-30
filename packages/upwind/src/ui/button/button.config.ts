@@ -35,7 +35,7 @@ export const buttonVariants = cva(
         lg: "h-11 gap-2 px-8 py-1 text-lg",
         xl: "h-14 gap-2 px-8 py-1 text-lg",
         icon: "h-10 w-10 gap-2 px-2 py-1",
-        badge: "gap-1 px-1 py-0 text-xs",
+        badge: "gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
       },
       block: {
         true: "w-full basis-full",

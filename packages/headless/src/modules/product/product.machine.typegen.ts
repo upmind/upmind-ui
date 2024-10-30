@@ -84,8 +84,9 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
+    cancelCalculation: "UPDATED" | "done.state.configuring";
     clearError: "PROCESSING" | "REMOVE" | "UPDATE";
-    clearSummaryCalculating: "CALCULATED";
+    clearSummaryCalculating: "CALCULATED" | "CALCULATE_CANCELLED";
     refreshContext: "REFRESH";
     resetModel: "RESET";
     setAttributes:
@@ -116,12 +117,22 @@ export interface Typegen0 {
     setQuantity:
       | "SET.QUANTITY"
       | "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]";
-    setSummary: "CALCULATED";
+    setSummary:
+      | "CALCULATED"
+      | "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
     setSummaryCalculating:
       | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
+    setSummaryWithBasketProduct: "UPDATED" | "done.state.configuring";
     setTerm:
       | "SET.TERM"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
