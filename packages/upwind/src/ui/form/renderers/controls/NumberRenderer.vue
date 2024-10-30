@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="delegatedProps">
+  <FormField v-bind="formFieldProps">
     <NumberField
       :disabled="!control.enabled"
       :max="min"
@@ -31,7 +31,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, appliedOptions, formFieldProps, onInput } = useUpwindRenderer(
   useJsonFormsControl(props),
   (value: string) => {
     return !isNumber(value)
@@ -46,23 +46,6 @@ const isInteger = computed(() => {
   let type = control.value.schema.type;
   let types = isArray(type) ? type : [type];
   return includes(types, "integer");
-});
-
-const delegatedProps = computed(() => {
-  const options = get(appliedOptions, "options", {});
-  return {
-    label: control.value.label,
-    description: control.value.description,
-    // ---
-    required: control.value.required,
-    disabled: !control.value.enabled,
-    visible: control.value.visible,
-    ...options,
-    // --- immutable
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-  };
 });
 
 const step: ComputedRef<number> = computed(() => {

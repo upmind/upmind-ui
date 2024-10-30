@@ -1,6 +1,6 @@
 <template>
   <FormField
-    v-bind="delegatedProps"
+    v-bind="formFieldProps"
     class="flex flex-row items-start gap-x-3 space-y-0"
   >
     <template #field>
@@ -58,7 +58,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -80,29 +79,10 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, formFieldProps, onInput } = useUpwindRenderer(
   useJsonFormsControl(props),
   value => !!value // Ensure bool value is set to the opposite value rather than null
 );
-
-const delegatedProps = computed(() => {
-  const options = appliedOptions.value || {};
-
-  return {
-    // ---
-    label: control.value.label,
-    description: control.value.description,
-    // ---
-    required: control.value.required,
-    disabled: !control.value.enabled,
-    visible: control.value.visible,
-    ...options,
-    // --- immutable
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-  };
-});
 </script>
 
 <script lang="ts">

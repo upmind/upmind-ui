@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { merge, cloneDeep } from "lodash-es";
+import { merge, cloneDeep, defaults, set } from "lodash-es";
 
 import {
   composePaths,
@@ -33,9 +33,26 @@ export const useUpwindRenderer = <
     input.handleChange(input.control.value.path, adaptTarget(value));
   }, 350);
 
+  const formFieldProps = computed(() => {
+    const props = defaults(appliedOptions.value, {
+      label: input.control.value.label,
+      description: input.control.value.description,
+      required: input.control.value.required,
+      disabled: !input.control.value.enabled,
+      visible: input.control.value.visible,
+    });
+
+    set(props, "id", input.control.value.id);
+    set(props, "name", input.control.value.path);
+    set(props, "errors", input.control.value.errors);
+
+    return props;
+  });
+
   return {
     ...input,
     appliedOptions,
+    formFieldProps,
     onInput,
   };
 };
@@ -82,6 +99,22 @@ export const useUpwindArrayRenderer = <
       cloneDeep(input.control.value.uischema.options)
     )
   );
+
+  const formFieldProps = computed(() => {
+    const props = defaults(appliedOptions.value, {
+      label: input.control.value.label,
+      description: input.control.value.description,
+      required: input.control.value.required,
+      disabled: !input.control.value.enabled,
+      visible: input.control.value.visible,
+    });
+
+    set(props, "id", input.control.value.id);
+    set(props, "name", input.control.value.path);
+    set(props, "errors", input.control.value.errors);
+
+    return props;
+  });
 
   const childUiSchema = computed(() =>
     findUISchema(
@@ -131,6 +164,7 @@ export const useUpwindArrayRenderer = <
   return {
     ...input,
     appliedOptions,
+    formFieldProps,
     childUiSchema,
     childLabelForIndex,
     onInput,

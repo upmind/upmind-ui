@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="delegatedProps">
+  <FormField v-bind="formFieldProps">
     <Input
       v-bind="appliedOptions"
       :model-value="control.data"
@@ -11,7 +11,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -28,28 +27,9 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, appliedOptions, formFieldProps, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
-
-const delegatedProps = computed(() => {
-  const options = appliedOptions.value || {};
-
-  return {
-    // ---
-    label: control.value.label,
-    description: control.value.description,
-    // ---
-    required: control.value.required,
-    disabled: !control.value.enabled,
-    visible: control.value.visible,
-    ...options,
-    // --- immutable
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-  };
-});
 </script>
 
 <script lang="ts">

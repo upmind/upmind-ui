@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="delegatedProps">
+  <FormField v-bind="formFieldProps">
     <InputGroup class="flex">
       <Autocomplete
         :display-value="displayValue"
@@ -77,7 +77,7 @@ const countryItems = computed<AutocompleteItemProps[]>(() =>
   })
 );
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, formFieldProps, onInput } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
 
@@ -125,24 +125,6 @@ function displayValue(item: any) {
 }
 
 const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
-
-const delegatedProps = computed(() => {
-  const options = appliedOptions.value || {};
-
-  return {
-    label: control.value.label,
-    description: control.value.description,
-    // ---
-    required: control.value.required,
-    disabled: !control.value.enabled,
-    visible: control.value.visible,
-    ...options,
-    // --- immutable
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-  };
-});
 </script>
 
 <script lang="ts">
