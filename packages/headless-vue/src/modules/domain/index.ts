@@ -9,7 +9,7 @@ import type { DomainTypes } from "@upmind/headless";
 import { useDomain as useUpmindDomain } from "@upmind/headless";
 
 // --- utils
-import { map, some, find, isArray, get, first } from "lodash-es";
+import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -180,7 +180,7 @@ export const useDomain: any = (
     })),
     // ---
     choose,
-    search,
+    search: debounce(search, 500),
     searchMore,
     searchOffset: computed(() => state.value.context?.search?.offset),
     add,
