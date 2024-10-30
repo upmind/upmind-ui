@@ -90,7 +90,7 @@ import config from "./config.cva";
 
 // --- components
 import { Input, Button, Drawer, FormControl } from "@upmind/upwind";
-import DomainListings from "./Listings.vue";
+import DomainListings from "./DomainCards.vue";
 
 // -----------------------------------------------------------------------------
 

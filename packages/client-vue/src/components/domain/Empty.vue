@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Drawer' : 'div'"
+    :is="modal ? Drawer : 'div'"
     :modelValue="isOpen"
     size="xl"
     persistent
@@ -27,9 +27,9 @@
   </component>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind/upwind";
@@ -41,58 +41,71 @@ import { Avatar, Button, Drawer } from "@upmind/upwind";
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
 
-// -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "DomainEmpty",
-  components: {
-    Avatar,
-    Button,
-    Drawer,
-  },
-  props: {
-    modal: { type: Boolean },
-    title: { type: String },
-    text: { type: String },
-    action: { type: Object, default: () => null },
-    modelValue: { type: Boolean, default: true },
-    avatar: {
-      type: Object,
-      default: () => ({
-        size: "lg",
-        shape: "circle",
-        color: "primary",
-        icon: "basket",
-        fit: "contain",
-      }),
-    },
-  },
-  setup(props) {
-    const styles = useStyles(["domain.empty"], {}, config);
+// --- types
+import type { AvatarProps, ButtonProps } from "@upmind/upwind";
 
-    return {
-      processing: ref(false),
-      styles,
-    };
-  },
-  computed: {
-    isOpen() {
-      const value = true; // by default
-      return value || this.modelValue;
-    },
-    hasAction() {
-      return !isEmpty(this.action);
-    },
-  },
-  methods: {
-    doAction() {
-      if (isFunction(this.action?.handler)) {
-        this.processing = true;
-        this.action.handler().finally(() => {
-          this.processing = false;
-        });
-      }
-    },
-  },
+// -----------------------------------------------------------------------------
+export interface ActionProps extends ButtonProps {
+  type?: HTMLButtonElement["type"];
+  handler?: () => Promise<void>;
+}
+
+const props = withDefaults(
+  defineProps<{
+    modal?: boolean;
+    title?: string;
+    text?: string;
+    action?: ActionProps;
+    modelValue?: boolean;
+    avatar?: AvatarProps;
+  }>(),
+  {
+    modelValue: true,
+    avatar: () => ({
+      size: "lg",
+      shape: "circle",
+      color: "primary",
+      icon: "basket",
+      fit: "contain",
+    }),
+  }
+);
+// props: {
+//   modal: { type: Boolean },
+//   title: { type: String },
+//   text: { type: String },
+//   action: { type: Object, default: () => null },
+//   modelValue: { type: Boolean, default: true },
+//   avatar: {
+//     type: Object,
+//     default: () => ({
+//       size: "lg",
+//       shape: "circle",
+//       color: "primary",
+//       icon: "basket",
+//       fit: "contain",
+//     }),
+//   },
+// },
+
+const styles = useStyles(["domain.empty"], {}, config);
+const processing = ref(false);
+
+const isOpen = computed(() => {
+  const value = true; // by default
+  return value || props.modelValue;
 });
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    props.action.handler().finally(() => {
+      processing.value = false;
+    });
+  }
+}
 </script>
 .
