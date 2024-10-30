@@ -31,8 +31,6 @@
   "scripts": {
     "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo}",
     "start": "npm run start --workspaces --if-present",
-    "start:labs": "npm run dev --workspace=playgrounds/labs",
-    "start:checkout": "npm run dev --workspace=playgrounds/checkout",
     "start:storybook": "npm run storybook --workspace=playgrounds/storybook",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
@@ -64,7 +62,6 @@
     "packages/headless-vue",
     "packages/upwind",
     "packages/client-vue",
-    "playgrounds/labs",
     "playgrounds/checkout",
     "playgrounds/velia",
     "playgrounds/webcentral",
