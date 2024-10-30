@@ -17,11 +17,17 @@
     </template>
 
     <section :class="styles.order.confirmation.root">
-      <Avatar v-bind="avatar" />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
-      <h3 :class="styles.order.confirmation.title">{{ title }}</h3>
+      <h3 :class="styles.order.confirmation.title">
+        <slot name="title">{{ title }}</slot>
+      </h3>
 
-      <p :class="styles.order.confirmation.text">{{ text }}</p>
+      <p :class="styles.order.confirmation.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.order.confirmation.actions">
         <Button

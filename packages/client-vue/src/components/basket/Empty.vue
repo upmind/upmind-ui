@@ -19,28 +19,28 @@
         <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
       </slot>
 
-      <slot name="title">
-        <h3 :class="styles.basket.empty.title">{{ title }}</h3>
-      </slot>
+      <h3 :class="styles.basket.empty.title">
+        <slot name="title">{{ title }}</slot>
+      </h3>
 
-      <slot name="description">
-        <p :class="styles.basket.empty.text">{{ text }}</p>
-      </slot>
+      <p :class="styles.basket.empty.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.basket.empty.actions">
-        <slot name="footer">
-          <Button
-            v-if="hasAction"
-            v-bind="action"
-            @click.stop="doAction"
-            :loading="processing"
-            :label="action?.label"
-          >
-            <template #prepend>
-              <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
-            </template>
-          </Button>
-        </slot>
+        <Button
+          v-if="hasAction"
+          v-bind="action"
+          @click.stop="doAction"
+          :loading="processing"
+          :label="action?.label"
+          :color="action?.color"
+          :variant="action?.variant"
+        >
+          <template #prepend>
+            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+          </template>
+        </Button>
       </footer>
     </section>
   </component>

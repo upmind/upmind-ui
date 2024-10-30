@@ -1,4 +1,9 @@
-import type { AvatarProps, DialogProps, ButtonProps } from "@upmind/upwind";
+import type {
+  AvatarProps,
+  DialogProps,
+  ButtonProps,
+  AnimatedIconProps,
+} from "@upmind/upwind";
 // ---
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
@@ -17,6 +22,7 @@ export interface OrderConfirmationProps {
   title?: DialogProps["title"];
   text?: DialogProps["description"];
   avatar?: AvatarProps;
+  animatedIcon?: AnimatedIconProps;
   action?: ActionProps;
   // ---
   size?: DialogProps["size"];
