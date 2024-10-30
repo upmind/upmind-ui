@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="delegatedProps">
+  <FormField v-bind="formFieldProps">
     <Textarea
       :max="safeMax"
       :min="safeMin"
@@ -30,27 +30,9 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, appliedOptions, onInput, formFieldProps } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
-
-const delegatedProps = computed(() => {
-  const options = appliedOptions.value || {};
-
-  return {
-    id: control.value.id,
-    name: control.value.path,
-    errors: control.value.errors,
-    // ---
-    label: control.value.label,
-    description: control.value.description,
-    // ---
-    required: control.value.required,
-    disabled: !control.value.enabled,
-    visible: control.value.visible,
-    ...options,
-  };
-});
 
 const safeMin: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.min;

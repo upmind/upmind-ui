@@ -2,6 +2,6 @@ import { registerEntry } from "../utils";
 
 // -----------------------------------------------------------------------------
 
-import StringRenderer, { tester as stringTest } from "./StringRenderer.vue";
+import StringsRenderer, { tester as stringsTest } from "./StringsRenderer.vue";
 
-export const arrayRenderers = [registerEntry(StringRenderer, stringTest)];
+export const arrayRenderers = [registerEntry(StringsRenderer, stringsTest)];

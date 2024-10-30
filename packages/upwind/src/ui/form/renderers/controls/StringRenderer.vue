@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="delegatedProps">
+  <FormField v-bind="formFieldProps">
     <Input
       :type="appliedOptions?.type"
       :max="safeMax"
@@ -25,7 +25,7 @@ import { Input } from "../../../input";
 
 // --- utils
 import { useUpwindRenderer } from "../utils";
-import { defaults, set, isNil } from "lodash-es";
+import { isNil } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -48,27 +48,9 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput } = useUpwindRenderer(
+const { control, appliedOptions, onInput, formFieldProps } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
-
-const delegatedProps = computed(() => {
-  const options = defaults(
-    appliedOptions.value || {
-      label: control.value.label,
-      description: control.value.description,
-      required: control.value.required,
-      disabled: !control.value.enabled,
-      visible: control.value.visible,
-    }
-  );
-
-  set(options, "id", control.value.id);
-  set(options, "name", control.value.path);
-  set(options, "errors", control.value.errors);
-
-  return options;
-});
 
 const safeMin: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.minLength;
