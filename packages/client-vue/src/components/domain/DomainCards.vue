@@ -63,7 +63,7 @@ const emit = defineEmits(["update:modelValue", "update:selected"]);
 
 const props = withDefaults(
   defineProps<{
-    i18nKey: string;
+    i18n?: string;
     modelValue?: string | string[];
     items: Record<string, any>[];
     offset?: number;
