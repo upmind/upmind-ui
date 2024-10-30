@@ -7,6 +7,7 @@ import {
   useForwardPropsEmits,
 } from "radix-vue";
 import { Icon } from "../icon";
+import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";
 
 const props = defineProps<
@@ -28,7 +29,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="
       cn(
-        'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 peer-last:ml-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+        'data-[state=checked]:text-control-active-foreground peer h-4 w-4 shrink-0 rounded-sm border border-control ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 peer-last:ml-2 data-[state=checked]:bg-control-active',
         props.class
       )
     "
@@ -37,7 +38,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       class="flex h-full w-full items-center justify-center text-current"
     >
       <slot>
-        <Icon icon="check" />
+        <!-- <Icon icon="check" /> -->
+        <Check class="h-3 w-3" />
       </slot>
     </CheckboxIndicator>
   </CheckboxRoot>

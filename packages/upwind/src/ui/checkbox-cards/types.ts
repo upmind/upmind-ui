@@ -26,6 +26,7 @@ export interface CheckboxCardsProps extends ListboxRootProps {
   // --- state
   items: CheckboxCardsItemProps[];
   loading?: boolean;
+  noInput?: boolean;
   // ---
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
