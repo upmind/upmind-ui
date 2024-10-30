@@ -243,7 +243,7 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-8  "
+            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-4"
           ),
           // input: cva("text-primary"),
           header: cva(

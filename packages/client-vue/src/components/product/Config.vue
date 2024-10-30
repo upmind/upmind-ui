@@ -58,6 +58,7 @@
               color="promotion"
               :label="t('product.promotion')"
               variant="flat"
+              size="sm"
             />
           </div>
 

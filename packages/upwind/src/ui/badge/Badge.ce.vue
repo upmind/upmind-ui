@@ -36,6 +36,7 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   // --- variants
   variant: "outline",
   color: "base",
+  size: "md",
   // --- styles
   upwindConfig: () => ({ badge: {} }),
   class: "",
@@ -44,6 +45,7 @@ const props = withDefaults(defineProps<BadgeProps>(), {
 const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
+  size: props.size,
 }));
 
 const variants = useStyles(
