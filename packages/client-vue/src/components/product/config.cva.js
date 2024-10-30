@@ -243,16 +243,11 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex cursor-pointer flex-wrap items-start gap-2 gap-y-8 rounded-lg border px-4 py-3"
+            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-8  "
           ),
-          selected: cva(
-            "focus-within:border-control-active focus-within:ring-control-active focus-within:border focus-within:ring-4 focus-within:ring-opacity-20"
-          ),
-          disabled: cva("cursor-wait"),
-
           // input: cva("text-primary"),
           header: cva(
-            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
+            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-2"
           ),
           footer: cva("flex w-full flex-none flex-col gap-1 self-end"),
           // ---

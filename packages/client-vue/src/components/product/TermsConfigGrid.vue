@@ -32,57 +32,58 @@
         v-bind="getSubProduct(item.value)"
         :price-override="subproduct?.price_override"
       /> -->
+        <div :class="styles.product.config.grid.item.root">
+          <div :class="styles.product.config.grid.item.header">
+            <span :class="styles.product.config.grid.item.title">
+              {{ item.billing_cycle_name }}
+            </span>
 
-        <div :class="styles.product.config.grid.item.header">
-          <span :class="styles.product.config.grid.item.title">
-            {{ item.billing_cycle_name }}
-          </span>
+            <template v-for="promotion in item?.promotions" :key="promotion.id">
+              <Badge
+                color="promotion"
+                :label="
+                  t(
+                    'product.promo_save',
+                    promotion.mixed || !promotion.amount ? 1 : 0,
+                    {
+                      value: promotion.amount_formatted,
+                    }
+                  )
+                "
+              />
+            </template>
 
-          <template v-for="promotion in item?.promotions" :key="promotion.id">
-            <Badge
-              color="promotion"
-              :label="
-                t(
-                  'product.promo_save',
-                  promotion.mixed || !promotion.amount ? 1 : 0,
-                  {
-                    value: promotion.amount_formatted,
-                  }
-                )
-              "
-            />
-          </template>
+            <span
+              :class="styles.product.config.grid.item.text"
+              v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
+            >
+              {{
+                t("product.cycle", {
+                  value: item?.monthly_price_from_discounted
+                    ? item.monthly_price_from_discounted_formatted
+                    : item.monthly_price_from_formatted,
+                })
+              }}
+            </span>
+          </div>
 
-          <span
-            :class="styles.product.config.grid.item.text"
-            v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
-          >
-            {{
-              t("product.cycle", {
-                value: item?.monthly_price_from_discounted
-                  ? item.monthly_price_from_discounted_formatted
-                  : item.monthly_price_from_formatted,
-              })
-            }}
-          </span>
-        </div>
-
-        <div :class="styles.product.config.grid.item.footer">
-          <span
-            :class="styles.product.config.grid.item.discount"
-            v-if="item?.price_discounted"
-          >
-            {{ item.price_formatted }}
-          </span>
-          <strong :class="styles.product.config.grid.item.total">
-            {{
-              item?.price_discounted
-                ? item.price_discounted_formatted
-                : item?.price
-                  ? item.price_formatted
-                  : t("product.free")
-            }}
-          </strong>
+          <div :class="styles.product.config.grid.item.footer">
+            <span
+              :class="styles.product.config.grid.item.discount"
+              v-if="item?.price_discounted"
+            >
+              {{ item.price_formatted }}
+            </span>
+            <strong :class="styles.product.config.grid.item.total">
+              {{
+                item?.price_discounted
+                  ? item.price_discounted_formatted
+                  : item?.price
+                    ? item.price_formatted
+                    : t("product.free")
+              }}
+            </strong>
+          </div>
         </div>
       </template>
     </RadioCards>
@@ -109,7 +110,7 @@ import { isNil, map } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { RadioCardsItemProps } from "@upmind/upwind";
-import { parse } from "vue/compiler-sfc";
+
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
