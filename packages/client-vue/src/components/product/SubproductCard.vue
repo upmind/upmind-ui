@@ -1,29 +1,39 @@
 <template>
   <section class="m-0 w-full">
     <header class="flex flex-1 items-start gap-x-1">
-      <div class="flex flex-grow flex-col gap-0.5">
+      <div class="flex flex-grow flex-col gap-0.5 md:flex-row md:gap-x-2">
         <h5 class="m-0 font-medium">{{ name }}</h5>
-        <div class="ml-0">
-          <template
-            v-for="promotion in props.price?.promotions"
-            :key="promotion.id"
-          >
-            <Badge
-              color="promotion"
-              class="rounded-md px-1 py-0 text-[12px]"
-              variant="flat"
+
+        <div class="flex flex-wrap items-center gap-2 md:block">
+          <div class="my-1 text-xs md:hidden">
+            <SubproductCardPricing
+              :price="props.price"
+              :price-override="props.price_override"
+            />
+          </div>
+
+          <div class="ml-0">
+            <template
+              v-for="promotion in props.price?.promotions"
+              :key="promotion.id"
             >
-              {{
-                t(
-                  "product.promo_save",
-                  promotion.mixed || !promotion.amount ? 1 : 0,
-                  {
-                    item: promotion.amount_formatted,
-                  }
-                )
-              }}</Badge
-            >
-          </template>
+              <Badge
+                color="promotion"
+                class="rounded-md px-1 py-0 text-[12px]"
+                variant="flat"
+              >
+                {{
+                  t(
+                    "product.promo_save",
+                    promotion.mixed || !promotion.amount ? 1 : 0,
+                    {
+                      item: promotion.amount_formatted,
+                    }
+                  )
+                }}</Badge
+              >
+            </template>
+          </div>
         </div>
       </div>
 
@@ -41,44 +51,12 @@
           width="sm"
         />
 
-        <div class="flex flex-col text-right font-semibold">
-          <span
-            class="flex flex-shrink-0 items-center justify-end gap-x-1"
-            v-if="props.price?.price"
-          >
-            <Tooltip
-              v-if="props.price_override"
-              :label="t('product.overrides')"
-            >
-              <Icon
-                icon="transfer"
-                size="3xs"
-                class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
-              />
-            </Tooltip>
-
-            <Tooltip v-else :label="t('product.adds')">
-              <Icon
-                icon="plus"
-                size="3xs"
-                class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
-              />
-            </Tooltip>
-
-            {{
-              props.price?.price_discounted
-                ? props.price?.price_discounted_formatted
-                : props.price?.price_formatted
-            }}
-          </span>
-
-          <span v-else>{{ t("product.free") }}</span>
-
-          <span
-            v-if="props.price?.price_discounted"
-            class="text-2xs text-base-500 leading-none line-through"
-          >
-            {{ props.price?.price_formatted }}
+        <div class="hidden flex-col text-right font-semibold md:flex">
+          <span class="flex flex-shrink-0 items-center justify-end gap-x-1">
+            <SubproductCardPricing
+              :price="props.price"
+              :price-override="props.price_override"
+            />
           </span>
         </div>
       </div>
@@ -102,6 +80,7 @@ import { NumberField } from "@upmind/upwind";
 
 // --- components
 import { Icon, Tooltip, Badge } from "@upmind/upwind";
+import SubproductCardPricing from "./SubproductCardPricing.vue";
 
 // --- types
 
