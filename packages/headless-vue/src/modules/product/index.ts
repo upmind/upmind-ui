@@ -20,6 +20,7 @@ import {
   subtract,
   isArray,
   forEach,
+  find,
 } from "lodash-es";
 
 // --- types
@@ -220,11 +221,12 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     updateOptions();
   }
 
-  function updateOptionQuantity(option: any, value: any, qty: number) {
+  function updateOptionQuantity(option: any, product_id: string, qty: number) {
     // sanity check
-    if (!value?.canChangeQuantity) return;
+    const product = find(option.values, ["id", product_id]);
+    if (!product?.canChangeQuantity) return;
 
-    set(model.value.options, [option.id, value.id, "unit_quantity"], qty);
+    set(model.value.options, [option.id, product_id, "unit_quantity"], qty);
 
     // emit the event
     updateOptions();

@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, watchEffect } from "vue";
+import { computed } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // NB its important to NOT set autofocus as we are controlling it via the intersection observer
@@ -47,7 +47,6 @@ const meta = computed(() => ({
 // --- methods
 
 function maybeFocus([section]) {
-  console.log("FormControl", "maybeFocus", section);
   if (meta.value.shouldFocus && section.isIntersecting) {
     let el = section.target;
     if (
@@ -65,10 +64,6 @@ function maybeFocus([section]) {
 }
 
 // --- lifecycle
-
-watchEffect(() => {
-  console.log("FormControl", "props", props);
-});
 
 // --- side effects
 </script>

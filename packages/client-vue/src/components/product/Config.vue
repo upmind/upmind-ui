@@ -2,8 +2,8 @@
   <component
     :is="as"
     :class="cn(styles.product.config.root, $props.class)"
-    @submit.prevent="doResolve"
-    @reset.prevent="doReject"
+    @submit.prevent
+    @reset.prevent
   >
     <header
       :class="styles.product.config.header"
@@ -27,7 +27,7 @@
       <div
         :class="styles.product.config.wrapper"
         v-if="
-          !noTitle ||
+          !props.noTitle ||
           product?.hasFreeTrial ||
           product?.isOnPromotion ||
           !!product?.description ||
@@ -38,7 +38,9 @@
         <div :class="styles.product.config.heading">
           <div
             :class="styles.product.config.headingContent"
-            v-if="!noTitle || product?.hasFreeTrial || product?.isOnPromotion"
+            v-if="
+              !props.noTitle || product?.hasFreeTrial || product?.isOnPromotion
+            "
           >
             <Badge
               v-if="product?.hasFreeTrial"
@@ -52,7 +54,7 @@
               :label="t('product.promotion')"
             />
 
-            <h3 :class="styles.product.config.title" v-if="!noTitle">
+            <h3 :class="styles.product.config.title" v-if="!props.noTitle">
               {{ product?.name }}
             </h3>
           </div>
@@ -93,16 +95,20 @@
           required
         />
 
+        <!-- options -->
         <VSubproductCards
           v-for="option in options"
           :key="option.id"
           :subproduct="option"
           :model-value="getValue('options', option)"
           :errors="getErrors('options', option)"
+          :quantities="getQuantities(option)"
           @update:modelValue="setOptions(option, safeValue(option, $event))"
-          @update:quantity="updateOptionQuantity(option, ...$event)"
+          @update:quantity="
+            (value, qty) => updateOptionQuantity(option, value, qty)
+          "
           :required="option.required"
-          :visible="option.values.length"
+          :visible="!!option.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="
             props.disabled ||
@@ -120,7 +126,7 @@
           :model-value="getValue('attributes', attribute)"
           :errors="getErrors('attributes', attribute)"
           :required="attribute.required"
-          :visible="attribute.values.length"
+          :visible="!!attribute.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="
             props.disabled ||
@@ -158,6 +164,7 @@
           :disabled="meta.isProcessing || required"
           color="current"
           variant="link"
+          @click="doReject"
         />
 
         <span :class="styles.product.config.itemtotal" v-if="summary?.total">
@@ -172,8 +179,9 @@
           tabindex="0"
           :label="t('product.actions.resolve')"
           :loading="meta.isProcessing"
-          :disabled="meta.isLoading || !meta.isConfigured"
+          :disabled="meta.isLoading || meta.isCalculating || !meta.isConfigured"
           color="secondary"
+          @click="doResolve"
         />
       </slot>
     </footer>
@@ -199,7 +207,7 @@ import ConfigForm from "./ConfigForm.vue";
 import { Badge, Button } from "@upmind/upwind";
 
 // --- utils
-import { reduce, get, first, isArray } from "lodash-es";
+import { reduce, get, first, isArray, set, keys } from "lodash-es";
 
 // -- -types
 import type { ActorRef } from "xstate";
@@ -255,10 +263,7 @@ const {
 
 const styles = useStyles(["product.config"], meta, config);
 
-function safeValue(
-  subproduct: Object,
-  value: string | string[]
-): string | string[] {
+function safeValue(subproduct: Object, value: any): string | string[] {
   const shouldBeArray = subproduct?.multiple || subproduct?.values?.length == 1;
   const safeArray = !isArray(value) ? [value] : value;
   const safeString = isArray(value) ? first(value) : value;
@@ -270,17 +275,21 @@ function getValue(
   type: "options" | "attributes",
   subproduct: Object
 ): string | string[] {
+  const value = keys(model.value?.[type]?.[subproduct.id]);
+  return safeValue(subproduct, value);
+}
+
+function getQuantities(subproduct: Object): Record<string, number> {
   const value = reduce(
-    model.value?.[type]?.[subproduct.id],
-    (result: string[], value) => {
-      const val: string = get(value, "product_id");
-      if (val) result.push(val);
+    model.value?.options?.[subproduct.id],
+    (result: Record<string, number>, value, product_id) => {
+      if (product_id) set(result, product_id, get(value, "unit_quantity", 0));
       return result;
     },
-    []
+    {}
   );
 
-  return safeValue(subproduct, value);
+  return value;
 }
 
 function getErrors(type: "options" | "attributes", subproduct: Object) {

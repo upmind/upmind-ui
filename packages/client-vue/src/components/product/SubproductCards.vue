@@ -30,8 +30,7 @@
     >
       <template #item="{ item: { value } }">
         <VCardSubproduct
-          v-bind="getSubProduct(value)"
-          :price-override="subproduct?.price_override"
+          v-bind="getSubProduct(value as string)"
           @update:quantity="doUpdateQuantity(value, $event)"
         />
       </template>
@@ -66,6 +65,7 @@ const emit = defineEmits(["update:modelValue", "update:quantity"]);
 const props = defineProps<{
   subproduct: Object;
   modelValue?: string | string[];
+  quantities?: Record<string, number>;
   errors?: string;
   // --- state
   disabled?: boolean;
@@ -101,14 +101,12 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
   });
 });
 
-function getSubProduct(value) {
-  debugger;
+function getSubProduct(value: string) {
   const subproduct = find(props.subproduct?.values, ["id", value]);
-  const model = get(props.modelValue, value, {});
-  debugger;
   return {
     ...subproduct,
-    model,
+    quantity: get(props.quantities, value, 0),
+    priceOverride: subproduct?.price_override,
   };
 }
 
