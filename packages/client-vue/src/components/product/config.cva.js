@@ -116,7 +116,7 @@ export default {
 
     config: {
       root: cva(
-        "bg-base text-base-foreground w-full overflow-hidden rounded-lg border",
+        "bg-base text-base-foreground w-full overflow-hidden rounded-lg shadow-sm",
         {
           variants: {
             isDisabled: {
@@ -146,7 +146,7 @@ export default {
         }
       ),
 
-      content: cva("flex flex-wrap items-start gap-x-2 gap-y-10 p-10"),
+      content: cva("flex flex-wrap items-start gap-x-2 gap-y-10 p-6 md:p-10"),
 
       media: cva("m-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
