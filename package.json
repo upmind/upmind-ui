@@ -64,6 +64,7 @@
     "packages/headless-vue",
     "packages/upwind",
     "packages/client-vue",
+    "packages/types",
     "playgrounds/labs",
     "playgrounds/checkout",
     "playgrounds/storybook",
