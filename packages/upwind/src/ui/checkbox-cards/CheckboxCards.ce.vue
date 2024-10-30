@@ -19,6 +19,7 @@
         :required="props.required"
         :disabled="props.disabled"
         :class="variants.checkboxCards.input"
+        :no-input="props.noInput"
       >
         <Label
           :for="`${props.name}-${index}`"
@@ -76,6 +77,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const meta = computed(() => ({
   color: props.color,
   layout: props.layout,
+  noInput: props.noInput,
 }));
 
 const variants = useStyles(
