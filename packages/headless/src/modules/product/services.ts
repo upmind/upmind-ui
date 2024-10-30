@@ -493,8 +493,16 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
         })
         .catch(() => {
           // still notify the machine, but with an no value, so we can move out of the state
-          callback({ type: "CALCULATED", data: null });
+          callback({ type: "CALCULATE_CANCELLED", data: null });
         });
+    }
+
+    if (event.type === "CANCEL") {
+      // Firstly, we need to check if we have a controller already doing calculation requests.
+      // If we do, we need to abort the current request and start a new one.
+      if (controller?.signal && !controller.signal?.aborted) {
+        controller?.abort("Request cancelled");
+      }
     }
   });
 
@@ -503,7 +511,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
     // typically when the transitioning out of the state node
     //  so cancel any pending requests
     if (controller?.signal && !controller.signal?.aborted)
-      controller?.abort("New request received");
+      controller?.abort("Subscripton terminated");
   };
 }
 
