@@ -40,7 +40,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
         :class="
           cn(
             'max-h-[90dvh] grid-rows-[auto_minmax(0,1fr)_auto] p-0 sm:max-w-[425px]',
-            'relative z-50 my-8 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full',
+            'border-border relative z-50 my-8 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full',
             props.class
           )
         "

@@ -37,7 +37,7 @@ export const tabsListVariants = cva(
       {
         variant: "flat",
         color: "base",
-        class: "bg-base-100",
+        class: "bg-base-muted",
       },
       {
         variant: "flat",
@@ -83,7 +83,7 @@ export const tabsListVariants = cva(
       {
         variant: "outline",
         color: "base",
-        class: "border-base-300 text-base-foreground",
+        class: "border-base-muted-active text-base-foreground",
       },
       {
         variant: "outline",
@@ -129,7 +129,7 @@ export const tabsListVariants = cva(
       {
         variant: "tonal",
         color: "base",
-        class: "bg-base-400 text-base-foreground",
+        class: "bg-base-muted text-base-foreground",
       },
       {
         variant: "tonal",
@@ -182,7 +182,7 @@ export const tabsListVariants = cva(
 );
 
 export const tabsTriggerVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "focus-visible:ring-ring inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {

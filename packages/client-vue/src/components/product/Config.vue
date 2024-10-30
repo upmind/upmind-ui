@@ -46,12 +46,14 @@
               v-if="product?.hasFreeTrial"
               color="secondary"
               :label="t('product.trail')"
+              variant="tonal"
             />
 
             <Badge
               v-if="product?.isOnPromotion"
               color="promotion"
               :label="t('product.promotion')"
+              variant="tonal"
             />
 
             <h3 :class="styles.product.config.title" v-if="!props.noTitle">

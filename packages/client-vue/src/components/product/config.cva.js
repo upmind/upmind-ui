@@ -50,7 +50,7 @@ export default {
       media: cva("m-0 size-20 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
-            true: "bg-base-100 text-base-300 border",
+            true: "bg-base-muted text-base-muted-foreground border",
           },
         },
       }),
@@ -79,7 +79,7 @@ export default {
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
-            true: "text-base-300",
+            true: "opacity-50",
           },
         },
       }),
@@ -151,7 +151,7 @@ export default {
       media: cva("m-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
-            true: "bg-base-100 text-base-300 border",
+            true: "bg-base-muted text-base-muted-foreground border",
           },
         },
       }),
@@ -167,7 +167,7 @@ export default {
       summary: cva("inline-flex items-end gap-x-6 gap-y-6", {
         variants: {
           isCalculating: {
-            true: "text-base-300",
+            true: "text-opacity-50",
           },
         },
       }),
@@ -189,7 +189,7 @@ export default {
       bold: cva("font-medium", {
         variants: {
           isCalculating: {
-            true: "text-base-300",
+            true: "text-opacity-50",
           },
         },
       }),
@@ -199,7 +199,7 @@ export default {
         {
           variants: {
             isCalculating: {
-              true: "text-base-300",
+              true: "text-opacity-50",
             },
           },
         }
@@ -209,7 +209,7 @@ export default {
         {
           variants: {
             isCalculating: {
-              true: "text-base-300",
+              true: "text-opacity-50",
             },
           },
         }
@@ -219,7 +219,7 @@ export default {
         {
           variants: {
             isCalculating: {
-              true: "text-base-300",
+              true: "text-opacity-50",
             },
           },
         }

@@ -25,23 +25,24 @@ export const itemVariants = cva(
   {
     variants: {
       color: {
-        base: "data-[highlighted]:bg-base-50 data-[highlighted]:text-base-foreground",
+        base: "data-[highlighted]:bg-base-muted data-[highlighted]:text-base-foreground-muted-foreground",
         primary:
-          "data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary",
+          "data-[highlighted]:bg-primary-muted data-[highlighted]:text-primary-muted-foreground",
         secondary:
-          "data-[highlighted]:bg-secondary-50 data-[highlighted]:text-secondary",
+          "data-[highlighted]:bg-secondary-muted data-[highlighted]:text-secondary-muted-foreground",
         accent:
-          "data-[highlighted]:bg-accent-50 data-[highlighted]:text-accent",
+          "data-[highlighted]:bg-accent-muted data-[highlighted]:text-accent-muted-foreground",
         promotion:
-          "data-[highlighted]:bg-promotion-50 data-[highlighted]:text-promotion",
+          "data-[highlighted]:bg-promotion-muted data-[highlighted]:text-promotion-muted-foreground",
         destructive:
-          "data-[highlighted]:bg-destructive-50 data-[highlighted]:text-destructive",
+          "data-[highlighted]:bg-destructive-muted data-[highlighted]:text-destructive-muted-foreground",
         success:
-          "data-[highlighted]:bg-success-50 data-[highlighted]:text-success",
-        info: "data-[highlighted]:bg-info-50 data-[highlighted]:text-info",
-        error: "data-[highlighted]:bg-error-50 data-[highlighted]:text-error",
+          "data-[highlighted]:bg-success-muted data-[highlighted]:text-success-muted-foreground",
+        info: "data-[highlighted]:bg-info-muted data-[highlighted]:text-info-muted-foreground",
+        error:
+          "data-[highlighted]:bg-error-muted data-[highlighted]:text-error-muted-foreground",
         warning:
-          "data-[highlighted]:bg-warning-50 data-[highlighted]:text-warning",
+          "data-[highlighted]:bg-warning-muted data-[highlighted]:text-warning-muted-foreground",
       },
     },
     defaultVariants: {

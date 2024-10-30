@@ -23,6 +23,11 @@ const colors = {
     950: "#342316",
     foreground: "#775335",
     background: "#f4efe0",
+    muted: {
+      DEFAULT: "#f4efe0",
+      foreground: "#65758b",
+      active: "#ece3ca",
+    },
   },
 
   primary: {
@@ -40,6 +45,11 @@ const colors = {
     950: "#40110f",
     foreground: "#282425",
     background: "#df5a54",
+    muted: {
+      DEFAULT: "#fbe6e5",
+      foreground: "#65758b",
+      active: "#f9d1cf",
+    },
   },
 
   accent: {
@@ -57,6 +67,11 @@ const colors = {
     950: "#0f1f18",
     foreground: "#f1f8f4",
     background: "#448562",
+    muted: {
+      DEFAULT: "#deede2",
+      foreground: "#65758b",
+      active: "#bfdbc9",
+    },
   },
 
   secondary: {
@@ -74,6 +89,11 @@ const colors = {
     950: "#441604",
     foreground: "#fffaeb",
     background: "#903710",
+    muted: {
+      DEFAULT: "#fdeec8",
+      foreground: "#65758b",
+      active: "#fbdb84",
+    },
   },
 
   // ---
@@ -93,6 +113,11 @@ const colors = {
     950: "#231263",
     foreground: "#ffffff",
     background: "#5E36E8",
+    muted: {
+      DEFAULT: "#f3f3ff",
+      foreground: "#65758b",
+      active: "#eae9fe",
+    },
   },
 
   destructive: {
@@ -110,6 +135,11 @@ const colors = {
     950: "#fff2f2",
     foreground: "#ffffff",
     background: "#ff4d6d",
+    muted: {
+      DEFAULT: "#4d0000",
+      foreground: "#65758b",
+      active: "#660000",
+    },
   },
 
   // ---
@@ -129,6 +159,11 @@ const colors = {
     950: "#172a54",
     foreground: "#dbe6fe",
     background: "#2563eb",
+    muted: {
+      DEFAULT: "#eff4ff",
+      foreground: "#65758b",
+      active: "#bfd3fe",
+    },
   },
 
   success: {
@@ -146,6 +181,11 @@ const colors = {
     950: "#052e14",
     foreground: "#dcfce8",
     background: "#16a34a",
+    muted: {
+      DEFAULT: "#f0fdf5",
+      foreground: "#65758b",
+      active: "#bbf7d1",
+    },
   },
 
   warning: {
@@ -163,6 +203,11 @@ const colors = {
     950: "#452603",
     foreground: "#fee4c7",
     background: "#d97706",
+    muted: {
+      DEFAULT: "#fff6eb",
+      foreground: "#65758b",
+      active: "#fdc88a",
+    },
   },
 
   error: {
@@ -180,16 +225,16 @@ const colors = {
     950: "#460d09",
     foreground: "#ffe3e1",
     background: "#f35248",
+    muted: {
+      DEFAULT: "#fef3f2",
+      foreground: "#65758b",
+      active: "#ffccc9",
+    },
   },
 
   disabled: {
     DEFAULT: "#bdbdbd",
     foreground: "#404040",
-  },
-
-  muted: {
-    DEFAULT: "#f1f5f9",
-    foreground: "#65758b",
   },
 
   // --- Component Variants
@@ -268,6 +313,7 @@ export default {
     DEFAULT: colors.base[300],
     input: colors.base[300],
     control: colors.base[300],
+    active: colors.control.active.DEFAULT,
   },
   borderRadius: {
     DEFAULT: "0", // disabled

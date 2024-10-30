@@ -31,47 +31,51 @@ export const alertVariants = cva(
       {
         variant: "outline",
         color: "primary",
-        class: "border-primary bg-primary-50 text-primary",
+        class: "bg-primary-muted text-primary-muted-foreground border-primary",
       },
       {
         variant: "outline",
         color: "secondary",
-        class: "border-secondary bg-secondary-50 text-secondary",
+        class:
+          "bg-secondary-muted text-secondary-muted-foreground border-secondary",
       },
       {
         variant: "outline",
         color: "accent",
-        class: "test border-accent bg-accent-50 text-accent",
+        class:
+          "test bg-accent-muted text-accent-muted-foreground border-accent",
       },
       {
         variant: "outline",
         color: "promotion",
-        class: "border-promotion bg-promotion-50 text-promotion",
+        class:
+          "bg-promotion-muted text-promotion-muted-foreground border-promotion",
       },
       {
         variant: "outline",
         color: "destructive",
-        class: "border-destructive bg-destructive-50 text-destructive",
+        class:
+          "bg-destructive-muted text-destructive-muted-foreground border-destructive",
       },
       {
         variant: "outline",
         color: "success",
-        class: "border-success bg-success-50 text-success",
+        class: "bg-success-muted text-success-muted-foreground border-success",
       },
       {
         variant: "outline",
         color: "info",
-        class: "border-info bg-info-50 text-info",
+        class: "bg-info-muted text-info-muted-foreground border-info",
       },
       {
         variant: "outline",
         color: "error",
-        class: "border-error bg-error-50 text-error",
+        class: "bg-error-muted text-error-muted-foreground border-error",
       },
       {
         variant: "outline",
         color: "warning",
-        class: "border-warning bg-warning-50 text-warning",
+        class: "bg-warning-muted text-warning-muted-foreground border-warning",
       },
       {
         variant: "solid",
@@ -81,47 +85,50 @@ export const alertVariants = cva(
       {
         variant: "solid",
         color: "primary",
-        class: "border-primary bg-primary text-primary-50",
+        class: "text-primary-muted-muted-foreground border-primary bg-primary",
       },
       {
         variant: "solid",
         color: "secondary",
-        class: "border-secondary bg-secondary text-secondary-50",
+        class:
+          "text-secondary-muted-muted-foreground border-secondary bg-secondary",
       },
       {
         variant: "solid",
         color: "accent",
-        class: "border-accent bg-accent text-accent-50",
+        class: "text-accent-muted-muted-foreground border-accent bg-accent",
       },
       {
         variant: "solid",
         color: "promotion",
-        class: "border-promotion bg-promotion text-promotion-50",
+        class:
+          "text-promotion-muted-muted-foreground border-promotion bg-promotion",
       },
       {
         variant: "solid",
         color: "destructive",
-        class: "border-destructive bg-destructive text-destructive-50",
+        class:
+          "text-destructive-muted-muted-foreground border-destructive bg-destructive",
       },
       {
         variant: "solid",
         color: "success",
-        class: "border-success bg-success text-success-50",
+        class: "text-success-muted-muted-foreground border-success bg-success",
       },
       {
         variant: "solid",
         color: "info",
-        class: "border-info bg-info text-info-50",
+        class: "text-info-muted-muted-foreground border-info bg-info",
       },
       {
         variant: "solid",
         color: "error",
-        class: "border-error bg-error text-error-50",
+        class: "text-error-muted-muted-foreground border-error bg-error",
       },
       {
         variant: "solid",
         color: "warning",
-        class: "border-warning bg-warning text-warning-50",
+        class: "text-warning-muted-muted-foreground border-warning bg-warning",
       },
     ],
     defaultVariants: {

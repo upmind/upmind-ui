@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "focus:ring-ring inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
   {
     variants: {
       variant: {
@@ -75,45 +75,49 @@ export const badgeVariants = cva(
       {
         color: "base",
         variant: "tonal",
-        class: "bg-base-200 text-base-foreground",
+        class: "bg-base-muted text-base-muted-foreground",
       },
 
       {
         color: "primary",
         variant: "tonal",
-        class: "bg-primary-50 text-primary",
+        class: "bg-primary-muted text-primary-muted-foreground",
       },
       {
         color: "secondary",
         variant: "tonal",
-        class: "bg-secondary-50 text-secondary",
+        class: "bg-secondary-muted text-secondary-muted-foreground",
       },
       {
         color: "accent",
         variant: "tonal",
-        class: "bg-accent-50 text-accent",
+        class: "bg-accent-muted text-accent-muted-foreground",
       },
       {
         color: "promotion",
         variant: "tonal",
-        class: "bg-promotion-50 text-promotion",
+        class: "bg-promotion-muted text-promotion-muted-foreground",
       },
       {
         color: "destructive",
         variant: "tonal",
-        class: "bg-destructive-50 text-destructive",
+        class: "bg-destructive-muted text-destructive-muted-foreground",
       },
       {
         color: "success",
         variant: "tonal",
-        class: "bg-success-50 text-success",
+        class: "bg-success-muted text-success-muted-foreground",
       },
-      { color: "info", variant: "tonal", class: "bg-info-50 text-info" },
-      { color: "error", variant: "tonal", class: "bg-error-50 text-error" },
+      {
+        color: "info",
+        variant: "tonal",
+        class: "bg-info-muted text-info-muted-foreground",
+      },
+      { color: "error", variant: "tonal", class: "bg-error-muted text-error" },
       {
         color: "warning",
         variant: "tonal",
-        class: "bg-warning-50 text-warning",
+        class: "bg-warning-muted text-warning-muted-foreground",
       },
     ],
     defaultVariants: {
