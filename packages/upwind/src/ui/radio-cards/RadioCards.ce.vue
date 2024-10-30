@@ -46,7 +46,7 @@ import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, first } from "lodash-es";
 
 // --- types
 import type { RadioCardsProps } from "./types";
@@ -101,4 +101,12 @@ function onChange(value: any) {
     modelValue.value = undefined;
   else modelValue.value = value;
 }
+
+// TODO: Fix the issue where validation breaks if we don't wait 1ms
+setTimeout(() => {
+  if (props.required && !modelValue.value) {
+    const value = first(props.items)?.value;
+    if (value) emits("update:modelValue", value);
+  }
+}, 1);
 </script>
