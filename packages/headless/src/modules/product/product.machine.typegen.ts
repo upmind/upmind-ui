@@ -116,7 +116,16 @@ export interface Typegen0 {
     setQuantity:
       | "SET.QUANTITY"
       | "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]";
-    setSummary: "CALCULATED";
+    setSummary:
+      | "CALCULATED"
+      | "done.invoke.productConfigurator.available.configuring.attributes.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
+      | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
     setSummaryCalculating:
       | "done.invoke.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
