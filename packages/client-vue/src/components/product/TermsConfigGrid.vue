@@ -15,7 +15,6 @@
     <RadioCards
       id="terms"
       name="terms"
-      as="ul"
       :required="props.required"
       :items="parsedValues"
       :disabled="props.disabled || props.processing"

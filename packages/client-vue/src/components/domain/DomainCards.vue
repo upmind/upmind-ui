@@ -1,9 +1,5 @@
 <template>
   <section :class="styles.domain.listings.root" v-auto-animate>
-    <header :class="styles.domain.listings.header">
-      <slot name="header" v-bind="{ meta }"></slot>
-    </header>
-
     <Empty
       :title="t('domain.empty.title')"
       :text="t('domain.empty.text')"
@@ -14,17 +10,20 @@
       v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
       :class="styles.domain.listings.items"
       no-input
-      key="items"
       id="dac"
       name="dac"
+      as="ul"
       required
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
-      :errors="errors"
       :model-value="safeValue"
     >
       <template #item="{ item: { value } }">
-        <VCardDomain v-bind="getDomain(value as string)" />
+        <VCardDomain
+          v-bind="getDomain(value as string)"
+          :selected="isSelected(value as string)"
+          @update:selected="onToggleSelected"
+        />
       </template>
     </CheckboxCards>
 
@@ -53,14 +52,14 @@ import Empty from "./Empty.vue";
 import { SkeletonList, CheckboxCards } from "@upmind/upwind";
 
 // --- utils
-import { get, includes, isArray, isNil, find } from "lodash-es";
+import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
-import { type ComputedRef } from "vue";
 import type { CheckboxCardsItemProps } from "@upmind/upwind";
+import type { IDomain } from "./types";
 
 // -----------------------------------------------------------------------------
-const emit = defineEmits(["update:modelValue", "toggle"]);
+const emit = defineEmits(["update:modelValue", "update:selected"]);
 
 const props = withDefaults(
   defineProps<{
@@ -92,20 +91,7 @@ const meta = computed(() => ({
   isProcessing: props.processing,
 }));
 
-const styles = useStyles(
-  [
-    "domain.listings",
-    "domain.card",
-    "domain.card.owned",
-    "domain.card.basket",
-    "domain.card.available",
-    "domain.card.transfer",
-    "domain.transitions.fade.enter",
-    "domain.transitions.fade.leave",
-  ],
-  meta,
-  config
-);
+const styles = useStyles(["domain.listings"], meta, config);
 
 const safeValue = computed(() => {
   return isNil(props.modelValue)
@@ -115,10 +101,20 @@ const safeValue = computed(() => {
       : [props.modelValue];
 });
 
-function getDomain(value: string) {
-  debugger;
-  return find(props.items, ["id", value]);
+function getDomain(value: string): IDomain {
+  const domain = find(props.items, ["value", value]) as IDomain;
+  return domain;
 }
+
+const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
+  return map(props.items, domain => {
+    return {
+      id: domain.value,
+      value: domain.value,
+      label: domain?.domain,
+    };
+  });
+});
 
 const translations = computed(() => {
   return tm(props.i18nKey);
@@ -132,8 +128,8 @@ function isSelected(value: string): boolean {
   return includes(props.modelValue, value);
 }
 
-function onUpdate(value: string): void {
-  if (meta.value.isDisabled || meta.value.isProcessing) return;
-  emit("toggle", value);
+function onToggleSelected(value?: string) {
+  if (meta.value.isProcessing) return;
+  emit("update:selected", value);
 }
 </script>

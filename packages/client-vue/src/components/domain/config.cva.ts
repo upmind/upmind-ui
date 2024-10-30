@@ -9,15 +9,15 @@ export default {
     search: cva(""),
 
     listings: {
-      root: cva(""),
+      root: cva("list-none"),
       header: cva(""),
       items: cva(""),
       loading: cva(""),
     },
     card: {
-      root: cva(""),
+      root: cva("m-0 flex w-full"),
       underline: cva("underline underline-offset-8"),
-      label: cva("m-0 flex w-full flex-col gap-1 pr-4"),
+      header: cva("m-0 flex w-full flex-col gap-2 pr-4"),
       badges: cva("flex items-center gap-2"),
       title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(

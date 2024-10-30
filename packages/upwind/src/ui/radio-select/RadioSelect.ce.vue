@@ -105,7 +105,6 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   // -- variants
   color: "base",
   variant: "control",
-  size: "md",
   // --- styles
   class: "",
 });

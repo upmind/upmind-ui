@@ -37,13 +37,13 @@
     </template>
 
     <div :class="styles.domain.root">
-      <DomainListings
+      <DomainCards
         :model-value="values"
         :items="items"
         :offset="offset"
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
-        @toggle="onUpdate"
+        @update:selected="onToggleSelected"
       />
 
       <Button
@@ -90,12 +90,12 @@ import config from "./config.cva";
 
 // --- components
 import { Input, Button, Drawer, FormControl } from "@upmind/upwind";
-import DomainListings from "./DomainCards.vue";
+import DomainCards from "./DomainCards.vue";
 
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits([
-  "toggle",
+  "update:selected",
   "search",
   "search:more",
   "resolve",
@@ -104,17 +104,17 @@ const emit = defineEmits([
 const props = withDefaults(
   defineProps<{
     id: string;
-    modelValue: string;
-    query: string;
-    offset: number;
-    values: string[];
-    items: string[];
-    dialog: boolean;
-    loading: boolean;
-    processing: boolean;
-    disabled: boolean;
-    complete: boolean;
-    more: boolean;
+    modelValue?: string;
+    query?: string;
+    offset?: number;
+    values?: string[];
+    items?: string[];
+    dialog?: boolean;
+    loading?: boolean;
+    processing?: boolean;
+    disabled?: boolean;
+    complete?: boolean;
+    more?: boolean;
   }>(),
   {
     offset: 0,
@@ -156,14 +156,14 @@ function onReject() {
 function onResolve() {
   emit("resolve");
 }
-function onSearch(value) {
+function onSearch(value: string) {
   emit("search", value);
 }
-function onSearchOffset(value) {
+function onSearchOffset(value: number) {
   emit("search:more", value);
 }
-function onUpdate(value) {
+function onToggleSelected(value?: string) {
   if (meta.value.isProcessing) return;
-  emit("toggle", value);
+  emit("update:selected", value);
 }
 </script>
