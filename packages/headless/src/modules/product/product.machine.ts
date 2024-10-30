@@ -17,6 +17,7 @@ import {
   parseTerms,
   parseModel,
   parseBasketProduct,
+  parseBasketProductSummary,
   parseSummary,
 } from "./utils";
 
@@ -290,7 +291,9 @@ export default createMachine(
 
           // this is our state where we are all good and can add/update this configuration to the basket
           configured: {},
-          complete: {},
+          complete: {
+            entry: ["cancelCalculation", "setSummaryWithBasketProduct"],
+          },
           error: {},
         },
         on: {
@@ -329,6 +332,9 @@ export default createMachine(
               })
             ),
             target: "processing",
+          },
+          CALCULATE_CANCELLED: {
+            actions: ["clearSummaryCalculating"],
           },
           CALCULATED: [
             {
@@ -542,6 +548,20 @@ export default createMachine(
           });
         },
       }),
+      setSummaryWithBasketProduct: assign({
+        summary: (
+          { model, lookups, error, basket_product }: ProductConfigContext,
+          _event: ProductConfigEvent
+        ) => {
+          const data = parseBasketProductSummary(basket_product);
+          return parseSummary({
+            summary: data,
+            model,
+            lookups,
+            error,
+          });
+        },
+      }),
 
       setSummaryCalculating: assign({
         summary: ({ summary }: ProductConfigContext, _event) => {
@@ -555,6 +575,13 @@ export default createMachine(
           return summary;
         },
       }),
+
+      cancelCalculation: sendTo(
+        ({ calculateCallback }, _event) => calculateCallback,
+        (_context, _event) => ({
+          type: "CANCEL",
+        })
+      ),
 
       calculate: sendTo(
         ({ calculateCallback }, _event) => calculateCallback,
