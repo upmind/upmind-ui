@@ -90,6 +90,24 @@ export default createMachine(
         },
       },
 
+      refreshing: {
+        id: "refreshing",
+        invoke: {
+          id: "refresh",
+          src: "refresh",
+          onDone: [
+            {
+              target: "available",
+              actions: ["setLookups"],
+            },
+          ],
+          onError: {
+            target: "error",
+            actions: "setError",
+          },
+        },
+      },
+
       available: {
         initial: "configuring",
         states: {
@@ -288,7 +306,6 @@ export default createMachine(
               { target: "complete" },
             ],
           },
-
           // this is our state where we are all good and can add/update this configuration to the basket
           configured: {},
           complete: {
@@ -299,7 +316,7 @@ export default createMachine(
         on: {
           REFRESH: [
             {
-              target: "loading",
+              target: "refreshing",
               actions: ["refreshContext"],
               cond: "hasBasketChanged",
             },
@@ -401,7 +418,7 @@ export default createMachine(
     },
     on: {
       RESET: {
-        target: "loading",
+        target: "refreshing",
         actions: ["resetModel"],
       },
       PROCESSING: {

@@ -76,7 +76,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
       "complete",
     ]),
     isCalculating: contextMatches(state, ["summary.isCalculating"]),
-    isProcessing: stateMatches(state, ["processing", "complete"]),
+    isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
     // ---
 
     hasProvisioning:

@@ -99,7 +99,7 @@ const emit = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     sync?: boolean;
-    type: "register" | "transfer" | "existing" | "basket";
+    type?: "register" | "transfer" | "existing" | "basket";
     modelValue?: string | string[];
     multiple?: boolean;
     parentId?: string;
@@ -125,6 +125,7 @@ const {
   basket,
   errors,
   // ---
+  state,
   meta,
   searchOffset,
   // ---

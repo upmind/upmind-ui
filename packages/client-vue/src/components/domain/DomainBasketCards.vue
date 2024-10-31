@@ -6,10 +6,11 @@
 
     <RadioCards
       v-else
-      id="basket-domain"
-      name="basket-domain"
+      id="dac-basket"
+      name="dac-basket"
       :class="styles.domain.listings.items"
       :items="items"
+      required
       v-model="modelValue"
     >
       <template #item="{ item }"> {{ item.sld }}{{ item.tld }} </template>
