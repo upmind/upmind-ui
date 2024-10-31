@@ -103,7 +103,7 @@ export interface Typegen0 {
       | "REFRESH"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.generating:invocation[0]";
-    refreshItems: "done.invoke.generating:invocation[0]";
+    refreshItems: "REFRESH" | "done.invoke.generating:invocation[0]";
     setError:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
       | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"

@@ -175,17 +175,10 @@ export const useBasket = () => {
     },
 
     removeItem: async (itemId: any): Promise<any> => {
-      return sendToItem(itemId, "REMOVE", { itemId }).then(item => {
-        return waitFor(item, state =>
-          ["available.complete", "complete", "error"].some(state.matches)
-        ).then(state => {
-          if (state.matches("error")) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve();
-        });
-        // .finally(() => service.send({ type: "REFRESH" }));
-      });
+      return sendToItem(itemId, "REMOVE", { itemId }).then(item =>
+        waitFor(item, state => ["complete"].some(state.matches))
+      );
+      // .finally(() => service.send({ type: "REFRESH" }));
     },
   };
 };

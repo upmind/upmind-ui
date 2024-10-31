@@ -34,6 +34,7 @@ import {
   isEqual,
   isNil,
   map,
+  remove,
   some,
 } from "lodash-es";
 
@@ -457,6 +458,7 @@ export default createMachine(
           cond: "hasNewBasket",
         },
         {
+          actions: ["refreshItems"],
           target: "#refreshing.processing",
         },
       ],
@@ -566,21 +568,27 @@ export default createMachine(
       }),
 
       // @ts-ignore
-      refreshItems: pure(({ basket, items }) => {
-        forEach(items, actor => {
-          if (actor?.send && !actor?.state?.done) {
-            actor.send({
-              type: "REFRESH",
+      refreshItems: assign({
+        items: ({ basket, items }: any) => {
+          forEach(items, actor => {
+            if (actor?.send && !actor?.state?.done) {
+              actor.send({
+                type: "REFRESH",
 
-              data: {
-                // basket_product: product,
-                id: basket?.id,
-                currency_id: basket?.currency_id,
-                promotions: basket?.promotions || [],
-              },
-            });
-          }
-        });
+                data: {
+                  // basket_product: product,
+                  id: basket?.id,
+                  currency_id: basket?.currency_id,
+                  promotions: basket?.promotions || [],
+                },
+              });
+            } else {
+              remove(items, actor);
+            }
+          });
+
+          return items;
+        },
       }),
 
       clearActors: assign({
