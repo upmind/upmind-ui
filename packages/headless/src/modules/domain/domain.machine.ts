@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, spawn, actions } from "xstate";
+import { createMachine, assign, spawn, actions, pure } from "xstate";
 const { sendTo } = actions;
 
 // --- internal
@@ -35,7 +35,12 @@ import {
 
 // --- types
 import { DomainTypes } from "./types";
-import type { DomainContext, AddEvent, RemoveEvent } from "./types";
+import type {
+  DomainContext,
+  AddEvent,
+  RemoveEvent,
+  DomainEvents,
+} from "./types";
 
 // --------------------------------------------------------
 
@@ -185,7 +190,7 @@ export default createMachine(
               REFRESH: {
                 // do nothing
               },
-              SYNCED: [{ target: "complete", actions: ["synced"] }],
+              SYNCED: { target: "#basket", actions: ["synced"] },
               ERROR: { actions: ["setError"] },
             },
           },
@@ -572,13 +577,7 @@ export default createMachine(
       // ---
 
       synced: assign({
-        lookups: ({ lookups }: any, { data }) => {
-          lookups.basket = data;
-          return lookups;
-        },
-        type: ({ type }, { data }: any) => {
-          return data?.length ? DomainTypes.basket : type;
-        },
+        type: (_context, _event) => DomainTypes.basket,
       }),
 
       // ---

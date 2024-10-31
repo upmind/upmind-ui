@@ -34,6 +34,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.refresh": {
+      type: "done.invoke.refresh";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "error.platform.load": { type: "error.platform.load"; data: unknown };
     "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]": {
       type: "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
@@ -55,6 +60,7 @@ export interface Typegen0 {
       type: "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
       data: unknown;
     };
+    "error.platform.refresh": { type: "error.platform.refresh"; data: unknown };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -64,6 +70,7 @@ export interface Typegen0 {
     checkQuantity: "done.invoke.productConfigurator.available.configuring.quantity.checking:invocation[0]";
     checkTerm: "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]";
     load: "done.invoke.load";
+    refresh: "done.invoke.refresh";
   };
   missingImplementations: {
     actions: never;
@@ -75,7 +82,8 @@ export interface Typegen0 {
       | "checkProvisioning"
       | "checkQuantity"
       | "checkTerm"
-      | "load";
+      | "load"
+      | "refresh";
   };
   eventsCausingActions: {
     calculate:
@@ -103,8 +111,9 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.provisioning.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.quantity.checking:invocation[0]"
-      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
-    setLookups: "done.invoke.load";
+      | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]"
+      | "error.platform.refresh";
+    setLookups: "done.invoke.load" | "done.invoke.refresh";
     setModel: "SET";
     setOptions:
       | "SET.OPTIONS"
@@ -164,7 +173,8 @@ export interface Typegen0 {
       | "SET.QUANTITY"
       | "SET.TERM"
       | "UPDATED"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "done.invoke.refresh";
     checkOptions:
       | "CANCEL"
       | "CHECK.OPTIONS"
@@ -176,7 +186,8 @@ export interface Typegen0 {
       | "SET.QUANTITY"
       | "SET.TERM"
       | "UPDATED"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "done.invoke.refresh";
     checkProvisioning:
       | "CANCEL"
       | "REFRESH"
@@ -187,7 +198,8 @@ export interface Typegen0 {
       | "SET.QUANTITY"
       | "SET.TERM"
       | "UPDATED"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "done.invoke.refresh";
     checkQuantity:
       | "CANCEL"
       | "CHECK.QUANTITY"
@@ -199,7 +211,8 @@ export interface Typegen0 {
       | "SET.QUANTITY"
       | "SET.TERM"
       | "UPDATED"
-      | "done.invoke.load";
+      | "done.invoke.load"
+      | "done.invoke.refresh";
     checkTerm:
       | "CANCEL"
       | "CHECK.TERM"
@@ -211,8 +224,10 @@ export interface Typegen0 {
       | "SET.QUANTITY"
       | "SET.TERM"
       | "UPDATED"
-      | "done.invoke.load";
-    load: "" | "REFRESH" | "RESET";
+      | "done.invoke.load"
+      | "done.invoke.refresh";
+    load: "";
+    refresh: "REFRESH" | "RESET";
   };
   matchesStates:
     | "available"
@@ -244,6 +259,7 @@ export interface Typegen0 {
     | "error"
     | "loading"
     | "processing"
+    | "refreshing"
     | "subscribing"
     | {
         available?:

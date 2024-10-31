@@ -520,6 +520,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
 
 export default <Object>{
   load,
+  refresh: load, // alias
   // ---
   checkQuantity,
   checkTerm,
