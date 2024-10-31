@@ -181,7 +181,7 @@ export default {
       ),
       // ---
       loading: cva("size-7"),
-      title: cva("m-0 text-3xl leading-none tracking-wide"),
+      title: cva("m-0 text-2xl leading-none tracking-wide"),
       meta: cva(
         "text-base-700 m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
