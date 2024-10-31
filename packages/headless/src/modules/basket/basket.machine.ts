@@ -458,7 +458,7 @@ export default createMachine(
           cond: "hasNewBasket",
         },
         {
-          actions: ["refreshItems"],
+          // actions: ["refreshItems"],
           target: "#refreshing.processing",
         },
       ],
@@ -583,7 +583,7 @@ export default createMachine(
                 },
               });
             } else {
-              remove(items, actor);
+              // remove(items, actor);
             }
           });
 
