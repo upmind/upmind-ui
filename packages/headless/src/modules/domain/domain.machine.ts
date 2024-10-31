@@ -479,6 +479,7 @@ export default createMachine(
 
       setType: assign({
         type: (_context, { data }) => data,
+        error: null,
       }),
 
       setCurrency: assign({
