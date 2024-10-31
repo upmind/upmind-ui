@@ -58,7 +58,7 @@ import type { SessionExpiredProps } from "./types";
 const props = withDefaults(defineProps<SessionExpiredProps>(), {
   modal: true,
   skrim: "primary",
-  size: "app",
+  size: "2xl",
   avatar: () => ({
     size: "lg",
     shape: "circle",
