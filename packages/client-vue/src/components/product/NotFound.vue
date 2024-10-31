@@ -67,7 +67,7 @@ const props = withDefaults(defineProps<ProductModalProps>(), {
   open: true,
   modal: false,
   skrim: "primary",
-  size: "app",
+  size: "2xl",
   animatedIcon: {
     icon: "basket",
     delay: 5000,

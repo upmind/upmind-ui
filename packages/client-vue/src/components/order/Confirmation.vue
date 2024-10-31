@@ -71,7 +71,7 @@ const router = useRouter();
 const props = withDefaults(defineProps<OrderConfirmationProps>(), {
   modal: false,
   skrim: "primary",
-  size: "app",
+  size: "2xl",
   avatar: () => ({
     size: "lg",
     shape: "circle",
