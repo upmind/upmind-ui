@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
   primaryColor: "primary",
   secondaryColor: "secondary",
-  delay: 250,
+  delay: 1000,
   // ---
   size: "md",
   // ---
