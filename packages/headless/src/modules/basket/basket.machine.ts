@@ -13,6 +13,7 @@ import { useTime } from "../../utils";
 import {
   parseBasket,
   parseBasketProvisioningErrors,
+  forwardBasketProvisioningErrors,
   parseSummary,
   spawnBillingDetails,
   spawnCurrency,
@@ -618,6 +619,7 @@ export default createMachine(
           // Remove any items that are done or whos basket_product ids are no longer in the basket
           forEach(items, (item, index) => {
             const product = find(products, ["id", item?.id]);
+            const errorExternal = parseBasketProvisioningErrors(error, index);
             if (item?.state?.done) {
               // do nothing
             } else if (product) {
@@ -627,15 +629,13 @@ export default createMachine(
                 type: "REFRESH",
                 data: {
                   basket_product: product,
+                  error: errorExternal,
+                  // ---
                   id: basket?.id,
                   currency_id: basket?.currency_id,
                   promotions: basket?.promotions || [],
                 },
               });
-
-              if (error) {
-                parseBasketProvisioningErrors(error, item, index);
-              }
             } else if (!isEmpty(item.state?.context?.basket_product)) {
               item.stop();
             } else {
@@ -656,12 +656,12 @@ export default createMachine(
           const missing = differenceBy(products, items, "id");
           forEach(missing, (product: any) => {
             const index = findIndex(products, ["id", product?.id]);
-
-            const item = spawnProductConfiguration(product, basket);
-
-            if (error) {
-              parseBasketProvisioningErrors(error, item, index);
-            }
+            const errorExternal = parseBasketProvisioningErrors(error, index);
+            const item = spawnProductConfiguration(
+              product,
+              basket,
+              errorExternal
+            );
 
             newItems.push(item);
           });

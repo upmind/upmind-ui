@@ -31,7 +31,11 @@ import type { IBasket } from "./types";
 // --------------------------------------------------------
 
 // utility function to spawn machines based on the given items
-export function spawnProductConfiguration(data: any, basket: IBasket) {
+export function spawnProductConfiguration(
+  data: any,
+  basket: IBasket,
+  errorExternal?: any
+) {
   const id = data?.id || uniqueId("product-");
   const isBasketProduct = data?.id ? true : false;
 
@@ -42,6 +46,7 @@ export function spawnProductConfiguration(data: any, basket: IBasket) {
       [isBasketProduct ? "basket_product" : "model"]: data,
       currency_id: basket?.currency_id,
       promotions: basket?.promotions,
+      errorExternal,
     }),
     {
       name: id,
@@ -222,11 +227,7 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
   };
 };
 
-export const parseBasketProvisioningErrors = (
-  error: any,
-  item: any,
-  index: any
-) => {
+export const parseBasketProvisioningErrors = (error: any, index: any) => {
   // now pass any provisioning errors to the item
   if (error) {
     const errors = get(
@@ -234,16 +235,31 @@ export const parseBasketProvisioningErrors = (
       `data.products.${index}.provision_field_values`,
       []
     );
+
+    let parsedError = undefined;
+
     if (!isEmpty(errors)) {
-      const parsedError = {
+      parsedError = {
         provision_fields: useValidationParser({
           data: errors,
         }),
       };
-
-      waitFor(item, state => state.matches("available")).then(() => {
-        item.send({ type: "ERROR", data: { error: parsedError } });
-      });
     }
+
+    return parsedError;
+  }
+};
+
+export const forwardBasketProvisioningErrors = (
+  error: any,
+  item: any,
+  index: any
+) => {
+  // now pass any provisioning errors to the item
+  const parsedError = parseBasketProvisioningErrors(error, index);
+  if (parsedError && !isEmpty(parsedError)) {
+    waitFor(item, state => state.matches("available")).then(() => {
+      item.send({ type: "ERROR", data: { error: parsedError } });
+    });
   }
 };

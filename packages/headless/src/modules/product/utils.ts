@@ -332,7 +332,7 @@ export const parseProvisioningSchema = (data: any) => {
   const properties = {};
   forEach(data, field => {
     let type = ["string"];
-    let format = ""; //field?.format; // || field?.semantic_type;
+    let format = null; //field?.format; // || field?.semantic_type;
 
     const fieldType = field?.semantic_type || field?.field_type || field?.type;
     // lets map our field types...

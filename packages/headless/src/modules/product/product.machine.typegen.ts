@@ -92,7 +92,11 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
-    cancelCalculation: "UPDATED" | "done.state.configuring";
+    cancelCalculation:
+      | "UPDATED"
+      | "done.invoke.load"
+      | "done.invoke.refresh"
+      | "done.state.configuring";
     clearError: "PROCESSING" | "REMOVE" | "UPDATE";
     clearSummaryCalculating: "CALCULATED" | "CALCULATE_CANCELLED";
     refreshContext: "REFRESH";
@@ -103,9 +107,10 @@ export interface Typegen0 {
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]";
     setBaseModel: "UPDATED";
     setBasketHelper: "";
-    setContext: "PROCESSING" | "RESET" | "xstate.init";
+    setContext: "ERROR" | "PROCESSING" | "RESET" | "xstate.init";
     setError:
       | "ERROR"
+      | "REFRESH"
       | "error.platform.load"
       | "error.platform.productConfigurator.available.configuring.attributes.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
@@ -141,7 +146,11 @@ export interface Typegen0 {
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.options.checking:invocation[0]"
       | "error.platform.productConfigurator.available.configuring.term.checking:invocation[0]";
-    setSummaryWithBasketProduct: "UPDATED" | "done.state.configuring";
+    setSummaryWithBasketProduct:
+      | "UPDATED"
+      | "done.invoke.load"
+      | "done.invoke.refresh"
+      | "done.state.configuring";
     setTerm:
       | "SET.TERM"
       | "done.invoke.productConfigurator.available.configuring.term.checking:invocation[0]"
@@ -150,8 +159,10 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     hasBasketChanged: "REFRESH";
+    hasBasketError: "done.invoke.load" | "done.invoke.refresh";
+    hasBasketProduct: "done.invoke.load" | "done.invoke.refresh";
     hasChanged: "REFRESH";
-    hasError: "CANCEL" | "done.state.configuring";
+    hasError: "CANCEL" | "REFRESH" | "done.state.configuring";
     hasSummaryData: "CALCULATED";
     isDirty: "done.state.configuring";
     isNew: "UPDATED";
@@ -165,6 +176,7 @@ export interface Typegen0 {
     checkAttributes:
       | "CANCEL"
       | "CHECK.ATTRIBUTES"
+      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -178,6 +190,7 @@ export interface Typegen0 {
     checkOptions:
       | "CANCEL"
       | "CHECK.OPTIONS"
+      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -190,6 +203,7 @@ export interface Typegen0 {
       | "done.invoke.refresh";
     checkProvisioning:
       | "CANCEL"
+      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -203,6 +217,7 @@ export interface Typegen0 {
     checkQuantity:
       | "CANCEL"
       | "CHECK.QUANTITY"
+      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"
@@ -216,6 +231,7 @@ export interface Typegen0 {
     checkTerm:
       | "CANCEL"
       | "CHECK.TERM"
+      | "ERROR"
       | "REFRESH"
       | "SET"
       | "SET.ATTRIBUTES"

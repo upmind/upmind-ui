@@ -62,7 +62,7 @@ export default createMachine(
       // this is our initial state where we are conditionally waiting for the basket helper to be created
       // this is so we can add/update our product to the basket
       subscribing: {
-        entry: "setContext",
+        entry: ["setContext"],
         // Parse our Basket/Config data into context
         always: {
           target: "loading",
@@ -78,6 +78,16 @@ export default createMachine(
           id: "load",
           src: "load",
           onDone: [
+            {
+              target: "available.error",
+              actions: ["setLookups", "setSummaryWithBasketProduct"],
+              cond: "hasBasketError",
+            },
+            {
+              target: "available.complete",
+              actions: ["setLookups", "setSummaryWithBasketProduct"],
+              cond: "hasBasketProduct",
+            },
             {
               target: "available",
               actions: ["setLookups"],
@@ -96,6 +106,16 @@ export default createMachine(
           id: "refresh",
           src: "refresh",
           onDone: [
+            {
+              target: "available.error",
+              actions: ["setLookups", "setSummaryWithBasketProduct"],
+              cond: "hasBasketError",
+            },
+            {
+              target: "available.complete",
+              actions: ["setLookups", "setSummaryWithBasketProduct"],
+              cond: "hasBasketProduct",
+            },
             {
               target: "available",
               actions: ["setLookups"],
@@ -317,12 +337,17 @@ export default createMachine(
           REFRESH: [
             {
               target: "refreshing",
-              actions: ["refreshContext"],
+              actions: ["refreshContext", "setError"],
               cond: "hasBasketChanged",
             },
             {
+              target: "available.error",
+              actions: ["refreshContext", "setError"],
+              cond: "hasError",
+            },
+            {
               target: "available.configuring",
-              actions: ["refreshContext"],
+              actions: ["refreshContext", "setError"],
               cond: "hasChanged",
             },
           ],
@@ -425,6 +450,7 @@ export default createMachine(
         target: "processing",
       },
       ERROR: {
+        target: "available.error",
         actions: ["setError"],
       },
     },
@@ -441,10 +467,14 @@ export default createMachine(
             basket_id,
             client_id,
             promotions,
+            errorExternal,
+            error,
           }: ProductConfigContext,
           _event: ProductConfigEvent
         ) => {
           return {
+            errorExternal,
+            error: merge({}, errorExternal, error),
             // ---
             basket_id,
             client_id,
@@ -466,11 +496,16 @@ export default createMachine(
       ),
       refreshContext: assign(
         (
-          { model, lookups, raw }: ProductConfigContext,
+          { model, lookups, raw, error }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
-          const { basket_product, client_id, currency_id, promotions, error } =
-            data;
+          const {
+            basket_product,
+            client_id,
+            currency_id,
+            promotions,
+            error: errorExternal,
+          } = data;
 
           lookups.product = parseProduct(raw, basket_product);
 
@@ -485,7 +520,8 @@ export default createMachine(
             model: basket_product
               ? parseBasketProduct(basket_product)
               : cloneDeep(model),
-            errorExternal: error,
+            errorExternal,
+            error: merge({}, errorExternal, error),
             prices: undefined, // they need to be recalculated
             lookups,
           };
@@ -769,6 +805,20 @@ export default createMachine(
       },
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
+      hasBasketError: (
+        { basket_product, error, errorExternal }: ProductConfigContext,
+        _event
+      ) => {
+        return !isEmpty(basket_product) && !isEmpty(errorExternal);
+      },
+
+      hasBasketProduct: (
+        { basket_product, error, errorExternal }: ProductConfigContext,
+        _event
+      ) => {
+        return !isEmpty(basket_product) && isEmpty(errorExternal);
+      },
+
       hasChanged: (
         { model }: ProductConfigContext,
         { data }: ProductConfigEvent
@@ -782,6 +832,7 @@ export default createMachine(
 
         return isDirty;
       },
+
       hasBasketChanged: (
         {
           basket_id,
@@ -842,6 +893,7 @@ export default createMachine(
 
         return value;
       },
+
       hasSummaryData: (
         _context: ProductConfigContext,
         { data }: ProductConfigEvent
