@@ -95,6 +95,7 @@ const mergedAnimatedIcon = computed(() => ({
     : props.animatedIcon?.secondaryColor,
   delay: isString(props.animatedIcon) ? 250 : props.animatedIcon?.delay,
   size: isString(props.animatedIcon) ? "auto" : props.animatedIcon?.size,
+  trigger: isString(props.animatedIcon) ? "loop" : props.animatedIcon?.trigger,
 }));
 
 const variants = useStyles(
