@@ -1,28 +1,25 @@
 import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
-export const rootVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full gap-0 overflow-hidden rounded-md border-control`,
-  {
-    variants: {
-      layout: {
-        list: "border border-b-0 shadow-sm",
-        grid: "",
-      },
+export const rootVariants = cva(`w-full gap-0 rounded-md border-control`, {
+  variants: {
+    layout: {
+      list: `${ringClasses} ${invalidRingClasses} border border-b-0 shadow-sm`,
+      grid: "",
     },
-    defaultVariants: {
-      layout: "list",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    layout: "list",
+  },
+});
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted  flex items-start space-x-2 bg-control text-control-foreground transition-all duration-300",
+  "hover:bg-control-active-muted flex items-start space-x-2 bg-control text-control-foreground transition-all duration-300",
   {
     variants: {
       layout: {
         list: "border-b border-control",
-        grid: "rounded-md border border-control shadow-sm",
+        grid: `${ringClasses} ${invalidRingClasses} rounded-md border border-control shadow-sm`,
       },
     },
     defaultVariants: {
