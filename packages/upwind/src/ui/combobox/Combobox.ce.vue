@@ -46,7 +46,7 @@
 
         <template #append>
           <Icon
-            class="ml-auto opacity-75 transition-all duration-200"
+            class="-mr-1.5 ml-auto opacity-75 transition-all duration-200"
             icon="arrow-up-down"
             size="xs"
           />
