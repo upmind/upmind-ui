@@ -17,11 +17,7 @@
               v-for="promotion in props.price?.promotions"
               :key="promotion.id"
             >
-              <Badge
-                color="promotion"
-                class="rounded-md px-1 py-0 text-[12px]"
-                variant="flat"
-              >
+              <Badge color="promotion" variant="flat" size="xs" class="-mt-1">
                 {{
                   t(
                     "product.promo_save",

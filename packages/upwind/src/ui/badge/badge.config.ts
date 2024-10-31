@@ -2,13 +2,20 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const badgeVariants = cva(
-  "focus:ring-ring inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
+  "focus:ring-ring inline-flex items-center rounded-full border font-semibold leading-none transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2",
   {
     variants: {
       variant: {
         flat: "border border-transparent",
         outline: "border bg-opacity-0",
         tonal: "border border-transparent",
+      },
+      size: {
+        xs: "!text-2xs !px-1.5 !py-0.5",
+        sm: "!px-2 !py-1 !text-xs",
+        md: "!px-2.5 !py-1 !text-xs",
+        lg: "!px-3 !py-2 !text-lg",
+        xl: "!px-3.5 !py-2.5 !text-xl",
       },
       color: {
         base: "bg-base-foreground text-base-background",
