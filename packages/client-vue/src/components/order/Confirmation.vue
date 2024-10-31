@@ -38,7 +38,19 @@
           :label="action?.label"
         >
           <template #prepend>
-            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+            <Icon
+              v-if="action?.prependIcon"
+              :icon="action.prependIcon"
+              size="2xs"
+            />
+          </template>
+
+          <template #append>
+            <Icon
+              v-if="action?.appendIcon"
+              :icon="action.appendIcon"
+              size="2xs"
+            />
           </template>
         </Button>
       </footer>
