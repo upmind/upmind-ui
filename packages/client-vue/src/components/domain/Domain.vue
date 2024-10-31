@@ -42,19 +42,20 @@
 
       <!-- existing -->
 
-      <Autocomplete
+      <FormControl
         v-else-if="meta.showExisting"
-        :class="styles.domain.existing"
-        :items="ownedDomains"
-        :model-value="selected"
-        @update:modelValue="update"
-        autocomplete="url"
         autoFocus
-        item-label="domain"
-        item-value="value"
-        :placeholder="t('domain.existing.search')"
-        width="full"
-      />
+        :formItemId="`dac-${type}`"
+      >
+        <Input
+          :class="styles.domain.existing"
+          :model-value="selected"
+          @update:modelValue="update"
+          autocomplete="url"
+          :placeholder="t('domain.existing.search')"
+          width="full"
+        />
+      </FormControl>
 
       <!-- basket -->
 
@@ -84,7 +85,7 @@ import config from "./config.cva";
 // --- components
 import Dac from "./Dac.vue";
 import DomainBasketCards from "./DomainBasketCards.vue";
-import { RadioCards, SkeletonList, Autocomplete } from "@upmind/upwind";
+import { RadioCards, SkeletonList, Input, FormControl } from "@upmind/upwind";
 
 // --- utils
 import { map } from "lodash-es";
