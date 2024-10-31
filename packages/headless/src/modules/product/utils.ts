@@ -26,6 +26,7 @@ import {
   some,
   toNumber,
   values,
+  includes,
 } from "lodash-es";
 
 // --- types
@@ -330,13 +331,15 @@ export const parseProvisioningSchema = (data: any) => {
   const required: string[] = [];
   const properties = {};
   forEach(data, field => {
-    debugger;
     let type = ["string"];
-    let format = field?.format || field?.semantic_type;
-    debugger;
+    let format = ""; //field?.format; // || field?.semantic_type;
 
+    const fieldType = field?.semantic_type || field?.field_type || field?.type;
     // lets map our field types...
-    switch (field.type) {
+    switch (fieldType) {
+      case "select":
+        type = ["string", "number"];
+        break;
       case "input_number":
         type = ["number"];
         break;
@@ -360,8 +363,11 @@ export const parseProvisioningSchema = (data: any) => {
         format = "uri";
         break;
       case "input_phone":
+      case "input_tel":
         type = ["string"];
         format = "phone";
+        // todo ad dthe default country code
+        // isPhoneNumber = defaultCountry?.code;
         break;
       case "input_ip":
         type = ["string"];
@@ -371,9 +377,18 @@ export const parseProvisioningSchema = (data: any) => {
         type = ["string"];
         format = "ipv6";
         break;
+      case "domain_name":
+        type = ["string"];
+        format = "domain_name";
+        break;
 
       default:
         type = ["string"];
+
+        // additional format checks
+        if (includes(field.validation_rules, "email")) format = "email";
+        if (includes(field.validation_rules, "url")) format = "uri";
+
         break;
     }
 
