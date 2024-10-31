@@ -54,6 +54,7 @@
           autocomplete="url"
           :placeholder="t('domain.existing.search')"
           width="full"
+          :list="ownedDomains"
         />
       </FormControl>
 
