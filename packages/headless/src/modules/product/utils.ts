@@ -330,8 +330,10 @@ export const parseProvisioningSchema = (data: any) => {
   const required: string[] = [];
   const properties = {};
   forEach(data, field => {
+    debugger;
     let type = ["string"];
-    let format = field?.semantic_type;
+    let format = field?.format || field?.semantic_type;
+    debugger;
 
     // lets map our field types...
     switch (field.type) {
@@ -387,7 +389,7 @@ export const parseProvisioningSchema = (data: any) => {
         format,
         title: field.field_label,
         description: field.description,
-        default: field.default,
+        default: field?.default || field?.default_value,
         enum: !some(field.options, isString) ? undefined : field.options,
         oneOf: !some(field.options, isObject)
           ? undefined
