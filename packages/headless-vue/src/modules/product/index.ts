@@ -61,7 +61,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     isNew: !contextMatches(state, ["basket_product"]),
     isDirty: stateMatches(state, ["available.configured"]),
     isTouched: touched.value,
-    isUnavailable: stateMatches(state, ["error"]),
+    isUnavailable: state.value.done || stateMatches(state, ["error"]),
     hasErrors:
       stateMatches(state, ["available.error", "error"]) ||
       contextMatches(state, ["error"]),
