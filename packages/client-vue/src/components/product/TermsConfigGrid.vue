@@ -50,6 +50,7 @@
                     }
                   )
                 "
+                size="xs"
               />
             </template>
 

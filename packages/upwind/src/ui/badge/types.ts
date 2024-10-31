@@ -11,6 +11,7 @@ export interface BadgeProps {
   // --- variants
   color?: BadgeVariantProps["color"];
   variant?: BadgeVariantProps["variant"];
+  size?: BadgeVariantProps["size"];
   // --- styles
   upwindConfig?: { badge: Partial<BadgeProps> };
   class?: HTMLAttributes["class"];

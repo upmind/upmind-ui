@@ -15,7 +15,7 @@ export default {
       loading: cva(""),
     },
     card: {
-      root: cva("m-0 flex w-full"),
+      root: cva("m-0 flex w-full flex-col space-y-6 md:flex-row md:space-y-0"),
       underline: cva("underline underline-offset-8"),
       header: cva("m-0 flex w-full flex-col gap-2 pr-4"),
       badges: cva("flex items-center gap-2"),
@@ -28,7 +28,7 @@ export default {
       footer: cva(
         "text-base-700 m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
-      actions: cva("min-w-48 empty:hidden"),
+      actions: cva("w-full min-w-48 empty:hidden"),
       owned: {
         root: cva("m-0 items-end"),
         ownership: cva("font-semibold"),
