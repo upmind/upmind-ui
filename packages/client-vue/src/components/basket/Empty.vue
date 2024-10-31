@@ -70,7 +70,7 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
   open: true,
   modal: false,
   skrim: "primary",
-  size: "app",
+  size: "2xl",
   animatedIcon: {
     icon: "basket",
     delay: 5000,
