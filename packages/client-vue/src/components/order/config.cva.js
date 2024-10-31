@@ -6,10 +6,10 @@ export default {
     root: cva(""),
     confirmation: {
       root: cva(
-        "relative flex w-full flex-col flex-wrap items-center justify-center gap-8 py-16"
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 py-16 md:px-8"
       ),
-      title: cva("m-0 text-center text-3xl text-inherit"),
-      text: cva("m-0 text-center text-lg leading-5 tracking-tight opacity-50"),
+      title: cva("m-0 mt-3 text-center text-3xl text-inherit"),
+      text: cva("m-0 mb-8 text-center text-lg leading-normal opacity-50"),
       avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center"),
     },
