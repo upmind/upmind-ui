@@ -3,6 +3,7 @@ import type {
   DialogProps,
   ButtonProps,
   AnimatedIconProps,
+  IconProps,
 } from "@upmind/upwind";
 // ---
 export interface ActionProps extends ButtonProps {
@@ -10,6 +11,8 @@ export interface ActionProps extends ButtonProps {
   handler?: Function | string;
   auto?: boolean;
   href?: string;
+  prependIcon?: IconProps["icon"];
+  appendIcon?: IconProps["icon"];
 }
 
 export interface OrderConfirmationProps {
