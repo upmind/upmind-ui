@@ -415,7 +415,22 @@ export default createMachine(
         },
       },
 
-      error: {},
+      error: {
+        on: {
+          REMOVE: {
+            actions: sendTo(
+              // @ts-ignore
+              ({ basketHelper }, _event) => basketHelper,
+              (context, _event) => ({
+                type: "REMOVE",
+                target: context.model,
+                context,
+              })
+            ),
+            target: "processing",
+          },
+        },
+      },
 
       // this is a state where we hav ebeen deleted or are no longer available from a parent machine
       processing: {
