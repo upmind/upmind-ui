@@ -28,7 +28,7 @@ export default {
       footer: cva(
         "text-base-700 m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
-      actions: cva("w-full min-w-48 empty:hidden md:w-auto md:min-w-0"),
+      actions: cva("w-full min-w-48 empty:hidden md:w-auto"),
       owned: {
         root: cva("m-0 items-end"),
         ownership: cva("font-semibold"),

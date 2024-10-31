@@ -69,9 +69,6 @@
       </FormDescription>
     </slot>
   </FormItem>
-
-  <!-- debug -->
-  <!-- <pre>{{ props }}</pre> -->
 </template>
 
 <script lang="ts" setup>

@@ -77,7 +77,7 @@ export interface Typegen0 {
       | "UNAUTHENTICATED"
       | "UPDATE"
       | "xstate.init";
-    fetchBasket: "" | "AUTHENTICATED" | "CHOOSE" | "UNAUTHENTICATED";
+    fetchBasket: "" | "AUTHENTICATED" | "CHOOSE" | "SYNCED" | "UNAUTHENTICATED";
     newController: "";
     persistModel:
       | "AUTHENTICATED"

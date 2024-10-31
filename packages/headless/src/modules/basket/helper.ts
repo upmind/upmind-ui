@@ -125,18 +125,22 @@ async function sync(items: any, context: any, basket: any) {
   // Then sync all our items with the basket
   const promises = isEmpty(items)
     ? [Promise.resolve([])]
-    : map(items, item =>
-        add(item, context, basket).then(
+    : map(items, item => {
+        return add(item, context, basket).then(
           async (actor: ActorRef<any, any> | null) => {
-            if (!actor) return Promise.resolve(null);
+            if (!actor) {
+              console.error("sync basket helper", "ADD", "failed", item);
+              return Promise.resolve(actor);
+            }
 
-            await waitFor(actor, actorState =>
-              actorState.matches("available.configured")
-            );
+            await waitFor(actor, actorState => {
+              return actorState.matches("available.configured");
+            });
+
             return actor;
           }
-        )
-      );
+        );
+      });
 
   // then update the basket
   return Promise.all(promises).then(data => {
@@ -160,7 +164,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         fetch(event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))
           .catch(error => {
-            console.error("basketHelper", "SYNC", error);
+            console.error("basketHelper", "FETCH", error);
             callback({ type: "ERROR", data: error });
           });
         break;
