@@ -20,7 +20,15 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, useTemplateRef, onMounted, nextTick, watch } from "vue";
+import {
+  ref,
+  computed,
+  useTemplateRef,
+  onMounted,
+  nextTick,
+  watch,
+  onUnmounted,
+} from "vue";
 
 // --- internal
 import Button from "../../ui/button/Button.ce.vue";
@@ -68,16 +76,40 @@ const windowWidth: ComputedRef<number> = computed(() => {
   return window.innerWidth;
 });
 
-// --- methods
+const observer = ref<MutationObserver | null>(null);
 
+// --- methods
 function setDefaultClampState() {
   nextTick(() => {
-    truncated.value = wrapper?.scrollHeight > wrapper?.clientHeight;
+    if (wrapper.value) {
+      truncated.value = wrapper.value.scrollHeight > wrapper.value.clientHeight;
+    }
   });
 }
+
 // --- lifecycle
 onMounted(() => {
-  setTimeout(setDefaultClampState, 200);
+  // Initial check after a short delay to ensure content is rendered
+  nextTick(() => {
+    setDefaultClampState();
+
+    // Setup observer for content changes
+    observer.value = new MutationObserver(setDefaultClampState);
+    if (wrapper.value) {
+      observer.value.observe(wrapper.value, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    }
+  });
+});
+
+// Clean up observer
+onUnmounted(() => {
+  if (observer.value) {
+    observer.value.disconnect();
+  }
 });
 
 // --- side effects
