@@ -1,8 +1,6 @@
 <template>
   <section :class="styles.domain.listings.root">
-    <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-      <Empty />
-    </slot>
+    <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty"></slot>
 
     <RadioCards
       v-else
@@ -28,7 +26,6 @@ import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import Empty from "./Empty.vue";
 import { RadioCards } from "@upmind/upwind";
 
 // --- utils
