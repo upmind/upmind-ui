@@ -34,13 +34,13 @@
     <div :class="styles.product.config.grid.item.footer">
       <span
         :class="styles.product.config.grid.item.discount"
-        v-if="props.price_discounted"
+        v-if="!isNil(props.price_discounted)"
       >
         {{ props.price_formatted }}
       </span>
       <strong :class="styles.product.config.grid.item.total">
         {{
-          props.price_discounted
+          !isNil(props.price_discounted)
             ? props.price_discounted_formatted
             : props.price
               ? props.price_formatted
@@ -62,6 +62,9 @@ import config from "./config.cva";
 
 // --- components
 import { Icon, Tooltip, Badge } from "@upmind/upwind";
+
+// --- utils
+import { isNil } from "lodash";
 
 // --- types
 

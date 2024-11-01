@@ -19,7 +19,7 @@
 
       <span :class="styles.product.config.grid.item.text">
         {{
-          props.price_discounted
+          !isNil(props.price_discounted)
             ? props.price_discounted_formatted
             : props.price
               ? props.price_formatted
@@ -31,14 +31,14 @@
     <div :class="styles.product.config.grid.item.footer">
       <span
         :class="styles.product.config.grid.item.discount"
-        v-if="props.monthly_price_from_discounted"
+        v-if="!isNil(props.monthly_price_from_discounted)"
       >
         {{ props.monthly_price_from_discounted_formatted }}
       </span>
       <strong :class="styles.product.config.grid.item.total">
         {{
           t("product.cycle", {
-            value: props.monthly_price_from_discounted
+            value: !isNil(props.monthly_price_from_discounted)
               ? props.monthly_price_from_discounted_formatted
               : props.monthly_price_from_formatted,
           })
@@ -59,6 +59,9 @@ import config from "./config.cva";
 
 // --- components
 import { Icon, Tooltip, Badge } from "@upmind/upwind";
+
+// --- utils
+import { isNil } from "lodash-es";
 
 // --- types
 
