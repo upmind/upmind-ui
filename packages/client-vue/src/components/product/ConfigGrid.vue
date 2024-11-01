@@ -48,19 +48,15 @@
             </span>
 
             <template v-for="promotion in item?.promotions" :key="promotion.id">
-              <Badge
-                color="promotion"
-                variant="flat"
-                :label="
-                  t(
-                    'product.promo_save',
-                    promotion.mixed || !promotion.amount ? 1 : 0,
-                    {
-                      value: promotion.amount_formatted,
-                    }
-                  )
-                "
-              />
+              <Badge color="promotion" variant="tonal">
+                {{
+                  promotion.mixed || !promotion.amount
+                    ? t("product.promotion")
+                    : t("product.promotion_save", {
+                        value: promotion.amount_formatted,
+                      })
+                }}
+              </Badge>
             </template>
 
             <!-- monthly -->

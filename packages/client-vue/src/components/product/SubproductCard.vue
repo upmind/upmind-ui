@@ -19,15 +19,13 @@
             >
               <Badge color="promotion" variant="flat" size="xs" class="-mt-1">
                 {{
-                  t(
-                    "product.promo_save",
-                    promotion.mixed || !promotion.amount ? 1 : 0,
-                    {
-                      item: promotion.amount_formatted,
-                    }
-                  )
-                }}</Badge
-              >
+                  promotion.mixed || !promotion.amount
+                    ? t("product.promotion")
+                    : t("product.promotion_save", {
+                        value: promotion.amount_formatted,
+                      })
+                }}
+              </Badge>
             </template>
           </div>
         </div>
