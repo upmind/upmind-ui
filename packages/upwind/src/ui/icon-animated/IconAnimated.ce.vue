@@ -3,6 +3,7 @@
     :src="iconSrc"
     :trigger="trigger"
     :delay="delay"
+    :sequence="sequence"
     :class="cn(variants.icon, props.class)"
   />
 </template>
@@ -18,6 +19,7 @@ import config from "./iconAnimated.config";
 // --- types
 import type { ComputedRef } from "vue";
 import type { AnimatedIconProps } from "./types";
+import { Sequence } from "@lordicon/element";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
