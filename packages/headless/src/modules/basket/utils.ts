@@ -39,13 +39,18 @@ export function spawnProductConfiguration(
   const id = data?.id || uniqueId("product-");
   const isBasketProduct = data?.id ? true : false;
 
+  // lets merge the promotions from the basket and the product
+  const basketPromotions = map(basket?.promotions, "promocode");
+  const productPromotions = data?.promotions || [];
+  const promotions = uniq(compact([...basketPromotions, ...productPromotions]));
+
   const item = spawn(
     productMachine.withContext({
       id,
       basket_id: basket?.id,
       [isBasketProduct ? "basket_product" : "model"]: data,
       currency_id: basket?.currency_id,
-      promotions: basket?.promotions,
+      promotions,
       errorExternal,
     }),
     {

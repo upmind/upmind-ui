@@ -92,6 +92,7 @@ export const parseProduct = (
     "max_order_quantity",
     // ---
     "provision_blueprint_id",
+    "default_payment_period",
   ]);
 
   // ---

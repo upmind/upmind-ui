@@ -115,6 +115,7 @@ export const useBasket = () => {
       attributes,
       options,
       provision_fields,
+      promotions,
     }: IProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
@@ -128,6 +129,7 @@ export const useBasket = () => {
             attributes,
             options,
             provision_fields,
+            promotions,
           },
           isEmpty
         );
