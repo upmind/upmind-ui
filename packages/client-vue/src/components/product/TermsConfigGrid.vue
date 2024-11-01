@@ -27,7 +27,8 @@
       @update:modelValue="doResolve"
     >
       <template #item="{ item }">
-        <CardTerm v-bind="getTerm(item.value)" />
+        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
+        <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
     </RadioCards>
   </FormField>
@@ -47,9 +48,10 @@ import config from "./config.cva";
 // --- components
 import { RadioCards, FormField, Badge } from "@upmind/upwind";
 import CardTerm from "./TermCard.vue";
+import CardTermPerMonth from "./TermPerMonthCard.vue";
 
 // --- utils
-import { isNil, map, toNumber, find } from "lodash-es";
+import { isNil, map, toNumber, find, some } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -109,6 +111,12 @@ function getTerm(value: string) {
   return item;
 }
 
+function isMonthly(item: any) {
+  const hasMonthlyPrice = some(props.items, ["billing_cycle_months", 1]);
+  return (
+    hasMonthlyPrice && item.monthly_price_from && item.billing_cycle_months > 1
+  );
+}
 function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));
