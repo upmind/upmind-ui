@@ -9,6 +9,7 @@ type IconVariantProps = VariantProps<typeof iconVariants>;
 export interface AnimatedIconProps {
   icon: string;
   trigger?: string;
+  sequence?: string;
   primaryColor?: string;
   secondaryColor?: string;
   delay?: number;
