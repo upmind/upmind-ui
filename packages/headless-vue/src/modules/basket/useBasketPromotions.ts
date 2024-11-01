@@ -17,7 +17,6 @@ import {
 
 // --- types
 import type { ActorRef } from "xstate";
-import { some } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine with some state helpers
@@ -69,16 +68,8 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     // @ts-ignore
     input: model => actor.value?.send({ type: "SET", data: model }),
 
-    async add(promocode: string) {
-      // first check if our currency has change, ie: model.promocode has changed
-
-      // if it has not then bail
-      if (!promocode) return Promise.resolve();
-
-      if (some(contextValue(actor, "promotions"), { promocode }))
-        return Promise.resolve();
-
-      actor.value?.send({ type: "SET", data: { promocode }, update: true });
+    async add() {
+      actor.value?.send({ type: "ADD" });
 
       // then wait for the payment_gateway actor to be updated
       return waitFor(service as ActorRef<any, any>, state => {
