@@ -27,65 +27,7 @@
       @update:modelValue="doResolve"
     >
       <template #item="{ item }">
-        <!-- <VCardSubproduct
-        v-bind="getSubProduct(item.value)"
-        :price-override="subproduct?.price_override"
-      /> -->
-        <div :class="styles.product.config.grid.item.root">
-          <div :class="styles.product.config.grid.item.header">
-            <span :class="styles.product.config.grid.item.title">
-              {{ item.billing_cycle_name }}
-            </span>
-
-            <template v-for="promotion in item?.promotions" :key="promotion.id">
-              <Badge
-                color="promotion"
-                variant="flat"
-                :label="
-                  t(
-                    'product.promo_save',
-                    promotion.mixed || !promotion.amount ? 1 : 0,
-                    {
-                      value: promotion.amount_formatted,
-                    }
-                  )
-                "
-                size="xs"
-              />
-            </template>
-
-            <span
-              :class="styles.product.config.grid.item.text"
-              v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
-            >
-              {{
-                t("product.cycle", {
-                  value: item?.monthly_price_from_discounted
-                    ? item.monthly_price_from_discounted_formatted
-                    : item.monthly_price_from_formatted,
-                })
-              }}
-            </span>
-          </div>
-
-          <div :class="styles.product.config.grid.item.footer">
-            <span
-              :class="styles.product.config.grid.item.discount"
-              v-if="item?.price_discounted"
-            >
-              {{ item.price_formatted }}
-            </span>
-            <strong :class="styles.product.config.grid.item.total">
-              {{
-                item?.price_discounted
-                  ? item.price_discounted_formatted
-                  : item?.price
-                    ? item.price_formatted
-                    : t("product.free")
-              }}
-            </strong>
-          </div>
-        </div>
+        <CardTerm v-bind="getTerm(item.value)" />
       </template>
     </RadioCards>
   </FormField>
@@ -104,9 +46,10 @@ import config from "./config.cva";
 
 // --- components
 import { RadioCards, FormField, Badge } from "@upmind/upwind";
+import CardTerm from "./TermCard.vue";
 
 // --- utils
-import { isNil, map, toNumber } from "lodash-es";
+import { isNil, map, toNumber, find } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -160,6 +103,11 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
 const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
+
+function getTerm(value: string) {
+  const item = find(props.items, ["billing_cycle_months", toNumber(value)]);
+  return item;
+}
 
 function doResolve(item: string | number) {
   if (props.disabled) return;

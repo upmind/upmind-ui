@@ -19,7 +19,7 @@
       :model-value="safeValue"
     >
       <template #item="{ item: { value } }">
-        <VCardDomain
+        <CardDomain
           v-bind="getDomain(value as string)"
           :selected="isSelected(value as string)"
           @update:selected="onToggleSelected"
@@ -47,7 +47,7 @@ import { useStyles, cn } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
-import VCardDomain from "./DomainCard.vue";
+import CardDomain from "./DomainCard.vue";
 import Empty from "./Empty.vue";
 import { SkeletonList, CheckboxCards } from "@upmind/upwind";
 

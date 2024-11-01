@@ -29,7 +29,7 @@
       v-model="modelValue"
     >
       <template #item="{ item: { value } }">
-        <VCardSubproduct
+        <CardSubproduct
           v-bind="getSubProduct(value as string)"
           @update:quantity="doUpdateQuantity(value, $event)"
         />
@@ -50,7 +50,7 @@ import config from "./config.cva";
 
 // --- components
 import { RadioCards, CheckboxCards, FormField } from "@upmind/upwind";
-import VCardSubproduct from "./SubproductCard.vue";
+import CardSubproduct from "./SubproductCard.vue";
 
 // --- utils
 import { find, map, get } from "lodash-es";
