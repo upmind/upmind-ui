@@ -365,7 +365,7 @@ export const parseProvisioningSchema = (data: any) => {
       case "input_phone":
       case "input_tel":
         type = ["string"];
-        format = "phone";
+        // format = "phone";
         // todo ad dthe default country code
         // isPhoneNumber = defaultCountry?.code;
         break;
