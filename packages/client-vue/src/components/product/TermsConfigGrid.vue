@@ -23,7 +23,7 @@
       :placeholder="t('product.select.placeholder')"
       :class="styles.product.config.grid.items"
       layout="grid"
-      :model-value="props.modelValue"
+      :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
     >
       <template #item="{ item }">
@@ -106,7 +106,7 @@ import config from "./config.cva";
 import { RadioCards, FormField, Badge } from "@upmind/upwind";
 
 // --- utils
-import { isNil, map } from "lodash-es";
+import { isNil, map, toNumber } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -150,7 +150,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
       id: item.billing_cycle_months,
-      value: item.billing_cycle_months,
+      value: item.billing_cycle_months.toString(),
       label: item.billing_cycle_name,
       ...item,
     };
@@ -163,6 +163,6 @@ const hasItems = computed(() => {
 
 function doResolve(item: string | number) {
   if (props.disabled) return;
-  emits("update:modelValue", item);
+  emits("update:modelValue", toNumber(item));
 }
 </script>
