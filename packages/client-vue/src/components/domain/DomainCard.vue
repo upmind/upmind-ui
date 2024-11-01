@@ -114,13 +114,13 @@
           <span :class="styles.domain.card.available.prices">
             <span
               :class="styles.domain.card.available.discount"
-              v-if="props.price_discounted"
+              v-if="!isNil(props.price_discounted)"
             >
               {{ props.price_formatted }}
             </span>
             <em :class="styles.domain.card.available.price">
               {{
-                props.price_discounted
+                !isNil(props.price_discounted)
                   ? props.price_discounted_formatted
                   : props.price
                     ? props.price_formatted
@@ -164,14 +164,14 @@
           <span :class="styles.domain.card.transfer.prices">
             <span
               :class="styles.domain.card.transfer.discount"
-              v-if="props.price_discounted"
+              v-if="!isNil(props.price_discounted)"
             >
               ({{ props.price_formatted }})
             </span>
 
             <span :class="styles.domain.card.transfer.price">
               {{
-                props.price_discounted
+                !isNil(props.price_discounted)
                   ? props.price_discounted_formatted
                   : props.price
                     ? props.price_formatted
@@ -225,12 +225,14 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-// --- internal
 import { useStyles } from "@upmind/upwind";
 import config from "./config.cva";
 
 // --- components
 import { Icon, Badge, Button } from "@upmind/upwind";
+
+// --- utils
+import { isNil } from "lodash-es";
 
 // --- types
 import type { DomainCardProps } from "./types";
