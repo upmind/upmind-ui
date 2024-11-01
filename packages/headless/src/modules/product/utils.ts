@@ -308,7 +308,7 @@ export const parsePromotion = (
     });
   } else {
     const saving =
-      ((data.price - (data.price_discounted || data.price)) / data.price) * 100;
+      ((data.price - (data.price_discounted ?? data.price)) / data.price) * 100;
     const saving_formatted = `${Math.round(saving)}%`;
 
     return [
