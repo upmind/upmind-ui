@@ -5,7 +5,7 @@ import { useApi } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { get } from "lodash-es";
+import { get, some } from "lodash-es";
 
 // --- types
 import type { PromotionsEvent, PromotionsContext } from "./types";
@@ -24,10 +24,15 @@ async function load(_context: PromotionsContext, _event: PromotionsEvent) {
 // --------------------------------------------------------
 
 async function add(
-  { basket_id, model }: PromotionsContext,
+  { basket_id, model, promotions }: PromotionsContext,
   _event: PromotionsEvent
 ) {
   const { post, useUrl } = useApi();
+
+  if (!model?.promocode)
+    return Promise.reject("No Promocode provided to add to basket_id");
+  if (some(promotions, { promocode: model?.promocode }))
+    return Promise.reject("Promocode already exists in basket_id");
 
   return post({
     url: useUrl(`/orders/${basket_id}/promotions`),

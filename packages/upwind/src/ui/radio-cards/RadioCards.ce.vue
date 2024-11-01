@@ -103,10 +103,10 @@ function onChange(value: any) {
 }
 
 // TODO: Fix the issue where validation breaks if we don't wait 1ms
-setTimeout(() => {
-  if (props.required && !modelValue.value) {
-    const value = first(props.items)?.value;
-    if (value) emits("update:modelValue", value);
-  }
-}, 1);
+// setTimeout(() => {
+//   if (props.required && !modelValue.value) {
+//     const value = first(props.items)?.value;
+//     if (value) emits("update:modelValue", value);
+//   }
+// }, 1);
 </script>
