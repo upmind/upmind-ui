@@ -106,39 +106,41 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       }
 
       // then we set our property based on the field code
-      set(
-        properties,
-        field.code,
-        omitBy(
-          {
-            type,
-            format,
-            contentMediaType,
-            contentEncoding,
-            title: useTranslateField(field, "name"),
-            description: useTranslateField(field, "description"),
-            i18n: `${i18nPrefix}.${field.code}`,
-            default: field.default,
-            const: field.const,
-            enum: !some(field.options, isString) ? undefined : field.options, //   ? undefined
-            //   : map(field.options, item => {
-            //       return {
-            //         const: item.value,
-            //         title: item.label,
-            //       };
-            //     }),
-            oneOf: !field.values?.length
-              ? undefined
-              : map(useTranslateField(field, "values"), item => {
-                  return {
-                    const: item.value,
-                    title: item.label,
-                  };
-                }),
-          },
-          isNil
-        )
-      );
+      if (!field.hidden) {
+        set(
+          properties,
+          field.code,
+          omitBy(
+            {
+              type,
+              format,
+              contentMediaType,
+              contentEncoding,
+              title: useTranslateField(field, "name"),
+              description: useTranslateField(field, "description"),
+              i18n: `${i18nPrefix}.${field.code}`,
+              default: field.default,
+              const: field.const,
+              enum: !some(field.options, isString) ? undefined : field.options, //   ? undefined
+              //   : map(field.options, item => {
+              //       return {
+              //         const: item.value,
+              //         title: item.label,
+              //       };
+              //     }),
+              oneOf: !field.values?.length
+                ? undefined
+                : map(useTranslateField(field, "values"), item => {
+                    return {
+                      const: item.value,
+                      title: item.label,
+                    };
+                  }),
+            },
+            isNil
+          )
+        );
+      }
     });
 
     set(schema, "required", required);
