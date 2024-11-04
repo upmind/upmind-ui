@@ -15,7 +15,7 @@
       :action="{
         variant: 'ghost',
         href: storefrontUrl,
-        prependIcon: 'arrow-left',
+        appendIcon: 'arrow-right',
         label: t('basket.empty.actions.continue'),
       }"
     />
