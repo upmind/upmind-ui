@@ -239,23 +239,25 @@ export default {
           },
         }),
         items: cva(
-          "m-0 grid w-full list-none grid-cols-[repeat(auto-fit,_minmax(14rem,_auto))] gap-3 p-0"
+          "m-0 grid w-full list-none grid-cols-[repeat(auto-fit,_minmax(14rem,1fr))] gap-3 p-0"
         ),
         item: {
           root: cva(
-            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-4"
+            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-6"
           ),
           // input: cva("text-primary"),
           header: cva(
             "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-2"
           ),
-          footer: cva("flex w-full flex-none flex-col gap-1 self-end"),
+          footer: cva("flex w-full flex-none flex-col self-end"),
           // ---
           title: cva("text-md m-0 font-normal"),
-          text: cva("text-base-700 m-0 block w-full flex-none text-sm"),
+          text: cva(
+            "text-base-700 m-0 block w-full flex-none text-sm font-medium"
+          ),
           total: cva("text-2xl font-medium leading-snug tracking-wide"),
           discount: cva(
-            "text-md text-base-700 font-normal leading-snug tracking-wide line-through"
+            "text-base-700 text-sm font-medium leading-snug tracking-wide line-through"
           ),
         },
       },

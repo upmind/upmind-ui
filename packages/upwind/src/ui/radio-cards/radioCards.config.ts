@@ -19,7 +19,7 @@ export const itemVariants = cva(
     variants: {
       layout: {
         list: "border-b border-control",
-        grid: `${ringClasses} ${invalidRingClasses} rounded-md border border-control shadow-sm`,
+        grid: `data-[state=checked]:bg-control-active-background rounded-md border-control shadow-sm data-[state=unchecked]:border data-[state=checked]:ring-2 data-[state=checked]:ring-control-active `,
       },
     },
     defaultVariants: {
