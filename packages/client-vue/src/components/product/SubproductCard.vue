@@ -8,7 +8,7 @@
           <div class="my-1 text-xs md:hidden">
             <SubproductCardPricing
               :price="props.price"
-              :price-override="props.price_override"
+              :priceOverride="props.priceOverride"
             />
           </div>
 
@@ -49,7 +49,7 @@
           <span class="flex flex-shrink-0 items-center justify-end gap-x-1">
             <SubproductCardPricing
               :price="props.price"
-              :price-override="props.price_override"
+              :priceOverride="props.priceOverride"
             />
           </span>
         </div>
@@ -84,7 +84,7 @@ const props = defineProps<{
   id?: string;
   name: string;
   short_description?: string;
-  price_override?: boolean;
+  priceOverride?: boolean;
   price?: {
     price: number;
     price_formatted: string;
