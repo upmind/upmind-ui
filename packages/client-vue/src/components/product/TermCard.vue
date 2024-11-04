@@ -6,7 +6,7 @@
       </span>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Badge color="promotion" variant="tonal" size="xs">
+        <Badge color="promotion" variant="tonal" size="sm">
           {{
             promotion.mixed || !promotion.amount
               ? t("product.promotion")

@@ -6,7 +6,7 @@
       </span>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Badge color="promotion" variant="tonal" size="xs">
+        <Badge color="promotion" variant="tonal" size="sm">
           {{
             promotion.mixed || !promotion.amount
               ? t("product.promotion")
@@ -17,33 +17,32 @@
         </Badge>
       </template>
 
-      <span :class="styles.product.config.grid.item.text">
-        {{
-          !isNil(props.price_discounted)
-            ? props.price_discounted_formatted
-            : props.price
-              ? props.price_formatted
-              : t("product.free")
-        }}
-      </span>
+      <span :class="styles.product.config.grid.item.text">{{
+        !isNil(props.price_discounted)
+          ? props.price_discounted_formatted
+          : props.price
+            ? props.price_formatted
+            : t("product.free")
+      }}</span>
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
       <span
         :class="styles.product.config.grid.item.discount"
         v-if="!isNil(props.monthly_price_from_discounted)"
-      >
-        {{ props.monthly_price_from_discounted_formatted }}
-      </span>
-      <strong :class="styles.product.config.grid.item.total">
-        {{
+        >{{
           t("product.cycle", {
-            value: !isNil(props.monthly_price_from_discounted)
-              ? props.monthly_price_from_discounted_formatted
-              : props.monthly_price_from_formatted,
+            value: props.monthly_price_from_formatted,
           })
-        }}
-      </strong>
+        }}</span
+      >
+      <strong :class="styles.product.config.grid.item.total">{{
+        t("product.cycle", {
+          value: !isNil(props.monthly_price_from_discounted)
+            ? props.monthly_price_from_discounted_formatted
+            : props.monthly_price_from_formatted,
+        })
+      }}</strong>
     </div>
   </div>
 </template>
