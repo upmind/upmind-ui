@@ -11,6 +11,7 @@
       v-for="(item, index) in items"
       :key="item.id || index"
       :class="cn(variants.radioCards.item)"
+      :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
     >
       <RadioGroupItem
         :id="`${props.name}-${index}`"
@@ -46,7 +47,7 @@ import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
 
 // --- utils
-import { find, first } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 import type { RadioCardsProps } from "./types";
