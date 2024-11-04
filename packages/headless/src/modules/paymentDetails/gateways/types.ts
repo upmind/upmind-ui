@@ -93,7 +93,37 @@ export enum GatewayCtx {
 }
 
 export enum GatewayProviderCodes {
+  ADYEN = "Adyen",
+  BANK_TRANSFER = "BankTransfer",
+  BITPAY = "BitPay",
+  BLOCKONOMICS = "Blockonomics",
+  BRAINTREE = "Braintree",
+  COINGATE = "CoinGate",
+  DLOCAL = "DLocal",
+  FLUTTERWAVE = "Flutterwave",
+  FLUTTERWAVE_CARD = "Flutterwave_Card",
+  GOCARDLESS = "GoCardless",
+  MERCADOPAGO = "MercadoPago",
+  MICROPAYMENT = "Micropayment",
+  MOMO_MTN = "MomoMtn_Collections",
+  OFFLINE = "Offline",
+  OPAYO = "SagePay_Direct",
+  OPENPAY = "OpenPay",
+  OPENPAY_NON_CARD = "OpenPay_Other_Payments",
+  PAYFAST = "PayFast",
+  PAYPAL_BILLING_AGREEMENT = "PayPal_BillingAgreement",
+  PAYPAL_EXPRESS = "PayPal_Express",
+  PAYPAL_LEGACY_SUBSCRIPTIONS_CALLBACKS = "PayPalLegacy_Subscription",
+  PAYPAL_PRO = "PayPal_Pro",
+  PAYPAL_PRO_REST = "PayPal_Rest",
+  PAYPAL_SUBSCRIPTION_AGREEMENT = "PayPal_SubscriptionAgreement",
+  PAYSAFECARD = "Paysafecard",
+  PAYSTACK = "Paystack",
+  PAYU = "PayU",
+  PESAPAL = "PesaPal",
+  RAZORPAY = "RazorPay",
   STRIPE = "Stripe_PaymentIntents",
+  WORLDPAY_JSON = "WorldPay_Json",
 }
 
 // --------------------------------------------------------
