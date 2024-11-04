@@ -584,6 +584,7 @@ export const parseModel = (data: any): IProductModel => {
     "attributes",
     "options",
     "provision_fields",
+    "sub_pids",
   ]);
 };
 

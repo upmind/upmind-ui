@@ -52,6 +52,7 @@ export interface IProductModel {
   product_id: IProduct["id"];
   quantity: IProduct["unit_quantity"]; // Configuration quantity
   // ---
+  sub_pids?: IProduct["id"][];
   term?: IProductTerm;
   attributes?: array;
   options?: array;

@@ -12,6 +12,7 @@ import {
   concat,
   find,
   first,
+  forEach,
   get,
   isEmpty,
   isNil,
@@ -27,6 +28,7 @@ import {
   reduce,
   reject,
   set,
+  some,
   times,
 } from "lodash-es";
 
@@ -234,7 +236,7 @@ async function checkAttributes(
   return checkSubproducts(
     // @ts-ignore
     { error, lookups, model },
-    { data: value, type: "attributes" }
+    { data: value, type: "attributes", sub_pids: model?.sub_pids }
   );
 }
 
@@ -243,17 +245,17 @@ async function checkOptions(
   _event: any
 ) {
   const value = model?.options;
-
+  const sub_pids = model?.sub_pids;
   return checkSubproducts(
     // @ts-ignore
     { error, lookups, model },
-    { data: value, type: "options" }
+    { data: value, type: "options", sub_pids }
   );
 }
 
 async function checkSubproducts(
   { error, lookups, model }: any,
-  { type, data }: any
+  { type, data, sub_pids }: any
 ) {
   let subproducts = null;
   const price: any[] = [];
@@ -270,9 +272,17 @@ async function checkSubproducts(
   subproducts = reduce(
     lookups[type],
     (result, subproduct) => {
-      // try get any selected values for this subproduct,
       let selected = get(data, subproduct.id, {});
 
+      // try set anymatching pre-selected values for this subproduct ( sub_pids ),
+      // NB: ONLY when data is being set for the first time
+      if (isEmpty(data)) {
+        forEach(sub_pids, pid => {
+          if (some(subproduct.values, ["id", pid])) {
+            set(selected, pid, { product_id: pid });
+          }
+        });
+      }
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any

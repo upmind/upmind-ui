@@ -494,6 +494,7 @@ export default createMachine(
             basket_id,
             client_id,
             currency_id,
+
             promotions,
             // ---
             baseModel: !isEmpty(basket_product)
