@@ -116,6 +116,7 @@ export const useBasket = () => {
       options,
       provision_fields,
       promotions,
+      sub_pids,
     }: IProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
@@ -130,6 +131,7 @@ export const useBasket = () => {
             options,
             provision_fields,
             promotions,
+            sub_pids,
           },
           isEmpty
         );
