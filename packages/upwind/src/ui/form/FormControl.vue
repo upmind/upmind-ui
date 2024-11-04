@@ -65,9 +65,21 @@ function maybeFocus([section]) {
       el.setAttribute("tabindex", -1);
     }
     el.focus();
-    if (el.type !== "number") {
-      const len = el.value.length;
-      el.setSelectionRange(len, len);
+
+    if (el && !el.closest('[aria-hidden="true"]')) {
+      const selectableInputTypes = new Set([
+        "text",
+        "search",
+        "url",
+        "tel",
+        "password",
+        "email",
+      ]);
+
+      if (selectableInputTypes.has(el.type)) {
+        const len = el.value.length;
+        el.setSelectionRange(len, len);
+      }
     }
   }
 }
