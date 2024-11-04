@@ -50,14 +50,14 @@
               v-if="product?.hasFreeTrial"
               color="secondary"
               :label="t('product.trail')"
-              variant="flat"
+              variant="tonal"
             />
 
             <Badge
               v-if="product?.isOnPromotion"
               color="promotion"
               :label="t('product.promotion')"
-              variant="flat"
+              variant="tonal"
               size="sm"
             />
           </div>

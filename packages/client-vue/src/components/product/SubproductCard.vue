@@ -17,7 +17,7 @@
               v-for="promotion in props.price?.promotions"
               :key="promotion.id"
             >
-              <Badge color="promotion" variant="flat" size="xs" class="-mt-1">
+              <Badge color="promotion" variant="tonal" size="xs" class="-mt-1">
                 {{
                   promotion.mixed || !promotion.amount
                     ? t("product.promotion")
