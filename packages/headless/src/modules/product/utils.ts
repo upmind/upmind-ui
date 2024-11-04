@@ -474,15 +474,6 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
     });
   }
 
-  // attributes
-  const attributes = parseSummarySubproduct(
-    "attribute",
-    model.attributes,
-    lookups.attributes,
-    error?.attributes
-  );
-  details.push(...attributes);
-
   // options
   const options = parseSummarySubproduct(
     "option",
@@ -491,6 +482,15 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
     error?.options
   );
   details.push(...options);
+
+  // attributes
+  const attributes = parseSummarySubproduct(
+    "attribute",
+    model.attributes,
+    lookups.attributes,
+    error?.attributes
+  );
+  details.push(...attributes);
 
   // provision fields
   reduce(
