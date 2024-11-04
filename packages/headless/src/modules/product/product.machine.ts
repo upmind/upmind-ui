@@ -609,14 +609,19 @@ export default createMachine(
           { model, lookups, error, summary }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
+          const totals = has(data, "total")
+            ? data
+            : pick(summary, ["total", "total_formatted"]);
+
           return parseSummary({
-            summary: data || summary,
+            summary: totals,
             model,
             lookups,
             error,
           });
         },
       }),
+
       setSummaryWithBasketProduct: assign({
         summary: (
           { model, lookups, error, basket_product }: ProductConfigContext,
