@@ -2,7 +2,12 @@
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
       <span :class="styles.product.config.grid.item.title">
-        {{ props.billing_cycle_name }}
+        {{
+          t(
+            `product.terms.${props.billing_cycle_months}`,
+            props.billing_cycle_name
+          )
+        }}
       </span>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">

@@ -65,10 +65,24 @@ function maybeFocus([section]) {
       el.setAttribute("tabindex", -1);
     }
     el.focus();
+
+    if (el && !el.closest('[aria-hidden="true"]')) {
+      if (el instanceof HTMLInputElement) {
+        const selectableInputTypes = new Set([
+          "text",
+          "search",
+          "url",
+          "tel",
+          "password",
+          "email",
+        ]);
+
+        if (selectableInputTypes.has(el.type)) {
+          const len = el.value.length;
+          el.setSelectionRange(len, len);
+        }
+      }
+    }
   }
 }
-
-// --- lifecycle
-
-// --- side effects
 </script>
