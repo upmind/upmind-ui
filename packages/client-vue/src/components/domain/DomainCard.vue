@@ -35,7 +35,7 @@
           v-if="props.is_discounted"
           color="promotion"
           :label="t('domain.card.promotion')"
-          variant="flat"
+          variant="tonal"
         />
       </div>
 
