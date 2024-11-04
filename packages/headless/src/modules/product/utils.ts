@@ -446,8 +446,9 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
     cycle: undefined,
     quantity: undefined,
     discount: undefined,
+    discount_formatted: undefined,
     total: undefined,
-    formatted: undefined,
+    total_formatted: undefined,
     invalid: false,
   });
 
@@ -468,8 +469,9 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
       cycle: term.billing_cycle_months,
       quantity: model.quantity,
       discount: term.price_discounted,
+      discount_formatted: term.price_discounted_formatted,
       total: term.price,
-      formatted: term.price_formatted,
+      total_formatted: term.price_formatted,
       invalid: !isEmpty(error?.term),
     });
   }
@@ -504,8 +506,9 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
         cycle: undefined,
         quantity: undefined,
         discount: undefined,
+        discount_formatted: undefined,
         total: undefined,
-        formatted: undefined,
+        total_formatted: undefined,
       });
 
       return result;
@@ -540,8 +543,10 @@ export const parseSummarySubproduct = (
                 name: subproduct.name,
                 cycle: subproduct?.billing_cycle_months,
                 discount: subproduct?.price?.price_discounted,
+                discount_formatted:
+                  subproduct?.price?.price_discounted_formatted,
                 total: subproduct?.price?.price,
-                formatted: subproduct?.price?.price_formatted,
+                total_formatted: subproduct?.price?.price_formatted,
                 invalid: has(error, `${key}.${id}`),
               });
             }
