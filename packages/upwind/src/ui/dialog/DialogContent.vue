@@ -3,6 +3,7 @@ import { type HTMLAttributes, computed } from "vue";
 import {
   DialogContent,
   DialogPortal,
+  type DialogPortalProps,
   useForwardPropsEmits,
   type DialogContentEmits,
   type DialogContentProps,
@@ -13,11 +14,12 @@ import DialogOverlay from "./DialogOverlay.vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  DialogContentProps & {
-    persistent?: boolean;
-    class?: HTMLAttributes["class"];
-    classOverlay?: HTMLAttributes["class"];
-  }
+  DialogContentProps &
+    DialogPortalProps & {
+      persistent?: boolean;
+      class?: HTMLAttributes["class"];
+      classOverlay?: HTMLAttributes["class"];
+    }
 >();
 
 const emits = defineEmits<DialogContentEmits>();
@@ -30,8 +32,13 @@ const delegatedProps = computed(() => {
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
+<!--
+ **** BREAKING CHANGES ON UPDATE ****
+ • DialogPortal doesn't receive the prop 'to' by default, this is a manually change by us
+-->
+
 <template>
-  <DialogPortal>
+  <DialogPortal :to="props.to">
     <DialogOverlay :class="props.classOverlay" />
     <DialogContent
       v-bind="forwarded"
