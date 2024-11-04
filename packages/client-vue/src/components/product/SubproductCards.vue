@@ -30,7 +30,7 @@
     >
       <template #item="{ item: { value } }">
         <CardSubproduct
-          v-bind="getSubProduct(value as string)"
+          v-bind="getSubproductValue(value as string)"
           @update:quantity="doUpdateQuantity(value, $event)"
         />
       </template>
@@ -101,12 +101,12 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
   });
 });
 
-function getSubProduct(value: string) {
-  const subproduct = find(props.subproduct?.values, ["id", value]);
+function getSubproductValue(value: string) {
+  const product = find(props.subproduct?.values, ["id", value]);
   return {
-    ...subproduct,
+    ...product,
     quantity: get(props.quantities, value, 0),
-    priceOverride: subproduct?.price_override,
+    priceOverride: props.subproduct?.price_override,
   };
 }
 
