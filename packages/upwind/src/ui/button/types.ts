@@ -14,6 +14,7 @@ export interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   iconOnly?: boolean;
+  spinner?: boolean;
   // ---
   block?: boolean;
   variant?: ButtonVariantProps["variant"];
