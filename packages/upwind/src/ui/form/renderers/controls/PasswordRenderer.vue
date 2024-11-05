@@ -14,6 +14,7 @@
         :pattern="appliedOptions?.pattern"
         :readonly="appliedOptions?.readonly"
         :required="appliedOptions?.required"
+        :disabled="appliedOptions?.disabled"
         :model-value="control.data"
         @update:modelValue="onInput"
       />
