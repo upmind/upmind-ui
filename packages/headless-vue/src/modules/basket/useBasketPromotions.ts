@@ -52,7 +52,7 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
       hasPromotions: contextMatches(actor, ["promotions"]),
       hasErrors: stateMatches(actor, ["error"]),
-      isProcessing: stateMatches(actor, ["checking", "processing"]),
+      isProcessing: stateMatches(actor, ["processing"]),
       isValid: stateMatches(actor, ["valid"]),
       isDirty: contextMatches(actor, ["dirty"]),
       isComplete:
