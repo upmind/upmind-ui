@@ -21,7 +21,7 @@ export default {
       badges: cva("flex items-center gap-2"),
       title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(
-        "items-cnter text-base-700 m-0  inline-flex gap-2 text-xs font-normal leading-5"
+        "text-base-700 m-0 inline-flex  items-center gap-2 text-xs font-normal leading-5"
       ),
 
       // ---

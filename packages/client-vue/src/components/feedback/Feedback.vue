@@ -92,7 +92,7 @@ export default defineComponent({
           const id = toast(message.value.title, {
             id: message.value.hash,
             description: message.value.copy,
-            duration: Infinity,
+            duration: 10000,
             onDismiss: t => dismissToast(t.id),
             onAutoClose: t => dismissToast(t.id),
             type: message.value.type,

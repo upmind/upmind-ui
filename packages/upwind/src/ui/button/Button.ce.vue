@@ -22,7 +22,7 @@
     <slot name="append"></slot>
 
     <span
-      v-if="props.loading"
+      v-if="props.loading && props.spinner"
       class="spinner absolute bottom-1 left-1 right-1 top-1 m-auto"
     >
       <Spinner />
@@ -51,6 +51,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   disabled: false,
   loading: false,
   iconOnly: false,
+  spinner: true,
   type: "button",
   // --- variants
   size: "md",
