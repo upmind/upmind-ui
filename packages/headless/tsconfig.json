@@ -6,7 +6,8 @@
     "outDir": "dist",
     "noImplicitThis": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "types": ["vite/client"]
   },
   "include": ["**/*.ts"],
   "exclude": ["dist", "src/**/__tests__/*", "**/*.d.ts"]

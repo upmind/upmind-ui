@@ -198,9 +198,10 @@ export interface GatewayContext {
   currency?: ICurrency;
   amount?: number;
   gateway?: IGateway;
-  renderless?: boolean;
   // ---
   type?: GatewayTypes;
+  code?: GatewayProviderCodes;
+  // ---
   ctx?: GatewayContext;
   stored_payment_methods?: Array<any>;
   // ---
