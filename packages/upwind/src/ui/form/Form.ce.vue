@@ -14,7 +14,7 @@
       :renderers="renderers"
       :validationMode="mode"
       :additionalErrors="additionalErrors"
-      :enabled="!props.disabled"
+      :enabled="!meta.isDisabled"
       @change="onChange"
       :class="variants.form.content"
     />
@@ -118,6 +118,7 @@ const meta = computed(() => {
     isDirty: baseModel !== model.value,
     isTouched: touched.value,
     isValid: isEmpty(errors.value),
+    isDisabled: props.disabled || props.processing,
   };
 });
 
