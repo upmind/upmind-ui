@@ -9,7 +9,7 @@ type ButtonVariantProps = VariantProps<typeof buttonVariants>;
 export interface ButtonProps {
   label?: string;
   as?: string;
-  type?: "button" | "submit" | "reset";
+  type?: "button" | "submit" | "reset"; //  type?: HTMLButtonElement["type"];
   // ---
   disabled?: boolean;
   loading?: boolean;

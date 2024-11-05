@@ -48,6 +48,12 @@ import {
   type AnimatedIconProps,
 } from "./ui/icon-animated";
 import { UwIndicator, Indicator } from "./ui/indicator";
+import {
+  UwInterstitial,
+  Interstitial,
+  type InterstitialProps,
+  type InterstitialActionProps,
+} from "./ui/interstitial";
 import { UwInput, Input, type InputProps } from "./ui/input";
 import {
   UwNumberField,
@@ -114,6 +120,7 @@ export {
   Icon,
   IconAnimated,
   Indicator,
+  Interstitial,
   Input,
   NumberField,
   Popover,
@@ -145,6 +152,7 @@ export {
   type FormProps,
   type IconProps,
   type AnimatedIconProps,
+  type InterstitialProps,
   type InputProps,
   type NumberFieldProps,
   type RadioSelectProps,
@@ -171,6 +179,7 @@ export {
   UwIcon,
   UwIconAnimated,
   UwIndicator,
+  UwInterstitial,
   UwInput,
   UwNumberField,
   UwSelect,
@@ -197,6 +206,7 @@ export function register() {
   customElements.define("uw-icon", UwIcon);
   customElements.define("uw-icon-animated", UwIconAnimated);
   customElements.define("uw-indicator", UwIndicator);
+  customElements.define("uw-interstitial", UwInterstitial);
   customElements.define("uw-input", UwInput);
   customElements.define("uw-number-field", UwNumberField);
   customElements.define("uw-sonner", UwSonner);
@@ -244,6 +254,7 @@ declare module "vue" {
     Icon: typeof Icon;
     IconAnimated: typeof IconAnimated;
     Indicator: typeof Indicator;
+    Interstitial: typeof Interstitial;
     Input: typeof Input;
     NumberField: typeof NumberField;
     Popover: typeof Popover;

@@ -16,6 +16,6 @@ export interface AnimatedIconProps {
   // ---
   size?: IconVariantProps["size"];
   // ---
-  upwindConfig?: { icon: Partial<AnimatedIconProps> };
+  upwindConfig?: { iconAnimated: Partial<AnimatedIconProps> };
   class?: HTMLAttributes["class"];
 }
