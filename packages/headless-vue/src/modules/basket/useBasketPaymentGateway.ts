@@ -63,6 +63,9 @@ export const useBasketPaymentGateway = () => {
       contextValue(payment_gateway, "gateway.payment_instructions")
     ),
 
+    type: computed(() => contextValue(payment_gateway, "type")),
+    code: computed(() => contextValue(payment_gateway, "code")),
+
     // ---
     clear: () => payment_gateway.value?.send({ type: "CLEAR" }),
     input: (model: any) =>

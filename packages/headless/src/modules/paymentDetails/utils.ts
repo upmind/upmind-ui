@@ -253,6 +253,7 @@ export function spawnCard({ basket_id, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider.code,
     }),
     { name: gateway.id, sync: true }
   );
@@ -267,6 +268,7 @@ export function spawnStripe({ basket_id, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider.code,
     }),
     { name: gateway.id, sync: true }
   );
@@ -284,6 +286,7 @@ export function spawnGenericGateway(
       amount: amount || 0,
       currency,
       type,
+      code: gateway?.gateway_provider.code,
       renderless,
     }),
     { name: gateway?.id, sync: true }
@@ -298,6 +301,7 @@ export function spawnExternal({ basket_id, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider.code,
       // external: gateway?.gateway_provider.external_payment,
     }),
     { name: gateway.id, sync: true }

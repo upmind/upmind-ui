@@ -180,7 +180,10 @@ export const useBasket: any = () => {
     items: useContext(state, "items", []),
     itemsPending: computed(() => {
       const items = contextValue(state, "items", []);
-      return filter(items, item => !contextMatches(item, ["basket_product"]));
+      return filter(
+        items,
+        item => !item?.state?.done && !contextMatches(item, ["basket_product"])
+      );
     }),
     itemsInvalid: computed(() => {
       const items = contextValue(state, "items", []);
