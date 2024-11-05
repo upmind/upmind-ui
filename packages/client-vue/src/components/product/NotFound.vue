@@ -8,7 +8,7 @@
     :skrim="skrim"
     :title="title"
     fit="cover"
-    to="main"
+    to="#app"
     no-close
     no-header
     persistent
