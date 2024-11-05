@@ -14,6 +14,7 @@
       :renderers="renderers"
       :validationMode="mode"
       :additionalErrors="additionalErrors"
+      :enabled="!props.disabled"
       @change="onChange"
       :class="variants.form.content"
     />
