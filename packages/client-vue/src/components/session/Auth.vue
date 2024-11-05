@@ -18,7 +18,6 @@
       :key="active"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
-      :disabled="meta.isProcessing"
       :model-value="model"
       :schema="schema"
       :uischema="uischema"
