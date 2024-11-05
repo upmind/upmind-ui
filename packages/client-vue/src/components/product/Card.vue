@@ -23,7 +23,7 @@
           color="promotion"
           v-if="product?.isOnPromotion"
           :label="t('product.promotion')"
-          variant="flat"
+          variant="tonal"
         />
 
         <h3 :class="styles.product.card.title">

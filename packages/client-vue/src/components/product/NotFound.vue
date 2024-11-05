@@ -8,6 +8,7 @@
     :skrim="skrim"
     :title="title"
     fit="cover"
+    to="main"
     no-close
     no-header
     persistent
