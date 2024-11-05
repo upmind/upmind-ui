@@ -61,7 +61,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted, nextTick, onMounted } from "vue";
+import { computed, onBeforeUnmount, nextTick, onMounted } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
 import { useVModel } from "@vueuse/core";
 
@@ -138,23 +138,23 @@ const onOpen = (open: boolean, force: boolean = false) => {
 };
 
 onMounted(() => {
-  // if (props.to) {
-  //   nextTick(() => {
-  //     const element = document.querySelector(props.to as string);
-  //     if (element) {
-  //       document.body.style.setProperty("pointer-events", "auto");
-  //       (element as HTMLElement).style.setProperty("pointer-events", "none");
-  //     }
-  //   });
-  // }
+  if (props.to) {
+    nextTick(() => {
+      const element = document.querySelector(props.to as string);
+      if (element) {
+        document.body.style.setProperty("pointer-events", "auto");
+        (element as HTMLElement).style.setProperty("pointer-events", "none");
+      }
+    });
+  }
 });
 
-onUnmounted(() => {
-  // if (props.to) {
-  //   const element = document.querySelector(props.to as string);
-  //   document.body.style.setProperty("pointer-events", "auto");
-  //   (element as HTMLElement)?.style.setProperty("pointer-events", "auto");
-  // }
+onBeforeUnmount(() => {
+  if (props.to) {
+    const element = document.querySelector(props.to as string);
+    document.body.style.setProperty("pointer-events", "auto");
+    (element as HTMLElement)?.style.setProperty("pointer-events", "auto");
+  }
 });
 
 const forceClose = () => {
