@@ -171,11 +171,11 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: FieldsContext, { data: basket }: FieldsEvent) => {
+        (_context: FieldsContext, { data }: FieldsEvent) => {
           return {
             // @ts-ignore
-            basket_id: basket?.id,
-            model: parseBasketFieldsModel(basket),
+            basket_id: data?.id,
+            model: parseBasketFieldsModel(data),
           };
         }
       ),
@@ -260,11 +260,11 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basket_id }, _event) => !!basket_id,
       // @ts-ignore
-      hasChanged: ({ model, basket_id }, { data }: any) => {
+      hasChanged: ({ model, basket_id }, { data }: any) =>
         model?.notes !== data?.notes ||
-          model?.custom_fields !== data?.custom_fields ||
-          basket_id !== data?.id;
-      },
+        model?.custom_fields !== data?.custom_fields ||
+        basket_id !== data?.id,
+
       shouldUpdate: ({ autoupdate, basket_id }, _event) =>
         !!autoupdate && !!basket_id,
     },
