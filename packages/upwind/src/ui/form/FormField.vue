@@ -54,7 +54,7 @@
 
       <!-- validation messages -->
       <FormMessage
-        v-if="meta.isInvalid"
+        v-if="meta.isInvalid && !meta.isPristine"
         :formMessageId="`form-item-message-${props.id}`"
         :name="name"
         :errors="errors"
@@ -113,6 +113,7 @@ const props = withDefaults(defineProps<FormControlProps>(), {
   disabled: false,
   visible: true,
   dirty: false,
+  pristine: true,
   // ---
   upwindConfig: () => ({
     form: {
@@ -144,6 +145,7 @@ const meta = computed(() => ({
   isRequired: props.required,
   isVisible: isNil(props.visible) || props.visible,
   isDisabled: props.disabled,
+  isPristine: props.pristine,
   hasDescription: !isEmpty(props.description),
   hasLabel: (!isEmpty(props.label) || some(slots, "label")) && !props.noLabel,
   hasFeedback:
