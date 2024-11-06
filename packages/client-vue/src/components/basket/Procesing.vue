@@ -7,7 +7,7 @@
     :size="size"
     :skrim="skrim"
     :title="title"
-    to="main"
+    to="#app"
     fit="cover"
     no-close
     no-header

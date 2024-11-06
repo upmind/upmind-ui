@@ -1,6 +1,6 @@
 <template>
   <component
-    v-if="modal || (!modal && isOpen)"
+    v-if="(modal && isOpen) || !modal"
     :is="modal ? Dialog : 'div'"
     :description="text"
     :open="isOpen"
@@ -8,7 +8,7 @@
     :skrim="skrim"
     :title="title"
     fit="cover"
-    to="main"
+    :to="modal ? 'main' : ''"
     no-close
     no-header
     persistent

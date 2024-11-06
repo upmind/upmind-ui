@@ -8,6 +8,7 @@
       :autocomplete="appliedOptions?.autocomplete"
       :maxlength="appliedOptions?.maxLength"
       :minlength="appliedOptions?.minLength"
+      :disabled="appliedOptions?.disabled"
       :model-value="control.data"
       @update:modelValue="onInput"
     />

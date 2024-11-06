@@ -14,6 +14,7 @@
       :renderers="renderers"
       :validationMode="mode"
       :additionalErrors="additionalErrors"
+      :enabled="!meta.isDisabled"
       @change="onChange"
       :class="variants.form.content"
     />
@@ -117,6 +118,7 @@ const meta = computed(() => {
     isDirty: baseModel !== model.value,
     isTouched: touched.value,
     isValid: isEmpty(errors.value),
+    isDisabled: props.disabled || props.processing,
   };
 });
 
@@ -221,9 +223,11 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
     emits("update:modelValue", model.value);
   }
 
-  const isValid = !isEmpty(errors.value);
+  const isValid = isEmpty(errors.value);
   emits("valid", isValid);
-  if (isValid && props.autosave) doSubmit();
+  if (isValid && props.autosave) {
+    doSubmit();
+  }
 }
 
 function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
