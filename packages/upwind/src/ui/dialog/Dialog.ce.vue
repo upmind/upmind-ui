@@ -132,28 +132,34 @@ const variants = useStyles(
 // --- state
 const value = useVModel(props, "open", emits);
 
+const handlePointerEvents = (isOpen: boolean) => {
+  if (props.to) {
+    const element = document.querySelector(props.to as string);
+    if (element) {
+      document.body.style.removeProperty("pointer-events");
+      (element as HTMLElement).style.setProperty(
+        "pointer-events",
+        isOpen ? "none" : "auto"
+      );
+    }
+  }
+};
+
 const onOpen = (open: boolean, force: boolean = false) => {
   if (props.persistent && !open && !force) return;
   value.value = open;
+  nextTick(() => handlePointerEvents(open));
 };
 
 onMounted(() => {
-  if (props.to) {
-    nextTick(() => {
-      const element = document.querySelector(props.to as string);
-      if (element) {
-        document.body.style.setProperty("pointer-events", "auto");
-        (element as HTMLElement).style.setProperty("pointer-events", "none");
-      }
-    });
+  if (props.to && value.value) {
+    nextTick(() => handlePointerEvents(true));
   }
 });
 
 onBeforeUnmount(() => {
   if (props.to) {
-    const element = document.querySelector(props.to as string);
-    document.body.style.setProperty("pointer-events", "auto");
-    (element as HTMLElement)?.style.setProperty("pointer-events", "auto");
+    handlePointerEvents(false);
   }
 });
 
