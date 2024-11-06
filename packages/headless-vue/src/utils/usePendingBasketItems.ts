@@ -10,6 +10,7 @@ import { useBasket } from "@upmind/client-vue";
 import { useQueryParams } from "./useQueryParams";
 
 import {
+  concat,
   find,
   first,
   forEach,
@@ -286,16 +287,15 @@ export const usePendingBasketItems = () => {
   });
 
   const nextBasketItems = computed(() => {
-    const pendingItems = map(
-      itemsPending.value,
-      "state.context.lookups.product"
-    );
-    const invalidItems = map(
-      itemsInvalid.value,
-      "state.context.lookups.product"
-    );
+    const items = map(concat(itemsPending.value, itemsInvalid.value), item => {
+      const product = get(item, "state.context.lookups.product");
+      return {
+        id: item.id,
+        ...product,
+      };
+    });
 
-    return [...pendingItems, ...invalidItems];
+    return items;
   });
 
   function navigateNextBasketItem(
