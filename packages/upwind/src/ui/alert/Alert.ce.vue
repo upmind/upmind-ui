@@ -6,11 +6,18 @@
     <AlertTitle
       class="mb-1 flex items-center gap-2 font-medium leading-none tracking-tight"
     >
-      <span>{{ title }}</span>
+      <slot name="title">
+        <span>{{ title }}</span>
+      </slot>
     </AlertTitle>
+
     <AlertDescription class="text-sm opacity-75 [&_p]:leading-relaxed">
-      {{ description }}
+      <slot name="description">
+        {{ description }}
+      </slot>
     </AlertDescription>
+
+    <slot></slot>
   </Alert>
 </template>
 
