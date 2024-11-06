@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { merge, cloneDeep, defaults, set } from "lodash-es";
+import { merge, cloneDeep, defaults, set, isEmpty } from "lodash-es";
 
 import {
   composePaths,
@@ -40,6 +40,7 @@ export const useUpwindRenderer = <
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
       visible: input.control.value.visible,
+      pristine: isEmpty(input.control.value.data),
     });
 
     set(props, "id", input.control.value.id);
@@ -107,6 +108,7 @@ export const useUpwindArrayRenderer = <
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
       visible: input.control.value.visible,
+      pristine: isEmpty(input.control.value.data),
     });
 
     set(props, "id", input.control.value.id);
