@@ -25,6 +25,7 @@ export interface BasketModalProps {
   avatar?: AvatarProps;
   animatedIcon?: AnimatedIconProps;
   action?: ActionProps;
+  to?: string;
   // ---
   size?: DialogProps["size"];
   skrim?: DialogProps["skrim"];
