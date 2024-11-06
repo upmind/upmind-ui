@@ -11,6 +11,7 @@
         :path="layout.path"
         :enabled="layout.enabled"
         :renderers="layout.renderers"
+        :pristine="meta.isPristine"
         :cells="layout.cells"
       />
     </div>
@@ -48,6 +49,10 @@ const props = defineProps({
     type: String as PropType<InputProps["size"]>,
     default: null,
   },
+  pristine: {
+    type: Boolean,
+    default: false,
+  },
   // --- Provide a way to add custom styles for a specific instance of the component
   upwindConfig: { type: [Object, Array], default: () => ({}) },
 });
@@ -56,6 +61,7 @@ const meta = computed(() => ({
   isVisible: layout.value.visible,
   isDisabled: !layout.value.enabled,
   isHorizontal: layout.value.direction === "row",
+  isPristine: props.pristine,
 }));
 
 const styles = useStyles(["layout"], meta, config, props.upwindConfig);

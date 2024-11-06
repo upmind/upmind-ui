@@ -15,6 +15,7 @@
       :validationMode="mode"
       :additionalErrors="additionalErrors"
       :enabled="!meta.isDisabled"
+      :pristine="meta.isPristine"
       @change="onChange"
       :class="variants.form.content"
     />

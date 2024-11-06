@@ -75,6 +75,8 @@ export interface FormControlProps {
   visible?: boolean;
   disabled?: boolean;
   dirty?: boolean;
+  pristine?: boolean;
+
   // --- styles
   upwindConfig?: {
     form: {
