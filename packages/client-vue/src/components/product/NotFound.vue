@@ -8,7 +8,7 @@
     :skrim="skrim"
     :title="title"
     fit="cover"
-    to="#app"
+    to="#vue-app"
     no-close
     no-header
     persistent
