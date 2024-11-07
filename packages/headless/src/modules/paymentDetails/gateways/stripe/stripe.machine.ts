@@ -38,6 +38,7 @@ export default createMachine(
       schema: undefined,
       uischema: undefined,
       model: undefined,
+      address: undefined,
       // ---
       error: null,
     } as StripeContext,
@@ -51,14 +52,28 @@ export default createMachine(
               src: "load",
               onDone: [
                 {
-                  target: "addElement",
+                  target: "loadAddress",
                   actions: ["setContext"],
+                },
+              ],
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
+          },
+          loadAddress: {
+            invoke: {
+              src: "loadAddress",
+              onDone: [
+                {
+                  target: "addElement",
+                  actions: ["setAddress"],
                   cond: "isAdding",
                 },
                 {
                   target: "paymentElement",
-                  actions: ["setContext"],
-                  // cond: "isPaying"
+                  actions: ["setAddress"],
                 },
               ],
               onError: {
@@ -288,6 +303,10 @@ export default createMachine(
       setModel: assign({
         model: ({ schema, model }, { data }) =>
           useModelParser(schema, data || model),
+      }),
+
+      setAddress: assign({
+        address: (_context: StripeContext, { data }: StripeEvent) => data,
       }),
 
       clearModel: assign({

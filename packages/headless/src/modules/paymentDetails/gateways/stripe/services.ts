@@ -3,6 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
 import { useApi, useSession } from "../../..";
+import { useClientUnifiedAddresses } from "@upmind/headless";
 import sharedServices from "../services";
 
 // --- utils
@@ -55,6 +56,16 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
   WECHAT_PAY = "wechat_pay", // NYS
 }
 
+async function loadAddress(_context: StripeContext, _event: StripeEvent) {
+  const { getSelected } = useClientUnifiedAddresses();
+  const selectedAddress = await getSelected();
+
+  if (!selectedAddress) {
+    return Promise.reject("No address selected");
+  }
+
+  return selectedAddress.state.context.model;
+}
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -113,7 +124,7 @@ async function validate(
 // PAYMENT METHODS
 
 async function createPaymentElement(
-  { amount, currency, gateway, stripe }: StripeContext,
+  { amount, currency, gateway, stripe, address }: StripeContext,
   _event: StripeEvent
 ) {
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
@@ -127,14 +138,13 @@ async function createPaymentElement(
     setupFutureUsage: "off_session",
   });
   const element = elements?.create("payment", {
-    // defaultValues: {
-    //     billingDetails: {
-    //       name: "Jenny Rosen",
-    //       email: "john.smith@example.com",
-    //       phone: "5554242424",
-    //     },
-    //   },
-    // },
+    defaultValues: {
+      billingDetails: {
+        address: {
+          postal_code: address?.postcode,
+        },
+      },
+    },
   });
 
   return new Promise(resolve => {
@@ -152,7 +162,8 @@ async function createPaymentElement(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ elements, stripe, model }: StripeContext) {
+async function update({ elements, stripe, model, address }: StripeContext) {
+  console.log(address);
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
 
@@ -258,6 +269,7 @@ async function endSetup() {}
 
 export default {
   load,
+  loadAddress,
   parse: sharedServices.parse,
   validate,
   // ---
