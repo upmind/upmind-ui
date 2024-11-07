@@ -8,7 +8,11 @@ import sharedServices from "../services";
 
 // --- utils
 import { useValidation } from "../../../../utils";
-import { getSupportedPaymentMethods, getPublicKey } from "./utils";
+import {
+  getSupportedPaymentMethods,
+  getPublicKey,
+  useAddressWatcher,
+} from "./utils";
 import { reject, set } from "lodash-es";
 
 // --- types
@@ -56,7 +60,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
   WECHAT_PAY = "wechat_pay", // NYS
 }
 
-async function loadAddress(_context: StripeContext, _event: StripeEvent) {
+async function loadAddress() {
   const { getSelected } = useClientUnifiedAddresses();
   const selectedAddress = await getSelected();
 
@@ -66,6 +70,36 @@ async function loadAddress(_context: StripeContext, _event: StripeEvent) {
 
   return selectedAddress.state.context.model;
 }
+
+const addressSubscription = (context: StripeContext) => {
+  const addresses = useClientUnifiedAddresses();
+
+  return addresses.getSelected().then(selected => {
+    if (!selected) return;
+
+    const subscription = addresses.service.subscribe(state => {
+      if (state.context?.selected?.state?.context?.model) {
+        console.log("ADDRESS CHANGED");
+        loadAddress().then(address => {
+          if (context.element?.update) {
+            context.element.update({
+              defaultValues: {
+                billingDetails: {
+                  address: {
+                    postal_code: address?.postcode,
+                  },
+                },
+              },
+            });
+          }
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  });
+};
+
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
@@ -266,7 +300,6 @@ async function endSetup() {}
 
 // --------------------------------------------------------
 // EXPORTS
-
 export default {
   load,
   loadAddress,
@@ -279,4 +312,5 @@ export default {
   confirmSetup,
   endSetup,
   update,
+  addressSubscription,
 };
