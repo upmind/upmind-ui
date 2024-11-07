@@ -455,26 +455,8 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   //  product meta
 
   // term
-  const term = find(lookups.terms, [
-    "billing_cycle_months",
-    model?.term?.billing_cycle_months,
-  ]);
-
-  if (term) {
-    // NB: only show term pricing if recurring!
-    details.push({
-      key: "term",
-      category: "Billing Cycle",
-      name: term.billing_cycle_name,
-      cycle: term.billing_cycle_months,
-      quantity: model.quantity,
-      discount: term.price_discounted,
-      discount_formatted: term.price_discounted_formatted,
-      total: term.price,
-      total_formatted: term.price_formatted,
-      invalid: !isEmpty(error?.term),
-    });
-  }
+  const term = parseTermSummary(model.term, lookups.terms, error?.term);
+  if (!isEmpty(term)) details.push(term);
 
   // options
   const options = parseSummarySubproduct(
@@ -495,31 +477,42 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   details.push(...attributes);
 
   // provision fields
-  reduce(
-    lookups.provision_fields?.properties,
-    (result, provisionField, key) => {
-      result.push({
-        key: `provision_field.${key}`,
-        category: get(provisionField, "title", key),
-        name: get(model.provision_fields, key),
-        invalid: some(error?.provision_fields?.data, ["schemaPath", key]),
-        cycle: undefined,
-        quantity: undefined,
-        discount: undefined,
-        discount_formatted: undefined,
-        total: undefined,
-        total_formatted: undefined,
-      });
-
-      return result;
-    },
-    details
+  const provision_fields = parseProvisionFieldsSummary(
+    model.provision_fields,
+    lookups.provision_fields,
+    error?.provision_fields
   );
+  if (!isEmpty(provision_fields)) details.push(...provision_fields);
 
   return { ...summary, details };
 };
 
-export const parseSummarySubproduct = (
+const parseTermSummary = (data: any, terms: any, error?: any) => {
+  const term = find(terms, [
+    "billing_cycle_months",
+    data?.term?.billing_cycle_months,
+  ]);
+
+  if (term) {
+    // NB: only show term pricing if recurring!
+    return {
+      key: "term",
+      category: "Billing Cycle",
+      name: term.billing_cycle_name,
+      cycle: term.billing_cycle_months,
+      quantity: data?.quantity,
+      discount: term.price_discounted,
+      discount_formatted: term.price_discounted_formatted,
+      total: term.price,
+      total_formatted: term.price_formatted,
+      invalid: !isEmpty(error),
+    };
+  }
+
+  return null;
+};
+
+const parseSummarySubproduct = (
   key: string,
   data: any,
   lookup: Array<any>,
@@ -560,6 +553,35 @@ export const parseSummarySubproduct = (
       return result;
     },
     [] as any[] // Provide initial value as an empty array
+  );
+};
+
+const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
+  return reduce(
+    schema?.properties,
+    (result: any[], provisionField, key) => {
+      let name = get(data, key);
+
+      if (provisionField.oneOf) {
+        name = find(provisionField.oneOf, ["const", name])?.title;
+      }
+
+      result.push({
+        key: `provision_field.${key}`,
+        category: get(provisionField, "title", key),
+        name,
+        invalid: some(error, ["data.schemaPath", key]),
+        cycle: undefined,
+        quantity: undefined,
+        discount: undefined,
+        discount_formatted: undefined,
+        total: undefined,
+        total_formatted: undefined,
+      });
+
+      return result;
+    },
+    [] as any[]
   );
 };
 

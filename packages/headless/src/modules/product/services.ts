@@ -371,9 +371,8 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
     return Promise.resolve({ provision_fields: {} });
 
   // ---
-  // NB, ensure we strip out any falsy values as the API does not like them
-  const value = omitBy(model?.provision_fields, isNil) || {};
 
+  const value = model?.provision_fields || {};
   const { validate } = useValidation();
   const errors = validate(lookups.provision_fields, value);
 
