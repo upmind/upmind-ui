@@ -54,7 +54,7 @@
 
       <!-- validation messages -->
       <FormMessage
-        v-if="meta.isInvalid && !meta.isPristine"
+        v-if="meta.isInvalid"
         :formMessageId="`form-item-message-${props.id}`"
         :name="name"
         :errors="errors"
