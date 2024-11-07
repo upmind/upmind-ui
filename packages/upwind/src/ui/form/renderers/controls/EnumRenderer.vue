@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Select
-      :model-value="control.data"
+      :model-value="control.data?.toString()"
       :items="control.options"
       @update:modelValue="onInput"
     />
