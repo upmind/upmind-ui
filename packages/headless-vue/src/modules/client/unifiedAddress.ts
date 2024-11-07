@@ -148,6 +148,7 @@ export const useClientUnifiedAddresses = () => {
     select: async (id: any) => {
       await isReady();
       send({ type: "SELECT", data: id });
+      send({ type: "ADDRESS_CHANGED", data: selected?.state?.context?.model });
     },
     edit: async (id: any) => {
       await isReady();

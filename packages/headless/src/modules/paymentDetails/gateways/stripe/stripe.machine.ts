@@ -110,6 +110,9 @@ export default createMachine(
             },
           },
         },
+        invoke: {
+          src: context => services.addressSubscription(context),
+        },
       },
 
       // ---
@@ -117,6 +120,9 @@ export default createMachine(
         id: "checking",
         entry: ["clearError"],
         initial: "parsing",
+        invoke: {
+          src: context => services.addressSubscription(context),
+        },
         states: {
           parsing: {
             invoke: {
@@ -236,6 +242,9 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"],
+      },
+      ADDRESS_CHANGED: {
+        actions: ["setAddress"],
       },
     },
   },
