@@ -145,7 +145,7 @@ const meta = computed(() => ({
   isRequired: props.required,
   isVisible: isNil(props.visible) || props.visible,
   isDisabled: props.disabled,
-  isPristine: props.pristine,
+  isPristine: props.isPristine,
   hasDescription: !isEmpty(props.description),
   hasLabel: (!isEmpty(props.label) || some(slots, "label")) && !props.noLabel,
   hasFeedback:

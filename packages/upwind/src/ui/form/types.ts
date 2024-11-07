@@ -75,7 +75,8 @@ export interface FormControlProps {
   visible?: boolean;
   disabled?: boolean;
   dirty?: boolean;
-  pristine?: boolean;
+  // 'pristine' doesn't pass through correctly for FormField
+  isPristine?: boolean;
 
   // --- styles
   upwindConfig?: {
