@@ -52,28 +52,8 @@ export default createMachine(
               src: "load",
               onDone: [
                 {
-                  target: "loadAddress",
-                  actions: ["setContext"],
-                },
-              ],
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          loadAddress: {
-            invoke: {
-              src: "loadAddress",
-              onDone: [
-                {
-                  target: "addElement",
-                  actions: ["setAddress"],
-                  cond: "isAdding",
-                },
-                {
                   target: "paymentElement",
-                  actions: ["setAddress"],
+                  actions: ["setContext"],
                 },
               ],
               onError: {
@@ -109,9 +89,6 @@ export default createMachine(
               },
             },
           },
-        },
-        invoke: {
-          src: context => services.addressSubscription(context),
         },
       },
 
@@ -242,9 +219,6 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "loading",
         actions: ["clearError", "clearModel", "clearSchemas"],
-      },
-      ADDRESS_CHANGED: {
-        actions: ["setAddress"],
       },
     },
   },
