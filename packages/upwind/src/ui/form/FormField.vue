@@ -11,7 +11,7 @@
         class="flex w-full flex-row flex-nowrap items-center justify-between"
         v-if="meta.hasLabel"
       >
-        <FormLabel :formItemId="id" :invalid="meta.isInvalid">
+        <FormLabel :formItemId="id">
           <slot name="label" :label="label">
             <span class="inline-flex items-center gap-x-1">
               <span>{{ label }}</span>
@@ -138,7 +138,7 @@ const meta = computed(() => ({
   // isInline: props.layout == "inline",
   // isPersisted: props.persistFeedback || !isEmpty(props.errors),
   // ---
-  isInvalid: !isEmpty(props.errors),
+  isInvalid: !isEmpty(props.errors) && props.dirty,
   isValid: isEmpty(props.errors) && props.dirty,
   isDirty: props.dirty,
   isRequired: props.required,
