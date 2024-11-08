@@ -8,12 +8,8 @@ import sharedServices from "../services";
 
 // --- utils
 import { useValidation } from "../../../../utils";
-import {
-  getSupportedPaymentMethods,
-  getPublicKey,
-  useAddressWatcher,
-} from "./utils";
-import { reject, set } from "lodash-es";
+import { getSupportedPaymentMethods, getPublicKey } from "./utils";
+import { reject, set, isEqual } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types";
@@ -59,46 +55,6 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
   US_BANK_ACCOUNT = "us_bank_account", // NYS
   WECHAT_PAY = "wechat_pay", // NYS
 }
-
-async function loadAddress() {
-  const { getSelected } = useClientUnifiedAddresses();
-  const selectedAddress = await getSelected();
-
-  if (!selectedAddress) {
-    return Promise.reject("No address selected");
-  }
-
-  return selectedAddress.state.context.model;
-}
-
-const addressSubscription = (context: StripeContext) => {
-  const addresses = useClientUnifiedAddresses();
-
-  return addresses.getSelected().then(selected => {
-    if (!selected) return;
-
-    const subscription = addresses.service.subscribe(state => {
-      if (state.context?.selected?.state?.context?.model) {
-        console.log("ADDRESS CHANGED");
-        loadAddress().then(address => {
-          if (context.element?.update) {
-            context.element.update({
-              defaultValues: {
-                billingDetails: {
-                  address: {
-                    postal_code: address?.postcode,
-                  },
-                },
-              },
-            });
-          }
-        });
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  });
-};
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -282,6 +238,33 @@ async function createAddElement(
   });
 }
 
+const addressSubscription = (context: StripeContext) => {
+  const addresses = useClientUnifiedAddresses();
+
+  return addresses.getSelected().then(selected => {
+    if (!selected) return;
+
+    const subscription = addresses.service.subscribe(() => {
+      if (context.element?.update) {
+        const updatedAddress = selected.state.context.model;
+        context.element.update({
+          defaultValues: {
+            billingDetails: {
+              address: {
+                postal_code: updatedAddress?.postcode,
+              },
+            },
+          },
+        });
+      }
+    });
+
+    return {
+      unsubscribe: () => subscription.unsubscribe(),
+    };
+  });
+};
+
 /**
  * @name confirmSetup
  * @desc Here we confirm the setup of a new detail using the Stripe SDK. We
@@ -302,7 +285,6 @@ async function endSetup() {}
 // EXPORTS
 export default {
   load,
-  loadAddress,
   parse: sharedServices.parse,
   validate,
   // ---
