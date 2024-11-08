@@ -16,8 +16,8 @@ import {
   parseProduct,
   parseTerms,
   parseModel,
-  parseBasketProduct,
-  parseBasketProductSummary,
+  parseBasketProductModel,
+  parseSummaryBasketProduct,
   parseSummary,
 } from "./utils";
 
@@ -498,11 +498,11 @@ export default createMachine(
             promotions,
             // ---
             baseModel: !isEmpty(basket_product)
-              ? parseBasketProduct({ id, ...basket_product })
+              ? parseBasketProductModel({ id, ...basket_product })
               : parseModel({ id, ...model }),
 
             model: !isEmpty(basket_product)
-              ? parseBasketProduct({ id, ...basket_product })
+              ? parseBasketProductModel({ id, ...basket_product })
               : parseModel({ id, ...model }),
 
             // ---
@@ -531,10 +531,10 @@ export default createMachine(
             promotions,
             basket_product,
             baseModel: basket_product
-              ? parseBasketProduct(basket_product)
+              ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
             model: basket_product
-              ? parseBasketProduct(basket_product)
+              ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
             errorExternal,
             error: merge({}, errorExternal, error),
@@ -627,7 +627,7 @@ export default createMachine(
           { model, lookups, error, basket_product }: ProductConfigContext,
           _event: ProductConfigEvent
         ) => {
-          const data = parseBasketProductSummary(basket_product);
+          const data = parseSummaryBasketProduct(basket_product);
           return parseSummary({
             summary: data,
             model,
@@ -846,7 +846,7 @@ export default createMachine(
       ) => {
         const cleanModel = compactDeep(model);
         const cleanProduct = data?.basket_product
-          ? compactDeep(parseBasketProduct(data.basket_product))
+          ? compactDeep(parseBasketProductModel(data.basket_product))
           : {};
         const isDirty =
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
