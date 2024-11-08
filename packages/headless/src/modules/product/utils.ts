@@ -4,7 +4,7 @@ import { TrialEndActionTypes } from "./services";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
-import { parseProductSummary } from "../basket/utils";
+import { parseBasketProduct } from "../basket/utils";
 import {
   find,
   forEach,
@@ -455,7 +455,7 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   //  product meta
 
   // term
-  const term = parseTermSummary(model.term, lookups.terms, error?.term);
+  const term = parseSummaryTerm(model.term, lookups.terms, error?.term);
   if (!isEmpty(term)) details.push(term);
 
   // options
@@ -477,7 +477,7 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   details.push(...attributes);
 
   // provision fields
-  const provision_fields = parseProvisionFieldsSummary(
+  const provision_fields = parseSummaryProvisionFields(
     model.provision_fields,
     lookups.provision_fields,
     error?.provision_fields
@@ -487,7 +487,7 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   return { ...summary, details };
 };
 
-const parseTermSummary = (data: any, terms: any, error?: any) => {
+const parseSummaryTerm = (data: any, terms: any, error?: any) => {
   const term = find(terms, [
     "billing_cycle_months",
     data?.term?.billing_cycle_months,
@@ -556,7 +556,7 @@ const parseSummarySubproduct = (
   );
 };
 
-const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
+const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
   return reduce(
     schema?.properties,
     (result: any[], provisionField, key) => {
@@ -585,16 +585,16 @@ const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
   );
 };
 
-export const parseBasketProductSummary = (basket_product: any) => {
-  const summary = parseProductSummary(basket_product);
-  return {
-    discount: summary?.discount,
-    discount_formatted: summary?.discount_formatted,
-    subtotal: summary?.subtotal,
-    subtotal_formatted: summary?.subtotal_formatted,
-    total: summary?.total,
-    total_formatted: summary?.total_formatted,
-  };
+export const parseSummaryBasketProduct = (basket_product: any) => {
+  debugger;
+  return pick(parseBasketProduct(basket_product), [
+    "discount",
+    "discount_formatted",
+    "subtotal",
+    "subtotal_formatted",
+    "total",
+    "total_formatted",
+  ]);
 };
 
 // --------------------------------------------------------
@@ -615,7 +615,7 @@ export const parseModel = (data: any): IProductModel => {
   ]);
 };
 
-export const parseBasketProduct = (data: any): IProductModel => {
+export const parseBasketProductModel = (data: any): IProductModel => {
   // map basket product data
   return {
     id: data.id,

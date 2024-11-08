@@ -29,8 +29,7 @@ import { TaxTagTypes } from "./types";
 import type { IBasket } from "./types";
 
 // --------------------------------------------------------
-
-// utility function to spawn machines based on the given items
+// SPAWN ACTORS
 export function spawnProductConfiguration(
   data: any,
   basket: IBasket,
@@ -121,6 +120,7 @@ export function spawnPromotions(basket: IBasket) {
 }
 
 // --------------------------------------------------------
+// --- PARSERS
 
 export const parseBasket = (data: any) => {
   const basket = get(data, "basket", data);
@@ -130,19 +130,26 @@ export const parseBasket = (data: any) => {
   return basket;
 };
 
-// ---
-export const parseProductSummary = (product: any) => {
+export const parseBasketProduct = (data: any) => {
+  debugger;
   return {
-    id: product?.id,
-    name: product?.product_name,
-    service_identifier: product?.service_identifier,
-    quantity: product?.quantity,
-    discount_formatted: product?.configuration_total_discount_amount_formatted,
-    discount: product?.configuration_total_discount_amount_converted,
-    subtotal_formatted: product?.configuration_net_amount_formatted,
-    subtotal: product?.configuration_net_amount,
-    total: product?.configuration_net_amount_discounted,
-    total_formatted: product?.configuration_net_amount_discounted_formatted,
+    id: data?.id,
+    name: data?.product_name,
+    service_identifier: data?.service_identifier,
+    quantity: data?.quantity,
+    // ---
+    // term
+    // options
+    // attributes
+    // provision_fields
+    // ---
+    discount_formatted: data?.configuration_total_discount_amount_formatted,
+    discount: data?.configuration_total_discount_amount_converted,
+    subtotal_formatted: data?.configuration_net_amount_formatted,
+    subtotal: data?.configuration_net_amount,
+    total: data?.configuration_net_amount_discounted,
+    total_formatted: data?.configuration_net_amount_discounted_formatted,
+    // ---
     products: [
       // todo  add non quantifiable otions here
       // id: product?.id,
@@ -158,9 +165,110 @@ export const parseProductSummary = (product: any) => {
   };
 };
 
+const parseTerm = (data: any, terms: any, error?: any) => {
+  const term = find(terms, [
+    "billing_cycle_months",
+    data?.term?.billing_cycle_months,
+  ]);
+
+  if (term) {
+    // NB: only show term pricing if recurring!
+    return {
+      key: "term",
+      category: "Billing Cycle",
+      name: term.billing_cycle_name,
+      cycle: term.billing_cycle_months,
+      quantity: data?.quantity,
+      discount: term.price_discounted,
+      discount_formatted: term.price_discounted_formatted,
+      total: term.price,
+      total_formatted: term.price_formatted,
+      invalid: !isEmpty(error),
+    };
+  }
+
+  return null;
+};
+
+const parseSubproduct = (
+  key: string,
+  data: any,
+  lookup: Array<any>,
+  error?: any
+) => {
+  return reduce(
+    data,
+    (result, choices) => {
+      if (choices) {
+        const selected = reduce(
+          choices,
+          (result, choice, id) => {
+            const category = find(lookup, { values: [{ id }] });
+            const subproduct = find(category?.values, { id });
+
+            if (subproduct) {
+              result.push({
+                key,
+                quantity: choice.unit_quantity,
+                category: category.name,
+                name: subproduct.name,
+                cycle: subproduct?.billing_cycle_months,
+                discount: subproduct?.price?.price_discounted,
+                discount_formatted:
+                  subproduct?.price?.price_discounted_formatted,
+                total: subproduct?.price?.price,
+                total_formatted: subproduct?.price?.price_formatted,
+                invalid: has(error, `${key}.${id}`),
+              });
+            }
+
+            return result;
+          },
+          [] as any[] // Provide initial value as an empty array
+        );
+        result.push(...selected);
+      }
+      return result;
+    },
+    [] as any[] // Provide initial value as an empty array
+  );
+};
+
+const parseProvisionFields = (data: any, schema: any, error?: any) => {
+  return reduce(
+    schema?.properties,
+    (result: any[], provisionField, key) => {
+      let name = get(data, key);
+
+      if (provisionField.oneOf) {
+        name = find(provisionField.oneOf, ["const", name])?.title;
+      }
+
+      result.push({
+        key: `provision_field.${key}`,
+        category: get(provisionField, "title", key),
+        name,
+        invalid: some(error, ["data.schemaPath", key]),
+        cycle: undefined,
+        quantity: undefined,
+        discount: undefined,
+        discount_formatted: undefined,
+        total: undefined,
+        total_formatted: undefined,
+      });
+
+      return result;
+    },
+    [] as any[]
+  );
+};
+
+// --------------------------------------------------------
+// --- SUMMARY
+
 export const parseSummary = (data?: any) => {
   const summary = {
-    products: map(get(data, "products"), parseProductSummary),
+    products: map(get(data, "products"), parseBasketProduct),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
@@ -171,7 +279,9 @@ export const parseSummary = (data?: any) => {
   return summary;
 };
 
-//
+// --------------------------------------------------------
+//--- TAXES
+
 export const parseTaxes = (taxes: any) => {
   // we may have multiple taxes, and each tax may have multiple tags
   //  we want to return a unique list of tags and their values
