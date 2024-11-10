@@ -114,7 +114,7 @@ async function validate(
 // PAYMENT METHODS
 
 async function createPaymentElement(
-  { amount, currency, gateway, stripe, address }: StripeContext,
+  { amount, currency, gateway, stripe, billingDetails }: StripeContext,
   _event: StripeEvent
 ) {
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
@@ -131,7 +131,7 @@ async function createPaymentElement(
     defaultValues: {
       billingDetails: {
         address: {
-          postal_code: address?.postcode,
+          postal_code: billingDetails?.postcode,
         },
       },
     },
@@ -152,8 +152,7 @@ async function createPaymentElement(
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function update({ elements, stripe, model, address }: StripeContext) {
-  console.log(address);
+async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
     return Promise.reject("Gateway elements not found.");
 
@@ -202,7 +201,7 @@ async function update({ elements, stripe, model, address }: StripeContext) {
  * Stripe 'Elements' instance.
  */
 async function createAddElement(
-  { stripe, gateway }: StripeContext,
+  { stripe, gateway, billingDetails }: StripeContext,
   _event: StripeEvent
 ) {
   const { post, useUrl } = useApi();
@@ -226,7 +225,16 @@ async function createAddElement(
       locale: "auto", // TODO: add i18n local
     });
 
-    const element = elements?.create("payment");
+    console.log("Billing Details:", billingDetails);
+    const element = elements?.create("payment", {
+      defaultValues: {
+        billingDetails: {
+          address: {
+            postal_code: billingDetails?.postcode,
+          },
+        },
+      },
+    });
     // ---
 
     return {
@@ -237,33 +245,6 @@ async function createAddElement(
     };
   });
 }
-
-const addressSubscription = (context: StripeContext) => {
-  const addresses = useClientUnifiedAddresses();
-
-  return addresses.getSelected().then(selected => {
-    if (!selected) return;
-
-    const subscription = addresses.service.subscribe(() => {
-      if (context.element?.update) {
-        const updatedAddress = selected.state.context.model;
-        context.element.update({
-          defaultValues: {
-            billingDetails: {
-              address: {
-                postal_code: updatedAddress?.postcode,
-              },
-            },
-          },
-        });
-      }
-    });
-
-    return {
-      unsubscribe: () => subscription.unsubscribe(),
-    };
-  });
-};
 
 /**
  * @name confirmSetup
@@ -294,5 +275,4 @@ export default {
   confirmSetup,
   endSetup,
   update,
-  addressSubscription,
 };

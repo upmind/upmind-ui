@@ -2,6 +2,8 @@
 
 // --- internal
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
+import { useClientUnifiedAddresses } from "@upmind/headless";
+
 // --- utils
 import { useValidation } from "../../utils";
 import {
@@ -111,10 +113,14 @@ async function load(
     return sortBy(data, ["order"]);
   });
 
+  const billingDetails = useClientUnifiedAddresses()
+    .getSelected()
+    .then(selected => selected?.state.context.model);
+
   // ----
 
-  return Promise.all([stored_payment_methods, gateways]).then(
-    ([stored_payment_methods, gateways]) => {
+  return Promise.all([stored_payment_methods, gateways, billingDetails]).then(
+    ([stored_payment_methods, gateways, billingDetails]) => {
       // ensure we only show active stored payment methods
       stored_payment_methods = filter(stored_payment_methods, "active");
 
@@ -134,6 +140,7 @@ async function load(
         stored_payment_methods,
         gateways,
         payment_types: PaymentTypes,
+        billingDetails,
       };
     }
   );
