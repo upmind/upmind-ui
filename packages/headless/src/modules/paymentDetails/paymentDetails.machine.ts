@@ -36,6 +36,7 @@ export default createMachine(
       schema: undefined,
       uischema: undefined,
       model: undefined,
+      billingDetails: undefined,
       // ---
       stored_payment_methods: undefined,
       gateways: undefined,
@@ -229,6 +230,7 @@ export default createMachine(
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
+        billingDetails: (_context, { data }) => data.billingDetails,
       }),
 
       setSchemas: assign({
@@ -276,6 +278,7 @@ export default createMachine(
         // @ts-ignore
         actors: (
           {
+            billingDetails,
             basket_id,
             currency,
             model,
@@ -305,6 +308,7 @@ export default createMachine(
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
               stored_payment_methods,
+              billingDetails,
             });
             set(actors, "gateway", actor);
           }
@@ -325,6 +329,8 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
+        billingDetails: (_context, { data: basket }: RefreshEvent) =>
+          basket?.billingDetails, // This is undefined
         actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
             if (actor?.send && !actor?.state?.done) {
@@ -334,6 +340,7 @@ export default createMachine(
                   basket_id: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
+                  billingDetails: basket?.billingDetails,
                 },
               });
             }
@@ -345,7 +352,10 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: ({ model, basket_id, currency }, { data }: any) => {
+        paymentDetails: (
+          { model, basket_id, currency, billingDetails },
+          { data }: any
+        ) => {
           const amount = model.amount;
           return parsePaymentDetails({
             ...model,
@@ -354,6 +364,7 @@ export default createMachine(
             basket_id,
             currency,
             amount,
+            billingDetails,
           });
         },
       }),

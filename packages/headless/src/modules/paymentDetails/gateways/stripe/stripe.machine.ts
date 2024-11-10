@@ -33,6 +33,7 @@ export default createMachine(
       currency: undefined,
       gateway: undefined,
       amount: undefined,
+      billingDetails: undefined,
       renderless: false, // stripe is not renderless
       // ---
       schema: undefined,
@@ -97,9 +98,6 @@ export default createMachine(
         id: "checking",
         entry: ["clearError"],
         initial: "parsing",
-        invoke: {
-          src: context => services.addressSubscription(context),
-        },
         states: {
           parsing: {
             invoke: {
@@ -297,15 +295,26 @@ export default createMachine(
       }),
       // ---
 
-      updateStripe: ({ elements }: StripeContext, { data }: StripeEvent) => {
-        if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
+      updateStripe: (context: StripeContext, { data }: StripeEvent) => {
+        if (!isFunction(context.elements?.update)) return; // in case we receive an update before stripe has loaded
 
         const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
         if (amount <= 0) return; // NB: Stripe requires a positive amount
 
-        elements.update({
+        console.log(
+          "Updating stripe with billingDetails:",
+          context.billingDetails
+        );
+        context.elements.update({
           amount,
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
+          defaultValues: {
+            billingDetails: {
+              address: {
+                postal_code: context.billingDetails?.postcode,
+              },
+            },
+          },
         });
       },
 
@@ -364,13 +373,14 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { basket_id, currency, amount }: StripeContext,
+        { basket_id, currency, amount, billingDetails }: StripeContext,
         { data }: StripeEvent
       ) => {
         const value =
           basket_id !== data.basket_id ||
           currency !== data.currency ||
-          amount !== data.amount;
+          amount !== data.amount ||
+          billingDetails?.id !== data.billingDetails?.id;
         return value;
       },
 

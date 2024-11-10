@@ -44,6 +44,7 @@ export interface PaymentDetailsContext {
   basket_id?: string;
   client_id?: string;
   currency?: iCurrency;
+  billingDetails?: { postal_code: string };
   // ---
   gateways?: Array<IGateway>;
   payment_types?: PaymentTypes;
