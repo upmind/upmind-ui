@@ -60,6 +60,7 @@ import {
   NumberField,
   type NumberFieldProps,
 } from "./ui/number-field";
+import { UwLoading, Loading } from "./ui/loading";
 import { UwSonner, Sonner } from "./ui/sonner";
 import { UwSpinner, Spinner } from "./ui/spinner";
 import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
@@ -124,6 +125,7 @@ export {
   Interstitial,
   Input,
   NumberField,
+  Loading,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -217,6 +219,7 @@ export function register() {
   customElements.define("uw-tabs", UwTabs);
   customElements.define("uw-tooltip", UwTooltip);
   customElements.define("uw-textarea", UwTextarea);
+  customElements.define("uw-loading", UwLoading);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
@@ -272,5 +275,6 @@ declare module "vue" {
     Tabs: typeof Tabs;
     Tooltip: typeof Tooltip;
     Textarea: typeof Textarea;
+    Loading: typeof Loading;
   }
 }
