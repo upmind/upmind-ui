@@ -44,7 +44,7 @@ export interface PaymentDetailsContext {
   basket_id?: string;
   client_id?: string;
   currency?: iCurrency;
-  billingDetails?: BillingDetails;
+  address?: AddressDetails;
   // ---
   gateways?: Array<IGateway>;
   payment_types?: PaymentTypes;
@@ -71,7 +71,7 @@ export interface PaymentDetailsContext {
 
 // --------------------------------------------------------
 // Events
-export interface BillingDetails {
+export interface AddressDetails {
   id: string;
   postal_code: string;
 }

@@ -27,7 +27,7 @@ export interface StripeContext {
   amount?: number;
   gateway?: IGateway;
   renderless?: boolean;
-  billingDetails?: any;
+  address?: any;
   // ---
   ctx?: GatewayContext;
   type?: GatewayTypes;

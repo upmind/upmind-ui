@@ -36,7 +36,7 @@ export default createMachine(
       schema: undefined,
       uischema: undefined,
       model: undefined,
-      billingDetails: undefined,
+      address: undefined,
       // ---
       stored_payment_methods: undefined,
       gateways: undefined,
@@ -229,7 +229,7 @@ export default createMachine(
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
-        billingDetails: (_context, { data }) => data.billingDetails,
+        address: (_context, { data }) => data.address,
       }),
 
       setSchemas: assign({
@@ -277,7 +277,7 @@ export default createMachine(
         // @ts-ignore
         actors: (
           {
-            billingDetails,
+            address,
             basket_id,
             currency,
             model,
@@ -307,7 +307,7 @@ export default createMachine(
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
               stored_payment_methods,
-              billingDetails,
+              address,
             });
             set(actors, "gateway", actor);
           }
@@ -328,8 +328,7 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        billingDetails: (_context, { data: basket }: RefreshEvent) =>
-          basket?.address,
+        address: (_context, { data: basket }: RefreshEvent) => basket?.address,
         actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
             if (actor?.send && !actor?.state?.done) {
@@ -339,7 +338,7 @@ export default createMachine(
                   basket_id: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
-                  billingDetails: basket?.address,
+                  address: basket?.address,
                 },
               });
             }
@@ -352,7 +351,7 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, basket_id, currency, billingDetails },
+          { model, basket_id, currency, address },
           { data }: any
         ) => {
           const amount = model.amount;
@@ -363,7 +362,7 @@ export default createMachine(
             basket_id,
             currency,
             amount,
-            billingDetails,
+            address,
           });
         },
       }),
@@ -441,7 +440,7 @@ export default createMachine(
         !!autoupdate && !!basket_id && model?.amount !== 0,
 
       hasChanged: (
-        { basket_id, currency, client_id, model, billingDetails },
+        { basket_id, currency, client_id, model, address },
         { data }: any
       ) => {
         const basketChanged = basket_id != data?.id;
@@ -449,14 +448,14 @@ export default createMachine(
         const clientChanged = client_id != data?.client_id;
         const amountChanged =
           model.amount == (data?.unpaid_amount_converted || 0.0);
-        const billingDetailsChanged = billingDetails?.id != data?.address?.id;
+        const addressChanged = address?.id != data?.address?.id;
 
         return (
           basketChanged ||
           currencyChanged ||
           clientChanged ||
           amountChanged ||
-          billingDetailsChanged
+          addressChanged
         );
       },
     },
