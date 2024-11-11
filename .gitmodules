@@ -1,0 +1,3 @@
+[submodule "packages/types"]
+	path = packages/types
+	url = git@git.upmind.io:upmind/upmind-types.git
