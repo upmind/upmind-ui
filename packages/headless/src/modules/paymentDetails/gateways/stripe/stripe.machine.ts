@@ -295,18 +295,21 @@ export default createMachine(
       }),
       // ---
 
-      updateStripe: (context: StripeContext, { data }: StripeEvent) => {
-        if (!isFunction(context.elements?.update)) return; // in case we receive an update before stripe has loaded
+      updateStripe: (
+        { elements, element }: StripeContext,
+        { data }: StripeEvent
+      ) => {
+        if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
 
         const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
         if (amount <= 0) return; // NB: Stripe requires a positive amount
 
-        context.elements.update({
+        elements.update({
           amount,
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
         });
 
-        context.element.update({
+        element.update({
           defaultValues: {
             billingDetails: {
               address: {
