@@ -187,7 +187,6 @@ export default createMachine(
             target: "available.checking",
             actions: ["setDirty", "setAutoUpdate"],
           },
-
           REFRESH: [
             {
               target: "available.loading",
@@ -449,7 +448,7 @@ export default createMachine(
         const amountChanged =
           model.amount == (data?.unpaid_amount_converted || 0.0);
         const billingDetailsChanged =
-          billingDetails?.id !== data.billingDetails?.id;
+          billingDetails?.id !== data?.billingDetails?.id;
 
         return (
           basketChanged ||
