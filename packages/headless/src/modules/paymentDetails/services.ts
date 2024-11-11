@@ -36,6 +36,12 @@ const whitelistGatewayProviders =
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
+async function getAddress() {
+  return await useClientUnifiedAddresses()
+    .getSelected()
+    .then(selected => selected?.state.context.model);
+}
+
 async function load(
   { currency }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
@@ -113,9 +119,7 @@ async function load(
     return sortBy(data, ["order"]);
   });
 
-  const billingDetails = useClientUnifiedAddresses()
-    .getSelected()
-    .then(selected => selected?.state.context.model);
+  const billingDetails = await getAddress();
 
   // ----
 
@@ -249,4 +253,5 @@ export default {
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
+  getAddress,
 };

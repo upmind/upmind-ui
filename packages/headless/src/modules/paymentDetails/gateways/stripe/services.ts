@@ -225,7 +225,6 @@ async function createAddElement(
       locale: "auto", // TODO: add i18n local
     });
 
-    console.log("Billing Details:", billingDetails);
     const element = elements?.create("payment", {
       defaultValues: {
         billingDetails: {

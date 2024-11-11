@@ -329,9 +329,7 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        billingDetails: (_context, { data: basket }: RefreshEvent) =>
-          basket?.billingDetails, // This is undefined
-        actors: ({ actors }, { data: basket }: any) => {
+        actors: ({ actors, billingDetails }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
             if (actor?.send && !actor?.state?.done) {
               actor.send({
@@ -340,7 +338,7 @@ export default createMachine(
                   basket_id: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
-                  billingDetails: basket?.billingDetails,
+                  billingDetails,
                 },
               });
             }
@@ -442,7 +440,7 @@ export default createMachine(
         !!autoupdate && !!basket_id && model?.amount !== 0,
 
       hasChanged: (
-        { basket_id, currency, client_id, model },
+        { basket_id, currency, client_id, model, billingDetails },
         { data }: any
       ) => {
         const basketChanged = basket_id != data?.id;
@@ -450,9 +448,15 @@ export default createMachine(
         const clientChanged = client_id != data?.client_id;
         const amountChanged =
           model.amount == (data?.unpaid_amount_converted || 0.0);
+        const billingDetailsChanged =
+          billingDetails?.id !== data.billingDetails?.id;
 
         return (
-          basketChanged || currencyChanged || clientChanged || amountChanged
+          basketChanged ||
+          currencyChanged ||
+          clientChanged ||
+          amountChanged ||
+          billingDetailsChanged
         );
       },
     },

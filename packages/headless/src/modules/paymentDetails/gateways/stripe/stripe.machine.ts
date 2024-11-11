@@ -301,17 +301,16 @@ export default createMachine(
         const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
         if (amount <= 0) return; // NB: Stripe requires a positive amount
 
-        console.log(
-          "Updating stripe with billingDetails:",
-          context.billingDetails
-        );
         context.elements.update({
           amount,
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
+        });
+
+        context.element.update({
           defaultValues: {
             billingDetails: {
               address: {
-                postal_code: context.billingDetails?.postcode,
+                postal_code: data.billingDetails?.postcode,
               },
             },
           },
