@@ -33,7 +33,7 @@ export default createMachine(
       currency: undefined,
       gateway: undefined,
       amount: undefined,
-      billingDetails: undefined,
+      address: undefined,
       renderless: false, // stripe is not renderless
       // ---
       schema: undefined,
@@ -314,7 +314,7 @@ export default createMachine(
           defaultValues: {
             billingDetails: {
               address: {
-                postal_code: data.billingDetails?.postcode,
+                postal_code: data.address?.postcode,
               },
             },
           },
@@ -376,14 +376,14 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { basket_id, currency, amount, billingDetails }: StripeContext,
+        { basket_id, currency, amount, address }: StripeContext,
         { data }: StripeEvent
       ) => {
         const value =
           basket_id !== data.basket_id ||
           currency !== data.currency ||
           amount !== data.amount ||
-          billingDetails?.id !== data.billingDetails?.id;
+          address?.id !== data.address?.id;
         return value;
       },
 

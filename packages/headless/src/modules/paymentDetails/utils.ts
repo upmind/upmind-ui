@@ -152,7 +152,7 @@ export function spawnGateway({
   amount,
   currency,
   stored_payment_methods,
-  billingDetails,
+  address,
 }: any) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
@@ -179,7 +179,7 @@ export function spawnGateway({
       gateway,
       amount,
       currency,
-      billingDetails,
+      address,
     });
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
@@ -204,7 +204,7 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
-      billingDetails,
+      address,
     });
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
@@ -213,7 +213,7 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
-      billingDetails,
+      address,
     });
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
@@ -278,7 +278,7 @@ export function spawnStripe({
   gateway,
   amount,
   currency,
-  billingDetails,
+  address,
 }: any) {
   return spawn(
     stripeMachine.withContext({
@@ -289,7 +289,7 @@ export function spawnStripe({
       currency,
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider.code,
-      billingDetails: billingDetails,
+      address,
     }),
     { name: gateway.id, sync: true }
   );

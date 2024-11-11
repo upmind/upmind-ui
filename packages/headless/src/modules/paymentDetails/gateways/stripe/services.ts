@@ -113,7 +113,7 @@ async function validate(
 // PAYMENT METHODS
 
 async function createPaymentElement(
-  { amount, currency, gateway, stripe, billingDetails }: StripeContext,
+  { amount, currency, gateway, stripe, address }: StripeContext,
   _event: StripeEvent
 ) {
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
@@ -130,7 +130,7 @@ async function createPaymentElement(
     defaultValues: {
       billingDetails: {
         address: {
-          postal_code: billingDetails?.postcode,
+          postal_code: address?.postcode,
         },
       },
     },
@@ -200,7 +200,7 @@ async function update({ elements, stripe, model }: StripeContext) {
  * Stripe 'Elements' instance.
  */
 async function createAddElement(
-  { stripe, gateway, billingDetails }: StripeContext,
+  { stripe, gateway, address }: StripeContext,
   _event: StripeEvent
 ) {
   const { post, useUrl } = useApi();
@@ -228,7 +228,7 @@ async function createAddElement(
       defaultValues: {
         billingDetails: {
           address: {
-            postal_code: billingDetails?.postcode,
+            postal_code: address?.postcode,
           },
         },
       },

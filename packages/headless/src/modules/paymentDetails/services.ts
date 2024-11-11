@@ -34,7 +34,7 @@ const whitelistGatewayProviders =
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 async function load(
-  { currency, billingDetails }: PaymentDetailsContext,
+  { currency, address }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   const { isAuthenticated, getUserId } = useSession();
@@ -111,8 +111,8 @@ async function load(
   });
   // ----
 
-  return Promise.all([stored_payment_methods, gateways, billingDetails]).then(
-    ([stored_payment_methods, gateways, billingDetails]) => {
+  return Promise.all([stored_payment_methods, gateways, address]).then(
+    ([stored_payment_methods, gateways, address]) => {
       // ensure we only show active stored payment methods
       stored_payment_methods = filter(stored_payment_methods, "active");
 
@@ -132,7 +132,7 @@ async function load(
         stored_payment_methods,
         gateways,
         payment_types: PaymentTypes,
-        billingDetails,
+        address,
       };
     }
   );
