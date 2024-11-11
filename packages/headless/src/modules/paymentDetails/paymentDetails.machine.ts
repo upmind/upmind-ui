@@ -328,8 +328,9 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        billingDetails: async (_context: any) => await services.getAddress(),
-        actors: ({ actors, billingDetails }, { data: basket }: any) => {
+        billingDetails: (_context, { data: basket }: RefreshEvent) =>
+          basket?.address,
+        actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
             if (actor?.send && !actor?.state?.done) {
               actor.send({
@@ -338,7 +339,7 @@ export default createMachine(
                   basket_id: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
-                  billingDetails,
+                  billingDetails: basket?.address,
                 },
               });
             }
@@ -448,8 +449,7 @@ export default createMachine(
         const clientChanged = client_id != data?.client_id;
         const amountChanged =
           model.amount == (data?.unpaid_amount_converted || 0.0);
-        const billingDetailsChanged =
-          billingDetails?.id !== data?.billingDetails?.id;
+        const billingDetailsChanged = billingDetails?.id != data?.address?.id;
 
         return (
           basketChanged ||
