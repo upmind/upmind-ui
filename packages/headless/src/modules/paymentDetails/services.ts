@@ -2,8 +2,6 @@
 
 // --- internal
 import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
-import { useClientUnifiedAddresses } from "@upmind/headless";
-
 // --- utils
 import { useValidation } from "../../utils";
 import {
@@ -35,15 +33,8 @@ const whitelistGatewayProviders =
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
-
-async function getAddress() {
-  return await useClientUnifiedAddresses()
-    .getSelected()
-    .then(selected => selected?.state.context.model);
-}
-
 async function load(
-  { currency }: PaymentDetailsContext,
+  { currency, billingDetails }: PaymentDetailsContext,
   _event: PaymentDetailsEvent
 ) {
   const { isAuthenticated, getUserId } = useSession();
@@ -118,9 +109,6 @@ async function load(
     }
     return sortBy(data, ["order"]);
   });
-
-  const billingDetails = await getAddress();
-
   // ----
 
   return Promise.all([stored_payment_methods, gateways, billingDetails]).then(
@@ -253,5 +241,4 @@ export default {
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
-  getAddress,
 };

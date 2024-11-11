@@ -3,13 +3,12 @@ import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
 import { useApi, useSession } from "../../..";
-import { useClientUnifiedAddresses } from "@upmind/headless";
 import sharedServices from "../services";
 
 // --- utils
 import { useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
-import { reject, set, isEqual } from "lodash-es";
+import { reject, set } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types";
