@@ -291,10 +291,6 @@ export default createMachine(
           useModelParser(schema, data || model),
       }),
 
-      setAddress: assign({
-        address: (_context: StripeContext, { data }: StripeEvent) => data,
-      }),
-
       clearModel: assign({
         model: undefined,
       }),
