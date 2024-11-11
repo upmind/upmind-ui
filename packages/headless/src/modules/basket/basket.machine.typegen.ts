@@ -101,9 +101,12 @@ export interface Typegen0 {
     forwardCheckout: "CHECKOUT";
     refreshActors:
       | "REFRESH"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.generating:invocation[0]";
-    refreshItems: "done.invoke.generating:invocation[0]";
+    refreshItems:
+      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
+      | "done.invoke.generating:invocation[0]";
     setError:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
       | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
@@ -123,10 +126,6 @@ export interface Typegen0 {
     setPayment: "done.invoke.payment";
     setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
-    spawnItems:
-      | "done.invoke.basketManager.loading.basket:invocation[0]"
-      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
-      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
     trackPayment: "done.invoke.payment";
     updateBasket:
       | "REFRESH"
@@ -143,19 +142,18 @@ export interface Typegen0 {
     currencyConfiguring: "";
     custom_fieldsComplete: "";
     custom_fieldsConfiguring: "";
+    hasItems: "";
     hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
     hasNoItems: "";
     hasPaymentDetails: "";
     isNotLoading: "";
-    itemsConfigured: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";
     paymentDetailsConfiguring: "";
     paymentDetailsValid: "";
     paymentNeeded: "done.invoke.converting:invocation[0]";
     promotionsComplete: "";
     promotionsConfiguring: "";
-    someConfiguring: "";
   };
   eventsCausingServices: {
     authSubscription:
@@ -207,7 +205,6 @@ export interface Typegen0 {
     | "shopping.items"
     | "shopping.items.complete"
     | "shopping.items.configuring"
-    | "shopping.items.empty"
     | "shopping.payment_details"
     | "shopping.payment_details.available"
     | "shopping.payment_details.complete"
@@ -236,7 +233,7 @@ export interface Typegen0 {
               billing_details?: "complete" | "configuring";
               currency?: "complete" | "configuring";
               custom_fields?: "complete" | "configuring";
-              items?: "complete" | "configuring" | "empty";
+              items?: "complete" | "configuring";
               payment_details?:
                 | "available"
                 | "complete"
