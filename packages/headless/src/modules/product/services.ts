@@ -456,13 +456,11 @@ const calculateBillingTerm: IProductModel["term"] = async (
       term = minBy(availableTerms, "price");
       break;
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(availableTerms, "monthly_price_from"); //monthly_price_from_discounted
       term = minBy(
         availableTerms,
         (term: any) =>
           term?.monthly_price_from_discounted ?? term?.monthly_price_from
       );
-      break;
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = await getConfig(
