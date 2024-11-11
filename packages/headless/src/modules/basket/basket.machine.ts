@@ -12,6 +12,7 @@ const { addError, addSuccess, trackEvent } = useFeedback();
 import { useTime } from "../../utils";
 import {
   parseBasket,
+  parseBasketProduct,
   parseBasketProvisioningErrors,
   parseSummary,
   spawnBillingDetails,
@@ -23,19 +24,16 @@ import {
 } from "./utils";
 
 import {
-  differenceBy,
   every,
   find,
   findIndex,
   forEach,
+  get,
   includes,
   isEmpty,
   isEqual,
   isNil,
   map,
-  remove,
-  get,
-  some,
 } from "lodash-es";
 
 // --- types
@@ -59,6 +57,7 @@ export default createMachine(
       invoice: undefined,
       // ---
       items: [],
+      products: [],
       // ---
       actors: {
         billing_details: undefined,
@@ -111,7 +110,7 @@ export default createMachine(
           },
 
           actors: {
-            entry: ["spawnItems", "spawnActors"],
+            entry: ["spawnActors"],
             always: [
               {
                 target: "#shopping",
@@ -159,7 +158,7 @@ export default createMachine(
                     actions: [
                       "setError",
                       "updateBasket",
-                      "spawnItems",
+                      "refreshItems",
                       "refreshActors",
                     ],
                   },
@@ -192,7 +191,7 @@ export default createMachine(
                   src: "load",
                   onDone: {
                     target: ["complete", "#refreshing.processing"],
-                    actions: ["setError", "updateBasket", "spawnItems"],
+                    actions: ["setError", "updateBasket", "refreshActors"],
                   },
                   onError: {
                     target: "#error",
@@ -212,27 +211,14 @@ export default createMachine(
           items: {
             initial: "configuring",
             states: {
-              empty: {
-                always: [
-                  { target: "configuring", cond: "someConfiguring" },
-                  { target: "complete", cond: "itemsConfigured" },
-                ],
-              },
-
               configuring: {
                 id: "configuring",
-                always: [
-                  { target: "empty", cond: "hasNoItems" },
-                  { target: "complete", cond: "itemsConfigured" },
-                ],
+                always: { target: "complete", cond: "hasNoItems" },
               },
 
               // items are 'complete' only when they have been successfully added to the basket
               complete: {
-                always: [
-                  { target: "empty", cond: "hasNoItems" },
-                  { target: "configuring", cond: "someConfiguring" },
-                ],
+                always: [{ target: "configuring", cond: "hasItems" }],
                 type: "final",
               },
             },
@@ -446,7 +432,7 @@ export default createMachine(
         { actions: ["addItem"] },
       ],
       CLEAR: {
-        target: "#shopping.items.empty",
+        target: "#shopping.items",
         actions: ["clearItems"],
       },
       // ---
@@ -458,7 +444,6 @@ export default createMachine(
           cond: "hasNewBasket",
         },
         {
-          // actions: ["refreshItems"],
           target: "#refreshing.processing",
         },
       ],
@@ -475,16 +460,29 @@ export default createMachine(
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
           parseBasket(data),
-        summary: ({ error }: BasketContext, { data }: BasketEvent) => {
-          const productErrors = get(error, "data.products");
+        products: (_context: BasketContext, { data }: BasketEvent) => {
+          const { products } = parseBasket(data);
+          debugger;
+          const productErrors = get(data?.error, "data.products");
+          debugger;
+          return map(products, product =>
+            parseBasketProduct(product, productErrors)
+          );
+        },
+        summary: (_context: BasketContext, { data }: BasketEvent) => {
+          const productErrors = get(data?.error, "data.products");
           return parseSummary(parseBasket(data), productErrors);
         },
       }),
 
       clearBasket: assign({
         basket: undefined,
-        summary: parseSummary(),
+        products: undefined,
+        summary: undefined,
         error: undefined,
+        paymentDetails: undefined,
+        payment: undefined,
+        invoice: undefined,
       }),
 
       setPaymentDetails: assign({
@@ -569,30 +567,6 @@ export default createMachine(
         });
       }),
 
-      // @ts-ignore
-      refreshItems: assign({
-        items: ({ basket, items }: any) => {
-          forEach(items, actor => {
-            if (actor?.send && !actor?.state?.done) {
-              actor.send({
-                type: "REFRESH",
-
-                data: {
-                  // basket_product: product,
-                  id: basket?.id,
-                  currency_id: basket?.currency_id,
-                  promotions: basket?.promotions || [],
-                },
-              });
-            } else {
-              // remove(items, actor);
-            }
-          });
-
-          return items;
-        },
-      }),
-
       clearActors: assign({
         actors: ({ actors }: any) => {
           forEach(actors, actor => {
@@ -618,74 +592,39 @@ export default createMachine(
 
       // --- Configuring Items Actions
 
-      spawnItems: assign({
-        items: ({ items, error }: BasketContext, { data }) => {
-          const basket = parseBasket(data);
-          const products = basket?.products || [];
-          const newItems: any[] = [];
-
-          // First Refresh any existing items ...
-          // Refresh and that are still in active state
-          // Remove any items that are done or whos basket_product ids are no longer in the basket
-          forEach(items, (item, index) => {
-            const product = find(products, ["id", item?.id]);
-            const errorExternal = parseBasketProvisioningErrors(error, index);
-            if (item?.state?.done) {
-              // do nothing
-            } else if (product) {
-              newItems.push(item);
-
-              item.send({
-                type: "REFRESH",
-                data: {
-                  basket_product: product,
-                  error: errorExternal,
-                  // ---
-                  id: basket?.id,
-                  currency_id: basket?.currency_id,
-                  promotions: basket?.promotions || [],
-                },
-              });
-            } else if (!isEmpty(item.state?.context?.basket_product)) {
-              item.stop();
-            } else {
-              newItems.push(item);
-              item.send({
-                type: "REFRESH",
-                data: {
-                  id: basket?.id,
-                  currency_id: basket?.currency_id,
-                  promotions: basket?.promotions || [],
-                },
-              });
-            }
-          });
-
-          // ---
-          // finally add any new items
-          const missing = differenceBy(products, items, "id");
-          forEach(missing, (product: any) => {
-            const index = findIndex(products, ["id", product?.id]);
-            const errorExternal = parseBasketProvisioningErrors(error, index);
-            const item = spawnProductConfiguration(
-              product,
-              basket,
-              errorExternal
-            );
-
-            newItems.push(item);
-          });
-
-          return newItems;
-        },
-      }),
-
       addItem: assign({
         items: ({ items, basket }, { data }) => {
           const machine = spawnProductConfiguration(data, basket);
 
           items.push(machine);
           return items;
+        },
+      }),
+
+      // @ts-ignore
+      refreshItems: assign({
+        items: ({ basket, items }: any) => {
+          const newItems: ActorRef<any, any>[] = [];
+
+          forEach(items, actor => {
+            if (!actor?.state?.done) {
+              newItems.push(actor);
+
+              actor.send({
+                type: "REFRESH",
+
+                data: {
+                  id: basket?.id,
+                  currency_id: basket?.currency_id,
+                  promotions: basket?.promotions || [],
+                },
+              });
+            } else {
+              // remove(items, actor);
+            }
+          });
+
+          return newItems;
         },
       }),
 
@@ -831,20 +770,6 @@ export default createMachine(
         return value;
       },
 
-      // --- Configuration Guards
-
-      itemsConfigured: ({ items }) => {
-        const itemsConfigured = every(items, ({ state }) =>
-          state?.matches("available.complete")
-        );
-        return items?.length && itemsConfigured;
-      },
-
-      someConfiguring: ({ items }) =>
-        some(items, ({ state }) =>
-          ["available.configuring", "available.configured"].some(state?.matches)
-        ),
-
       // --- Item Guards
 
       isNotLoading: ({ items }) => {
@@ -855,6 +780,7 @@ export default createMachine(
       },
 
       hasNoItems: ({ items }) => isEmpty(items),
+      hasItems: ({ items }) => !isEmpty(items),
     },
 
     delays: {

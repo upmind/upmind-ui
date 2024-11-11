@@ -91,7 +91,7 @@ export const useBasket: any = () => {
             )),
 
         // ---
-        isEmpty: stateMatches(state, ["shopping.items.empty"]),
+        isEmpty: !contextMatches(state, ["products", "items"]),
 
         isAvailable:
           stateMatches(state, [
@@ -100,12 +100,12 @@ export const useBasket: any = () => {
             "shopping",
             "checkout.configuring",
             "checkout.available",
-          ]) && !stateMatches(state, ["shopping.items.empty"]),
+          ]) && contextMatches(state, ["products"]),
 
         needsAuth: !stateMatches(state, ["shopping.account.complete"]),
 
         // ---
-        hasProducts: stateMatches(state, ["shopping.items.complete"]),
+        hasProducts: contextMatches(state, ["products"]),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
@@ -177,33 +177,12 @@ export const useBasket: any = () => {
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    items: useContext(state, "items", []),
-    itemsPending: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item => !item?.state?.done && !contextMatches(item, ["basket_product"])
-      );
-    }),
+    itemsPending: useContext(state, "items", []),
     itemsInvalid: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item =>
-          contextMatches(item, ["basket_product"]) &&
-          machineMatches(item, ["available.error"])
-      );
+      const items = contextValue(state, "products", []);
+      return filter(items, item => contextMatches(item?.details, ["invalid"]));
     }),
-    itemsConfigured: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item =>
-          contextMatches(item, ["basket_product"]) &&
-          !machineMatches(item, ["available.error"])
-      );
-    }),
-    products: useContext(state, "basket.products", []),
+    products: useContext(state, "products", []),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
     currency: useContext(state, "basket.currency", []),

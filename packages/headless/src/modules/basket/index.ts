@@ -12,6 +12,7 @@ import { responseCodes } from "../api";
 
 // --- types
 import type { IProductModel } from "../product/types";
+export * from "./types";
 // --------------------------------------------------------
 // create a global instance of the basket machine
 // and a global object to store state

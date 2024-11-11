@@ -96,6 +96,13 @@ export interface BasketProduct {
   productId: string;
   quantity: number;
   // ---
+  config: {
+    quantifiable?: boolean;
+    min?: number;
+    max?: number;
+    step?: number;
+  };
+  // ---
   hasDiscount?: boolean;
   currentPrice?: number;
   currentPriceFormatted?: string;
@@ -111,6 +118,7 @@ export interface BasketProductDetail {
   name: any;
   cycle?: number;
   quantity?: number;
+  hasPricing?: boolean;
   hasDiscount?: boolean;
   currentPrice?: number;
   currentPriceFormatted?: string;
@@ -125,8 +133,9 @@ export interface BasketContext {
   basket?: Basket;
   invoice?: Object;
   // ---
-  items?: ActorRef<any, any>[]; // Array of actors
-
+  items?: ActorRef<any, any>[]; // Array of actors of items pending or basket products being configured
+  products: BasketProduct[]; // Array of products in the basket
+  // ---
   error?: RequestError;
   controller?: AbortController;
   summary?: Object;

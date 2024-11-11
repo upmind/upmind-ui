@@ -164,6 +164,14 @@ export const parseBasketProduct = (data: any, errors?: any) => {
     productId: data?.product_id,
     quantity: data?.quantity,
     // ---
+    config: {
+      quantifiable: data?.can_change_quantity,
+      min: data?.min_order_quantity,
+      max: data?.max_order_quantity,
+      step: data?.unit_quantity,
+    },
+
+    // ---
     // Current Price is any discounted price (if available) otherwise the full price
     // Usual price is always the full price
 
@@ -249,6 +257,7 @@ function parseTerm(
       regularPrice: term?.price,
       regularPriceFormatted: term.price_formatted,
       hasDiscount: term?.price_discounted > 0,
+      hasPricing: true,
     };
   }
 
@@ -267,6 +276,7 @@ function parseSubproduct(
     cycle: subproduct.billing_cycle_months,
     quantity: subproduct.quantity,
     // ---
+    hasPricing: key === "option",
     currentPrice: subproduct.configuration_net_amount_discounted_converted,
     currentPriceFormatted:
       subproduct.configuration_net_amount_discounted_formatted,
