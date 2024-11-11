@@ -4,7 +4,7 @@ import { TrialEndActionTypes } from "./services";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
-import { parseBasketProduct } from "../basket/utils";
+export { parseBasketProduct } from "../basket/utils";
 import {
   find,
   forEach,
@@ -484,7 +484,15 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   );
   if (!isEmpty(provision_fields)) details.push(...provision_fields);
 
-  return { ...summary, details };
+  return {
+    regularPrice: summary.total,
+    regularPriceFormatted: summary.total_formatted,
+    currentPrice: summary?.discounted || summary.total,
+    currentPriceFormatted:
+      summary?.discounted_formatted || summary.total_formatted,
+    hasDiscount: summary.discounted && summary.total !== summary.discounted,
+    details,
+  };
 };
 
 const parseSummaryTerm = (data: any, terms: any, error?: any) => {
@@ -501,10 +509,11 @@ const parseSummaryTerm = (data: any, terms: any, error?: any) => {
       name: term.billing_cycle_name,
       cycle: term.billing_cycle_months,
       quantity: data?.quantity,
-      discount: term.price_discounted,
-      discount_formatted: term.price_discounted_formatted,
-      total: term.price,
-      total_formatted: term.price_formatted,
+      currentPrice: term.price_discounted,
+      currentPriceFormatted: term.price_discounted_formatted,
+      regularPrice: term?.price,
+      regularPriceFormatted: term.price_formatted,
+      hasDiscount: term?.price_discounted > 0,
       invalid: !isEmpty(error),
     };
   }
@@ -535,11 +544,12 @@ const parseSummarySubproduct = (
                 category: category.name,
                 name: subproduct.name,
                 cycle: subproduct?.billing_cycle_months,
-                discount: subproduct?.price?.price_discounted,
-                discount_formatted:
-                  subproduct?.price?.price_discounted_formatted,
-                total: subproduct?.price?.price,
-                total_formatted: subproduct?.price?.price_formatted,
+                // ---
+                currentPrice: subproduct.price_discounted,
+                currentPriceFormatted: subproduct.price_discounted_formatted,
+                regularPrice: subproduct?.price,
+                regularPriceFormatted: subproduct.price_formatted,
+                hasDiscount: subproduct?.price_discounted > 0,
                 invalid: has(error, `${key}.${id}`),
               });
             }
@@ -573,28 +583,16 @@ const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
         invalid: some(error, ["data.schemaPath", key]),
         cycle: undefined,
         quantity: undefined,
-        discount: undefined,
-        discount_formatted: undefined,
-        total: undefined,
-        total_formatted: undefined,
+        currentPrice: undefined,
+        currentPriceFormatted: undefined,
+        regularPrice: undefined,
+        regularPriceFormatted: undefined,
       });
 
       return result;
     },
     [] as any[]
   );
-};
-
-export const parseSummaryBasketProduct = (basket_product: any) => {
-  debugger;
-  return pick(parseBasketProduct(basket_product), [
-    "discount",
-    "discount_formatted",
-    "subtotal",
-    "subtotal_formatted",
-    "total",
-    "total_formatted",
-  ]);
 };
 
 // --------------------------------------------------------

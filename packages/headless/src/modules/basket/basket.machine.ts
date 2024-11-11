@@ -34,6 +34,7 @@ import {
   isNil,
   map,
   remove,
+  get,
   some,
 } from "lodash-es";
 
@@ -474,8 +475,10 @@ export default createMachine(
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
           parseBasket(data),
-        summary: (_context: BasketContext, { data }: BasketEvent) =>
-          parseSummary(parseBasket(data)),
+        summary: ({ error }: BasketContext, { data }: BasketEvent) => {
+          const productErrors = get(error, "data.products");
+          return parseSummary(parseBasket(data), productErrors);
+        },
       }),
 
       clearBasket: assign({
