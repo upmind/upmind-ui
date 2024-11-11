@@ -1,8 +1,5 @@
 <template>
-  <Label
-    :class="cn('w-full', props.invalid && 'text-control-error', props.class)"
-    :for="props.formItemId"
-  >
+  <Label :class="cn('w-full', props.class)" :for="props.formItemId">
     <slot />
   </Label>
 </template>
@@ -17,7 +14,6 @@ import { Label } from "../label";
 const props = defineProps<
   LabelProps & {
     formItemId: string;
-    invalid?: boolean;
     class?: HTMLAttributes["class"];
   }
 >();

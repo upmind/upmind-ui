@@ -490,7 +490,7 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
 const parseSummaryTerm = (data: any, terms: any, error?: any) => {
   const term = find(terms, [
     "billing_cycle_months",
-    data?.term?.billing_cycle_months,
+    data?.billing_cycle_months,
   ]);
 
   if (term) {
