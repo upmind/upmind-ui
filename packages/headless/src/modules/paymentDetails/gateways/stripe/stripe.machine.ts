@@ -39,7 +39,6 @@ export default createMachine(
       schema: undefined,
       uischema: undefined,
       model: undefined,
-      address: undefined,
       // ---
       error: null,
     } as StripeContext,
@@ -53,8 +52,14 @@ export default createMachine(
               src: "load",
               onDone: [
                 {
+                  target: "addElement",
+                  actions: ["setContext"],
+                  cond: "isAdding",
+                },
+                {
                   target: "paymentElement",
                   actions: ["setContext"],
+                  // cond: "isPaying"
                 },
               ],
               onError: {
