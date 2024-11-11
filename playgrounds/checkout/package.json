@@ -25,14 +25,16 @@
     "preview": "vite build && vite preview",
     "test": "vitest",
     "build-only": "vite build",
+    "build:staging": "vite build --mode staging",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "format": "prettier --write src/",
     "localazy": "localazy upload",
     "localazy:download": "localazy download",
     "localazy:sync": "localazy upload && localazy download",
-    "deploy": "npm run build-only && firebase deploy --only hosting:staging",
-    "deploy:prod": "npm run build-only && firebase deploy --only hosting:production"
+    "deploy:preview": "npm run build-only && firebase hosting:channel:deploy $(git branch --show-current) --only hosting:doteasy",
+    "deploy:staging": "npm run build:staging  && firebase deploy --only hosting:staging",
+    "deploy": "npm run build-only && firebase deploy --only hosting:doteasy"
   },
   "dependencies": {
     "@floating-ui/vue": "^1.0.6",

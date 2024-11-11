@@ -96,6 +96,7 @@ export default defineComponent({
             onDismiss: t => dismissToast(t.id),
             onAutoClose: t => dismissToast(t.id),
             type: message.value.type,
+            position: "top-right",
           });
           activeToasts.value.push(id);
         }

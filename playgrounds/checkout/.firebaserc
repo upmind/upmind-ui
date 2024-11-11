@@ -1,14 +1,14 @@
 {
   "projects": {
-    "default": "upm-checkout-doteasy"
+    "default": "upmind-labs"
   },
   "targets": {
-    "upm-checkout-doteasy": {
+    "upmind-labs": {
       "hosting": {
         "staging": [
           "stg-upm-checkout"
         ],
-        "production": [
+        "doteasy": [
           "upm-checkout-doteasy"
         ]
       }

@@ -66,8 +66,11 @@ function maybeFocus([section]) {
     }
     el.focus();
 
-    if (el && !el.closest('[aria-hidden="true"]')) {
+    // Prevents focusing on hidden elements
+    if (!el?.closest('[aria-hidden="true"]')) {
+      // Ensure element is an instance of HTMLInputElement
       if (el instanceof HTMLInputElement) {
+        // Not all inputs support setSelectionRange. which are are using below to place the cursor
         const selectableInputTypes = new Set([
           "text",
           "search",
@@ -78,6 +81,8 @@ function maybeFocus([section]) {
         ]);
 
         if (selectableInputTypes.has(el.type)) {
+          // Pass through to setSelectionRange where to place the cursor, otherwise it will highlight the entire input
+          // Most likely scenario is that we want the cursor at the end of the input
           const len = el.value.length;
           el.setSelectionRange(len, len);
         }
