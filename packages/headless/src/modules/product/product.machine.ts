@@ -17,7 +17,7 @@ import {
   parseTerms,
   parseModel,
   parseBasketProductModel,
-  parseSummaryBasketProduct,
+  parseBasketProduct,
   parseSummary,
 } from "./utils";
 
@@ -624,16 +624,10 @@ export default createMachine(
 
       setSummaryWithBasketProduct: assign({
         summary: (
-          { model, lookups, error, basket_product }: ProductConfigContext,
+          { basket_product, errorExternal }: ProductConfigContext,
           _event: ProductConfigEvent
         ) => {
-          const data = parseSummaryBasketProduct(basket_product);
-          return parseSummary({
-            summary: data,
-            model,
-            lookups,
-            error,
-          });
+          return parseBasketProduct(basket_product, errorExternal);
         },
       }),
 

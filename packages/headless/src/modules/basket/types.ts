@@ -85,6 +85,39 @@ export interface Basket {
   warning_notes: any[]; //IWarningNote[];
 }
 
+export interface BasketProduct {
+  id: string;
+  name: string;
+  serviceIdentifier?: string;
+  // ---
+  description?: string;
+  shortDescription?: string;
+  // ---
+  productId: string;
+  quantity: number;
+  // ---
+  hasDiscount?: boolean;
+  currentPrice?: number;
+  currentPriceFormatted?: string;
+  regularPrice?: number;
+  regularPriceFormatted?: string;
+  // ---
+  details: BasketProductDetail[];
+  // products?: BasketProduct[];
+}
+export interface BasketProductDetail {
+  key: string;
+  category: string;
+  name: any;
+  cycle?: number;
+  quantity?: number;
+  hasDiscount?: boolean;
+  currentPrice?: number;
+  currentPriceFormatted?: string;
+  regularPrice?: number;
+  regularPriceFormatted?: string;
+  invalid?: boolean;
+}
 // --------------------------------------------------------
 // Contexts
 

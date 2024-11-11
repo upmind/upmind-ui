@@ -3,6 +3,7 @@ import { spawn } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useSystem } from "../system";
 import productMachine from "../product/product.machine";
 import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
@@ -11,22 +12,43 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import { useValidationParser } from "../../utils";
 import {
-  get,
-  map,
+  useValidationParser,
+  useTranslateName,
+  useTranslateField,
+} from "../../utils";
+
+import {
   compact,
-  uniq,
+  find,
+  forEach,
+  get,
+  has,
+  includes,
+  isEmpty,
+  isNil,
+  isObject,
+  isString,
+  map,
+  mapValues,
+  merge,
+  omit,
+  omitBy,
+  orderBy,
+  pick,
   reduce,
   set,
+  some,
+  toNumber,
+  uniq,
   uniqueId,
-  isEmpty,
+  values,
 } from "lodash-es";
 
 // --- types
 import { TaxTagTypes } from "./types";
 // @ts-ignore
-import type { IBasket } from "./types";
+import type { IBasket, BasketProduct, BasketProductDetail } from "./types";
 
 // --------------------------------------------------------
 // SPAWN ACTORS
@@ -130,145 +152,153 @@ export const parseBasket = (data: any) => {
   return basket;
 };
 
-export const parseBasketProduct = (data: any) => {
-  debugger;
-  return {
+export const parseBasketProduct = (data: any, errors?: any) => {
+  const product: BasketProduct = {
     id: data?.id,
     name: data?.product_name,
-    service_identifier: data?.service_identifier,
+    serviceIdentifier: data?.service_identifier,
+    // ---
+    description: data?.description,
+    shortDescription: data?.product_short_description,
+    // ---
+    productId: data?.product_id,
     quantity: data?.quantity,
     // ---
-    // term
-    // options
-    // attributes
-    // provision_fields
+    // Current Price is any discounted price (if available) otherwise the full price
+    // Usual price is always the full price
+
+    hasDiscount:
+      data?.configuration_net_amount_discounted_converted !=
+      data?.configuration_net_amount_converted,
+    currentPrice: data?.configuration_net_amount_discounted_converted,
+    currentPriceFormatted: data?.configuration_net_amount_discounted_formatted,
+    regularPrice: data?.configuration_net_amount_converted,
+    regularPriceFormatted: data?.configuration_net_amount_formatted,
     // ---
-    discount_formatted: data?.configuration_total_discount_amount_formatted,
-    discount: data?.configuration_total_discount_amount_converted,
-    subtotal_formatted: data?.configuration_net_amount_formatted,
-    subtotal: data?.configuration_net_amount,
-    total: data?.configuration_net_amount_discounted,
-    total_formatted: data?.configuration_net_amount_discounted_formatted,
+    details: [],
+
     // ---
-    products: [
-      // todo  add non quantifiable otions here
-      // id: product?.id,
-      // name: product?.product_name,
-      // service_identifier: product?.service_identifier,
-      // quantity: product?.quantity,
-      // discount: product?.configuration_total_discount_amount_converted
-      //   ? product?.configuration_total_discount_amount_formatted
-      //   : null,
-      // subtotal: product?.configuration_net_amount_formatted,
-      // total: product?.configuration_net_amount_discounted_formatted,
-    ],
+    // todo  add non quantifiable otions here
+    // products: [
+    // id: product?.id,
+    // name: product?.product_name,
+    // service_identifier: product?.service_identifier,
+    // quantity: product?.quantity,
+    // discount: product?.configuration_total_discount_amount_converted
+    //   ? product?.configuration_total_discount_amount_formatted
+    //   : null,
+    // subtotal: product?.configuration_net_amount_formatted,
+    // total: product?.configuration_net_amount_discounted_formatted,
+    // ],
   };
+
+  // --- Now build up our details
+  const term = parseTerm(
+    data.billing_cycle_months,
+    data.quantity,
+    data?.product?.prices
+  );
+  if (term) product.details.push(term);
+
+  forEach(data?.options, option => {
+    const subproduct = parseSubproduct("option", option);
+    if (subproduct) product.details.push(subproduct);
+  });
+
+  forEach(data?.attributes, attribute => {
+    const subproduct = parseSubproduct("attribute", attribute);
+    if (subproduct) product.details.push(subproduct);
+  });
+
+  forEach(data?.provision_fields, (value, key) => {
+    const hasError =
+      some(errors, `provision_field_values.${key}`) ||
+      some(errors?.provision_fields?.data, ["schemaPath", key]);
+    const field = parseProvisionField(key, value, hasError);
+    if (field) product.details.push(field);
+  });
+
+  // ---
+
+  //
+
+  return product;
 };
 
-const parseTerm = (data: any, terms: any, error?: any) => {
-  const term = find(terms, [
-    "billing_cycle_months",
-    data?.term?.billing_cycle_months,
-  ]);
+function parseTerm(
+  billing_cycle_months: number,
+  quantity: number,
+  prices: any
+): BasketProductDetail | null {
+  const { getBillingCycle } = useSystem();
+  const cycle = getBillingCycle(billing_cycle_months);
+  const name = cycle ? useTranslateName(cycle) : null;
+  const term = find(prices, ["billing_cycle_months", billing_cycle_months]);
 
   if (term) {
     // NB: only show term pricing if recurring!
     return {
       key: "term",
       category: "Billing Cycle",
-      name: term.billing_cycle_name,
+      name,
       cycle: term.billing_cycle_months,
-      quantity: data?.quantity,
-      discount: term.price_discounted,
-      discount_formatted: term.price_discounted_formatted,
-      total: term.price,
-      total_formatted: term.price_formatted,
-      invalid: !isEmpty(error),
+      quantity,
+      // ---
+      currentPrice: term.price_discounted,
+      currentPriceFormatted: term.price_discounted_formatted,
+      regularPrice: term?.price,
+      regularPriceFormatted: term.price_formatted,
+      hasDiscount: term?.price_discounted > 0,
     };
   }
 
   return null;
-};
+}
 
-const parseSubproduct = (
+function parseSubproduct(
+  key: string,
+  subproduct: any
+): BasketProductDetail | null {
+  // NB: only show term pricing if recurring!
+  return {
+    key,
+    category: useTranslateName(subproduct.product.category),
+    name: subproduct?.product_name,
+    cycle: subproduct.billing_cycle_months,
+    quantity: subproduct.quantity,
+    // ---
+    currentPrice: subproduct.configuration_net_amount_discounted_converted,
+    currentPriceFormatted:
+      subproduct.configuration_net_amount_discounted_formatted,
+    regularPrice: subproduct.configuration_net_amount_converted,
+    regularPriceFormatted: subproduct.configuration_net_amount_formatted,
+    hasDiscount: subproduct.configuration_total_discount_amount_converted > 0,
+  };
+}
+
+function parseProvisionField(
   key: string,
   data: any,
-  lookup: Array<any>,
-  error?: any
-) => {
-  return reduce(
-    data,
-    (result, choices) => {
-      if (choices) {
-        const selected = reduce(
-          choices,
-          (result, choice, id) => {
-            const category = find(lookup, { values: [{ id }] });
-            const subproduct = find(category?.values, { id });
+  hasError?: any
+): BasketProductDetail | null {
+  const name = get(data, key);
 
-            if (subproduct) {
-              result.push({
-                key,
-                quantity: choice.unit_quantity,
-                category: category.name,
-                name: subproduct.name,
-                cycle: subproduct?.billing_cycle_months,
-                discount: subproduct?.price?.price_discounted,
-                discount_formatted:
-                  subproduct?.price?.price_discounted_formatted,
-                total: subproduct?.price?.price,
-                total_formatted: subproduct?.price?.price_formatted,
-                invalid: has(error, `${key}.${id}`),
-              });
-            }
-
-            return result;
-          },
-          [] as any[] // Provide initial value as an empty array
-        );
-        result.push(...selected);
-      }
-      return result;
-    },
-    [] as any[] // Provide initial value as an empty array
-  );
-};
-
-const parseProvisionFields = (data: any, schema: any, error?: any) => {
-  return reduce(
-    schema?.properties,
-    (result: any[], provisionField, key) => {
-      let name = get(data, key);
-
-      if (provisionField.oneOf) {
-        name = find(provisionField.oneOf, ["const", name])?.title;
-      }
-
-      result.push({
-        key: `provision_field.${key}`,
-        category: get(provisionField, "title", key),
-        name,
-        invalid: some(error, ["data.schemaPath", key]),
-        cycle: undefined,
-        quantity: undefined,
-        discount: undefined,
-        discount_formatted: undefined,
-        total: undefined,
-        total_formatted: undefined,
-      });
-
-      return result;
-    },
-    [] as any[]
-  );
-};
+  return {
+    key: `provision_field.${key}`,
+    category: key,
+    name,
+    invalid: hasError,
+  };
+}
 
 // --------------------------------------------------------
 // --- SUMMARY
 
-export const parseSummary = (data?: any) => {
+export const parseSummary = (data?: any, errors?: any) => {
   const summary = {
-    products: map(get(data, "products"), parseBasketProduct),
+    products: map(get(data, "products"), product =>
+      parseBasketProduct(product, errors)
+    ),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
