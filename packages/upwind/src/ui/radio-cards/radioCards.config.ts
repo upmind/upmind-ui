@@ -19,12 +19,24 @@ export const itemVariants = cva(
     variants: {
       layout: {
         list: "border-b border-control first:rounded-t-md last:rounded-b-md",
-        grid: `data-[state=checked]:bg-control-active-background rounded-md border border-control
-        shadow-sm data-[state=checked]:ring-2 data-[state=checked]:ring-control-active`,
+        grid: "data-[state=checked]:bg-control-active-background rounded-md border border-control shadow-sm",
+      },
+      ring: {
+        true: "",
+        false: "",
       },
     },
+    compoundVariants: [
+      {
+        layout: "grid",
+        ring: true,
+        className:
+          "data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
+      },
+    ],
     defaultVariants: {
       layout: "list",
+      ring: true,
     },
   }
 );

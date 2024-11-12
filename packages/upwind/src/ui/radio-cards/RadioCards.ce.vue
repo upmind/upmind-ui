@@ -63,6 +63,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   color: "base",
   variant: "control",
   layout: "list",
+  ring: true,
   // --- styles
   class: "",
   radioClass: "",
@@ -78,6 +79,7 @@ const meta = computed(() => ({
   color: props.color,
   layout: props.layout,
   variant: props.variant,
+  ring: props.ring,
 }));
 
 const variants = useStyles(
