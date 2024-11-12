@@ -10,7 +10,7 @@
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
-      :class="cn(variants.radioCards.item)"
+      :class="cn(variants.radioCards.item, props.radioClass)"
       :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
     >
       <RadioGroupItem
@@ -65,6 +65,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   layout: "list",
   // --- styles
   class: "",
+  radioClass: "",
 });
 
 const emits = defineEmits(["update:modelValue"]);
@@ -102,12 +103,4 @@ function onChange(value: any) {
     modelValue.value = undefined;
   else modelValue.value = value;
 }
-
-// TODO: Fix the issue where validation breaks if we don't wait 1ms
-// setTimeout(() => {
-//   if (props.required && !modelValue.value) {
-//     const value = first(props.items)?.value;
-//     if (value) emits("update:modelValue", value);
-//   }
-// }, 1);
 </script>
