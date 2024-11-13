@@ -44,6 +44,7 @@ export interface PaymentDetailsContext {
   basket_id?: string;
   client_id?: string;
   currency?: iCurrency;
+  address?: AddressDetails;
   // ---
   gateways?: Array<IGateway>;
   payment_types?: PaymentTypes;
@@ -70,6 +71,10 @@ export interface PaymentDetailsContext {
 
 // --------------------------------------------------------
 // Events
+export interface AddressDetails {
+  id: string;
+  postal_code: string;
+}
 
 export interface PaymentDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
