@@ -77,7 +77,10 @@ export const useBasket: any = () => {
           ) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
-          machineMatches(actors.value.billingDetails, ["processing"]) ||
+          machineMatches(actors.value.billingDetails, [
+            "processing",
+            "available.processing",
+          ]) ||
           machineMatches(actors.value.promotions, ["processing"]),
 
         needsUpdating:
