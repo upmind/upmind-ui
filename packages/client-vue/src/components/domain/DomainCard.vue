@@ -2,21 +2,24 @@
   <article :class="styles.domain.card.root">
     <header :class="styles.domain.card.header">
       <div :class="styles.domain.card.badges">
-        <span :class="styles.domain.card.text" v-if="props.is_owned">
+        <span :class="styles.domain.card.text" v-if="props.isOwned">
           <span :class="styles.domain.card.owned.icon">
             <Icon icon="lock" />
           </span>
           {{ t("domain.card.owned.label") }}
         </span>
 
-        <span :class="styles.domain.card.text" v-else-if="props.in_basket">
+        <span :class="styles.domain.card.text" v-else-if="props.inBasket">
           <span :class="styles.domain.card.basket.icon">
             <Icon icon="basket" />
           </span>
           {{ t("domain.card.basket.label") }}
         </span>
 
-        <span v-else-if="props.is_available" :class="styles.domain.card.text">
+        <span
+          v-else-if="props.summary.isAvailable"
+          :class="styles.domain.card.text"
+        >
           <span :class="styles.domain.card.available.icon">
             <Icon icon="check" />
           </span>
@@ -32,7 +35,7 @@
         </span>
 
         <Badge
-          v-if="props.is_discounted"
+          v-if="props.summary.hasDiscounted"
           color="promotion"
           :label="t('domain.card.promotion')"
           variant="tonal"
@@ -47,7 +50,7 @@
 
     <footer :class="styles.domain.card.footer">
       <i18n-t
-        v-if="props.is_owned"
+        v-if="props.isOwned"
         :class="styles.domain.card.owned.root"
         keypath="domain.card.owned.instruction"
         tag="p"
@@ -62,7 +65,7 @@
 
         <template #[`price`]>
           <em :class="styles.domain.card.owned.price">{{
-            props.price_formatted
+            props.summary.regularPriceFormatted
           }}</em>
         </template>
 
@@ -72,7 +75,7 @@
       </i18n-t>
 
       <i18n-t
-        v-else-if="props.in_basket"
+        v-else-if="props.inBasket"
         :class="styles.domain.card.basket.root"
         keypath="domain.card.basket.instruction"
         tag="p"
@@ -87,7 +90,7 @@
 
         <template #[`price`]>
           <em :class="styles.domain.card.basket.price">{{
-            props.price_formatted
+            props.summary.regularPriceFormatted
           }}</em>
         </template>
 
@@ -97,7 +100,7 @@
       </i18n-t>
 
       <i18n-t
-        v-else-if="props.is_available"
+        v-else-if="props.summary.isAvailable"
         :class="styles.domain.card.available.root"
         keypath="domain.card.available.instruction"
         tag="p"
@@ -114,17 +117,15 @@
           <span :class="styles.domain.card.available.prices">
             <span
               :class="styles.domain.card.available.discount"
-              v-if="!isNil(props.price_discounted)"
+              v-if="props.summary.hasDiscount"
             >
-              {{ props.price_formatted }}
+              {{ props.regularPriceFormatted }}
             </span>
             <em :class="styles.domain.card.available.price">
               {{
-                !isNil(props.price_discounted)
-                  ? props.price_discounted_formatted
-                  : props.price
-                    ? props.price_formatted
-                    : t("product.free")
+                props.summary.isFree
+                  ? t("product.free")
+                  : props.currentPriceFormatted
               }}
             </em>
           </span>
@@ -164,20 +165,17 @@
           <span :class="styles.domain.card.transfer.prices">
             <span
               :class="styles.domain.card.transfer.discount"
-              v-if="!isNil(props.price_discounted)"
+              v-if="props.summary.hasDiscount"
             >
-              ({{ props.price_formatted }})
+              {{ props.regularPriceFormatted }}
             </span>
-
-            <span :class="styles.domain.card.transfer.price">
+            <em :class="styles.domain.card.transfer.price">
               {{
-                !isNil(props.price_discounted)
-                  ? props.price_discounted_formatted
-                  : props.price
-                    ? props.price_formatted
-                    : t("product.free")
+                props.summary.isFree
+                  ? t("product.free")
+                  : props.currentPriceFormatted
               }}
-            </span>
+            </em>
           </span>
         </template>
 
@@ -187,9 +185,9 @@
       </i18n-t>
 
       <div :class="styles.domain.card.actions">
-        <template v-if="!props.is_owned && !props.in_basket">
+        <template v-if="!props.isOwned && !props.inBasket">
           <Button
-            v-if="props.is_available"
+            v-if="props.summary.isAvailable"
             :class="styles.domain.card.available.action"
             :disabled="meta.isDisabled"
             :label="t('domain.card.available.action', props.selected ? 0 : 1)"

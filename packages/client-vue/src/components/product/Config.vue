@@ -31,7 +31,7 @@
           product?.hasFreeTrial ||
           product?.isOnPromotion ||
           !!product?.description ||
-          !!product?.short_description
+          !!product?.shortDescription
         "
       >
         <!-- heading -->
@@ -77,9 +77,9 @@
             :lines="2"
             labelMore=""
             labelLess=""
-            v-if="product?.short_description"
+            v-if="product?.shortDescription"
           >
-            <Markdown :model-value="product.short_description" />
+            <Markdown :model-value="product.shortDescription" />
           </Lineclamp>
         </div>
       </div>
@@ -92,7 +92,7 @@
           :errors="errors?.term"
           :items="terms"
           :label="t('product.terms.label')"
-          :model-value="model?.term?.billing_cycle_months"
+          :model-value="model?.term?."
           :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="updateTerm"
           required
@@ -146,9 +146,9 @@
         <ConfigForm
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
-          :additional-errors="errors?.provision_fields?.data"
+          :additional-errors="errors?.provisionFields?.data"
           :fields="fields"
-          :model-value="model.provision_fields"
+          :model-value="model.provisionFields"
           @update:modelValue="setProvisioningFields"
         />
       </div>
@@ -173,7 +173,7 @@
         <span :class="styles.product.config.itemtotal" v-if="summary?.total">
           <span>{{ t("product.total") }}</span>
           <strong :class="styles.product.config.bold">
-            {{ summary?.total_formatted }}
+            {{ summary?.regularPriceFormatted }}
           </strong>
         </span>
 
@@ -285,8 +285,8 @@ function getValue(
 function getQuantities(subproduct: Object): Record<string, number> {
   const value = reduce(
     model.value?.options?.[subproduct.id],
-    (result: Record<string, number>, value, product_id) => {
-      if (product_id) set(result, product_id, get(value, "unit_quantity", 0));
+    (result: Record<string, number>, value, productId) => {
+      if (productId) set(result, productId, get(value, "step", 0));
       return result;
     },
     {}

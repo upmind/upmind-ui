@@ -14,7 +14,7 @@ import type { RequestError } from "..//api/types";
 
 export interface PaymentContext {
   id?: string;
-  order?: IBasket;
+  order?: Basket;
   paymentDetails?: Object;
   payment?: IPayment;
   urls: {

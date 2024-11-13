@@ -14,7 +14,7 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 export function generateResponseUrls(
   url: string,
-  { gateway, basket_id, type, model }: GatewayContext
+  { gateway, basketId, type, model }: GatewayContext
 ) {
   // TODO: implemet operations machine
   // if (operation_id)
@@ -47,7 +47,7 @@ export function generateResponseUrls(
       btoa(
         JSON.stringify(
           gateway?.gateway_provider?.external_payment
-            ? { invoiceId: basket_id }
+            ? { invoiceId: basketId }
             : undefined
         )
       )

@@ -44,15 +44,13 @@ export const useClientUnifiedAddress = (item: any, context?: any) => {
       isProcessing: ["checking", "processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
-      canRemove: !!state.value?.context?.model?.can_delete,
+      canRemove: !!state.value?.context?.model?.canDelete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:
         state.value.done || ["processed", "complete"].some(state.value.matches),
       // ---
-      type: state.value?.context?.model?.company_details
-        ? "company"
-        : "address",
+      type: state.value?.context?.model?.companyDetails ? "company" : "address",
     })),
     // ---
     filters: computed(() => state.value.context?.filters),

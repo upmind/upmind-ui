@@ -4,7 +4,6 @@
 import { useApi } from "../api";
 import { useBrand } from "../brand";
 
-import type { BasketContext, BasketEvent } from "./types";
 import { useSession } from "../session";
 
 // --- utils
@@ -21,6 +20,9 @@ import {
   reduce,
   set,
 } from "lodash-es";
+
+// --- types
+import type { Basket, BasketContext, BasketEvent } from "./types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -123,8 +125,6 @@ async function generate(
 
   const data: any = {
     category_slug: "new_contract",
-    // currency_code: "GBP", // from brand
-    // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
   };
   // ---
   // Conditional data
@@ -178,20 +178,18 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function getProvisioningFieldsValues(basket: BasketEvent) {
+async function getProvisioningFieldsValues(basket: Basket) {
   const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
   // @ts-ignore
-  if (!basket || !basket?.products?.length) return Promise.resolve(basket);
-
-  const { id: basket_id, products }: any = basket;
+  if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
 
   const provisioningPromises: any[] = [];
 
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
-    url: useUrl(`orders/${basket_id}/provision_fields/values/check`),
+    url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     useCache: false,
     withAccessToken: true,
   })
@@ -203,25 +201,27 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   // then get each products provisioning fields
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
-  forEach(products, async product => {
+  forEach(basket.products, async product => {
     const { id } = product;
 
-    const sub_products = compact(
-      map(concat(product.options, product.attributes), "product_id")
+    const subProducts = compact(
+      map(concat(product.options, product.attributes), ({ productId }) => ({
+        product_id: productId,
+      }))
     );
     // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
     const promise = get({
       url: useUrl(
-        `orders/${basket_id}/products/${id}/provision_fields/values`,
+        `orders/${basket.id}/products/${id}/provision_fields/values`,
         {
-          sub_product_ids: sub_products,
+          sub_product_ids: subProducts,
         }
       ),
       useCache: false,
       withAccessToken: true,
     }).then(({ data }: any) => {
       // update the product with the provisioning fields
-      set(product, "provision_fields", data);
+      set(product, "provisionFields", data);
       return data;
     });
 

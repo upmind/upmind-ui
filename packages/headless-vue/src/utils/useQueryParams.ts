@@ -64,10 +64,10 @@ export enum QUERY_PARAMS {
   USERNAME = "username",
   VIEW = "view",
 }
-import type { IProductModel } from "@upmind/headless";
+import type { ProductModel } from "@upmind/headless";
 
-type IExtendedProductModel = IProductModel & {
-  sub_pids?: string[];
+type IExtendedProductModel = ProductModel & {
+  subproducts?: string[];
 };
 // -----------------------------------------------------------------------------
 
@@ -97,16 +97,16 @@ export const useQueryParams = () => {
     //  and is used to configure a product with multiple options, attributrs, etc.
     // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
     // so for that we get the following query params.
-    const product_ids = getParams(
+    const productIds = getParams(
       QUERY_PARAMS.PRODUCT,
       getParams(QUERY_PARAMS.PRODUCT_ID)
     );
-    const product_qty = getParams(QUERY_PARAMS.QUANTITY);
+    const qty = getParams(QUERY_PARAMS.QUANTITY);
 
     const bcm = getParams(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
 
     // sub products
-    const sub_pids = reduce(
+    const subproducts = reduce(
       query,
       (result, value, key) => {
         if (key == QUERY_PARAMS.SUBPRODUCT_IDS) {
@@ -119,7 +119,7 @@ export const useQueryParams = () => {
     );
 
     // provision
-    const provision_fields = reduce(
+    const provisionFields = reduce(
       query,
       (result, value, key) => {
         if (includes(key, QUERY_PARAMS.PRODUCT_FIELDS)) {
@@ -135,15 +135,13 @@ export const useQueryParams = () => {
     const promotions = getParams(QUERY_PARAMS.COUPONS);
 
     return map(
-      product_ids,
-      (product_id, index): IExtendedProductModel => ({
-        product_id,
-        quantity: toNumber(product_qty?.[index]),
-        term: {
-          billing_cycle_months: toNumber(bcm?.[index]),
-        },
-        sub_pids,
-        provision_fields,
+      productIds,
+      (productId, index): IExtendedProductModel => ({
+        productId,
+        quantity: toNumber(qty?.[index]),
+        term: toNumber(bcm?.[index]),
+        subproducts,
+        provisionFields,
         promotions,
       })
     );
@@ -152,7 +150,7 @@ export const useQueryParams = () => {
   return {
     getParams,
     getParam,
-    product_id: getParam(
+    productId: getParam(
       QUERY_PARAMS.PRODUCT_ID,
       getParam(QUERY_PARAMS.PRODUCT_ID)
     ),

@@ -11,16 +11,16 @@ import type { RequestError } from "../..//api/types";
 // private
 
 export interface IBillingDetail {
-  address_id?: string;
-  company_id?: string;
+  addressId?: string;
+  companyId?: string;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface BillingDetailsContext {
-  basket_id?: string;
-  client_id?: string;
+  basketId?: string;
+  clientId?: string;
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;

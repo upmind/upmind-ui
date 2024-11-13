@@ -43,16 +43,17 @@ export const ItemActions = {
       { model, countries, regions }: any,
       _event: AddressEvent
     ) => {
-      const country = find(countries, ["id", get(model, "country_id")]);
-      const region = find(regions, ["id", get(model, "region_id")]);
+      // BUG: Think this is the source of our timeout son address lookups
+      // const country = find(countries, ["id", get(model, "countryId")]);
+      // const region = find(regions, ["id", get(model, "regionId")]);
       return compact([
-        get(model, "address_1"),
-        get(model, "address_2"),
+        get(model, "address1"),
+        get(model, "address2"),
         get(model, "street"),
         get(model, "city"),
         get(model, "postcode"),
-        get(region, "name"),
-        get(country, "name"),
+        // get(region, "name"),
+        // get(country, "name"),
       ]).join(", ");
     },
   }),

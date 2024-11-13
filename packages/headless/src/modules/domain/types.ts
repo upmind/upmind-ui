@@ -17,25 +17,30 @@ export enum DomainTypes {
 
 // --- Interfaces
 
-export interface IDomainProduct {
+export interface DomainProduct {
   type?: DomainTypes.New | DomainTypes.Internal;
   domain: string;
   sld: string;
   tld: string;
   // --- Options for New/Internal domains
-  product_id: string;
+  productId: string;
   quantity?: number;
-  billing_cycle_months?: number;
+  cycle?: number;
   options?: Object;
   attributes?: Object;
-  is_available?: boolean;
-  is_discounted?: boolean;
-  price_discounted?: number;
-  price_discounted_formatted?: string;
-  price?: number;
-  price_formatted?: string;
+
+  summary: {
+    isAvailable?: boolean;
+    hasDiscount?: boolean;
+    isFree?: boolean;
+    currentPrice?: number;
+    currentPriceFormatted?: string;
+    regularPrice?: number;
+    regularPriceFormatted?: string;
+  };
+
   // ---
-  is_primary?: boolean;
+  isPrimary?: boolean;
 }
 
 interface IDomain {
@@ -44,7 +49,7 @@ interface IDomain {
   // --- Should these not rather be computed?
   sld: string;
   tld: string;
-  is_primary: boolean;
+  isPrimary: boolean;
 }
 
 interface IDomainSearch {
@@ -57,13 +62,13 @@ interface IDomainSearch {
 export interface DomainContext {
   choices: Object<DomainTypes>;
   type?: DomainTypes;
-  model?: Array<IDomainProduct | IDomain>;
-  baseModel?: Array<IDomainProduct | IDomain>;
+  model?: Array<DomainProduct | IDomain>;
+  baseModel?: Array<DomainProduct | IDomain>;
   listings?: {
-    searched: Array<IDomainProduct>;
-    history: Array<IDomainProduct>;
-    owned: Array<IDomainProduct>;
-    basket: Array<IDomainProduct>;
+    searched: Array<DomainProduct>;
+    history: Array<DomainProduct>;
+    owned: Array<DomainProduct>;
+    basket: Array<DomainProduct>;
   };
   total?: number;
   // ---
@@ -97,7 +102,7 @@ export type SearchEvent = {
 
 export type AddEvent = {
   type: "ADD";
-  data: IDomainProduct | IDomain;
+  data: DomainProduct | IDomain;
 };
 
 export type RemoveEvent = {

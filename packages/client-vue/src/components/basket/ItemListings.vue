@@ -19,10 +19,10 @@
       v-auto-animate
     >
       <BasketItem
-        v-for="(item, index) in items"
-        :key="`item-${item.id}-${index}`"
-        :model-value="item.id"
-        :item="item"
+        v-for="(product, index) in products"
+        :key="`product-${product.id}-${index}`"
+        :model-value="product.id"
+        :item="product"
         :selected="isSelected(index)"
       />
     </div>
@@ -58,8 +58,7 @@ export default defineComponent({
   props: {},
   setup() {
     const { t } = useI18n();
-    const { meta, items, itemsPending, itemsInvalid, itemsConfigured } =
-      useBasket();
+    const { meta, products, itemsPending } = useBasket();
 
     const styles = useStyles(
       ["basket.items", "basket.items.pending", "basket.items.invalid"],
@@ -72,10 +71,9 @@ export default defineComponent({
     return {
       t,
       meta,
-      items,
+      products,
       itemsPending,
-      itemsInvalid,
-      itemsConfigured,
+
       // ---
       styles,
       cn,
@@ -84,13 +82,13 @@ export default defineComponent({
   computed: {},
   methods: {
     isSelected(index) {
-      const firstForcedIndex = findIndex(this.items, item => {
-        const isNew = !item.state.value.context?.basket_product;
-        // const hasErrors = !!item.state.value.context?.errors;
+      const firstForcedIndex = findIndex(this.products, product => {
+        const isNew = !product.state.value.context?.basketProduct;
+        // const hasErrors = !!product.state.value.context?.errors;
         // const needsConfiguring = [
         //   "available.configuring",
         //   "available.configured",
-        // ].some(item.state.value.matches);
+        // ].some(product.state.value.matches);
 
         return isNew;
       });

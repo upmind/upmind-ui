@@ -28,8 +28,8 @@
 
         <h3 :class="styles.product.card.title">
           <span>{{ product?.name }}</span>
-          <span v-if="product?.service_identifier">
-            ({{ product?.service_identifier }})
+          <span v-if="product?.serviceIdentifier">
+            ({{ product?.serviceIdentifier }})
           </span>
 
           <slot name="badges"></slot>
@@ -113,21 +113,18 @@
         <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
-            v-if="!!summary?.discount"
+            v-if="summary?.hasDiscount"
             :class="styles.product.card.discount"
           >
-            {{
-              summary?.subtotal
-                ? summary?.subtotal_formatted
-                : t("product.free")
-            }}
+            {{ summary?.regularPriceFormatted }}
           </span>
 
-          <strong
-            :class="styles.product.card.total"
-            v-if="!isNil(summary?.total)"
-          >
-            {{ summary?.total ? summary?.total_formatted : t("product.free") }}
+          <strong :class="styles.product.card.total">
+            {{
+              summary?.isFree
+                ? t("product.free")
+                : summary?.currentPriceformatted
+            }}
           </strong>
         </div>
 
@@ -138,7 +135,7 @@
               meta.isLoading ||
               meta.isCalculating ||
               meta.isProcessing ||
-              (!meta.isConfigurable && !product?.canChangeQuantity)
+              (!meta.isConfigurable && !product?.quantifiable)
             "
             :color="
               meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'

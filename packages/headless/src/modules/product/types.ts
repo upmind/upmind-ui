@@ -2,30 +2,40 @@
 import type { ActorRef } from "xstate";
 
 import type { RequestError } from "../api/types";
+import type { Basket, BasketProduct } from "../basket";
 
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
 // Contexts
+export interface BasketProductConfig {
+  product_id?: string;
+  quantity?: number;
+  billing_cycle_months?: number;
+  // ---
+  attributes?: any[];
+  options?: any[];
+  provision_field_values?: any[];
+  promotions?: IProductPromotion[];
+}
 
 export interface ProductConfigContext {
   id: string;
-  client_id: string; //IClient["id"];
-  currency_id: IProductPrice["currency_id"];
+  clientId: string; //IClient["id"];
+  currencyId: string; //IProductPrice["currency_id"];
   promotions: IProductPromotion[];
-  baseModel: IProductModel;
-  model: IProductModel;
+  baseModel: ProductModel;
+  model: ProductModel;
   // ---
-  raw?: Object;
+  rawProduct?: IProduct;
   lookups: {
     product?: IProduct;
-    terms?: array;
-    options?: array;
-    attributes?: array;
+    terms?: any[];
+    options?: any[];
+    attributes?: any[];
   };
   // ---
-  config?: IProductConfig;
   summary?: IProductSummary;
   prices?: {
     term: { subtotal: number; total: number; discount: number };
@@ -37,59 +47,34 @@ export interface ProductConfigContext {
   error?: RequestError;
   errorExternal: RequestError;
   // ---
-  basket_id?: string;
-  basket_product?: IBasketProduct;
-  basketHelper?: Function;
-  itemBuilder?: Function;
-  itemMapper?: Function;
-  basketItemBuilder?: Function;
-  basketItemMapper?: Function;
+  basketId?: string;
+  basketProduct?: BasketProduct;
+  basketHelper?: ActorRef<any>;
+  itemBuilder?: (item: ProductModel) => ProductModel;
+  itemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemBuilder?: (item: ProductModel) => BasketProductConfig;
+  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  config: BasketProductConfig;
 }
 
-export interface IProductModel {
-  id?: string; // this is only when it exists in the basket
+export interface ProductModel {
+  productId: string;
+  quantity: number;
   // ---
-  product_id: IProduct["id"];
-  quantity: IProduct["unit_quantity"]; // Configuration quantity
+  subproducts?: string[];
+  term?: number;
+  attributes?: any;
+  options?: any;
+  provisionFields?: any;
   // ---
-  sub_pids?: IProduct["id"][];
-  term?: IProductTerm;
-  attributes?: array;
-  options?: array;
-  provision_fields?: array;
-  start_trial?: boolean;
-  // ---
-  currency_id?: IProductPrice["currency_id"];
+  currencyId?: string;
   promotions?: IProductPromotion[];
   // ---
   prices?: {
-    term: { subtotal: number; total: number; discount: number };
-    attributes: { subtotal: number; total: number; discount: number };
-    options: { subtotal: number; total: number; discount: number };
+    term: { regular: number; current: number };
+    attributes: { regular: number; current: number };
+    options: { regular: number; current: number };
   };
-}
-
-export interface IProductConfig {
-  id?: string; // this is only when it exists in the basket
-  // ---
-  attributes: {
-    product_id: IProductAttribute["id"];
-  }[];
-  billing_cycle_months: IProductPrice["billing_cycle_months"];
-  options: {
-    billing_cycle_months: IProductOption["billing_cycle_months"];
-    order_type?: IProductOption["order_type"];
-    product_id: IProductOption["id"];
-    selling_price?: number;
-    total?: number;
-    unit_quantity: IProductOption["unit_quantity"];
-    unit_total?: number;
-  }[];
-  product_id: IProduct["id"];
-  promotions?: { promocode: string }[];
-  currency_id: IProductPrice["currency_id"];
-  quantity: IProduct["unit_quantity"]; // Configuration quantity
-  start_trial?: boolean;
 }
 
 export interface IProductPromotion {
@@ -107,6 +92,6 @@ export interface BasketContext {
 
 export interface ProductConfigEvent {
   type: "CHECK" | "REFRESH";
-  data?: IBasket;
+  data?: Basket;
   error?: RequestError;
 }

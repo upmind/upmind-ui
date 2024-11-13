@@ -25,8 +25,8 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      basket_id: undefined,
-      client_id: undefined,
+      basketId: undefined,
+      clientId: undefined,
       // ---
       schema: undefined,
       uischema: undefined,
@@ -184,8 +184,8 @@ export default createMachine(
       refreshContext: assign(
         (_context: BillingDetailsContext, { data }: any) => {
           return {
-            basket_id: data?.id,
-            client_id: data?.client_id,
+            basketId: data?.id,
+            clientid: data?.client_id,
           };
         }
       ),
@@ -272,15 +272,13 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasClient: ({ client_id }, _event) => !!client_id,
-      hasChanged: ({ client_id, basket_id }, { data }: any) => {
-        return basket_id !== data?.id || client_id !== data?.client_id;
+      hasBasket: ({ basketId }, _event) => !!basketId,
+      hasClient: ({ clientId }, _event) => !!clientId,
+      hasChanged: ({ clientId, basketId }, { data }: any) => {
+        return basketId !== data?.id || clientId !== data?.clientId;
       },
-      shouldUpdate: ({ autoupdate, client_id, basket_id, model }, _event) => {
-        return (
-          !!autoupdate && !!basket_id && !!client_id && !!model?.address_id
-        );
+      shouldUpdate: ({ autoupdate, clientId, basketId, model }, _event) => {
+        return !!autoupdate && !!basketId && !!clientId && !!model?.addressId;
       },
     },
 

@@ -20,8 +20,8 @@
             "
           >
             <span>{{ product?.name }}</span>
-            <span v-if="product?.service_identifier">
-              ({{ product?.service_identifier }})
+            <span v-if="product?.serviceIdentifier">
+              ({{ product?.serviceIdentifier }})
             </span>
           </dt>
 
