@@ -521,7 +521,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
           },
           {
             type: "Control",
-            scope: "#/properties/email",
+            scope: "#/properties/username",
             i18n: "client.unified.form.fields.email",
             options: {
               suggestions: true,

@@ -61,6 +61,11 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
           format = "email";
           break;
 
+        case "username":
+          type = ["string"];
+          format = "email";
+          break;
+
         case "input_url":
           type = ["string"];
           format = "uri";
@@ -191,7 +196,9 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
           case "email":
             type = "email";
             break;
-
+          case "username":
+            type = "email";
+            break;
           case "input_password":
           case "password":
             type = "password";
