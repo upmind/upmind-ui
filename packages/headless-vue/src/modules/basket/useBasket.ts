@@ -153,12 +153,11 @@ export const useBasket: any = () => {
 
         isCheckout:
           machineMatches(payment, ["approving"]) ||
-          stateMatches(state, [
-            "shopping.payment_details.processing",
-            "checkout",
-            "converting",
-            "paying",
-          ]),
+          stateMatches(state, ["checkout", "converting", "paying"]),
+
+        isProcessingDetails:
+          machineMatches(payment, ["approving"]) ||
+          stateMatches(state, ["shopping.payment_details.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
