@@ -68,6 +68,8 @@ export const useRegisterUischemaParser = (data: any) => {
         scope: "#/properties/username",
         i18n: "auth.register.email",
         options: {
+          type: "email",
+          format: "email",
           autocomplete: "email",
           placeholder: "name@email.com",
         },
@@ -110,6 +112,7 @@ export const useLoginSchemaParser = () => {
     properties: {
       username: {
         type: "string",
+        format: "email",
         title: "Your email address",
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
@@ -131,6 +134,8 @@ export const useLoginUischemaParser = () => {
         scope: "#/properties/username",
         i18n: "auth.login.email",
         options: {
+          type: "email",
+          format: "email",
           autoFocus: true,
           autocomplete: "email",
           placeholder: "name@email.com",
