@@ -56,6 +56,7 @@ export default createMachine(
     context: {
       basket: undefined,
       invoice: undefined,
+      address: undefined,
       // ---
       items: [],
       // ---
