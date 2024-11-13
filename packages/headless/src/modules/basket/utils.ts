@@ -105,6 +105,7 @@ export function spawnPaymentDetails(basket: IBasket) {
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
       },
+      address: basket?.address,
     }),
     { name: "paymentDetails", sync: true }
   );

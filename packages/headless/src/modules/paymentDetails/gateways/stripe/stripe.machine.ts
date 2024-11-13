@@ -33,6 +33,7 @@ export default createMachine(
       currency: undefined,
       gateway: undefined,
       amount: undefined,
+      address: undefined,
       renderless: false, // stripe is not renderless
       // ---
       schema: undefined,
@@ -295,7 +296,10 @@ export default createMachine(
       }),
       // ---
 
-      updateStripe: ({ elements }: StripeContext, { data }: StripeEvent) => {
+      updateStripe: (
+        { elements, element }: StripeContext,
+        { data }: StripeEvent
+      ) => {
         if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
 
         const amount = Math.round((data?.amount || 0) * 100); // NB: Stripe expects amount in cents
@@ -304,6 +308,16 @@ export default createMachine(
         elements.update({
           amount,
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
+        });
+
+        element.update({
+          defaultValues: {
+            billingDetails: {
+              address: {
+                postal_code: data.address?.postcode,
+              },
+            },
+          },
         });
       },
 
@@ -362,13 +376,14 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { basket_id, currency, amount }: StripeContext,
+        { basket_id, currency, amount, address }: StripeContext,
         { data }: StripeEvent
       ) => {
         const value =
           basket_id !== data.basket_id ||
           currency !== data.currency ||
-          amount !== data.amount;
+          amount !== data.amount ||
+          address?.id !== data.address?.id;
         return value;
       },
 
