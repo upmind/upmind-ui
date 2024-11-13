@@ -140,8 +140,8 @@ export interface Typegen0 {
     billingConfiguring: "";
     currencyComplete: "";
     currencyConfiguring: "";
-    custom_fieldsComplete: "";
-    custom_fieldsConfiguring: "";
+    customFieldsComplete: "";
+    customFieldsConfiguring: "";
     hasItems: "";
     hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
@@ -193,23 +193,23 @@ export interface Typegen0 {
     | "shopping.account.claiming"
     | "shopping.account.complete"
     | "shopping.account.configuring"
-    | "shopping.billing_details"
-    | "shopping.billing_details.complete"
-    | "shopping.billing_details.configuring"
+    | "shopping.billingDetails"
+    | "shopping.billingDetails.complete"
+    | "shopping.billingDetails.configuring"
     | "shopping.currency"
     | "shopping.currency.complete"
     | "shopping.currency.configuring"
-    | "shopping.custom_fields"
-    | "shopping.custom_fields.complete"
-    | "shopping.custom_fields.configuring"
+    | "shopping.customFields"
+    | "shopping.customFields.complete"
+    | "shopping.customFields.configuring"
     | "shopping.items"
     | "shopping.items.complete"
     | "shopping.items.configuring"
-    | "shopping.payment_details"
-    | "shopping.payment_details.available"
-    | "shopping.payment_details.complete"
-    | "shopping.payment_details.configuring"
-    | "shopping.payment_details.processing"
+    | "shopping.paymentDetails"
+    | "shopping.paymentDetails.available"
+    | "shopping.paymentDetails.complete"
+    | "shopping.paymentDetails.configuring"
+    | "shopping.paymentDetails.processing"
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
@@ -221,20 +221,20 @@ export interface Typegen0 {
         loading?: "actors" | "basket";
         shopping?:
           | "account"
-          | "billing_details"
+          | "billingDetails"
           | "currency"
-          | "custom_fields"
+          | "customFields"
           | "items"
-          | "payment_details"
+          | "paymentDetails"
           | "promotions"
           | "refreshing"
           | {
               account?: "checking" | "claiming" | "complete" | "configuring";
-              billing_details?: "complete" | "configuring";
+              billingDetails?: "complete" | "configuring";
               currency?: "complete" | "configuring";
-              custom_fields?: "complete" | "configuring";
+              customFields?: "complete" | "configuring";
               items?: "complete" | "configuring";
-              payment_details?:
+              paymentDetails?:
                 | "available"
                 | "complete"
                 | "configuring"

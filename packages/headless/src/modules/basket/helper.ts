@@ -22,7 +22,7 @@ import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 async function fetch(context: any, basket: any) {
-  const basketItems = basket.getItemsSnapshot();
+  const products = basket.getProducts();
 
   // we need to ensure ALL our items are loaded before we can proceed
   return waitFor(
@@ -38,19 +38,13 @@ async function fetch(context: any, basket: any) {
     }
   ).then(() => {
     return reduce(
-      basketItems,
-      (result, basketItem) => {
-        const model = get(basketItem, "state.context.model");
-        const mapping = context.basketItemMapper(model);
+      products,
+      (result, product) => {
         // check all our mapping values are set, if not then its not a valid mapping and we can skip it
+        const mapping = context.basketItemMapper(product);
         const isValid = isEmpty(pickBy(mapping, isEmpty));
-
-        const product = get(basketItem, "state.context.lookups.product");
         if (isValid) {
-          const data = context.itemBuilder({
-            ...model,
-            ...product,
-          });
+          const data = context.itemBuilder(product);
           // @ts-ignore
           result.push(data);
         }
@@ -90,10 +84,10 @@ async function add(
 async function remove(item: any, context: any, basket: any) {
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
-  const basket_id = basket.getBasketId();
-  const id = get(basketItem, "state.context.basket_product.id");
+  const basketId = basket.getBasketId();
+  const id = get(basketItem, "state.context.basketProduct.id");
   // ---
-  return productServices.remove({ basket_id, id });
+  return productServices.remove({ basketId, id });
 }
 
 async function update(item: any, context: any, basket: any) {
@@ -101,7 +95,7 @@ async function update(item: any, context: any, basket: any) {
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
-  const id = get(basketItem, "state.context.basket_product.id");
+  const id = get(basketItem, "state.context.basketProduct.id");
   // ---
   if (!basketItem) return Promise.reject("No item found");
 
@@ -111,8 +105,8 @@ async function update(item: any, context: any, basket: any) {
   // ---
   return productServices.update(
     {
-      basket_id: basketSnapshot?.id,
-      basket_products: basketSnapshot?.products,
+      basketId: basketSnapshot?.id,
+      basketProducts: basketSnapshot?.products,
       id,
     },
     { data: config }
@@ -146,8 +140,8 @@ async function sync(items: any, context: any, basket: any) {
   return Promise.all(promises).then(data => {
     return productServices.sync(
       {
-        basket_id: basket.getBasketId(),
-        basket_products: basket.getItemsSnapshot(),
+        basketId: basket.getBasketId(),
+        basketProducts: basket.getProducts(),
       },
       { data }
     );
@@ -216,10 +210,10 @@ export function basketSubscription(callback: any, onReceive: any) {
             callback({ type: "ERROR", data: error });
           })
           .finally(() => {
-            const items = basket.getItemsSnapshot();
+            const products = basket.getProducts();
             basket
               .refresh()
-              .then(() => callback({ type: "SYNCED", data: items }));
+              .then(() => callback({ type: "SYNCED", data: products }));
           });
         break;
     }

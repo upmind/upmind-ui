@@ -38,13 +38,13 @@ interface IAddress {
 }
 
 interface IAddressData {
-  address_1: string | null;
-  address_2: string | null;
+  address1: string | null;
+  address2: string | null;
   city: string | null;
   postcode: string | null;
-  country_id: ICountry["id"];
+  countryId: ICountry["id"];
   country?: ICountry; // Requires relation
-  region_id?: IRegion["id"] | null;
+  regionId?: IRegion["id"] | null;
   state: string | null;
 }
 
@@ -55,7 +55,7 @@ export interface AddressContext {
   country?: ICountry[];
   regions?: IRegion[];
   types?: IAddressType[];
-  baseModel?: IAddress;
+  baseModel?: IAddressData;
 
   // ---
   autocomplete?: {
@@ -70,7 +70,7 @@ export interface AddressContext {
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IAddress;
+  model?: IAddressData;
   // ---
   error?: RequestError;
 }

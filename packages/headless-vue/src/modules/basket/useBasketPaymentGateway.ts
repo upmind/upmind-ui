@@ -20,79 +20,79 @@ import { isEqual, isFunction } from "lodash-es";
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketPaymentGateway = () => {
-  const payment_details = useBasketPaymentDetails();
-  const payment_gateway = payment_details.gateway; // payment details provides a computed gateway we can use
+  const paymentDetails = useBasketPaymentDetails();
+  const paymentGateway = paymentDetails.gateway; // payment details provides a computed gateway we can use
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(payment_gateway, "value")),
-    context: computed(() => stateValue(payment_gateway, "context")),
-    errors: computed(() => contextValue(payment_gateway, "error")),
-    //messages: computed(()=> contextValue(payment_gateway, 'messages')),
+    state: computed(() => stateValue(paymentGateway, "value")),
+    context: computed(() => stateValue(paymentGateway, "context")),
+    errors: computed(() => contextValue(paymentGateway, "error")),
+    //messages: computed(()=> contextValue(paymentGateway, 'messages')),
     // ---
     meta: computed(() => ({
-      isLoading: !payment_gateway || stateMatches(payment_gateway, ["loading"]),
-      hasErrors: stateMatches(payment_gateway, [
+      isLoading: !paymentGateway || stateMatches(paymentGateway, ["loading"]),
+      hasErrors: stateMatches(paymentGateway, [
         "error",
         // "invalid",
       ]),
-      isProcessing: stateMatches(payment_gateway, ["checking", "processing"]),
-      isValid: stateMatches(payment_gateway, ["valid"]),
-      isDirty: contextMatches(payment_gateway, ["dirty"]),
+      isProcessing: stateMatches(paymentGateway, ["checking", "processing"]),
+      isValid: stateMatches(paymentGateway, ["valid"]),
+      isDirty: contextMatches(paymentGateway, ["dirty"]),
       isComplete:
-        stateValue(payment_gateway, "done", false) ||
-        stateMatches(payment_gateway, ["processed", "complete"]),
-      isRenderless: contextMatches(payment_gateway, ["renderless"]),
-      hasRenderer: !!contextValue(payment_gateway, "renderer"),
+        stateValue(paymentGateway, "done", false) ||
+        stateMatches(paymentGateway, ["processed", "complete"]),
+      isRenderless: contextMatches(paymentGateway, ["renderless"]),
+      hasRenderer: !!contextValue(paymentGateway, "renderer"),
       hasInstructions: !!contextValue(
-        payment_gateway,
+        paymentGateway,
         "gateway.payment_instructions"
       ),
 
-      // !contextMatches(payment_gateway, [
+      // !contextMatches(paymentGateway, [
       //   "schema.properties",
       //   "renderer",
       // ]),
     })),
     // ---
-    model: computed(() => contextValue(payment_gateway, "model")),
-    schema: computed(() => contextValue(payment_gateway, "schema")),
-    uischema: computed(() => contextValue(payment_gateway, "uischema")),
-    renderer: computed(() => contextValue(payment_gateway, "renderer")),
+    model: computed(() => contextValue(paymentGateway, "model")),
+    schema: computed(() => contextValue(paymentGateway, "schema")),
+    uischema: computed(() => contextValue(paymentGateway, "uischema")),
+    renderer: computed(() => contextValue(paymentGateway, "renderer")),
     instructions: computed(() =>
-      contextValue(payment_gateway, "gateway.payment_instructions")
+      contextValue(paymentGateway, "gateway.payment_instructions")
     ),
 
-    type: computed(() => contextValue(payment_gateway, "type")),
-    code: computed(() => contextValue(payment_gateway, "code")),
+    type: computed(() => contextValue(paymentGateway, "type")),
+    code: computed(() => contextValue(paymentGateway, "code")),
 
     // ---
-    clear: () => payment_gateway.value?.send({ type: "CLEAR" }),
+    clear: () => paymentGateway.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
-      payment_gateway.value?.send({ type: "SET", data: model }),
+      paymentGateway.value?.send({ type: "SET", data: model }),
     update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
-      // first check if our payment_gateway has change, ie: model.code has changed
-      const selected = contextValue(payment_gateway, "model");
+      // first check if our paymentGateway has change, ie: model.code has changed
+      const selected = contextValue(paymentGateway, "model");
 
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
-        payment_gateway.value?.send({ type: "SET", data: model });
+        paymentGateway.value?.send({ type: "SET", data: model });
       }
 
-      // then wait for the payment_gateway actor to be valid
-      // then send the update event to the payment_gateway actor
+      // then wait for the paymentGateway actor to be valid
+      // then send the update event to the paymentGateway actor
       // @ts-ignore
-      waitFor(service.state.context.actors.payment_gateway, newstate =>
+      waitFor(service.state.context.actors.paymentGateway, newstate =>
         newstate.matches("valid")
-      ).then(() => payment_gateway.value?.send({ type: "UPDATE" }));
+      ).then(() => paymentGateway.value?.send({ type: "UPDATE" }));
     },
 
     async render(container: HTMLElement | null = null) {
-      const renderer = contextValue(payment_gateway, "renderer");
+      const renderer = contextValue(paymentGateway, "renderer");
 
       return new Promise((resolve, reject) => {
         if (!container) {

@@ -194,7 +194,7 @@ export interface GatewayContext {
   element?: any;
   renderer?: Function;
   // ---
-  basket_id?: string;
+  basketId?: string;
   currency?: ICurrency;
   amount?: number;
   gateway?: IGateway;

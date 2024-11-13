@@ -85,33 +85,68 @@ export interface Basket {
   warning_notes: any[]; //IWarningNote[];
 }
 
+type ISubProductChoices = Record<
+  string, // the category id
+  Record<
+    string, // the subproduct id
+    {
+      productId: string;
+      unitQuantity: number;
+      cycle: number;
+    }
+  >
+>;
+
 export interface BasketProduct {
-  id: string;
-  name: string;
-  serviceIdentifier?: string;
-  // ---
-  description?: string;
-  shortDescription?: string;
-  // ---
+  id: string; // the basket product id (bpid)
+
+  // --- model
   productId: string;
   quantity: number;
-  // ---
-  config: {
+  term: { cycle: number };
+  options?: ISubProductChoices;
+  attributes?: ISubProductChoices;
+  provisionFields?: Record<string, any>;
+
+  // --- descriptive details
+  name: string;
+  category: string;
+  serviceIdentifier?: string;
+  description?: string;
+  shortDescription?: string;
+
+  // --- lookups/config
+  product: {
+    id: string;
     quantifiable?: boolean;
     min?: number;
     max?: number;
     step?: number;
   };
-  // ---
-  hasDiscount?: boolean;
-  currentPrice?: number;
-  currentPriceFormatted?: string;
-  regularPrice?: number;
-  regularPriceFormatted?: string;
-  // ---
-  details: BasketProductDetail[];
-  // products?: BasketProduct[];
+
+  // --- summary
+  summary: {
+    hasDiscount?: boolean;
+    currentPrice?: number;
+    currentPriceFormatted?: string;
+    regularPrice?: number;
+    regularPriceFormatted?: string;
+
+    // --- prices breakdown for non quantifiable products
+    // prices: [
+    //   {
+    //     price: number;
+    //     priceFormatted: string;
+    //     priceDiscounted?: number;
+    //     priceDiscountedFormatted?: string;
+    //   },
+    // ];
+
+    // --- details
+    details: BasketProductDetail[];
+  };
 }
+
 export interface BasketProductDetail {
   key: string;
   category: string;
@@ -141,10 +176,10 @@ export interface BasketContext {
   summary?: Object;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    billing_details?: ActorRef<any, any>;
+    billingDetails?: ActorRef<any, any>;
     currency?: ActorRef<any, any>;
-    custom_fields?: ActorRef<any, any>;
-    payment_details?: ActorRef<any, any>;
+    customFields?: ActorRef<any, any>;
+    paymentDetails?: ActorRef<any, any>;
     promotions?: ActorRef<any, any>;
   };
   // --- Payments
@@ -157,6 +192,6 @@ export interface BasketContext {
 
 export interface BasketEvent {
   type: "CHECK" | "REFRESH" | "AUTHENTICATED";
-  data?: IBasket;
+  data?: Basket;
   error?: RequestError;
 }

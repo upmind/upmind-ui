@@ -96,7 +96,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
       id: subproduct.id,
       value: subproduct.id,
       label: subproduct?.name,
-      text: subproduct?.short_description,
+      text: subproduct?.shortDescription,
     };
   });
 });
@@ -106,7 +106,7 @@ function getSubproductValue(value: string) {
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    priceOverride: props.subproduct?.price_override,
+    priceOverride: props.subproduct?.priceOverride,
   };
 }
 

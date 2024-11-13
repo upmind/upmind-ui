@@ -22,7 +22,7 @@
                   promotion.mixed || !promotion.amount
                     ? t("product.promotion")
                     : t("product.promotion_save", {
-                        value: promotion.amount_formatted,
+                        value: promotion.amountFormatted,
                       })
                 }}
               </Badge>
@@ -33,13 +33,13 @@
 
       <div class="flex items-center gap-2">
         <NumberField
-          v-if="canChangeQuantity && quantity"
+          v-if="quantifiable && quantity"
           :disabled="processing"
-          :min="min_order_quantity"
-          :max="max_order_quantity"
-          :step="unit_quantity"
+          :min="min"
+          :max="max"
+          :step="step"
           :model-value="quantity"
-          :default-value="quantity || unit_quantity"
+          :default-value="quantity || step"
           @update:modelValue="doUpdateQuantity"
           size="sm"
           width="sm"
@@ -58,9 +58,9 @@
 
     <p
       class="text-base-700 mb-0 mt-2 whitespace-normal text-xs leading-tight"
-      v-if="props.short_description"
+      v-if="props.shortDescription"
     >
-      {{ props.short_description }}
+      {{ props.shortDescription }}
     </p>
   </section>
 </template>
@@ -83,24 +83,24 @@ const emit = defineEmits(["update:quantity"]);
 const props = defineProps<{
   id?: string;
   name: string;
-  short_description?: string;
+  shortDescription?: string;
   priceOverride?: boolean;
   price?: {
     price: number;
-    price_formatted: string;
-    price_discounted: number;
-    price_discounted_formatted: string;
+    priceFormatted: string;
+    priceDiscounted: number;
+    priceDiscountedFormatted: string;
     promotions: Array<{
       id: string;
       amount: number;
-      amount_formatted: string;
+      amountFormatted: string;
       mixed: boolean;
     }>;
   };
-  canChangeQuantity: boolean;
-  min_order_quantity?: number;
-  max_order_quantity?: number;
-  unit_quantity?: number;
+  quantifiable: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
   quantity?: number;
   processing?: boolean;
 }>();

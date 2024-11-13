@@ -41,8 +41,8 @@ export interface IPaymentDetail {
 
 export interface PaymentDetailsContext {
   // ---
-  basket_id?: string;
-  client_id?: string;
+  basketId?: string;
+  clientId?: string;
   currency?: iCurrency;
   // ---
   gateways?: Array<IGateway>;
@@ -52,7 +52,7 @@ export interface PaymentDetailsContext {
   balance?: IWalletBalance;
   gateway?: IGateway;
   // ---
-
+  fields?: any;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IPaymentDetail;
@@ -65,6 +65,8 @@ export interface PaymentDetailsContext {
   };
 
   // ---
+  autoupdate?: boolean;
+  dirty?: boolean;
   error?: RequestError;
 }
 
@@ -79,6 +81,6 @@ export interface PaymentDetailsEvent {
 
 export interface RefreshEvent {
   type: "REFRESH";
-  data?: IBasket;
+  data?: Basket;
   error?: RequestError;
 }

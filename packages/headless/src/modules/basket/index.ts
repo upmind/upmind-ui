@@ -11,7 +11,7 @@ import { every, find, get, some, omitBy, isEmpty, isFunction } from "lodash-es";
 import { responseCodes } from "../api";
 
 // --- types
-import type { IProductModel } from "../product/types";
+import type { ProductModel } from "../product/types";
 export * from "./types";
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -87,7 +87,7 @@ export const useBasket = () => {
 
     // --- item functions
 
-    getItemsSnapshot: () => service.getSnapshot()?.context?.items || [],
+    getProducts: () => get(service.getSnapshot(), "context?.products", []),
 
     findItem: (mapping: any) =>
       find(service.getSnapshot()?.context?.items, (basketItem: any) =>
@@ -110,29 +110,29 @@ export const useBasket = () => {
 
     addItem: async ({
       id,
-      product_id,
+      productId,
       quantity,
       term,
       attributes,
       options,
-      provision_fields,
+      provisionFields,
       promotions,
-      sub_pids,
-    }: IProductModel) => {
+      subproducts,
+    }: ProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
         // lets add the new product base don the provided config to the basket
         const mapping = omitBy(
           {
             id,
-            product_id,
+            productId,
             quantity,
             term,
             attributes,
             options,
-            provision_fields,
+            provisionFields,
             promotions,
-            sub_pids,
+            subproducts,
           },
           isEmpty
         );
@@ -147,7 +147,7 @@ export const useBasket = () => {
         return find(
           service.getSnapshot()?.context?.items,
           (basketItem: any) => {
-            const isNew = isEmpty(basketItem.state.context?.basket_product);
+            const isNew = isEmpty(basketItem.state.context?.basketProduct);
             return (
               isNew &&
               every(mapping, (value, key) => {

@@ -16,7 +16,7 @@ import { defineComponent, computed } from "vue";
 
 // --- internal
 import { useBasketCurrency } from "@upmind/headless-vue";
-import currencyMap from "./currencies";
+import rawCurrencies from "./currencies";
 
 // --- components
 import { Combobox } from "@upmind/upwind";
@@ -69,7 +69,9 @@ export default defineComponent({
           label: code,
           value: code,
           avatar: {
-            icon: currencyMap[code?.toUpperCase()]?.country_code?.toLowerCase(),
+            icon: rawCurrencies[
+              code?.toUpperCase()
+            ]?.country_code?.toLowerCase(),
           },
         };
       }),
@@ -77,7 +79,7 @@ export default defineComponent({
       currencies: computed(() => {
         return map(currencies.value, currency => ({
           avatar: {
-            icon: currencyMap[
+            icon: rawCurrencies[
               currency?.code?.toUpperCase()
             ]?.country_code?.toLowerCase(),
           },

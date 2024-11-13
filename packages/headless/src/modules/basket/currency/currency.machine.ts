@@ -27,7 +27,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      basketId: undefined,
       currencies: undefined,
       schema: undefined,
       uischema: undefined,
@@ -175,18 +175,12 @@ export default createMachine(
   },
   {
     actions: {
-      refreshContext: assign(
-        (
-          // TODO: { basket_id, model }: CurrencyContext,
-          _,
-          { data: basket }: CurrencyEvent
-        ) => {
-          return {
-            basket_id: basket?.id,
-            model: basket?.currency,
-          };
-        }
-      ),
+      refreshContext: assign((_context, { data: basket }: CurrencyEvent) => {
+        return {
+          basketId: basket?.id,
+          model: basket?.currency,
+        };
+      }),
 
       // @ts-ignore
       setContext: assign(
@@ -265,11 +259,11 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ model, basket_id }, { data }: any) =>
-        model?.id !== data?.currency_id || basket_id !== data?.id,
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
+      hasBasket: ({ basketId }, _event) => !!basketId,
+      hasChanged: ({ model, basketId }, { data }: any) =>
+        model?.id !== data?.currencyId || basketId !== data?.id,
+      shouldUpdate: ({ autoupdate, basketId }, _event) =>
+        !!autoupdate && !!basketId,
     },
 
     delays: {

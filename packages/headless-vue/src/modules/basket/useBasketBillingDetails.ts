@@ -27,70 +27,67 @@ import type { ActorRef } from "xstate";
 export const useBasketBillingDetails = (service?: ActorRef<any, any>) => {
   const { service: basket } = useBasket();
 
-  const billing_details = ref();
+  const billingDetails = ref();
 
   if (!service) {
     waitFor(
       basket,
-      newstate => contextMatches(newstate, ["actors.billing_details"]),
+      newstate => contextMatches(newstate, ["actors.billingDetails"]),
       { timeout: Infinity }
     ).then(validState => {
-      billing_details.value = contextActor(
-        validState,
-        "actors.billing_details"
-      );
+      billingDetails.value = contextActor(validState, "actors.billingDetails");
     });
   } else {
-    billing_details.value = useActor(service);
+    billingDetails.value = useActor(service);
   }
 
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(billing_details, "value")),
-    context: computed(() => stateValue(billing_details, "context")),
-    errors: computed(() => contextValue(billing_details, "error")),
-    //messages: computed(()=> contextValue(billing_details, 'messages')),
+    state: computed(() => stateValue(billingDetails, "value")),
+    context: computed(() => stateValue(billingDetails, "context")),
+    errors: computed(() => contextValue(billingDetails, "error")),
+    //messages: computed(()=> contextValue(billingDetails, 'messages')),
     // ---
     meta: computed(() => ({
       isLoading:
-        !billing_details.value || stateMatches(billing_details, ["available"]),
+        !billingDetails.value || stateMatches(billingDetails, ["available"]),
 
-      hasErrors: stateMatches(billing_details, ["error"]),
-      isProcessing: stateMatches(billing_details, ["available.processing"]),
-      isValid: stateMatches(billing_details, ["available.valid"]),
-      isDirty: contextMatches(billing_details, ["dirty"]),
+      hasErrors: stateMatches(billingDetails, ["error"]),
+      isProcessing: stateMatches(billingDetails, ["available.processing"]),
+      isValid: stateMatches(billingDetails, ["available.valid"]),
+      isDirty: contextMatches(billingDetails, ["dirty"]),
       isComplete:
-        stateValue(billing_details, "done", false) ||
-        stateMatches(billing_details, [".complete"]),
+        stateValue(billingDetails, "done", false) ||
+        stateMatches(billingDetails, [".complete"]),
     })),
     // ---
-    model: computed(() => contextValue(billing_details, "model")),
-    schema: computed(() => contextValue(billing_details, "schema")),
-    uischema: computed(() => contextValue(billing_details, "uischema")),
+    model: computed(() => contextValue(billingDetails, "model")),
+    schema: computed(() => contextValue(billingDetails, "schema")),
+    uischema: computed(() => contextValue(billingDetails, "uischema")),
 
     // ---
-    clear: () => billing_details.value?.send({ type: "CLEAR" }),
+    clear: () => billingDetails.value?.send({ type: "CLEAR" }),
     // @ts-ignore
     input: (model: any) =>
       // @ts-ignore
-      billing_details.value?.send({ type: "SET", data: model }),
+      billingDetails.value?.send({ type: "SET", data: model }),
     update(model: any) {
       if (!model) return;
 
-      // first check if our billing_details has change, ie: model.code has changed
-      const selected = contextValue(billing_details, "model");
+      // first check if our billingDetails has change, ie: model.code has changed
+      const selected = contextValue(billingDetails, "model");
 
       // if it has not then bail
       if (
-        model?.address_id == selected?.address_id &&
-        model?.company_id == selected?.company_id
+        model?.addressId == selected?.addressId &&
+        model?.companyId == selected?.companyId
       ) {
         return;
       }
 
       // if it has then send the new model to the machine
-      billing_details.value?.send({
+      billingDetails.value?.send({
         type: "SET",
         // @ts-ignore
         data: model,

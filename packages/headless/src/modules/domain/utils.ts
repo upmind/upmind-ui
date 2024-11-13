@@ -13,16 +13,18 @@ import {
   reduce,
   set,
   uniqBy,
+  isNil,
 } from "lodash-es";
 
 // --- types
-import type { IDomainProduct } from "./types";
+import type { DomainProduct } from "./types";
+import type { BasketProduct } from "../basket";
 // ----------------------------------------------------------------------------
 
-export function parseDomain(data: any) {
-  if (isObject(data)) data = get(data, "domain");
+export function parseDomain(raw: any) {
+  if (isObject(raw)) raw = get(raw, "domain");
 
-  const parsed = data
+  const parsed = raw
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
     ?.toLowerCase();
 
@@ -37,10 +39,10 @@ export function parseDomain(data: any) {
   return undefined;
 }
 
-export function parseSld(data: string) {
-  if (!data?.length) return "";
+export function parseSld(raw: string) {
+  if (!raw?.length) return "";
 
-  const parsed = data
+  const parsed = raw
     ?.replace(/(^https?:\/\/)?(w{3}\.)?[^a-z0-9\-.]?/gi, "")
     ?.toLowerCase();
 
@@ -48,7 +50,7 @@ export function parseSld(data: string) {
   return value;
 }
 
-export function parseAvailable(sld: string, results = [] as IDomainProduct[]) {
+export function parseAvailable(sld: string, results = [] as DomainProduct[]) {
   // parse the results
   const available = map(results, item => parseProduct({ ...item, sld }));
 
@@ -56,10 +58,10 @@ export function parseAvailable(sld: string, results = [] as IDomainProduct[]) {
   return compact(uniqBy(available, "domain"));
 }
 
-export function parseValue(data: any, values = [], available = []) {
+export function parseValue(raw: any, values = [], available = []) {
   // parse the domain name provided
   // @ts-ignore
-  const value = (isObject(data) ? data?.domain : data)?.toLowerCase();
+  const value = (isObject(raw) ? raw?.domain : raw)?.toLowerCase();
 
   // check if we already have the domain
   let domain: any = find(values, ["domain", value]);
@@ -73,8 +75,8 @@ export function parseValue(data: any, values = [], available = []) {
   return domain;
 }
 
-export function parseProduct(data: any) {
-  // This is where we map our domain search result data to a format that we can use in our basket
+export function parseProduct(raw: any) {
+  // This is where we map our domain search result raw to a format that we can use in our basket
   // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
   // The CRITICAL part is actually the  subproduct choices:
   // We only include the sub_product_id given to us by the API, and we only include the choices that match that sub_product_id
@@ -82,44 +84,45 @@ export function parseProduct(data: any) {
   // To be 100% safe we check for the sub_product_id in our OPTIONS and ATTRIBUTES, and only include the choices that match that sub_product_id
   // ---
   // we may not have a service identifier ( if the domain is not in the basket yet)
-  const name = [data.sld, data.tld].join("");
+  const name = [raw.sld, raw.tld].join("");
   const parsed = parseDomain(name);
 
-  const result: IDomainProduct = {
-    product_id: data.product_id,
-    quantity: data.quantity,
-    options: mapSubproductChoices(data?.options, data?.sub_product_id),
-    attributes: mapSubproductChoices(data?.attributes, data?.sub_product_id),
-    is_available: data?.domain_available,
+  const result: DomainProduct = {
+    productId: raw.productId,
+    quantity: raw.quantity,
+    options: mapSubproductChoices(raw?.options, raw?.sub_product_id),
+    attributes: mapSubproductChoices(raw?.attributes, raw?.sub_product_id),
     // ---
     tld: parsed?.tld || "",
     sld: parsed?.sld || "",
     domain: parsed?.domain || "",
+    summary: {},
   };
   // TODO: Not This! we should use a util from the product module for consistency
   // also we may need to calculate the correct term and not just use the first one
-  const term = first(orderBy(data.prices, "billing_cycle_months", "asc"));
-  result.billing_cycle_months =
-    data?.billing_cycle_months || term?.billing_cycle_months;
-  result.is_discounted = !!term?.price_discounted;
-  result.price_discounted = term?.price_discounted;
-  result.price_discounted_formatted = term?.price_discounted_formatted;
-  result.price = term?.price;
-  result.price_formatted = term?.price_formatted;
+  const term = first(orderBy(raw.prices, "billing_cycle_months", "asc"));
+  result.cycle = raw?.billing_cycle_months || term?.billing_cycle_months;
+
+  result.summary = {
+    isAvailable: raw?.domain_available,
+    hasDiscount: term?.price_discounted && term.price_discounted != term.price,
+    isFree: isNil(term?.price),
+    currentPrice: term?.price_discounted || term.price,
+    currentPriceFormatted:
+      term?.price_discounted_formatted || term.price_formatted,
+    regularPrice: term?.price,
+    regularPriceFormatted: term?.price_formatted,
+  };
 
   return result;
 }
 
-export function parseBasketItem(data: any) {
-  // we may not have a service identifier ( if the domain is not in the basket yet)
-  const name =
-    data?.service_identifier ||
-    [data?.provision_fields?.sld, data?.name].join("");
-
+export function parseBasketItem(raw: BasketProduct) {
+  const name = raw.serviceIdentifier;
   const parsed = parseDomain(name);
 
   const result = {
-    product_id: data.product_id,
+    productId: raw.productId,
     tld: parsed?.tld,
     sld: parsed?.sld,
     domain: parsed?.domain,
@@ -128,15 +131,15 @@ export function parseBasketItem(data: any) {
   return result;
 }
 
-export const mapSubproductChoices = (values: any, required_id: string) => {
+export const mapSubproductChoices = (values: any, requiredId: string) => {
   return reduce(
     values,
     (result, value) => {
-      if (required_id == value.id)
+      if (requiredId == value.id)
         set(result, [value.category_id, value.id], {
-          product_id: value.id,
-          unit_quantity: parseQuantity(value.unit_quantity, value),
-          billing_cycle_months: value.billing_cycle_months,
+          productId: value.id,
+          unitQuantity: parseQuantity(value.unit_quantity, value),
+          cycle: value.billing_cycle_months,
         });
       return result;
     },

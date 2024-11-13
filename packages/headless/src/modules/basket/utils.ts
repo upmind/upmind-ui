@@ -12,49 +12,33 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import {
-  useValidationParser,
-  useTranslateName,
-  useTranslateField,
-} from "../../utils";
+import { useValidationParser, useTranslateName } from "../../utils";
 
 import {
   compact,
   find,
   forEach,
   get,
-  has,
-  includes,
   isEmpty,
-  isNil,
-  isObject,
-  isString,
   map,
-  mapValues,
-  merge,
-  omit,
-  omitBy,
-  orderBy,
-  pick,
   reduce,
   set,
   some,
   toNumber,
   uniq,
   uniqueId,
-  values,
 } from "lodash-es";
 
 // --- types
 import { TaxTagTypes } from "./types";
 // @ts-ignore
-import type { IBasket, BasketProduct, BasketProductDetail } from "./types";
+import type { Basket, BasketProduct, BasketProductDetail } from "./types";
 
 // --------------------------------------------------------
 // SPAWN ACTORS
 export function spawnProductConfiguration(
   data: any,
-  basket: IBasket,
+  basket: Basket,
   errorExternal?: any
 ) {
   const id = data?.id || uniqueId("product-");
@@ -68,9 +52,9 @@ export function spawnProductConfiguration(
   const item = spawn(
     productMachine.withContext({
       id,
-      basket_id: basket?.id,
+      basketId: basket?.id,
       [isBasketProduct ? "basket_product" : "model"]: data,
-      currency_id: basket?.currency_id,
+      currencyId: basket?.currency_id,
       promotions,
       errorExternal,
     }),
@@ -83,45 +67,45 @@ export function spawnProductConfiguration(
   return item;
 }
 
-export function spawnBillingDetails(basket: IBasket) {
+export function spawnBillingDetails(basket: Basket) {
   return spawn(
     billingDetailsMachine.withContext({
-      basket_id: basket?.id,
-      client_id: basket?.client_id,
+      basketId: basket?.id,
+      clientId: basket?.client_id,
       model: {
-        address_id: basket?.address_id,
-        company_id: basket?.company_id,
+        addressId: basket?.address_id,
+        companyId: basket?.company_id,
       },
     }),
     { name: "billingDetails", sync: true }
   );
 }
 
-export function spawnCurrency(basket: IBasket) {
+export function spawnCurrency(basket: Basket) {
   return spawn(
     currencyMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       model: basket?.currency,
     }),
     { name: "currency", sync: true }
   );
 }
 
-export function spawnCustomFields(basket: IBasket) {
+export function spawnCustomFields(basket: Basket) {
   return spawn(
     customFieldsMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       model: parseBasketFieldsModel(basket),
     }),
     { name: "customFields", sync: true }
   );
 }
 
-export function spawnPaymentDetails(basket: IBasket) {
+export function spawnPaymentDetails(basket: Basket) {
   return spawn(
     // @ts-ignore
     paymentDetailsMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       currency: basket?.currency,
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
@@ -131,10 +115,10 @@ export function spawnPaymentDetails(basket: IBasket) {
   );
 }
 
-export function spawnPromotions(basket: IBasket) {
+export function spawnPromotions(basket: Basket) {
   return spawn(
     promotionsMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       promotions: basket?.promotions,
     }),
     { name: "promotions", sync: true }
@@ -152,78 +136,89 @@ export const parseBasket = (data: any) => {
   return basket;
 };
 
-export const parseBasketProduct = (data: any, errors?: any) => {
+export const parseBasketProduct = (raw: any, errors?: any) => {
+  debugger;
   const product: BasketProduct = {
-    id: data?.id,
-    name: data?.product_name,
-    serviceIdentifier: data?.service_identifier,
-    // ---
-    description: data?.description,
-    shortDescription: data?.product_short_description,
-    // ---
-    productId: data?.product_id,
-    quantity: data?.quantity,
-    // ---
-    config: {
-      quantifiable: data?.can_change_quantity,
-      min: data?.min_order_quantity,
-      max: data?.max_order_quantity,
-      step: data?.unit_quantity,
+    id: raw?.id,
+
+    // --- model
+    quantity: raw.quantity,
+    productId: raw.product_id,
+    term: raw.billing_cycle_months,
+    options: parseSubproductChoices(raw.options),
+    attributes: parseSubproductChoices(raw.attributes),
+    provisionFields: raw.provision_fields,
+
+    // --- descriptive details
+    name: raw?.product_name,
+    serviceIdentifier: raw?.service_identifier,
+    category: useTranslateName(raw?.product?.category),
+    description: raw?.description,
+    shortDescription: raw?.product_short_description,
+
+    // --- lookups
+    product: {
+      id: raw?.product_id,
+      quantifiable: raw?.can_change_quantity,
+      step: raw?.unit_quantity,
+      min: raw?.min_order_quantity | raw?.unit_quantity,
+      max: raw?.max_order_quantity > 0 ? raw?.max_order_quantity : Infinity,
     },
 
-    // ---
+    // --- summary details
     // Current Price is any discounted price (if available) otherwise the full price
-    // Usual price is always the full price
+    // Regular price is always the full price
+    summary: {
+      hasDiscount:
+        raw?.configuration_net_amount_discounted_converted !=
+        raw?.configuration_net_amount_converted,
+      currentPrice: raw?.configuration_net_amount_discounted_converted,
+      currentPriceFormatted: raw?.configuration_net_amount_discounted_formatted,
+      regularPrice: raw?.configuration_net_amount_converted,
+      regularPriceFormatted: raw?.configuration_net_amount_formatted,
 
-    hasDiscount:
-      data?.configuration_net_amount_discounted_converted !=
-      data?.configuration_net_amount_converted,
-    currentPrice: data?.configuration_net_amount_discounted_converted,
-    currentPriceFormatted: data?.configuration_net_amount_discounted_formatted,
-    regularPrice: data?.configuration_net_amount_converted,
-    regularPriceFormatted: data?.configuration_net_amount_formatted,
-    // ---
-    details: [],
+      details: [],
 
-    // ---
-    // todo  add non quantifiable otions here
-    // products: [
-    // id: product?.id,
-    // name: product?.product_name,
-    // service_identifier: product?.service_identifier,
-    // quantity: product?.quantity,
-    // discount: product?.configuration_total_discount_amount_converted
-    //   ? product?.configuration_total_discount_amount_formatted
-    //   : null,
-    // subtotal: product?.configuration_net_amount_formatted,
-    // total: product?.configuration_net_amount_discounted_formatted,
-    // ],
+      // ---
+      // todo  add non quantifiable otions here
+      // products: [
+      // id: product?.id,
+      // name: product?.product_name,
+      // service_identifier: product?.service_identifier,
+      // quantity: product?.quantity,
+      // discount: product?.configuration_total_discount_amount_converted
+      //   ? product?.configuration_total_discount_amount_formatted
+      //   : null,
+      // subtotal: product?.configuration_net_amount_formatted,
+      // total: product?.configuration_net_amount_discounted_formatted,
+      // ],
+    },
   };
 
   // --- Now build up our details
   const term = parseTerm(
-    data.billing_cycle_months,
-    data.quantity,
-    data?.product?.prices
+    raw.billing_cycle_months,
+    raw.quantity,
+    raw?.product?.prices
   );
-  if (term) product.details.push(term);
+  if (term) product.summary.details.push(term);
 
-  forEach(data?.options, option => {
+  forEach(raw?.options, option => {
     const subproduct = parseSubproduct("option", option);
-    if (subproduct) product.details.push(subproduct);
+    if (subproduct) product.summary.details.push(subproduct);
   });
 
-  forEach(data?.attributes, attribute => {
+  forEach(raw?.attributes, attribute => {
     const subproduct = parseSubproduct("attribute", attribute);
-    if (subproduct) product.details.push(subproduct);
+    if (subproduct) product.summary.details.push(subproduct);
   });
 
-  forEach(data?.provision_fields, (value, key) => {
+  forEach(raw?.provision_fields, (value, key) => {
     const hasError =
       some(errors, `provision_field_values.${key}`) ||
       some(errors?.provision_fields?.data, ["schemaPath", key]);
     const field = parseProvisionField(key, value, hasError);
-    if (field) product.details.push(field);
+    if (field) product.summary.details.push(field);
   });
 
   // ---
@@ -233,15 +228,55 @@ export const parseBasketProduct = (data: any, errors?: any) => {
   return product;
 };
 
+const parseSubproductChoices = (values: any) => {
+  return reduce(
+    values,
+    (result, value) => {
+      set(result, [value.product.category_id, value.product_id], {
+        productId: value.product_id,
+        quantity: parseQuantity(value.unit_quantity, value.product),
+        cycle: value.billing_cycle_months,
+      });
+      return result;
+    },
+    {}
+  );
+};
+
+const parseQuantity = (quantity: number, raw: any) => {
+  quantity = toNumber(quantity) || 1; // ensure we have a number;
+  // Check the raw is available
+  // Check the quantity is valid,
+  //  - min Quantity matches the raw min
+  //  - max Quantity matches the raw max
+  //  - quantity is a multiple of the raw step
+  // ensure the quantity is at least the min, or 1
+  if (quantity < Math.max(raw?.min_order_quantity, 1)) {
+    quantity = Math.max(raw?.min_order_quantity, 1);
+  }
+
+  // ensure the quantity is at most the max (if set)
+  if (raw?.max_order_quantity && quantity > raw?.max_order_quantity) {
+    quantity = raw?.max_order_quantity;
+  }
+
+  // ensure the quantity is a multiple of the step (if set)
+  if (raw?.unit_quantity && quantity % raw?.unit_quantity !== 0) {
+    quantity = Math.ceil(quantity / raw.unit_quantity) * data.unit_quantity;
+  }
+
+  return quantity;
+};
+
 function parseTerm(
-  billing_cycle_months: number,
+  value: number,
   quantity: number,
   prices: any
 ): BasketProductDetail | null {
   const { getBillingCycle } = useSystem();
-  const cycle = getBillingCycle(billing_cycle_months);
+  const cycle = getBillingCycle(value);
   const name = cycle ? useTranslateName(cycle) : null;
-  const term = find(prices, ["billing_cycle_months", billing_cycle_months]);
+  const term = find(prices, ["billing_cycle_months", cycle]);
 
   if (term) {
     // NB: only show term pricing if recurring!
@@ -367,7 +402,7 @@ export const parseTaxTagName = (tag: any) => {
 
 export const parseBasketFieldsModel = (basket: any, data = {}) => {
   const notes = get(basket, "notes", get(data, "notes"));
-  const custom_fields = reduce(
+  const customFields = reduce(
     get(basket, "custom_fields"),
     (result, { field, value }) => {
       set(result, field.code, value);
@@ -378,7 +413,7 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
 
   return {
     notes,
-    custom_fields,
+    customFields,
   };
 };
 
@@ -395,7 +430,7 @@ export const parseBasketProvisioningErrors = (error: any, index: any) => {
 
     if (!isEmpty(errors)) {
       parsedError = {
-        provision_fields: useValidationParser({
+        provisionFields: useValidationParser({
           data: errors,
         }),
       };

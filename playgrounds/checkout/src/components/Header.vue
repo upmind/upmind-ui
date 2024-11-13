@@ -52,8 +52,8 @@
             <Icon icon="basket" slot="prepend" size="xs" />
             <Indicator
               slot="append"
-              :key="items?.length"
-              :modelValue="items.length"
+              :key="products?.length"
+              :modelValue="products.length"
               color="primary"
               class="absolute right-0 top-0"
             >
@@ -81,7 +81,7 @@ const props = defineProps<{
   noHome?: boolean;
 }>();
 
-const { meta, items } = useBasket();
+const { meta, products } = useBasket();
 
 const isBasketView = computed(() => {
   return this.$route.name === "basket";

@@ -34,7 +34,7 @@ export const useClientEmail = (item: any, context?: any) => {
       isProcessing: ["checking", "processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
-      canRemove: !!state.value?.context?.model?.can_delete,
+      canRemove: !!state.value?.context?.model?.canDelete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:

@@ -52,13 +52,13 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   const terms = computed(() => state.value.context?.lookups?.terms);
   const attributes = computed(() => state.value.context?.lookups?.attributes);
   const options = computed(() => state.value.context?.lookups?.options);
-  const fields = computed(() => state.value.context?.lookups?.provision_fields);
+  const fields = computed(() => state.value.context?.lookups?.provisionFields);
   // ---
   const errors = computed(() => state.value.context?.error);
 
   const meta = computed(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
-    isNew: !contextMatches(state, ["basket_product"]),
+    isNew: !contextMatches(state, ["basketProduct"]),
     isDirty: stateMatches(state, ["available.configured"]),
     isTouched: touched.value,
     isUnavailable: state.value.done || stateMatches(state, ["error"]),
@@ -68,7 +68,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     isConfigurable: contextMatches(state, [
       "lookups.attributes",
       "lookups.options",
-      "lookups.provision_fields.properties",
+      "lookups.provisionFields.properties",
     ]),
     isConfigured: stateMatches(state, [
       "available.configured",
@@ -85,8 +85,8 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     // ---
 
     hasProvisioning:
-      !isEmpty(state.value.context?.lookups?.provision_fields?.properties) &&
-      !!state.value?.context?.model?.provision_fields,
+      !isEmpty(state.value.context?.lookups?.provisionFields?.properties) &&
+      !!state.value?.context?.model?.provisionFields,
     hasAttributes:
       !isEmpty(state.value.context?.lookups?.attributes) &&
       !!state.value?.context?.model?.attributes,
@@ -125,33 +125,28 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
   async function incrementQuantity() {
     // sanity check
-    if (!lookups.value.product?.canChangeQuantity) return;
+    if (!lookups.value.product?.quantifiable) return;
 
     const qty = get(model.value, "quantity", 0);
 
     // emit the event
-    return updateQuantity(add(qty, lookups.value.product?.unit_quantity || 1));
+    return updateQuantity(add(qty, lookups.value.product?.step || 1));
   }
 
   async function decrementQuantity() {
     // sanity check
-    if (!lookups.value.product?.canChangeQuantity) return;
+    if (!lookups.value.product?.quantifiable) return;
 
     const qty = get(model.value, "quantity", 0);
 
     // emit the event
-    return updateQuantity(
-      subtract(qty, lookups.value.product?.unit_quantity || 1)
-    );
+    return updateQuantity(subtract(qty, lookups.value.product?.step || 1));
   }
 
   // --- TERMS
 
   function isSelectedTerm(term: any) {
-    const value = isEqual(
-      term.billing_cycle_months,
-      model.value?.term?.billing_cycle_months
-    );
+    const value = isEqual(term.cycle, model.value?.term?.cycle);
     return value;
   }
 
@@ -161,7 +156,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
       type: "SET.TERM",
       data: {
         // @ts-ignore
-        term: isObject(term) ? term.billing_cycle_months : term,
+        term: isObject(term) ? term.cycle : term,
       },
     });
   };
@@ -180,7 +175,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   };
 
   function isSelectedAttribute(attributeId: any, value: any) {
-    return some(model.value.attributes[attributeId], ["product_id", value]);
+    return some(model.value.attributes[attributeId], ["productId", value]);
   }
 
   function setAttributes(attribute: any, values: any) {
@@ -189,7 +184,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
     forEach(safeValues, value => {
       set(model.value.attributes, [attribute.id, value], {
-        product_id: value,
+        productId: value,
       });
     });
 
@@ -210,7 +205,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   };
 
   function isSelectedOption(optionId: any, value: any) {
-    return some(model.value.options[optionId], ["product_id", value]);
+    return some(model.value.options[optionId], ["productId", value]);
   }
 
   function setOptions(option: any, values: any) {
@@ -218,7 +213,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     set(model.value.options, option.id, {}); // reset all previous options
     forEach(safeValues, value => {
       set(model.value.options, [option.id, value], {
-        product_id: value,
+        productId: value,
       });
     });
 
@@ -226,12 +221,12 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     updateOptions();
   }
 
-  function updateOptionQuantity(option: any, product_id: string, qty: number) {
+  function updateOptionQuantity(option: any, productId: string, qty: number) {
     // sanity check
-    const product = find(option.values, ["id", product_id]);
-    if (!product?.canChangeQuantity) return;
+    const product = find(option.values, ["id", productId]);
+    if (!product?.quantifiable) return;
 
-    set(model.value.options, [option.id, product_id, "unit_quantity"], qty);
+    set(model.value.options, [option.id, productId, "step"], qty);
 
     // emit the event
     updateOptions();
@@ -239,17 +234,13 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
   function incrementOption(option: any, value: any) {
     // sanity check
-    if (!value?.canChangeQuantity) return;
+    if (!value?.quantifiable) return;
 
-    const qty = get(
-      model.value.options,
-      [option.id, value.id, "unit_quantity"],
-      0
-    );
+    const qty = get(model.value.options, [option.id, value.id, "step"], 0);
     set(
       model.value.options,
-      [option.id, value.id, "unit_quantity"],
-      add(qty, value?.min_order_quantity || 1)
+      [option.id, value.id, "step"],
+      add(qty, value?.step || 1)
     );
     // emit the event
     updateOptions();
@@ -257,16 +248,12 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
   function decrementOption(option: any, value: any) {
     // sanity check
-    if (!value?.canChangeQuantity) return;
-    const qty = get(
-      model.value.options,
-      [option.id, value.id, "unit_quantity"],
-      0
-    );
+    if (!value?.quantifiable) return;
+    const qty = get(model.value.options, [option.id, value.id, "step"], 0);
     set(
       model.value.options,
-      [option.id, value.id, "unit_quantity"],
-      subtract(qty, value?.min_order_quantity || 1)
+      [option.id, value.id, "step"],
+      subtract(qty, value?.step || 1)
     );
     // emit the event
     updateOptions();
@@ -275,13 +262,13 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   // --- PROVISIONING
 
   function setProvisioningFields(value: any) {
-    set(model.value, "provision_fields", value);
+    set(model.value, "provisionFields", value);
     // emit the event
     updateProvisioning();
   }
 
   function getProvisioningField(field: any) {
-    const value = get(model.value, ["provision_fields", field], null);
+    const value = get(model.value, ["provisionFields", field], null);
     return value;
   }
 
@@ -289,7 +276,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     touched.value = true;
     send({
       type: "SET.PROVISIONING",
-      data: { provision_fields: model.value.provision_fields },
+      data: { provisionFields: model.value.provisionFields },
     });
   };
 

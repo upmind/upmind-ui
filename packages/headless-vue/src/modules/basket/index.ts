@@ -5,3 +5,6 @@ export * from "./useBasketCurrency";
 export * from "./useBasketBillingDetails";
 export * from "./useBasketPaymentDetails";
 export * from "./useBasketPaymentGateway";
+
+// --- types
+export type { BasketProduct, BasketProductDetail } from "@upmind/headless";

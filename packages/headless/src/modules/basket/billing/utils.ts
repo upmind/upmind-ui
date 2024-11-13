@@ -17,18 +17,18 @@ export const useSchema = (_context: BillingDetailsContext) => {
     anyOf: [
       {
         type: "object",
-        required: ["address_id"],
+        required: ["addressId"],
         properties: {
-          address_id: {
+          addressId: {
             type: ["string", "null"],
           },
         },
       },
       {
         type: "object",
-        required: ["company_id"],
+        required: ["companyId"],
         properties: {
-          company_id: {
+          companyId: {
             type: ["string", "null"],
           },
         },
@@ -46,8 +46,8 @@ export const useUischema = (_context: BillingDetailsContext) => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/address_id",
-        i18n: "basket.billing_details.address_id",
+        scope: "#/properties/addressId",
+        i18n: "basket.billingDetails.addressId",
         options: {
           autoFocus: true,
           autocomplete: "off",
@@ -55,8 +55,8 @@ export const useUischema = (_context: BillingDetailsContext) => {
       },
       {
         type: "Control",
-        scope: "#/properties/company_id",
-        i18n: "basket.billing_details.company_id",
+        scope: "#/properties/companyId",
+        i18n: "basket.billingDetails.companyId",
         options: {
           autoFocus: true,
           autocomplete: "off",
