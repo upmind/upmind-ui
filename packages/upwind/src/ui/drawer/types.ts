@@ -1,6 +1,7 @@
 // --- external
 import type { HTMLAttributes } from "vue";
 import type { VariantProps, CxOptions } from "class-variance-authority";
+import type { DrawerPortalProps } from "vaul-vue";
 
 // --- internal
 import type {
@@ -13,7 +14,7 @@ type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
 type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
 type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;
 
-export interface DrawerProps {
+export interface DrawerProps extends DrawerPortalProps {
   title?: string;
   description?: string;
   // ---
