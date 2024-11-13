@@ -27,8 +27,7 @@
       @resolve="resolve"
       :class="styles.session.auth.form"
       :actions="authActions"
-    >
-    </Form>
+    />
   </div>
   <Button variant="ghost" block type="reset" @click.prevent="logout" v-else>
     logout

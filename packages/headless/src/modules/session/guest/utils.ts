@@ -12,7 +12,7 @@ export const useRegisterSchemaParser = (data: any) => {
   const schema = {
     type: "object",
     title: "Register",
-    required: ["firstname", "lastname", "email", "password"],
+    required: ["firstname", "lastname", "username", "password"],
     properties: {
       firstname: {
         type: "string",
@@ -22,7 +22,7 @@ export const useRegisterSchemaParser = (data: any) => {
         type: "string",
         title: "Your last name",
       },
-      email: {
+      username: {
         type: "string",
         title: "Your email address",
         format: "email",
@@ -65,9 +65,11 @@ export const useRegisterUischemaParser = (data: any) => {
       },
       {
         type: "Control",
-        scope: "#/properties/email",
+        scope: "#/properties/username",
         i18n: "auth.register.email",
         options: {
+          type: "email",
+          format: "email",
           autocomplete: "email",
           placeholder: "name@email.com",
         },
@@ -93,7 +95,7 @@ export const useRegisterModelParser = (data: any) => {
   const model = {
     firstname: undefined,
     lastname: undefined,
-    email: undefined,
+    username: undefined,
     password: undefined,
     custom_fields: useFieldsModelParser(data),
   };
@@ -106,10 +108,11 @@ export const useLoginSchemaParser = () => {
   return {
     type: "object",
     title: "Login",
-    required: ["email", "password"],
+    required: ["username", "password"],
     properties: {
-      email: {
+      username: {
         type: "string",
+        format: "email",
         title: "Your email address",
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
@@ -128,9 +131,11 @@ export const useLoginUischemaParser = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/email",
+        scope: "#/properties/username",
         i18n: "auth.login.email",
         options: {
+          type: "email",
+          format: "email",
           autoFocus: true,
           autocomplete: "email",
           placeholder: "name@email.com",
@@ -151,7 +156,7 @@ export const useLoginUischemaParser = () => {
 
 export const useLoginModelParser = () => {
   return {
-    email: undefined,
+    username: undefined,
     password: undefined,
   };
 };
