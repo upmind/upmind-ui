@@ -42,7 +42,7 @@ async function authenticate({ model }: GuestContext) {
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
-      username: model.email,
+      username: model.username,
       password: model.password,
       grant_type: GrantTypes.PASSWORD,
     },
@@ -97,7 +97,8 @@ async function register({ model }: GuestContext) {
 
   const data: any = {
     custom_fields: model?.custom_fields,
-    email: model?.email,
+    email: model?.username,
+    username: model?.username,
     firstname: model?.firstname,
     lastname: model?.lastname,
     password: model?.password,

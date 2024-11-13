@@ -19,7 +19,7 @@ export interface GuestContext {
 
 export interface AuthModel {
   custom_fields: { [key: string]: number | string | boolean };
-  email: string;
+  username: string;
   firstname: string;
   lastname: string;
   password: string;
