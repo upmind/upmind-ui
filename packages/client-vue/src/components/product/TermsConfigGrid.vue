@@ -94,8 +94,8 @@ const styles = useStyles(
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
-      id: item.,
-      value: item..toString(),
+      id: item.cycle,
+      value: item.cycle.toString(),
       label: item.name,
       ...item,
     };
@@ -107,15 +107,13 @@ const hasItems = computed(() => {
 });
 
 function getTerm(value: string) {
-  const item = find(props.items, ["", toNumber(value)]);
+  const item = find(props.items, ["cycle", toNumber(value)]);
   return item;
 }
 
 function isMonthly(item: any) {
   const hasMonthlyPrice = some(props.items, ["", 1]);
-  return (
-    hasMonthlyPrice && item.monthlyPriceFrom && item.cycle > 1
-  );
+  return hasMonthlyPrice && item.monthlyPriceFrom && item.cycle > 1;
 }
 function doResolve(item: string | number) {
   if (props.disabled) return;
