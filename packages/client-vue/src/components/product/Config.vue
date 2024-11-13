@@ -92,7 +92,7 @@
           :errors="errors?.term"
           :items="terms"
           :label="t('product.terms.label')"
-          :model-value="model?.term?."
+          :model-value="model?.term"
           :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="updateTerm"
           required
