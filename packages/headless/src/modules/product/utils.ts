@@ -615,7 +615,9 @@ export const parseModel = (data: any): IProductModel => {
   ]);
 };
 
-export const parseBasketProduct = (data: any): IProductModel => {
+// TODO:
+// export const parseBasketProduct = (data: any): IProductModel => {
+export const parseBasketProduct = (data: any): any => {
   // map basket product data
   return {
     id: data.id,

@@ -9,7 +9,7 @@ import services from "./services";
 // --------------------------------------------------------
 export default createMachine(
   {
-    tsTypes: {} as import("./recaptcha.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./recaptcha.machine.typegen").Typegen0,
     id: "recaptchaTokenManager",
     predictableActionArguments: true,
     initial: "loading",

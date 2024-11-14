@@ -229,7 +229,7 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Badge, Button } from "@upmind-automation/automation/upwind";
+import { Icon, Badge, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";

@@ -27,6 +27,9 @@ const service = interpret(requestsMachine, { devTools: false }).onTransition(
 );
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useApi = () => {
   // --------------------------------------------------------
   // methods

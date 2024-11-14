@@ -49,16 +49,13 @@ import config from "./config.cva";
 // --- components
 import CardDomain from "./DomainCard.vue";
 import Empty from "./Empty.vue";
-import {
-  SkeletonList,
-  CheckboxCards,
-} from "@upmind-automation/automation/upwind";
+import { SkeletonList, CheckboxCards } from "@upmind-automation/upwind";
 
 // --- utils
 import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
-import type { CheckboxCardsItemProps } from "@upmind-automation/automation/upwind";
+import type { CheckboxCardsItemProps } from "@upmind-automation/upwind";
 import type { IDomain } from "./types";
 
 // -----------------------------------------------------------------------------

@@ -26,8 +26,8 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --------------------------------------------------------
 // ENUMS
-
 const whitelistGatewayProviders =
+  // @ts-ignore
   import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS.split(",");
 
 // --------------------------------------------------------
