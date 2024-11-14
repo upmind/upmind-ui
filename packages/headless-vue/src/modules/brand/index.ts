@@ -3,13 +3,13 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBrand as useUpmindBrand } from "@upmind/headless";
+import { useBrand as useUpmindBrand } from "@upmind-automation/headless";
 
 // --- utils
 import { isArray, isObject, reduce, set } from "lodash-es";
 
 // ---
-import { BrandConfigKeys } from "@upmind/headless";
+import { BrandConfigKeys } from "@upmind-automation/headless";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers

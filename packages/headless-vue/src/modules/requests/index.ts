@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useApi as useUpmindApi } from "@upmind/headless";
+import { useApi as useUpmindApi } from "@upmind-automation/headless";
 
 // --- utils
 import { keys } from "lodash-es";

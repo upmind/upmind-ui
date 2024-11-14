@@ -55,12 +55,17 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, cn } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/automation/upwind";
 import config from "./interstitial.config";
 
 // --- components
-import { Dialog, Button, Avatar, Icon } from "@upmind/upwind";
+import {
+  Dialog,
+  Button,
+  Avatar,
+  Icon,
+} from "@upmind-automation/automation/upwind";
 
 // --- utils
 import { isFunction } from "lodash-es";

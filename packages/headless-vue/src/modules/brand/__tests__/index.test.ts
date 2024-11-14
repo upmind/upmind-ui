@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useActor } from "@xstate/vue";
-import { useBrand as useUpmindBrand } from "@upmind/headless";
+import { useBrand as useUpmindBrand } from "@upmind-automation/headless";
 import { useBrand } from "../index";
 
 // Mock useActor from @xstate/vue
@@ -9,7 +9,7 @@ vi.mock("@xstate/vue", () => ({
 }));
 
 // Mock useBrand from @upmind/headless
-vi.mock("@upmind/headless", () => ({
+vi.mock("@upmind-automation/headless", () => ({
   useBrand: vi.fn(() => ({
     service: vi.fn(),
     isReady: true,

@@ -9,11 +9,11 @@
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import { FormField } from "@upmind/upwind";
+import { FormField } from "@upmind-automation/upwind";
 import Domain from "../domain/Domain.vue";
 
 // --- utils
-import { useUpwindRenderer } from "@upmind/upwind";
+import { useUpwindRenderer } from "@upmind-automation/upwind";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";

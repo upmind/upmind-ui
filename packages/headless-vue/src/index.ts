@@ -1,4 +1,4 @@
-import "@upmind/headless";
+import "@upmind-automation/headless";
 
 export * from "./modules";
 export * as utils from "./utils";

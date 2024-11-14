@@ -52,12 +52,12 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button, Icon } from "@upmind/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";

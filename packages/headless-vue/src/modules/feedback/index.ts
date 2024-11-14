@@ -3,7 +3,10 @@ import { computed, toRef, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useFeedback as useUpmindFeedback, utils } from "@upmind/headless";
+import {
+  useFeedback as useUpmindFeedback,
+  utils,
+} from "@upmind-automation/headless";
 
 // --- utils
 import { map, reduce, isEmpty, sortBy } from "lodash-es";
