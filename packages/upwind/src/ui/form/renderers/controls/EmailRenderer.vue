@@ -34,12 +34,9 @@ const { control, formFieldProps, onInput, appliedOptions } = useUpwindRenderer(
 </script>
 
 <script lang="ts">
-import { and, isStringControl, optionIs, or } from "@jsonforms/core";
+import { and, isStringControl, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
-  controlType: and(
-    isStringControl,
-    or(optionIs("format", "email"), optionIs("format", "username"))
-  ),
+  controlType: and(isStringControl, optionIs("format", "email")),
 };
 </script>
