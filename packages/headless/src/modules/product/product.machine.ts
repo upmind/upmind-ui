@@ -31,6 +31,7 @@ import {
   isEmpty,
   isEqual,
   isNil,
+  isObject,
   merge,
   pick,
   remove,
@@ -573,14 +574,14 @@ export default createMachine(
           return {
             product: parseProduct(data.product, basketProduct),
             terms: parseTerms(data.product.prices, data.promotionDisplayType),
-            attributes: parseSubproduct(
-              data.product.products_attributes,
-              data?.promotionDisplayType
-            ),
             options: parseSubproduct(
               data.product.products_options,
               data?.promotionDisplayType,
               model?.term
+            ),
+            attributes: parseSubproduct(
+              data.product.products_attributes,
+              data?.promotionDisplayType
             ),
             provisionFields: parseProvisioningSchema(data.provisioning),
           };
@@ -680,7 +681,10 @@ export default createMachine(
           { model }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
-          const term = get(data, "term");
+          let term = get(data, "term");
+          term = isObject(term) ? term?.cycle : term;
+
+          debugger;
           set(model, "term", term);
           return model;
         },

@@ -154,10 +154,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     touched.value = true;
     send({
       type: "SET.TERM",
-      data: {
-        // @ts-ignore
-        term: isObject(term) ? term.cycle : term,
-      },
+      data: { term },
     });
   };
   //emit("update:term",{itemId: props.id,...);

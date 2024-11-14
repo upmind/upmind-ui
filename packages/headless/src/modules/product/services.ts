@@ -196,15 +196,13 @@ async function checkTerm(
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
   times(model.quantity, () => {
-    debugger;
-    // DC:  this may be raw and need to be converted to camelCase
-    price.push(term?.price_discounted || term?.price || 0);
+    price.push(term?.priceDiscounted || term?.price || 0);
   });
 
   return new Promise((resolve, reject) => {
     if (errors.length)
       reject({
-        term: pick(term, "cycle"),
+        term: get(term, "cycle"),
         price,
         error: { ...error, term: errors },
       });
