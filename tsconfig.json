@@ -19,21 +19,9 @@
     "noUnusedLocals": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "packages/*/src",
-    "playgrounds/*/src",
-    "packages/upwind/utils",
-    "packages/upwind/src/utils"
-  ],
-
   "references": [
-    { "path": "packages/headless" },
-    { "path": "packages/headless-vue" },
-    { "path": "packages/client-vue" },
-    { "path": "packages/upwind" },
-    { "path": "playgrounds/checkout" },
-    { "path": "playgrounds/velia" },
-    { "path": "playgrounds/webcentral" }
+    { "path": "packages/headless/tsconfig.build.json" },
+    { "path": "packages/headless-vue/tsconfig.build.json" }
   ],
-  "exclude": ["node_modules", "dist", "*.d.ts"]
+  "exclude": ["node_modules", "coverage", "dist", "*.d.ts"]
 }

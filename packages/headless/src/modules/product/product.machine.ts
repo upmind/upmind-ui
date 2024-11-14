@@ -52,7 +52,7 @@ import type {
 // as this is a sub machine, we need to be initialised with a product
 export default createMachine(
   {
-    tsTypes: {} as import("./product.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./product.machine.typegen").Typegen0,
     id: "productConfigurator",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -658,7 +658,12 @@ export default createMachine(
       ),
 
       calculate: sendTo(
-        ({ calculateCallback }, _event) => calculateCallback,
+        ({ calculateCallback }: ProductConfigContext, _event) => {
+          if (!calculateCallback) {
+            throw new Error("calculateCallback is not defined");
+          }
+          return calculateCallback;
+        },
         (
           { currency_id, prices, model, lookups }: ProductConfigContext,
           _event
@@ -706,7 +711,7 @@ export default createMachine(
           { data }: ProductConfigEvent
         ) => {
           if (!data?.price) return prices;
-          return { ...prices, term: data.price };
+          return { ...prices, options: data.price };
         },
       }),
 

@@ -1,7 +1,4 @@
 // --- extrnal
-
-// --- types
-import type { RequestError } from "..//api/types";
 import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // ENUMS
@@ -19,11 +16,13 @@ export interface Basket {
   address_id: string; //IAddress["id"];
   balance: number;
   balance_formatted: string;
-  brand: IBrand;
+  // TODO:
+  // brand: IBrand;
+  brand: any;
   brand_id: string; //IBrand["id"];
   category: string; //IBasketCategory;
   category_id: string; // IBasketCategory["id"];
-  client: IClient;
+  client: Object; //IClient;
   client_id: string; //IClient["id"];
   company_id: null | string; //ICompany["id"];
   consolidation_invoice_id: null | string; //IInvoice["id"];
@@ -35,6 +34,8 @@ export interface Basket {
   credited: number;
   currency: Object; //ICurrency;
   currency_id: string; //ICurrency["id"];
+  // TODO:
+  // custom_fields: Array; //ICustomFieldValue[];
   custom_fields: any[]; //ICustomFieldValue[];
   deleted_at: string | number;
   due_date: string;
@@ -60,8 +61,11 @@ export interface Basket {
   payment_details: Object; //IPaymentDetail;
   payment_details_id: string; //IPaymentDetail["id"];
   pricelist_id: string; //IPricelist["id"];
-  products: IBasketProduct[];
-  promotions: IBasketPromotion[];
+  // TODO:
+  // products: IBasketProduct[];
+  // promotions: IBasketPromotion[];
+  products: any[];
+  promotions: any[];
   refund_changed: string | number;
   refund_request: string | number;
   refund_status: number;
@@ -80,8 +84,12 @@ export interface Basket {
   user_id: string; //IUser["id"];
   tax_amount: number;
   tax_amount_formatted: string;
-  taxes: any[]; //IAppliedTax[];
+  // TODO:
+  // taxes: Array; //IAppliedTax[];
+  taxes: any[];
   ip: string;
+  // TODO:
+  // warning_notes: Array; //IWarningNote[];
   warning_notes: any[]; //IWarningNote[];
 }
 
@@ -92,9 +100,11 @@ export interface BasketContext {
   basket?: Basket;
   invoice?: Object;
   // ---
+  // TODO:
+  // items?: Array; // Array of actors
+  // error?: RequestError;
   items?: ActorRef<any, any>[]; // Array of actors
-
-  error?: RequestError;
+  error?: any;
   controller?: AbortController;
   summary?: Object;
   // --- SPAWNED ACTORS/MACHINES
@@ -106,8 +116,8 @@ export interface BasketContext {
     promotions?: ActorRef<any, any>;
   };
   // --- Payments
-  paymentDetails?: Object;
-  payment?: Object;
+  paymentDetails?: ActorRef<any, any>;
+  payment?: ActorRef<any, any>;
 }
 
 // --------------------------------------------------------
@@ -115,6 +125,9 @@ export interface BasketContext {
 
 export interface BasketEvent {
   type: "CHECK" | "REFRESH" | "AUTHENTICATED";
-  data?: IBasket;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  // data?: IBasket;
+  error?: any;
+  data?: any;
 }

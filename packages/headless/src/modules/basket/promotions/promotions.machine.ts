@@ -21,8 +21,7 @@ import { responseCodes } from "../../api";
 
 export default createMachine(
   {
-    // @ts-ignore
-    tsTypes: {} as import("./promotions.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./promotions.machine.typegen").Typegen0,
     id: "basketPromotionsManager",
     predictableActionArguments: true,
     initial: "loading",

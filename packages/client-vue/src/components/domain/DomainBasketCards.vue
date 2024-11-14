@@ -26,7 +26,7 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { RadioCards } from "@upmind-automation/automation/upwind";
+import { RadioCards } from "@upmind-automation/upwind";
 
 // --- utils
 

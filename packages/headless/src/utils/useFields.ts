@@ -163,7 +163,7 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
 
   const schema = reduce(
     data,
-    (result, field) => {
+    (result: any[], field) => {
       if (!field.hidden && field.show_on_order_form) {
         let type = null;
         let multi = false;
@@ -210,7 +210,7 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
             break;
         }
 
-        result.push({
+        const schema = {
           type: "Control",
           scope: `#/properties/custom_fields/properties/${field.code}`,
           i18n: `${i18nKey}.${field.code}`,
@@ -222,7 +222,9 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
             type,
             ...options,
           },
-        });
+        };
+
+        result.push(schema);
       }
 
       return result;

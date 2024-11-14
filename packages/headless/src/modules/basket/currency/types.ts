@@ -16,14 +16,21 @@ export type { ICurrency } from "../../system/types";
 export interface CurrencyContext {
   basket_id?: String;
   // ---
-  currencies?: ICurrency[];
+  // TODO:
+  // currencies?: ICurrency[];
+  currencies?: any[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: ICurrency;
-  baseModel?: ICurrency;
+  // TODO:
+  // model?: ICurrency;
+  // baseModel?: ICurrency;
+  model?: any;
+  baseModel?: any;
   // ---
   dirty?: Boolean;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -31,6 +38,10 @@ export interface CurrencyContext {
 
 export interface CurrencyEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: ICurrency;
-  error?: RequestError;
+  // TODO:
+  // data?: ICurrency;
+  data?: any;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

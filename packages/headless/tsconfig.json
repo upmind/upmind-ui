@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
+    "composite": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "allowJs": false,
     "module": "esnext",
     "moduleResolution": "bundler",
     "outDir": "dist",
     "noImplicitThis": true,
     "skipLibCheck": true,
-    "strict": true,
-    "types": ["vite/client"]
-  },
-  "include": ["**/*.ts"],
-  "exclude": ["dist", "src/**/__tests__/*", "**/*.d.ts"]
+    "strict": true
+  }
 }

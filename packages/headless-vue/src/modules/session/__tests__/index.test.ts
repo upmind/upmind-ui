@@ -8,7 +8,7 @@ vi.mock("@xstate/vue", () => ({
   useActor: vi.fn(),
 }));
 
-// Mock useDomain from @upmind/headless
+// Mock useDomain from @upmind-automation/headless
 vi.mock("@upmind-automation/headless", () => ({
   useSession: vi.fn(() => ({
     session: {
@@ -19,7 +19,7 @@ vi.mock("@upmind-automation/headless", () => ({
 }));
 
 describe("useSession", () => {
-  let mockState;
+  let mockState: any;
   let send;
   // const token = ref(''); // TODO: Import { ref } from "vue";
 
@@ -39,6 +39,7 @@ describe("useSession", () => {
     };
     send = vi.fn();
 
+    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send });
 
     // Reset mocks before each test

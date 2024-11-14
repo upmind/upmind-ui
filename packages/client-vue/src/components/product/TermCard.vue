@@ -66,7 +66,7 @@ import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Tooltip, Badge } from "@upmind-automation/automation/upwind";
+import { Icon, Tooltip, Badge } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash";

@@ -23,7 +23,7 @@ import { responseCodes } from "../api";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -331,7 +331,7 @@ export default createMachine(
         address: (_context, { data: basket }: RefreshEvent) => basket?.address,
         actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
-            if (actor?.send && !actor?.state?.done) {
+            if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({
                 type: "REFRESH",
                 data: {
@@ -384,7 +384,7 @@ export default createMachine(
 
       // @ts-ignore
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
-        forEach(actors, (actor: ActorRef<any, any>) => {
+        forEach(actors, (actor: ActorRef<any, any> | undefined) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }

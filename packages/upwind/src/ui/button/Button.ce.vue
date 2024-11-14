@@ -40,7 +40,7 @@ import { useStyles, cn } from "../../utils";
 
 // --- components
 import ButtonRoot from "./Button.vue";
-import { Spinner } from "@upmind/upwind";
+import { Spinner } from "@upmind-automation/upwind";
 
 // --- types
 import type { ComputedRef } from "vue";

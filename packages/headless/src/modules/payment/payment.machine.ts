@@ -20,8 +20,7 @@ import { responseCodes } from "../api";
 
 export default createMachine(
   {
-    // @ts-ignore
-    tsTypes: {} as import("./payment.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./payment.machine.typegen").Typegen0,
     id: "paymentManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -216,6 +215,7 @@ export default createMachine(
       needsApproval: ({ payment }: PaymentContext, _event: PaymentEvent) =>
         !!payment.approval_url,
 
+      // @ts-ignore
       hasNoOutstandingBalance: (
         _context: PaymentContext,
         _event: PaymentEvent

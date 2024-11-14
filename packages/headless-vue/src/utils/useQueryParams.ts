@@ -64,7 +64,7 @@ export enum QUERY_PARAMS {
   USERNAME = "username",
   VIEW = "view",
 }
-import type { IProductModel } from "@upmind/headless";
+import type { IProductModel } from "@upmind-automation/headless";
 
 type IExtendedProductModel = IProductModel & {
   sub_pids?: string[];

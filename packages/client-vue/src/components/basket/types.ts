@@ -4,7 +4,7 @@ import type {
   ButtonProps,
   IconProps,
   AnimatedIconProps,
-} from "@upmind/upwind";
+} from "@upmind-automation/upwind";
 // ---
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];

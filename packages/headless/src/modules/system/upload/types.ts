@@ -27,10 +27,10 @@ export const ImageUploadTypes = [
 // --------------------------------------------------------
 // private
 
-interface Dimensions {
-  width: number;
-  height: number;
-}
+// interface Dimensions {
+//   width: number;
+//   height: number;
+// }
 
 export interface ImageHashEvent {
   hash: string;
@@ -65,7 +65,8 @@ export interface UploadContext {
   src?: string | null;
 
   // ---
-  error?: RequestError;
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -74,5 +75,6 @@ export interface UploadContext {
 export interface UploadEvent {
   type: string;
   data: any;
-  error?: RequestError;
+  // error?: RequestError;
+  error?: any;
 }

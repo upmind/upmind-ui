@@ -1,0 +1,63 @@
+(headless) test:
+  stage: test
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_HEADLESS == "true"
+  script:
+    - npm --workspace packages/headless test
+
+(headless) check version:
+  extends: .check version
+  variables:
+    ROOT_DIR: packages/headless
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_HEADLESS == "true"
+
+(headless) build:
+  stage: build
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+    - (headless) test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
+    - if: $CI_FORCE_HEADLESS == "true"
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "1 day"
+    paths:
+      - packages/headless/dist/
+  script:
+    - npm --workspace packages/headless run build
+
+(headless) publish internal:
+  stage: publish internal
+  image: ${NODE_IMAGE}
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
+  needs:
+    - dependencies
+    - (headless) build
+    - (headless) check version
+  script:
+    - echo "${INTERNAL_NPMRC}" > .npmrc
+    - npm --workspace packages/headless publish
+
+(headless) publish to npm:
+  stage: publish external
+  image: ${NODE_IMAGE}
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
+      when: manual
+  needs:
+    - dependencies
+    - (headless) publish internal
+  script:
+    - npm --workspace packages/headless publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}

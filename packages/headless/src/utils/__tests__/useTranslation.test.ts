@@ -14,7 +14,9 @@ describe("useTranslation.ts", () => {
 
     it("should handle different argument types correctly", () => {
       expect(useTranslateField({}, "name")).toBeUndefined();
+      // @ts-ignore
       expect(useTranslateField(null, "name")).toBeUndefined();
+      // @ts-ignore
       expect(useTranslateField(undefined, "name")).toBeUndefined();
       expect(useTranslateField(123, "name")).toBeUndefined();
     });

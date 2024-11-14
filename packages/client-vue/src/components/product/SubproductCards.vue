@@ -53,14 +53,14 @@ import {
   RadioCards,
   CheckboxCards,
   FormField,
-} from "@upmind-automation/automation/upwind";
+} from "@upmind-automation/upwind";
 import CardSubproduct from "./SubproductCard.vue";
 
 // --- utils
 import { find, map, get } from "lodash-es";
 
 // --- types
-import { type RadioCardsItemProps } from "@upmind-automation/automation/upwind";
+import { type RadioCardsItemProps } from "@upmind-automation/upwind";
 
 // -----------------------------------------------------------------------------
 
