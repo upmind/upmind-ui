@@ -6,7 +6,7 @@ export function usePointerEvents(
   targetSelector?: string | HTMLElement
 ) {
   const handlePointerEvents = (open: boolean) => {
-    if (targetSelector) {
+    if (targetSelector && targetSelector !== "body") {
       const element =
         typeof targetSelector === "string"
           ? document.querySelector(targetSelector)

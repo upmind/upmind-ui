@@ -104,7 +104,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
-  to: "main",
+  to: "body",
   // --- styles
   upwindConfig: () => ({
     drawer: {
@@ -151,10 +151,10 @@ const variants = useStyles(
 // --- state
 const value = useVModel(props, "open", emits);
 
-// By default, Dialog will set the Body element to pointer-events: none;
-// This prevents the whole body from being clickable.
-// As this is a result of an external library that we can't override, we need to handle this manually.
-// With handlePointerEvents, pointer-events: none; is moved to props.to..
+// By default, Drawer will set the Body element to pointer-events: none;
+// This prevents the whole body from being clickable
+// As this is a result of an external library that we can't override, we need to handle this manually
+// With handlePointerEvents, pointer-events: none; is moved to props.to
 const { handlePointerEvents } = usePointerEvents(value, props.to);
 
 watch(value, newValue => {

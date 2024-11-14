@@ -12,6 +12,7 @@
 
   <Drawer
     v-else
+    to="#vue-app"
     fit="cover"
     skrim="primary"
     :class="styles.domain.drawer.root"
