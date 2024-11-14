@@ -98,6 +98,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
+  to: "body",
   // --- styles
   upwindConfig: () => ({
     dialog: {

@@ -104,7 +104,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
-  to: "main",
+  to: "body",
   // --- styles
   upwindConfig: () => ({
     drawer: {
