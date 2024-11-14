@@ -52,45 +52,44 @@ export const checkPriceOverride = (values: any, lookups: any) => {
   });
 };
 
-export const parseQuantity = (quantity: number, raw: any) => {
+export const parseQuantity = (quantity: number, product: any) => {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
-  // Check the raw data is available
+  // Check the product data is available
   // Check the quantity is valid,
-  //  - min Quantity matches the raw min
-  //  - max Quantity matches the raw max
-  //  - quantity is a multiple of the raw step
+  //  - min Quantity matches the product min
+  //  - max Quantity matches the product max
+  //  - quantity is a multiple of the product step
   // ensure the quantity is at least the min, or 1
 
   debugger;
-  // DC:  this may be raw and need to be converted to camelCase
 
-  if (quantity < Math.max(raw?.min_order_quantity, 1)) {
-    quantity = Math.max(raw?.min_order_quantity, 1);
+  if (quantity < Math.max(product?.min, 1)) {
+    quantity = Math.max(product?.min, 1);
   }
 
   // ensure the quantity is at most the max (if set)
-  if (raw?.max_order_quantity && quantity > raw?.max_order_quantity) {
-    quantity = raw?.max_order_quantity;
+  if (product?.max && quantity > product?.max) {
+    quantity = product?.max;
   }
 
   // ensure the quantity is a multiple of the step (if set)
-  if (raw?.unit_quantity && quantity % raw?.unit_quantity !== 0) {
-    quantity = Math.ceil(quantity / raw.unit_quantity) * raw.unit_quantity;
+  if (product?.step && quantity % product?.step !== 0) {
+    quantity = Math.ceil(quantity / product.step) * product.step;
   }
 
   return quantity;
 };
 
 export const parseProduct = (
-  raw: any,
+  rawProduct: any,
   basketProduct?: ProductConfigContext["basketProduct"]
 ) => {
-  // combine the raw data with the basket product data to augment the product
+  // combine the rawProduct data with the basket product data to augment the product
   // DC: cant remember why... to investigate
-  // DC:  this may be raw and need to be converted to camelCase
+  // DC:  this may be rawProduct and need to be converted to camelCase
 
   debugger;
-  const merged = merge({}, raw, basketProduct);
+  const merged = merge({}, rawProduct, basketProduct);
   debugger;
 
   return {
