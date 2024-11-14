@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBasket as useUpmindBasket } from "@upmind/headless";
+import { useBasket as useUpmindBasket } from "@upmind-automation/headless";
 
 // --- utils
 import {

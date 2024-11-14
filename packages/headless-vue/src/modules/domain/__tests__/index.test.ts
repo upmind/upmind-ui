@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useActor } from "@xstate/vue";
-import { useDomain as useUpmindDomain } from "@upmind/headless";
+import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 import { useDomain } from "../index";
 
 // Mock useActor from @xstate/vue
@@ -9,7 +9,7 @@ vi.mock("@xstate/vue", () => ({
 }));
 
 // Mock useDomain from @upmind/headless
-vi.mock("@upmind/headless", () => ({
+vi.mock("@upmind-automation/headless", () => ({
   useDomain: vi.fn(() => ({
     domain: {
       service: vi.fn(),

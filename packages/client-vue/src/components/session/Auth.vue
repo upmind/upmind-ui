@@ -40,13 +40,13 @@ import { defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession } from "@upmind/headless-vue";
-import { Form } from "@upmind/upwind";
-import { useStyles } from "@upmind/upwind";
+import { useSession } from "@upmind-automation/headless-vue";
+import { Form } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { Button, Tabs, type TabItems } from "@upmind/upwind";
+import { Button, Tabs, type TabItems } from "@upmind-automation/upwind";
 
 // --- types
 import type { PropType } from "vue";

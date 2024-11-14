@@ -79,14 +79,19 @@ import { computed, watch, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useDomain } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useDomain } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import Dac from "./Dac.vue";
 import DomainBasketCards from "./DomainBasketCards.vue";
-import { RadioCards, SkeletonList, Input, FormControl } from "@upmind/upwind";
+import {
+  RadioCards,
+  SkeletonList,
+  Input,
+  FormControl,
+} from "@upmind-automation/upwind";
 
 // --- utils
 import { map } from "lodash-es";

@@ -32,17 +32,17 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { Avatar, Button, Drawer } from "@upmind/upwind";
+import { Avatar, Button, Drawer } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
-import type { AvatarProps, ButtonProps } from "@upmind/upwind";
+import type { AvatarProps, ButtonProps } from "@upmind-automation/upwind";
 
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {

@@ -45,18 +45,22 @@ import { useVModel } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { RadioCards, CheckboxCards, FormField } from "@upmind/upwind";
+import {
+  RadioCards,
+  CheckboxCards,
+  FormField,
+} from "@upmind-automation/automation/upwind";
 import CardSubproduct from "./SubproductCard.vue";
 
 // --- utils
 import { find, map, get } from "lodash-es";
 
 // --- types
-import { type RadioCardsItemProps } from "@upmind/upwind";
+import { type RadioCardsItemProps } from "@upmind-automation/automation/upwind";
 
 // -----------------------------------------------------------------------------
 

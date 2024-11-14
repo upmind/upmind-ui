@@ -15,7 +15,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "@upmind/headless-vue",
+      name: "@upmind-automation/headless-vue",
       fileName: "headless-vue"
     }
   },
