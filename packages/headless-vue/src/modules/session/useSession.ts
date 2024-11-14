@@ -99,12 +99,12 @@ export const useSession = (inspector?: Function): IUseSession => {
   }
 
   // ---
-  // function login(model: any) {
-  //   send({
-  //     type: "AUTHENTICATE",
-  //     data: unref(model),
-  //   });
-  // }
+  function login(model: any) {
+    send({
+      type: "AUTHENTICATE",
+      data: unref(model),
+    });
+  }
 
   function verify2fa({ token }: any) {
     send({
@@ -135,11 +135,11 @@ export const useSession = (inspector?: Function): IUseSession => {
 
   // ---
 
-  // function resolve(model: any) {
-  //   if (meta.value.showLoginForm && !meta.value.show2fa) login(model);
-  //   if (meta.value.show2fa) verify2fa(model);
-  //   if (meta.value.showRegisterForm) register(model);
-  // }
+  function resolve(model: any) {
+    if (meta.value.showLoginForm && !meta.value.show2fa) login(model);
+    if (meta.value.show2fa) verify2fa(model);
+    if (meta.value.showRegisterForm) register(model);
+  }
 
   function reject() {
     send({
@@ -195,7 +195,7 @@ export const useSession = (inspector?: Function): IUseSession => {
     user,
     // ---
     reject,
-    resolve: () => {},
+    resolve,
     /**
      * Test
      * @returns {void} Test.
