@@ -20,6 +20,10 @@ export const avatarVariants = cva(
         warning: "bg-warning text-warning-foreground",
         transparent: "overflow-visible bg-transparent text-primary",
       },
+      variant: {
+        flat: "",
+        outline: "bg-transparent ring-1 ring-inset",
+      },
       fit: {
         cover: "object-cover",
         contain: "object-contain p-[0.5em]",
@@ -46,7 +50,65 @@ export const avatarVariants = cva(
       fit: "cover",
       size: "md",
       shape: "circle",
+      variant: "flat",
     },
+    compoundVariants: [
+      {
+        variant: "outline",
+        color: "base",
+        className: "ring-base-muted text-base-muted",
+      },
+      {
+        variant: "outline",
+        color: "primary",
+        className: "text-primary ring-primary",
+      },
+      {
+        variant: "outline",
+        color: "secondary",
+        className: "text-secondary ring-secondary",
+      },
+      {
+        variant: "outline",
+        color: "accent",
+        className: "text-accent ring-accent",
+      },
+      {
+        variant: "outline",
+        color: "promotion",
+        className: "text-promotion ring-promotion",
+      },
+      {
+        variant: "outline",
+        color: "destructive",
+        className: "text-error ring-error",
+      },
+      {
+        variant: "outline",
+        color: "success",
+        className: "text-success ring-success",
+      },
+      {
+        variant: "outline",
+        color: "info",
+        className: "text-info ring-info",
+      },
+      {
+        variant: "outline",
+        color: "error",
+        className: "text-error ring-error",
+      },
+      {
+        variant: "outline",
+        color: "warning",
+        className: "text-warning ring-warning",
+      },
+      {
+        variant: "outline",
+        color: "transparent",
+        className: "text-primary ring-primary",
+      },
+    ],
   }
 );
 
