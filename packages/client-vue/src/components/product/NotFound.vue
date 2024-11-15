@@ -77,7 +77,7 @@ const props = withDefaults(defineProps<ProductModalProps>(), {
     icon: "basket",
     delay: 5000,
     primaryColor: "primary",
-    secondaryColor: "promotion",
+    secondaryColor: "accent",
     size: "4xl",
   },
 });
