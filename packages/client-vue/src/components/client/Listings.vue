@@ -68,7 +68,7 @@
       >
         <Button
           :label="t(`client.${type}.actions.add`)"
-          variant="ghost"
+          variant="link"
           @click="add"
           block
         />
