@@ -42,6 +42,8 @@
           </template>
         </Button>
       </footer>
+
+      <slot />
     </section>
   </component>
 </template>
