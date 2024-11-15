@@ -45,6 +45,7 @@
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
         @update:selected="onToggleSelected"
+        :color="color"
       />
 
       <Button
@@ -54,6 +55,7 @@
         @click="onSearchOffset"
         block
         variant="ghost"
+        :color="color"
       />
     </div>
 
@@ -62,6 +64,7 @@
         @click="onReject"
         :label="t('domain.dac.actions.cancel')"
         variant="link"
+        :color="color"
       />
     </template>
 
@@ -74,6 +77,7 @@
         @click="onResolve"
         :label="t('domain.dac.actions.continue', values?.length)"
         prependIcon="plus-circle"
+        :color="color"
       />
       <!-- </div> -->
     </template>
@@ -107,6 +111,7 @@ const props = withDefaults(
     id: string;
     modelValue?: string;
     query?: string;
+    color?: string;
     offset?: number;
     values?: string[];
     items?: string[];
@@ -122,6 +127,7 @@ const props = withDefaults(
     values: () => [],
     items: () => [],
     dialog: true,
+    color: "base",
   }
 );
 
