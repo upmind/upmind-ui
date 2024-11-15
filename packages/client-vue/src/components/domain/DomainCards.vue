@@ -23,6 +23,7 @@
           v-bind="getDomain(value as string)"
           :selected="isSelected(value as string)"
           @update:selected="onToggleSelected"
+          :color="props.color"
         />
       </template>
     </CheckboxCards>
@@ -68,12 +69,15 @@ const props = withDefaults(
     items: Record<string, any>[];
     offset?: number;
     // ---
+    color?: string;
+    // ---
     loading?: boolean;
     processing?: boolean;
     disabled?: boolean;
   }>(),
   {
     offset: 0,
+    color: "base",
     loading: false,
     processing: false,
     disabled: false,
