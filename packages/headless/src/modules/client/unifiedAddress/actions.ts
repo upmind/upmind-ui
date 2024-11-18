@@ -41,20 +41,21 @@ export const ItemActions = {
       model?.companyName || model?.name || "New Address",
     description: (
       // TODO: { model, countries, regions }: UnifiedAddressContext,
-      { model, countries, regions }: any,
+      { model }: any,
       _event: UnifiedAddressEvent
     ) => {
       // BUG: think this is where  our timout error is coming from
       // const country = find(countries, ["id", get(model, "countryId")]);
       // const region = find(regions, ["id", get(model, "regionId")]);
+      debugger;
       const address = compact([
         get(model, "address1"),
         get(model, "address2"),
         get(model, "street"),
         get(model, "city"),
         get(model, "postcode"),
-        // get(region, "name"),
-        // get(country, "name"),
+        get(model, "region.name"),
+        get(model, "country.name"),
       ]).join(", ");
 
       const company = compact([

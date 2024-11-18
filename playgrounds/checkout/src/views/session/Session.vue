@@ -41,7 +41,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { UpmSession, useBrand } from "@upmind/client-vue";
+import { UpmSession, useBrand } from "@upmind-automation/client-vue";
 
 const { context } = useBrand();
 const brandName = computed(() => context.value.name);

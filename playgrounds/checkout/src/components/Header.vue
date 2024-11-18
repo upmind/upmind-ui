@@ -73,9 +73,9 @@ import {
   UpwListbox,
   UpmProfile,
   UpmCurrency,
-} from "@upmind/client-vue";
+} from "@upmind-automation/client-vue";
 
-import { Icon, Indicator, Button } from "@upmind/upwind";
+import { Icon, Indicator, Button } from "@upmind-automation/upwind";
 
 const props = defineProps<{
   noHome?: boolean;

@@ -8,7 +8,6 @@ import { isArray } from "xstate/lib/utils";
  *
  * @param {string} path - The path to append to the base URL.
  * @param {Object} params - The query parameters to include in the URL.
- * @param {string} [prepend="api"] - The string to prepend to the path.
  * @returns {string} The constructed URL as a string.
  */
 export function useUrl(

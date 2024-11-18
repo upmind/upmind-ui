@@ -1,7 +1,4 @@
 // --- extrnal
-
-// --- types
-import type { RequestError } from "..//api/types";
 import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // ENUMS
@@ -14,26 +11,27 @@ export enum TaxTagTypes {
 // --------------------------------------------------------
 // Interfaces
 export interface Basket {
-  account: Object; //IAccount;
+  account: any; //IAccount;
   account_id: string; //IAccount["id"];
+  address?: any; //IAddress;
   address_id: string; //IAddress["id"];
   balance: number;
   balance_formatted: string;
-  brand: IBrand;
+  brand: any; //IBrand;
   brand_id: string; //IBrand["id"];
   category: string; //IBasketCategory;
   category_id: string; // IBasketCategory["id"];
-  client: IClient;
+  client: any; //IClient;
   client_id: string; //IClient["id"];
-  company_id: null | string; //ICompany["id"];
-  consolidation_invoice_id: null | string; //IInvoice["id"];
+  company_id?: string; //ICompany["id"];
+  consolidation_invoice_id?: string; //IInvoice["id"];
   consolidation_status: number;
-  contract_id: null | string; //IContract["id"];
+  contract_id?: string; //IContract["id"];
   create_datetime: string;
   created_at: string;
-  credit_invoice_id: null | string; //IInvoice["id"];
+  credit_invoice_id?: string; //IInvoice["id"];
   credited: number;
-  currency: Object; //ICurrency;
+  currency: any; //ICurrency;
   currency_id: string; //ICurrency["id"];
   custom_fields: any[]; //ICustomFieldValue[];
   deleted_at: string | number;
@@ -56,17 +54,17 @@ export interface Basket {
   paid_amount: number;
   paid_amount_converted: number;
   paid_amount_formatted: string;
-  paid_datetime: null | number;
-  payment_details: Object; //IPaymentDetail;
+  paid_datetime?: number;
+  payment_details: any; //IPaymentDetail;
   payment_details_id: string; //IPaymentDetail["id"];
   pricelist_id: string; //IPricelist["id"];
-  products: IBasketProduct[];
-  promotions: IBasketPromotion[];
+  products: any[]; //IBasketProduct[]
+  promotions: any[]; //IBasketPromotion[]
   refund_changed: string | number;
   refund_request: string | number;
   refund_status: number;
-  reseller_account_id: null | string; //IAccount["id"];
-  status: Object; //IStatus;
+  reseller_account_id?: string; //IAccount["id"];
+  status: any; //IStatus;
   status_id: string; //IStatus["id"];
   total_amount: number;
   total_amount_converted: number;
@@ -80,7 +78,7 @@ export interface Basket {
   user_id: string; //IUser["id"];
   tax_amount: number;
   tax_amount_formatted: string;
-  taxes: any[]; //IAppliedTax[];
+  taxes: any[]; //IAppliedTax[]
   ip: string;
   warning_notes: any[]; //IWarningNote[];
 }
@@ -166,14 +164,14 @@ export interface BasketProductDetail {
 
 export interface BasketContext {
   basket?: Basket;
-  invoice?: Object;
+  invoice?: any; //IInvoice;
   // ---
   items?: ActorRef<any, any>[]; // Array of actors of items pending or basket products being configured
   products: BasketProduct[]; // Array of products in the basket
   // ---
-  error?: RequestError;
+  error?: any;
   controller?: AbortController;
-  summary?: Object;
+  summary?: any; //IBasketSummary;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
     billingDetails?: ActorRef<any, any>;
@@ -183,8 +181,8 @@ export interface BasketContext {
     promotions?: ActorRef<any, any>;
   };
   // --- Payments
-  paymentDetails?: Object;
-  payment?: Object;
+  paymentDetails?: ActorRef<any, any>;
+  payment?: ActorRef<any, any>;
 }
 
 // --------------------------------------------------------
@@ -192,6 +190,6 @@ export interface BasketContext {
 
 export interface BasketEvent {
   type: "CHECK" | "REFRESH" | "AUTHENTICATED";
-  data?: Basket;
-  error?: RequestError;
+  data?: any; //Basket;
+  error?: any;
 }

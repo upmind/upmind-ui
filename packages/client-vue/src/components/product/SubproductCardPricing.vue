@@ -1,5 +1,5 @@
 <template>
-  <template v-if="price">
+  <template v-if="props.price">
     <span v-if="price?.price" class="flex items-center gap-1">
       <Tooltip v-if="priceOverride" :label="t('product.overrides')">
         <Icon
@@ -39,9 +39,9 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Icon, Tooltip } from "@upmind/upwind";
+import { Icon, Tooltip } from "@upmind-automation/upwind";
 
-const props = defineProps<{
+interface PricingProps {
   price?: {
     price: number;
     priceFormatted: string;
@@ -49,7 +49,9 @@ const props = defineProps<{
     priceDiscountedFormatted: string;
   };
   priceOverride?: boolean;
-}>();
+}
+
+const props = defineProps<PricingProps>();
 
 const { t } = useI18n();
 </script>

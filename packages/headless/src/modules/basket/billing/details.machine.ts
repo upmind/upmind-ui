@@ -20,7 +20,7 @@ import { responseCodes } from "../../api";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./details.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./details.machine.typegen").Typegen0,
     id: "billingDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",

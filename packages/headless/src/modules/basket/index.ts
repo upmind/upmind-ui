@@ -51,6 +51,9 @@ const sendToItem = async (itemId: any, type: any, data: any) => {
   }
 };
 
+/**
+ * @ignore
+ */
 export const useBasket = () => {
   return {
     service: service.start(),
@@ -102,6 +105,7 @@ export const useBasket = () => {
 
     itemExists: (mapping: any) =>
       exists(
+        // @ts-ignore
         service.getSnapshot()?.context?.items,
         mapping,
         // @ts-ignore
@@ -109,7 +113,7 @@ export const useBasket = () => {
       ),
 
     addItem: async ({
-      id,
+      // id,
       productId,
       quantity,
       term,
@@ -124,7 +128,7 @@ export const useBasket = () => {
         // lets add the new product base don the provided config to the basket
         const mapping = omitBy(
           {
-            id,
+            // id,
             productId,
             quantity,
             term,

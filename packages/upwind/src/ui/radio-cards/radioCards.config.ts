@@ -14,16 +14,29 @@ export const rootVariants = cva(`w-full gap-0 rounded-md border-control`, {
 });
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted flex items-start space-x-2 bg-control text-control-foreground transition-all duration-300",
+  "hover:bg-control-active-hover flex items-start space-x-2 bg-control text-control-foreground transition-all duration-200",
   {
     variants: {
       layout: {
         list: "border-b border-control first:rounded-t-md last:rounded-b-md",
-        grid: `data-[state=checked]:bg-control-active-background rounded-md border-control shadow-sm data-[state=unchecked]:border data-[state=checked]:ring-2 data-[state=checked]:ring-control-active `,
+        grid: "data-[state=checked]:bg-control-active-background hover:data-[state=checked]:bg-control-active-hover rounded-md border border-control shadow-sm",
+      },
+      ring: {
+        true: "",
+        false: "",
       },
     },
+    compoundVariants: [
+      {
+        layout: "grid",
+        ring: true,
+        className:
+          "data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
+      },
+    ],
     defaultVariants: {
       layout: "list",
+      ring: true,
     },
   }
 );

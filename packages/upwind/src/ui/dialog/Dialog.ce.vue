@@ -61,7 +61,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onBeforeUnmount, nextTick, onMounted } from "vue";
+import { computed, nextTick } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
 import { useVModel } from "@vueuse/core";
 
@@ -98,6 +98,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
+  to: "body",
   // --- styles
   upwindConfig: () => ({
     dialog: {

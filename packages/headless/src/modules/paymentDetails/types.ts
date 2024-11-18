@@ -1,9 +1,7 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-
-// --- internal
-import type { RequestError } from "../api/types";
-
+import type { ActorRef } from "xstate";
+import type { Basket } from "../basket/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -43,14 +41,16 @@ export interface PaymentDetailsContext {
   // ---
   basketId?: string;
   clientId?: string;
-  currency?: iCurrency;
+  currency?: any; // ICurrency
+  address?: any;
+
   // ---
-  gateways?: Array<IGateway>;
+  gateways?: any[]; // IGateway[];
   payment_types?: PaymentTypes;
   // ---
   stored_payment_methods?: Array<IPaymentDetail>;
-  balance?: IWalletBalance;
-  gateway?: IGateway;
+  balance?: any; //IWalletBalance
+  gateway?: any; //IGateway
   // ---
   fields?: any;
   schema?: JsonSchema;
@@ -58,16 +58,16 @@ export interface PaymentDetailsContext {
   model?: IPaymentDetail;
   // ---
   mount?: HTMLElement;
-  paymentDetails?: Object; // This is the response from the actual payment gateway
+  paymentDetails?: object; // This is the response from the actual payment gateway
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    gateway?: Object;
+    gateway?: ActorRef<any, any>;
   };
 
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -76,11 +76,11 @@ export interface PaymentDetailsContext {
 export interface PaymentDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IPaymentDetail;
-  error?: RequestError;
+  error?: any;
 }
 
 export interface RefreshEvent {
   type: "REFRESH";
   data?: Basket;
-  error?: RequestError;
+  error?: any;
 }

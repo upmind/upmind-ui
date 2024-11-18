@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBasket as useUpmindBasket } from "@upmind/headless";
+import { useBasket as useUpmindBasket } from "@upmind-automation/headless";
 
 // --- utils
 import {
@@ -25,7 +25,10 @@ import { some, filter } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useBasket: any = () => {
+/**
+ * @ignore
+ */
+export const useBasket = (): any => {
   const {
     service,
     isReady,
@@ -77,7 +80,10 @@ export const useBasket: any = () => {
           ) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
-          machineMatches(actors.value.billingDetails, ["processing"]) ||
+          machineMatches(actors.value.billingDetails, [
+            "processing",
+            "available.processing",
+          ]) ||
           machineMatches(actors.value.promotions, ["processing"]),
 
         needsUpdating:
@@ -150,12 +156,11 @@ export const useBasket: any = () => {
 
         isCheckout:
           machineMatches(payment, ["approving"]) ||
-          stateMatches(state, [
-            "shopping.paymentDetails.processing",
-            "checkout",
-            "converting",
-            "paying",
-          ]),
+          stateMatches(state, ["checkout", "converting", "paying"]),
+
+        isProcessingDetails:
+          machineMatches(payment, ["approving"]) ||
+          stateMatches(state, ["shopping.paymentDetails.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),

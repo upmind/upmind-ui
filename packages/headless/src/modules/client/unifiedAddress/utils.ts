@@ -521,7 +521,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
           },
           {
             type: "Control",
-            scope: "#/properties/email",
+            scope: "#/properties/username",
             i18n: "client.unified.form.fields.email",
             options: {
               suggestions: true,
@@ -598,9 +598,10 @@ export const spawnItem = (model?: IAddress) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
-        // @ts-ignore
         .withConfig({
+          // @ts-ignore
           actions,
+          // @ts-ignore
           services,
         })
         .withContext({ model }),

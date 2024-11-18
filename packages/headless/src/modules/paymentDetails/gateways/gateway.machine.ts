@@ -18,7 +18,7 @@ import { responseCodes } from "../../api";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
     id: "gatewayPaymentManager",
     predictableActionArguments: true,
     initial: "loading",

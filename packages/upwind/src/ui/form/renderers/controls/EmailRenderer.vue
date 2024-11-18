@@ -1,9 +1,12 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Input
+      type="email"
+      :placeholder="appliedOptions?.placeholder"
+      :autocomplete="appliedOptions?.autocomplete"
+      :disabled="appliedOptions?.disabled"
       :model-value="control.data"
       @update:modelValue="onInput"
-      type="email"
     />
   </FormField>
 </template>
@@ -15,7 +18,6 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 // --- components
 import FormField from "../../FormField.vue";
 import { Input } from "../../../input";
-
 // --- utils
 import { useUpwindRenderer } from "../utils";
 
@@ -26,7 +28,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpwindRenderer(
+const { control, formFieldProps, onInput, appliedOptions } = useUpwindRenderer(
   useJsonFormsControl(props)
 );
 </script>

@@ -1,8 +1,7 @@
 // --- types
 import type { ActorRef } from "xstate";
 
-import type { RequestError } from "../api/types";
-import type { Basket, BasketProduct } from "../basket";
+import type { Basket, BasketProduct } from "../basket/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -28,24 +27,24 @@ export interface ProductConfigContext {
   baseModel: ProductModel;
   model: ProductModel;
   // ---
-  rawProduct?: IProduct;
+  rawProduct?: any;
   lookups: {
-    product?: IProduct;
+    product?: any;
     terms?: any[];
     options?: any[];
     attributes?: any[];
   };
   // ---
-  summary?: IProductSummary;
+  summary?: any; // IProductSummary;
   prices?: {
-    term: { subtotal: number; total: number; discount: number };
-    attributes: { subtotal: number; total: number; discount: number };
-    options: { subtotal: number; total: number; discount: number };
+    term?: number[];
+    attributes?: number[];
+    options?: number[];
   };
   // ---
   calculateCallback?: ActorRef<any, any>;
-  error?: RequestError;
-  errorExternal: RequestError;
+  error?: any;
+  errorExternal: any;
   // ---
   basketId?: string;
   basketProduct?: BasketProduct;
@@ -81,17 +80,11 @@ export interface IProductPromotion {
   promocode: string;
 }
 
-export interface BasketContext {
-  basket: Basket | null;
-  items: Array;
-  error?: RequestError;
-}
-
 // --------------------------------------------------------
 // Events
 
 export interface ProductConfigEvent {
   type: "CHECK" | "REFRESH";
-  data?: Basket;
-  error?: RequestError;
+  data?: any;
+  error?: any;
 }

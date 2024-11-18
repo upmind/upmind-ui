@@ -88,15 +88,15 @@ import { useI18n } from "vue-i18n";
 import {
   useClientUnifiedAddress,
   useClientUnifiedAddresses,
-} from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+} from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "../client/config.cva";
 
 // --- components
 import Item from "../Client/Item.vue";
 import Card from "../Client/Card.vue";
 import Listings from "../Client/Listings.vue";
-import { SkeletonList, Button, DropdownMenu } from "@upmind/upwind";
+import { SkeletonList, Button, DropdownMenu } from "@upmind-automation/upwind";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";

@@ -77,7 +77,6 @@ function maybeFocus([section]) {
           "url",
           "tel",
           "password",
-          "email",
         ]);
 
         if (selectableInputTypes.has(el.type)) {

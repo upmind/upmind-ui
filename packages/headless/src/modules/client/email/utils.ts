@@ -59,7 +59,7 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/email",
+        scope: "#/properties/username",
         options: {
           autoFocus: true,
           autocomplete: "email",
@@ -89,9 +89,10 @@ export const spawnItem = (model?: IEmail) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
-        // @ts-ignore
         .withConfig({
+          // @ts-ignore
           actions,
+          // @ts-ignore
           services,
         })
         .withContext({ model }),

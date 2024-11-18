@@ -40,34 +40,40 @@ export const ItemActions = {
       model?.name || "New Address",
     description: (
       // TODO: { model, countries, regions }: AddressContext,
-      { model, countries, regions }: any,
+      { model }: any,
       _event: AddressEvent
     ) => {
       // BUG: Think this is the source of our timeout son address lookups
       // const country = find(countries, ["id", get(model, "countryId")]);
       // const region = find(regions, ["id", get(model, "regionId")]);
+      debugger;
       return compact([
         get(model, "address1"),
         get(model, "address2"),
         get(model, "street"),
         get(model, "city"),
         get(model, "postcode"),
-        // get(region, "name"),
-        // get(country, "name"),
+        get(model, "region.name"),
+        get(model, "country.name"),
       ]).join(", ");
     },
   }),
 
   setSchemas: assign({
-    schema: (context: AddressContext, _event: AddressEvent) =>
-      useSchema(context),
-    uischema: (context: AddressContext, _event: AddressEvent) =>
-      useUischema(context),
+    schema: (context: AddressContext, _event) => useSchema(context),
+    uischema: (context: AddressContext, _event) => useUischema(context),
   }),
 
   setModel: assign({
     // TODO: model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
-    model: ({ schema, baseModel }: any, { data }: AddressEvent) =>
-      useModelParser(schema, data, baseModel),
+    // model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
+    //   useModelParser(schema, data, baseModel),
+
+    model: ({ schema, baseModel }: AddressContext, { data }: any) => {
+      if (!schema) {
+        throw new Error("Schema is undefined");
+      }
+      return useModelParser(schema, data, baseModel);
+    },
   }),
 };

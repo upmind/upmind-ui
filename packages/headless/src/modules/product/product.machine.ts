@@ -54,7 +54,7 @@ import type {
 // as this is a sub machine, we need to be initialised with a product
 export default createMachine(
   {
-    tsTypes: {} as import("./product.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./product.machine.typegen").Typegen0,
     id: "productConfigurator",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -476,7 +476,7 @@ export default createMachine(
       setContext: assign(
         (
           {
-            id,
+            // id,
             model,
             basketProduct,
             currencyId,
@@ -499,12 +499,12 @@ export default createMachine(
             promotions,
             // ---
             baseModel: !isEmpty(basketProduct)
-              ? parseBasketProductModel({ id, ...basketProduct })
-              : parseModel({ id, ...model }),
+              ? parseBasketProductModel(basketProduct)
+              : parseModel(model),
 
             model: !isEmpty(basketProduct)
-              ? parseBasketProductModel({ id, ...basketProduct })
-              : parseModel({ id, ...model }),
+              ? parseBasketProductModel(basketProduct)
+              : parseModel(model),
 
             // ---
             calculateCallback: spawn(calculateSubscription),
@@ -654,7 +654,12 @@ export default createMachine(
       ),
 
       calculate: sendTo(
-        ({ calculateCallback }, _event) => calculateCallback,
+        ({ calculateCallback }: ProductConfigContext, _event) => {
+          if (!calculateCallback) {
+            throw new Error("calculateCallback is not defined");
+          }
+          return calculateCallback;
+        },
         (
           { currencyId, prices, model, lookups }: ProductConfigContext,
           _event
@@ -682,7 +687,7 @@ export default createMachine(
           { data }: ProductConfigEvent
         ) => {
           let term = get(data, "term");
-          term = isObject(term) ? term?.cycle : term;
+          term = isObject(term) ? (term as any)?.cycle : term;
 
           debugger;
           set(model, "term", term);
@@ -705,7 +710,7 @@ export default createMachine(
           { data }: ProductConfigEvent
         ) => {
           if (!data?.price) return prices;
-          return { ...prices, term: data.price };
+          return { ...prices, options: data.price };
         },
       }),
 

@@ -11,7 +11,9 @@ export interface RecaptchaContext {
   token?: string;
   created?: Date;
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -20,5 +22,7 @@ export interface RecaptchaContext {
 export interface RecaptchaEvent {
   type: string;
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

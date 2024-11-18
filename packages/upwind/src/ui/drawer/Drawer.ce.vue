@@ -1,5 +1,5 @@
 <template>
-  <Drawer v-bind="forwarded" v-model:open="value">
+  <Drawer v-bind="forwarded" v-model:open="value" :dismissible="false">
     <DrawerTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DrawerTrigger>
@@ -8,6 +8,7 @@
       v-bind="forwarded"
       :class="cn(variants.drawer.content, props.class)"
       :classOverlay="variants.drawer.overlay"
+      @close="() => emits('update:open', false)"
     >
       <DrawerHeader
         v-if="
@@ -68,7 +69,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
 import { useVModel } from "@vueuse/core";
 
@@ -90,6 +91,9 @@ import type { ComputedRef } from "vue";
 import type { DrawerProps } from "./types";
 import type { DrawerRootEmits } from "vaul-vue";
 
+// --- utils
+import { usePointerEvents } from "../../utils/usePointerEvents";
+
 const props = withDefaults(defineProps<DrawerProps>(), {
   // --- props
   title: "",
@@ -100,6 +104,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
+  to: "body",
   // --- styles
   upwindConfig: () => ({
     drawer: {
@@ -145,4 +150,14 @@ const variants = useStyles(
 
 // --- state
 const value = useVModel(props, "open", emits);
+
+// By default, Drawer will set the Body element to pointer-events: none;
+// This prevents the whole body from being clickable
+// As this is a result of an external library that we can't override, we need to handle this manually
+// With handlePointerEvents, pointer-events: none; is moved to props.to
+const { handlePointerEvents } = usePointerEvents(value, props.to);
+
+watch(value, newValue => {
+  handlePointerEvents(newValue === true);
+});
 </script>

@@ -3,13 +3,16 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientCompanies as useUpmindClientCompanies } from "@upmind/headless";
+import { useClientCompanies as useUpmindClientCompanies } from "@upmind-automation/headless";
 
 // --- utils
 import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useClientCompany = (item: any, context?: any) => {
   const { service } = useUpmindClientCompanies();
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
@@ -73,6 +76,9 @@ export const useClientCompany = (item: any, context?: any) => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useClientCompanies = () => {
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
 

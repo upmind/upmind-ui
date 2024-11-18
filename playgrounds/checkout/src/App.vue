@@ -35,11 +35,11 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useThemes } from "@upmind/upwind";
+import { useThemes } from "@upmind-automation/upwind";
 import theme from "@/assets/theme";
 
 // --- components
-import { UpmFeedback, UpmSessionExpired } from "@upmind/client-vue";
+import { UpmFeedback, UpmSessionExpired } from "@upmind-automation/client-vue";
 import DotHeader from "@/components/Header.vue";
 import DotFooter from "@/components/Footer.vue";
 

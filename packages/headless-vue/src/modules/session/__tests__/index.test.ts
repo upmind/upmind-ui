@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useActor } from "@xstate/vue";
-import { useSession as useUpmindSession } from "@upmind/headless";
+import { useSession as useUpmindSession } from "@upmind-automation/headless";
 import { useSession } from "../index";
 
 // Mock useActor from @xstate/vue
@@ -8,8 +8,8 @@ vi.mock("@xstate/vue", () => ({
   useActor: vi.fn(),
 }));
 
-// Mock useDomain from @upmind/headless
-vi.mock("@upmind/headless", () => ({
+// Mock useDomain from @upmind-automation/headless
+vi.mock("@upmind-automation/headless", () => ({
   useSession: vi.fn(() => ({
     session: {
       service: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock("@upmind/headless", () => ({
 }));
 
 describe("useSession", () => {
-  let mockState;
+  let mockState: any;
   let send;
   // const token = ref(''); // TODO: Import { ref } from "vue";
 
@@ -39,6 +39,7 @@ describe("useSession", () => {
     };
     send = vi.fn();
 
+    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send });
 
     // Reset mocks before each test

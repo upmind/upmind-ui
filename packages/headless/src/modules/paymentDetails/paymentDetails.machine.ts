@@ -23,7 +23,7 @@ import { responseCodes } from "../api";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -36,6 +36,7 @@ export default createMachine(
       schema: undefined,
       uischema: undefined,
       model: undefined,
+      address: undefined,
       // ---
       stored_payment_methods: undefined,
       gateways: undefined,
@@ -186,7 +187,6 @@ export default createMachine(
             target: "available.checking",
             actions: ["setDirty", "setAutoUpdate"],
           },
-
           REFRESH: [
             {
               target: "available.loading",
@@ -229,6 +229,7 @@ export default createMachine(
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
+        address: (_context, { data }) => data.address,
       }),
 
       setSchemas: assign({
@@ -276,6 +277,7 @@ export default createMachine(
         // @ts-ignore
         actors: (
           {
+            address,
             basketId,
             currency,
             model,
@@ -305,6 +307,7 @@ export default createMachine(
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
               stored_payment_methods,
+              address,
             });
             set(actors, "gateway", actor);
           }
@@ -325,15 +328,17 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
+        address: (_context, { data: basket }: RefreshEvent) => basket?.address,
         actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
-            if (actor?.send && !actor?.state?.done) {
+            if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({
                 type: "REFRESH",
                 data: {
                   basketId: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
+                  address: basket?.address,
                 },
               });
             }
@@ -345,7 +350,10 @@ export default createMachine(
       // ---
 
       setPaymentDetails: assign({
-        paymentDetails: ({ model, basketId, currency }, { data }: any) => {
+        paymentDetails: (
+          { model, basketId, currency, address },
+          { data }: any
+        ) => {
           const amount = model.amount;
           return parsePaymentDetails({
             ...model,
@@ -354,6 +362,7 @@ export default createMachine(
             basketId,
             currency,
             amount,
+            address,
           });
         },
       }),
@@ -375,7 +384,7 @@ export default createMachine(
 
       // @ts-ignore
       forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
-        forEach(actors, (actor: ActorRef<any, any>) => {
+        forEach(actors, (actor: ActorRef<any, any> | undefined) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }
@@ -430,15 +439,23 @@ export default createMachine(
       shouldUpdate: ({ autoupdate, basketId, model }, _event) =>
         !!autoupdate && !!basketId && model?.amount !== 0,
 
-      hasChanged: ({ basketId, currency, clientId, model }, { data }: any) => {
+      hasChanged: (
+        { basketId, currency, clientId, model, address },
+        { data }: any
+      ) => {
         const basketChanged = basketId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged =
           model.amount == (data?.unpaid_amount_converted || 0.0);
+        const addressChanged = address?.id != data?.address?.id;
 
         return (
-          basketChanged || currencyChanged || clientChanged || amountChanged
+          basketChanged ||
+          currencyChanged ||
+          clientChanged ||
+          amountChanged ||
+          addressChanged
         );
       },
     },

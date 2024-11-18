@@ -2,7 +2,7 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { RequestError } from "../..//api/types";
+// import type { RequestError } from "../..//api/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -10,51 +10,54 @@ import type { RequestError } from "../..//api/types";
 // --------------------------------------------------------
 // private
 
-interface IAddress {
-  id: string;
+export interface IAddress {
+  id?: string;
   // ---
-  place?: string | null; // used for place lookup
+  place?: string; // used for place lookup
   // ---
-  address_1: string | null;
-  address_2: string | null;
-  city: string | null;
-  postcode: string | null;
-  country_id: ICountry["id"];
-  country?: ICountry; // Requires relation
-  region_id?: IRegion["id"] | null;
-  state: string | null;
+  address_1?: string;
+  address_2?: string;
+  city?: string;
+  postcode?: string;
+  country_id?: string; //ICountry["id"];
+  country?: any; //ICountry; // Requires relation
+  region?: any; //IRegion; // Requires relation
+  region_id?: string; //IRegion["id"] ;
+  state?: string;
   // ---
-  type: number | null;
-  name: string | null;
-  default: boolean;
+  type?: number;
+  name?: string;
+  default?: boolean;
   // --- readonly/system data
-  can_delete: boolean;
-  client_id: IClient["id"];
-  created_at: string | null;
-  deleted_at: null;
-  updated_at: Date | string | null;
-  user_id: IUser["id"];
-  verified: number | null;
+  can_delete?: boolean;
+  client_id?: string; // IClient["id"];
+  created_at?: string;
+  deleted_at?: null;
+  updated_at?: Date | string;
+  user_id?: string; // IUser["id"];
+  verified?: number;
 }
 
-interface IAddressData {
-  address1: string | null;
-  address2: string | null;
-  city: string | null;
-  postcode: string | null;
-  countryId: ICountry["id"];
-  country?: ICountry; // Requires relation
-  regionId?: IRegion["id"] | null;
-  state: string | null;
+export interface IAddressData {
+  id?: string;
+  name?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  postcode?: string;
+  countryId?: string; //ICountry["id"];
+  country?: object; //ICountry; // Requires relation
+  regionId?: string; //IRegion["id"] ;
+  state?: string;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface AddressContext {
-  country?: ICountry[];
-  regions?: IRegion[];
-  types?: IAddressType[];
+  country?: any[]; //ICountry[];
+  regions?: any[]; //IRegion[];
+  types?: any[]; //IAddressType[];
   baseModel?: IAddressData;
 
   // ---
@@ -65,32 +68,32 @@ export interface AddressContext {
       search?: string;
       address?: string;
     };
-    results?: AddressAutocompleteResult[];
+    results?: any[]; //AddressAutocompleteResult[];
   };
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IAddressData;
   // ---
-  error?: RequestError;
+  error?: any;
 }
 
 export interface AddressesContext {
   items?: IAddress[];
   selected?: IAddress;
-  error?: RequestError;
+  error?: any;
 }
 // --------------------------------------------------------
 // Events
 
 export interface AddressEvent {
-  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
-  data: any;
-  error?: RequestError;
+  type?: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
+  data?: any;
+  error?: any;
 }
 
 export interface AddressesEvents {
-  type: "ADD" | "SELECT" | "REFRESH" | "STOP";
-  data: any;
-  error?: RequestError;
+  type?: "ADD" | "SELECT" | "REFRESH" | "STOP";
+  data?: any;
+  error?: any;
 }

@@ -5,8 +5,8 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import type { DomainTypes } from "@upmind/headless";
-import { useDomain as useUpmindDomain } from "@upmind/headless";
+import type { DomainTypes } from "@upmind-automation/headless";
+import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 
 // --- utils
 import { map, some, find, isArray, get, first, debounce } from "lodash-es";
@@ -16,7 +16,10 @@ import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useDomain: any = (
+/**
+ * @ignore
+ */
+export const useDomain = (
   {
     model,
     sync,
@@ -33,7 +36,7 @@ export const useDomain: any = (
     type: undefined,
     parentId: undefined,
   }
-) => {
+): any => {
   const domain = useUpmindDomain({ model, sync, type, parentId });
   const { state, send }: any = useActor(domain.service);
 

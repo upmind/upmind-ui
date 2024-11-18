@@ -606,7 +606,7 @@ const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
 export const parseModel = (raw: any): ProductModel => {
   // handle  product model
   return {
-    id: raw.id,
+    // id: raw.id,
     quantity: raw.quantity,
     productId: raw.productId,
     term: raw.term,

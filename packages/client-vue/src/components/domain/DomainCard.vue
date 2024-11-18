@@ -155,6 +155,7 @@
             :class="styles.domain.card.transfer.action"
             :disabled="meta.isDisabled || props.selected"
             :label="t('domain.card.transfer.action')"
+            :color="props.color"
             variant="link"
             @click="onUpdate(props.domain)"
             size="sm"
@@ -194,6 +195,7 @@
             :loading="meta.isProcessing && props.selected"
             :prepend-icon="props.selected ? 'check' : 'plus-circle'"
             :variant="props.selected ? 'flat' : 'outline'"
+            :color="props.color"
             @click="onUpdate(props.domain)"
             block
             size="sm"
@@ -207,6 +209,7 @@
             :loading="meta.isProcessing && props.selected"
             :prepend-icon="props.selected ? 'check' : 'transfer'"
             :variant="props.selected ? 'flat' : 'outline'"
+            :color="props.color"
             @click="onUpdate(props.domain)"
             block
             size="sm"
@@ -223,11 +226,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Badge, Button } from "@upmind/upwind";
+import { Icon, Badge, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -236,7 +239,9 @@ import { isNil } from "lodash-es";
 import type { DomainCardProps } from "./types";
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["update:selected"]);
-const props = defineProps<DomainCardProps>();
+const props = withDefaults(defineProps<DomainCardProps>(), {
+  color: "base",
+});
 
 // ---
 
