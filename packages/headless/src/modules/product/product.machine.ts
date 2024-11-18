@@ -711,7 +711,7 @@ export default createMachine(
           { data }: ProductConfigEvent
         ) => {
           if (!data?.price) return prices;
-          return { ...prices, options: data.price };
+          return { ...prices, term: data.price };
         },
       }),
 
