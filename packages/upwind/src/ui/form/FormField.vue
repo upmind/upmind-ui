@@ -14,6 +14,8 @@
         <FormLabel :formItemId="id">
           <slot name="label" :label="label">
             <span class="inline-flex items-center gap-x-1">
+              <slot name="icon" />
+
               <span>{{ label }}</span>
 
               <FormRequiredIndicator v-if="meta.isRequired" :formItemId="id" />
