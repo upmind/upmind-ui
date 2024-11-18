@@ -11,7 +11,7 @@ Please refer to the full API reference on `useSession` [here](./functions/useSes
 To use the useSession composable in your Vue components, simply import it:
 
 ```js
-import { useSession } from '@upmind/headless-vue';
+import { useSession } from "@upmind-automation/headless-vue";
 ```
 
 ### Setup in a Vue component
@@ -22,12 +22,20 @@ import { useSession } from '@upmind/headless-vue';
     <form @submit.prevent="handleSubmit">
       <div v-if="meta.showLoginForm">
         <input v-model="formData.username" placeholder="Username" />
-        <input v-model="formData.password" type="password" placeholder="Password" />
+        <input
+          v-model="formData.password"
+          type="password"
+          placeholder="Password"
+        />
       </div>
       <div v-if="meta.showRegisterForm">
         <input v-model="formData.username" placeholder="Username" />
         <input v-model="formData.email" type="email" placeholder="Email" />
-        <input v-model="formData.password" type="password" placeholder="Password" />
+        <input
+          v-model="formData.password"
+          type="password"
+          placeholder="Password"
+        />
       </div>
       <button type="submit">Submit</button>
     </form>
@@ -39,7 +47,7 @@ import { useSession } from '@upmind/headless-vue';
 
 <script setup>
   import { ref } from 'vue'
-  import { useSession } from '@upmind/headless-vue';
+  import { useSession } from '@upmind-automation/headless-vue';
 
   const { meta, resolve, reject } = useSession();
 
@@ -71,16 +79,16 @@ Please find a list of some common use cases that can be handled by the `useSessi
 ### Logging in a User
 
 ```js
-import { ref } from 'vue';
-import { useSession } from '@/composables/useSession';
+import { ref } from "vue";
+import { useSession } from "@/composables/useSession";
 
 export default {
   setup() {
     const { login } = useSession();
 
     const formData = ref({
-      username: 'testuser',
-      password: 'password123',
+      username: "testuser",
+      password: "password123",
     });
 
     // Perform login
@@ -92,14 +100,14 @@ export default {
 ### Handling 2FA Verification
 
 ```js
-import { ref } from 'vue';
-import { useSession } from '@/composables/useSession';
+import { ref } from "vue";
+import { useSession } from "@/composables/useSession";
 
 export default {
   setup() {
     const { verify2fa } = useSession();
 
-    const token = ref('');
+    const token = ref("");
 
     // Verify 2FA token
     verify2fa({ token: token.value });
@@ -117,7 +125,12 @@ export default {
       <h2>Login</h2>
       <form @submit.prevent="submitLogin">
         <input v-model="loginData.username" placeholder="Username" required />
-        <input v-model="loginData.password" type="password" placeholder="Password" required />
+        <input
+          v-model="loginData.password"
+          type="password"
+          placeholder="Password"
+          required
+        />
         <button type="submit">Login</button>
       </form>
     </div>
@@ -134,16 +147,16 @@ export default {
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useSession } from '@upmind/headless-vue';
+import { ref, watch } from "vue";
+import { useSession } from "@upmind-automation/headless-vue";
 
 const { login, verify2fa, meta } = useSession();
 
 const loginData = ref({
-  username: '',
-  password: ''
+  username: "",
+  password: "",
 });
-const twoFaToken = ref('');
+const twoFaToken = ref("");
 
 // Handle submit of the login form
 const submitLogin = () => {
@@ -157,7 +170,7 @@ const submit2fa = () => {
 </script>
 ```
 
-You'll notice that `meta.show2fa` will be automatically updated at the right time (after the user tries to login in). This is `@upmind/headless-vue` doing the heavy lifting for a smooth developer experience.
+You'll notice that `meta.show2fa` will be automatically updated at the right time (after the user tries to login in). This is `@upmind-automation/headless-vue` doing the heavy lifting for a smooth developer experience.
 
 ### Handling Errors
 
@@ -177,18 +190,18 @@ You can check for validation errors by observing the `errors` property:
 
 The `meta` object contains various reactive properties that provide useful information about the current session state. Below is a list of available options:
 
-| Property            | Type      | Description |
-|---------------------|-----------|-------------|
-| `isLoading`         | `Boolean` | Indicates if the session or any child machines (guest/client) are in a loading state.|
-| `isProcessing`      | `Boolean` | Indicates if the session is in a processing state (e.g., during login or registration).|
-| `isAuthenticated`   | `Boolean` | Indicates if the user is authenticated (client state).|
-| `isTransferring`    | `Boolean` | Indicates if the client session is in the process of transferring data.|
-| `hasExpired`        | `Boolean` | Indicates if the session has expired.|
-| `showReCaptcha`     | `Boolean` | Indicates if a ReCaptcha challenge is required (e.g., during registration).|
-| `showLoginForm`     | `Boolean` | Indicates if the login form should be displayed.|
-| `show2fa`           | `Boolean` | Indicates if the 2FA (Two-Factor Authentication) challenge is required during login.|
-| `showRegisterForm`  | `Boolean` | Indicates if the registration form should be displayed.|
-| `canShowForms`      | `Boolean` | Indicates if any forms (login or register) can be shown.|
+| Property           | Type      | Description                                                                             |
+| ------------------ | --------- | --------------------------------------------------------------------------------------- |
+| `isLoading`        | `Boolean` | Indicates if the session or any child machines (guest/client) are in a loading state.   |
+| `isProcessing`     | `Boolean` | Indicates if the session is in a processing state (e.g., during login or registration). |
+| `isAuthenticated`  | `Boolean` | Indicates if the user is authenticated (client state).                                  |
+| `isTransferring`   | `Boolean` | Indicates if the client session is in the process of transferring data.                 |
+| `hasExpired`       | `Boolean` | Indicates if the session has expired.                                                   |
+| `showReCaptcha`    | `Boolean` | Indicates if a ReCaptcha challenge is required (e.g., during registration).             |
+| `showLoginForm`    | `Boolean` | Indicates if the login form should be displayed.                                        |
+| `show2fa`          | `Boolean` | Indicates if the 2FA (Two-Factor Authentication) challenge is required during login.    |
+| `showRegisterForm` | `Boolean` | Indicates if the registration form should be displayed.                                 |
+| `canShowForms`     | `Boolean` | Indicates if any forms (login or register) can be shown.                                |
 
 These properties can be used to conditionally render forms and/or loading indicators based on the session state.
 
@@ -214,9 +227,9 @@ Here's a simple example on how to use them:
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { JsonForms } from '@jsonforms/vue';
-import { useSession } from '@upmind/headless-vue';
+import { ref, computed } from "vue";
+import { JsonForms } from "@jsonforms/vue";
+import { useSession } from "@upmind-automation/headless-vue";
 
 const { meta, schema, uischema, resolve, errors } = useSession();
 
@@ -226,7 +239,7 @@ const formData = ref({});
 const submitForm = () => {
   resolve(formData.value);
   if (errors.value) {
-    console.error('Form errors:', errors.value);
+    console.error("Form errors:", errors.value);
   }
 };
 
@@ -244,18 +257,18 @@ In the example above, we're using JSON Forms Vue Integration, please refer to th
 You can provide an inspector function to log session state changes, useful for debugging.
 
 ```js
-import { useSession } from '@/composables/useSession';
+import { useSession } from "@/composables/useSession";
 
 export default {
   setup() {
-    const inspector = (info) => {
+    const inspector = info => {
       console.log("Session Info:", info);
     };
 
     const { login } = useSession(inspector);
 
     // Log session state changes and perform login
-    login({ username: 'testuser', password: 'password123' });
+    login({ username: "testuser", password: "password123" });
   },
 };
 ```

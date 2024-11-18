@@ -70,10 +70,9 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { NumberField } from "@upmind/upwind";
 
 // --- components
-import { Icon, Tooltip, Badge } from "@upmind/upwind";
+import { Badge, NumberField } from "@upmind-automation/upwind";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
 
 // --- types
