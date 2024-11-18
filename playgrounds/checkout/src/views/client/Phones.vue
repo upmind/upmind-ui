@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmClientListings } from "@upmind/client-vue";
+import { UpmClientListings } from "@upmind-automation/client-vue";
 
 const { t } = useI18n();
 </script>
