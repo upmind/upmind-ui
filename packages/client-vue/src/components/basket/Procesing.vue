@@ -1,160 +1,99 @@
 <template>
-  <upw-dialog
-    size="xl"
-    :model-value="modelValue"
-    no-actions
+  <component
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
+    to="#vue-app"
+    fit="cover"
+    no-close
+    no-header
     persistent
-    skrim="light"
   >
+    <template #header>
+      <div />
+    </template>
+
     <section :class="styles.basket.processing.root">
-      <upw-avatar
-        :avatar="avatar"
-        :class="styles.basket.processing.avatar"
-        :loading="true"
-      />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
       <h3 :class="styles.basket.processing.title">
-        {{ title }}
+        <slot name="title">{{ title }}</slot>
       </h3>
 
-      <p :class="styles.basket.processing.text">{{ text }}</p>
+      <p :class="styles.basket.processing.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.basket.processing.actions">
-        <upw-button
+        <Button
           v-if="hasAction"
           v-bind="action"
-          block
-          variant="ghost"
           @click.stop="doAction"
-          :loading="processing"
-        />
+          :processing="processing"
+        >
+          <template #prepend>
+            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+          </template>
+        </Button>
       </footer>
     </section>
-  </upw-dialog>
+  </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upwind";
 
-// ---utils
-import { isEmpty } from "lodash-es";
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
+
 // --- types
-
+import type { BasketModalProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmBasketProcessing",
-  components: {
-    UpwDialog,
-    UpwAvatar,
-    UpwButton,
-  },
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
-    const { meta, invoice } = useBasket();
-    const styles = useStyles(["basket.processing"], meta, config);
 
-    // ---
-
-    return {
-      meta,
-      invoice,
-      processing: ref(false),
-      // ---
-      styles,
-      mergeStyles,
-    };
-  },
-  computed: {
-    title() {
-      if (this.meta.needsApproval) {
-        return this.$t("basket.processing.approval.title");
-      }
-
-      if (this.meta.isConverting) {
-        return this.$t("basket.processing.converting.title");
-      }
-
-      if (this.meta.isPaying) {
-        return this.$t("basket.processing.paying.title");
-      }
-
-      if (this.meta.isCheckout) {
-        return this.$t("basket.processing.default.title");
-      }
-
-      return this.$t("basket.processing.invalid.title");
-    },
-
-    text() {
-      if (this.meta.needsApproval) {
-        return this.$t("basket.processing.approval.text");
-      }
-
-      if (this.meta.isConverting) {
-        return this.$t("basket.processing.converting.text");
-      }
-
-      if (this.meta.isPaying) {
-        return this.$t("basket.processing.paying.text");
-      }
-
-      if (this.meta.isCheckout) {
-        return this.$t("basket.processing.default.text");
-      }
-
-      return this.$t("basket.processing.invalid.text");
-    },
-
-    avatar() {
-      if (this.meta.needsApproval) {
-        return this.$tm("basket.processing.approval.avatar");
-      }
-
-      if (this.meta.isConverting) {
-        return this.$tm("basket.processing.converting.avatar");
-      }
-
-      if (this.meta.isPaying) {
-        return this.$tm("basket.processing.paying.avatar");
-      }
-
-      if (this.meta.isCheckout) {
-        return this.$tm("basket.processing.default.avatar");
-      }
-
-      return this.$tm("basket.processing.invalid.avatar");
-    },
-
-    action() {
-      return this.$tm("basket.processing.invalid.actions.complete");
-    },
-
-    hasAction() {
-      return !isEmpty(this.action);
-    },
-
-    storefrontUrl() {
-      return import.meta.env.VITE_APP_UPMIND_STOREFRONT;
-    },
-  },
-
-  methods: {
-    doAction() {},
+const props = withDefaults(defineProps<BasketModalProps>(), {
+  open: true,
+  modal: false,
+  skrim: "primary",
+  size: "2xl",
+  animatedIcon: {
+    icon: "tapping-card",
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+    size: "4xl",
   },
 });
+
+const { meta } = useBasket();
+
+const styles = useStyles(["basket.processing"], meta, config);
+
+const processing = ref(false);
+const isOpen = computed(() => meta.value.isProcessing || props.open);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+async function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    await props.action.handler();
+    processing.value = false;
+  }
+}
 </script>
-.

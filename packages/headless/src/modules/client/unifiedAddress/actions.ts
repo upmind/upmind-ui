@@ -19,7 +19,8 @@ export const ListingActions = {
       _context: ClientListingsContext,
       { data }: ClientListingsEvents
     ) => {
-      return spawnItem(data); // spawn an actor for the new raw
+      const item = spawnItem(data); // spawn an actor for the new raw
+      return item;
     },
   }),
   setItems: assign({
@@ -73,10 +74,7 @@ export const ItemActions = {
   }),
 
   setModel: assign({
-    model: (
-      // TODO: { schema, baseModel }: UnifiedAddressContext,
-      { schema, baseModel }: any,
-      { data }: UnifiedAddressEvent
-    ) => useModelParser(schema, data, baseModel),
+    model: ({ schema, baseModel }: any, { data }: UnifiedAddressEvent) =>
+      useModelParser(schema, data, baseModel),
   }),
 };

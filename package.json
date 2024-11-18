@@ -31,8 +31,6 @@
   "scripts": {
     "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo}",
     "start": "npm run start --workspaces --if-present",
-    "start:labs": "npm run dev --workspace=playgrounds/labs",
-    "start:checkout": "npm run dev --workspace=playgrounds/checkout",
     "start:storybook": "npm run storybook --workspace=playgrounds/storybook",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
@@ -60,14 +58,16 @@
     "vite-plugin-dts": "^3.5.3"
   },
   "workspaces": [
+    "docs",
+    "packages/client-vue",
     "packages/headless",
     "packages/headless-vue",
-    "packages/upwind",
-    "packages/client-vue",
     "packages/types",
-    "playgrounds/labs",
-    "playgrounds/checkout",
+    "packages/upwind",
     "playgrounds/storybook",
-    "docs"
+    "playgrounds/storybook-ce",
+    "playgrounds/checkout",
+    "playgrounds/velia",
+    "playgrounds/webcentral"
   ]
 }

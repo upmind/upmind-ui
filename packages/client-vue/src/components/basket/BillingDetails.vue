@@ -1,40 +1,47 @@
 <template>
-  <section :class="styles.client.root">
+  <section :class="styles.client.root" v-auto-animate>
     <header :class="styles.client.header">
       <slot name="header" v-bind="{ meta }"></slot>
     </header>
 
-    <upw-skeleton-list
-      :class="styles.client.loading"
-      v-if="
-        meta.isLoading || (meta.isAdding && !meta.isEmpty) || meta.isEditing
-      "
-    />
-
+    <SkeletonList :class="styles.client.loading" v-if="meta.isLoading" />
     <!-- If we dont have any default or selected :- render a form for a new address -->
-    <upm-item
-      v-if="
-        !meta.isLoading && (meta.isAdding || meta.isEditing) && !activeDialog
-      "
-      i18nKey="unified"
+    <Item
+      v-else-if="(meta.isAdding || meta.isEditing) && !open"
       :model-value="selected"
-      :dialog="!meta.isEmpty"
-      :autosave="meta.isEmpty"
+      :modal="meta.isEditing"
+      :key="selected?.id"
+      :color="color"
+      i18nKey="unified"
+      open
     />
 
     <!-- otherwise show the default address as a card -->
     <div :class="styles.client.content" v-else-if="selected">
       <h5 :class="styles.client.title">
-        {{ $t("client.title") }}
-        <upw-button
-          variant="link"
-          :label="$t('client.actions.change')"
-          size="sm"
-          @click="onChange"
-        />
+        {{ t("client.title") }}
+
+        <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
+
+        <!-- <span :class="styles.client.actions">
+          <Button
+            :key="selected?.id"
+            variant="tonal"
+            :label="t('client.actions.convert')"
+            size="xs"
+            @click="onEdit"
+            v-if="!selected?.state?.value?.context?.model?.company_details"
+          />
+          <Button
+            variant="tonal"
+            :label="t('client.actions.change')"
+            size="xs"
+            @click="onChange"
+          />
+        </span> -->
       </h5>
 
-      <upm-card
+      <Card
         i18nKey="unified"
         :model-value="selected"
         selected
@@ -44,24 +51,25 @@
       />
 
       <div :class="styles.client.actions">
-        <upw-button
+        <!-- <Button
           :key="selected?.id"
-          variant="link"
-          :label="$t('client.actions.convert')"
-          size="sm"
+          variant="tonal"
+          :label="t('client.actions.convert')"
+          size="xs"
           @click="onEdit"
           v-if="!selected?.state?.value?.context?.model?.company_details"
-        />
+        /> -->
       </div>
     </div>
 
-    <upm-listings
-      v-model="activeDialog"
+    <Listings
+      :open="open"
       type="unified"
       i18nKey="unified"
-      dialog
+      modal
       no-filter
-      @update:modelValue="onClose"
+      @update:open="onClose"
+      :color="color"
     />
 
     <footer :class="styles.client.footer">
@@ -73,6 +81,8 @@
 <script>
 // --- external
 import { defineComponent, provide, ref } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
@@ -83,36 +93,41 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "../client/config.cva";
 
 // --- components
-import UpmItem from "../Client/Item.vue";
-import UpmCard from "../Client/Card.vue";
-import UpmListings from "../Client/Listings.vue";
-import { UpwSkeletonList, UpwButton } from "@upmind-automation/upwind";
+import Item from "../Client/Item.vue";
+import Card from "../Client/Card.vue";
+import Listings from "../Client/Listings.vue";
+import { SkeletonList, Button, DropdownMenu } from "@upmind-automation/upwind";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmClient",
+  name: "Client",
+  directives: { autoAnimate: vAutoAnimate },
   components: {
-    UpwSkeletonList,
-    UpwButton,
+    SkeletonList,
+    Button,
+    DropdownMenu,
     // ---
-    UpmItem,
-    UpmCard,
-    UpmListings,
+    Item,
+    Card,
+    Listings,
   },
   emits: ["update:modelValue"],
   props: {
     i18nKey: { type: String },
     modelValue: { type: Object },
+    color: { type: String, default: "base" },
   },
   setup() {
+    const { t } = useI18n();
     const client = useClientUnifiedAddresses();
     const styles = useStyles(["client"], client.meta, config);
     // ---
 
-    const { select, selected, getSelected, addresses, add, meta } = client;
+    const { select, selected, getSelected, addresses, add, meta, state } =
+      client;
 
     // Provide the client to the form/card components
     provide("client", useClientUnifiedAddress);
@@ -126,53 +141,72 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       add,
       selected,
       select,
       useClientUnifiedAddress,
       meta,
+      state,
       styles,
       addresses,
       // ---
-      activeDialog: ref(false),
+      open: ref(false),
     };
   },
 
+  computed: {
+    actions() {
+      return [
+        // {
+        //   label: this.t(
+        //     "client.actions.edit",
+        //     this.selected?.state?.value?.context?.model?.company_details ? 0 : 1
+        //   ),
+        //   handler: () => this.onEdit(),
+        // },
+        {
+          label: this.t("client.actions.convert"),
+          handler: () => this.onEdit(true),
+          hidden: this.selected?.state?.value?.context?.model?.company_details,
+        },
+        {
+          label: this.t("client.actions.change"),
+          handler: () => this.onChange(),
+        },
+      ];
+    },
+  },
   methods: {
     onChange() {
-      this.activeDialog = true;
+      this.open = true;
     },
-    onEdit() {
+    onEdit(company_details = false) {
       const client = this.useClientUnifiedAddress(this.selected);
       const model = client.model.value;
       client.edit();
       // force the company details to be shown
-      client.input({ ...model, company_details: true });
+      client.input({ ...model, company_details });
     },
-    onClose() {
-      this.activeDialog = false;
+    onClose(value) {
+      this.open = value;
     },
   },
 
   watch: {
-    modelValue: {
-      immediate: true,
-      handler(model) {
-        if (isEmpty(model)) return;
-        const id = model?.company_id || model?.address_id;
-        this.select(id);
-      },
+    modelValue(model, oldModel) {
+      const id = model?.company_id || model?.address_id;
+      const oldId = oldModel?.company_id || oldModel?.address_id;
+
+      if (id && id != oldId) this.select(id);
     },
-    selected: {
-      immediate: true,
-      handler(value, oldValue) {
-        if (value?.id === oldValue?.id) return;
+    selected(value, oldValue) {
+      if (value?.id === oldValue?.id) return;
 
-        const model = get(value?.state?.value, "context.model", {});
-        if (isEmpty(model)) return;
+      const model = get(value?.state?.value, "context.model", {});
+      if (isEmpty(model)) return;
 
-        this.$emit("update:modelValue", model);
-      },
+      this.$emit("update:modelValue", model);
     },
   },
 });

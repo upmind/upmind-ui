@@ -1,109 +1,99 @@
 <template>
   <component
-    v-if="modal || (!modal && expired)"
-    :is="modal ? 'upw-dialog' : 'div'"
-    size="xl"
-    :model-value="expired"
-    no-actions
+    v-if="(modal && isOpen) || !modal"
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
+    fit="cover"
+    :to="modal ? 'main' : ''"
+    no-close
+    no-header
     persistent
-    skrim="light"
   >
-    <section :class="styles.session.expired.root">
-      <upw-avatar :avatar="avatar" :class="styles.session.expired.avatar" />
+    <template #header>
+      <div />
+    </template>
 
-      <h3 :class="styles.session.expired.title">
-        {{ title }}
-      </h3>
+    <section :class="styles.session.expired.root">
+      <Avatar v-bind="avatar" />
+
+      <h3 :class="styles.session.expired.title">{{ title }}</h3>
 
       <p :class="styles.session.expired.text">{{ text }}</p>
 
       <footer>
-        <upw-button
-          v-if="action"
+        <Button
+          v-if="hasAction"
           v-bind="action"
-          block
-          variant="ghost"
-          :href="$route.fullPath"
+          @click.stop="doAction"
+          :loading="processing"
         />
       </footer>
     </section>
   </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
+import { Avatar, Dialog, Button } from "@upmind-automation/upwind";
+
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
-
+import type { SessionExpiredProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmSessionExpired",
-  components: {
-    UpwDialog,
-    UpwAvatar,
-    UpwButton,
-  },
-  props: {
-    modal: {
-      type: Boolean,
-      default: true,
-    },
-    auto: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
-    const { meta } = useSession();
 
-    const styles = useStyles(["session.expired"], meta, config);
+const props = withDefaults(defineProps<SessionExpiredProps>(), {
+  modal: true,
+  skrim: "primary",
+  size: "2xl",
+  avatar: () => ({
+    size: "lg",
+    shape: "circle",
+    color: "primary",
+    icon: "basket",
+    fit: "contain",
+  }),
+  action: () => ({
+    label: "Reload",
+    color: "base",
+    handler: () => window.location.reload(),
+    auto: false,
+  }),
+});
 
-    if (props.auto) {
-      watch(meta, () => {
-        if (meta.value.hasExpired) {
-          window.location.reload();
-        }
-      });
-    }
-    // ---
+const { meta } = useSession();
 
-    return {
-      meta,
-      expired: computed(() => {
-        const value = meta.value.hasExpired;
-        return value && !props.auto;
-      }),
+const styles = useStyles(["session.expired"], meta, config);
 
-      // ---
-      styles,
-      mergeStyles,
-    };
-  },
-  computed: {
-    title() {
-      return this.$t("session.expired.title");
-    },
+const processing = ref(false);
+const isOpen = computed(() => meta.value.hasExpired && !props.action?.auto);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
 
-    text() {
-      return this.$t("session.expired.text");
-    },
+async function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    await props.action.handler();
+    processing.value = false;
+  }
+}
 
-    avatar() {
-      return this.$tm("session.expired.avatar");
-    },
-    action() {
-      return this.$tm("session.expired.actions.continue");
-    },
-  },
+watch(meta, ({ hasExpired }) => {
+  if (props.action?.auto && hasExpired) doAction();
 });
 </script>
-.

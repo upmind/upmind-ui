@@ -8,23 +8,13 @@ export default {
     loading: cva(""),
     footer: cva(""),
     title: cva("flex items-center justify-between gap-4"),
-    content: cva(" flex flex-col gap-4 rounded-lg border p-4"),
-    actions: cva(""),
+    content: cva("flex flex-col gap-4 rounded-lg"),
+    actions: cva("flex gap-2"),
   },
   clientListings: {
-    root: cva("w-full", {
-      variants: {
-        dialog: {
-          false: "flex flex-col gap-4",
-        },
-      },
-      defaultVariants: {
-        dialog: false,
-      },
-    }),
-    header: cva(""),
-    footer: cva(""),
-    items: cva("grid gap-4", {
+    root: cva("bg-base w-full"),
+    footer: cva("flex-row items-center justify-between gap-x-4"),
+    items: cva("grid gap-4 p-1", {
       variants: {
         cols: {
           full: "grid-cols-1",
@@ -43,7 +33,9 @@ export default {
     actions: cva(""),
   },
   clientForm: {
-    root: cva("w-full max-w-xl", {
+    root: cva("bg-base w-full"),
+    footer: cva("flex-row items-center justify-between gap-x-4"),
+    content: cva("bg-base mx-auto w-full py-8", {
       variants: {
         hasErrors: {
           true: "border-error",
@@ -63,7 +55,7 @@ export default {
           },
 
           isEditing: {
-            true: "bg-base-200",
+            true: "bg-base-muted",
           },
           isHidden: {
             true: "pointer-events-none hidden opacity-50",
@@ -99,7 +91,7 @@ export default {
     icon: cva("size-4"),
     avatar: cva("size-6 overflow-hidden rounded-full border "),
     title: cva(
-      "text-md text-base-content m-0 inline-flex gap-1 font-normal leading-none"
+      "text-md text-base-foreground m-0 inline-flex gap-1 font-normal leading-none"
     ),
     text: cva("leading-tight "),
     verified: cva("", {
@@ -115,7 +107,7 @@ export default {
   },
   clientEmpty: {
     root: cva(
-      "bg-base-100 flex flex-col items-center justify-center gap-4 rounded-lg p-4"
+      "bg-base-muted flex flex-col items-center justify-center gap-4 rounded-lg p-4"
     ),
     title: cva("m-0 text-inherit"),
     text: cva("text-base-700 m-0 text-center"),

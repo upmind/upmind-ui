@@ -3,7 +3,8 @@ import { useSystem } from "../system";
 import { TrialEndActionTypes } from "./services";
 
 // --- utils
-import { useTranslateName } from "../../utils";
+import { useTranslateName, useTranslateField } from "../../utils";
+import { parseProductSummary } from "../basket/utils";
 import {
   find,
   forEach,
@@ -25,6 +26,7 @@ import {
   some,
   toNumber,
   values,
+  includes,
 } from "lodash-es";
 
 // --- types
@@ -90,6 +92,7 @@ export const parseProduct = (
     "max_order_quantity",
     // ---
     "provision_blueprint_id",
+    "default_payment_period",
   ]);
 
   // ---
@@ -182,12 +185,22 @@ export const parseSubproduct = (
         pick(rawSubproduct.category, [
           "id",
           "name",
+          "description",
+          "short_description",
           "multiple",
           "required",
           "price_override",
         ])
       );
       option.name = useTranslateName(rawSubproduct.category);
+      option.description = useTranslateField(
+        rawSubproduct.category,
+        "description"
+      );
+      option.short_description = useTranslateField(
+        rawSubproduct.category,
+        "short_description"
+      );
       // get the prev values...if there are any
       const values = get(option, "values", []);
 
@@ -203,6 +216,11 @@ export const parseSubproduct = (
         "min_order_quantity",
       ]);
       value.name = useTranslateName(rawSubproduct);
+      value.description = useTranslateField(rawSubproduct, "description");
+      value.short_description = useTranslateField(
+        rawSubproduct,
+        "short_description"
+      );
       value.canChangeQuantity = rawSubproduct.order_type == 2;
 
       // get the prices for this subproduct
@@ -279,13 +297,18 @@ export const parsePromotion = (
     return map(data.promotions, rawPromo => {
       const promo: any = pick(rawPromo, ["amount", "amount_formatted", "code"]);
       promo.name = useTranslateName(rawPromo);
+      promo.description = useTranslateField(rawPromo, "description");
+      promo.short_description = useTranslateField(
+        rawPromo,
+        "short_description"
+      );
       promo.display = promotion_display_type;
       promo.mixed = data.mixed_promotions;
       return promo;
     });
   } else {
     const saving =
-      ((data.price - (data.price_discounted || data.price)) / data.price) * 100;
+      ((data.price - (data.price_discounted ?? data.price)) / data.price) * 100;
     const saving_formatted = `${Math.round(saving)}%`;
 
     return [
@@ -310,10 +333,14 @@ export const parseProvisioningSchema = (data: any) => {
   const properties = {};
   forEach(data, field => {
     let type = ["string"];
-    let format = field?.semantic_type;
+    let format = null; //field?.format; // || field?.semantic_type;
 
+    const fieldType = field?.semantic_type || field?.field_type || field?.type;
     // lets map our field types...
-    switch (field.type) {
+    switch (fieldType) {
+      case "select":
+        type = ["string", "number"];
+        break;
       case "input_number":
         type = ["number"];
         break;
@@ -337,8 +364,11 @@ export const parseProvisioningSchema = (data: any) => {
         format = "uri";
         break;
       case "input_phone":
+      case "input_tel":
         type = ["string"];
-        format = "phone";
+        // format = "phone";
+        // todo ad dthe default country code
+        // isPhoneNumber = defaultCountry?.code;
         break;
       case "input_ip":
         type = ["string"];
@@ -348,9 +378,18 @@ export const parseProvisioningSchema = (data: any) => {
         type = ["string"];
         format = "ipv6";
         break;
+      case "domain_name":
+        type = ["string"];
+        format = "domain_name";
+        break;
 
       default:
         type = ["string"];
+
+        // additional format checks
+        if (includes(field.validation_rules, "email")) format = "email";
+        if (includes(field.validation_rules, "url")) format = "uri";
+
         break;
     }
 
@@ -366,7 +405,7 @@ export const parseProvisioningSchema = (data: any) => {
         format,
         title: field.field_label,
         description: field.description,
-        default: field.default,
+        default: field?.default || field?.default_value,
         enum: !some(field.options, isString) ? undefined : field.options,
         oneOf: !some(field.options, isObject)
           ? undefined
@@ -399,35 +438,25 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   // an d allow for easy i18n
   const details = [];
 
+  //  product category
+  details.push({
+    key: "category",
+    name: lookups.product.category,
+    category: undefined,
+    cycle: undefined,
+    quantity: undefined,
+    discount: undefined,
+    discount_formatted: undefined,
+    total: undefined,
+    total_formatted: undefined,
+    invalid: false,
+  });
+
+  //  product meta
+
   // term
-  const term = find(lookups.terms, [
-    "billing_cycle_months",
-    model?.term?.billing_cycle_months,
-  ]);
-
-  if (term) {
-    // NB: only show term pricing if recurring!
-    details.push({
-      key: "term",
-      category: "Billing Cycle",
-      name: term.billing_cycle_name,
-      cycle: term.billing_cycle_months,
-      quantity: model.quantity,
-      discount: term.price_discounted,
-      total: term.price,
-      formatted: term.price_formatted,
-      invalid: !isEmpty(error?.term),
-    });
-  }
-
-  // attributes
-  const attributes = parseSummarySubproduct(
-    "attribute",
-    model.attributes,
-    lookups.attributes,
-    error?.attributes
-  );
-  details.push(...attributes);
+  const term = parseTermSummary(model.term, lookups.terms, error?.term);
+  if (!isEmpty(term)) details.push(term);
 
   // options
   const options = parseSummarySubproduct(
@@ -438,31 +467,52 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   );
   details.push(...options);
 
-  // provision fields
-  reduce(
-    lookups.provision_fields?.properties,
-    (result, provisionField, key) => {
-      result.push({
-        key: `provision_field.${key}`,
-        category: get(provisionField, "title", key),
-        name: get(model.provision_fields, key),
-        invalid: some(error?.provision_fields?.data, ["schemaPath", key]),
-        cycle: undefined,
-        quantity: undefined,
-        discount: undefined,
-        total: undefined,
-        formatted: undefined,
-      });
-
-      return result;
-    },
-    details
+  // attributes
+  const attributes = parseSummarySubproduct(
+    "attribute",
+    model.attributes,
+    lookups.attributes,
+    error?.attributes
   );
+  details.push(...attributes);
+
+  // provision fields
+  const provision_fields = parseProvisionFieldsSummary(
+    model.provision_fields,
+    lookups.provision_fields,
+    error?.provision_fields
+  );
+  if (!isEmpty(provision_fields)) details.push(...provision_fields);
 
   return { ...summary, details };
 };
 
-export const parseSummarySubproduct = (
+const parseTermSummary = (data: any, terms: any, error?: any) => {
+  const term = find(terms, [
+    "billing_cycle_months",
+    data?.billing_cycle_months,
+  ]);
+
+  if (term) {
+    // NB: only show term pricing if recurring!
+    return {
+      key: "term",
+      category: "Billing Cycle",
+      name: term.billing_cycle_name,
+      cycle: term.billing_cycle_months,
+      quantity: data?.quantity,
+      discount: term.price_discounted,
+      discount_formatted: term.price_discounted_formatted,
+      total: term.price,
+      total_formatted: term.price_formatted,
+      invalid: !isEmpty(error),
+    };
+  }
+
+  return null;
+};
+
+const parseSummarySubproduct = (
   key: string,
   data: any,
   lookup: Array<any>,
@@ -486,8 +536,10 @@ export const parseSummarySubproduct = (
                 name: subproduct.name,
                 cycle: subproduct?.billing_cycle_months,
                 discount: subproduct?.price?.price_discounted,
+                discount_formatted:
+                  subproduct?.price?.price_discounted_formatted,
                 total: subproduct?.price?.price,
-                formatted: subproduct?.price?.price_formatted,
+                total_formatted: subproduct?.price?.price_formatted,
                 invalid: has(error, `${key}.${id}`),
               });
             }
@@ -504,6 +556,47 @@ export const parseSummarySubproduct = (
   );
 };
 
+const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
+  return reduce(
+    schema?.properties,
+    (result: any[], provisionField, key) => {
+      let name = get(data, key);
+
+      if (provisionField.oneOf) {
+        name = find(provisionField.oneOf, ["const", name])?.title;
+      }
+
+      result.push({
+        key: `provision_field.${key}`,
+        category: get(provisionField, "title", key),
+        name,
+        invalid: some(error, ["data.schemaPath", key]),
+        cycle: undefined,
+        quantity: undefined,
+        discount: undefined,
+        discount_formatted: undefined,
+        total: undefined,
+        total_formatted: undefined,
+      });
+
+      return result;
+    },
+    [] as any[]
+  );
+};
+
+export const parseBasketProductSummary = (basket_product: any) => {
+  const summary = parseProductSummary(basket_product);
+  return {
+    discount: summary?.discount,
+    discount_formatted: summary?.discount_formatted,
+    subtotal: summary?.subtotal,
+    subtotal_formatted: summary?.subtotal_formatted,
+    total: summary?.total,
+    total_formatted: summary?.total_formatted,
+  };
+};
+
 // --------------------------------------------------------
 //  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
@@ -518,6 +611,7 @@ export const parseModel = (data: any): IProductModel => {
     "attributes",
     "options",
     "provision_fields",
+    "sub_pids",
   ]);
 };
 

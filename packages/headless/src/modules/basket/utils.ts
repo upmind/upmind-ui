@@ -31,9 +31,18 @@ import type { IBasket } from "./types";
 // --------------------------------------------------------
 
 // utility function to spawn machines based on the given items
-export function spawnProductConfiguration(data: any, basket: IBasket) {
+export function spawnProductConfiguration(
+  data: any,
+  basket: IBasket,
+  errorExternal?: any
+) {
   const id = data?.id || uniqueId("product-");
   const isBasketProduct = data?.id ? true : false;
+
+  // lets merge the promotions from the basket and the product
+  const basketPromotions = map(basket?.promotions, "promocode");
+  const productPromotions = data?.promotions || [];
+  const promotions = uniq(compact([...basketPromotions, ...productPromotions]));
 
   const item = spawn(
     productMachine.withContext({
@@ -41,7 +50,8 @@ export function spawnProductConfiguration(data: any, basket: IBasket) {
       basket_id: basket?.id,
       [isBasketProduct ? "basket_product" : "model"]: data,
       currency_id: basket?.currency_id,
-      promotions: basket?.promotions,
+      promotions,
+      errorExternal,
     }),
     {
       name: id,
@@ -95,6 +105,7 @@ export function spawnPaymentDetails(basket: IBasket) {
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
       },
+      address: basket?.address,
     }),
     { name: "paymentDetails", sync: true }
   );
@@ -121,34 +132,36 @@ export const parseBasket = (data: any) => {
 };
 
 // ---
+export const parseProductSummary = (product: any) => {
+  return {
+    id: product?.id,
+    name: product?.product_name,
+    service_identifier: product?.service_identifier,
+    quantity: product?.quantity,
+    discount_formatted: product?.configuration_total_discount_amount_formatted,
+    discount: product?.configuration_total_discount_amount_converted,
+    subtotal_formatted: product?.configuration_net_amount_formatted,
+    subtotal: product?.configuration_net_amount,
+    total: product?.configuration_net_amount_discounted,
+    total_formatted: product?.configuration_net_amount_discounted_formatted,
+    products: [
+      // todo  add non quantifiable otions here
+      // id: product?.id,
+      // name: product?.product_name,
+      // service_identifier: product?.service_identifier,
+      // quantity: product?.quantity,
+      // discount: product?.configuration_total_discount_amount_converted
+      //   ? product?.configuration_total_discount_amount_formatted
+      //   : null,
+      // subtotal: product?.configuration_net_amount_formatted,
+      // total: product?.configuration_net_amount_discounted_formatted,
+    ],
+  };
+};
 
 export const parseSummary = (data?: any) => {
   const summary = {
-    products: map(get(data, "products"), product => {
-      return {
-        id: product?.id,
-        name: product?.product_name,
-        service_identifier: product?.service_identifier,
-        quantity: product?.quantity,
-        discount: product?.configuration_total_discount_amount_converted
-          ? product?.configuration_total_discount_amount_formatted
-          : null,
-        subtotal: product?.configuration_net_amount_formatted,
-        total: product?.configuration_net_amount_discounted_formatted,
-        products: [
-          // todo  add non quantifiable otions here
-          // id: product?.id,
-          // name: product?.product_name,
-          // service_identifier: product?.service_identifier,
-          // quantity: product?.quantity,
-          // discount: product?.configuration_total_discount_amount_converted
-          //   ? product?.configuration_total_discount_amount_formatted
-          //   : null,
-          // subtotal: product?.configuration_net_amount_formatted,
-          // total: product?.configuration_net_amount_discounted_formatted,
-        ],
-      };
-    }),
+    products: map(get(data, "products"), parseProductSummary),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
@@ -220,11 +233,7 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
   };
 };
 
-export const parseBasketProvisioningErrors = (
-  error: any,
-  item: any,
-  index: any
-) => {
+export const parseBasketProvisioningErrors = (error: any, index: any) => {
   // now pass any provisioning errors to the item
   if (error) {
     const errors = get(
@@ -232,16 +241,31 @@ export const parseBasketProvisioningErrors = (
       `data.products.${index}.provision_field_values`,
       []
     );
+
+    let parsedError = undefined;
+
     if (!isEmpty(errors)) {
-      const parsedError = {
+      parsedError = {
         provision_fields: useValidationParser({
           data: errors,
         }),
       };
-
-      waitFor(item, state => state.matches("available")).then(() => {
-        item.send({ type: "ERROR", data: { error: parsedError } });
-      });
     }
+
+    return parsedError;
+  }
+};
+
+export const forwardBasketProvisioningErrors = (
+  error: any,
+  item: any,
+  index: any
+) => {
+  // now pass any provisioning errors to the item
+  const parsedError = parseBasketProvisioningErrors(error, index);
+  if (parsedError && !isEmpty(parsedError)) {
+    waitFor(item, state => state.matches("available")).then(() => {
+      item.send({ type: "ERROR", data: { error: parsedError } });
+    });
   }
 };

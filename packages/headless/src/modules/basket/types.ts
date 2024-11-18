@@ -1,5 +1,5 @@
 // --- extrnal
-
+import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 
@@ -102,26 +102,22 @@ export interface BasketContext {
   // ---
   // TODO:
   // items?: Array; // Array of actors
-  // bin?: Array;
-  // queue?: Array;
   // error?: RequestError;
-  items?: any[]; // Array of actors
-  bin?: any[];
-  queue?: any[];
+  items?: ActorRef<any, any>[]; // Array of actors
   error?: any;
   controller?: AbortController;
   summary?: Object;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    billing_details?: Object;
-    currency?: Object;
-    custom_fields?: Object;
-    payment_details?: Object;
-    promotions?: Object;
+    billing_details?: ActorRef<any, any>;
+    currency?: ActorRef<any, any>;
+    custom_fields?: ActorRef<any, any>;
+    payment_details?: ActorRef<any, any>;
+    promotions?: ActorRef<any, any>;
   };
   // --- Payments
-  paymentDetails?: Object;
-  payment?: Object;
+  paymentDetails?: ActorRef<any, any>;
+  payment?: ActorRef<any, any>;
 }
 
 // --------------------------------------------------------

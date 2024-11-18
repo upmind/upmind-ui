@@ -5,6 +5,7 @@ import { spawn } from "xstate";
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
+
 // --- utils
 import {
   get,
@@ -13,7 +14,7 @@ import {
   reduce,
   defaultsDeep,
   uniqueId,
-  // compact,
+  compact,
   // pick,
   // isArray,
 } from "lodash-es";
@@ -153,7 +154,32 @@ export const useSchema = ({
   return schema as JsonSchema;
 };
 
-export const useUischema = () => {
+export const useUischema = ({ addresses }: any) => {
+  const lookups = {
+    addresses: reduce(
+      addresses.getItems(),
+      (result, item) => {
+        // Only return actual addresses, NOT companies
+        if (!item?.company_details) {
+          // @ts-ignore
+          result.push({
+            value: item.id,
+            label: [
+              item.name,
+              item.address_1,
+              item.address_2,
+              item.city,
+              item.postcode,
+            ].join(", "),
+          });
+        }
+
+        return result;
+      },
+      []
+    ),
+  };
+
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -161,7 +187,7 @@ export const useUischema = () => {
         type: "Control",
         scope: "#/properties/name",
         options: {
-          focus: true,
+          autoFocus: true,
           autocomplete: "off",
           placeholder: "My home address, etc...",
         },
@@ -180,19 +206,33 @@ export const useUischema = () => {
       {
         type: "Control",
         scope: "#/properties/place",
+        i18n: "client.unified.form.fields.place",
         options: {
+          autoFocus: true,
+          icon: "search",
           autocomplete: "off",
+          align: "start",
+          side: "bottom",
           placeholder: "Search for address ...",
-          items: [
-            {
-              label: "Enter manually",
-              value: "manual",
-              as: "button",
-              variant: "link",
-              size: "sm",
-              persist: true,
-            },
-          ],
+          items: compact([
+            lookups.addresses?.length
+              ? {
+                  label: "Your saved addreses",
+                  i18n: "client.unified.form.fields.saved",
+                  as: "separator",
+                }
+              : null,
+            ...lookups.addresses,
+            // {
+            //   label: "Enter manually",
+            //   i18n: "client.unified.form.fields.manual",
+            //   value: "manual",
+            //   as: "button",
+            //   variant: "link",
+            //   size: "sm",
+            //   persist: true,
+            // },
+          ]),
         },
         rule: {
           effect: "HIDE",
@@ -220,7 +260,7 @@ export const useUischema = () => {
             scope: "#/properties/address_1",
             label: "Address", // ensure we  show the title for BOTH address fields
             options: {
-              focus: true,
+              autoFocus: true,
               autocomplete: "address-line1",
               placeholder: "Address first line...",
             },

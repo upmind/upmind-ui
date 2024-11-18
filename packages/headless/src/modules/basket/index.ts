@@ -1,4 +1,5 @@
 // --- external
+import type { ActorRef } from "xstate";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -6,7 +7,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import { every, find, get, some, omitBy, isEmpty } from "lodash-es";
+import { every, find, get, some, omitBy, isEmpty, isFunction } from "lodash-es";
 import { responseCodes } from "../api";
 
 // --- types
@@ -35,8 +36,9 @@ const exists = (items = [], mapping: any, context = null) => {
   );
 };
 
-const sendToItem = (itemId: any, type: any, data: any) => {
+const sendToItem = async (itemId: any, type: any, data: any) => {
   const item = find(service.getSnapshot()?.context?.items, ["id", itemId]);
+
   if (item) {
     item.send({ type, data });
     return Promise.resolve(item);
@@ -59,9 +61,20 @@ export const useBasket = () => {
 
     // --- basket functions
     isReady: async () =>
-      waitFor(service, state => ["shopping"].some(state.matches), {
-        timeout: Infinity, // infinity = no timeout
-      }),
+      waitFor(
+        service,
+        state => {
+          const basketReady = ["shopping"].some(state.matches);
+          // const productsReady = every(
+          //   state.context?.items,
+          //   s => !["subscribing", "loading"].some(s.state.matches)
+          // );
+          return basketReady; //&& productsReady;
+        },
+        {
+          timeout: Infinity, // infinity = no timeout
+        }
+      ),
 
     clear: () => service.send({ type: "CLEAR" }),
 
@@ -106,6 +119,8 @@ export const useBasket = () => {
       attributes,
       options,
       provision_fields,
+      promotions,
+      sub_pids,
     }: IProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
@@ -119,6 +134,8 @@ export const useBasket = () => {
             attributes,
             options,
             provision_fields,
+            promotions,
+            sub_pids,
           },
           isEmpty
         );
@@ -145,13 +162,13 @@ export const useBasket = () => {
               })
             );
           }
-        );
+        ) as ActorRef<any, any>;
       });
     },
 
     // --- Item CRUD
 
-    updateItem: async (itemId: any) => {
+    updateItem: async (itemId: string): Promise<ActorRef<any, any>> => {
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
         return waitFor(item, state => !state.matches("processing")).then(
           state => {
@@ -165,18 +182,11 @@ export const useBasket = () => {
       });
     },
 
-    removeItem: async (itemId: any) => {
-      return sendToItem(itemId, "REMOVE", { itemId }).then(item => {
-        return waitFor(item, state =>
-          ["available.complete", "complete", "error"].some(state.matches)
-        ).then(state => {
-          if (state.matches("error")) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve(item);
-        });
-        // .finally(() => service.send({ type: "REFRESH" }));
-      });
+    removeItem: async (itemId: any): Promise<any> => {
+      return sendToItem(itemId, "REMOVE", { itemId }).then(item =>
+        waitFor(item, state => ["complete"].some(state.matches))
+      );
+      // .finally(() => service.send({ type: "REFRESH" }));
     },
   };
 };

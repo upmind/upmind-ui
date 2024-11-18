@@ -2,37 +2,46 @@
 export * from "./useIcons";
 
 // --- utils
-import { useIcons } from "./useIcons";
-import { keys } from "lodash-es";
+import { useIcons, iconOutput } from "./useIcons";
+import { keys, values, invert } from "lodash-es";
+
 // ----------------------------------------------------------------------------
 
-const flags = useIcons("flags");
-const icons = useIcons();
+const iconUrls = useIcons(iconOutput.URL);
+const icons = useIcons(iconOutput.NAME);
+// const iconSvgs = useIcons();
 
 enum colors {
+  base = "Base",
   primary = "Primary",
   secondary = "Secondary",
   accent = "Accent",
-  base = "Base",
+  promotion = "Promotion",
+  destructive = "Destructive",
   success = "Success",
+  info = "Info",
   error = "Error",
   warning = "Warning",
-  info = "Info",
-  current = "Current",
 }
 
 enum sizes {
+  xs = "Extra Small",
   sm = "Small",
   md = "Medium",
   lg = "Large",
+  icon = "Icon",
 }
 enum allSizes {
+  auto = "Auto",
+  "3xs" = "Extra Extra Extra Small",
+  "2xs" = "Extra Extra Small",
   xs = "Extra Small",
   sm = "Small",
   md = "Medium",
   lg = "Large",
   xl = "Extra Large",
-  "2xl" = "2 Extra Large",
+  "2xl" = "Extra Extra Large",
+  "3xl" = "Extra Extra Extra Large",
 }
 
 enum placements {
@@ -73,6 +82,7 @@ export const useSystemArgTypes = {
       labels: sizes,
     },
   },
+
   allSizes: {
     options: keys(allSizes),
     control: {
@@ -81,17 +91,24 @@ export const useSystemArgTypes = {
     },
   },
   icon: {
-    options: keys(icons),
+    options: values(icons),
     control: {
       type: "select",
-      labels: icons,
+      labels: invert(icons),
     },
   },
+  // iconSvgs: {
+  //   options: values(iconSvgs),
+  //   control: {
+  //     type: "select",
+  //     labels: invert(iconSvgs),
+  //   },
+  // },
   flag: {
-    options: keys(flags),
+    options: values(iconUrls),
     control: {
       type: "select",
-      labels: flags,
+      labels: invert(iconUrls),
     },
   },
 };

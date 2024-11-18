@@ -1,85 +1,102 @@
 <template>
   <component
-    :is="dialog ? 'upw-dialog' : 'section'"
-    @reject="onClose"
-    size="xl"
-    :actions="actions"
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? 'Drawer' : 'Section'"
     title="Change address"
-    :model-value="modelValue"
-    @update:modelValue="onClose"
+    :open="isOpen"
+    @reject="onClose"
+    @update:open="onClose"
+    :skrim="color"
+    :class="styles.clientListings.root"
+    :class-footer="styles.clientListings.footer"
+    v-auto-animate
+    size="2xl"
   >
-    <section :class="styles.clientListings.root">
-      <header :class="styles.clientListings.header">
-        <slot name="header" v-bind="{ meta }"></slot>
-      </header>
+    <template #header>
+      <slot name="header" v-bind="{ meta }"></slot>
+    </template>
 
-      <div v-if="!meta.isAvailable">
-        <upm-auth no-tabs />
-      </div>
+    <div v-if="!meta.isAvailable">
+      <Auth no-tabs />
+    </div>
 
-      <upw-skeleton-list
-        :class="styles.clientListings.loading"
-        v-else-if="meta.isLoading"
+    <SkeletonList
+      :class="styles.clientListings.loading"
+      v-else-if="meta.isLoading"
+    />
+
+    <template v-else>
+      <Input
+        v-if="!noFilter && meta.canFilter"
+        @input="filter($event?.currentTarget?.value)"
+        :placeholder="t(`client.${type}.actions.filter`)"
+        size="sm"
       />
 
-      <template v-else>
-        <upw-textbox
-          v-if="!noFilter && meta.canFilter"
-          @input="filter($event?.currentTarget?.value)"
-          :placeholder="$t(`client.${type}.actions.filter`)"
-          size="sm"
-        />
-
-        <div :class="styles.clientListings.items">
-          <upm-card
-            v-for="item in sortedItems"
-            :key="item.id"
-            :model-value="item"
-            :selected="item.id === selected?.id"
-            @update:modelValue="onSelect"
-            :hidden="meta.isAdding && item.id === selected?.id"
-            :disabled="meta.isEditing && item.id === selected?.id"
-            :i18nKey="i18nKey"
-            :no-actions="noActions"
-            @click:action="onClose"
-          />
-        </div>
-
-        <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
-          <upm-empty :i18nKey="type" />
-        </slot>
-
-        <upm-item
-          v-if="meta.isEditing || meta.isAdding"
-          :model-value="selected"
-          :key="selected?.id"
+      <div :class="styles.clientListings.items">
+        <Card
+          v-for="item in sortedItems"
+          :key="item.id"
+          :model-value="item"
+          :selected="item.id === selected?.id"
+          :hidden="meta.isAdding && item.id === selected?.id"
+          :disabled="meta.isEditing && item.id === selected?.id"
           :i18nKey="i18nKey"
-          @reject="onClose"
+          :no-actions="noActions"
+          @update:modelValue="onSelect"
+          @click:action="onClose"
         />
+      </div>
 
-        <div
-          :class="styles.clientListings.actions"
-          v-if="!meta.isAdding && !meta.isEditing && !meta.isLoading && !dialog"
-        >
-          <upw-button
-            :label="$t(`client.${type}.actions.add`)"
-            variant="ghost"
-            @click="add"
-            block
-          />
-        </div>
-      </template>
+      <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty">
+        <Empty :i18nKey="type" />
+      </slot>
 
-      <footer :class="styles.clientListings.footer">
-        <slot name="footer" v-bind="{ meta }"></slot>
-      </footer>
-    </section>
+      <Item
+        v-if="meta.isEditing || meta.isAdding"
+        :model-value="selected"
+        :key="selected?.id"
+        :i18nKey="i18nKey"
+        @reject="onClose"
+        :color="color"
+        open
+      />
+
+      <div
+        :class="styles.clientListings.actions"
+        v-if="!meta.isAdding && !meta.isEditing && !meta.isLoading && !modal"
+      >
+        <Button
+          :label="t(`client.${type}.actions.add`)"
+          variant="ghost"
+          @click="add"
+          block
+        />
+      </div>
+    </template>
+
+    <template #footer>
+      <slot name="footer" v-bind="{ meta }"></slot>
+    </template>
+
+    <template #actions>
+      <Button
+        v-for="(action, key) in actions"
+        :key="key"
+        v-bind="action"
+        :loading="action.loading"
+        :disabled="action?.disabled"
+        @click="doAction(action)"
+      />
+    </template>
   </component>
 </template>
 
 <script>
 // --- external
 import { defineComponent, provide, ref } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
@@ -98,52 +115,55 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmAuth from "../session/Auth.vue";
-import UpmEmpty from "./Empty.vue";
-import UpmCard from "./Card.vue";
-import UpmItem from "./Item.vue";
-import {
-  UpwTextbox,
-  UpwButton,
-  UpwSkeletonList,
-  UpwDialog,
-} from "@upmind-automation/upwind";
+import Section from "../Section.vue";
+import Auth from "../session/Auth.vue";
+import Empty from "./Empty.vue";
+import Card from "./Card.vue";
+import Item from "./Item.vue";
+import { Input, SkeletonList } from "@upmind-automation/upwind";
+
+// --- custom elements
+import { Button, Drawer } from "@upmind-automation/upwind";
 
 // --- utils
+import { isFunction } from "lodash-es";
 
-// --- types
-// import type { PropType } from "vue";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmClientListings",
+  name: "ClientListings",
+  directives: { autoAnimate: vAutoAnimate },
   components: {
-    UpwTextbox,
-    UpwButton,
-    UpwSkeletonList,
-    UpwDialog,
+    Button,
+    Drawer,
+    Input,
+    SkeletonList,
+    Section,
     // ---
-    UpmAuth,
+    Auth,
     // ---
-    UpmEmpty,
-    UpmCard,
-    UpmItem,
+    Empty,
+    Card,
+    Item,
   },
-  emits: ["update:modelValue", "add", "select"],
+  emits: ["update:open", "add", "select"],
   props: {
     type: {
       type: String, //as PropType<"addresses" | "emails" | "phones" | "companies">,
       required: true,
     },
     i18nKey: { type: String, required: true },
-    modelValue: { type: Boolean },
-    dialog: { type: Boolean, default: false },
+    open: { type: Boolean },
+    modal: { type: Boolean, default: false },
+    color: { type: String, default: "base" },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
     cols: { type: [String, Number], default: 1 },
   },
   setup(props) {
+    const { t } = useI18n();
+
     let clientListings, client;
 
     switch (props.type) {
@@ -182,6 +202,7 @@ export default defineComponent({
       .then(() => (active.value = clientListings.selected.value));
 
     return {
+      t,
       ...clientListings,
       active,
       styles,
@@ -192,12 +213,21 @@ export default defineComponent({
     actions() {
       return {
         add: {
-          label: this?.$t(`client.addresses.actions.add`),
-          variant: "flat",
+          label: this?.t(`client.${this.type}.actions.add`),
+          variant: "ghost",
+          color: this.color,
           block: true,
-          action: () => {
-            this.$emit("update:modelValue", false);
+          handler: () => {
             this.add();
+          },
+        },
+        confirm: {
+          label: this?.t(`client.${this.type}.actions.confirm`),
+          variant: "flat",
+          color: this.color,
+          block: true,
+          handler: () => {
+            this.onClose();
           },
         },
       };
@@ -210,15 +240,23 @@ export default defineComponent({
         x.id == this.active?.id ? -1 : y.id == this.active?.id ? 1 : 0
       );
     },
+    isOpen() {
+      return this.open;
+    },
   },
   methods: {
-    onClose() {
-      this.$emit("update:modelValue", false);
+    onClose(value) {
+      this.$emit("update:open", value);
     },
 
     onSelect(item) {
       this.select(item.id);
-      this.$emit("update:modelValue", true);
+      this.$emit("update:open", false);
+    },
+    doAction(item) {
+      if (isFunction(item?.handler)) {
+        item.handler();
+      }
     },
   },
 });

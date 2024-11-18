@@ -1,0 +1,18 @@
+{
+  "files": [],
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    { "path": "../../packages/headless" },
+    { "path": "../../packages/headless-vue" },
+    { "path": "../../packages/client-vue" },
+
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}

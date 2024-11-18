@@ -1,150 +1,170 @@
 <template>
-  <component
-    :is="meta.showDialog ? 'upw-dialog' : 'div'"
-    size="full"
-    :model-value="true"
-    persistent
-    :upwind-config="config.domain"
-  >
-    <div :class="styles.domain.root">
-      <upw-textbox
-        :class="styles.domain.search"
-        @update:modelValue="onSearch"
-        :prependIcon="meta.showComplete ? null : 'search'"
-        :placeholder="$t('domain.dac.search')"
-        autofocus
-        autocomplete="url"
-        :model-value="query"
-      />
+  <FormControl v-if="!meta.showDialog" autoFocus :formItemId="id">
+    <Input
+      :class="styles.domain.search"
+      @update:modelValue="onSearch"
+      :prependIcon="meta.showComplete ? null : 'search'"
+      :placeholder="t('domain.dac.search')"
+      autocomplete="url"
+      v-model="queryValue"
+    />
+  </FormControl>
 
-      <upm-domain-listings
-        v-if="meta.showDialog"
+  <Drawer
+    v-else
+    to="#vue-app"
+    fit="cover"
+    skrim="primary"
+    :class="styles.domain.drawer.root"
+    :class-header="styles.domain.drawer.header"
+    :class-content="styles.domain.drawer.content"
+    :class-footer="styles.domain.drawer.footer"
+    v-model:open="open"
+    persistent
+    :title="t('domain.dac.title')"
+    :description="t('domain.dac.description')"
+  >
+    <template #header>
+      <FormControl autoFocus :formItemId="id">
+        <Input
+          :class="styles.domain.search"
+          @update:modelValue="onSearch"
+          :prependIcon="meta.showComplete ? null : 'search'"
+          :placeholder="t('domain.dac.search')"
+          autocomplete="url"
+          v-model="queryValue"
+        />
+      </FormControl>
+    </template>
+
+    <div :class="styles.domain.root">
+      <DomainCards
         :model-value="values"
         :items="items"
         :offset="offset"
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
-        @update:modelValue="onUpdate"
-        @toggle="onUpdate"
+        @update:selected="onToggleSelected"
       />
 
-      <upw-button
+      <Button
         v-if="meta.showDialog && meta.hasItems && meta.hasMore"
-        :label="$t('domain.dac.actions.more')"
+        :label="t('domain.dac.actions.more')"
         :loading="meta.isLoading"
         @click="onSearchOffset"
         block
         variant="ghost"
       />
     </div>
-    <template #actions>
-      <div :class="styles.domain.dialog.container">
-        <upw-button
-          @click="onReject"
-          :label="$t('domain.dac.actions.cancel')"
-          variant="link"
-        />
-        <upw-button
-          :loading="meta.isProcessing"
-          :disabled="meta.isEmpty || (!meta.showContinue && !meta.isProcessing)"
-          @click="onResolve"
-          :label="$tc('domain.dac.actions.continue', values?.length)"
-          prependIcon="plus-circle"
-        />
-      </div>
+
+    <template #close>
+      <Button
+        @click="onReject"
+        :label="t('domain.dac.actions.cancel')"
+        variant="link"
+      />
     </template>
-  </component>
+
+    <template #actions>
+      <!-- <div :class="styles.domain.dialog.container"> -->
+
+      <Button
+        :loading="meta.isProcessing"
+        :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
+        @click="onResolve"
+        :label="t('domain.dac.actions.continue', values?.length)"
+        prependIcon="plus-circle"
+      />
+      <!-- </div> -->
+    </template>
+  </Drawer>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { computed, defineComponent } from "vue";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwTextbox, UpwButton, UpwDialog } from "@upmind-automation/upwind";
-import UpmDomainListings from "./Listings.vue";
+import { Input, Button, Drawer, FormControl } from "@upmind-automation/upwind";
+import DomainCards from "./DomainCards.vue";
 
-// --- utils
-
-// --- types
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "UpmDac",
-  components: {
-    UpwTextbox,
-    UpwButton,
-    UpwDialog,
-    // ---
-    UpmDomainListings,
-  },
-  emits: ["toggle", "search", "search:more", "resolve", "reject"],
-  props: {
-    modelValue: { type: String },
-    query: { type: String, default: "" },
-    offset: { type: Number, default: 0 },
-    values: { type: Array, default: () => [] },
-    items: { type: Array, default: () => [] },
-    dialog: { type: Boolean, default: true },
-    // ---
-    loading: { type: Boolean, default: false },
-    processing: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    continue: { type: Boolean, default: false },
-    complete: { type: Boolean, default: false },
-    hasMore: { type: Boolean, default: false },
-  },
-  setup(props) {
-    const meta = computed(() => ({
-      hasDomain: !!props.modelValue,
-      isEmpty: !props.values?.length,
-      hasItems: !!props.items?.length,
-      hasMore: props.hasMore,
-      isLoading: props.loading,
-      isDisabled: props.disabled,
-      isProcessing: props.processing,
-      showContinue: props.continue,
-      showComplete: props.complete,
-      hasSynced: props.synced,
+const emit = defineEmits([
+  "update:selected",
+  "search",
+  "search:more",
+  "resolve",
+  "reject",
+]);
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    modelValue?: string;
+    query?: string;
+    offset?: number;
+    values?: string[];
+    items?: string[];
+    dialog?: boolean;
+    loading?: boolean;
+    processing?: boolean;
+    disabled?: boolean;
+    complete?: boolean;
+    more?: boolean;
+  }>(),
+  {
+    offset: 0,
+    values: () => [],
+    items: () => [],
+    dialog: true,
+  }
+);
 
-      // ---
-      showDialog:
-        props.dialog &&
-        !props.complete &&
-        (props.loading || props.processing || !!props.items?.length),
-    }));
-    const styles = useStyles(["domain", "domain.dialog"], meta, config);
+const { t } = useI18n();
 
-    return {
-      styles,
-      mergeStyles,
-      meta,
-      config,
-    };
-  },
-
-  computed: {},
-  methods: {
-    onReject() {
-      this.$emit("reject");
-    },
-    onResolve() {
-      this.$emit("resolve");
-    },
-    onSearch(value) {
-      this.$emit("search", value);
-    },
-    onSearchOffset(value) {
-      this.$emit("search:more", value);
-    },
-    onUpdate(value) {
-      if (this.meta.isDisabled || this.meta.isProcessing) return;
-      this.$emit("toggle", value);
-    },
-  },
+// our internal drawer state
+const open = ref(false);
+watch(props, ({ complete, items, loading, processing }) => {
+  open.value = !complete && (loading || processing || !!items?.length);
 });
+
+const meta = computed(() => ({
+  hasDomain: !!props.modelValue,
+  isEmpty: !props.values?.length,
+  hasItems: !!props.items?.length,
+  hasMore: props.more,
+  isLoading: props.loading,
+  isDisabled: props.disabled,
+  isProcessing: props.processing,
+  showComplete: props.complete,
+
+  // ---
+  showDialog: props.dialog && open.value,
+}));
+
+const styles = useStyles(["domain", "domain.drawer"], meta, config);
+
+const queryValue = ref(props.query);
+
+function onReject() {
+  emit("reject");
+}
+function onResolve() {
+  emit("resolve");
+}
+function onSearch(value: string) {
+  emit("search", value);
+}
+function onSearchOffset(value: number) {
+  emit("search:more", value);
+}
+function onToggleSelected(value?: string) {
+  if (meta.value.isProcessing) return;
+  emit("update:selected", value);
+}
 </script>

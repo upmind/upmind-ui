@@ -4,17 +4,26 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import svgLoader from 'vite-svg-loader';
 // import basicSsl from '@vitejs/plugin-basic-ssl';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [// basicSsl(),
-    vue(), vueJsx(), svgLoader(),
-    sentryVitePlugin({
-      org: "upmind",
+  vue({
+    template: {
+      compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('uw-')
+      }
+    }
+  }), vueJsx(), sentryVitePlugin({
+    org: "upmind",
       project: "checkout-doteasy"
-    })],
+  })],
+
+  server: {
+    cors: true,
+    // https: true,
+  },
 
   resolve: {
     alias: {

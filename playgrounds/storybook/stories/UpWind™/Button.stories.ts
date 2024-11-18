@@ -2,23 +2,24 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwButton } from "@upmind-automation/upwind";
+import { Icon, Avatar, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
+import { keys, isFunction } from "lodash-es";
 
 // --- types
 enum variants {
   flat = "Flat",
-  outlined = "Outlined",
+  outline = "Outlined",
   ghost = "Ghost",
   link = "Link",
+  tonal = "Tonal",
 }
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwButton> = {
-  component: UpwButton,
+const meta: Meta<typeof Button> = {
+  component: Button,
   argTypes: {
     variant: {
       options: keys(variants),
@@ -27,24 +28,9 @@ const meta: Meta<typeof UpwButton> = {
         labels: variants,
       },
     },
-
     size: useSystemArgTypes.size,
     color: useSystemArgTypes.color,
-    prependAvatar: {
-      ...useSystemArgTypes.flag,
-      if: { arg: "iconOnly", truthy: false },
-    },
-    prependIcon: useSystemArgTypes.icon,
-    appendIcon: {
-      ...useSystemArgTypes.icon,
-      if: { arg: "iconOnly", truthy: false },
-    },
-    appendAvatar: {
-      ...useSystemArgTypes.flag,
-      if: { arg: "iconOnly", truthy: false },
-    },
-
-    iconOnly: { control: "boolean", if: { arg: "prependIcon" } },
+    iconOnly: { control: "boolean" },
   },
   args: {
     label: "A compelling call to action",
@@ -55,18 +41,13 @@ const meta: Meta<typeof UpwButton> = {
     iconOnly: false,
     block: false,
     // ---
-    prependAvatar: undefined,
-    prependIcon: undefined,
-    appendIcon: undefined,
-    appendAvatar: undefined,
-    // ---
     loading: false,
     disabled: false,
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwButton>;
+type Story = StoryObj<typeof Button>;
 
 export const Base: Story = {};
 
@@ -75,7 +56,7 @@ export const Variants: Story = {
     controls: { exclude: ["label", "variant"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
     setup() {
       return {
         args,
@@ -84,192 +65,55 @@ export const Variants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Types/Variants</h1>
-        <upw-button v-bind="args" variant="flat" label="Flat" />
-        <upw-button v-bind="args" variant="outlined" label="Outlined" />
-        <upw-button v-bind="args" variant="ghost" label="Ghost" />
-        <upw-button v-bind="args" variant="link" label="Link" />
+        <Button v-bind="args" variant="flat" label="Flat" />
+        <Button v-bind="args" variant="outline" label="Outlined" />
+        <Button v-bind="args" variant="ghost" label="Ghost" />
+        <Button v-bind="args" variant="link" label="Link" />
       </section>
     `,
   }),
 };
 
-export const SlotAndSizes: Story = {
+export const Slots: Story = {
   parameters: {
     controls: {
-      exclude: [
-        "label",
-        "size",
-        "block",
-        "iconOnly",
-        "prependAvatar",
-        "prependIcon",
-        "appendIcon",
-        "appendAvatar",
-      ],
+      exclude: ["label", "block", "iconOnly"],
     },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button, Avatar, Icon },
     setup() {
       return {
         args,
       };
     },
     template: `
-      <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Slot + Sizes</h1>
-        <p class="w-full mt-0">
-          Buttons with all slots activated in ALL sizes<br />
-        </p>
+    <section class="flex w-full flex-wrap items-center justify-start gap-2">
+      <h1 class="mt-0 w-full">Slots</h1>
+      <p class="mt-0 w-full">
+        Buttons with all slots activated in ALL sizes<br />
+      </p>
 
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Icon only</h4>
-          <upw-button v-bind="args" icon-only prepend-icon="cog" size="badge" label="Badge" />
-          <upw-button v-bind="args" icon-only prepend-icon="cog" size="xs" label="XSmall" />
-          <upw-button v-bind="args" icon-only prepend-icon="cog" size="sm" label="Small" />
-          <upw-button v-bind="args" icon-only prepend-icon="cog" size="md" label="Medium" />
-          <upw-button v-bind="args" icon-only prepend-icon="cog" size="lg" label="Large" />
-        </div>
+      <Button v-bind="args" label="Label Only" />
 
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Label Only</h4>
+      <Button v-bind="args" icon-only label="Icon Only" label="Great Britain">
+        <template #prepend>
+          <Avatar icon="gb" caption="GB" />
+        </template>
+      </Button>
 
-          <upw-button v-bind="args" size="badge" label="Badge" />
-          <upw-button v-bind="args" size="xs" label="XSmall" />
+      <Button v-bind="args" label="Prepend icon">
+        <template #prepend>
+          <Icon icon="arrow-left" />
+        </template>
+      </Button>
 
-          <upw-button v-bind="args" size="sm" label="Small" />
-          <upw-button v-bind="args" size="md" label="Medium" />
-          <upw-button v-bind="args" size="lg" label="Large" />
-        </div>
-
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Label with Avatar (prepended)</h4>
-
-          <upw-button
-            v-bind="args"
-            size="sm"
-            label="Small"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            size="md" label="Medium"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            size="lg"
-            label="Large"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-          />
-        </div>
-
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Label with Icon (prepended)</h4>
-
-          <upw-button v-bind="args" size="sm" label="Small" prepend-icon="cog" />
-          <upw-button v-bind="args" size="md" label="Medium" prepend-icon="cog" />
-          <upw-button v-bind="args" size="lg" label="Large" prepend-icon="cog" />
-        </div>
-
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Label with Icon (appended)</h4>
-
-          <upw-button v-bind="args" size="sm" label="Small" append-icon="devices" />
-          <upw-button v-bind="args" size="md" label="Medium" append-icon="devices" />
-          <upw-button v-bind="args" size="lg" label="Large" append-icon="devices" />
-        </div>
-
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Label with Avatar (appended)</h4>
-
-          <upw-button
-            v-bind="args"
-            size="sm"
-            label="Small"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            size="md"
-            label="Medium"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            size="lg"
-            label="Large"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-        </div>
-
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Everything</h4>
-
-          <upw-button
-            v-bind="args"
-            size="sm"
-            label="Small"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-            prepend-icon="cog"
-            append-icon="devices"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            size="md"
-            label="Medium"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-            prepend-icon="cog"
-            append-icon="devices"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            size="lg"
-            label="Large"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-            prepend-icon="cog"
-            append-icon="devices"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-        </div>
-
-        <div class="flex w-full flex-wrap items-center gap-2">
-          <h4 class="w-full">Everything (block)</h4>
-
-          <upw-button
-            v-bind="args"
-            block
-            size="sm"
-            label="Small"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-            prepend-icon="cog"
-            append-icon="devices"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            block
-            size="md"
-            label="Medium"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-            prepend-icon="cog"
-            append-icon="devices"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-          <upw-button
-            v-bind="args"
-            block
-            size="lg"
-            label="Large"
-            :prepend-avatar="{ name: 'ZA', path: 'flags' }"
-            prepend-icon="cog"
-            append-icon="devices"
-            :append-avatar="{ name: 'GB', path: 'flags' }"
-          />
-        </div>
-      </section>
+      <Button v-bind="args" label="Append icon">
+        <template #append>
+          <Icon icon="arrow-right" />
+        </template>
+      </Button>
+    </section>
     `,
   }),
 };
@@ -279,7 +123,8 @@ export const SolidColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -288,25 +133,28 @@ export const SolidColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Solid Color Variants</h1>
-        <upw-button v-bind="args" variant="flat" color="primary" label="Primary" />
-        <upw-button v-bind="args" variant="flat" color="secondary" label="Secondary" />
-        <upw-button v-bind="args" variant="flat" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="flat" color="base" label="Base" />
-        <upw-button v-bind="args" variant="flat" color="info" label="Info" />
-        <upw-button v-bind="args" variant="flat" color="success" label="Success" />
-        <upw-button v-bind="args" variant="flat" color="error" label="Error" />
-        <upw-button v-bind="args" variant="flat" color="warning" label="Warning" />
+        <Button v-bind="args" variant="flat" color="base" label="Base" />
+        <Button v-bind="args" variant="flat" color="primary" label="Primary" />
+        <Button v-bind="args" variant="flat" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="flat" color="accent" label="Accent" />
+        <Button v-bind="args" variant="flat" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="flat" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="flat" color="success" label="Success" />
+        <Button v-bind="args" variant="flat" color="info" label="Info" />
+        <Button v-bind="args" variant="flat" color="error" label="Error" />
+        <Button v-bind="args" variant="flat" color="warning" label="Warning" />
       </section>
     `,
   }),
 };
 
-export const OutlinedColorVariants: Story = {
+export const outlineColorVariants: Story = {
   parameters: {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -315,14 +163,16 @@ export const OutlinedColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Outlined Color Variants</h1>
-        <upw-button v-bind="args" variant="outlined" color="primary" label="Primary" />
-        <upw-button v-bind="args" variant="outlined" color="secondary" label="Secondary" />
-        <upw-button v-bind="args" variant="outlined" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="outlined" color="base" label="Base" />
-        <upw-button v-bind="args" variant="outlined" color="info" label="Info" />
-        <upw-button v-bind="args" variant="outlined" color="success" label="Success" />
-        <upw-button v-bind="args" variant="outlined" color="error" label="Error" />
-        <upw-button v-bind="args" variant="outlined" color="warning" label="Warning" />
+        <Button v-bind="args" variant="outline" color="base" label="Base" />
+        <Button v-bind="args" variant="outline" color="primary" label="Primary" />
+        <Button v-bind="args" variant="outline" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="outline" color="accent" label="Accent" />
+        <Button v-bind="args" variant="outline" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="outline" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="outline" color="success" label="Success" />
+        <Button v-bind="args" variant="outline" color="info" label="Info" />
+        <Button v-bind="args" variant="outline" color="error" label="Error" />
+        <Button v-bind="args" variant="outline" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -333,7 +183,8 @@ export const GhostColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -342,14 +193,16 @@ export const GhostColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Ghost Color Variants</h1>
-        <upw-button v-bind="args" variant="ghost" color="primary" label="Primary" />
-        <upw-button v-bind="args" variant="ghost" color="secondary" label="Secondary" />
-        <upw-button v-bind="args" variant="ghost" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="ghost" color="base" label="Base" />
-        <upw-button v-bind="args" variant="ghost" color="info" label="Info" />
-        <upw-button v-bind="args" variant="ghost" color="success" label="Success" />
-        <upw-button v-bind="args" variant="ghost" color="error" label="Error" />
-        <upw-button v-bind="args" variant="ghost" color="warning" label="Warning" />
+        <Button v-bind="args" variant="ghost" color="base" label="Base" />
+        <Button v-bind="args" variant="ghost" color="primary" label="Primary" />
+        <Button v-bind="args" variant="ghost" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="ghost" color="accent" label="Accent" />
+        <Button v-bind="args" variant="ghost" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="ghost" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="ghost" color="success" label="Success" />
+        <Button v-bind="args" variant="ghost" color="info" label="Info" />
+        <Button v-bind="args" variant="ghost" color="error" label="Error" />
+        <Button v-bind="args" variant="ghost" color="warning" label="Warning" />
       </section>
     `,
   }),
@@ -360,7 +213,8 @@ export const LinkColorVariants: Story = {
     controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
+
     setup() {
       return {
         args,
@@ -369,45 +223,49 @@ export const LinkColorVariants: Story = {
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Link Color Variants</h1>
-        <upw-button v-bind="args" variant="link" color="primary" label="Primary" />
-        <upw-button v-bind="args" variant="link" color="secondary" label="Secondary" />
-        <upw-button v-bind="args" variant="link" color="accent" label="Accent" />
-        <upw-button v-bind="args" variant="link" color="base" label="Base" />
-        <upw-button v-bind="args" variant="link" color="info" label="Info" />
-        <upw-button v-bind="args" variant="link" color="success" label="Success" />
-        <upw-button v-bind="args" variant="link" color="error" label="Error" />
-        <upw-button v-bind="args" variant="link" color="warning" label="Warning" />
+        <Button v-bind="args" variant="link" color="base" label="Base" />
+        <Button v-bind="args" variant="link" color="primary" label="Primary" />
+        <Button v-bind="args" variant="link" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="link" color="accent" label="Accent" />
+        <Button v-bind="args" variant="link" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="link" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="link" color="success" label="Success" />
+        <Button v-bind="args" variant="link" color="info" label="Info" />
+        <Button v-bind="args" variant="link" color="error" label="Error" />
+        <Button v-bind="args" variant="link" color="warning" label="Warning" />
       </section>
     `,
   }),
 };
 
-export const LoadingColorVariants: Story = {
+export const TonalColorVariants: Story = {
   parameters: {
-    controls: { exclude: ["label", "color"] },
+    controls: { exclude: ["label", "variant", "color"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
+
     setup() {
-      return { args };
+      return {
+        args,
+      };
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
-        <h1 class="w-full mt-0">Loading Color Variants</h1>
-        <upw-button v-bind="args" color="primary" label="Primary" />
-        <upw-button v-bind="args" color="secondary" label="Secondary" />
-        <upw-button v-bind="args" color="accent" label="Accent" />
-        <upw-button v-bind="args" color="base" label="Base" />
-        <upw-button v-bind="args" color="info" label="Info" />
-        <upw-button v-bind="args" color="success" label="Success" />
-        <upw-button v-bind="args" color="error" label="Error" />
-        <upw-button v-bind="args" color="warning" label="Warning" />
+        <h1 class="w-full mt-0">Tonal Color Variants</h1>
+        <Button v-bind="args" variant="tonal" color="base" label="Base" />
+        <Button v-bind="args" variant="tonal" color="primary" label="Primary" />
+        <Button v-bind="args" variant="tonal" color="secondary" label="Secondary" />
+        <Button v-bind="args" variant="tonal" color="accent" label="Accent" />
+        <Button v-bind="args" variant="tonal" color="promotion" label="Promotion" />
+        <Button v-bind="args" variant="tonal" color="destructive" label="Destructive" />
+        <Button v-bind="args" variant="tonal" color="success" label="Success" />
+        <Button v-bind="args" variant="tonal" color="info" label="Info" />
+        <Button v-bind="args" variant="tonal" color="error" label="Error" />
+        <Button v-bind="args" variant="tonal" color="warning" label="Warning" />
       </section>
     `,
   }),
-  args: {
-    loading: true,
-  },
 };
 
 export const DisabledColorVariants: Story = {
@@ -415,21 +273,24 @@ export const DisabledColorVariants: Story = {
     controls: { exclude: ["label", "color"] },
   },
   render: args => ({
-    components: { UpwButton },
+    components: { Button },
+
     setup() {
       return { args };
     },
     template: `
       <section class="flex w-full flex-wrap items-center gap-2">
         <h1 class="w-full mt-0">Disabled Color Variants</h1>
-        <upw-button v-bind="args" color="primary" label="Primary" />
-        <upw-button v-bind="args" color="secondary" label="Secondary" />
-        <upw-button v-bind="args" color="accent" label="Accent" />
-        <upw-button v-bind="args" color="base" label="Base" />
-        <upw-button v-bind="args" color="info" label="Info" />
-        <upw-button v-bind="args" color="success" label="Success" />
-        <upw-button v-bind="args" color="error" label="Error" />
-        <upw-button v-bind="args" color="warning" label="Warning" />
+        <Button v-bind="args" color="base" label="Base" />
+        <Button v-bind="args" color="primary" label="Primary" />
+        <Button v-bind="args" color="secondary" label="Secondary" />
+        <Button v-bind="args" color="accent" label="Accent" />
+        <Button v-bind="args" color="promotion" label="Promotion" />
+        <Button v-bind="args" color="destructive" label="Destructive" />
+        <Button v-bind="args" color="success" label="Success" />
+        <Button v-bind="args" color="info" label="Info" />
+        <Button v-bind="args" color="error" label="Error" />
+        <Button v-bind="args" color="warning" label="Warning" />
       </section>
     `,
   }),

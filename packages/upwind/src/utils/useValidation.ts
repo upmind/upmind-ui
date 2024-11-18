@@ -1,20 +1,18 @@
 // --- external
 
 import { createAjv } from "@jsonforms/core";
-import {
-  isValidPhoneNumber,
-  type CountryCode,
-  type PhoneNumber,
-} from "libphonenumber-js";
+import { isValidPhoneNumber } from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
 
 // --- utils
 
 // --- types
-
+import type { Ajv } from "ajv";
+import type { JsonSchema } from "@jsonforms/core";
+import { type CountryCode, type PhoneNumber } from "libphonenumber-js";
 // --------------------------------------------------------
 
-export const useValidation = (ajv?: Object) => {
+export const useValidation = (ajv?: Ajv) => {
   // us JSON Forms version of AJV as it has formats and other keywords already
   ajv ??= createAjv({ useDefaults: true, allErrors: true });
   ajvErrors(ajv, { singleError: true });
@@ -49,5 +47,8 @@ export const useValidation = (ajv?: Object) => {
       }
       return [];
     },
+  } as {
+    ajv: Ajv;
+    validate: (schema: JsonSchema, data: Object) => Object[];
   };
 };

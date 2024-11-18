@@ -1,3 +1,8 @@
+// --- types
+import type { ActorRef } from "xstate";
+
+// import type { RequestError } from "../api/types";
+
 // --------------------------------------------------------
 // ENUMS
 
@@ -15,7 +20,7 @@ export interface ProductConfigContext {
   baseModel: IProductModel;
   model: IProductModel;
   // ---
-  raw?: Object;
+  raw?: any; // IProduct
   lookups: {
     // TODO:
     // product?: IProduct;
@@ -33,16 +38,15 @@ export interface ProductConfigContext {
   // summary?: IProductSummary;
   summary?: any;
   prices?: {
-    term: { subtotal: number; total: number; discount: number };
-    attributes: { subtotal: number; total: number; discount: number };
-    options: { subtotal: number; total: number; discount: number };
+    term?: number[];
+    attributes?: number[];
+    options?: number[];
   };
   // ---
   // TODO:
-  // calculateCallback?: ActorRef<any, any>;
+  calculateCallback?: ActorRef<any, any>;
   // error?: RequestError;
   // errorExternal: RequestError;
-  calculateCallback?: any;
   error?: any;
   errorExternal: any;
   // ---
@@ -74,8 +78,9 @@ export interface IProductModel {
   term?: any;
   attributes?: any[];
   options?: any[];
-  provision_fields?: any[];
+  provision_fields?: any;
   start_trial?: boolean;
+  sub_pids?: string[];
   // ---
   // TODO:
   // currency_id?: IProductPrice["currency_id"];

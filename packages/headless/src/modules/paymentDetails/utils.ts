@@ -152,6 +152,7 @@ export function spawnGateway({
   amount,
   currency,
   stored_payment_methods,
+  address,
 }: any) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
@@ -164,7 +165,6 @@ export function spawnGateway({
       renderless: true,
     });
   }
-
   if (isStored(gateway)) {
     return spawnStored({
       basket_id,
@@ -173,10 +173,14 @@ export function spawnGateway({
       stored_payment_methods,
     });
   }
-
   if (isStripe(gateway))
-    return spawnStripe({ basket_id, gateway, amount, currency });
-
+    return spawnStripe({
+      basket_id,
+      gateway,
+      amount,
+      currency,
+      address,
+    });
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       basket_id,
@@ -185,7 +189,6 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isDirectDebit(gateway))
     return spawnGenericGateway(GatewayTypes.DIRECT_DEBIT, {
       basket_id,
@@ -194,7 +197,6 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isSEPA(gateway))
     return spawnGenericGateway(GatewayTypes.SEPA, {
       basket_id,
@@ -202,8 +204,8 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
+      address,
     });
-
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
       basket_id,
@@ -211,8 +213,8 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
+      address,
     });
-
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
       basket_id,
@@ -221,10 +223,13 @@ export function spawnGateway({
       currency,
       renderless: true,
     });
-
   if (isExternal(gateway))
-    return spawnExternal({ basket_id, gateway, amount, currency });
-
+    return spawnExternal({
+      basket_id,
+      gateway,
+      amount,
+      currency,
+    });
   if (isCard(gateway))
     return spawnCard({ basket_id, gateway, amount, currency });
 
@@ -262,12 +267,19 @@ export function spawnCard({ basket_id, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider.code,
     }),
     { name: gateway.id, sync: true }
   );
 }
 
-export function spawnStripe({ basket_id, gateway, amount, currency }: any) {
+export function spawnStripe({
+  basket_id,
+  gateway,
+  amount,
+  currency,
+  address,
+}: any) {
   return spawn(
     stripeMachine.withContext({
       basket_id,
@@ -277,6 +289,8 @@ export function spawnStripe({ basket_id, gateway, amount, currency }: any) {
       amount,
       currency,
       type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider.code,
+      address,
     }),
     { name: gateway.id, sync: true }
   );
@@ -294,6 +308,7 @@ export function spawnGenericGateway(
       amount: amount || 0,
       currency,
       type,
+      code: gateway?.gateway_provider.code,
       renderless,
     }),
     { name: gateway?.id, sync: true }
@@ -307,7 +322,9 @@ export function spawnExternal({ basket_id, gateway, amount, currency }: any) {
       gateway,
       amount,
       currency,
-      type: gateway?.gateway_provider.external_store,
+      type: GatewayTypes.CARD,
+      code: gateway?.gateway_provider.code,
+      // external: gateway?.gateway_provider.external_payment,
     }),
     { name: gateway.id, sync: true }
   );
@@ -337,4 +354,5 @@ const isMobile = (gateway: any) => gateway.type === GatewayTypes.MOBILE;
 const isOffline = (gateway: any) => gateway.type === GatewayTypes.OFFLINE;
 
 const isExternal = (gateway: any) =>
-  gateway.type === gateway?.gateway_provider.external_store;
+  gateway.type === GatewayTypes.CARD &&
+  gateway?.gateway_provider.external_payment;

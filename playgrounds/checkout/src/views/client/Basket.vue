@@ -1,5 +1,5 @@
 <template>
-  <Upm-Billing-Details class="my-4" />
+  <upm-billing-details class="my-4" />
 </template>
 
 <script>

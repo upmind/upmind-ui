@@ -1,5 +1,8 @@
 // --- external
-import { computed, toRef, watch } from "vue";
+import type { ComputedRef } from "vue";
+import { computed, ref, toRef, watch } from "vue";
+import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 
@@ -17,21 +20,35 @@ import {
   subtract,
   isArray,
   forEach,
+  find,
 } from "lodash-es";
+
+// --- types
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-/**
- * @ignore
- */
-export const useProductConfig = (actor: any) => {
-  const { state, send } = actor;
+export const useProductConfig = (service: ActorRef<any, any>) => {
+  const { state, send } = useActor(service);
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
+  const id = computed(() => service.id);
+  const touched = ref(false);
+
   // syntactic sugar
   const product = computed(() => state.value.context?.lookups?.product);
+  const productImage = (size: string = "400x400") => {
+    const product = state.value.context?.lookups?.product;
+
+    if (!product?.full_url) return null;
+
+    const url = new URL(product.full_url);
+    url.searchParams.set("size", size);
+    return url.toString();
+  };
+
   const terms = computed(() => state.value.context?.lookups?.terms);
   const attributes = computed(() => state.value.context?.lookups?.attributes);
   const options = computed(() => state.value.context?.lookups?.options);
@@ -43,6 +60,8 @@ export const useProductConfig = (actor: any) => {
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basket_product"]),
     isDirty: stateMatches(state, ["available.configured"]),
+    isTouched: touched.value,
+    isUnavailable: state.value.done || stateMatches(state, ["error"]),
     hasErrors:
       stateMatches(state, ["available.error", "error"]) ||
       contextMatches(state, ["error"]),
@@ -51,9 +70,18 @@ export const useProductConfig = (actor: any) => {
       "lookups.options",
       "lookups.provision_fields.properties",
     ]),
-    isConfigured: stateMatches(state, ["available.configured"]),
+    isConfigured: stateMatches(state, [
+      "available.configured",
+      "available.complete",
+      "complete",
+    ]),
     isCalculating: contextMatches(state, ["summary.isCalculating"]),
-    isProcessing: stateMatches(state, ["processing", "complete"]),
+    isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
+    isComplete:
+      state.value?.done ||
+      stateMatches(state, ["available.complete", "complete"]),
+    isDone: state.value?.done,
+
     // ---
 
     hasProvisioning:
@@ -70,7 +98,7 @@ export const useProductConfig = (actor: any) => {
       !!state.value?.context?.model?.term,
   }));
 
-  const summary = computed(() => state.value.context.summary);
+  const summary = computed(() => state.value.context?.summary);
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
@@ -83,41 +111,38 @@ export const useProductConfig = (actor: any) => {
   // --------------------------------------------------------
 
   // --- QUANTITY
-  const updateQuantity = (value?: number) => {
+  const updateQuantity = async (value?: number) => {
+    touched.value = true;
     send({
       type: "SET.QUANTITY",
       data: {
         quantity: value || model.value.quantity,
       },
     });
+
+    return waitFor(service, state => state.matches("available.configured"));
   };
 
-  function incrementQuantity() {
+  async function incrementQuantity() {
     // sanity check
     if (!lookups.value.product?.canChangeQuantity) return;
 
     const qty = get(model.value, "quantity", 0);
-    set(
-      model.value,
-      "quantity",
-      add(qty, lookups.value.product?.unit_quantity || 1)
-    );
+
     // emit the event
-    updateQuantity();
+    return updateQuantity(add(qty, lookups.value.product?.unit_quantity || 1));
   }
 
-  function decrementQuantity() {
+  async function decrementQuantity() {
     // sanity check
     if (!lookups.value.product?.canChangeQuantity) return;
 
     const qty = get(model.value, "quantity", 0);
-    set(
-      model.value,
-      "quantity",
+
+    // emit the event
+    return updateQuantity(
       subtract(qty, lookups.value.product?.unit_quantity || 1)
     );
-    // emit the event
-    updateQuantity();
   }
 
   // --- TERMS
@@ -130,7 +155,8 @@ export const useProductConfig = (actor: any) => {
     return value;
   }
 
-  const updateTerm = (term: any) =>
+  const updateTerm = (term: any) => {
+    touched.value = true;
     send({
       type: "SET.TERM",
       data: {
@@ -138,17 +164,20 @@ export const useProductConfig = (actor: any) => {
         term: isObject(term) ? term.billing_cycle_months : term,
       },
     });
+  };
   //emit("update:term",{itemId: props.id,...);
 
   // --- ATTRIBUTES
 
-  const updateAttributes = () =>
+  const updateAttributes = () => {
+    touched.value = true;
     send({
       type: "SET.ATTRIBUTES",
       data: {
         attributes: model.value.attributes,
       },
     });
+  };
 
   function isSelectedAttribute(attributeId: any, value: any) {
     return some(model.value.attributes[attributeId], ["product_id", value]);
@@ -170,13 +199,15 @@ export const useProductConfig = (actor: any) => {
 
   // --- OPTIONS
 
-  const updateOptions = () =>
+  const updateOptions = () => {
+    touched.value = true;
     send({
       type: "SET.OPTIONS",
       data: {
         options: model.value.options,
       },
     });
+  };
 
   function isSelectedOption(optionId: any, value: any) {
     return some(model.value.options[optionId], ["product_id", value]);
@@ -195,11 +226,12 @@ export const useProductConfig = (actor: any) => {
     updateOptions();
   }
 
-  function updateOptionQuantity(option: any, value: any, qty: any) {
+  function updateOptionQuantity(option: any, product_id: string, qty: number) {
     // sanity check
-    if (!value?.canChangeQuantity) return;
+    const product = find(option.values, ["id", product_id]);
+    if (!product?.canChangeQuantity) return;
 
-    set(model.value.options, [option.id, value.id, "unit_quantity"], qty);
+    set(model.value.options, [option.id, product_id, "unit_quantity"], qty);
 
     // emit the event
     updateOptions();
@@ -254,6 +286,7 @@ export const useProductConfig = (actor: any) => {
   }
 
   const updateProvisioning = () => {
+    touched.value = true;
     send({
       type: "SET.PROVISIONING",
       data: { provision_fields: model.value.provision_fields },
@@ -263,6 +296,7 @@ export const useProductConfig = (actor: any) => {
   // --------------------------------------------------------
 
   return {
+    id,
     state,
     // context,
     errors,
@@ -270,6 +304,7 @@ export const useProductConfig = (actor: any) => {
     // ---
     lookups,
     product,
+    productImage,
     terms,
     options,
     attributes,

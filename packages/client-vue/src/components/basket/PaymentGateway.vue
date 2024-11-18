@@ -11,10 +11,10 @@
       :leave-to-class="styles.basket.paymentGateway.transition.leave.to"
       appear
     >
-      <upw-spinner size="xs" v-if="meta.isLoading" key="spinner" />
+      <Spinner size="xs" v-if="meta.isLoading" key="spinner" />
 
       <!-- Instructions -->
-      <upw-markdown
+      <Markdown
         v-if="instructions"
         :class="styles.basket.paymentGateway.instructions"
         :model-value="instructions"
@@ -29,7 +29,7 @@
       ></div>
 
       <!-- gateway Form (* IF Provided) -->
-      <upw-form
+      <Form
         key="form"
         v-if="schema && uischema"
         v-show="!meta.isLoading"
@@ -54,21 +54,17 @@ import { defineComponent, onMounted, watch, ref, computed } from "vue";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles, UpwMarkdown } from "@upmind-automation/upwind";
+import { useStyles, cn, Markdown } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm, UpwSpinner } from "@upmind-automation/upwind";
-
-// --- utils
-
-// --- types
+import { Form, Spinner } from "@upmind-automation/upwind";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketPaymentGateway",
-  components: { UpwForm, UpwSpinner, UpwMarkdown },
+  name: "BasketPaymentGateway",
+  components: { Form, Spinner, Markdown },
   props: {
     id: {
       type: String,
@@ -105,7 +101,7 @@ export default defineComponent({
           props.variant ||
           meta.value?.hasRenderer ||
           meta.value?.hasInstructions
-            ? "outlined"
+            ? "outline"
             : "",
       })),
       config
@@ -141,7 +137,7 @@ export default defineComponent({
       instructions,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
 });

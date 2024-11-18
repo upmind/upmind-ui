@@ -1,15 +1,14 @@
 <template>
-  <upw-alert
+  <Alert
     v-bind="message"
     :model-value="meta.isActive || (scheduled && meta.isScheduled)"
     :icon="message.icon"
     :title="message.title"
-    :text="message.copy"
+    :description="message.copy"
     :data="message.data"
     :color="message.type"
     :anchor="safeAnchor"
     :variant="variant"
-    :block="block"
     @reject="dismiss(message.hash)"
   />
 </template>
@@ -20,7 +19,9 @@ import { defineComponent } from "vue";
 
 // --- internal
 import { useMessage } from "@upmind-automation/headless-vue";
-import { UpwAlert } from "@upmind-automation/upwind";
+
+// custom elements
+import { Alert } from "@upmind-automation/upwind";
 
 // --- utils
 import { useTimestamp } from "@vueuse/core";
@@ -30,9 +31,9 @@ import { endsWith, startsWith } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmMessage",
+  name: "Message",
   components: {
-    UpwAlert,
+    Alert,
   },
   props: {
     item: {

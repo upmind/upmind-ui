@@ -13,7 +13,7 @@ export default {
     footer: cva(
       "flex flex-col gap-2 text-sm font-light leading-tight tracking-tight"
     ),
-    content: cva("rounded-box w-full max-w-3xl items-start"),
+    content: cva("rounded-box w-full max-w-5xl items-start"),
 
     transition: {
       enter: {
@@ -50,7 +50,7 @@ export default {
       text: cva(
         "text-base-500  m-0 text-center text-sm leading-5 tracking-tight"
       ),
-      avatar: cva("bg-primary text-primary-content size-20 p-2"),
+      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
     },
   },
 };

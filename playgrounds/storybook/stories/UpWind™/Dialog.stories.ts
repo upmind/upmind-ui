@@ -3,35 +3,23 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwDialog, UpwButton, UpwForm } from "@upmind-automation/upwind";
+import { Dialog, Button, Form } from "@upmind-automation/upwind";
 
 // --- utils
-import { keys } from "lodash-es";
+import { keys, first } from "lodash-es";
 
 // --- types
+// useArgTypes doesn't go above 2xl
 enum sizes {
-  auto = "auto",
-  full = "full",
-  sm = "sm",
-  md = "md",
-  lg = "lg",
-  xl = "xl",
-  xxl = "2xl",
+  "auto" = "auto",
+  "sm" = "sm",
+  "md" = "md",
+  "lg" = "lg",
+  "xl" = "xl",
+  "2xl" = "2xl",
+  "3xl" = "3xl",
+  "4xl" = "4xl",
 }
-enum skrims {
-  none = "none",
-  dark = "dark",
-  light = "light",
-  normal = "normal",
-  primary = "primary",
-  secondary = "secondary",
-  accent = "accent",
-  success = "success",
-  error = "error",
-  warning = "warning",
-  info = "info",
-}
-// -----------------------------------------------------------------------------
 
 const schema = {
   type: "object",
@@ -58,129 +46,284 @@ const schema = {
   },
   required: ["name", "dob", "postalCode"],
 };
+
+const extendedSchema = {
+  type: "object",
+  properties: {
+    nationality: {
+      type: "string",
+      minLength: 3,
+      title: "What is your nationality?",
+      description: "Please enter your nationality",
+      i18n: "form.nationality",
+    },
+    occupation: {
+      type: "string",
+      minLength: 3,
+      title: "What is your occupation?",
+      description: "Please enter your occupation",
+      i18n: "form.occupation",
+    },
+    drivingSkill: {
+      type: "number",
+      title: "How good are you at driving?",
+      i18n: "form.drivingSkill",
+      oneOf: [
+        {
+          title: "I'm a pro",
+          const: 3,
+        },
+        {
+          title: "I'm okay",
+          const: 2,
+        },
+        {
+          title: "I'm a beginner",
+          const: 1,
+        },
+        {
+          title: "I don't drive",
+          const: 0,
+        },
+      ],
+    },
+  },
+  required: ["name", "dob", "postalCode"],
+};
+
+const combinedSchema = {
+  type: "object",
+  properties: {
+    ...schema.properties,
+    ...extendedSchema.properties,
+  },
+  required: Array.from(
+    new Set([...schema.required, ...extendedSchema.required])
+  ),
+};
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwDialog> = {
-  component: UpwDialog,
+const meta: Meta<typeof Dialog> = {
+  component: Dialog,
   argTypes: {
     size: {
       options: keys(sizes),
       control: {
+        type: "radio",
         labels: sizes,
-      },
-    },
-    skrim: {
-      options: keys(skrims),
-      control: {
-        labels: skrims,
       },
     },
   },
   args: {
+    open: false,
+    persistent: false,
     title: "Proident id magna in velit",
-    text: "Proident id proident ullamco veniam. Dolor duis anim sunt cillum exercitation occaecat aliqua consectetur proident incididunt amet. Laboris velit nostrud irure pariatur Lorem ad tempor aute laboris cillum ad sint.",
-    // data: `Tempor minim ad pariatur occaecat ut. Pariatur sit consectetur commodo eiusmod esse qui consequat. Veniam elit est reprehenderit cupidatat aute id ex voluptate anim duis aliquip.\n\n
-    // Anim nulla et sit elit irure cupidatat ullamco commodo mollit id. Anim voluptate aliquip enim magna elit ea irure non in minim. Culpa aliquip veniam qui aliqua amet fugiat. Voluptate dolor esse id do ea aute amet culpa fugiat aliqua ipsum. Laborum laborum esse esse nulla sunt labore nostrud officia ea irure aute. Consequat dolore Lorem esse pariatur sunt magna sint qui aliquip culpa fugiat in ut adipisicing. Est esse irure esse sunt nisi nisi ex irure fugiat non.`,
-    // ---
-    modelValue: true,
-    size: "md",
-    skrim: "normal",
+    description:
+      "Proident id proident ullamco veniam. Dolor duis anim sunt cillum exercitation occaecat aliqua consectetur proident incididunt amet. Laboris velit nostrud irure pariatur Lorem ad tempor aute laboris cillum ad sint.",
+    size: "lg",
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwDialog>;
+type Story = StoryObj<typeof Dialog>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwDialog, UpwButton },
+    components: { Button, Dialog },
     setup() {
       return {
+        toggleOpen: () => {
+          updateArgs({ open: !args.open });
+        },
         args,
       };
     },
-    methods: {
-      doUpdate(value: boolean) {
-        updateArgs({ modelValue: value });
-      },
-    },
     template: `
-        <upw-button variant="ghost" block @click="doUpdate(true)">Open Dialog</upw-button>
-        <upw-dialog v-bind="args" @update:modelValue="doUpdate" />
+      <Dialog v-bind="args">
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+        <template v-slot:close>
+          <Button @click="toggleOpen">Close</Button>
+        </template>
+      </Dialog>
     `,
   }),
 };
 
 export const Hero: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwDialog, UpwButton },
+    components: { Button, Dialog },
+
     setup() {
       return {
+        toggleOpen: () => {
+          updateArgs({ open: !args.open });
+        },
+        onOpen: ({ detail }) => {
+          const { isOpen = false } = first(detail);
+          updateArgs({ open: isOpen });
+        },
         args,
       };
     },
-    methods: {
-      doUpdate(value: boolean) {
-        updateArgs({ modelValue: value });
-      },
-    },
+
     template: `
-        <upw-button variant="ghost" block @click="doUpdate(true)">Open Dialog</upw-button>
-        <upw-dialog v-bind="args" @update:modelValue="doUpdate">
-          <section class="-m-6  bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
-              <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
+      <Dialog
+        v-bind="args"
+        v-model="open"
+        overflow="hidden"
+      >
+        <template v-slot:trigger>
+          <Button size="md">Open Dialog</Button>
+        </template>
 
-                  <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
-                      <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
-                      <p>Upmind includes everything you need to successfully run and scale your online business.</p>
-                      <upw-button @click="doUpdate(false)" label="Get Started for free" appendIcon="arron-right">
-                      </upw-button>
+        <section  class="-m-6 -my-12 rounded-lg bg-white bg-cover bg-[url('https://upmind.com/assets/uploads/images/billboard/homepage.jpg?v=1644576569')]">
+          <div class="grid px-4 py-8 mx-auto sm:gap-8 xl:gap-0 sm:py-16 sm:grid-cols-12" >
+            <div class="px-4 flex flex-col gap-4 mr-auto place-self-center sm:col-span-6 md:col-span-5">
+              <h2 class="mb-4 text-2xl">The <strong class="text-primary">billing</strong>, <strong class="text-primary">sales</strong> and <strong class="text-primary">automation</strong> platform for service businesses.</h2>
+              <p class="mb-4">Upmind includes everything you need to successfully run and scale your online business.</p>
 
-                  </div>
-
-              </div>
-          </section>
-        </upw-dialog>
+              <template #close>
+                <Button label="Get Started for free" appendIcon="arrow-right" :block/>
+              <template />
+            </div>
+          </div>
+        </section>
+      </Dialog>
     `,
   }),
   args: {
-    title: undefined,
-    size: "full",
+    open: true,
+    title: "",
+    description: "",
+    size: "4xl",
   },
 };
 
-export const Form: Story = {
+export const DialogForm: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwDialog, UpwButton, UpwForm },
+    components: { Dialog, Form, Button },
     setup() {
+      const model = ref({});
+      const open = ref(false);
+      return {
+        args,
+        model,
+        schema,
+        open,
+      };
+    },
+    methods: {},
+    template: `
+      <Dialog v-bind="args" v-model:open="open">
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+
+        <upw-form
+          :schema="schema"
+          v-model="model"
+          @resolve="open = false"
+          @reject="open = false"
+        />
+      </Dialog>
+    `,
+  }),
+  args: {
+    title: "Nearly there",
+    description: "We just need some details",
+  },
+};
+
+export const ScrollableDialog: Story = {
+  render: () => ({
+    components: { Dialog, Button, Form },
+    setup(args) {
       const model = ref({});
 
       return {
         args,
         model,
-        schema,
+        combinedSchema,
       };
     },
-    methods: {
-      doUpdate(value: boolean) {
-        updateArgs({ modelValue: value });
-      },
-    },
     template: `
-        <upw-button variant="ghost" block @click="doUpdate(true)">Open Dialog</upw-button>
-        <upw-dialog v-bind="args" @update:modelValue="doUpdate">
-          <upw-form
-            class="mt-8"
-            :schema="schema"
-            v-model="model"
-            @resolve="doUpdate(false)"
-            @reject="doUpdate(false)"
-          />
-        </upw-dialog>
+      <Dialog v-bind="args">
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+
+        <upw-form
+          v-model="model"
+          :schema="combinedSchema"
+          noActions
+          @resolve="doUpdate(false)"
+          @reject="toggleOpen"
+        />
+
+        <div class="bg-gray-50 border cursor-pointer text-gray-600 mt-6 flex items-center justify-center select-none h-64 rounded-lg">
+          Upload a profile picture
+        </div>
+
+        <template v-slot:footer>
+          <Button class="mt-6" @click="toggleOpen" block>Save</Button>
+        </template>
+
+        <template v-slot:close>
+          <Button class="mt-2" variant="ghost" block>Close</Button>
+        </template>
+      </Dialog>
     `,
   }),
   args: {
-    title: "A simple form within a dialog",
-    size: "xl",
+    title: "Nearly there",
+    description: "We just need some details",
   },
+};
+
+export const MockedAsyncAction: Story = {
+  render: args => ({
+    components: { Dialog, Button },
+    setup() {
+      const open = ref(false);
+      const loading = ref(false);
+      let seconds = ref(3);
+
+      const start = () => {
+        loading.value = true;
+        if (seconds.value === 1) {
+          open.value = false;
+          loading.value = false;
+          seconds.value = 3;
+        } else {
+          seconds.value--;
+          setTimeout(() => {
+            start();
+          }, 1000);
+        }
+      };
+
+      return {
+        seconds,
+        loading,
+        args,
+        start,
+        open,
+      };
+    },
+    template: `
+      <Dialog
+        v-bind="args"
+        v-model:open="open"
+        title="Mocked asynchronous action"
+        :description="seconds + ' seconds remaining'"
+      >
+        <template v-slot:trigger>
+          <Button @click="toggleOpen" size="md">Open Dialog</Button>
+        </template>
+        <Button slot="footer" size="sm" @click="start" :loading="loading">Begin</Button>
+      </Dialog>
+    `,
+  }),
 };

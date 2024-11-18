@@ -1,233 +1,282 @@
-/*
-
-Upmind Theme Configuration for Tailwind CSS
--------------------------------------------
-We will ALWAYS extend the default Tailwind CSS configuration.
-with our own customizations. As specified in the configuration below.
-
-NOT all Tailwind CSS configuration options are listed here.
-For a full list of options, see the official Tailwind CSS documentation: https://tailwindcss.com/docs/configuration
-
-*/
-
-/*
-|-------------------------------------------------------------------------------
-| Colors                                    https://tailwindcss.com/docs/colors
-|-------------------------------------------------------------------------------
-|
-| Here you can specify the colors used in your project.
-| We generally dont specify colors here, only the theme colors. eg: primary, secondary, tertiary, accent
-| To get you started, we've provided our base palette of great looking colors that are perfect
-| for your Upmind store, but don't hesitate to change them for your project.
-| You own these colors, nothing will break if you change everything about them.
-|
-*/
-
 import defaultTheme from "tailwindcss/defaultTheme";
 
-export default {
-  /*
-  |-----------------------------------------------------------------------------
-  | Colors                                  https://tailwindcss.com/docs/colors
-  |-----------------------------------------------------------------------------
-  |
-  | The color palette defined above is also assigned to the "colors" key of
-  | your Tailwind config. This makes it easy to access them in your CSS
-  | using Tailwind's config helper. For example:
-  |
-  | .error { color: config('colors.red') }
-  |
-  */
+// -----------------------------------------------------------------------------
 
-  colors: {
-    transparent: "transparent",
-    black: "#282425",
-    white: "#ece3ca",
+const colors = {
+  foreground: "#282425",
+  background: "#ece3ca",
 
-    // ---
+  // --- Theme Variants
 
-    base: {
+  base: {
+    DEFAULT: "#f4efe0",
+    50: "#faf8f2",
+    100: "#f4efe0",
+    200: "#ece3ca",
+    300: "#dac697",
+    400: "#caaa6d",
+    500: "#be9451",
+    600: "#b18045",
+    700: "#93673b",
+    800: "#775335",
+    900: "#61442d",
+    950: "#342316",
+    foreground: "#775335",
+    background: "#f4efe0",
+    muted: {
       DEFAULT: "#f4efe0",
-      50: "#faf8f2",
-      100: "#f4efe0",
-      200: "#ece3ca",
-      300: "#dac697",
-      400: "#caaa6d",
-      500: "#be9451",
-      600: "#b18045",
-      700: "#93673b",
-      800: "#775335",
-      900: "#61442d",
-      950: "#342316",
-      content: "#775335",
+      foreground: "#65758b",
+      active: "#ece3ca",
     },
-
-    // ---
-
-    primary: {
-      DEFAULT: "#df5a54",
-      50: "#fdf3f3",
-      100: "#fbe6e5",
-      200: "#f9d1cf",
-      300: "#f4b0ad",
-      400: "#ef9995",
-      500: "#df5a54",
-      600: "#cb3e37",
-      700: "#aa312b",
-      800: "#8d2c27",
-      900: "#762a26",
-      950: "#40110f",
-      content: "#282425",
-    },
-
-    accent: {
-      DEFAULT: "#448562",
-      50: "#f1f8f4",
-      100: "#deede2",
-      200: "#bfdbc9",
-      300: "#a4cbb4",
-      400: "#65a280",
-      500: "#448562",
-      600: "#32694d",
-      700: "#285440",
-      800: "#224334",
-      900: "#1c382b",
-      950: "#0f1f18",
-      content: "#f1f8f4",
-    },
-
-    secondary: {
-      DEFAULT: "#903710",
-      50: "#fffaeb",
-      100: "#fdeec8",
-      200: "#fbdb84",
-      300: "#f9c650",
-      400: "#f8b027",
-      500: "#f18d0f",
-      600: "#d66909",
-      700: "#b1480c",
-      800: "#903710",
-      900: "#762e11",
-      950: "#441604",
-      content: "#fffaeb",
-    },
-
-    // ---
-
-    info: {
-      DEFAULT: "#2563eb",
-      50: "#eff4ff",
-      100: "#dbe6fe",
-      200: "#bfd3fe",
-      300: "#93b4fd",
-      400: "#6090fa",
-      500: "#3b76f6",
-      600: "#2563eb",
-      700: "#1d58d8",
-      800: "#1e4baf",
-      900: "#1e408a",
-      950: "#172a54",
-      content: "#dbe6fe",
-    },
-
-    success: {
-      DEFAULT: "#16a34a",
-      50: "#f0fdf5",
-      100: "#dcfce8",
-      200: "#bbf7d1",
-      300: "#86efad",
-      400: "#4ade81",
-      500: "#22c55e",
-      600: "#16a34a",
-      700: "#15803c",
-      800: "#166533",
-      900: "#14532b",
-      950: "#052e14",
-      content: "#dcfce8",
-    },
-
-    error: {
-      DEFAULT: "#f35248",
-      50: "#fef3f2",
-      100: "#ffe3e1",
-      200: "#ffccc9",
-      300: "#fea8a3",
-      400: "#fb766e",
-      500: "#f35248",
-      600: "#e02d22",
-      700: "#bc2319",
-      800: "#9c2018",
-      900: "#81211b",
-      950: "#460d09",
-      content: "#ffe3e1",
-    },
-
-    warning: {
-      DEFAULT: "#d97706",
-      50: "#fff6eb",
-      100: "#fee4c7",
-      200: "#fdc88a",
-      300: "#fcab4d",
-      400: "#fb9724",
-      500: "#f5880b",
-      600: "#d97706",
-      700: "#b46509",
-      800: "#92550e",
-      900: "#78470f",
-      950: "#452603",
-      content: "#fee4c7",
-    },
-
-    disabled: {
-      DEFAULT: "#bdbdbd",
-      content: "#404040",
-    },
-    // ---
   },
 
-  /*
-  |-----------------------------------------------------------------------------
-  | Fonts                                    https://tailwindcss.com/docs/fonts
-  |-----------------------------------------------------------------------------
-  |
-  | Here is where you define your project's font stack, or font families.
-  | Keep in mind that Tailwind doesn't actually load any fonts for you.
-  | If you're using custom fonts you'll need to import them prior to
-  | defining them here.
-  |
-  | By default we provide a native font stack that works remarkably well on
-  | any device or OS you're using, since it just uses the default fonts
-  | provided by the platform.
-  |
-  | Class name: .font-{name}
-  |
-  */
+  primary: {
+    DEFAULT: "#df5a54",
+    50: "#fdf3f3",
+    100: "#fbe6e5",
+    200: "#f9d1cf",
+    300: "#f4b0ad",
+    400: "#ef9995",
+    500: "#df5a54",
+    600: "#cb3e37",
+    700: "#aa312b",
+    800: "#8d2c27",
+    900: "#762a26",
+    950: "#40110f",
+    foreground: "#282425",
+    background: "#df5a54",
+    muted: {
+      DEFAULT: "#fbe6e5",
+      foreground: "#65758b",
+      active: "#f9d1cf",
+    },
+  },
 
+  accent: {
+    DEFAULT: "#448562",
+    50: "#f1f8f4",
+    100: "#deede2",
+    200: "#bfdbc9",
+    300: "#a4cbb4",
+    400: "#65a280",
+    500: "#448562",
+    600: "#32694d",
+    700: "#285440",
+    800: "#224334",
+    900: "#1c382b",
+    950: "#0f1f18",
+    foreground: "#f1f8f4",
+    background: "#448562",
+    muted: {
+      DEFAULT: "#deede2",
+      foreground: "#65758b",
+      active: "#bfdbc9",
+    },
+  },
+
+  secondary: {
+    DEFAULT: "#903710",
+    50: "#fffaeb",
+    100: "#fdeec8",
+    200: "#fbdb84",
+    300: "#f9c650",
+    400: "#f8b027",
+    500: "#f18d0f",
+    600: "#d66909",
+    700: "#b1480c",
+    800: "#903710",
+    900: "#762e11",
+    950: "#441604",
+    foreground: "#fffaeb",
+    background: "#903710",
+    muted: {
+      DEFAULT: "#fdeec8",
+      foreground: "#65758b",
+      active: "#fbdb84",
+    },
+  },
+
+  // ---
+
+  promotion: {
+    DEFAULT: "#5E36E8",
+    50: "#f3f3ff",
+    100: "#eae9fe",
+    200: "#d9d7fd",
+    300: "#bbb7fb",
+    400: "#998ef7",
+    500: "#7760f2",
+    600: "#5e36e8",
+    700: "#562cd5",
+    800: "#4724b3",
+    900: "#3d2092",
+    950: "#231263",
+    foreground: "#ffffff",
+    background: "#5E36E8",
+    muted: {
+      DEFAULT: "#f3f3ff",
+      foreground: "#65758b",
+      active: "#eae9fe",
+    },
+  },
+
+  destructive: {
+    DEFAULT: "#ff6b6b",
+    50: "#4d0000",
+    100: "#660000",
+    200: "#990000",
+    300: "#cc0000",
+    400: "#ff0000",
+    500: "#ff3333",
+    600: "#ff6666",
+    700: "#ff9999",
+    800: "#ffcccc",
+    900: "#ffe5e5",
+    950: "#fff2f2",
+    foreground: "#ffffff",
+    background: "#ff4d6d",
+    muted: {
+      DEFAULT: "#4d0000",
+      foreground: "#65758b",
+      active: "#660000",
+    },
+  },
+
+  // ---
+
+  info: {
+    DEFAULT: "#2563eb",
+    50: "#eff4ff",
+    100: "#dbe6fe",
+    200: "#bfd3fe",
+    300: "#93b4fd",
+    400: "#6090fa",
+    500: "#3b76f6",
+    600: "#2563eb",
+    700: "#1d58d8",
+    800: "#1e4baf",
+    900: "#1e408a",
+    950: "#172a54",
+    foreground: "#dbe6fe",
+    background: "#2563eb",
+    muted: {
+      DEFAULT: "#eff4ff",
+      foreground: "#65758b",
+      active: "#bfd3fe",
+    },
+  },
+
+  success: {
+    DEFAULT: "#16a34a",
+    50: "#f0fdf5",
+    100: "#dcfce8",
+    200: "#bbf7d1",
+    300: "#86efad",
+    400: "#4ade81",
+    500: "#22c55e",
+    600: "#16a34a",
+    700: "#15803c",
+    800: "#166533",
+    900: "#14532b",
+    950: "#052e14",
+    foreground: "#dcfce8",
+    background: "#16a34a",
+    muted: {
+      DEFAULT: "#f0fdf5",
+      foreground: "#65758b",
+      active: "#bbf7d1",
+    },
+  },
+
+  warning: {
+    DEFAULT: "#d97706",
+    50: "#fff6eb",
+    100: "#fee4c7",
+    200: "#fdc88a",
+    300: "#fcab4d",
+    400: "#fb9724",
+    500: "#f5880b",
+    600: "#d97706",
+    700: "#b46509",
+    800: "#92550e",
+    900: "#78470f",
+    950: "#452603",
+    foreground: "#fee4c7",
+    background: "#d97706",
+    muted: {
+      DEFAULT: "#fff6eb",
+      foreground: "#65758b",
+      active: "#fdc88a",
+    },
+  },
+
+  error: {
+    DEFAULT: "#f35248",
+    50: "#fef3f2",
+    100: "#ffe3e1",
+    200: "#ffccc9",
+    300: "#fea8a3",
+    400: "#fb766e",
+    500: "#f35248",
+    600: "#e02d22",
+    700: "#bc2319",
+    800: "#9c2018",
+    900: "#81211b",
+    950: "#460d09",
+    foreground: "#ffe3e1",
+    background: "#f35248",
+    muted: {
+      DEFAULT: "#fef3f2",
+      foreground: "#65758b",
+      active: "#ffccc9",
+    },
+  },
+
+  disabled: {
+    DEFAULT: "#bdbdbd",
+    foreground: "#404040",
+  },
+
+  // --- Component Variants
+
+  card: {
+    DEFAULT: "#ffffff",
+    foreground: "#0f1729",
+  },
+
+  popover: {
+    DEFAULT: "#ffffff",
+    foreground: "#0f1729",
+  },
+
+  control: {
+    DEFAULT: "#ffffff",
+    foreground: "#000000",
+    background: "#ffffff",
+    active: {
+      DEFAULT: "#5E36E8",
+      muted: "#5E36E820",
+      foreground: "#ffffff",
+      background: "#5E36E8",
+    },
+    error: {
+      DEFAULT: "#EF4444",
+      muted: "#EF444420",
+      foreground: "#ffffff",
+      background: "#EF4444",
+    },
+  },
+};
+
+// -----------------------------------------------------------------------------
+
+export default {
+  colors,
   fontFamily: {
     sans: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.sans],
     serif: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.serif],
     mono: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.mono],
   },
-
-  /*
-  |-----------------------------------------------------------------------------
-  | Text sizes                         https://tailwindcss.com/docs/text-sizing
-  |-----------------------------------------------------------------------------
-  |
-  | Here is where you define your text sizes. Name these in whatever way
-  | makes the most sense to you. We use size names by default, but
-  | you're welcome to use a numeric scale or even something else
-  | entirely.
-  |
-  | By default Tailwind uses the "rem" unit type for most measurements.
-  | This allows you to set a root font size which all other sizes are
-  | then based on. That said, you are free to use whatever units you
-  | prefer, be it rems, ems, pixels or other.
-  |
-  | Class name: .text-{size}
-  |
-  */
-
   textSizes: {
     xs: ".75rem", // 12px
     sm: ".875rem", // 14px
@@ -239,90 +288,46 @@ export default {
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
   },
-
-  /*
-  |-----------------------------------------------------------------------------
-  | Leading (line height)              https://tailwindcss.com/docs/line-height
-  |-----------------------------------------------------------------------------
-  |
-  | Here is where you define your line height values, or as we call
-  | them in Tailwind, leadings.
-  |
-  | Class name: .leading-{size}
-  |
-  */
-
+  width: {
+    "dropdown-3xs": "6rem",
+    "dropdown-2xs": "8rem",
+    "dropdown-xs": "10rem",
+    "dropdown-sm": "12rem",
+    "dropdown-md": "14rem",
+    "dropdown-lg": "16rem",
+    "dropdown-xl": "18rem",
+    "dropdown-2xl": "20rem",
+  },
   leading: {
     none: 1,
     tight: 1.25,
     normal: 1.5,
     loose: 2,
   },
-
-  /*
-  |-----------------------------------------------------------------------------
-  | Tracking (letter spacing)       https://tailwindcss.com/docs/letter-spacing
-  |-----------------------------------------------------------------------------
-  |
-  | Here is where you define your letter spacing values, or as we call
-  | them in Tailwind, tracking.
-  |
-  | Class name: .tracking-{size}
-  |
-  */
-
   tracking: {
     tight: "-0.05em",
     normal: "0",
     wide: "0.05em",
   },
-
-  /*
-  |-----------------------------------------------------------------------------
-  | Border radius                    https://tailwindcss.com/docs/border-radius
-  |-----------------------------------------------------------------------------
-  |
-  | Here is where you define your border radius values. If a `default` radius
-  | is provided, it will be made available as the non-suffixed `.rounded`
-  | utility.
-  |
-  | If your scale includes a `0` value to reset already rounded corners, it's
-  | a good idea to put it first so other values are able to override it.
-  |
-  | Class name: .rounded{-side?}{-size?}
-  |
-  */
-
-  borderRadius: {
-    DEFAULT: "0",
-    none: "0",
-    xs: "0",
-    sm: "0",
-    default: "0",
-    lg: "0",
-    xl: "0",
-    full: "0",
-    pill: "0",
-    button: "0",
-    box: "0",
+  borderColor: {
+    DEFAULT: colors.base[300],
+    input: colors.base[300],
+    control: colors.base[300],
+    active: colors.control.active.DEFAULT,
   },
-
-  /*
-  |-----------------------------------------------------------------------------
-  | Shadows                                https://tailwindcss.com/docs/shadows
-  |-----------------------------------------------------------------------------
-  |
-  | Here is where you define your shadow utilities. As you can see from
-  | the defaults we provide, it's possible to apply multiple shadows
-  | per utility using comma separation.
-  |
-  | If a `default` shadow is provided, it will be made available as the non-
-  | suffixed `.shadow` utility.
-  |
-  | Class name: .shadow-{size?}
-  |
-  */
-
+  borderRadius: {
+    DEFAULT: "0", // disabled
+    none: "0", // disabled
+    xs: "0", // disabled
+    sm: "0", // disabled
+    md: "0", // disabled
+    lg: "0", // disabled
+    xl: "0", // disabled
+    full: "0", // disabled
+    pill: "0", // disabled
+    button: "0", // disabled
+    box: "0", // disabled
+  },
   shadows: {
     default: "0 2px 4px 0 rgba(0,0,0,0.10)",
     md: "0 4px 8px 0 rgba(0,0,0,0.12), 0 2px 4px 0 rgba(0,0,0,0.08)",
@@ -330,5 +335,11 @@ export default {
     inner: "inset 0 2px 4px 0 rgba(0,0,0,0.06)",
     outline: "0 0 0 3px rgba(52,144,220,0.5)",
     none: "none",
+  },
+  ringColor: {
+    DEFAULT: colors.control.active.muted,
+    ring: colors.control.active.muted,
+    invalid: colors.control.error.muted,
+    active: colors.control.active.DEFAULT,
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <upm-product-config
+  <ProductConfig
     v-if="open || selected"
     v-bind="$props"
     :class="'styles.basket.item'"
@@ -14,13 +14,13 @@
     @update:term="updateTerm"
   >
     <template #header>
-      <span v-if="meta.isNew">{{ $t("basket.items.pending.title") }}</span>
+      <span v-if="meta.isNew">{{ t("basket.items.pending.title") }}</span>
       <span v-else-if="meta.hasErrors">{{
-        $t("basket.items.invalid.title")
+        t("basket.items.invalid.title")
       }}</span>
     </template>
-  </upm-product-config>
-  <upm-product-card
+  </ProductConfig>
+  <ProductCard
     v-else
     v-bind="$props"
     :class="'styles.basket.item'"
@@ -28,29 +28,30 @@
     @resolve="open = true"
   >
     <template #badges v-if="!meta.isLoading">
-      <upw-badge
+      <Badge
         v-if="meta.isNew"
         color="accent"
         variant="flat"
         :class="styles.basket.item.ping.root"
       >
-        {{ $t("basket.items.pending.badge") }}
-      </upw-badge>
-      <upw-badge
+        {{ t("basket.items.pending.badge") }}
+      </Badge>
+      <Badge
         v-else-if="meta.hasErrors"
         color="error"
         variant="flat"
         :class="styles.basket.item.ping.root"
       >
-        {{ $t("basket.items.invalid.badge") }}
-      </upw-badge>
+        {{ t("basket.items.invalid.badge") }}
+      </Badge>
     </template>
-  </upm-product-card>
+  </ProductCard>
 </template>
 
 <script>
 // --- external
-import { computed, defineComponent, ref, watch } from "vue";
+import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
@@ -59,19 +60,23 @@ import {
   utils,
 } from "@upmind-automation/headless-vue";
 const { stateMatches } = utils;
-import { useStyles, mergeStyles, UpwBadge } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
+
 import config from "./config.cva";
 
 // --- components
-import UpmProductCard from "../product/Card.vue";
-import UpmProductConfig from "../product/Config.vue";
+import ProductCard from "../product/Card.vue";
+import ProductConfig from "../product/Config.vue";
+
+// --- custom elements
+import { Badge } from "@upmind-automation/upwind";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBasketItem",
-  components: { UpmProductCard, UpmProductConfig, UpwBadge },
+  name: "BasketItem",
+  components: { Badge, ProductCard, ProductConfig },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
@@ -88,6 +93,8 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const { removeItem, updateItem } = useBasket();
 
     const {
@@ -107,6 +114,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       meta,
       removeItem,
       updateItem,
@@ -119,7 +127,7 @@ export default defineComponent({
       open,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
   computed: {},

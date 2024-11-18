@@ -1,55 +1,39 @@
 <template>
-  <upw-dropdown
+  <Combobox
     v-if="currencies?.length > 1 || meta.isLoading"
-    v-bind="selected"
+    class="w-dropdown-xs md:w-dropdown-2xs bg-base text-primary"
+    :popoverClass="['w-dropdown-xs md:w-dropdown-2xs', popoverClass]"
+    :modelValue="selected?.value"
     :items="currencies"
-    :size="size"
-    :placement="placement"
-    :disabled="meta.isLoading || meta.isProcessing"
-    :upwind-config="{ listboxButton: config.currencySwitcher }"
-    :loading="meta.isLoading || meta.isProcessing"
-  >
-  </upw-dropdown>
+    :loading="meta.isLoading"
+    @update:modelValue="updateCurrency"
+  />
 </template>
 
 <script>
 // --- external
 import { defineComponent, computed } from "vue";
 
-// --- components
-import { UpwDropdown } from "@upmind-automation/upwind";
-
 // --- internal
 import { useBasketCurrency } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
-import config from "./config.cva";
 import currencyMap from "./currencies";
+
+// --- components
+import { Combobox } from "@upmind-automation/upwind";
 
 // --- utils
 import { map } from "lodash-es";
 
-// --- types
-
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmCurrencySwitcher",
-  components: {
-    UpwDropdown,
+  name: "VCurrencySwitcher",
+  components: { Combobox },
+
+  props: {
+    popoverClass: { type: String, default: "mt-0" },
   },
 
-  emits: [],
-  props: {
-    size: {
-      type: String,
-      default: "sm",
-      validator: value => ["sm", "md", "lg"].includes(value),
-    },
-    placement: {
-      type: String,
-      default: "bottom-start",
-    },
-  },
   setup() {
     const {
       state,
@@ -63,7 +47,9 @@ export default defineComponent({
       update,
     } = useBasketCurrency();
 
-    const styles = useStyles(["currencySwitcher"], meta, config);
+    function updateCurrency(value) {
+      update({ code: value });
+    }
 
     return {
       state,
@@ -73,36 +59,31 @@ export default defineComponent({
       uischema,
       clear,
       input,
-      update,
+      updateCurrency,
       //---
-      styles,
-      config,
       selected: computed(() => {
-        if (meta.value?.isLoading) return {};
+        if (meta.value?.isLoading) return undefined;
         const code = model.value.code;
 
         return {
           label: code,
-          prependAvatar: {
-            name: currencyMap[code?.toUpperCase()]?.country_code?.toLowerCase(),
-            path: "flags",
+          value: code,
+          avatar: {
+            icon: currencyMap[code?.toUpperCase()]?.country_code?.toLowerCase(),
           },
         };
       }),
 
       currencies: computed(() => {
         return map(currencies.value, currency => ({
-          // prependText: currency?.prefix || currency?.suffix,
-          prependAvatar: {
-            name: currencyMap[
+          avatar: {
+            icon: currencyMap[
               currency?.code?.toUpperCase()
             ]?.country_code?.toLowerCase(),
-            path: "flags",
           },
           label: currency.code,
           value: currency.code,
           selected: currency.code === model.value.code,
-          action: () => update(currency),
         }));
       }),
     };

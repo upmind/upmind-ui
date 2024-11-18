@@ -4,18 +4,17 @@
     :class="styles.session.auth.root"
     v-if="!meta.isAuthenticated"
   >
-    <upw-tabs
+    <Tabs
+      :default-value="modelValue"
       :tabs="tabs"
-      v-model="active"
-      @update:modelValue="toggleForm"
-      size="sm"
+      :width="stretchTabs ? 'full' : 'auto'"
       v-if="
         !noTabs &&
         (meta.canShowForms || meta.showLoginForm || meta.showRegisterForm)
       "
     />
 
-    <upw-form
+    <Form
       :key="active"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
@@ -23,27 +22,31 @@
       :schema="schema"
       :uischema="uischema"
       :additional-errors="errors?.data"
+      :color="color"
       @reject="reject"
       @resolve="resolve"
       :class="styles.session.auth.form"
       :actions="authActions"
-    >
-    </upw-form>
+    />
   </div>
-  <upw-button variant="ghost" block type="reset" @click.prevent="logout" v-else>
+  <Button variant="ghost" block type="reset" @click.prevent="logout" v-else>
     logout
-  </upw-button>
+  </Button>
 </template>
 
 <script lang="ts">
 // --- external
 import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { UpwForm, UpwTabs, UpwButton } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upwind";
 import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
+
+// --- custom elements
+import { Button, Tabs, type TabItems } from "@upmind-automation/upwind";
 
 // --- types
 import type { PropType } from "vue";
@@ -51,8 +54,8 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmAuth",
-  components: { UpwForm, UpwTabs, UpwButton },
+  name: "Auth",
+  components: { Form, Tabs, Button },
 
   emits: ["update:modelValue"],
   props: {
@@ -61,8 +64,13 @@ export default defineComponent({
       default: "login",
     },
     noTabs: { type: Boolean, default: false },
+    blockTabs: { type: Boolean, default: false },
+    stretchTabs: { type: Boolean, default: false },
+    color: { type: String },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const {
       meta,
       errors,
@@ -79,6 +87,7 @@ export default defineComponent({
     const styles = useStyles(["session.auth"], meta, config);
 
     return {
+      t,
       meta,
       errors,
       styles,
@@ -96,15 +105,27 @@ export default defineComponent({
     };
   },
   computed: {
+    tabs(): TabItems {
+      return [
+        {
+          value: "register",
+          label: this.t("auth.actions.toggle.register"),
+        },
+        {
+          value: "login",
+          label: this.t("auth.actions.toggle.login"),
+        },
+      ];
+    },
     authActions() {
       const actions = {
         submit: {
           type: "submit",
           label: this.meta.showLoginForm
-            ? this.$t("auth.actions.login")
+            ? this.t("auth.actions.login")
             : this.meta.showRegisterForm
-              ? this.$t("auth.actions.register")
-              : this.$t("auth.actions.continue"),
+              ? this.t("auth.actions.register")
+              : this.t("auth.actions.continue"),
           block: true,
           needsValid: true,
         },
@@ -113,7 +134,7 @@ export default defineComponent({
       // TODO: implement forgot password flow
       // if (this.meta.showLoginForm) {
       //   actions.forgot = {
-      //     label: this.$t("auth.actions.forgot"),
+      //     label: this.t("auth.actions.forgot"),
       //     block: true,
       //     variant: "link",
       //     size: "sm",
@@ -122,18 +143,6 @@ export default defineComponent({
       // }
 
       return actions;
-    },
-    tabs() {
-      return [
-        {
-          value: "register",
-          label: this.$t("auth.register"),
-        },
-        {
-          value: "login",
-          label: this.$t("auth.login"),
-        },
-      ];
     },
   },
   methods: {
@@ -159,6 +168,9 @@ export default defineComponent({
       if (canShowForms) {
         this.toggleForm(this.active);
       }
+    },
+    modelValue(value) {
+      this.toggleForm(value);
     },
   },
 });

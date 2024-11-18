@@ -35,6 +35,7 @@ setup(app => {
   }
 
   const i18n = createI18n({
+    legacy: false,
     locale: "en",
     fallbackLocale: "en",
     messages: getGlobalMessages(),
@@ -54,11 +55,12 @@ const preview: Preview = {
     layout: "fullscreen",
     toolbar: {
       zoom: { hidden: true },
-      eject: { hidden: true },
+      // eject: { hidden: true },
       copy: { hidden: true },
-      fullscreen: { hidden: true },
+      // fullscreen: { hidden: true },
     },
   },
+
   globalTypes: {
     locale: {
       description: "Internationalization locale",
@@ -79,6 +81,7 @@ const preview: Preview = {
       },
     },
   },
+
   decorators: [
     withUpwindTheme({
       themes,
@@ -92,6 +95,8 @@ const preview: Preview = {
       return story({ ...context, updateArgs });
     },
   ],
+
+  // tags: ["autodocs"],
 };
 
 export default preview;

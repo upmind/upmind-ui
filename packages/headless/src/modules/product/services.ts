@@ -12,6 +12,7 @@ import {
   concat,
   find,
   first,
+  forEach,
   get,
   isEmpty,
   isNil,
@@ -27,6 +28,7 @@ import {
   reduce,
   reject,
   set,
+  some,
   times,
 } from "lodash-es";
 
@@ -234,7 +236,7 @@ async function checkAttributes(
   return checkSubproducts(
     // @ts-ignore
     { error, lookups, model },
-    { data: value, type: "attributes" }
+    { data: value, type: "attributes", sub_pids: model?.sub_pids }
   );
 }
 
@@ -243,17 +245,17 @@ async function checkOptions(
   _event: any
 ) {
   const value = model?.options;
-
+  const sub_pids = model?.sub_pids;
   return checkSubproducts(
     // @ts-ignore
     { error, lookups, model },
-    { data: value, type: "options" }
+    { data: value, type: "options", sub_pids }
   );
 }
 
 async function checkSubproducts(
   { error, lookups, model }: any,
-  { type, data }: any
+  { type, data, sub_pids }: any
 ) {
   let subproducts: any = null;
   const price: any[] = [];
@@ -270,9 +272,17 @@ async function checkSubproducts(
   subproducts = reduce(
     lookups[type],
     (result, subproduct) => {
-      // try get any selected values for this subproduct,
       let selected = get(data, subproduct.id, {});
 
+      // try set anymatching pre-selected values for this subproduct ( sub_pids ),
+      // NB: ONLY when data is being set for the first time
+      if (isEmpty(data)) {
+        forEach(sub_pids, pid => {
+          if (some(subproduct.values, ["id", pid])) {
+            set(selected, pid, { product_id: pid });
+          }
+        });
+      }
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any
@@ -361,9 +371,8 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
     return Promise.resolve({ provision_fields: {} });
 
   // ---
-  // NB, ensure we strip out any falsy values as the API does not like them
-  const value = omitBy(model?.provision_fields, isNil) || {};
 
+  const value = model?.provision_fields || {};
   const { validate } = useValidation();
   const errors = validate(lookups.provision_fields, value);
 
@@ -447,7 +456,11 @@ const calculateBillingTerm: IProductModel["term"] = async (
       term = minBy(availableTerms, "price");
       break;
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(availableTerms, "monthly_price_from");
+      term = minBy(
+        availableTerms,
+        (term: any) =>
+          term?.monthly_price_from_discounted ?? term?.monthly_price_from
+      );
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = await getConfig(
@@ -493,8 +506,16 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
         })
         .catch(() => {
           // still notify the machine, but with an no value, so we can move out of the state
-          callback({ type: "CALCULATED", data: null });
+          callback({ type: "CALCULATE_CANCELLED", data: null });
         });
+    }
+
+    if (event.type === "CANCEL") {
+      // Firstly, we need to check if we have a controller already doing calculation requests.
+      // If we do, we need to abort the current request and start a new one.
+      if (controller?.signal && !controller.signal?.aborted) {
+        controller?.abort("Request cancelled");
+      }
     }
   });
 
@@ -503,7 +524,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
     // typically when the transitioning out of the state node
     //  so cancel any pending requests
     if (controller?.signal && !controller.signal?.aborted)
-      controller?.abort("New request received");
+      controller?.abort("Subscripton terminated");
   };
 }
 
@@ -512,6 +533,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
 
 export default <Object>{
   load,
+  refresh: load, // alias
   // ---
   checkQuantity,
   checkTerm,

@@ -14,11 +14,11 @@ import {
   stateMatches,
   useChildActor,
   useContext,
-  useContextActor,
   useState,
 } from "../../utils";
 import { some, filter } from "lodash-es";
 
+// --- types
 // --------------------------------------------------------
 
 // --------------------------------------------------------
@@ -80,7 +80,10 @@ export const useBasket = (): any => {
           ) ||
           machineMatches(actors.value.currency, ["processing"]) ||
           machineMatches(actors.value.customFields, ["processing"]) ||
-          machineMatches(actors.value.billingDetails, ["processing"]) ||
+          machineMatches(actors.value.billingDetails, [
+            "processing",
+            "available.processing",
+          ]) ||
           machineMatches(actors.value.promotions, ["processing"]),
 
         needsUpdating:
@@ -105,16 +108,10 @@ export const useBasket = (): any => {
             "checkout.available",
           ]) && !stateMatches(state, ["shopping.items.empty"]),
 
-        needsAuth: !stateMatches(state, [
-          "shopping.account.complete",
-          "checkout",
-        ]),
+        needsAuth: !stateMatches(state, ["shopping.account.complete"]),
 
         // ---
-        hasProducts: stateMatches(state, [
-          "shopping.items.complete",
-          "checkout",
-        ]),
+        hasProducts: stateMatches(state, ["shopping.items.complete"]),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
@@ -159,12 +156,11 @@ export const useBasket = (): any => {
 
         isCheckout:
           machineMatches(payment, ["approving"]) ||
-          stateMatches(state, [
-            "shopping.payment_details.processing",
-            "checkout",
-            "converting",
-            "paying",
-          ]),
+          stateMatches(state, ["checkout", "converting", "paying"]),
+
+        isProcessingDetails:
+          machineMatches(payment, ["approving"]) ||
+          stateMatches(state, ["shopping.payment_details.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
@@ -186,13 +182,16 @@ export const useBasket = (): any => {
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    items: useContextActor(state, "items", []),
+    items: useContext(state, "items", []),
     itemsPending: computed(() => {
-      const items = contextActor(state, "items", []);
-      return filter(items, item => !contextMatches(item, ["basket_product"]));
+      const items = contextValue(state, "items", []);
+      return filter(
+        items,
+        item => !item?.state?.done && !contextMatches(item, ["basket_product"])
+      );
     }),
     itemsInvalid: computed(() => {
-      const items = contextActor(state, "items", []);
+      const items = contextValue(state, "items", []);
       return filter(
         items,
         item =>
@@ -201,7 +200,7 @@ export const useBasket = (): any => {
       );
     }),
     itemsConfigured: computed(() => {
-      const items = contextActor(state, "items", []);
+      const items = contextValue(state, "items", []);
       return filter(
         items,
         item =>

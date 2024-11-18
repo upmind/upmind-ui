@@ -1,25 +1,25 @@
 <template>
   <section :class="styles.basket.promotions.root" v-auto-animate>
     <header :class="styles.basket.promotions.header">
-      <upw-button
+      <Button
         variant="link"
         :class="styles.basket.promotions.heading"
         @click="toggle = !toggle"
         size="sm"
-        :label="$t('basket.promotions.title')"
+        :label="t('basket.promotions.title')"
       >
-        <template #append-icon>
-          <upw-icon
+        <template #append>
+          <Icon
             icon="arrow-down"
             :class="styles.basket.promotions.toggle"
             :aria-checked="toggle"
             aria-hidden="true"
           />
         </template>
-      </upw-button>
+      </Button>
     </header>
 
-    <upw-form
+    <Form
       v-if="toggle"
       size="sm"
       :class="styles.basket.promotions.content"
@@ -42,10 +42,10 @@
       v-auto-animate
     >
       <h4 :class="styles.basket.promotions.title">
-        {{ $t("basket.promotions.active.title") }}
+        {{ t("basket.promotions.active.title") }}
       </h4>
 
-      <upw-button
+      <Button
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
         variant="flat"
@@ -65,13 +65,17 @@
 // --- external
 import { defineComponent, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- components
-import { UpwButton, UpwIcon, UpwForm } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upwind";
+
+// --- custom elements
+import { Button, Icon } from "@upmind-automation/upwind";
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 import { set } from "lodash-es";
 
@@ -80,12 +84,14 @@ import { set } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketPromotions",
-  components: { UpwButton, UpwIcon, UpwForm },
+  name: "BasketPromotions",
+  components: { Form, Button, Icon },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {},
   setup() {
+    const { t } = useI18n();
+
     const {
       meta,
       errors,
@@ -102,6 +108,7 @@ export default defineComponent({
     const styles = useStyles(["basket.promotions"], meta, config);
 
     return {
+      t,
       meta,
       errors,
       model,
@@ -115,7 +122,7 @@ export default defineComponent({
       // ---
       config,
       styles,
-      mergeStyles,
+      cn,
       // ---
       toggle: ref(false),
       processing: ref({}),
@@ -132,7 +139,7 @@ export default defineComponent({
       return {
         submit: {
           type: "submit",
-          label: this.$t("basket.promotions.actions.submit"),
+          label: this.t("basket.promotions.actions.submit"),
           size: "sm",
           variant: "ghost",
           needsValid: true,

@@ -26,6 +26,7 @@ export interface StripeContext {
   // ---
   basket_id?: string;
   currency?: ICurrency;
+  address?: any; // IAdress
   amount?: number;
   gateway?: IGateway;
   renderless?: boolean;

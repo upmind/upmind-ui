@@ -3,18 +3,18 @@
     <header :class="styles.basket.details.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.details.text">
-          {{ $t("basket.details.text") }}
+          {{ t("basket.details.text") }}
         </span>
 
         <h1 :class="styles.basket.details.title">
-          {{ $t("basket.details.title", summary) }}
+          {{ t("basket.details.title", summary) }}
         </h1>
       </slot>
     </header>
 
     <div :class="styles.basket.details.content">
       <!-- billing details -->
-      <upm-billing-details
+      <BillingDetails
         v-if="!meta.needsAuth"
         :model-value="billingDetailsModel"
         @update:modelValue="billingDetailsUpdate"
@@ -22,7 +22,7 @@
 
       <!-- custom fields  -->
 
-      <upw-form
+      <Form
         v-if="!meta.needsAuth"
         :additional-errors="fieldsErrors?.data"
         :model-value="fieldsModel"
@@ -37,12 +37,12 @@
       />
 
       <!-- payment details -->
-      <upm-payment-details />
+      <PaymentDetails />
     </div>
 
     <footer :class="styles.basket.details.footer">
       <slot name="footer" v-bind="{ meta }">
-        <upm-basket-summary no-actions />
+        <BasketSummary no-actions />
       </slot>
     </footer>
   </section>
@@ -51,6 +51,7 @@
 <script>
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
@@ -59,30 +60,32 @@ import {
   // useBasketPaymentDetails,
   useBasketFields,
 } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmSession from "../session/Session.vue";
-import UpmBasketSummary from "./Summary.vue";
-import UpmBillingDetails from "./BillingDetails.vue";
-import UpmPaymentDetails from "./PaymentDetails.vue";
-import { UpwForm } from "@upmind-automation/upwind";
+import Session from "../session/Session.vue";
+import BasketSummary from "./Summary.vue";
+import BillingDetails from "./BillingDetails.vue";
+import PaymentDetails from "./PaymentDetails.vue";
+import { Form } from "@upmind-automation/upwind";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmBasketDetails",
+  name: "BasketDetails",
   components: {
-    UpmSession,
-    UpmBasketSummary,
-    UpmBillingDetails,
-    UpmPaymentDetails,
-    UpwForm,
+    Session,
+    BasketSummary,
+    BillingDetails,
+    PaymentDetails,
+    Form,
   },
   props: {},
   setup() {
+    const { t } = useI18n();
+
     const { meta, summary } = useBasket();
     const billingDetails = useBasketBillingDetails();
     const fields = useBasketFields();
@@ -92,6 +95,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       meta,
       billingDetailsModel: billingDetails.model,
       billingDetailsUpdate: billingDetails.update,
@@ -108,7 +112,7 @@ export default defineComponent({
       summary,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
 });

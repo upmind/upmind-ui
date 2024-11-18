@@ -5,6 +5,7 @@ import { spawn } from "xstate";
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
+
 // --- utils
 import {
   get,
@@ -76,7 +77,7 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Address",
         lookup: places?.search,
-        default: baseModel?.company_details && baseModel?.place,
+        // default: baseModel?.company_details && baseModel?.place,
       },
 
       manualPlace: {
@@ -283,7 +284,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             type: "Control",
             scope: "#/properties/name",
             options: {
-              focus: true,
+              autoFocus: true,
               autocomplete: "off",
               placeholder: "My home address, etc...",
             },
@@ -324,8 +325,12 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             scope: "#/properties/place",
             i18n: "client.unified.form.fields.place",
             options: {
-              prependIcon: "search",
+              autoFocus: true,
+              icon: "search",
               autocomplete: "off",
+              align: "start",
+              side: "bottom",
+              placeholder: "Search for address ...",
               items: compact([
                 lookups.addresses?.length
                   ? {
@@ -335,15 +340,15 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                     }
                   : null,
                 ...lookups.addresses,
-                {
-                  label: "Enter manually",
-                  i18n: "client.unified.form.fields.manual",
-                  value: "manual",
-                  as: "button",
-                  variant: "link",
-                  size: "sm",
-                  persist: true,
-                },
+                // {
+                //   label: "Enter manually",
+                //   i18n: "client.unified.form.fields.manual",
+                //   value: "manual",
+                //   as: "button",
+                //   variant: "link",
+                //   size: "sm",
+                //   persist: true,
+                // },
               ]),
             },
             rule: {
@@ -372,7 +377,6 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                 scope: "#/properties/address_1",
                 i18n: "client.unified.form.fields.address_1",
                 options: {
-                  focus: true,
                   autocomplete: "address-line1",
                 },
               },
@@ -427,13 +431,13 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                 },
               },
             ],
-            rule: {
-              effect: "SHOW",
-              condition: {
-                scope: "#/properties/manualPlace",
-                schema: { const: true },
-              },
-            },
+            // rule: {
+            //   effect: "SHOW",
+            //   condition: {
+            //     scope: "#/properties/manualPlace",
+            //     schema: { const: true },
+            //   },
+            // },
           },
         ],
         rule: {
@@ -492,7 +496,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
             scope: "#/properties/company_name",
             i18n: "client.unified.form.fields.company_name",
             options: {
-              focus: true,
+              autoFocus: true,
               autocomplete: "organization",
               placeholder: "My Company Name (PTY) LTD",
               label: "Company Name",
@@ -517,7 +521,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
           },
           {
             type: "Control",
-            scope: "#/properties/email",
+            scope: "#/properties/username",
             i18n: "client.unified.form.fields.email",
             options: {
               suggestions: true,
@@ -525,6 +529,8 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
               itemLabel: "email",
               itemValue: "email",
               items: lookups.emails,
+              align: "start",
+              side: "bottom",
             },
           },
           {
@@ -537,6 +543,8 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
               itemLabel: "number",
               itemValue: "number",
               items: lookups.phones,
+              align: "start",
+              side: "bottom",
             },
           },
         ],
@@ -668,7 +676,7 @@ export const parseAddress = (address: IAddress | Array<IAddress>) => {
 
       mappedItem.company_details = false;
       mappedItem.address_id = item.id;
-      mappedItem.place = null;
+      // mappedItem.place = null;
 
       return mappedItem;
     }

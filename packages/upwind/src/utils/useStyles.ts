@@ -1,29 +1,36 @@
 // --- external
 import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
-import { cx } from "class-variance-authority";
+import { clsx } from "clsx";
 import theme from "./useThemes";
+import defaultStylesheet from "../assets/main.css?url";
 
 // --- utils
 import {
+  flattenDeep,
   forEach,
   get,
-  mapValues,
   isArray,
   isEmpty,
   isFunction,
   isNil,
   isObject,
   map,
+  mapValues,
   omitBy,
   reduce,
   set,
-  flattenDeep,
 } from "lodash-es";
 
+// --- types
+import type { ComputedRef } from "vue";
+import { type ClassValue } from "clsx";
+import { type ClassNameValue } from "tailwind-merge";
+
+let customStyleSheet: string = "";
 // -----------------------------------------------------------------------------
 
-function applyVariants(configs: Array<Object>, context: Object = {}) {
+function applyVariants(configs: ClassValue[], context: Object = {}) {
   // ----------------------------------------------
   //  NB: This works by getting ALL the unique keys from ALL of the provided configs
   //      then we loop over each key
@@ -34,6 +41,16 @@ function applyVariants(configs: Array<Object>, context: Object = {}) {
 
   const configKeys = configs.map(Object.keys).flat();
 
+  if (isEmpty(configKeys)) {
+    return twMerge(
+      clsx(
+        ...map(configs, config =>
+          isFunction(config) ? config(context) : config
+        )
+      )
+    );
+  }
+
   return reduce(
     configKeys,
     (styles, key) => {
@@ -41,7 +58,7 @@ function applyVariants(configs: Array<Object>, context: Object = {}) {
       const results = map(variants, variant =>
         isFunction(variant) ? variant(context) : variant
       );
-      set(styles, key, twMerge(cx(...results)));
+      set(styles, key, twMerge(clsx(results)));
       return styles;
     },
     {}
@@ -52,12 +69,11 @@ export function useStyles(
   components: string | string[],
   context: Object = {},
   ...configs: Array<Object>
-) {
+): ComputedRef<Object> {
   return computed(() => {
     // ensure component is an array so we can loop over it and handle multiple components
     components = isArray(components) ? components : [components];
     configs = flattenDeep(configs); // in case were passed nested arrays
-
     // Add any provided config overrides
     const globalConfig = unref(theme?.config);
     if (!isEmpty(globalConfig)) configs.push(globalConfig);
@@ -77,8 +93,10 @@ export function useStyles(
           config = toRaw(unref(config));
 
           const componentConfig = get(config, component);
-
-          if (isObject(componentConfig) && !isEmpty(componentConfig)) {
+          if (
+            isFunction(componentConfig) ||
+            (isObject(componentConfig) && !isEmpty(componentConfig))
+          ) {
             result.push(componentConfig);
           }
           return result;
@@ -94,6 +112,17 @@ export function useStyles(
   });
 }
 
-export function mergeStyles(...styles: Array<String>) {
-  return twMerge(...styles);
+export function cn(...styles: ClassNameValue[]) {
+  return twMerge(clsx(styles));
+}
+
+export const stylesheet = computed((): string => {
+  const isDev = import.meta.env.DEV;
+  return isDev || isEmpty(customStyleSheet)
+    ? defaultStylesheet
+    : customStyleSheet;
+});
+
+export function useStyleSheet(url: string) {
+  customStyleSheet = url;
 }
