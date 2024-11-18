@@ -2,12 +2,13 @@
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-// import type { ActorRef } from "xstate";
 import { useBasket } from ".";
 import productServices from "./items/services";
 
 // --- utils
 import { every, get, isArray, isEmpty, map, pickBy, reduce } from "lodash-es";
+
+// --- types
 import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
@@ -64,9 +65,8 @@ async function add(
   item: any,
   context: any,
   basket: any
-): Promise<ActorRef<any, any>> {
-  // @ts-ignore
-  if (isEmpty(item)) return Promise.resolve();
+): Promise<ActorRef<any, any> | null> {
+  if (isEmpty(item)) return Promise.resolve(null);
 
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
@@ -116,14 +116,22 @@ async function sync(items: any, context: any, basket: any) {
   // Then sync all our items with the basket
   const promises = isEmpty(items)
     ? [Promise.resolve([])]
-    : map(items, item =>
-        add(item, context, basket).then(async actor => {
-          await waitFor(actor, actorState =>
-            actorState.matches("available.configured")
-          );
-          return actor;
-        })
-      );
+    : map(items, item => {
+        return add(item, context, basket).then(
+          async (actor: ActorRef<any, any> | null) => {
+            if (!actor) {
+              console.error("sync basket helper", "ADD", "failed", item);
+              return Promise.resolve(actor);
+            }
+
+            await waitFor(actor, actorState => {
+              return actorState.matches("available.configured");
+            });
+
+            return actor;
+          }
+        );
+      });
 
   // then update the basket
   return Promise.all(promises).then(data => {
@@ -147,7 +155,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         fetch(event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))
           .catch(error => {
-            console.error("basketHelper", "SYNC", error);
+            console.error("basketHelper", "FETCH", error);
             callback({ type: "ERROR", data: error });
           });
         break;

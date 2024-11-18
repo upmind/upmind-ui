@@ -1,23 +1,13 @@
 <template>
   <article :class="styles.clientCard.root">
-    <upw-radio
-      :model-value="!!selected"
-      @input="onSelect"
-      no-feedback
-      no-status
-      size="sm"
-      v-if="selectable"
-    />
     <div :class="styles.clientCard.content" @click="onSelect">
       <header :class="styles.clientCard.header">
         <h4 :class="styles.clientCard.title">
           {{ title }}
 
-          <upw-badge
-            v-for="(badge, index) in badges"
-            :key="`badge-${index}`"
-            v-bind="badge"
-          />
+          <template v-for="(badge, index) in badges" :key="`badge-${index}`">
+            <Badge v-bind="badge" v-if="!badge.hidden" />
+          </template>
         </h4>
       </header>
 
@@ -34,14 +24,7 @@
     </div>
 
     <footer :class="styles.clientCard.actions">
-      <upw-dropdown
-        v-if="!noActions"
-        toggle="navigation-menu-vertical"
-        :toggle-rotate="false"
-        :items="actions"
-        size="sm"
-        grouped
-      />
+      <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
     </footer>
   </article>
 </template>
@@ -49,18 +32,17 @@
 <script>
 // --- external
 import { defineComponent, inject, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import {
-  UpwIcon,
-  UpwRadio,
-  UpwDropdown,
-  UpwBadge,
-} from "@upmind-automation/upwind";
+import { DropdownMenu } from "@upmind-automation/upwind";
+
+// --- custom elements
+import { Badge } from "@upmind-automation/upwind";
 
 // --- utils
 import { useClipboard } from "@vueuse/core";
@@ -68,8 +50,8 @@ import { useClipboard } from "@vueuse/core";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmClientCard",
-  components: { UpwIcon, UpwRadio, UpwDropdown, UpwBadge },
+  name: "ClientCard",
+  components: { Badge, DropdownMenu },
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {
@@ -86,6 +68,8 @@ export default defineComponent({
     selectable: { type: Boolean, default: true },
   },
   setup(props) {
+    const { t } = useI18n();
+
     const useClient = inject("client");
 
     const { selected, loading, hidden, disabled, selectable } = toRefs(props);
@@ -107,6 +91,7 @@ export default defineComponent({
     // ------------------------------------------------
 
     return {
+      t,
       config,
       styles,
       ...clientCard,
@@ -121,55 +106,58 @@ export default defineComponent({
     badges() {
       return [
         {
-          label: this.$t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
+          label: this.t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
           variant: "tonal",
           color: "base",
-          visible: !!this.meta?.type,
+          hidden: !this.meta?.type,
         },
         {
-          label: this.$t(`client.${this.i18nKey}.badges.default`),
+          label: this.t(`client.${this.i18nKey}.badges.default`),
           variant: "tonal",
           color: "base",
-          visible: this.meta.isDefault,
+          hidden: !this.meta.isDefault,
         },
       ];
     },
     actions() {
       return [
         {
-          label: this.$tc(`client.${this.i18nKey}.actions.select`),
-          disabled: this.meta.isDefault, //|| !this.meta.isVerified,
-          action: () => {
-            // this.$emit("click:action", {
-            //   action: "default",
-            //   value: this.modelValue,
-            // });
+          label: this.t(`client.${this.i18nKey}.actions.select`),
+          hidden: this.meta.isDefault, //|| !this.meta.isVerified,
+          icon: "check-square",
+          handler: () => {
             this.open = false;
             this.setDefault();
           },
         },
         {
-          label: this.$tc(`client.${this.i18nKey}.actions.edit`),
-          action: () => {
+          icon: "edit",
+          label: this.t(`client.${this.i18nKey}.actions.edit`),
+          handler: () => {
             this.open = false;
             this.edit();
           },
         },
         {
-          label: this.$tc(`client.${this.i18nKey}.actions.delete`),
-          disabled: !this.meta.canRemove,
-          action: () => {
+          icon: "remove",
+          label: this.t(`client.${this.i18nKey}.actions.delete`),
+          hidden: !this.meta.canRemove,
+          class:
+            "text-destructive data-[highlighted]:bg-destructive-muted data-[highlighted]:text-destructive",
+
+          handler: () => {
             this.open = false;
             this.remove();
           },
         },
         {
-          label: this.$tc(
+          icon: "copy",
+          label: this.t(
             `client.${this.i18nKey}.actions.copy`,
             this.copied ? 0 : 1
           ),
-          disabled: !this.isSupported,
-          action: () => {
+          hidden: !this.isSupported,
+          handler: () => {
             this.open = false;
             this.copy(this.description);
           },

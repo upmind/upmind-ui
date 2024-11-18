@@ -1,29 +1,18 @@
 <template>
-  <upm-client-listings type="emails" i18nKey="emails" class="my-4" cols="2">
+  <UpmClientListings type="emails" i18nKey="emails" class="my-4" cols="2">
     <template #header="{ meta }">
       <h2>
         {{
-          meta.isAvailable
-            ? $t("client.emails.title")
-            : $t("client.unavailable")
+          meta.isAvailable ? t("client.emails.title") : t("client.unavailable")
         }}
       </h2>
     </template>
-  </upm-client-listings>
+  </UpmClientListings>
 </template>
 
-<script>
-import { defineComponent } from "vue";
-import { getLocalMessages } from "@/utils";
-import { UpmClientListings } from "@upmind-automation/client-vue";
+<script lang="ts" setup>
+import { useI18n } from "vue-i18n";
+import { UpmClientListings } from "@upmind/client-vue";
 
-export default defineComponent({
-  name: "ClientEmails",
-  i18n: {
-    messages: getLocalMessages("client"),
-  },
-  components: {
-    UpmClientListings,
-  },
-});
+const { t } = useI18n();
 </script>

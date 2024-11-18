@@ -3,22 +3,22 @@
     ref="el"
     id="provider"
     :data-theme="activeTheme"
-    :data-locale="$i18n.locale"
+    :data-locale="props.locale"
   >
     <!-- force re-render on theme change with a key -->
     <slot :key="activeTheme"></slot>
   </div>
 </template>
 
-<script>
+<script setup>
 /**
  * The Provider allows for reactive global props to be passed down to all components
  * We currently have theme and locale as global props
  */
 // --- external
-import { defineComponent, ref } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useMutationObserver } from "@vueuse/core";
-
+import { useI18n } from "vue-i18n";
 // --- internal
 import { useThemes } from "@upmind-automation/upwind";
 import themes from "@/assets/themes";
@@ -26,62 +26,54 @@ import themes from "@/assets/themes";
 // --- utils
 import { some, find, get } from "lodash-es";
 
-export default defineComponent({
-  name: "ThemeProvider",
-  components: {},
-  props: {
-    theme: {
-      type: String,
-      required: true,
-    },
-    locale: {
-      type: String,
-      required: true,
-    },
+const props = defineProps({
+  theme: {
+    type: String,
+    required: true,
   },
-  setup(props) {
-    const el = ref(null);
-    const { updateTheme, activeTheme } = useThemes(themes, props.theme);
-    const activeLocale = ref(props.locale);
+  locale: {
+    type: String,
+    required: true,
+  },
+});
 
-    useMutationObserver(
-      el,
-      mutations => {
-        if (some(mutations, ["attributeName", "data-theme"])) {
-          const theme = get(
-            find(mutations, ["attributeName", "data-theme"]),
-            "target,dataset.theme"
-          );
-          if (theme && theme != activeTheme.value) updateTheme(theme);
-        }
+const { locale } = useI18n();
+const el = ref(null);
+const { updateTheme, activeTheme } = useThemes(themes, props.theme);
+const activeLocale = ref(props.locale);
 
-        if (some(mutations, ["attributeName", "data-locale"])) {
-          const locale = get(
-            find(mutations, ["attributeName", "data-locale"]),
-            "target.dataset.locale"
-          );
-
-          activeLocale.value = locale;
-        }
-      },
-      {
-        attributes: true,
+useMutationObserver(
+  el,
+  mutations => {
+    if (some(mutations, ["attributeName", "data-theme"])) {
+      const theme = get(
+        find(mutations, ["attributeName", "data-theme"]),
+        "target.dataset.theme"
+      );
+      if (theme && theme != activeTheme.value) {
+        updateTheme(theme);
       }
-    );
+    }
 
-    return {
-      el,
-      activeTheme,
-      activeLocale,
-    };
+    if (some(mutations, ["attributeName", "data-locale"])) {
+      const locale = get(
+        find(mutations, ["attributeName", "data-locale"]),
+        "target.dataset.locale"
+      );
+
+      activeLocale.value = locale;
+    }
   },
-  mounted() {
-    this.$i18n.locale = this.activeLocale;
-  },
-  watch: {
-    activeLocale(locale) {
-      this.$i18n.locale = locale;
-    },
-  },
+  {
+    attributes: true,
+  }
+);
+
+onMounted(() => {
+  locale.value = activeLocale.value;
+});
+
+watch(activeLocale, value => {
+  locale.value = value;
 });
 </script>

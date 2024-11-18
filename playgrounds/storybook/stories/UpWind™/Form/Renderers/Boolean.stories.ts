@@ -3,14 +3,14 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UpwForm } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../../utils";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwForm> = {
+const meta: Meta<typeof Form> = {
   parameters: {
     controls: {
       exclude: [
@@ -23,9 +23,9 @@ const meta: Meta<typeof UpwForm> = {
       ],
     },
   },
-  component: UpwForm,
+  component: Form,
   render: args => ({
-    components: { UpwForm },
+    components: { Form },
     setup() {
       const model = ref({});
 
@@ -52,7 +52,7 @@ const meta: Meta<typeof UpwForm> = {
       />
 
       <h4>Model</h4>
-      <pre class="sticky top-0 rounded-lg bg-base-100 p-4">{{ model }}</pre>
+      <pre class="sticky top-0 rounded-lg bg-background-100 p-4">{{ model }}</pre>
     `,
   }),
   argTypes: {},
@@ -135,7 +135,7 @@ const meta: Meta<typeof UpwForm> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwForm>;
+type Story = StoryObj<typeof Form>;
 
 export const Base: Story = {
   args: {

@@ -10,7 +10,7 @@
         :leave-to-class="styles.bannerTransitionLeave.to"
         appear
       >
-        <upm-message
+        <Message
           v-for="notification in notifications"
           :key="notification.id"
           :item="notification"
@@ -21,49 +21,42 @@
       </transition-group>
     </aside>
 
-    <aside class="toasts" :class="styles.feedback.toasts">
-      <transition-group
-        :enter-active-class="styles.toastTransitionEnter.active"
-        :enter-from-class="styles.toastTransitionEnter.from"
-        :enter-to-class="styles.toastTransitionEnter.to"
-        :leave-active-class="styles.toastTransitionLeave.active"
-        :leave-from-class="styles.toastTransitionLeave.from"
-        :leave-to-class="styles.toastTransitionLeave.to"
-        appear
-      >
-        <upm-message
-          v-for="toast in toasts"
-          :key="toast.id"
-          :item="toast"
-          :scheduled="scheduled"
-          variant="stacked"
-          anchor="bottom"
-        />
-      </transition-group>
-    </aside>
+    <Sonner
+      position="bottom-right"
+      close-button
+      rich-colors
+      :visible-toasts="6"
+    />
 
-    <upm-track-event v-for="event in events" :key="event.id" :item="event" />
+    <TrackEvent v-for="event in events" :key="event.id" :item="event" />
   </div>
 </template>
 
 <script>
 // --- external
-import { defineComponent } from "vue";
+import { defineComponent, watch, ref } from "vue";
 
 // --- internal
-import { useFeedback } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
+import { useStyles, toast } from "@upmind-automation/upwind";
 import config from "./config.cva";
-import UpmMessage from "./Message.vue";
-import UpmTrackEvent from "./TrackEvent.vue";
+
+// --- components
+import { Sonner } from "@upmind-automation/upwind";
+import Message from "./Message.vue";
+import TrackEvent from "./TrackEvent.vue";
+
+// --- utils
+import { forEach, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmFeedback",
+  name: "Feedback",
   components: {
-    UpmMessage,
-    UpmTrackEvent,
+    Sonner,
+    Message,
+    TrackEvent,
   },
   props: {
     scheduled: {
@@ -84,8 +77,38 @@ export default defineComponent({
       config
     );
 
+    const feedback = useFeedback();
+    const activeToasts = ref([]);
+
+    function dismissToast(id) {
+      feedback.dismiss(id);
+      toast.dismiss(id);
+      activeToasts.value = activeToasts.value.filter(t => t !== id);
+    }
+    watch(feedback.toasts, toasts => {
+      forEach(toasts, msg => {
+        let { message, dismiss, meta } = useMessage(msg);
+        if (meta.value.isActive) {
+          const id = toast(message.value.title, {
+            id: message.value.hash,
+            description: message.value.copy,
+            duration: 10000,
+            onDismiss: t => dismissToast(t.id),
+            onAutoClose: t => dismissToast(t.id),
+            type: message.value.type,
+            position: "top-right",
+          });
+          activeToasts.value.push(id);
+        }
+      });
+
+      forEach(activeToasts.value, id => {
+        if (!some(feedback.toasts.value, ["id", id])) dismissToast(id);
+      });
+    });
+
     return {
-      ...useFeedback(),
+      ...feedback,
       styles,
     };
   },

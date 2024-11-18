@@ -33,13 +33,14 @@ import {
   isEqual,
   isNil,
   map,
+  remove,
   some,
 } from "lodash-es";
 
 // --- types
+import type { ActorRef } from "xstate";
 import type { BasketContext, BasketEvent } from "./types";
 import { responseCodes } from "../api";
-
 import { PaymentTypes } from "../paymentDetails/types";
 import { GatewayTypes } from "../paymentDetails/gateways/types";
 
@@ -55,6 +56,7 @@ export default createMachine(
     context: {
       basket: undefined,
       invoice: undefined,
+      address: undefined,
       // ---
       items: [],
       // ---
@@ -456,6 +458,7 @@ export default createMachine(
           cond: "hasNewBasket",
         },
         {
+          // actions: ["refreshItems"],
           target: "#refreshing.processing",
         },
       ],
@@ -492,9 +495,9 @@ export default createMachine(
         invoice: (_context: BasketContext, { data }: BasketEvent) => data,
         basket: undefined,
         summary: undefined,
-        items: ({ items }, _event) => {
-          forEach(items, actor => {
-            if (!actor?.state?.done && actor?.stop) actor.stop();
+        items: ({ items }: BasketContext, _event) => {
+          forEach(items, (actor: ActorRef<any, any>) => {
+            if (!actor.getSnapshot()?.done && actor?.stop) actor.stop();
           });
           return [];
         },
@@ -557,29 +560,35 @@ export default createMachine(
 
       // @ts-ignore
       refreshActors: pure(({ basket, actors }) => {
-        forEach(actors, (actor: any) => {
-          if (actor?.send && !actor?.state?.done) {
+        forEach(actors, (actor: ActorRef<any, any>) => {
+          if (actor?.send && !actor.getSnapshot()?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
         });
       }),
 
       // @ts-ignore
-      refreshItems: pure(({ basket, items }) => {
-        forEach(items, actor => {
-          if (actor?.send && !actor?.state?.done) {
-            actor.send({
-              type: "REFRESH",
+      refreshItems: assign({
+        items: ({ basket, items }: any) => {
+          forEach(items, actor => {
+            if (actor?.send && !actor?.state?.done) {
+              actor.send({
+                type: "REFRESH",
 
-              data: {
-                // basket_product: product,
-                id: basket?.id,
-                currency_id: basket?.currency_id,
-                promotions: basket?.promotions || [],
-              },
-            });
-          }
-        });
+                data: {
+                  // basket_product: product,
+                  id: basket?.id,
+                  currency_id: basket?.currency_id,
+                  promotions: basket?.promotions || [],
+                },
+              });
+            } else {
+              // remove(items, actor);
+            }
+          });
+
+          return items;
+        },
       }),
 
       clearActors: assign({
@@ -618,7 +627,8 @@ export default createMachine(
           // Remove any items that are done or whos basket_product ids are no longer in the basket
           forEach(items, (item, index) => {
             const product = find(products, ["id", item?.id]);
-            if (item?.state?.done) {
+            const errorExternal = parseBasketProvisioningErrors(error, index);
+            if (item.getSnapshot()?.done) {
               // do nothing
             } else if (product) {
               newItems.push(item);
@@ -627,17 +637,15 @@ export default createMachine(
                 type: "REFRESH",
                 data: {
                   basket_product: product,
+                  error: errorExternal,
+                  // ---
                   id: basket?.id,
                   currency_id: basket?.currency_id,
                   promotions: basket?.promotions || [],
                 },
               });
-
-              if (error) {
-                parseBasketProvisioningErrors(error, item, index);
-              }
-            } else if (!isEmpty(item.state?.context?.basket_product)) {
-              item.stop();
+            } else if (!isEmpty(item.getSnapshot()?.context?.basket_product)) {
+              if (item?.stop) item.stop();
             } else {
               newItems.push(item);
               item.send({
@@ -657,12 +665,12 @@ export default createMachine(
           const missing = differenceBy(products, items, "id");
           forEach(missing, (product: any) => {
             const index = findIndex(products, ["id", product?.id]);
-
-            const item = spawnProductConfiguration(product, basket);
-
-            if (error) {
-              parseBasketProvisioningErrors(error, item, index);
-            }
+            const errorExternal = parseBasketProvisioningErrors(error, index);
+            const item = spawnProductConfiguration(
+              product,
+              basket,
+              errorExternal
+            );
 
             newItems.push(item);
           });

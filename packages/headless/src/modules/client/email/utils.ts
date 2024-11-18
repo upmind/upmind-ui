@@ -59,9 +59,9 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/email",
+        scope: "#/properties/username",
         options: {
-          focus: true,
+          autoFocus: true,
           autocomplete: "email",
           placeholder: "name@email.com",
         },

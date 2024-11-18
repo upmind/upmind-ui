@@ -12,16 +12,18 @@
     <div :class="styles.product.card.wrapper">
       <!-- header -->
       <header :class="styles.product.card.header">
-        <upw-badge
+        <Badge
           color="secondary"
           v-if="product?.hasFreeTrial"
-          :label="$t('product.trail')"
+          :label="t('product.trail')"
+          variant="flat"
         />
 
-        <upw-badge
+        <Badge
           color="promotion"
           v-if="product?.isOnPromotion"
-          :label="$t('product.promotion')"
+          :label="t('product.promotion')"
+          variant="tonal"
         />
 
         <h3 :class="styles.product.card.title">
@@ -35,20 +37,20 @@
 
         <div :class="styles.product.card.meta">
           <span v-if="termSummary">
-            {{ $t(`product.${termSummary.key}`, termSummary) }}
+            {{ t(`product.${termSummary.key}`, termSummary) }}
           </span>
 
-          <upw-button
+          <Button
             variant="link"
             @click="toggle = !toggle"
             size="sm"
             color="current"
-            :label="$tc('product.actions.more', toggle ? 0 : 1)"
+            :label="t('product.actions.more', toggle ? 0 : 1)"
             :class="styles.product.card.more"
             v-if="hasSummaryDetails"
           >
-            <template #append-icon>
-              <upw-icon
+            <template #append>
+              <Icon
                 icon="arrow-down"
                 :class="styles.product.card.toggle"
                 :aria-checked="toggle"
@@ -56,17 +58,14 @@
                 aria-hidden="true"
               />
             </template>
-          </upw-button>
+          </Button>
         </div>
       </header>
 
       <!-- content -->
       <div
         :class="
-          mergeStyles(
-            styles.product.card.content,
-            styles.product.card.collapsible
-          )
+          cn(styles.product.card.content, styles.product.card.collapsible)
         "
         :id="`product-${product?.id}-toggle`"
         :aria-expanded="toggle"
@@ -83,7 +82,7 @@
             >
               <strong
                 :class="
-                  mergeStyles(
+                  cn(
                     styles.product.card.details.title,
                     detail.invalid ? styles.product.card.details.invalid : ''
                   )
@@ -97,11 +96,11 @@
               >
                 {{ detail.name }}
               </span>
-              <upw-button
+              <Button
                 v-else-if="detail.invalid"
                 size="xs"
                 variant="link"
-                :label="$t('product.actions.invalid')"
+                :label="t('product.actions.invalid')"
                 @click="doResolve"
               />
             </li>
@@ -111,7 +110,7 @@
 
       <!-- footer -->
       <footer :class="styles.product.card.footer">
-        <upw-spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
+        <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
             v-if="!!summary?.discount"
@@ -120,7 +119,7 @@
             {{
               summary?.subtotal
                 ? summary?.subtotal_formatted
-                : $t("product.free")
+                : t("product.free")
             }}
           </span>
 
@@ -128,13 +127,13 @@
             :class="styles.product.card.total"
             v-if="!isNil(summary?.total)"
           >
-            {{ summary?.total ? summary?.total_formatted : $t("product.free") }}
+            {{ summary?.total ? summary?.total_formatted : t("product.free") }}
           </strong>
         </div>
 
         <!-- actions -->
         <div :class="styles.product.card.actions">
-          <upw-button
+          <Button
             :disabled="
               meta.isLoading ||
               meta.isCalculating ||
@@ -144,7 +143,7 @@
             :color="
               meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'
             "
-            :label="$t('product.actions.configure')"
+            :label="t('product.actions.configure')"
             @click="doResolve"
             icon-only
             prependIcon="edit"
@@ -152,11 +151,11 @@
             :variant="meta.hasErrors || meta.isNew ? 'flat' : 'ghost'"
           />
 
-          <upw-button
+          <Button
             :disabled="
               meta.isLoading || meta.isCalculating || meta.isProcessing
             "
-            :label="$t('product.actions.remove')"
+            :label="t('product.actions.remove')"
             :loading="meta.isProcessing"
             @click="doReject"
             color="current"
@@ -174,19 +173,18 @@
 <script>
 // --- external
 import { defineComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useProductConfig } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import {
-  UpwBadge,
-  UpwButton,
-  UpwIcon,
-  UpwSpinner,
-} from "@upmind-automation/upwind";
+import { Spinner } from "@upmind-automation/upwind";
+
+// --- custom elements
+import { Icon, Badge, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
@@ -194,8 +192,8 @@ import { isNil, find, reject } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductCard",
-  components: { UpwBadge, UpwButton, UpwIcon, UpwSpinner },
+  name: "ProductCard",
+  components: { Spinner, Icon, Badge, Button },
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
@@ -208,6 +206,8 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
+
     const { state, product, model, meta, summary } = useProductConfig(
       props.item
     );
@@ -221,6 +221,7 @@ export default defineComponent({
     // ---
 
     return {
+      t,
       state,
       product,
       model,
@@ -232,7 +233,7 @@ export default defineComponent({
       toggle: ref(meta.value.hasErrors && !meta.value.isNew),
       // ---
       styles,
-      mergeStyles,
+      cn,
       // ---
       isNil,
     };

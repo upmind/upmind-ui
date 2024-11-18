@@ -9,7 +9,7 @@ import type { DomainTypes } from "@upmind-automation/headless";
 import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 
 // --- utils
-import { map, some, find, isArray, get, first } from "lodash-es";
+import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -172,7 +172,7 @@ export const useDomain = (
       showExisting: state.value.matches("existing"),
       showBasket: state.value.matches("basket"),
 
-      showContinue:
+      isValid:
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
         ) && !!state.value.context?.model?.length,
@@ -183,7 +183,7 @@ export const useDomain = (
     })),
     // ---
     choose,
-    search,
+    search: debounce(search, 500),
     searchMore,
     searchOffset: computed(() => state.value.context?.search?.offset),
     add,

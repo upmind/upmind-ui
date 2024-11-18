@@ -1,5 +1,6 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 
@@ -41,7 +42,9 @@ export interface PaymentDetailsContext {
   client_id?: string;
   // TODO:
   // currency?: iCurrency;
+  // address?: iAddress;
   currency?: any;
+  address?: any;
   // ---
   // TODO:
   // gateways?: Array<IGateway>;
@@ -61,10 +64,10 @@ export interface PaymentDetailsContext {
   model?: IPaymentDetail;
   // ---
   mount?: HTMLElement;
-  paymentDetails?: Object; // This is the response from the actual payment gateway
+  paymentDetails?: object; // This is the response from the actual payment gateway
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    gateway?: Object;
+    gateway?: ActorRef<any, any>;
   };
 
   // ---

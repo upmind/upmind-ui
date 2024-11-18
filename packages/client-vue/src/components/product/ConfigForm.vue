@@ -1,40 +1,38 @@
 <template>
-  <upw-input
+  <FormField
     v-if="hasFields"
     :class="styles.product.config.form.root"
     :label="label"
     :disabled="disabled"
-    :required="true"
-    no-required
-    no-feedback
-    no-status
-    variant="flat"
-    layout="stacked"
+    required
+    id="product-config-form"
+    name="product-config-form"
   >
-    <upw-form
-      :locale="$i18n.locale"
-      :translator="$t"
+    <Form
+      :locale="locale"
+      :translator="t"
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
-      :additional-renderers="additionalRenderers"
+      :additional-renderers="formRenderers"
       @update:modelValue="doResolve"
       no-actions
       as="fieldset"
     />
-  </upw-input>
+  </FormField>
 </template>
 
 <script>
 // --- external
 import { defineComponent, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
-import { additionalRenderers } from "../renderers";
+import { formRenderers } from "../renderers";
 // --- components
-import { UpwForm, UpwInput } from "@upmind-automation/upwind";
+import { Form, FormField } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -42,8 +40,8 @@ import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmProductConfigForm",
-  components: { UpwForm, UpwInput },
+  name: "ProductConfigForm",
+  components: { Form, FormField },
   emits: ["update:modelValue"],
   props: {
     disabled: {
@@ -76,12 +74,17 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    const { t, locale } = useI18n();
+
     const styles = useStyles(["product.config.form"], toRefs(props), config);
 
     return {
+      locale,
+      t,
+
       styles,
-      mergeStyles,
-      additionalRenderers,
+      cn,
+      formRenderers,
     };
   },
   computed: {

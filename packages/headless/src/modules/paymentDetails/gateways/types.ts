@@ -184,6 +184,8 @@ export interface GatewayContext {
   type?: GatewayTypes;
   ctx?: GatewayContext;
   stored_payment_methods?: Array<any>;
+  code?: string;
+
   // ---
   renderless?: boolean;
   can_store?: boolean;

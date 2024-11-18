@@ -1,100 +1,113 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
-    size="xl"
-    :model-value="open"
-    no-actions
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
+    to="#vue-app"
+    fit="cover"
+    no-close
+    no-header
     persistent
-    skrim="light"
   >
+    <template #header></template>
+
     <section :class="styles.basket.empty.root">
-      <upw-avatar :avatar="avatar" :class="styles.basket.empty.avatar" />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
       <h3 :class="styles.basket.empty.title">
-        {{ title }}
+        <slot name="title">{{ title }}</slot>
       </h3>
 
-      <p :class="styles.basket.empty.text">{{ text }}</p>
+      <p :class="styles.basket.empty.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
-      <footer>
-        <upw-button
-          v-if="action"
+      <footer :class="styles.basket.empty.actions">
+        <Button
+          v-if="hasAction"
           v-bind="action"
-          block
-          variant="ghost"
-          :href="storefrontUrl"
-        />
+          @click.stop="doAction"
+          :loading="processing"
+          :label="action?.label"
+          :color="action?.color"
+          :variant="action?.variant"
+        >
+          <template #prepend>
+            <Icon
+              v-if="action?.prependIcon"
+              :icon="action.prependIcon"
+              size="2xs"
+            />
+          </template>
+          <template #append>
+            <Icon
+              v-if="action?.appendIcon"
+              :icon="action.appendIcon"
+              size="2xs"
+            />
+          </template>
+        </Button>
       </footer>
     </section>
   </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, computed } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
+import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upwind";
+
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
-
+import type { BasketModalProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmBasketEmpty",
-  components: {
-    UpwDialog,
-    UpwAvatar,
-    UpwButton,
+
+const props = withDefaults(defineProps<BasketModalProps>(), {
+  open: true,
+  modal: false,
+  skrim: "primary",
+  size: "2xl",
+  animatedIcon: {
+    icon: "basket",
+    delay: 5000,
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+    size: "4xl",
   },
-  props: {
-    modal: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
-    const { meta } = useBasket();
-
-    const styles = useStyles(["basket.empty"], meta, config);
-
-    // ---
-
-    return {
-      meta,
-      open: computed(() => {
-        const value = meta.value.isEmpty;
-        return value;
-      }),
-
-      // ---
-      styles,
-      mergeStyles,
-    };
-  },
-  computed: {
-    title() {
-      return this.$t("basket.empty.title");
-    },
-
-    text() {
-      return this.$t("basket.empty.text");
-    },
-
-    avatar() {
-      return this.$tm("basket.empty.avatar");
-    },
-    action() {
-      return this.$tm("basket.empty.actions.continue");
-    },
-    storefrontUrl() {
-      return import.meta.env.VITE_APP_STOREFRONT;
-    },
-  },
+  fit: "contain",
 });
+
+const { meta } = useBasket();
+
+const styles = useStyles(["basket.empty"], meta, config);
+
+const processing = ref(false);
+const isOpen = computed(() => meta.value.isEmpty || props.open);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+async function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    await props.action.handler();
+    processing.value = false;
+  }
+}
 </script>
-.

@@ -1,13 +1,13 @@
 <template>
   <header
-    class="flex w-full flex-wrap border-b bg-base px-4 py-3 text-sm text-base-content sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
+    class="flex w-full flex-wrap border-b bg-base px-4 py-3 text-sm text-base-foreground sm:flex-nowrap sm:justify-start sm:px-6 lg:px-20"
   >
     <nav
       class="relative mx-auto flex w-full max-w-screen-2xl flex-row flex-wrap items-center justify-start gap-4 sm:flex sm:items-center sm:justify-between"
       aria-label="Global"
     >
       <component
-        :is="noHome ? 'a' : 'router-link'"
+        :is="props.noHome ? 'a' : 'router-link'"
         class="flex h-10 w-auto items-center justify-between gap-3 text-xl font-semibold"
         to="/"
         aria-label="Brand"
@@ -16,13 +16,13 @@
           <source srcset="/logo.png" type="image/png" />
           <img src="/logo.svg" class="h-full w-auto" />
           <span class="sr-only text-nowrap tracking-widest">
-            {{ $t("header.title") }}
+            {{ t("header.title") }}
           </span>
         </picture>
       </component>
 
       <div class="flex flex-1 items-center justify-end gap-4">
-        <upw-listbox
+        <UpwListbox
           v-if="$i18n?.locale && locales.length > 1"
           size="sm"
           v-model="$i18n.locale"
@@ -34,80 +34,68 @@
           :items="locales"
         />
 
-        <upm-currency />
+        <UpmCurrency />
 
-        <upw-button
+        <router-link
           to="/"
-          append-icon="basket"
-          color="base"
-          variant="ghost"
+          custom
+          v-slot="{ href, navigate }"
           v-if="!isBasketView"
         >
-          <template #append-avatar>
-            <upw-avatar
+          <Button
+            :href="meta.isAvailable ? href : null"
+            @click="meta.isAvailable && navigate"
+            :as="meta.isAvailable ? (href ? 'a' : 'button') : 'button'"
+            :disabled="!meta.isAvailable"
+            variant="ghost"
+          >
+            <Icon icon="basket" slot="prepend" size="xs" />
+            <Indicator
+              slot="append"
               :key="items?.length"
-              v-if="items?.length"
-              class="animate-once !absolute -top-0 right-0 size-4 animate-ping bg-secondary text-xs text-secondary-content"
+              :modelValue="items.length"
+              color="primary"
+              class="absolute right-0 top-0"
             >
-              {{ items.length }}
-            </upw-avatar>
-          </template>
-        </upw-button>
+            </Indicator>
+          </Button>
+        </router-link>
 
-        <upm-profile />
+        <UpmProfile />
       </div>
     </nav>
   </header>
 </template>
 
-<script>
-import { defineComponent } from "vue";
+<script lang="ts" setup>
 import {
   useBasket,
   UpwListbox,
   UpmProfile,
   UpmCurrency,
-  UpwAvatar,
-  UpwButton,
 } from "@upmind-automation/client-vue";
 
-export default defineComponent({
-  name: "UpmHeader",
-  components: {
-    UpwAvatar,
-    UpwListbox,
-    UpwButton,
-    UpmProfile,
-    UpmCurrency,
-  },
-  props: {
-    noHome: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
-    const { items } = useBasket();
+import { Icon, Indicator, Button } from "@upmind-automation/upwind";
 
-    return {
-      items,
-    };
-  },
-  computed: {
-    isBasketView() {
-      return this.$route.name === "basket";
+const props = defineProps<{
+  noHome?: boolean;
+}>();
+
+const { meta, items } = useBasket();
+
+const isBasketView = computed(() => {
+  return this.$route.name === "basket";
+});
+
+const locales = computed(() => {
+  return this.$i18n.availableLocales.map(locale => ({
+    label: locale.toUpperCase(),
+    value: locale,
+    prependAvatar: {
+      path: "flags",
+      name: locale,
     },
-    locales() {
-      return this.$i18n.availableLocales.map(locale => ({
-        label: locale.toUpperCase(),
-        value: locale,
-        prependAvatar: {
-          path: "flags",
-          name: locale,
-        },
-      }));
-    },
-  },
+  }));
 });
 </script>
 

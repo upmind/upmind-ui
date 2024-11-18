@@ -45,8 +45,12 @@ export const useSession = (inspector?: Function): IUseSession => {
     (): IUseSessionMeta => ({
       isLoading:
         state.value.matches("checking") ||
-        (guest.value?.matches && guest.value.matches("loading")) ||
-        (client.value?.matches && client.value.matches("loading")),
+        (guest.value?.matches &&
+          ["loading", "login.loading", "register.loading"].some(
+            guest.value.matches
+          )) ||
+        client.value?.matches("loading") ||
+        false,
 
       isProcessing:
         (guest.value?.matches &&
@@ -83,7 +87,7 @@ export const useSession = (inspector?: Function): IUseSession => {
   const model = computed(() => guest.value?.context?.model);
   const schema = computed(() => guest.value?.context?.schema);
   const uischema = computed(() => guest.value?.context?.uischema);
-  const errors = computed(() => guest.value.context?.error);
+  const errors = computed(() => guest.value?.context?.error);
 
   // --------------------------------------------------------
   function showLogin() {

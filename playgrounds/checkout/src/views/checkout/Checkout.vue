@@ -1,26 +1,30 @@
 <template>
   <article :class="styles.checkout.root">
-    <upm-basket-loading
-      id="loading"
+    <UpmBasketLoading
       v-if="meta.isLoading || !animationComplete"
       :class="styles.checkout.section.root"
+      :title="t('basket.loading.title')"
+      :text="t('basket.loading.text')"
     />
 
-    <upm-basket-empty
-      id="empty"
+    <UpmBasketEmpty
       v-else-if="meta.isEmpty"
       :class="styles.checkout.section.root"
+      :title="t('basket.empty.title')"
+      :text="t('basket.empty.text')"
+      :action="{
+        variant: 'ghost',
+        href: storefrontUrl,
+        appendIcon: 'arrow-right',
+        label: t('basket.empty.actions.continue'),
+      }"
     />
 
     <template v-else>
-      <upw-steps
-        :model-value="activeSection"
-        :steps="steps"
-        @update:model-value="scrollTo"
-      />
+      <UpwSteps :open="activeSection" :steps="steps" @update:open="scrollTo" />
 
       <!-- Overview -->
-      <upm-basket-items
+      <UpmBasketItems
         id="overview"
         ref="overview"
         :aria-disabled="!meta.isAvailable"
@@ -34,11 +38,11 @@
         <header :class="styles.checkout.section.header">
           <template v-if="!session.isAuthenticated && session.showRegisterForm">
             <span :class="styles.checkout.section.text">
-              {{ $t("session.unauthenticated.header.register.text") }}
+              {{ t("session.unauthenticated.header.register.text") }}
             </span>
 
             <h1 :class="styles.checkout.section.title">
-              {{ $t("session.unauthenticated.header.register.title") }}
+              {{ t("session.unauthenticated.header.register.title") }}
             </h1>
           </template>
 
@@ -46,11 +50,11 @@
             v-else-if="!session.isAuthenticated && session.showLoginForm"
           >
             <span :class="styles.checkout.section.text">
-              {{ $t("session.unauthenticated.header.login.text") }}
+              {{ t("session.unauthenticated.header.login.text") }}
             </span>
 
             <h1 :class="styles.checkout.section.title">
-              {{ $t("session.unauthenticated.header.login.title") }}
+              {{ t("session.unauthenticated.header.login.title") }}
             </h1>
           </template>
 
@@ -77,7 +81,7 @@
         <div :class="styles.checkout.section.wrapper">
           <div :class="styles.checkout.section.content" v-auto-animate>
             <!-- account -->
-            <upm-session
+            <UpmSession
               id="account"
               ref="account"
               v-if="!meta.hasAccount && !meta.isClaiming"
@@ -86,19 +90,19 @@
               :aria-disabled="meta.hasAccount"
               :aria-active="activeSection === 'account'"
             >
-            </upm-session>
+            </UpmSession>
 
             <template v-if="meta.hasAccount">
               <!-- billing details -->
-              <upm-billing-details
-                :model-value="billingDetailsModel"
+              <UpmBillingDetails
+                :open="billingDetailsModel"
                 @update:modelValue="billingDetailsUpdate"
               />
 
               <!-- custom fields  -->
-              <upw-form
+              <Form
                 :additional-errors="fieldsErrors?.data"
-                :model-value="fieldsModel"
+                :open="fieldsModel"
                 :processing="fieldsMeta.isProcessing"
                 :schema="fieldsSchema"
                 :uischema="fieldsUischema"
@@ -110,7 +114,7 @@
               />
 
               <!-- payment details -->
-              <upm-payment-details
+              <UpmPaymentDetails
                 id="payment"
                 ref="payment"
                 v-intersection-observer="[scrollSpy, { threshold: 0.25 }]"
@@ -121,7 +125,7 @@
           </div>
 
           <aside :class="styles.checkout.section.sidebar">
-            <upm-basket-summary no-actions />
+            <UpmBasketSummary no-actions />
           </aside>
         </div>
 
@@ -129,13 +133,22 @@
       </section>
 
       <!-- Basket procesing -->
-      <upm-basket-processing :model-value="meta.isCheckout" />
+      <UpmBasketProcessing
+        :class="styles.checkout.section.root"
+        :open="meta.isCheckout"
+        :title="processingTitle"
+        :text="processingText"
+      />
 
       <!-- Order confirmation -->
-      <upm-order-confirmation
-        :model-value="meta.isComplete"
+      <UpmOrderConfirmation
+        :class="styles.checkout.section.root"
+        :open="meta.isComplete"
         :order-id="invoice?.id"
         :success="meta.hasPaid"
+        :title="orderTitle"
+        :text="orderText"
+        :action="orderAction"
       />
     </template>
   </article>
@@ -146,6 +159,7 @@
 import { defineComponent, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upwind";
@@ -169,7 +183,7 @@ import {
   useBasketBillingDetails,
   useBasketFields,
   UpmSession,
-  UpwForm,
+  Form,
   // ---
   UpwSteps,
 } from "@upmind-automation/client-vue";
@@ -193,7 +207,7 @@ export default defineComponent({
     UpmOrderConfirmation,
     UpmPaymentDetails,
     UpmSession,
-    UpwForm,
+    Form,
     // ---
     UpwSteps,
   },
@@ -202,6 +216,7 @@ export default defineComponent({
     autoAnimate: vAutoAnimate,
   },
   setup() {
+    const { t, tm } = useI18n();
     const { meta: session, user } = useSession();
     const { state, meta, summary, addItem, invoice, isReady } = useBasket();
     const { update: updateCurrency } = useBasketCurrency();
@@ -300,6 +315,8 @@ export default defineComponent({
     // ---------------------------------------------------
 
     return {
+      t,
+      tm,
       styles,
       // ---
       state,
@@ -387,6 +404,86 @@ export default defineComponent({
       // }
 
       this.scrollTo(this.$route.hash);
+    },
+  },
+  computed: {
+    storefrontUrl() {
+      return import.meta.env.VITE_APP_STOREFRONT;
+    },
+    processingTitle() {
+      if (this.meta.needsApproval) {
+        return this.t("basket.processing.approval.title");
+      }
+
+      if (this.meta.isConverting) {
+        return this.t("basket.processing.converting.title");
+      }
+
+      if (this.meta.isPaying) {
+        return this.t("basket.processing.paying.title");
+      }
+
+      if (this.meta.isCheckout) {
+        return this.t("basket.processing.default.title");
+      }
+
+      return this.t("basket.processing.invalid.title");
+    },
+
+    processingText() {
+      if (this.meta.needsApproval) {
+        return this.t("basket.processing.approval.text");
+      }
+
+      if (this.meta.isConverting) {
+        return this.t("basket.processing.converting.text");
+      }
+
+      if (this.meta.isPaying) {
+        return this.t("basket.processing.paying.text");
+      }
+
+      if (this.meta.isCheckout) {
+        return this.t("basket.processing.default.text");
+      }
+
+      return this.t("basket.processing.invalid.text");
+    },
+
+    orderTitle() {
+      if (!this.meta.isAuthenticated)
+        return this.tm("order.confirmation.invalid.title");
+
+      if (this.success) return this.t("order.confirmation.success.title");
+
+      return this.t("order.confirmation.failed.title");
+    },
+
+    orderText() {
+      if (!this.meta.isAuthenticated)
+        return this.tm("order.confirmation.invalid.text");
+
+      if (this.success) return this.t("order.confirmation.success.text");
+
+      return this.t("order.confirmation.failed.text");
+    },
+
+    orderAction() {
+      if (!this.meta.isAuthenticated)
+        return {
+          label: this.tm("order.confirmation.invalid.actions.continue"),
+        };
+
+      if (!this.orderId) return null;
+
+      if (this.meta.hasPaid)
+        return {
+          label: this.tm("order.confirmation.success.actions.continue"),
+        };
+
+      return {
+        label: this.tm("order.confirmation.failed.actions.continue"),
+      };
     },
   },
   methods: {

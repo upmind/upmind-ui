@@ -2,133 +2,57 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { UpwCombobox, UpwInput } from "@upmind-automation/upwind";
-
+import { Button, Combobox } from "@upmind-automation/upwind";
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
-import countries from "../../../utils/countries";
+import countries from "../../../utils/countries.json";
 
-// --- types
-
-// -----------------------------------------------------------------------------
-
-const meta: Meta<typeof UpwCombobox> = {
-  parameters: {
-    controls: { exclude: ["size", "search"] },
-  },
-  component: UpwCombobox,
-  subcomponents: { UpwInput },
-  argTypes: {
-    placement: useSystemArgTypes.placement,
-    // ---
-    prependAvatar: useSystemArgTypes.flag,
-    prependIcon: useSystemArgTypes.icon,
-    appendAvatar: useSystemArgTypes.flag,
-    appendIcon: useSystemArgTypes.icon,
-    feedbackIcon: useSystemArgTypes.icon,
-    selectedIcon: useSystemArgTypes.icon,
-    toggleIcon: useSystemArgTypes.icon,
-    toggleRotate: {
-      if: { arg: "toggleIcon", truthy: true },
+const meta: Meta<typeof Combobox> = {
+  render: args => ({
+    components: { Combobox },
+    setup() {
+      return {
+        args,
+      };
     },
+    template: `
+      <combobox v-bind="args" />
+    `,
+  }),
+  argTypes: {
+    color: useSystemArgTypes.color,
+    width: useSystemArgTypes.allSizes,
   },
   args: {
-    label: "Select a phrase..",
-    prependAvatar: undefined,
-    prependIcon: undefined,
-    appendAvatar: undefined,
-    appendIcon: undefined,
-    feedbackIcon: undefined,
-    selectedIcon: "check",
-    toggleIcon: undefined,
-    toggleRotate: false,
-    // ---
-    placement: "bottom-end",
-    items: {
-      item1: {
-        value: "item1",
-        label:
-          "Amet eiusmod proident duis reprehenderit sit aliquip ad do aliquip velit.",
-      },
-      item2: {
-        value: "item2",
-        label: "Ullamco sit velit voluptate cupidatat elit elit magna anim.",
-      },
-      item3: {
-        value: "item3",
-        label:
-          "Reprehenderit duis irure nostrud labore fugiat quis officia cupidatat exercitation pariatur nostrud nisi minim ea.",
-      },
-      item4: {
-        value: "item4",
-        label:
-          "Aliquip dolor voluptate amet tempor duis velit ipsum reprehenderit veniam.",
-      },
-      item5: {
-        value: "item5",
-        label:
-          "Id exercitation laboris proident excepteur voluptate officia exercitation cillum mollit elit.",
-      },
-      item6: { value: "item6", label: "Do cillum nulla mollit ad pariatur." },
-      item7: {
-        value: "item7",
-        label:
-          "Minim aute laborum reprehenderit commodo laborum pariatur elit ex fugiat ea adipisicing velit nisi mollit.",
-      },
-      item8: {
-        value: "item8",
-        label: "Sunt dolore ipsum id fugiat Lorem aliqua aute sint.",
-      },
-    },
+    modelValue: "nuxt",
+    label: "Select a framework",
+    color: "base",
+    width: "md",
+    items: [
+      { value: "next.js", label: "Next.js" },
+      { value: "sveltekit", label: "SvelteKit" },
+      { value: "nuxt", label: "Nuxt" },
+      { value: "remix", label: "Remix" },
+      { value: "astro", label: "Astro" },
+    ],
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwCombobox>;
+type Story = StoryObj<typeof Combobox>;
 
 // -----------------------------------------------------------------------------
 
-export const Base: Story = {
-  render: (args, { updateArgs }) => ({
-    components: { UpwCombobox },
-    setup() {
-      return {
-        args,
-      };
-    },
-    methods: {
-      doUpdate(value: string) {
-        updateArgs({ modelValue: value });
-      },
-    },
-    template: `
-        <upw-combobox v-bind="args" @update:modelValue="doUpdate" />
-    `,
-  }),
-};
+export const Base: Story = {};
 
 export const Countries: Story = {
-  parameters: {
-    controls: { exclude: ["label", "items"] },
-  },
-  render: (args, { updateArgs }) => ({
-    components: { UpwCombobox },
-    setup() {
-      return {
-        args,
-      };
-    },
-    methods: {
-      doUpdate(value: string) {
-        updateArgs({ modelValue: value });
-      },
-    },
-    template: `
-        <upw-combobox v-bind="args" @update:modelValue="doUpdate" />
-    `,
-  }),
   args: {
-    label: "Select a Country",
-    items: countries,
+    label: "Select a country",
+    items: Object.values(countries).map(c => ({
+      value: c.value,
+      label: c.label,
+      icon: c.prependAvatar.name,
+    })),
+    width: "xl",
   },
 };

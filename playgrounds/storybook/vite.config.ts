@@ -4,8 +4,15 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // assetsInclude: ['./stories/assets/upmind.css'],
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('uw-')
+        }
+      }
+    }),
   ],
   resolve: {
     alias: {
@@ -13,6 +20,23 @@ export default defineConfig({
       '@icons': fileURLToPath(new URL('./stories/assets/icons', import.meta.url)),
       '@themes': fileURLToPath(new URL('./stories/assets/themes', import.meta.url)),
       '@locales': fileURLToPath(new URL('./stories/assets/locales', import.meta.url)),
+
     }
-  }
+  },
+  // build: {
+  //   rollupOptions: {
+  //     output: {
+  //       manualChunks: (id) => {
+  //         if (id.includes('radix-vue@')) return 'radix-vue'
+  //         if (id.includes('@vue+')) return 'vue'
+  //         if (id.includes('@vueuse/core')) return 'vueuse'
+  //         if (id.includes('lucide-vue-next')) return 'lucide'
+  //         if (id.includes('class-variance-authority@')) return 'cva'
+  //         if (id.includes('tailwind-merge@')) return 'tailwind-merge'
+  //         if (id.includes('clsx@')) return 'clsx'
+  //         if (id.includes('@floating-ui+')) return 'floating-ui'
+  //       },
+  //     }
+  //   }
+  // }
 })

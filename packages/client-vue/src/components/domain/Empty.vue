@@ -1,72 +1,111 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? Drawer : 'div'"
+    :modelValue="isOpen"
     size="xl"
-    :model-value="true"
-    no-actions
     persistent
+    fit="cover"
     skrim="light"
   >
     <section :class="styles.domain.empty.root">
-      <upw-avatar :avatar="avatar" :class="styles.domain.empty.avatar" />
+      <Avatar v-bind="avatar" />
 
-      <h3 :class="styles.domain.empty.title">
-        {{ title }}
-      </h3>
+      <h3 :class="styles.domain.empty.title">{{ title }}</h3>
 
       <p :class="styles.domain.empty.text">{{ text }}</p>
+
+      <footer :class="styles.domain.empty.actions">
+        <Button
+          v-if="hasAction"
+          v-bind="action"
+          @click.stop="doAction"
+          :loading="processing"
+        />
+      </footer>
     </section>
   </component>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
-// --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
+// --- custom elements
+import { Avatar, Button, Drawer } from "@upmind-automation/upwind";
 
 // --- utils
-import { get } from "lodash-es";
+import { isEmpty, isFunction } from "lodash-es";
+
+// --- types
+import type { AvatarProps, ButtonProps } from "@upmind-automation/upwind";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmDomainEmpty",
-  components: {
-    UpwDialog,
-    UpwAvatar,
-    UpwButton,
-  },
-  props: {
-    i18nKey: { type: String, default: "domain.empty" },
-    modal: { type: Boolean },
-  },
-  setup() {
-    const styles = useStyles(["domain.empty"], {}, config);
+export interface ActionProps extends ButtonProps {
+  type?: HTMLButtonElement["type"];
+  handler?: () => Promise<void>;
+}
 
-    return {
-      styles,
-    };
-  },
-  computed: {
-    translations() {
-      return this.$tm(this.i18nKey);
-    },
-    title() {
-      return get(this.translations, "title", "No domains found");
-    },
+const props = withDefaults(
+  defineProps<{
+    modal?: boolean;
+    title?: string;
+    text?: string;
+    action?: ActionProps;
+    modelValue?: boolean;
+    avatar?: AvatarProps;
+  }>(),
+  {
+    modelValue: true,
+    avatar: () => ({
+      size: "lg",
+      shape: "circle",
+      color: "primary",
+      icon: "basket",
+      fit: "contain",
+    }),
+  }
+);
+// props: {
+//   modal: { type: Boolean },
+//   title: { type: String },
+//   text: { type: String },
+//   action: { type: Object, default: () => null },
+//   modelValue: { type: Boolean, default: true },
+//   avatar: {
+//     type: Object,
+//     default: () => ({
+//       size: "lg",
+//       shape: "circle",
+//       color: "primary",
+//       icon: "basket",
+//       fit: "contain",
+//     }),
+//   },
+// },
 
-    text() {
-      return get(this.translations, "text", "Please try searching again");
-    },
+const styles = useStyles(["domain.empty"], {}, config);
+const processing = ref(false);
 
-    avatar() {
-      return get(this.translations, "avatar");
-    },
-  },
+const isOpen = computed(() => {
+  const value = true; // by default
+  return value || props.modelValue;
 });
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    props.action.handler().finally(() => {
+      processing.value = false;
+    });
+  }
+}
 </script>
+.

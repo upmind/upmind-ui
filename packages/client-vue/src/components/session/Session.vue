@@ -4,21 +4,21 @@
       <slot name="header" v-bind="{ meta, user }">
         <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
-            {{ $t("session.unauthenticated.header.register.text") }}
+            {{ t("session.unauthenticated.header.register.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ $t("session.unauthenticated.header.register.title") }}
+            {{ t("session.unauthenticated.header.register.title") }}
           </h1>
         </template>
 
         <template v-if="!meta.isAuthenticated && meta.showLoginForm">
           <span :class="styles.session.text">
-            {{ $t("session.unauthenticated.header.login.text") }}
+            {{ t("session.unauthenticated.header.login.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ $t("session.unauthenticated.header.login.title") }}
+            {{ t("session.unauthenticated.header.login.title") }}
           </h1>
         </template>
 
@@ -29,10 +29,10 @@
             tag="p"
           >
             <template #[`action`]>
-              <upw-button
+              <Button
                 variant="link"
                 @click.prevent="logout"
-                :label="$t('session.authenticated.footer.action')"
+                :label="t('session.authenticated.footer.action')"
               />
             </template>
           </i18n-t>
@@ -52,12 +52,16 @@
       </slot>
     </header>
 
-    <upm-auth
+    <Auth
       v-if="!meta.isAuthenticated"
       :class="styles.session.content"
+      :block-tabs="blockTabs"
+      :stretch-tabs="stretchTabs"
+      :no-tabs="noTabs"
+      :color="color"
       :model-value="show"
     >
-    </upm-auth>
+    </Auth>
 
     <footer :class="styles.session.footer" v-if="noFooter || !!$slots.footer">
       <slot name="footer" v-bind="{ meta, user }"> </slot>
@@ -68,6 +72,7 @@
 <script lang="ts">
 // --- external
 import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
@@ -75,8 +80,10 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import UpmAuth from "./Auth.vue";
-import { UpwButton } from "@upmind-automation/upwind";
+import Auth from "./Auth.vue";
+
+// --- custom elements
+import { Button } from "@upmind-automation/upwind";
 
 // --- types
 import type { PropType } from "vue";
@@ -85,10 +92,10 @@ import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmSession",
+  name: "Session",
   components: {
-    UpmAuth,
-    UpwButton,
+    Auth,
+    Button,
   },
   props: {
     show: {
@@ -103,11 +110,18 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    color: { type: String },
+    blockTabs: { type: Boolean, default: false },
+    stretchTabs: { type: Boolean, default: false },
+    noTabs: { type: Boolean, default: false },
   },
+
   setup(props, { slots }) {
+    const { t } = useI18n();
     const styles = useStyles(["session"], props, config);
 
     return {
+      t,
       ...useSession(),
       styles,
     };

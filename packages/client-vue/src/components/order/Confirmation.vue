@@ -1,164 +1,138 @@
 <template>
-  <upw-dialog
-    size="xl"
-    :model-value="modelValue"
-    no-actions
+  <component
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
+    to="#vue-app"
+    fit="cover"
+    no-close
+    no-header
     persistent
-    skrim="light"
   >
+    <template #header>
+      <div />
+    </template>
+
     <section :class="styles.order.confirmation.root">
-      <upw-avatar :avatar="avatar" :class="styles.order.confirmation.avatar" />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
       <h3 :class="styles.order.confirmation.title">
-        {{ title }}
+        <slot name="title">{{ title }}</slot>
       </h3>
 
-      <p :class="styles.order.confirmation.text">{{ text }}</p>
+      <p :class="styles.order.confirmation.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
 
       <footer :class="styles.order.confirmation.actions">
-        <upw-button
-          v-if="!meta.isAuthenticated && action"
+        <Button
+          v-if="hasAction"
           v-bind="action"
-          variant="ghost"
+          @click.stop="doAction"
           :loading="processing"
-          :href="storefrontUrl"
-        />
-        <upw-button
-          v-else-if="action"
-          v-bind="action"
-          variant="ghost"
-          @click.prevent="doAction"
-          :loading="processing"
-        />
+          :label="action?.label"
+        >
+          <template #prepend>
+            <Icon
+              v-if="action?.prependIcon"
+              :icon="action.prependIcon"
+              size="2xs"
+            />
+          </template>
+
+          <template #append>
+            <Icon
+              v-if="action?.appendIcon"
+              :icon="action.appendIcon"
+              size="2xs"
+            />
+          </template>
+        </Button>
       </footer>
     </section>
-  </upw-dialog>
+  </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref, toRefs } from "vue";
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 
 // --- internal
 import { useSession, utils } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwDialog, UpwAvatar, UpwButton } from "@upmind-automation/upwind";
+import { Icon, Avatar, Dialog, Button } from "@upmind-automation/upwind";
+
+// --- utils
+import { isEmpty } from "lodash-es";
 
 // --- types
-
+import type { OrderConfirmationProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmOrderConfirmation",
-  components: {
-    UpwDialog,
-    UpwAvatar,
-    UpwButton,
-  },
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    orderId: {
-      type: String,
-    },
-    success: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
-    const { transfer, meta } = useSession();
-    const styles = useStyles(["order.confirmation"], toRefs(props), config);
+const router = useRouter();
 
-    // ---
-
-    return {
-      meta,
-      transferSession: transfer,
-      processing: ref(false),
-      // ---
-      styles,
-      mergeStyles,
-    };
-  },
-  computed: {
-    title() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.title");
-
-      if (this.success) return this.$t("order.confirmation.success.title");
-
-      return this.$t("order.confirmation.failed.title");
-    },
-
-    text() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.text");
-
-      if (this.success) return this.$t("order.confirmation.success.text");
-
-      return this.$t("order.confirmation.failed.text");
-    },
-
-    avatar() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.avatar");
-
-      if (this.success) {
-        return this.$tm("order.confirmation.success.avatar");
-      }
-
-      return this.$tm("order.confirmation.failed.avatar");
-    },
-
-    action() {
-      if (!this.meta.isAuthenticated)
-        return this.$tm("order.confirmation.invalid.actions.continue");
-
-      if (!this.orderId) return null;
-
-      if (this.success)
-        return this.$tm("order.confirmation.success.actions.continue");
-
-      return this.$tm("order.confirmation.failed.actions.continue");
-    },
-
-    storefrontUrl() {
-      return import.meta.env.VITE_APP_STOREFRONT;
-    },
-  },
-
-  methods: {
-    doAction() {
-      if (!this.meta.isAuthenticated) {
-        this.processing = false;
-        return;
-      }
-
-      this.processing = true;
-      this.transferSession()
-        .then(transfer => {
-          if (transfer?.code) {
-            window.location.href = utils.useUrl(
-              "auth/transfer",
-              {
-                code: transfer.code,
-                redirect: `/billing/orders/${this.orderId}/overview`,
-              },
-              { base: transfer.redirect_url, context: "" }
-            );
-          }
-        })
-        .catch(() => {
-          this.processing = false;
-          this.$router.push("/");
-        });
-    },
-  },
+const props = withDefaults(defineProps<OrderConfirmationProps>(), {
+  modal: false,
+  skrim: "primary",
+  size: "2xl",
+  avatar: () => ({
+    size: "lg",
+    shape: "circle",
+    color: "primary",
+    icon: "paying",
+    fit: "contain",
+  }),
 });
+
+const { transfer: transferSession, meta } = useSession();
+
+const styles = useStyles(["order.confirmation"], meta, config);
+
+const processing = ref(false);
+const isOpen = computed(() => meta.value.isProcessing || props.open);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+function doAction() {
+  if (!meta.value.isAuthenticated) {
+    processing.value = false;
+    const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
+    window.location.href = storefrontUrl;
+    return;
+  }
+
+  processing.value = true;
+  transferSession()
+    .then(transfer => {
+      if (hasAction.value && props.action?.href) {
+        window.location.href = props.action.href;
+      } else if (transfer?.code) {
+        window.location.href = utils
+          .useUrl(
+            "auth/transfer",
+            {
+              code: transfer.code,
+              redirect: `/billing/orders/${props.orderId}/overview`,
+            },
+            { base: transfer.redirect_url, context: "" }
+          )
+          .toString();
+      }
+    })
+    .catch(() => {
+      processing.value = false;
+      router.push("/");
+    });
+}
 </script>
-.

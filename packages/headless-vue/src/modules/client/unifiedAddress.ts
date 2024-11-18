@@ -6,7 +6,8 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientUnifiedAddresses as useUpmindClientUnifiedAddresses } from "@upmind-automation/headless";
 
 // --- utils
-import { get, map, debounce, isEmpty } from "lodash-es";
+import { machineMatches, useContextActor } from "../../utils";
+import { get, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -89,12 +90,8 @@ export const useClientUnifiedAddresses = () => {
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
-  const items = computed(() =>
-    map(state.value.context.items, (item: any) => ({
-      id: item.id,
-      ...useActor(item),
-    }))
-  );
+  const items = useContextActor(state, "items", []);
+  const selected = useContextActor(state, "selected");
 
   // --------------------------------------------------------
 
@@ -106,26 +103,24 @@ export const useClientUnifiedAddresses = () => {
     // ---
     meta: computed(() => ({
       isAvailable: ["available"].some(state.value.matches),
-      isLoading: ["subscribing", "checking", "available.loading"].some(
-        state.value.matches
-      ),
+      isLoading:
+        ["subscribing", "checking", "available.loading"].some(
+          state.value.matches
+        ) || machineMatches(selected, ["loading"]),
+
       isProcessing: ["available.filtering", "available.processing"].some(
         state.value.matches
       ),
       hasErrors: ["error"].some(state.value.matches),
-      isAdding:
-        ["available.editing"].some(state.value.matches) &&
-        // @ts-ignore
-        !state.value.context.selected?.state.context?.model?.id,
-      isEditing:
-        ["available.editing"].some(state.value.matches) &&
-        // @ts-ignore
-        !!state.value.context.selected?.state.context?.model?.id,
+      isAdding: state.value.matches("available.adding"),
+      isEditing: state.value.matches("available.editing"),
       isEmpty:
         state.value.matches("available") && isEmpty(state.value.context?.items),
       canFilter:
         state.value.matches("available") &&
-        !["available.editing", "available.loading"].some(state.value.matches) &&
+        !["available.editing", "available.adding", "available.loading"].some(
+          state.value.matches
+        ) &&
         state.value.context?.raw?.length > 1,
     })),
     // ---
@@ -145,18 +140,18 @@ export const useClientUnifiedAddresses = () => {
     // ---
     isReady,
     getSelected,
+    filter: debounce(data => send({ type: "FILTER", data }), 300),
     select: async (id: any) => {
-      if (state.value.matches("available.loading")) {
-        await waitFor(
-          service,
-          newstate => !newstate.matches("available.loading")
-        );
-      }
-
+      await isReady();
       send({ type: "SELECT", data: id });
     },
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
-    edit: (id: any) => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" }),
+    edit: async (id: any) => {
+      await isReady();
+      send({ type: "EDIT", data: id });
+    },
+    add: async () => {
+      await isReady();
+      send({ type: "ADD" });
+    },
   };
 };

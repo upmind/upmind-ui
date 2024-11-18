@@ -3,7 +3,7 @@
     <div :class="styles.basket.summary.content">
       <header :class="styles.basket.summary.header">
         <h3 :class="styles.basket.summary.title">
-          {{ $t("basket.summary.title") }}
+          {{ t("basket.summary.title") }}
         </h3>
       </header>
 
@@ -16,10 +16,7 @@
         <template v-for="product in summary.products" :key="product.id">
           <dt
             :class="
-              mergeStyles(
-                styles.basket.summary.heading,
-                styles.basket.summary.text
-              )
+              cn(styles.basket.summary.heading, styles.basket.summary.text)
             "
           >
             <span>{{ product?.name }}</span>
@@ -30,10 +27,7 @@
 
           <dd
             :class="
-              mergeStyles(
-                styles.basket.summary.value,
-                styles.basket.summary.actions
-              )
+              cn(styles.basket.summary.value, styles.basket.summary.actions)
             "
           >
             <slot name="actions" v-bind="{ ...$props, product }">
@@ -51,7 +45,7 @@
               </strong>
 
               <template v-else>
-                <upw-button
+                <Button
                   type="button"
                   size="sm"
                   class="!p-0"
@@ -62,7 +56,7 @@
                   @click="$emit('edit', product.id)"
                   disabled
                 />
-                <upw-button
+                <Button
                   type="button"
                   size="sm"
                   class="!p-0"
@@ -79,7 +73,7 @@
       </dl>
 
       <!-- promotions -->
-      <upm-promotions :class="styles.basket.summary.form" />
+      <Promotions :class="styles.basket.summary.form" />
 
       <!-- subtotals -->
       <dl
@@ -90,15 +84,15 @@
         <template v-if="summary?.discount">
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{
-              $tc("basket.summary.discount.title", products.length)
+              t("basket.summary.discount.title", products.length)
             }}</span>
             <!-- TODO -->
-            <!-- <upw-icon
+            <!-- <icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
-            {{ $t("basket.summary.discount.tooltip") }}
+            {{ t("basket.summary.discount.tooltip") }}
           </p> -->
           </dt>
 
@@ -108,15 +102,15 @@
         <template v-if="summary?.subtotal">
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{
-              $tc("basket.summary.subtotal.title", products.length)
+              t("basket.summary.subtotal.title", products.length)
             }}</span>
             <!-- TODO -->
-            <!-- <upw-icon
+            <!-- <icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
-            {{ $t("basket.summary.discount.tooltip") }}
+            {{ t("basket.summary.discount.tooltip") }}
           </p> -->
           </dt>
 
@@ -127,12 +121,12 @@
           <dt :class="styles.basket.summary.heading">
             <span :class="styles.basket.summary.text">{{ key }}</span>
             <!-- TODO -->
-            <!-- <upw-icon
+            <!-- <icon
             :class="styles.basket.summary.tooltipIcon"
             icon="information-circle-alt"
           />
           <p :class="styles.basket.summary.tooltip">
-            {{ $t("basket.summary.taxes.tooltip") }}
+            {{ t("basket.summary.taxes.tooltip") }}
           </p> -->
           </dt>
 
@@ -144,21 +138,13 @@
       <dl :class="styles.basket.summary.list">
         <dt
           :class="
-            mergeStyles(
-              styles.basket.summary.heading,
-              styles.basket.summary.total
-            )
+            cn(styles.basket.summary.heading, styles.basket.summary.total)
           "
         >
-          {{ $t("basket.summary.total") }}
+          {{ t("basket.summary.total") }}
         </dt>
         <dd
-          :class="
-            mergeStyles(
-              styles.basket.summary.value,
-              styles.basket.summary.total
-            )
-          "
+          :class="cn(styles.basket.summary.value, styles.basket.summary.total)"
         >
           {{ summary?.total }}
         </dd>
@@ -167,26 +153,27 @@
 
     <footer :class="styles.basket.summary.footer" v-auto-animate>
       <div :class="styles.basket.summary.actions">
-        <upw-button
+        <Button
           :disabled="!meta.isReadyForCheckout || meta.isProcessing"
           @click.prevent="checkout"
+          class="w-full"
           color="primary"
           block
-          :label="$t('basket.summary.actions.submit')"
+          :label="t('basket.summary.actions.submit')"
         />
       </div>
 
       <p
-        v-for="(content, index) in $tm('basket.summary.footer')"
-        :key="`footer-content-${index}`"
+        v-for="(content, index) in tm('basket.summary.footer')"
+        :key="`footer-foreground-${index}`"
         :class="styles.basket.summary.text"
       >
-        <upw-icon
-          v-if="$rt(content?.icon)"
+        <Icon
+          v-if="rt(content?.icon)"
           :class="styles.basket.summary.icon"
-          :icon="$rt(content?.icon)"
+          :icon="rt(content?.icon)"
         />
-        <span>{{ $rt(content.text) }}</span>
+        <span>{{ rt(content.text) }}</span>
       </p>
     </footer>
   </aside>
@@ -196,24 +183,24 @@
 // --- external
 import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
 
 // --- components
-import { UpwButton, UpwIcon } from "@upmind-automation/upwind";
-import UpmPromotions from "./Promotions.vue";
+import Promotions from "./Promotions.vue";
+
+// --- custom elements
+import { Icon, Button } from "@upmind-automation/upwind";
+
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
-
-// --- utils
-
-// --- types
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketSummary",
-  components: { UpwButton, UpwIcon, UpmPromotions },
+  name: "BasketSummary",
+  components: { Promotions, Icon, Button },
   directives: { autoAnimate: vAutoAnimate },
   emits: ["edit"],
   props: {
@@ -223,11 +210,16 @@ export default defineComponent({
     },
   },
   setup() {
+    const { t, tm, rt } = useI18n();
+
     const { meta, checkout, removeItem, products, summary } = useBasket();
 
     const styles = useStyles(["basket.summary"], meta, config);
 
     return {
+      t,
+      tm,
+      rt,
       meta,
       products,
       summary,
@@ -235,7 +227,7 @@ export default defineComponent({
       removeItem,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
   methods: {},

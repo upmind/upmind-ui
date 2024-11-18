@@ -1,5 +1,5 @@
 <template>
-  <upw-input
+  <UpwInput
     v-if="hasItems"
     :class="styles.product.config.grid.root"
     :label="label"
@@ -11,13 +11,13 @@
     variant="flat"
     layout="stacked"
   >
-    <h-radio-group
+    <HRadioGroup
       :model-value="modelValue"
       @update:model-value="doResolve"
       as="ul"
       :class="styles.product.config.grid.items"
     >
-      <h-radio-group-option
+      <HRadioGroupOption
         as="template"
         v-for="(item, index) in items"
         :key="`item-${index}`"
@@ -26,14 +26,14 @@
       >
         <li
           :class="
-            mergeStyles(
+            cn(
               styles.product.config.grid.item.root,
               disabled ? styles.product.config.grid.item.disabled : null,
               checked ? styles.product.config.grid.item.selected : null
             )
           "
         >
-          <upw-radio
+          <UpwRadio
             :class="styles.product.config.grid.item.input"
             :model-value="checked"
             no-feedback
@@ -48,18 +48,15 @@
             </span>
 
             <template v-for="promotion in item?.promotions" :key="promotion.id">
-              <upw-badge
-                color="promotion"
-                :label="
-                  $tc(
-                    'product.promo_save',
-                    promotion.mixed || !promotion.amount ? 1 : 0,
-                    {
-                      value: promotion.amount_formatted,
-                    }
-                  )
-                "
-              />
+              <Badge color="promotion" variant="tonal">
+                {{
+                  promotion.mixed || !promotion.amount
+                    ? t("product.promotion")
+                    : t("product.promotion_save", {
+                        value: promotion.amount_formatted,
+                      })
+                }}
+              </Badge>
             </template>
 
             <!-- monthly -->
@@ -68,7 +65,7 @@
               v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
             >
               {{
-                $t("product.cycle", {
+                t("product.cycle", {
                   value: item?.monthly_price_from_discounted
                     ? item.monthly_price_from_discounted_formatted
                     : item.monthly_price_from_formatted,
@@ -90,14 +87,14 @@
                   ? item.price_discounted_formatted
                   : item?.price
                     ? item.price_formatted
-                    : $t("product.free")
+                    : t("product.free")
               }}
             </strong>
           </div>
         </li>
-      </h-radio-group-option>
-    </h-radio-group>
-  </upw-input>
+      </HRadioGroupOption>
+    </HRadioGroup>
+  </UpwInput>
 
   <pre v-if="errors">{{ errors }}</pre>
 </template>
@@ -105,25 +102,29 @@
 <script>
 // --- external
 import { defineComponent, toRefs } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { UpwRadio, UpwBadge, UpwInput } from "@upmind-automation/upwind";
+import { UpwRadio, UpwInput } from "@upmind-automation/upwind";
+
+// --- custom elements
+import { Badge } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "UpmProductConfigGrid",
+  name: "ProductConfigGrid",
   components: {
+    Badge,
     UpwInput,
     UpwRadio,
-    UpwBadge,
     HRadioGroup: RadioGroup,
     HRadioGroupOption: RadioGroupOption,
   },
@@ -162,6 +163,8 @@ export default defineComponent({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    const { t } = useI18n();
+
     const styles = useStyles(
       ["product.config.grid", "product.config.grid.item"],
       toRefs(props),
@@ -169,8 +172,9 @@ export default defineComponent({
     );
 
     return {
+      t,
       styles,
-      mergeStyles,
+      cn,
     };
   },
   computed: {

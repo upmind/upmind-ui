@@ -1,3 +1,9 @@
+[submodule "playgrounds/velia"]
+	path = playgrounds/velia
+	url = git@git.upmind.io:upmind/groups/frontend-team/velia-checkout.git
+[submodule "playgrounds/webcentral"]
+	path = playgrounds/webcentral
+	url = git@git.upmind.io:upmind/groups/frontend-team/webcentral-checkout.git
 [submodule "packages/types"]
 	path = packages/types
 	url = git@git.upmind.io:upmind/upmind-types.git

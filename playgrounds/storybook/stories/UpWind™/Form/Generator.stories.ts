@@ -1,34 +1,36 @@
 // --- external
 import { ref, computed } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
-
+import { useI18n } from "vue-i18n";
 // --- internal
 import * as messages from "./locales";
+// import { countries } from "country-data";
 
 // --- components
-import { UpwForm } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty, omitBy } from "lodash-es";
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwForm> = {
+const meta: Meta<typeof Form> = {
   parameters: {
     controls: {
       exclude: [
         "ajv",
         "mode",
         "additionalErrors",
-        // "schema",
-        // "uischema",
+        "schema",
+        "uischema",
         "modelValue",
       ],
     },
   },
-  component: UpwForm,
+  component: Form,
   render: args => ({
-    components: { UpwForm },
+    components: { Form },
     setup() {
+      const { t } = useI18n();
       const isValid = ref(false);
       const model = ref({});
 
@@ -37,6 +39,7 @@ const meta: Meta<typeof UpwForm> = {
       function doResolve(value) {}
 
       return {
+        t,
         args,
         model,
         isValid,
@@ -49,16 +52,16 @@ const meta: Meta<typeof UpwForm> = {
     },
     i18n: { messages },
     template: `
-      <upw-form
+      <Form
        :locale="$i18n.locale"
-       :translator="$t"
+       :translator="t"
         v-bind="args"
         v-model="model"
         @valid="isValid = $event"
       />
 
-      <div class="w-full flex-1 self-stretch rounded-lg bg-base-100 p-4 mt-8">
-        <strong class="font-mono uppercase">{{$tc("form.model", formStatus)}}</strong>
+      <div class="w-full flex-1 self-stretch rounded-lg bg-background-100 p-4 mt-8">
+        <strong class="font-mono uppercase">{{t("form.model", formStatus)}}</strong>
         <pre class="sticky top-0 text-wrap">{{ model }}</pre>
       </div>
     `,
@@ -73,21 +76,78 @@ const meta: Meta<typeof UpwForm> = {
         name: {
           type: "string",
           minLength: 3,
+          maxLength: 10,
           title: "What is your name?",
           description: "Please enter your full name",
           i18n: "form.name",
         },
-        dob: {
+
+        password: {
+          type: "string",
+        },
+
+        date: {
+          title: "What is your date of birth?",
           type: "string",
           format: "date",
-          title: "What is your date of birth?",
-          i18n: "form.dob",
+        },
+
+        // categories: {
+        //   type: "array",
+        //   uniqueItems: true,
+        //   items: {
+        //     type: "string",
+        //     enum: ["Work", "Personal", "Urgent", "Long-term", "Short-term"],
+        //   },
+        //   i18n: "taskform.categories",
+        // },
+
+        phone: {
+          type: "object",
+          title: "Phone",
+          isPhoneNumber: "GB",
+          properties: {
+            number: {
+              type: ["string", "null"],
+              title: "Phone number",
+            },
+
+            country: {
+              type: ["string", "null"],
+              title: "Country",
+            },
+
+            countryCallingCode: {
+              type: ["string", "null"],
+              title: "Country calling code",
+            },
+          },
+        },
+
+        age: {
+          type: "integer",
+          title: "How old are you?",
+          exclusiveMinimum: 0,
+          exclusiveMaximum: 120,
+          i18n: "form.age",
         },
         postalCode: {
           type: "string",
           maxLength: 5,
           title: "What is your postal/zip code?",
           i18n: "form.postalCode",
+        },
+        about: {
+          type: "string",
+          title: "Tell us about yourself",
+          maxLength: 280,
+          i18n: "form.about",
+        },
+        accept: {
+          type: "boolean",
+          title: "Do you accept the terms and conditions?",
+          description: "Must be accepted to use our service",
+          i18n: "form.accept",
         },
 
         personalData: {
@@ -141,6 +201,37 @@ const meta: Meta<typeof UpwForm> = {
               title: "What is your nationality?",
               i18n: "form.nationality",
             },
+            nationalityDetailed: {
+              type: "string",
+              oneOf: [
+                {
+                  title: "Germany",
+                  const: "DE",
+                },
+                {
+                  title: "Italy",
+                  const: "IT",
+                },
+                {
+                  title: "Japan",
+                  const: "JP",
+                },
+                {
+                  title: "United States",
+                  const: "US",
+                },
+                {
+                  title: "Russia",
+                  const: "RU",
+                },
+                {
+                  title: "Other",
+                  const: "Other",
+                },
+              ],
+              title: "What is your nationality?",
+              i18n: "form.nationality",
+            },
             occupation: {
               type: "string",
               title: "What is your occupation?",
@@ -150,15 +241,22 @@ const meta: Meta<typeof UpwForm> = {
           required: ["weight", "height", "drivingSkill"],
         },
       },
-      required: ["name", "dob", "postalCode", "nationality"],
+      required: ["name", "accept", "age", "switch", "toggle"],
+      // errorMessage: {
+      //   properties: {
+      //     accept: "We require you accept our Terms and Conditions",
+      //   },
+      // },
     },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwForm>;
+type Story = StoryObj<typeof Form>;
 
-export const Base: Story = {};
+export const Base: Story = {
+  args: {},
+};
 
 export const Formatted: Story = {
   args: {
@@ -175,6 +273,10 @@ export const Formatted: Story = {
             {
               type: "Control",
               scope: "#/properties/dob",
+              options: {
+                format: "date",
+                min: "2024-10-16",
+              },
             },
             {
               type: "Control",
@@ -326,7 +428,7 @@ export const Task: Story = {
           type: "Control",
           scope: "#/properties/name",
           options: {
-            focus: true,
+            autoFocus: true,
           },
         },
 

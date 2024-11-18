@@ -1,41 +1,53 @@
 <template>
   <suspense>
     <div
-      class="relative flex min-h-screen flex-col items-start bg-base text-base-content antialiased"
+      class="relative flex min-h-screen flex-col items-start bg-base-background text-base-foreground antialiased"
       :data-theme="activeTheme"
+      id="app"
+      vaul-drawer-wrapper
     >
-      <upm-header no-home></upm-header>
+      <DotHeader no-home></DotHeader>
 
       <main class="prose flex w-full max-w-none flex-1 flex-col">
-        <upm-feedback />
+        <UpmFeedback />
 
-        <router-view class="view flex-1 gap-4 px-4 py-8 sm:px-6 lg:px-20" />
+        <router-view :key="$route.fullPath" class="view" />
 
-        <upm-session-expired auto />
+        <UpmSessionExpired
+          :title="t('session.expired.title')"
+          :text="t('session.expired.text')"
+          :action="{
+            label: t('session.expired.actions.continue'),
+            color: 'primary',
+            handler: reload,
+            auto: false,
+          }"
+        />
       </main>
 
-      <upm-footer />
+      <DotFooter />
     </div>
   </suspense>
 </template>
 
 <script setup>
 // --- external
-import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import {
-  UpmFeedback,
-  useThemes,
-  UpmSessionExpired,
-} from "@upmind-automation/client-vue";
+import { useThemes } from "@upmind-automation/upwind";
 import theme from "@/assets/theme";
 
 // --- components
-import UpmHeader from "@/components/Header.vue";
-import UpmFooter from "@/components/Footer.vue";
+import { UpmFeedback, UpmSessionExpired } from "@upmind-automation/client-vue";
+import DotHeader from "@/components/Header.vue";
+import DotFooter from "@/components/Footer.vue";
 
-// ---
-const route = useRoute();
 const { activeTheme } = useThemes(theme);
+
+const { t } = useI18n();
+
+function reload() {
+  window.location.reload();
+}
 </script>

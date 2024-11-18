@@ -114,7 +114,7 @@ async function validate(
 // PAYMENT METHODS
 
 async function createPaymentElement(
-  { amount, currency, gateway, stripe }: StripeContext,
+  { amount, currency, gateway, stripe, address }: StripeContext,
   _event: StripeEvent
 ) {
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
@@ -129,14 +129,13 @@ async function createPaymentElement(
     setupFutureUsage: "off_session",
   });
   const element = elements?.create("payment", {
-    // defaultValues: {
-    //     billingDetails: {
-    //       name: "Jenny Rosen",
-    //       email: "john.smith@example.com",
-    //       phone: "5554242424",
-    //     },
-    //   },
-    // },
+    defaultValues: {
+      billingDetails: {
+        address: {
+          postal_code: address?.postcode,
+        },
+      },
+    },
   });
 
   return new Promise(resolve => {
@@ -203,7 +202,7 @@ async function update({ elements, stripe, model }: StripeContext) {
  * Stripe 'Elements' instance.
  */
 async function createAddElement(
-  { stripe, gateway }: StripeContext,
+  { stripe, gateway, address }: StripeContext,
   _event: StripeEvent
 ) {
   const { post, useUrl } = useApi();
@@ -228,7 +227,15 @@ async function createAddElement(
       locale: "auto", // TODO: add i18n local
     });
 
-    const element = elements?.create("payment");
+    const element = elements?.create("payment", {
+      defaultValues: {
+        billingDetails: {
+          address: {
+            postal_code: address?.postcode,
+          },
+        },
+      },
+    });
     // ---
 
     return {
@@ -258,7 +265,6 @@ async function endSetup() {}
 
 // --------------------------------------------------------
 // EXPORTS
-
 export default {
   load,
   parse: sharedServices.parse,

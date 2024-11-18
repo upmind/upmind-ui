@@ -24,8 +24,10 @@ let state: any = null;
 
 // @ts-ignore
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => (state = newState));
+  devTools: true,
+}).onTransition(newState => {
+  state = newState;
+});
 
 // --------------------------------------------------------
 
@@ -40,7 +42,10 @@ export const useClientUnifiedAddresses = () => {
       waitFor(
         service,
         state =>
-          state.matches("available") && !state.matches("available.loading")
+          state.matches("available") && !state.matches("available.loading"),
+        {
+          timeout: Infinity,
+        }
       ),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,

@@ -1,56 +1,35 @@
 <template>
-  <upw-input
-    v-bind="{ ...control, ...appliedOptions }"
-    :dirty="!!control.data"
-    variant="flat"
-  >
-    <upm-domain
-      v-bind="{ ...control, ...appliedOptions }"
-      :id="control.id + '-domain'"
-      :disabled="!control.enabled"
-      :model-value="control.data"
-      @change="onChange"
-    />
-  </upw-input>
+  <FormField v-bind="formFieldProps">
+    <Domain :model-value="control.data" @update:modelValue="onInput" />
+  </FormField>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
-import { uiTypeIs, formatIs, and, or } from "@jsonforms/core";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue";
+import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import UpmDomain from "../domain/Domain.vue";
+import { FormField } from "@upmind-automation/upwind";
+import Domain from "../domain/Domain.vue";
 
 // --- utils
-import { useUpwindRenderer, UpwInput } from "@upmind-automation/upwind";
+import { useUpwindRenderer } from "@upmind-automation/upwind";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+
 // ----------------------------------------------
 
-export default defineComponent({
-  name: "DomainRenderer",
-  components: {
-    UpmDomain,
-    UpwInput,
-  },
-  props: {
-    ...rendererProps<ControlElement>(),
-  },
-  setup(props: RendererProps<ControlElement>) {
-    const renderer = useUpwindRenderer(
-      useJsonFormsControl(props),
-      target => target?.value || undefined
-    );
-    return {
-      ...renderer,
-    };
-  },
-});
+const props = defineProps<RendererProps<ControlElement>>();
 
+const { control, formFieldProps, onInput } = useUpwindRenderer(
+  useJsonFormsControl(props)
+);
+</script>
+
+<script lang="ts">
+import { uiTypeIs, formatIs, and } from "@jsonforms/core";
 export const tester = {
   rank: 3,
   controlType: and(uiTypeIs("Control"), formatIs("domain_name")),

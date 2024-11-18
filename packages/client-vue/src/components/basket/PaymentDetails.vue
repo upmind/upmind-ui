@@ -1,6 +1,6 @@
 <template>
   <section ref="form" :class="styles.basket.paymentDetails.root">
-    <upw-form
+    <Form
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
       :model-value="model"
@@ -13,7 +13,7 @@
       no-actions
     />
 
-    <upm-payment-gateway
+    <PaymentGateway
       v-if="gateway"
       :key="gateway?.id"
       :id="gateway?.id"
@@ -28,18 +28,18 @@ import { defineComponent } from "vue";
 
 // --- internal
 import { useBasketPaymentDetails } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwForm } from "@upmind-automation/upwind";
-import UpmPaymentGateway from "./PaymentGateway.vue";
+import { Form } from "@upmind-automation/upwind";
+import PaymentGateway from "./PaymentGateway.vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineComponent({
-  name: "UpmBasketPaymentDetails",
-  components: { UpwForm, UpmPaymentGateway },
+  name: "BasketPaymentDetails",
+  components: { Form, PaymentGateway },
   props: {},
   setup(props) {
     const {
@@ -71,7 +71,7 @@ export default defineComponent({
       update,
       // ---
       styles,
-      mergeStyles,
+      cn,
     };
   },
 });

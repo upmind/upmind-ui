@@ -52,9 +52,10 @@ dependencies:
           - package-lock.json
       paths:
         - node_modules
-        - playgrounds/labs/node_modules
         - playgrounds/storybook/node_modules
         - playgrounds/checkout/node_modules
+        - playgrounds/velia/node_modules
+        - playgrounds/webcentral/node_modules
         - packages/upwind/node_modules
         - packages/headless/node_modules
         - packages/headless-vue/node_modules
@@ -66,9 +67,10 @@ dependencies:
     expire_in: "1 day"
     paths:
       - node_modules
-      - playgrounds/labs/node_modules
       - playgrounds/storybook/node_modules
       - playgrounds/checkout/node_modules
+      - playgrounds/velia/node_modules
+      - playgrounds/webcentral/node_modules
       - packages/upwind/node_modules
       - packages/headless/node_modules
       - packages/headless-vue/node_modules

@@ -1,89 +1,99 @@
 <template>
   <component
-    :is="modal ? 'upw-dialog' : 'div'"
-    size="xl"
-    :model-value="open"
-    no-actions
+    v-if="modal || (!modal && isOpen)"
+    :is="modal ? Dialog : 'div'"
+    :description="text"
+    :open="isOpen"
+    :size="size"
+    :skrim="skrim"
+    :title="title"
+    to="#vue-app"
+    fit="cover"
+    no-close
+    no-header
     persistent
-    skrim="light"
   >
+    <template #header>
+      <div />
+    </template>
+
     <section :class="styles.basket.loading.root">
-      <upw-avatar
-        :avatar="avatar"
-        :class="styles.basket.loading.avatar"
-        loading
-      />
+      <slot name="avatar">
+        <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
+      </slot>
 
-      <h1 :class="styles.basket.loading.title">
-        {{ title }}
-      </h1>
+      <h3 :class="styles.basket.loading.title">
+        <slot name="title">{{ title }}</slot>
+      </h3>
 
-      <p :class="styles.basket.loading.text">{{ text }}</p>
+      <p :class="styles.basket.loading.text">
+        <slot name="text">{{ text }}</slot>
+      </p>
+
+      <footer :class="styles.basket.loading.actions">
+        <Button
+          v-if="hasAction"
+          v-bind="action"
+          @click.stop="doAction"
+          :loading="processing"
+        >
+          <template #prepend>
+            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+          </template>
+        </Button>
+      </footer>
     </section>
   </component>
 </template>
 
-<script>
+<!-- eslint-disable vue/component-api-style -->
+<script lang="ts" setup>
 // --- external
-import { defineComponent, computed } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, mergeStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpwAvatar } from "@upmind-automation/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upwind";
+
+// --- utils
+import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
-
+import type { BasketModalProps } from "./types";
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "UpmBasketloading",
-  components: {
-    UpwAvatar,
-  },
-  props: {
-    modal: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
-    const { meta } = useBasket();
 
-    const styles = useStyles(["basket.loading"], meta, config);
-
-    // ---
-
-    return {
-      meta,
-      open: computed(() => {
-        const value = meta.value.isCheckout || meta.value.isComplete;
-        return value;
-      }),
-
-      // ---
-      styles,
-      mergeStyles,
-    };
-  },
-  computed: {
-    title() {
-      return this.$t("basket.loading.title");
-    },
-
-    text() {
-      return this.$t("basket.loading.text");
-    },
-
-    avatar() {
-      return this.$tm("basket.loading.avatar");
-    },
-    action() {
-      return this.$tm("basket.loading.actions.continue");
-    },
+const props = withDefaults(defineProps<BasketModalProps>(), {
+  open: true,
+  modal: false,
+  skrim: "primary",
+  size: "2xl",
+  animatedIcon: {
+    icon: "basket",
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+    size: "4xl",
   },
 });
+
+const { meta } = useBasket();
+
+const styles = useStyles(["basket.loading"], meta, config);
+
+const processing = ref(false);
+const isOpen = computed(() => meta.value.isLoading || props.open);
+const hasAction = computed(() => {
+  return !isEmpty(props.action);
+});
+
+async function doAction() {
+  if (isFunction(props.action?.handler)) {
+    processing.value = true;
+    await props.action.handler();
+    processing.value = false;
+  }
+}
 </script>
-.

@@ -5,17 +5,15 @@ export default {
   order: {
     root: cva(""),
     confirmation: {
-      // my-8 grid min-h-96 w-full grid-cols-3 justify-center gap-8 px-4 py-8
       root: cva(
-        "relative flex w-full flex-col flex-wrap flex-wrap items-start items-center justify-center justify-center px-6 py-16",
-        {
-          variants: {},
-        }
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 py-16 md:px-8"
       ),
-      title: cva("m-0 mt-8 text-center text-3xl font-light text-inherit"),
-      text: cva("text-base-500 m-0 mt-2 text-center text-sm tracking-tight"),
-      avatar: cva("bg-primary text-primary-content size-20 p-2"),
-      actions: cva("flex w-full justify-center pt-8"),
+      title: cva("m-0 mt-3 text-center text-3xl text-inherit"),
+      text: cva(
+        "m-0 mb-8 max-w-md text-center text-lg leading-normal opacity-50"
+      ),
+      avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
+      actions: cva("flex w-full justify-center"),
     },
   },
 };

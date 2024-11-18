@@ -101,7 +101,7 @@ export default createMachine(
   {
     actions: {
       clear: assign((_, _event) => {
-        dumpTokenFromStorage("client");
+        localStorage.clear();
         return {};
       }),
       // ---

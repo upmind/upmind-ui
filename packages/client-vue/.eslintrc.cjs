@@ -57,11 +57,14 @@ module.exports = {
     ],
 
     // vue
-    "vue/component-name-in-template-casing": ["error", "kebab-case"],
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
     "vue/multi-word-component-names": "off",
+    "vue/no-reserved-component-names": "off",
     "vue/no-v-html": "off",
     "vue/no-v-text-v-html-on-component": "off",
     "vue/no-v-model-argument": "off",
+    // "vue/component-api-style": ["error", ["composition", "options"]], // "script-setup", "composition", "composition-vue2", or "options"
+    "vue/no-deprecated-slot-attribute": "off", // because we use web components that rely on the "slot" attribute
 
     // general
     "no-unsafe-optional-chaining": "off",

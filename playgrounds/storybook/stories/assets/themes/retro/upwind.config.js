@@ -3,33 +3,20 @@ import { cva } from "class-variance-authority";
 
 export default {
   button: {
-    label: cva("font-light uppercase"),
-    root: cva("", {
+    root: cva("font-light uppercase", {
       variants: {
         size: {
-          sm: "px-2 py-1 text-xs",
-          md: "px-2 py-1 text-sm",
-          lg: "px-2 py-1 text-base",
+          default: "h-8 px-8",
+          md: "h-8 px-8",
+          xs: "h-4 rounded px-4",
+          sm: "h-6 rounded-md px-6",
+          lg: "h-16 rounded-md px-16",
+          icon: "h-10 w-10",
         },
       },
       defaultVariants: {
         size: "md",
       },
     }),
-    content: cva("", {
-      variants: {
-        size: {
-          sm: "px-1",
-          medium: "px-3",
-          lg: "px-5",
-        },
-      },
-      defaultVariants: {
-        size: "md",
-      },
-    }),
-  },
-  form: {
-    loading: cva("invisible scale-0 transform opacity-0"),
   },
 };
