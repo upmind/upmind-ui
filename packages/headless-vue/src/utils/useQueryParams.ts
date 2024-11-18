@@ -147,7 +147,7 @@ export const useQueryParams = () => {
   return {
     getParams,
     getParam,
-    product_id: getParam(
+    productId: getParam(
       QUERY_PARAMS.PRODUCT_ID,
       getParam(QUERY_PARAMS.PRODUCT_ID)
     ),
