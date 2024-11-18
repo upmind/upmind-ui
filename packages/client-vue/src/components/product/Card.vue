@@ -1,9 +1,9 @@
 <template>
   <article :class="styles.product.card.root">
     <!-- thumb -->
-    <figure :class="styles.product.card.media" v-if="product?.image?.full_url">
+    <figure :class="styles.product.card.media" v-if="productImage()">
       <img
-        :src="product?.image?.full_url"
+        :src="productImage()"
         :alt="`${product?.name} thumbnail`"
         :class="styles.product.card.image"
       />
@@ -205,9 +205,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useI18n();
 
-    const { state, product, model, meta, summary } = useProductConfig(
-      props.item
-    );
+    const { state, product, productImage, model, meta, summary } =
+      useProductConfig(props.item);
 
     const styles = useStyles(
       ["product.card", "product.card.details"],
@@ -224,6 +223,7 @@ export default defineComponent({
       model,
       meta,
       summary,
+      productImage,
       // ---
       doReject: () => emit("reject", props.modelValue),
       doResolve: () => emit("resolve", props.modelValue),

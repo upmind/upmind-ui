@@ -1,4 +1,4 @@
-import type { DomainProduct } from "@upmind/headless";
+import type { DomainProduct } from "@upmind-automation/headless";
 
 export interface DomainCardProps extends DomainProduct {
   selected?: boolean;

@@ -9,7 +9,7 @@ Please refer to the full API reference on `useSystem` [here](./functions/useSyst
 ## Usage
 
 ```js
-import { useSystem } from '@upmind/headless-vue';
+import { useSystem } from "@upmind-automation/headless-vue";
 ```
 
 ### Setup in a Vue component
@@ -18,12 +18,12 @@ The following example is describing the most common use case for `useSystem` - u
 
 ```vue
 <script setup>
-import { useSystem } from '@upmind/headless-vue';
+import { useSystem } from "@upmind-automation/headless-vue";
 
 const { fetch } = useSystem();
 const countries = ref();
 
-countries.value = await fetch('countries');
+countries.value = await fetch("countries");
 console.log(countries.value);
 </script>
 ```
@@ -32,14 +32,13 @@ console.log(countries.value);
 
 Here’s a table showing the possible values that can be passed as the `key` to the `fetch` method in `useSystem`:
 
-| Key            | Description                                              |
-|----------------|----------------------------------------------------------|
-| `countries`    | Fetches the list of countries available in the system.   |
-| `regions`      | Fetches regions based on the selected country.           |
-| `languages`    | Fetches the list of available languages.                 |
-| `statuses`     | Fetches the list of possible statuses for entities.      |
-| `departments`  | Fetches the available departments within the system.     |
-
+| Key           | Description                                            |
+| ------------- | ------------------------------------------------------ |
+| `countries`   | Fetches the list of countries available in the system. |
+| `regions`     | Fetches regions based on the selected country.         |
+| `languages`   | Fetches the list of available languages.               |
+| `statuses`    | Fetches the list of possible statuses for entities.    |
+| `departments` | Fetches the available departments within the system.   |
 
 ## Advanced Usage
 
@@ -47,9 +46,9 @@ Here’s a table showing the possible values that can be passed as the `key` to 
 
 The `meta` object contains various reactive properties that provide useful information about the state of the brand requests.
 
-|Property|Type|Description|
-|--------|----|-----------|
-|`meta.isLoading`| `boolean`| True if any of the system's key states (e.g., countries, regions) are loading.|
-|`meta.isReady`| `boolean`| True if key states (e.g., currencies, billing cycles) have completed loading, and others (e.g., countries, regions) are idle.|
-|`meta.isComplete`| `boolean`| True if all relevant system states have completed loading.|
-|`meta.hasErrors`| `boolean`| True if any key states have encountered errors.|
+| Property          | Type      | Description                                                                                                                   |
+| ----------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `meta.isLoading`  | `boolean` | True if any of the system's key states (e.g., countries, regions) are loading.                                                |
+| `meta.isReady`    | `boolean` | True if key states (e.g., currencies, billing cycles) have completed loading, and others (e.g., countries, regions) are idle. |
+| `meta.isComplete` | `boolean` | True if all relevant system states have completed loading.                                                                    |
+| `meta.hasErrors`  | `boolean` | True if any key states have encountered errors.                                                                               |
