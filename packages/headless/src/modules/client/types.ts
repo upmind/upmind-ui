@@ -19,18 +19,27 @@ export interface ClientItemContext {
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IAddress;
+  // TODO:
+  // model?: IAddress;
+  model?: any;
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 export interface ClientListingsContext {
   initial?: string;
   filters: any;
-  items?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
-  raw?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
-  selected?: IAddress;
-  error?: RequestError;
+  // TODO:
+  // items?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
+  // raw?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
+  // selected?: IAddress;
+  // error?: RequestError;
+  items?: any[];
+  raw?: any[];
+  selected?: any;
+  error?: any;
 }
 // --------------------------------------------------------
 // Events
@@ -38,11 +47,15 @@ export interface ClientListingsContext {
 export interface ClientItemEvent {
   type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 export interface ClientListingsEvents {
   type: "ADD" | "SELECT" | "REFRESH" | "STOP";
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

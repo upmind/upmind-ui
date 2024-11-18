@@ -23,7 +23,7 @@ The **Basket Manager** module within the **Upmind Headless** framework is design
 
 ### Installation
 
-To use the **Basket Manager** module, you can import it from the `@upmind/headless` package in your JavaScript project.
+To use the **Basket Manager** module, you can import it from the `@upmind-automation/headless` package in your JavaScript project.
 
 (For specific installation details within the **Upmind Headless** framework, please refer to the main framework README.)
 
@@ -46,7 +46,7 @@ The module operates as a state machine with built-in context to manage user bask
 ## Usage
 
 ```javascript
-import { useBasket as useUpmindBasket } from `@upmind/headless`;
+import { useBasket as useUpmindBasket } from `@upmind-automation/headless`;
 import { useActor } from "@xstate/vue"; // or @xstate/react, @xstate/svelte, etc.
 
 // Its a good idea to create a composable

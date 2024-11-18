@@ -154,6 +154,7 @@ export function spawnGateway({
   amount,
   currency,
   stored_payment_methods,
+  address,
 }: any) {
   // lets spawn and return the appropriate machine based on the gateway
   // the order her eis important and matches the original order in the legacy app
@@ -199,6 +200,7 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
+      address,
     });
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
@@ -207,6 +209,7 @@ export function spawnGateway({
       amount,
       currency,
       renderless: true,
+      address,
     });
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
@@ -217,7 +220,12 @@ export function spawnGateway({
       renderless: true,
     });
   if (isExternal(gateway))
-    return spawnExternal({ basketId, gateway, amount, currency });
+    return spawnExternal({
+      basketId,
+      gateway,
+      amount,
+      currency,
+    });
   if (isCard(gateway))
     return spawnCard({ basketId, gateway, amount, currency });
 
@@ -261,16 +269,24 @@ export function spawnCard({ basketId, gateway, amount, currency }: any) {
   );
 }
 
-export function spawnStripe({ basketId, gateway, amount, currency }: any) {
+export function spawnStripe({
+  basketId,
+  gateway,
+  amount,
+  currency,
+  address,
+}: any) {
   return spawn(
     stripeMachine.withContext({
       basketId,
       gateway,
+      // @ts-ignore
       ctx: GatewayCtx.PAY,
       amount,
       currency,
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider.code,
+      address,
     }),
     { name: gateway.id, sync: true }
   );

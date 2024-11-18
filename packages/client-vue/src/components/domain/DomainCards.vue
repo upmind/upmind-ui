@@ -23,6 +23,7 @@
           v-bind="getDomain(value as string)"
           :selected="isSelected(value as string)"
           @update:selected="onToggleSelected"
+          :color="props.color"
         />
       </template>
     </CheckboxCards>
@@ -43,19 +44,19 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import CardDomain from "./DomainCard.vue";
 import Empty from "./Empty.vue";
-import { SkeletonList, CheckboxCards } from "@upmind/upwind";
+import { SkeletonList, CheckboxCards } from "@upmind-automation/upwind";
 
 // --- utils
 import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
-import type { CheckboxCardsItemProps } from "@upmind/upwind";
+import type { CheckboxCardsItemProps } from "@upmind-automation/upwind";
 import type { IDomain } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -68,12 +69,15 @@ const props = withDefaults(
     items: Record<string, any>[];
     offset?: number;
     // ---
+    color?: string;
+    // ---
     loading?: boolean;
     processing?: boolean;
     disabled?: boolean;
   }>(),
   {
     offset: 0,
+    color: "base",
     loading: false,
     processing: false,
     disabled: false,

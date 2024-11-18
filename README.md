@@ -9,7 +9,7 @@ Upmind is a monorepo that houses all the second-generation packages and UI compo
 ### Adding a new pkg
 
 ```bash
-npm init -y --scope @upmind -w packages/XXX
+npm init -y --scope @upmind-automation -w packages/XXX
 ```
 
 **Packages:**
@@ -36,6 +36,28 @@ The `playgrounds` folder contains several playgrounds, each implementing a diffe
 **Install Instructions:**
 
 1. **Node.js and npm:** This project requires Node.js and npm to be installed on your system. You can download and install the latest version from the official Node.js website: [https://nodejs.org/en](https://nodejs.org/en)
+
+2. **Git submodules:**
+
+When cloning this repo, use `git clone --recurse-submodules git@git.upmind.io:upmind/upmind-types.git`.
+
+If you already have the repo cloned, then you need to `git submodule update --init --recursive`.
+
+2.1 **Update a git submodule**
+
+To update a git submodule to its latest commit from its remote repo:
+
+```
+cd packages/types
+git pull origin main
+```
+
+Then commit in the monorepo to track the new submodule commit:
+
+```
+git add packages/types
+git commit -m "chore(types): Updated types submodule to v0.0.1"
+```
 
 **Running Playgrounds:**
 

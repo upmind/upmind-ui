@@ -64,11 +64,8 @@ export enum QUERY_PARAMS {
   USERNAME = "username",
   VIEW = "view",
 }
-import type { ProductModel } from "@upmind/headless";
+import type { ProductModel } from "@upmind-automation/headless";
 
-type IExtendedProductModel = ProductModel & {
-  subproducts?: string[];
-};
 // -----------------------------------------------------------------------------
 
 export const useQueryParams = () => {
@@ -92,7 +89,7 @@ export const useQueryParams = () => {
     return isArray(value) ? first(value) : value;
   }
 
-  function getProductConfigs(): IExtendedProductModel[] {
+  function getProductConfigs(): ProductModel[] {
     // This is a complex object that is passed in as a query param
     //  and is used to configure a product with multiple options, attributrs, etc.
     // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
@@ -101,7 +98,7 @@ export const useQueryParams = () => {
       QUERY_PARAMS.PRODUCT,
       getParams(QUERY_PARAMS.PRODUCT_ID)
     );
-    const qty = getParams(QUERY_PARAMS.QUANTITY);
+    const productQty = getParams(QUERY_PARAMS.QUANTITY);
 
     const bcm = getParams(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
 
@@ -136,9 +133,9 @@ export const useQueryParams = () => {
 
     return map(
       productIds,
-      (productId, index): IExtendedProductModel => ({
+      (productId, index): ProductModel => ({
         productId,
-        quantity: toNumber(qty?.[index]),
+        quantity: toNumber(productQty?.[index]),
         term: toNumber(bcm?.[index]),
         subproducts,
         provisionFields,
@@ -150,7 +147,7 @@ export const useQueryParams = () => {
   return {
     getParams,
     getParam,
-    productId: getParam(
+    product_id: getParam(
       QUERY_PARAMS.PRODUCT_ID,
       getParam(QUERY_PARAMS.PRODUCT_ID)
     ),

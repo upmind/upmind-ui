@@ -36,7 +36,11 @@
           :loading="processing"
         >
           <template #prepend>
-            <Icon v-if="action?.prependIcon" :icon="action.prependIcon" />
+            <Icon
+              v-if="action?.prependIcon"
+              :icon="action.prependIcon"
+              size="2xs"
+            />
           </template>
         </Button>
       </footer>
@@ -50,12 +54,12 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button, Icon } from "@upmind/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
@@ -73,7 +77,7 @@ const props = withDefaults(defineProps<ProductModalProps>(), {
     icon: "basket",
     delay: 5000,
     primaryColor: "primary",
-    secondaryColor: "promotion",
+    secondaryColor: "accent",
     size: "4xl",
   },
 });

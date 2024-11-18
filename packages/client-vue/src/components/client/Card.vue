@@ -35,14 +35,14 @@ import { defineComponent, inject, toRefs } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { DropdownMenu } from "@upmind/upwind";
+import { DropdownMenu } from "@upmind-automation/upwind";
 
 // --- custom elements
-import { Badge } from "@upmind/upwind";
+import { Badge } from "@upmind-automation/upwind";
 
 // --- utils
 import { useClipboard } from "@vueuse/core";

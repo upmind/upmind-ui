@@ -8,10 +8,15 @@ import type { RequestError } from "../../api/types";
 // Contexts
 
 export interface GuestContext {
-  token: Token;
-  error?: RequestError;
+  // TODO:
+  // token: Token;
+  // error?: RequestError;
+  token: any;
+  error?: any;
   // ---
-  customFields: Array;
+  // TODO:
+  // customFields: Array;
+  customFields: any[];
   model: AuthModel;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
@@ -19,13 +24,17 @@ export interface GuestContext {
 
 export interface AuthModel {
   custom_fields: { [key: string]: number | string | boolean };
-  email: string;
+  username: string;
   firstname: string;
   lastname: string;
   password: string;
-  phone: IPhone["phone"] | null;
-  phone_code: IPhone["phone_code"] | null;
-  phone_country_code: IPhone["phone_country_code"] | null;
+  // TODO:
+  // phone: IPhone["phone"] | null;
+  // phone_code: IPhone["phone_code"] | null;
+  // phone_country_code: IPhone["phone_country_code"] | null;
+  phone: any["phone"] | null;
+  phone_code: any["phone_code"] | null;
+  phone_country_code: any["phone_country_code"] | null;
   recaptcha_token: string;
 }
 

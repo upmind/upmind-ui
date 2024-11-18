@@ -3,7 +3,10 @@ import { computed, toRef, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useFeedback as useUpmindFeedback, utils } from "@upmind/headless";
+import {
+  useFeedback as useUpmindFeedback,
+  utils,
+} from "@upmind-automation/headless";
 
 // --- utils
 import { map, reduce, isEmpty, sortBy } from "lodash-es";
@@ -12,7 +15,10 @@ import { map, reduce, isEmpty, sortBy } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useFeedback = () => {
+/**
+ * @ignore
+ */
+export const useFeedback = (): any => {
   const { service, dismiss, add, addError, addSuccess, trackEvent } =
     useUpmindFeedback();
   const { state } = useActor(service);
@@ -116,6 +122,9 @@ export const useFeedback = () => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useMessage = (item: any) => {
   const { state, send } = item;
 

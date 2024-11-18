@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useActor } from "@xstate/vue";
-import { useBrand as useUpmindBrand } from "@upmind/headless";
+import { useBrand as useUpmindBrand } from "@upmind-automation/headless";
 import { useBrand } from "../index";
 
 // Mock useActor from @xstate/vue
@@ -8,8 +8,8 @@ vi.mock("@xstate/vue", () => ({
   useActor: vi.fn(),
 }));
 
-// Mock useBrand from @upmind/headless
-vi.mock("@upmind/headless", () => ({
+// Mock useBrand from @upmind-automation/headless
+vi.mock("@upmind-automation/headless", () => ({
   useBrand: vi.fn(() => ({
     service: vi.fn(),
     isReady: true,
@@ -17,8 +17,8 @@ vi.mock("@upmind/headless", () => ({
 }));
 
 describe("useBrand", () => {
-  let mockState;
-  let send;
+  let mockState: any;
+  let send: any;
 
   beforeEach(() => {
     mockState = {
@@ -27,6 +27,7 @@ describe("useBrand", () => {
       },
     };
 
+    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send });
 
     // Reset mocks before each test
@@ -52,7 +53,9 @@ describe("useBrand", () => {
   });
 
   it("should change meta state accordingly", () => {
-    mockState.value.matches.mockReturnValue(state => state === "complete");
+    mockState.value.matches.mockReturnValue(
+      (state: any) => state === "complete"
+    );
     const { meta } = useBrand();
 
     expect(meta.value.isComplete).toBeTruthy();

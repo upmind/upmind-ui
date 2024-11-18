@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { Form } from "@upmind/upwind";
+import { Form } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../../utils";

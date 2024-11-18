@@ -110,6 +110,7 @@ export function spawnPaymentDetails(basket: Basket) {
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
       },
+      address: basket?.address,
     }),
     { name: "paymentDetails", sync: true }
   );
@@ -262,7 +263,7 @@ const parseQuantity = (quantity: number, raw: any) => {
 
   // ensure the quantity is a multiple of the step (if set)
   if (raw?.unit_quantity && quantity % raw?.unit_quantity !== 0) {
-    quantity = Math.ceil(quantity / raw.unit_quantity) * data.unit_quantity;
+    quantity = Math.ceil(quantity / raw.unit_quantity) * raw.unit_quantity;
   }
 
   return quantity;

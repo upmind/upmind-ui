@@ -6,16 +6,7 @@ import { useBasket } from ".";
 import productServices from "./items/services";
 
 // --- utils
-import {
-  every,
-  filter,
-  get,
-  isArray,
-  isEmpty,
-  map,
-  pickBy,
-  reduce,
-} from "lodash-es";
+import { every, get, isArray, isEmpty, map, pickBy, reduce } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";

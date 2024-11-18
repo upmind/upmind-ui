@@ -74,6 +74,9 @@ const authCallback = (callback: any) => {
 // --------------------------------------------------------
 // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
+/**
+ * @ignore
+ */
 export const authSubscription = async (callback: any, onReceive: any) => {
   // firstly, send service's current state upon subscription
 

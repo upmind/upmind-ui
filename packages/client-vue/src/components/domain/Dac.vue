@@ -12,6 +12,7 @@
 
   <Drawer
     v-else
+    to="#vue-app"
     fit="cover"
     skrim="primary"
     :class="styles.domain.drawer.root"
@@ -44,6 +45,7 @@
         :loading="meta.isLoading"
         :processing="meta.isProcessing"
         @update:selected="onToggleSelected"
+        :color="color"
       />
 
       <Button
@@ -53,6 +55,7 @@
         @click="onSearchOffset"
         block
         variant="ghost"
+        :color="color"
       />
     </div>
 
@@ -61,6 +64,7 @@
         @click="onReject"
         :label="t('domain.dac.actions.cancel')"
         variant="link"
+        :color="color"
       />
     </template>
 
@@ -73,6 +77,7 @@
         @click="onResolve"
         :label="t('domain.dac.actions.continue', values?.length)"
         prependIcon="plus-circle"
+        :color="color"
       />
       <!-- </div> -->
     </template>
@@ -85,11 +90,11 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Input, Button, Drawer, FormControl } from "@upmind/upwind";
+import { Input, Button, Drawer, FormControl } from "@upmind-automation/upwind";
 import DomainCards from "./DomainCards.vue";
 
 // -----------------------------------------------------------------------------
@@ -106,6 +111,7 @@ const props = withDefaults(
     id: string;
     modelValue?: string;
     query?: string;
+    color?: string;
     offset?: number;
     values?: string[];
     items?: string[];
@@ -121,6 +127,7 @@ const props = withDefaults(
     values: () => [],
     items: () => [],
     dialog: true,
+    color: "base",
   }
 );
 

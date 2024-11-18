@@ -23,8 +23,6 @@ import {
   isString,
   pick,
   isEqual,
-  snakeCase,
-  mapKeys,
 } from "lodash-es";
 
 // --- types
@@ -64,14 +62,20 @@ async function load(
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   const addresses = get({
-    url: useUrl(`clients/${client.id}/addresses`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/addresses`, {
+      limit: 0,
+      with: ["region", "country"],
+    }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
   }).then(({ data }: any) => parseAddress(data));
 
   const companies = get({
-    url: useUrl(`clients/${client.id}/companies`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/companies`, {
+      limit: 0,
+      with: ["address", "address.region", "address.country", "email", "phone"],
+    }),
     withAccessToken: true,
     useCache: true,
     refresh: true,

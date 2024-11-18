@@ -2,7 +2,7 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { RequestError } from "../..//api/types";
+// import type { RequestError } from "../..//api/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -11,7 +11,7 @@ import type { RequestError } from "../..//api/types";
 // private
 
 export interface IPromotion {
-  code: string;
+  promocode: string;
 }
 
 // --------------------------------------------------------
@@ -26,7 +26,9 @@ export interface PromotionsContext {
   model?: IPromotion;
   // ---
   dirty?: Boolean;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -35,5 +37,7 @@ export interface PromotionsContext {
 export interface PromotionsEvent {
   type: "ADD" | "REMOVE" | "CLEAR" | "SET" | "RETRY";
   data?: IPromotion;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

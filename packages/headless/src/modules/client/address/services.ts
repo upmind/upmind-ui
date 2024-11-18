@@ -58,7 +58,10 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   return get({
-    url: useUrl(`clients/${client.id}/addresses`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/addresses`, {
+      limit: 0,
+      with: ["region", "country"],
+    }),
     withAccessToken: true,
     useCache: true,
     refresh: true,

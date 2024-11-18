@@ -160,8 +160,7 @@ async function checkTerm(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  const value = model?.term;
-  let term = null;
+  let term: any = null;
   const price: any[] = [];
   const errors: any[] = [];
   // ---
@@ -177,7 +176,7 @@ async function checkTerm(
   // ---
   // try ge the full term object from the lookups terms
 
-  term = find(lookups.terms, ["cycle", value?.cycle || value]);
+  term = find(lookups.terms, ["cycle", model?.term]);
 
   if (!term) {
     if (lookups.terms.length === 1) {
@@ -240,7 +239,7 @@ async function checkSubproducts(
   { error, lookups, model }: any,
   { type, data, subproductIds }: any
 ) {
-  let subproducts = null;
+  let subproducts: any = null;
   const price: any[] = [];
   const errors: any = {};
   // ---

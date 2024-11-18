@@ -48,7 +48,7 @@ The module employs the XState library to create a powerful state machine that or
 ## Usage
 
 ```javascript
-import { useBrand as useUpmindBrand } from `@upmind/headless`;
+import { useBrand as useUpmindBrand } from `@upmind-automation/headless`;
 import { useActor } from "@xstate/vue"; // or @xstate/react, @xstate/svelte, etc.
 
 // Its a good idea to create a composable

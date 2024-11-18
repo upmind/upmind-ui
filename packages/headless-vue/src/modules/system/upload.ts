@@ -4,8 +4,8 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-// import type { ImageObjectTypes } from "@upmind/headless";
-import { useSystemUpload } from "@upmind/headless";
+// import type { ImageObjectTypes } from "@upmind-automation/headless";
+import { useSystemUpload } from "@upmind-automation/headless";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";

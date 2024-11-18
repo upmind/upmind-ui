@@ -21,19 +21,19 @@ export function generateResponseUrls(
   //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
 
   // ---
-  const successUrl = new URL(`orders/${basket_id}`, url);
-  // successUrl.searchParams.append("invoiceId", basket_id);
+  const successUrl = new URL(`orders/${basketId}`, url);
+  // successUrl.searchParams.append("invoiceId", basketId);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   // ---
-  const failUrl = new URL(`orders/${basket_id}`, url);
-  // failUrl.searchParams.append("invoiceId", basket_id);
+  const failUrl = new URL(`orders/${basketId}`, url);
+  // failUrl.searchParams.append("invoiceId", basketId);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   // ---
-  const cancelUrl = new URL(`orders/${basket_id}`, url);
-  // cancelUrl.searchParams.append("invoiceId", basket_id);
-  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basket_id);
+  const cancelUrl = new URL(`orders/${basketId}`, url);
+  // cancelUrl.searchParams.append("invoiceId", basketId);
+  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basketId);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
     encodeURIComponent(
@@ -54,6 +54,7 @@ export function generateResponseUrls(
     )
   );
 
+  // @ts-ignore
   cancelUrl.searchParams.append(QUERY_PARAMS.PAYMENT_METHOD_TYPE, type);
 
   // --------------------------------------------------------
@@ -79,6 +80,7 @@ export const useSchema = (context: GatewayContext) => {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
+        // @ts-ignore
         const: context.gateway.id,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing

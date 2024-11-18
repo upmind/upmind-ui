@@ -21,7 +21,7 @@ import { responseCodes } from "../../api";
 export default createMachine(
   {
     // @ts-ignore
-    tsTypes: {} as import("./fields.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./fields.machine.typegen").Typegen0,
     id: "basketFieldsManager",
     predictableActionArguments: true,
     initial: "loading",

@@ -25,6 +25,9 @@ const service = interpret(feedbackMachine, { devTools: false }).onTransition(
 );
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useFeedback = () => {
   // --------------------------------------------------------
   // methods

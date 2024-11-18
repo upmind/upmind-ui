@@ -79,6 +79,7 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
   return get({
     url: useUrl("orders/current", {
       with: [
+        "address",
         "currency",
         "custom_fields.field",
         "promotions",
@@ -131,6 +132,7 @@ async function generate(
   // add currency if available
   const { validateCurrency } = useBrand();
   const currency = await validateCurrency(
+    // @ts-ignore
     actors?.currency?.state?.context?.model
   );
 

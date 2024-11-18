@@ -2,7 +2,7 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { RequestError } from "../..//api/types";
+// import type { RequestError } from "../..//api/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -10,20 +10,15 @@ import type { RequestError } from "../..//api/types";
 // --------------------------------------------------------
 // private
 
-import type {
-  IAddress,
-  IAddressType,
-  ICountry,
-  IRegion,
-} from "../address/types";
+import type { IAddress, IAddressData } from "../address/types";
 
 // --------------------------------------------------------
 // Contexts
 
 export interface UnifiedAddressContext {
-  country?: ICountry[];
-  regions?: IRegion[];
-  types?: IAddressType[];
+  country?: any[]; //ICountry[];
+  regions?: any[]; //IRegion[];
+  types?: any[]; //IAddressType[];
   baseModel?: IAddress;
 
   // --- our internal lookup objects
@@ -41,20 +36,22 @@ export interface UnifiedAddressContext {
       search?: string;
       address?: string;
     };
-    results?: AddressAutocompleteResult[];
+    // TODO:
+    // results?: AddressAutocompleteResult[];
+    results?: any[];
   };
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IAddress;
+  model?: IAddressData;
   // ---
-  error?: RequestError;
+  error?: any;
 }
 
 export interface UnifiedAddressesContext {
   items?: IAddress[];
   selected?: IAddress;
-  error?: RequestError;
+  error?: any;
 }
 // --------------------------------------------------------
 // Events
@@ -62,11 +59,11 @@ export interface UnifiedAddressesContext {
 export interface UnifiedAddressEvent {
   type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
-  error?: RequestError;
+  error?: any;
 }
 
 export interface UnifiedAddressesEvents {
   type: "ADD" | "SELECT" | "REFRESH" | "STOP";
   data: any;
-  error?: RequestError;
+  error?: any;
 }

@@ -1,11 +1,11 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --- internal
-import type { RequestError } from "../../api/types";
-
 // --- types
-import type { ICurrency } from "../../system/types";
+// TODO:
+// import type { IGateway } from "@/modules/payment/types";
+// import type { GatewayTypes } from "../types";
+import type { ICurrency } from "../../../modules/system/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -93,69 +93,48 @@ export enum GatewayCtx {
 }
 
 export enum GatewayProviderCodes {
-  ADYEN = "Adyen",
-  BANK_TRANSFER = "BankTransfer",
-  BITPAY = "BitPay",
-  BLOCKONOMICS = "Blockonomics",
-  BRAINTREE = "Braintree",
-  COINGATE = "CoinGate",
-  DLOCAL = "DLocal",
-  FLUTTERWAVE = "Flutterwave",
-  FLUTTERWAVE_CARD = "Flutterwave_Card",
-  GOCARDLESS = "GoCardless",
-  MERCADOPAGO = "MercadoPago",
-  MICROPAYMENT = "Micropayment",
-  MOMO_MTN = "MomoMtn_Collections",
-  OFFLINE = "Offline",
-  OPAYO = "SagePay_Direct",
-  OPENPAY = "OpenPay",
-  OPENPAY_NON_CARD = "OpenPay_Other_Payments",
-  PAYFAST = "PayFast",
-  PAYPAL_BILLING_AGREEMENT = "PayPal_BillingAgreement",
-  PAYPAL_EXPRESS = "PayPal_Express",
-  PAYPAL_LEGACY_SUBSCRIPTIONS_CALLBACKS = "PayPalLegacy_Subscription",
-  PAYPAL_PRO = "PayPal_Pro",
-  PAYPAL_PRO_REST = "PayPal_Rest",
-  PAYPAL_SUBSCRIPTION_AGREEMENT = "PayPal_SubscriptionAgreement",
-  PAYSAFECARD = "Paysafecard",
-  PAYSTACK = "Paystack",
-  PAYU = "PayU",
-  PESAPAL = "PesaPal",
-  RAZORPAY = "RazorPay",
   STRIPE = "Stripe_PaymentIntents",
-  WORLDPAY_JSON = "WorldPay_Json",
 }
 
 // --------------------------------------------------------
 // private
 
+// TODO:
 export interface IGateway {
   allow_manual_store: boolean;
-  card_types: ICardType[];
-  client?: IClient;
-  countries?: ICountry[];
+  // card_types: ICardType[];
+  card_types: any[];
+  // client?: IClient;
+  client?: any;
+  // countries?: ICountry[];
+  countries?: any[];
   created_at: string;
-  currencies: IGatewayCurrency[];
+  // currencies: IGatewayCurrency[];
+  currencies: any[];
   deleted_at: null | string;
   gateway_provider: IGatewayProvider;
   gateway_provider_id: IGatewayProvider["id"];
-  gateway_settings: IGatewaySetting[];
+  // gateway_settings: IGatewaySetting[];
+  gateway_settings: any[];
   id: string;
   is_stored: string;
   name: string;
   name_translated: string;
   next_action: { url: string; method: string; fields: { [key: string]: any } };
   oauth_application_access_token_id: number;
-  org_id: IOrg["id"];
+  // org_id: IOrg["id"];
+  org_id: any["id"];
   payment_instructions: string;
   payment_instructions_translated: string;
-  payment_type: IPaymentType;
+  // payment_type: IPaymentType;
+  payment_type: any;
   provider: string;
   sca_verified: boolean;
   store_on_payment: boolean;
   store_on_payment_force: boolean;
   store_outside_payment: boolean;
-  translations: ITranslation[];
+  // translations: ITranslation[];
+  translations: any[];
   type: GatewayTypes;
   updated_at: string;
   use_frontend_implementation?: boolean;
@@ -168,10 +147,12 @@ export interface IGatewayProvider {
   display_fields: null;
   external_payment: boolean;
   external_store: boolean;
-  fields: IGatewayProviderField[];
+  // fields: IGatewayProviderField[];
+  fields: any[];
   id: string;
   instructions: string;
-  logos?: ILogo[];
+  // logos?: ILogo[];
+  logos?: any[];
   name: string;
   name_translated: null | string;
   needs_address: boolean;
@@ -188,6 +169,7 @@ export interface IGatewayProvider {
 // --------------------------------------------------------
 // Contexts
 
+// TODO:
 export interface GatewayContext {
   card?: any;
   elements?: any;
@@ -200,10 +182,10 @@ export interface GatewayContext {
   gateway?: IGateway;
   // ---
   type?: GatewayTypes;
-  code?: GatewayProviderCodes;
-  // ---
   ctx?: GatewayContext;
   stored_payment_methods?: Array<any>;
+  code?: string;
+
   // ---
   renderless?: boolean;
   can_store?: boolean;
@@ -214,11 +196,13 @@ export interface GatewayContext {
   // --- UI
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IBillingDetail;
+  // model?: IBillingDetail;
+  model?: any;
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---
-  error?: RequestError;
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -227,5 +211,7 @@ export interface GatewayContext {
 export interface GatewayEvent {
   type: "CHECKOUT";
   data?: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

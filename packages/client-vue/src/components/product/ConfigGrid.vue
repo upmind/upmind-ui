@@ -105,15 +105,15 @@ import { defineComponent, toRefs } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { UpwRadio, UpwInput } from "@upmind/upwind";
+import { UpwRadio, UpwInput } from "@upmind-automation/upwind";
 
 // --- custom elements
-import { Badge } from "@upmind/upwind";
+import { Badge } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";

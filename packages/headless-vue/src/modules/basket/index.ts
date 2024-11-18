@@ -7,4 +7,7 @@ export * from "./useBasketPaymentDetails";
 export * from "./useBasketPaymentGateway";
 
 // --- types
-export type { BasketProduct, BasketProductDetail } from "@upmind/headless";
+export type {
+  BasketProduct,
+  BasketProductDetail,
+} from "@upmind-automation/headless";

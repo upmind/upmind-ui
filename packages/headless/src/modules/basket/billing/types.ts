@@ -31,7 +31,9 @@ export interface BillingDetailsContext {
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -40,5 +42,7 @@ export interface BillingDetailsContext {
 export interface BillingDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IBillingDetail;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

@@ -26,7 +26,9 @@ export enum TwofaProviders {
 // Contexts
 
 export interface SessionContext {
-  error?: RequestError | null;
+  // TODO:
+  // error?: RequestError | null;
+  error?: any | null;
 }
 
 export interface Token {
@@ -36,7 +38,6 @@ export interface Token {
   refresh_expires_in: number | null;
   refresh_token: string | null;
   second_factor_required: boolean | null;
-  actor_type: string | null;
   // ---
   redirect?: Location["origin"] | null;
   actor_id?: string | null;

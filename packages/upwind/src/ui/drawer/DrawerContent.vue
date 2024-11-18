@@ -1,25 +1,40 @@
 <script lang="ts" setup>
 import { DrawerContent, DrawerPortal } from "vaul-vue";
-import type { DialogContentEmits, DialogContentProps } from "radix-vue";
+import type {
+  DialogContentEmits,
+  DialogContentProps,
+  DialogPortalProps,
+} from "radix-vue";
 import { useForwardPropsEmits } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 import DrawerOverlay from "./DrawerOverlay.vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  DialogContentProps & {
-    class?: HTMLAttributes["class"];
-    classOverlay?: HTMLAttributes["class"];
+  DialogContentProps &
+    DialogPortalProps & {
+      class?: HTMLAttributes["class"];
+      classOverlay?: HTMLAttributes["class"];
+    }
+>();
+const emits = defineEmits<
+  DialogContentEmits & {
+    close: [];
   }
 >();
-const emits = defineEmits<DialogContentEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);
 </script>
 
+<!--
+ **** BREAKING CHANGES ON UPDATE ****
+ • DrawerPortal doesn't receive the prop 'to' by default, this is a manually change by us
+ • DrawerContent emits 'close' as set the dialog to not be dismissable so that we can handle this ourselves (they use outside click which doesn't work with toasts)
+-->
+
 <template>
-  <DrawerPortal>
-    <DrawerOverlay :class="props.classOverlay" />
+  <DrawerPortal :to="props.to">
+    <DrawerOverlay :class="props.classOverlay" @click="() => emits('close')" />
     <DrawerContent
       v-bind="forwarded"
       :class="

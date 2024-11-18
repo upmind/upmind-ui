@@ -28,11 +28,11 @@ import { defineComponent, toRefs } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 import { formRenderers } from "../renderers";
 // --- components
-import { Form, FormField } from "@upmind/upwind";
+import { Form, FormField } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";

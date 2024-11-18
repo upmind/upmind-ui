@@ -25,7 +25,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({
+export function useSchema({
   // TODO: country,
   countries,
   regions,
@@ -34,7 +34,7 @@ export const useSchema = ({
   // ---
   places,
   // }: AddressContext) => {
-}: any) => {
+}: any): JsonSchema {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -152,9 +152,9 @@ export const useSchema = ({
   // }
 
   return schema as JsonSchema;
-};
+}
 
-export const useUischema = ({ addresses }: any) => {
+export function useUischema({ addresses }: any): UISchemaElement {
   const lookups = {
     addresses: reduce(
       addresses.getItems(),
@@ -338,7 +338,7 @@ export const useUischema = ({ addresses }: any) => {
   };
 
   return schema as UISchemaElement;
-};
+}
 
 export const useModelParser = (
   schema: JsonSchema,
@@ -366,9 +366,11 @@ export const spawnItem = (model?: IAddress) => {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
-        // @ts-ignore
+
         .withConfig({
+          // @ts-ignore
           actions,
+          // @ts-ignore
           services,
         })
         .withContext({ model }),
