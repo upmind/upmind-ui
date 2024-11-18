@@ -22,8 +22,9 @@ export interface NumberFieldProps
   // --- variants
   size?: NumberFieldVariants["size"];
   width?: NumberFieldRootVariants["width"];
-
+  variant?: NumberFieldVariants["variant"];
   // --- styles
   upwindConfig?: {};
   class?: HTMLAttributes["class"];
+  classField?: HTMLAttributes["class"];
 }
