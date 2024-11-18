@@ -23,7 +23,6 @@ import {
   mapValues,
   maxBy,
   minBy,
-  omitBy,
   pick,
   reduce,
   reject,
@@ -294,11 +293,8 @@ async function checkSubproducts(
             activePrice = find(product?.prices, ["cycle", model?.term?.cycle]);
           }
 
-          debugger;
-          // DC:  this may be raw and need to be converted to camelCase
-
           // ensure we have a valid unit_quantity
-          value.quantity = parseQuantity(value?.unit_quantity, product);
+          value.quantity = parseQuantity(value?.step, product);
 
           value.cycle = activePrice?.cycle || 0;
           // set price values, taking into account the quantity and unit quantity
@@ -306,9 +302,7 @@ async function checkSubproducts(
           times(value.quantity * model.quantity, () => {
             debugger;
             // DC:  this may be raw and need to be converted to camelCase
-            price.push(
-              activePrice?.price_discounted || activePrice?.price || 0
-            );
+            price.push(activePrice?.priceDiscounted || activePrice?.price || 0);
           });
 
           return value;

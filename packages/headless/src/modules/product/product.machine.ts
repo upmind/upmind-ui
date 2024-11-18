@@ -688,20 +688,19 @@ export default createMachine(
         ) => {
           let term = get(data, "term");
           term = isObject(term) ? (term as any)?.cycle : term;
-
-          debugger;
           set(model, "term", term);
           return model;
         },
-        lookups: ({ lookups, rawProduct }, { data }: ProductConfigEvent) => {
+        lookups: (
+          { lookups, rawProduct, model },
+          _event: ProductConfigEvent
+        ) => {
           // reset the lookup options options based on the term selected,
           //  as this may impact what price and options are available
-          const cycle = get(data, "term.billing_cycle_months");
-
           lookups.options = parseSubproduct(
             rawProduct?.products_options,
             rawProduct?.promotionDisplayType,
-            cycle
+            model.term
           );
           return lookups;
         },

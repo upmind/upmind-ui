@@ -10,6 +10,7 @@ import {
   forEach,
   get,
   has,
+  includes,
   isEmpty,
   isNil,
   isObject,
@@ -20,13 +21,11 @@ import {
   omit,
   omitBy,
   orderBy,
-  pick,
   reduce,
   set,
   some,
   toNumber,
   values,
-  includes,
 } from "lodash-es";
 
 // --- types
@@ -45,7 +44,7 @@ export const checkPriceOverride = (values: any, lookups: any) => {
     const item = find(lookups, ["id", key]);
 
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
-    debugger;
+
     // DC:  this may be raw and need to be converted to camelCase
 
     return !isEmpty(value) && !!item?.price_override;
@@ -60,8 +59,6 @@ export const parseQuantity = (quantity: number, product: any) => {
   //  - max Quantity matches the product max
   //  - quantity is a multiple of the product step
   // ensure the quantity is at least the min, or 1
-
-  debugger;
 
   if (quantity < Math.max(product?.min, 1)) {
     quantity = Math.max(product?.min, 1);
@@ -88,9 +85,7 @@ export const parseProduct = (
   // DC: cant remember why... to investigate
   // DC:  this may be rawProduct and need to be converted to camelCase
 
-  debugger;
   const merged = merge({}, rawProduct, basketProduct);
-  debugger;
 
   return {
     id: merged.id,
@@ -162,7 +157,7 @@ export const parseTerms = (
 export const parseSubproduct = (
   data: any,
   promotionDisplayType: PromotionDisplayTypes,
-  billingCycleMonths?: number
+  cycle?: number
 ) => {
   const { getBillingCycle } = useSystem();
 
@@ -182,35 +177,42 @@ export const parseSubproduct = (
     sorted,
     (result, rawSubproduct) => {
       // create the option based on the category ... if it isnt already set
-      const option = get(
-        result,
-        rawSubproduct.category_id,
-        pick(rawSubproduct.category, [
-          "id",
-          "name",
-          "description",
-          "short_description",
-          "multiple",
-          "required",
-          "price_override",
-        ])
-      );
-      option.name = useTranslateName(rawSubproduct.category);
-      option.description = useTranslateField(
-        rawSubproduct.category,
-        "description"
-      );
-      option.short_description = useTranslateField(
-        rawSubproduct.category,
-        "short_description"
-      );
+      const option = get(result, rawSubproduct.category_id, {
+        id: rawSubproduct.category.id,
+        name: useTranslateName(rawSubproduct.category),
+        description: useTranslateField(rawSubproduct.category, "description"),
+        short_description: useTranslateField(
+          rawSubproduct.category,
+          "short_description"
+        ),
+        multiple: rawSubproduct.category.multiple,
+        required: rawSubproduct.category.required,
+        price_override: rawSubproduct.category.price_override,
+      });
+
+      // check EARLY if we have a price for one of the following:
+      //  * no billing cycle set
+      //  * a one off price
+      //  * a matching billing cycle
+
+      const valid =
+        isNil(cycle) ||
+        rawSubproduct.billing_cycle_months == 0 ||
+        some(rawSubproduct.prices, ["billing_cycle_months", cycle]);
+
+      // bail if the value is not valid, ie has no price that matches the current billing cycle
+      if (!valid) return result;
+
       // get the prev values...if there are any
-      const values = get(option, "values", []);
+      const values: any[] = get(option, "values", []);
 
       // add this raw option to the values, with limited properties
       const value: any = {
         id: rawSubproduct.id,
-        name: rawSubproduct.name,
+        name: useTranslateName(rawSubproduct),
+        description: useTranslateField(rawSubproduct, "description"),
+        shortDescription: useTranslateField(rawSubproduct, "short_description"),
+        quantifiable: rawSubproduct.order_type == 2,
         cycle: rawSubproduct.billing_cycle_months,
         step: rawSubproduct.unit_quantity,
         min: rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity,
@@ -218,57 +220,31 @@ export const parseSubproduct = (
           rawSubproduct.max_order_quantity > 0
             ? rawSubproduct.max_order_quantity
             : Infinity,
+        prices: map(rawSubproduct.prices, rawPrice => {
+          const price: any = {
+            mixedPromotions: rawPrice.mixed_promotions,
+            cycle: rawPrice.billing_cycle_months,
+            price: rawPrice.price,
+            priceDiscounted: rawPrice.price_discounted,
+            priceFormatted: rawPrice.price_formatted,
+            priceDiscountedFormatted: rawPrice.price_discounted_formatted,
+          };
+
+          const cycle = getBillingCycle(price.cycle);
+          price.name = cycle ? useTranslateName(cycle) : null;
+
+          price.promotions = parsePromotion(rawPrice, promotionDisplayType);
+
+          return price;
+        }),
       };
 
-      value.name = useTranslateName(rawSubproduct);
-      value.description = useTranslateField(rawSubproduct, "description");
-      value.short_description = useTranslateField(
-        rawSubproduct,
-        "short_description"
-      );
-      value.quantifiable = rawSubproduct.order_type == 2;
+      // First, try get a one off price, othrwise try find the matching term price
+      value.price =
+        find(value.prices, ["cycle", 0]) ||
+        find(value.prices, ["cycle", cycle]);
 
-      // get the prices for this subproduct
-      value.prices = map(rawSubproduct.prices, rawPrice => {
-        const price: any = {
-          mixedPromotions: rawPrice.mixed_promotions,
-          cycle: rawPrice.billing_cycle_months,
-          price: rawPrice.price,
-          priceDiscounted: rawPrice.price_discounted,
-          priceFormatted: rawPrice.price_formatted,
-          priceDiscountedFormatted: rawPrice.price_discounted_formatted,
-        };
-
-        const cycle = getBillingCycle(price.cycle);
-        price.name = cycle ? useTranslateName(cycle) : null;
-
-        price.promotions = parsePromotion(rawPrice, promotionDisplayType);
-
-        return price;
-      });
-
-      // check if we have a price for the current billing cycle ( if provided )
-      if (!isNil(billingCycleMonths) && value.prices?.length) {
-        // First, try get a one off price, if it exists
-        value.price = find(value.prices, ["billing_cycle_months", 0]);
-
-        // othrwise try find the matching term price
-        if (!value.price)
-          value.price = find(value.prices, [
-            "billing_cycle_months",
-            billingCycleMonths,
-          ]);
-
-        // finally...only include the value if we have a price
-        // @ts-ignore
-        if (value.price) values.push(value);
-      } else if (!value?.billing_cycle_months) {
-        // otherwise set the updated values if we DON'T have a billing cycle
-        // this is so products with no billing cycle doesnt show subproducts that do
-        // @ts-ignore
-        values.push(value);
-      }
-
+      values.push(value);
       set(option, "values", values);
 
       // finally  set the updated option
@@ -662,7 +638,6 @@ export function buildBasketItem(
       model?.attributes,
       (result, attribute) => {
         if (attribute) {
-          debugger;
           // DC this may need to be converted from camelCase
           const selected = values(
             mapValues(attribute, choice => omit(choice, ["price", "total"]))
@@ -678,7 +653,6 @@ export function buildBasketItem(
       model?.options,
       (result, option) => {
         if (option) {
-          debugger;
           // DC this may need to be converted from camelCase
 
           const selected = values(
