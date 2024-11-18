@@ -10,16 +10,23 @@ import type { RequestError } from "../..//api/types";
 // --------------------------------------------------------
 // private
 
-interface ICompany {
+export interface ICompany {
   id: string;
   // ---
   name: string | null;
-  address: IAddress;
-  address_id: IAddress["id"];
-  email: IEmail;
-  email_id: IEmail["id"] | null;
-  phone: IPhone;
-  phone_id: IPhone["id"];
+  // TODO:
+  // address: IAddress;
+  // address_id: IAddress["id"];
+  // email: IEmail;
+  // email_id: IEmail["id"] | null;
+  // phone: IPhone;
+  // phone_id: IPhone["id"];
+  address: any;
+  address_id: any["id"];
+  email: any;
+  email_id: any["id"] | null;
+  phone: any;
+  phone_id: any["id"];
   reg_number: string | null;
   vat_number: string | null;
   // vat_percent: string | null;
@@ -27,11 +34,15 @@ interface ICompany {
   default: boolean;
   // --- readonly/system data
   can_delete: boolean;
-  client_id: IClient["id"];
+  // TODO:
+  // client_id: IClient["id"];
+  client_id: any["id"];
   created_at: string | null;
   deleted_at: null;
   updated_at: Date | string | null;
-  user_id: IUser["id"];
+  // TODO:
+  // user_id: IUser["id"];
+  user_id: any["id"];
   verified: number | null;
 }
 
@@ -41,9 +52,13 @@ interface ICompany {
 export interface CompanyContext {
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IAddress;
+  // TODO:
+  // model?: IAddress;
+  model?: any;
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -52,5 +67,7 @@ export interface CompanyContext {
 export interface CompanyEvent {
   type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }

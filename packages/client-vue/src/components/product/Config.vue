@@ -196,18 +196,18 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useProductConfig } from "@upmind/headless-vue";
-import { useStyles, cn } from "@upmind/upwind";
+import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Markdown, Lineclamp } from "@upmind/upwind";
+import { Markdown, Lineclamp } from "@upmind-automation/upwind";
 import TermsConfigGrid from "./TermsConfigGrid.vue";
 import VSubproductCards from "./SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 
 // --- custom elements
-import { Badge, Button } from "@upmind/upwind";
+import { Badge, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { reduce, get, first, isArray, set, keys } from "lodash-es";

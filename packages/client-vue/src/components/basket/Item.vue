@@ -54,9 +54,13 @@ import { defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useProductConfig, useBasket, utils } from "@upmind/headless-vue";
+import {
+  useProductConfig,
+  useBasket,
+  utils,
+} from "@upmind-automation/headless-vue";
 const { stateMatches } = utils;
-import { useStyles, cn } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 
 import config from "./config.cva";
 
@@ -65,7 +69,7 @@ import ProductCard from "../product/Card.vue";
 import ProductConfig from "../product/Config.vue";
 
 // --- custom elements
-import { Badge } from "@upmind/upwind";
+import { Badge } from "@upmind-automation/upwind";
 
 // --- types
 

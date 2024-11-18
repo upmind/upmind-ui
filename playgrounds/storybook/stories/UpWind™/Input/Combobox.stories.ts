@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- components
-import { Button, Combobox } from "@upmind/upwind";
+import { Button, Combobox } from "@upmind-automation/upwind";
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
 import countries from "../../../utils/countries.json";

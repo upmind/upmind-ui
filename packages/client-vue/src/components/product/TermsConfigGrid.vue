@@ -42,11 +42,11 @@ import { computed, toRefs } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { RadioCards, FormField, Badge } from "@upmind/upwind";
+import { RadioCards, FormField, Badge } from "@upmind-automation/upwind";
 import CardTerm from "./TermCard.vue";
 import CardTermPerMonth from "./TermPerMonthCard.vue";
 
@@ -55,7 +55,7 @@ import { isNil, map, toNumber, find, some } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { RadioCardsItemProps } from "@upmind/upwind";
+import type { RadioCardsItemProps } from "@upmind-automation/upwind";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);

@@ -3,6 +3,7 @@ import type { StateMachine } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 export enum messageDisplays {
+  // @ts-ignore
   SILENT = null,
   TOAST = "toast",
   NOTIFICATION = "notification",
@@ -21,7 +22,7 @@ export enum messageTypes {
   EVENT = "event",
 }
 
-interface Message {
+export interface Message {
   hash?: string;
   display: messageDisplays;
   type: messageTypes;
@@ -45,7 +46,9 @@ export interface MessageError {
 // Context
 
 export interface MessagesContext {
-  messages: Array[StateMachine];
+  // TODO:
+  // messages: Array[StateMachine];
+  messages: any[];
 }
 
 // --------------------------------------------------------

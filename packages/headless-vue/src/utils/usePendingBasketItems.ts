@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { useStorage } from "@vueuse/core";
 
 // --- internal
-import { useBasket } from "@upmind/client-vue";
+import { useBasket } from "../modules/basket";
 
 // --- utils
 import { useQueryParams } from "./useQueryParams";
@@ -30,7 +30,7 @@ import {
 // --- types
 import type { Ref } from "vue";
 import type { ActorRef, State, Subscription } from "xstate";
-import type { IProductModel } from "@upmind/headless";
+import type { IProductModel } from "@upmind-automation/headless";
 import { stateMatches } from "../../../../packages/headless-vue/src/utils";
 
 enum NextBasketItemTypes {

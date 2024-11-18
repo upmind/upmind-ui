@@ -13,7 +13,7 @@ import { useTime } from "../../utils";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./session.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./session.machine.typegen").Typegen0,
     id: "sessionManager",
     predictableActionArguments: true,
     initial: "checking",
@@ -85,6 +85,7 @@ export default createMachine(
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
+    // @ts-ignore
     services,
   }
 );

@@ -26,14 +26,14 @@ To use the **API Requests Manager** module in your project, follow these install
 
 1. Install **Upmind Headless** if you haven't already. Refer to the **Upmind Headless** framework's README for installation instructions.
 
-2. Import the **API Requests Manager** module from the `@upmind/headless` package in your JavaScript project.
+2. Import the **API Requests Manager** module from the `@upmind-automation/headless` package in your JavaScript project.
 
 ## Usage
 
 The **API Requests Manager** module functions as a state machine with built-in context to store each request you send. Making an API request is straightforward. Here's an example of fetching data from an API endpoint:
 
 ```javascript
-import { useApi as useUpmindApi } from `@upmind/headless`;
+import { useApi as useUpmindApi } from `@upmind-automation/headless`;
 import { useActor } from "@xstate/vue"; // or @xstate/react, @xstate/svelte, etc.
 
 // Its a good idea to create a composable

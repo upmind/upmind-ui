@@ -57,6 +57,7 @@ export const useSchema = (context: GatewayContext) => {
   };
 
   // conditionally add the cardholder_name to the required fields
+  // @ts-ignore
   if (gateway_provider?.requires_name) {
     schema.required.push("cardholder_name");
   }

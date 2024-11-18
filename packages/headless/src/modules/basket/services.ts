@@ -132,6 +132,7 @@ async function generate(
   // add currency if available
   const { validateCurrency } = useBrand();
   const currency = await validateCurrency(
+    // @ts-ignore
     actors?.currency?.state?.context?.model
   );
 

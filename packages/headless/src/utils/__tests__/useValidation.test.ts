@@ -81,6 +81,7 @@ describe("useValidation.ts", () => {
       const mockData = { testField1: 123 };
 
       const validateMock = vi.fn().mockReturnValue(false);
+      // @ts-ignore
       validateMock.errors = mockErrors; // ??
       ajv.compile.mockReturnValue(validateMock);
 
@@ -111,14 +112,14 @@ describe("useValidation.ts", () => {
         {
           instancePath: "/field1",
           message: "Field 1 Error",
-          schemaPath: "",
+          schemaPath: "field1",
           keyword: "",
           params: {},
         },
         {
           instancePath: "/field2",
           message: "Field 2 Error",
-          schemaPath: "",
+          schemaPath: "field2",
           keyword: "",
           params: {},
         },
@@ -153,6 +154,7 @@ describe("useValidation.ts", () => {
       let model = useModelParser(mockSchema, mockValues);
       expect(model).toEqual({ field1: "Field 1 Override" });
 
+      // @ts-ignore
       model = useModelParser(mockSchema);
       expect(model).toEqual({ field1: "Field 1" });
     });

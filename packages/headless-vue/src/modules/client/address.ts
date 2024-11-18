@@ -3,13 +3,16 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientAddresses as useUpmindClientAddresses } from "@upmind/headless";
+import { useClientAddresses as useUpmindClientAddresses } from "@upmind-automation/headless";
 
 // --- utils
 import { get, map, debounce, isEmpty } from "lodash-es";
 
 // --------------------------------------------------------
 
+/**
+ * @ignore
+ */
 export const useClientAddress = (item: any, context?: any) => {
   const { service } = useUpmindClientAddresses();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
@@ -73,6 +76,9 @@ export const useClientAddress = (item: any, context?: any) => {
   };
 };
 
+/**
+ * @ignore
+ */
 export const useClientAddresses = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 

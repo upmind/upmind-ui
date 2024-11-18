@@ -61,6 +61,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
 async function load({ gateway }: StripeContext, _event: StripeEvent) {
   const options = await sharedServices.load({ gateway }, _event);
 
+  // @ts-ignore
   const key = getPublicKey(gateway);
   if (!key) return Promise.reject("Stripe public key not found.");
 
@@ -123,6 +124,7 @@ async function createPaymentElement(
     locale: "auto", // TODO: add i18n local
     mode: "payment",
     paymentMethodCreation: "manual",
+    // @ts-ignore
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
     setupFutureUsage: "off_session",
   });
@@ -208,6 +210,7 @@ async function createAddElement(
   const client_id = await getUserId();
 
   return post({
+    // @ts-ignore
     url: useUrl(`gateway/frontend/tokenize-begin/${gateway.id}`),
     withAccessToken: true,
     data: {

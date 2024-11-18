@@ -66,7 +66,9 @@ export interface IStatus {
   deleted_at: null | string;
   id: string;
   name: string;
-  object_type: UpmindObjectTypes;
+  // TODO:
+  // object_type: UpmindObjectTypes;
+  object_type: any;
   updated_at: string;
 }
 
@@ -76,8 +78,11 @@ export interface IStatuses {
 }
 
 export interface ITicketDepartment {
-  brand: IBrand;
-  brand_id: IBrand["id"];
+  // TODO:
+  // brand: IBrand;
+  // brand_id: IBrand["id"];
+  brand: any;
+  brand_id: any["id"];
   brand_ticket_departments: ITicketDepartment;
   code: string;
   default: boolean;
@@ -85,7 +90,9 @@ export interface ITicketDepartment {
   is_public: boolean;
   name: string;
   name_translated?: string;
-  translations: ITranslation[];
+  // TODO:
+  // translations: ITranslation[];
+  translations: any[];
   username: string | null;
 }
 
@@ -101,9 +108,13 @@ export interface SystemContext {
   statuses: IStatuses | null;
   departments: ITicketDepartment[] | null;
   systemIPAddresses: string[] | null;
-  taxBusinessTypes: ITaxBusinessType[] | null;
+  // TODO:
+  // taxBusinessTypes: ITaxBusinessType[] | null;
+  taxBusinessTypes: any[];
   // ---
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
 
 // --------------------------------------------------------
@@ -112,5 +123,7 @@ export interface SystemContext {
 export interface SystemEvent {
   type: string;
   data: any;
-  error?: RequestError;
+  // TODO:
+  // error?: RequestError;
+  error?: any;
 }
