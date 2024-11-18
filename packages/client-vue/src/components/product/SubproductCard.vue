@@ -36,7 +36,7 @@
           v-if="canChangeQuantity && quantity"
           :disabled="processing"
           :min="min_order_quantity === 0 ? 1 : min_order_quantity"
-          v-bind="max_order_quantity ? { max: max_order_quantity } : {}"
+          :max="max_order_quantity > 0 ? max_order_quantity : Infinity"
           :step="unit_quantity"
           :model-value="quantity"
           :default-value="quantity || unit_quantity"
@@ -73,7 +73,7 @@ import { useI18n } from "vue-i18n";
 import { NumberField } from "@upmind-automation/upwind";
 
 // --- components
-import { Icon, Tooltip, Badge } from "@upmind-automation/upwind";
+import { Badge } from "@upmind-automation/upwind";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
 
 // --- types
