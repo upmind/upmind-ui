@@ -66,12 +66,12 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useSession, utils } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useSession, utils } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Avatar, Dialog, Button } from "@upmind/upwind";
+import { Icon, Avatar, Dialog, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty } from "lodash-es";

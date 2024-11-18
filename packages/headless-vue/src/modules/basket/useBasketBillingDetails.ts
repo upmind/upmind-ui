@@ -4,7 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket } from "@upmind/headless";
+import { useBasket } from "@upmind-automation/headless";
 
 // --- utils
 import {

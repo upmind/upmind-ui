@@ -40,8 +40,8 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, cn } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components

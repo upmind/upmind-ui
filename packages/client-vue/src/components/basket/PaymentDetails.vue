@@ -27,12 +27,12 @@
 import { defineComponent } from "vue";
 
 // --- internal
-import { useBasketPaymentDetails } from "@upmind/headless-vue";
-import { useStyles, cn } from "@upmind/upwind";
+import { useBasketPaymentDetails } from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Form } from "@upmind/upwind";
+import { Form } from "@upmind-automation/upwind";
 import PaymentGateway from "./PaymentGateway.vue";
 
 // -----------------------------------------------------------------------------

@@ -189,11 +189,11 @@ import { useI18n } from "vue-i18n";
 import Promotions from "./Promotions.vue";
 
 // --- custom elements
-import { Icon, Button } from "@upmind/upwind";
+import { Icon, Button } from "@upmind-automation/upwind";
 
 // --- internal
-import { useBasket } from "@upmind/headless-vue";
-import { useStyles, cn } from "@upmind/upwind";
+import { useBasket } from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // -----------------------------------------------------------------------------

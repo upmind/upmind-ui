@@ -13,7 +13,7 @@ import type { ClientListingsContext, ClientListingsEvents } from "./types";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./listings.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./listings.machine.typegen").Typegen0,
     id: "clientListingsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -196,7 +196,7 @@ export default createMachine(
       }),
 
       setFilters: assign({
-        filters: (_context, { data }) => data,
+        filters: (_context, { data }: any) => data,
       }),
       // --------------------------------------------
 

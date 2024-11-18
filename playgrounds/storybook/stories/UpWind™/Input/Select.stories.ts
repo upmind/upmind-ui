@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwSelect, UpwInput } from "@upmind/upwind";
+import { UpwSelect, UpwInput } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";

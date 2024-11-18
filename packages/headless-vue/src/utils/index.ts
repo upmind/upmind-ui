@@ -1,4 +1,4 @@
-import { utils } from "@upmind/headless";
+import { utils } from "@upmind-automation/headless";
 
 // --- expose our utils from headless
 export const useMoney = utils.useMoney;

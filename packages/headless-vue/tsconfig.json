@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "composite": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "allowJs": false,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -7,7 +11,5 @@
     "noImplicitThis": true,
     "skipLibCheck": true,
     "strict": true
-  },
-  "include": ["**/*.ts"],
-  "exclude": ["dist", "src/**/__tests__/*", "**/*.d.ts"]
+  }
 }

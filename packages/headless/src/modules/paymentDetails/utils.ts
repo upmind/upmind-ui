@@ -284,6 +284,7 @@ export function spawnStripe({
     stripeMachine.withContext({
       basket_id,
       gateway,
+      // @ts-ignore
       ctx: GatewayCtx.PAY,
       amount,
       currency,

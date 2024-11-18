@@ -75,15 +75,15 @@ import { defineComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useSession } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
 import Auth from "./Auth.vue";
 
 // --- custom elements
-import { Button } from "@upmind/upwind";
+import { Button } from "@upmind-automation/upwind";
 
 // --- types
 import type { PropType } from "vue";

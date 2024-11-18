@@ -3,8 +3,8 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-// import type { ImageObjectTypes } from "@upmind/headless";
-import { useSystemRecaptcha } from "@upmind/headless";
+// import type { ImageObjectTypes } from "@upmind-automation/headless";
+import { useSystemRecaptcha } from "@upmind-automation/headless";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -15,6 +15,9 @@ import { isEmpty } from "lodash-es";
 // a composable that provides a simple interface to the recaptchas machine
 //  with some state helpers
 
+/**
+ * @ignore
+ */
 export const useRecaptcha = () => {
   const { service, destroy, generate, clear } = useSystemRecaptcha();
   const { state } = useActor(service);

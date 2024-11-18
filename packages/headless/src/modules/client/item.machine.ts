@@ -18,8 +18,7 @@ import { isString } from "xstate/lib/utils";
 
 export default createMachine(
   {
-    // @ts-ignore
-    tsTypes: {} as import("./item.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./item.machine.typegen").Typegen0,
     id: "clientItemManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -288,12 +287,15 @@ export default createMachine(
       },
     },
     guards: {
+      // @ts-ignore
       isNew: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
         !model?.id,
 
+      // @ts-ignore
       isNotDefault: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
         !!model?.id && !model?.default,
 
+      // @ts-ignore
       canRemove: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
         !!model?.id && !!model?.can_delete,
     },

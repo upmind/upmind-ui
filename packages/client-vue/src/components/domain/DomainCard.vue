@@ -225,11 +225,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Badge, Button } from "@upmind/upwind";
+import { Icon, Badge, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil } from "lodash-es";

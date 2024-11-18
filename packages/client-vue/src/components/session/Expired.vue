@@ -42,12 +42,12 @@
 import { ref, computed, watch } from "vue";
 
 // --- internal
-import { useSession } from "@upmind/headless-vue";
-import { useStyles } from "@upmind/upwind";
+import { useSession } from "@upmind-automation/headless-vue";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button } from "@upmind/upwind";
+import { Avatar, Dialog, Button } from "@upmind-automation/upwind";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";

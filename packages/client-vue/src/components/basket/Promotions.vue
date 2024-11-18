@@ -68,14 +68,14 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Form } from "@upmind/upwind";
+import { Form } from "@upmind-automation/upwind";
 
 // --- custom elements
-import { Button, Icon } from "@upmind/upwind";
+import { Button, Icon } from "@upmind-automation/upwind";
 
 // --- internal
-import { useBasketPromotions } from "@upmind/headless-vue";
-import { useStyles, cn } from "@upmind/upwind";
+import { useBasketPromotions } from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 import { set } from "lodash-es";
 

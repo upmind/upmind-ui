@@ -6,6 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import brandMachine from "./brand.machine";
 import type { BrandConfigKeys } from "./services";
 export { BrandConfigKeys } from "./services";
+import type { IBrand } from "@upmind-automation/types";
 
 // --- utils
 import { pick, isArray, find, some, first, isEmpty } from "lodash-es";
@@ -95,7 +96,7 @@ export const useBrand = () => {
       return model;
     },
 
-    getBrandId: () => state?.context?.id,
+    getBrandId: (): IBrand["id"] => state?.context?.id,
     getCurrencyId: () => state?.context?.currency_id,
     getCurrency: () =>
       find(state.context.currencies, ["id", state?.context?.currency_id]),

@@ -11,7 +11,7 @@ import {
   useSystem,
   useBasket,
   utils,
-} from "@upmind/client-vue";
+} from "@upmind-automation/client-vue";
 
 // --- types
 import type { App, Plugin } from "vue";

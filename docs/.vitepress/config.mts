@@ -1,26 +1,27 @@
 import { defineConfig } from 'vitepress'
-import typedocSidebar from '../@upmind/typedoc-sidebar.json'
+import typedocSidebar from '../@upmind-automation/typedoc-sidebar.json'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Upmind",
   description: "Upmind open-source libs documentation",
   srcDir: './',
+  srcExclude: ['**/README.md'],
   outDir: './dist',
+  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: '/logo.svg',
     nav: [
-      { text: 'Headless', link: '/@upmind/headless' },
-      { text: 'Headless-vue', link: '/@upmind/headless-vue' }
+      { text: 'Headless', link: '/@upmind-automation/headless' },
+      { text: 'Headless-vue', link: '/@upmind-automation/headless-vue' }
     ],
     sidebar: {
-      '/@upmind/headless/': [
+      '/@upmind-automation/headless/': [
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/headless/' },
-            { text: 'Getting Started', link: '/@upmind/headless/getting-started' },
-            // { text: 'Feature 1', link: '/upflow/feature1' }
+            { text: 'Introduction', link: '/@upmind-automation/headless/' }
           ]
         },
         {
@@ -28,13 +29,14 @@ export default defineConfig({
           items: typedocSidebar[0].items
         }
       ],
-      '/@upmind/headless-vue/': [
+      '/@upmind-automation/headless-vue/': [
         {
           text: 'Guides',
           items: [
-            { text: 'Introduction', link: '/@upmind/headless-vue/' },
-            { text: 'Getting Started', link: '/@upmind/headless-vue/getting-started' },
-            // { text: 'Feature 1', link: '/headless-vue/feature1' }
+            { text: 'Introduction', link: '/@upmind-automation/headless-vue/' },
+            { text: 'Auth', link: '/@upmind-automation/headless-vue/auth-guide' },
+            { text: 'Brand', link: '/@upmind-automation/headless-vue/brand-guide' },
+            { text: 'System', link: '/@upmind-automation/headless-vue/system-guide' },
           ]
         },
         {

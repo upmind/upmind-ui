@@ -50,6 +50,9 @@ const sendToItem = async (itemId: any, type: any, data: any) => {
   }
 };
 
+/**
+ * @ignore
+ */
 export const useBasket = () => {
   return {
     service: service.start(),
@@ -101,6 +104,7 @@ export const useBasket = () => {
 
     itemExists: (mapping: any) =>
       exists(
+        // @ts-ignore
         service.getSnapshot()?.context?.items,
         mapping,
         // @ts-ignore
