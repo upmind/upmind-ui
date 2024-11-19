@@ -25,8 +25,6 @@ import {
 
 import {
   every,
-  find,
-  findIndex,
   forEach,
   get,
   includes,

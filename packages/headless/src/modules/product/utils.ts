@@ -611,8 +611,14 @@ const mapSubproductChoices = (values: any) => {
   return reduce(
     values,
     (result, value) => {
-      set(result, [value.product.category_id, value.productId], {
-        productId: value.productId,
+      // -- defensive
+      if (!value?.product?.category_id || !value.product_id) {
+        debugger;
+        return result;
+      }
+
+      set(result, [value.product.category_id, value.product_id], {
+        productId: value.product_id,
         quantity: parseQuantity(value.unit_quantity, value.product),
         cycle: value.billing_cycle_months,
       });

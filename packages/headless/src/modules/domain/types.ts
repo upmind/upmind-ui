@@ -76,7 +76,7 @@ export interface DomainContext {
   type?: DomainTypes;
   model?: Array<DomainProduct | IDomain>;
   baseModel?: Array<DomainProduct | IDomain>;
-  listings?: {
+  lookups?: {
     searched: Array<DomainProduct>;
     history: Array<DomainProduct>;
     owned: Array<DomainProduct>;
@@ -119,8 +119,8 @@ export type SearchEvent = {
  * @ignore
  */
 export type AddEvent = {
-  type: "ADD";
-  data: DomainProduct | IDomain;
+  type: string; //"ADD";
+  data?: DomainProduct | IDomain;
 };
 
 /**

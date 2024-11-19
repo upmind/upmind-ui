@@ -24,7 +24,7 @@ import {
 import {
   cloneDeep,
   compact,
-  differenceBy,
+  xorBy,
   forEach,
   get,
   has,
@@ -875,7 +875,7 @@ export default createMachine(
         const basketChanged = basketId !== data?.id;
         const currencyChanged = currencyId !== data?.currency_id;
         const promotionsChanged = !isEmpty(
-          differenceBy(promotions, data?.promotions, "promotion_id")
+          xorBy(promotions, data?.promotions, "promotion_id")
         );
 
         // lets see if any important value have changed within the basketProduct
