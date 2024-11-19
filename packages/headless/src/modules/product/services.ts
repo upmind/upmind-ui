@@ -122,7 +122,7 @@ async function load(
 
   return Promise.all([productPromise, provisioningPromise, configPromise]).then(
     ([product, provisioning, promotionDisplayType]) => {
-      return { product, provisioning, promotionDisplayType };
+      return { product, provisioning, promotionDisplayType, currency };
     }
   );
 }
@@ -264,6 +264,13 @@ async function checkSubproducts(
           }
         });
       }
+
+      // check if we are missing required subproduct, if we are then automaticaly select the first one
+      if (subproduct?.required && isEmpty(selected)) {
+        const pid = get(first(subproduct.values), "id");
+        if (pid) set(selected, pid, { productId: pid });
+      }
+
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any
@@ -300,19 +307,11 @@ async function checkSubproducts(
           // set price values, taking into account the quantity and unit quantity
           // NB: we NEVER add, we always push into an array for the backend to handle
           times(value.quantity * model.quantity, () => {
-            debugger;
-            // DC:  this may be raw and need to be converted to camelCase
             price.push(activePrice?.priceDiscounted || activePrice?.price || 0);
           });
 
           return value;
         });
-      }
-
-      // check if we are missing required subproduct
-      if (subproduct?.required && isEmpty(selected)) {
-        errors[subproduct.id] ??= [];
-        errors[subproduct.id].push(`${subproduct.name} is required`);
       }
 
       // check if we values too many values for this subproduct
