@@ -138,7 +138,6 @@ export const parseBasket = (data: any) => {
 };
 
 export const parseBasketProduct = (raw: any, errors?: any) => {
-  debugger;
   const product: BasketProduct = {
     id: raw?.id,
 
