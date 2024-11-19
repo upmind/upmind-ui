@@ -90,7 +90,7 @@ export const useBasket = () => {
 
     // --- item functions
 
-    getProducts: () => get(service.getSnapshot(), "context?.products", []),
+    getProducts: () => get(service.getSnapshot(), "context.products", []),
 
     findItem: (mapping: any) =>
       find(service.getSnapshot()?.context?.items, (basketItem: any) =>

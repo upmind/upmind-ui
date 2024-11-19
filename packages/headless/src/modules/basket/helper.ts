@@ -13,38 +13,37 @@ import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 async function fetch(context: any, basket: any) {
-  const products = basket.getProducts();
+  // // we need to ensure ALL our items are loaded before we can proceed
+  // return waitFor(
+  //   basket.service,
+  //   state => {
+  //     return every(
+  //       state.context.items,
+  //       actor => !actor?.state.matches("loading")
+  //     );
+  //   },
+  //   {
+  //     timeout: Infinity, // infinity = no timeout
+  //   }
+  // ).then(() => {
+  const products = reduce(
+    basket.getProducts(),
+    (result, product) => {
+      // check all our mapping values are set, if not then its not a valid mapping and we can skip it
+      const mapping = context.basketItemMapper(product);
+      const isValid = isEmpty(pickBy(mapping, isEmpty));
+      if (isValid) {
+        const data = context.itemBuilder(product);
+        // @ts-ignore
+        result.push(data);
+      }
 
-  // we need to ensure ALL our items are loaded before we can proceed
-  return waitFor(
-    basket.service,
-    state => {
-      return every(
-        state.context.items,
-        actor => !actor?.state.matches("loading")
-      );
+      return result;
     },
-    {
-      timeout: Infinity, // infinity = no timeout
-    }
-  ).then(() => {
-    return reduce(
-      products,
-      (result, product) => {
-        // check all our mapping values are set, if not then its not a valid mapping and we can skip it
-        const mapping = context.basketItemMapper(product);
-        const isValid = isEmpty(pickBy(mapping, isEmpty));
-        if (isValid) {
-          const data = context.itemBuilder(product);
-          // @ts-ignore
-          result.push(data);
-        }
-
-        return result;
-      },
-      []
-    );
-  });
+    []
+  );
+  return products;
+  // });
 }
 
 /**
@@ -130,6 +129,7 @@ async function sync(items: any, context: any, basket: any) {
       {
         basketId: basket.getBasketId(),
         basketProducts: basket.getProducts(),
+        basketItemBuilder: context.basketItemBuilder,
       },
       { data }
     );

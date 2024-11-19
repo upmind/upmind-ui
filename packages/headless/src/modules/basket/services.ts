@@ -223,7 +223,7 @@ async function getProvisioningFieldsValues(basket: Basket) {
       withAccessToken: true,
     }).then(({ data }: any) => {
       // update the product with the provisioning fields
-      set(product, "provisionFields", data);
+      set(product, "provision_fields", data);
       return data;
     });
 
