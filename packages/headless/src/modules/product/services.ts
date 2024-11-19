@@ -283,6 +283,13 @@ async function checkSubproducts(
           }
         });
       }
+
+      // check if we are missing required subproduct
+      if (subproduct?.required && isEmpty(selected)) {
+        const pid = get(first(subproduct.values), "id");
+        if (pid) set(selected, pid, { product_id: pid });
+      }
+
       // if we have selected values, ensure they are valid and fully formed
       if (!isEmpty(selected)) {
         // only include valid values, stripping out any invalid ones, if we have any
@@ -332,12 +339,6 @@ async function checkSubproducts(
 
           return value;
         });
-      }
-
-      // check if we are missing required subproduct
-      if (subproduct?.required && isEmpty(selected)) {
-        errors[subproduct.id] ??= [];
-        errors[subproduct.id].push(`${subproduct.name} is required`);
       }
 
       // check if we values too many values for this subproduct
