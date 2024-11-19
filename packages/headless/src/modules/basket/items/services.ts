@@ -65,6 +65,7 @@ async function update({ basketId, id }: any, { data }: any) {
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${id}`;
   // ---
+  debugger;
   return action({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data,

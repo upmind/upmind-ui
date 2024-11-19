@@ -638,9 +638,12 @@ export function buildBasketItem(
       model?.attributes,
       (result, attribute) => {
         if (attribute) {
-          // DC this may need to be converted from camelCase
           const selected = values(
-            mapValues(attribute, choice => omit(choice, ["price", "total"]))
+            mapValues(attribute, choice => ({
+              product_id: choice?.productId,
+              quantity: choice?.quantity,
+              billing_cycle_months: choice?.cycle,
+            }))
           );
           // @ts-ignore
           result.push(...selected);
@@ -653,10 +656,12 @@ export function buildBasketItem(
       model?.options,
       (result, option) => {
         if (option) {
-          // DC this may need to be converted from camelCase
-
           const selected = values(
-            mapValues(option, choice => omit(choice, ["price", "total"]))
+            mapValues(option, choice => ({
+              product_id: choice?.productId,
+              quantity: choice?.quantity,
+              billing_cycle_months: choice?.cycle,
+            }))
           );
           // @ts-ignore
           result.push(...selected);
@@ -665,7 +670,7 @@ export function buildBasketItem(
       },
       []
     ),
-    provision_field_values: model.provisionFields,
+    provision_field_values: model.provisionFields || [],
     promotions, //NB do we need t opass the current promotions here?
     // ---
   } as BasketProductConfig;

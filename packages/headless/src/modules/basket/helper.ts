@@ -86,7 +86,7 @@ async function update(item: any, context: any, basket: any) {
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
-  const id = get(basketItem, "state.context.basketProduct.id");
+  const pid = get(basketItem, "state.context.basketProduct.id");
   // ---
   if (!basketItem) return Promise.reject("No item found");
 
@@ -98,7 +98,7 @@ async function update(item: any, context: any, basket: any) {
     {
       basketId: basketSnapshot?.id,
       basketProducts: basketSnapshot?.products,
-      id,
+      pid,
     },
     { data: config }
   );
