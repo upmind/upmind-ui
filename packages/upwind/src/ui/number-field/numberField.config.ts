@@ -12,28 +12,56 @@ export const numberFieldRootVariants = cva("group inline-block", {
       full: "w-full",
       app: "w-app",
     },
-    size: {
+    text: {
       sm: "text-sm",
       md: "text-md",
       lg: "text-lg",
     },
   },
   defaultVariants: {
-    width: "full",
+    width: "md",
+    text: "md",
   },
 });
 
 export const numberFieldVariants = cva(
-  "group-aria-invalid:!ring-invalid group-aria-invalid:!ring-2 group-aria-invalid:!ring-offset-2 focus-visible:ring-ring inline-flex w-full rounded-md bg-transparent text-center font-medium text-control-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  "group-aria-invalid:!ring-invalid group-aria-invalid:!ring-2 group-aria-invalid:!ring-offset-2 focus-visible:ring-ring inline-flex w-full rounded-lg bg-transparent text-center font-medium text-control-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        flat: "h-10 border border-control",
-        minimal: "h-4 !border-none",
+        flat: "border border-control",
+        minimal: "!border-none",
+      },
+      height: {
+        sm: "",
+        md: "",
+        lg: "",
       },
     },
+    compoundVariants: [
+      {
+        variant: "minimal",
+        class: "h-4", // Fixed height for minimal
+      },
+      {
+        variant: "flat",
+        height: "sm",
+        class: "h-8",
+      },
+      {
+        variant: "flat",
+        height: "md",
+        class: "h-10",
+      },
+      {
+        variant: "flat",
+        height: "lg",
+        class: "h-12",
+      },
+    ],
     defaultVariants: {
       variant: "flat",
+      height: "md",
     },
   }
 );
@@ -41,12 +69,35 @@ export const numberFieldVariants = cva(
 export const numberFieldInputVariants = cva("bg-control-background", {
   variants: {
     variant: {
-      flat: "h-10 border border-control",
+      flat: "border border-control",
       minimal: "rounded-lg border border-control p-0.5",
     },
+    height: {
+      sm: "",
+      md: "",
+      lg: "",
+    },
   },
+  compoundVariants: [
+    {
+      variant: "flat",
+      height: "sm",
+      class: "h-8",
+    },
+    {
+      variant: "flat",
+      height: "md",
+      class: "h-10",
+    },
+    {
+      variant: "flat",
+      height: "lg",
+      class: "h-12",
+    },
+  ],
   defaultVariants: {
     variant: "flat",
+    height: "md",
   },
 });
 
