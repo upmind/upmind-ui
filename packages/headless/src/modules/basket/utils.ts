@@ -148,6 +148,7 @@ export const parseBasket = (data: any) => {
 };
 
 export const parseBasketProduct = (raw: any, errors?: any) => {
+  debugger;
   const product: BasketProduct = {
     id: raw?.id,
 
@@ -169,8 +170,8 @@ export const parseBasketProduct = (raw: any, errors?: any) => {
     // --- lookups
     product: {
       id: raw?.product_id,
-      quantifiable: raw?.can_change_quantity,
-      step: raw?.unit_quantity,
+      quantifiable: !!raw?.can_change_quantity,
+      step: raw?.unit_quantity || 1,
       min: raw?.min_order_quantity | raw?.unit_quantity,
       max: raw?.max_order_quantity > 0 ? raw?.max_order_quantity : Infinity,
     },

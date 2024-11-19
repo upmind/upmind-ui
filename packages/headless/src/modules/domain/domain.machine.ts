@@ -549,9 +549,7 @@ export default createMachine(
         (context, _event) => {
           // not all values might be products, eg an exiting domain value,
           // so we need to filter out any non product values
-          debugger;
           const safeProducts = filter(context.model, item => !!item?.productId);
-          debugger;
           return {
             type: "SYNC",
             target: safeProducts,

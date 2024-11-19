@@ -13,7 +13,6 @@ import { useTime } from "../../utils";
 import {
   parseBasket,
   parseBasketProduct,
-  parseBasketProvisioningErrors,
   parseSummary,
   spawnBillingDetails,
   spawnCurrency,

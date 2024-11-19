@@ -14,6 +14,7 @@ import {
   map,
   reduce,
   set,
+  omit,
 } from "lodash-es";
 
 // --- types
@@ -83,13 +84,15 @@ async function remove({ basketId, id }: any) {
   }).then(({ data }: any) => data);
 }
 
-async function sync({ basketId, basketProducts }: any, { data }: any) {
+async function sync(
+  { basketId, basketProducts, basketItemBuilder }: any,
+  { data }: any
+) {
   if (!basketId) return Promise.reject("No basket provided/available");
 
   // When updating the basket we need to provide all products that are being updated
   // AND any other existing products already added
   // otherwise the existing products will be removed from the basket
-  debugger;
   const dirty = filter(
     data,
     item =>
@@ -97,7 +100,6 @@ async function sync({ basketId, basketProducts }: any, { data }: any) {
       ["available.configured"].some(item.state?.matches)
   );
 
-  debugger;
   // --- then build the basket config for the dirty products
   const products = map(dirty, item => {
     const id = get(item, "state.context.basketProduct.id");
@@ -128,19 +130,21 @@ async function sync({ basketId, basketProducts }: any, { data }: any) {
     basketProducts,
     (result: any[], item: any) => {
       debugger;
-      if (get(item, "state.context.basketProduct.id")) {
-        const model = get(item, "state.context.model");
-        const id = get(item, "state.context.basketProduct.id");
-        const basketItemBuilder = get(item, "state.context.basketItemBuilder");
+      const id = get(item, "id");
+
+      if (id) {
+        debugger;
+
         // ---
-        if (isEmpty(model) || !isFunction(basketItemBuilder)) return result;
+        if (!isFunction(basketItemBuilder)) return result;
         // ---
-        const product = basketItemBuilder(model);
+        const product = basketItemBuilder(item);
+        debugger;
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
         set(product, "order_product_id", id);
-
+        debugger;
         // @ts-ignore
         result.push(product);
       }
