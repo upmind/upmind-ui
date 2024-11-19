@@ -21,4 +21,6 @@ export interface DomainCardProps extends IDomain {
   selected?: boolean;
   disabled?: boolean;
   processing?: boolean;
+  // ---
+  color?: string;
 }

@@ -154,6 +154,7 @@
             :class="styles.domain.card.transfer.action"
             :disabled="meta.isDisabled || props.selected"
             :label="t('domain.card.transfer.action')"
+            :color="props.color"
             variant="link"
             @click="onUpdate(props.domain)"
             size="sm"
@@ -196,6 +197,7 @@
             :loading="meta.isProcessing && props.selected"
             :prepend-icon="props.selected ? 'check' : 'plus-circle'"
             :variant="props.selected ? 'flat' : 'outline'"
+            :color="props.color"
             @click="onUpdate(props.domain)"
             block
             size="sm"
@@ -209,6 +211,7 @@
             :loading="meta.isProcessing && props.selected"
             :prepend-icon="props.selected ? 'check' : 'transfer'"
             :variant="props.selected ? 'flat' : 'outline'"
+            :color="props.color"
             @click="onUpdate(props.domain)"
             block
             size="sm"
@@ -238,7 +241,9 @@ import { isNil } from "lodash-es";
 import type { DomainCardProps } from "./types";
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["update:selected"]);
-const props = defineProps<DomainCardProps>();
+const props = withDefaults(defineProps<DomainCardProps>(), {
+  color: "base",
+});
 
 // ---
 

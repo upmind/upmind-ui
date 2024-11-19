@@ -68,6 +68,7 @@
     "playgrounds/storybook-ce",
     "playgrounds/checkout",
     "playgrounds/velia",
-    "playgrounds/webcentral"
+    "playgrounds/webcentral",
+    "playgrounds/doteasy"
   ]
 }

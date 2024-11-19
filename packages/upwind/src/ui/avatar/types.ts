@@ -18,6 +18,7 @@ export interface AvatarProps {
   fit?: AvatarVariantProps["fit"];
   size?: AvatarVariantProps["size"];
   shape?: AvatarVariantProps["shape"];
+  variant?: AvatarVariantProps["variant"];
   // ---
   upwindConfig?: { avatar: Partial<AvatarProps> };
   class?: HTMLAttributes["class"];
