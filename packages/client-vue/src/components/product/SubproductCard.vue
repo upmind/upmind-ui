@@ -43,6 +43,7 @@
           @update:modelValue="doUpdateQuantity"
           size="sm"
           width="sm"
+          variant="minimal"
         />
 
         <div class="hidden flex-col text-right font-semibold md:flex">
