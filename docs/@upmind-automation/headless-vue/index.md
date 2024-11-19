@@ -13,7 +13,7 @@
 ## Installation
 
 ```
-npm i @upmind/headless-vue
+npm i @upmind-automation/headless-vue
 ```
 
 ## Usage simple example
@@ -22,16 +22,9 @@ Simply importing the composables (functions) you need from `@upmind-automation/h
 
 ```vue
 <script setup>
-import { useSession } from '@upmind-automation/headless-vue'
+import { useSession } from "@upmind-automation/headless-vue";
 
-const {
-  meta,
-  errors,
-  showLogin,
-  verify2fa,
-  resolve,
-  reject,
-} = useSession();
+const { meta, errors, showLogin, verify2fa, resolve, reject } = useSession();
 
 return {
   meta,
