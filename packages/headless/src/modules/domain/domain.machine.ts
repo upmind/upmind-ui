@@ -31,6 +31,7 @@ import {
   set,
   some,
   uniqBy,
+  every,
 } from "lodash-es";
 
 // --- types
@@ -42,6 +43,8 @@ import type {
   RemoveEvent,
   DomainEvents,
 } from "./types";
+import type { IDomain } from "./types";
+import { isArray } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
@@ -169,7 +172,7 @@ export default createMachine(
             always: [
               {
                 target: "invalid",
-                cond: "hasNoModel",
+                cond: "isInvalid",
                 actions: assign({
                   error: "Invalid domain",
                 }),
@@ -183,7 +186,7 @@ export default createMachine(
             },
           },
           invalid: {
-            always: [{ target: "valid", cond: "hasModel" }],
+            always: [{ target: "valid", cond: "isValid" }],
           },
           // ---
           syncing: {
@@ -209,7 +212,7 @@ export default createMachine(
           REMOVE: {
             target: ".valid",
             actions: ["remove", "ensurePrimary"],
-            cond: "hasModel",
+            cond: "isValid",
           },
           UPDATE: {
             target: ".valid",
@@ -250,7 +253,7 @@ export default createMachine(
             always: [
               {
                 target: "invalid",
-                cond: "hasNoModel",
+                cond: "isInvalid",
                 actions: assign({
                   error: "Invalid domain",
                 }),
@@ -260,28 +263,20 @@ export default createMachine(
           invalid: {
             always: {
               target: "valid",
-              cond: "hasModel",
+              cond: "isValid",
             },
           },
           error: {},
         },
         on: {
-          ADD: [
-            {
-              target: ".valid",
-              actions: ["clearError", "add", "ensurePrimary"],
-              cond: "isValidDomain",
-            },
-            { target: ".valid" },
-          ],
-          REMOVE: {
-            target: ".invalid",
-            actions: ["clearError", "remove", "ensurePrimary"],
-            cond: "hasModel",
-          },
           UPDATE: {
-            target: ".valid",
-            actions: ["clearError", "clearModel", "setModel", "ensurePrimary"],
+            target: ".invalid",
+            actions: [
+              "clearError",
+              "clearModel",
+              "setExisting",
+              "ensurePrimary",
+            ],
           },
         },
         exit: ["clearModel"],
@@ -317,7 +312,7 @@ export default createMachine(
           valid: {
             always: {
               target: "invalid",
-              cond: "hasNoModel",
+              cond: "isInvalid",
             },
             on: {
               SYNC: {
@@ -329,7 +324,7 @@ export default createMachine(
           invalid: {
             always: {
               target: "valid",
-              cond: "hasModel",
+              cond: "isValid",
             },
           },
           syncing: {
@@ -354,7 +349,7 @@ export default createMachine(
             {
               target: ".processing",
               actions: ["setPrimary"],
-              cond: "hasModel",
+              cond: "isValid",
             },
           ],
         },
@@ -581,25 +576,45 @@ export default createMachine(
 
       // @ts-ignore
       add: assign({
-        model: ({ model, lookups, type }: any, { data }: AddEvent) => {
-          let available = [];
+        model: (
+          { model, lookups, type }: DomainContext,
+          { data }: AddEvent
+        ) => {
+          let available: any[] = [];
           switch (type) {
             case DomainTypes.register:
-              available = lookups?.searched;
+              available = lookups?.searched || [];
               break;
             case DomainTypes.transfer:
-              available = lookups?.searched;
+              available = lookups?.searched || [];
               break;
-            case DomainTypes.existing:
-              available = lookups?.owned;
-              break;
+            // case DomainTypes.existing/owned:
+            //   available = lookups?.owned;
+            //   break;
             case DomainTypes.basket:
-              available = lookups?.basket;
+              available = lookups?.basket || [];
               break;
           }
           const domain = parseValue(data, model, available);
+          model ??= [];
           if (domain) model.push(domain);
           return model;
+        },
+      }),
+
+      setExisting: assign({
+        model: (_context: DomainContext, { data }: AddEvent) => {
+          const value = isArray(data) ? first(data) : data;
+          const parsed = parseDomain(value, true);
+          const domain: IDomain = {
+            domain: parsed?.domain || "",
+            tld: parsed?.tld || "",
+            sld: parsed?.sld || "",
+            isPrimary: true,
+            type: DomainTypes.existing,
+          };
+
+          return [domain];
         },
       }),
 
@@ -835,17 +850,12 @@ export default createMachine(
         return offset < search.total;
       },
 
-      hasModel: ({ model }) => {
-        return !isEmpty(model);
+      isValid: ({ model }) => {
+        return !isEmpty(model) && every(model, parseDomain);
       },
 
-      hasNoModel: ({ model }) => {
-        return isEmpty(model);
-      },
-
-      // @ts-ignore
-      hasItems: (_context, { data }: any) => {
-        return !!data?.length;
+      isInvalid: ({ model }) => {
+        return isEmpty(model) || !every(model, parseDomain);
       },
 
       isNotCancelled: (_context, { data }: any) => data?.name !== "AbortError",

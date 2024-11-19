@@ -13,7 +13,7 @@
 ## Installation
 
 ```
-npm i @uupmind-automationpmind/headless-vue
+npm i @upmind-automation/headless-vue
 ```
 
 ## Usage simple example
