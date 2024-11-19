@@ -565,6 +565,10 @@ export default createMachine(
       // ---
 
       setLookups: assign({
+        currencyId: (_context, { data }: ProductConfigEvent) => {
+          return data?.currency?.id;
+        },
+
         rawProduct: (_context, { data }: ProductConfigEvent) => data.product,
 
         lookups: (
@@ -709,7 +713,7 @@ export default createMachine(
           { data }: ProductConfigEvent
         ) => {
           if (!data?.price) return prices;
-          return { ...prices, options: data.price };
+          return { ...prices, term: data.price };
         },
       }),
 
