@@ -36,7 +36,7 @@
           v-if="canChangeQuantity && quantity"
           :disabled="processing"
           :min="min_order_quantity === 0 ? 1 : min_order_quantity"
-          v-bind="max_order_quantity ? { max: max_order_quantity } : {}"
+          :max="max_order_quantity > 0 ? max_order_quantity : Infinity"
           :step="unit_quantity"
           :model-value="quantity"
           :default-value="quantity || unit_quantity"
