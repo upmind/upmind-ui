@@ -7,7 +7,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import basketMachine from "./basket.machine";
 
 // --- utils
-import { every, find, get, some, omitBy, isEmpty, isFunction } from "lodash-es";
+import { every, find, get, some, omitBy, isNil, isEqual } from "lodash-es";
 import { responseCodes } from "../api";
 
 // --- types
@@ -138,30 +138,28 @@ export const useBasket = () => {
             promotions,
             subproducts,
           },
-          isEmpty
+          isNil
         );
 
         service.send({
           type: "ADD",
           data: mapping,
         });
-
         // then wait/check for the new product actor to be configured
         // then send the update event to the basket
         return find(
           service.getSnapshot()?.context?.items,
           (basketItem: any) => {
-            const isNew = isEmpty(basketItem.state.context?.basketProduct);
-            return (
-              isNew &&
-              every(mapping, (value, key) => {
-                if (key == "id" && value) {
-                  return basketItem.id == value;
-                } else {
-                  return get(basketItem, `state.context.model.${key}`) == value;
-                }
-              })
-            );
+            const found = every(mapping, (value, key) => {
+              if (key == "id" && value) {
+                return basketItem.id == value;
+              } else {
+                const origin = get(basketItem, `state.context.model.${key}`);
+                const matches = isEqual(origin, value);
+                return matches;
+              }
+            });
+            return found;
           }
         ) as ActorRef<any, any>;
       });

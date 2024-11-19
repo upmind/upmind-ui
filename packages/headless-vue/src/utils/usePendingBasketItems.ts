@@ -45,8 +45,14 @@ export const usePendingBasketItems = () => {
 
   const subscriptions: Ref<null | Record<string, Subscription>> = ref({});
 
-  const { isReady, addItem, itemsPending, itemsInvalid, items, removeItem } =
-    useBasket();
+  const {
+    isReady,
+    addItem,
+    itemsPending,
+    productsInvalid,
+    products,
+    removeItem,
+  } = useBasket();
 
   const pendingBasketItems: Ref<null | Record<string, Object>> = useStorage(
     "pendingBasketItems",
@@ -55,7 +61,7 @@ export const usePendingBasketItems = () => {
     { mergeDefaults: true } // <--
   );
 
-  const products: Ref<string[]> = ref([]);
+  const productIds: Ref<string[]> = ref([]);
 
   // ---
 
@@ -83,7 +89,6 @@ export const usePendingBasketItems = () => {
     sync?: boolean
   ): Promise<ActorRef<any, any>> {
     await isReady();
-
     return ensureBasketItem(
       productId,
       get(pendingBasketItems.value, productId, { productId })
@@ -95,7 +100,7 @@ export const usePendingBasketItems = () => {
 
   async function getBasketItem(id: string): Promise<ActorRef<any, any>> {
     await isReady();
-    const basketItem = find(items.value, ["id", id]);
+    const basketItem = find(products.value, ["id", id]);
 
     return new Promise((resolve, reject) => {
       if (basketItem) {
@@ -107,7 +112,7 @@ export const usePendingBasketItems = () => {
   }
 
   function unsetItem(productId: string) {
-    products.value = reject(products.value, pid => pid == productId); // remember to remove the product from our list
+    productIds.value = reject(productIds.value, pid => pid == productId); // remember to remove the product from our list
     const newBasketItems = toRaw(unref(pendingBasketItems));
     unset(newBasketItems, productId);
     pendingBasketItems.value = null;
@@ -129,18 +134,21 @@ export const usePendingBasketItems = () => {
         "state.context.model.productId",
         productId,
       ]);
-
       if (!isEmpty(basketItem)) {
         return Promise.resolve(basketItem);
       } else {
-        return addItem(model, { awaitStates: null }).catch(() => {
-          console.error("error adding pending item to basket", {
-            productId,
-            model,
+        return addItem(model, { awaitStates: null })
+          .then((actor: ActorRef<any, any>) => {
+            return actor;
+          })
+          .catch(() => {
+            console.error("error adding pending item to basket", {
+              productId,
+              model,
+            });
+            unsetItem(productId);
+            return Promise.reject("Error adding item to basket");
           });
-          unsetItem(productId);
-          return Promise.reject("Error adding item to basket");
-        });
       }
     } else {
       return Promise.reject("No product id found");
@@ -165,9 +173,9 @@ export const usePendingBasketItems = () => {
   }
 
   function syncPendingBasketItems(): Promise<ActorRef<any, any>>[] {
-    // get any products from the url query params and store them in our pending basket items
+    // get any productIds from the url query params and store them in our pending basket items
     const { productConfigs } = useQueryParams();
-    products.value = map(productConfigs, "productId");
+    productIds.value = map(productConfigs, "productId");
     forEach(productConfigs, (product: ProductModel) => {
       // theres a chance we alrady have this product in our pending basket items
       // so we merge the existing product with the new product so we dont lose any data
@@ -193,8 +201,8 @@ export const usePendingBasketItems = () => {
   // prioritising url query params over pending basket items
   function getNextPendingItem() {
     let basketItem;
-    if (products.value?.length) {
-      const productId = first(products.value);
+    if (productIds.value?.length) {
+      const productId = first(productIds.value);
       basketItem = find(itemsPending.value, [
         "state.context.model.productId",
         productId,
@@ -205,7 +213,6 @@ export const usePendingBasketItems = () => {
     if (!basketItem) return null;
 
     const pid = get(basketItem, "state.context.model.productId");
-
     return {
       name: "productAdd",
       params: { pid },
@@ -213,10 +220,8 @@ export const usePendingBasketItems = () => {
   }
 
   function getNextInvalidItem() {
-    const basketItem = first(itemsInvalid.value) as ActorRef<any, any>;
-
+    const basketItem = first(productsInvalid.value) as ActorRef<any, any>;
     if (!basketItem) return null;
-
     return {
       name: "productEdit",
       params: { bpid: basketItem.id },
@@ -235,7 +240,7 @@ export const usePendingBasketItems = () => {
 
     if (isEmpty(provisionFields)) return null;
 
-    const basketItem = find(items.value, item => {
+    const basketItem = find(products.value, item => {
       const serviceIdentifier = get(
         item,
         "state.context.lookups.product.serviceIdentifier"
@@ -283,17 +288,22 @@ export const usePendingBasketItems = () => {
   }
 
   const hasNextBasketItem = computed(() => {
-    return !isEmpty(pendingBasketItems.value) || !isEmpty(itemsInvalid.value);
+    return (
+      !isEmpty(pendingBasketItems.value) || !isEmpty(productsInvalid.value)
+    );
   });
 
   const nextBasketItems = computed(() => {
-    const items = map(concat(itemsPending.value, itemsInvalid.value), item => {
-      const product = get(item, "state.context.lookups.product");
-      return {
-        id: item.id,
-        ...product,
-      };
-    });
+    const items = map(
+      concat(itemsPending.value, productsInvalid.value),
+      item => {
+        const product = get(item, "state.context.lookups.product");
+        return {
+          id: item.id,
+          ...product,
+        };
+      }
+    );
 
     return items;
   });
@@ -309,10 +319,10 @@ export const usePendingBasketItems = () => {
     const nextBasketItem = getNextBasketItem(currentBasketItem, types);
     if (nextBasketItem) {
       router.replace(nextBasketItem); // navigateNextBasketItem to our firs tproduct that needs configuring
-    } else if (items.value.length) {
-      router.replace({ name: "cart" }); // navigate to our cart page if all our products are configured
+    } else if (products.value.length) {
+      router.replace({ name: "cart" }); // navigate to our cart page if all our productIds are configured
     } else {
-      router.replace({ name: "empty" }); // navigate to our empty page if we have no products
+      router.replace({ name: "empty" }); // navigate to our empty page if we have no productIds
     }
   }
 

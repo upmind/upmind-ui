@@ -89,6 +89,7 @@ async function sync({ basketId, basketProducts }: any, { data }: any) {
   // When updating the basket we need to provide all products that are being updated
   // AND any other existing products already added
   // otherwise the existing products will be removed from the basket
+  debugger;
   const dirty = filter(
     data,
     item =>
@@ -96,6 +97,7 @@ async function sync({ basketId, basketProducts }: any, { data }: any) {
       ["available.configured"].some(item.state?.matches)
   );
 
+  debugger;
   // --- then build the basket config for the dirty products
   const products = map(dirty, item => {
     const id = get(item, "state.context.basketProduct.id");
@@ -121,10 +123,11 @@ async function sync({ basketId, basketProducts }: any, { data }: any) {
 
   // --- then build the minimal basket config for the existing products
   // the existing products dont need to have their full config, just the id
-
+  debugger;
   const existingProducts = reduce(
     basketProducts,
     (result: any[], item: any) => {
+      debugger;
       if (get(item, "state.context.basketProduct.id")) {
         const model = get(item, "state.context.model");
         const id = get(item, "state.context.basketProduct.id");

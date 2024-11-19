@@ -90,9 +90,8 @@ export function parseProduct(raw: any) {
   // we may not have a service identifier ( if the domain is not in the basket yet)
   const name = [raw.sld, raw.tld].join("");
   const parsed = parseDomain(name);
-
   const result: DomainProduct = {
-    productId: raw.productId,
+    productId: raw.product_id,
     quantity: raw.quantity,
     options: mapSubproductChoices(raw?.options, raw?.sub_product_id),
     attributes: mapSubproductChoices(raw?.attributes, raw?.sub_product_id),

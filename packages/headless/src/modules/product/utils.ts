@@ -588,8 +588,8 @@ export const parseModel = (raw: any): ProductModel => {
     term: raw.term,
     options: raw.options,
     attributes: raw.attributes,
-    provisionFields: raw.provision_fields,
-    subproducts: raw.sub_pids,
+    provisionFields: raw.provisionFields,
+    subproducts: raw.subproducts,
   };
 };
 

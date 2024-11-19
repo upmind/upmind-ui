@@ -65,10 +65,8 @@ async function add(
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
   if (basketItem) return Promise.resolve(basketItem); // its allready added, so we can skip it
-
   const product = context.basketItemBuilder(item);
   if (!product) return Promise.reject("No product found");
-
   return basket.addItem(product);
 }
 
@@ -121,7 +119,6 @@ async function sync(items: any, context: any, basket: any) {
             await waitFor(actor, actorState => {
               return actorState.matches("available.configured");
             });
-
             return actor;
           }
         );
