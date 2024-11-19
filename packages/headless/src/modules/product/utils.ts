@@ -583,7 +583,7 @@ export const parseModel = (raw: any): ProductModel => {
   // handle  product model
   return {
     // id: raw.id,
-    quantity: raw.quantity,
+    quantity: raw?.quantity || 1,
     productId: raw.productId,
     term: raw.term,
     options: raw.options,
