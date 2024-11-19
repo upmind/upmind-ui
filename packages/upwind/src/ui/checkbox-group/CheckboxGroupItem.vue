@@ -2,6 +2,7 @@
   <ListboxItem
     v-bind="forwardedProps"
     as="button"
+    type="button"
     :class="
       cn(
         'group relative !m-0 flex w-full select-none items-start rounded-sm pl-10 text-start leading-none outline-none',

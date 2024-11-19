@@ -23,7 +23,6 @@ import {
 } from "./utils";
 
 import {
-  differenceBy,
   every,
   find,
   findIndex,
@@ -33,8 +32,8 @@ import {
   isEqual,
   isNil,
   map,
-  remove,
   some,
+  xorBy,
 } from "lodash-es";
 
 // --- types
@@ -632,7 +631,6 @@ export default createMachine(
               // do nothing
             } else if (product) {
               newItems.push(item);
-
               item.send({
                 type: "REFRESH",
                 data: {
@@ -662,7 +660,7 @@ export default createMachine(
           // ---
           // finally add any new items
           // @ts-ignore
-          const missing = differenceBy(products, items, "id");
+          const missing = xorBy(products, items, "id");
           forEach(missing, (product: any) => {
             const index = findIndex(products, ["id", product?.id]);
             const errorExternal = parseBasketProvisioningErrors(error, index);

@@ -639,7 +639,7 @@ const mapSubproductChoices = (values: any) => {
   return reduce(
     values,
     (result, value) => {
-      set(result, [value.product.category_id, value.product_id], {
+      set(result, [value?.product?.category_id, value.product_id], {
         product_id: value.product_id,
         unit_quantity: parseQuantity(value.unit_quantity, value.product),
         billing_cycle_months: value.billing_cycle_months,

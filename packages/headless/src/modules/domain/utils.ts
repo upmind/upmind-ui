@@ -16,10 +16,10 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IDomainProduct } from "./types";
+import type { IDomain, IDomainProduct } from "./types";
 // ----------------------------------------------------------------------------
 
-export function parseDomain(data: any) {
+export function parseDomain(data: any, force = false) {
   if (isObject(data)) data = get(data, "domain");
 
   const parsed = data
@@ -32,7 +32,7 @@ export function parseDomain(data: any) {
     sld: (first(parsed?.split(".")) as string) || "",
   };
 
-  if (value.domain && value.tld && value.sld) return value;
+  if ((value.domain && value.tld && value.sld) || force) return value;
 
   return undefined;
 }
@@ -56,7 +56,11 @@ export function parseAvailable(sld: string, results = [] as IDomainProduct[]) {
   return compact(uniqBy(available, "domain"));
 }
 
-export function parseValue(data: any, values = [], available = []) {
+export function parseValue(
+  data: any,
+  values: (IDomain | IDomainProduct)[] = [],
+  available: any[] = []
+) {
   // parse the domain name provided
   // @ts-ignore
   const value = (isObject(data) ? data?.domain : data)?.toLowerCase();
