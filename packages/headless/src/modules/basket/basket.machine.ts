@@ -33,7 +33,7 @@ import {
   isNil,
   map,
   some,
-  xorBy,
+  differenceBy,
 } from "lodash-es";
 
 // --- types
@@ -660,7 +660,7 @@ export default createMachine(
           // ---
           // finally add any new items
           // @ts-ignore
-          const missing = xorBy(products, items, "id");
+          const missing = differenceBy(products, items, "id");
           forEach(missing, (product: any) => {
             const index = findIndex(products, ["id", product?.id]);
             const errorExternal = parseBasketProvisioningErrors(error, index);
