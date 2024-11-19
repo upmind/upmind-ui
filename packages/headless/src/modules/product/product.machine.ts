@@ -370,7 +370,7 @@ export default createMachine(
               ({ basketHelper }, _event) => basketHelper,
               (context, _event) => ({
                 type: "UPDATE",
-                target: context.model,
+                target: { ...context.model, id: context.id },
                 context,
               })
             ),
