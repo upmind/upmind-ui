@@ -94,14 +94,13 @@ export const useQueryParams = () => {
     //  and is used to configure a product with multiple options, attributrs, etc.
     // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
     // so for that we get the following query params.
-    const productIds = getParams(
+    const productId = getParam(
       QUERY_PARAMS.PRODUCT,
-      getParams(QUERY_PARAMS.PRODUCT_ID)
+      getParam(QUERY_PARAMS.PRODUCT_ID)
     );
-    const productQty = getParams(QUERY_PARAMS.QUANTITY);
+    const productQty = getParam(QUERY_PARAMS.QUANTITY);
 
-    const bcm = getParams(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
-
+    const bcm = getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
     // sub products
     const subproducts = reduce(
       query,
@@ -131,17 +130,18 @@ export const useQueryParams = () => {
     );
     const promotions = getParams(QUERY_PARAMS.COUPONS);
 
-    return map(
-      productIds,
-      (productId, index): ProductModel => ({
+    const model = [
+      {
         productId,
-        quantity: toNumber(productQty?.[index]),
-        term: toNumber(bcm?.[index]),
+        quantity: productQty ? toNumber(productQty) : 1,
+        term: bcm ? toNumber(bcm) : undefined,
         subproducts,
         provisionFields,
         promotions,
-      })
-    );
+      },
+    ];
+
+    return model;
   }
 
   return {

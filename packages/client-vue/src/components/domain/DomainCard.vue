@@ -35,7 +35,7 @@
         </span>
 
         <Badge
-          v-if="props.summary.hasDiscounted"
+          v-if="props.summary.hasDiscount"
           color="promotion"
           :label="t('domain.card.promotion')"
           variant="tonal"
@@ -119,13 +119,13 @@
               :class="styles.domain.card.available.discount"
               v-if="props.summary.hasDiscount"
             >
-              {{ props.regularPriceFormatted }}
+              {{ props.summary.regularPriceFormatted }}
             </span>
             <em :class="styles.domain.card.available.price">
               {{
                 props.summary.isFree
                   ? t("product.free")
-                  : props.currentPriceFormatted
+                  : props.summary.currentPriceFormatted
               }}
             </em>
           </span>
@@ -168,13 +168,13 @@
               :class="styles.domain.card.transfer.discount"
               v-if="props.summary.hasDiscount"
             >
-              {{ props.regularPriceFormatted }}
+              {{ props.summary.regularPriceFormatted }}
             </span>
             <em :class="styles.domain.card.transfer.price">
               {{
                 props.summary.isFree
                   ? t("product.free")
-                  : props.currentPriceFormatted
+                  : props.summary.currentPriceFormatted
               }}
             </em>
           </span>

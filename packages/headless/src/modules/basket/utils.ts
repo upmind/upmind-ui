@@ -16,6 +16,7 @@ import { useValidationParser, useTranslateName } from "../../utils";
 
 import {
   compact,
+  defaults,
   find,
   forEach,
   get,
@@ -49,11 +50,20 @@ export function spawnProductConfiguration(
   const productPromotions = data?.promotions || [];
   const promotions = uniq(compact([...basketPromotions, ...productPromotions]));
 
+  const model = defaults(data, {
+    quantity: 1,
+    productId: null,
+    term: null,
+    options: [],
+    attributes: [],
+    provisionFields: {},
+  });
+
   const item = spawn(
     productMachine.withContext({
       id,
       basketId: basket?.id,
-      [isBasketProduct ? "basket_product" : "model"]: data,
+      [isBasketProduct ? "basket_product" : "model"]: model,
       currencyId: basket?.currency_id,
       promotions,
       errorExternal,
