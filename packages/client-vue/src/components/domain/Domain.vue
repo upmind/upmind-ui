@@ -37,6 +37,7 @@
           @resolve="syncBasket"
           @reject="reset"
           :query="meta.showPrimaryDomain ? selected : query"
+          :color="color"
         />
       </template>
 
@@ -108,6 +109,7 @@ const props = withDefaults(
     modelValue?: string | string[];
     multiple?: boolean;
     parentId?: string;
+    color?: string;
   }>(),
   {
     sync: true,
@@ -115,6 +117,7 @@ const props = withDefaults(
     modelValue: "",
     multiple: false,
     parentId: "",
+    color: "secondary",
   }
 );
 const { t, tm, rt } = useI18n();

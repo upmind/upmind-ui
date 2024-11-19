@@ -603,7 +603,7 @@ export const parseBasketProductSummary = (basket_product: any) => {
 
 export const parseModel = (data: any): IProductModel => {
   // handle  product model
-  return pick(data, [
+  const model = pick(data, [
     "id",
     "quantity",
     "product_id",
@@ -613,6 +613,10 @@ export const parseModel = (data: any): IProductModel => {
     "provision_fields",
     "sub_pids",
   ]);
+
+  model.quantity ??= 1; // ensure we always have at least a value
+
+  return model;
 };
 
 // TODO:

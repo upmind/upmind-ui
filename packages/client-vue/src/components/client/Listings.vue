@@ -6,7 +6,7 @@
     :open="isOpen"
     @reject="onClose"
     @update:open="onClose"
-    :skrim="color"
+    :skrim="skrim"
     :class="styles.clientListings.root"
     :class-footer="styles.clientListings.footer"
     v-auto-animate
@@ -68,7 +68,7 @@
       >
         <Button
           :label="t(`client.${type}.actions.add`)"
-          variant="ghost"
+          variant="link"
           @click="add"
           block
         />
@@ -87,6 +87,7 @@
         :loading="action.loading"
         :disabled="action?.disabled"
         @click="doAction(action)"
+        :color="action.color"
       />
     </template>
   </component>
@@ -156,6 +157,7 @@ export default defineComponent({
     open: { type: Boolean },
     modal: { type: Boolean, default: false },
     color: { type: String, default: "base" },
+    skrim: { type: String, default: "dark" },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },
@@ -214,7 +216,7 @@ export default defineComponent({
       return {
         add: {
           label: this?.t(`client.${this.type}.actions.add`),
-          variant: "ghost",
+          variant: "link",
           color: this.color,
           block: true,
           handler: () => {

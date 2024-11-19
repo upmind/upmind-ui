@@ -5,7 +5,7 @@
     :title="safeTitle"
     :open="isOpen"
     :actions="actions"
-    :skrim="color"
+    :skrim="skrim"
     :class="styles.clientForm.root"
     :class-footer="styles.clientForm.footer"
     fit="cover"
@@ -78,6 +78,7 @@ export default defineComponent({
     open: { type: Boolean },
     modal: { type: Boolean, default: true },
     autosave: { type: Boolean, default: false },
+    skrim: { type: String, default: "dark" },
     color: { type: String, default: "base" },
   },
   setup(props) {
@@ -106,7 +107,7 @@ export default defineComponent({
       const actions = {
         cancel: {
           label: this?.t(`client.${this.i18nKey}.actions.cancel`),
-          variant: "ghost",
+          variant: "link",
           color: this.color,
           disabled: this?.meta?.isProcessing,
           handler: () => this.cancel(),

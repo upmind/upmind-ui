@@ -66,6 +66,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   fit: "cover",
   shape: "circle",
   size: "auto",
+  variant: "flat",
   // --- styles
   upwindConfig: () => ({ avatar: {} }),
   class: "",
@@ -76,6 +77,7 @@ const meta = computed(() => ({
   fit: props.fit,
   shape: props.shape,
   size: props.size,
+  variant: props.variant,
   // ---
   hasIcon: !isEmpty(props.icon),
   hasImage: !isEmpty(props.src),
