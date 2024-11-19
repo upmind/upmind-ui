@@ -80,7 +80,7 @@ export interface DomainContext {
   type?: DomainTypes;
   model?: Array<IDomainProduct | IDomain>;
   baseModel?: Array<IDomainProduct | IDomain>;
-  listings?: {
+  lookups?: {
     searched: Array<IDomainProduct>;
     history: Array<IDomainProduct>;
     owned: Array<IDomainProduct>;
@@ -123,8 +123,8 @@ export type SearchEvent = {
  * @ignore
  */
 export type AddEvent = {
-  type: "ADD";
-  data: IDomainProduct | IDomain;
+  type: string; //"ADD";
+  data?: IDomainProduct | IDomain;
 };
 
 /**
