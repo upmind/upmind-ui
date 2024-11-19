@@ -170,7 +170,6 @@ export const useBasket = () => {
     // --- Item CRUD
 
     updateItem: async (itemId: string): Promise<ActorRef<any, any>> => {
-      debugger;
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
         return waitFor(item, state => !state.matches("processing")).then(
           state => {

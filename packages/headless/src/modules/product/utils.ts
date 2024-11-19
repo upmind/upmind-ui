@@ -634,7 +634,6 @@ export function buildBasketItem(
   model: ProductConfigContext["model"],
   promotions?: ProductConfigContext["promotions"]
 ): BasketProductConfig {
-  // strip out any falsy values
   return {
     product_id: model?.productId,
     quantity: model?.quantity,
@@ -658,6 +657,7 @@ export function buildBasketItem(
       },
       []
     ),
+    // ---
     options: reduce(
       model?.options,
       (result, option) => {
@@ -676,8 +676,9 @@ export function buildBasketItem(
       },
       []
     ),
-    provision_field_values: model.provisionFields || [],
-    promotions, //NB do we need t opass the current promotions here?
     // ---
+    provision_field_values: model.provisionFields || [],
+    // ---
+    promotions: promotions || [],
   } as BasketProductConfig;
 }
