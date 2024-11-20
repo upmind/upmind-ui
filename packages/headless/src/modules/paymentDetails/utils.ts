@@ -26,8 +26,6 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 export const parsePaymentDetails = (raw: any) => {
   // TODO: map the actual allowed params fr the endpoint
-  debugger;
-  // DC: This maybe raw data or needs to be converted to camelCase
   return omit(raw, ["can_store"]);
 };
 // --------------------------------------------------------

@@ -161,7 +161,7 @@ export const useQueryParams = () => {
     ),
     productConfigs: getProductConfigs(),
 
-    basketItemId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
+    basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
 
     currency: getParam(
       QUERY_PARAMS.CURRENCY,

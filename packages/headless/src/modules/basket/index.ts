@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import basketMachine from "./basket.machine";
+export { useBasketProduct } from "./products";
 
 // --- utils
 import { every, find, get, some, omitBy, isNil, isEqual } from "lodash-es";

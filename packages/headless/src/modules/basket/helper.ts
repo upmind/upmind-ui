@@ -3,18 +3,10 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket } from ".";
-import productServices from "./items/services";
+import productServices from "./products/services";
 
 // --- utils
-import {
-  isFunction,
-  get,
-  isArray,
-  isEmpty,
-  map,
-  pickBy,
-  reduce,
-} from "lodash-es";
+import { get, isArray, isEmpty, map, pickBy, reduce, has } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -77,28 +69,22 @@ async function add(
 }
 
 async function remove(item: any, context: any, basket: any) {
-  const mapping = context.basketItemMapper(item);
-  const basketItem = basket.findItem(mapping);
   const basketId = basket.getBasketId();
-  const id = get(basketItem, "state.context.basketProduct.id");
   // ---
-  return productServices.remove({ basketId, id });
+  debugger;
+  return productServices.remove({ basketId, bpid: item.id });
 }
 
 async function update(item: any, context: any, basket: any) {
   if (isEmpty(item)) return Promise.resolve();
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
-  const mapping = context.basketItemMapper(item);
-  const basketItem = basket.findItem(mapping);
-  const pid = get(basketItem, "state.context.basketProduct.id");
+
   // ---
-  if (!basketItem) return Promise.reject("No item found");
+  // const bpid = get(basketItem, "state.context.basketProduct.id");
   // ---
   return productServices.update(
     {
       basketId: basketSnapshot?.id,
-      basketProducts: basketSnapshot?.products,
-      pid,
     },
     { data: item }
   );

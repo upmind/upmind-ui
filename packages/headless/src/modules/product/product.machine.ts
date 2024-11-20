@@ -366,11 +366,18 @@ export default createMachine(
             actions: sendTo(
               // @ts-ignore
               ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => ({
-                type: "UPDATE",
-                target: { ...context.model, id: context.id },
-                context,
-              })
+              (context, _event) => {
+                const { model, basketProduct } = context;
+
+                // NB:ensure we ad dout basket product id to the model, so we update instead of add
+                if (basketProduct) model.id = basketProduct.id;
+
+                return {
+                  type: "UPDATE",
+                  target: model,
+                  context,
+                };
+              }
             ),
             target: "processing",
           },
@@ -628,9 +635,8 @@ export default createMachine(
         summary: (
           { basketProduct, errorExternal }: ProductConfigContext,
           _event: ProductConfigEvent
-        ) => {
-          return parseBasketProduct(basketProduct, errorExternal);
-        },
+        ) =>
+          get(parseBasketProduct(basketProduct, errorExternal), "summary", {}),
       }),
 
       setSummaryCalculating: assign({

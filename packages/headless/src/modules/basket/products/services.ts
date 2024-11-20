@@ -57,17 +57,20 @@ async function loadProvisioningValues({ basketId, model }: any) {
   });
 }
 
-async function update({ basketId, id }: any, { data }: any) {
+async function update(
+  { basketId }: { basketId: string; bpid?: string },
+  { data }: any
+) {
   const { put, post, useUrl } = useApi();
   if (!basketId) return Promise.reject("No basket provided/available");
-  if (isEmpty(data)) return Promise.reject(`No product data provided : ${id}`);
+  if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
   const product = parseBasketProductConfig(data);
 
   // ---
-  const isNew = !id;
+  const isNew = !data?.id;
   const action = isNew ? post : put;
-  const suffix = isNew ? "" : `/${id}`;
+  const suffix = isNew ? "" : `/${data.id}`;
   // ---
   return action({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
@@ -76,13 +79,13 @@ async function update({ basketId, id }: any, { data }: any) {
   }).then(({ data }: any) => data);
 }
 
-async function remove({ basketId, id }: any) {
+async function remove({ basketId, bpid }: { basketId: string; bpid: string }) {
   const { del, useUrl } = useApi();
   if (!basketId) return Promise.reject("No basket provided/available");
-  if (!id) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
+  if (!bpid) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
   // ---
   return del({
-    url: useUrl(`/orders/${basketId}/products/${id}`),
+    url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }

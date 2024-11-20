@@ -300,10 +300,8 @@ export const usePendingBasketItems = () => {
   });
 
   const invalidBasketItems = computed(() => {
-    debugger;
     const pending = map(productsPending.value, item => {
       const product = get(item, "state.context.lookups.product");
-      debugger;
       return {
         id: item.id,
         ...product,
@@ -311,7 +309,6 @@ export const usePendingBasketItems = () => {
     });
 
     const invalid = map(productsInvalid.value, product => {
-      debugger;
       return product;
     });
 
