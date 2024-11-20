@@ -59,7 +59,10 @@
               <template #title v-if="$slots['payment-details-title']">
                 <slot name="payment-details-title" />
               </template>
-              <UpmPaymentDetails :card-component="VCard" class="!p-0" />
+              <UpmPaymentDetails
+                :card-component="props.cardComponent"
+                class="!p-0"
+              />
             </component>
           </slot>
         </div>
@@ -133,7 +136,6 @@ import {
   useBasketPaymentDetails,
 } from "@upmind-automation/client-vue";
 
-import VCard from "@/components/content/Card.vue";
 import VBasketSummary from "@/components/basket/Summary.vue";
 
 // --- types
