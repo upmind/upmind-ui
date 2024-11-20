@@ -76,7 +76,6 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-
   const { get: getRequest, useUrl } = useApi();
   const params = {
     currency_id: currency.id,
@@ -92,12 +91,10 @@ async function load(
       "provision_field_values",
     ].join(),
   };
-
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
   if (basketProduct?.id) set(params, "basket_product_id", basketProduct.id);
-
   const productPromise = getRequest({
     url: useUrl(`basket/products/${productId}`, params),
     useCache: true,
@@ -107,7 +104,6 @@ async function load(
 
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
-
   // lets also get some brand config for how we want to show promotions
   // Get the brands preference on how to display promotions
   const { getConfig } = useBrand();
@@ -120,11 +116,13 @@ async function load(
       )
   );
 
-  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
-    ([product, provisioning, promotionDisplayType]) => {
+  return Promise.all([productPromise, provisioningPromise, configPromise])
+    .then(([product, provisioning, promotionDisplayType]) => {
       return { product, provisioning, promotionDisplayType, currency };
-    }
-  );
+    })
+    .catch(errors => {
+      return Promise.reject(errors);
+    });
 }
 
 async function loadProvisioningFields(productId: any) {
@@ -278,40 +276,38 @@ async function checkSubproducts(
         //   some(subproduct.values, ["id", id])
         // );
 
-        // then parse each selected value, and ensure it has all its required attributes
-        // and that it has valid values for each of those attributes
-        selected = mapValues(selected, (value, id) => {
-          // ensure we have an object
-          if (!isObject(value)) value = { productId: id };
-          const product = find(subproduct.values, ["id", value.productId]);
+        // then parse each selected value, and ensure it has all its required and VALID values
+        selected = reduce(
+          selected,
+          (result, value, id) => {
+            // ensure we have an object
+            if (!isObject(value)) value = { productId: id };
+            const product = find(subproduct.values, ["id", value.productId]);
 
-          // NB: If a sub product has prices, we need to ensure we have the correct price
-          //     Sub products cant have a mix or billing cycles and one off, it will be one or the other
-          //     One off prices have a billing cycle of 0, so we can use that to determine the price
-          // based on either:
-          // 1. If its One off, just use the first (and only) price
-          // 2. IF we have billing cycle(s) : then match the term billing cycle
+            // safety check, ensure we have a valid product
+            // if we dont have a price, that means there is no matching term in the prices and we should not proceed
+            if (isEmpty(product?.price)) return result;
 
-          // ONE OFF
-          let activePrice = find(product?.prices, ["cycle", 0]);
+            // ensure we have a valid unit_quantity
+            value.quantity = parseQuantity(value?.step, product);
 
-          // BILLING CYCLE(S)
-          if (!activePrice) {
-            activePrice = find(product?.prices, ["cycle", model?.term?.cycle]);
-          }
+            // ensure we have the correct cycle
+            value.cycle = product.price?.cycle;
 
-          // ensure we have a valid unit_quantity
-          value.quantity = parseQuantity(value?.step, product);
+            // FINALLY set price values, taking into account the quantity and unit quantity
+            // NB: we NEVER add, we always push into an array for the backend to handle
+            times(value.quantity * model.quantity, () => {
+              price.push(
+                product.price?.priceDiscounted ?? product.price?.price ?? 0
+              );
+            });
 
-          value.cycle = activePrice?.cycle || 0;
-          // set price values, taking into account the quantity and unit quantity
-          // NB: we NEVER add, we always push into an array for the backend to handle
-          times(value.quantity * model.quantity, () => {
-            price.push(activePrice?.priceDiscounted || activePrice?.price || 0);
-          });
-
-          return value;
-        });
+            // ---
+            set(result, id, value);
+            return result;
+          },
+          {}
+        );
       }
 
       // check if we values too many values for this subproduct

@@ -16,9 +16,7 @@ import {
   isObject,
   isString,
   map,
-  mapValues,
   merge,
-  omit,
   omitBy,
   orderBy,
   reduce,
@@ -206,6 +204,7 @@ export const parseSubproduct = (
       const values: any[] = get(option, "values", []);
 
       // add this raw option to the values, with limited properties
+
       const value: any = {
         id: rawSubproduct.id,
         name: useTranslateName(rawSubproduct),
@@ -581,7 +580,6 @@ const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
 export const parseModel = (raw: any): ProductModel => {
   // handle  product model
   return {
-    // id: raw.id,
     quantity: raw?.quantity || 1,
     productId: raw.productId,
     term: raw.term,
@@ -597,7 +595,7 @@ export const parseBasketProductModel = (raw: any): ProductModel => {
   return {
     // id: raw.id,
     quantity: raw.quantity,
-    productId: raw.productId,
+    productId: raw.product_id,
     term: raw.billing_cycle_months,
     options: mapSubproductChoices(raw.options),
     attributes: mapSubproductChoices(raw.attributes),
@@ -612,7 +610,6 @@ const mapSubproductChoices = (values: any) => {
     (result, value) => {
       // -- defensive
       if (!value?.product?.category_id || !value.product_id) {
-        debugger;
         return result;
       }
 

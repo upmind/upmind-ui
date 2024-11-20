@@ -63,7 +63,7 @@ export function spawnProductConfiguration(
     productMachine.withContext({
       id,
       basketId: basket?.id,
-      [isBasketProduct ? "basket_product" : "model"]: model,
+      [isBasketProduct ? "basketProduct" : "model"]: model,
       currencyId: basket?.currency_id,
       promotions,
       errorExternal,

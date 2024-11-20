@@ -44,6 +44,7 @@ export interface ProductConfigContext {
 }
 
 export interface ProductModel {
+  id?: string;
   productId: string;
   quantity: number;
   // ---
