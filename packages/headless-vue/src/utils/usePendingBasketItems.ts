@@ -48,7 +48,7 @@ export const usePendingBasketItems = () => {
   const {
     isReady,
     addItem,
-    itemsPending,
+    productsPending,
     productsInvalid,
     products,
     removeItem,
@@ -134,7 +134,7 @@ export const usePendingBasketItems = () => {
     model: any
   ): Promise<ActorRef<any, any>> {
     if (productId) {
-      const basketItem = find(itemsPending.value, [
+      const basketItem = find(productsPending.value, [
         "state.context.model.productId",
         productId,
       ]);
@@ -207,12 +207,12 @@ export const usePendingBasketItems = () => {
     let basketItem;
     if (productIds.value?.length) {
       const productId = first(productIds.value);
-      basketItem = find(itemsPending.value, [
+      basketItem = find(productsPending.value, [
         "state.context.model.productId",
         productId,
       ]);
     } else {
-      basketItem = first(itemsPending.value) as ActorRef<any, any>;
+      basketItem = first(productsPending.value) as ActorRef<any, any>;
     }
     if (!basketItem) return null;
 
@@ -291,25 +291,31 @@ export const usePendingBasketItems = () => {
     );
   }
 
-  const hasNextBasketItem = computed(() => {
-    return (
-      !isEmpty(pendingBasketItems.value) || !isEmpty(productsInvalid.value)
-    );
+  const meta = computed(() => {
+    return {
+      hasInvalidBasketItems: !isEmpty(invalidBasketItems.value),
+      hasNextBasketItem:
+        !isEmpty(pendingBasketItems.value) || !isEmpty(productsInvalid.value),
+    };
   });
 
-  const nextBasketItems = computed(() => {
-    const items = map(
-      concat(itemsPending.value, productsInvalid.value),
-      item => {
-        const product = get(item, "state.context.lookups.product");
-        return {
-          id: item.id,
-          ...product,
-        };
-      }
-    );
+  const invalidBasketItems = computed(() => {
+    debugger;
+    const pending = map(productsPending.value, item => {
+      const product = get(item, "state.context.lookups.product");
+      debugger;
+      return {
+        id: item.id,
+        ...product,
+      };
+    });
 
-    return items;
+    const invalid = map(productsInvalid.value, product => {
+      debugger;
+      return product;
+    });
+
+    return concat(pending, invalid);
   });
 
   function navigateNextBasketItem(
@@ -342,9 +348,9 @@ export const usePendingBasketItems = () => {
     // ---
     syncPendingBasketItems,
     // ---
+    meta,
     NextBasketItemTypes,
-    nextBasketItems,
-    hasNextBasketItem,
+    invalidBasketItems,
     navigateNextBasketItem,
     getNextBasketItem,
     getNextRelatedItem,
