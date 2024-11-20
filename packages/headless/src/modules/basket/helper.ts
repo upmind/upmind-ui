@@ -6,7 +6,15 @@ import { useBasket } from ".";
 import productServices from "./items/services";
 
 // --- utils
-import { every, get, isArray, isEmpty, map, pickBy, reduce } from "lodash-es";
+import {
+  isFunction,
+  get,
+  isArray,
+  isEmpty,
+  map,
+  pickBy,
+  reduce,
+} from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -64,9 +72,8 @@ async function add(
   const mapping = context.basketItemMapper(item);
   const basketItem = basket.findItem(mapping);
   if (basketItem) return Promise.resolve(basketItem); // its allready added, so we can skip it
-  const product = context.basketItemBuilder(item);
-  if (!product) return Promise.reject("No product found");
-  return basket.addItem(product);
+
+  return basket.addItem(item);
 }
 
 async function remove(item: any, context: any, basket: any) {
@@ -86,10 +93,6 @@ async function update(item: any, context: any, basket: any) {
   const pid = get(basketItem, "state.context.basketProduct.id");
   // ---
   if (!basketItem) return Promise.reject("No item found");
-
-  const config = context.basketItemBuilder(item);
-  if (!config) return Promise.reject("No product config provided");
-
   // ---
   return productServices.update(
     {
@@ -97,7 +100,7 @@ async function update(item: any, context: any, basket: any) {
       basketProducts: basketSnapshot?.products,
       pid,
     },
-    { data: config }
+    { data: item }
   );
 }
 
@@ -129,7 +132,6 @@ async function sync(items: any, context: any, basket: any) {
       {
         basketId: basket.getBasketId(),
         basketProducts: basket.getProducts(),
-        basketItemBuilder: context.basketItemBuilder,
       },
       { data }
     );

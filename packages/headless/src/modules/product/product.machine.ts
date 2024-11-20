@@ -10,7 +10,6 @@ import { basketSubscription } from "../basket/helper";
 import { responseCodes } from "../api";
 import { useTime, compactDeep, useValidationParser } from "../../utils";
 import {
-  buildBasketItem,
   parseSubproduct,
   parseProvisioningSchema,
   parseProduct,
@@ -48,7 +47,6 @@ import type {
   ProductConfigContext,
   ProductConfigEvent,
   ProductModel,
-  BasketProductConfig,
 } from "./types";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
@@ -556,8 +554,6 @@ export default createMachine(
             basketHelper: basketHelper || spawn(basketSubscription),
             itemBuilder: (item: ProductModel) => parseModel(item),
             itemMapper: (item: BasketProduct) => ({ id: item.id }),
-            basketItemBuilder: (item: ProductModel) =>
-              buildBasketItem(item, promotions),
             basketItemMapper: (item: BasketProduct) => ({ id: item.id }),
           };
         }

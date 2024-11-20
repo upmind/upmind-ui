@@ -33,7 +33,6 @@ import { PromotionDisplayTypes } from "./services";
 import type { ProductModel, ProductConfigContext } from "./types";
 
 // --- types
-import type { BasketProductConfig } from "./types";
 
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
@@ -627,58 +626,3 @@ const mapSubproductChoices = (values: any) => {
     {}
   );
 };
-
-// --------------------------------------------------------
-
-export function buildBasketItem(
-  model: ProductConfigContext["model"],
-  promotions?: ProductConfigContext["promotions"]
-): BasketProductConfig {
-  return {
-    product_id: model?.productId,
-    quantity: model?.quantity,
-    billing_cycle_months: model?.term,
-    // ---
-    attributes: reduce(
-      model?.attributes,
-      (result, attribute) => {
-        if (attribute) {
-          const selected = values(
-            mapValues(attribute, choice => ({
-              product_id: choice?.productId,
-              quantity: choice?.quantity,
-              billing_cycle_months: choice?.cycle,
-            }))
-          );
-          // @ts-ignore
-          result.push(...selected);
-        }
-        return result;
-      },
-      []
-    ),
-    // ---
-    options: reduce(
-      model?.options,
-      (result, option) => {
-        if (option) {
-          const selected = values(
-            mapValues(option, choice => ({
-              product_id: choice?.productId,
-              quantity: choice?.quantity,
-              billing_cycle_months: choice?.cycle,
-            }))
-          );
-          // @ts-ignore
-          result.push(...selected);
-        }
-        return result;
-      },
-      []
-    ),
-    // ---
-    provision_field_values: model.provisionFields || [],
-    // ---
-    promotions: promotions || [],
-  } as BasketProductConfig;
-}

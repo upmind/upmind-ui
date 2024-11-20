@@ -101,7 +101,6 @@ export interface DomainContext {
   basketHelper?: Function;
   itemBuilder?: Function;
   itemMapper?: Function;
-  basketItemBuilder?: Function;
   basketItemMapper?: Function;
   //
 }

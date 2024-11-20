@@ -43,7 +43,7 @@ import type {
   RemoveEvent,
   DomainEvents,
 } from "./types";
-import type { IDomain } from "./types";
+import type { IDomain, DomainProduct } from "./types";
 import { isArray } from "xstate/lib/utils";
 
 // --------------------------------------------------------
@@ -549,10 +549,22 @@ export default createMachine(
         (context, _event) => {
           // not all values might be products, eg an exiting domain value,
           // so we need to filter out any non product values
-          const safeProducts = filter(context.model, item => !!item?.productId);
+          // and then map them to a be a basket item model
+          const products = reduce(
+            context.model,
+            (result: any[], item: DomainProduct) => {
+              if (item?.productId) {
+                const model = context.basketItemBuilder(item);
+                result.push(model);
+              }
+              return result;
+            },
+            []
+          );
+
           return {
             type: "SYNC",
-            target: safeProducts,
+            target: products,
             context,
           };
         }
