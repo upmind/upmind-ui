@@ -1,47 +1,32 @@
 <template>
-  <aside :class="styles.basket.summary.root">
-    <div :class="styles.basket.summary.content">
-      <header :class="styles.basket.summary.header">
-        <h3 :class="styles.basket.summary.title">
-          {{ t("basket.summary.title") }}
-        </h3>
-      </header>
-
-      <!-- products -->
-      <dl
-        :class="styles.basket.summary.list"
-        v-if="summary?.products?.length"
-        v-auto-animate
+  <div v-if="!meta.isLoading">
+    <!-- products -->
+    <dl
+      class="m-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+      v-if="summary?.products?.length && props.showProducts"
+      v-auto-animate
+    >
+      <div
+        v-for="product in summary.products"
+        :key="product.id"
+        class="flex flex-col space-y-1"
       >
-        <template v-for="product in summary.products" :key="product.id">
-          <dt
-            :class="
-              cn(styles.basket.summary.heading, styles.basket.summary.text)
-            "
+        <div class="flex w-full flex-wrap justify-between gap-2">
+          <div
+            class="text-primary group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
           >
             <span>{{ product?.name }}</span>
             <span v-if="product?.service_identifier">
               ({{ product?.service_identifier }})
             </span>
-          </dt>
+          </div>
 
-          <dd
-            :class="
-              cn(styles.basket.summary.value, styles.basket.summary.actions)
-            "
+          <div
+            class="text-base-foreground m-0 break-all text-right font-medium leading-normal"
           >
             <slot name="actions" v-bind="{ ...$props, product }">
-              <strong :class="styles.basket.summary.bold" v-if="noActions">
-                <del
-                  :class="styles.basket.summary.discount"
-                  v-if="!!product.discount"
-                >
-                  {{ product.subtotal }}
-                  <!-- <small>{{ product.quantity }}</small> -->
-                </del>
-
-                {{ product.total }}
-                <!-- <small>{{ product.quantity }}</small> -->
+              <strong class="text-primary" v-if="props.noActions">
+                {{ product.total_formatted }}
               </strong>
 
               <template v-else>
@@ -53,7 +38,7 @@
                   icon-only
                   label="modify product"
                   prependIcon="edit"
-                  @click="$emit('edit', product.id)"
+                  @click="emits('edit', product.id)"
                   disabled
                 />
                 <Button
@@ -68,168 +53,111 @@
                 />
               </template>
             </slot>
-          </dd>
-        </template>
+          </div>
+        </div>
+      </div>
+    </dl>
+
+    <!-- subtotals -->
+    <dl
+      class="m-0 grid grid-cols-2 gap-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+      v-if="!!summary?.discount || !!summary?.taxes"
+      v-auto-animate
+    >
+      <template v-if="summary?.discount">
+        <dt
+          class="text-base-700 group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+        >
+          <span
+            class="m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            >{{ t("basket.summary.discount.title", products.length) }}</span
+          >
+        </dt>
+
+        <dd class="flex-0 text-base-700 m-0 block text-right font-medium">
+          {{ summary.discount }}
+        </dd>
+      </template>
+
+      <template v-if="summary?.subtotal">
+        <dt
+          class="text-base-700 group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+        >
+          <span
+            class="m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            >{{ t("basket.summary.subtotal.title", products.length) }}</span
+          >
+        </dt>
+
+        <dd class="flex-0 text-base-700 m-0 block text-right font-medium">
+          {{ summary.subtotal }}
+        </dd>
+      </template>
+
+      <template v-for="(value, key) in summary?.taxes" :key="key">
+        <dt
+          class="group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+        >
+          <span
+            class="text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            >{{ key }}</span
+          >
+        </dt>
+
+        <dd class="flex-0 text-base-700 m-0 block text-right font-medium">
+          {{ value }}
+        </dd>
+      </template>
+    </dl>
+
+    <!-- total -->
+    <div class="flex flex-col gap-4 border-t">
+      <dl class="m-0 flex flex-wrap justify-between space-x-2 pt-4 text-lg">
+        <span class="text-primary m-0 font-bold">
+          {{ t("basket.summary.total") }}
+        </span>
+        <span class="text-primary m-0 break-all font-bold">
+          {{ summary?.total }}
+        </span>
       </dl>
 
       <!-- promotions -->
-      <Promotions :class="styles.basket.summary.form" />
-
-      <!-- subtotals -->
-      <dl
-        :class="styles.basket.summary.list"
-        v-if="!!summary?.discount || !!summary?.taxes"
-        v-auto-animate
-      >
-        <template v-if="summary?.discount">
-          <dt :class="styles.basket.summary.heading">
-            <span :class="styles.basket.summary.text">{{
-              t("basket.summary.discount.title", products.length)
-            }}</span>
-            <!-- TODO -->
-            <!-- <icon
-            :class="styles.basket.summary.tooltipIcon"
-            icon="information-circle-alt"
-          />
-          <p :class="styles.basket.summary.tooltip">
-            {{ t("basket.summary.discount.tooltip") }}
-          </p> -->
-          </dt>
-
-          <dd :class="styles.basket.summary.value">{{ summary.discount }}</dd>
-        </template>
-
-        <template v-if="summary?.subtotal">
-          <dt :class="styles.basket.summary.heading">
-            <span :class="styles.basket.summary.text">{{
-              t("basket.summary.subtotal.title", products.length)
-            }}</span>
-            <!-- TODO -->
-            <!-- <icon
-            :class="styles.basket.summary.tooltipIcon"
-            icon="information-circle-alt"
-          />
-          <p :class="styles.basket.summary.tooltip">
-            {{ t("basket.summary.discount.tooltip") }}
-          </p> -->
-          </dt>
-
-          <dd :class="styles.basket.summary.value">{{ summary.subtotal }}</dd>
-        </template>
-
-        <template v-for="(value, key) in summary?.taxes" :key="key">
-          <dt :class="styles.basket.summary.heading">
-            <span :class="styles.basket.summary.text">{{ key }}</span>
-            <!-- TODO -->
-            <!-- <icon
-            :class="styles.basket.summary.tooltipIcon"
-            icon="information-circle-alt"
-          />
-          <p :class="styles.basket.summary.tooltip">
-            {{ t("basket.summary.taxes.tooltip") }}
-          </p> -->
-          </dt>
-
-          <dd :class="styles.basket.summary.value">{{ value }}</dd>
-        </template>
-      </dl>
-
-      <!-- total -->
-      <dl :class="styles.basket.summary.list">
-        <dt
-          :class="
-            cn(styles.basket.summary.heading, styles.basket.summary.total)
-          "
-        >
-          {{ t("basket.summary.total") }}
-        </dt>
-        <dd
-          :class="cn(styles.basket.summary.value, styles.basket.summary.total)"
-        >
-          {{ summary?.total }}
-        </dd>
-      </dl>
+      <BasketPromotions />
     </div>
+  </div>
 
-    <footer :class="styles.basket.summary.footer" v-auto-animate>
-      <div :class="styles.basket.summary.actions">
-        <Button
-          :disabled="!meta.isReadyForCheckout || meta.isProcessing"
-          @click.prevent="checkout"
-          class="w-full"
-          color="primary"
-          block
-          :label="t('basket.summary.actions.submit')"
-        />
-      </div>
-
-      <p
-        v-for="(content, index) in tm('basket.summary.footer')"
-        :key="`footer-foreground-${index}`"
-        :class="styles.basket.summary.text"
-      >
-        <Icon
-          v-if="rt(content?.icon)"
-          :class="styles.basket.summary.icon"
-          :icon="rt(content?.icon)"
-        />
-        <span>{{ rt(content.text) }}</span>
-      </p>
-    </footer>
-  </aside>
+  <template v-else>
+    <SummarySkeleton />
+  </template>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import Promotions from "./Promotions.vue";
-
-// --- custom elements
-import { Icon, Button } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upwind";
+import BasketPromotions from "./Promotions.vue";
+import SummarySkeleton from "./SummarySkeleton.vue";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, cn } from "@upmind-automation/upwind";
-import config from "./config.cva";
+import { useBasket } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "BasketSummary",
-  components: { Promotions, Icon, Button },
-  directives: { autoAnimate: vAutoAnimate },
-  emits: ["edit"],
-  props: {
-    noActions: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup() {
-    const { t, tm, rt } = useI18n();
+const props = withDefaults(
+  defineProps<{
+    noActions: boolean;
+    showProducts: boolean;
+  }>(),
+  {
+    showProducts: false,
+  }
+);
 
-    const { meta, checkout, removeItem, products, summary } = useBasket();
+const emits = defineEmits(["edit"]);
 
-    const styles = useStyles(["basket.summary"], meta, config);
-
-    return {
-      t,
-      tm,
-      rt,
-      meta,
-      products,
-      summary,
-      checkout,
-      removeItem,
-      // ---
-      styles,
-      cn,
-    };
-  },
-  methods: {},
-});
+const { t } = useI18n();
+const { meta, removeItem, products, summary } = useBasket();
 </script>

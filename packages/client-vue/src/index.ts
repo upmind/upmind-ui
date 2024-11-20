@@ -27,6 +27,7 @@ export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
 export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
 export { default as UpmPaymentDetails } from "./components/basket/PaymentDetails.vue";
 export { default as UpmCheckout } from "./components/basket/Checkout.vue";
+export { default as UpmSummary } from "./components/basket/Summary.vue";
 
 // ---
 export { default as UpmOrderConfirmation } from "./components/order/Confirmation.vue";
