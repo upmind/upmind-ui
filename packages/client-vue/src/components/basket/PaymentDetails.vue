@@ -1,78 +1,183 @@
 <template>
-  <section ref="form" :class="styles.basket.paymentDetails.root">
-    <Form
-      :additional-errors="errors?.data"
-      :loading="meta.isLoading"
-      :model-value="model"
-      :processing="meta.isProcessing"
-      :schema="schema"
-      :uischema="uischema"
-      @reject="clear"
-      @resolve="update"
-      @update:modelValue="input"
-      no-actions
-    />
+  <Accordion
+    v-show="!meta.isFree"
+    type="multiple"
+    class="flex flex-col gap-4"
+    collapsible
+  >
+    <template v-for="item in gateways" :key="item.id">
+      <component
+        :is="props.cardComponent"
+        :class="[!props.cardComponent && 'bg-base shadow-sm', props.class]"
+      >
+        <AccordionItem
+          :value="item.gateway_id"
+          class="border-none"
+          :open="item.gateway_id === model.gateway_id"
+          :disabled="item.gateway_id === model.gateway_id"
+        >
+          <AccordionTrigger
+            class="text-base-700 hover:text-primary flex items-center space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
+            @click.stop="selectGateway(item.gateway_id)"
+          >
+            <div class="text-primary text-sm no-underline">
+              {{ item.gateway.name }}
+            </div>
 
-    <PaymentGateway
-      v-if="gateway"
-      :key="gateway?.id"
-      :id="gateway?.id"
-      :class="styles.basket.paymentDetails.render"
-    />
-  </section>
+            <template #icon>
+              <Icon
+                icon="arrow-down"
+                class="h-6 w-6 shrink-0 transition-transform duration-200"
+                :class="{
+                  'rotate-180': item.gateway_id === model.gateway_id,
+                }"
+              />
+            </template>
+          </AccordionTrigger>
+
+          <Loading
+            :active="
+              item.gateway_id === model.gateway_id && basketMeta.isProcessing
+            "
+            class="text-secondary"
+          >
+            <AccordionContent
+              class="border-base-muted flex flex-col gap-4 border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
+            >
+              <VPaymentGateway
+                v-if="meta.hasGateway && gateway.id == model.gateway_id"
+                :id="gateway.id"
+                class="w-full"
+              />
+
+              <Alert
+                v-if="!isEmpty(getErrors)"
+                color="error"
+                icon="alert-triangle"
+                description="There was a issue with your payment details"
+              >
+                <template v-for="error in getErrors" :key="error.title">
+                  <li>{{ error.title }}</li>
+                </template>
+              </Alert>
+
+              <footer
+                class="flex flex-col items-stretch justify-start space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0"
+                v-auto-animate
+              >
+                <Button
+                  :disabled="
+                    !basketMeta.isReadyForCheckout || meta.isProcessing
+                  "
+                  :loading="basketMeta.isProcessingDetails"
+                  @click.prevent="handleCheckout"
+                  color="secondary"
+                  :label="getGatewayi18n(item, 'actions.submit')"
+                  class="block w-full self-center md:inline-block md:w-auto"
+                />
+
+                <div
+                  v-if="
+                    !getGatewayi18n(item, 'footer.title').includes('basket')
+                  "
+                  class="bg-base-background text-primary flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
+                >
+                  <Icon
+                    :icon="getGatewayi18n(item, 'footer.icon')"
+                    class="size-3"
+                  />
+                  <div class="text-xs">
+                    {{ getGatewayi18n(item, "footer.title") }}
+                  </div>
+                </div>
+              </footer>
+            </AccordionContent>
+          </Loading>
+        </AccordionItem>
+      </component>
+    </template>
+  </Accordion>
+
+  <component
+    v-if="meta.isFree"
+    :is="props.cardComponent"
+    :class="[!props.cardComponent && 'bg-base shadow-sm', props.class]"
+  >
+    <UpmPaymentNotRequired />
+  </component>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
+import { first, isEmpty } from "lodash-es";
+import { computed } from "vue";
 
 // --- internal
-import { useBasketPaymentDetails } from "@upmind-automation/headless-vue";
-import { useStyles, cn } from "@upmind-automation/upwind";
-import config from "./config.cva";
+import {
+  useBasketPaymentDetails,
+  useBasket,
+} from "@upmind-automation/client-vue";
+import { UpmPaymentNotRequired } from "@upmind-automation/client-vue";
 
 // --- components
-import { Form } from "@upmind-automation/upwind";
-import PaymentGateway from "./PaymentGateway.vue";
+import { Icon, Button, Alert, Loading } from "@upmind-automation/upwind";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import VPaymentGateway from "./PaymentGateway.vue";
+
+// --- types
+import type { PaymentDetailsProps } from "./types";
+
+// --- utils
+import { set } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-
-export default defineComponent({
-  name: "BasketPaymentDetails",
-  components: { Form, PaymentGateway },
-  props: {},
-  setup(props) {
-    const {
-      meta,
-      errors,
-      model,
-      schema,
-      uischema,
-      gateway,
-      clear,
-      input,
-      update,
-    } = useBasketPaymentDetails();
-
-    const styles = useStyles(["basket.paymentDetails"], meta, config);
-
-    // wait till we mount then try to render the gateway if it's provided
-    // otherwise watch in case it's provided later
-
-    return {
-      meta,
-      errors,
-      model,
-      schema,
-      uischema,
-      gateway,
-      clear,
-      input,
-      update,
-      // ---
-      styles,
-      cn,
-    };
-  },
+const props = withDefaults(defineProps<PaymentDetailsProps>(), {
+  cardComponent: "div",
+  class: "bg-base shadow-sm",
 });
+
+const { t, te } = useI18n();
+
+const { meta, model, gateway, input, gateways, errors } =
+  useBasketPaymentDetails();
+
+const { meta: basketMeta, checkout } = useBasket();
+
+const handleCheckout = () => {
+  checkout();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// TODO: Import gateway type from machine (we don't have it yet)
+const getGatewayi18n = (item: any, property: string) => {
+  const type = item.gateway.type;
+  const code = item.gateway.gateway_provider?.code;
+  if (type === 1) {
+    const codeKey = `basket.${code}.${property}`;
+    if (te(codeKey)) return t(codeKey);
+    return t(`basket.${type}.${property}`);
+  }
+
+  return t(`basket.${type}.${property}`);
+};
+
+const getErrors = computed(() => {
+  const allErrors = first(errors.value) as Array<any>;
+  return allErrors?.filter(
+    error => !error.title.toLowerCase().includes("element")
+  );
+});
+
+const selectGateway = (id: string) => {
+  const value = model.value;
+  set(value, "gateway_id", id);
+  input(value);
+};
 </script>
