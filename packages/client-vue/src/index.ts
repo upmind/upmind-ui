@@ -21,6 +21,7 @@ export { default as UpmBasketItems } from "./components/basket/ItemListings.vue"
 export { default as UpmBillingDetails } from "./components/basket/BillingDetails.vue";
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketDetails } from "./components/basket/Details.vue";
+export { default as UpmPaymentNotRequired } from "./components/basket/PaymentNotRequired.vue";
 export { default as UpmBasketProcessing } from "./components/basket/Procesing.vue";
 export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
 export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
