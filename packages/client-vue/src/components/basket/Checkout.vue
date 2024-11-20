@@ -31,40 +31,40 @@
             </component>
           </slot>
 
-          <slot name="billing-details">
-            <component
-              v-if="meta.hasAccount && !meta.isCheckout"
-              :is="props.contentComponent"
-              :title="t('basket.billing_details.title')"
-            >
-              <template #title v-if="$slots['billing-details-title']">
-                <slot name="billing-details-title" />
-              </template>
-              <component :is="props.cardComponent">
+          <component
+            v-if="meta.hasAccount && !meta.isCheckout"
+            :is="props.contentComponent"
+            :title="t('basket.billing_details.title')"
+          >
+            <template #title v-if="$slots['billing-details-title']">
+              <slot name="billing-details-title" />
+            </template>
+            <component :is="props.cardComponent">
+              <slot name="billing-details">
                 <UpmBillingDetails
                   :model-value="billingDetailsModel"
                   @update:modelValue="billingDetailsUpdate"
                   color="secondary"
                 />
-              </component>
+              </slot>
             </component>
-          </slot>
+          </component>
 
-          <slot name="payment-details">
-            <component
-              :is="props.contentComponent"
-              v-show="meta.hasAccount && !meta.isCheckout"
-              :title="t('basket.payment_details.title')"
-            >
-              <template #title v-if="$slots['payment-details-title']">
-                <slot name="payment-details-title" />
-              </template>
+          <component
+            :is="props.contentComponent"
+            v-show="meta.hasAccount && !meta.isCheckout"
+            :title="t('basket.payment_details.title')"
+          >
+            <template #title v-if="$slots['payment-details-title']">
+              <slot name="payment-details-title" />
+            </template>
+            <slot name="payment-details">
               <UpmPaymentDetails
                 :card-component="props.cardComponent"
                 class="!p-0"
               />
-            </component>
-          </slot>
+            </slot>
+          </component>
         </div>
 
         <aside
@@ -72,16 +72,16 @@
           class="order-last flex w-full flex-col items-start gap-6 sm:sticky sm:top-1 xl:max-w-md"
         >
           <aside class="flex w-full flex-col gap-6 text-left">
-            <slot name="summary">
-              <component
-                :is="props.contentComponent"
-                :title="t('basket.summary.title')"
-              >
-                <component :is="props.cardComponent">
-                  <VBasketSummary no-actions />
-                </component>
+            <component
+              :is="props.contentComponent"
+              :title="t('basket.summary.title')"
+            >
+              <component :is="props.cardComponent">
+                <slot name="summary">
+                  <UpmSummary no-actions />
+                </slot>
               </component>
-            </slot>
+            </component>
           </aside>
         </aside>
       </div>
@@ -133,10 +133,9 @@ import {
   UpmBillingDetails,
   UpmBasketProcessing,
   UpmPaymentDetails,
+  UpmSummary,
   useBasketPaymentDetails,
 } from "@upmind-automation/client-vue";
-
-import VBasketSummary from "@/components/basket/Summary.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
