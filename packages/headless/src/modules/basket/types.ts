@@ -159,6 +159,18 @@ export interface BasketProductDetail {
   regularPriceFormatted?: string;
   invalid?: boolean;
 }
+
+export interface BasketProductConfig {
+  product_id?: string;
+  quantity?: number;
+  billing_cycle_months?: number;
+  // ---
+  attributes?: any[];
+  options?: any[];
+  provision_field_values?: any[];
+  promotions?: any[]; //IProductPromotion[];
+}
+
 // --------------------------------------------------------
 // Contexts
 

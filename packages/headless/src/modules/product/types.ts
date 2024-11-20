@@ -1,23 +1,12 @@
 // --- types
 import type { ActorRef } from "xstate";
 
-import type { Basket, BasketProduct } from "../basket/types";
-
+import type { BasketProduct } from "../basket/types";
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
 // Contexts
-export interface BasketProductConfig {
-  product_id?: string;
-  quantity?: number;
-  billing_cycle_months?: number;
-  // ---
-  attributes?: any[];
-  options?: any[];
-  provision_field_values?: any[];
-  promotions?: IProductPromotion[];
-}
 
 export interface ProductConfigContext {
   id: string;
@@ -51,9 +40,7 @@ export interface ProductConfigContext {
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
   itemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
-  basketItemBuilder?: (item: ProductModel) => BasketProductConfig;
   basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
-  config: BasketProductConfig;
 }
 
 export interface ProductModel {

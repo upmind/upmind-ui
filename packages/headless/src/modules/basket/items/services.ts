@@ -3,6 +3,8 @@
 // --- internal
 import { useApi } from "../../..";
 // --- utils
+import { parseBasketProductConfig } from "./utils";
+
 import {
   compact,
   concat,
@@ -10,11 +12,9 @@ import {
   forEach,
   get,
   isEmpty,
-  isFunction,
   map,
   reduce,
   set,
-  omit,
 } from "lodash-es";
 
 // --- types
@@ -61,6 +61,9 @@ async function update({ basketId, id }: any, { data }: any) {
   const { put, post, useUrl } = useApi();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided : ${id}`);
+
+  const product = parseBasketProductConfig(data);
+
   // ---
   const isNew = !id;
   const action = isNew ? post : put;
@@ -68,7 +71,7 @@ async function update({ basketId, id }: any, { data }: any) {
   // ---
   return action({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
-    data,
+    data: product,
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
@@ -85,23 +88,22 @@ async function remove({ basketId, id }: any) {
 }
 
 async function sync(
-  { basketId, basketProducts, basketItemBuilder }: any,
+  { basketId, basketProducts, promotions }: any,
   { data }: any
 ) {
   if (!basketId) return Promise.reject("No basket provided/available");
 
-  // When updating the basket we need to provide all products that are being updated
-  // AND any other existing products already added
+  // When updating the basket we need to provide :
+  //   * ALL products that are valid and ready to be saved
+  //   * ALL other existing products already in the basket
   // otherwise the existing products will be removed from the basket
-  const dirty = filter(
-    data,
-    item =>
-      !isEmpty(item?.state?.context?.basketProduct) ||
-      ["available.configured"].some(item.state?.matches)
+
+  const validItems = filter(data, item =>
+    item.state?.matches("available.configured")
   );
 
-  // --- then build the basket config for the dirty products
-  const products = map(dirty, item => {
+  // --- then build the basket config for the validItems products
+  const products = map(validItems, item => {
     const id = get(item, "state.context.basketProduct.id");
     // inform the item that it is being processed
     item.send({ type: "PROCESSING" });
@@ -109,11 +111,7 @@ async function sync(
     const model = get(item, "state.context.model");
     if (!model) return Promise.reject("No model found");
     // ---
-    const basketItemBuilder = get(item, "state.context.basketItemBuilder");
-    if (!basketItemBuilder)
-      return Promise.reject("No basketItemBuilder provided");
-    // ---
-    const product = basketItemBuilder(model);
+    const product = parseBasketProductConfig(model, promotions);
     // Add a flag to the product to indicate that the field values should NOT be validated.
     //  we want to ge these products in without deep validation
     set(product, "provision_field_values_validate", false);
@@ -125,27 +123,17 @@ async function sync(
 
   // --- then build the minimal basket config for the existing products
   // the existing products dont need to have their full config, just the id
-  debugger;
   const existingProducts = reduce(
     basketProducts,
     (result: any[], item: any) => {
-      debugger;
       const id = get(item, "id");
 
       if (id) {
-        debugger;
-
-        // ---
-        if (!isFunction(basketItemBuilder)) return result;
-        // ---
-        const product = basketItemBuilder(item);
-        debugger;
+        const product = parseBasketProductConfig(item, promotions);
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
         set(product, "order_product_id", id);
-        debugger;
-        // @ts-ignore
         result.push(product);
       }
 
@@ -162,11 +150,11 @@ async function sync(
     withAccessToken: true,
   })
     .then(({ data }: any) => {
-      forEach(dirty, item => item.send({ type: "UPDATED" }));
+      forEach(validItems, item => item.send({ type: "UPDATED" }));
       return data;
     })
     .catch(error => {
-      forEach(dirty, item => item.send({ type: "CANCEL" }));
+      forEach(validItems, item => item.send({ type: "CANCEL" }));
       return Promise.reject(error);
     });
 }
