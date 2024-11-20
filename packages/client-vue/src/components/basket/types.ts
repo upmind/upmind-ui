@@ -36,3 +36,8 @@ export interface PaymentDetailsProps {
   cardComponent?: Component | "div";
   class?: string;
 }
+
+export interface CheckoutProps {
+  cardComponent?: Component | "div";
+  contentComponent?: Component | "div";
+}
