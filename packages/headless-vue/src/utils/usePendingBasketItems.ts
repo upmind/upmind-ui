@@ -73,11 +73,15 @@ export const usePendingBasketItems = () => {
     productId: string,
     context?: ProductModel | State<any, any>
   ) {
+    // defensive
+    if (!productId) return;
+
     const model = context
       ? has(context, "productId")
         ? context
         : cleanContext(context as State<any, any>)
       : { productId };
+
     const newBasketItems = toRaw(unref(pendingBasketItems)) || {};
     set(newBasketItems, productId, model);
     pendingBasketItems.value = null;

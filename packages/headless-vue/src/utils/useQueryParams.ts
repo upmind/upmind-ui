@@ -98,6 +98,10 @@ export const useQueryParams = () => {
       QUERY_PARAMS.PRODUCT,
       getParam(QUERY_PARAMS.PRODUCT_ID)
     );
+
+    // if we dont have a product id, then we dont have a product config
+    if (!productId) return [];
+
     const productQty = getParam(QUERY_PARAMS.QUANTITY);
 
     const bcm = getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
