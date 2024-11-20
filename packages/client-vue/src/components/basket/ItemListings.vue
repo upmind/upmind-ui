@@ -58,7 +58,7 @@ export default defineComponent({
   props: {},
   setup() {
     const { t } = useI18n();
-    const { meta, products, itemsPending } = useBasket();
+    const { meta, products, productsPending } = useBasket();
 
     const styles = useStyles(
       ["basket.items", "basket.items.pending", "basket.items.invalid"],
@@ -72,7 +72,7 @@ export default defineComponent({
       t,
       meta,
       products,
-      itemsPending,
+      productsPending,
 
       // ---
       styles,

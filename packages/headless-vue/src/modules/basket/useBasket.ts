@@ -182,16 +182,14 @@ export const useBasket = (): any => {
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    itemsPending: computed(() => {
+    products: useContext(state, "products", []),
+    productsPending: computed(() => {
       const items = contextValue(state, "items", []);
       return filter(items, item => !item?.state?.done);
     }),
-
-    items: useContext(state, "products", []), //temp alias before refactoring
-    products: useContext(state, "products", []),
     productsInvalid: computed(() =>
       filter(contextValue(state, "products", []), product =>
-        some(product?.details, ({ invalid }) => !!invalid)
+        some(product?.summary?.details, ({ invalid }) => !!invalid)
       )
     ),
     promotions: useContext(state, "basket.promotions", []),
