@@ -18,22 +18,27 @@
 
                   <!-- loading state -->
                   <template #fallback>
-                    <UpmBasketLoading
-                      class="min-h-screen"
-                      skrim="light"
-                      :text="t('basket.loading.text')"
-                      :animated-icon="{
-                        icon: 'basket',
-                        delay: 250,
-                        primaryColor: 'base-foreground',
-                        secondaryColor: 'accent',
-                        size: '4xl',
-                      }"
-                    >
-                      <template #title v-if="$slots['loading-title']">
-                        <slot name="loading-title" />
-                      </template>
-                    </UpmBasketLoading>
+                    <div>
+                      <UpmBasketLoading
+                        class="min-h-screen"
+                        skrim="light"
+                        :title="t('basket.loading.title')"
+                        :text="t('basket.loading.text')"
+                        :animated-icon="{
+                          icon: 'basket',
+                          delay: 250,
+                          primaryColor: props.loadingPrimaryColor,
+                          secondaryColor: props.loadingSecondaryColor,
+                          size: '4xl',
+                        }"
+                      >
+                        <template #title v-if="$slots['loading-title']">
+                          <slot name="loading-title" />
+                        </template>
+                      </UpmBasketLoading>
+
+                      <slot name="loading-patterns" />
+                    </div>
                   </template>
                 </Suspense>
               </KeepAlive>
@@ -81,8 +86,12 @@ const props = withDefaults(
   defineProps<{
     contentComponent: Component | string;
     theme: any;
+    loadingPrimaryColor: string;
+    loadingSecondaryColor: string;
   }>(),
   {
+    loadingPrimaryColor: "base-foreground",
+    loadingSecondaryColor: "secondary",
     contentComponent: "div",
   }
 );
