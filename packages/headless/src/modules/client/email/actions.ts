@@ -40,10 +40,10 @@ export const ItemActions = {
   }),
   setSchemas: assign({
     // TODO: schema: (context: EmailContext, _event: EmailEvent) => useSchema(context),
-    schema: (_, _event: EmailEvent) => useSchema(),
+    schema: (_context, _event: EmailEvent) => useSchema(),
     // TODO: uischema: (context: EmailContext, _event: EmailEvent) =>
     // TODO: useUischema(context),
-    uischema: (_, _event: EmailEvent) => useUischema(),
+    uischema: (_context, _event: EmailEvent) => useUischema(),
   }),
 
   setModel: assign({

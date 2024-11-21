@@ -1,6 +1,7 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
+import type { Basket } from "../basket/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -38,27 +39,20 @@ export interface IPaymentDetail {
 
 export interface PaymentDetailsContext {
   // ---
-  basket_id?: string;
-  client_id?: string;
-  // TODO:
-  // currency?: iCurrency;
-  // address?: iAddress;
-  currency?: any;
+  basketId?: string;
+  clientId?: string;
+  currency?: any; // ICurrency
   address?: any;
+
   // ---
-  // TODO:
-  // gateways?: Array<IGateway>;
-  gateways?: any[];
+  gateways?: any[]; // IGateway[];
   payment_types?: PaymentTypes;
   // ---
   stored_payment_methods?: Array<IPaymentDetail>;
-  // TODO:
-  // balance?: IWalletBalance;
-  // gateway?: IGateway;
-  balance?: any;
-  gateway?: any;
+  balance?: any; //IWalletBalance
+  gateway?: any; //IGateway
   // ---
-
+  fields?: any;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IPaymentDetail;
@@ -71,8 +65,8 @@ export interface PaymentDetailsContext {
   };
 
   // ---
-  // TODO:
-  // error?: RequestError;
+  autoupdate?: boolean;
+  dirty?: boolean;
   error?: any;
 }
 
@@ -82,16 +76,11 @@ export interface PaymentDetailsContext {
 export interface PaymentDetailsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IPaymentDetail;
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
 
 export interface RefreshEvent {
   type: "REFRESH";
-  // TODO:
-  // data?: IBasket;
-  // error?: RequestError;
-  data?: any;
+  data?: Basket;
   error?: any;
 }

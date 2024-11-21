@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, spawn, actions, pure } from "xstate";
+import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
 
 // --- internal
@@ -35,6 +35,7 @@ import {
 } from "lodash-es";
 
 // --- types
+import type { BasketProduct } from "../basket";
 import { DomainTypes } from "./types";
 import type {
   DomainContext,
@@ -42,7 +43,7 @@ import type {
   RemoveEvent,
   DomainEvents,
 } from "./types";
-import type { IDomain } from "./types";
+import type { IDomain, DomainProduct } from "./types";
 import { isArray } from "xstate/lib/utils";
 
 // --------------------------------------------------------
@@ -447,9 +448,9 @@ export default createMachine(
 
       ensurePrimary: assign({
         model: ({ model }) => {
-          if (!!model?.length && !some(model, "is_primary")) {
+          if (!!model?.length && !some(model, "isPrimary")) {
             // @ts-ignore
-            first(model).is_primary = true;
+            first(model).isPrimary = true;
           }
           return model;
         },
@@ -463,7 +464,7 @@ export default createMachine(
           return DomainTypes;
         },
         type: ({ type, basketItems, model }) => {
-          const selected = find(model, "is_primary") || first(model);
+          const selected = find(model, "isPrimary") || first(model);
           const domain = get(selected, "domain");
 
           if (domain) {
@@ -501,31 +502,31 @@ export default createMachine(
       setBasketHelper: assign(({ basketHelper }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: function (item: any) {
+          itemBuilder: function (item: BasketProduct) {
             return parseBasketItem(item);
           },
-          itemMapper: (item: any) => ({
-            product_id: item.product_id,
-            sld: item?.sld || item?.provision_fields?.sld,
+          itemMapper: (item: BasketProduct) => ({
+            productId: item.productId,
+            sld: item?.provisionFields?.sld,
           }),
           basketItemBuilder: (item: any) => {
-            if (!item?.product_id) return null;
+            if (!item?.productId) return null;
             return {
-              product_id: item.product_id,
+              productId: item.productId,
               quantity: 1,
               term: {
-                billing_cycle_months: item.billing_cycle_months,
+                cycle: item.cycle,
               },
               options: item.options,
               attributes: item.attributes,
-              provision_fields: {
+              provisionFields: {
                 sld: item.sld,
               },
             };
           },
-          basketItemMapper: (item: any) => ({
-            product_id: item.product_id,
-            "provision_fields.sld": item?.sld || item?.provision_fields?.sld,
+          basketItemMapper: (item: BasketProduct) => ({
+            productId: item.productId,
+            "provisionFields.sld": item.provisionFields?.sld,
           }),
         };
       }),
@@ -548,13 +549,22 @@ export default createMachine(
         (context, _event) => {
           // not all values might be products, eg an exiting domain value,
           // so we need to filter out any non product values
-          const safeProducts = filter(
+          // and then map them to a be a basket item model
+          const products = reduce(
             context.model,
-            item => !!item?.product_id
+            (result: any[], item: DomainProduct) => {
+              if (item?.productId) {
+                const model = context.basketItemBuilder(item);
+                result.push(model);
+              }
+              return result;
+            },
+            []
           );
+
           return {
             type: "SYNC",
-            target: safeProducts,
+            target: products,
             context,
           };
         }
@@ -612,7 +622,7 @@ export default createMachine(
             domain: parsed?.domain || "",
             tld: parsed?.tld || "",
             sld: parsed?.sld || "",
-            is_primary: true,
+            isPrimary: true,
             type: DomainTypes.existing,
           };
 
@@ -655,7 +665,7 @@ export default createMachine(
               // ensure we persist any prev selected/primary domain
               if (domain) {
                 const exists = find(model, ["domain", domain.domain]);
-                domain.is_primary = exists?.is_primary;
+                domain.isPrimary = exists?.isPrimary;
                 // @ts-ignore
                 result.push(domain);
               }
@@ -730,9 +740,9 @@ export default createMachine(
 
           const available = map(data?.available, item => {
             item.value = item.domain;
-            item.is_owned = some(lookups.owned, ["domain", item.domain]);
-            item.in_basket = some(lookups.basket, ["domain", item.domain]);
-            item.disabled = item.is_owned || item.in_basket;
+            item.isOwned = some(lookups.owned, ["domain", item.domain]);
+            item.inBasket = some(lookups.basket, ["domain", item.domain]);
+            item.disabled = item.isOwned || item.inBasket;
             return item;
           });
 
@@ -801,7 +811,7 @@ export default createMachine(
         model: ({ model }, { data }: any) => {
           const primary = find(model, ["domain", data]);
           return map(model, value => {
-            value.is_primary = value === primary;
+            value.isPrimary = value === primary;
             return value;
           });
         },

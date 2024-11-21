@@ -127,7 +127,7 @@ export const contextActor = (
   return createActor(context);
 };
 
-const createActor = (context: any) => {
+export const createActor = (context: any) => {
   const actor = useActor(context);
   return {
     id: context.id,

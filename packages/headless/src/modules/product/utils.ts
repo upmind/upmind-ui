@@ -4,34 +4,34 @@ import { TrialEndActionTypes } from "./services";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
-import { parseProductSummary } from "../basket/utils";
+export { parseBasketProduct } from "../basket/utils";
 import {
   find,
   forEach,
   get,
   has,
+  includes,
   isEmpty,
   isNil,
   isObject,
   isString,
   map,
-  mapValues,
   merge,
-  omit,
   omitBy,
   orderBy,
-  pick,
   reduce,
   set,
   some,
   toNumber,
   values,
-  includes,
 } from "lodash-es";
 
 // --- types
 import { PromotionDisplayTypes } from "./services";
-import type { IProductModel, ProductConfigContext } from "./types";
+import type { ProductModel, ProductConfigContext } from "./types";
+
+// --- types
+
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is queued/configuring for the basket
 
@@ -41,116 +41,112 @@ export const checkPriceOverride = (values: any, lookups: any) => {
     const item = find(lookups, ["id", key]);
 
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
+
+    // DC:  this may be raw and need to be converted to camelCase
+
     return !isEmpty(value) && !!item?.price_override;
   });
 };
 
-export const parseQuantity = (quantity: number, data: any) => {
+export const parseQuantity = (quantity: number, product: any) => {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
-  // Check the data is available
+  // Check the product data is available
   // Check the quantity is valid,
-  //  - min Quantity matches the data min
-  //  - max Quantity matches the data max
-  //  - quantity is a multiple of the data step
+  //  - min Quantity matches the product min
+  //  - max Quantity matches the product max
+  //  - quantity is a multiple of the product step
   // ensure the quantity is at least the min, or 1
-  if (quantity < Math.max(data?.min_order_quantity, 1)) {
-    quantity = Math.max(data?.min_order_quantity, 1);
+
+  if (quantity < Math.max(product?.min, 1)) {
+    quantity = Math.max(product?.min, 1);
   }
 
   // ensure the quantity is at most the max (if set)
-  if (data?.max_order_quantity && quantity > data?.max_order_quantity) {
-    quantity = data?.max_order_quantity;
+  if (product?.max && quantity > product?.max) {
+    quantity = product?.max;
   }
 
   // ensure the quantity is a multiple of the step (if set)
-  if (data?.unit_quantity && quantity % data?.unit_quantity !== 0) {
-    quantity = Math.ceil(quantity / data.unit_quantity) * data.unit_quantity;
+  if (product?.step && quantity % product?.step !== 0) {
+    quantity = Math.ceil(quantity / product.step) * product.step;
   }
 
   return quantity;
 };
 
 export const parseProduct = (
-  data: any,
-  basket_product?: ProductConfigContext["basket_product"]
+  rawProduct: any,
+  basketProduct?: ProductConfigContext["basketProduct"]
 ) => {
-  // Pick only the properties we need
-  const product: any = pick(merge({}, data, basket_product), [
-    "id",
-    "name",
-    "service_identifier",
-    "description",
-    "short_description",
+  // combine the rawProduct data with the basket product data to augment the product
+  // DC: cant remember why... to investigate
+  // DC:  this may be rawProduct and need to be converted to camelCase
+
+  const merged = merge({}, rawProduct, basketProduct);
+
+  return {
+    id: merged.id,
+    name: merged.name,
+    category: useTranslateName(merged.category),
+    serviceIdentifier: merged.service_identifier,
+    description: merged.description,
+    excerpt: useTranslateField(merged, "short_description"),
+
     // ---
-    "image",
-    "images",
+    image: merged.image,
+    images: merged.images,
     // ---
-    "display_price",
+    quantifiable: merged.order_type == 2,
+    step: merged.unit_quantity || 1,
+    min: merged.min_order_quantity || merged.unit_quantity,
+    max: merged.max_order_quantity > 0 ? merged.max_order_quantity : Infinity,
     // ---
-    "unit_quantity",
-    "min_order_quantity",
-    "max_order_quantity",
-    // ---
-    "provision_blueprint_id",
-    "default_payment_period",
-  ]);
+    displayPrice: merged.display_price,
+    defaultPaymentPeriod: merged.default_payment_period,
+    hasFreeTrial:
+      merged.trial_supported &&
+      merged.trial_end_action &&
+      merged.trial_force &&
+      [TrialEndActionTypes.CANCEL].includes(merged.trial_end_action),
 
-  // ---
-  // Ensure min values are set
-  product.unit_quantity = product.unit_quantity || 1;
-  product.min_order_quantity =
-    product.min_order_quantity || product.unit_quantity;
-  // ---
-  // --------------------------------------------------------
-  // then add some syntactic sugar / computed properties
-
-  product.canChangeQuantity = data.order_type == 2;
-
-  product.hasFreeTrial =
-    data.trial_supported &&
-    data.trial_end_action &&
-    data.trial_force &&
-    [TrialEndActionTypes.CANCEL].includes(data.trial_end_action);
-
-  product.hasSavings = some(data.prices, "price_discounted");
-  product.hasMixedPromotions = some(data.prices, "mixed_promotions");
-  product.isOnPromotion = product.hasSavings || product.hasMixedPromotions;
-
-  product.category = useTranslateName(data.category);
-  return product;
+    hasDiscount:
+      some(merged.prices, "price_discounted") ||
+      some(merged.prices, "mixed_promotions"),
+  };
 };
 
 export const parseTerms = (
-  data: any,
-  promotion_display_type: PromotionDisplayTypes
+  raw: any,
+  promotionDisplayType: PromotionDisplayTypes
 ) => {
   const { getBillingCycle } = useSystem();
 
-  // 1. sort the terms by billing_cycle_months
-  const terms = orderBy(data, "billing_cycle_months");
-
-  return map(terms, rawTerm => {
+  return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
     // Pick only the properties we need
-    const term: any = pick(rawTerm, [
-      "billing_cycle_months",
-      "mixed_promotions",
-      "monthly_price_from_discounted",
-      "monthly_price_from_discounted_formatted",
-      "monthly_price_from",
-      "monthly_price_from_formatted",
-      "price",
-      "price_discounted",
-      "price_discounted_formatted",
-      "price_formatted",
-    ]);
+
+    const term: any = {
+      cycle: rawTerm.billing_cycle_months,
+      mixedPromotions: rawTerm.mixed_promotions,
+      // ---
+      monthlyPriceFromDiscounted: rawTerm.monthly_price_from_discounted,
+      monthlyPriceFromDiscountedFormatted:
+        rawTerm.monthly_price_from_discounted_formatted,
+      monthlyPriceFrom: rawTerm.monthly_price_from,
+      monthlyPriceFromFormatted: rawTerm.monthly_price_from_formatted,
+
+      price: rawTerm.price,
+      priceDiscounted: rawTerm.price_discounted,
+      priceDiscountedFormatted: rawTerm.price_discounted_formatted,
+      priceFormatted: rawTerm.price_formatted,
+    };
 
     // --------------------------------------------------------
     // Ensure the name is set
 
     const cycle = getBillingCycle(rawTerm.billing_cycle_months);
-    term.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
+    term.name = cycle ? useTranslateName(cycle) : null;
 
-    term.promotions = parsePromotion(rawTerm, promotion_display_type);
+    term.promotions = parsePromotion(rawTerm, promotionDisplayType);
 
     return term;
   });
@@ -158,8 +154,8 @@ export const parseTerms = (
 
 export const parseSubproduct = (
   data: any,
-  promotion_display_type: PromotionDisplayTypes,
-  billing_cycle_months?: number
+  promotionDisplayType: PromotionDisplayTypes,
+  cycle?: number
 ) => {
   const { getBillingCycle } = useSystem();
 
@@ -179,91 +175,75 @@ export const parseSubproduct = (
     sorted,
     (result, rawSubproduct) => {
       // create the option based on the category ... if it isnt already set
-      const option = get(
-        result,
-        rawSubproduct.category_id,
-        pick(rawSubproduct.category, [
-          "id",
-          "name",
-          "description",
-          "short_description",
-          "multiple",
-          "required",
-          "price_override",
-        ])
-      );
-      option.name = useTranslateName(rawSubproduct.category);
-      option.description = useTranslateField(
-        rawSubproduct.category,
-        "description"
-      );
-      option.short_description = useTranslateField(
-        rawSubproduct.category,
-        "short_description"
-      );
-      // get the prev values...if there are any
-      const values = get(option, "values", []);
-
-      // add this raw option to the values, with limited properties
-      const value: any = pick(rawSubproduct, [
-        "id",
-        "name",
-        "id",
-        "order_type",
-        "billing_cycle_months",
-        "unit_quantity",
-        "max_order_quantity",
-        "min_order_quantity",
-      ]);
-      value.name = useTranslateName(rawSubproduct);
-      value.description = useTranslateField(rawSubproduct, "description");
-      value.short_description = useTranslateField(
-        rawSubproduct,
-        "short_description"
-      );
-      value.canChangeQuantity = rawSubproduct.order_type == 2;
-
-      // get the prices for this subproduct
-      value.prices = map(rawSubproduct.prices, rawPrice => {
-        const price: any = pick(rawPrice, [
-          "mixed_promotions",
-          "billing_cycle_months",
-          "price",
-          "price_discounted",
-          "price_formatted",
-          "price_discounted_formatted",
-        ]);
-
-        const cycle = getBillingCycle(price.billing_cycle_months);
-        price.billing_cycle_name = cycle ? useTranslateName(cycle) : null;
-
-        price.promotions = parsePromotion(rawPrice, promotion_display_type);
-
-        return price;
+      const option = get(result, rawSubproduct.category_id, {
+        id: rawSubproduct.category.id,
+        name: useTranslateName(rawSubproduct.category),
+        description: useTranslateField(rawSubproduct.category, "description"),
+        short_description: useTranslateField(
+          rawSubproduct.category,
+          "short_description"
+        ),
+        multiple: rawSubproduct.category.multiple,
+        required: rawSubproduct.category.required,
+        price_override: rawSubproduct.category.price_override,
       });
 
-      // check if we have a price for the current billing cycle ( if provided )
-      if (!isNil(billing_cycle_months) && value.prices?.length) {
-        // First, try get a one off price, if it exists
-        value.price = find(value.prices, ["billing_cycle_months", 0]);
+      // check EARLY if we have a price for one of the following:
+      //  * no billing cycle set
+      //  * a one off price
+      //  * a matching billing cycle
 
-        // othrwise try find the matching term price
-        if (!value.price)
-          value.price = find(value.prices, [
-            "billing_cycle_months",
-            billing_cycle_months,
-          ]);
+      const valid =
+        isNil(cycle) ||
+        rawSubproduct.billing_cycle_months == 0 ||
+        some(rawSubproduct.prices, ["billing_cycle_months", cycle]);
 
-        // finally...only include the value if we have a price
-        // @ts-ignore
-        if (value.price) values.push(value);
-      } else if (!value?.billing_cycle_months) {
-        // otherwise set the updated values if we DON'T have a billing cycle
-        // this is so products with no billing cycle doesnt show subproducts that do
-        // @ts-ignore
-        values.push(value);
-      }
+      // bail if the value is not valid, ie has no price that matches the current billing cycle
+      if (!valid) return result;
 
+      // get the prev values...if there are any
+      const values: any[] = get(option, "values", []);
+
+      // add this raw option to the values, with limited properties
+
+      const value: any = {
+        id: rawSubproduct.id,
+        name: useTranslateName(rawSubproduct),
+        description: useTranslateField(rawSubproduct, "description"),
+        excerpt: useTranslateField(rawSubproduct, "short_description"),
+        quantifiable: rawSubproduct.order_type == 2,
+        cycle: rawSubproduct.billing_cycle_months,
+        step: rawSubproduct.unit_quantity,
+        min: rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity,
+        max:
+          rawSubproduct.max_order_quantity > 0
+            ? rawSubproduct.max_order_quantity
+            : Infinity,
+        prices: map(rawSubproduct.prices, rawPrice => {
+          const price: any = {
+            mixedPromotions: rawPrice.mixed_promotions,
+            cycle: rawPrice.billing_cycle_months,
+            price: rawPrice.price,
+            priceDiscounted: rawPrice.price_discounted,
+            priceFormatted: rawPrice.price_formatted,
+            priceDiscountedFormatted: rawPrice.price_discounted_formatted,
+          };
+
+          const cycle = getBillingCycle(price.cycle);
+          price.name = cycle ? useTranslateName(cycle) : null;
+
+          price.promotions = parsePromotion(rawPrice, promotionDisplayType);
+
+          return price;
+        }),
+      };
+
+      // First, try get a one off price, othrwise try find the matching term price
+      value.price =
+        find(value.prices, ["cycle", 0]) ||
+        find(value.prices, ["cycle", cycle]);
+
+      values.push(value);
       set(option, "values", values);
 
       // finally  set the updated option
@@ -279,7 +259,7 @@ export const parseSubproduct = (
 
 export const parsePromotion = (
   data: any,
-  promotion_display_type: PromotionDisplayTypes
+  promotionDisplayType: PromotionDisplayTypes
 ) => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
@@ -293,18 +273,18 @@ export const parsePromotion = (
 
   // ---
 
-  if (promotion_display_type == PromotionDisplayTypes.NAME) {
+  if (promotionDisplayType == PromotionDisplayTypes.NAME) {
     return map(data.promotions, rawPromo => {
-      const promo: any = pick(rawPromo, ["amount", "amount_formatted", "code"]);
-      promo.name = useTranslateName(rawPromo);
-      promo.description = useTranslateField(rawPromo, "description");
-      promo.short_description = useTranslateField(
-        rawPromo,
-        "short_description"
-      );
-      promo.display = promotion_display_type;
-      promo.mixed = data.mixed_promotions;
-      return promo;
+      return {
+        amount: rawPromo.amount,
+        amountFormatted: rawPromo.amount_formatted,
+        code: rawPromo.code,
+        name: useTranslateName(rawPromo),
+        description: useTranslateField(rawPromo, "description"),
+        excerpt: useTranslateField(rawPromo, "short_description"),
+        display: promotionDisplayType,
+        mixed: data.mixed_promotions,
+      };
     });
   } else {
     const saving =
@@ -321,7 +301,7 @@ export const parsePromotion = (
             ? ""
             : saving_formatted,
         code: map(data.promotions, "code"),
-        display: promotion_display_type,
+        display: promotionDisplayType,
         mixed: data.mixed_promotions,
       },
     ];
@@ -431,7 +411,7 @@ export const parseProvisioningSchema = (data: any) => {
 
 // ---
 
-export const parseSummary = ({ summary, model, lookups, error }: any) => {
+export const parseSummary = (raw: any, { model, lookups, error }: any) => {
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
@@ -455,7 +435,7 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   //  product meta
 
   // term
-  const term = parseTermSummary(model.term, lookups.terms, error?.term);
+  const term = parseSummaryTerm(model.term, lookups.terms, error?.term);
   if (!isEmpty(term)) details.push(term);
 
   // options
@@ -477,17 +457,24 @@ export const parseSummary = ({ summary, model, lookups, error }: any) => {
   details.push(...attributes);
 
   // provision fields
-  const provision_fields = parseProvisionFieldsSummary(
-    model.provision_fields,
-    lookups.provision_fields,
-    error?.provision_fields
+  const provisionFields = parseSummaryProvisionFields(
+    model.provisionFields,
+    lookups.provisionFields,
+    error?.provisionFields
   );
-  if (!isEmpty(provision_fields)) details.push(...provision_fields);
+  if (!isEmpty(provisionFields)) details.push(...provisionFields);
 
-  return { ...summary, details };
+  return {
+    regularPrice: raw.total,
+    regularPriceFormatted: raw.total_formatted,
+    currentPrice: raw?.discounted || raw.total,
+    currentPriceFormatted: raw?.discounted_formatted || raw.total_formatted,
+    hasDiscount: raw.discounted && raw.total !== raw.discounted,
+    details,
+  };
 };
 
-const parseTermSummary = (data: any, terms: any, error?: any) => {
+const parseSummaryTerm = (data: any, terms: any, error?: any) => {
   const term = find(terms, [
     "billing_cycle_months",
     data?.billing_cycle_months,
@@ -501,10 +488,11 @@ const parseTermSummary = (data: any, terms: any, error?: any) => {
       name: term.billing_cycle_name,
       cycle: term.billing_cycle_months,
       quantity: data?.quantity,
-      discount: term.price_discounted,
-      discount_formatted: term.price_discounted_formatted,
-      total: term.price,
-      total_formatted: term.price_formatted,
+      currentPrice: term.price_discounted,
+      currentPriceFormatted: term.price_discounted_formatted,
+      regularPrice: term?.price,
+      regularPriceFormatted: term.price_formatted,
+      hasDiscount: term?.price_discounted > 0,
       invalid: !isEmpty(error),
     };
   }
@@ -535,11 +523,12 @@ const parseSummarySubproduct = (
                 category: category.name,
                 name: subproduct.name,
                 cycle: subproduct?.billing_cycle_months,
-                discount: subproduct?.price?.price_discounted,
-                discount_formatted:
-                  subproduct?.price?.price_discounted_formatted,
-                total: subproduct?.price?.price,
-                total_formatted: subproduct?.price?.price_formatted,
+                // ---
+                currentPrice: subproduct.price_discounted,
+                currentPriceFormatted: subproduct.price_discounted_formatted,
+                regularPrice: subproduct?.price,
+                regularPriceFormatted: subproduct.price_formatted,
+                hasDiscount: subproduct?.price_discounted > 0,
                 invalid: has(error, `${key}.${id}`),
               });
             }
@@ -556,7 +545,7 @@ const parseSummarySubproduct = (
   );
 };
 
-const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
+const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
   return reduce(
     schema?.properties,
     (result: any[], provisionField, key) => {
@@ -573,10 +562,10 @@ const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
         invalid: some(error, ["data.schemaPath", key]),
         cycle: undefined,
         quantity: undefined,
-        discount: undefined,
-        discount_formatted: undefined,
-        total: undefined,
-        total_formatted: undefined,
+        currentPrice: undefined,
+        currentPriceFormatted: undefined,
+        regularPrice: undefined,
+        regularPriceFormatted: undefined,
       });
 
       return result;
@@ -585,52 +574,33 @@ const parseProvisionFieldsSummary = (data: any, schema: any, error?: any) => {
   );
 };
 
-export const parseBasketProductSummary = (basket_product: any) => {
-  const summary = parseProductSummary(basket_product);
-  return {
-    discount: summary?.discount,
-    discount_formatted: summary?.discount_formatted,
-    subtotal: summary?.subtotal,
-    subtotal_formatted: summary?.subtotal_formatted,
-    total: summary?.total,
-    total_formatted: summary?.total_formatted,
-  };
-};
-
 // --------------------------------------------------------
 //  Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
-export const parseModel = (data: any): IProductModel => {
+export const parseModel = (raw: any): ProductModel => {
   // handle  product model
-  const model = pick(data, [
-    "id",
-    "quantity",
-    "product_id",
-    "term",
-    "attributes",
-    "options",
-    "provision_fields",
-    "sub_pids",
-  ]);
-
-  model.quantity ??= 1; // ensure we always have at least a value
-
-  return model;
+  return {
+    quantity: raw?.quantity || 1,
+    productId: raw.productId,
+    term: raw.term,
+    options: raw.options,
+    attributes: raw.attributes,
+    provisionFields: raw.provisionFields,
+    subproducts: raw.subproducts,
+  };
 };
 
-// TODO:
-// export const parseBasketProduct = (data: any): IProductModel => {
-export const parseBasketProduct = (data: any): any => {
-  // map basket product data
+export const parseBasketProductModel = (raw: any): ProductModel => {
+  // map basket product raw
   return {
-    id: data.id,
-    quantity: data.quantity,
-    product_id: data.product_id,
-    term: { billing_cycle_months: data.billing_cycle_months },
-    options: mapSubproductChoices(data.options),
-    attributes: mapSubproductChoices(data.attributes),
-    provision_fields: data.provision_fields,
+    // id: raw.id,
+    quantity: raw.quantity,
+    productId: raw.product_id,
+    term: raw.billing_cycle_months,
+    options: mapSubproductChoices(raw.options),
+    attributes: mapSubproductChoices(raw.attributes),
+    provisionFields: raw.provision_fields,
   };
 };
 
@@ -639,59 +609,18 @@ const mapSubproductChoices = (values: any) => {
   return reduce(
     values,
     (result, value) => {
-      set(result, [value?.product?.category_id, value.product_id], {
-        product_id: value.product_id,
-        unit_quantity: parseQuantity(value.unit_quantity, value.product),
-        billing_cycle_months: value.billing_cycle_months,
+      // -- defensive
+      if (!value?.product?.category_id || !value.product_id) {
+        return result;
+      }
+
+      set(result, [value.product.category_id, value.product_id], {
+        productId: value.product_id,
+        quantity: parseQuantity(value.unit_quantity, value.product),
+        cycle: value.billing_cycle_months,
       });
       return result;
     },
     {}
   );
-};
-
-// --------------------------------------------------------
-
-export const buildBasketItem = (data: any) => {
-  // strip out any falsy values
-  const config = {
-    product_id: data?.product_id,
-    quantity: data?.quantity,
-    billing_cycle_months: data?.term?.billing_cycle_months,
-    // ---
-    attributes: reduce(
-      data?.attributes,
-      (result, attribute) => {
-        if (attribute) {
-          const selected = values(
-            mapValues(attribute, choice => omit(choice, ["price", "total"]))
-          );
-          // @ts-ignore
-          result.push(...selected);
-        }
-        return result;
-      },
-      []
-    ),
-    options: reduce(
-      data?.options,
-      (result, option) => {
-        if (option) {
-          const selected = values(
-            mapValues(option, choice => omit(choice, ["price", "total"]))
-          );
-          // @ts-ignore
-          result.push(...selected);
-        }
-        return result;
-      },
-      []
-    ),
-    provision_field_values: data.provision_fields,
-    // promotions: data?.promtions,
-    // ---
-    start_trial: !!data?.start_trial,
-  };
-
-  return config;
 };

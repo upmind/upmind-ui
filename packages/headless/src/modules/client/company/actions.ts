@@ -44,8 +44,8 @@ export const ItemActions = {
       _event: CompanyEvent
     ) => {
       let address = null;
-      if (addresses && model?.address_id) {
-        address = addresses?.getItemSnapshot(model.address_id);
+      if (addresses && model?.addressId) {
+        address = addresses?.getItemSnapshot(model.addressId);
       }
       return compact([
         // get(address, "state.context.title"),
@@ -58,7 +58,7 @@ export const ItemActions = {
       useSchema(context),
     // TODO: uischema: (context: CompanyContext, _event: CompanyEvent) =>
     // TODO: useUischema(context),
-    uischema: (_, _event: CompanyEvent) => useUischema(),
+    uischema: (_context, _event: CompanyEvent) => useUischema(),
   }),
 
   setModel: assign({

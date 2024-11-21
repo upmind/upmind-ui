@@ -107,8 +107,8 @@ async function add({ model }: PhoneContext, _event: PhoneEvent) {
     url: useUrl(`clients/${clientId}/phones`),
     data: {
       phone: model.phone.nationalNumber, // without the country code
-      phone_code: `+${model.phone.countryCallingCode}`,
-      phone_country_code: model.phone.country,
+      phoneCode: `+${model.phone.countryCallingCode}`,
+      phoneCountryCode: model.phone.country,
       type: model.type,
     },
     withAccessToken: true,
@@ -125,8 +125,8 @@ async function update({ model }: PhoneContext, _event: PhoneEvent) {
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: {
       phone: model.phone.nationalNumber, // without the country code
-      phone_code: `+${model.phone.countryCallingCode}`,
-      phone_country_code: model.phone.country,
+      phoneCode: `+${model.phone.countryCallingCode}`,
+      phoneCountryCode: model.phone.country,
       type: model.type,
     },
     withAccessToken: true,
@@ -181,7 +181,7 @@ async function parse({ model, country }: any, _event: PhoneEvent) {
     : model?.phone?.number || model?.phone?.nationalNumber || "";
 
   const countryCode =
-    model?.phone?.country || model?.phone_country_code || country?.code;
+    model?.phone?.country || model?.phoneCountryCode || country?.code;
   const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
 
   // now map the phone number to the model in the correct format with fallbacks

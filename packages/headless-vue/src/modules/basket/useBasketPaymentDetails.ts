@@ -26,72 +26,69 @@ import type { ActorRef } from "xstate";
 
 export const useBasketPaymentDetails = (service?: ActorRef<any, any>) => {
   const { service: basket } = useBasket();
-  const payment_details = ref();
+  const paymentDetails = ref();
 
   if (!service) {
     waitFor(
       basket,
-      newstate => contextMatches(newstate, ["actors.billing_details"]),
+      newstate => contextMatches(newstate, ["actors.billingDetails"]),
       { timeout: Infinity }
     ).then(validState => {
-      payment_details.value = contextActor(
-        validState,
-        "actors.payment_details"
-      );
+      paymentDetails.value = contextActor(validState, "actors.paymentDetails");
     });
   } else {
-    payment_details.value = useActor(service);
+    paymentDetails.value = useActor(service);
   }
 
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(payment_details, "value")),
-    context: computed(() => stateValue(payment_details, "context")),
-    errors: computed(() => contextValue(payment_details, "error")),
-    //messages: computed(()=> contextValue(payment_details, 'messages')),
+    state: computed(() => stateValue(paymentDetails, "value")),
+    context: computed(() => stateValue(paymentDetails, "context")),
+    errors: computed(() => contextValue(paymentDetails, "error")),
+    //messages: computed(()=> contextValue(paymentDetails, 'messages')),
     // ---
     meta: computed(() => ({
-      isFree: !contextValue(payment_details, "model.amount"),
+      isFree: !contextValue(paymentDetails, "model.amount"),
       isLoading:
-        !payment_details.value || stateMatches(payment_details, ["loading"]),
+        !paymentDetails.value || stateMatches(paymentDetails, ["loading"]),
       isAvailable:
-        stateMatches(payment_details, ["available"]) &&
-        !stateMatches(payment_details, ["available.loading"]),
-      hasErrors: stateMatches(payment_details, ["error"]),
-      isProcessing: stateMatches(payment_details, ["checking", "processing"]),
-      isValid: stateMatches(payment_details, ["valid"]),
-      isDirty: contextMatches(payment_details, ["dirty"]),
-      hasGateway: contextMatches(payment_details, ["actors.gateway"]),
+        stateMatches(paymentDetails, ["available"]) &&
+        !stateMatches(paymentDetails, ["available.loading"]),
+      hasErrors: stateMatches(paymentDetails, ["error"]),
+      isProcessing: stateMatches(paymentDetails, ["checking", "processing"]),
+      isValid: stateMatches(paymentDetails, ["valid"]),
+      isDirty: contextMatches(paymentDetails, ["dirty"]),
+      hasGateway: contextMatches(paymentDetails, ["actors.gateway"]),
       isComplete:
-        !contextValue(payment_details, "model.amount") ||
-        stateValue(payment_details, "done", false) ||
-        stateMatches(payment_details, ["processed", "complete"]),
+        !contextValue(paymentDetails, "model.amount") ||
+        stateValue(paymentDetails, "done", false) ||
+        stateMatches(paymentDetails, ["processed", "complete"]),
     })),
     // ---
-    model: computed(() => contextValue(payment_details, "model")),
-    schema: computed(() => contextValue(payment_details, "schema")),
-    uischema: computed(() => contextValue(payment_details, "uischema")),
-    gateways: computed(() => contextValue(payment_details, "gateways")),
-    gateway: computed(() => contextActor(payment_details, "actors.gateway")),
+    model: computed(() => contextValue(paymentDetails, "model")),
+    schema: computed(() => contextValue(paymentDetails, "schema")),
+    uischema: computed(() => contextValue(paymentDetails, "uischema")),
+    gateways: computed(() => contextValue(paymentDetails, "gateways")),
+    gateway: computed(() => contextActor(paymentDetails, "actors.gateway")),
 
     // ---
-    clear: () => payment_details.value?.send({ type: "CLEAR" }),
+    clear: () => paymentDetails.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
       // @ts-ignore
-      payment_details.value?.send({ type: "SET", data: model }),
+      paymentDetails.value?.send({ type: "SET", data: model }),
     update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
-      // first check if our payment_details has change, ie: model.code has changed
-      const selected = contextValue(payment_details, "model");
+      // first check if our paymentDetails has change, ie: model.code has changed
+      const selected = contextValue(paymentDetails, "model");
 
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
         // @ts-ignore
-        payment_details.value?.send({ type: "SET", data: model, update: true });
+        paymentDetails.value?.send({ type: "SET", data: model, update: true });
       }
     },
   };

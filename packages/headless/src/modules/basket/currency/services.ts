@@ -32,14 +32,14 @@ async function load(_context: CurrencyContext, _event: CurrencyEvent) {
 // --------------------------------------------------------
 
 async function update(
-  { basket_id, model }: CurrencyContext,
+  { basketId, model }: CurrencyContext,
   _event: CurrencyEvent
 ) {
   const { put, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
-    url: useUrl(`/orders/${basket_id}/currency`),
+    url: useUrl(`/orders/${basketId}/currency`),
     data: {
       currency_code: model?.code,
     },

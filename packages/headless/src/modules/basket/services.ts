@@ -4,7 +4,6 @@
 import { useApi } from "../api";
 import { useBrand } from "../brand";
 
-import type { BasketContext, BasketEvent } from "./types";
 import { useSession } from "../session";
 
 // --- utils
@@ -21,6 +20,9 @@ import {
   reduce,
   set,
 } from "lodash-es";
+
+// --- types
+import type { Basket, BasketContext, BasketEvent } from "./types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -124,8 +126,6 @@ async function generate(
 
   const data: any = {
     category_slug: "new_contract",
-    // currency_code: "GBP", // from brand
-    // pricelist_id: "9320e435-795e-78d1-84ce-1643202d9860", // from brand
   };
   // ---
   // Conditional data
@@ -180,20 +180,18 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function getProvisioningFieldsValues(basket: BasketEvent) {
+async function getProvisioningFieldsValues(basket: Basket) {
   const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
   // @ts-ignore
-  if (!basket || !basket?.products?.length) return Promise.resolve(basket);
-
-  const { id: basket_id, products }: any = basket;
+  if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
 
   const provisioningPromises: any[] = [];
 
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
-    url: useUrl(`orders/${basket_id}/provision_fields/values/check`),
+    url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     useCache: false,
     withAccessToken: true,
   })
@@ -205,18 +203,20 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   // then get each products provisioning fields
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
-  forEach(products, async product => {
+  forEach(basket.products, async product => {
     const { id } = product;
 
-    const sub_products = compact(
-      map(concat(product.options, product.attributes), "product_id")
+    const subProducts = compact(
+      map(concat(product.options, product.attributes), ({ productId }) => ({
+        product_id: productId,
+      }))
     );
     // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
     const promise = get({
       url: useUrl(
-        `orders/${basket_id}/products/${id}/provision_fields/values`,
+        `orders/${basket.id}/products/${id}/provision_fields/values`,
         {
-          sub_product_ids: sub_products,
+          sub_product_ids: subProducts,
         }
       ),
       useCache: false,
@@ -231,22 +231,31 @@ async function getProvisioningFieldsValues(basket: BasketEvent) {
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched
-  return Promise.all(provisioningPromises).then(([provisioningErrors]) => {
-    // provisioningErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
+  return Promise.all(provisioningPromises).then(([rawErrors]) => {
+    // rawErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
+    const { products: parsedErrors } = reduce(
+      rawErrors?.data,
+      (result, value, key) => {
+        set(result, key, value);
+        return result;
+      },
+      {}
+    ) as any;
 
-    if (has(provisioningErrors, "data")) {
-      provisioningErrors.data = reduce(
-        provisioningErrors.data,
-        (result, value, key) => {
-          set(result, key, value);
-          return result;
-        },
-        {}
-      );
-    }
+    // then we parse the errors into a more usable format, replacing their indexes with the product ids
+    // this will allow us to easily access the provisioning fields for each product
+    const provisioningErrors = reduce(
+      parsedErrors,
+      (result, value, key: number) => {
+        const bpid = basket.products[key]?.id;
+        set(result, bpid, value?.provision_field_values);
+        return result;
+      },
+      {}
+    );
     return {
       basket,
-      error: provisioningErrors,
+      provisioningErrors,
     };
   });
 }
