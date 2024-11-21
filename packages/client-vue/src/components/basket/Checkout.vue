@@ -1,18 +1,12 @@
 <template>
   <article v-auto-animate>
     <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
-      <UpmBack class="relative -top-4" />
+      <UpmBack :class="styles.checkout.backButton" />
     </slot>
 
-    <!-- Account + Payment -->
-    <section
-      class="relative mx-auto flex w-full flex-wrap items-start justify-start gap-6"
-      v-auto-animate
-    >
-      <div
-        class="relative flex w-full flex-wrap items-start justify-start gap-8"
-      >
-        <div class="flex w-full flex-1 flex-col gap-8">
+    <section :class="styles.checkout.section" v-auto-animate>
+      <div :class="styles.checkout.container">
+        <div :class="styles.checkout.mainContent">
           <!-- Account -->
           <slot name="session">
             <component
@@ -21,7 +15,7 @@
             >
               <component :is="props.cardComponent">
                 <UpmSession
-                  class="w-full min-w-full"
+                  :class="styles.checkout.session"
                   id="account"
                   ref="account"
                   :noTabs="true"
@@ -63,17 +57,14 @@
             <slot name="payment-details">
               <UpmPaymentDetails
                 :card-component="props.cardComponent"
-                class="!p-0"
+                :class="styles.checkout.paymentDetails"
               />
             </slot>
           </component>
         </div>
 
-        <aside
-          v-if="!meta.isCheckout"
-          class="order-last flex w-full flex-col items-start gap-6 sm:sticky sm:top-1 xl:max-w-md"
-        >
-          <aside class="flex w-full flex-col gap-6 text-left">
+        <aside v-if="!meta.isCheckout" :class="styles.checkout.aside">
+          <aside :class="styles.checkout.asideInner">
             <component
               :is="props.contentSectionComponent"
               :title="t('basket.summary.title')"
@@ -128,6 +119,8 @@ import {
   useBasket,
   useBasketBillingDetails,
 } from "@upmind-automation/client-vue";
+import config from "./config.cva.js";
+import { useStyles } from "@upmind-automation/upwind";
 
 // -- components
 import {
@@ -158,6 +151,8 @@ const props = withDefaults(defineProps<CheckoutProps>(), {
   cardComponent: UpmCard,
   contentSectionComponent: UpmContentSection,
 });
+
+const styles = useStyles(["checkout"], meta, config);
 
 await isReady();
 
