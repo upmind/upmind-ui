@@ -35,6 +35,8 @@ export { default as UpmCard } from "./components/content/Card.vue";
 export { default as UpmContent } from "./components/content/Content.vue";
 export { default as UpmContentSection } from "./components/content/ContentSection.vue";
 // ---
+export { default as UpmBack } from "./components/navigation/Back.vue";
+// ---
 export { default as UpmOrderConfirmation } from "./components/order/Confirmation.vue";
 // ---
 export { default as UpmDomain } from "./components/domain/Domain.vue";
