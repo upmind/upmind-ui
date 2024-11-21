@@ -132,7 +132,7 @@ export const useDomain = (
     errors: computed(() => state.value.context?.error),
     selected: computed(() => {
       const selected =
-        find(state.value.context?.model, "is_primary") ||
+        find(state.value.context?.model, "isPrimary") ||
         first(state.value.context?.model);
       return get(selected, "domain");
     }),

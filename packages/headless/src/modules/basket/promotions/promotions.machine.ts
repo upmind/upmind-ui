@@ -26,7 +26,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      basketId: undefined,
       promotions: undefined,
       schema: undefined,
       uischema: undefined,
@@ -207,7 +207,7 @@ export default createMachine(
         (_context: PromotionsContext, { data: basket }: PromotionsEvent) => {
           return {
             // @ts-ignore
-            basket_id: basket?.id,
+            basketId: basket?.id,
             // @ts-ignore
             promotions: basket?.promotions,
           };
@@ -292,12 +292,12 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ promotions, basket_id }, { data }: any) =>
+      hasBasket: ({ basketId }, _event) => !!basketId,
+      hasChanged: ({ promotions, basketId }, { data }: any) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
-        basket_id !== data?.id,
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
+        basketId !== data?.id,
+      shouldUpdate: ({ autoupdate, basketId }, _event) =>
+        !!autoupdate && !!basketId,
     },
 
     delays: {

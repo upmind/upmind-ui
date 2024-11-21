@@ -23,7 +23,6 @@ import {
   mapValues,
   maxBy,
   minBy,
-  omitBy,
   pick,
   reduce,
   reject,
@@ -33,7 +32,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ProductConfigContext, IProductModel } from "./types";
+import type { ProductConfigContext, ProductModel } from "./types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -64,20 +63,19 @@ export enum PromotionDisplayTypes {
 async function load(
   {
     model,
-    currency_id,
+    currencyId,
     promotions,
-    basket_id,
-    basket_product,
+    basketId,
+    basketProduct,
   }: ProductConfigContext,
   _event: any
 ) {
-  const { product_id } = model;
-  if (!product_id) return Promise.reject("No Product ID provided");
+  const { productId } = model;
+  if (!productId) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
-  const currency = await useBrand().validateCurrency({ id: currency_id });
+  const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-
   const { get: getRequest, useUrl } = useApi();
   const params = {
     currency_id: currency.id,
@@ -91,35 +89,21 @@ async function load(
       "products_options",
       "products_options.prices",
       "provision_field_values",
-      // "provision_blueprint"
-      // "allowed_migrations",
-      // "allowed_migrations.migration_product",
-      // "category.top_category.top_category.top_category.top_category",
-      // "import.credentials",
-      // "import.source",
-      // "set_products"
-      // "sets",
-      // "trial_migration_rule",
-      // "trial_migration_rule.new_product",
-      // "trial_migration_rule.new_product.prices"
     ].join(),
   };
-
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
-  if (basket_id) set(params, "basket_id", basket_id);
-  if (basket_product?.id) set(params, "basket_product_id", basket_product.id);
-
+  if (basketId) set(params, "basket_id", basketId);
+  if (basketProduct?.id) set(params, "basket_product_id", basketProduct.id);
   const productPromise = getRequest({
-    url: useUrl(`basket/products/${product_id}`, params),
+    url: useUrl(`basket/products/${productId}`, params),
     useCache: true,
     maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
   }).then(({ data }: any) => data);
 
-  // lets get our provision_fields fields early, so we can make them lookups
-  const provisioningPromise = loadProvisioningFields(product_id);
-
+  // lets get our provisioning fields early, so we can make them lookups
+  const provisioningPromise = loadProvisioningFields(productId);
   // lets also get some brand config for how we want to show promotions
   // Get the brands preference on how to display promotions
   const { getConfig } = useBrand();
@@ -132,20 +116,21 @@ async function load(
       )
   );
 
-  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
-    ([product, products_provisioning, promotion_display_type]) => {
-      set(product, "products_provisioning", products_provisioning);
-      return { product, promotion_display_type };
-    }
-  );
+  return Promise.all([productPromise, provisioningPromise, configPromise])
+    .then(([product, provisioning, promotionDisplayType]) => {
+      return { product, provisioning, promotionDisplayType, currency };
+    })
+    .catch(errors => {
+      return Promise.reject(errors);
+    });
 }
 
-async function loadProvisioningFields(product_id: any) {
+async function loadProvisioningFields(productId: any) {
   const { get, useUrl } = useApi();
-  if (!product_id) return Promise.reject("No Product ID provided");
-  // we dont cache provision_fields fields, as they can change with diferent options/attributes being selected
+  if (!productId) return Promise.reject("No Product ID provided");
+  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
   return get({
-    url: useUrl(`basket/products/${product_id}/provision_fields`),
+    url: useUrl(`basket/products/${productId}/provision_fields`),
     useCache: false,
     withAccessToken: true,
   }).then(({ data }: any) => data);
@@ -172,7 +157,6 @@ async function checkTerm(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
-  const value = model?.term;
   let term: any = null;
   const price: any[] = [];
   const errors: any[] = [];
@@ -189,10 +173,7 @@ async function checkTerm(
   // ---
   // try ge the full term object from the lookups terms
 
-  term = find(lookups.terms, [
-    "billing_cycle_months",
-    value?.billing_cycle_months || value,
-  ]);
+  term = find(lookups.terms, ["cycle", model?.term]);
 
   if (!term) {
     if (lookups.terms.length === 1) {
@@ -211,18 +192,18 @@ async function checkTerm(
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
   times(model.quantity, () => {
-    price.push(term?.price_discounted || term?.price || 0);
+    price.push(term?.priceDiscounted || term?.price || 0);
   });
 
   return new Promise((resolve, reject) => {
     if (errors.length)
       reject({
-        term: pick(term, "billing_cycle_months"),
+        term: get(term, "cycle"),
         price,
         error: { ...error, term: errors },
       });
     else {
-      resolve({ term: pick(term, "billing_cycle_months"), price });
+      resolve({ term: pick(term, "cycle"), price });
     }
   });
 }
@@ -232,11 +213,10 @@ async function checkAttributes(
   _event: any
 ) {
   const value = model?.attributes;
-
   return checkSubproducts(
     // @ts-ignore
     { error, lookups, model },
-    { data: value, type: "attributes", sub_pids: model?.sub_pids }
+    { data: value, type: "attributes", subproductIds: model?.subproducts }
   );
 }
 
@@ -245,17 +225,16 @@ async function checkOptions(
   _event: any
 ) {
   const value = model?.options;
-  const sub_pids = model?.sub_pids;
   return checkSubproducts(
     // @ts-ignore
     { error, lookups, model },
-    { data: value, type: "options", sub_pids }
+    { data: value, type: "options", subproductIds: model?.subproducts }
   );
 }
 
 async function checkSubproducts(
   { error, lookups, model }: any,
-  { type, data, sub_pids }: any
+  { type, data, subproductIds }: any
 ) {
   let subproducts: any = null;
   const price: any[] = [];
@@ -274,20 +253,20 @@ async function checkSubproducts(
     (result, subproduct) => {
       let selected = get(data, subproduct.id, {});
 
-      // try set anymatching pre-selected values for this subproduct ( sub_pids ),
+      // try set anymatching pre-selected values for this subproduct ( subproductIds ),
       // NB: ONLY when data is being set for the first time
       if (isEmpty(data)) {
-        forEach(sub_pids, pid => {
+        forEach(subproductIds, pid => {
           if (some(subproduct.values, ["id", pid])) {
-            set(selected, pid, { product_id: pid });
+            set(selected, pid, { productId: pid });
           }
         });
       }
 
-      // check if we are missing required subproduct
+      // check if we are missing required subproduct, if we are then automaticaly select the first one
       if (subproduct?.required && isEmpty(selected)) {
         const pid = get(first(subproduct.values), "id");
-        if (pid) set(selected, pid, { product_id: pid });
+        if (pid) set(selected, pid, { productId: pid });
       }
 
       // if we have selected values, ensure they are valid and fully formed
@@ -297,48 +276,38 @@ async function checkSubproducts(
         //   some(subproduct.values, ["id", id])
         // );
 
-        // then parse each selected value, and ensure it has all its required attributes
-        // and that it has valid values for each of those attributes
-        selected = mapValues(selected, (value, id) => {
-          // ensure we have an object
-          if (!isObject(value)) value = { product_id: id };
-          const product = find(subproduct.values, ["id", value.product_id]);
+        // then parse each selected value, and ensure it has all its required and VALID values
+        selected = reduce(
+          selected,
+          (result, value, id) => {
+            // ensure we have an object
+            if (!isObject(value)) value = { productId: id };
+            const product = find(subproduct.values, ["id", value.productId]);
 
-          // NB: If a sub product has prices, we need to ensure we have the correct price
-          //     Sub products cant have a mix or billing cycles and one off, it will be one or the other
-          //     One off prices have a billing cycle of 0, so we can use that to determine the price
-          // based on either:
-          // 1. If its One off, just use the first (and only) price
-          // 2. IF we have billing cycle(s) : then match the term billing cycle
+            // safety check, ensure we have a valid product
+            // if we dont have a price, that means there is no matching term in the prices and we should not proceed
+            if (isEmpty(product?.price)) return result;
 
-          // ONE OFF
-          let activePrice = find(product?.prices, ["billing_cycle_months", 0]);
+            // ensure we have a valid unit_quantity
+            value.quantity = parseQuantity(value?.step, product);
 
-          // BILLING CYCLE(S)
-          if (!activePrice) {
-            activePrice = find(product?.prices, [
-              "billing_cycle_months",
-              model?.term?.billing_cycle_months,
-            ]);
-          }
+            // ensure we have the correct cycle
+            value.cycle = product.price?.cycle;
 
-          // ensure we have a valid unit_quantity
-          value.unit_quantity = parseQuantity(
-            value?.unit_quantity || 1,
-            product
-          );
+            // FINALLY set price values, taking into account the quantity and unit quantity
+            // NB: we NEVER add, we always push into an array for the backend to handle
+            times(value.quantity * model.quantity, () => {
+              price.push(
+                product.price?.priceDiscounted ?? product.price?.price ?? 0
+              );
+            });
 
-          value.billing_cycle_months = activePrice?.billing_cycle_months || 0;
-          // set price values, taking into account the quantity and unit quantity
-          // NB: we NEVER add, we always push into an array for the backend to handle
-          times(value.unit_quantity * model.quantity, () => {
-            price.push(
-              activePrice?.price_discounted || activePrice?.price || 0
-            );
-          });
-
-          return value;
-        });
+            // ---
+            set(result, id, value);
+            return result;
+          },
+          {}
+        );
       }
 
       // check if we values too many values for this subproduct
@@ -368,25 +337,25 @@ async function checkSubproducts(
 
 async function checkProvisioning({ error, lookups, model }: any, _event: any) {
   // bail if we dont actually have any provision fields to check
-  if (isEmpty(lookups.provision_fields?.properties))
-    return Promise.resolve({ provision_fields: {} });
+  if (isEmpty(lookups.provisionFields?.properties))
+    return Promise.resolve({ Fovision_fields: {} });
 
   // ---
 
-  const value = model?.provision_fields || {};
+  const value = model?.provisionFields || {};
   const { validate } = useValidation();
-  const errors = validate(lookups.provision_fields, value);
+  const errors = validate(lookups.provisionFields, value);
 
   return new Promise(resolve => {
     if (errors.length) {
       // TODO: reject with the errors , but need to allow skipping validation for sync
       // for now we will resolve with errors
       resolve({
-        provision_fields: value,
-        error: { ...error, provision_fields: errors },
+        provisionFields: value,
+        error: { ...error, provisionFields: errors },
       });
     } else {
-      resolve({ provision_fields: value });
+      resolve({ provisionFields: value });
     }
   });
 }
@@ -405,7 +374,7 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
 const calculateSummary = (
-  { currency_id, prices, model, lookups }: ProductConfigContext,
+  { currencyId, prices, model, lookups }: ProductConfigContext,
   controller: AbortController
 ) => {
   const { post, useUrl } = useApi();
@@ -424,7 +393,7 @@ const calculateSummary = (
   );
   // ---
 
-  if (!currency_id || !values?.length) {
+  if (!currencyId || !values?.length) {
     return Promise.reject({});
   }
 
@@ -433,16 +402,16 @@ const calculateSummary = (
     init: { signal: controller?.signal },
     withAccessToken: true,
     data: {
-      currency_id,
+      currency_id: currencyId,
       prices: values,
     },
   }).then(({ data }: any) => pick(data, ["total", "total_formatted"]));
 };
 
-const calculateBillingTerm: IProductModel["term"] = async (
+const calculateBillingTerm = async (
   period: DefaultPaymentPeriod,
   availableTerms: any
-) => {
+): Promise<any> => {
   // because we have multiple options, we need to select one base don the following strategy:
 
   const { getConfig } = useBrand();
@@ -466,12 +435,12 @@ const calculateBillingTerm: IProductModel["term"] = async (
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = await getConfig(
         BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-      ).then(config => {
+      ).then(async config => {
         const period = get(
           config,
           BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
         );
-        return calculateBillingTerm(period, availableTerms);
+        return await calculateBillingTerm(period, availableTerms);
       });
 
       break;

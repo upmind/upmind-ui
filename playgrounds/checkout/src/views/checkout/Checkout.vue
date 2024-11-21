@@ -261,8 +261,8 @@ export default defineComponent({
 
       // then add our product(s) to the basket
       if (product) {
-        forEach(isArray(product) ? product : [product], product_id => {
-          addItem({ product_id, quantity: 1 }).then(basketItem => {
+        forEach(isArray(product) ? product : [product], productId => {
+          addItem({ productId, quantity: 1 }).then(basketItem => {
             // finally clean up our query params for our successfully added product
             basketItem.onDone(() => {
               const newQuery = reduce(
@@ -271,7 +271,7 @@ export default defineComponent({
                   const matches =
                     [QUERY_PARAMS.PRODUCT, QUERY_PARAMS.PRODUCT_ID].includes(
                       key
-                    ) && value == product_id;
+                    ) && value == productId;
 
                   if (!matches) acc[key] = value;
                   return acc;

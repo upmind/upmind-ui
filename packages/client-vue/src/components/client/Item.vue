@@ -119,7 +119,7 @@ export default defineComponent({
           color: this.color,
           label: this?.t(
             `client.${this.i18nKey}.actions.submit`,
-            this.model?.company_details ? 0 : 1
+            this.model?.companyDetails ? 0 : 1
           ),
           disabled: !this?.meta?.isValid || this?.meta?.isProcessing,
           handler: ({ model }) => this.update(model),
@@ -144,7 +144,7 @@ export default defineComponent({
     },
 
     safeTitle() {
-      if (this.model?.company_details) {
+      if (this.model?.companyDetails) {
         return this.t(
           `client.${this.i18nKey}.form.title.company`,
           this?.meta?.isNew ? 1 : 0

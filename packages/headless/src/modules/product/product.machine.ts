@@ -10,14 +10,13 @@ import { basketSubscription } from "../basket/helper";
 import { responseCodes } from "../api";
 import { useTime, compactDeep, useValidationParser } from "../../utils";
 import {
-  buildBasketItem,
   parseSubproduct,
   parseProvisioningSchema,
   parseProduct,
   parseTerms,
   parseModel,
+  parseBasketProductModel,
   parseBasketProduct,
-  parseBasketProductSummary,
   parseSummary,
 } from "./utils";
 
@@ -31,6 +30,7 @@ import {
   isEmpty,
   isEqual,
   isNil,
+  isObject,
   merge,
   pick,
   remove,
@@ -42,11 +42,11 @@ import {
 import { calculateSubscription } from "./services";
 
 // ---types
+import type { BasketProduct } from "../basket";
 import type {
   ProductConfigContext,
   ProductConfigEvent,
-  IProductModel,
-  IProductConfig,
+  ProductModel,
 } from "./types";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
@@ -301,7 +301,6 @@ export default createMachine(
                 initial: "checking",
                 states: {
                   checking: {
-                    // entry: ({ error }) => unset(error, "provision_fields"),
                     invoke: {
                       src: "checkProvisioning",
                       onDone: {
@@ -355,11 +354,17 @@ export default createMachine(
             actions: sendTo(
               // @ts-ignore
               ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => ({
-                type: "REMOVE",
-                target: context.model,
-                context,
-              })
+              (context, _event) => {
+                const { model, basketProduct } = context;
+                // NB:ensure we ad dout basket product id to the model, so we update instead of add
+                if (basketProduct) model.id = basketProduct.id;
+
+                return {
+                  type: "REMOVE",
+                  target: model,
+                  context,
+                };
+              }
             ),
             target: "processing",
           },
@@ -367,11 +372,18 @@ export default createMachine(
             actions: sendTo(
               // @ts-ignore
               ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => ({
-                type: "UPDATE",
-                target: context.model,
-                context,
-              })
+              (context, _event) => {
+                const { model, basketProduct } = context;
+
+                // NB:ensure we ad dout basket product id to the model, so we update instead of add
+                if (basketProduct) model.id = basketProduct.id;
+
+                return {
+                  type: "UPDATE",
+                  target: model,
+                  context,
+                };
+              }
             ),
             target: "processing",
           },
@@ -475,12 +487,12 @@ export default createMachine(
       setContext: assign(
         (
           {
-            id,
+            // id,
             model,
-            basket_product,
-            currency_id,
-            basket_id,
-            client_id,
+            basketProduct,
+            currencyId,
+            basketId,
+            clientId,
             promotions,
             errorExternal,
             error,
@@ -491,19 +503,19 @@ export default createMachine(
             errorExternal,
             error: merge({}, errorExternal, error),
             // ---
-            basket_id,
-            client_id,
-            currency_id,
+            basketId,
+            clientId,
+            currencyId,
 
             promotions,
             // ---
-            baseModel: !isEmpty(basket_product)
-              ? parseBasketProduct({ id, ...basket_product })
-              : parseModel({ id, ...model }),
+            baseModel: !isEmpty(basketProduct)
+              ? parseBasketProductModel(basketProduct)
+              : parseModel(model),
 
-            model: !isEmpty(basket_product)
-              ? parseBasketProduct({ id, ...basket_product })
-              : parseModel({ id, ...model }),
+            model: !isEmpty(basketProduct)
+              ? parseBasketProductModel(basketProduct)
+              : parseModel(model),
 
             // ---
             calculateCallback: spawn(calculateSubscription),
@@ -512,7 +524,7 @@ export default createMachine(
       ),
       refreshContext: assign(
         (
-          { model, lookups, raw, error }: ProductConfigContext,
+          { model, lookups, rawProduct, error }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
           const {
@@ -523,18 +535,18 @@ export default createMachine(
             error: errorExternal,
           } = data;
 
-          lookups.product = parseProduct(raw, basket_product);
+          lookups.product = parseProduct(rawProduct, basket_product);
 
           const newContext = {
-            client_id,
-            currency_id,
+            clientId: client_id,
+            currencyId: currency_id,
             promotions,
-            basket_product,
+            basketProduct: basket_product,
             baseModel: basket_product
-              ? parseBasketProduct(basket_product)
+              ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
             model: basket_product
-              ? parseBasketProduct(basket_product)
+              ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
             errorExternal,
             error: merge({}, errorExternal, error),
@@ -546,41 +558,45 @@ export default createMachine(
         }
       ),
 
-      setBasketHelper: assign(({ basketHelper }: ProductConfigContext) => {
-        return {
-          basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: (item: IProductModel) => parseModel(item),
-          itemMapper: (item: IProductConfig) => ({ id: item.id }),
-          basketItemBuilder: (item: IProductModel) => buildBasketItem(item),
-          basketItemMapper: (item: IProductConfig) => ({
-            id: item.id,
-          }),
-        } as Partial<ProductConfigContext>;
-      }),
+      setBasketHelper: assign(
+        ({
+          basketHelper,
+          promotions,
+        }: ProductConfigContext): Partial<ProductConfigContext> => {
+          return {
+            basketHelper: basketHelper || spawn(basketSubscription),
+            itemBuilder: (item: ProductModel) => parseModel(item),
+            itemMapper: (item: BasketProduct) => ({ id: item.id }),
+            basketItemMapper: (item: BasketProduct) => ({ id: item.id }),
+          };
+        }
+      ),
       // ---
 
       setLookups: assign({
-        raw: (_context, { data }: ProductConfigEvent) => data.product,
+        currencyId: (_context, { data }: ProductConfigEvent) => {
+          return data?.currency?.id;
+        },
+
+        rawProduct: (_context, { data }: ProductConfigEvent) => data.product,
 
         lookups: (
-          { model, basket_product }: ProductConfigContext,
+          { model, basketProduct }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
           return {
-            product: parseProduct(data.product, basket_product),
-            terms: parseTerms(data.product.prices, data.promotion_display_type),
-            attributes: parseSubproduct(
-              data.product.products_attributes,
-              data?.promotion_display_type
-            ),
+            product: parseProduct(data.product, basketProduct),
+            terms: parseTerms(data.product.prices, data.promotionDisplayType),
             options: parseSubproduct(
               data.product.products_options,
-              data?.promotion_display_type,
-              model?.term?.billing_cycle_months
+              data?.promotionDisplayType,
+              model?.term
             ),
-            provision_fields: parseProvisioningSchema(
-              data.product.products_provisioning
+            attributes: parseSubproduct(
+              data.product.products_attributes,
+              data?.promotionDisplayType
             ),
+            provisionFields: parseProvisioningSchema(data.provisioning),
           };
         },
       }),
@@ -613,8 +629,7 @@ export default createMachine(
             ? data
             : pick(summary, ["total", "total_formatted"]);
 
-          return parseSummary({
-            summary: totals,
+          return parseSummary(totals, {
             model,
             lookups,
             error,
@@ -624,17 +639,10 @@ export default createMachine(
 
       setSummaryWithBasketProduct: assign({
         summary: (
-          { model, lookups, error, basket_product }: ProductConfigContext,
+          { basketProduct, errorExternal }: ProductConfigContext,
           _event: ProductConfigEvent
-        ) => {
-          const data = parseBasketProductSummary(basket_product);
-          return parseSummary({
-            summary: data,
-            model,
-            lookups,
-            error,
-          });
-        },
+        ) =>
+          get(parseBasketProduct(basketProduct, errorExternal), "summary", {}),
       }),
 
       setSummaryCalculating: assign({
@@ -665,11 +673,11 @@ export default createMachine(
           return calculateCallback;
         },
         (
-          { currency_id, prices, model, lookups }: ProductConfigContext,
+          { currencyId, prices, model, lookups }: ProductConfigContext,
           _event
         ) => ({
           type: "CALCULATE",
-          data: { currency_id, prices, model, lookups },
+          data: { currencyId, prices, model, lookups },
         })
       ),
 
@@ -690,19 +698,21 @@ export default createMachine(
           { model }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
-          const term = get(data, "term");
+          let term = get(data, "term");
+          term = isObject(term) ? (term as any)?.cycle : term;
           set(model, "term", term);
           return model;
         },
-        lookups: ({ lookups, raw }, { data }: ProductConfigEvent) => {
+        lookups: (
+          { lookups, rawProduct, model },
+          _event: ProductConfigEvent
+        ) => {
           // reset the lookup options options based on the term selected,
           //  as this may impact what price and options are available
-          const billing_cycle_months = get(data, "term.billing_cycle_months");
-
           lookups.options = parseSubproduct(
-            raw?.products_options,
-            raw?.promotion_display_type,
-            billing_cycle_months
+            rawProduct?.products_options,
+            rawProduct?.promotionDisplayType,
+            model.term
           );
           return lookups;
         },
@@ -756,8 +766,8 @@ export default createMachine(
           { model }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
-          const provision_fields = get(data, "provision_fields");
-          set(model, "provision_fields", provision_fields);
+          const provisionFields = get(data, "provisionFields");
+          set(model, "provisionFields", provisionFields);
           return model;
         },
         error: (
@@ -767,19 +777,19 @@ export default createMachine(
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          const provision_fields = get(data, "provision_fields");
+          const provisionFields = get(data, "provisionFields");
 
-          if (!error?.provision_fields?.data?.length) return error;
+          if (!error?.provisionFields?.data?.length) return error;
 
-          forEach(provision_fields, (field, key) => {
+          forEach(provisionFields, (field, key) => {
             if (!isEmpty(field) || !isNil(field)) {
-              remove(error.provision_fields.data, ["schemaPath", key]);
+              remove(error.provisionFields.data, ["schemaPath", key]);
             }
           });
 
-          // housekeeping, if we have no errors, remove the provision_fields key
-          if (isEmpty(error?.provision_fields?.data))
-            unset(error, "provision_fields");
+          // housekeeping, if we have no errors, remove the provisionFields key
+          if (isEmpty(error?.provisionFields?.data))
+            unset(error, "provisionFields");
 
           return error;
         },
@@ -804,7 +814,7 @@ export default createMachine(
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             err = {
-              provision_fields: useValidationParser(err),
+              provisionFields: useValidationParser(err),
             };
           }
 
@@ -818,31 +828,31 @@ export default createMachine(
     },
     services,
     guards: {
-      isNew: ({ basket_product }: ProductConfigContext) =>
-        isEmpty(basket_product),
+      isNew: ({ basketProduct }: ProductConfigContext) =>
+        isEmpty(basketProduct),
 
-      isDirty: ({ model, baseModel, basket_product }: ProductConfigContext) => {
+      isDirty: ({ model, baseModel, basketProduct }: ProductConfigContext) => {
         const cleanModel = compactDeep(model);
         const cleanBaseModel = compactDeep(baseModel);
         const value =
-          isEmpty(basket_product) || !isEqual(cleanModel, cleanBaseModel);
+          isEmpty(basketProduct) || !isEqual(cleanModel, cleanBaseModel);
 
         return value;
       },
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
       hasBasketError: (
-        { basket_product, error, errorExternal }: ProductConfigContext,
+        { basketProduct, error, errorExternal }: ProductConfigContext,
         _event
       ) => {
-        return !isEmpty(basket_product) && !isEmpty(errorExternal);
+        return !isEmpty(basketProduct) && !isEmpty(errorExternal);
       },
 
       hasBasketProduct: (
-        { basket_product, error, errorExternal }: ProductConfigContext,
+        { basketProduct, error, errorExternal }: ProductConfigContext,
         _event
       ) => {
-        return !isEmpty(basket_product) && isEmpty(errorExternal);
+        return !isEmpty(basketProduct) && isEmpty(errorExternal);
       },
 
       hasChanged: (
@@ -850,8 +860,8 @@ export default createMachine(
         { data }: ProductConfigEvent
       ) => {
         const cleanModel = compactDeep(model);
-        const cleanProduct = data?.basket_product
-          ? compactDeep(parseBasketProduct(data.basket_product))
+        const cleanProduct = data?.basketProduct
+          ? compactDeep(parseBasketProductModel(data.basketProduct))
           : {};
         const isDirty =
           !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
@@ -861,26 +871,27 @@ export default createMachine(
 
       hasBasketChanged: (
         {
-          basket_id,
-          client_id,
-          currency_id,
+          basketId,
+          clientId,
+          currencyId,
           promotions,
-          basket_product,
+          basketProduct,
         }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
-        const clientChanged = data?.client_id !== client_id;
-        const basketChanged = basket_id !== data?.id;
-        const currencyChanged = currency_id !== data?.currency_id;
+        const clientChanged = data?.clientId !== clientId;
+        const basketChanged = basketId !== data?.id;
+        const currencyChanged = currencyId !== data?.currency_id;
         const promotionsChanged = !isEmpty(
           xorBy(promotions, data?.promotions, "promotion_id")
         );
-        // lets see if any important value have changed within the basket_product
+
+        // lets see if any important value have changed within the basketProduct
         // dont compare the entire object, just the keys that are important to this machine
-        const keys = ["id", "product_id", "service_identifier"];
+        const keys = ["id", "productId", "service_identifier"];
         const basketPoductChanged = !isEqual(
-          pick(data?.basket_product, keys),
-          pick(basket_product, keys)
+          pick(data?.basketProduct, keys),
+          pick(basketProduct, keys)
         );
 
         const value =

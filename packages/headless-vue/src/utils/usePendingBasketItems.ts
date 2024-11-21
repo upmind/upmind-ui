@@ -30,7 +30,7 @@ import {
 // --- types
 import type { Ref } from "vue";
 import type { ActorRef, State, Subscription } from "xstate";
-import type { IProductModel } from "@upmind-automation/headless";
+import type { ProductModel } from "@upmind-automation/headless";
 import { stateMatches } from "../../../../packages/headless-vue/src/utils";
 
 enum NextBasketItemTypes {
@@ -45,8 +45,14 @@ export const usePendingBasketItems = () => {
 
   const subscriptions: Ref<null | Record<string, Subscription>> = ref({});
 
-  const { isReady, addItem, itemsPending, itemsInvalid, items, removeItem } =
-    useBasket();
+  const {
+    isReady,
+    addItem,
+    productsPending,
+    productsInvalid,
+    products,
+    removeItem,
+  } = useBasket();
 
   const pendingBasketItems: Ref<null | Record<string, Object>> = useStorage(
     "pendingBasketItems",
@@ -55,7 +61,7 @@ export const usePendingBasketItems = () => {
     { mergeDefaults: true } // <--
   );
 
-  const products: Ref<string[]> = ref([]);
+  const productIds: Ref<string[]> = ref([]);
 
   // ---
 
@@ -64,38 +70,41 @@ export const usePendingBasketItems = () => {
   }
 
   function setItem(
-    product_id: string,
-    context?: IProductModel | State<any, any>
+    productId: string,
+    context?: ProductModel | State<any, any>
   ) {
+    // defensive
+    if (!productId) return;
+
     const model = context
-      ? has(context, "product_id")
+      ? has(context, "productId")
         ? context
         : cleanContext(context as State<any, any>)
-      : { product_id };
+      : { productId };
+
     const newBasketItems = toRaw(unref(pendingBasketItems)) || {};
-    set(newBasketItems, product_id, model);
+    set(newBasketItems, productId, model);
     pendingBasketItems.value = null;
     if (newBasketItems) pendingBasketItems.value = newBasketItems;
   }
 
   async function getItem(
-    product_id: string,
+    productId: string,
     sync?: boolean
   ): Promise<ActorRef<any, any>> {
     await isReady();
-
     return ensureBasketItem(
-      product_id,
-      get(pendingBasketItems.value, product_id, { product_id })
+      productId,
+      get(pendingBasketItems.value, productId, { productId })
     ).then((basketItem: ActorRef<any, any>) => {
-      if (sync) syncBasketItem(product_id, basketItem);
+      if (sync) syncBasketItem(productId, basketItem);
       return basketItem;
     });
   }
 
   async function getBasketItem(id: string): Promise<ActorRef<any, any>> {
     await isReady();
-    const basketItem = find(items.value, ["id", id]);
+    const basketItem = find(products.value, ["id", id]);
 
     return new Promise((resolve, reject) => {
       if (basketItem) {
@@ -106,79 +115,82 @@ export const usePendingBasketItems = () => {
     });
   }
 
-  function unsetItem(product_id: string) {
-    products.value = reject(products.value, pid => pid == product_id); // remember to remove the product from our list
+  function unsetItem(productId: string) {
+    productIds.value = reject(productIds.value, pid => pid == productId); // remember to remove the product from our list
     const newBasketItems = toRaw(unref(pendingBasketItems));
-    unset(newBasketItems, product_id);
+    unset(newBasketItems, productId);
     pendingBasketItems.value = null;
     if (newBasketItems) pendingBasketItems.value = newBasketItems;
 
     // ensure we unsubscribe from the item if it exists
-    if (subscriptions.value?.[product_id])
-      subscriptions.value[product_id].unsubscribe();
+    if (subscriptions.value?.[productId])
+      subscriptions.value[productId].unsubscribe();
   }
 
   // ---
 
   async function ensureBasketItem(
-    product_id: string,
+    productId: string,
     model: any
   ): Promise<ActorRef<any, any>> {
-    if (product_id) {
-      const basketItem = find(itemsPending.value, [
-        "state.context.model.product_id",
-        product_id,
+    if (productId) {
+      const basketItem = find(productsPending.value, [
+        "state.context.model.productId",
+        productId,
       ]);
-
       if (!isEmpty(basketItem)) {
         return Promise.resolve(basketItem);
       } else {
-        return addItem(model, { awaitStates: null }).catch(() => {
-          console.error("error adding pending item to basket", {
-            product_id,
-            model,
+        return addItem(model, { awaitStates: null })
+          .then((actor: ActorRef<any, any>) => {
+            return actor;
+          })
+          .catch(() => {
+            console.error("error adding pending item to basket", {
+              productId,
+              model,
+            });
+            unsetItem(productId);
+            return Promise.reject("Error adding item to basket");
           });
-          unsetItem(product_id);
-          return Promise.reject("Error adding item to basket");
-        });
       }
     } else {
       return Promise.reject("No product id found");
     }
   }
 
-  function syncBasketItem(product_id: string, basketItem: ActorRef<any, any>) {
+  function syncBasketItem(productId: string, basketItem: ActorRef<any, any>) {
     if (!basketItem) return;
     const subscription: Subscription = basketItem.subscribe(
       (state: State<any, any>) => {
         if (state.matches("error")) {
-          unsetItem(product_id);
+          unsetItem(productId);
           removeItem(basketItem.id);
         } else if (state.matches("available.configuring")) {
-          setItem(product_id, state);
+          setItem(productId, state);
         }
       }
     );
 
     subscriptions.value ??= {}; // ensure we have a subscriptions object
-    set(subscriptions.value, product_id, subscription);
+    set(subscriptions.value, productId, subscription);
   }
 
   function syncPendingBasketItems(): Promise<ActorRef<any, any>>[] {
-    // get any products from the url query params and store them in our pending basket items
+    // get any productIds from the url query params and store them in our pending basket items
     const { productConfigs } = useQueryParams();
-    products.value = map(productConfigs, "product_id");
-    forEach(productConfigs, (product: IProductModel) => {
+    productIds.value = map(productConfigs, "productId");
+    forEach(productConfigs, (product: ProductModel) => {
       // theres a chance we alrady have this product in our pending basket items
       // so we merge the existing product with the new product so we dont lose any data
-      const existingProduct = get(pendingBasketItems.value, product.product_id);
-      setItem(product.product_id, merge(existingProduct, product));
+      const existingProduct = get(pendingBasketItems.value, product.productId);
+      setItem(product.productId, merge(existingProduct, product));
     });
 
-    const promises = map(pendingBasketItems.value, (model, product_id) => {
-      return ensureBasketItem(product_id, model).then(
+    const promises = map(pendingBasketItems.value, (model, productId) => {
+      return ensureBasketItem(productId, model).then(
         (basketItem: ActorRef<any, any>) => {
-          setItem(product_id, basketItem?.getSnapshot()); // update our pending basket items with the new value
+          setItem(productId, basketItem?.getSnapshot()); // update our pending basket items with the new value
           return basketItem;
         }
       );
@@ -193,19 +205,18 @@ export const usePendingBasketItems = () => {
   // prioritising url query params over pending basket items
   function getNextPendingItem() {
     let basketItem;
-    if (products.value?.length) {
-      const product_id = first(products.value);
-      basketItem = find(itemsPending.value, [
-        "state.context.model.product_id",
-        product_id,
+    if (productIds.value?.length) {
+      const productId = first(productIds.value);
+      basketItem = find(productsPending.value, [
+        "state.context.model.productId",
+        productId,
       ]);
     } else {
-      basketItem = first(itemsPending.value) as ActorRef<any, any>;
+      basketItem = first(productsPending.value) as ActorRef<any, any>;
     }
     if (!basketItem) return null;
 
-    const pid = get(basketItem, "state.context.model.product_id");
-
+    const pid = get(basketItem, "state.context.model.productId");
     return {
       name: "productAdd",
       params: { pid },
@@ -213,10 +224,8 @@ export const usePendingBasketItems = () => {
   }
 
   function getNextInvalidItem() {
-    const basketItem = first(itemsInvalid.value) as ActorRef<any, any>;
-
+    const basketItem = first(productsInvalid.value) as ActorRef<any, any>;
     if (!basketItem) return null;
-
     return {
       name: "productEdit",
       params: { bpid: basketItem.id },
@@ -227,23 +236,23 @@ export const usePendingBasketItems = () => {
     // Related items ar when the current items provision fields
     // contain the service identifier of another basket item
 
-    const provision_fields = get(
+    const provisionFields = get(
       currentBasketItem,
-      "state.context.model.provision_fields",
+      "state.context.model.provisionFields",
       {}
     );
 
-    if (isEmpty(provision_fields)) return null;
+    if (isEmpty(provisionFields)) return null;
 
-    const basketItem = find(items.value, item => {
-      const service_identifier = get(
+    const basketItem = find(products.value, item => {
+      const serviceIdentifier = get(
         item,
-        "state.context.lookups.product.service_identifier"
+        "state.context.lookups.product.serviceIdentifier"
       );
 
-      if (!service_identifier) return false;
+      if (!serviceIdentifier) return false;
 
-      const value = includes(values(provision_fields), service_identifier);
+      const value = includes(values(provisionFields), serviceIdentifier);
       const requiresAction = stateMatches(item, [
         "available.configuring",
         "available.configured",
@@ -282,12 +291,16 @@ export const usePendingBasketItems = () => {
     );
   }
 
-  const hasNextBasketItem = computed(() => {
-    return !isEmpty(pendingBasketItems.value) || !isEmpty(itemsInvalid.value);
+  const meta = computed(() => {
+    return {
+      hasInvalidBasketItems: !isEmpty(invalidBasketItems.value),
+      hasNextBasketItem:
+        !isEmpty(pendingBasketItems.value) || !isEmpty(productsInvalid.value),
+    };
   });
 
-  const nextBasketItems = computed(() => {
-    const items = map(concat(itemsPending.value, itemsInvalid.value), item => {
+  const invalidBasketItems = computed(() => {
+    const pending = map(productsPending.value, item => {
       const product = get(item, "state.context.lookups.product");
       return {
         id: item.id,
@@ -295,7 +308,11 @@ export const usePendingBasketItems = () => {
       };
     });
 
-    return items;
+    const invalid = map(productsInvalid.value, product => {
+      return product;
+    });
+
+    return concat(pending, invalid);
   });
 
   function navigateNextBasketItem(
@@ -309,10 +326,10 @@ export const usePendingBasketItems = () => {
     const nextBasketItem = getNextBasketItem(currentBasketItem, types);
     if (nextBasketItem) {
       router.replace(nextBasketItem); // navigateNextBasketItem to our firs tproduct that needs configuring
-    } else if (items.value.length) {
-      router.replace({ name: "cart" }); // navigate to our cart page if all our products are configured
+    } else if (products.value.length) {
+      router.replace({ name: "cart" }); // navigate to our cart page if all our productIds are configured
     } else {
-      router.replace({ name: "empty" }); // navigate to our empty page if we have no products
+      router.replace({ name: "empty" }); // navigate to our empty page if we have no productIds
     }
   }
 
@@ -328,9 +345,9 @@ export const usePendingBasketItems = () => {
     // ---
     syncPendingBasketItems,
     // ---
+    meta,
     NextBasketItemTypes,
-    nextBasketItems,
-    hasNextBasketItem,
+    invalidBasketItems,
     navigateNextBasketItem,
     getNextBasketItem,
     getNextRelatedItem,

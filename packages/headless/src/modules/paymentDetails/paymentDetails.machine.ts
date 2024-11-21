@@ -28,8 +28,8 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "subscribing",
     context: {
-      basket_id: undefined,
-      client_id: undefined,
+      basketId: undefined,
+      clientId: undefined,
       currency: undefined,
       // ---
       fields: undefined,
@@ -278,7 +278,7 @@ export default createMachine(
         actors: (
           {
             address,
-            basket_id,
+            basketId,
             currency,
             model,
             gateway,
@@ -302,7 +302,7 @@ export default createMachine(
           // if we are provided a gateway AND dont have one spawned yet,
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
-              basket_id,
+              basketId,
               currency,
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
@@ -317,8 +317,8 @@ export default createMachine(
       }),
 
       refreshBasket: assign({
-        basket_id: (_context, { data: basket }: RefreshEvent) => basket?.id,
-        client_id: (_context, { data: basket }: RefreshEvent) =>
+        basketId: (_context, { data: basket }: RefreshEvent) => basket?.id,
+        clientId: (_context, { data: basket }: RefreshEvent) =>
           basket?.client_id,
         currency: (_context, { data: basket }: RefreshEvent) =>
           basket?.currency,
@@ -335,7 +335,7 @@ export default createMachine(
               actor.send({
                 type: "REFRESH",
                 data: {
-                  basket_id: basket?.id,
+                  basketId: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
                   address: basket?.address,
@@ -351,7 +351,7 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, basket_id, currency, address },
+          { model, basketId, currency, address },
           { data }: any
         ) => {
           const amount = model.amount;
@@ -359,7 +359,7 @@ export default createMachine(
             ...model,
             ...data,
             // ensure OUR values are used
-            basket_id,
+            basketId,
             currency,
             amount,
             address,
@@ -430,22 +430,22 @@ export default createMachine(
     guards: {
       // @ts-ignore
       isDirty: ({ dirty }: any, _event: any) => !!dirty,
-      hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasBasket: ({ basketId }, _event) => !!basketId,
       hasLookups: (
         { stored_payment_methods, gateways, payment_types },
         _event
       ) => !!stored_payment_methods && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
-      shouldUpdate: ({ autoupdate, basket_id, model }, _event) =>
-        !!autoupdate && !!basket_id && model?.amount !== 0,
+      shouldUpdate: ({ autoupdate, basketId, model }, _event) =>
+        !!autoupdate && !!basketId && model?.amount !== 0,
 
       hasChanged: (
-        { basket_id, currency, client_id, model, address },
+        { basketId, currency, clientId, model, address },
         { data }: any
       ) => {
-        const basketChanged = basket_id != data?.id;
+        const basketChanged = basketId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
-        const clientChanged = client_id != data?.client_id;
+        const clientChanged = clientId != data?.client_id;
         const amountChanged =
           model.amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;

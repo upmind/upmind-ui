@@ -1,8 +1,7 @@
 // --- extrnal
 
 // --- internal
-import type { RequestError } from "..//api/types";
-
+import type { Basket } from "../basket/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -14,20 +13,13 @@ import type { RequestError } from "..//api/types";
 
 export interface PaymentContext {
   id?: string;
-  // TODO:
-  // order?: IBasket;
-  order?: any;
+  order?: Basket;
   paymentDetails?: Object;
-  // TODO:
-  // payment?: IPayment;
-  payment?: any;
+  payment?: any; //IPayment
   urls: {
     return?: URL;
     cancel?: URL;
   };
-  // ---
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
 
@@ -36,9 +28,6 @@ export interface PaymentContext {
 
 export interface PaymentEvent {
   type: "PROCESS" | "CANCEL" | "RETRY";
-  // TODO:
-  // data?: IPayment;
-  // error?: RequestError;
-  data?: any;
+  data?: any; //IPayment
   error?: any;
 }

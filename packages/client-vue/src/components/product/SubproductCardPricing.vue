@@ -18,19 +18,19 @@
       </Tooltip>
 
       {{
-        price?.price_discounted
-          ? price?.price_discounted_formatted
-          : price?.price_formatted
+        price?.priceDiscounted
+          ? price?.priceDiscountedFormatted
+          : price?.priceFormatted
       }}
     </span>
 
     <span v-else>{{ t("product.free") }}</span>
 
     <span
-      v-if="price?.price_discounted"
+      v-if="price?.priceDiscounted"
       class="text-2xs text-base-500 leading-none line-through"
     >
-      {{ price?.price_formatted }}
+      {{ price?.priceFormatted }}
     </span>
   </template>
 
@@ -44,9 +44,9 @@ import { Icon, Tooltip } from "@upmind-automation/upwind";
 interface PricingProps {
   price?: {
     price: number;
-    price_formatted: string;
-    price_discounted: number;
-    price_discounted_formatted: string;
+    priceFormatted: string;
+    priceDiscounted: number;
+    priceDiscountedFormatted: string;
   };
   priceOverride?: boolean;
 }

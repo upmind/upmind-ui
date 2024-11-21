@@ -18,7 +18,7 @@ export interface IPromotion {
 // Contexts
 
 export interface PromotionsContext {
-  basket_id?: string;
+  basketId?: string;
   // ---
   promotions?: IPromotion[];
   schema?: JsonSchema;
