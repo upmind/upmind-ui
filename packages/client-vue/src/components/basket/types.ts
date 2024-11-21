@@ -39,5 +39,5 @@ export interface PaymentDetailsProps {
 
 export interface CheckoutProps {
   cardComponent?: Component | "div";
-  contentComponent?: Component | "div";
+  contentSectionComponent?: Component | "div";
 }
