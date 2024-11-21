@@ -8,6 +8,8 @@ export { default as UpmApp } from "./components/App.vue";
 export { default as UpmFeedback } from "./components/feedback/Feedback.vue";
 // ---
 export { default as UpmSession } from "./components/session/Session.vue";
+export { default as UpmSessionLoginPopover } from "./components/session/LoginPopover.vue";
+export { default as UpmSessionDetailsDropdown } from "./components/session/DetailsDropdown.vue";
 export { default as UpmAuth } from "./components/session/Auth.vue";
 export { default as UpmProfile } from "./components/session/Profile.vue";
 export { default as UpmSessionExpired } from "./components/session/Expired.vue";
