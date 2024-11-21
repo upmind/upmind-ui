@@ -83,10 +83,10 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { set, debounce } from "lodash-es";
+import { set } from "lodash-es";
 
 // --- components
 import { Form } from "@upmind-automation/upwind";
@@ -139,16 +139,14 @@ const actions = computed(() => {
   };
 });
 
-const tooltipLabel = computed(() => (promotion: any) => {
-  if (promotion.promotion.amount_formatted) {
+const tooltipLabel = computed(() => ({ promotion }: any) => {
+  if (promotion.amountFormatted) {
     return t("basket.promotions.active.tooltip", {
-      code: promotion.promotion.code,
-      amount: promotion.promotion.amount_formatted,
-      description: promotion.promotion.short_description
-        ? `. (${promotion.promotion.short_description})`
-        : "",
+      code: promotion.code,
+      amount: promotion.amountFormatted,
+      description: promotion.excerpt ? `. (${promotion.excerpt})` : "",
     });
   }
-  return promotion.promotion.name_translated;
+  return promotion.name;
 });
 </script>
