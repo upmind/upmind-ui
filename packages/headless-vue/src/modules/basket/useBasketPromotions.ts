@@ -71,7 +71,7 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     async add() {
       actor.value?.send({ type: "ADD" });
 
-      // then wait for the payment_gateway actor to be updated
+      // then wait for the paymentGateway actor to be updated
       return waitFor(service as ActorRef<any, any>, state => {
         return ["processed", "complete", "processing.error"].some(
           state.matches

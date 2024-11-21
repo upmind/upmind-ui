@@ -44,7 +44,7 @@
 
           <div :class="styles.product.config.grid.item.header">
             <span :class="styles.product.config.grid.item.title">
-              {{ item.billing_cycle_name }}
+              {{ item.name }}
             </span>
 
             <template v-for="promotion in item?.promotions" :key="promotion.id">
@@ -53,7 +53,7 @@
                   promotion.mixed || !promotion.amount
                     ? t("product.promotion")
                     : t("product.promotion_save", {
-                        value: promotion.amount_formatted,
+                        value: promotion.amountFormatted,
                       })
                 }}
               </Badge>
@@ -62,13 +62,13 @@
             <!-- monthly -->
             <span
               :class="styles.product.config.grid.item.text"
-              v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
+              v-if="item?.monthlyPriceFrom && item.term > 1"
             >
               {{
                 t("product.cycle", {
-                  value: item?.monthly_price_from_discounted
-                    ? item.monthly_price_from_discounted_formatted
-                    : item.monthly_price_from_formatted,
+                  value: item?.monthlyPriceFromDiscounted
+                    ? item.monthlyPriceFromDiscountedFormatted
+                    : item.monthlyPriceFromFormatted,
                 })
               }}
             </span>
@@ -77,16 +77,16 @@
           <div :class="styles.product.config.grid.item.footer">
             <span
               :class="styles.product.config.grid.item.discount"
-              v-if="item?.price_discounted"
+              v-if="item?.priceDiscounted"
             >
-              {{ item.price_formatted }}
+              {{ item.priceFormatted }}
             </span>
             <strong :class="styles.product.config.grid.item.total">
               {{
-                item?.price_discounted
-                  ? item.price_discounted_formatted
+                item?.priceDiscounted
+                  ? item.priceDiscountedFormatted
                   : item?.price
-                    ? item.price_formatted
+                    ? item.priceFormatted
                     : t("product.free")
               }}
             </strong>

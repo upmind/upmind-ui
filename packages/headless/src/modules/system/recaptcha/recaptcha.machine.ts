@@ -52,7 +52,7 @@ export default createMachine(
 
       setError: assign({
         // @ts-ignore
-        error: (_, { data }) => data,
+        error: (_context, { data }) => data,
       }),
 
       // @ts-ignore

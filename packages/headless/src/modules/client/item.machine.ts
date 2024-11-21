@@ -261,7 +261,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (_, { data }: any) => {
+        error: (_context, { data }: any) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -297,7 +297,7 @@ export default createMachine(
 
       // @ts-ignore
       canRemove: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
-        !!model?.id && !!model?.can_delete,
+        !!model?.id && !!model?.canDelete,
     },
     delays: {
       // @ts-ignore

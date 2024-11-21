@@ -48,9 +48,9 @@ export const useBasket = (): any => {
   // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
   const actors = computed(() => ({
-    customFields: contextActor(state, "actors.custom_fields"),
-    paymentDetails: contextActor(state, "actors.payment_details"),
-    billingDetails: contextActor(state, "actors.billing_details"),
+    customFields: contextActor(state, "actors.customFields"),
+    paymentDetails: contextActor(state, "actors.paymentDetails"),
+    billingDetails: contextActor(state, "actors.billingDetails"),
     currency: contextActor(state, "actors.currency"),
     promotions: contextActor(state, "actors.promotions"),
   }));
@@ -97,7 +97,7 @@ export const useBasket = (): any => {
             )),
 
         // ---
-        isEmpty: stateMatches(state, ["shopping.items.empty"]),
+        isEmpty: !contextMatches(state, ["products", "items"]),
 
         isAvailable:
           stateMatches(state, [
@@ -106,12 +106,12 @@ export const useBasket = (): any => {
             "shopping",
             "checkout.configuring",
             "checkout.available",
-          ]) && !stateMatches(state, ["shopping.items.empty"]),
+          ]) && contextMatches(state, ["products"]),
 
         needsAuth: !stateMatches(state, ["shopping.account.complete"]),
 
         // ---
-        hasProducts: stateMatches(state, ["shopping.items.complete"]),
+        hasProducts: contextMatches(state, ["products"]),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
@@ -147,9 +147,9 @@ export const useBasket = (): any => {
             "shopping.promotions.complete",
             "shopping.account.complete",
             "shopping.currency.complete",
-            "shopping.billing_details.complete",
-            "shopping.custom_fields.complete",
-            "shopping.payment_details.available",
+            "shopping.billingDetails.complete",
+            "shopping.customFields.complete",
+            "shopping.paymentDetails.available",
           ],
           true
         ),
@@ -160,7 +160,7 @@ export const useBasket = (): any => {
 
         isProcessingDetails:
           machineMatches(payment, ["approving"]) ||
-          stateMatches(state, ["shopping.payment_details.processing"]),
+          stateMatches(state, ["shopping.paymentDetails.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
@@ -182,33 +182,16 @@ export const useBasket = (): any => {
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    items: useContext(state, "items", []),
-    itemsPending: computed(() => {
+    products: useContext(state, "products", []),
+    productsPending: computed(() => {
       const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item => !item?.state?.done && !contextMatches(item, ["basket_product"])
-      );
+      return filter(items, item => !item?.state?.done);
     }),
-    itemsInvalid: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item =>
-          contextMatches(item, ["basket_product"]) &&
-          machineMatches(item, ["available.error"])
-      );
-    }),
-    itemsConfigured: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item =>
-          contextMatches(item, ["basket_product"]) &&
-          !machineMatches(item, ["available.error"])
-      );
-    }),
-    products: useContext(state, "basket.products", []),
+    productsInvalid: computed(() =>
+      filter(contextValue(state, "products", []), product =>
+        some(product?.summary?.details, ({ invalid }) => !!invalid)
+      )
+    ),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
     currency: useContext(state, "basket.currency", []),

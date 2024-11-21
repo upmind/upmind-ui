@@ -64,11 +64,8 @@ export enum QUERY_PARAMS {
   USERNAME = "username",
   VIEW = "view",
 }
-import type { IProductModel } from "@upmind-automation/headless";
+import type { ProductModel } from "@upmind-automation/headless";
 
-type IExtendedProductModel = IProductModel & {
-  sub_pids?: string[];
-};
 // -----------------------------------------------------------------------------
 
 export const useQueryParams = () => {
@@ -92,21 +89,24 @@ export const useQueryParams = () => {
     return isArray(value) ? first(value) : value;
   }
 
-  function getProductConfigs(): IExtendedProductModel[] {
+  function getProductConfigs(): ProductModel[] {
     // This is a complex object that is passed in as a query param
     //  and is used to configure a product with multiple options, attributrs, etc.
     // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
     // so for that we get the following query params.
-    const product_ids = getParams(
+    const productId = getParam(
       QUERY_PARAMS.PRODUCT,
-      getParams(QUERY_PARAMS.PRODUCT_ID)
+      getParam(QUERY_PARAMS.PRODUCT_ID)
     );
-    const product_qty = getParams(QUERY_PARAMS.QUANTITY);
 
-    const bcm = getParams(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
+    // if we dont have a product id, then we dont have a product config
+    if (!productId) return [];
 
+    const productQty = getParam(QUERY_PARAMS.QUANTITY);
+
+    const bcm = getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
     // sub products
-    const sub_pids = reduce(
+    const subproducts = reduce(
       query,
       (result, value, key) => {
         if (key == QUERY_PARAMS.SUBPRODUCT_IDS) {
@@ -119,7 +119,7 @@ export const useQueryParams = () => {
     );
 
     // provision
-    const provision_fields = reduce(
+    const provisionFields = reduce(
       query,
       (result, value, key) => {
         if (includes(key, QUERY_PARAMS.PRODUCT_FIELDS)) {
@@ -134,25 +134,24 @@ export const useQueryParams = () => {
     );
     const promotions = getParams(QUERY_PARAMS.COUPONS);
 
-    return map(
-      product_ids,
-      (product_id, index): IExtendedProductModel => ({
-        product_id,
-        quantity: toNumber(product_qty?.[index]),
-        term: {
-          billing_cycle_months: toNumber(bcm?.[index]),
-        },
-        sub_pids,
-        provision_fields,
+    const model = [
+      {
+        productId,
+        quantity: productQty ? toNumber(productQty) : 1,
+        term: bcm ? toNumber(bcm) : undefined,
+        subproducts,
+        provisionFields,
         promotions,
-      })
-    );
+      },
+    ];
+
+    return model;
   }
 
   return {
     getParams,
     getParam,
-    product_id: getParam(
+    productId: getParam(
       QUERY_PARAMS.PRODUCT_ID,
       getParam(QUERY_PARAMS.PRODUCT_ID)
     ),
@@ -162,7 +161,7 @@ export const useQueryParams = () => {
     ),
     productConfigs: getProductConfigs(),
 
-    basketItemId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
+    basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
 
     currency: getParam(
       QUERY_PARAMS.CURRENCY,

@@ -25,7 +25,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const useSchema = ({
+export function useSchema({
   // TODO: country,
   countries,
   regions,
@@ -34,11 +34,11 @@ export const useSchema = ({
   // ---
   places,
   // }: AddressContext) => {
-}: any) => {
+}: any): JsonSchema {
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["address_1", "city", "country_id", "postcode", "type"],
+    required: ["address1", "city", "countryId", "postcode", "type"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -63,12 +63,12 @@ export const useSchema = ({
       },
 
       // ---
-      address_1: {
+      address1: {
         type: "string",
         title: "Address Line 1",
       },
 
-      address_2: {
+      address2: {
         type: ["string", "null"],
         title: "Address Line 2",
       },
@@ -83,7 +83,7 @@ export const useSchema = ({
         title: "Postcode",
       },
 
-      region_id: {
+      regionId: {
         type: ["string", "null"],
         title: "Region",
         oneOf: !regions?.length
@@ -102,10 +102,10 @@ export const useSchema = ({
         title: "State",
       },
 
-      country_id: {
+      countryId: {
         type: "string",
         title: "Country",
-        default: baseModel?.country_id,
+        default: baseModel?.countryId,
         oneOf: !countries?.length
           ? undefined
           : map(countries, item => {
@@ -152,22 +152,22 @@ export const useSchema = ({
   // }
 
   return schema as JsonSchema;
-};
+}
 
-export const useUischema = ({ addresses }: any) => {
+export function useUischema({ addresses }: any): UISchemaElement {
   const lookups = {
     addresses: reduce(
       addresses.getItems(),
       (result, item) => {
         // Only return actual addresses, NOT companies
-        if (!item?.company_details) {
+        if (!item?.companyDetails) {
           // @ts-ignore
           result.push({
             value: item.id,
             label: [
               item.name,
-              item.address_1,
-              item.address_2,
+              item.address1,
+              item.address2,
               item.city,
               item.postcode,
             ].join(", "),
@@ -257,7 +257,7 @@ export const useUischema = ({ addresses }: any) => {
         elements: [
           {
             type: "Control",
-            scope: "#/properties/address_1",
+            scope: "#/properties/address1",
             label: "Address", // ensure we  show the title for BOTH address fields
             options: {
               autoFocus: true,
@@ -267,7 +267,7 @@ export const useUischema = ({ addresses }: any) => {
           },
           {
             type: "Control",
-            scope: "#/properties/address_2",
+            scope: "#/properties/address2",
             label: "", // ensure we DON'T show the title
             options: {
               autocomplete: "address-line2",
@@ -301,7 +301,7 @@ export const useUischema = ({ addresses }: any) => {
           // ---
           {
             type: "Control",
-            scope: "#/properties/region_id",
+            scope: "#/properties/regionId",
             options: {
               autocomplete: "address-level1",
               placeholder: "Please select a Region...",
@@ -309,7 +309,7 @@ export const useUischema = ({ addresses }: any) => {
           },
           {
             type: "Control",
-            scope: "#/properties/country_id",
+            scope: "#/properties/countryId",
             options: {
               autocomplete: "country",
               placeholder: "Please select a Country...",
@@ -338,7 +338,7 @@ export const useUischema = ({ addresses }: any) => {
   };
 
   return schema as UISchemaElement;
-};
+}
 
 export const useModelParser = (
   schema: JsonSchema,

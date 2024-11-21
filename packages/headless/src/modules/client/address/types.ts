@@ -2,7 +2,7 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { RequestError } from "../..//api/types";
+// import type { RequestError } from "../..//api/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -11,67 +11,54 @@ import type { RequestError } from "../..//api/types";
 // private
 
 export interface IAddress {
-  id: string;
+  id?: string;
   // ---
-  place?: string | null; // used for place lookup
+  place?: string; // used for place lookup
   // ---
-  address_1: string | null;
-  address_2: string | null;
-  city: string | null;
-  postcode: string | null;
-  // TODO:
-  // country_id: ICountry["id"];
-  // country?: ICountry; // Requires relation
-  // region_id?: IRegion["id"] | null;
-  country_id: any["id"];
-  country?: any;
-  region_id?: any["id"] | null;
-  state: string | null;
+  address_1?: string;
+  address_2?: string;
+  city?: string;
+  postcode?: string;
+  country_id?: string; //ICountry["id"];
+  country?: any; //ICountry; // Requires relation
+  region?: any; //IRegion; // Requires relation
+  region_id?: string; //IRegion["id"] ;
+  state?: string;
   // ---
-  type: number | null;
-  name: string | null;
-  default: boolean;
+  type?: number;
+  name?: string;
+  default?: boolean;
   // --- readonly/system data
-  can_delete: boolean;
-  // TODO:
-  // client_id: IClient["id"];
-  client_id: any["id"];
-  created_at: string | null;
-  deleted_at: null;
-  updated_at: Date | string | null;
-  // TODO:
-  // user_id: IUser["id"];
-  user_id: any["id"];
-  verified: number | null;
+  can_delete?: boolean;
+  client_id?: string; // IClient["id"];
+  created_at?: string;
+  deleted_at?: null;
+  updated_at?: Date | string;
+  user_id?: string; // IUser["id"];
+  verified?: number;
 }
 
 export interface IAddressData {
-  address_1: string | null;
-  address_2: string | null;
-  city: string | null;
-  postcode: string | null;
-  // TODO:
-  // country_id: ICountry["id"];
-  // country?: ICountry; // Requires relation
-  // region_id?: IRegion["id"] | null;
-  country_id: any["id"];
-  country?: any; // Requires relation
-  region_id?: any["id"] | null;
-  state: string | null;
+  id?: string;
+  name?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  postcode?: string;
+  countryId?: string; //ICountry["id"];
+  country?: object; //ICountry; // Requires relation
+  regionId?: string; //IRegion["id"] ;
+  state?: string;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface AddressContext {
-  // TODO:
-  // country?: ICountry[];
-  // regions?: IRegion[];
-  // types?: IAddressType[];
-  country?: any[];
-  regions?: any[];
-  types?: any[];
-  baseModel?: IAddress;
+  country?: any[]; //ICountry[];
+  regions?: any[]; //IRegion[];
+  types?: any[]; //IAddressType[];
+  baseModel?: IAddressData;
 
   // ---
   autocomplete?: {
@@ -81,42 +68,32 @@ export interface AddressContext {
       search?: string;
       address?: string;
     };
-    // TODO:
-    // results?: AddressAutocompleteResult[];
-    results?: any[];
+    results?: any[]; //AddressAutocompleteResult[];
   };
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IAddress;
+  model?: IAddressData;
   // ---
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
 
 export interface AddressesContext {
   items?: IAddress[];
   selected?: IAddress;
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
 // --------------------------------------------------------
 // Events
 
 export interface AddressEvent {
-  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
-  data: any;
-  // TODO:
-  // error?: RequestError;
+  type?: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
+  data?: any;
   error?: any;
 }
 
 export interface AddressesEvents {
-  type: "ADD" | "SELECT" | "REFRESH" | "STOP";
-  data: any;
-  // TODO:
-  // error?: RequestError;
+  type?: "ADD" | "SELECT" | "REFRESH" | "STOP";
+  data?: any;
   error?: any;
 }

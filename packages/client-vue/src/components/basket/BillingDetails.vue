@@ -30,7 +30,7 @@
             :label="t('client.actions.convert')"
             size="xs"
             @click="onEdit"
-            v-if="!selected?.state?.value?.context?.model?.company_details"
+            v-if="!selected?.state?.value?.context?.model?.companyDetails"
           />
           <Button
             variant="tonal"
@@ -57,7 +57,7 @@
           :label="t('client.actions.convert')"
           size="xs"
           @click="onEdit"
-          v-if="!selected?.state?.value?.context?.model?.company_details"
+          v-if="!selected?.state?.value?.context?.model?.companyDetails"
         /> -->
       </div>
     </div>
@@ -161,14 +161,14 @@ export default defineComponent({
         // {
         //   label: this.t(
         //     "client.actions.edit",
-        //     this.selected?.state?.value?.context?.model?.company_details ? 0 : 1
+        //     this.selected?.state?.value?.context?.model?.companyDetails ? 0 : 1
         //   ),
         //   handler: () => this.onEdit(),
         // },
         {
           label: this.t("client.actions.convert"),
           handler: () => this.onEdit(true),
-          hidden: this.selected?.state?.value?.context?.model?.company_details,
+          hidden: this.selected?.state?.value?.context?.model?.companyDetails,
         },
         {
           label: this.t("client.actions.change"),
@@ -181,12 +181,12 @@ export default defineComponent({
     onChange() {
       this.open = true;
     },
-    onEdit(company_details = false) {
+    onEdit(companyDetails = false) {
       const client = this.useClientUnifiedAddress(this.selected);
       const model = client.model.value;
       client.edit();
       // force the company details to be shown
-      client.input({ ...model, company_details });
+      client.input({ ...model, companyDetails });
     },
     onClose(value) {
       this.open = value;
@@ -195,8 +195,8 @@ export default defineComponent({
 
   watch: {
     modelValue(model, oldModel) {
-      const id = model?.company_id || model?.address_id;
-      const oldId = oldModel?.company_id || oldModel?.address_id;
+      const id = model?.companyId || model?.addressId;
+      const oldId = oldModel?.companyId || oldModel?.addressId;
 
       if (id && id != oldId) this.select(id);
     },

@@ -2,12 +2,7 @@
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
       <span :class="styles.product.config.grid.item.title">
-        {{
-          t(
-            `product.terms.${props.billing_cycle_months}`,
-            props.billing_cycle_name
-          )
-        }}
+        {{ t(`product.terms.${props.cycle}`, props.name) }}
       </span>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
@@ -16,17 +11,17 @@
             promotion.mixed || !promotion.amount
               ? t("product.promotion")
               : t("product.promotion_save", {
-                  value: promotion.amount_formatted,
+                  value: promotion.amountFormatted,
                 })
           }}
         </Badge>
       </template>
 
       <span :class="styles.product.config.grid.item.text">{{
-        !isNil(props.price_discounted)
-          ? props.price_discounted_formatted
+        !isNil(props.priceDiscounted)
+          ? props.priceDiscountedFormatted
           : props.price
-            ? props.price_formatted
+            ? props.priceFormatted
             : t("product.free")
       }}</span>
     </div>
@@ -34,18 +29,18 @@
     <div :class="styles.product.config.grid.item.footer">
       <span
         :class="styles.product.config.grid.item.discount"
-        v-if="!isNil(props.monthly_price_from_discounted)"
+        v-if="!isNil(props.monthlyPriceFromDiscounted)"
         >{{
           t("product.cycle", {
-            value: props.monthly_price_from_formatted,
+            value: props.monthlyPriceFromFormatted,
           })
         }}</span
       >
       <strong :class="styles.product.config.grid.item.total">{{
         t("product.cycle", {
-          value: !isNil(props.monthly_price_from_discounted)
-            ? props.monthly_price_from_discounted_formatted
-            : props.monthly_price_from_formatted,
+          value: !isNil(props.monthlyPriceFromDiscounted)
+            ? props.monthlyPriceFromDiscountedFormatted
+            : props.monthlyPriceFromFormatted,
         })
       }}</strong>
     </div>
@@ -72,22 +67,22 @@ import { isNil } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  billing_cycle_months: number;
-  billing_cycle_name: string;
+  name: string;
   price: number;
+  cycle: number;
   // ---
-  mixed_promotions?: boolean;
-  monthly_price_from_discounted?: number;
-  monthly_price_from_discounted_formatted?: string;
-  monthly_price_from?: number;
-  monthly_price_from_formatted?: string;
-  price_discounted?: number;
-  price_discounted_formatted?: string;
-  price_formatted?: string;
+  mixedPromotions?: boolean;
+  monthlyPriceFromDiscounted?: number;
+  monthlyPriceFromDiscountedFormatted?: string;
+  monthlyPriceFrom?: number;
+  monthlyPriceFromFormatted?: string;
+  priceDiscounted?: number;
+  priceDiscountedFormatted?: string;
+  priceFormatted?: string;
   promotions?: {
     name?: string;
     amount?: number;
-    amount_formatted?: string;
+    amountFormatted?: string;
     code: string[];
     display?: string;
     mixed?: boolean;
@@ -99,7 +94,7 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const meta = computed(() => ({
-  hasPromotions: !!props.promotions?.length || props.mixed_promotions,
+  hasPromotions: !!props.promotions?.length || props.mixedPromotions,
 }));
 
 const styles = useStyles(
