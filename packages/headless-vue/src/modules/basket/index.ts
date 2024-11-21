@@ -9,5 +9,6 @@ export * from "./useBasketProduct";
 // --- types
 export type {
   BasketProduct,
-  BasketProductDetail,
+  BasketProductSummaryPrice,
+  BasketProductSummaryDetail,
 } from "@upmind-automation/headless";

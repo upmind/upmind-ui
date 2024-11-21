@@ -58,9 +58,9 @@
 
     <p
       class="text-base-700 mb-0 mt-2 whitespace-normal text-xs leading-tight"
-      v-if="props.shortDescription"
+      v-if="props.excerpt"
     >
-      {{ props.shortDescription }}
+      {{ props.excerpt }}
     </p>
   </section>
 </template>
@@ -82,7 +82,7 @@ const emit = defineEmits(["update:quantity"]);
 const props = defineProps<{
   id?: string;
   name: string;
-  shortDescription?: string;
+  excerpt?: string;
   priceOverride?: boolean;
   price?: {
     price: number;

@@ -354,11 +354,17 @@ export default createMachine(
             actions: sendTo(
               // @ts-ignore
               ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => ({
-                type: "REMOVE",
-                target: context.model,
-                context,
-              })
+              (context, _event) => {
+                const { model, basketProduct } = context;
+                // NB:ensure we ad dout basket product id to the model, so we update instead of add
+                if (basketProduct) model.id = basketProduct.id;
+
+                return {
+                  type: "REMOVE",
+                  target: model,
+                  context,
+                };
+              }
             ),
             target: "processing",
           },

@@ -17,7 +17,7 @@ export function parseBasketProductConfig(
 ): BasketProductConfig {
   return {
     product_id: model?.productId,
-    unit_quantity: model?.quantity,
+    quantity: model?.quantity,
     billing_cycle_months: model?.term,
     // ---
     attributes: reduce(

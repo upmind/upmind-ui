@@ -120,12 +120,12 @@ export function parseProduct(raw: any) {
   return result;
 }
 
-export function parseBasketItem(raw: BasketProduct) {
-  const name = raw.serviceIdentifier;
+export function parseBasketItem(data: BasketProduct) {
+  const name = data.product.serviceIdentifier;
   const parsed = parseDomain(name);
 
   const result = {
-    productId: raw.productId,
+    productId: data.productId,
     tld: parsed?.tld,
     sld: parsed?.sld,
     domain: parsed?.domain,
