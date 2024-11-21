@@ -77,7 +77,7 @@ import {
   UpmSessionExpired,
   UpmBasketLoading,
 } from "@upmind-automation/client-vue";
-import UpmContent from "@/components/content/Content.vue";
+import UpmContent from "./content/Content.vue";
 
 // --- types
 import type { Component } from "vue";
