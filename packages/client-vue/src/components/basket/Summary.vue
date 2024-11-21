@@ -16,8 +16,8 @@
             class="text-primary group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
           >
             <span>{{ product?.name }}</span>
-            <span v-if="product?.service_identifier">
-              ({{ product?.service_identifier }})
+            <span v-if="product?.serviceIdentifier">
+              ({{ product?.serviceIdentifier }})
             </span>
           </div>
 
@@ -26,7 +26,7 @@
           >
             <slot name="actions" v-bind="{ ...$props, product }">
               <strong class="text-primary" v-if="props.noActions">
-                {{ product.total_formatted }}
+                {{ product.summary.regularPriceFormatted }}
               </strong>
 
               <template v-else>
@@ -149,7 +149,7 @@ import { useBasket } from "@upmind-automation/client-vue";
 const props = withDefaults(
   defineProps<{
     noActions: boolean;
-    showProducts: boolean;
+    showProducts?: boolean;
   }>(),
   {
     showProducts: false,
