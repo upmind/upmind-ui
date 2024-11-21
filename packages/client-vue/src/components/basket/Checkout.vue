@@ -1,6 +1,8 @@
 <template>
   <article v-auto-animate>
-    <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button" />
+    <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
+      <UpmBack class="relative -top-4" />
+    </slot>
 
     <!-- Account + Payment -->
     <section
@@ -138,6 +140,7 @@ import {
 } from "@upmind-automation/client-vue";
 import UpmCard from "../content/Card.vue";
 import UpmContentSection from "../content/ContentSection.vue";
+import UpmBack from "../navigation/Back.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
