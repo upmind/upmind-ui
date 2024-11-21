@@ -69,7 +69,6 @@ async function add(
 }
 
 async function remove(item: any, context: any, basket: any) {
-  debugger;
   const basketId = basket.getBasketId();
   // ---
   return productServices.remove({ basketId, bpid: item.id });

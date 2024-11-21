@@ -160,7 +160,7 @@ export const parseBasket = (data: any) => {
 
 export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   // Get price object matching `display_price_billing_cycle_months`
-
+  debugger;
   const product: BasketProduct = {
     id: raw?.id,
 
@@ -216,7 +216,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   forEach(raw?.options, option => {
     const subproduct = parseSubproduct(option);
     if (subproduct) {
-      if (subproduct?.meta?.quantifiable)
+      if (raw.order_type === ProductOrderTypes.QUANTITY_BASED)
         product.summary.pricing.push(parsPriceSummary(option));
 
       subproduct.key = "option";
@@ -290,11 +290,9 @@ function parseTerm(
   prices: any
 ): BasketProductSummaryDetail | null {
   const { getBillingCycle } = useSystem();
-  debugger;
   const cycle = getBillingCycle(value);
   const name = cycle ? useTranslateName(cycle) : null;
   const term = find(prices, ["billing_cycle_months", value]);
-  debugger;
   if (term) {
     // NB: only show term pricing if recurring!
     return {
@@ -329,64 +327,59 @@ function parsPriceSummary(raw: any) {
 
   summary.meta = {
     oneoff: raw.billing_cycle_months > 0,
-    quantifiable: raw.order_type === ProductOrderTypes.QUANTITY_BASED,
-    discounted: isNumber(raw.configuration_net_amount_discount_converted),
-    free: raw.configuration_net_amount_discounted_converted > 0,
-    priceless: false,
+    discounted: raw.configuration_net_amount_discount_converted > 0,
+    free: raw.configuration_net_amount_discounted_converted == 0,
   };
 
-  if (!summary.meta.priceless) {
-    summary.regularAmount = raw.configuration_net_amount_converted;
-    summary.regularPrice = raw.configuration_net_amount_formatted;
-    summary.currentAmount = raw.configuration_net_amount_discounted_converted;
-    summary.currentPrice = raw.configuration_net_amount_discounted_formatted;
+  summary.regularAmount = raw.configuration_net_amount_converted;
+  summary.regularPrice = raw.configuration_net_amount_formatted;
+  summary.currentAmount = raw.configuration_net_amount_discounted_converted;
+  summary.currentPrice = raw.configuration_net_amount_discounted_formatted;
+
+  // add any saving information (if available)
+  if (
+    summary.meta.discounted &&
+    summary?.regularAmount &&
+    summary?.currentAmount
+  ) {
+    summary.currentSavingAmount = summary.meta.discounted
+      ? ((summary.regularAmount - summary.currentAmount) /
+          summary.regularAmount) *
+        100
+      : 0;
+
+    summary.currentSaving = summary.meta.discounted
+      ? `${Math.round(summary.currentSavingAmount)}%`
+      : "";
+  }
+
+  // if we have a quantity greater than 1, lets include the pricing for a single unit
+  if (raw.quantity > 1) {
+    summary.selling = {
+      regularAmount: raw.selling_amount_converted,
+      regularPrice: raw.selling_amount_formatted,
+      currentAmount: raw.selling_amount_discounted_converted,
+      currentPrice: raw.selling_amount_discounted_formatted,
+    };
 
     // add any saving information (if available)
     if (
       summary.meta.discounted &&
-      summary?.regularAmount &&
-      summary?.currentAmount
+      summary?.selling?.regularAmount &&
+      summary?.selling?.currentAmount
     ) {
-      summary.currentSavingAmount = summary.meta.discounted
-        ? ((summary.regularAmount - summary.currentAmount) /
-            summary.regularAmount) *
+      summary.selling.currentSavingAmount = summary.meta.discounted
+        ? ((summary.selling.regularAmount - summary.selling.currentAmount) /
+            summary.selling.regularAmount) *
           100
         : 0;
 
-      summary.currentSaving = summary.meta.discounted
-        ? `${Math.round(summary.currentSavingAmount)}%`
+      summary.selling.currentSaving = summary.meta.discounted
+        ? `${Math.round(summary.selling.currentSavingAmount)}%`
         : "";
     }
-
-    // if we are quantifiable and we have a quantity greater than 1, lets include the pricing for a single unit
-    if (summary.meta.quantifiable && raw.quantity > 1) {
-      debugger;
-      summary.selling = {
-        regularAmount: raw.selling_amount_converted,
-        regularPrice: raw.selling_amount_formatted,
-        currentAmount: raw.selling_amount_discounted_converted,
-        currentPrice: raw.selling_amount_discounted_formatted,
-      };
-
-      // add any saving information (if available)
-      if (
-        summary.meta.discounted &&
-        summary?.selling?.regularAmount &&
-        summary?.selling?.currentAmount
-      ) {
-        debugger;
-        summary.selling.currentSavingAmount = summary.meta.discounted
-          ? ((summary.selling.regularAmount - summary.selling.currentAmount) /
-              summary.selling.regularAmount) *
-            100
-          : 0;
-
-        summary.selling.currentSaving = summary.meta.discounted
-          ? `${Math.round(summary.selling.currentSavingAmount)}%`
-          : "";
-      }
-    }
   }
+
   return summary;
 }
 
