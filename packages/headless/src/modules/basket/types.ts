@@ -156,7 +156,6 @@ export interface BasketProductSummaryDetail {
     quantifiable?: boolean;
     discounted?: boolean;
     free?: boolean;
-    priceless?: boolean;
     invalid?: boolean;
   };
 }
