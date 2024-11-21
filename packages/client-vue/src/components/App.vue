@@ -77,6 +77,7 @@ import {
   UpmSessionExpired,
   UpmBasketLoading,
 } from "@upmind-automation/client-vue";
+import UpmContent from "@/components/content/Content.vue";
 
 // --- types
 import type { Component } from "vue";
@@ -92,7 +93,7 @@ const props = withDefaults(
   {
     loadingPrimaryColor: "base-foreground",
     loadingSecondaryColor: "secondary",
-    contentComponent: "div",
+    contentComponent: UpmContent,
   }
 );
 

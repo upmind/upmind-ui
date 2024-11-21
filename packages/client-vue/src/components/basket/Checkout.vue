@@ -14,7 +14,7 @@
           <!-- Account -->
           <slot name="session">
             <component
-              :is="props.contentComponent"
+              :is="props.contentSectionComponent"
               v-if="!meta.hasAccount && !meta.isCheckout"
             >
               <component :is="props.cardComponent">
@@ -33,7 +33,7 @@
 
           <component
             v-if="meta.hasAccount && !meta.isCheckout"
-            :is="props.contentComponent"
+            :is="props.contentSectionComponent"
             :title="t('basket.billing_details.title')"
           >
             <template #title v-if="$slots['billing-details-title']">
@@ -51,7 +51,7 @@
           </component>
 
           <component
-            :is="props.contentComponent"
+            :is="props.contentSectionComponent"
             v-show="meta.hasAccount && !meta.isCheckout"
             :title="t('basket.payment_details.title')"
           >
@@ -73,7 +73,7 @@
         >
           <aside class="flex w-full flex-col gap-6 text-left">
             <component
-              :is="props.contentComponent"
+              :is="props.contentSectionComponent"
               :title="t('basket.summary.title')"
             >
               <component :is="props.cardComponent">
@@ -136,6 +136,8 @@ import {
   UpmSummary,
   useBasketPaymentDetails,
 } from "@upmind-automation/client-vue";
+import UpmCard from "../content/Card.vue";
+import UpmContentSection from "../content/ContentSection.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
@@ -150,8 +152,8 @@ const { isReady, meta, invoice } = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
-  cardComponent: "div",
-  contentComponent: "div",
+  cardComponent: UpmCard,
+  contentSectionComponent: UpmContentSection,
 });
 
 await isReady();
