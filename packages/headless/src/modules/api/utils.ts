@@ -69,21 +69,6 @@ export function ensureCamelCaseKeys(response: any): any {
   );
 }
 
-// export function ensureCamelCaseKeys(response) {
-//   return mapKeysDeep(response, camelCase);
-// }
-
-// function mapKeysDeep(obj, fn): any {
-//   if (isPlainObject(obj)) {
-//     const objWithTransformedKeys = mapKeys(obj, (_, key) => fn(key));
-//     return mapValues(objWithTransformedKeys, value => mapKeysDeep(value, fn));
-//   } else if (isArray(obj)) {
-//     return map(obj, value => mapKeysDeep(value, fn));
-//   } else {
-//     return obj;
-//   }
-// }
-
 export function parseData(data: any) {
   if (data instanceof FormData) return data;
 

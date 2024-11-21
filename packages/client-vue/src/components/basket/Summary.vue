@@ -16,8 +16,8 @@
             class="text-primary group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
           >
             <span>{{ product?.name }}</span>
-            <span v-if="product?.service_identifier">
-              ({{ product?.service_identifier }})
+            <span v-if="product?.serviceIdentifier">
+              ({{ product?.serviceIdentifier }})
             </span>
           </div>
 

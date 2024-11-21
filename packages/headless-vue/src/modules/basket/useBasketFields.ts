@@ -26,61 +26,60 @@ import type { ActorRef } from "xstate";
 
 export const useBasketFields = (service?: ActorRef<any, any>) => {
   const { service: basket } = useBasket();
-  const custom_fields = ref();
+  const customFields = ref();
 
   if (!service) {
     waitFor(
       basket,
-      newstate => contextMatches(newstate, ["actors.custom_fields"]),
+      newstate => contextMatches(newstate, ["actors.customFields"]),
       { timeout: Infinity }
     ).then(validState => {
-      custom_fields.value = contextActor(validState, "actors.custom_fields");
+      customFields.value = contextActor(validState, "actors.customFields");
     });
   } else {
-    custom_fields.value = useActor(service);
+    customFields.value = useActor(service);
   }
 
   // --------------------------------------------------------
 
   return {
-    state: computed(() => stateValue(custom_fields, "value")),
-    context: computed(() => stateValue(custom_fields, "context")),
-    errors: computed(() => contextValue(custom_fields, "error")),
-    //messages: computed(()=> contextValue(custom_fields, 'messages')),
+    state: computed(() => stateValue(customFields, "value")),
+    context: computed(() => stateValue(customFields, "context")),
+    errors: computed(() => contextValue(customFields, "error")),
+    //messages: computed(()=> contextValue(customFields, 'messages')),
     // ---
     meta: computed(() => ({
-      isLoading:
-        !custom_fields.value || stateMatches(custom_fields, ["loading"]),
-      hasErrors: stateMatches(custom_fields, ["error"]),
-      isProcessing: stateMatches(custom_fields, ["checking", "processing"]),
-      isValid: stateMatches(custom_fields, ["valid"]),
-      isDirty: contextMatches(custom_fields, ["dirty"]),
+      isLoading: !customFields.value || stateMatches(customFields, ["loading"]),
+      hasErrors: stateMatches(customFields, ["error"]),
+      isProcessing: stateMatches(customFields, ["checking", "processing"]),
+      isValid: stateMatches(customFields, ["valid"]),
+      isDirty: contextMatches(customFields, ["dirty"]),
       isComplete:
-        stateValue(custom_fields, "done", false) ||
-        stateMatches(custom_fields, ["processed", "complete"]),
+        stateValue(customFields, "done", false) ||
+        stateMatches(customFields, ["processed", "complete"]),
     })),
     // ---
-    model: computed(() => contextValue(custom_fields, "model")),
-    schema: computed(() => contextValue(custom_fields, "schema")),
-    uischema: computed(() => contextValue(custom_fields, "uischema")),
+    model: computed(() => contextValue(customFields, "model")),
+    schema: computed(() => contextValue(customFields, "schema")),
+    uischema: computed(() => contextValue(customFields, "uischema")),
 
     // ---
-    clear: () => custom_fields.value?.send({ type: "CLEAR" }),
+    clear: () => customFields.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
       // @ts-ignore
-      custom_fields.value?.send({ type: "SET", data: model }),
+      customFields.value?.send({ type: "SET", data: model }),
     update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
-      // first check if our custom_fields has change, ie: model.code has changed
-      const selected = contextValue(custom_fields, "model");
+      // first check if our customFields has change, ie: model.code has changed
+      const selected = contextValue(customFields, "model");
 
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
         // @ts-ignore
-        custom_fields.value?.send({ type: "SET", data: model, update: true });
+        customFields.value?.send({ type: "SET", data: model, update: true });
       }
     },
   };

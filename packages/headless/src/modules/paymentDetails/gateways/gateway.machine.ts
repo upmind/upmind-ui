@@ -23,7 +23,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      basketId: undefined,
       currency: undefined,
       gateway: undefined,
       amount: undefined,
@@ -33,7 +33,7 @@ export default createMachine(
       uischema: undefined,
       model: undefined,
       // ---
-      error: null,
+      error: undefined,
     } as GatewayContext,
     states: {
       loading: {

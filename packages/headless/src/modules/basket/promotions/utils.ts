@@ -5,7 +5,6 @@
 // --- utils
 
 // --- types
-import { size } from "lodash-es";
 import type { PromotionsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 

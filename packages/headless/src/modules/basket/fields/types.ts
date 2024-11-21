@@ -12,25 +12,21 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export interface IField {
   notes: string;
-  custom_fields: Record<string, any>;
+  customFields: Record<string, any>;
 }
 
 // --------------------------------------------------------
 // Contexts
 
 export interface FieldsContext {
-  basket_id?: String;
+  basketId?: String;
   // ---
-  // TODO:
-  // fields?: Array;
-  fields?: any[];
+  fields?: any[]; // IFields[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IField;
   // ---
   dirty?: Boolean;
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
 
@@ -40,7 +36,5 @@ export interface FieldsContext {
 export interface FieldsEvent {
   type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
   data?: IField;
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
