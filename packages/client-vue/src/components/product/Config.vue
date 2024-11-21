@@ -31,7 +31,7 @@
           product?.hasFreeTrial ||
           product?.isOnPromotion ||
           !!product?.description ||
-          !!product?.shortDescription
+          !!product?.excerpt
         "
       >
         <!-- heading -->
@@ -77,9 +77,9 @@
             :lines="2"
             labelMore=""
             labelLess=""
-            v-if="product?.shortDescription"
+            v-if="product?.excerpt"
           >
-            <Markdown :model-value="product.shortDescription" />
+            <Markdown :model-value="product.excerpt" />
           </Lineclamp>
         </div>
       </div>

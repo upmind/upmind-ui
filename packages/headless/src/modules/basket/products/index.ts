@@ -7,7 +7,6 @@ import { waitFor } from "xstate/lib/waitFor";
 import productMachine from "../../product/product.machine";
 
 // --- utils
-import { parseBasketProduct } from "../utils";
 import { find } from "lodash-es";
 
 import { responseCodes } from "../../api";

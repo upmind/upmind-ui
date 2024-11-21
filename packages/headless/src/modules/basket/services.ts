@@ -231,22 +231,31 @@ async function getProvisioningFieldsValues(basket: Basket) {
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched
-  return Promise.all(provisioningPromises).then(([provisioningErrors]) => {
-    // provisioningErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
+  return Promise.all(provisioningPromises).then(([rawErrors]) => {
+    // rawErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
+    const { products: parsedErrors } = reduce(
+      rawErrors?.data,
+      (result, value, key) => {
+        set(result, key, value);
+        return result;
+      },
+      {}
+    ) as any;
 
-    if (has(provisioningErrors, "data")) {
-      provisioningErrors.data = reduce(
-        provisioningErrors.data,
-        (result, value, key) => {
-          set(result, key, value);
-          return result;
-        },
-        {}
-      );
-    }
+    // then we parse the errors into a more usable format, replacing their indexes with the product ids
+    // this will allow us to easily access the provisioning fields for each product
+    const provisioningErrors = reduce(
+      parsedErrors,
+      (result, value, key: number) => {
+        const bpid = basket.products[key]?.id;
+        set(result, bpid, value?.provision_field_values);
+        return result;
+      },
+      {}
+    );
     return {
       basket,
-      error: provisioningErrors,
+      provisioningErrors,
     };
   });
 }

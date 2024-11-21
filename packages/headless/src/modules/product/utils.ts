@@ -90,7 +90,8 @@ export const parseProduct = (
     category: useTranslateName(merged.category),
     serviceIdentifier: merged.service_identifier,
     description: merged.description,
-    shortDescription: merged.short_description,
+    excerpt: useTranslateField(merged, "short_description"),
+
     // ---
     image: merged.image,
     images: merged.images,
@@ -209,7 +210,7 @@ export const parseSubproduct = (
         id: rawSubproduct.id,
         name: useTranslateName(rawSubproduct),
         description: useTranslateField(rawSubproduct, "description"),
-        shortDescription: useTranslateField(rawSubproduct, "short_description"),
+        excerpt: useTranslateField(rawSubproduct, "short_description"),
         quantifiable: rawSubproduct.order_type == 2,
         cycle: rawSubproduct.billing_cycle_months,
         step: rawSubproduct.unit_quantity,
@@ -280,7 +281,7 @@ export const parsePromotion = (
         code: rawPromo.code,
         name: useTranslateName(rawPromo),
         description: useTranslateField(rawPromo, "description"),
-        shortDescription: useTranslateField(rawPromo, "short_description"),
+        excerpt: useTranslateField(rawPromo, "short_description"),
         display: promotionDisplayType,
         mixed: data.mixed_promotions,
       };

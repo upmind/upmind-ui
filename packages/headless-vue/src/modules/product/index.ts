@@ -65,6 +65,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     hasErrors:
       stateMatches(state, ["available.error", "error"]) ||
       contextMatches(state, ["error"]),
+
     isConfigurable: contextMatches(state, [
       "lookups.attributes",
       "lookups.options",

@@ -8,6 +8,11 @@ export enum TaxTagTypes {
   FIXED = 2,
 }
 
+export enum ProductOrderTypes {
+  SINGLE_OPTION = 1,
+  QUANTITY_BASED = 2,
+  INHERIT = 3,
+}
 // --------------------------------------------------------
 // Interfaces
 export interface Basket {
@@ -98,7 +103,7 @@ type ISubProductChoices = Record<
 export interface BasketProduct {
   id: string; // the basket product id (bpid)
 
-  // --- model
+  // --- Model
   productId: string;
   quantity: number;
   term: { cycle: number };
@@ -106,58 +111,71 @@ export interface BasketProduct {
   attributes?: ISubProductChoices;
   provisionFields?: Record<string, any>;
 
-  // --- descriptive details
-  name: string;
-  category: string;
-  serviceIdentifier?: string;
-  description?: string;
-  shortDescription?: string;
-
-  // --- lookups/config
+  // ---
   product: {
     id: string;
+    name: string;
+    category: string;
+    serviceIdentifier?: string;
+    description?: string;
+    excerpt?: string;
+    imgUrl?: string;
+    meta?: Record<string, any> | null;
+    // ---
     quantifiable?: boolean;
     min?: number;
     max?: number;
     step?: number;
   };
 
-  // --- summary
+  // ---
   summary: {
-    hasDiscount?: boolean;
-    currentPrice?: number;
-    currentPriceFormatted?: string;
-    regularPrice?: number;
-    regularPriceFormatted?: string;
+    details: BasketProductSummaryDetail[];
+    // ---
+    pricing: BasketProductSummaryPrice[];
+  };
 
-    // --- prices breakdown for non quantifiable products
-    // prices: [
-    //   {
-    //     price: number;
-    //     priceFormatted: string;
-    //     priceDiscounted?: number;
-    //     priceDiscountedFormatted?: string;
-    //   },
-    // ];
-
-    // --- details
-    details: BasketProductDetail[];
+  // ---
+  error?: {
+    term?: any;
+    attributes?: any;
+    options?: any;
+    provisionFields?: any;
   };
 }
 
-export interface BasketProductDetail {
+export interface BasketProductSummaryDetail {
   key: string;
   category: string;
   name: any;
+  serviceIdentifier?: string;
   cycle?: number;
   quantity?: number;
-  hasPricing?: boolean;
-  hasDiscount?: boolean;
-  currentPrice?: number;
-  currentPriceFormatted?: string;
-  regularPrice?: number;
-  regularPriceFormatted?: string;
-  invalid?: boolean;
+  meta?: {
+    oneoff?: boolean;
+    quantifiable?: boolean;
+    discounted?: boolean;
+    free?: boolean;
+    priceless?: boolean;
+    invalid?: boolean;
+  };
+}
+
+interface Price {
+  currentAmount?: number;
+  currentPrice?: string;
+  // ---
+  regularAmount?: number;
+  regularPrice?: string;
+  // ---
+  currentSavingAmount?: number;
+  currentSaving?: string;
+}
+
+export interface BasketProductSummaryPrice
+  extends BasketProductSummaryDetail,
+    Price {
+  selling?: Price;
 }
 
 export interface BasketProductConfig {

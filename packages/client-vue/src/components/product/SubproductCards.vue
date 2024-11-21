@@ -100,7 +100,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
       id: subproduct.id,
       value: subproduct.id,
       label: subproduct?.name,
-      text: subproduct?.shortDescription,
+      text: subproduct?.excerpt,
     };
   });
 });
