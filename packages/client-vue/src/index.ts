@@ -20,19 +20,20 @@ export { default as UpmCurrency } from "./components/basket/CurrencySwitcher.vue
 export { default as UpmProductConfig } from "./components/product/Config.vue";
 export { default as UpmProductNotFound } from "./components/product/NotFound.vue";
 export * from "./components/renderers";
-
+// ---
 export { default as UpmBasketProducts } from "./components/basket/ItemListings.vue";
-export { default as UpmBillingDetails } from "./components/basket/BillingDetails.vue";
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketDetails } from "./components/basket/Details.vue";
-export { default as UpmPaymentNotRequired } from "./components/basket/PaymentNotRequired.vue";
 export { default as UpmBasketProcessing } from "./components/basket/Procesing.vue";
 export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
 export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
-export { default as UpmPaymentDetails } from "./components/basket/PaymentDetails.vue";
-export { default as UpmCheckout } from "./components/basket/Checkout.vue";
 export { default as UpmSummary } from "./components/basket/Summary.vue";
-//----
+// ---
+export { default as UpmCheckout } from "./components/checkout/Checkout.vue";
+export { default as UpmPaymentDetails } from "./components/checkout/PaymentDetails.vue";
+export { default as UpmPaymentNotRequired } from "./components/checkout/PaymentNotRequired.vue";
+export { default as UpmBillingDetails } from "./components/checkout/BillingDetails.vue";
+// ---
 export { default as UpmCard } from "./components/content/Card.vue";
 export { default as UpmContent } from "./components/content/Content.vue";
 export { default as UpmContentSection } from "./components/content/ContentSection.vue";
