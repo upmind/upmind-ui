@@ -112,21 +112,7 @@ export interface BasketProduct {
   provisionFields?: Record<string, any>;
 
   // ---
-  product: {
-    id: string;
-    name: string;
-    category: string;
-    serviceIdentifier?: string;
-    description?: string;
-    excerpt?: string;
-    imgUrl?: string;
-    meta?: Record<string, any> | null;
-    // ---
-    quantifiable?: boolean;
-    min?: number;
-    max?: number;
-    step?: number;
-  };
+  product: BasketProductDetails;
 
   // ---
   summary: {
@@ -143,6 +129,22 @@ export interface BasketProduct {
     provisionFields?: any;
   };
 }
+
+export type BasketProductDetails = {
+  id: string;
+  name: string;
+  category: string;
+  serviceIdentifier?: string;
+  description?: string;
+  excerpt?: string;
+  imgUrl?: string;
+  meta?: Record<string, any> | null;
+  // ---
+  quantifiable?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+};
 
 export interface BasketProductSummaryDetail {
   key: string;
