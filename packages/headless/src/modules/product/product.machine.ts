@@ -329,7 +329,7 @@ export default createMachine(
           valid: {},
           configured: {
             entry: ["cancelCalculation", "setSummaryWithBasketProduct"],
-            final: true,
+            type: "final",
           },
           error: {},
         },
