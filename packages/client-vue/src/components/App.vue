@@ -85,10 +85,10 @@ import type { Component } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(
   defineProps<{
-    contentComponent: Component | string;
+    contentComponent?: Component | string;
     theme: any;
-    loadingPrimaryColor: string;
-    loadingSecondaryColor: string;
+    loadingPrimaryColor?: string;
+    loadingSecondaryColor?: string;
   }>(),
   {
     loadingPrimaryColor: "base-foreground",
