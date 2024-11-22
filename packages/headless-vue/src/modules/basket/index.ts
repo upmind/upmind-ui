@@ -11,4 +11,5 @@ export type {
   BasketProduct,
   BasketProductSummaryPrice,
   BasketProductSummaryDetail,
+  BasketProductDetails,
 } from "@upmind-automation/headless";
