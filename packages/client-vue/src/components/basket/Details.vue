@@ -66,8 +66,8 @@ import config from "./config.cva";
 // --- components
 import Session from "../session/Session.vue";
 import BasketSummary from "./Summary.vue";
-import BillingDetails from "./BillingDetails.vue";
-import PaymentDetails from "./PaymentDetails.vue";
+import BillingDetails from "../checkout/BillingDetails.vue";
+import PaymentDetails from "../checkout/PaymentDetails.vue";
 import { Form } from "@upmind-automation/upwind";
 
 // --- types

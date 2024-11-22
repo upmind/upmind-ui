@@ -1,4 +1,3 @@
-import type { Component } from "vue";
 import type {
   AvatarProps,
   DialogProps,
@@ -30,14 +29,4 @@ export interface BasketModalProps {
   // ---
   size?: DialogProps["size"];
   skrim?: DialogProps["skrim"];
-}
-
-export interface PaymentDetailsProps {
-  cardComponent?: Component | "div";
-  class?: string;
-}
-
-export interface CheckoutProps {
-  cardComponent?: Component | "div";
-  contentSectionComponent?: Component | "div";
 }
