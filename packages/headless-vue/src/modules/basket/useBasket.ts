@@ -175,9 +175,7 @@ export const useBasket = (): any => {
     products: useContext(state, "products", []),
     productsPending: computed(() => {
       const items = contextValue(state, "items", []);
-      debugger;
       const active = filter(items, item => !item?.state?.done);
-      debugger;
       return active;
     }),
     productsInvalid: computed(() =>

@@ -189,11 +189,8 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
     },
 
     // --- summary details
-    // Current Price is any discounted price (if available) otherwise the full price
-    // Regular price is always the full price
     summary: {
-      pricing: compact([parsPriceSummary(raw)]),
-
+      pricing: [],
       details: [],
     },
     // --- errors
@@ -201,32 +198,32 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   };
 
   // --- Now build up our details
-  const term = parseTerm(
-    raw.billing_cycle_months,
-    raw.quantity,
-    raw?.product?.prices
-  );
-  if (term) product.summary.details.push(term);
-
+  const term = parseTerm(raw);
+  if (term) {
+    product.summary.details.push(term);
+    product.summary.pricing.push(term);
+  }
+  // ---
   forEach(raw?.options, option => {
-    const subproduct = parseSubproduct(option);
+    const subproduct = parsPriceSummary(option);
     if (subproduct) {
       if (raw.order_type === ProductOrderTypes.QUANTITY_BASED)
-        product.summary.pricing.push(parsPriceSummary(option));
-
+        product.summary.pricing.push(subproduct);
       subproduct.key = "option";
       product.summary.details.push(subproduct as BasketProductSummaryDetail);
     }
   });
 
+  // ---
   forEach(raw?.attributes, attribute => {
-    const subproduct = parsPriceSummary(attribute);
+    const subproduct = parseSubproduct(attribute);
     if (subproduct) {
       subproduct.key = "attribute";
-      product.summary.details.push(subproduct);
+      product.summary.details.push(subproduct as BasketProductSummaryDetail);
     }
   });
 
+  // ---
   forEach(raw?.provision_fields, (value, key) => {
     const hasError = get(provisioningErrors, [raw?.id, key]);
     const field = parseProvisionField(key, value, hasError);
@@ -278,27 +275,17 @@ const parseQuantity = (quantity: number, raw: any) => {
   return quantity;
 };
 
-function parseTerm(
-  value: number,
-  quantity: number,
-  prices: any
-): BasketProductSummaryDetail | null {
+function parseTerm(raw: any): BasketProductSummaryDetail | null {
   const { getBillingCycle } = useSystem();
-  const cycle = getBillingCycle(value);
+  const term = parsPriceSummary(raw);
+  const cycle = getBillingCycle(raw.billing_cycle_months);
   const name = cycle ? useTranslateName(cycle) : null;
-  const term = find(prices, ["billing_cycle_months", value]);
-  if (term) {
-    // NB: only show term pricing if recurring!
-    return {
-      key: "term",
-      category: "Billing Cycle",
-      name,
-      cycle: term.billing_cycle_months,
-      quantity,
-    };
-  }
 
-  return null;
+  term.key = "term";
+  term.category = "Billing Cycle";
+  term.name = name;
+
+  return term;
 }
 
 function parseSubproduct(

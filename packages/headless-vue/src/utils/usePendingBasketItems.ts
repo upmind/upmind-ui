@@ -249,12 +249,9 @@ export const usePendingBasketItems = () => {
 
     const product = find(products.value, basketProduct => {
       const serviceIdentifier = get(basketProduct, "product.serviceIdentifier");
-      debugger;
       if (!serviceIdentifier) return false;
-      debugger;
       const value = includes(values(provisionFields), serviceIdentifier);
       const hasError = !isEmpty(basketProduct?.error);
-      debugger;
       return value && hasError;
     });
 
@@ -296,7 +293,6 @@ export const usePendingBasketItems = () => {
   });
 
   const invalidBasketItems = computed(() => {
-    debugger;
     const pending = map(productsPending.value, item => {
       const product = get(item, "state.context.lookups.product");
       return {
@@ -308,8 +304,6 @@ export const usePendingBasketItems = () => {
     const invalid = map(productsInvalid.value, product => {
       return product;
     });
-
-    debugger;
 
     return concat(pending, invalid);
   });

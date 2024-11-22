@@ -72,7 +72,6 @@ async function update(
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${data.id}`;
   // ---
-  debugger;
   return action({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
@@ -148,7 +147,6 @@ async function sync(
 
   // ---
   const { put, useUrl } = useApi();
-  debugger;
   return put({
     url: useUrl(`/orders/${basketId}`),
     data: { products: concat(existingProducts, products) },
