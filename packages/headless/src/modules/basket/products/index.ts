@@ -65,6 +65,8 @@ export const useBasketProduct = (
       return waitFor(service, state => state.matches("available"));
     },
 
+    stop: () => service.stop(),
+
     update: async (): Promise<ActorRef<any, any>> => {
       service.send({ type: "UPDATE" });
 

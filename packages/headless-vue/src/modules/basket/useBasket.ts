@@ -16,7 +16,7 @@ import {
   useContext,
   useState,
 } from "../../utils";
-import { some, filter } from "lodash-es";
+import { some, filter, isEmpty } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -90,11 +90,7 @@ export const useBasket = (): any => {
           machineMatches(actors.value.currency, ["valid"]) ||
           machineMatches(actors.value.customFields, ["valid"]) ||
           machineMatches(actors.value.billingDetails, ["valid"]) ||
-          machineMatches(actors.value.promotions, ["valid"]) ||
-          (stateMatches(state, ["shopping.items.configuring"]) &&
-            some(contextValue(state, "items"), item =>
-              machineMatches(item, ["available.configured"])
-            )),
+          machineMatches(actors.value.promotions, ["valid"]),
 
         // ---
         isEmpty: !contextMatches(state, ["products", "items"]),
@@ -112,6 +108,10 @@ export const useBasket = (): any => {
 
         // ---
         hasProducts: contextMatches(state, ["products"]),
+        hasInvalidProducts: some(
+          contextValue(state, "products", []),
+          product => !isEmpty(product?.error)
+        ),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
@@ -143,7 +143,7 @@ export const useBasket = (): any => {
         isReadyForCheckout: stateMatches(
           state,
           [
-            "shopping.items.complete",
+            "shopping.products.complete",
             "shopping.promotions.complete",
             "shopping.account.complete",
             "shopping.currency.complete",
@@ -167,16 +167,6 @@ export const useBasket = (): any => {
         isComplete: stateMatches(state, ["complete", "failed"]),
         hasPaid: stateMatches(state, ["complete"]),
         hasFailed: stateMatches(state, ["failed"]),
-
-        // hasErrors:
-        //   stateMatches(state, [
-        //     "shopping.items.processing.error",
-        //     "shopping.promotions.error",
-        //     "shopping.account.error",
-        //   ]) ||
-        //   machineMatches(actors.value.customFields, ["error"]) ||
-        //   machineMatches(actors.value.paymentDetails, ["error"]) ||
-        //   !!useContext(state, "error"),
       };
     }),
     //  ---
@@ -185,11 +175,15 @@ export const useBasket = (): any => {
     products: useContext(state, "products", []),
     productsPending: computed(() => {
       const items = contextValue(state, "items", []);
-      return filter(items, item => !item?.state?.done);
+      debugger;
+      const active = filter(items, item => !item?.state?.done);
+      debugger;
+      return active;
     }),
     productsInvalid: computed(() =>
-      filter(contextValue(state, "products", []), product =>
-        some(product?.summary?.details, ({ invalid }) => !!invalid)
+      filter(
+        contextValue(state, "products", []),
+        product => !isEmpty(product?.error)
       )
     ),
     promotions: useContext(state, "basket.promotions", []),

@@ -21,7 +21,7 @@ export { default as UpmProductConfig } from "./components/product/Config.vue";
 export { default as UpmProductNotFound } from "./components/product/NotFound.vue";
 export * from "./components/renderers";
 
-export { default as UpmBasketItems } from "./components/basket/ItemListings.vue";
+export { default as UpmBasketProducts } from "./components/basket/ItemListings.vue";
 export { default as UpmBillingDetails } from "./components/basket/BillingDetails.vue";
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketDetails } from "./components/basket/Details.vue";

@@ -35,14 +35,14 @@ export default {
           //   },
           //   {
           //     isLoading: false,
-          //     isConfigured: false,
+          //     isInvalid: false,
           //     class: "rounded-none border-none",
           //   },
           // ],
 
           defaultVariants: {
             isDisabled: false,
-            isConfigured: false,
+            isInvalid: true,
           },
         }
       ),

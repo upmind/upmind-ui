@@ -72,6 +72,7 @@ async function update(
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${data.id}`;
   // ---
+  debugger;
   return action({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
@@ -102,7 +103,7 @@ async function sync(
   // otherwise the existing products will be removed from the basket
 
   const validItems = filter(data, item =>
-    item.state?.matches("available.configured")
+    item.state?.matches("available.valid")
   );
 
   // --- then build the basket config for the validItems products
@@ -147,6 +148,7 @@ async function sync(
 
   // ---
   const { put, useUrl } = useApi();
+  debugger;
   return put({
     url: useUrl(`/orders/${basketId}`),
     data: { products: concat(existingProducts, products) },

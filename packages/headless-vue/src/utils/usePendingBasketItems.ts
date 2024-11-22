@@ -31,7 +31,10 @@ import {
 import type { Ref } from "vue";
 import type { ActorRef, State, Subscription } from "xstate";
 import type { ProductModel } from "@upmind-automation/headless";
-import { stateMatches } from "../../../../packages/headless-vue/src/utils";
+import {
+  contextMatches,
+  stateMatches,
+} from "../../../../packages/headless-vue/src/utils";
 
 enum NextBasketItemTypes {
   PENDING = "pending",
@@ -244,29 +247,22 @@ export const usePendingBasketItems = () => {
 
     if (isEmpty(provisionFields)) return null;
 
-    const basketItem = find(products.value, item => {
-      const serviceIdentifier = get(
-        item,
-        "state.context.lookups.product.serviceIdentifier"
-      );
-
+    const product = find(products.value, basketProduct => {
+      const serviceIdentifier = get(basketProduct, "product.serviceIdentifier");
+      debugger;
       if (!serviceIdentifier) return false;
-
+      debugger;
       const value = includes(values(provisionFields), serviceIdentifier);
-      const requiresAction = stateMatches(item, [
-        "available.configuring",
-        "available.configured",
-        "available.error",
-      ]);
-
-      return value && requiresAction;
+      const hasError = !isEmpty(basketProduct?.error);
+      debugger;
+      return value && hasError;
     });
 
-    if (!basketItem) return null;
+    if (!product) return null;
 
     return {
       name: "productEdit",
-      params: { bpid: basketItem.id },
+      params: { bpid: product.id },
     };
   }
 
@@ -300,6 +296,7 @@ export const usePendingBasketItems = () => {
   });
 
   const invalidBasketItems = computed(() => {
+    debugger;
     const pending = map(productsPending.value, item => {
       const product = get(item, "state.context.lookups.product");
       return {
@@ -311,6 +308,8 @@ export const usePendingBasketItems = () => {
     const invalid = map(productsInvalid.value, product => {
       return product;
     });
+
+    debugger;
 
     return concat(pending, invalid);
   });

@@ -206,17 +206,16 @@ export default createMachine(
             },
           },
 
-          items: {
+          products: {
             initial: "configuring",
             states: {
               configuring: {
                 id: "configuring",
-                always: { target: "complete", cond: "hasNoItems" },
+                always: { target: "complete", cond: "hasProducts" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
-                always: [{ target: "configuring", cond: "hasItems" }],
+                always: [{ target: "configuring", cond: "hasNoProducts" }],
                 type: "final",
               },
             },
@@ -229,7 +228,6 @@ export default createMachine(
                 always: { target: "complete", cond: "currencyComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [
                   { target: "configuring", cond: "currencyConfiguring" },
@@ -246,7 +244,6 @@ export default createMachine(
                 always: { target: "complete", cond: "promotionsComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [
                   { target: "configuring", cond: "promotionsConfiguring" },
@@ -263,7 +260,6 @@ export default createMachine(
                 always: { target: "complete", cond: "customFieldsComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [
                   { target: "configuring", cond: "customFieldsConfiguring" },
@@ -280,7 +276,6 @@ export default createMachine(
                 always: { target: "complete", cond: "billingComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [{ target: "configuring", cond: "billingConfiguring" }],
                 type: "final",
@@ -295,7 +290,6 @@ export default createMachine(
                 always: [{ target: "available", cond: "paymentDetailsValid" }],
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               available: {
                 always: [
                   { target: "configuring", cond: "paymentDetailsConfiguring" },
@@ -430,7 +424,6 @@ export default createMachine(
         { actions: ["addItem"] },
       ],
       CLEAR: {
-        target: "#shopping.items",
         actions: ["clearItems"],
       },
       // ---
@@ -776,8 +769,8 @@ export default createMachine(
         );
       },
 
-      hasNoItems: ({ items }) => isEmpty(items),
-      hasItems: ({ items }) => !isEmpty(items),
+      hasNoProducts: ({ products }) => isEmpty(products),
+      hasProducts: ({ products }) => !isEmpty(products),
     },
 
     delays: {
