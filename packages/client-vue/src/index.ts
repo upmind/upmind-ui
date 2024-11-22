@@ -2,10 +2,14 @@
 
 export * from "@upmind-automation/headless-vue";
 
+export { default as UpmApp } from "./components/App.vue";
+
 // --- expose our modules & components
 export { default as UpmFeedback } from "./components/feedback/Feedback.vue";
 // ---
 export { default as UpmSession } from "./components/session/Session.vue";
+export { default as UpmSessionLoginPopover } from "./components/session/LoginPopover.vue";
+export { default as UpmSessionDetailsDropdown } from "./components/session/DetailsDropdown.vue";
 export { default as UpmAuth } from "./components/session/Auth.vue";
 export { default as UpmProfile } from "./components/session/Profile.vue";
 export { default as UpmSessionExpired } from "./components/session/Expired.vue";
@@ -21,11 +25,19 @@ export { default as UpmBasketItems } from "./components/basket/ItemListings.vue"
 export { default as UpmBillingDetails } from "./components/basket/BillingDetails.vue";
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketDetails } from "./components/basket/Details.vue";
+export { default as UpmPaymentNotRequired } from "./components/basket/PaymentNotRequired.vue";
 export { default as UpmBasketProcessing } from "./components/basket/Procesing.vue";
 export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
 export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
 export { default as UpmPaymentDetails } from "./components/basket/PaymentDetails.vue";
-
+export { default as UpmCheckout } from "./components/basket/Checkout.vue";
+export { default as UpmSummary } from "./components/basket/Summary.vue";
+//----
+export { default as UpmCard } from "./components/content/Card.vue";
+export { default as UpmContent } from "./components/content/Content.vue";
+export { default as UpmContentSection } from "./components/content/ContentSection.vue";
+// ---
+export { default as UpmBack } from "./components/navigation/Back.vue";
 // ---
 export { default as UpmOrderConfirmation } from "./components/order/Confirmation.vue";
 // ---

@@ -1,14 +1,22 @@
 <template>
-  <div ref="form" :class="styles.basket.paymentGateway.root">
+  <div ref="form" class="flex flex-col gap-6">
     <transition-group
       tag="div"
-      :class="styles.basket.paymentGateway.wrapper"
-      :enter-active-class="styles.basket.paymentGateway.transition.enter.active"
-      :enter-from-class="styles.basket.paymentGateway.transition.enter.from"
-      :enter-to-class="styles.basket.paymentGateway.transition.enter.to"
-      :leave-active-class="styles.basket.paymentGateway.transition.leave.active"
-      :leave-from-class="styles.basket.paymentGateway.transition.leave.from"
-      :leave-to-class="styles.basket.paymentGateway.transition.leave.to"
+      :class="[
+        'flex flex-col items-center justify-center gap-6',
+        {
+          '': variant === 'outline' || meta.hasRenderer || meta.hasInstructions,
+          'border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20':
+            meta.hasErrors &&
+            (variant === 'outline' || meta.hasRenderer || meta.hasInstructions),
+        },
+      ]"
+      enter-active-class="m-0 transition duration-300 ease-out"
+      enter-from-class="-translate-y-10 transform opacity-0"
+      enter-to-class="translate-y-0 transform opacity-100"
+      leave-active-class="absolute transition duration-100 ease-in"
+      leave-from-class="translate-y-0 transform opacity-100"
+      leave-to-class="-translate-y-1 transform opacity-0"
       appear
     >
       <Spinner size="xs" v-if="meta.isLoading" key="spinner" />
@@ -16,14 +24,14 @@
       <!-- Instructions -->
       <Markdown
         v-if="instructions"
-        :class="styles.basket.paymentGateway.instructions"
+        class="m-0 w-full p-0"
         :model-value="instructions"
       />
 
       <!-- gateway Render Content (* IF Provided) -->
       <div
         ref="container"
-        :class="styles.basket.paymentGateway.render"
+        class="w-full empty:hidden"
         v-show="!meta.isLoading"
         key="render"
       ></div>
@@ -33,7 +41,7 @@
         key="form"
         v-if="schema && uischema"
         v-show="!meta.isLoading"
-        :class="styles.basket.paymentGateway.form"
+        class="w-full"
         :additional-errors="errors?.data"
         :model-value="model"
         :processing="meta.isProcessing"
@@ -48,97 +56,50 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent, onMounted, watch, ref, computed } from "vue";
+import { onMounted, watch, ref } from "vue";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
-import { useStyles, cn, Markdown } from "@upmind-automation/upwind";
-import config from "./config.cva";
+import { useBasketPaymentGateway } from "@upmind-automation/client-vue";
+import { Markdown } from "@upmind-automation/upwind";
 
 // --- components
 import { Form, Spinner } from "@upmind-automation/upwind";
 
+// --- types
+// import { GatewayProviderCodes, GatewayTypes } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
+const props = defineProps<{
+  id: string;
+  variant?: string;
+}>();
 
-export default defineComponent({
-  name: "BasketPaymentGateway",
-  components: { Form, Spinner, Markdown },
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    variant: {
-      type: String,
-    },
-  },
-  setup(props) {
-    const {
-      meta,
-      errors,
-      model,
-      schema,
-      uischema,
-      renderer,
-      clear,
-      input,
-      update,
-      render,
-      instructions,
-    } = useBasketPaymentGateway();
+const {
+  meta,
+  errors,
+  model,
+  schema,
+  uischema,
+  renderer,
+  clear,
+  input,
+  update,
+  render,
+  instructions,
+} = useBasketPaymentGateway();
 
-    const styles = useStyles(
-      [
-        "basket.paymentGateway",
-        "basket.paymentGateway.transition.enter",
-        "basket.paymentGateway.transition.leave",
-      ],
-      computed(() => ({
-        hasErrors: meta.value?.hasErrors,
-        variant:
-          props.variant ||
-          meta.value?.hasRenderer ||
-          meta.value?.hasInstructions
-            ? "outline"
-            : "",
-      })),
-      config
-    );
+const container = ref();
+// wait till we mount then try to render the gateway if it's provided
+// otherwise watch in case it's provided later
+onMounted(() => {
+  watch(renderer, () => {
+    // only render if we have a renderer and we've not already rendered
+    if (container.value?.innerHTML) return;
 
-    const container = ref();
-    // wait till we mount then try to render the gateway if it's provided
-    // otherwise watch in case it's provided later
-    onMounted(() => {
-      watch(renderer, () => {
-        // only render if we have a renderer and weve not already rendered
-        if (container.value?.innerHTML) return;
-
-        render(container.value).catch(err => {
-          if (err) console.error(err);
-        });
-      });
+    render(container.value).catch(err => {
+      if (err) console.error(err);
     });
-
-    return {
-      container,
-
-      meta,
-      errors,
-      model,
-      schema,
-      uischema,
-      renderer,
-      clear,
-      input,
-      update,
-      render,
-      instructions,
-      // ---
-      styles,
-      cn,
-    };
-  },
+  });
 });
 </script>

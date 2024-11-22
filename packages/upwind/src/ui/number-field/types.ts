@@ -20,9 +20,10 @@ export interface NumberFieldProps
     NumberFieldDecrementProps,
     NumberFieldIncrementProps {
   // --- variants
-  size?: NumberFieldVariants["size"];
+  text?: NumberFieldRootVariants["text"];
   width?: NumberFieldRootVariants["width"];
   variant?: NumberFieldVariants["variant"];
+  height?: NumberFieldVariants["height"];
   // --- styles
   upwindConfig?: {};
   class?: HTMLAttributes["class"];
