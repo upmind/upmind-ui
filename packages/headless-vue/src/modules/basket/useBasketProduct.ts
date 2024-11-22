@@ -175,9 +175,9 @@ export const useBasketProductConfig = (id: string) => {
 
   // NB: watch for the basket to be refreshed, so we can refresh the product config
   // in case of any changes to currency, promotions etc
-  basket.onTransition(basketProduct => {
-    if (basketProduct.matches("refreshing.complete")) {
-      service.send("REFRESH", { basket: basketProduct.context.basket });
+  basket.onTransition(state => {
+    if (state.matches("refreshing.complete")) {
+      service.send("REFRESH", { basket: state.context.basket });
     }
   });
 
@@ -185,7 +185,7 @@ export const useBasketProductConfig = (id: string) => {
   // Now we can use our existing product config composable
 
   const {
-    basketProduct,
+    state,
     // context,
     errors,
     meta,
@@ -233,7 +233,7 @@ export const useBasketProductConfig = (id: string) => {
     id,
     // ---
     service,
-    basketProduct,
+    state,
     errors,
     meta,
     // ---
