@@ -59,7 +59,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   const meta = computed(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
-    isDirty: stateMatches(state, ["available.configured"]),
+    isDirty: stateMatches(state, ["available.valid"]),
     isTouched: touched.value,
     isUnavailable: state.value.done || stateMatches(state, ["error"]),
     hasErrors:
@@ -71,11 +71,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
       "lookups.options",
       "lookups.provisionFields.properties",
     ]),
-    isConfigured: stateMatches(state, [
-      "available.configured",
-      "available.complete",
-      "complete",
-    ]),
+    isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["summary.isCalculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
     isComplete:
@@ -121,7 +117,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
       },
     });
 
-    return waitFor(service, state => state.matches("available.configured"));
+    return waitFor(service, state => state.matches("available.valid"));
   };
 
   async function incrementQuantity() {

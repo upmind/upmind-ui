@@ -13,19 +13,6 @@ import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 async function fetch(context: any, basket: any) {
-  // // we need to ensure ALL our items are loaded before we can proceed
-  // return waitFor(
-  //   basket.service,
-  //   state => {
-  //     return every(
-  //       state.context.items,
-  //       actor => !actor?.state.matches("loading")
-  //     );
-  //   },
-  //   {
-  //     timeout: Infinity, // infinity = no timeout
-  //   }
-  // ).then(() => {
   const products = reduce(
     basket.getProducts(),
     (result, product) => {
@@ -43,7 +30,6 @@ async function fetch(context: any, basket: any) {
     []
   );
   return products;
-  // });
 }
 
 /**
@@ -103,9 +89,13 @@ async function sync(items: any, context: any, basket: any) {
               return Promise.resolve(actor);
             }
 
-            await waitFor(actor, actorState => {
-              return actorState.matches("available.configured");
-            });
+            await waitFor(
+              actor,
+              actorState => {
+                return actorState.matches("available.valid");
+              },
+              { timeout: 60_000 } // wait 1 min (max)
+            );
             return actor;
           }
         );

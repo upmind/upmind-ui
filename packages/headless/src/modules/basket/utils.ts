@@ -27,10 +27,10 @@ import {
   forEach,
   get,
   isEmpty,
+  has,
   map,
   reduce,
   set,
-  isNumber,
   toNumber,
   uniq,
   uniqueId,
@@ -160,7 +160,6 @@ export const parseBasket = (data: any) => {
 
 export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   // Get price object matching `display_price_billing_cycle_months`
-  debugger;
   const product: BasketProduct = {
     id: raw?.id,
 
@@ -198,11 +197,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       details: [],
     },
     // --- errors
-    error: isEmpty(provisioningErrors)
-      ? undefined
-      : {
-          provisionFields: provisioningErrors,
-        },
+    error: get(provisioningErrors, [raw?.id]),
   };
 
   // --- Now build up our details
@@ -234,7 +229,6 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
 
   forEach(raw?.provision_fields, (value, key) => {
     const hasError = get(provisioningErrors, [raw?.id, key]);
-    //  || some(provisioningErrors?.provision_fields?.data, ["schemaPath", key]);
     const field = parseProvisionField(key, value, hasError);
     if (field) product.summary.details.push(field);
   });
@@ -388,7 +382,7 @@ function parseProvisionField(
   data: any,
   hasError?: any
 ): BasketProductSummaryDetail | null {
-  const name = get(data, key);
+  const name = get(data, key, data); // just in case its an object > unti lwe have types
 
   return {
     key: `provision_field.${key}`,

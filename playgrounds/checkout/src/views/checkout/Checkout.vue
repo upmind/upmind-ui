@@ -24,7 +24,7 @@
       <UpwSteps :open="activeSection" :steps="steps" @update:open="scrollTo" />
 
       <!-- Overview -->
-      <UpmBasketItems
+      <UpmBasketProducts
         id="overview"
         ref="overview"
         :aria-disabled="!meta.isAvailable"
@@ -173,7 +173,7 @@ import {
   useBasketCurrency,
   // ---
   UpmBasketEmpty,
-  UpmBasketItems,
+  UpmBasketProducts,
   UpmBasketLoading,
   UpmBasketProcessing,
   UpmBasketSummary,
@@ -199,7 +199,7 @@ export default defineComponent({
   name: "Checkout",
   components: {
     UpmBasketEmpty,
-    UpmBasketItems,
+    UpmBasketProducts,
     UpmBasketLoading,
     UpmBasketProcessing,
     UpmBasketSummary,

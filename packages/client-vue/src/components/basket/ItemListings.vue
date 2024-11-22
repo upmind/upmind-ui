@@ -86,8 +86,8 @@ export default defineComponent({
         const isNew = !product.state.value.context?.basketProduct;
         // const hasErrors = !!product.state.value.context?.errors;
         // const needsConfiguring = [
-        //   "available.configuring",
-        //   "available.configured",
+        //   "available.invalid",
+        //   "available.valid",
         // ].some(product.state.value.matches);
 
         return isNew;

@@ -31,7 +31,7 @@ export const useBasketProduct = (id: string) => {
   }
 
   // and then we can generate our product machine
-  const { service, isReady, update, remove } = useUpmindBasketProduct(
+  const { service, isReady, update, remove, stop } = useUpmindBasketProduct(
     id,
     rawBasket
   );
@@ -138,5 +138,6 @@ export const useBasketProduct = (id: string) => {
     isReady,
     update,
     remove,
+    stop,
   };
 };

@@ -33,7 +33,7 @@ import type { ProductModel, ProductConfigContext } from "./types";
 // --- types
 
 // --------------------------------------------------------
-// Parsing Models for an Item/Product that is queued/configuring for the basket
+// Parsing Models for an Item/Product that is being configured for the basket
 
 // --------------------------------------------------------
 export const checkPriceOverride = (values: any, lookups: any) => {

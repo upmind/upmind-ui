@@ -70,7 +70,7 @@ export default createMachine(
         },
       },
 
-      // first load our product, we do this even if we are given a configured set of values
+      // first load our product, we do this even if we are given a valid set of values
       //  as we need the additional 'with' properties
       loading: {
         id: "loading",
@@ -84,7 +84,7 @@ export default createMachine(
               cond: "hasBasketError",
             },
             {
-              target: "available.complete",
+              target: "available.configured",
               actions: ["setLookups", "setSummaryWithBasketProduct"],
               cond: "hasBasketProduct",
             },
@@ -112,7 +112,7 @@ export default createMachine(
               cond: "hasBasketError",
             },
             {
-              target: "available.complete",
+              target: "available.configured",
               actions: ["setLookups", "setSummaryWithBasketProduct"],
               cond: "hasBasketProduct",
             },
@@ -129,11 +129,11 @@ export default createMachine(
       },
 
       available: {
-        initial: "configuring",
+        initial: "invalid",
         states: {
           // The product requires configuration
-          configuring: {
-            id: "configuring",
+          invalid: {
+            id: "invalid",
             type: "parallel",
             states: {
               quantity: {
@@ -321,14 +321,15 @@ export default createMachine(
             },
             onDone: [
               { target: "error", cond: "hasError" },
-              { target: "configured", cond: "isDirty" },
-              { target: "complete" },
+              { target: "valid", cond: "isDirty" },
+              { target: "configured" },
             ],
           },
           // this is our state where we are all good and can add/update this configuration to the basket
-          configured: {},
-          complete: {
+          valid: {},
+          configured: {
             entry: ["cancelCalculation", "setSummaryWithBasketProduct"],
+            final: true,
           },
           error: {},
         },
@@ -345,7 +346,7 @@ export default createMachine(
               cond: "hasError",
             },
             {
-              target: "available.configuring",
+              target: "available.invalid",
               actions: ["refreshContext", "setError"],
               cond: "hasChanged",
             },
@@ -401,27 +402,27 @@ export default createMachine(
           ],
           // ---
           SET: {
-            target: "available.configuring",
+            target: "available.invalid",
             actions: ["setModel"],
           },
           "SET.QUANTITY": {
-            target: "available.configuring.quantity.checking",
+            target: "available.invalid.quantity.checking",
             actions: ["setQuantity"],
           },
           "SET.TERM": {
-            target: "available.configuring.term.checking",
+            target: "available.invalid.term.checking",
             actions: ["setTerm"],
           },
           "SET.ATTRIBUTES": {
-            target: "available.configuring.attributes.checking",
+            target: "available.invalid.attributes.checking",
             actions: ["setAttributes"],
           },
           "SET.OPTIONS": {
-            target: "available.configuring.options.checking",
+            target: "available.invalid.options.checking",
             actions: ["setOptions"],
           },
           "SET.PROVISIONING": {
-            target: "available.configuring.provisioning.checking",
+            target: "available.invalid.provisioning.checking",
             actions: ["setProvisioning"],
           },
         },
@@ -450,13 +451,13 @@ export default createMachine(
         on: {
           CANCEL: [
             { target: "available.error", cond: "hasError" },
-            { target: "available.configuring" },
+            { target: "available.invalid" },
           ],
           REMOVED: { target: "complete" },
           UPDATED: [
             { target: "complete", cond: "isNew" },
             {
-              target: "available.complete",
+              target: "complete",
               actions: ["setBaseModel", "calculate"],
             },
           ],
@@ -469,6 +470,7 @@ export default createMachine(
       },
     },
     on: {
+      STOP: "complete",
       RESET: {
         target: "refreshing",
         actions: ["resetModel"],

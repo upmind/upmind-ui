@@ -182,7 +182,7 @@
           tabindex="0"
           :label="t('product.actions.resolve')"
           :loading="meta.isProcessing"
-          :disabled="meta.isLoading || meta.isCalculating || !meta.isConfigured"
+          :disabled="meta.isLoading || meta.isCalculating || meta.isInvalid"
           color="secondary"
           @click="doResolve"
         />
