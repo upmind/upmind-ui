@@ -5,11 +5,17 @@
     :class="cn(variants.numberField.root, props.class)"
   >
     <NumberFieldContent>
-      <NumberFieldDecrement :class="variants.numberField.input" />
+      <NumberFieldDecrement
+        class="rounded-l-lg"
+        :class="variants.numberField.input"
+      />
       <NumberFieldInput
         :class="cn(variants.numberField.field, props.classField)"
       />
-      <NumberFieldIncrement :class="variants.numberField.input" />
+      <NumberFieldIncrement
+        class="rounded-r-lg"
+        :class="variants.numberField.input"
+      />
     </NumberFieldContent>
   </NumberField>
 </template>
@@ -73,6 +79,7 @@ const meta = computed(() => ({
   size: props.size,
   width: props.width,
   variant: props.variant,
+  height: props.height,
 }));
 
 const variants = useStyles(
