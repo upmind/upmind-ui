@@ -5,7 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import productMachine from "../../product/product.machine";
-
+import services from "./services";
 // --- utils
 import { find } from "lodash-es";
 
@@ -13,6 +13,7 @@ import { responseCodes } from "../../api";
 
 // --- types
 import type { Basket } from "../types";
+import { parseBasketProduct } from "../utils";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -24,6 +25,43 @@ import type { Basket } from "../types";
  * @ignore
  */
 export const useBasketProduct = (
+  id: string,
+  rawBasket: Basket,
+  errorExternal?: any
+) => {
+  function getBasketProduct(basket: Basket) {
+    const value = find(basket?.products, { id });
+    if (!value) {
+      const error = new Error("Product not found in basket");
+      //@ts-ignore
+      error.code = responseCodes.Not_Found;
+      throw error;
+    }
+
+    return value;
+  }
+
+  let basketProduct = getBasketProduct(rawBasket);
+
+  return {
+    basketProduct: parseBasketProduct(basketProduct, errorExternal),
+    refresh: async (newBasket: Basket) => {
+      basketProduct = getBasketProduct(newBasket);
+    },
+    update: async (): Promise<ActorRef<any, any>> => {
+      return services.update(
+        { basketId: rawBasket.id, bpid: id },
+        { data: basketProduct }
+      );
+    },
+
+    remove: async (): Promise<any> => {
+      return services.remove({ basketId: rawBasket.id, bpid: id });
+    },
+  };
+};
+
+export const useBasketProductConfig = (
   id: string,
   rawBasket: Basket,
   errorExternal?: any
