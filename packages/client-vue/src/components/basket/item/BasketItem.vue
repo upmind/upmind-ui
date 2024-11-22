@@ -3,21 +3,36 @@
     <UpmBasketItemSummary
       v-for="pricing in summary.pricing"
       :key="pricing.key"
+      :id="props.id"
       :product="props.product"
       :pricing="pricing"
     />
 
-    <div class="flex justify-between pt-[16px]">
-      <CartItemConfigDetails
-        v-model:open="open"
-        :items="filteredSummaryDetails"
-        :disabled="!meta.isConfigurable"
+    <UpmBasketConfigurationDetails v-if="open" :details="summary.details" />
+
+    <div class="flex items-baseline justify-between pt-[16px]">
+      <!-- TODO: We shouldn't need to manually apply these classses, but is tricky with the current cva implementation -->
+      <Button
         label="Show details"
-      />
+        variant="link"
+        size="sm"
+        class="h-auto !p-0 leading-none"
+        @click="open = !open"
+      >
+        <template #append>
+          <Icon
+            icon="arrow-down"
+            size="xs"
+            class="-ml-1 mt-0.5 transition-all duration-300"
+            :class="{ 'rotate-180': open }"
+          />
+        </template>
+      </Button>
 
       <div class="text-primary flex items-end space-x-2">
-        <Icon icon="pencil" size="xs" />
-        <Icon icon="bin" size="xs" />
+        <!-- TODO: xs too big, 2xs too small -->
+        <Icon icon="pencil" class="h-5 w-5" />
+        <Icon icon="bin" class="h-5 w-5" />
       </div>
     </div>
   </div>
@@ -41,8 +56,9 @@ import {
   Badge,
   Icon,
   Separator,
+  Button,
 } from "@upmind-automation/upwind";
-import CartItemConfigDetails from "@/views/cart/components/CartItemConfigDetails.vue";
+import UpmBasketConfigurationDetails from "./BasketItemConfigurationDetails.vue";
 import UpmBasketItemSummary from "./BasketItemSummary.vue";
 
 // --- utils

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-1">
+  <div class="flex flex-col gap-y-2">
     <div class="flex items-center justify-between">
       <div class="flex w-full items-center gap-x-3">
         <span
@@ -27,12 +27,14 @@
             />
           </div>
           <div class="flex items-end justify-between">
-            <div class="text-[22px] font-semibold leading-[30px]">
-              {{ product.name }}
-              <template v-if="props.product.serviceIdentifier">
-                ({{ product.serviceIdentifier }})
-              </template>
-            </div>
+            <router-link :to="editLink" class="no-underline">
+              <div class="text-[22px] font-semibold leading-[30px]">
+                {{ product.name }}
+                <template v-if="props.product.serviceIdentifier">
+                  ({{ product.serviceIdentifier }})
+                </template>
+              </div>
+            </router-link>
 
             <div class="flex gap-x-[24px]">
               <NumberField
@@ -65,7 +67,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-
+import { computed } from "vue";
 // --- components
 import { Badge } from "@upmind-automation/upwind";
 
@@ -76,9 +78,19 @@ import {
 } from "@upmind-automation/client-vue";
 
 const props = defineProps<{
+  id: string;
   product: BasketProductDetails;
   pricing: BasketProductSummaryPrice;
 }>();
 
 const { t } = useI18n();
+
+const editLink = computed(() => {
+  return {
+    name: "productEdit",
+    params: {
+      bpid: props.id,
+    },
+  };
+});
 </script>

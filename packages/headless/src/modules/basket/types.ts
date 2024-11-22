@@ -146,7 +146,7 @@ export type BasketProductDetails = {
   step?: number;
 };
 
-export interface BasketProductSummaryDetail {
+export interface BasketProductSummaryDetail extends Price {
   key: string;
   category: string;
   name: any;
