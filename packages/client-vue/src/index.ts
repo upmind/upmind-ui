@@ -28,6 +28,8 @@ export { default as UpmBasketProcessing } from "./components/basket/Procesing.vu
 export { default as UpmBasketEmpty } from "./components/basket/Empty.vue";
 export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
 export { default as UpmSummary } from "./components/basket/Summary.vue";
+export { default as UpmBasketItem } from "./components/basket/item/BasketItem.vue";
+export { default as UpmBasketItemList } from "./components/basket/item/BasketItemList.vue";
 // ---
 export { default as UpmCheckout } from "./components/checkout/Checkout.vue";
 export { default as UpmPaymentDetails } from "./components/checkout/PaymentDetails.vue";
