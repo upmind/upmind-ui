@@ -60,7 +60,7 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
   return get({
     url: useUrl(`clients/${client.id}/addresses`, {
       limit: 0,
-      with: ["region", "country"],
+      with: ["region", "country"].join(),
     }),
     withAccessToken: true,
     useCache: true,
