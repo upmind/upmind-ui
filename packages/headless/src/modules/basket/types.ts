@@ -106,7 +106,7 @@ export interface BasketProduct {
   // --- Model
   productId: string;
   quantity: number;
-  term: { cycle: number };
+  term: number;
   options?: ISubProductChoices;
   attributes?: ISubProductChoices;
   provisionFields?: Record<string, any>;
