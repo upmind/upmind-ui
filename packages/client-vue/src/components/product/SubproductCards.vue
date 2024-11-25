@@ -110,7 +110,6 @@ function getSubproductValue(value: string) {
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    priceOverride: props.subproduct?.priceOverride,
   };
 }
 

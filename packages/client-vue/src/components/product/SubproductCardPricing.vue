@@ -3,7 +3,7 @@
 
   <template v-else>
     <span class="flex items-center gap-1">
-      <Tooltip v-if="props.priceOverride" :label="t('product.overrides')">
+      <Tooltip v-if="props.meta.overrides" :label="t('product.overrides')">
         <Icon
           icon="transfer"
           size="3xs"
@@ -43,9 +43,8 @@ interface PricingProps {
   meta: {
     discounted?: boolean;
     free?: boolean;
+    overrides: boolean;
   };
-
-  priceOverride?: boolean;
 }
 
 const props = defineProps<PricingProps>();
