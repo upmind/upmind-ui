@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-1 md:gap-y-2">
+  <div class="flex flex-col gap-y-1 md:gap-y-1">
     <div class="flex items-center justify-between">
       <div class="flex w-full items-center gap-x-3">
         <img
@@ -30,12 +30,18 @@
           <div class="flex items-end justify-between">
             <div class="text-xl font-semibold leading-[30px]">
               {{ isProduct ? product.name : pricing.name }}
-              <template v-if="props.product.serviceIdentifier">
-                {{
+              <template
+                v-if="
                   isProduct
                     ? product.serviceIdentifier
                     : pricing.serviceIdentifier
-                }}
+                "
+              >
+                ({{
+                  isProduct
+                    ? product.serviceIdentifier
+                    : pricing.serviceIdentifier
+                }})
               </template>
             </div>
 

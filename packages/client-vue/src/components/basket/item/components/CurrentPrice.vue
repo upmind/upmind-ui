@@ -1,5 +1,5 @@
 <template>
-  <div class="text-xl font-semibold leading-[30px]">
+  <div class="text-lg font-semibold leading-[30px] md:text-xl">
     {{ pricing.currentPrice }}
   </div>
 </template>

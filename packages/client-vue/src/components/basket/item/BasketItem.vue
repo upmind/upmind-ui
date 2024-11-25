@@ -1,5 +1,12 @@
 <template>
-  <div class="bg-base flex flex-col gap-y-4 rounded-lg p-8 pb-7 shadow-sm">
+  <UpmCard
+    class="relative flex flex-col gap-y-4 !p-8 !py-7"
+    :class="[
+      !meta.isProcessing && (meta.hasErrors || props.error)
+        ? 'ring-error !ring-error-1 ring-1'
+        : 'ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0',
+    ]"
+  >
     <UpmBasketItemSummary
       v-for="(pricing, index) in summary.pricing"
       :key="`${props.id}-${index}`"
@@ -30,7 +37,7 @@
       :remove="remove"
       details-button-label="Show details"
     />
-  </div>
+  </UpmCard>
 </template>
 
 <script lang="ts" setup>
@@ -38,10 +45,12 @@
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
+
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
 
 // --- components
+import { UpmCard } from "@upmind-automation/client-vue";
 import UpmBasketConfigurationDetails from "./BasketItemConfigurationDetails.vue";
 import UpmBasketItemSummary from "./BasketItemSummary.vue";
 import UpmBasketItemActions from "./BasketItemActions.vue";

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="-mt-3">
     <Badge
       v-if="pricing.meta?.discounted"
       :color="disabled ? 'disabled' : 'promotion'"
@@ -10,6 +10,7 @@
           ? t('product.promotionSave', [pricing.currentSaving])
           : t('product.promotion')
       "
+      size="xs"
     />
   </div>
 </template>
