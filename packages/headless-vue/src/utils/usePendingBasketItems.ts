@@ -30,11 +30,7 @@ import {
 // --- types
 import type { Ref } from "vue";
 import type { ActorRef, State, Subscription } from "xstate";
-import type { ProductModel } from "@upmind-automation/headless";
-import {
-  contextMatches,
-  stateMatches,
-} from "../../../../packages/headless-vue/src/utils";
+import type { BasketProduct, ProductModel } from "@upmind-automation/headless";
 
 enum NextBasketItemTypes {
   PENDING = "pending",
@@ -206,16 +202,18 @@ export const usePendingBasketItems = () => {
 
   // navigate to the next basket item that needs configuring
   // prioritising url query params over pending basket items
-  function getNextPendingItem() {
+  function getNextPendingItem(currentBasketItem?: ActorRef<any, any>) {
+    const products = reject(productsPending.value, [
+      "id",
+      currentBasketItem?.id,
+    ]);
+
     let basketItem;
     if (productIds.value?.length) {
       const productId = first(productIds.value);
-      basketItem = find(productsPending.value, [
-        "state.context.model.productId",
-        productId,
-      ]);
+      basketItem = find(products, ["state.context.model.productId", productId]);
     } else {
-      basketItem = first(productsPending.value) as ActorRef<any, any>;
+      basketItem = first(products) as ActorRef<any, any>;
     }
     if (!basketItem) return null;
 
@@ -226,8 +224,15 @@ export const usePendingBasketItems = () => {
     };
   }
 
-  function getNextInvalidItem() {
-    const basketItem = first(productsInvalid.value) as ActorRef<any, any>;
+  function getNextInvalidItem(currentBasketItem?: ActorRef<any, any>) {
+    const productId = get(
+      currentBasketItem,
+      "state.context.model.productId",
+      {}
+    );
+
+    const products = reject(productsInvalid.value, ["productId", productId]);
+    const basketItem = first(products) as BasketProduct;
     if (!basketItem) return null;
     return {
       name: "productEdit",
@@ -235,7 +240,7 @@ export const usePendingBasketItems = () => {
     };
   }
 
-  function getNextRelatedItem(currentBasketItem: ActorRef<any, any>) {
+  function getNextRelatedItem(currentBasketItem?: ActorRef<any, any>) {
     // Related items ar when the current items provision fields
     // contain the service identifier of another basket item
 
@@ -278,8 +283,10 @@ export const usePendingBasketItems = () => {
       (includes(types, NextBasketItemTypes.RELATED) &&
         currentBasketItem &&
         getNextRelatedItem(currentBasketItem)) ||
-      (includes(types, NextBasketItemTypes.PENDING) && getNextPendingItem()) ||
-      (includes(types, NextBasketItemTypes.INVALID) && getNextInvalidItem()) ||
+      (includes(types, NextBasketItemTypes.PENDING) &&
+        getNextPendingItem(currentBasketItem)) ||
+      (includes(types, NextBasketItemTypes.INVALID) &&
+        getNextInvalidItem(currentBasketItem)) ||
       null
     );
   }
@@ -293,17 +300,28 @@ export const usePendingBasketItems = () => {
   });
 
   const invalidBasketItems = computed(() => {
-    const pending = map(productsPending.value, item => {
-      const product = get(item, "state.context.lookups.product");
-      return {
-        id: item.id,
-        ...product,
-      };
-    });
+    // get our current productId from the url query params
+    const { productId } = useQueryParams();
 
-    const invalid = map(productsInvalid.value, product => {
-      return product;
-    });
+    // NB exclude our current productId from the pending basket items
+    const pending = reject(
+      map(productsPending.value, item => {
+        const product = get(item, "state.context.lookups.product");
+        return {
+          id: item.id,
+          ...product,
+        };
+      }),
+      ["state.context.model.productId", productId]
+    );
+
+    // NB exclude our current productId from the invalid basket items,
+    const invalid = reject(
+      map(productsInvalid.value, product => {
+        return product;
+      }),
+      ["productId", productId]
+    );
 
     return concat(pending, invalid);
   });
