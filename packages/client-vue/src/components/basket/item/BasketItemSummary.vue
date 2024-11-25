@@ -15,6 +15,7 @@
               v-if="isFirst"
               class="mb-2 inline-block md:hidden"
               :pricing="pricing"
+              :disabled="meta.hasErrors"
             />
           </div>
           <div class="flex items-end justify-between">
@@ -99,7 +100,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const { updateQuantity } = useBasketProduct(props.id);
+const { updateQuantity, meta } = useBasketProduct(props.id);
 
 const doUpdateQuantity = debounce((value: number) => {
   updateQuantity(value);
