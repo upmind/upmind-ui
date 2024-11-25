@@ -301,9 +301,9 @@ export const usePendingBasketItems = () => {
 
   const invalidBasketItems = computed(() => {
     // get our current productId from the url query params
-    const { productId } = useQueryParams();
+    const { productId, basketProductId } = useQueryParams();
 
-    // NB exclude our current productId from the pending basket items
+    // NB exclude our current product Id from the pending basket items
     const pending = reject(
       map(productsPending.value, item => {
         const product = get(item, "state.context.lookups.product");
@@ -315,12 +315,12 @@ export const usePendingBasketItems = () => {
       ["state.context.model.productId", productId]
     );
 
-    // NB exclude our current productId from the invalid basket items,
+    // NB exclude our current basket product Id from the invalid basket items,
     const invalid = reject(
       map(productsInvalid.value, product => {
         return product;
       }),
-      ["productId", productId]
+      ["id", basketProductId]
     );
 
     return concat(pending, invalid);
