@@ -1,10 +1,15 @@
 <template>
   <div>
     <Badge
-      v-if="props.pricing.meta?.discounted"
+      v-if="pricing.meta?.discounted"
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
-      :label="t('product.promotion')"
+      class="uppercase"
+      :label="
+        pricing.currentSavingAmount && pricing.currentSavingAmount >= 10
+          ? t('product.promotionSave', [pricing.currentSaving])
+          : t('product.promotion')
+      "
     />
   </div>
 </template>
@@ -14,7 +19,7 @@ import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind-automation/upwind";
 import type { BasketProductSummaryPrice } from "@upmind-automation/client-vue";
 
-const props = defineProps<{
+defineProps<{
   pricing: BasketProductSummaryPrice;
   disabled?: boolean;
 }>();
