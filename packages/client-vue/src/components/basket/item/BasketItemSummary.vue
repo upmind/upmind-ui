@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-1 md:gap-y-1">
+  <div class="flex flex-col md:gap-y-1">
     <div class="flex items-center justify-between">
       <div class="flex w-full items-center gap-x-3">
         <img
@@ -15,6 +15,7 @@
             class="mb-2 inline-block md:hidden"
             :pricing="pricing"
             :disabled="meta.hasErrors"
+            size="md"
           />
           <div class="flex items-end justify-between">
             <div class="text-sm font-normal leading-[15px]">
@@ -23,7 +24,7 @@
             </div>
             <Promotion
               v-if="isFirst"
-              class="hidden md:block"
+              class="-mt-3 hidden md:block"
               :pricing="pricing"
             />
           </div>
@@ -59,7 +60,7 @@
       </div>
     </div>
 
-    <div class="md:hidden">
+    <div class="flex flex-col gap-y-1 md:hidden">
       <TermsDescription :pricing="pricing" mobile />
       <div class="flex items-center justify-between">
         <CurrentPrice :pricing="pricing" />
@@ -78,6 +79,8 @@
     </div>
   </div>
 
+  <UpmRequiredAlert v-if="isFirst && error" :id="id" />
+
   <div v-if="!isLast" class="h-[1px] border-t border-dashed" />
 </template>
 
@@ -91,6 +94,7 @@ import { computed } from "vue";
 import { useBasketProduct } from "@upmind-automation/client-vue";
 
 // --- components
+import UpmRequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "./components/CurrentPrice.vue";
 import RegularPrice from "./components/RegularPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
@@ -108,6 +112,7 @@ const props = defineProps<{
   product: BasketProductDetails;
   pricing: BasketProductSummaryPrice;
   quantity: number;
+  error: boolean;
   // More confident using this over tailwind :first due to the possibility of many summaries, badges, imgs being rendered at once (this ensures we are rendering at the correct level)
   isFirst: boolean;
   isLast: boolean;

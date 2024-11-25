@@ -2,7 +2,7 @@
   <UpmCard
     class="relative flex flex-col gap-y-4 !p-8 !py-7"
     :class="[
-      !meta.isProcessing && (meta.hasErrors || props.error)
+      !meta.isProcessing && (meta.hasErrors || error)
         ? 'ring-error !ring-error-1 ring-1'
         : 'ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0',
     ]"
@@ -10,15 +10,14 @@
     <UpmBasketItemSummary
       v-for="(pricing, index) in summary.pricing"
       :key="`${props.id}-${index}`"
-      :id="props.id"
-      :product="props.product"
+      :id="id"
+      :product="product"
       :pricing="pricing"
-      :quantity="props.quantity"
+      :quantity="quantity"
+      :error="error"
       :is-first="index === 0"
       :is-last="index === summary.pricing.length - 1"
     />
-
-    <UpmRequiredAlert v-if="meta.hasErrors" :id="props.id" />
 
     <!-- These margins help us position correctly (there is additional space when the details are closed) -->
     <div v-auto-animate class="-my-2">
@@ -54,7 +53,6 @@ import { UpmCard } from "@upmind-automation/client-vue";
 import UpmBasketConfigurationDetails from "./BasketItemConfigurationDetails.vue";
 import UpmBasketItemSummary from "./BasketItemSummary.vue";
 import UpmBasketItemActions from "./BasketItemActions.vue";
-import UpmRequiredAlert from "./components/RequiredAlert.vue";
 
 // --- types
 import { type BasketProduct } from "@upmind-automation/client-vue";
