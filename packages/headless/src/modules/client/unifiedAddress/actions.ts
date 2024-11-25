@@ -47,7 +47,6 @@ export const ItemActions = {
       // BUG: think this is where  our timout error is coming from
       // const country = find(countries, ["id", get(model, "countryId")]);
       // const region = find(regions, ["id", get(model, "regionId")]);
-      debugger;
       const address = compact([
         get(model, "address1"),
         get(model, "address2"),

@@ -121,28 +121,26 @@ async function findItem(
 ) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
-  debugger;
   // DC: maybe this is raw and need sto be converted to camelCase
   const value = pick(data, [
-    "address_1",
-    "address_2",
+    "address1",
+    "address2",
     "city",
     "postcode",
-    "region_id",
-    "country_id",
+    "regionId",
+    "countryId",
   ]);
 
-  debugger;
   // DC: maybe this is raw and need sto be converted to camelCase
   const found = find(raw, item =>
     isEqual(
       pick(item.state.context.model, [
-        "address_1",
-        "address_2",
+        "address1",
+        "address2",
         "city",
         "postcode",
-        "region_id",
-        "country_id",
+        "regionId",
+        "countryId",
       ]),
       value
     )
@@ -431,7 +429,7 @@ async function loadLookups(
           manualPlace: !!model?.id,
           type: first(AddressTypes)?.key,
           phone: phone?.phone,
-          email: email?.id,
+          email: email?.email,
           place: address?.id,
           country_id: address?.countryId || country?.id,
         },
