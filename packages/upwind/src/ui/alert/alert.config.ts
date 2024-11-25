@@ -21,6 +21,10 @@ export const alertVariants = cva(
         error: "",
         warning: "",
       },
+      border: {
+        true: "",
+        false: "!border-none",
+      },
     },
     compoundVariants: [
       {

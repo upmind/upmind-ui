@@ -59,6 +59,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
 const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
+  border: props.border,
 }));
 
 const variants = useStyles(
