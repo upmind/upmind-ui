@@ -1,10 +1,8 @@
 <template>
   <Badge
     v-if="props.pricing.meta?.discounted"
-    class="-mt-2 mb-1 !px-[6px] !py-[2px] !text-[12px] !leading-[16.8px]"
     color="promotion"
     variant="tonal"
-    size="sm"
     :label="t('product.promotion')"
   />
 </template>
