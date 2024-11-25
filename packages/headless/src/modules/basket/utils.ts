@@ -15,19 +15,15 @@ import billingDetailsMachine from "./billing/details.machine";
 import {
   useValidationParser,
   useTranslateName,
-  useMoney,
   useTranslateField,
 } from "../../utils";
-const { parsePrice } = useMoney();
 
 import {
   compact,
   defaults,
-  find,
   forEach,
   get,
   isEmpty,
-  has,
   map,
   reduce,
   set,
@@ -182,7 +178,8 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       imgUrl: raw?.product_image_url,
       // meta: raw?.product?.meta,// TODO get/use product meta from API
       // ---
-      quantifiable: raw?.order_type == ProductOrderTypes.QUANTITY_BASED, //!!raw?.can_change_quantity,
+      quantifiable:
+        raw?.product?.order_type == ProductOrderTypes.QUANTITY_BASED, //!!raw?.can_change_quantity,
       step: raw?.unit_quantity || 1,
       min: raw?.min_order_quantity | raw?.unit_quantity,
       max: raw?.max_order_quantity > 0 ? raw?.max_order_quantity : Infinity,
@@ -207,7 +204,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   forEach(raw?.options, option => {
     const subproduct = parsPriceSummary(option);
     if (subproduct) {
-      if (raw.order_type === ProductOrderTypes.QUANTITY_BASED)
+      if (option.product.order_type === ProductOrderTypes.SINGLE_OPTION)
         product.summary.pricing.push(subproduct);
       subproduct.key = "option";
       product.summary.details.push(subproduct as BasketProductSummaryDetail);
@@ -305,11 +302,11 @@ export function parsPriceSummary(raw: any) {
   const summary: BasketProductSummaryPrice = parseSubproduct(
     raw
   ) as BasketProductSummaryPrice;
-
   summary.meta = {
     oneoff: raw.billing_cycle_months > 0,
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
+    overrides: raw.price_option_override,
   };
 
   summary.regularAmount = raw.configuration_net_amount_converted;

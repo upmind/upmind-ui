@@ -84,11 +84,9 @@ export const useBasketProduct = (id: string) => {
       return Promise.reject("Product not quantifiable");
 
     processing.value = true;
-    const quantity = parseQuantity(value, basketProduct.product);
-    basketProduct.quantity = quantity;
-    return update().finally(() => {
-      processing.value = false;
-      return refreshBasket();
+    basketProduct.quantity = parseQuantity(value, basketProduct.product);
+    return update(basketProduct).finally(() => {
+      return refreshBasket().finally(() => (processing.value = false));
     });
   };
 
@@ -136,14 +134,14 @@ export const useBasketProduct = (id: string) => {
     decrementQuantity,
     // ---
 
-    update: async () => {
-      if (!basketProduct.product) return Promise.reject("Product not found");
-      if (processing.value) return Promise.reject("Already processing");
-      processing.value = true;
-      return update()
-        .then(refreshBasket)
-        .finally(() => (processing.value = false));
-    },
+    // update: async () => {
+    //   if (!basketProduct.product) return Promise.reject("Product not found");
+    //   if (processing.value) return Promise.reject("Already processing");
+    //   processing.value = true;
+    //   return update(basketProduct)
+    //     .then(refreshBasket)
+    //     .finally(() => (processing.value = false));
+    // },
     remove: async () => {
       if (!basketProduct.product) return Promise.reject("Product not found");
       if (processing.value) return Promise.reject("Already processing");
