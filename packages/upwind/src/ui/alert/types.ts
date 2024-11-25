@@ -14,6 +14,7 @@ export interface AlertProps {
   // ---
   variant?: AlertVariantProps["variant"];
   color?: AlertVariantProps["color"];
+  border?: boolean;
   // ---
   upwindConfig?: { alert: Partial<AlertProps> };
   class?: HTMLAttributes["class"];
