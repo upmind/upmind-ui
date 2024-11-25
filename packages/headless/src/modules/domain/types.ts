@@ -32,14 +32,18 @@ export interface DomainProduct {
   options?: Object;
   attributes?: Object;
 
-  summary: {
+  summary?: {
     isAvailable?: boolean;
-    hasDiscount?: boolean;
     isFree?: boolean;
-    currentPrice?: number;
-    currentPriceFormatted?: string;
-    regularPrice?: number;
-    regularPriceFormatted?: string;
+    currentAmount?: number;
+    currentPrice?: string;
+    regularAmount?: number;
+    regularPrice?: string;
+    meta: {
+      discounted?: boolean;
+      free?: boolean;
+      oneoff?: boolean;
+    };
   };
 
   // ---

@@ -162,7 +162,7 @@ export interface BasketProductSummaryDetail extends Price {
   };
 }
 
-interface Price {
+export interface Price {
   currentAmount?: number;
   currentPrice?: string;
   // ---

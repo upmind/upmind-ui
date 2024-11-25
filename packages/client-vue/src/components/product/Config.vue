@@ -173,7 +173,7 @@
         <span :class="styles.product.config.itemtotal" v-if="summary?.total">
           <span>{{ t("product.total") }}</span>
           <strong :class="styles.product.config.bold">
-            {{ summary?.regularPriceFormatted }}
+            {{ summary?.regularPrice }}
           </strong>
         </span>
 
@@ -286,7 +286,9 @@ function getQuantities(subproduct: Object): Record<string, number> {
   const value = reduce(
     model.value?.options?.[subproduct.id],
     (result: Record<string, number>, value, productId) => {
-      if (productId) set(result, productId, get(value, "step", 0));
+      if (productId) {
+        set(result, productId, get(value, "quantity"));
+      }
       return result;
     },
     {}

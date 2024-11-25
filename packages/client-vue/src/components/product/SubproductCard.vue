@@ -7,7 +7,12 @@
         <div class="flex flex-wrap items-center gap-2 md:block">
           <div class="my-1 text-xs md:hidden">
             <SubproductCardPricing
-              :price="props.price"
+              v-if="props.price"
+              :regularAmount="props.price.regularAmount"
+              :regularPrice="props.price.regularPrice"
+              :currentAmount="props.price.currentAmount"
+              :currentPrice="props.price.currentPrice"
+              :meta="props.price.meta"
               :priceOverride="props.priceOverride"
             />
           </div>
@@ -49,7 +54,12 @@
         <div class="hidden flex-col text-right font-semibold md:flex">
           <span class="flex flex-shrink-0 items-center justify-end gap-x-1">
             <SubproductCardPricing
-              :price="props.price"
+              v-if="props.price"
+              :regularAmount="props.price.regularAmount"
+              :regularPrice="props.price.regularPrice"
+              :currentAmount="props.price.currentAmount"
+              :currentPrice="props.price.currentPrice"
+              :meta="props.price.meta"
               :priceOverride="props.priceOverride"
             />
           </span>
@@ -86,10 +96,14 @@ const props = defineProps<{
   excerpt?: string;
   priceOverride?: boolean;
   price?: {
-    price: number;
-    priceFormatted: string;
-    priceDiscounted: number;
-    priceDiscountedFormatted: string;
+    regularAmount: number;
+    regularPrice: string;
+    currentAmount: number;
+    currentPrice: string;
+    meta: {
+      discounted?: boolean;
+      free?: boolean;
+    };
     promotions: Array<{
       id: string;
       amount: number;

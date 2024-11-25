@@ -35,7 +35,7 @@
         </span>
 
         <Badge
-          v-if="props.summary.hasDiscount"
+          v-if="props.summary.meta.discounted"
           color="promotion"
           :label="t('domain.card.promotion')"
           variant="tonal"
@@ -65,7 +65,7 @@
 
         <template #[`price`]>
           <em :class="styles.domain.card.owned.price">{{
-            props.summary.regularPriceFormatted
+            props.summary.regularPrice
           }}</em>
         </template>
 
@@ -90,7 +90,7 @@
 
         <template #[`price`]>
           <em :class="styles.domain.card.basket.price">{{
-            props.summary.regularPriceFormatted
+            props.summary.regularPrice
           }}</em>
         </template>
 
@@ -117,15 +117,15 @@
           <span :class="styles.domain.card.available.prices">
             <span
               :class="styles.domain.card.available.discount"
-              v-if="props.summary.hasDiscount"
+              v-if="props.summary.meta.discounted"
             >
-              {{ props.summary.regularPriceFormatted }}
+              {{ props.summary.regularPrice }}
             </span>
             <em :class="styles.domain.card.available.price">
               {{
-                props.summary.isFree
+                props.summary.meta.free
                   ? t("product.free")
-                  : props.summary.currentPriceFormatted
+                  : props.summary.currentPrice
               }}
             </em>
           </span>
@@ -166,15 +166,15 @@
           <span :class="styles.domain.card.transfer.prices">
             <span
               :class="styles.domain.card.transfer.discount"
-              v-if="props.summary.hasDiscount"
+              v-if="props.summary.meta.discounted"
             >
-              {{ props.summary.regularPriceFormatted }}
+              {{ props.summary.regularPrice }}
             </span>
             <em :class="styles.domain.card.transfer.price">
               {{
-                props.summary.isFree
+                props.summary.meta.free
                   ? t("product.free")
-                  : props.summary.currentPriceFormatted
+                  : props.summary.currentPrice
               }}
             </em>
           </span>

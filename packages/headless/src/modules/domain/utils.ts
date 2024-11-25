@@ -99,7 +99,6 @@ export function parseProduct(raw: any) {
     tld: parsed?.tld || "",
     sld: parsed?.sld || "",
     domain: parsed?.domain || "",
-    summary: {},
   };
   // TODO: Not This! we should use a util from the product module for consistency
   // also we may need to calculate the correct term and not just use the first one
@@ -108,13 +107,15 @@ export function parseProduct(raw: any) {
 
   result.summary = {
     isAvailable: raw?.domain_available,
-    hasDiscount: term?.price_discounted && term.price_discounted != term.price,
-    isFree: isNil(term?.price),
-    currentPrice: term?.price_discounted || term.price,
-    currentPriceFormatted:
-      term?.price_discounted_formatted || term.price_formatted,
-    regularPrice: term?.price,
-    regularPriceFormatted: term?.price_formatted,
+    currentAmount: term?.price_discounted ?? term.price,
+    currentPrice: term?.price_discounted_formatted ?? term.price_formatted,
+    regularAmount: term?.price,
+    regularPrice: term?.price_formatted,
+    meta: {
+      discounted: (term?.price_discounted ?? term.price) != term.price,
+      free: (term.price_discounted ?? term.price) == 0,
+      oneoff: term?.billing_cycle_months == 0,
+    },
   };
 
   return result;

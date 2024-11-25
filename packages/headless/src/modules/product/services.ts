@@ -192,7 +192,7 @@ async function checkTerm(
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
   times(model.quantity, () => {
-    price.push(term?.priceDiscounted || term?.price || 0);
+    price.push(term?.currentAmount);
   });
 
   return new Promise((resolve, reject) => {
@@ -297,9 +297,7 @@ async function checkSubproducts(
             // FINALLY set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             times(value.quantity * model.quantity, () => {
-              price.push(
-                product.price?.priceDiscounted ?? product.price?.price ?? 0
-              );
+              price.push(product.price.currentAmount);
             });
 
             // ---

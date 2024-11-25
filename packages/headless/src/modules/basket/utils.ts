@@ -275,7 +275,7 @@ const parseQuantity = (quantity: number, raw: any) => {
   return quantity;
 };
 
-function parseTerm(raw: any): BasketProductSummaryDetail | null {
+export function parseTerm(raw: any): BasketProductSummaryDetail | null {
   const { getBillingCycle } = useSystem();
   const term = parsPriceSummary(raw);
   const cycle = getBillingCycle(raw.billing_cycle_months);
@@ -288,7 +288,7 @@ function parseTerm(raw: any): BasketProductSummaryDetail | null {
   return term;
 }
 
-function parseSubproduct(
+export function parseSubproduct(
   subproduct: any
 ): Partial<BasketProductSummaryDetail> | null {
   // NB: only show term pricing if recurring!
@@ -301,7 +301,7 @@ function parseSubproduct(
   };
 }
 
-function parsPriceSummary(raw: any) {
+export function parsPriceSummary(raw: any) {
   const summary: BasketProductSummaryPrice = parseSubproduct(
     raw
   ) as BasketProductSummaryPrice;
@@ -364,7 +364,7 @@ function parsPriceSummary(raw: any) {
   return summary;
 }
 
-function parseProvisionField(
+export function parseProvisionField(
   key: string,
   data: any,
   hasError?: any

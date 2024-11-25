@@ -1,6 +1,5 @@
 // --- internal
 import { useSystem } from "../system";
-import { TrialEndActionTypes } from "./services";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
@@ -83,35 +82,38 @@ export const parseProduct = (
   // DC:  this may be rawProduct and need to be converted to camelCase
 
   const merged = merge({}, rawProduct, basketProduct);
-
   return {
     id: merged.id,
-    name: merged.name,
+    name: useTranslateName(merged),
     category: useTranslateName(merged.category),
     serviceIdentifier: merged.service_identifier,
-    description: merged.description,
+    cycle: merged.billing_cycle_months,
+    quantity: merged.quantity,
+    // //
+    description: useTranslateField(merged, "description"),
     excerpt: useTranslateField(merged, "short_description"),
-
-    // ---
-    image: merged.image,
-    images: merged.images,
+    imgUrl: merged?.product_image_url,
+    // image: merged.image,
+    // images: merged.images,
     // ---
     quantifiable: merged.order_type == 2,
     step: merged.unit_quantity || 1,
     min: merged.min_order_quantity || merged.unit_quantity,
     max: merged.max_order_quantity > 0 ? merged.max_order_quantity : Infinity,
     // ---
-    displayPrice: merged.display_price,
-    defaultPaymentPeriod: merged.default_payment_period,
-    hasFreeTrial:
-      merged.trial_supported &&
-      merged.trial_end_action &&
-      merged.trial_force &&
-      [TrialEndActionTypes.CANCEL].includes(merged.trial_end_action),
-
-    hasDiscount:
-      some(merged.prices, "price_discounted") ||
-      some(merged.prices, "mixed_promotions"),
+    // displayAmount: merged.selling_price,
+    // displayPrice: merged.selling_price_formatted,
+    // defaultPaymentPeriod: merged.default_payment_period,
+    // meta: {
+    //   discounted:
+    //     some(merged.prices, "price_discounted") ||
+    //     some(merged.prices, "mixed_promotions"),
+    //   freeTrial:
+    //     merged.trial_supported &&
+    //     merged.trial_end_action &&
+    //     merged.trial_force &&
+    //     [TrialEndActionTypes.CANCEL].includes(merged.trial_end_action),
+    // },
   };
 };
 
@@ -128,16 +130,25 @@ export const parseTerms = (
       cycle: rawTerm.billing_cycle_months,
       mixedPromotions: rawTerm.mixed_promotions,
       // ---
-      monthlyPriceFromDiscounted: rawTerm.monthly_price_from_discounted,
-      monthlyPriceFromDiscountedFormatted:
-        rawTerm.monthly_price_from_discounted_formatted,
-      monthlyPriceFrom: rawTerm.monthly_price_from,
-      monthlyPriceFromFormatted: rawTerm.monthly_price_from_formatted,
+      monthlyFromCurrentAmount:
+        rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from,
+      monthlyFromCurrentPrice:
+        rawTerm.monthly_price_from_discounted_formatted ??
+        rawTerm.monthly_price_from_formatted,
+      monthlyFromRegularAmount: rawTerm.monthly_price_from,
+      monthlyFromRegularPrice: rawTerm.monthly_price_from_formatted,
 
-      price: rawTerm.price,
-      priceDiscounted: rawTerm.price_discounted,
-      priceDiscountedFormatted: rawTerm.price_discounted_formatted,
-      priceFormatted: rawTerm.price_formatted,
+      currentAmount: rawTerm.price_discounted ?? rawTerm.price,
+      currentPrice:
+        rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
+      regularAmount: rawTerm.price,
+      regularPrice: rawTerm.price_formatted,
+
+      meta: {
+        discounted:
+          (rawTerm.price_discounted ?? rawTerm.price) !== rawTerm.price,
+        free: (rawTerm.price_discounted ?? rawTerm.price) == 0,
+      },
     };
 
     // --------------------------------------------------------
@@ -211,9 +222,10 @@ export const parseSubproduct = (
         name: useTranslateName(rawSubproduct),
         description: useTranslateField(rawSubproduct, "description"),
         excerpt: useTranslateField(rawSubproduct, "short_description"),
+        // ---
         quantifiable: rawSubproduct.order_type == 2,
         cycle: rawSubproduct.billing_cycle_months,
-        step: rawSubproduct.unit_quantity,
+        step: rawSubproduct.unit_quantity || 1,
         min: rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity,
         max:
           rawSubproduct.max_order_quantity > 0
@@ -223,10 +235,19 @@ export const parseSubproduct = (
           const price: any = {
             mixedPromotions: rawPrice.mixed_promotions,
             cycle: rawPrice.billing_cycle_months,
-            price: rawPrice.price,
-            priceDiscounted: rawPrice.price_discounted,
-            priceFormatted: rawPrice.price_formatted,
-            priceDiscountedFormatted: rawPrice.price_discounted_formatted,
+
+            currentAmount: rawPrice.price_discounted ?? rawPrice.price,
+            currentPrice:
+              rawPrice.price_discounted_formatted ?? rawPrice.price_formatted,
+            regularAmount: rawPrice.price,
+            regularPrice: rawPrice.price_formatted,
+
+            meta: {
+              discounted:
+                rawPrice.price_discounted &&
+                rawPrice.price !== rawPrice.price_discounted,
+              free: (rawPrice.price_discounted ?? rawPrice.price) == 0,
+            },
           };
 
           const cycle = getBillingCycle(price.cycle);
@@ -412,10 +433,29 @@ export const parseProvisioningSchema = (data: any) => {
 // ---
 
 export const parseSummary = (raw: any, { model, lookups, error }: any) => {
+  const summaryPricing = {
+    name: lookups.product.name,
+    category: lookups.product.category,
+    serviceIdentifier: lookups.product.serviceIdentifier,
+    cycle: model.term,
+    quantity: model.quantity,
+    // ---
+    regularAmount: raw.total,
+    regularPrice: raw.total_formatted,
+    currentAmount: raw?.discounted || raw.total,
+    currentPrice: raw?.discounted_formatted || raw.total_formatted,
+    // ---
+    meta: {
+      oneoff: model.term > 0,
+      discounted: (raw.discounted ?? raw.total) !== raw.total,
+      free: (raw?.discounted ?? raw.total) == 0,
+    },
+  };
+  // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
-  // an d allow for easy i18n
+  // and allow for easy i18n
   const details = [];
 
   //  product category
@@ -431,8 +471,6 @@ export const parseSummary = (raw: any, { model, lookups, error }: any) => {
     total_formatted: undefined,
     invalid: false,
   });
-
-  //  product meta
 
   // term
   const term = parseSummaryTerm(model.term, lookups.terms, error?.term);
@@ -464,37 +502,44 @@ export const parseSummary = (raw: any, { model, lookups, error }: any) => {
   );
   if (!isEmpty(provisionFields)) details.push(...provisionFields);
 
+  // ---
   return {
-    regularPrice: raw.total,
-    regularPriceFormatted: raw.total_formatted,
-    currentPrice: raw?.discounted || raw.total,
-    currentPriceFormatted: raw?.discounted_formatted || raw.total_formatted,
-    hasDiscount: raw.discounted && raw.total !== raw.discounted,
+    pricing: [summaryPricing],
     details,
   };
 };
 
-const parseSummaryTerm = (data: any, terms: any, error?: any) => {
-  const term = find(terms, [
-    "billing_cycle_months",
-    data?.billing_cycle_months,
-  ]);
+export function parsSummaryPrice(data: any) {
+  const summary = {
+    key: "",
+    name: data.name,
+    category: data.category,
+    serviceIdentifier: data.serviceIdentifier,
+    cycle: data.cycle,
+    quantity: data.quantity || 1,
 
-  if (term) {
-    // NB: only show term pricing if recurring!
-    return {
-      key: "term",
-      category: "Billing Cycle",
-      name: term.billing_cycle_name,
-      cycle: term.billing_cycle_months,
-      quantity: data?.quantity,
-      currentPrice: term.price_discounted,
-      currentPriceFormatted: term.price_discounted_formatted,
-      regularPrice: term?.price,
-      regularPriceFormatted: term.price_formatted,
-      hasDiscount: term?.price_discounted > 0,
-      invalid: !isEmpty(error),
-    };
+    regularAmount: data.regularAmount,
+    regularPrice: data.regularPrice,
+    currentAmount: data.currentAmount,
+    currentPrice: data.currentPrice,
+
+    meta: {
+      oneoff: data.cycle > 0,
+      discounted: data.currentAmount !== data.regularAmount,
+      free: data.currentAmount == 0,
+    },
+  };
+  return summary;
+}
+
+const parseSummaryTerm = (term: any, terms: any, error?: any) => {
+  const cycle = find(terms, ["cycle", term]);
+  if (cycle) {
+    const term = parsSummaryPrice(cycle);
+    term.key = "term";
+    term.category = "Billing Cycle";
+    term.name = cycle.name;
+    return term;
   }
 
   return null;
@@ -524,12 +569,21 @@ const parseSummarySubproduct = (
                 name: subproduct.name,
                 cycle: subproduct?.billing_cycle_months,
                 // ---
-                currentPrice: subproduct.price_discounted,
-                currentPriceFormatted: subproduct.price_discounted_formatted,
-                regularPrice: subproduct?.price,
-                regularPriceFormatted: subproduct.price_formatted,
-                hasDiscount: subproduct?.price_discounted > 0,
-                invalid: has(error, `${key}.${id}`),
+                currentAmount: subproduct.price_discounted ?? subproduct.price,
+                currentPrice:
+                  subproduct.price_discounted_formatted ??
+                  subproduct.price_formatted,
+                regularAmount: subproduct?.price,
+                regularPrice: subproduct.price_formatted,
+                meta: {
+                  // NB: only show term pricing if recurring!
+                  oneoff: subproduct.billing_cycle_months == 0,
+                  discounted:
+                    (subproduct.price_discounted ?? subproduct.price) !==
+                    subproduct.price,
+                  free: (subproduct.price_discounted ?? subproduct.price) == 0,
+                  invalid: has(error, `${key}.${id}`),
+                },
               });
             }
 
@@ -559,13 +613,15 @@ const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
         key: `provision_field.${key}`,
         category: get(provisionField, "title", key),
         name,
-        invalid: some(error, ["data.schemaPath", key]),
         cycle: undefined,
         quantity: undefined,
+        currentAmount: undefined,
         currentPrice: undefined,
-        currentPriceFormatted: undefined,
+        regularAmount: undefined,
         regularPrice: undefined,
-        regularPriceFormatted: undefined,
+        meta: {
+          invalid: some(error, ["data.schemaPath", key]),
+        },
       });
 
       return result;

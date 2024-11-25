@@ -46,7 +46,7 @@ export function parseBasketProductConfig(
           const selected = values(
             mapValues(option, choice => ({
               product_id: choice?.productId,
-              quantity: choice?.quantity,
+              unit_quantity: choice?.quantity,
               billing_cycle_months: choice?.cycle,
             }))
           );
