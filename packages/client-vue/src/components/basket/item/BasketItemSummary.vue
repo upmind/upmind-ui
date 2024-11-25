@@ -49,7 +49,7 @@
     </div>
 
     <div class="md:hidden">
-      <TermsDescription :pricing="pricing" />
+      <TermsDescription :pricing="pricing" mobile />
       <div class="flex items-center justify-between">
         <CurrentPrice :pricing="pricing" />
         <QuantityField
@@ -62,7 +62,7 @@
     </div>
 
     <div class="hidden justify-between md:flex">
-      <TermsDescription :pricing="pricing" />
+      <TermsDescription :pricing="pricing" :mobile="false" />
       <RegularPrice :pricing="pricing" />
     </div>
   </div>
