@@ -211,9 +211,10 @@ export const parseSubproduct = (
         name: useTranslateName(rawSubproduct),
         description: useTranslateField(rawSubproduct, "description"),
         excerpt: useTranslateField(rawSubproduct, "short_description"),
+        // ---
         quantifiable: rawSubproduct.order_type == 2,
         cycle: rawSubproduct.billing_cycle_months,
-        step: rawSubproduct.unit_quantity,
+        step: rawSubproduct.unit_quantity || 1,
         min: rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity,
         max:
           rawSubproduct.max_order_quantity > 0
