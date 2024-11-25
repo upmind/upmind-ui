@@ -34,7 +34,7 @@ export default createMachine(
     } as ClientItemContext,
     states: {
       loading: {
-        entry: ["clearError", "setMeta"],
+        entry: ["clearError"],
 
         invoke: {
           src: "loadLookups",

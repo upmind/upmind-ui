@@ -7,6 +7,7 @@ import { useClientAddresses } from ".";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { parseAddress } from "./utils";
 import {
   some,
   first,
@@ -65,7 +66,7 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }: any) => parseAddress(data));
 }
 
 async function filterItems(
@@ -97,7 +98,6 @@ async function findItem(
 ) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
-  debugger;
   // DC: maybe this is raw and need sto be converted to camelCase
   const value = pick(data, [
     "address1",
@@ -107,7 +107,6 @@ async function findItem(
     "regionId",
     "countryId",
   ]);
-  debugger;
   // same here
   const found = find(
     raw,
@@ -248,7 +247,6 @@ async function parse(
     if (model?.place) {
       const existing = addresses.getItem(model.place);
       if (existing) {
-        debugger;
         model.name ??= existing.name; // only update it if weve not already got a value
         model.address1 = existing.address1;
         model.address2 = existing.address2;
