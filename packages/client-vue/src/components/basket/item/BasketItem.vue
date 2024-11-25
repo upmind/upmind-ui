@@ -3,11 +3,12 @@
     <UpmBasketItemSummary
       v-for="(pricing, index) in summary.pricing"
       :key="`${props.id}-${index}`"
-      :index="index"
       :id="props.id"
       :product="props.product"
       :pricing="pricing"
       :quantity="props.quantity"
+      :is-first="index === 0"
+      :is-last="index === summary.pricing.length - 1"
     />
 
     <UpmRequiredAlert v-if="meta.hasErrors" :id="props.id" />

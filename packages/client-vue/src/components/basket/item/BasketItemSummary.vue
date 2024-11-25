@@ -18,7 +18,8 @@
           />
           <div class="flex items-end justify-between">
             <div class="text-sm font-normal leading-[15px]">
-              {{ product.category }}
+              <!-- TODO: Shouldn't need this check -->
+              {{ isProduct ? product.category : pricing.category }}
             </div>
             <Promotion
               v-if="isFirst"
@@ -27,10 +28,14 @@
             />
           </div>
           <div class="flex items-end justify-between">
-            <div class="text-[22px] font-semibold leading-[30px]">
-              {{ product.name }}
+            <div class="text-xl font-semibold leading-[30px]">
+              {{ isProduct ? product.name : pricing.name }}
               <template v-if="props.product.serviceIdentifier">
-                ({{ product.serviceIdentifier }})
+                {{
+                  isProduct
+                    ? product.serviceIdentifier
+                    : pricing.serviceIdentifier
+                }}
               </template>
             </div>
 
@@ -66,6 +71,8 @@
       <RegularPrice :pricing="pricing" />
     </div>
   </div>
+
+  <div v-if="!isLast" class="h-[1px] border-t border-dashed" />
 </template>
 
 <script lang="ts" setup>
@@ -92,20 +99,21 @@ import {
 
 const props = defineProps<{
   id: string;
-  index: number;
   product: BasketProductDetails;
   pricing: BasketProductSummaryPrice;
   quantity: number;
+  // More confident using this over tailwind :first due to the possibility of many summaries, badges, imgs being rendered at once (this ensures we are rendering at the correct level)
+  isFirst: boolean;
+  isLast: boolean;
 }>();
 
 const { t } = useI18n();
 
 const { updateQuantity, meta } = useBasketProduct(props.id);
 
+const isProduct = computed(() => props.pricing.key === "term");
+
 const doUpdateQuantity = debounce((value: number) => {
   updateQuantity(value);
 }, 750);
-
-// More confident using this over tailwind :first due to the possibility of many summaries, badges, imgs being rendered at once (this ensures we are rendering at the correct level)
-const isFirst = computed(() => props.index === 0);
 </script>

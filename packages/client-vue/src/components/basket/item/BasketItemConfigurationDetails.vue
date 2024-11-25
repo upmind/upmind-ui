@@ -13,10 +13,12 @@
               (x{{ item.quantity }})</span
             >
           </div>
-          <div>{{ item.regularPrice }}</div>
+          <div>
+            <span v-if="!item.meta?.overrides">+ </span>
+            <span>{{ item.currentPrice }}</span>
+          </div>
         </div>
 
-        <!-- TODO: Seperator component looks strange at 1px due to the implementation -->
         <div class="h-[1px] border-t last:hidden" />
       </template>
     </template>
