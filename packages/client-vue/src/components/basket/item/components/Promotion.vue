@@ -1,10 +1,12 @@
 <template>
-  <Badge
-    v-if="props.pricing.meta?.discounted"
-    :color="disabled ? 'disabled' : 'promotion'"
-    variant="tonal"
-    :label="t('product.promotion')"
-  />
+  <div>
+    <Badge
+      v-if="props.pricing.meta?.discounted"
+      :color="disabled ? 'disabled' : 'promotion'"
+      variant="tonal"
+      :label="t('product.promotion')"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
