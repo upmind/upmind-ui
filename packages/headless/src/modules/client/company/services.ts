@@ -58,17 +58,25 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
     addresses.isReady(),
     phones.isReady(),
     emails.isReady(),
-  ]).then(() => ({
-    emails,
-    addresses,
-    phones,
-    baseModel: {
-      ...model,
-      addressId: addresses.getDefault()?.id,
-      emailId: emails.getDefault()?.id,
-      phoneId: phones.getDefault()?.id,
-    },
-  }));
+  ]).then(() => {
+    debugger;
+    return {
+      emails,
+      addresses,
+      phones,
+      baseModel: {
+        ...model,
+        addressId: addresses.getDefault()?.id,
+        email: emails.getDefault()?.email,
+        phone: {
+          number: phones.getDefault()?.phone?.number,
+          nationalNumber: phones.getDefault()?.phone?.national_number,
+          countryCallingCode: phones.getDefault()?.phone?.country_calling_code,
+          country: phones.getDefault()?.phone?.country,
+        },
+      },
+    };
+  });
 }
 
 async function filterItems(

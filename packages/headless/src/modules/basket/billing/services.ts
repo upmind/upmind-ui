@@ -1,12 +1,7 @@
 // --- external
 
 // --- internal
-import {
-  useApi,
-  useClientAddresses,
-  useClientCompanies,
-  useSession,
-} from "../../..";
+import { useApi, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -25,16 +20,11 @@ async function load(
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
-  const { isReady: isAddressesReady, getItems: getAddresses } =
-    useClientAddresses();
+  const { isReady, getItems } = useClientUnifiedAddresses();
 
-  const { isReady: isCompaniesReady, getItems: getCompanies } =
-    useClientCompanies();
-
-  return Promise.all([isAddressesReady(), isCompaniesReady()]).then(() => {
-    const addresses = getAddresses();
-    const companies = getCompanies();
-    return { addresses, companies };
+  return isReady().then(() => {
+    const addresses = getItems();
+    return { addresses };
   });
 }
 

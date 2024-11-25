@@ -164,8 +164,9 @@ export const useSchema = ({
       email: {
         type: "string",
         title: "Email",
+        format: "email",
         default: baseModel.email,
-        lookup: emails.search,
+        lookup: emails?.search,
       },
 
       phone: {
@@ -521,7 +522,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
           },
           {
             type: "Control",
-            scope: "#/properties/username",
+            scope: "#/properties/email",
             i18n: "client.unified.form.fields.email",
             options: {
               suggestions: true,
@@ -633,22 +634,22 @@ export const parseAddress = (raw: IAddress | Array<IAddress>) => {
         companyName: rawItem?.name,
         // ---
         name: rawItem?.address?.name,
-        address1: rawItem?.address?.address1,
-        address2: rawItem?.address?.address2,
+        address1: rawItem?.address?.address_1,
+        address2: rawItem?.address?.address_2,
         city: rawItem?.address?.city,
         postcode: rawItem?.address?.postcode,
-        regionId: rawItem?.address?.regionId,
-        countryId: rawItem?.address?.countryId,
+        regionId: rawItem?.address?.region_id,
+        countryId: rawItem?.address?.country_id,
         // ---
         email: rawItem?.email?.email,
         phone: {
           number: rawItem?.phone?.number,
-          nationalNumber: rawItem?.phone?.nationalNumber,
-          countryCallingCode: rawItem?.phone?.countryCallingCode,
+          nationalNumber: rawItem?.phone?.national_number,
+          countryCallingCode: rawItem?.phone?.country_calling_code,
           country: rawItem?.phone?.country,
         },
-        regNumber: rawItem?.regNumber,
-        vatNumber: rawItem?.vatNumber,
+        regNumber: rawItem?.reg_number,
+        vatNumber: rawItem?.vat_number,
         // ---
         type: rawItem?.type || 4, // default to 4 = company
         default: rawItem?.default,
@@ -657,7 +658,6 @@ export const parseAddress = (raw: IAddress | Array<IAddress>) => {
 
         // vatPercent: item?.vatPercent,
       };
-      debugger;
       return mappedItem;
     } else {
       const mappedItem: any = {
@@ -669,12 +669,12 @@ export const parseAddress = (raw: IAddress | Array<IAddress>) => {
         companyName: null,
         // ---
         name: rawItem.name,
-        address1: rawItem.address1,
-        address2: rawItem.address2,
+        address1: rawItem.address_1,
+        address2: rawItem.address_2,
         city: rawItem.city,
         postcode: rawItem.postcode,
-        regionId: rawItem.regionId,
-        countryId: rawItem.countryId,
+        regionId: rawItem.region_id,
+        countryId: rawItem.country_id,
         // ---
         default: rawItem.default,
         type: rawItem.type,
@@ -682,7 +682,6 @@ export const parseAddress = (raw: IAddress | Array<IAddress>) => {
         verified: rawItem.verified,
       };
       // mappedItem.place = null;
-      debugger;
       return mappedItem;
     }
   });
