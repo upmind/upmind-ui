@@ -112,8 +112,8 @@ function getTerm(value: string) {
 }
 
 function isMonthly(item: any) {
-  const hasMonthlyPrice = some(props.items, ["", 1]);
-  return hasMonthlyPrice && item.monthlyPriceFrom && item.cycle > 1;
+  const hasMonthlyPrice = some(props.items, ["cycle", 1]);
+  return hasMonthlyPrice && item.monthlyFromregularPrice && item.cycle > 1;
 }
 function doResolve(item: string | number) {
   if (props.disabled) return;

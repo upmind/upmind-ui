@@ -18,29 +18,23 @@
       </template>
 
       <span :class="styles.product.config.grid.item.text">{{
-        !isNil(props.priceDiscounted)
-          ? props.priceDiscountedFormatted
-          : props.price
-            ? props.priceFormatted
-            : t("product.free")
+        props.meta.free ? t("product.free") : `+ ${props.currentPrice}`
       }}</span>
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
       <span
         :class="styles.product.config.grid.item.discount"
-        v-if="!isNil(props.monthlyPriceFromDiscounted)"
+        v-if="props.meta.discounted"
         >{{
           t("product.cycle", {
-            value: props.monthlyPriceFromFormatted,
+            value: props.monthlyFromRegulatPrice,
           })
         }}</span
       >
       <strong :class="styles.product.config.grid.item.total">{{
         t("product.cycle", {
-          value: !isNil(props.monthlyPriceFromDiscounted)
-            ? props.monthlyPriceFromDiscountedFormatted
-            : props.monthlyPriceFromFormatted,
+          value: props.monthlyFromCurrentPrice,
         })
       }}</strong>
     </div>
@@ -53,14 +47,13 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Tooltip, Badge } from "@upmind-automation/upwind";
+import { Badge } from "@upmind-automation/upwind";
 
 // --- utils
-import { isNil } from "lodash-es";
 
 // --- types
 
@@ -72,13 +65,18 @@ const props = defineProps<{
   cycle: number;
   // ---
   mixedPromotions?: boolean;
-  monthlyPriceFromDiscounted?: number;
-  monthlyPriceFromDiscountedFormatted?: string;
-  monthlyPriceFrom?: number;
-  monthlyPriceFromFormatted?: string;
-  priceDiscounted?: number;
-  priceDiscountedFormatted?: string;
-  priceFormatted?: string;
+  monthlyFromCurrentAmount?: number;
+  monthlyFromCurrentPrice?: string;
+  monthlyFromRegulatAmount?: number;
+  monthlyFromRegulatPrice?: string;
+  regularAmount?: number;
+  regularPrice?: string;
+  currentPrice?: string;
+  currentAmount?: number;
+  meta: {
+    discounted?: boolean;
+    free?: boolean;
+  };
   promotions?: {
     name?: string;
     amount?: number;

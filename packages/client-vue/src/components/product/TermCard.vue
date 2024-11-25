@@ -19,13 +19,11 @@
 
       <span
         :class="styles.product.config.grid.item.text"
-        v-if="props.monthlyPriceFrom && props.cycle > 1"
+        v-if="props.monthlyFromCurrentAmount && props.cycle > 1"
       >
         {{
           t("product.cycle", {
-            value: props.monthlyPriceFromDiscounted
-              ? props.monthlyPriceFromDiscountedFormatted
-              : props.monthlyPriceFromFormatted,
+            value: props.monthlyFromCurrentPrice,
           })
         }}
       </span>
@@ -34,18 +32,12 @@
     <div :class="styles.product.config.grid.item.footer">
       <span
         :class="styles.product.config.grid.item.discount"
-        v-if="!isNil(props.priceDiscounted)"
+        v-if="props.meta.discounted"
       >
-        {{ props.priceFormatted }}
+        {{ props.regularPrice }}
       </span>
       <strong :class="styles.product.config.grid.item.total">
-        {{
-          !isNil(props.priceDiscounted)
-            ? props.priceDiscountedFormatted
-            : props.price
-              ? props.priceFormatted
-              : t("product.free")
-        }}
+        {{ props.meta.free ? t("product.free") : props.currentPrice }}
       </strong>
     </div>
   </div>
@@ -57,14 +49,13 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Tooltip, Badge } from "@upmind-automation/upwind";
+import { Badge } from "@upmind-automation/upwind";
 
 // --- utils
-import { isNil } from "lodash";
 
 // --- types
 
@@ -76,13 +67,18 @@ const props = defineProps<{
   cycle: number;
   // ---
   mixedPromotions?: boolean;
-  monthlyPriceFromDiscounted?: number;
-  monthlyPriceFromDiscountedFormatted?: string;
-  monthlyPriceFrom?: number;
-  monthlyPriceFromFormatted?: string;
-  priceDiscounted?: number;
-  priceDiscountedFormatted?: string;
-  priceFormatted?: string;
+  monthlyFromCurrentAmount?: number;
+  monthlyFromCurrentPrice?: string;
+  monthlyFromRegulatAmount?: number;
+  monthlyFromRegulatPrice?: string;
+  regularAmount?: number;
+  regularPrice?: string;
+  currentPrice?: string;
+  currentAmount?: number;
+  meta: {
+    discounted?: boolean;
+    free?: boolean;
+  };
   promotions?: {
     name?: string;
     amount?: number;

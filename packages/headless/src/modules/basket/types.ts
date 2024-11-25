@@ -160,7 +160,7 @@ export interface BasketProductSummaryDetail {
   };
 }
 
-interface Price {
+export interface Price {
   currentAmount?: number;
   currentPrice?: string;
   // ---
