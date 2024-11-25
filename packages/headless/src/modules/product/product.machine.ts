@@ -638,7 +638,6 @@ export default createMachine(
                 discounted_formatted: fallback?.currentPrice,
               };
 
-          debugger;
           return parseSummary(totals, {
             model,
             lookups,
