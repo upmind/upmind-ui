@@ -11,6 +11,8 @@ export interface AlertProps {
   title?: string;
   description?: string;
   icon?: IconProps["icon"];
+  iconSize?: IconProps["size"];
+  action?: string;
   // ---
   variant?: AlertVariantProps["variant"];
   color?: AlertVariantProps["color"];
