@@ -46,7 +46,6 @@ export const ItemActions = {
       // BUG: Think this is the source of our timeout son address lookups
       // const country = find(countries, ["id", get(model, "countryId")]);
       // const region = find(regions, ["id", get(model, "regionId")]);
-      debugger;
       return compact([
         get(model, "address1"),
         get(model, "address2"),

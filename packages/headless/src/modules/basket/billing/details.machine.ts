@@ -196,7 +196,6 @@ export default createMachine(
 
       setLookups: assign({
         addresses: (_context, { data }: any) => data.addresses,
-        companies: (_context, { data }: any) => data.companies,
       }),
 
       setSchemas: assign({

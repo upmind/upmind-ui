@@ -16,7 +16,7 @@ import {
   uniqueId,
   compact,
   // pick,
-  // isArray,
+  isArray,
 } from "lodash-es";
 
 // --- types
@@ -382,4 +382,36 @@ export const spawnItem = (model?: IAddress) => {
   } catch (err) {
     console.error("AddressListings", "spawnItem", { model });
   }
+};
+
+export const parseAddress = (raw: IAddress | Array<IAddress>) => {
+  // we could get a plain address OR a company with and address
+  // so we normalize the data to always be an array of addresses
+  // this is to allow for a 'unfied' way of handling addresses
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, rawItem => {
+    const mappedItem: any = {
+      id: rawItem.id,
+      clientId: rawItem.client_id,
+      addressId: rawItem.id,
+      companyId: null,
+      companyDetails: false,
+      companyName: null,
+      // ---
+      name: rawItem.name,
+      address1: rawItem.address_1,
+      address2: rawItem.address_2,
+      city: rawItem.city,
+      postcode: rawItem.postcode,
+      regionId: rawItem.region_id,
+      countryId: rawItem.country_id,
+      // ---
+      default: rawItem.default,
+      type: rawItem.type,
+      canDelete: rawItem.can_delete,
+      verified: rawItem.verified,
+    };
+    // mappedItem.place = null;
+    return mappedItem;
+  });
 };
