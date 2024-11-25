@@ -74,7 +74,13 @@ async function load(
   const companies = get({
     url: useUrl(`clients/${client.id}/companies`, {
       limit: 0,
-      with: ["address", "address.region", "address.country", "email", "phone"],
+      with: [
+        "address",
+        "address.region",
+        "address.country",
+        "email",
+        "phone",
+      ].join(),
     }),
     withAccessToken: true,
     useCache: true,
