@@ -1,8 +1,9 @@
 <template>
   <div class="bg-base flex flex-col gap-y-4 rounded-lg p-8 pb-7 shadow-sm">
     <UpmBasketItemSummary
-      v-for="pricing in summary.pricing"
-      :key="pricing.key"
+      v-for="(pricing, index) in summary.pricing"
+      :key="`${props.id}-${index}`"
+      :index="index"
       :id="props.id"
       :product="props.product"
       :pricing="pricing"

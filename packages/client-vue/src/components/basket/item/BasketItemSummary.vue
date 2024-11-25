@@ -3,18 +3,29 @@
     <div class="flex items-center justify-between">
       <div class="flex w-full items-center gap-x-3">
         <img
-          v-if="product.imgUrl"
+          v-if="product.imgUrl && isFirst"
           :src="product.imgUrl"
           alt="Upmind"
           class="m-0 h-12 w-12"
         />
 
         <div class="flex w-full flex-col gap-y-1">
+          <div>
+            <Promotion
+              v-if="isFirst"
+              class="mb-2 inline-block md:hidden"
+              :pricing="pricing"
+            />
+          </div>
           <div class="flex items-end justify-between">
             <div class="text-sm font-normal leading-[15px]">
               {{ product.category }}
             </div>
-            <Promotion class="hidden md:block" :pricing="pricing" />
+            <Promotion
+              v-if="isFirst"
+              class="hidden md:block"
+              :pricing="pricing"
+            />
           </div>
           <div class="flex items-end justify-between">
             <div class="text-[22px] font-semibold leading-[30px]">
@@ -60,6 +71,7 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { debounce } from "lodash-es";
+import { computed } from "vue";
 
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
@@ -79,6 +91,7 @@ import {
 
 const props = defineProps<{
   id: string;
+  index: number;
   product: BasketProductDetails;
   pricing: BasketProductSummaryPrice;
   quantity: number;
@@ -91,4 +104,7 @@ const { updateQuantity } = useBasketProduct(props.id);
 const doUpdateQuantity = debounce((value: number) => {
   updateQuantity(value);
 }, 750);
+
+// More confident using this over tailwind :first due to the possibility of many summaries, badges, imgs being rendered at once (this ensures we are rendering at the correct level)
+const isFirst = computed(() => props.index === 0);
 </script>
