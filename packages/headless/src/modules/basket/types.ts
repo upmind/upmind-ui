@@ -157,6 +157,8 @@ export interface BasketProductSummaryDetail {
     discounted?: boolean;
     free?: boolean;
     invalid?: boolean;
+    overrides?: boolean;
+    includes?: boolean;
   };
 }
 

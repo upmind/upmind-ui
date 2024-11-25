@@ -12,7 +12,7 @@ import { find } from "lodash-es";
 import { responseCodes } from "../../api";
 
 // --- types
-import type { Basket } from "../types";
+import type { Basket, BasketProduct } from "../types";
 import { parseBasketProduct } from "../utils";
 
 // --------------------------------------------------------
@@ -48,11 +48,8 @@ export const useBasketProduct = (
     refresh: async (newBasket: Basket) => {
       basketProduct = getBasketProduct(newBasket);
     },
-    update: async (): Promise<ActorRef<any, any>> => {
-      return services.update(
-        { basketId: rawBasket.id, bpid: id },
-        { data: basketProduct }
-      );
+    update: async (data: BasketProduct): Promise<ActorRef<any, any>> => {
+      return services.update({ basketId: rawBasket.id, bpid: id }, { data });
     },
 
     remove: async (): Promise<any> => {
