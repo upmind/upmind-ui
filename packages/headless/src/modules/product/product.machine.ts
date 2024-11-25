@@ -37,12 +37,13 @@ import {
   set,
   toNumber,
   unset,
+  first,
 } from "lodash-es";
 
 import { calculateSubscription } from "./services";
 
 // ---types
-import type { BasketProduct } from "../basket";
+import type { BasketProduct, Price } from "../basket";
 import type {
   ProductConfigContext,
   ProductConfigEvent,
@@ -627,10 +628,17 @@ export default createMachine(
           { model, lookups, error, summary }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
+          const fallback: Price = first(summary?.pricing);
           const totals = has(data, "total")
             ? data
-            : pick(summary, ["total", "total_formatted"]);
+            : {
+                total: fallback?.regularAmount,
+                total_formatted: fallback?.regularPrice,
+                discounted: fallback?.currentAmount,
+                discounted_formatted: fallback?.currentPrice,
+              };
 
+          debugger;
           return parseSummary(totals, {
             model,
             lookups,

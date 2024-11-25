@@ -173,7 +173,7 @@
         <span :class="styles.product.config.itemtotal" v-if="summary?.total">
           <span>{{ t("product.total") }}</span>
           <strong :class="styles.product.config.bold">
-            {{ summary?.regularPriceFormatted }}
+            {{ summary?.regularPrice }}
           </strong>
         </span>
 

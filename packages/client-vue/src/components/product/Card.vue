@@ -113,17 +113,15 @@
         <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
-            v-if="summary?.hasDiscount"
+            v-if="summary?.meta?.discounted"
             :class="styles.product.card.discount"
           >
-            {{ summary?.regularPriceFormatted }}
+            {{ summary?.regularPrice }}
           </span>
 
           <strong :class="styles.product.card.total">
             {{
-              summary?.isFree
-                ? t("product.free")
-                : summary?.currentPriceformatted
+              summary?.meta?.free ? t("product.free") : summary?.currentPrice
             }}
           </strong>
         </div>

@@ -26,7 +26,7 @@
           >
             <slot name="actions" v-bind="{ ...$props, product }">
               <strong class="text-primary" v-if="props.noActions">
-                {{ product.summary.regularPriceFormatted }}
+                {{ product.summary.currentPrice }}
               </strong>
 
               <template v-else>
