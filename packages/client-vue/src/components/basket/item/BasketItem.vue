@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-base flex flex-col gap-y-4 p-8 pb-7">
+  <div class="bg-base flex flex-col gap-y-4 rounded-lg p-8 pb-7 shadow-sm">
     <UpmBasketItemSummary
       v-for="pricing in summary.pricing"
       :key="pricing.key"
@@ -8,6 +8,8 @@
       :pricing="pricing"
       :quantity="props.quantity"
     />
+
+    <UpmRequiredAlert v-if="meta.hasErrors" :id="props.id" />
 
     <!-- These margins help us position correctly (there is additional space when the details are closed) -->
     <div v-auto-animate class="-my-2">
@@ -41,6 +43,7 @@ import { useBasketProduct } from "@upmind-automation/client-vue";
 import UpmBasketConfigurationDetails from "./BasketItemConfigurationDetails.vue";
 import UpmBasketItemSummary from "./BasketItemSummary.vue";
 import UpmBasketItemActions from "./BasketItemActions.vue";
+import UpmRequiredAlert from "./components/RequiredAlert.vue";
 
 // --- types
 import { type BasketProduct } from "@upmind-automation/client-vue";
