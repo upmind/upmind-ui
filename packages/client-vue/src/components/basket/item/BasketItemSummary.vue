@@ -36,7 +36,7 @@
 
             <div class="hidden gap-x-[24px] md:flex">
               <QuantityField
-                v-if="props.product.quantifiable"
+                v-if="isFirst && props.product.quantifiable"
                 :id="props.id"
                 :product="props.product"
                 :quantity="props.quantity"
@@ -53,7 +53,7 @@
       <div class="flex items-center justify-between">
         <CurrentPrice :pricing="pricing" />
         <QuantityField
-          v-if="props.product.quantifiable"
+          v-if="isFirst && props.product.quantifiable"
           :id="props.id"
           :product="props.product"
           :quantity="props.quantity"
