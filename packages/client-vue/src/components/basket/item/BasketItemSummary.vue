@@ -10,14 +10,12 @@
         />
 
         <div class="flex w-full flex-col gap-y-1">
-          <div>
-            <Promotion
-              v-if="isFirst"
-              class="mb-2 inline-block md:hidden"
-              :pricing="pricing"
-              :disabled="meta.hasErrors"
-            />
-          </div>
+          <Promotion
+            v-if="isFirst"
+            class="mb-2 inline-block md:hidden"
+            :pricing="pricing"
+            :disabled="meta.hasErrors"
+          />
           <div class="flex items-end justify-between">
             <div class="text-sm font-normal leading-[15px]">
               {{ product.category }}
@@ -38,6 +36,7 @@
 
             <div class="hidden gap-x-[24px] md:flex">
               <QuantityField
+                v-if="props.product.quantifiable"
                 :id="props.id"
                 :product="props.product"
                 :quantity="props.quantity"
@@ -54,6 +53,7 @@
       <div class="flex items-center justify-between">
         <CurrentPrice :pricing="pricing" />
         <QuantityField
+          v-if="props.product.quantifiable"
           :id="props.id"
           :product="props.product"
           :quantity="props.quantity"

@@ -1,6 +1,5 @@
 <template>
   <NumberField
-    v-if="props.product.quantifiable"
     class-field="!text-[16px]"
     :model-value="props.quantity"
     @update:model-value="doUpdateQuantity"
