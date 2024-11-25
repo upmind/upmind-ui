@@ -657,6 +657,7 @@ export const parseAddress = (raw: IAddress | Array<IAddress>) => {
 
         // vatPercent: item?.vatPercent,
       };
+      debugger;
       return mappedItem;
     } else {
       const mappedItem: any = {
@@ -681,7 +682,7 @@ export const parseAddress = (raw: IAddress | Array<IAddress>) => {
         verified: rawItem.verified,
       };
       // mappedItem.place = null;
-
+      debugger;
       return mappedItem;
     }
   });

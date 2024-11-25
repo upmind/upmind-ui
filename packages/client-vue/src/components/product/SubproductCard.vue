@@ -13,7 +13,6 @@
               :currentAmount="props.price.currentAmount"
               :currentPrice="props.price.currentPrice"
               :meta="props.price.meta"
-              :priceOverride="props.priceOverride"
             />
           </div>
 
@@ -60,7 +59,6 @@
               :currentAmount="props.price.currentAmount"
               :currentPrice="props.price.currentPrice"
               :meta="props.price.meta"
-              :priceOverride="props.priceOverride"
             />
           </span>
         </div>
@@ -94,7 +92,6 @@ const props = defineProps<{
   id?: string;
   name: string;
   excerpt?: string;
-  priceOverride?: boolean;
   price?: {
     regularAmount: number;
     regularPrice: string;

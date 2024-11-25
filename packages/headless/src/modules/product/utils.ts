@@ -190,13 +190,10 @@ export const parseSubproduct = (
         id: rawSubproduct.category.id,
         name: useTranslateName(rawSubproduct.category),
         description: useTranslateField(rawSubproduct.category, "description"),
-        short_description: useTranslateField(
-          rawSubproduct.category,
-          "short_description"
-        ),
+        excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         multiple: rawSubproduct.category.multiple,
         required: rawSubproduct.category.required,
-        price_override: rawSubproduct.category.price_override,
+        priceOverride: rawSubproduct.category.price_override,
       });
 
       // check EARLY if we have a price for one of the following:
@@ -247,6 +244,7 @@ export const parseSubproduct = (
                 rawPrice.price_discounted &&
                 rawPrice.price !== rawPrice.price_discounted,
               free: (rawPrice.price_discounted ?? rawPrice.price) == 0,
+              overrides: rawSubproduct.category.price_override,
             },
           };
 
