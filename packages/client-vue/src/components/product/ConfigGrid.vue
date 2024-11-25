@@ -62,13 +62,11 @@
             <!-- monthly -->
             <span
               :class="styles.product.config.grid.item.text"
-              v-if="item?.monthlyPriceFrom && item.term > 1"
+              v-if="item?.monthlyFromCurrentPrice && item.term > 1"
             >
               {{
                 t("product.cycle", {
-                  value: item?.monthlyPriceFromDiscounted
-                    ? item.monthlyPriceFromDiscountedFormatted
-                    : item.monthlyPriceFromFormatted,
+                  value: item?.monthlyFromCurrentPrice,
                 })
               }}
             </span>
@@ -77,18 +75,12 @@
           <div :class="styles.product.config.grid.item.footer">
             <span
               :class="styles.product.config.grid.item.discount"
-              v-if="item?.priceDiscounted"
+              v-if="item?.meta.discounted"
             >
-              {{ item.priceFormatted }}
+              {{ item.regularPrice }}
             </span>
             <strong :class="styles.product.config.grid.item.total">
-              {{
-                item?.priceDiscounted
-                  ? item.priceDiscountedFormatted
-                  : item?.price
-                    ? item.priceFormatted
-                    : t("product.free")
-              }}
+              {{ item?.meta.free ? t("product.free") : item.currentPrice }}
             </strong>
           </div>
         </li>
