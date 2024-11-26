@@ -290,10 +290,10 @@ export function parseTerm(raw: any): BasketProductSummaryDetail | null {
     free: term.configuration_net_amount_discounted_converted == 0,
   };
 
-  summary.regularAmount = term.price;
-  summary.regularPrice = term.price_formatted;
-  summary.currentAmount = term.price_discounted ?? term.price;
-  summary.currentPrice = term.price_discounted_formatted ?? term.price;
+  summary.regularAmount = raw.selling_price_converted;
+  summary.regularPrice = raw.selling_price_formatted;
+  summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
+  summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
 
   // add any saving information (if available)
   if (
