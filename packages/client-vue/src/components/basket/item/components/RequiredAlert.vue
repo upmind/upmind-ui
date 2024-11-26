@@ -1,12 +1,13 @@
 <template>
   <Alert
-    :title="t('cart.item.invalid')"
+    :title="title"
     color="error"
     icon="alert"
     :border="false"
     :action="t('cart.item.invalidAction')"
     icon-size="xs"
     variant="outline"
+    class="p-2 px-3"
   >
     <template #action>
       <!-- TODO: Using -m classes again to get correct positioning, we shouldn't need this -->
@@ -14,9 +15,9 @@
         <Button
           variant="link"
           size="sm"
-          :label="t('cart.item.invalidAction')"
+          :label="buttonLabel"
           color="error"
-          class="-mr-1"
+          class="-mr-1 underline"
         >
           <template #append>
             <Icon icon="chevron-right" size="xs" class="-ml-1.5" />
@@ -39,6 +40,7 @@ const { t } = useI18n();
 
 const props = defineProps<{
   id: string;
+  mobile?: boolean;
 }>();
 
 const editLink = computed(() => {
@@ -48,5 +50,15 @@ const editLink = computed(() => {
       bpid: props.id,
     },
   };
+});
+
+const title = computed(() => {
+  return props.mobile ? t("cart.item.invalidMobile") : t("cart.item.invalid");
+});
+
+const buttonLabel = computed(() => {
+  return props.mobile
+    ? t("cart.item.invalidActionMobile")
+    : t("cart.item.invalidAction");
 });
 </script>

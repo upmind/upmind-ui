@@ -79,7 +79,10 @@
     </div>
   </div>
 
-  <UpmRequiredAlert v-if="isFirst && error" :id="id" />
+  <div v-if="isFirst && error">
+    <UpmRequiredAlert class="block md:hidden" :id="id" mobile />
+    <UpmRequiredAlert class="hidden md:block" :id="id" />
+  </div>
 
   <div v-if="!isLast" class="h-[1px] border-t border-dashed" />
 </template>
