@@ -54,7 +54,7 @@
                 :product="props.product"
                 :quantity="props.quantity"
               />
-              <CurrentPrice :pricing="pricing" />
+              <CurrentPrice :id="id" :pricing="pricing" />
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
       <TermsDescription :pricing="pricing" mobile />
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-x-2">
-          <CurrentPrice :pricing="pricing" />
+          <CurrentPrice :id="id" :pricing="pricing" />
           <RegularPrice :pricing="pricing" />
         </div>
         <QuantityField

@@ -9,20 +9,28 @@
       />
     </template>
   </div>
+
+  <div v-else class="flex flex-col space-y-4" v-auto-animate>
+    <template
+      v-for="index in Math.max(1, products.length)"
+      :key="`skeleton-cart-item-${index}`"
+    >
+      <UpmBasketItemSkeleton />
+    </template>
+  </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useRoute } from "vue-router";
 
 // --- internal
-import { useBasket } from "@upmind-automation/client-vue";
+import { useBasket, UpmBasketItem } from "@upmind-automation/client-vue";
 
 // --- components
-import UpmBasketItem from "./BasketItem.vue";
 import { every, reduce, set } from "lodash-es";
+import UpmBasketItemSkeleton from "./BasketItemSkeleton.vue";
 
 const props = defineProps<{
   open: boolean;
@@ -34,7 +42,6 @@ const { meta, products } = useBasket();
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 
-const route = useRoute();
 function forceOpen(value: boolean = false): Record<string, boolean> {
   return reduce(
     products.value,

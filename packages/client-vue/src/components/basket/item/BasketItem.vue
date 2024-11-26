@@ -45,6 +45,8 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed } from "vue";
+import { some } from "lodash-es";
 
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
@@ -64,6 +66,8 @@ const props = withDefaults(
     BasketProduct & {
       open?: boolean;
       error: boolean;
+      loading: boolean;
+      processing: boolean;
     }
   >(),
   {
@@ -75,5 +79,13 @@ const emits = defineEmits(["update:open"]);
 
 const open = useVModel(props, "open", emits);
 
-const { remove, meta } = useBasketProduct(props.id);
+const { remove } = useBasketProduct(props.id);
+
+const meta = computed(() => {
+  return {
+    isLoading: props.loading,
+    isProcessing: props.processing,
+    hasErrors: !!props.error || some(props.summary?.details, "invalid"),
+  };
+});
 </script>
