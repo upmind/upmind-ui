@@ -23,7 +23,9 @@
     <div v-auto-animate class="-my-2">
       <UpmBasketConfigurationDetails
         v-if="open"
+        :id="id"
         :details="summary.details"
+        :product="product"
         class="-mb-2 mt-2"
       />
     </div>
@@ -41,7 +43,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 

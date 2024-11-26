@@ -78,7 +78,7 @@
     </div>
 
     <div class="hidden justify-between md:flex">
-      <TermsDescription :pricing="pricing" :mobile="false" />
+      <TermsDescription :pricing="pricing" />
       <RegularPrice :pricing="pricing" />
     </div>
   </div>

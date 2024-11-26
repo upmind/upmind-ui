@@ -1,5 +1,5 @@
 <template>
-  <span class="text-sm italic leading-5 opacity-50">
+  <span class="text-sm italic leading-5 opacity-35">
     <span>{{
       t(
         `product.terms.${mobile ? "minified" : "descriptive"}.${pricing.cycle}`,
