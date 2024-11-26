@@ -38,7 +38,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { isEmpty } from "lodash";
 
 // --- components
 import { Button } from "@upmind-automation/upwind";
