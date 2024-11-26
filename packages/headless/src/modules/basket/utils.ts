@@ -30,6 +30,7 @@ import {
   toNumber,
   uniq,
   uniqueId,
+  find,
 } from "lodash-es";
 
 // --- types
@@ -187,7 +188,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
 
     // --- summary details
     summary: {
-      pricing: [],
+      pricing: [parsPriceSummary(raw)],
       details: [],
     },
     // --- errors
@@ -198,7 +199,6 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   const term = parseTerm(raw);
   if (term) {
     product.summary.details.push(term);
-    product.summary.pricing.push(term);
   }
   // ---
   forEach(raw?.options, option => {
@@ -273,16 +273,52 @@ const parseQuantity = (quantity: number, raw: any) => {
 };
 
 export function parseTerm(raw: any): BasketProductSummaryDetail | null {
-  const { getBillingCycle } = useSystem();
-  const term = parsPriceSummary(raw);
-  const cycle = getBillingCycle(raw.billing_cycle_months);
-  const name = cycle ? useTranslateName(cycle) : null;
+  const term = find(raw.product.prices, [
+    "billing_cycle_months",
+    raw.billing_cycle_months,
+  ]);
 
-  term.key = "term";
-  term.category = "Billing Cycle";
-  term.name = name;
+  const summary: BasketProductSummaryPrice = parseSubproduct(
+    raw
+  ) as BasketProductSummaryPrice;
 
-  return term;
+  summary.key = "term";
+
+  summary.meta = {
+    oneoff: term.billing_cycle_months > 0,
+    discounted: term.price_discounted > 0,
+    free: term.configuration_net_amount_discounted_converted == 0,
+  };
+
+  summary.regularAmount = term.price;
+  summary.regularPrice = term.price_formatted;
+  summary.currentAmount = term.price_discounted ?? term.price;
+  summary.currentPrice = term.price_discounted_formatted ?? term.price;
+
+  // add any saving information (if available)
+  if (
+    summary.meta.discounted &&
+    summary?.regularAmount &&
+    summary?.currentAmount
+  ) {
+    summary.currentSavingAmount = summary.meta.discounted
+      ? ((summary.regularAmount - summary.currentAmount) /
+          summary.regularAmount) *
+        100
+      : 0;
+
+    summary.currentSaving = summary.meta.discounted
+      ? `${Math.round(summary.currentSavingAmount)}%`
+      : "";
+  }
+
+  // retained in case we wan tto show the term name as opposed to the actual product name/category
+  // const { getBillingCycle } = useSystem();
+  // const cycle = getBillingCycle(raw.billing_cycle_months);
+  // const name = cycle ? useTranslateName(cycle) : null;
+  // term.category = "Billing Cycle";
+  // term.name = name;
+  return summary;
 }
 
 export function parseSubproduct(
