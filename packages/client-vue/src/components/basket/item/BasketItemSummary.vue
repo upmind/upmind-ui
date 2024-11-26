@@ -46,7 +46,7 @@
               </template>
             </div>
 
-            <div class="hidden gap-x-[24px] md:flex">
+            <div class="hidden items-center gap-x-[24px] md:flex">
               <QuantityField
                 v-if="isFirst && props.product.quantifiable"
                 :id="props.id"
