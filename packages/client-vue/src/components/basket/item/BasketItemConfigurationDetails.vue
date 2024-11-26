@@ -13,7 +13,7 @@
               (x{{ item.quantity }})</span
             >
           </div>
-          <div>
+          <div v-if="item.currentPrice">
             <span v-if="!item.meta?.overrides">+ </span>
             <span>{{ item.currentPrice }}</span>
           </div>
