@@ -20,7 +20,7 @@
             <Button
               variant="link"
               size="sm"
-              label="Configure now"
+              :label="t('product.configureNow')"
               color="error"
               class="inline-block h-5 underline"
             />
@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
+import { useI18n } from "vue-i18n";
 // --- components
 import { Button } from "@upmind-automation/upwind";
 
@@ -53,6 +53,8 @@ const props = defineProps<{
   item: BasketProductSummaryDetail;
   product: BasketProductDetails;
 }>();
+
+const { t } = useI18n();
 
 const isTerm = computed(() => props.item.key === "term");
 // TODO: Sometimes contains an empty invalid array when invalid
