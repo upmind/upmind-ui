@@ -3,7 +3,7 @@
     class-field="!text-[16px]"
     :model-value="props.quantity"
     @update:model-value="doUpdateQuantity"
-    :min="props.product.min"
+    :min="props.product.min === 0 ? 1 : props.product.min"
     :max="props.product.max"
     :step="props.product.step"
     variant="minimal"
