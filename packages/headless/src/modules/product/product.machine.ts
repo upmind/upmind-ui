@@ -888,7 +888,8 @@ export default createMachine(
         }: ProductConfigContext,
         { data }: ProductConfigEvent
       ) => {
-        const clientChanged = data?.clientId !== clientId;
+        //  NB: data is raw basket data so use snake_case for comparison
+        const clientChanged = clientId == data?.client_id!;
         const basketChanged = basketId !== data?.id;
         const currencyChanged = currencyId !== data?.currency_id;
         const promotionsChanged = !isEmpty(
