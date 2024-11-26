@@ -98,7 +98,6 @@ async function findItem(
 ) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
-  // DC: maybe this is raw and need sto be converted to camelCase
   const value = pick(data, [
     "address1",
     "address2",

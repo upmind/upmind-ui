@@ -51,8 +51,11 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     meta: computed(() => ({
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
       hasPromotions: contextMatches(actor, ["promotions"]),
-      hasErrors: stateMatches(actor, ["error"]),
-      isProcessing: stateMatches(actor, ["processing"]),
+      hasErrors: stateMatches(actor, ["error", "processing.error"]),
+      isProcessing: stateMatches(actor, [
+        "processing.update",
+        "processing.remove",
+      ]),
       isValid: stateMatches(actor, ["valid"]),
       isDirty: contextMatches(actor, ["dirty"]),
       isComplete:

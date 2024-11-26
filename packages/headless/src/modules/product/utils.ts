@@ -40,9 +40,6 @@ export const checkPriceOverride = (values: any, lookups: any) => {
     const item = find(lookups, ["id", key]);
 
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
-
-    // DC:  this may be raw and need to be converted to camelCase
-    debugger;
     return !isEmpty(value) && !!item?.priceOverride;
   });
 };
@@ -77,10 +74,6 @@ export const parseProduct = (
   rawProduct: any,
   basketProduct?: ProductConfigContext["basketProduct"]
 ) => {
-  // combine the rawProduct data with the basket product data to augment the product
-  // DC: cant remember why... to investigate
-  // DC:  this may be rawProduct and need to be converted to camelCase
-
   const merged = merge({}, rawProduct, basketProduct);
   return {
     id: merged.id,

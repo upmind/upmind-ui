@@ -2,6 +2,7 @@
   <section class="flex w-full flex-col gap-3 text-left" v-auto-animate>
     <header>
       <Button
+        :disabled="meta.isProcessing"
         variant="link"
         @click="toggle = !toggle"
         size="sm"
@@ -21,7 +22,7 @@
     </header>
 
     <Form
-      v-if="toggle"
+      v-show="toggle"
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
       :model-value="model"
@@ -102,6 +103,7 @@ import { useBasketPromotions } from "@upmind-automation/client-vue";
 const { t } = useI18n();
 
 const {
+  state,
   meta,
   errors,
   model,
