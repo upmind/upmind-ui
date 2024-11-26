@@ -23,7 +23,7 @@
     <div v-auto-animate class="-my-2">
       <UpmBasketConfigurationDetails
         v-if="open"
-        :details="filteredDetails"
+        :details="summary.details"
         class="-mb-2 mt-2"
       />
     </div>
@@ -31,7 +31,7 @@
     <UpmBasketItemActions
       v-model:isOpen="open"
       :id="props.id"
-      :details="filteredDetails"
+      :details="summary.details"
       :is-disabled="meta.isProcessing || meta.isLoading"
       :remove="remove"
       details-button-label="Show details"
@@ -75,8 +75,4 @@ const emits = defineEmits(["update:open"]);
 const open = useVModel(props, "open", emits);
 
 const { remove, meta } = useBasketProduct(props.id);
-
-const filteredDetails = computed(() => {
-  return props.summary.details.filter(item => item.key !== "term");
-});
 </script>
