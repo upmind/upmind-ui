@@ -26,8 +26,7 @@ export interface PromotionsContext {
   model?: IPromotion;
   // ---
   dirty?: Boolean;
-  // TODO:
-  // error?: RequestError;
+  autoupdate?: Boolean;
   error?: any;
 }
 
