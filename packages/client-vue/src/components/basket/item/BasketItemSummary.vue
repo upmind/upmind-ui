@@ -14,7 +14,7 @@
             v-if="isFirst"
             class="mb-2 inline-block md:hidden"
             :pricing="pricing"
-            :disabled="meta.hasErrors"
+            :disabled="error"
             size="md"
           />
           <div class="flex items-end justify-between">
@@ -26,6 +26,7 @@
               v-if="isFirst"
               class="-mt-3 hidden md:block"
               :pricing="pricing"
+              :disabled="error"
             />
           </div>
           <div class="flex items-end justify-between">
