@@ -1,7 +1,7 @@
 <template>
   <span
     v-if="pricing.meta?.discounted"
-    class="text-sm italic leading-5 line-through opacity-50"
+    class="text-sm italic leading-5 line-through opacity-30"
     >{{ pricing.regularPrice }}</span
   >
 </template>

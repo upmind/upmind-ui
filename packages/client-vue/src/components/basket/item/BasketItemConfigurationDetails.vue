@@ -3,21 +3,8 @@
     class="flex flex-col gap-y-3 rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-[14px]"
   >
     <template v-for="(item, index) in details" :key="'details-' + index">
-      <template v-if="item.name">
-        <div class="opacity-50">{{ item.category }}:</div>
-
-        <div class="flex justify-between">
-          <div>
-            <span>{{ item.name }}</span>
-            <span v-if="item.quantity && item.quantity > 1">
-              (x{{ item.quantity }})</span
-            >
-          </div>
-          <div v-if="item.currentPrice">
-            <span v-if="!item.meta?.overrides">+ </span>
-            <span>{{ item.currentPrice }}</span>
-          </div>
-        </div>
+      <template v-if="item.category">
+        <DetailsItem :id="id" :item="item" :product="product" />
 
         <div class="h-[1px] border-t last:hidden" />
       </template>
@@ -26,10 +13,18 @@
 </template>
 
 <script lang="ts" setup>
+// --- components
+import DetailsItem from "./components/DetailsItem.vue";
+
 // --- types
-import { type BasketProductSummaryDetail } from "@upmind-automation/client-vue";
+import type {
+  BasketProductSummaryDetail,
+  BasketProductDetails,
+} from "@upmind-automation/client-vue";
 
 defineProps<{
+  id: string;
   details: BasketProductSummaryDetail[];
+  product: BasketProductDetails;
 }>();
 </script>
