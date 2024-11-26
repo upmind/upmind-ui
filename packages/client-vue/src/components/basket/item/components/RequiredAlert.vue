@@ -53,12 +53,12 @@ const editLink = computed(() => {
 });
 
 const title = computed(() => {
-  return props.mobile ? t("cart.item.invalidMobile") : t("cart.item.invalid");
+  return props.mobile ? t("cart.item.invalidMinified") : t("cart.item.invalid");
 });
 
 const buttonLabel = computed(() => {
   return props.mobile
-    ? t("cart.item.invalidActionMobile")
+    ? t("cart.item.invalidActionMinified")
     : t("cart.item.invalidAction");
 });
 </script>

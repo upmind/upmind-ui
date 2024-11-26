@@ -63,7 +63,10 @@
     <div class="flex flex-col gap-y-1 md:hidden">
       <TermsDescription :pricing="pricing" mobile />
       <div class="flex items-center justify-between">
-        <CurrentPrice :pricing="pricing" />
+        <div class="flex items-center gap-x-2">
+          <CurrentPrice :pricing="pricing" />
+          <RegularPrice :pricing="pricing" />
+        </div>
         <QuantityField
           v-if="isFirst && props.product.quantifiable"
           :id="props.id"
