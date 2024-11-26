@@ -1,62 +1,69 @@
 <template>
-  <UpmCard class="!py-0">
-    <div
-      class="relative items-stretch justify-between py-6 leading-none md:flex md:py-8"
-    >
-      <div class="items-start md:flex md:space-x-10">
-        <div>
-          <div class="flex flex-col">
-            <Skeleton class="text-primary w-44 pt-2 text-lg font-medium"
-              >Title</Skeleton
-            >
-            <Skeleton
-              class="text-base-700 mr-6 mt-1 hidden text-sm leading-snug md:block"
-            >
-              Lorem ipsum dolor sit amet, consectetur adipiscin
-            </Skeleton>
+  <UpmCard class="relative flex flex-col gap-y-4 !p-8 !py-7">
+    <!-- Main Product Summary Section -->
+    <div class="flex flex-col md:gap-y-1">
+      <!-- Product Header with Image and Main Info -->
+      <div class="flex items-center justify-between">
+        <div class="flex w-full items-center gap-x-3">
+          <!-- Product Image Placeholder -->
+          <Skeleton class="m-0 h-12 w-12" />
 
-            <Skeleton
-              class="text-base-700 mt-2 block text-sm leading-snug md:mt-2 md:hidden"
-            >
-              Lorem ipsum dolor sit amet, consectetur adipiscing
-            </Skeleton>
+          <div class="flex w-full flex-col gap-y-1">
+            <!-- Category and Desktop Promotion Row -->
+            <div class="flex items-end justify-between">
+              <Skeleton class="h-5 w-32 text-sm" />
+              <!-- Category -->
+            </div>
 
-            <div class="mt-3 flex flex-col text-sm">
-              <Skeleton class="text-base-700 flex w-44 items-center py-1">
-                Category
-              </Skeleton>
-              <Skeleton class="text-base-700 mt-1 flex w-56 items-center py-1">
-                Delivery time: within 24 hours
-              </Skeleton>
-              <Skeleton class="text-base-700 mt-1 flex w-36 items-center py-1">
-                Configuration
-              </Skeleton>
+            <!-- Product Name and Price Row -->
+            <div class="flex items-end justify-between">
+              <Skeleton class="h-6 w-48 text-xl" />
+              <!-- Product Name -->
+              <div class="hidden items-center gap-x-[24px] md:flex">
+                <Skeleton class="h-6 w-32 text-lg" />
+                <!-- Price -->
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div
-        class="mt-8 flex items-end justify-between sm:mt-6 md:mt-0 md:flex-col"
-      >
-        <div class="flex flex-col justify-end md:text-right">
-          <Skeleton class="w-32 pt-2 text-lg font-medium">$99,999.00</Skeleton>
-          <Skeleton class="mr-auto mt-1 w-16 text-xs md:ml-auto md:mr-0"
-            >One Time</Skeleton
-          >
+      <!-- Mobile-only Price and Quantity Section -->
+      <div class="mt-1 flex flex-col gap-y-1 md:hidden">
+        <Skeleton class="h-5 w-48 text-sm" />
+        <!-- Terms Description -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-x-2">
+            <Skeleton class="h-6 w-32 text-lg" />
+            <!-- Current Price -->
+          </div>
         </div>
+      </div>
 
-        <div class="flex items-center space-x-2">
-          <Skeleton>
-            <NumberField class="w-[6.25rem]" />
-          </Skeleton>
-        </div>
+      <!-- Desktop-only Terms and Regular Price -->
+      <div class="mt-1 hidden justify-between md:flex">
+        <Skeleton class="h-6 w-48 text-sm" />
+        <!-- Terms Description -->
+      </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div
+      class="-mb-2 mt-4 flex items-baseline justify-between pt-0.5 md:mt-2.5 md:pt-0"
+    >
+      <Skeleton class="w-32" />
+      <!-- Show Details Button -->
+      <div class="flex items-end space-x-2">
+        <Skeleton class="h-7 w-7" />
+        <!-- Edit Button -->
+        <Skeleton class="h-7 w-7" />
+        <!-- Delete Button -->
       </div>
     </div>
   </UpmCard>
 </template>
 
 <script lang="ts" setup>
-import { Skeleton, NumberField } from "@upmind-automation/upwind";
 import { UpmCard } from "@upmind-automation/client-vue";
+import { Skeleton } from "@upmind-automation/upwind";
 </script>

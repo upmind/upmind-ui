@@ -1,5 +1,6 @@
 <template>
-  <div class="flex items-baseline justify-between pt-[16px]">
+  <!-- Button and icons have built in spacing which we are counteracting with minus margin -->
+  <div class="-mb-2 mt-4 flex items-baseline justify-between">
     <Button
       :label="detailsButtonLabel"
       variant="link"

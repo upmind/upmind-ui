@@ -1,7 +1,6 @@
 <template>
-  <div>
+  <div v-if="pricing.meta?.discounted">
     <Badge
-      v-if="pricing.meta?.discounted"
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
       class="uppercase"
