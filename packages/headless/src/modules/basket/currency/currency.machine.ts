@@ -261,7 +261,7 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasChanged: ({ model, basketId }, { data }: any) =>
-        model?.id !== data?.currencyId || basketId !== data?.id,
+        model?.id !== data?.currency_id || basketId !== data?.id,
       shouldUpdate: ({ autoupdate, basketId }, _event) =>
         !!autoupdate && !!basketId,
     },
