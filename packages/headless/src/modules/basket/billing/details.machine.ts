@@ -185,7 +185,7 @@ export default createMachine(
         (_context: BillingDetailsContext, { data }: any) => {
           return {
             basketId: data?.id,
-            clientid: data?.client_id,
+            clientId: data?.client_id,
           };
         }
       ),
@@ -274,7 +274,8 @@ export default createMachine(
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
       hasChanged: ({ clientId, basketId }, { data }: any) => {
-        return basketId !== data?.id || clientId !== data?.clientId;
+        // NB data is raw basket data so use snake_case for comparison
+        return basketId !== data?.id || clientId !== data?.client_id;
       },
       shouldUpdate: ({ autoupdate, clientId, basketId, model }, _event) => {
         return !!autoupdate && !!basketId && !!clientId && !!model?.addressId;
