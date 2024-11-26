@@ -42,8 +42,8 @@ export const checkPriceOverride = (values: any, lookups: any) => {
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
 
     // DC:  this may be raw and need to be converted to camelCase
-
-    return !isEmpty(value) && !!item?.price_override;
+    debugger;
+    return !isEmpty(value) && !!item?.priceOverride;
   });
 };
 
