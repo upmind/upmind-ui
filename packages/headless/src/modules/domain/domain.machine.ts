@@ -14,6 +14,7 @@ const { addError, addSuccess } = useFeedback();
 import { useTime } from "../../utils";
 import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
+  isArray,
   compact,
   concat,
   defaultsDeep,
@@ -44,7 +45,6 @@ import type {
   DomainEvents,
 } from "./types";
 import type { IDomain, DomainProduct } from "./types";
-import { isArray } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 

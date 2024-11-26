@@ -2,57 +2,30 @@
 import { interpret } from "xstate";
 
 // --- internal
-import domainMachine from "./domain.machine";
-import { DomainTypes } from "./types";
+import recommendationsEngine from "./recommendationsEngine.machine";
 export * from "./types";
 // --- utils
 import { useBasket } from "..";
-import { has, map, isArray } from "lodash-es";
-import { parseDomain } from "./utils";
 
 // --------------------------------------------------------
 
-export const useDomain = (
-  {
-    model,
-    sync,
-    type,
-  }: {
-    model?: Array<string> | string;
-    sync?: boolean;
-    type?: DomainTypes;
-    parentId?: Object; // id of basket item machine representing the parent context
-  } = {
-    model: [],
-    sync: false,
-    type: undefined,
-    parentId: undefined,
-  }
-) => {
+export const useRecommendationsEngine = (productId: string) => {
   // --------------------------------------------------------
-  // create a new instance of the  domain machine
-
-  // safetycheck to ensure forcedType is valid
-  // @ts-ignore
-  const safeType = has(DomainTypes, type) ? type : null;
-  const safeModel = map(isArray(model) ? model : [model], parseDomain);
+  // create a new instance of the  recommendationsEngine machine
 
   // ---
   const context = {
-    type: safeType,
-    sync,
-    choices: safeType ? null : DomainTypes,
-    model: safeModel,
+    productId,
   };
 
   // @ts-ignore
-  const service = interpret(domainMachine.withContext(context), {
+  const service = interpret(recommendationsEngine.withContext(context), {
     devTools: true,
   }).start();
 
   // --------------------------------------------------------
   // Get the basket machine and watch for changes, ie basket is updated/refreshed
-  // and get the currency and promotions to update our domain prices
+  // and get the currency and promotions to update our recommendationsEngine prices
   const { service: basket } = useBasket();
 
   basket.onTransition(state => {
@@ -67,15 +40,15 @@ export const useDomain = (
 
       // ---
       //  only refresh if the currency or promotions have changed
-      const { currency, promotions } = service.getSnapshot().context;
+      const { currencyId, promotions } = service.getSnapshot().context;
       if (
-        (basketCurrency && basketCurrency !== currency) ||
+        (basketCurrency && basketCurrency?.id !== currencyId) ||
         (basketPromotions && basketPromotions !== promotions)
       ) {
         service.send({
           type: "REFRESH",
           data: {
-            currency: basketCurrency,
+            currencId: basketCurrency.id,
             promotions: basketPromotions,
           },
         });
