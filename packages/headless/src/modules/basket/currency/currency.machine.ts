@@ -47,7 +47,7 @@ export default createMachine(
             actions: ["setContext", "setSchemas"],
           },
           onError: {
-            target: "error",
+            target: "#error",
             actions: ["setError", "setFeedbackError"],
           },
         },
@@ -119,7 +119,7 @@ export default createMachine(
             actions: ["setModel", "clearDirty", "clearAutoUpdate"],
           },
           onError: {
-            target: "error",
+            target: "#error",
             actions: ["setError", "setFeedbackError"],
           },
         },
