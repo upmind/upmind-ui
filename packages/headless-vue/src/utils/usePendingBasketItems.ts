@@ -92,6 +92,7 @@ export const usePendingBasketItems = () => {
     sync?: boolean
   ): Promise<ActorRef<any, any>> {
     await isReady();
+
     return ensureBasketItem(
       productId,
       get(pendingBasketItems.value, productId, { productId })
@@ -103,6 +104,8 @@ export const usePendingBasketItems = () => {
 
   async function getBasketItem(id: string): Promise<ActorRef<any, any>> {
     await isReady();
+    // if(!meta.is){router.replace({ name: "empty" });}
+
     const basketItem = find(products.value, ["id", id]);
 
     return new Promise((resolve, reject) => {
