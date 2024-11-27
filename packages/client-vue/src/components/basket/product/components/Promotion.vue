@@ -1,5 +1,5 @@
 <template>
-  <div v-if="discounted">
+  <div v-if="discounted && !free">
     <Badge
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
@@ -17,6 +17,7 @@ import { Badge } from "@upmind-automation/upwind";
 withDefaults(
   defineProps<{
     discounted?: boolean;
+    free?: boolean;
     currentSaving?: string;
     currentSavingAmount?: number;
     disabled?: boolean;

@@ -17,6 +17,7 @@
               :discounted="pricing.meta?.discounted"
               :current-saving="pricing.currentSaving"
               :current-saving-amount="pricing.currentSavingAmount"
+              :free="pricing.meta?.free"
               :disabled="error"
               size="md"
             />
@@ -30,6 +31,7 @@
                 :discounted="pricing.meta?.discounted"
                 :current-saving="pricing.currentSaving"
                 :current-saving-amount="pricing.currentSavingAmount"
+                :free="pricing.meta?.free"
                 :disabled="error"
               />
             </div>
@@ -69,6 +71,7 @@
           :regular-price="pricing.regularPrice"
           :current-price="pricing.currentPrice"
           :discounted="pricing.meta?.discounted"
+          :free="pricing.meta?.free"
         />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
@@ -82,6 +85,7 @@
             <RegularPrice
               :discounted="pricing.meta?.discounted"
               :regular-price="pricing.regularPrice"
+              :free="pricing.meta?.free"
             />
           </div>
           <QuantityField
@@ -101,10 +105,12 @@
           :regular-price="pricing.regularPrice"
           :current-price="pricing.currentPrice"
           :discounted="pricing.meta?.discounted"
+          :free="pricing.meta?.free"
         />
         <RegularPrice
           :discounted="pricing.meta?.discounted"
           :regular-price="pricing.regularPrice"
+          :free="pricing.meta?.free"
         />
       </div>
     </div>

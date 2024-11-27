@@ -14,6 +14,8 @@
           :overrides="item.meta?.overrides"
           :invalid="item.meta?.invalid"
           :cycle="item.cycle"
+          :pricing-key="item.key"
+          :free="item.meta?.free"
         />
       </template>
     </template>

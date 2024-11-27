@@ -26,18 +26,30 @@
         </template>
       </div>
       <div v-if="currentPrice" class="flex items-center gap-x-1">
-        <span v-if="!overrides && currentAmount && currentAmount > 0"
-          ><Icon icon="plus" size="4xs" class="-mt-[2px] mr-1"
-        /></span>
-        <span v-else-if="overrides"
-          ><Tooltip :label="t('product.overridden')" color="primary">
-            <Icon size="3xs" icon="random" class="mr-1"
-          /></Tooltip>
-        </span>
-        <span>{{ currentPrice }}</span>
-        <span v-if="currentAmount && currentAmount > 0">{{
-          t(`product.terms.term.${cycle}`)
-        }}</span>
+        <template v-if="!free">
+          <template v-if="pricingKey !== 'term'">
+            <span v-if="!overrides && currentAmount && currentAmount > 0"
+              ><Icon icon="plus" size="4xs" class="-mt-[2px] mr-1"
+            /></span>
+            <span v-else-if="overrides"
+              ><Tooltip
+                :label="t('product.overridden')"
+                color="primary"
+                class="max-w-64 text-center"
+              >
+                <Icon size="3xs" icon="random" class="mr-1"
+              /></Tooltip>
+            </span>
+          </template>
+          <span>{{ currentPrice }}</span>
+          <span v-if="currentAmount && currentAmount > 0">{{
+            t(`product.terms.term.${cycle}`)
+          }}</span>
+        </template>
+
+        <template v-else>
+          <span>{{ t("product.free") }}</span>
+        </template>
       </div>
     </div>
   </div>
@@ -61,6 +73,8 @@ const props = defineProps<{
   overrides?: boolean;
   invalid?: boolean;
   cycle?: number;
+  pricingKey?: string;
+  free?: boolean;
 }>();
 
 const { t } = useI18n();

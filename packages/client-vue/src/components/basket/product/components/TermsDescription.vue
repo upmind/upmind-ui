@@ -1,5 +1,5 @@
 <template>
-  <span class="text-sm italic leading-5 opacity-35">
+  <span v-if="!free" class="text-sm italic leading-5 opacity-35">
     <span>{{ getTermsText() }}</span
     ><span v-if="true && cycle && cycle > 0"
       >, {{ t("product.terms.taxes") }}.</span
@@ -19,6 +19,7 @@ const props = defineProps<{
   regularPrice?: string;
   currentPrice?: string;
   discounted?: boolean;
+  free?: boolean;
 }>();
 
 const getTermsText = () => {
