@@ -7,6 +7,7 @@ export const iconVariants = cva(
     variants: {
       size: {
         auto: "h-full w-auto",
+        "4xs": "size-2.5",
         "3xs": "size-3",
         "2xs": "size-4",
         xs: "size-6",
