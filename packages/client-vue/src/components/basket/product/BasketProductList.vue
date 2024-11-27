@@ -1,7 +1,7 @@
 <template>
   <div v-if="!meta.isLoading" class="flex flex-col space-y-4">
     <template v-for="product in products" :key="product.id">
-      <UpmBasketItem
+      <UpmBasketProduct
         v-bind="product"
         :open="!!open[product.id]"
         :quantity="product.quantity"
@@ -17,7 +17,7 @@
       v-for="index in Math.max(1, products.length)"
       :key="`skeleton-cart-item-${index}`"
     >
-      <UpmBasketItemSkeleton />
+      <UpmBasketProductSkeleton />
     </template>
   </div>
 </template>
@@ -28,11 +28,11 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasket, UpmBasketItem } from "@upmind-automation/client-vue";
+import { useBasket, UpmBasketProduct } from "@upmind-automation/client-vue";
 
 // --- components
 import { every, reduce, set } from "lodash-es";
-import UpmBasketItemSkeleton from "./BasketItemSkeleton.vue";
+import UpmBasketProductSkeleton from "./BasketProductSkeleton.vue";
 
 const props = defineProps<{
   open: boolean;
