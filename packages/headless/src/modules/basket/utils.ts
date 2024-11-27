@@ -333,11 +333,12 @@ export function parsPriceSummary(raw: any) {
   const summary: BasketProductSummaryPrice = parseSubproduct(
     raw
   ) as BasketProductSummaryPrice;
+
   summary.meta = {
     oneoff: raw.billing_cycle_months > 0,
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
-    overrides: raw.price_option_override,
+    overrides: raw?.product?.category?.price_override,
   };
 
   summary.regularAmount = raw.configuration_net_amount_converted;
