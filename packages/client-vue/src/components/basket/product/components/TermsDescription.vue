@@ -29,10 +29,10 @@ const getTermsText = () => {
     return (
       baseText +
       (props.cycle && (props.cycle === 0 || props.cycle >= 12)
-        ? t(
-            `product.terms.${props.cycle === 0 ? "discountedOneTimeSuffix" : "discountedSuffix"}`,
-            [props.cycle >= 12 ? props.regularPrice : props.currentPrice]
-          )
+        ? ". " +
+          t(`product.terms.${props.cycle === 0 ? "" : "discountedSuffix"}`, [
+            props.cycle >= 12 ? props.regularPrice : props.currentPrice,
+          ])
         : "")
     );
   }
