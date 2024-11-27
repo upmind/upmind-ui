@@ -3,7 +3,6 @@ import { useSystem } from "../system";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
-export { parseBasketProduct } from "../basket/utils";
 import {
   find,
   forEach,
