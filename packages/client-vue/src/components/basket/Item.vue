@@ -75,7 +75,7 @@ import { Badge } from "@upmind-automation/upwind";
 
 // -----------------------------------------------------------------------------
 export default defineComponent({
-  name: "BasketItem",
+  name: "BasketProduct",
   components: { Badge, ProductCard, ProductConfig },
   emits: ["reject", "resolve"],
   props: {
