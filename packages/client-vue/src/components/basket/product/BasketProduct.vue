@@ -18,7 +18,6 @@
           :quantity="quantity"
           :error="error"
           :primary="index === 0"
-          :is-last="index === summary.pricing.length - 1"
         />
       </div>
 
