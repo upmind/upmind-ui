@@ -16,7 +16,7 @@
         :pricing="pricing"
         :quantity="quantity"
         :error="error"
-        :is-first="index === 0"
+        :primary="index === 0"
         :is-last="index === summary.pricing.length - 1"
       />
 
