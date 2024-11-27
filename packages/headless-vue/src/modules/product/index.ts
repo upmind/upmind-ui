@@ -86,6 +86,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
+    hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
   }));
 
   const summary = computed(() => state.value.context?.summary);
