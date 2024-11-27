@@ -10,8 +10,10 @@
           :name="item.name"
           :quantity="item.quantity"
           :current-price="item.currentPrice"
+          :current-amount="item.currentAmount"
           :overrides="item.meta?.overrides"
           :invalid="item.meta?.invalid"
+          :cycle="item.cycle"
         />
       </template>
     </template>

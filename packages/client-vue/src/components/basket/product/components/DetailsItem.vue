@@ -25,9 +25,19 @@
           </router-link>
         </template>
       </div>
-      <div v-if="currentPrice">
-        <span v-if="overrides">+ </span>
+      <div v-if="currentPrice" class="flex items-center gap-x-1">
+        <span v-if="!overrides && currentAmount && currentAmount > 0"
+          ><Icon icon="plus" size="4xs" class="-mt-[2px] mr-1"
+        /></span>
+        <span v-else-if="overrides"
+          ><Tooltip :label="t('product.overridden')" color="primary">
+            <Icon size="3xs" icon="random" class="mr-1"
+          /></Tooltip>
+        </span>
         <span>{{ currentPrice }}</span>
+        <span v-if="currentAmount && currentAmount > 0">{{
+          t(`product.terms.term.${cycle}`)
+        }}</span>
       </div>
     </div>
   </div>
@@ -39,7 +49,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Button } from "@upmind-automation/upwind";
+import { Button, Icon, Tooltip } from "@upmind-automation/upwind";
 
 const props = defineProps<{
   id: string;
@@ -47,8 +57,10 @@ const props = defineProps<{
   name: string;
   quantity?: number;
   currentPrice?: string;
+  currentAmount?: number;
   overrides?: boolean;
   invalid?: boolean;
+  cycle?: number;
 }>();
 
 const { t } = useI18n();
