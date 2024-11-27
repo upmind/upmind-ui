@@ -21,22 +21,15 @@
 
     <div class="text-primary flex items-end space-x-2">
       <Button
+        v-for="action in actions"
+        :key="action.icon"
         variant="link"
         size="sm"
         class="h-auto !p-0 leading-none"
-        @click="router.push(editLink)"
+        @click="action.onClick"
         :disabled="disabled"
       >
-        <Icon icon="pencil" class="h-5 w-5" />
-      </Button>
-      <Button
-        variant="link"
-        size="sm"
-        class="h-auto !p-0 leading-none"
-        @click="remove"
-        :disabled="disabled"
-      >
-        <Icon icon="bin" class="h-5 w-5" />
+        <Icon :icon="action.icon" class="h-5 w-5" />
       </Button>
     </div>
   </div>
@@ -76,6 +69,17 @@ const editLink = computed(() => {
     },
   };
 });
+
+const actions = computed(() => [
+  {
+    icon: "pencil",
+    onClick: () => router.push(editLink.value),
+  },
+  {
+    icon: "bin",
+    onClick: remove,
+  },
+]);
 
 defineEmits<{
   (e: "update:open", value: boolean): void;
