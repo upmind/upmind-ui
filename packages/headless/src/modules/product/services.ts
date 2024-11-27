@@ -283,25 +283,23 @@ async function checkSubproducts(
             // ensure we have an object
             if (!isObject(value)) value = { productId: id };
             const product = find(subproduct.values, ["id", value.productId]);
-
-            // safety check, ensure we have a valid product
-            // if we dont have a price, that means there is no matching term in the prices and we should not proceed
-            if (isEmpty(product?.price)) return result;
+            // safety check, ensure we have a valid product otherwise bail
+            if (isEmpty(product)) return result;
 
             // ensure we have a valid unit_quantity
             value.quantity = parseQuantity(value?.step, product);
+            value.cycle = product.cycle;
+            set(result, id, value);
 
-            // ensure we have the correct cycle
-            value.cycle = product.price?.cycle;
-
-            // FINALLY set price values, taking into account the quantity and unit quantity
+            // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
-            times(value.quantity * model.quantity, () => {
-              price.push(product.price.currentAmount);
-            });
+            if (!isEmpty(product?.price)) {
+              times(value.quantity * model.quantity, () => {
+                price.push(product.price.currentAmount);
+              });
+            }
 
             // ---
-            set(result, id, value);
             return result;
           },
           {}
