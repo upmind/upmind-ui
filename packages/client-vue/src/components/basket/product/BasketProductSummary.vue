@@ -13,13 +13,12 @@
           <div class="flex w-full flex-col gap-y-1">
             <Promotion
               v-if="primary"
-              class="mb-2 inline-block md:hidden"
+              v-bind="pricing"
               :discounted="pricing.meta?.discounted"
-              :current-saving="pricing.currentSaving"
-              :current-saving-amount="pricing.currentSavingAmount"
               :free="pricing.meta?.free"
               :disabled="error"
               size="md"
+              class="mb-2 inline-block md:hidden"
             />
             <div class="flex items-end justify-between">
               <div class="text-sm font-normal leading-[15px]">
@@ -27,12 +26,11 @@
               </div>
               <Promotion
                 v-if="primary"
-                class="-mt-3 hidden md:block"
+                v-bind="pricing"
                 :discounted="pricing.meta?.discounted"
-                :current-saving="pricing.currentSaving"
-                :current-saving-amount="pricing.currentSavingAmount"
                 :free="pricing.meta?.free"
                 :disabled="error"
+                class="-mt-3 hidden md:block"
               />
             </div>
             <div class="flex items-end justify-between">
@@ -45,12 +43,10 @@
 
               <div class="hidden items-center gap-x-[24px] md:flex">
                 <QuantityField
+                  v-bind="product"
                   :id="id"
                   :quantity="pricing.quantity"
                   :quantifiable="product.quantifiable"
-                  :min="product.min"
-                  :max="product.max"
-                  :step="product.step"
                 />
                 <CurrentPrice
                   :id="id"
@@ -67,9 +63,7 @@
 
       <div class="flex flex-col gap-y-1 md:hidden">
         <TermsDescription
-          :cycle="pricing.cycle"
-          :regular-price="pricing.regularPrice"
-          :current-price="pricing.currentPrice"
+          v-bind="pricing"
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
         />
@@ -89,21 +83,17 @@
             />
           </div>
           <QuantityField
+            v-bind="product"
             :id="id"
             :quantity="pricing.quantity"
             :quantifiable="product.quantifiable"
-            :min="product.min"
-            :max="product.max"
-            :step="product.step"
           />
         </div>
       </div>
 
       <div class="hidden justify-between md:flex">
         <TermsDescription
-          :cycle="pricing.cycle"
-          :regular-price="pricing.regularPrice"
-          :current-price="pricing.currentPrice"
+          v-bind="pricing"
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
         />

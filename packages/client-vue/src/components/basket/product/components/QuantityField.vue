@@ -31,5 +31,5 @@ const { updateQuantity } = useBasketProduct(props.id);
 
 const doUpdateQuantity = debounce((value: number) => {
   updateQuantity(value);
-}, 750);
+}, 500);
 </script>
