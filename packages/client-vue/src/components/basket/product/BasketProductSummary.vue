@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <div class="flex w-full items-center gap-x-3">
         <img
-          v-if="product.imgUrl && isFirst"
+          v-if="product.imgUrl"
           :src="product.imgUrl"
           alt="Upmind"
           class="m-0 h-12 w-12"
@@ -13,48 +13,50 @@
           <Promotion
             v-if="isFirst"
             class="mb-2 inline-block md:hidden"
-            :pricing="pricing"
+            :discounted="pricing.meta?.discounted"
+            :current-saving="pricing.currentSaving"
+            :current-saving-amount="pricing.currentSavingAmount"
             :disabled="error"
             size="md"
           />
           <div class="flex items-end justify-between">
             <div class="text-sm font-normal leading-[15px]">
               <!-- TODO: Shouldn't need this check -->
-              {{ isProduct ? product.category : pricing.category }}
+              {{ product.category }}
             </div>
             <Promotion
               v-if="isFirst"
               class="-mt-3 hidden md:block"
-              :pricing="pricing"
+              :discounted="pricing.meta?.discounted"
+              :current-saving="pricing.currentSaving"
+              :current-saving-amount="pricing.currentSavingAmount"
               :disabled="error"
             />
           </div>
           <div class="flex items-end justify-between">
             <div class="text-xl font-semibold leading-[30px]">
-              {{ isProduct ? product.name : pricing.name }}
-              <template
-                v-if="
-                  isProduct
-                    ? product.serviceIdentifier
-                    : pricing.serviceIdentifier
-                "
-              >
-                ({{
-                  isProduct
-                    ? product.serviceIdentifier
-                    : pricing.serviceIdentifier
-                }})
+              {{ product.name }}
+              <template v-if="product.serviceIdentifier">
+                ({{ product.serviceIdentifier }})
               </template>
             </div>
 
             <div class="hidden items-center gap-x-[24px] md:flex">
               <QuantityField
-                v-if="isFirst && props.product.quantifiable"
-                :id="props.id"
-                :product="props.product"
-                :quantity="props.quantity"
+                :id="id"
+                :quantity="pricing.quantity"
+                :quantifiable="product.quantifiable"
+                :min="product.min"
+                :max="product.max"
+                :step="product.step"
               />
-              <CurrentPrice :id="id" :pricing="pricing" />
+              <CurrentPrice
+                :id="id"
+                :is-loading="meta.isLoading"
+                :is-calculating="meta.isCalculating"
+                :free="pricing.meta?.free"
+                :current-price="pricing.currentPrice"
+              />
             </div>
           </div>
         </div>
@@ -65,21 +67,35 @@
       <TermsDescription :pricing="pricing" mobile />
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-x-2">
-          <CurrentPrice :id="id" :pricing="pricing" />
-          <RegularPrice :pricing="pricing" />
+          <CurrentPrice
+            :id="id"
+            :is-loading="meta.isLoading"
+            :is-calculating="meta.isCalculating"
+            :free="pricing.meta?.free"
+            :current-price="pricing.currentPrice"
+          />
+          <RegularPrice
+            :discounted="pricing.meta?.discounted"
+            :regular-price="pricing.regularPrice"
+          />
         </div>
         <QuantityField
-          v-if="isFirst && props.product.quantifiable"
-          :id="props.id"
-          :product="props.product"
-          :quantity="props.quantity"
+          :id="id"
+          :quantity="pricing.quantity"
+          :quantifiable="product.quantifiable"
+          :min="product.min"
+          :max="product.max"
+          :step="product.step"
         />
       </div>
     </div>
 
     <div class="hidden justify-between md:flex">
       <TermsDescription :pricing="pricing" />
-      <RegularPrice :pricing="pricing" />
+      <RegularPrice
+        :discounted="pricing.meta?.discounted"
+        :regular-price="pricing.regularPrice"
+      />
     </div>
   </div>
 
@@ -109,16 +125,15 @@ import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
 
 // --- types
-import {
-  type BasketProductDetails,
-  type BasketProductSummaryPrice,
+import type {
+  BasketProductSummaryPrice,
+  BasketProductDetails,
 } from "@upmind-automation/client-vue";
 
 const props = defineProps<{
   id: string;
-  product: BasketProductDetails;
   pricing: BasketProductSummaryPrice;
-  quantity: number;
+  product: BasketProductDetails;
   error: boolean;
   // More confident using this over tailwind :first due to the possibility of many summaries, badges, imgs being rendered at once (this ensures we are rendering at the correct level)
   isFirst: boolean;
