@@ -1,5 +1,5 @@
 <template>
-  <UpmCard class="relative flex flex-col gap-y-4 !p-8 !py-7">
+  <UpmCard class="relative flex flex-col gap-y-4 !p-6 !py-7 md:!p-9 md:!py-10">
     <!-- Main Product Summary Section -->
     <div class="flex flex-col md:gap-y-1">
       <!-- Product Header with Image and Main Info -->
