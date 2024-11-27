@@ -1,6 +1,6 @@
 <template>
   <span
-    v-if="discounted"
+    v-if="discounted && !free"
     class="text-sm italic leading-5 line-through opacity-30"
     >{{ regularPrice }}</span
   >
@@ -10,5 +10,6 @@
 defineProps<{
   discounted?: boolean;
   regularPrice?: string;
+  free?: boolean;
 }>();
 </script>
