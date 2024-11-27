@@ -116,11 +116,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
-import { debounce } from "lodash-es";
-import { computed } from "vue";
-
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
 
@@ -144,16 +139,7 @@ const props = defineProps<{
   product: BasketProductDetails;
   error: boolean;
   primary: boolean;
-  isLast: boolean;
 }>();
 
-const { t } = useI18n();
-
-const { updateQuantity, meta } = useBasketProduct(props.id);
-
-const isProduct = computed(() => props.pricing.key === "term");
-
-const doUpdateQuantity = debounce((value: number) => {
-  updateQuantity(value);
-}, 750);
+const { meta } = useBasketProduct(props.id);
 </script>
