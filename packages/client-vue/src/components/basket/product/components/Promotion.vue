@@ -4,11 +4,7 @@
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
       class="uppercase"
-      :label="
-        currentSavingAmount && currentSavingAmount >= 10
-          ? t('product.promotionSave', [currentSaving])
-          : t('product.promotion')
-      "
+      :label="t('product.promotionSave', [currentSaving])"
       :size="size"
     />
   </div>
