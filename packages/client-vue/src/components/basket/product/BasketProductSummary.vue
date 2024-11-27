@@ -1,118 +1,118 @@
 <template>
-  <div class="flex flex-col md:gap-y-1">
-    <div class="flex items-center justify-between">
-      <div class="flex w-full items-center gap-x-3">
-        <img
-          v-if="primary && product.imgUrl"
-          :src="product.imgUrl"
-          alt="Upmind"
-          class="m-0 h-12 w-12"
-        />
-
-        <div class="flex w-full flex-col gap-y-1">
-          <Promotion
-            v-if="primary"
-            class="mb-2 inline-block md:hidden"
-            :discounted="pricing.meta?.discounted"
-            :current-saving="pricing.currentSaving"
-            :current-saving-amount="pricing.currentSavingAmount"
-            :disabled="error"
-            size="md"
+  <div class="flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0">
+    <div class="flex flex-col md:gap-y-1">
+      <div class="flex items-center justify-between">
+        <div class="flex w-full items-center gap-x-3">
+          <img
+            v-if="primary && product.imgUrl"
+            :src="product.imgUrl"
+            alt="Upmind"
+            class="m-0 h-12 w-12"
           />
-          <div class="flex items-end justify-between">
-            <div class="text-sm font-normal leading-[15px]">
-              {{ pricing.category }}
-            </div>
+
+          <div class="flex w-full flex-col gap-y-1">
             <Promotion
               v-if="primary"
-              class="-mt-3 hidden md:block"
+              class="mb-2 inline-block md:hidden"
               :discounted="pricing.meta?.discounted"
               :current-saving="pricing.currentSaving"
               :current-saving-amount="pricing.currentSavingAmount"
               :disabled="error"
+              size="md"
             />
-          </div>
-          <div class="flex items-end justify-between">
-            <div class="text-xl font-semibold leading-[30px]">
-              {{ pricing.name }}
-              <template v-if="pricing.serviceIdentifier">
-                ({{ pricing.serviceIdentifier }})
-              </template>
+            <div class="flex items-end justify-between">
+              <div class="text-sm font-normal leading-[15px]">
+                {{ pricing.category }}
+              </div>
+              <Promotion
+                v-if="primary"
+                class="-mt-3 hidden md:block"
+                :discounted="pricing.meta?.discounted"
+                :current-saving="pricing.currentSaving"
+                :current-saving-amount="pricing.currentSavingAmount"
+                :disabled="error"
+              />
             </div>
+            <div class="flex items-end justify-between">
+              <div class="text-xl font-semibold leading-[30px]">
+                {{ pricing.name }}
+                <template v-if="pricing.serviceIdentifier">
+                  ({{ pricing.serviceIdentifier }})
+                </template>
+              </div>
 
-            <div class="hidden items-center gap-x-[24px] md:flex">
-              <QuantityField
-                :id="id"
-                :quantity="pricing.quantity"
-                :quantifiable="product.quantifiable"
-                :min="product.min"
-                :max="product.max"
-                :step="product.step"
-              />
-              <CurrentPrice
-                :id="id"
-                :is-loading="meta.isLoading"
-                :is-calculating="meta.isCalculating"
-                :free="pricing.meta?.free"
-                :current-price="pricing.currentPrice"
-              />
+              <div class="hidden items-center gap-x-[24px] md:flex">
+                <QuantityField
+                  :id="id"
+                  :quantity="pricing.quantity"
+                  :quantifiable="product.quantifiable"
+                  :min="product.min"
+                  :max="product.max"
+                  :step="product.step"
+                />
+                <CurrentPrice
+                  :id="id"
+                  :is-loading="meta.isLoading"
+                  :is-calculating="meta.isCalculating"
+                  :free="pricing.meta?.free"
+                  :current-price="pricing.currentPrice"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="flex flex-col gap-y-1 md:hidden">
-      <TermsDescription
-        :cycle="pricing.cycle"
-        :regular-price="pricing.regularPrice"
-        :current-price="pricing.currentPrice"
-        :discounted="pricing.meta?.discounted"
-      />
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-x-2">
-          <CurrentPrice
+      <div class="flex flex-col gap-y-1 md:hidden">
+        <TermsDescription
+          :cycle="pricing.cycle"
+          :regular-price="pricing.regularPrice"
+          :current-price="pricing.currentPrice"
+          :discounted="pricing.meta?.discounted"
+        />
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-x-2">
+            <CurrentPrice
+              :id="id"
+              :is-loading="meta.isLoading"
+              :is-calculating="meta.isCalculating"
+              :free="pricing.meta?.free"
+              :current-price="pricing.currentPrice"
+            />
+            <RegularPrice
+              :discounted="pricing.meta?.discounted"
+              :regular-price="pricing.regularPrice"
+            />
+          </div>
+          <QuantityField
             :id="id"
-            :is-loading="meta.isLoading"
-            :is-calculating="meta.isCalculating"
-            :free="pricing.meta?.free"
-            :current-price="pricing.currentPrice"
-          />
-          <RegularPrice
-            :discounted="pricing.meta?.discounted"
-            :regular-price="pricing.regularPrice"
+            :quantity="pricing.quantity"
+            :quantifiable="product.quantifiable"
+            :min="product.min"
+            :max="product.max"
+            :step="product.step"
           />
         </div>
-        <QuantityField
-          :id="id"
-          :quantity="pricing.quantity"
-          :quantifiable="product.quantifiable"
-          :min="product.min"
-          :max="product.max"
-          :step="product.step"
+      </div>
+
+      <div class="hidden justify-between md:flex">
+        <TermsDescription
+          :cycle="pricing.cycle"
+          :regular-price="pricing.regularPrice"
+          :current-price="pricing.currentPrice"
+          :discounted="pricing.meta?.discounted"
+        />
+        <RegularPrice
+          :discounted="pricing.meta?.discounted"
+          :regular-price="pricing.regularPrice"
         />
       </div>
     </div>
 
-    <div class="hidden justify-between md:flex">
-      <TermsDescription
-        :cycle="pricing.cycle"
-        :regular-price="pricing.regularPrice"
-        :current-price="pricing.currentPrice"
-        :discounted="pricing.meta?.discounted"
-      />
-      <RegularPrice
-        :discounted="pricing.meta?.discounted"
-        :regular-price="pricing.regularPrice"
-      />
-    </div>
+    <template v-if="primary && error">
+      <UpmRequiredAlert :id="id" />
+    </template>
   </div>
-
-  <template v-if="primary && error">
-    <UpmRequiredAlert :id="id" />
-  </template>
-
-  <div v-if="!isLast" class="h-[1px] border-t border-dashed" />
 </template>
 
 <script lang="ts" setup>
