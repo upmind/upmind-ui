@@ -4,7 +4,8 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "mrmlnc.vscode-scss",
-    "bradlc.vscode-tailwindcss"
+    "bradlc.vscode-tailwindcss",
+    "gruntfuggly.todo-tree"
   ],
 
 }
