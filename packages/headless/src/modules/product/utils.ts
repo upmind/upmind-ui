@@ -307,7 +307,7 @@ export const parsePromotion = (
         name: null,
         amount:
           isNil(data.price_discounted) || data.mixed_promotions ? 0 : saving,
-        amount_formatted:
+        amountFormatted:
           isNil(data.price_discounted) || data.mixed_promotions
             ? ""
             : saving_formatted,
