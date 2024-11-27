@@ -18,7 +18,7 @@
       v-if="!meta.isLoading"
       v-auto-animate
     >
-      <BasketItem
+      <BasketProduct
         v-for="(product, index) in products"
         :key="`product-${product.id}-${index}`"
         :model-value="product.id"
@@ -45,7 +45,7 @@ import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import BasketItem from "./Item.vue";
+import BasketProduct from "./Item.vue";
 import { findIndex } from "lodash-es";
 
 // --- types
@@ -53,7 +53,7 @@ import { findIndex } from "lodash-es";
 // -----------------------------------------------------------------------------
 export default defineComponent({
   name: "BaskeItemListings",
-  components: { BasketItem },
+  components: { BasketProduct },
   directives: { autoAnimate: vAutoAnimate },
   props: {},
   setup() {
