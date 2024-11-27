@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <div class="flex w-full items-center gap-x-3">
         <img
-          v-if="product.imgUrl"
+          v-if="primary && product.imgUrl"
           :src="product.imgUrl"
           alt="Upmind"
           class="m-0 h-12 w-12"
@@ -11,7 +11,7 @@
 
         <div class="flex w-full flex-col gap-y-1">
           <Promotion
-            v-if="isFirst"
+            v-if="primary"
             class="mb-2 inline-block md:hidden"
             :discounted="pricing.meta?.discounted"
             :current-saving="pricing.currentSaving"
@@ -21,11 +21,10 @@
           />
           <div class="flex items-end justify-between">
             <div class="text-sm font-normal leading-[15px]">
-              <!-- TODO: Shouldn't need this check -->
-              {{ product.category }}
+              {{ pricing.category }}
             </div>
             <Promotion
-              v-if="isFirst"
+              v-if="primary"
               class="-mt-3 hidden md:block"
               :discounted="pricing.meta?.discounted"
               :current-saving="pricing.currentSaving"
@@ -35,9 +34,9 @@
           </div>
           <div class="flex items-end justify-between">
             <div class="text-xl font-semibold leading-[30px]">
-              {{ product.name }}
-              <template v-if="product.serviceIdentifier">
-                ({{ product.serviceIdentifier }})
+              {{ pricing.name }}
+              <template v-if="pricing.serviceIdentifier">
+                ({{ pricing.serviceIdentifier }})
               </template>
             </div>
 
@@ -64,7 +63,12 @@
     </div>
 
     <div class="flex flex-col gap-y-1 md:hidden">
-      <TermsDescription :pricing="pricing" mobile />
+      <TermsDescription
+        :cycle="pricing.cycle"
+        :regular-price="pricing.regularPrice"
+        :current-price="pricing.currentPrice"
+        :discounted="pricing.meta?.discounted"
+      />
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-x-2">
           <CurrentPrice
@@ -91,7 +95,12 @@
     </div>
 
     <div class="hidden justify-between md:flex">
-      <TermsDescription :pricing="pricing" />
+      <TermsDescription
+        :cycle="pricing.cycle"
+        :regular-price="pricing.regularPrice"
+        :current-price="pricing.currentPrice"
+        :discounted="pricing.meta?.discounted"
+      />
       <RegularPrice
         :discounted="pricing.meta?.discounted"
         :regular-price="pricing.regularPrice"
@@ -99,10 +108,9 @@
     </div>
   </div>
 
-  <div v-if="isFirst && error">
-    <UpmRequiredAlert class="block md:hidden" :id="id" mobile />
-    <UpmRequiredAlert class="hidden md:block" :id="id" />
-  </div>
+  <template v-if="primary && error">
+    <UpmRequiredAlert :id="id" />
+  </template>
 
   <div v-if="!isLast" class="h-[1px] border-t border-dashed" />
 </template>
@@ -135,8 +143,7 @@ const props = defineProps<{
   pricing: BasketProductSummaryPrice;
   product: BasketProductDetails;
   error: boolean;
-  // More confident using this over tailwind :first due to the possibility of many summaries, badges, imgs being rendered at once (this ensures we are rendering at the correct level)
-  isFirst: boolean;
+  primary: boolean;
   isLast: boolean;
 }>();
 

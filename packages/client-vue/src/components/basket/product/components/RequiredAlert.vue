@@ -1,23 +1,24 @@
 <template>
   <Alert
-    :title="title"
     color="error"
     icon="alert"
-    :action="t('cart.item.invalidAction')"
     icon-size="xs"
     variant="tonal"
     class="p-2 px-3"
   >
+    <template #title>
+      <span class="hidden md:inline">{{ t("cart.item.invalid") }}</span>
+      <span class="md:hidden">{{ t("cart.item.invalidMinified") }}</span>
+    </template>
     <template #action>
-      <!-- TODO: Using -m classes again to get correct positioning, we shouldn't need this -->
       <router-link :to="editLink">
-        <Button
-          variant="link"
-          size="sm"
-          :label="buttonLabel"
-          color="error"
-          class="-mr-1 underline"
-        >
+        <Button variant="link" size="sm" color="error" class="-mr-1 underline">
+          <span class="hidden md:inline">{{
+            t("cart.item.invalidAction")
+          }}</span>
+          <span class="md:hidden">{{
+            t("cart.item.invalidActionMinified")
+          }}</span>
           <template #append>
             <Icon icon="chevron-right" size="xs" class="-ml-1.5" />
           </template>
@@ -39,7 +40,6 @@ const { t } = useI18n();
 
 const props = defineProps<{
   id: string;
-  mobile?: boolean;
 }>();
 
 const editLink = computed(() => {
@@ -49,15 +49,5 @@ const editLink = computed(() => {
       bpid: props.id,
     },
   };
-});
-
-const title = computed(() => {
-  return props.mobile ? t("cart.item.invalidMinified") : t("cart.item.invalid");
-});
-
-const buttonLabel = computed(() => {
-  return props.mobile
-    ? t("cart.item.invalidActionMinified")
-    : t("cart.item.invalidAction");
 });
 </script>
