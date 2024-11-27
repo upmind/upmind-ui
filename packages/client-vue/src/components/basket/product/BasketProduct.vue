@@ -31,12 +31,10 @@
       </div>
 
       <UpmBasketProductActions
-        v-model:isOpen="open"
+        v-model:open="open"
         :id="props.id"
         :details="summary.details"
-        :is-disabled="meta.isProcessing || meta.isLoading"
-        :remove="remove"
-        details-button-label="Show details"
+        :disabled="meta.isProcessing || meta.isLoading"
       />
     </UpmCard>
   </Loading>
@@ -48,9 +46,6 @@ import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 import { some } from "lodash-es";
-
-// --- internal
-import { useBasketProduct } from "@upmind-automation/client-vue";
 
 // --- components
 import { UpmCard } from "@upmind-automation/client-vue";
@@ -80,8 +75,6 @@ const props = withDefaults(
 const emits = defineEmits(["update:open"]);
 
 const open = useVModel(props, "open", emits);
-
-const { remove } = useBasketProduct(props.id);
 
 const meta = computed(() => {
   return {

@@ -4,7 +4,15 @@
   >
     <template v-for="(item, index) in details" :key="'details-' + index">
       <template v-if="item.category">
-        <DetailsItem :id="id" :item="item" />
+        <DetailsItem
+          :id="id"
+          :category="item.category"
+          :name="item.name"
+          :quantity="item.quantity"
+          :current-price="item.currentPrice"
+          :overrides="item.meta?.overrides"
+          :invalid="item.meta?.invalid"
+        />
 
         <div class="h-[1px] border-t last:hidden" />
       </template>
@@ -17,10 +25,7 @@
 import DetailsItem from "./components/DetailsItem.vue";
 
 // --- types
-import type {
-  BasketProductSummaryDetail,
-  BasketProductDetails,
-} from "@upmind-automation/client-vue";
+import type { BasketProductSummaryDetail } from "@upmind-automation/client-vue";
 
 defineProps<{
   id: string;
