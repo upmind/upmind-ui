@@ -147,7 +147,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: ["refreshBasket"],
+        entry: "refreshBasket",
         after: {
           wait: {
             target: "complete",
@@ -207,10 +207,13 @@ export default createMachine(
         }
       ),
 
-      refreshBasket: sendParent((_context, { data }: any) => ({
-        type: "REFRESH",
-        data,
-      })),
+      refreshBasket: sendParent((_context, { data }: any) => {
+        return {
+          type: "REFRESH",
+          data,
+        };
+      }),
+
       // @ts-ignore
       setContext: assign(
         // @ts-ignore
