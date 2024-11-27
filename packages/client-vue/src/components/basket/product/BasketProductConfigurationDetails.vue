@@ -4,7 +4,7 @@
   >
     <template v-for="(item, index) in details" :key="'details-' + index">
       <template v-if="item.category">
-        <DetailsItem :id="id" :item="item" :product="product" />
+        <DetailsItem :id="id" :item="item" />
 
         <div class="h-[1px] border-t last:hidden" />
       </template>
@@ -25,6 +25,5 @@ import type {
 defineProps<{
   id: string;
   details: BasketProductSummaryDetail[];
-  product: BasketProductDetails;
 }>();
 </script>

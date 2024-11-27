@@ -26,7 +26,6 @@
           v-if="open"
           :id="id"
           :details="summary.details"
-          :product="product"
           class="-mb-2 mt-2"
         />
       </div>
