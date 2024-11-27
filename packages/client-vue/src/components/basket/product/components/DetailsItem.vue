@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-2">
+  <div class="flex flex-col gap-y-2 py-3 first:pt-0 last:pb-0">
     <div class="truncate opacity-35">
       {{ category }}
     </div>

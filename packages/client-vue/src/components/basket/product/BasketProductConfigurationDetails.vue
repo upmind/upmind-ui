@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col gap-y-3 rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-[14px]"
+    class="flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-[14px]"
   >
     <template v-for="(item, index) in details" :key="'details-' + index">
       <template v-if="item.category">
@@ -13,8 +13,6 @@
           :overrides="item.meta?.overrides"
           :invalid="item.meta?.invalid"
         />
-
-        <div class="h-[1px] border-t last:hidden" />
       </template>
     </template>
   </div>
