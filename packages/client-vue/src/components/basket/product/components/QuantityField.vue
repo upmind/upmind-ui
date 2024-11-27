@@ -1,11 +1,12 @@
 <template>
   <NumberField
+    v-if="quantifiable"
     class-field="!text-[16px]"
-    :model-value="props.quantity"
+    :model-value="quantity"
     @update:model-value="doUpdateQuantity"
-    :min="props.product.min === 0 ? 1 : props.product.min"
-    :max="props.product.max"
-    :step="props.product.step"
+    :min="min === 0 ? 1 : min"
+    :max="max"
+    :step="step"
     variant="minimal"
     size="sm"
     width="sm"
@@ -16,12 +17,14 @@
 import { debounce } from "lodash-es";
 import { NumberField } from "@upmind-automation/upwind";
 import { useBasketProduct } from "@upmind-automation/client-vue";
-import type { BasketProductDetails } from "@upmind-automation/client-vue";
 
 const props = defineProps<{
   id: string;
-  product: BasketProductDetails;
-  quantity: number;
+  quantifiable?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  quantity?: number;
 }>();
 
 const { updateQuantity } = useBasketProduct(props.id);

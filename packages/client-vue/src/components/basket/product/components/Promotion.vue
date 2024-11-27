@@ -1,12 +1,12 @@
 <template>
-  <div v-if="pricing.meta?.discounted">
+  <div v-if="discounted">
     <Badge
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
       class="uppercase"
       :label="
-        pricing.currentSavingAmount && pricing.currentSavingAmount >= 10
-          ? t('product.promotionSave', [pricing.currentSaving])
+        currentSavingAmount && currentSavingAmount >= 10
+          ? t('product.promotionSave', [currentSaving])
           : t('product.promotion')
       "
       :size="size"
@@ -17,11 +17,12 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind-automation/upwind";
-import type { BasketProductSummaryPrice } from "@upmind-automation/client-vue";
 
 withDefaults(
   defineProps<{
-    pricing: BasketProductSummaryPrice;
+    discounted?: boolean;
+    currentSaving?: string;
+    currentSavingAmount?: number;
     disabled?: boolean;
     size?: "xs" | "md";
   }>(),
