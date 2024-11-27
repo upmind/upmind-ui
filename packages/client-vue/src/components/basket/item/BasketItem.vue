@@ -1,7 +1,7 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing" class="text-secondary">
     <UpmCard
-      class="relative flex flex-col gap-y-4 !p-8 !py-7"
+      class="relative flex flex-col gap-y-4 !p-6 !py-7 md:!p-9 md:!py-10"
       :class="[
         !meta.isProcessing && (meta.hasErrors || error)
           ? 'ring-error !ring-error-1 ring-1'

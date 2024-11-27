@@ -1,20 +1,20 @@
 <template>
   <div class="flex flex-col gap-y-2">
-    <div class="opacity-35">
+    <div class="truncate opacity-35">
       <span v-if="isTerm">{{ product.category }}</span>
       <span v-else>{{ item.category }}</span>
     </div>
 
     <div class="flex justify-between">
       <div>
-        <template v-if="isValid">
+        <span v-if="isValid" class="truncate">
           <span v-if="isTerm">{{ product.name }}</span>
           <span v-else>{{ item.name }}</span>
 
           <span v-if="item.quantity && item.quantity > 1">
             (x{{ item.quantity }})</span
           >
-        </template>
+        </span>
         <template v-else>
           <router-link :to="editLink">
             <Button
