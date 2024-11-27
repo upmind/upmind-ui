@@ -7,18 +7,16 @@
     class="p-2 px-3"
   >
     <template #title>
-      <span class="hidden md:inline">{{ t("cart.item.invalid") }}</span>
-      <span class="md:hidden">{{ t("cart.item.invalidMinified") }}</span>
+      <span class="hidden md:inline">{{ t("cart.item.md.invalid") }}</span>
+      <span class="md:hidden">{{ t("cart.item.base.invalid") }}</span>
     </template>
     <template #action>
       <router-link :to="editLink">
         <Button variant="link" size="sm" color="error" class="-mr-1 underline">
           <span class="hidden md:inline">{{
-            t("cart.item.invalidAction")
+            t("cart.item.md.invalidAction")
           }}</span>
-          <span class="md:hidden">{{
-            t("cart.item.invalidActionMinified")
-          }}</span>
+          <span class="md:hidden">{{ t("cart.item.base.invalidAction") }}</span>
           <template #append>
             <Icon icon="chevron-right" size="xs" class="-ml-1.5" />
           </template>
