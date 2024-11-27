@@ -8,6 +8,7 @@ export const alertVariants = cva(
       variant: {
         outline: "",
         solid: "",
+        tonal: "border-none",
       },
       color: {
         base: "",
@@ -20,10 +21,6 @@ export const alertVariants = cva(
         info: "",
         error: "",
         warning: "",
-      },
-      border: {
-        true: "",
-        false: "!border-none",
       },
     },
     compoundVariants: [
@@ -133,6 +130,56 @@ export const alertVariants = cva(
         variant: "solid",
         color: "warning",
         class: "text-warning-muted-muted-foreground border-warning bg-warning",
+      },
+      {
+        variant: "tonal",
+        color: "base",
+        class: "bg-base text-base-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "primary",
+        class: "bg-primary-muted text-primary-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "secondary",
+        class: "bg-secondary-muted text-secondary-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "accent",
+        class: "bg-accent-muted text-accent-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "promotion",
+        class: "bg-promotion-muted text-promotion-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "destructive",
+        class: "bg-destructive-muted text-destructive-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "success",
+        class: "bg-success-muted text-success-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "warning",
+        class: "bg-warning-muted text-warning-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "info",
+        class: "bg-info-muted text-info-muted-foreground",
+      },
+      {
+        variant: "tonal",
+        color: "error",
+        class: "bg-error-muted text-error-muted-foreground",
       },
     ],
     defaultVariants: {

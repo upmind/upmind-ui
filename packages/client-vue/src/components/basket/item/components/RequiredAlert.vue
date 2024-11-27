@@ -3,10 +3,9 @@
     :title="title"
     color="error"
     icon="alert"
-    :border="false"
     :action="t('cart.item.invalidAction')"
     icon-size="xs"
-    variant="outline"
+    variant="tonal"
     class="p-2 px-3"
   >
     <template #action>
