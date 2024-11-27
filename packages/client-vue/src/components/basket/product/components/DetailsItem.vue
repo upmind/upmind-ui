@@ -1,19 +1,17 @@
 <template>
   <div class="flex flex-col gap-y-2">
     <div class="truncate opacity-35">
-      <span v-if="isTerm">{{ product.category }}</span>
-      <span v-else>{{ item.category }}</span>
+      {{ item.category }}
     </div>
 
     <div class="flex justify-between">
       <div>
         <span v-if="isValid" class="truncate">
-          <span v-if="isTerm">{{ product.name }}</span>
-          <span v-else>{{ item.name }}</span>
+          {{ item.name }}
 
-          <span v-if="item.quantity && item.quantity > 1">
-            (x{{ item.quantity }})</span
-          >
+          <template v-if="item.quantity && item.quantity > 1">
+            ({{ t("product.configurationQuantity") }}{{ item.quantity }})
+          </template>
         </span>
         <template v-else>
           <router-link :to="editLink">
@@ -28,7 +26,7 @@
         </template>
       </div>
       <div v-if="item.currentPrice">
-        <span v-if="!isTerm && !item.meta?.overrides">+ </span>
+        <span v-if="!item.meta?.overrides">+ </span>
         <span>{{ item.currentPrice }}</span>
       </div>
     </div>
@@ -43,20 +41,15 @@ import { useI18n } from "vue-i18n";
 import { Button } from "@upmind-automation/upwind";
 
 // --- types
-import type {
-  BasketProductSummaryDetail,
-  BasketProductDetails,
-} from "@upmind-automation/client-vue";
+import type { BasketProductSummaryDetail } from "@upmind-automation/client-vue";
 
 const props = defineProps<{
   id: string;
   item: BasketProductSummaryDetail;
-  product: BasketProductDetails;
 }>();
 
 const { t } = useI18n();
 
-const isTerm = computed(() => props.item.key === "term");
 // TODO: Sometimes contains an empty invalid array when invalid
 const isValid = computed(() => !("invalid" in (props.item.meta ?? {})));
 
