@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField v-bind="formFieldProps" :dirty="!isEmpty(control.data)">
     <Domain :model-value="control.data" @update:modelValue="onInput" />
   </FormField>
 </template>
@@ -30,6 +30,7 @@ const { control, formFieldProps, onInput } = useUpwindRenderer(
 
 <script lang="ts">
 import { uiTypeIs, formatIs, and } from "@jsonforms/core";
+import { isEmpty } from "lodash-es";
 export const tester = {
   rank: 3,
   controlType: and(uiTypeIs("Control"), formatIs("domain_name")),
