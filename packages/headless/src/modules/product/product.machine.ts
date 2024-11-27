@@ -16,7 +16,6 @@ import {
   parseTerms,
   parseModel,
   parseBasketProductModel,
-  parseBasketProduct,
   parseSummary,
 } from "./utils";
 
@@ -80,16 +79,6 @@ export default createMachine(
           src: "load",
           onDone: [
             {
-              target: "available.error",
-              actions: ["setLookups", "setSummaryWithBasketProduct"],
-              cond: "hasBasketError",
-            },
-            {
-              target: "available.configured",
-              actions: ["setLookups", "setSummaryWithBasketProduct"],
-              cond: "hasBasketProduct",
-            },
-            {
               target: "available",
               actions: ["setLookups"],
             },
@@ -107,16 +96,6 @@ export default createMachine(
           id: "refresh",
           src: "refresh",
           onDone: [
-            {
-              target: "available.error",
-              actions: ["setLookups", "setSummaryWithBasketProduct"],
-              cond: "hasBasketError",
-            },
-            {
-              target: "available.configured",
-              actions: ["setLookups", "setSummaryWithBasketProduct"],
-              cond: "hasBasketProduct",
-            },
             {
               target: "available",
               actions: ["setLookups"],
@@ -329,7 +308,6 @@ export default createMachine(
           // this is our state where we are all good and can add/update this configuration to the basket
           valid: {},
           configured: {
-            entry: ["cancelCalculation", "setSummaryWithBasketProduct"],
             type: "final",
           },
           error: {},
@@ -646,14 +624,6 @@ export default createMachine(
         },
       }),
 
-      setSummaryWithBasketProduct: assign({
-        summary: (
-          { basketProduct, errorExternal }: ProductConfigContext,
-          _event: ProductConfigEvent
-        ) =>
-          get(parseBasketProduct(basketProduct, errorExternal), "summary", {}),
-      }),
-
       setSummaryCalculating: assign({
         summary: ({ summary }: ProductConfigContext, _event) => {
           set(summary, "isCalculating", true);
@@ -666,14 +636,12 @@ export default createMachine(
           return summary;
         },
       }),
-
       cancelCalculation: sendTo(
         ({ calculateCallback }, _event) => calculateCallback,
         (_context, _event) => ({
           type: "CANCEL",
         })
       ),
-
       calculate: sendTo(
         ({ calculateCallback }: ProductConfigContext, _event) => {
           if (!calculateCallback) {
