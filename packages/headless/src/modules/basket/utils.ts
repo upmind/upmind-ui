@@ -273,11 +273,6 @@ const parseQuantity = (quantity: number, raw: any) => {
 };
 
 export function parseTerm(raw: any): BasketProductSummaryDetail | null {
-  const term = find(raw.product.prices, [
-    "billing_cycle_months",
-    raw.billing_cycle_months,
-  ]);
-
   const summary: BasketProductSummaryPrice = parseSubproduct(
     raw
   ) as BasketProductSummaryPrice;
@@ -285,9 +280,9 @@ export function parseTerm(raw: any): BasketProductSummaryDetail | null {
   summary.key = "term";
 
   summary.meta = {
-    oneoff: term.billing_cycle_months > 0,
-    discounted: term.price_discounted > 0,
-    free: term.configuration_net_amount_discounted_converted == 0,
+    oneoff: raw.billing_cycle_months > 0,
+    discounted: raw?.net_global_discount_amount > 0,
+    free: raw.net_unit_selling_price_formatted == 0,
   };
 
   summary.regularAmount = raw.selling_price_converted;
