@@ -8,17 +8,19 @@
           : 'ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0',
       ]"
     >
-      <UpmBasketProductSummary
-        v-for="(pricing, index) in summary.pricing"
-        :key="`${props.id}-${index}`"
-        :id="id"
-        :product="product"
-        :pricing="pricing"
-        :quantity="quantity"
-        :error="error"
-        :primary="index === 0"
-        :is-last="index === summary.pricing.length - 1"
-      />
+      <div class="divide-y divide-dashed">
+        <UpmBasketProductSummary
+          v-for="(pricing, index) in summary.pricing"
+          :key="`${props.id}-${index}`"
+          :id="id"
+          :product="product"
+          :pricing="pricing"
+          :quantity="quantity"
+          :error="error"
+          :primary="index === 0"
+          :is-last="index === summary.pricing.length - 1"
+        />
+      </div>
 
       <!-- These margins help us position correctly (there is additional space when the details are closed) -->
       <div v-auto-animate class="-my-2">
