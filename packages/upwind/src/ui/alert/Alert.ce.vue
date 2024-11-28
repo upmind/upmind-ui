@@ -2,14 +2,21 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Alert :class="cn(variants.alert, props.class)">
-    <Icon v-if="icon" :icon="icon" size="2xs" />
-    <AlertTitle
-      class="mb-1 flex items-center gap-2 font-medium leading-none tracking-tight"
-    >
-      <slot name="title">
-        <span>{{ title }}</span>
-      </slot>
-    </AlertTitle>
+    <div class="flex items-center justify-start gap-2">
+      <Icon v-if="icon" :icon="icon" size="xs" />
+      <div class="flex w-full items-center justify-between gap-2">
+        <AlertTitle
+          class="font-medium leading-none tracking-tight"
+          :class="description || $slots['description'] ? 'my-1' : ''"
+        >
+          <slot name="title">
+            <span>{{ title }}</span>
+          </slot>
+        </AlertTitle>
+
+        <slot name="action" />
+      </div>
+    </div>
 
     <AlertDescription class="text-sm opacity-75 [&_p]:leading-relaxed">
       <slot name="description">
@@ -48,6 +55,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   // --- props
   title: "",
   description: "",
+  action: "",
   // --- variants
   variant: "outline",
   color: "base",
@@ -59,6 +67,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
 const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
+  border: props.border,
 }));
 
 const variants = useStyles(

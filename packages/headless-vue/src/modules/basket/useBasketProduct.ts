@@ -12,8 +12,17 @@ import {
 import { useProductConfig } from "../product";
 
 // --- utils
-import { useContext } from "../../utils";
-import { get, add, subtract, omit, isEmpty, toNumber, some } from "lodash-es";
+import { contextValue } from "../../utils";
+import {
+  get,
+  add,
+  subtract,
+  omit,
+  isEmpty,
+  toNumber,
+  some,
+  debounce,
+} from "lodash-es";
 
 // --- types
 import type { Basket } from "@upmind-automation/headless";
@@ -38,7 +47,7 @@ export const useBasketProduct = (id: string) => {
   const { refresh, update, remove, basketProduct } = useUpmindBasketProduct(
     id,
     rawBasket,
-    useContext(basket, "error")
+    contextValue(basket.getSnapshot(), "error.provisioningErrors")
   );
 
   // NB: watch for the basket to be refreshed, so we can refresh the product config
@@ -76,7 +85,7 @@ export const useBasketProduct = (id: string) => {
     return quantity;
   };
 
-  const updateQuantity = async (value: number) => {
+  const updateQuantity = debounce(async (value: number) => {
     // sanity check
     if (!basketProduct.product) return Promise.reject("Product not found");
     if (processing.value) return Promise.reject("Already processing");
@@ -88,7 +97,7 @@ export const useBasketProduct = (id: string) => {
     return update(basketProduct).finally(() => {
       return refreshBasket().finally(() => (processing.value = false));
     });
-  };
+  }, 350);
 
   async function incrementQuantity() {
     const qty = get(basketProduct, "quantity", 0);
