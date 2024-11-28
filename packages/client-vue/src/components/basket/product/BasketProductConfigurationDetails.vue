@@ -3,7 +3,12 @@
     class="flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-[14px]"
   >
     <template v-for="(item, index) in details" :key="'details-' + index">
-      <DetailsItem :id="id" v-bind="item" :free="item.meta?.free" />
+      <DetailsItem
+        :id="id"
+        v-bind="item"
+        :free="item.meta?.free"
+        :invalid="item.meta?.invalid"
+      />
     </template>
   </div>
 </template>
