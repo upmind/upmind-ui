@@ -75,6 +75,7 @@ export interface FormControlProps {
   visible?: boolean;
   disabled?: boolean;
   dirty?: boolean;
+  touched?: boolean;
   // 'pristine' doesn't pass through correctly for FormField
   isPristine?: boolean;
 
