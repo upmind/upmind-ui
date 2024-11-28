@@ -1,11 +1,11 @@
 <template>
-  <span v-if="!free" class="text-sm italic leading-5 opacity-35">
-    <span>{{ t(`product.terms.billing.${cycle}`, [currentPrice]) }}</span>
-    <span v-if="discounted"
+  <p v-if="!free" class="my-0 text-sm italic leading-5 opacity-35">
+    {{ t(`product.terms.billing.${cycle}`, [currentPrice]) }}
+    <template v-if="discounted"
       >. {{ t("product.terms.renews", [regularPrice]) }}
-    </span>
-    <span v-if="taxes">{{ t("product.terms.taxes") }}</span>
-  </span>
+    </template>
+    <template v-if="taxes">{{ t("product.terms.taxes") }}</template>
+  </p>
 </template>
 
 <script lang="ts" setup>

@@ -1,13 +1,13 @@
 <template>
   <div class="flex justify-between">
     <!-- Padding and minues margin avoids text from being cut off from overflow and keeps position -->
-    <span class="-my-1 truncate py-1">
+    <p class="-my-1 truncate py-1">
       {{ name }}
 
       <template v-if="quantity && quantity > 1">
         ({{ t("product.configurationQuantity") }}{{ quantity }})
       </template>
-    </span>
+    </p>
 
     <div v-if="currentPrice" class="flex items-center gap-x-1">
       <template v-if="pricingKey !== 'term'">
@@ -26,10 +26,10 @@
       </template>
 
       <template v-if="!free">
-        <span>{{ currentPrice }}</span>
-        <span v-if="showTermLabel">
+        {{ currentPrice }}
+        <template v-if="showTermLabel">
           {{ t(`product.terms.term.${cycle}`) }}
-        </span>
+        </template>
       </template>
 
       <template v-else>
