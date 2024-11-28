@@ -6,6 +6,7 @@
     @submit.prevent="doSubmit"
   >
     <JsonForms
+      ref="form"
       :i18n="i18n"
       :ajv="ajv"
       :data="model"
@@ -41,7 +42,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, useTemplateRef, onMounted } from "vue";
 import { useVModel } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
@@ -67,12 +68,18 @@ import {
   isString,
   mapValues,
   merge,
+  set,
+  get,
 } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
-import type { JsonFormsI18nState, ValidationMode } from "@jsonforms/core";
+import type {
+  JsonFormsI18nState,
+  ValidationMode,
+  UISchemaElement,
+} from "@jsonforms/core";
 import type { FormProps, FormActionProps } from "./types";
 import type { ErrorObject } from "ajv";
 // ----------------------------------------------
@@ -100,10 +107,15 @@ const emits = defineEmits<{
 // --- state
 const { ajv } = useValidation(props.ajv);
 
+const form = useTemplateRef("form");
+
 const baseModel = props.modelValue;
 const model = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: {},
+});
+const uischema = useVModel(props, "uischema", emits, {
+  passive: true,
 });
 const errors = ref<ErrorObject[]>([]);
 const touched = ref(false);
@@ -116,7 +128,7 @@ const meta = computed(() => {
     isProcessing: props.processing,
     isPristine: isDeepEmpty(model.value),
     isDirty: baseModel !== model.value,
-    isTouched: touched.value,
+    isTouched: touched.value || !isEmpty(props.additionalErrors),
     isValid: isEmpty(errors.value),
     isDisabled: props.disabled || props.processing,
   };
@@ -142,7 +154,7 @@ const actions = computed<Record<string, FormActionProps>>(() => {
     submit: {
       type: "submit",
       label: "Save",
-      disabled: !meta.value.isValid || meta.value.isProcessing,
+      disabled: meta.value.isProcessing,
       loading: meta.value.isProcessing,
       handler: () => doSubmit(),
     } as FormActionProps,
@@ -171,7 +183,8 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
-  return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
+  // return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
+  return "ValidateAndShow";
 });
 
 // --- i18n
@@ -231,6 +244,8 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
 }
 
 function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
+  touched.value = true;
+
   if (meta.value.isProcessing) {
     $event.preventDefault();
     return;
@@ -269,13 +284,14 @@ function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
 
 function doSubmit() {
   if (
-    meta.value.isPristine ||
-    !meta.value.isDirty ||
-    !meta.value.isValid ||
+    // meta.value.isPristine ||
+    // !meta.value.isDirty ||
+    // !meta.value.isValid ||
     meta.value.isProcessing
   )
     return; // safety check
 
+  forceTouched();
   emits("resolve", model.value);
 }
 
@@ -302,10 +318,39 @@ function updateUischema(uischema: FormProps["uischema"]) {
   });
 }
 
+function forceTouched() {
+  if (!uischema.value) return;
+  iterateSchema(uischema.value, (child: UISchemaElement) => {
+    if (!child) return; //safety check
+    child.options ??= {}; //safety check
+    set(child.options, "touched", meta.value.isTouched);
+  });
+}
+
+function syncUischema() {
+  // sync the uischema to the forms current uschema so that we ALWAYS have a uischema,
+  // this is important for us to be able to manipulate the form
+  const currentUischema: UISchemaElement = get(
+    form.value,
+    "uischemaToUse"
+  ) as UISchemaElement;
+  if (!currentUischema) return;
+  uischema.value ??= currentUischema;
+}
+
+onMounted(() => {
+  syncUischema();
+});
 // --- effects
 watch(
   () => props,
-  value => updateUischema(value.uischema),
-  { immediate: true, deep: true }
+  ({ uischema, additionalErrors }) => {
+    updateUischema(uischema);
+    if (!isEmpty(additionalErrors)) {
+      syncUischema();
+      forceTouched();
+    }
+  },
+  { deep: true }
 );
 </script>
