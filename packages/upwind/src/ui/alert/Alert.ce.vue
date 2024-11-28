@@ -3,7 +3,7 @@
 
   <Alert :class="cn(variants.alert, props.class)">
     <div class="flex items-center justify-start gap-2">
-      <Icon v-if="icon" :icon="icon" :size="iconSize" />
+      <Icon v-if="icon" :icon="icon" />
       <div class="flex w-full items-center justify-between gap-2">
         <AlertTitle
           class="font-medium leading-none tracking-tight"
@@ -56,7 +56,6 @@ const props = withDefaults(defineProps<AlertProps>(), {
   title: "",
   description: "",
   action: "",
-  iconSize: "2xs",
   // --- variants
   variant: "outline",
   color: "base",
