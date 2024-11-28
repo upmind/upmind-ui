@@ -1,7 +1,7 @@
 <template>
   <span
     class="text-lg font-semibold leading-[30px] md:text-xl"
-    :class="{ 'opacity-0': isLoading || isCalculating }"
+    :class="{ 'opacity-0': loading || calculating }"
   >
     {{ free ? t("product.free") : currentPrice }}
   </span>
@@ -15,8 +15,8 @@ const { t } = useI18n();
 
 defineProps<{
   id: string;
-  isLoading?: boolean;
-  isCalculating?: boolean;
+  loading?: boolean;
+  processing?: boolean;
   free?: boolean;
   currentPrice?: string;
 }>();
