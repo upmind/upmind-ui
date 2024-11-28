@@ -56,22 +56,13 @@ const { t } = useI18n();
 
 const props = defineProps<BasketProductActionsProps>();
 
-const editLink = computed(() => {
-  return {
-    name: "productEdit",
-    params: {
-      bpid: props.id,
-    },
-  };
-});
-
 const emits = defineEmits(["remove", "update:open"]);
 
 const actions = computed(() => [
   {
     icon: "pencil",
     color: props.color,
-    onClick: () => router.push(editLink.value),
+    onClick: () => router.push(props.editLink),
   },
   {
     icon: "bin",

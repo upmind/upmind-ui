@@ -4,6 +4,7 @@ import {
   type BasketProductDetails,
   type BasketProductSummaryDetail,
 } from "@upmind-automation/client-vue";
+import { type RouteLocationRaw } from "vue-router";
 
 export interface BasketProductProps {
   open?: boolean;
@@ -15,6 +16,7 @@ export interface BasketProductActionsProps {
   open: boolean;
   details: any[];
   disabled: boolean;
+  editLink: RouteLocationRaw;
   color?: ButtonProps["color"];
 }
 
@@ -26,6 +28,7 @@ export interface BasketProductSummaryProps {
   primary: boolean;
   processing: boolean;
   loading: boolean;
+  editLink: RouteLocationRaw;
 }
 
 export interface BasketProductConfigDetailsProps {
