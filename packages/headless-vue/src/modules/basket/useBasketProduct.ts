@@ -13,7 +13,16 @@ import { useProductConfig } from "../product";
 
 // --- utils
 import { useContext } from "../../utils";
-import { get, add, subtract, omit, isEmpty, toNumber, some } from "lodash-es";
+import {
+  get,
+  add,
+  subtract,
+  omit,
+  isEmpty,
+  toNumber,
+  some,
+  debounce,
+} from "lodash-es";
 
 // --- types
 import type { Basket } from "@upmind-automation/headless";
@@ -76,7 +85,7 @@ export const useBasketProduct = (id: string) => {
     return quantity;
   };
 
-  const updateQuantity = async (value: number) => {
+  const updateQuantity = debounce(async (value: number) => {
     // sanity check
     if (!basketProduct.product) return Promise.reject("Product not found");
     if (processing.value) return Promise.reject("Already processing");
@@ -88,7 +97,7 @@ export const useBasketProduct = (id: string) => {
     return update(basketProduct).finally(() => {
       return refreshBasket().finally(() => (processing.value = false));
     });
-  };
+  }, 500);
 
   async function incrementQuantity() {
     const qty = get(basketProduct, "quantity", 0);

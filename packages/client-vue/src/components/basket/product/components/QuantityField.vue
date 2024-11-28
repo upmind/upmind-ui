@@ -3,7 +3,7 @@
     v-if="quantifiable"
     class-field="!text-[16px]"
     :model-value="quantity"
-    @update:model-value="doUpdateQuantity"
+    @update:model-value="updateQuantity"
     :min="min === 0 ? 1 : min"
     :max="max"
     :step="step"
@@ -14,7 +14,6 @@
 </template>
 
 <script lang="ts" setup>
-import { debounce } from "lodash-es";
 import { NumberField } from "@upmind-automation/upwind";
 import { useBasketProduct } from "@upmind-automation/client-vue";
 
@@ -28,8 +27,4 @@ const props = defineProps<{
 }>();
 
 const { updateQuantity } = useBasketProduct(props.id);
-
-const doUpdateQuantity = debounce((value: number) => {
-  updateQuantity(value);
-}, 500);
 </script>
