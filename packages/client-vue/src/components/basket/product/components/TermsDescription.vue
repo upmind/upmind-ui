@@ -1,10 +1,10 @@
 <template>
   <span v-if="!free" class="text-sm italic leading-5 opacity-35">
-    <span>{{ getTermsText() }}</span
-    ><span v-if="true && cycle && cycle > 0"
-      >, {{ t("product.terms.taxes") }}.</span
-    >
-    <span v-else>.</span>
+    <span>{{ t(`product.terms.billing.${cycle}`, [currentPrice]) }}</span>
+    <span v-if="discounted"
+      >. {{ t("product.terms.renews", [regularPrice]) }}
+    </span>
+    <span v-if="taxes">{{ t("product.terms.taxes") }}</span>
   </span>
 </template>
 
@@ -14,29 +14,17 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const props = defineProps<{
-  cycle?: number;
-  regularPrice?: string;
-  currentPrice?: string;
-  discounted?: boolean;
-  free?: boolean;
-}>();
-
-const getTermsText = () => {
-  const baseText = t(`product.terms.billing.${props.cycle}`, [
-    props.currentPrice,
-  ]);
-  if (props.discounted) {
-    return (
-      baseText +
-      (props.cycle && (props.cycle === 0 || props.cycle >= 12)
-        ? ". " +
-          t(`product.terms.${props.cycle === 0 ? "" : "discountedSuffix"}`, [
-            props.cycle >= 12 ? props.regularPrice : props.currentPrice,
-          ])
-        : "")
-    );
+withDefaults(
+  defineProps<{
+    cycle?: number;
+    regularPrice?: string;
+    currentPrice?: string;
+    discounted?: boolean;
+    free?: boolean;
+    taxes?: boolean;
+  }>(),
+  {
+    taxes: true,
   }
-  return baseText;
-};
+);
 </script>
