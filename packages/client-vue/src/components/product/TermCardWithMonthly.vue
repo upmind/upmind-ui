@@ -16,6 +16,17 @@
           }}
         </Badge>
       </template>
+
+      <span
+        :class="styles.product.config.grid.item.text"
+        v-if="props.monthlyFromCurrentAmount && props.cycle > 1"
+      >
+        {{
+          t("product.cycle", {
+            value: props.monthlyFromCurrentPrice,
+          })
+        }}
+      </span>
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
