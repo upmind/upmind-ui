@@ -82,13 +82,5 @@ const emits = defineEmits(["update:open"]);
 
 const open = useVModel(props, "open", emits);
 
-const { meta: basketMeta } = useBasketProduct(props.id);
-
-const meta = computed(() => {
-  return {
-    isLoading: basketMeta.value.isLoading || props.loading,
-    isProcessing: basketMeta.value.isProcessing || props.processing,
-    hasErrors: !!props.error || some(props.summary?.details, "invalid"),
-  };
-});
+const { meta } = useBasketProduct(props.id);
 </script>

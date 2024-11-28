@@ -47,7 +47,7 @@ export const useBasketProduct = (id: string) => {
   const { refresh, update, remove, basketProduct } = useUpmindBasketProduct(
     id,
     rawBasket,
-    useContext(basket, "error")
+    useContext(basket.getSnapshot(), "error.provisioningErrors")
   );
 
   // NB: watch for the basket to be refreshed, so we can refresh the product config

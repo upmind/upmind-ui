@@ -202,7 +202,9 @@ export interface BasketContext {
   items?: ActorRef<any, any>[]; // Array of actors of items pending or basket products being configured
   products: BasketProduct[]; // Array of products in the basket
   // ---
-  error?: any;
+  error?: {
+    provisioningErrors?: Record<string, any>;
+  };
   controller?: AbortController;
   summary?: any; //IBasketSummary;
   // --- SPAWNED ACTORS/MACHINES
