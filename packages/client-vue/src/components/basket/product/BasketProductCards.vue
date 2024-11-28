@@ -4,6 +4,7 @@
       <UpmBasketProduct
         v-bind="product"
         :open="!!open[product.id]"
+        :color="color"
         @update:open="trackOpen(product.id, $event)"
       />
     </template>
@@ -31,9 +32,12 @@ import { useBasket, UpmBasketProduct } from "@upmind-automation/client-vue";
 import { every, reduce, set } from "lodash-es";
 import UpmBasketProductSkeleton from "./BasketProductSkeleton.vue";
 
-const props = defineProps<{
-  open: boolean;
-}>();
+// --- types
+import { type BasketProductCardsProps } from "./types";
+
+const props = withDefaults(defineProps<BasketProductCardsProps>(), {
+  color: "primary",
+});
 
 const emits = defineEmits(["update:open"]);
 

@@ -3,6 +3,7 @@
   <div class="-mb-2 mt-4 flex items-baseline justify-between">
     <Button
       :label="t('product.showDetails')"
+      :color="color"
       variant="link"
       size="sm"
       class="h-auto !p-0 leading-none"
@@ -23,13 +24,14 @@
       <Button
         v-for="action in actions"
         :key="action.icon"
+        :color="action.color"
         variant="link"
         size="sm"
         class="h-auto !p-0 leading-none"
         @click="action.onClick"
         :disabled="disabled"
       >
-        <Icon :icon="action.icon" class="h-5 w-5" />
+        <Icon :icon="action.icon" :color="action.color" class="h-5 w-5" />
       </Button>
     </div>
   </div>
@@ -45,16 +47,14 @@ import { useI18n } from "vue-i18n";
 // --- components
 import { Icon, Button } from "@upmind-automation/upwind";
 
+// --- types
+import { type BasketProductActionsProps } from "./types";
+
 const router = useRouter();
 
 const { t } = useI18n();
 
-const props = defineProps<{
-  id: string;
-  open: boolean;
-  details: any[];
-  disabled: boolean;
-}>();
+const props = defineProps<BasketProductActionsProps>();
 
 const editLink = computed(() => {
   return {
@@ -70,10 +70,12 @@ const emits = defineEmits(["remove", "update:open"]);
 const actions = computed(() => [
   {
     icon: "pencil",
+    color: props.color,
     onClick: () => router.push(editLink.value),
   },
   {
     icon: "bin",
+    color: props.color,
     onClick: () => emits("remove"),
   },
 ]);
