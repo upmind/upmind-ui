@@ -8,6 +8,7 @@
         v-bind="item"
         :free="item.meta?.free"
         :invalid="item.meta?.invalid"
+        :overrides="item.meta?.overrides"
       />
     </template>
   </div>
