@@ -3,7 +3,7 @@
     <UpmCard
       class="relative flex flex-col gap-y-4 !p-6 !py-7 md:!p-9 md:!py-10"
       :class="[
-        !meta.isProcessing && (meta.hasErrors || error)
+        !meta.isLoading && meta.hasErrors
           ? 'ring-error !ring-error-1 ring-1'
           : 'ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0',
       ]"
@@ -16,10 +16,11 @@
           :product="product"
           :pricing="pricing"
           :quantity="quantity"
-          :error="error"
+          :error="meta.hasErrors"
           :primary="index === 0"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
+          @update:quantity="updateQuantity"
         />
       </div>
 
@@ -38,6 +39,7 @@
         :id="props.id"
         :details="summary.details"
         :disabled="meta.isProcessing || meta.isLoading"
+        @remove="remove"
       />
     </UpmCard>
   </Loading>
@@ -47,9 +49,7 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { computed } from "vue";
-import { some } from "lodash-es";
-
+import { isEmpty } from "lodash-es";
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
 
@@ -68,9 +68,6 @@ const props = withDefaults(
   defineProps<
     BasketProduct & {
       open?: boolean;
-      error: boolean;
-      loading: boolean;
-      processing: boolean;
     }
   >(),
   {
@@ -82,5 +79,5 @@ const emits = defineEmits(["update:open"]);
 
 const open = useVModel(props, "open", emits);
 
-const { meta } = useBasketProduct(props.id);
+const { meta, updateQuantity, remove } = useBasketProduct(props.id);
 </script>
