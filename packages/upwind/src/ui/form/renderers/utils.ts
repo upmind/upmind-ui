@@ -1,5 +1,5 @@
-import { computed } from "vue";
-import { merge, cloneDeep, defaults, set, isEmpty, isEqual } from "lodash-es";
+import { computed, ref } from "vue";
+import { merge, cloneDeep, defaults, set, isEqual } from "lodash-es";
 
 import {
   composePaths,
@@ -12,7 +12,7 @@ import type { Tester } from "@jsonforms/core";
 import { rankWith } from "@jsonforms/core";
 import { debounce, isFunction } from "lodash-es";
 import type { FormControlProps } from "../types";
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 
 export const useUpwindRenderer = <
@@ -21,36 +21,46 @@ export const useUpwindRenderer = <
   input: I,
   adaptTarget: (target: any) => any = v => v?.value || v || null
 ) => {
-  const appliedOptions: ComputedRef<FormControlProps> = computed(() =>
-    merge(
+  const touched: Ref<boolean> = ref(false);
+
+  const appliedOptions: ComputedRef<FormControlProps> = computed(() => {
+    return merge(
       {},
       cloneDeep(input.control.value.config),
       cloneDeep(input.control.value.uischema.options)
-    )
-  );
+    );
+  });
 
   const onInput = debounce((value: any) => {
+    touched.value = true;
     input.handleChange(input.control.value.path, adaptTarget(value));
   }, 350);
 
   const formFieldProps = computed(() => {
-    debugger;
     const props = defaults(appliedOptions.value, {
       label: input.control.value.label,
       description: input.control.value.description,
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
       visible: input.control.value.visible,
-      dirty: !isEqual(
-        input.control.value.data || null,
-        input.control.value.initial || null
-      ),
     });
 
     set(props, "id", input.control.value.id);
     set(props, "name", input.control.value.path);
     set(props, "errors", input.control.value.errors);
-
+    set(
+      props,
+      "dirty",
+      !isEqual(
+        input.control.value.data || null,
+        input.control.value.initial || null
+      )
+    );
+    set(
+      props,
+      "touched",
+      input.control.value.uischema.options?.touched || touched.value
+    );
     return props;
   });
 
