@@ -47,6 +47,7 @@
                   :id="id"
                   :quantity="pricing.quantity"
                   :quantifiable="product.quantifiable"
+                  @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
                   :id="id"
@@ -87,6 +88,7 @@
             :id="id"
             :quantity="pricing.quantity"
             :quantifiable="product.quantifiable"
+            @update:quantity="doUpdateQuantity"
           />
         </div>
       </div>
@@ -135,4 +137,10 @@ defineProps<{
   processing: boolean;
   loading: boolean;
 }>();
+
+const emits = defineEmits(["update:quantity"]);
+
+function doUpdateQuantity(value: number) {
+  emits("update:quantity", value);
+}
 </script>
