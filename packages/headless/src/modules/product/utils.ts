@@ -3,7 +3,6 @@ import { useSystem } from "../system";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
-export { parseBasketProduct } from "../basket/utils";
 import {
   find,
   forEach,
@@ -28,6 +27,7 @@ import {
 // --- types
 import { PromotionDisplayTypes } from "./services";
 import type { ProductModel, ProductConfigContext } from "./types";
+import { error } from "console";
 
 // --- types
 
@@ -308,7 +308,7 @@ export const parsePromotion = (
         name: null,
         amount:
           isNil(data.price_discounted) || data.mixed_promotions ? 0 : saving,
-        amount_formatted:
+        amountFormatted:
           isNil(data.price_discounted) || data.mixed_promotions
             ? ""
             : saving_formatted,
@@ -323,6 +323,8 @@ export const parsePromotion = (
 export const parseProvisioningSchema = (data: any) => {
   const required: string[] = [];
   const properties = {};
+  const errorMessage = {};
+
   forEach(data, field => {
     let type = ["string"];
     let format = null; //field?.format; // || field?.semantic_type;
@@ -373,6 +375,11 @@ export const parseProvisioningSchema = (data: any) => {
       case "domain_name":
         type = ["string"];
         format = "domain_name";
+        set(
+          errorMessage,
+          ["properties", field.name],
+          "Please enter a valid domain name"
+        );
         break;
 
       default:
@@ -418,6 +425,7 @@ export const parseProvisioningSchema = (data: any) => {
     type: "object",
     properties,
     required,
+    errorMessage,
   };
 };
 

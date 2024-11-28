@@ -18,7 +18,7 @@
       </template>
 
       <span :class="styles.product.config.grid.item.text">{{
-        props.meta.free ? t("product.free") : `+ ${props.currentPrice}`
+        props.meta.free ? t("product.free") : props.currentPrice
       }}</span>
     </div>
 

@@ -34,13 +34,17 @@ export const useUpwindRenderer = <
   }, 350);
 
   const formFieldProps = computed(() => {
+    debugger;
     const props = defaults(appliedOptions.value, {
       label: input.control.value.label,
       description: input.control.value.description,
       required: input.control.value.required,
       disabled: !input.control.value.enabled,
       visible: input.control.value.visible,
-      dirty: !isEqual(input.control.value.data, input.control.value.initial),
+      dirty: !isEqual(
+        input.control.value.data || null,
+        input.control.value.initial || null
+      ),
     });
 
     set(props, "id", input.control.value.id);

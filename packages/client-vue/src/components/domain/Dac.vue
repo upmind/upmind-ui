@@ -1,5 +1,10 @@
 <template>
-  <FormControl v-if="!meta.showDialog" autoFocus :formItemId="id">
+  <FormControl
+    v-if="!meta.showDialog"
+    :invalid="false"
+    autoFocus
+    :formItemId="id"
+  >
     <Input
       :class="styles.domain.search"
       @update:modelValue="onSearch"
