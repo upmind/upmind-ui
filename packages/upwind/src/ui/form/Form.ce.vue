@@ -301,7 +301,7 @@ function doReject() {
 }
 
 function updateUischema(uischema: FormProps["uischema"]) {
-  if (!uischema.value) return;
+  if (!uischema?.value) return;
   iterateSchema(uischema.value, (child: FormProps["uischema"]) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
@@ -318,7 +318,7 @@ function updateUischema(uischema: FormProps["uischema"]) {
 }
 
 function forceTouched() {
-  if (!uischema.value) return;
+  if (!uischema?.value) return;
   iterateSchema(uischema.value, (child: UISchemaElement) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
