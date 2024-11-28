@@ -1,7 +1,7 @@
 <template>
   <NumberField
     v-if="quantifiable"
-    class-field="!text-[16px]"
+    class-field="!text-md"
     :model-value="quantity"
     @update:model-value="doUpdateQuantity"
     :min="min === 0 ? 1 : min"

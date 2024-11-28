@@ -19,7 +19,7 @@
             <div class="flex items-end justify-between">
               <Skeleton class="h-6 w-48 text-xl" />
               <!-- Product Name -->
-              <div class="hidden items-center gap-x-[24px] md:flex">
+              <div class="hidden items-center gap-x-6 md:flex">
                 <Skeleton class="h-6 w-32 text-lg" />
                 <!-- Price -->
               </div>

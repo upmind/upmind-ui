@@ -21,7 +21,7 @@
               class="mb-2 inline-block md:hidden"
             />
             <div class="flex items-end justify-between">
-              <div class="text-sm font-normal leading-[15px]">
+              <div class="text-sm font-normal leading-5">
                 {{ pricing.category }}
               </div>
               <Promotion
@@ -35,7 +35,7 @@
             </div>
             <div class="flex items-end justify-between">
               <router-link :to="editLink" class="no-underline">
-                <strong class="text-xl font-semibold leading-[30px]">
+                <strong class="text-xl font-semibold leading-7">
                   {{ pricing.name }}
                   <template v-if="pricing.serviceIdentifier">
                     ({{ pricing.serviceIdentifier }})
@@ -43,7 +43,7 @@
                 </strong>
               </router-link>
 
-              <div class="hidden items-center gap-x-[24px] md:flex">
+              <div class="hidden items-center gap-x-6 md:flex">
                 <QuantityField
                   v-bind="product"
                   :id="id"
