@@ -50,8 +50,8 @@
                 />
                 <CurrentPrice
                   :id="id"
-                  :is-loading="meta.isLoading"
-                  :is-calculating="meta.isCalculating"
+                  :loading="loading"
+                  :processing="processing"
                   :free="pricing.meta?.free"
                   :current-price="pricing.currentPrice"
                 />
@@ -71,8 +71,8 @@
           <div class="flex items-center gap-x-2">
             <CurrentPrice
               :id="id"
-              :is-loading="meta.isLoading"
-              :is-calculating="meta.isCalculating"
+              :loading="loading"
+              :processing="processing"
               :free="pricing.meta?.free"
               :current-price="pricing.currentPrice"
             />
@@ -112,9 +112,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
-import { useBasketProduct } from "@upmind-automation/client-vue";
-
 // --- components
 import UpmRequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "./components/CurrentPrice.vue";
@@ -129,13 +126,13 @@ import type {
   BasketProductDetails,
 } from "@upmind-automation/client-vue";
 
-const props = defineProps<{
+defineProps<{
   id: string;
   pricing: BasketProductSummaryPrice;
   product: BasketProductDetails;
   error: boolean;
   primary: boolean;
+  processing: boolean;
+  loading: boolean;
 }>();
-
-const { meta } = useBasketProduct(props.id);
 </script>
