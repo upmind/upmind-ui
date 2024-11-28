@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-[14px]"
+    class="flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-3"
   >
     <DetailsGroup
       v-for="(group, index) in groupedDetails"

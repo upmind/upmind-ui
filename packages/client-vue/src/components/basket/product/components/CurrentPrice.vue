@@ -1,6 +1,6 @@
 <template>
   <span
-    class="text-lg font-semibold leading-[30px] md:text-xl"
+    class="text-lg font-semibold leading-7 md:text-xl"
     :class="{ 'opacity-0': loading || processing }"
   >
     {{ free ? t("product.free") : currentPrice }}
