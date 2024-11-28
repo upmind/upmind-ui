@@ -183,8 +183,7 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
-  // return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
-  return "ValidateAndShow";
+  return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
 });
 
 // --- i18n
@@ -302,8 +301,8 @@ function doReject() {
 }
 
 function updateUischema(uischema: FormProps["uischema"]) {
-  if (!uischema) return;
-  iterateSchema(uischema, (child: FormProps["uischema"]) => {
+  if (!uischema.value) return;
+  iterateSchema(uischema.value, (child: FormProps["uischema"]) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
 
@@ -334,7 +333,9 @@ function syncUischema() {
     form.value,
     "uischemaToUse"
   ) as UISchemaElement;
+
   if (!currentUischema) return;
+
   uischema.value ??= currentUischema;
 }
 
@@ -345,9 +346,9 @@ onMounted(() => {
 watch(
   () => props,
   ({ uischema, additionalErrors }) => {
+    syncUischema();
     updateUischema(uischema);
     if (!isEmpty(additionalErrors)) {
-      syncUischema();
       forceTouched();
     }
   },
