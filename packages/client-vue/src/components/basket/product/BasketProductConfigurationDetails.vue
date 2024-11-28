@@ -21,12 +21,9 @@ import { computed } from "vue";
 import DetailsGroup from "./components/DetailsGroup.vue";
 
 // --- types
-import type { BasketProductSummaryDetail } from "@upmind-automation/client-vue";
+import { type BasketProductConfigDetailsProps } from "./types";
 
-const props = defineProps<{
-  id: string;
-  details: BasketProductSummaryDetail[];
-}>();
+const props = defineProps<BasketProductConfigDetailsProps>();
 
 const groupedDetails = computed(() => {
   return groupBy(props.details, "category");

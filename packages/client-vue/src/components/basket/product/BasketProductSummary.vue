@@ -123,20 +123,9 @@ import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
 
 // --- types
-import type {
-  BasketProductSummaryPrice,
-  BasketProductDetails,
-} from "@upmind-automation/client-vue";
+import { type BasketProductSummaryProps } from "./types";
 
-defineProps<{
-  id: string;
-  pricing: BasketProductSummaryPrice;
-  product: BasketProductDetails;
-  error: boolean;
-  primary: boolean;
-  processing: boolean;
-  loading: boolean;
-}>();
+defineProps<BasketProductSummaryProps>();
 
 const emits = defineEmits(["update:quantity"]);
 

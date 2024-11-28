@@ -1,7 +1,7 @@
 <template>
-  <Loading :active="meta.isLoading || meta.isProcessing" class="text-secondary">
+  <Loading :active="meta.isLoading || meta.isProcessing">
     <UpmCard
-      class="relative flex flex-col gap-y-4 !p-6 !py-7 md:!p-9 md:!py-10"
+      class="relative flex flex-col gap-y-4 !p-6 !py-7 text-inherit md:!p-9 md:!py-10"
       :class="[
         !meta.isLoading && meta.hasErrors
           ? 'ring-error !ring-error-1 ring-1'
@@ -39,6 +39,7 @@
         :id="props.id"
         :details="summary.details"
         :disabled="meta.isProcessing || meta.isLoading"
+        :color="color"
         @remove="remove"
       />
     </UpmCard>
@@ -49,7 +50,7 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { isEmpty } from "lodash-es";
+
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
 
@@ -61,19 +62,13 @@ import UpmBasketProductSummary from "./BasketProductSummary.vue";
 import UpmBasketProductActions from "./BasketProductActions.vue";
 
 // --- types
+import { type BasketProductProps } from "./types";
 import { type BasketProduct } from "@upmind-automation/client-vue";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<
-    BasketProduct & {
-      open?: boolean;
-    }
-  >(),
-  {
-    open: false,
-  }
-);
+const props = withDefaults(defineProps<BasketProduct & BasketProductProps>(), {
+  open: false,
+});
 
 const emits = defineEmits(["update:open"]);
 
