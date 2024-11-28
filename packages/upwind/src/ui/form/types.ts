@@ -24,7 +24,7 @@ export interface FormProps {
   locale?: string;
   // ---
   ajv?: Ajv;
-  schema: JsonSchema;
+  schema?: JsonSchema;
   uischema?: UISchemaElement & Internationalizable;
   modelValue: Object;
   additionalRenderers?: any[];

@@ -12,7 +12,7 @@ import {
 import { useProductConfig } from "../product";
 
 // --- utils
-import { useContext } from "../../utils";
+import { contextValue } from "../../utils";
 import {
   get,
   add,
@@ -47,7 +47,7 @@ export const useBasketProduct = (id: string) => {
   const { refresh, update, remove, basketProduct } = useUpmindBasketProduct(
     id,
     rawBasket,
-    useContext(basket.getSnapshot(), "error.provisioningErrors")
+    contextValue(basket.getSnapshot(), "error.provisioningErrors")
   );
 
   // NB: watch for the basket to be refreshed, so we can refresh the product config
