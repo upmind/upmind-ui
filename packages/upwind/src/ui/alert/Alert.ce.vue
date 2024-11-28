@@ -3,11 +3,11 @@
 
   <Alert :class="cn(variants.alert, props.class)">
     <div class="flex items-center justify-start gap-2">
-      <Icon v-if="icon" :icon="icon" />
+      <Icon v-if="icon" :icon="icon" size="xs" />
       <div class="flex w-full items-center justify-between gap-2">
         <AlertTitle
           class="font-medium leading-none tracking-tight"
-          :class="description || $slots['description'] ? 'mb-1' : ''"
+          :class="description || $slots['description'] ? 'my-1' : ''"
         >
           <slot name="title">
             <span>{{ title }}</span>
