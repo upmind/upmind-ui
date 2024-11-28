@@ -18,6 +18,8 @@
           :quantity="quantity"
           :error="error"
           :primary="index === 0"
+          :loading="meta.isLoading"
+          :processing="meta.isProcessing"
         />
       </div>
 
@@ -48,6 +50,9 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 import { some } from "lodash-es";
 
+// --- internal
+import { useBasketProduct } from "@upmind-automation/client-vue";
+
 // --- components
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Loading } from "@upmind-automation/upwind";
@@ -77,10 +82,12 @@ const emits = defineEmits(["update:open"]);
 
 const open = useVModel(props, "open", emits);
 
+const { meta: basketMeta } = useBasketProduct(props.id);
+
 const meta = computed(() => {
   return {
-    isLoading: props.loading,
-    isProcessing: props.processing,
+    isLoading: basketMeta.value.isLoading || props.loading,
+    isProcessing: basketMeta.value.isProcessing || props.processing,
     hasErrors: !!props.error || some(props.summary?.details, "invalid"),
   };
 });
