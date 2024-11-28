@@ -10,21 +10,22 @@
     </span>
 
     <div v-if="currentPrice" class="flex items-center gap-x-1">
+      <template v-if="pricingKey !== 'term'">
+        <span v-if="showPlusIcon">
+          <Icon icon="plus" size="4xs" class="-mt-[2px] mr-1" />
+        </span>
+        <span v-else-if="overrides">
+          <Tooltip
+            :label="t('product.overridden')"
+            color="primary"
+            class="max-w-64 text-center"
+          >
+            <Icon size="3xs" icon="random" class="mr-1" />
+          </Tooltip>
+        </span>
+      </template>
+
       <template v-if="!free">
-        <template v-if="pricingKey !== 'term'">
-          <span v-if="showPlusIcon">
-            <Icon icon="plus" size="4xs" class="-mt-[2px] mr-1" />
-          </span>
-          <span v-else-if="overrides">
-            <Tooltip
-              :label="t('product.overridden')"
-              color="primary"
-              class="max-w-64 text-center"
-            >
-              <Icon size="3xs" icon="random" class="mr-1" />
-            </Tooltip>
-          </span>
-        </template>
         <span>{{ currentPrice }}</span>
         <span v-if="showTermLabel">
           {{ t(`product.terms.term.${cycle}`) }}
