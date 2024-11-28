@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col gap-y-2 py-3 first:pt-0 last:pb-0">
-    <div class="truncate opacity-35">
+    <h5 class="m-0 truncate opacity-35">
       {{ category }}
-    </div>
+    </h5>
 
     <template v-if="!invalid">
       <template v-for="(item, index) in items" :key="'details-item-' + index">
