@@ -20,6 +20,7 @@
           :primary="index === 0"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
+          :edit-link="editLink"
           @update:quantity="updateQuantity"
         />
       </div>
@@ -40,6 +41,7 @@
         :details="summary.details"
         :disabled="meta.isProcessing || meta.isLoading"
         :color="color"
+        :edit-link="editLink"
         @remove="remove"
       />
     </UpmCard>
@@ -50,6 +52,7 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed } from "vue";
 
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
@@ -75,4 +78,13 @@ const emits = defineEmits(["update:open"]);
 const open = useVModel(props, "open", emits);
 
 const { meta, updateQuantity, remove } = useBasketProduct(props.id);
+
+const editLink = computed(() => {
+  return {
+    name: "productEdit",
+    params: {
+      bpid: props.id,
+    },
+  };
+});
 </script>

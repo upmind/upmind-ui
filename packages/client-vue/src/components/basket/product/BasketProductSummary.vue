@@ -34,12 +34,15 @@
               />
             </div>
             <div class="flex items-end justify-between">
-              <div class="text-xl font-semibold leading-[30px]">
+              <router-link
+                :to="editLink"
+                class="text-xl font-semibold leading-[30px] no-underline"
+              >
                 {{ pricing.name }}
                 <template v-if="pricing.serviceIdentifier">
                   ({{ pricing.serviceIdentifier }})
                 </template>
-              </div>
+              </router-link>
 
               <div class="hidden items-center gap-x-[24px] md:flex">
                 <QuantityField
