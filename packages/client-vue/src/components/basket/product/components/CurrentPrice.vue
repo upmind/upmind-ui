@@ -1,10 +1,10 @@
 <template>
-  <div
+  <span
     class="text-lg font-semibold leading-[30px] md:text-xl"
     :class="{ 'opacity-0': isLoading || isCalculating }"
   >
     {{ free ? t("product.free") : currentPrice }}
-  </div>
+  </span>
 </template>
 
 <script lang="ts" setup>
