@@ -24,7 +24,7 @@ export interface FormProps {
   locale?: string;
   // ---
   ajv?: Ajv;
-  schema: JsonSchema;
+  schema?: JsonSchema;
   uischema?: UISchemaElement & Internationalizable;
   modelValue: Object;
   additionalRenderers?: any[];
@@ -75,6 +75,7 @@ export interface FormControlProps {
   visible?: boolean;
   disabled?: boolean;
   dirty?: boolean;
+  touched?: boolean;
   // 'pristine' doesn't pass through correctly for FormField
   isPristine?: boolean;
 

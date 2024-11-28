@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps" :dirty="!isEmpty(control.data)">
+  <FormField v-bind="formFieldProps">
     <Domain :model-value="control.data" @update:modelValue="onInput" />
   </FormField>
 </template>
