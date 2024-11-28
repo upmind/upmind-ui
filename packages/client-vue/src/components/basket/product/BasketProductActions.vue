@@ -36,9 +36,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
-import { useBasketProduct } from "@upmind-automation/client-vue";
-
 // --- external
 import { computed } from "vue";
 import { isEmpty } from "lodash-es";
@@ -59,8 +56,6 @@ const props = defineProps<{
   disabled: boolean;
 }>();
 
-const { remove } = useBasketProduct(props.id);
-
 const editLink = computed(() => {
   return {
     name: "productEdit",
@@ -70,6 +65,8 @@ const editLink = computed(() => {
   };
 });
 
+const emits = defineEmits(["remove", "update:open"]);
+
 const actions = computed(() => [
   {
     icon: "pencil",
@@ -77,11 +74,7 @@ const actions = computed(() => [
   },
   {
     icon: "bin",
-    onClick: remove,
+    onClick: () => emits("remove"),
   },
 ]);
-
-defineEmits<{
-  (e: "update:open", value: boolean): void;
-}>();
 </script>

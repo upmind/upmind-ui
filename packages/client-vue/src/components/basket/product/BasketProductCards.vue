@@ -4,8 +4,6 @@
       <UpmBasketProduct
         v-bind="product"
         :open="!!open[product.id]"
-        :loading="meta.isLoading"
-        :processing="meta.isProcessing"
         @update:open="trackOpen(product.id, $event)"
       />
     </template>

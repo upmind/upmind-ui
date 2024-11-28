@@ -3,7 +3,7 @@
     v-if="quantifiable"
     class-field="!text-[16px]"
     :model-value="quantity"
-    @update:model-value="updateQuantity"
+    @update:model-value="doUpdateQuantity"
     :min="min === 0 ? 1 : min"
     :max="max"
     :step="step"
@@ -15,9 +15,8 @@
 
 <script lang="ts" setup>
 import { NumberField } from "@upmind-automation/upwind";
-import { useBasketProduct } from "@upmind-automation/client-vue";
 
-const props = defineProps<{
+defineProps<{
   id: string;
   quantifiable?: boolean;
   min?: number;
@@ -26,5 +25,9 @@ const props = defineProps<{
   quantity?: number;
 }>();
 
-const { updateQuantity } = useBasketProduct(props.id);
+const emits = defineEmits(["update:quantity"]);
+
+function doUpdateQuantity(value: number) {
+  emits("update:quantity", value);
+}
 </script>

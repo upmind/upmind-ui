@@ -97,7 +97,7 @@ export const useBasketProduct = (id: string) => {
     return update(basketProduct).finally(() => {
       return refreshBasket().finally(() => (processing.value = false));
     });
-  }, 500);
+  }, 350);
 
   async function incrementQuantity() {
     const qty = get(basketProduct, "quantity", 0);
