@@ -7,7 +7,7 @@ export const tooltipVariants = cva(
   {
     variants: {
       color: {
-        base: "bg-base-muted-foreground text-base-muted",
+        base: "text-base-muted bg-base-foreground",
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
         accent: "bg-accent text-accent-foreground",
@@ -28,7 +28,7 @@ export const tooltipVariants = cva(
 export const arrowVariants = cva("", {
   variants: {
     color: {
-      base: "text-base-800",
+      base: "text-base-foreground",
       primary: "text-primary",
       secondary: "text-secondary",
       accent: "text-accent",

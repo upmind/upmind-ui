@@ -25,7 +25,6 @@
         v-for="action in actions"
         :key="action.icon"
         :label="action.tooltip"
-        color="primary"
       >
         <Button
           :color="action.color"

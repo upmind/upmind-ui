@@ -55,7 +55,6 @@
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
         :label="tooltipLabel(promotion)"
-        color="primary"
       >
         <Badge
           color="promotion"
