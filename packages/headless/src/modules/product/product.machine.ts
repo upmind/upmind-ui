@@ -22,6 +22,7 @@ import {
 import {
   cloneDeep,
   compact,
+  concat,
   xorBy,
   forEach,
   get,
@@ -37,6 +38,7 @@ import {
   toNumber,
   unset,
   first,
+  uniq,
 } from "lodash-es";
 
 import { calculateSubscription } from "./services";
@@ -475,6 +477,7 @@ export default createMachine(
             basketId,
             clientId,
             promotions,
+            coupons,
             errorExternal,
             error,
           }: ProductConfigContext,
@@ -488,7 +491,8 @@ export default createMachine(
             clientId,
             currencyId,
 
-            promotions,
+            promotions: uniq(concat(promotions ?? [], coupons ?? [])),
+            coupons: coupons ?? [],
             // ---
             baseModel: !isEmpty(basketProduct)
               ? parseBasketProductModel(basketProduct)
@@ -505,7 +509,7 @@ export default createMachine(
       ),
       refreshContext: assign(
         (
-          { model, lookups, rawProduct, error }: ProductConfigContext,
+          { model, lookups, rawProduct, error, coupons }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
           const {
@@ -521,7 +525,8 @@ export default createMachine(
           const newContext = {
             clientId: client_id,
             currencyId: currency_id,
-            promotions,
+            promotions: uniq(concat(promotions ?? [], coupons ?? [])),
+            coupons: coupons ?? [],
             basketProduct: basket_product,
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)

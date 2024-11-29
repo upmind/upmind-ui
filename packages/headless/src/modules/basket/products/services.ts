@@ -58,14 +58,17 @@ async function loadProvisioningValues({ basketId, model }: any) {
 }
 
 async function update(
-  { basketId }: { basketId: string; bpid?: string },
+  {
+    basketId,
+    promotions,
+  }: { basketId: string; bpid?: string; promotions?: string[] },
   { data }: any
 ) {
   const { put, post, useUrl } = useApi();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
-  const product = parseBasketProductConfig(data);
+  const product = parseBasketProductConfig(data, promotions);
 
   // ---
   const isNew = !data?.id;

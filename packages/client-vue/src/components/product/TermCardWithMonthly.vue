@@ -69,8 +69,8 @@ const props = defineProps<{
   mixedPromotions?: boolean;
   monthlyFromCurrentAmount?: number;
   monthlyFromCurrentPrice?: string;
-  monthlyFromRegulatAmount?: number;
-  monthlyFromRegulatPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
   regularAmount?: number;
   regularPrice?: string;
   currentPrice?: string;
