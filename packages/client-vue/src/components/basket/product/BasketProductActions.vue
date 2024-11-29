@@ -21,18 +21,23 @@
     </Button>
 
     <div class="text-primary flex items-end space-x-2">
-      <Button
+      <Tooltip
         v-for="action in actions"
         :key="action.icon"
-        :color="action.color"
-        variant="link"
-        size="sm"
-        class="h-auto !p-0 leading-none"
-        @click="action.onClick"
-        :disabled="disabled"
+        :label="action.tooltip"
+        color="primary"
       >
-        <Icon :icon="action.icon" :color="action.color" class="h-5 w-5" />
-      </Button>
+        <Button
+          :color="action.color"
+          variant="link"
+          size="sm"
+          class="h-auto !p-0 leading-none"
+          @click="action.onClick"
+          :disabled="disabled"
+        >
+          <Icon :icon="action.icon" :color="action.color" class="h-5 w-5" />
+        </Button>
+      </Tooltip>
     </div>
   </div>
 </template>
@@ -45,7 +50,7 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Icon, Button } from "@upmind-automation/upwind";
+import { Icon, Button, Tooltip } from "@upmind-automation/upwind";
 
 // --- types
 import { type BasketProductActionsProps } from "./types";
@@ -62,11 +67,13 @@ const actions = computed(() => [
   {
     icon: "pencil",
     color: props.color,
+    tooltip: t("product.edit"),
     onClick: () => router.push(props.editLink),
   },
   {
     icon: "bin",
     color: props.color,
+    tooltip: t("product.remove"),
     onClick: () => emits("remove"),
   },
 ]);
