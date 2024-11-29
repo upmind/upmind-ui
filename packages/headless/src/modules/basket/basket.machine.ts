@@ -612,7 +612,7 @@ export default createMachine(
                 data: {
                   id: basket?.id,
                   currencyId: basket?.currency_id,
-                  promotions: basket?.promotions || [],
+                  promotions: map(basket?.promotions, "promotion.code"),
                 },
               });
             } else {

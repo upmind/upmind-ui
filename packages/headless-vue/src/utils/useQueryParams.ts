@@ -132,7 +132,7 @@ export const useQueryParams = () => {
       },
       {}
     );
-    const promotions = getParams(QUERY_PARAMS.COUPONS);
+    const coupons = getParams(QUERY_PARAMS.COUPONS);
 
     const model = [
       {
@@ -141,7 +141,7 @@ export const useQueryParams = () => {
         term: bcm ? toNumber(bcm) : undefined,
         subproducts,
         provisionFields,
-        promotions,
+        coupons,
       },
     ];
 

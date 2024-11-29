@@ -28,7 +28,7 @@
         v-if="props.meta.discounted"
         >{{
           t("product.cycle", {
-            value: props.monthlyFromRegulatPrice,
+            value: props.monthlyFromRegularPrice,
           })
         }}</span
       >
@@ -67,8 +67,8 @@ const props = defineProps<{
   mixedPromotions?: boolean;
   monthlyFromCurrentAmount?: number;
   monthlyFromCurrentPrice?: string;
-  monthlyFromRegulatAmount?: number;
-  monthlyFromRegulatPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
   regularAmount?: number;
   regularPrice?: string;
   currentPrice?: string;

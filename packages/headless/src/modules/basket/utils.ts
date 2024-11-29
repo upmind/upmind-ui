@@ -54,9 +54,8 @@ export function spawnProductConfiguration(
   const isBasketProduct = data?.id ? true : false;
 
   // lets merge the promotions from the basket and the product
-  const basketPromotions = map(basket?.promotions, "promocode");
-  const productPromotions = data?.promotions || [];
-  const promotions = uniq(compact([...basketPromotions, ...productPromotions]));
+  const promotions = map(basket?.promotions, "promotion.code");
+  const coupons = data?.coupons || [];
 
   const model = defaults(data, {
     quantity: 1,
@@ -74,6 +73,7 @@ export function spawnProductConfiguration(
       [isBasketProduct ? "basketProduct" : "model"]: model,
       currencyId: basket?.currency_id,
       promotions,
+      coupons,
       errorExternal,
     }),
     {

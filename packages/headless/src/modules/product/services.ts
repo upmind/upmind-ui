@@ -18,6 +18,7 @@ import {
   isNil,
   isNumber,
   isObject,
+  isString,
   keys,
   map,
   mapValues,
@@ -77,9 +78,10 @@ async function load(
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
   const { get: getRequest, useUrl } = useApi();
+
   const params = {
     currency_id: currency.id,
-    promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
+    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     with_staged_imports: true,
     with: [
       "image",
