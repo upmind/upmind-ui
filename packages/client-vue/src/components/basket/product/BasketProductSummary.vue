@@ -68,6 +68,7 @@
           v-bind="pricing"
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
+          :one-off="pricing.meta?.oneoff"
         />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
@@ -99,6 +100,7 @@
           v-bind="pricing"
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
+          :one-off="pricing.meta?.oneoff"
         />
         <RegularPrice
           :discounted="pricing.meta?.discounted"
