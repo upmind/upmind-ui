@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between">
     <!-- Padding and minues margin avoids text from being cut off from overflow and keeps position -->
-    <p class="-my-1 truncate py-1">
+    <p class="-my-1 py-1 leading-4">
       {{ name }}
 
       <template v-if="quantity && quantity > 1">
@@ -9,10 +9,10 @@
       </template>
     </p>
 
-    <div v-if="currentPrice" class="flex items-center gap-x-1">
+    <span v-if="currentPrice" class="flex items-center gap-x-1">
       <template v-if="pricingKey !== 'term'">
         <span v-if="showPlusIcon">
-          <Icon icon="plus" size="4xs" class="mr-1" />
+          <Icon icon="plus" size="4xs" class="-mt-[2px] mr-0.5" />
         </span>
         <span v-else-if="overrides">
           <Tooltip
@@ -20,22 +20,22 @@
             color="primary"
             class="max-w-64 text-center"
           >
-            <Icon size="3xs" icon="random" class="mr-1" />
+            <Icon size="3xs" icon="random" class="mr-0.5" />
           </Tooltip>
         </span>
       </template>
 
-      <template v-if="!free">
+      <p v-if="!free" class="m-0 whitespace-nowrap">
         {{ currentPrice }}
         <template v-if="showTermLabel">
           {{ t(`product.terms.term.${cycle}`) }}
         </template>
-      </template>
+      </p>
 
       <template v-else>
         <span>{{ t("product.free") }}</span>
       </template>
-    </div>
+    </span>
   </div>
 </template>
 
@@ -45,8 +45,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon, Tooltip } from "@upmind-automation/upwind";
 
-// --- types
-interface Props {
+const props = defineProps<{
   id: string;
   name: string;
   quantity?: number;
@@ -56,9 +55,8 @@ interface Props {
   cycle?: number;
   pricingKey?: string;
   free?: boolean;
-}
+}>();
 
-const props = defineProps<Props>();
 const { t } = useI18n();
 
 const showPlusIcon = computed(

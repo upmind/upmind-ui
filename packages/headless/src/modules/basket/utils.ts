@@ -176,7 +176,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       description: useTranslateField(raw, "description"),
       excerpt: useTranslateField(raw, "short_description"),
       id: raw?.product_id,
-      imgUrl: raw?.product_image_url,
+      imgUrl: raw?.product?.image?.full_url,
       // meta: raw?.product?.meta,// TODO get/use product meta from API
       // ---
       quantifiable:
