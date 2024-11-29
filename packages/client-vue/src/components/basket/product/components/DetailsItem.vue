@@ -12,7 +12,7 @@
     <span v-if="currentPrice" class="flex items-center gap-x-1">
       <template v-if="pricingKey !== 'term'">
         <span v-if="showPlusIcon">
-          <Icon icon="plus" size="4xs" class="mr-1" />
+          <Icon icon="plus" size="4xs" class="-mt-[2px] mr-0.5" />
         </span>
         <span v-else-if="overrides">
           <Tooltip
@@ -20,7 +20,7 @@
             color="primary"
             class="max-w-64 text-center"
           >
-            <Icon size="3xs" icon="random" class="mr-1" />
+            <Icon size="3xs" icon="random" class="mr-0.5" />
           </Tooltip>
         </span>
       </template>
