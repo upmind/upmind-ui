@@ -88,8 +88,8 @@
       :text="processingText"
       :animated-icon="{
         icon: processingIcon,
-        primaryColor: 'primary',
-        secondaryColor: 'secondary',
+        primaryColor: 'base-foreground',
+        secondaryColor: 'accent',
         size: '4xl',
       }"
       modal
@@ -237,11 +237,27 @@ const processingText = computed(() => {
 });
 
 const processingIcon = computed(() => {
+  if (meta.value.needsApproval) {
+    return "basket";
+  }
+
+  if (meta.value.isConverting) {
+    return "receipt";
+  }
+
+  if (meta.value.isPaying) {
+    return "tapping-card";
+  }
+
+  if (meta.value.isCheckout) {
+    return "tapping-card";
+  }
+
   if (paymentDetailsMeta.value.isFree) {
     return "basket";
   }
 
-  return "tapping-card";
+  return "basket";
 });
 // --- side effects
 watch(
