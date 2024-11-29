@@ -203,14 +203,13 @@ async function getProvisioningFieldsValues(basket: Basket) {
   // then get each products provisioning fields
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
-  forEach(basket.products, async product => {
-    const { id } = product;
+  forEach(basket.products, async rawProduct => {
+    const { id } = rawProduct;
 
     const subProducts = compact(
-      map(concat(product.options, product.attributes), ({ productId }) => ({
-        product_id: productId,
-      }))
+      map(concat(rawProduct.options, rawProduct.attributes), "product_id")
     );
+
     // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
     const promise = get({
       url: useUrl(
@@ -223,7 +222,7 @@ async function getProvisioningFieldsValues(basket: Basket) {
       withAccessToken: true,
     }).then(({ data }: any) => {
       // update the product with the provisioning fields
-      set(product, "provision_fields", data);
+      set(rawProduct, "provision_fields", data);
       return data;
     });
 

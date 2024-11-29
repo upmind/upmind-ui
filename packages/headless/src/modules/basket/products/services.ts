@@ -26,36 +26,6 @@ import {
 // Invoked by machines, providing context and event data
 
 // --------------------------------------------------------
-async function loadProvisioningValues({ basketId, model }: any) {
-  const { get, useUrl } = useApi();
-  const { productId } = model;
-
-  // bail if we have no basket, or if we have a basket with products
-  if (!productId || !basketId) return Promise.resolve(null);
-
-  // this will get all our provisioning fields for each product that has them,
-  // and update the baskets relevant products with the values
-
-  const subProducts = compact(
-    map(concat(model.options, model.attributes), ({ productId }) => ({
-      product_id: productId,
-    }))
-  );
-
-  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
-  return get({
-    url: useUrl(
-      `orders/${basketId}/products/${productId}/provision_fields/values`,
-      { sub_product_ids: subProducts }
-    ),
-    useCache: false,
-    withAccessToken: true,
-  }).then(({ data }: any) => {
-    // update the product with the provisioning fields
-    set(model, "provisionFields", data);
-    return model;
-  });
-}
 
 async function update(
   {
@@ -168,7 +138,6 @@ async function sync(
 // EXPORTS
 
 export default {
-  loadProvisioningValues,
   update,
   remove,
   sync,
