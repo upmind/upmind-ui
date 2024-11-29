@@ -17,7 +17,6 @@
         <span v-else-if="overrides">
           <Tooltip
             :label="t('product.overridden')"
-            color="primary"
             class="max-w-64 text-center"
           >
             <Icon size="3xs" icon="random" class="mr-0.5" />
