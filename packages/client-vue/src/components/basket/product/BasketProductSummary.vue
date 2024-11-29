@@ -12,11 +12,12 @@
       />
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
-          <img
-            v-if="primary && product.imgUrl"
-            :src="product.imgUrl"
-            class="m-0 h-12 w-12 rounded-lg"
-          />
+          <router-link v-if="primary && product.imgUrl" :to="editLink">
+            <img
+              :src="product.imgUrl"
+              class="m-0 h-12 min-w-12 max-w-12 rounded-lg object-cover object-center"
+            />
+          </router-link>
 
           <div class="flex w-full flex-col gap-y-1">
             <div class="flex items-end justify-between">
