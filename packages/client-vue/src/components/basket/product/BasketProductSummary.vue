@@ -1,25 +1,24 @@
 <template>
   <div class="flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0">
     <div class="flex flex-col md:gap-y-1">
+      <Promotion
+        v-if="primary"
+        v-bind="pricing"
+        :discounted="pricing.meta?.discounted"
+        :free="pricing.meta?.free"
+        :disabled="error"
+        size="md"
+        class="mb-2 inline-block md:hidden"
+      />
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
           <img
             v-if="primary && product.imgUrl"
             :src="product.imgUrl"
-            alt="Upmind"
-            class="m-0 h-12 w-12"
+            class="m-0 h-12 w-12 rounded-lg"
           />
 
           <div class="flex w-full flex-col gap-y-1">
-            <Promotion
-              v-if="primary"
-              v-bind="pricing"
-              :discounted="pricing.meta?.discounted"
-              :free="pricing.meta?.free"
-              :disabled="error"
-              size="md"
-              class="mb-2 inline-block md:hidden"
-            />
             <div class="flex items-end justify-between">
               <div class="text-sm font-normal leading-5">
                 {{ pricing.category }}
@@ -64,7 +63,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-y-1 md:hidden">
+      <div class="mt-1 flex flex-col gap-y-1 md:hidden">
         <TermsDescription
           v-bind="pricing"
           :discounted="pricing.meta?.discounted"
