@@ -133,6 +133,7 @@ async function createPaymentElement(
       billingDetails: {
         address: {
           postal_code: address?.postcode,
+          country: address?.country?.code,
         },
       },
     },
@@ -232,6 +233,7 @@ async function createAddElement(
         billingDetails: {
           address: {
             postal_code: address?.postcode,
+            country: address?.country?.code,
           },
         },
       },
