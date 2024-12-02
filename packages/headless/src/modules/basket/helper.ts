@@ -131,13 +131,13 @@ export function basketSubscription(callback: any, onReceive: any) {
     switch (event.type) {
       case "INIT":
       case "REFRESH":
-        callback({
-          type: "REFRESH",
-          data: basket.getSnapshot()?.context?.basket,
+        basket.isReady().then(() => {
+          callback({
+            type: "REFRESH",
+            data: basket.getSnapshot()?.context?.basket,
+          });
         });
-
         break;
-
       case "FETCH":
         fetch(event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))

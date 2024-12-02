@@ -1,5 +1,6 @@
 // --- external
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
@@ -25,6 +26,13 @@ export const useRecommendationsEngine = () => {
   return {
     service: service.start(),
     getSnapshot: () => service.getSnapshot(),
+    isReady: async () =>
+      waitFor(
+        service,
+        state => ["available", "unavailable", "error"].some(state.matches),
+        { timeout: Infinity }
+      ),
+
     // ---
     toggle: function (productId: string) {
       const type = some(service.getSnapshot()?.context.model, [

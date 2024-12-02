@@ -143,7 +143,7 @@ export default createMachine(
               CHECKOUT: [
                 {
                   target: "#complete",
-                  actions: ["setPaymentDetails"],
+                  actions: ["setPaymentDetails", "trackPaymentDetails"],
                   cond: "isFree",
                 },
                 { target: "processing", cond: "hasBasket" },
@@ -173,7 +173,7 @@ export default createMachine(
               // ths is the response from the gateway
               PAYMENT_DETAILS: {
                 target: "#complete",
-                actions: ["setPaymentDetails"],
+                actions: ["setPaymentDetails", "trackPaymentDetails"],
               },
             },
           },

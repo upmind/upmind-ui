@@ -47,7 +47,7 @@ export const useDomain = (
 
   // @ts-ignore
   const service = interpret(domainMachine.withContext(context), {
-    devTools: true,
+    devTools: false,
   }).start();
 
   // --------------------------------------------------------
