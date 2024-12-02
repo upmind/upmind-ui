@@ -50,17 +50,6 @@
                 class="w-full"
               />
 
-              <Alert
-                v-if="!isEmpty(getErrors)"
-                color="error"
-                icon="alert-triangle"
-                description="There was a issue with your payment details"
-              >
-                <template v-for="error in getErrors" :key="error.title">
-                  <li>{{ error.title }}</li>
-                </template>
-              </Alert>
-
               <footer
                 class="flex flex-col items-stretch justify-start space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0"
                 v-auto-animate
@@ -111,7 +100,7 @@
 // --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { first, isEmpty } from "lodash-es";
+import { first } from "lodash-es";
 import { computed } from "vue";
 
 // --- internal
@@ -122,7 +111,7 @@ import {
 import { UpmPaymentNotRequired } from "@upmind-automation/client-vue";
 
 // --- components
-import { Icon, Button, Alert, Loading } from "@upmind-automation/upwind";
+import { Icon, Button, Loading } from "@upmind-automation/upwind";
 import {
   Accordion,
   AccordionContent,
@@ -167,13 +156,6 @@ const getGatewayi18n = (item: any, property: string) => {
 
   return t(`basket.${type}.${property}`);
 };
-
-const getErrors = computed(() => {
-  const allErrors = first(errors.value) as Array<any>;
-  return allErrors?.filter(
-    error => !error.title.toLowerCase().includes("element")
-  );
-});
 
 const selectGateway = (id: string) => {
   const value = model.value;
