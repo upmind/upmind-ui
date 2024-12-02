@@ -4,7 +4,7 @@
 
 // --- utils
 
-import { mapValues, reduce, values } from "lodash-es";
+import { mapValues, reduce, values, map, isObject } from "lodash-es";
 
 // --- types
 import type { BasketProductConfig } from "../types";
@@ -60,6 +60,8 @@ export function parseBasketProductConfig(
     // ---
     provision_field_values: model.provisionFields || [],
     // ---
-    promotions: promotions || [],
+    promotions: map(promotions, promotion =>
+      isObject(promotion) ? promotion : { promocode: promotion }
+    ),
   } as BasketProductConfig;
 }

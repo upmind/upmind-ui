@@ -33,7 +33,7 @@
     </RadioCards>
   </FormField>
 
-  <pre v-if="errors">{{ errors }}</pre>
+  <!-- <pre v-if="errors">{{ errors }}</pre> -->
 </template>
 
 <script lang="ts" setup>
@@ -68,6 +68,7 @@ const props = withDefaults(
     label?: string;
     description?: string;
     // --- state
+    monthly?: boolean;
     required?: boolean;
     disabled?: boolean;
     loading?: boolean;
@@ -112,8 +113,7 @@ function getTerm(value: string) {
 }
 
 function isMonthly(item: any) {
-  const hasMonthlyPrice = some(props.items, ["cycle", 1]);
-  return hasMonthlyPrice && item.monthlyFromregularPrice && item.cycle > 1;
+  return props.monthly && item.monthlyFromRegularPrice && item.cycle > 1;
 }
 function doResolve(item: string | number) {
   if (props.disabled) return;

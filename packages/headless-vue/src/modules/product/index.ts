@@ -1,11 +1,10 @@
 // --- external
-import type { ComputedRef } from "vue";
 import { computed, ref, toRef, watch } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-
+import { useBrand } from "@upmind-automation/headless";
 import { stateMatches, contextMatches } from "../../utils";
 
 // --- utils
@@ -13,7 +12,7 @@ import {
   add,
   get,
   isEmpty,
-  isObject,
+  isNil,
   isEqual,
   set,
   some,
@@ -31,6 +30,8 @@ import type { ActorRef } from "xstate";
 //  with some state helpers
 
 export const useProductConfig = (service: ActorRef<any, any>) => {
+  const { checkIncludesTax } = useBrand();
+
   const { state, send } = useActor(service);
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
@@ -81,18 +82,14 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
 
     // ---
 
-    hasProvisioning:
-      !isEmpty(state.value.context?.lookups?.provisionFields?.properties) &&
-      !!state.value?.context?.model?.provisionFields,
-    hasAttributes:
-      !isEmpty(state.value.context?.lookups?.attributes) &&
-      !!state.value?.context?.model?.attributes,
-    hasOptions:
-      !isEmpty(state.value.context?.lookups?.options) &&
-      !!state.value?.context?.model?.options,
-    hasTerms:
-      !isEmpty(state.value.context?.lookups?.terms) &&
-      !!state.value?.context?.model?.term,
+    hasProvisioning: !isEmpty(
+      state.value.context?.lookups?.provisionFields?.properties
+    ),
+    hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
+    hasOptions: !isEmpty(state.value.context?.lookups?.options),
+    hasTerms: !isEmpty(state.value.context?.lookups?.terms),
+    hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
+    hasTaxIncluded: checkIncludesTax(),
   }));
 
   const summary = computed(() => state.value.context?.summary);

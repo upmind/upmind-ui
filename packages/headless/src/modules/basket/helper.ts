@@ -70,6 +70,7 @@ async function update(item: any, context: any, basket: any) {
   return productServices.update(
     {
       basketId: basketSnapshot?.id,
+      promotions: context?.promotions,
     },
     { data: item }
   );
@@ -107,6 +108,7 @@ async function sync(items: any, context: any, basket: any) {
       {
         basketId: basket.getBasketId(),
         basketProducts: basket.getProducts(),
+        promotions: context?.promotions,
       },
       { data }
     );

@@ -31,6 +31,7 @@ import {
   isEqual,
   isNil,
   map,
+  set,
 } from "lodash-es";
 
 // --- types
@@ -451,6 +452,11 @@ export default createMachine(
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
           parseBasket(data),
+        error: ({ error }: BasketContext, { data }: BasketEvent) => {
+          error ??= {}; // safety check
+          set(error, "provisioningErrors", get(data, "provisioningErrors"));
+          return error;
+        },
         products: (_context: BasketContext, { data }: BasketEvent) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
@@ -606,7 +612,7 @@ export default createMachine(
                 data: {
                   id: basket?.id,
                   currencyId: basket?.currency_id,
-                  promotions: basket?.promotions || [],
+                  promotions: map(basket?.promotions, "promotion.code"),
                 },
               });
             } else {

@@ -18,7 +18,7 @@
       </template>
 
       <span :class="styles.product.config.grid.item.text">{{
-        props.meta.free ? t("product.free") : `+ ${props.currentPrice}`
+        props.meta.free ? t("product.free") : props.currentPrice
       }}</span>
     </div>
 
@@ -28,7 +28,7 @@
         v-if="props.meta.discounted"
         >{{
           t("product.cycle", {
-            value: props.monthlyFromRegulatPrice,
+            value: props.monthlyFromRegularPrice,
           })
         }}</span
       >
@@ -67,8 +67,8 @@ const props = defineProps<{
   mixedPromotions?: boolean;
   monthlyFromCurrentAmount?: number;
   monthlyFromCurrentPrice?: string;
-  monthlyFromRegulatAmount?: number;
-  monthlyFromRegulatPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
   regularAmount?: number;
   regularPrice?: string;
   currentPrice?: string;
