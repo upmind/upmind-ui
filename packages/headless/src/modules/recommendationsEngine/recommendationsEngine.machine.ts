@@ -323,23 +323,19 @@ export default createMachine(
           { lookups }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          debugger;
           const recommendations = parseRecommendations(data as IBasket);
-          debugger;
           const added = remove(recommendations, ({ productId }) =>
             some(data.products, ["productId", productId])
           );
-          debugger;
-          const available = remove(recommendations, ({ productId }) =>
+          const seen = remove(recommendations, ({ productId }) =>
             some(lookups.seen, ["productId", productId])
           );
-          debugger;
 
           debugger;
           return {
-            recommendations: available,
+            recommendations,
             added,
-            seen: lookups.seen ?? [], // persist any seen Recommendations
+            seen: lookups.seen ?? seen, // persist any seen Recommendations
           };
         },
       }),
@@ -349,8 +345,6 @@ export default createMachine(
           { lookups }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          debugger;
-
           // if data is empty assume weve seen ALL recommendations,
           //  otherwise if specified, move only the provided to the seen Recommendations
           const seen = isEmpty(data)
@@ -359,7 +353,6 @@ export default createMachine(
                 some(data.products, ["productId", productId])
               );
 
-          debugger;
           return {
             recommendations: lookups.recommendations ?? [],
             added: lookups.added ?? [],

@@ -19,7 +19,7 @@ import { map, isEmpty } from "lodash-es";
  * @ignore
  */
 export const useRecommendationsEngine = () => {
-  const { service, add, remove, toggle, reset, syncBasket, destroy } =
+  const { service, add, remove, toggle, reset, syncBasket, destroy, isReady } =
     useUpmindRecommendationsEngine();
 
   const { state }: any = useActor(service);
@@ -55,6 +55,7 @@ export const useRecommendationsEngine = () => {
         !isEmpty(state.value.context?.model),
     })),
     // ---
+    isReady,
     add,
     remove,
     toggle,
