@@ -7,6 +7,7 @@ import {
   useBasket,
   useBasketProductConfig as useUpmindBasketProductConfig,
   useBasketProduct as useUpmindBasketProduct,
+  useBrand,
 } from "@upmind-automation/headless";
 
 import { useProductConfig } from "../product";
@@ -32,6 +33,7 @@ import type { Basket } from "@upmind-automation/headless";
 
 export const useBasketProduct = (id: string) => {
   // we need our basket
+  const { checkIncludesTax } = useBrand();
   const { service: basket, refresh: refreshBasket } = useBasket();
   const rawBasket = get(basket.getSnapshot(), "context.basket");
   const processing = ref(false);
@@ -131,6 +133,8 @@ export const useBasketProduct = (id: string) => {
       hasAttributes: !!basketProduct?.attributes,
       hasOptions: !!basketProduct?.options,
       hasTerms: !!basketProduct?.term,
+
+      hasTaxIncluded: checkIncludesTax(),
     })),
     // ---
     error: computed(() => get(basketProduct, "error")),

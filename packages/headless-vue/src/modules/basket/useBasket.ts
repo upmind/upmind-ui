@@ -3,7 +3,10 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBasket as useUpmindBasket } from "@upmind-automation/headless";
+import {
+  useBasket as useUpmindBasket,
+  useBrand,
+} from "@upmind-automation/headless";
 
 // --- utils
 import {
@@ -29,6 +32,7 @@ import { some, filter, isEmpty } from "lodash-es";
  * @ignore
  */
 export const useBasket = (): any => {
+  const { checkIncludesTax } = useBrand();
   const {
     service,
     isReady,
@@ -137,6 +141,7 @@ export const useBasket = (): any => {
           "checkout",
         ]),
         isClaiming: stateMatches(state, ["shopping.account.claiming"]),
+        hasTaxIncluded: checkIncludesTax(),
 
         // ---
         // this state means ALL the data is ready for checkout for each parallel machine
