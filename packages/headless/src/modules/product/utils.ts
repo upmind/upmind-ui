@@ -255,7 +255,7 @@ export const parseSubproduct = (
         find(value.prices, ["cycle", cycle]);
 
       // ensure we set the cycle to the price cycle
-      value.cycle = value.price.cycle;
+      value.cycle = value?.price?.cycle ?? rawSubproduct.billing_cycle_months;
 
       values.push(value);
 
