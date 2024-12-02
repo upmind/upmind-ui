@@ -18,10 +18,7 @@ import {
   isNil,
   isNumber,
   isObject,
-  isString,
   keys,
-  map,
-  mapValues,
   maxBy,
   minBy,
   pick,
@@ -33,7 +30,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ProductConfigContext, ProductModel } from "./types";
+import type { ProductConfigContext } from "./types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -174,15 +171,13 @@ async function checkTerm(
 
   // ---
   // try ge the full term object from the lookups terms
-
   term = find(lookups.terms, ["cycle", model?.term]);
-
   if (!term) {
     if (lookups.terms.length === 1) {
       term = first(lookups.terms);
     } else {
       term = await calculateBillingTerm(
-        lookups.product.default_payment_period,
+        lookups.product?.defaultPaymentPeriod,
         lookups.terms
       );
     }
@@ -418,17 +413,13 @@ const calculateBillingTerm = async (
 
   switch (period) {
     case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(availableTerms, "price");
+      term = maxBy(availableTerms, "currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(availableTerms, "price");
+      term = minBy(availableTerms, "currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(
-        availableTerms,
-        (term: any) =>
-          term?.monthly_price_from_discounted ?? term?.monthly_price_from
-      );
+      term = minBy(availableTerms, "monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = await getConfig(
@@ -447,6 +438,7 @@ const calculateBillingTerm = async (
       term = first(availableTerms);
       break;
   }
+
   return term;
 };
 // --------------------------------------------------------
