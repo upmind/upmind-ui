@@ -72,7 +72,7 @@
 <script lang="ts" setup>
 // --- external
 import { onMounted, watch, ref, computed } from "vue";
-import { isEmpty, first } from "lodash-es";
+import { isEmpty } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -121,9 +121,13 @@ onMounted(() => {
 });
 
 const getErrors = computed(() => {
-  const allErrors = errors.value as Array<any>;
-  return allErrors?.filter(
-    error => !error.title.toLowerCase().includes("element")
-  );
+  try {
+    return errors.value?.filter(
+      (error: { title: string }) =>
+        !error.title.toLowerCase().includes("element")
+    );
+  } catch (err) {
+    return [];
+  }
 });
 </script>
