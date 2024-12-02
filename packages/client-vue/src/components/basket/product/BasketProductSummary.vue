@@ -70,6 +70,7 @@
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
           :one-off="pricing.meta?.oneoff"
+          :taxes="taxes"
         />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
@@ -102,6 +103,7 @@
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
           :one-off="pricing.meta?.oneoff"
+          :taxes="taxes"
         />
         <RegularPrice
           :discounted="pricing.meta?.discounted"
