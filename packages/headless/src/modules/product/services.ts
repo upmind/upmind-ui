@@ -88,6 +88,7 @@ async function load(
       "products_options",
       "products_options.prices",
       "provision_field_values",
+      "related",
     ].join(),
   };
   // conditionally add the basket_id / basket_product_id if we have them,

@@ -94,7 +94,7 @@ export default createMachine(
             initial: "processing",
             states: {
               processing: {
-                entry: ["fetchBasket"],
+                entry: ["fetchBasketProducts"],
                 on: {
                   FETCHED: {
                     target: "complete",
@@ -287,7 +287,7 @@ export default createMachine(
         initial: "loading",
         states: {
           loading: {
-            entry: ["fetchBasket"],
+            entry: ["fetchBasketProducts"],
             on: {
               FETCHED: {
                 target: "invalid",
@@ -571,7 +571,7 @@ export default createMachine(
         }
       ),
 
-      fetchBasket: sendTo(
+      fetchBasketProducts: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, _event) => ({
           type: "FETCH",
