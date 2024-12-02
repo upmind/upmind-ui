@@ -4,7 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-
+import { useBrand } from "@upmind-automation/headless";
 import { stateMatches, contextMatches } from "../../utils";
 
 // --- utils
@@ -30,6 +30,8 @@ import type { ActorRef } from "xstate";
 //  with some state helpers
 
 export const useProductConfig = (service: ActorRef<any, any>) => {
+  const { checkIncludesTax } = useBrand();
+
   const { state, send } = useActor(service);
   const model = toRef(state.value.context, "model");
   const lookups = computed(() => state.value.context.lookups);
@@ -87,6 +89,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
     hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
+    hasTaxIncluded: checkIncludesTax(),
   }));
 
   const summary = computed(() => state.value.context?.summary);

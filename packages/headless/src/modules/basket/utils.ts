@@ -3,7 +3,7 @@ import { spawn } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useSystem } from "../system";
+import { useBrand } from "../brand";
 import productMachine from "../product/product.machine";
 import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
@@ -30,7 +30,6 @@ import {
   toNumber,
   uniq,
   uniqueId,
-  find,
 } from "lodash-es";
 
 // --- types
@@ -330,6 +329,8 @@ export function parseSubproduct(
 }
 
 export function parsPriceSummary(raw: any) {
+  const { checkIncludesTax } = useBrand();
+
   const summary: BasketProductSummaryPrice = parseSubproduct(
     raw
   ) as BasketProductSummaryPrice;
@@ -341,10 +342,18 @@ export function parsPriceSummary(raw: any) {
     overrides: raw?.product?.category?.price_override,
   };
 
-  summary.regularAmount = raw.configuration_net_amount_converted;
-  summary.regularPrice = raw.configuration_net_amount_formatted;
-  summary.currentAmount = raw.configuration_net_amount_discounted_converted;
-  summary.currentPrice = raw.configuration_net_amount_discounted_formatted;
+  summary.regularAmount = checkIncludesTax()
+    ? raw.configuration_total_amount_converted
+    : raw.configuration_net_amount_converted;
+  summary.regularPrice = checkIncludesTax()
+    ? raw.configuration_total_amount_formatted
+    : raw.configuration_net_amount_formatted;
+  summary.currentAmount = checkIncludesTax()
+    ? raw.configuration_total_discounted_amount_converted
+    : raw.configuration_net_amount_discounted_converted;
+  summary.currentPrice = checkIncludesTax()
+    ? raw.configuration_total_discounted_amount_formatted
+    : raw.configuration_net_amount_discounted_formatted;
 
   // add any saving information (if available)
   if (
