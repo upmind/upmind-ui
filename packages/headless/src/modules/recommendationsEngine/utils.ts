@@ -9,7 +9,7 @@ import type {
   IProduct,
   IRelatedObject,
 } from "@upmind-automation/types";
-import { useTranslateField, useTranslateName } from "@/utils";
+import { useTranslateField, useTranslateName } from "../../utils";
 import type { Recommendation } from "./types";
 // ---------------------------------------------------------------------------
 export function parseBasketItem(data: BasketProduct) {

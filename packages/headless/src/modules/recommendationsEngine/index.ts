@@ -4,7 +4,9 @@ import { interpret } from "xstate";
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
 export * from "./types";
+
 // --- utils
+import { some } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -23,6 +25,46 @@ export const useRecommendationsEngine = () => {
   return {
     service: service.start(),
     getSnapshot: () => service.getSnapshot(),
+    // ---
+    toggle: function (productId: string) {
+      const type = some(service.getSnapshot()?.context.model, [
+        "productId",
+        productId,
+      ])
+        ? "REMOVE"
+        : "ADD";
+
+      service.send({
+        type,
+        data: productId,
+      });
+    },
+
+    reset: function () {
+      service.send({
+        type: "RESET",
+      });
+    },
+
+    add: function (value: string) {
+      service.send({
+        type: "ADD",
+        data: value,
+      });
+    },
+
+    remove: function (value: string) {
+      service.send({
+        type: "REMOVE",
+        data: value,
+      });
+    },
+
+    syncBasket: function () {
+      service.send({
+        type: "SYNC",
+      });
+    },
     // ---
     destroy: () => service.stop(),
   };
