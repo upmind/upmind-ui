@@ -66,9 +66,17 @@ watchEffect(async () => {
   const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
   const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
 
-  const asyncImport = find(icons, (fn, iconPath) =>
-    endsWith(iconPath, `${safePath}${safeName}.svg`)
-  );
+  const exactMatch = find(icons, (fn, iconPath) => {
+    const pathParts = iconPath.split("/");
+    const fileName = pathParts[pathParts.length - 1];
+    return fileName === `${safeName}.svg`;
+  });
+
+  const asyncImport =
+    exactMatch ||
+    find(icons, (fn, iconPath) =>
+      endsWith(iconPath, `${safePath}${safeName}.svg`)
+    );
 
   if (!asyncImport) {
     console.warn("icon", "import not found", {
