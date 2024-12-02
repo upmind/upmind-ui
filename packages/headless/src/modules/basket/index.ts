@@ -121,7 +121,7 @@ export const useBasket = () => {
       attributes,
       options,
       provisionFields,
-      promotions,
+      coupons,
       subproducts,
     }: ProductModel) => {
       // lets wait for our basket  to be ready for shopping
@@ -136,7 +136,7 @@ export const useBasket = () => {
             attributes,
             options,
             provisionFields,
-            promotions,
+            coupons,
             subproducts,
           },
           isNil

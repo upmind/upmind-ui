@@ -96,6 +96,7 @@
           :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="updateTerm"
           required
+          :monthly="meta.hasMonthlyTerms"
         />
 
         <!-- options -->

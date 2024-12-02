@@ -19,8 +19,6 @@ import {
   isNumber,
   isObject,
   keys,
-  map,
-  mapValues,
   maxBy,
   minBy,
   pick,
@@ -32,7 +30,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ProductConfigContext, ProductModel } from "./types";
+import type { ProductConfigContext } from "./types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -77,9 +75,10 @@ async function load(
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
   const { get: getRequest, useUrl } = useApi();
+
   const params = {
     currency_id: currency.id,
-    promotions: map(promotions, "promotion.code").join(","), // ensure we pass any applied promotions to get the correct prices
+    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     with_staged_imports: true,
     with: [
       "image",
@@ -172,15 +171,13 @@ async function checkTerm(
 
   // ---
   // try ge the full term object from the lookups terms
-
   term = find(lookups.terms, ["cycle", model?.term]);
-
   if (!term) {
     if (lookups.terms.length === 1) {
       term = first(lookups.terms);
     } else {
       term = await calculateBillingTerm(
-        lookups.product.default_payment_period,
+        lookups.product?.defaultPaymentPeriod,
         lookups.terms
       );
     }
@@ -283,25 +280,23 @@ async function checkSubproducts(
             // ensure we have an object
             if (!isObject(value)) value = { productId: id };
             const product = find(subproduct.values, ["id", value.productId]);
-
-            // safety check, ensure we have a valid product
-            // if we dont have a price, that means there is no matching term in the prices and we should not proceed
-            if (isEmpty(product?.price)) return result;
+            // safety check, ensure we have a valid product otherwise bail
+            if (isEmpty(product)) return result;
 
             // ensure we have a valid unit_quantity
             value.quantity = parseQuantity(value?.step, product);
+            value.cycle = product.cycle;
+            set(result, id, value);
 
-            // ensure we have the correct cycle
-            value.cycle = product.price?.cycle;
-
-            // FINALLY set price values, taking into account the quantity and unit quantity
+            // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
-            times(value.quantity * model.quantity, () => {
-              price.push(product.price.currentAmount);
-            });
+            if (!isEmpty(product?.price)) {
+              times(value.quantity * model.quantity, () => {
+                price.push(product.price.currentAmount);
+              });
+            }
 
             // ---
-            set(result, id, value);
             return result;
           },
           {}
@@ -418,17 +413,13 @@ const calculateBillingTerm = async (
 
   switch (period) {
     case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(availableTerms, "price");
+      term = maxBy(availableTerms, "currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(availableTerms, "price");
+      term = minBy(availableTerms, "currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(
-        availableTerms,
-        (term: any) =>
-          term?.monthly_price_from_discounted ?? term?.monthly_price_from
-      );
+      term = minBy(availableTerms, "monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = await getConfig(
@@ -447,6 +438,7 @@ const calculateBillingTerm = async (
       term = first(availableTerms);
       break;
   }
+
   return term;
 };
 // --------------------------------------------------------

@@ -112,21 +112,7 @@ export interface BasketProduct {
   provisionFields?: Record<string, any>;
 
   // ---
-  product: {
-    id: string;
-    name: string;
-    category: string;
-    serviceIdentifier?: string;
-    description?: string;
-    excerpt?: string;
-    imgUrl?: string;
-    meta?: Record<string, any> | null;
-    // ---
-    quantifiable?: boolean;
-    min?: number;
-    max?: number;
-    step?: number;
-  };
+  product: BasketProductDetails;
 
   // ---
   summary: {
@@ -144,7 +130,23 @@ export interface BasketProduct {
   };
 }
 
-export interface BasketProductSummaryDetail {
+export type BasketProductDetails = {
+  id: string;
+  name: string;
+  category: string;
+  serviceIdentifier?: string;
+  description?: string;
+  excerpt?: string;
+  imgUrl?: string;
+  meta?: Record<string, any> | null;
+  // ---
+  quantifiable?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+};
+
+export interface BasketProductSummaryDetail extends Price {
   key: string;
   category: string;
   name: any;
@@ -200,7 +202,9 @@ export interface BasketContext {
   items?: ActorRef<any, any>[]; // Array of actors of items pending or basket products being configured
   products: BasketProduct[]; // Array of products in the basket
   // ---
-  error?: any;
+  error?: {
+    provisioningErrors?: Record<string, any>;
+  };
   controller?: AbortController;
   summary?: any; //IBasketSummary;
   // --- SPAWNED ACTORS/MACHINES

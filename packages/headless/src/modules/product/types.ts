@@ -12,7 +12,8 @@ export interface ProductConfigContext {
   id: string;
   clientId: string; //IClient["id"];
   currencyId: string; //IProductPrice["currency_id"];
-  promotions: IProductPromotion[];
+  promotions?: string[]; //IProductPromotion[];
+  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   baseModel: ProductModel;
   model: ProductModel;
   // ---
@@ -55,7 +56,8 @@ export interface ProductModel {
   provisionFields?: any;
   // ---
   currencyId?: string;
-  promotions?: IProductPromotion[];
+  promotions?: string[]; //IProductPromotion[];
+  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   // ---
   prices?: {
     term: { regular: number; current: number };

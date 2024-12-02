@@ -3,7 +3,7 @@ import { spawn } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useSystem } from "../system";
+import { useBrand } from "../brand";
 import productMachine from "../product/product.machine";
 import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
@@ -53,9 +53,8 @@ export function spawnProductConfiguration(
   const isBasketProduct = data?.id ? true : false;
 
   // lets merge the promotions from the basket and the product
-  const basketPromotions = map(basket?.promotions, "promocode");
-  const productPromotions = data?.promotions || [];
-  const promotions = uniq(compact([...basketPromotions, ...productPromotions]));
+  const promotions = map(basket?.promotions, "promotion.code");
+  const coupons = data?.coupons || [];
 
   const model = defaults(data, {
     quantity: 1,
@@ -73,6 +72,7 @@ export function spawnProductConfiguration(
       [isBasketProduct ? "basketProduct" : "model"]: model,
       currencyId: basket?.currency_id,
       promotions,
+      coupons,
       errorExternal,
     }),
     {
@@ -175,7 +175,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       description: useTranslateField(raw, "description"),
       excerpt: useTranslateField(raw, "short_description"),
       id: raw?.product_id,
-      imgUrl: raw?.product_image_url,
+      imgUrl: raw?.product?.image?.full_url,
       // meta: raw?.product?.meta,// TODO get/use product meta from API
       // ---
       quantifiable:
@@ -187,7 +187,7 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
 
     // --- summary details
     summary: {
-      pricing: [],
+      pricing: [parsPriceSummary(raw)],
       details: [],
     },
     // --- errors
@@ -198,7 +198,6 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
   const term = parseTerm(raw);
   if (term) {
     product.summary.details.push(term);
-    product.summary.pricing.push(term);
   }
   // ---
   forEach(raw?.options, option => {
@@ -273,16 +272,47 @@ const parseQuantity = (quantity: number, raw: any) => {
 };
 
 export function parseTerm(raw: any): BasketProductSummaryDetail | null {
-  const { getBillingCycle } = useSystem();
-  const term = parsPriceSummary(raw);
-  const cycle = getBillingCycle(raw.billing_cycle_months);
-  const name = cycle ? useTranslateName(cycle) : null;
+  const summary: BasketProductSummaryPrice = parseSubproduct(
+    raw
+  ) as BasketProductSummaryPrice;
 
-  term.key = "term";
-  term.category = "Billing Cycle";
-  term.name = name;
+  summary.key = "term";
 
-  return term;
+  summary.meta = {
+    oneoff: raw.billing_cycle_months > 0,
+    discounted: raw?.net_global_discount_amount > 0,
+    free: raw.net_unit_selling_price_formatted == 0,
+  };
+
+  summary.regularAmount = raw.selling_price_converted;
+  summary.regularPrice = raw.selling_price_formatted;
+  summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
+  summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
+
+  // add any saving information (if available)
+  if (
+    summary.meta.discounted &&
+    summary?.regularAmount &&
+    summary?.currentAmount
+  ) {
+    summary.currentSavingAmount = summary.meta.discounted
+      ? ((summary.regularAmount - summary.currentAmount) /
+          summary.regularAmount) *
+        100
+      : 0;
+
+    summary.currentSaving = summary.meta.discounted
+      ? `${Math.round(summary.currentSavingAmount)}%`
+      : "";
+  }
+
+  // retained in case we wan tto show the term name as opposed to the actual product name/category
+  // const { getBillingCycle } = useSystem();
+  // const cycle = getBillingCycle(raw.billing_cycle_months);
+  // const name = cycle ? useTranslateName(cycle) : null;
+  // term.category = "Billing Cycle";
+  // term.name = name;
+  return summary;
 }
 
 export function parseSubproduct(
@@ -299,20 +329,31 @@ export function parseSubproduct(
 }
 
 export function parsPriceSummary(raw: any) {
+  const { checkIncludesTax } = useBrand();
+
   const summary: BasketProductSummaryPrice = parseSubproduct(
     raw
   ) as BasketProductSummaryPrice;
+
   summary.meta = {
     oneoff: raw.billing_cycle_months > 0,
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
-    overrides: raw.price_option_override,
+    overrides: raw?.product?.category?.price_override,
   };
 
-  summary.regularAmount = raw.configuration_net_amount_converted;
-  summary.regularPrice = raw.configuration_net_amount_formatted;
-  summary.currentAmount = raw.configuration_net_amount_discounted_converted;
-  summary.currentPrice = raw.configuration_net_amount_discounted_formatted;
+  summary.regularAmount = checkIncludesTax()
+    ? raw.configuration_total_amount_converted
+    : raw.configuration_net_amount_converted;
+  summary.regularPrice = checkIncludesTax()
+    ? raw.configuration_total_amount_formatted
+    : raw.configuration_net_amount_formatted;
+  summary.currentAmount = checkIncludesTax()
+    ? raw.configuration_total_discounted_amount_converted
+    : raw.configuration_net_amount_discounted_converted;
+  summary.currentPrice = checkIncludesTax()
+    ? raw.configuration_total_discounted_amount_formatted
+    : raw.configuration_net_amount_discounted_formatted;
 
   // add any saving information (if available)
   if (
