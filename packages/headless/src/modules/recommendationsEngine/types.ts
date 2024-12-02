@@ -1,23 +1,28 @@
 // --- types
-import type { ActorRef } from "xstate";
+import type { ActorRef, AnyEventObject } from "xstate";
 
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 // --------------------------------------------------------
-// ENUMS
+//
 
+export interface Recommendation {
+  id: string;
+  productId: string;
+  // ---
+  name?: any;
+  label?: any;
+  description?: any;
+}
 // --------------------------------------------------------
 // Contexts
 
 export interface RecommendationsEngineContext {
-  id: string;
-  clientId: string; //IClient["id"];
-  currencyId: string; //IProductPrice["currency_id"];
-  accountId: string; //IProductPrice["account_id"];
-  promotions: any[]; //IPromotion[];
-  // ---
+  model?: string[];
   lookups: {
-    products?: any;
+    recommendations?: Recommendation[];
+    seen?: Recommendation[];
+    added?: Recommendation[];
   };
   // ---
   error?: any;

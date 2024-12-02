@@ -5,38 +5,17 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basket/helper";
-import { authSubscription } from "../session";
 
 // --- utils
 import { useTime } from "../../utils";
-import { parseBasketItem } from "./utils";
-import {
-  compact,
-  concat,
-  defaultsDeep,
-  filter,
-  find,
-  first,
-  get,
-  has,
-  includes,
-  isEmpty,
-  map,
-  omit,
-  reduce,
-  reject,
-  set,
-  some,
-  uniqBy,
-  every,
-} from "lodash-es";
+import { parseBasketItem, parseRecommendations } from "./utils";
+import { defaultsDeep, remove, reduce, some, isEmpty } from "lodash-es";
 
 // --- types
+import type { IBasket } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 import type { BasketProduct } from "../basket";
-import type {
-  RecommendationsEngineContext,
-  RecommendationsEngineEvents,
-} from "./types";
+import type { RecommendationsEngineContext } from "./types";
 
 // --------------------------------------------------------
 
@@ -48,73 +27,65 @@ export default createMachine(
     context: {} as RecommendationsEngineContext,
     states: {
       subscribing: {
-        entry: ["setContext", "ensurePrimary", "persistModel", "clearLookups"],
+        entry: ["setContext", "clearLookups"],
         always: {
           target: "loading",
-          actions: ["setBasketHelper", "setAuthHelper"],
+          actions: ["setBasketHelper"],
         },
-      },
-
-      loading: {
-        entry: ["cancelController", "clearError"],
-        always: [
-          { target: "processing", cond: "hasSearchQuery" },
-          { target: "invalid" },
-        ],
-      },
-      // cancel any existing search via the controller then wait before starting a new search & controller
-      processing: {
-        id: "processing",
-        entry: ["clearError", "cancelController", "newController"],
-        invoke: {
-          src: "search",
-          onDone: {
-            target: "invalid",
-            actions: ["setSearchResults"],
-          },
-          onError: [
-            {
-              target: "error",
-              actions: ["setError"],
-              cond: "isNotCancelled",
-            },
-            {
-              actions: ["setError"],
-            },
-          ],
-        },
-      },
-      valid: {
-        type: "final",
-        always: [
-          {
-            target: "invalid",
-            cond: "isInvalid",
-            actions: assign({
-              error: "Invalid RecommendationsEngine",
-            }),
-          },
-        ],
-        on: {
-          SYNC: {
-            target: "syncing",
-            actions: ["syncBasket"],
-          },
-        },
-      },
-      invalid: {
-        always: [{ target: "valid", cond: "isValid" }],
-      },
-      // ---
-      syncing: {
         on: {
           REFRESH: {
             // do nothing
           },
-          SYNCED: { target: "complete", actions: ["synced"] },
+        },
+      },
+
+      loading: {
+        entry: ["cancelController", "clearError", "getBasket"],
+        on: {
+          REFRESH: [
+            {
+              target: "available",
+              actions: ["setLookups"],
+            },
+          ],
+          ERROR: {
+            target: "error",
+          },
+        },
+      },
+
+      available: {
+        always: {
+          target: "unavailable",
+          cond: "hasNoRecommendations",
+        },
+      },
+
+      unavailable: {
+        always: {
+          target: "processing",
+          cond: "hasRecommendations",
+        },
+      },
+
+      // cancel any existing search via the controller then wait before starting a new search & controller
+      processing: {
+        on: {
+          REFRESH: {
+            // do nothing
+          },
+          SYNCED: [
+            {
+              target: "available",
+              actions: ["synced"],
+              cond: "hasNewRecommendations",
+            },
+            { target: "complete", actions: ["synced"] },
+          ],
           ERROR: { actions: ["setError"] },
         },
       },
+
       error: {},
       // ---
       complete: {
@@ -124,51 +95,30 @@ export default createMachine(
     on: {
       ADD: [
         {
-          target: ".valid",
-          actions: ["add", "ensurePrimary"],
-          cond: "isValidRecommendationsEngine",
+          actions: ["add"],
+          cond: "isValid",
         },
       ],
+
       REMOVE: {
-        target: ".valid",
-        actions: ["remove", "ensurePrimary"],
+        actions: ["remove"],
         cond: "isValid",
-      },
-      UPDATE: {
-        target: ".valid",
-        actions: ["setModel", "ensurePrimary"],
-      },
-      SEARCH: [
-        {
-          target: ".loading",
-          actions: ["setSearchQuery"],
-          cond: "validSearchQuery",
-        },
-        {
-          actions: ["setSearchQuery"],
-        },
-      ],
-      "SEARCH.OFFSET": {
-        target: ".loading",
-        actions: ["setSearchOffset"],
-        cond: "validSearchOffset",
       },
 
       RESET: {
-        target: ".invalid",
-        actions: ["resetModel", "resetLookups", "clearSearch"],
+        actions: ["resetModel", "resetLookups"],
       },
 
       REFRESH: {
-        actions: ["setCurrency", "setPromotions"],
+        actions: ["setLookups"],
       },
 
+      SEEN: {
+        actions: ["setSeenLookups"],
+      },
       STOP: {
         target: "complete",
       },
-
-      AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
-      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
     },
   },
   {
@@ -177,11 +127,10 @@ export default createMachine(
         defaultsDeep(context, {
           model: [],
           lookups: {
-            products: [],
+            recommendations: [],
+            seen: [],
+            added: [],
           },
-          // ---
-          currencyId: undefined,
-          promotions: [],
           // ---
           controller: undefined,
           // ---
@@ -190,57 +139,26 @@ export default createMachine(
           basketHelper: undefined,
           itemBuilder: undefined,
           itemMapper: undefined,
-          basketItemBuilder: undefined,
           basketItemMapper: undefined,
         })
       ),
 
-      persistModel: assign({
-        // baseModel: ({ model }) => model,
-      }),
-
-      setCurrency: assign({
-        currencyId: (_context, { data }: any) => {
-          return data?.currency_id;
-        },
-      }),
-
-      setPromotions: assign({
-        promotions: (_context, { data }: any) => {
-          return data?.promotions;
-        },
-      }),
       // ---
-
-      setAuthHelper: assign(({ authHelper }: any) => {
-        authHelper || spawn(authSubscription);
-      }),
 
       setBasketHelper: assign(({ basketHelper }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
           itemBuilder: function (item: BasketProduct) {
+            debugger;
             return parseBasketItem(item);
           },
-          itemMapper: (item: BasketProduct) => ({
-            productId: item.productId,
-            sld: item?.provisionFields?.sld,
-          }),
-          basketItemBuilder: (item: any) => {
-            if (!item?.productId) return null;
+          itemMapper: (item: BasketProduct) => {
+            debugger;
             return {
               productId: item.productId,
-              quantity: 1,
-              term: {
-                cycle: item.cycle,
-              },
-              options: item.options,
-              attributes: item.attributes,
-              provisionFields: {
-                sld: item.sld,
-              },
             };
           },
+
           basketItemMapper: (item: BasketProduct) => ({
             productId: item.productId,
             "provisionFields.sld": item.provisionFields?.sld,
@@ -254,11 +172,13 @@ export default createMachine(
           // not all values might be products, eg an exiting RecommendationsEngine value,
           // so we need to filter out any non product values
           // and then map them to a be a basket item model
+          debugger;
           const products = reduce(
             context.model,
             (result: any[], item: any) => {
+              debugger;
               if (item?.productId) {
-                const model = context.basketItemBuilder(item);
+                const model = context.itemMapper(item);
                 result.push(model);
               }
               return result;
@@ -274,13 +194,20 @@ export default createMachine(
         }
       ),
 
+      getBasket: sendTo(
+        ({ basketHelper }: any, _event) => basketHelper,
+        (context, _event) => ({
+          type: "INIT",
+          context,
+        })
+      ),
+
       // ---
 
       synced: assign({}),
 
       // ---
 
-      // @ts-ignore
       add: assign({
         // model: (
         //   { model, lookups, type }: RecommendationsEngineContext,
@@ -308,7 +235,6 @@ export default createMachine(
         // },
       }),
 
-      // @ts-ignore
       remove: assign({
         // model: (
         //   { model }: RecommendationsEngineContext,
@@ -317,8 +243,6 @@ export default createMachine(
       }),
 
       // ---
-
-      // @ts-ignore
       setModel: assign({
         // model: ({ model, lookups, type }: any, { data }: AddEvent) =>
         //   reduce(
@@ -361,137 +285,107 @@ export default createMachine(
       }),
 
       resetModel: assign({
-        // model: ({ baseModel }, _event) => {
-        //   return baseModel;
-        // },
+        model: (
+          _context: RecommendationsEngineContext,
+          _event: AnyEventObject
+        ) => {
+          return [];
+        },
       }),
 
       cancelController: assign({
-        // @ts-ignore
-        controller: ({ controller }) => {
+        controller: (
+          { controller }: RecommendationsEngineContext,
+          _event: AnyEventObject
+        ) => {
           if (controller?.signal && !controller.signal?.aborted) {
             controller?.abort();
           }
-          return null;
+          return undefined;
         },
       }),
 
-      newController: assign({
-        controller: () => {
-          return new AbortController();
-        },
-      }),
-
-      setSearchQuery: assign({
-        // @ts-ignore
-        search: ({ search }, { data }) => {
+      clearLookups: assign({
+        lookups: (
+          _context: RecommendationsEngineContext,
+          _event: AnyEventObject
+        ) => {
           return {
-            query: data,
-            offset: 0,
-            limit: search?.limit,
-            total: 0,
+            recommendations: [],
+            seen: [],
+            added: [],
           };
         },
       }),
 
-      setSearchOffset: assign({
-        // search: ({ search }: any, _event) => {
-        //   search.offset += search?.limit;
-        //   return search;
-        // },
-      }),
-
-      clearSearch: assign({
-        search: ({ search }: any, _event) => ({
-          query: "",
-          offset: 0,
-          limit: search.limit,
-          total: 0,
-        }),
-        lookups: ({ lookups }) => {
-          // lookups.history = [];
-          lookups.search = [];
-          return lookups;
-        },
-      }),
-
-      setSearchResults: assign({
-        lookups: ({ lookups, model, search }: any, { data }: any) => {
-          const previous = search.offset > 0 ? lookups.searched : [];
-
-          const available = map(data?.available, item => {
-            item.value = item.RecommendationsEngine;
-            item.isOwned = some(lookups.owned, [
-              "RecommendationsEngine",
-              item.RecommendationsEngine,
-            ]);
-            item.inBasket = some(lookups.basket, [
-              "RecommendationsEngine",
-              item.RecommendationsEngine,
-            ]);
-            item.disabled = item.isOwned || item.inBasket;
-            return item;
-          });
-
-          const persisted = filter(
-            lookups.history,
-            ({ RecommendationsEngine }) =>
-              some(model, ["RecommendationsEngine", RecommendationsEngine])
+      setLookups: assign({
+        lookups: (
+          { lookups }: RecommendationsEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          debugger;
+          const recommendations = parseRecommendations(data as IBasket);
+          debugger;
+          const added = remove(recommendations, ({ productId }) =>
+            some(data.products, ["productId", productId])
           );
-
-          set(
-            lookups,
-            "searched",
-            uniqBy(
-              compact(concat(persisted, previous, available)),
-              "RecommendationsEngine"
-            )
+          debugger;
+          const available = remove(recommendations, ({ productId }) =>
+            some(lookups.seen, ["productId", productId])
           );
+          debugger;
 
-          // store all previous searches
-          set(
-            lookups,
-            "history",
-            uniqBy(
-              compact(concat(lookups.history, available)),
-              "RecommendationsEngine"
-            )
-          );
-
-          return lookups;
-        },
-        search: ({ search }, { data }) => {
-          search.total = data.total;
-          return search;
-        },
-        controller: null,
-      }),
-
-      clearLookups: assign({
-        // @ts-ignore
-        lookups: (_context: any, _event: any) => {
+          debugger;
           return {
-            searched: [],
-            history: [],
-            owned: [],
-            basket: [],
+            recommendations: available,
+            added,
+            seen: lookups.seen ?? [], // persist any seen Recommendations
+          };
+        },
+      }),
+
+      setSeenLookups: assign({
+        lookups: (
+          { lookups }: RecommendationsEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          debugger;
+
+          // if data is empty assume weve seen ALL recommendations,
+          //  otherwise if specified, move only the provided to the seen Recommendations
+          const seen = isEmpty(data)
+            ? (lookups.recommendations ?? [])
+            : remove(lookups.recommendations ?? [], ({ productId }) =>
+                some(data.products, ["productId", productId])
+              );
+
+          debugger;
+          return {
+            recommendations: lookups.recommendations ?? [],
+            added: lookups.added ?? [],
+            seen,
           };
         },
       }),
 
       resetLookups: assign({
-        lookups: ({ lookups }: any, _event: any) => {
+        lookups: (
+          { lookups }: RecommendationsEngineContext,
+          _event: AnyEventObject
+        ) => {
           return {
-            searched: [],
-            history: [],
-            owned: lookups.owned,
-            basket: lookups.basket,
+            seen: [],
+            recommendations: lookups?.recommendations,
+            added: lookups?.added,
           };
         },
       }),
 
       setError: assign({
-        error: (_context, _event) => {
+        error: (
+          _context: RecommendationsEngineContext,
+          _event: AnyEventObject
+        ) => {
           // addError({
           //   title: data?.title || "We experienced an error getting RecommendationsEngine",
           //   copy: data?.message,
@@ -505,28 +399,27 @@ export default createMachine(
     },
 
     guards: {
-      hasSearchQuery: ({ search }: any, _event) => {
-        // @ts-ignore
-        return data?.length > 2;
-      },
-      validSearchQuery: (_context, { data }) => {
-        // @ts-ignore
-        return data?.length >= 2;
-      },
-      validSearchOffset: ({ search }: any, _event) => {
-        const offset = search.offset + search.limit;
-        return offset < search.total;
-      },
+      isNotCancelled: (
+        _context: RecommendationsEngineContext,
+        { data }: AnyEventObject
+      ) => data?.name !== "AbortError",
 
-      isNotCancelled: (_context, { data }: any) => data?.name !== "AbortError",
+      hasRecommendations: (
+        { lookups }: RecommendationsEngineContext,
+        _event: AnyEventObject
+      ) => !isEmpty(lookups.recommendations),
+
+      hasNoRecommendations: (
+        { lookups }: RecommendationsEngineContext,
+        _event: AnyEventObject
+      ) => isEmpty(lookups.recommendations),
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    services: services as any,
+    services,
   }
 );

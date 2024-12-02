@@ -119,8 +119,25 @@ async function sync(items: any, context: any, basket: any) {
 
 export function basketSubscription(callback: any, onReceive: any) {
   const basket = useBasket();
+
+  // lets let our subscriber know when the basket has been refreshed
+  basket.service.onTransition(state => {
+    if (state.matches("refreshing.complete")) {
+      callback({ type: "REFRESH", data: state.context?.basket });
+    }
+  });
+
   onReceive((event: any) => {
     switch (event.type) {
+      case "INIT":
+      case "REFRESH":
+        callback({
+          type: "REFRESH",
+          data: basket.getSnapshot()?.context?.basket,
+        });
+
+        break;
+
       case "FETCH":
         fetch(event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))
