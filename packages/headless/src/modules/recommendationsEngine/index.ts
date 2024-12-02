@@ -5,32 +5,25 @@ import { interpret } from "xstate";
 import recommendationsEngine from "./recommendationsEngine.machine";
 export * from "./types";
 // --- utils
-import { useBasket } from "..";
+
+// --------------------------------------------------------
+// create a global instance of the basket machine
+// and a global object to store state
+// NB dont automatically start the machine as in order for the inspector to work
+// it needs to be started after the inspect service is created, so we only start it when we need it
+
+// @ts-ignore
+const service = interpret(recommendationsEngine, { devTools: true });
 
 // --------------------------------------------------------
 
-export const useRecommendationsEngine = (productId: string) => {
-  // --------------------------------------------------------
-  // create a new instance of the  recommendationsEngine machine
-
-  // ---
-  const context = {
-    productId,
-  };
-
-  // @ts-ignore
-  const service = interpret(recommendationsEngine.withContext(context), {
-    devTools: true,
-  }).start();
-
-  // --------------------------------------------------------
-
+export const useRecommendationsEngine = () => {
   // --------------------------------------------------------
 
   return {
-    service, // allow for interpreting the machine + inspecting it
+    service: service.start(),
+    getSnapshot: () => service.getSnapshot(),
     // ---
-    getSnapshot: service.getSnapshot,
     destroy: () => service.stop(),
   };
 };
