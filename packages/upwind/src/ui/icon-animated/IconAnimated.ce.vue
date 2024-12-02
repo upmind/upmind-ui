@@ -54,6 +54,14 @@ const primaryHex = computed(() => getComputedColor(props.primaryColor));
 const secondaryHex = computed(() => getComputedColor(props.secondaryColor));
 
 function getComputedColor(className: string) {
+  const cssVar = getComputedStyle(document.documentElement)
+    .getPropertyValue(`--color-${className}`)
+    .trim();
+
+  if (cssVar) {
+    return cssVar;
+  }
+
   const tempElement = document.createElement("div");
   tempElement.className = "text-" + className;
   document.body.appendChild(tempElement);
