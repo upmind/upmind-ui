@@ -1,16 +1,15 @@
+// --- internal
+import { parseBasketProductModel } from "../product/utils";
+
 // --- utils
-import { get, reduce, map, isEmpty, sortBy } from "lodash-es";
+import { get, reduce, uniqBy, isEmpty, sortBy } from "lodash-es";
+import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types
-import type { BasketProduct } from "../basket";
 import { ProductTypes } from "@upmind-automation/types";
-import type {
-  IBasket,
-  IBasketProduct,
-  IRelatedObject,
-} from "@upmind-automation/types";
-import { useTranslateField, useTranslateName } from "../../utils";
-import type { Recommendation } from "./types";
+import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+import type { BasketProduct } from "../basket";
+import type { Recommendation, RelatedProduct } from "./types";
 // ---------------------------------------------------------------------------
 export function parseBasketItem(data: BasketProduct) {
   // TODO: implement
@@ -50,15 +49,22 @@ export function parseRecommendations(raw: IBasket): Recommendation[] {
 
       const recommendations = reduce(
         sortBy(item?.product?.related, "order"),
-        (resultRelated: Recommendation[], related: IRelatedObject) => {
+        (resultRelated: Recommendation[], related: RelatedProduct) => {
           if (!related.active) return resultRelated;
+
+          const model = parseBasketProductModel(related);
 
           resultRelated.push({
             id: related.product_id, // this is the productId that forms the basis of the recommendation, is the sou
             productId: related.object_id, // this is the productId that is recommended
-            name: useTranslateName(related),
+            name:
+              useTranslateName(related) || useTranslateName(related.product),
             label: useTranslateField(related, "label"),
-            description: useTranslateField(related, "description") || "",
+            description:
+              useTranslateField(related, "description") ||
+              useTranslateField(related.product, "description") ||
+              "",
+            model,
           });
 
           return resultRelated;
@@ -68,7 +74,7 @@ export function parseRecommendations(raw: IBasket): Recommendation[] {
 
       if (!isEmpty(recommendations)) result.push(...recommendations);
 
-      return result;
+      return uniqBy(result, "productId");
     },
     []
   );

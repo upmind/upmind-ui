@@ -65,6 +65,7 @@ export const useDomain = (
       const basketPromotions =
         promotionsActor?.getSnapshot()?.context?.model?.promotions;
 
+      const basketProducts = state.context?.products || [];
       // ---
       //  only refresh if the currency or promotions have changed
       const { currency, promotions } = service.getSnapshot().context;
@@ -77,6 +78,7 @@ export const useDomain = (
           data: {
             currency: basketCurrency,
             promotions: basketPromotions,
+            products: basketProducts,
           },
         });
       }
