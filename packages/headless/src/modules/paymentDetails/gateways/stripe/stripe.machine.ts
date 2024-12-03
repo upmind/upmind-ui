@@ -373,9 +373,10 @@ export default createMachine(
           } else {
             error = error || data;
 
-            return filter(
-              error,
-              e => !e.title?.toLowerCase().includes("element")
+            return filter(error, e =>
+              typeof e.title === "string"
+                ? !e.title.toLowerCase().includes("element")
+                : false
             );
           }
         },
