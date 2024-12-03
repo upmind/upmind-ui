@@ -52,20 +52,35 @@
         @update:modelValue="input"
         no-actions
       />
+
+      <Alert
+        v-if="!isEmpty(getErrors)"
+        color="error"
+        icon="alert-triangle"
+        :title="t('payment.failed')"
+      >
+        <div class="mt-2 text-sm">
+          <li v-for="error in getErrors" :key="error.title" class="my-0 py-0">
+            {{ error.title }}
+          </li>
+        </div>
+      </Alert>
     </transition-group>
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, watch, ref } from "vue";
+import { onMounted, watch, ref, computed } from "vue";
+import { isEmpty } from "lodash-es";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind-automation/client-vue";
 import { Markdown } from "@upmind-automation/upwind";
 
 // --- components
-import { Form, Spinner } from "@upmind-automation/upwind";
+import { Form, Spinner, Alert } from "@upmind-automation/upwind";
 
 // --- types
 // import { GatewayProviderCodes, GatewayTypes } from "@upmind-automation/headless";
@@ -89,6 +104,8 @@ const {
   instructions,
 } = useBasketPaymentGateway();
 
+const { t } = useI18n();
+
 const container = ref();
 // wait till we mount then try to render the gateway if it's provided
 // otherwise watch in case it's provided later
@@ -101,5 +118,16 @@ onMounted(() => {
       if (err) console.error(err);
     });
   });
+});
+
+const getErrors = computed(() => {
+  try {
+    return errors.value?.filter(
+      (error: { title: string }) =>
+        !error.title.toLowerCase().includes("element")
+    );
+  } catch (err) {
+    return [];
+  }
 });
 </script>

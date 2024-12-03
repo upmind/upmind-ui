@@ -80,6 +80,7 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
     url: useUrl("orders/current", {
       with: [
         "address",
+        "address.country",
         "currency",
         "custom_fields.field",
         "promotions",

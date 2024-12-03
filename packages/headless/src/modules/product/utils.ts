@@ -214,7 +214,6 @@ export const parseSubproduct = (
         excerpt: useTranslateField(rawSubproduct, "short_description"),
         // ---
         quantifiable: rawSubproduct.order_type == 2,
-        cycle: rawSubproduct.billing_cycle_months,
         step: rawSubproduct.unit_quantity || 1,
         min: rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity,
         max:
@@ -255,7 +254,11 @@ export const parseSubproduct = (
         find(value.prices, ["cycle", 0]) ||
         find(value.prices, ["cycle", cycle]);
 
+      // ensure we set the cycle to the price cycle
+      value.cycle = value?.price?.cycle ?? rawSubproduct.billing_cycle_months;
+
       values.push(value);
+
       set(option, "values", values);
 
       // finally  set the updated option

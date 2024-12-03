@@ -310,15 +310,18 @@ export default createMachine(
           currency: data?.currency.code.toLowerCase(), // NB: MUST be lowercase
         });
 
-        element.update({
-          defaultValues: {
-            billingDetails: {
-              address: {
-                postal_code: data.address?.postcode,
+        if (data.address) {
+          element.update({
+            defaultValues: {
+              billingDetails: {
+                address: {
+                  postal_code: data.address?.postcode,
+                  country: data.address?.country?.code,
+                },
               },
             },
-          },
-        });
+          });
+        }
       },
 
       // ---
