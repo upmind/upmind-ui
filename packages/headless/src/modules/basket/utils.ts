@@ -172,8 +172,8 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       name: useTranslateName(raw?.product),
       serviceIdentifier: raw?.service_identifier,
       category: useTranslateName(raw?.product?.category),
-      description: useTranslateField(raw, "description"),
-      excerpt: useTranslateField(raw, "short_description"),
+      description: useTranslateField(raw, "product.description"),
+      excerpt: useTranslateField(raw, "product.short_description"),
       id: raw?.product_id,
       imgUrl: raw?.product?.image?.full_url,
       // meta: raw?.product?.meta,// TODO get/use product meta from API
