@@ -54,13 +54,13 @@
       />
 
       <Alert
-        v-if="!isEmpty(getErrors)"
+        v-if="!isEmpty(uierrors)"
         color="error"
         icon="alert-triangle"
         :title="t('payment.failed')"
       >
         <div class="mt-2 text-sm">
-          <li v-for="error in getErrors" :key="error.title" class="my-0 py-0">
+          <li v-for="error in uierrors" :key="error.title" class="my-0 py-0">
             {{ error.title }}
           </li>
         </div>
@@ -71,7 +71,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, watch, ref, computed } from "vue";
+import { onMounted, watch, ref } from "vue";
 import { isEmpty } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
@@ -93,6 +93,7 @@ const props = defineProps<{
 const {
   meta,
   errors,
+  uierrors,
   model,
   schema,
   uischema,
@@ -118,16 +119,5 @@ onMounted(() => {
       if (err) console.error(err);
     });
   });
-});
-
-const getErrors = computed(() => {
-  try {
-    return errors.value?.filter(
-      (error: { title: string }) =>
-        !error.title.toLowerCase().includes("element")
-    );
-  } catch (err) {
-    return [];
-  }
 });
 </script>

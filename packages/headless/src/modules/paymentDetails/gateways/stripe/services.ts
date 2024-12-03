@@ -6,9 +6,10 @@ import { useApi, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
-import { useValidation } from "../../../../utils";
+import { useValidation, useValidationParser } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
-import { reject, set } from "lodash-es";
+import { reject, set, filter } from "lodash-es";
+import { responseCodes } from "../../../api";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types";
@@ -249,6 +250,21 @@ async function createAddElement(
   });
 }
 
+function processError(data: any) {
+  let error = data?.error;
+  if (error?.code == responseCodes.Unprocessable_Entity) {
+    error = useValidationParser(error);
+  }
+  return error || data;
+}
+
+function processUiErrors(data: any) {
+  return filter(
+    processError(data),
+    error => !error.title?.toLowerCase().includes("element")
+  );
+}
+
 /**
  * @name confirmSetup
  * @desc Here we confirm the setup of a new detail using the Stripe SDK. We
@@ -267,6 +283,7 @@ async function endSetup() {}
 
 // --------------------------------------------------------
 // EXPORTS
+
 export default {
   load,
   parse: sharedServices.parse,
@@ -278,4 +295,6 @@ export default {
   confirmSetup,
   endSetup,
   update,
+  processError,
+  processUiErrors,
 };
