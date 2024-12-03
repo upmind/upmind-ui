@@ -21,6 +21,7 @@
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :edit-link="editLink"
+          :taxes="meta.hasTaxIncluded"
           @update:quantity="updateQuantity"
         />
       </div>

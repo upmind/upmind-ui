@@ -28,6 +28,7 @@ export interface BasketProductSummaryProps {
   primary: boolean;
   processing: boolean;
   loading: boolean;
+  taxes: boolean;
   editLink: RouteLocationRaw;
 }
 

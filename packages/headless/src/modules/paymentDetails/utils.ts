@@ -174,7 +174,7 @@ export function spawnGateway({
     });
   }
   if (isStripe(gateway))
-    return spawnStripe({ basketId, gateway, amount, currency });
+    return spawnStripe({ basketId, gateway, amount, currency, address });
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       basketId,

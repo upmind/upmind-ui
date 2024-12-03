@@ -9,6 +9,7 @@
   />
 </template>
 
+<span class="text-icon-primary text-icon-secondary hidden" />
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
@@ -23,8 +24,6 @@ import type { AnimatedIconProps } from "./types";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
-  primaryColor: "primary",
-  secondaryColor: "secondary",
   delay: 1000,
   // ---
   size: "md",
@@ -50,10 +49,18 @@ const iconSrc = computed(
   () => new URL(`../../assets/animations/${props.icon}.json`, import.meta.url)
 );
 
-const primaryHex = computed(() => getComputedColor(props.primaryColor));
-const secondaryHex = computed(() => getComputedColor(props.secondaryColor));
+const primaryHex = computed(() => getComputedColor("icon-primary"));
+const secondaryHex = computed(() => getComputedColor("icon-secondary"));
 
 function getComputedColor(className: string) {
+  const cssVar = getComputedStyle(document.documentElement)
+    .getPropertyValue(`--color-${className}`)
+    .trim();
+
+  if (cssVar) {
+    return cssVar;
+  }
+
   const tempElement = document.createElement("div");
   tempElement.className = "text-" + className;
   document.body.appendChild(tempElement);
