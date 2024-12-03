@@ -250,19 +250,16 @@ async function createAddElement(
   });
 }
 
+function filterErrors(data: any) {
+  return filter(data, error => !error.title?.toLowerCase().includes("element"));
+}
+
 function processError(data: any) {
   let error = data?.error;
   if (error?.code == responseCodes.Unprocessable_Entity) {
     error = useValidationParser(error);
   }
-  return error || data;
-}
-
-function processUiErrors(data: any) {
-  return filter(
-    processError(data),
-    error => !error.title?.toLowerCase().includes("element")
-  );
+  return filterErrors(error || data);
 }
 
 /**
@@ -296,5 +293,4 @@ export default {
   endSetup,
   update,
   processError,
-  processUiErrors,
 };
