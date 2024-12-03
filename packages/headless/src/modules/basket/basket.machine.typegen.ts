@@ -101,9 +101,12 @@ export interface Typegen0 {
     forwardCheckout: "CHECKOUT";
     refreshActors:
       | "REFRESH"
+      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
       | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
       | "done.invoke.generating:invocation[0]";
-    refreshItems: "done.invoke.generating:invocation[0]";
+    refreshItems:
+      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]"
+      | "done.invoke.generating:invocation[0]";
     setError:
       | "done.invoke.basketManager.loading.basket:invocation[0]"
       | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
@@ -123,10 +126,6 @@ export interface Typegen0 {
     setPayment: "done.invoke.payment";
     setPaymentDetails: "PAYMENT_DETAILS";
     spawnActors: "done.invoke.basketManager.loading.basket:invocation[0]";
-    spawnItems:
-      | "done.invoke.basketManager.loading.basket:invocation[0]"
-      | "done.invoke.basketManager.shopping.account.claiming:invocation[0]"
-      | "done.invoke.basketManager.shopping.refreshing.processing:invocation[0]";
     trackPayment: "done.invoke.payment";
     updateBasket:
       | "REFRESH"
@@ -141,21 +140,20 @@ export interface Typegen0 {
     billingConfiguring: "";
     currencyComplete: "";
     currencyConfiguring: "";
-    custom_fieldsComplete: "";
-    custom_fieldsConfiguring: "";
+    customFieldsComplete: "";
+    customFieldsConfiguring: "";
+    hasItems: "";
     hasNewBasket: "REFRESH";
     hasNoBasket: "ADD";
     hasNoItems: "";
     hasPaymentDetails: "";
     isNotLoading: "";
-    itemsConfigured: "";
     paymentDetailsComplete: "PAYMENT_DETAILS";
     paymentDetailsConfiguring: "";
     paymentDetailsValid: "";
     paymentNeeded: "done.invoke.converting:invocation[0]";
     promotionsComplete: "";
     promotionsConfiguring: "";
-    someConfiguring: "";
   };
   eventsCausingServices: {
     authSubscription:
@@ -195,24 +193,23 @@ export interface Typegen0 {
     | "shopping.account.claiming"
     | "shopping.account.complete"
     | "shopping.account.configuring"
-    | "shopping.billing_details"
-    | "shopping.billing_details.complete"
-    | "shopping.billing_details.configuring"
+    | "shopping.billingDetails"
+    | "shopping.billingDetails.complete"
+    | "shopping.billingDetails.configuring"
     | "shopping.currency"
     | "shopping.currency.complete"
     | "shopping.currency.configuring"
-    | "shopping.custom_fields"
-    | "shopping.custom_fields.complete"
-    | "shopping.custom_fields.configuring"
-    | "shopping.items"
-    | "shopping.items.complete"
-    | "shopping.items.configuring"
-    | "shopping.items.empty"
-    | "shopping.payment_details"
-    | "shopping.payment_details.available"
-    | "shopping.payment_details.complete"
-    | "shopping.payment_details.configuring"
-    | "shopping.payment_details.processing"
+    | "shopping.customFields"
+    | "shopping.customFields.complete"
+    | "shopping.customFields.configuring"
+    | "shopping.products"
+    | "shopping.products.complete"
+    | "shopping.products.configuring"
+    | "shopping.paymentDetails"
+    | "shopping.paymentDetails.available"
+    | "shopping.paymentDetails.complete"
+    | "shopping.paymentDetails.configuring"
+    | "shopping.paymentDetails.processing"
     | "shopping.promotions"
     | "shopping.promotions.complete"
     | "shopping.promotions.configuring"
@@ -224,20 +221,20 @@ export interface Typegen0 {
         loading?: "actors" | "basket";
         shopping?:
           | "account"
-          | "billing_details"
+          | "billingDetails"
           | "currency"
-          | "custom_fields"
+          | "customFields"
           | "items"
-          | "payment_details"
+          | "paymentDetails"
           | "promotions"
           | "refreshing"
           | {
               account?: "checking" | "claiming" | "complete" | "configuring";
-              billing_details?: "complete" | "configuring";
+              billingDetails?: "complete" | "configuring";
               currency?: "complete" | "configuring";
-              custom_fields?: "complete" | "configuring";
-              items?: "complete" | "configuring" | "empty";
-              payment_details?:
+              customFields?: "complete" | "configuring";
+              items?: "complete" | "configuring";
+              paymentDetails?:
                 | "available"
                 | "complete"
                 | "configuring"

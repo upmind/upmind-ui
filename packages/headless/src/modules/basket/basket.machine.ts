@@ -12,7 +12,7 @@ const { addError, addSuccess, trackEvent } = useFeedback();
 import { useTime } from "../../utils";
 import {
   parseBasket,
-  parseBasketProvisioningErrors,
+  parseBasketProduct,
   parseSummary,
   spawnBillingDetails,
   spawnCurrency,
@@ -24,16 +24,14 @@ import {
 
 import {
   every,
-  find,
-  findIndex,
   forEach,
+  get,
   includes,
   isEmpty,
   isEqual,
   isNil,
   map,
-  some,
-  differenceBy,
+  set,
 } from "lodash-es";
 
 // --- types
@@ -58,12 +56,13 @@ export default createMachine(
       address: undefined,
       // ---
       items: [],
+      products: [],
       // ---
       actors: {
-        billing_details: undefined,
+        billingDetails: undefined,
         currency: undefined,
-        custom_fields: undefined,
-        payment_details: undefined,
+        customFields: undefined,
+        paymentDetails: undefined,
         promotions: undefined,
       },
 
@@ -110,7 +109,7 @@ export default createMachine(
           },
 
           actors: {
-            entry: ["spawnItems", "spawnActors"],
+            entry: ["spawnActors"],
             always: [
               {
                 target: "#shopping",
@@ -158,7 +157,7 @@ export default createMachine(
                     actions: [
                       "setError",
                       "updateBasket",
-                      "spawnItems",
+                      "refreshItems",
                       "refreshActors",
                     ],
                   },
@@ -191,7 +190,7 @@ export default createMachine(
                   src: "load",
                   onDone: {
                     target: ["complete", "#refreshing.processing"],
-                    actions: ["setError", "updateBasket", "spawnItems"],
+                    actions: ["setError", "updateBasket", "refreshActors"],
                   },
                   onError: {
                     target: "#error",
@@ -208,30 +207,16 @@ export default createMachine(
             },
           },
 
-          items: {
+          products: {
             initial: "configuring",
             states: {
-              empty: {
-                always: [
-                  { target: "configuring", cond: "someConfiguring" },
-                  { target: "complete", cond: "itemsConfigured" },
-                ],
-              },
-
               configuring: {
                 id: "configuring",
-                always: [
-                  { target: "empty", cond: "hasNoItems" },
-                  { target: "complete", cond: "itemsConfigured" },
-                ],
+                always: { target: "complete", cond: "hasProducts" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
-                always: [
-                  { target: "empty", cond: "hasNoItems" },
-                  { target: "configuring", cond: "someConfiguring" },
-                ],
+                always: [{ target: "configuring", cond: "hasNoProducts" }],
                 type: "final",
               },
             },
@@ -244,7 +229,6 @@ export default createMachine(
                 always: { target: "complete", cond: "currencyComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [
                   { target: "configuring", cond: "currencyConfiguring" },
@@ -261,7 +245,6 @@ export default createMachine(
                 always: { target: "complete", cond: "promotionsComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [
                   { target: "configuring", cond: "promotionsConfiguring" },
@@ -271,31 +254,29 @@ export default createMachine(
             },
           },
 
-          custom_fields: {
+          customFields: {
             initial: "configuring",
             states: {
               configuring: {
-                always: { target: "complete", cond: "custom_fieldsComplete" },
+                always: { target: "complete", cond: "customFieldsComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [
-                  { target: "configuring", cond: "custom_fieldsConfiguring" },
+                  { target: "configuring", cond: "customFieldsConfiguring" },
                 ],
                 type: "final",
               },
             },
           },
 
-          billing_details: {
+          billingDetails: {
             initial: "configuring",
             states: {
               configuring: {
                 always: { target: "complete", cond: "billingComplete" },
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               complete: {
                 always: [{ target: "configuring", cond: "billingConfiguring" }],
                 type: "final",
@@ -303,14 +284,13 @@ export default createMachine(
             },
           },
 
-          payment_details: {
+          paymentDetails: {
             initial: "configuring",
             states: {
               configuring: {
                 always: [{ target: "available", cond: "paymentDetailsValid" }],
               },
 
-              // items are 'complete' only when they have been successfully added to the basket
               available: {
                 always: [
                   { target: "configuring", cond: "paymentDetailsConfiguring" },
@@ -331,7 +311,7 @@ export default createMachine(
                   CANCEL: {
                     target: "configuring",
                   },
-                  // response from the payment_details machine = we are ready to convert
+                  // response from the paymentDetails machine = we are ready to convert
                   PAYMENT_DETAILS: {
                     target: "complete",
                     actions: "setPaymentDetails",
@@ -355,10 +335,10 @@ export default createMachine(
       },
 
       // We are now ready to accept payment as all the shopping details are complete
-      // We will trigger checkout event to the payment_details machine
+      // We will trigger checkout event to the paymentDetails machine
       // Which in turn will forward it to the payment_gateway machine
-      // The payment_gateway machine will then run its process and when complete will return the Payload back to the payment_details machine
-      // The payment_details machine will then Parse and return the response back to the basket machine
+      // The payment_gateway machine will then run its process and when complete will return the Payload back to the paymentDetails machine
+      // The paymentDetails machine will then Parse and return the response back to the basket machine
       // This will trigger the Convert service, which will then process the order
       checkout: {
         id: "checkout",
@@ -445,7 +425,6 @@ export default createMachine(
         { actions: ["addItem"] },
       ],
       CLEAR: {
-        target: "#shopping.items.empty",
         actions: ["clearItems"],
       },
       // ---
@@ -457,7 +436,6 @@ export default createMachine(
           cond: "hasNewBasket",
         },
         {
-          // actions: ["refreshItems"],
           target: "#refreshing.processing",
         },
       ],
@@ -474,14 +452,33 @@ export default createMachine(
       updateBasket: assign({
         basket: (_context: BasketContext, { data }: BasketEvent) =>
           parseBasket(data),
-        summary: (_context: BasketContext, { data }: BasketEvent) =>
-          parseSummary(parseBasket(data)),
+        error: ({ error }: BasketContext, { data }: BasketEvent) => {
+          error ??= {}; // safety check
+          set(error, "provisioningErrors", get(data, "provisioningErrors"));
+          return error;
+        },
+        products: (_context: BasketContext, { data }: BasketEvent) => {
+          const basket = parseBasket(data);
+          const products = get(basket, "products", []);
+          const provisioningErrors = get(data, "provisioningErrors");
+          return map(products, product =>
+            parseBasketProduct(product, provisioningErrors)
+          );
+        },
+        summary: (_context: BasketContext, { data }: BasketEvent) => {
+          const provisioningErrors = get(data, "provisioningErrors");
+          return parseSummary(parseBasket(data), provisioningErrors);
+        },
       }),
 
       clearBasket: assign({
         basket: undefined,
-        summary: parseSummary(),
+        products: undefined,
+        summary: undefined,
         error: undefined,
+        paymentDetails: undefined,
+        payment: undefined,
+        invoice: undefined,
       }),
 
       setPaymentDetails: assign({
@@ -505,10 +502,10 @@ export default createMachine(
             if (!actor?.state?.done && actor?.stop) actor.stop();
           });
           return {
-            billing_details: undefined,
+            billingDetails: undefined,
             currency: undefined,
-            custom_fields: undefined,
-            payment_details: undefined,
+            customFields: undefined,
+            paymentDetails: undefined,
             promotions: undefined,
           };
         },
@@ -547,10 +544,10 @@ export default createMachine(
       spawnActors: assign({
         actors: ({ actors, basket }) => {
           // only spawn if we have not already spawned
-          actors.billing_details ??= spawnBillingDetails(basket);
+          actors.billingDetails ??= spawnBillingDetails(basket);
           actors.currency ??= spawnCurrency(basket);
-          actors.custom_fields ??= spawnCustomFields(basket);
-          actors.payment_details ??= spawnPaymentDetails(basket);
+          actors.customFields ??= spawnCustomFields(basket);
+          actors.paymentDetails ??= spawnPaymentDetails(basket);
           actors.promotions ??= spawnPromotions(basket);
 
           return actors;
@@ -566,30 +563,6 @@ export default createMachine(
         });
       }),
 
-      // @ts-ignore
-      refreshItems: assign({
-        items: ({ basket, items }: any) => {
-          forEach(items, actor => {
-            if (actor?.send && !actor?.state?.done) {
-              actor.send({
-                type: "REFRESH",
-
-                data: {
-                  // basket_product: product,
-                  id: basket?.id,
-                  currency_id: basket?.currency_id,
-                  promotions: basket?.promotions || [],
-                },
-              });
-            } else {
-              // remove(items, actor);
-            }
-          });
-
-          return items;
-        },
-      }),
-
       clearActors: assign({
         actors: ({ actors }: any) => {
           forEach(actors, actor => {
@@ -599,10 +572,10 @@ export default createMachine(
           });
 
           return {
-            billing_details: undefined,
+            billingDetails: undefined,
             currency: undefined,
-            custom_fields: undefined,
-            payment_details: undefined,
+            customFields: undefined,
+            paymentDetails: undefined,
             promotions: undefined,
           };
         },
@@ -610,72 +583,10 @@ export default createMachine(
 
       forwardCheckout: pure(({ actors }): any => {
         // for Now  only the payment details is affected by checkout
-        actors?.payment_details?.send({ type: "CHECKOUT" });
+        actors?.paymentDetails?.send({ type: "CHECKOUT" });
       }),
 
       // --- Configuring Items Actions
-
-      spawnItems: assign({
-        items: ({ items, error }: BasketContext, { data }) => {
-          const basket = parseBasket(data);
-          const products = basket?.products || [];
-          const newItems: any[] = [];
-
-          // First Refresh any existing items ...
-          // Refresh and that are still in active state
-          // Remove any items that are done or whos basket_product ids are no longer in the basket
-          forEach(items, (item, index) => {
-            const product = find(products, ["id", item?.id]);
-            const errorExternal = parseBasketProvisioningErrors(error, index);
-            if (item.getSnapshot()?.done) {
-              // do nothing
-            } else if (product) {
-              newItems.push(item);
-              item.send({
-                type: "REFRESH",
-                data: {
-                  basket_product: product,
-                  error: errorExternal,
-                  // ---
-                  id: basket?.id,
-                  currency_id: basket?.currency_id,
-                  promotions: basket?.promotions || [],
-                },
-              });
-            } else if (!isEmpty(item.getSnapshot()?.context?.basket_product)) {
-              if (item?.stop) item.stop();
-            } else {
-              newItems.push(item);
-              item.send({
-                type: "REFRESH",
-                data: {
-                  id: basket?.id,
-                  currency_id: basket?.currency_id,
-                  promotions: basket?.promotions || [],
-                },
-              });
-            }
-          });
-
-          // ---
-          // finally add any new items
-          // @ts-ignore
-          const missing = differenceBy(products, items, "id");
-          forEach(missing, (product: any) => {
-            const index = findIndex(products, ["id", product?.id]);
-            const errorExternal = parseBasketProvisioningErrors(error, index);
-            const item = spawnProductConfiguration(
-              product,
-              basket,
-              errorExternal
-            );
-
-            newItems.push(item);
-          });
-
-          return newItems;
-        },
-      }),
 
       addItem: assign({
         items: ({ items, basket }, { data }) => {
@@ -683,6 +594,33 @@ export default createMachine(
 
           items.push(machine);
           return items;
+        },
+      }),
+
+      // @ts-ignore
+      refreshItems: assign({
+        items: ({ basket, items }: any) => {
+          const newItems: ActorRef<any, any>[] = [];
+
+          forEach(items, actor => {
+            if (!actor?.state?.done) {
+              newItems.push(actor);
+
+              actor.send({
+                type: "REFRESH",
+
+                data: {
+                  id: basket?.id,
+                  currencyId: basket?.currency_id,
+                  promotions: map(basket?.promotions, "promotion.code"),
+                },
+              });
+            } else {
+              // remove(items, actor);
+            }
+          });
+
+          return newItems;
         },
       }),
 
@@ -759,33 +697,33 @@ export default createMachine(
         return !actors.promotions?.state?.matches("complete");
       },
 
-      custom_fieldsComplete: ({ actors }) => {
-        return actors.custom_fields?.state?.matches("complete");
+      customFieldsComplete: ({ actors }) => {
+        return actors.customFields?.state?.matches("complete");
       },
 
-      custom_fieldsConfiguring: ({ actors }) => {
-        return !actors.custom_fields?.state?.matches("complete");
+      customFieldsConfiguring: ({ actors }) => {
+        return !actors.customFields?.state?.matches("complete");
       },
 
       billingComplete: ({ actors }) => {
-        return actors.billing_details?.state?.matches("complete");
+        return actors.billingDetails?.state?.matches("complete");
       },
 
       billingConfiguring: ({ actors }) => {
-        return !actors.billing_details?.state?.matches("complete");
+        return !actors.billingDetails?.state?.matches("complete");
       },
 
       paymentDetailsValid: ({ actors }) => {
         return (
-          actors.payment_details?.state?.done ||
-          actors.payment_details?.state?.matches("available.valid")
+          actors.paymentDetails?.state?.done ||
+          actors.paymentDetails?.state?.matches("available.valid")
         );
       },
 
       paymentDetailsComplete: ({ actors }, { data }) => {
         const value =
-          (actors.payment_details?.state?.done ||
-            actors.payment_details?.state?.matches("complete")) &&
+          (actors.paymentDetails?.state?.done ||
+            actors.paymentDetails?.state?.matches("complete")) &&
           !isEmpty(data);
 
         return value;
@@ -801,7 +739,7 @@ export default createMachine(
         return (
           isEmpty(paymentDetails) &&
           ["available.invalid", "available.checking", "available.loading"].some(
-            actors.payment_details?.state?.matches
+            actors.paymentDetails?.state?.matches
           )
         );
       },
@@ -828,20 +766,6 @@ export default createMachine(
         return value;
       },
 
-      // --- Configuration Guards
-
-      itemsConfigured: ({ items }) => {
-        const itemsConfigured = every(items, ({ state }) =>
-          state?.matches("available.complete")
-        );
-        return items?.length && itemsConfigured;
-      },
-
-      someConfiguring: ({ items }) =>
-        some(items, ({ state }) =>
-          ["available.configuring", "available.configured"].some(state?.matches)
-        ),
-
       // --- Item Guards
 
       isNotLoading: ({ items }) => {
@@ -851,7 +775,8 @@ export default createMachine(
         );
       },
 
-      hasNoItems: ({ items }) => isEmpty(items),
+      hasNoProducts: ({ products }) => isEmpty(products),
+      hasProducts: ({ products }) => !isEmpty(products),
     },
 
     delays: {

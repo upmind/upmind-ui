@@ -24,18 +24,18 @@ async function load(_context: PromotionsContext, _event: PromotionsEvent) {
 // --------------------------------------------------------
 
 async function add(
-  { basket_id, model, promotions }: PromotionsContext,
+  { basketId, model, promotions }: PromotionsContext,
   _event: PromotionsEvent
 ) {
   const { post, useUrl } = useApi();
 
   if (!model?.promocode)
-    return Promise.reject("No Promocode provided to add to basket_id");
+    return Promise.reject("No Promocode provided to add to basketId");
   if (some(promotions, { promocode: model?.promocode }))
-    return Promise.reject("Promocode already exists in basket_id");
+    return Promise.reject("Promocode already exists in basketId");
 
   return post({
-    url: useUrl(`/orders/${basket_id}/promotions`),
+    url: useUrl(`/orders/${basketId}/promotions`),
     // @ts-ignore
     data: { promocode: model?.promocode },
     withAccessToken: true,
@@ -43,18 +43,18 @@ async function add(
 }
 
 async function remove(
-  { basket_id }: PromotionsContext,
+  { basketId }: PromotionsContext,
   { data }: PromotionsEvent
 ) {
   const id = get(data, "id", data);
 
   if (!id)
-    return Promise.reject("No Promotion provided to remove from basket_id");
+    return Promise.reject("No Promotion provided to remove from basketId");
 
   const { del, useUrl } = useApi();
 
   return del({
-    url: useUrl(`/orders/${basket_id}/promotions/${id}`),
+    url: useUrl(`/orders/${basketId}/promotions/${id}`),
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }

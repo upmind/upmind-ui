@@ -18,9 +18,9 @@ export const usePaymentParser = ({ paymentDetails, order }: PaymentContext) => {
   if (has(paymentDetails, "payment_details_id"))
     unset(safeValues, "gateway_id");
   //  --- Converted Basket / Order / Invoice
-  set(safeValues, "invoice_id", order.id);
-  set(safeValues, "client_id", order.client_id);
-  set(safeValues, "account_id", order.account_id);
+  set(safeValues, "invoice_id", order?.id);
+  set(safeValues, "client_id", order?.client_id);
+  set(safeValues, "account_id", order?.account_id);
 
   return safeValues;
 };

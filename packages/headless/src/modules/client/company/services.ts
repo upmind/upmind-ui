@@ -58,17 +58,25 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
     addresses.isReady(),
     phones.isReady(),
     emails.isReady(),
-  ]).then(() => ({
-    emails,
-    addresses,
-    phones,
-    baseModel: {
-      ...model,
-      address_id: addresses.getDefault()?.id,
-      email_id: emails.getDefault()?.id,
-      phone_id: phones.getDefault()?.id,
-    },
-  }));
+  ]).then(() => {
+    debugger;
+    return {
+      emails,
+      addresses,
+      phones,
+      baseModel: {
+        ...model,
+        addressId: addresses.getDefault()?.id,
+        email: emails.getDefault()?.email,
+        phone: {
+          number: phones.getDefault()?.phone?.number,
+          nationalNumber: phones.getDefault()?.phone?.national_number,
+          countryCallingCode: phones.getDefault()?.phone?.country_calling_code,
+          country: phones.getDefault()?.phone?.country,
+        },
+      },
+    };
+  });
 }
 
 async function filterItems(
@@ -103,12 +111,12 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
     url: useUrl(`clients/${clientId}/companies`),
     data: {
       name: model.name,
-      address_id: model.address_id,
-      email_id: model.email_id,
-      phone_id: model.phone_id,
-      reg_number: model.reg_number,
-      vat_number: model.vat_number,
-      // vat_percent: model.vat_percent,
+      address_id: model.addressId,
+      email_id: model.emailId,
+      phone_id: model.phoneId,
+      reg_number: model.regNumber,
+      vat_number: model.vatNumber,
+      // vat_percent: model.vatPercent,
     },
     withAccessToken: true,
   }).then(({ data }: any) => data);
@@ -124,12 +132,12 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
     data: {
       name: model.name,
-      address_id: model.address_id,
-      email_id: model.email_id,
-      phone_id: model.phone_id,
-      reg_number: model.reg_number,
-      vat_number: model.vat_number,
-      // vat_percent: model.vat_percent,
+      address_id: model.addressId,
+      email_id: model.emailId,
+      phone_id: model.phoneId,
+      reg_number: model.regNumber,
+      vat_number: model.vatNumber,
+      // vat_percent: model.vatPercent,
     },
     withAccessToken: true,
   }).then(({ data }: any) => data);

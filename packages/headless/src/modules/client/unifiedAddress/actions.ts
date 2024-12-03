@@ -38,28 +38,29 @@ export const ItemActions = {
   setMeta: assign({
     // TODO: title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
     title: ({ model }: any, _event: UnifiedAddressEvent) =>
-      model?.company_name || model?.name || "New Address",
+      model?.companyName || model?.name || "New Address",
     description: (
       // TODO: { model, countries, regions }: UnifiedAddressContext,
-      { model, countries, regions }: any,
+      { model }: any,
       _event: UnifiedAddressEvent
     ) => {
-      const country = find(countries, ["id", get(model, "country_id")]);
-      const region = find(regions, ["id", get(model, "region_id")]);
+      // BUG: think this is where  our timout error is coming from
+      // const country = find(countries, ["id", get(model, "countryId")]);
+      // const region = find(regions, ["id", get(model, "regionId")]);
       const address = compact([
-        get(model, "address_1"),
-        get(model, "address_2"),
+        get(model, "address1"),
+        get(model, "address2"),
         get(model, "street"),
         get(model, "city"),
         get(model, "postcode"),
-        get(region, "name"),
-        get(country, "name"),
+        get(model, "region.name"),
+        get(model, "country.name"),
       ]).join(", ");
 
       const company = compact([
-        model?.reg_number ? `Reg #: ${get(model, "reg_number")}` : null,
-        model?.vat_number ? `Tax #: ${get(model, "vat_number")}` : null,
-        // model?.vat_percent ? `Tax %: ${get(model, "vat_percent")}` : null,
+        model?.regNumber ? `Reg #: ${get(model, "regNumber")}` : null,
+        model?.vatNumber ? `Tax #: ${get(model, "vatNumber")}` : null,
+        // model?.vatPercent ? `Tax %: ${get(model, "vatPercent")}` : null,
       ]).join(";");
 
       return compact([address, company]).join(";");

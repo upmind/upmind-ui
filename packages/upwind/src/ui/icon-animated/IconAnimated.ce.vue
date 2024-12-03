@@ -5,12 +5,14 @@
     :delay="delay"
     :sequence="sequence"
     :class="cn(variants.icon, props.class)"
+    :colors="`primary:${primaryHex},secondary:${secondaryHex}`"
   />
 </template>
 
+<span class="text-icon-primary text-icon-secondary hidden" />
 <script lang="ts" setup>
 // --- external
-import { ref, watchEffect, computed } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import { useStyles, cn } from "../../utils";
@@ -19,12 +21,9 @@ import config from "./iconAnimated.config";
 // --- types
 import type { ComputedRef } from "vue";
 import type { AnimatedIconProps } from "./types";
-import { Sequence } from "@lordicon/element";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {
   trigger: "loop",
-  primaryColor: "primary",
-  secondaryColor: "secondary",
   delay: 1000,
   // ---
   size: "md",
@@ -46,84 +45,24 @@ const variants = useStyles(
 
 // ---
 
-const iconSrc = ref("");
+const iconSrc = computed(
+  () => new URL(`../../assets/animations/${props.icon}.json`, import.meta.url)
+);
 
-watchEffect(async () => {
-  const response = await fetch(
-    new URL(`../../assets/animations/${props.icon}.json`, import.meta.url)
-  );
-  const jsonData = await response.json();
+const primaryHex = computed(() => getComputedColor("icon-primary"));
+const secondaryHex = computed(() => getComputedColor("icon-secondary"));
 
-  await updateColor(jsonData, "primary", `text-${props.primaryColor}`);
-  await updateColor(jsonData, "secondary", `text-${props.secondaryColor}`);
+function getComputedColor(className: string) {
+  const cssVar = getComputedStyle(document.documentElement)
+    .getPropertyValue(`--color-${className}`)
+    .trim();
 
-  const blob = new Blob([JSON.stringify(jsonData)], {
-    type: "application/json",
-  });
-  iconSrc.value = URL.createObjectURL(blob);
-});
-
-async function updateColor(
-  jsonData: any,
-  colorType: string,
-  colorClass: string
-) {
-  const color = await getComputedColor(colorClass);
-  const rgbColor = hexToRgb(color);
-
-  const layers = jsonData.layers;
-  const controlLayer = layers.find((layer: any) => layer.nm === "control");
-  if (controlLayer && controlLayer.ef) {
-    const colorEffect = controlLayer.ef.find(
-      (effect: any) => effect.nm === colorType
-    );
-    if (
-      colorEffect &&
-      colorEffect.ef &&
-      colorEffect.ef[0] &&
-      colorEffect.ef[0].v
-    ) {
-      colorEffect.ef[0].v.k = rgbColor;
-    }
+  if (cssVar) {
+    return cssVar;
   }
 
-  updateShapeLayers(jsonData.assets, colorType, rgbColor);
-}
-
-function updateShapeLayers(
-  assets: any[],
-  colorType: string,
-  rgbColor: number[]
-) {
-  assets.forEach((asset: any) => {
-    if (asset.layers) {
-      asset.layers.forEach((layer: any) => {
-        if (layer.shapes) {
-          layer.shapes.forEach((shape: any) => {
-            if (shape.it) {
-              shape.it.forEach((item: any) => {
-                if (item.ty === "st" && item.nm === `.${colorType}`) {
-                  item.c.k = rgbColor;
-                }
-              });
-            }
-          });
-        }
-      });
-    }
-  });
-}
-
-function hexToRgb(hex: string): number[] {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  return [r, g, b];
-}
-
-async function getComputedColor(className: string): Promise<string> {
   const tempElement = document.createElement("div");
-  tempElement.className = className;
+  tempElement.className = "text-" + className;
   document.body.appendChild(tempElement);
 
   const computedStyle = window.getComputedStyle(tempElement);

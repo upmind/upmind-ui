@@ -78,13 +78,11 @@ export const useBasketCurrency = (actorRef?: ActorRef<any, any>) => {
 
       actor.value?.send({ type: "SET", data: { code }, update: true });
 
-      // then wait for the payment_gateway actor to be updated
+      // then wait for the paymentGateway actor to be updated
       return waitFor(service as ActorRef<any, any>, state => {
-        return ["processed", "complete", "processing.error"].some(
-          state.matches
-        );
+        return ["processed", "complete", "error"].some(state.matches);
       }).then(state => {
-        if (["processing.error"].some(state.matches)) {
+        if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }
         return Promise.resolve();

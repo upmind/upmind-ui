@@ -44,7 +44,7 @@
 
           <div :class="styles.product.config.grid.item.header">
             <span :class="styles.product.config.grid.item.title">
-              {{ item.billing_cycle_name }}
+              {{ item.name }}
             </span>
 
             <template v-for="promotion in item?.promotions" :key="promotion.id">
@@ -53,7 +53,7 @@
                   promotion.mixed || !promotion.amount
                     ? t("product.promotion")
                     : t("product.promotion_save", {
-                        value: promotion.amount_formatted,
+                        value: promotion.amountFormatted,
                       })
                 }}
               </Badge>
@@ -62,13 +62,11 @@
             <!-- monthly -->
             <span
               :class="styles.product.config.grid.item.text"
-              v-if="item?.monthly_price_from && item.billing_cycle_months > 1"
+              v-if="item?.monthlyFromCurrentPrice && item.term > 1"
             >
               {{
                 t("product.cycle", {
-                  value: item?.monthly_price_from_discounted
-                    ? item.monthly_price_from_discounted_formatted
-                    : item.monthly_price_from_formatted,
+                  value: item?.monthlyFromCurrentPrice,
                 })
               }}
             </span>
@@ -77,18 +75,12 @@
           <div :class="styles.product.config.grid.item.footer">
             <span
               :class="styles.product.config.grid.item.discount"
-              v-if="item?.price_discounted"
+              v-if="item?.meta.discounted"
             >
-              {{ item.price_formatted }}
+              {{ item.regularPrice }}
             </span>
             <strong :class="styles.product.config.grid.item.total">
-              {{
-                item?.price_discounted
-                  ? item.price_discounted_formatted
-                  : item?.price
-                    ? item.price_formatted
-                    : t("product.free")
-              }}
+              {{ item?.meta.free ? t("product.free") : item.currentPrice }}
             </strong>
           </div>
         </li>
@@ -96,7 +88,7 @@
     </HRadioGroup>
   </UpwInput>
 
-  <pre v-if="errors">{{ errors }}</pre>
+  <!-- <pre v-if="errors">{{ errors }}</pre> -->
 </template>
 
 <script>

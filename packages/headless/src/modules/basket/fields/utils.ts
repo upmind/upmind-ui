@@ -26,7 +26,7 @@ export const useSchema = ({ fields }: FieldsContext) => {
         type: ["string", "null"],
         title: "Order Notes",
       },
-      custom_fields: useFieldsSchemaParser(fields),
+      customFields: useFieldsSchemaParser(fields),
     },
   };
 
@@ -75,7 +75,7 @@ export const useModelParser = (
 ) => {
   const model = {
     notes: values?.notes,
-    custom_fields: useFieldsModelParser(
+    customFields: useFieldsModelParser(
       fields,
       get(values, "custom_fields", {})
     ),

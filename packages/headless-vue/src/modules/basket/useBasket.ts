@@ -3,7 +3,10 @@ import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useBasket as useUpmindBasket } from "@upmind-automation/headless";
+import {
+  useBasket as useUpmindBasket,
+  useBrand,
+} from "@upmind-automation/headless";
 
 // --- utils
 import {
@@ -16,7 +19,7 @@ import {
   useContext,
   useState,
 } from "../../utils";
-import { some, filter } from "lodash-es";
+import { some, filter, isEmpty } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
@@ -29,6 +32,7 @@ import { some, filter } from "lodash-es";
  * @ignore
  */
 export const useBasket = (): any => {
+  const { checkIncludesTax } = useBrand();
   const {
     service,
     isReady,
@@ -48,9 +52,9 @@ export const useBasket = (): any => {
   // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
   const actors = computed(() => ({
-    customFields: contextActor(state, "actors.custom_fields"),
-    paymentDetails: contextActor(state, "actors.payment_details"),
-    billingDetails: contextActor(state, "actors.billing_details"),
+    customFields: contextActor(state, "actors.customFields"),
+    paymentDetails: contextActor(state, "actors.paymentDetails"),
+    billingDetails: contextActor(state, "actors.billingDetails"),
     currency: contextActor(state, "actors.currency"),
     promotions: contextActor(state, "actors.promotions"),
   }));
@@ -90,14 +94,10 @@ export const useBasket = (): any => {
           machineMatches(actors.value.currency, ["valid"]) ||
           machineMatches(actors.value.customFields, ["valid"]) ||
           machineMatches(actors.value.billingDetails, ["valid"]) ||
-          machineMatches(actors.value.promotions, ["valid"]) ||
-          (stateMatches(state, ["shopping.items.configuring"]) &&
-            some(contextValue(state, "items"), item =>
-              machineMatches(item, ["available.configured"])
-            )),
+          machineMatches(actors.value.promotions, ["valid"]),
 
         // ---
-        isEmpty: stateMatches(state, ["shopping.items.empty"]),
+        isEmpty: !contextMatches(state, ["products", "items"]),
 
         isAvailable:
           stateMatches(state, [
@@ -106,12 +106,16 @@ export const useBasket = (): any => {
             "shopping",
             "checkout.configuring",
             "checkout.available",
-          ]) && !stateMatches(state, ["shopping.items.empty"]),
+          ]) && contextMatches(state, ["products"]),
 
         needsAuth: !stateMatches(state, ["shopping.account.complete"]),
 
         // ---
-        hasProducts: stateMatches(state, ["shopping.items.complete"]),
+        hasProducts: contextMatches(state, ["products"]),
+        hasInvalidProducts: some(
+          contextValue(state, "products", []),
+          product => !isEmpty(product?.error)
+        ),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
 
@@ -137,19 +141,20 @@ export const useBasket = (): any => {
           "checkout",
         ]),
         isClaiming: stateMatches(state, ["shopping.account.claiming"]),
+        hasTaxIncluded: checkIncludesTax(),
 
         // ---
         // this state means ALL the data is ready for checkout for each parallel machine
         isReadyForCheckout: stateMatches(
           state,
           [
-            "shopping.items.complete",
+            "shopping.products.complete",
             "shopping.promotions.complete",
             "shopping.account.complete",
             "shopping.currency.complete",
-            "shopping.billing_details.complete",
-            "shopping.custom_fields.complete",
-            "shopping.payment_details.available",
+            "shopping.billingDetails.complete",
+            "shopping.customFields.complete",
+            "shopping.paymentDetails.available",
           ],
           true
         ),
@@ -160,55 +165,30 @@ export const useBasket = (): any => {
 
         isProcessingDetails:
           machineMatches(payment, ["approving"]) ||
-          stateMatches(state, ["shopping.payment_details.processing"]),
+          stateMatches(state, ["shopping.paymentDetails.processing"]),
         isConverting: stateMatches(state, ["converting"]),
         isPaying: stateMatches(state, ["paying"]),
         needsApproval: machineMatches(payment, ["approving"]),
         isComplete: stateMatches(state, ["complete", "failed"]),
         hasPaid: stateMatches(state, ["complete"]),
         hasFailed: stateMatches(state, ["failed"]),
-
-        // hasErrors:
-        //   stateMatches(state, [
-        //     "shopping.items.processing.error",
-        //     "shopping.promotions.error",
-        //     "shopping.account.error",
-        //   ]) ||
-        //   machineMatches(actors.value.customFields, ["error"]) ||
-        //   machineMatches(actors.value.paymentDetails, ["error"]) ||
-        //   !!useContext(state, "error"),
       };
     }),
     //  ---
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
-    items: useContext(state, "items", []),
-    itemsPending: computed(() => {
+    products: useContext(state, "products", []),
+    productsPending: computed(() => {
       const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item => !item?.state?.done && !contextMatches(item, ["basket_product"])
-      );
+      const active = filter(items, item => !item?.state?.done);
+      return active;
     }),
-    itemsInvalid: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item =>
-          contextMatches(item, ["basket_product"]) &&
-          machineMatches(item, ["available.error"])
-      );
-    }),
-    itemsConfigured: computed(() => {
-      const items = contextValue(state, "items", []);
-      return filter(
-        items,
-        item =>
-          contextMatches(item, ["basket_product"]) &&
-          !machineMatches(item, ["available.error"])
-      );
-    }),
-    products: useContext(state, "basket.products", []),
+    productsInvalid: computed(() =>
+      filter(
+        contextValue(state, "products", []),
+        product => !isEmpty(product?.error)
+      )
+    ),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
     currency: useContext(state, "basket.currency", []),

@@ -52,7 +52,10 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
       hasPromotions: contextMatches(actor, ["promotions"]),
       hasErrors: stateMatches(actor, ["error"]),
-      isProcessing: stateMatches(actor, ["processing"]),
+      isProcessing: stateMatches(actor, [
+        "processing.update",
+        "processing.remove",
+      ]),
       isValid: stateMatches(actor, ["valid"]),
       isDirty: contextMatches(actor, ["dirty"]),
       isComplete:
@@ -71,13 +74,11 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     async add() {
       actor.value?.send({ type: "ADD" });
 
-      // then wait for the payment_gateway actor to be updated
+      // then wait for the paymentGateway actor to be updated
       return waitFor(service as ActorRef<any, any>, state => {
-        return ["processed", "complete", "processing.error"].some(
-          state.matches
-        );
+        return ["processed", "complete", "error"].some(state.matches);
       }).then(state => {
-        if (["processing.error"].some(state.matches)) {
+        if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }
         return Promise.resolve();
@@ -87,11 +88,9 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     remove: (promotion: any) => {
       actor.value?.send({ type: "REMOVE", data: promotion });
       return waitFor(service as ActorRef<any, any>, state => {
-        return ["processed", "complete", "processing.error"].some(
-          state.matches
-        );
+        return ["processed", "complete", "error"].some(state.matches);
       }).then(state => {
-        if (["processing.error"].some(state.matches)) {
+        if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }
         return Promise.resolve();

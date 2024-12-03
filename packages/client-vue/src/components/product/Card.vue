@@ -1,9 +1,9 @@
 <template>
   <article :class="styles.product.card.root">
     <!-- thumb -->
-    <figure :class="styles.product.card.media" v-if="product?.image?.full_url">
+    <figure :class="styles.product.card.media" v-if="productImage()">
       <img
-        :src="product?.image?.full_url"
+        :src="productImage()"
         :alt="`${product?.name} thumbnail`"
         :class="styles.product.card.image"
       />
@@ -28,8 +28,8 @@
 
         <h3 :class="styles.product.card.title">
           <span>{{ product?.name }}</span>
-          <span v-if="product?.service_identifier">
-            ({{ product?.service_identifier }})
+          <span v-if="product?.serviceIdentifier">
+            ({{ product?.serviceIdentifier }})
           </span>
 
           <slot name="badges"></slot>
@@ -113,21 +113,16 @@
         <Spinner v-if="meta.isLoading || meta.isCalculating" size="sm" />
         <div :class="styles.product.card.summary">
           <span
-            v-if="!!summary?.discount"
+            v-if="summary?.meta?.discounted"
             :class="styles.product.card.discount"
           >
-            {{
-              summary?.subtotal
-                ? summary?.subtotal_formatted
-                : t("product.free")
-            }}
+            {{ summary?.regularPrice }}
           </span>
 
-          <strong
-            :class="styles.product.card.total"
-            v-if="!isNil(summary?.total)"
-          >
-            {{ summary?.total ? summary?.total_formatted : t("product.free") }}
+          <strong :class="styles.product.card.total">
+            {{
+              summary?.meta?.free ? t("product.free") : summary?.currentPrice
+            }}
           </strong>
         </div>
 
@@ -138,7 +133,7 @@
               meta.isLoading ||
               meta.isCalculating ||
               meta.isProcessing ||
-              (!meta.isConfigurable && !product?.canChangeQuantity)
+              (!meta.isConfigurable && !product?.quantifiable)
             "
             :color="
               meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'
@@ -208,9 +203,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useI18n();
 
-    const { state, product, model, meta, summary } = useProductConfig(
-      props.item
-    );
+    const { state, product, productImage, model, meta, summary } =
+      useProductConfig(props.item);
 
     const styles = useStyles(
       ["product.card", "product.card.details"],
@@ -227,6 +221,7 @@ export default defineComponent({
       model,
       meta,
       summary,
+      productImage,
       // ---
       doReject: () => emit("reject", props.modelValue),
       doResolve: () => emit("resolve", props.modelValue),

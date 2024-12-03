@@ -35,14 +35,14 @@ export default {
           //   },
           //   {
           //     isLoading: false,
-          //     isConfigured: false,
+          //     isInvalid: false,
           //     class: "rounded-none border-none",
           //   },
           // ],
 
           defaultVariants: {
             isDisabled: false,
-            isConfigured: false,
+            isInvalid: true,
           },
         }
       ),
@@ -239,7 +239,7 @@ export default {
           },
         }),
         items: cva(
-          "m-0 grid w-full list-none grid-cols-[repeat(auto-fit,_minmax(14rem,1fr))] gap-3 p-0"
+          "m-0 grid w-full list-none grid-cols-[repeat(auto-fit,_minmax(16rem,1fr))] gap-3 p-0"
         ),
         item: {
           root: cva(

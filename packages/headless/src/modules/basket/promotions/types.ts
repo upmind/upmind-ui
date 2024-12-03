@@ -18,7 +18,7 @@ export interface IPromotion {
 // Contexts
 
 export interface PromotionsContext {
-  basket_id?: string;
+  basketId?: string;
   // ---
   promotions?: IPromotion[];
   schema?: JsonSchema;
@@ -26,8 +26,7 @@ export interface PromotionsContext {
   model?: IPromotion;
   // ---
   dirty?: Boolean;
-  // TODO:
-  // error?: RequestError;
+  autoupdate?: Boolean;
   error?: any;
 }
 

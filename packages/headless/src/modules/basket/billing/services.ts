@@ -1,12 +1,7 @@
 // --- external
 
 // --- internal
-import {
-  useApi,
-  useClientAddresses,
-  useClientCompanies,
-  useSession,
-} from "../../..";
+import { useApi, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -25,32 +20,27 @@ async function load(
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
-  const { isReady: isAddressesReady, getItems: getAddresses } =
-    useClientAddresses();
+  const { isReady, getItems } = useClientUnifiedAddresses();
 
-  const { isReady: isCompaniesReady, getItems: getCompanies } =
-    useClientCompanies();
-
-  return Promise.all([isAddressesReady(), isCompaniesReady()]).then(() => {
-    const addresses = getAddresses();
-    const companies = getCompanies();
-    return { addresses, companies };
+  return isReady().then(() => {
+    const addresses = getItems();
+    return { addresses };
   });
 }
 
 // --------------------------------------------------------
 async function update(
-  { basket_id, model }: BillingDetailsContext,
+  { basketId, model }: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
   const { put, useUrl } = useApi();
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
-    url: useUrl(`/orders/${basket_id}`),
+    url: useUrl(`/orders/${basketId}`),
     data: {
-      address_id: model?.address_id || null,
-      company_id: model?.company_id || null,
+      address_id: model?.addressId || null,
+      company_id: model?.companyId || null,
     },
     withAccessToken: true,
   }).then(({ data }: any) => data);
