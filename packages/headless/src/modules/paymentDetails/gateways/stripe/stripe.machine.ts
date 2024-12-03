@@ -1,13 +1,19 @@
 // --- external
 import { createMachine, assign, actions, spawn } from "xstate";
 const { pure, sendParent, escalate } = actions;
+import { filter } from "lodash-es";
+
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-import { useTime, useModelParser } from "../../../../utils";
+import {
+  useTime,
+  useValidationParser,
+  useModelParser,
+} from "../../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { isFunction } from "lodash-es";
 
@@ -37,6 +43,7 @@ export default createMachine(
       model: undefined,
       // ---
       error: null,
+      uierrors: null,
     } as StripeContext,
     states: {
       loading: {
@@ -359,13 +366,23 @@ export default createMachine(
       // @ts-ignore
       setError: assign({
         error: (_context: StripeContext, { data }: StripeEvent) => {
-          return services.processError(data);
+          let error = data?.error;
+          if (error?.code == responseCodes.Unprocessable_Entity) {
+            // lets parse/override our error message and data
+            // this is to generate valid json schema validation errors
+            error = useValidationParser(error);
+          } else {
+            error = error || data;
+
+            return filter(
+              error,
+              e => !e.title?.toLowerCase().includes("element")
+            );
+          }
         },
       }),
 
-      clearError: assign({
-        error: null,
-      }),
+      clearError: assign({ error: null }),
     },
 
     guards: {
