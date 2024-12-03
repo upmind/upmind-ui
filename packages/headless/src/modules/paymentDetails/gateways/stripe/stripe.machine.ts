@@ -1,7 +1,7 @@
 // --- external
 import { createMachine, assign, actions, spawn } from "xstate";
 const { pure, sendParent, escalate } = actions;
-import { filter } from "lodash-es";
+import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
 import services from "./services";
@@ -373,10 +373,9 @@ export default createMachine(
           } else {
             error = error || data;
 
-            return filter(error, e =>
-              typeof e.title === "string"
-                ? !e.title.toLowerCase().includes("element")
-                : false
+            return filter(
+              error,
+              e => isString(e.title) && !includes(lowerCase(e.title), "element")
             );
           }
         },
