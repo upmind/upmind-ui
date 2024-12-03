@@ -43,7 +43,6 @@ export default createMachine(
       model: undefined,
       // ---
       error: null,
-      uierrors: null,
     } as StripeContext,
     states: {
       loading: {
