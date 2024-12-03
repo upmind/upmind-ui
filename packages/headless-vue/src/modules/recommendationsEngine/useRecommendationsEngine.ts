@@ -51,7 +51,7 @@ export const useRecommendationsEngine = () => {
       showRecommendations: state.value.matches("available"),
 
       isValid:
-        ["available"].some(state.value.model) &&
+        state.value?.matches("available") &&
         !isEmpty(state.value.context?.model),
     })),
     // ---

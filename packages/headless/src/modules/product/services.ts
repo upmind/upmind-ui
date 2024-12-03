@@ -82,13 +82,10 @@ async function load(
     with_staged_imports: true,
     with: [
       "image",
-      "images",
       "prices",
       "products_attributes",
       "products_options",
       "products_options.prices",
-      "provision_field_values",
-      "related",
     ].join(),
   };
   // conditionally add the basket_id / basket_product_id if we have them,

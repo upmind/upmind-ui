@@ -94,11 +94,14 @@ export default createMachine(
             initial: "processing",
             states: {
               processing: {
-                entry: ["fetchBasketProducts"],
+                entry: ["loadBasketProducts"],
                 on: {
-                  FETCHED: {
+                  REFRESH: {
+                    // do nothing
+                  },
+                  LOADED: {
                     target: "complete",
-                    actions: ["setBasketItems"],
+                    actions: ["setBasketProducts"],
                   },
                   ERROR: {
                     target: "complete",
@@ -236,7 +239,7 @@ export default createMachine(
 
           REFRESH: {
             target: ".loading",
-            actions: ["setCurrency", "setPromotions"],
+            actions: ["loadBasketProducts", "setCurrency", "setPromotions"],
           },
           RESET: {
             target: ".invalid",
@@ -287,12 +290,12 @@ export default createMachine(
         initial: "loading",
         states: {
           loading: {
-            entry: ["fetchBasketProducts"],
+            entry: ["loadBasketProducts"],
             on: {
-              FETCHED: {
+              LOADED: {
                 target: "invalid",
                 actions: [
-                  "setBasketItems",
+                  "setBasketProducts",
                   "setModel",
                   "ensurePrimary",
                   "checkChoices",
@@ -363,7 +366,11 @@ export default createMachine(
     },
     on: {
       REFRESH: {
-        actions: ["setCurrency", "setPromotions"],
+        actions: ["loadBasketProducts", "setCurrency", "setPromotions"],
+      },
+
+      LOADED: {
+        actions: ["setBasketProducts"],
       },
 
       CHOOSE: [
@@ -457,18 +464,18 @@ export default createMachine(
       }),
 
       checkChoices: assign({
-        choices: ({ basketItems }: any) => {
-          if (!basketItems?.length)
+        choices: ({ basketProducts }: any) => {
+          if (!basketProducts?.length)
             return omit(DomainTypes, DomainTypes.basket);
 
           return DomainTypes;
         },
-        type: ({ type, basketItems, model }) => {
+        type: ({ type, basketProducts, model }) => {
           const selected = find(model, "isPrimary") || first(model);
           const domain = get(selected, "domain");
 
           if (domain) {
-            const inBasket = some(basketItems, ["domain", domain]);
+            const inBasket = some(basketProducts, ["domain", domain]);
             if (inBasket) return DomainTypes.basket;
 
             return DomainTypes.existing;
@@ -494,6 +501,7 @@ export default createMachine(
           return data?.promotions;
         },
       }),
+
       // ---
 
       setAuthHelper: assign(({ authHelper }: any) => {
@@ -532,8 +540,8 @@ export default createMachine(
         };
       }),
 
-      setBasketItems: assign({
-        basketItems: (_context: any, { data }: any) => data,
+      setBasketProducts: assign({
+        basketProducts: (_context: any, { data }: any) => data,
         lookups: ({ lookups }, { data }) => {
           const available = map(data, item => {
             item.value = item.domain;
@@ -571,10 +579,10 @@ export default createMachine(
         }
       ),
 
-      fetchBasketProducts: sendTo(
+      loadBasketProducts: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, _event) => ({
-          type: "FETCH",
+          type: "LOAD",
           context,
         })
       ),

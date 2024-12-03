@@ -1,6 +1,6 @@
 // --- types
-import type { ActorRef, AnyEventObject } from "xstate";
-
+import type { ActorRef } from "xstate";
+import type { IRelatedObject, IProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 // --------------------------------------------------------
@@ -13,6 +13,8 @@ export interface Recommendation {
   name?: any;
   label?: any;
   description?: any;
+
+  model?: any;
 }
 // --------------------------------------------------------
 // Contexts
@@ -35,6 +37,9 @@ export interface RecommendationsEngineContext {
   basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
 }
 
+export interface RelatedProduct extends IRelatedObject {
+  product?: IProduct;
+}
 // --------------------------------------------------------
 // Events
 

@@ -6,13 +6,23 @@ import { useBasket } from ".";
 import productServices from "./products/services";
 
 // --- utils
-import { get, isArray, isEmpty, map, pickBy, reduce, has } from "lodash-es";
+import {
+  defaults,
+  get,
+  isArray,
+  isEmpty,
+  map,
+  pick,
+  pickBy,
+  reduce,
+} from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
+import type { IProduct } from "@upmind-automation/types";
 
 // --------------------------------------------------------
-async function fetch(context: any, basket: any) {
+async function load(context: any, basket: any) {
   const products = reduce(
     basket.getProducts(),
     (result, product) => {
@@ -30,6 +40,70 @@ async function fetch(context: any, basket: any) {
     []
   );
   return products;
+}
+
+/**
+ * Fetch a given product
+ *
+ * @param productId
+ * @param context
+ * @param basket
+ * @returns {IProduct} // single product
+ */
+async function fetch(
+  productId: string,
+  context: any,
+  basket: any
+): Promise<IProduct[]> {
+  if (isEmpty(productId)) return Promise.resolve([]);
+
+  const data = { productId };
+
+  return productServices.fetch(basket, { data });
+}
+
+/**
+ * Fetch related products for a given product
+ *
+ * @param productId
+ * @param context
+ * @param basket
+ * @returns {IProduct[]} // array of related products
+ */
+async function fetchRelated(
+  productId: string,
+  context: any,
+  basket: any
+): Promise<IProduct[]> {
+  if (isEmpty(productId)) return Promise.resolve([]);
+
+  const data = defaults(pick(context, ["limit", "offset"]), {
+    productId,
+    limit: 10, // default limit
+    offset: 0, // default/initial offset
+  });
+
+  return productServices.fetchRelated(basket, { data });
+}
+
+/**
+ * Fetch a given product
+ *
+ * @param productId
+ * @param context
+ * @param basket
+ * @returns {IProduct} // single product
+ */
+async function fetchMany(
+  productIds: string[],
+  context: any,
+  basket: any
+): Promise<IProduct[]> {
+  if (isEmpty(productIds)) return Promise.resolve([]);
+
+  const data = { productIds };
+
+  return productServices.fetchMany(basket, { data });
 }
 
 /**
@@ -86,7 +160,7 @@ async function sync(items: any, context: any, basket: any) {
         return add(item, context, basket).then(
           async (actor: ActorRef<any, any> | null) => {
             if (!actor) {
-              console.error("sync basket helper", "ADD", "failed", item);
+              // console.error("sync basket helper", "ADD", "failed", item);
               return Promise.resolve(actor);
             }
 
@@ -138,11 +212,39 @@ export function basketSubscription(callback: any, onReceive: any) {
           });
         });
         break;
+
+      case "LOAD":
+        load(event.context, basket)
+          .then(data => callback({ type: "LOADED", data }))
+          .catch(error => {
+            // console.error("basketHelper", "LOAD", error);
+            callback({ type: "ERROR", data: error });
+          });
+        break;
+
       case "FETCH":
-        fetch(event.context, basket)
+        fetch(event.target, event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))
           .catch(error => {
-            console.error("basketHelper", "FETCH", error);
+            // console.error("basketHelper", "LOAD", error);
+            callback({ type: "ERROR", data: error });
+          });
+        break;
+
+      case "FETCH_MANY":
+        fetchMany(event.target, event.context, basket)
+          .then(data => callback({ type: "FETCHED", data }))
+          .catch(error => {
+            // console.error("basketHelper", "FETCH_MANY", error);
+            callback({ type: "ERROR", data: error });
+          });
+        break;
+
+      case "FETCH_RELATED":
+        fetchRelated(event.target, event.context, basket)
+          .then(data => callback({ type: "FETCHED", data }))
+          .catch(error => {
+            // console.error("basketHelper", "FETCH_RELATED", error);
             callback({ type: "ERROR", data: error });
           });
         break;
@@ -151,7 +253,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         add(event.target, event.context, basket)
           .then(data => callback({ type: "ADDED", data }))
           .catch(error => {
-            console.error("basketHelper", "ADD", error);
+            // console.error("basketHelper", "ADD", error);
             callback({ type: "ERROR", data: error });
             callback({ type: "ADDED" });
           });
@@ -165,7 +267,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             basket.refresh();
           })
           .catch(error => {
-            console.error("basketHelper", "REMOVE", error);
+            // console.error("basketHelper", "REMOVE", error);
             callback({ type: "ERROR", data: error });
             callback({ type: "CANCEL" });
           });
@@ -180,7 +282,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             basket.refresh();
           })
           .catch(error => {
-            console.error("basketHelper", "UPDATE", error);
+            // console.error("basketHelper", "UPDATE", error);
             callback({ type: "ERROR", data: error });
             callback({ type: "CANCEL" });
           });
@@ -190,7 +292,7 @@ export function basketSubscription(callback: any, onReceive: any) {
       case "SYNC":
         sync(event.target, event.context, basket)
           .catch(error => {
-            console.error("basketHelper", "SYNC", error);
+            // console.error("basketHelper", "SYNC", error);
             callback({ type: "ERROR", data: error });
           })
           .finally(() => {

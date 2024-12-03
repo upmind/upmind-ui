@@ -93,6 +93,11 @@ export default createMachine(
       },
     },
     on: {
+      FETCH: {
+        // target: ["fetching"],
+        cond: "isValid",
+      },
+
       ADD: [
         {
           actions: ["add"],
@@ -200,6 +205,34 @@ export default createMachine(
           type: "INIT",
           context,
         })
+      ),
+
+      fetchRelated: sendTo(
+        ({ basketHelper }: any, _event) => basketHelper,
+        (context, _event) => {
+          // not all values might be products, eg an exiting RecommendationsEngine value,
+          // so we need to filter out any non product values
+          // and then map them to a be a basket item model
+          debugger;
+          const products = reduce(
+            context.model,
+            (result: any[], item: any) => {
+              debugger;
+              if (item?.productId) {
+                const model = context.itemMapper(item);
+                result.push(model);
+              }
+              return result;
+            },
+            []
+          );
+
+          return {
+            type: "SYNC",
+            target: products,
+            context,
+          };
+        }
       ),
 
       // ---
@@ -331,7 +364,6 @@ export default createMachine(
             some(lookups.seen, ["productId", productId])
           );
 
-          debugger;
           return {
             recommendations,
             added,
