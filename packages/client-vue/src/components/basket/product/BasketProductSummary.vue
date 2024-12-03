@@ -34,7 +34,10 @@
               />
             </div>
             <div class="flex items-end justify-between">
-              <router-link :to="editLink" class="underline-offset-2">
+              <router-link
+                :to="editLink"
+                class="text-inherit underline-offset-2"
+              >
                 <strong class="text-xl font-semibold leading-7">
                   {{ pricing.name }}
                   <template v-if="pricing.serviceIdentifier">
@@ -112,6 +115,8 @@
         />
       </div>
     </div>
+
+    <slot />
 
     <template v-if="primary && error">
       <UpmRequiredAlert :id="id" />
