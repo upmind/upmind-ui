@@ -26,7 +26,7 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["name", "address_id", "email_id"],
+    required: ["name", "addressId", "emailId"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -41,10 +41,10 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         title: "Name",
       },
 
-      address_id: {
+      addressId: {
         type: "string",
         title: "Address",
-        default: baseModel.address_id,
+        default: baseModel.addressId,
         oneOf: !choices?.addresses?.length
           ? undefined
           : map(choices.addresses, item => {
@@ -56,10 +56,10 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         lookup: addresses.search,
       },
 
-      email_id: {
+      emailId: {
         type: "string",
         title: "Email",
-        default: baseModel.email_id,
+        default: baseModel.emailId,
         oneOf: !choices?.emails?.length
           ? undefined
           : map(choices.emails, item => {
@@ -71,10 +71,10 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         lookup: emails.search,
       },
 
-      phone_id: {
+      phoneId: {
         type: "string",
         title: "Phone",
-        default: baseModel.phone_id,
+        default: baseModel.phoneId,
         oneOf: !choices?.phones?.length
           ? undefined
           : map(choices.phones, item => {
@@ -86,15 +86,15 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         lookup: phones.search,
       },
 
-      reg_number: {
+      regNumber: {
         type: ["string", "null"],
         title: "Registrration number",
       },
-      vat_number: {
+      vatNumber: {
         type: ["string", "null"],
         title: "Registered tax/VAT id",
       },
-      // vat_percent: {
+      // vatPercent: {
       //   type: ["string", "null"],
       //   title: "VAT percent",
       // },
@@ -131,7 +131,7 @@ export const useUischema = () => {
       },
       {
         type: "Control",
-        scope: "#/properties/vat_number",
+        scope: "#/properties/vatNumber",
         options: {
           autocomplete: "off",
           placeholder: "Registered tax/VAT id",
@@ -139,7 +139,7 @@ export const useUischema = () => {
       },
       {
         type: "Control",
-        scope: "#/properties/reg_number",
+        scope: "#/properties/regNumber",
         options: {
           autocomplete: "off",
           placeholder: "Registration number",
@@ -149,7 +149,7 @@ export const useUischema = () => {
       // ---
       {
         type: "Control",
-        scope: "#/properties/address_id",
+        scope: "#/properties/addressId",
         options: {
           autocomplete: "off",
           placeholder: "Select an Address...",
@@ -161,7 +161,7 @@ export const useUischema = () => {
       },
       {
         type: "Control",
-        scope: "#/properties/email_id",
+        scope: "#/properties/emailId",
         options: {
           autocomplete: "off",
           placeholder: "Select an email...",
@@ -173,7 +173,7 @@ export const useUischema = () => {
       },
       {
         type: "Control",
-        scope: "#/properties/phone_id",
+        scope: "#/properties/phoneId",
         options: {
           autocomplete: "country",
           placeholder: "Please select a Phone Number  ...",

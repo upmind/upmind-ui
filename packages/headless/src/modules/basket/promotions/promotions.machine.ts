@@ -5,13 +5,13 @@ const { sendParent } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { xorBy } from "lodash-es";
+import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
 
 // --- types
 import type { PromotionsContext, PromotionsEvent } from "./types";
@@ -26,7 +26,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      basketId: undefined,
       promotions: undefined,
       schema: undefined,
       uischema: undefined,
@@ -124,7 +124,7 @@ export default createMachine(
                 actions: ["setModel", "clearDirty", "clearAutoUpdate"],
               },
               onError: {
-                target: "error",
+                target: "#error",
                 actions: ["setError", "setFeedbackError"],
               },
             },
@@ -142,20 +142,12 @@ export default createMachine(
               },
             },
           },
-          error: {
-            after: {
-              error: "#invalid",
-            },
-          },
         },
       },
 
       processed: {
         id: "processed",
-        entry: sendParent((_context, { data }: any) => ({
-          type: "REFRESH",
-          data,
-        })),
+        entry: "refreshBasket",
         after: {
           wait: {
             target: "complete",
@@ -180,6 +172,7 @@ export default createMachine(
     on: {
       REMOVE: {
         target: "processing.remove",
+        actions: ["removePromo"],
       },
       CLEAR: {
         target: "checking",
@@ -207,12 +200,19 @@ export default createMachine(
         (_context: PromotionsContext, { data: basket }: PromotionsEvent) => {
           return {
             // @ts-ignore
-            basket_id: basket?.id,
+            basketId: basket?.id,
             // @ts-ignore
             promotions: basket?.promotions,
           };
         }
       ),
+
+      refreshBasket: sendParent((_context, { data }: any) => {
+        return {
+          type: "REFRESH",
+          data,
+        };
+      }),
 
       // @ts-ignore
       setContext: assign(
@@ -240,6 +240,16 @@ export default createMachine(
         model: undefined,
       }),
 
+      removePromo: assign({
+        promotions: ({ promotions }, { data }) => {
+          const id = get(data, "id", data);
+          if (promotions?.length && id) {
+            remove(promotions, ["id", id]);
+          }
+          return promotions;
+        },
+      }),
+
       setDirty: assign({
         dirty: true,
       }),
@@ -258,12 +268,9 @@ export default createMachine(
       }),
 
       // ---
-      setFeedbackSuccess: (_context: any, _event: any) => {
-        addSuccess("Successfully updated the basket promotions");
-      },
 
       setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (!error || error.code < 500) return;
 
         addError({
           title:
@@ -277,7 +284,16 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: any) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (
+            includes(
+              [responseCodes.Unprocessable_Entity, responseCodes.Conflict],
+              error?.code
+            )
+          ) {
+            if (isEmpty(error?.data)) {
+              // ensure we have a valid error object
+              error.data = { promocode: [error?.message] };
+            }
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -292,12 +308,12 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basket_id }, _event) => !!basket_id,
-      hasChanged: ({ promotions, basket_id }, { data }: any) =>
+      hasBasket: ({ basketId }, _event) => !!basketId,
+      hasChanged: ({ promotions, basketId }, { data }: any) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
-        basket_id !== data?.id,
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
+        basketId !== data?.id,
+      shouldUpdate: ({ autoupdate, basketId }, _event) =>
+        !!autoupdate && !!basketId,
     },
 
     delays: {

@@ -53,7 +53,6 @@ dependencies:
       paths:
         - node_modules
         - playgrounds/storybook/node_modules
-        - playgrounds/checkout/node_modules
         - playgrounds/velia/node_modules
         - playgrounds/webcentral/node_modules
         - packages/upwind/node_modules
@@ -68,7 +67,6 @@ dependencies:
     paths:
       - node_modules
       - playgrounds/storybook/node_modules
-      - playgrounds/checkout/node_modules
       - playgrounds/velia/node_modules
       - playgrounds/webcentral/node_modules
       - packages/upwind/node_modules

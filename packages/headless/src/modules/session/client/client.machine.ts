@@ -100,7 +100,7 @@ export default createMachine(
   },
   {
     actions: {
-      clear: assign((_, _event) => {
+      clear: assign((_context, _event) => {
         localStorage.clear();
         return {};
       }),

@@ -38,6 +38,8 @@ export const ItemActions = {
     title: ({ model }: PhoneContext, _event: PhoneEvent) => {
       const phone = get(model, "phone");
       if (isObject(phone)) return get(model, "phone.number");
+      debugger;
+      // DC: Maybe this is raw data or needs to be converted to camelCase
       return get(model, "international_phone");
     },
     description: (
@@ -54,7 +56,7 @@ export const ItemActions = {
     schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
     // TODO: uischema: (context: PhoneContext, _event: PhoneEvent) =>
     // TODO: useUischema(context),
-    uischema: (_, _event: PhoneEvent) => useUischema(),
+    uischema: (_context, _event: PhoneEvent) => useUischema(),
   }),
 
   setModel: assign({

@@ -3,6 +3,7 @@ import { spawn } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { useBrand } from "../brand";
 import productMachine from "../product/product.machine";
 import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
@@ -11,46 +12,67 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import { useValidationParser } from "../../utils";
 import {
-  get,
-  map,
+  useValidationParser,
+  useTranslateName,
+  useTranslateField,
+} from "../../utils";
+
+import {
   compact,
-  uniq,
+  defaults,
+  forEach,
+  get,
+  isEmpty,
+  map,
   reduce,
   set,
+  toNumber,
+  uniq,
   uniqueId,
-  isEmpty,
 } from "lodash-es";
 
 // --- types
-import { TaxTagTypes } from "./types";
+import { TaxTagTypes, ProductOrderTypes } from "./types";
 // @ts-ignore
-import type { IBasket } from "./types";
+import type {
+  Basket,
+  BasketProduct,
+  BasketProductSummaryDetail,
+  BasketProductSummaryPrice,
+} from "./types";
 
 // --------------------------------------------------------
-
-// utility function to spawn machines based on the given items
+// SPAWN ACTORS
 export function spawnProductConfiguration(
   data: any,
-  basket: IBasket,
+  basket: Basket,
   errorExternal?: any
 ) {
   const id = data?.id || uniqueId("product-");
   const isBasketProduct = data?.id ? true : false;
 
   // lets merge the promotions from the basket and the product
-  const basketPromotions = map(basket?.promotions, "promocode");
-  const productPromotions = data?.promotions || [];
-  const promotions = uniq(compact([...basketPromotions, ...productPromotions]));
+  const promotions = map(basket?.promotions, "promotion.code");
+  const coupons = data?.coupons || [];
+
+  const model = defaults(data, {
+    quantity: 1,
+    productId: null,
+    term: null,
+    options: [],
+    attributes: [],
+    provisionFields: {},
+  });
 
   const item = spawn(
     productMachine.withContext({
       id,
-      basket_id: basket?.id,
-      [isBasketProduct ? "basket_product" : "model"]: data,
-      currency_id: basket?.currency_id,
+      basketId: basket?.id,
+      [isBasketProduct ? "basketProduct" : "model"]: model,
+      currencyId: basket?.currency_id,
       promotions,
+      coupons,
       errorExternal,
     }),
     {
@@ -62,45 +84,45 @@ export function spawnProductConfiguration(
   return item;
 }
 
-export function spawnBillingDetails(basket: IBasket) {
+export function spawnBillingDetails(basket: Basket) {
   return spawn(
     billingDetailsMachine.withContext({
-      basket_id: basket?.id,
-      client_id: basket?.client_id,
+      basketId: basket?.id,
+      clientId: basket?.client_id,
       model: {
-        address_id: basket?.address_id,
-        company_id: basket?.company_id,
+        addressId: basket?.address_id,
+        companyId: basket?.company_id,
       },
     }),
     { name: "billingDetails", sync: true }
   );
 }
 
-export function spawnCurrency(basket: IBasket) {
+export function spawnCurrency(basket: Basket) {
   return spawn(
     currencyMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       model: basket?.currency,
     }),
     { name: "currency", sync: true }
   );
 }
 
-export function spawnCustomFields(basket: IBasket) {
+export function spawnCustomFields(basket: Basket) {
   return spawn(
     customFieldsMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       model: parseBasketFieldsModel(basket),
     }),
     { name: "customFields", sync: true }
   );
 }
 
-export function spawnPaymentDetails(basket: IBasket) {
+export function spawnPaymentDetails(basket: Basket) {
   return spawn(
     // @ts-ignore
     paymentDetailsMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       currency: basket?.currency,
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
@@ -111,10 +133,10 @@ export function spawnPaymentDetails(basket: IBasket) {
   );
 }
 
-export function spawnPromotions(basket: IBasket) {
+export function spawnPromotions(basket: Basket) {
   return spawn(
     promotionsMachine.withContext({
-      basket_id: basket?.id,
+      basketId: basket?.id,
       promotions: basket?.promotions,
     }),
     { name: "promotions", sync: true }
@@ -122,6 +144,7 @@ export function spawnPromotions(basket: IBasket) {
 }
 
 // --------------------------------------------------------
+// --- PARSERS
 
 export const parseBasket = (data: any) => {
   const basket = get(data, "basket", data);
@@ -131,37 +154,279 @@ export const parseBasket = (data: any) => {
   return basket;
 };
 
-// ---
-export const parseProductSummary = (product: any) => {
-  return {
-    id: product?.id,
-    name: product?.product_name,
-    service_identifier: product?.service_identifier,
-    quantity: product?.quantity,
-    discount_formatted: product?.configuration_total_discount_amount_formatted,
-    discount: product?.configuration_total_discount_amount_converted,
-    subtotal_formatted: product?.configuration_net_amount_formatted,
-    subtotal: product?.configuration_net_amount,
-    total: product?.configuration_net_amount_discounted,
-    total_formatted: product?.configuration_net_amount_discounted_formatted,
-    products: [
-      // todo  add non quantifiable otions here
-      // id: product?.id,
-      // name: product?.product_name,
-      // service_identifier: product?.service_identifier,
-      // quantity: product?.quantity,
-      // discount: product?.configuration_total_discount_amount_converted
-      //   ? product?.configuration_total_discount_amount_formatted
-      //   : null,
-      // subtotal: product?.configuration_net_amount_formatted,
-      // total: product?.configuration_net_amount_discounted_formatted,
-    ],
+export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
+  // Get price object matching `display_price_billing_cycle_months`
+  const product: BasketProduct = {
+    id: raw?.id,
+
+    // --- model
+    quantity: raw.quantity,
+    productId: raw.product_id,
+    term: raw.billing_cycle_months,
+    options: parseSubproductChoices(raw.options),
+    attributes: parseSubproductChoices(raw.attributes),
+    provisionFields: raw.provision_fields,
+
+    // --- product details
+    product: {
+      name: useTranslateName(raw?.product),
+      serviceIdentifier: raw?.service_identifier,
+      category: useTranslateName(raw?.product?.category),
+      description: useTranslateField(raw, "description"),
+      excerpt: useTranslateField(raw, "short_description"),
+      id: raw?.product_id,
+      imgUrl: raw?.product?.image?.full_url,
+      // meta: raw?.product?.meta,// TODO get/use product meta from API
+      // ---
+      quantifiable:
+        raw?.product?.order_type == ProductOrderTypes.QUANTITY_BASED, //!!raw?.can_change_quantity,
+      step: raw?.unit_quantity || 1,
+      min: raw?.min_order_quantity | raw?.unit_quantity,
+      max: raw?.max_order_quantity > 0 ? raw?.max_order_quantity : Infinity,
+    },
+
+    // --- summary details
+    summary: {
+      pricing: [parsPriceSummary(raw)],
+      details: [],
+    },
+    // --- errors
+    error: get(provisioningErrors, [raw?.id]),
   };
+
+  // --- Now build up our details
+  const term = parseTerm(raw);
+  if (term) {
+    product.summary.details.push(term);
+  }
+  // ---
+  forEach(raw?.options, option => {
+    const subproduct = parsPriceSummary(option);
+    if (subproduct) {
+      if (option.product.order_type === ProductOrderTypes.SINGLE_OPTION)
+        product.summary.pricing.push(subproduct);
+      subproduct.key = "option";
+      product.summary.details.push(subproduct as BasketProductSummaryDetail);
+    }
+  });
+
+  // ---
+  forEach(raw?.attributes, attribute => {
+    const subproduct = parseSubproduct(attribute);
+    if (subproduct) {
+      subproduct.key = "attribute";
+      product.summary.details.push(subproduct as BasketProductSummaryDetail);
+    }
+  });
+
+  // ---
+  forEach(raw?.provision_fields, (value, key) => {
+    const hasError = get(provisioningErrors, [raw?.id, key]);
+    const field = parseProvisionField(key, value, hasError);
+    if (field) product.summary.details.push(field);
+  });
+
+  // ---
+
+  return product;
 };
 
-export const parseSummary = (data?: any) => {
+const parseSubproductChoices = (values: any) => {
+  return reduce(
+    values,
+    (result, value) => {
+      set(result, [value.product.category_id, value.product_id], {
+        productId: value.product_id,
+        quantity: parseQuantity(value.unit_quantity, value.product),
+        cycle: value.billing_cycle_months,
+      });
+      return result;
+    },
+    {}
+  );
+};
+
+const parseQuantity = (quantity: number, raw: any) => {
+  quantity = toNumber(quantity) || 1; // ensure we have a number;
+  // Check the raw is available
+  // Check the quantity is valid,
+  //  - min Quantity matches the raw min
+  //  - max Quantity matches the raw max
+  //  - quantity is a multiple of the raw step
+  // ensure the quantity is at least the min, or 1
+  if (quantity < Math.max(raw?.min_order_quantity, 1)) {
+    quantity = Math.max(raw?.min_order_quantity, 1);
+  }
+
+  // ensure the quantity is at most the max (if set)
+  if (raw?.max_order_quantity && quantity > raw?.max_order_quantity) {
+    quantity = raw?.max_order_quantity;
+  }
+
+  // ensure the quantity is a multiple of the step (if set)
+  if (raw?.unit_quantity && quantity % raw?.unit_quantity !== 0) {
+    quantity = Math.ceil(quantity / raw.unit_quantity) * raw.unit_quantity;
+  }
+
+  return quantity;
+};
+
+export function parseTerm(raw: any): BasketProductSummaryDetail | null {
+  const summary: BasketProductSummaryPrice = parseSubproduct(
+    raw
+  ) as BasketProductSummaryPrice;
+
+  summary.key = "term";
+
+  summary.meta = {
+    oneoff: raw.billing_cycle_months > 0,
+    discounted: raw?.net_global_discount_amount > 0,
+    free: raw.net_unit_selling_price_formatted == 0,
+  };
+
+  summary.regularAmount = raw.selling_price_converted;
+  summary.regularPrice = raw.selling_price_formatted;
+  summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
+  summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
+
+  // add any saving information (if available)
+  if (
+    summary.meta.discounted &&
+    summary?.regularAmount &&
+    summary?.currentAmount
+  ) {
+    summary.currentSavingAmount = summary.meta.discounted
+      ? ((summary.regularAmount - summary.currentAmount) /
+          summary.regularAmount) *
+        100
+      : 0;
+
+    summary.currentSaving = summary.meta.discounted
+      ? `${Math.round(summary.currentSavingAmount)}%`
+      : "";
+  }
+
+  // retained in case we wan tto show the term name as opposed to the actual product name/category
+  // const { getBillingCycle } = useSystem();
+  // const cycle = getBillingCycle(raw.billing_cycle_months);
+  // const name = cycle ? useTranslateName(cycle) : null;
+  // term.category = "Billing Cycle";
+  // term.name = name;
+  return summary;
+}
+
+export function parseSubproduct(
+  subproduct: any
+): Partial<BasketProductSummaryDetail> | null {
+  // NB: only show term pricing if recurring!
+  return {
+    name: useTranslateName(subproduct.product),
+    category: useTranslateName(subproduct.product.category),
+    serviceIdentifier: subproduct.service_identifier,
+    cycle: subproduct.billing_cycle_months,
+    quantity: subproduct.quantity,
+  };
+}
+
+export function parsPriceSummary(raw: any) {
+  const { checkIncludesTax } = useBrand();
+
+  const summary: BasketProductSummaryPrice = parseSubproduct(
+    raw
+  ) as BasketProductSummaryPrice;
+
+  summary.meta = {
+    oneoff: raw.billing_cycle_months > 0,
+    discounted: raw.configuration_net_amount_discount_converted > 0,
+    free: raw.configuration_net_amount_discounted_converted == 0,
+    overrides: raw?.product?.category?.price_override,
+  };
+
+  summary.regularAmount = checkIncludesTax()
+    ? raw.configuration_total_amount_converted
+    : raw.configuration_net_amount_converted;
+  summary.regularPrice = checkIncludesTax()
+    ? raw.configuration_total_amount_formatted
+    : raw.configuration_net_amount_formatted;
+  summary.currentAmount = checkIncludesTax()
+    ? raw.configuration_total_discounted_amount_converted
+    : raw.configuration_net_amount_discounted_converted;
+  summary.currentPrice = checkIncludesTax()
+    ? raw.configuration_total_discounted_amount_formatted
+    : raw.configuration_net_amount_discounted_formatted;
+
+  // add any saving information (if available)
+  if (
+    summary.meta.discounted &&
+    summary?.regularAmount &&
+    summary?.currentAmount
+  ) {
+    summary.currentSavingAmount = summary.meta.discounted
+      ? ((summary.regularAmount - summary.currentAmount) /
+          summary.regularAmount) *
+        100
+      : 0;
+
+    summary.currentSaving = summary.meta.discounted
+      ? `${Math.round(summary.currentSavingAmount)}%`
+      : "";
+  }
+
+  // if we have a quantity greater than 1, lets include the pricing for a single unit
+  if (raw.quantity > 1) {
+    summary.selling = {
+      regularAmount: raw.selling_amount_converted,
+      regularPrice: raw.selling_amount_formatted,
+      currentAmount: raw.selling_amount_discounted_converted,
+      currentPrice: raw.selling_amount_discounted_formatted,
+    };
+
+    // add any saving information (if available)
+    if (
+      summary.meta.discounted &&
+      summary?.selling?.regularAmount &&
+      summary?.selling?.currentAmount
+    ) {
+      summary.selling.currentSavingAmount = summary.meta.discounted
+        ? ((summary.selling.regularAmount - summary.selling.currentAmount) /
+            summary.selling.regularAmount) *
+          100
+        : 0;
+
+      summary.selling.currentSaving = summary.meta.discounted
+        ? `${Math.round(summary.selling.currentSavingAmount)}%`
+        : "";
+    }
+  }
+
+  return summary;
+}
+
+export function parseProvisionField(
+  key: string,
+  data: any,
+  hasError?: any
+): BasketProductSummaryDetail | null {
+  const name = get(data, key, data); // just in case its an object > unti lwe have types
+
+  return {
+    key: `provision_field.${key}`,
+    category: key,
+    name,
+    meta: {
+      invalid: hasError,
+    },
+  };
+}
+
+// --------------------------------------------------------
+// --- SUMMARY
+
+export const parseSummary = (data?: any, provisioningErrors?: any) => {
   const summary = {
-    products: map(get(data, "products"), parseProductSummary),
+    products: map(get(data, "products"), product =>
+      parseBasketProduct(product, provisioningErrors)
+    ),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted
       : null, // only include the discount if there is one
@@ -172,7 +437,9 @@ export const parseSummary = (data?: any) => {
   return summary;
 };
 
-//
+// --------------------------------------------------------
+//--- TAXES
+
 export const parseTaxes = (taxes: any) => {
   // we may have multiple taxes, and each tax may have multiple tags
   //  we want to return a unique list of tags and their values
@@ -218,7 +485,7 @@ export const parseTaxTagName = (tag: any) => {
 
 export const parseBasketFieldsModel = (basket: any, data = {}) => {
   const notes = get(basket, "notes", get(data, "notes"));
-  const custom_fields = reduce(
+  const customFields = reduce(
     get(basket, "custom_fields"),
     (result, { field, value }) => {
       set(result, field.code, value);
@@ -229,7 +496,7 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
 
   return {
     notes,
-    custom_fields,
+    customFields,
   };
 };
 
@@ -246,7 +513,7 @@ export const parseBasketProvisioningErrors = (error: any, index: any) => {
 
     if (!isEmpty(errors)) {
       parsedError = {
-        provision_fields: useValidationParser({
+        provisionFields: useValidationParser({
           data: errors,
         }),
       };

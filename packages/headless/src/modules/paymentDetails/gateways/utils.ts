@@ -14,26 +14,26 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 export function generateResponseUrls(
   url: string,
-  { gateway, basket_id, type, model }: GatewayContext
+  { gateway, basketId, type, model }: GatewayContext
 ) {
   // TODO: implemet operations machine
   // if (operation_id)
   //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
 
   // ---
-  const successUrl = new URL(`orders/${basket_id}`, url);
-  // successUrl.searchParams.append("invoiceId", basket_id);
+  const successUrl = new URL(`orders/${basketId}`, url);
+  // successUrl.searchParams.append("invoiceId", basketId);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   // ---
-  const failUrl = new URL(`orders/${basket_id}`, url);
-  // failUrl.searchParams.append("invoiceId", basket_id);
+  const failUrl = new URL(`orders/${basketId}`, url);
+  // failUrl.searchParams.append("invoiceId", basketId);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   // ---
-  const cancelUrl = new URL(`orders/${basket_id}`, url);
-  // cancelUrl.searchParams.append("invoiceId", basket_id);
-  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basket_id);
+  const cancelUrl = new URL(`orders/${basketId}`, url);
+  // cancelUrl.searchParams.append("invoiceId", basketId);
+  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basketId);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
     encodeURIComponent(
@@ -47,7 +47,7 @@ export function generateResponseUrls(
       btoa(
         JSON.stringify(
           gateway?.gateway_provider?.external_payment
-            ? { invoiceId: basket_id }
+            ? { invoiceId: basketId }
             : undefined
         )
       )

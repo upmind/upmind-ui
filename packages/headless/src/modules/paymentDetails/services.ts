@@ -48,10 +48,10 @@ async function load(
 
   // ---
 
-  const client_id = await getUserId();
-  const brand_id = getBrandId();
+  const clientId = await getUserId();
+  const brandId = getBrandId();
 
-  const currency_id = currency?.id || getCurrencyId(); // fallback to default currency
+  const currencyId = currency?.id || getCurrencyId(); // fallback to default currency
 
   await getConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
@@ -69,11 +69,11 @@ async function load(
   // ---
 
   const stored_payment_methods = getRequest({
-    url: useUrl(`clients/${client_id}/payment_details`, {
+    url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
-      brand_id,
+      brand_id: brandId,
       active: true,
-      "filter[gateway.currencies.id]": currency_id,
+      "filter[gateway.currencies.id]": currencyId,
       // "filter[active]": 1,
 
       order: ["-default", "id"].join(),
@@ -87,11 +87,11 @@ async function load(
   // ---
 
   const gateways = getRequest({
-    url: useUrl(`brands/${brand_id}/gateways`, {
+    url: useUrl(`brands/${brandId}/gateways`, {
       limit: 0,
-      client_id,
+      client_id: clientId,
       order: "order",
-      "filter[gateway.currencies.id]": currency_id,
+      "filter[gateway.currencies.id]": currencyId,
       "filter[active]": 1,
       with: ["gateway.gateway_provider", "gateway.card_types"].join(),
     }),

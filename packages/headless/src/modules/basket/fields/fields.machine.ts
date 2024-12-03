@@ -26,7 +26,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      basketId: undefined,
       fields: undefined,
       schema: undefined,
       uischema: undefined,
@@ -174,7 +174,7 @@ export default createMachine(
         (_context: FieldsContext, { data }: FieldsEvent) => {
           return {
             // @ts-ignore
-            basket_id: data?.id,
+            basketId: data?.id,
             model: parseBasketFieldsModel(data),
           };
         }
@@ -258,15 +258,15 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basket_id }, _event) => !!basket_id,
+      hasBasket: ({ basketId }, _event) => !!basketId,
       // @ts-ignore
-      hasChanged: ({ model, basket_id }, { data }: any) =>
+      hasChanged: ({ model, basketId }, { data }: any) =>
         model?.notes !== data?.notes ||
-        model?.custom_fields !== data?.custom_fields ||
-        basket_id !== data?.id,
+        model?.customFields !== data?.custom_fields ||
+        basketId !== data?.id,
 
-      shouldUpdate: ({ autoupdate, basket_id }, _event) =>
-        !!autoupdate && !!basket_id,
+      shouldUpdate: ({ autoupdate, basketId }, _event) =>
+        !!autoupdate && !!basketId,
     },
 
     delays: {

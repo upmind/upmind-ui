@@ -54,7 +54,7 @@
 //
 
 //
-// playgrounds/checkout
+// playgrounds/doteasy
 // A client implementation (DotEasy) using our Client-Vue lib (eventually via "npm install @upmind-automation/client-vue")
 //
 // - e2e tests with Cypress
@@ -65,7 +65,7 @@
 // - with a DB seeding strategy
 //
 // Upmind Admin
-// - We're probably not doing it for playgrounds/checkout (DotEasy)
+// - We're probably not doing it for playgrounds/doteasy (DotEasy)
 // - However, this approach is my recommendation for the admin app
 // (because it will also be a "client" of our upflow-vue and upwind libs - or even Client-vue if that's the way)
 //

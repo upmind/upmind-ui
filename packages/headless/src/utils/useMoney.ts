@@ -6,7 +6,17 @@ export function useMoney() {
     return val?.replace(/[,.]00\b/, "") || "";
   }
 
+  function parsePrice(
+    price: string,
+    amount: number,
+    options?: any //ICatalogueOptions
+  ) {
+    if (options?.trimTrailingZeroes) price = removeTrailingZeroes(price);
+    return price;
+  }
+
   return {
+    parsePrice,
     removeTrailingZeroes,
   };
 }

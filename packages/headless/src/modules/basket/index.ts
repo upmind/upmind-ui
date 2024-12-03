@@ -5,13 +5,15 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import basketMachine from "./basket.machine";
+export { useBasketProductConfig, useBasketProduct } from "./products";
 
 // --- utils
-import { every, find, get, some, omitBy, isEmpty, isFunction } from "lodash-es";
+import { every, find, get, some, omitBy, isNil, isEqual } from "lodash-es";
 import { responseCodes } from "../api";
 
 // --- types
-import type { IProductModel } from "../product/types";
+import type { ProductModel } from "../product/types";
+export * from "./types";
 // --------------------------------------------------------
 // create a global instance of the basket machine
 // and a global object to store state
@@ -89,7 +91,7 @@ export const useBasket = () => {
 
     // --- item functions
 
-    getItemsSnapshot: () => service.getSnapshot()?.context?.items || [],
+    getProducts: () => get(service.getSnapshot(), "context.products", []),
 
     findItem: (mapping: any) =>
       find(service.getSnapshot()?.context?.items, (basketItem: any) =>
@@ -112,55 +114,53 @@ export const useBasket = () => {
       ),
 
     addItem: async ({
-      id,
-      product_id,
+      // id,
+      productId,
       quantity,
       term,
       attributes,
       options,
-      provision_fields,
-      promotions,
-      sub_pids,
-    }: IProductModel) => {
+      provisionFields,
+      coupons,
+      subproducts,
+    }: ProductModel) => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
         // lets add the new product base don the provided config to the basket
         const mapping = omitBy(
           {
-            id,
-            product_id,
+            // id,
+            productId,
             quantity,
             term,
             attributes,
             options,
-            provision_fields,
-            promotions,
-            sub_pids,
+            provisionFields,
+            coupons,
+            subproducts,
           },
-          isEmpty
+          isNil
         );
 
         service.send({
           type: "ADD",
           data: mapping,
         });
-
         // then wait/check for the new product actor to be configured
         // then send the update event to the basket
         return find(
           service.getSnapshot()?.context?.items,
           (basketItem: any) => {
-            const isNew = isEmpty(basketItem.state.context?.basket_product);
-            return (
-              isNew &&
-              every(mapping, (value, key) => {
-                if (key == "id" && value) {
-                  return basketItem.id == value;
-                } else {
-                  return get(basketItem, `state.context.model.${key}`) == value;
-                }
-              })
-            );
+            const found = every(mapping, (value, key) => {
+              if (key == "id" && value) {
+                return basketItem.id == value;
+              } else {
+                const origin = get(basketItem, `state.context.model.${key}`);
+                const matches = isEqual(origin, value);
+                return matches;
+              }
+            });
+            return found;
           }
         ) as ActorRef<any, any>;
       });

@@ -7,6 +7,7 @@ import { useClientAddresses } from ".";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { parseAddress } from "./utils";
 import {
   some,
   first,
@@ -58,11 +59,14 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   return get({
-    url: useUrl(`clients/${client.id}/addresses`, { limit: 0 }),
+    url: useUrl(`clients/${client.id}/addresses`, {
+      limit: 0,
+      with: ["region", "country"].join(),
+    }),
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }: any) => parseAddress(data));
 }
 
 async function filterItems(
@@ -94,28 +98,27 @@ async function findItem(
 ) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
-
   const value = pick(data, [
-    "address_1",
-    "address_2",
+    "address1",
+    "address2",
     "city",
     "postcode",
-    "region_id",
-    "country_id",
+    "regionId",
+    "countryId",
   ]);
-
+  // same here
   const found = find(
     raw,
     item =>
       isEqual(item.state.context.model.id, data) ||
       isEqual(
         pick(item.state.context.model, [
-          "address_1",
-          "address_2",
+          "address1",
+          "address2",
           "city",
           "postcode",
-          "region_id",
-          "country_id",
+          "regionId",
+          "countryId",
         ]),
         value
       )
@@ -189,8 +192,8 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
   // these could/should be cached in the system machine, so theres no worry about performance
   await isReady();
   const countries = await fetchCountries();
-  const country = getCountry(model?.country_id);
-  const regions = await fetchRegions(model?.country_id || country?.id);
+  const country = getCountry(model?.countryId);
+  const regions = await fetchRegions(model?.countryId || country?.id);
 
   if (!countries || !regions) {
     return Promise.reject("Failed to load countries and regions");
@@ -219,7 +222,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
           manualPlace: !!model?.id,
           type: first(AddressTypes)?.key,
           place: null,
-          country_id: country?.id,
+          countryId: country?.id,
         },
       };
     })
@@ -244,13 +247,13 @@ async function parse(
       const existing = addresses.getItem(model.place);
       if (existing) {
         model.name ??= existing.name; // only update it if weve not already got a value
-        model.address_1 = existing.address_1;
-        model.address_2 = existing.address_2;
+        model.address1 = existing.address1;
+        model.address2 = existing.address2;
         model.city = existing.city;
         model.postcode = existing.postcode;
-        model.region_id = existing.region_id;
+        model.regionId = existing.regionId;
         model.state = existing.state;
-        model.country_id = existing.country_id;
+        model.countryId = existing.countryId;
       } else {
         const { getPlaceDetails } = places;
         const place = await getPlaceDetails(model.place);
@@ -262,17 +265,17 @@ async function parse(
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country fro mthe address
     // this will in turn update the phone schema to match the country
-    if (!some(regions, ["country_id", model.country_id])) {
-      regions = await fetchRegions(model.country_id);
+    if (!some(regions, ["countryId", model.countryId])) {
+      regions = await fetchRegions(model.countryId);
 
-      country = getCountry(model.country_id);
+      country = getCountry(model.countryId);
     }
 
     // now lets check our regions list to see if we have a match
     // if so, then we need to update the model with the new region id
-    // otherwise the region_id is reset to null
-    const region = find(regions, ["id", model?.region_id]);
-    model.region_id = get(region, "id", undefined);
+    // otherwise the regionId is reset to null
+    const region = find(regions, ["id", model?.regionId]);
+    model.regionId = get(region, "id");
 
     // finally lets force a manual place if we are invalid:
     const isValid = await validate({ schema, model }, _event)

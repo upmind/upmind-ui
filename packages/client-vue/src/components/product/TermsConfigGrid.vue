@@ -33,7 +33,7 @@
     </RadioCards>
   </FormField>
 
-  <pre v-if="errors">{{ errors }}</pre>
+  <!-- <pre v-if="errors">{{ errors }}</pre> -->
 </template>
 
 <script lang="ts" setup>
@@ -68,6 +68,7 @@ const props = withDefaults(
     label?: string;
     description?: string;
     // --- state
+    monthly?: boolean;
     required?: boolean;
     disabled?: boolean;
     loading?: boolean;
@@ -94,9 +95,9 @@ const styles = useStyles(
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
-      id: item.billing_cycle_months,
-      value: item.billing_cycle_months.toString(),
-      label: item.billing_cycle_name,
+      id: item.cycle,
+      value: item.cycle.toString(),
+      label: item.name,
       ...item,
     };
   });
@@ -107,15 +108,12 @@ const hasItems = computed(() => {
 });
 
 function getTerm(value: string) {
-  const item = find(props.items, ["billing_cycle_months", toNumber(value)]);
+  const item = find(props.items, ["cycle", toNumber(value)]);
   return item;
 }
 
 function isMonthly(item: any) {
-  const hasMonthlyPrice = some(props.items, ["billing_cycle_months", 1]);
-  return (
-    hasMonthlyPrice && item.monthly_price_from && item.billing_cycle_months > 1
-  );
+  return props.monthly && item.monthlyFromRegularPrice && item.cycle > 1;
 }
 function doResolve(item: string | number) {
   if (props.disabled) return;

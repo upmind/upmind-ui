@@ -112,8 +112,7 @@ export const useLoginSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        format: "email",
-        title: "Your email address",
+        title: "Your username or email address",
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {

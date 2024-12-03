@@ -171,7 +171,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (_, { data }: any) => {
+        error: (_context, { data }: any) => {
           // @ts-ignore
           let error = data?.error;
           // @ts-ignore

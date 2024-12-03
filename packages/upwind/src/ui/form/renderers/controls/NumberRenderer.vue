@@ -49,7 +49,7 @@ const isInteger = computed(() => {
 });
 
 const step: ComputedRef<number> = computed(() => {
-  const defaultStep = isInteger.value ? 1 : 0.1;
+  const defaultStep = 1;
   const multipleOf = get(control, "schema.multipleOf", defaultStep);
   return get(appliedOptions, "step", multipleOf);
 });

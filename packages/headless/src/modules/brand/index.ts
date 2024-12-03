@@ -11,6 +11,9 @@ import type { IBrand } from "@upmind-automation/types";
 // --- utils
 import { pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
+// --- types
+import { BrandTaxType } from "@upmind-automation/types";
+
 // --------------------------------------------------------
 // create a global instance of the brand machine
 // and a global object to store state
@@ -102,5 +105,9 @@ export const useBrand = () => {
       find(state.context.currencies, ["id", state?.context?.currency_id]),
     getCurrencies: () => state?.context?.currencies,
     getCountry: () => state?.context?.country_id,
+    // ---
+    getTaxType: () => state?.context?.tax_type,
+    checkIncludesTax: () =>
+      state?.context?.tax_type != BrandTaxType.EXCLUDE_TAX,
   };
 };

@@ -10,7 +10,7 @@
       <div
         v-if="active"
         :class="[
-          'z-50 flex items-center justify-center bg-white/75',
+          'z-50 flex items-center justify-center bg-white/75 text-secondary',
           !hasSlotContent ? 'fixed inset-0' : 'absolute inset-0',
           props.class,
         ]"

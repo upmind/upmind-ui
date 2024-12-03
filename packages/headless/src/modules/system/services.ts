@@ -107,30 +107,6 @@ async function fetchDepartments(_context: SystemContext, _event: SystemEvent) {
 }
 
 // --------------------------------------------------------
-// admin only endpoints
-
-// async function fetchSystemIPAddresses(_context: SystemContext, _event: SystemEvent) {
-//   const { get, useUrl, useTime } = useApi();
-
-//   return get({
-//     url: useUrl("admin/system/ip_addresses", { limit: 0 }),
-//     useCache: true,
-//     maxAge: useTime()?.DAY,
-//     withAccessToken: true
-//   }).then(({ data }: any) => data);
-// }
-
-// async function fetchTaxBusinessTypes(_context: SystemContext, _event: SystemEvent) {
-//   const { get, useUrl, useTime } = useApi();
-
-//   return get({
-//     url: useUrl("admin/tax_business_types", { limit: 0 }),
-//     useCache: true,
-//     maxAge: useTime()?.DAY
-//   }).then(({ data }: any) => data);
-// }
-
-// --------------------------------------------------------
 // EXPORTS
 
 export default {
@@ -141,6 +117,4 @@ export default {
   fetchLanguages,
   fetchStatuses,
   fetchDepartments,
-  // fetchSystemIPAddresses,
-  // fetchTaxBusinessTypes
 };

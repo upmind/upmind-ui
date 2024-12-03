@@ -8,34 +8,36 @@ export enum TaxTagTypes {
   FIXED = 2,
 }
 
+export enum ProductOrderTypes {
+  SINGLE_OPTION = 1,
+  QUANTITY_BASED = 2,
+  INHERIT = 3,
+}
 // --------------------------------------------------------
 // Interfaces
 export interface Basket {
-  account: Object; //IAccount;
+  account: any; //IAccount;
   account_id: string; //IAccount["id"];
+  address?: any; //IAddress;
   address_id: string; //IAddress["id"];
   balance: number;
   balance_formatted: string;
-  // TODO:
-  // brand: IBrand;
-  brand: any;
+  brand: any; //IBrand;
   brand_id: string; //IBrand["id"];
   category: string; //IBasketCategory;
   category_id: string; // IBasketCategory["id"];
-  client: Object; //IClient;
+  client: any; //IClient;
   client_id: string; //IClient["id"];
-  company_id: null | string; //ICompany["id"];
-  consolidation_invoice_id: null | string; //IInvoice["id"];
+  company_id?: string; //ICompany["id"];
+  consolidation_invoice_id?: string; //IInvoice["id"];
   consolidation_status: number;
-  contract_id: null | string; //IContract["id"];
+  contract_id?: string; //IContract["id"];
   create_datetime: string;
   created_at: string;
-  credit_invoice_id: null | string; //IInvoice["id"];
+  credit_invoice_id?: string; //IInvoice["id"];
   credited: number;
-  currency: Object; //ICurrency;
+  currency: any; //ICurrency;
   currency_id: string; //ICurrency["id"];
-  // TODO:
-  // custom_fields: Array; //ICustomFieldValue[];
   custom_fields: any[]; //ICustomFieldValue[];
   deleted_at: string | number;
   due_date: string;
@@ -57,20 +59,17 @@ export interface Basket {
   paid_amount: number;
   paid_amount_converted: number;
   paid_amount_formatted: string;
-  paid_datetime: null | number;
-  payment_details: Object; //IPaymentDetail;
+  paid_datetime?: number;
+  payment_details: any; //IPaymentDetail;
   payment_details_id: string; //IPaymentDetail["id"];
   pricelist_id: string; //IPricelist["id"];
-  // TODO:
-  // products: IBasketProduct[];
-  // promotions: IBasketPromotion[];
-  products: any[];
-  promotions: any[];
+  products: any[]; //IBasketProduct[]
+  promotions: any[]; //IBasketPromotion[]
   refund_changed: string | number;
   refund_request: string | number;
   refund_status: number;
-  reseller_account_id: null | string; //IAccount["id"];
-  status: Object; //IStatus;
+  reseller_account_id?: string; //IAccount["id"];
+  status: any; //IStatus;
   status_id: string; //IStatus["id"];
   total_amount: number;
   total_amount_converted: number;
@@ -84,13 +83,113 @@ export interface Basket {
   user_id: string; //IUser["id"];
   tax_amount: number;
   tax_amount_formatted: string;
-  // TODO:
-  // taxes: Array; //IAppliedTax[];
-  taxes: any[];
+  taxes: any[]; //IAppliedTax[]
   ip: string;
-  // TODO:
-  // warning_notes: Array; //IWarningNote[];
   warning_notes: any[]; //IWarningNote[];
+}
+
+type ISubProductChoices = Record<
+  string, // the category id
+  Record<
+    string, // the subproduct id
+    {
+      productId: string;
+      unitQuantity: number;
+      cycle: number;
+    }
+  >
+>;
+
+export interface BasketProduct {
+  id: string; // the basket product id (bpid)
+
+  // --- Model
+  productId: string;
+  quantity: number;
+  term: number;
+  options?: ISubProductChoices;
+  attributes?: ISubProductChoices;
+  provisionFields?: Record<string, any>;
+
+  // ---
+  product: BasketProductDetails;
+
+  // ---
+  summary: {
+    details: BasketProductSummaryDetail[];
+    // ---
+    pricing: BasketProductSummaryPrice[];
+  };
+
+  // ---
+  error?: {
+    term?: any;
+    attributes?: any;
+    options?: any;
+    provisionFields?: any;
+  };
+}
+
+export type BasketProductDetails = {
+  id: string;
+  name: string;
+  category: string;
+  serviceIdentifier?: string;
+  description?: string;
+  excerpt?: string;
+  imgUrl?: string;
+  meta?: Record<string, any> | null;
+  // ---
+  quantifiable?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+};
+
+export interface BasketProductSummaryDetail extends Price {
+  key: string;
+  category: string;
+  name: any;
+  serviceIdentifier?: string;
+  cycle?: number;
+  quantity?: number;
+  meta?: {
+    oneoff?: boolean;
+    quantifiable?: boolean;
+    discounted?: boolean;
+    free?: boolean;
+    invalid?: boolean;
+    overrides?: boolean;
+    includes?: boolean;
+  };
+}
+
+export interface Price {
+  currentAmount?: number;
+  currentPrice?: string;
+  // ---
+  regularAmount?: number;
+  regularPrice?: string;
+  // ---
+  currentSavingAmount?: number;
+  currentSaving?: string;
+}
+
+export interface BasketProductSummaryPrice
+  extends BasketProductSummaryDetail,
+    Price {
+  selling?: Price;
+}
+
+export interface BasketProductConfig {
+  product_id?: string;
+  quantity?: number;
+  billing_cycle_months?: number;
+  // ---
+  attributes?: any[];
+  options?: any[];
+  provision_field_values?: any[];
+  promotions?: any[]; //IProductPromotion[];
 }
 
 // --------------------------------------------------------
@@ -98,21 +197,22 @@ export interface Basket {
 
 export interface BasketContext {
   basket?: Basket;
-  invoice?: Object;
+  invoice?: any; //IInvoice;
   // ---
-  // TODO:
-  // items?: Array; // Array of actors
-  // error?: RequestError;
-  items?: ActorRef<any, any>[]; // Array of actors
-  error?: any;
+  items?: ActorRef<any, any>[]; // Array of actors of items pending or basket products being configured
+  products: BasketProduct[]; // Array of products in the basket
+  // ---
+  error?: {
+    provisioningErrors?: Record<string, any>;
+  };
   controller?: AbortController;
-  summary?: Object;
+  summary?: any; //IBasketSummary;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    billing_details?: ActorRef<any, any>;
+    billingDetails?: ActorRef<any, any>;
     currency?: ActorRef<any, any>;
-    custom_fields?: ActorRef<any, any>;
-    payment_details?: ActorRef<any, any>;
+    customFields?: ActorRef<any, any>;
+    paymentDetails?: ActorRef<any, any>;
     promotions?: ActorRef<any, any>;
   };
   // --- Payments
@@ -125,9 +225,6 @@ export interface BasketContext {
 
 export interface BasketEvent {
   type: "CHECK" | "REFRESH" | "AUTHENTICATED";
-  // TODO:
-  // error?: RequestError;
-  // data?: IBasket;
+  data?: any; //Basket;
   error?: any;
-  data?: any;
 }
