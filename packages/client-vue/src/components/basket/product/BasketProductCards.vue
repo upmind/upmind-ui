@@ -19,7 +19,9 @@
       v-for="index in Math.max(1, products.length)"
       :key="`skeleton-cart-item-${index}`"
     >
-      <UpmBasketProductSkeleton />
+      <UpmBasketProductSkeleton>
+        <slot name="skeleton" />
+      </UpmBasketProductSkeleton>
     </template>
   </div>
 </template>
