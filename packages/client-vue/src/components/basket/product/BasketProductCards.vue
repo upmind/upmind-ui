@@ -6,7 +6,11 @@
         :open="!!open[product.id]"
         :color="color"
         @update:open="trackOpen(product.id, $event)"
-      />
+      >
+        <template #default="slotProps">
+          <slot v-bind="slotProps" />
+        </template>
+      </UpmBasketProduct>
     </template>
   </div>
 
