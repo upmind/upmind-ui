@@ -6,10 +6,9 @@ import { useApi, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
-import { useValidation, useValidationParser } from "../../../../utils";
+import { useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
-import { reject, set, filter } from "lodash-es";
-import { responseCodes } from "../../../api";
+import { reject, set } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types";
@@ -250,18 +249,6 @@ async function createAddElement(
   });
 }
 
-function filterErrors(data: any) {
-  return filter(data, error => !error.title?.toLowerCase().includes("element"));
-}
-
-function processError(data: any) {
-  let error = data?.error;
-  if (error?.code == responseCodes.Unprocessable_Entity) {
-    error = useValidationParser(error);
-  }
-  return filterErrors(error || data);
-}
-
 /**
  * @name confirmSetup
  * @desc Here we confirm the setup of a new detail using the Stripe SDK. We
@@ -292,5 +279,4 @@ export default {
   confirmSetup,
   endSetup,
   update,
-  processError,
 };
