@@ -7,11 +7,7 @@ import { useFeedback } from "../../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-import {
-  useTime,
-  useValidationParser,
-  useModelParser,
-} from "../../../../utils";
+import { useTime, useModelParser } from "../../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { isFunction } from "lodash-es";
 
@@ -41,7 +37,6 @@ export default createMachine(
       model: undefined,
       // ---
       error: null,
-      uierrors: null,
     } as StripeContext,
     states: {
       loading: {
@@ -366,14 +361,10 @@ export default createMachine(
         error: (_context: StripeContext, { data }: StripeEvent) => {
           return services.processError(data);
         },
-        uierrors: (_context: StripeContext, { data }: StripeEvent) => {
-          return services.processUiErrors(data);
-        },
       }),
 
       clearError: assign({
         error: null,
-        uierrors: null,
       }),
     },
 

@@ -54,13 +54,13 @@
       />
 
       <Alert
-        v-if="!isEmpty(uierrors)"
+        v-if="!isEmpty(errors)"
         color="error"
         icon="alert-triangle"
         :title="t('payment.failed')"
       >
         <div class="mt-2 text-sm">
-          <li v-for="error in uierrors" :key="error.title" class="my-0 py-0">
+          <li v-for="error in errors" :key="error.title" class="my-0 py-0">
             {{ error.title }}
           </li>
         </div>
@@ -93,7 +93,6 @@ const props = defineProps<{
 const {
   meta,
   errors,
-  uierrors,
   model,
   schema,
   uischema,

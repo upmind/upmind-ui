@@ -46,7 +46,6 @@ export interface StripeContext {
   // TODO:
   // error?: RequestError;
   error?: any;
-  uierrors?: any;
 }
 
 // --------------------------------------------------------

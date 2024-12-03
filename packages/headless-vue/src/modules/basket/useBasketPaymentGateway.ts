@@ -28,7 +28,6 @@ export const useBasketPaymentGateway = () => {
     state: computed(() => stateValue(paymentGateway, "value")),
     context: computed(() => stateValue(paymentGateway, "context")),
     errors: computed(() => contextValue(paymentGateway, "error")),
-    uierrors: computed(() => contextValue(paymentGateway, "uierrors")),
     //messages: computed(()=> contextValue(paymentGateway, 'messages')),
     // ---
     meta: computed(() => ({
