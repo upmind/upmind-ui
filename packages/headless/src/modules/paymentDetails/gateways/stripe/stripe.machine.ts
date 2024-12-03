@@ -41,6 +41,7 @@ export default createMachine(
       model: undefined,
       // ---
       error: null,
+      uierrors: null,
     } as StripeContext,
     states: {
       loading: {
@@ -363,18 +364,17 @@ export default createMachine(
       // @ts-ignore
       setError: assign({
         error: (_context: StripeContext, { data }: StripeEvent) => {
-          let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            error = useValidationParser(error);
-          }
-
-          return error || data;
+          return services.processError(data);
+        },
+        uierrors: (_context: StripeContext, { data }: StripeEvent) => {
+          return services.processUiErrors(data);
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({
+        error: null,
+        uierrors: null,
+      }),
     },
 
     guards: {
