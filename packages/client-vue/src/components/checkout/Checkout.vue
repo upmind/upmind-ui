@@ -137,6 +137,7 @@ import UpmBack from "../navigation/Back.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
+import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
@@ -144,7 +145,7 @@ const router = useRouter();
 // ---
 
 const { meta: account } = useSession();
-const { isReady, meta, invoice } = useBasket();
+const { state, isReady, meta, invoice } = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -260,18 +261,22 @@ const processingIcon = computed(() => {
   return "basket";
 });
 // --- side effects
-watch(
-  meta,
-  ({ isComplete, hasPaid }: { isComplete: boolean; hasPaid: boolean }) => {
-    if (isComplete) {
-      // MAYBE: redirect after complete instead of dialog?
-      router.replace({
-        name: "order",
-        params: { orderId: invoice.value?.id },
-        query: { payment_success: hasPaid.toString() },
-      });
-      return;
-    }
+watch(meta, (value, oldValue) => {
+  // TEMP: DC added this log to be able to debug production using sentry when we have issues with the checkout not being Ready/Able to actually Check Out
+  if (!isEqual(value, oldValue)) {
+    console.info("** Checkout State **", {
+      state: state.value,
+      value,
+    });
   }
-);
+
+  if (value.isComplete) {
+    router.replace({
+      name: "order",
+      params: { orderId: invoice.value?.id },
+      query: { payment_success: value.hasPaid.toString() },
+    });
+    return;
+  }
+});
 </script>
