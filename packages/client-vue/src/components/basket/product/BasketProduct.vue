@@ -23,7 +23,9 @@
           :edit-link="editLink"
           :taxes="meta.hasTaxIncluded"
           @update:quantity="updateQuantity"
-        />
+        >
+          <slot :product="product" :pricing="pricing" :summary="summary" />
+        </UpmBasketProductSummary>
       </div>
 
       <!-- These margins help us position correctly (there is additional space when the details are closed) -->

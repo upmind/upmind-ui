@@ -45,6 +45,8 @@
         <Skeleton class="h-6 w-48 text-sm" />
         <!-- Terms Description -->
       </div>
+
+      <slot />
     </div>
 
     <!-- Actions Section -->
