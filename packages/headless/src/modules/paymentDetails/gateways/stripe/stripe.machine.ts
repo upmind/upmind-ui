@@ -1,6 +1,8 @@
 // --- external
 import { createMachine, assign, actions, spawn } from "xstate";
 const { pure, sendParent, escalate } = actions;
+import { filter, isString, includes, lowerCase } from "lodash-es";
+
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../../feedback";
@@ -368,9 +370,14 @@ export default createMachine(
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
-          }
+          } else {
+            error = error || data;
 
-          return error || data;
+            return filter(
+              error,
+              e => isString(e.title) && !includes(lowerCase(e.title), "element")
+            );
+          }
         },
       }),
 
