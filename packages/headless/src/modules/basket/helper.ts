@@ -58,8 +58,16 @@ async function fetch(
   if (isEmpty(productId)) return Promise.resolve([]);
 
   const data = { productId };
+  const basketSnapshot = get(basket.getSnapshot(), "context.basket");
 
-  return productServices.fetch(basket, { data });
+  return productServices.fetch(
+    {
+      basketId: basketSnapshot?.id,
+      currencyId: basketSnapshot?.currency_id,
+      promotions: basketSnapshot?.promotions,
+    },
+    { data }
+  );
 }
 
 /**
@@ -83,7 +91,16 @@ async function fetchRelated(
     offset: 0, // default/initial offset
   });
 
-  return productServices.fetchRelated(basket, { data });
+  const basketSnapshot = get(basket.getSnapshot(), "context.basket");
+
+  return productServices.fetchRelated(
+    {
+      basketId: basketSnapshot?.id,
+      currencyId: basketSnapshot?.currency_id,
+      promotions: basketSnapshot?.promotions,
+    },
+    { data }
+  );
 }
 
 /**
@@ -94,7 +111,7 @@ async function fetchRelated(
  * @param basket
  * @returns {IProduct} // single product
  */
-async function fetchMany(
+async function fetchSelected(
   productIds: string[],
   context: any,
   basket: any
@@ -102,8 +119,15 @@ async function fetchMany(
   if (isEmpty(productIds)) return Promise.resolve([]);
 
   const data = { productIds };
-
-  return productServices.fetchMany(basket, { data });
+  const basketSnapshot = get(basket.getSnapshot(), "context.basket");
+  return productServices.fetchSelected(
+    {
+      basketId: basketSnapshot?.id,
+      currencyId: basketSnapshot?.currency_id,
+      promotions: basketSnapshot?.promotions,
+    },
+    { data }
+  );
 }
 
 /**
@@ -144,7 +168,8 @@ async function update(item: any, context: any, basket: any) {
   return productServices.update(
     {
       basketId: basketSnapshot?.id,
-      promotions: context?.promotions,
+      promotions: basketSnapshot?.promotions,
+      currencyId: basketSnapshot?.currency_id,
     },
     { data: item }
   );
@@ -194,9 +219,17 @@ async function sync(items: any, context: any, basket: any) {
 export function basketSubscription(callback: any, onReceive: any) {
   const basket = useBasket();
 
+  let isRefreshing = false;
+
   // lets let our subscriber know when the basket has been refreshed
   basket.service.onTransition(state => {
-    if (state.matches("refreshing.complete")) {
+    if (state.matches("shopping.refreshing.processing")) {
+      isRefreshing = true;
+    }
+
+    if (isRefreshing && state.matches("shopping.refreshing.processed")) {
+      isRefreshing = false;
+      console.log("basketHelper", "onTransition", state.value);
       callback({ type: "REFRESH", data: state.context?.basket });
     }
   });
@@ -231,11 +264,15 @@ export function basketSubscription(callback: any, onReceive: any) {
           });
         break;
 
-      case "FETCH_MANY":
-        fetchMany(event.target, event.context, basket)
+      case "FETCH_SELECTED":
+        if (isEmpty(event.target)) {
+          callback({ type: "FETCHED", data: [] });
+          return;
+        }
+        fetchSelected(event.target, event.context, basket)
           .then(data => callback({ type: "FETCHED", data }))
           .catch(error => {
-            // console.error("basketHelper", "FETCH_MANY", error);
+            // console.error("basketHelper", "FETCH_SELECTED", error);
             callback({ type: "ERROR", data: error });
           });
         break;

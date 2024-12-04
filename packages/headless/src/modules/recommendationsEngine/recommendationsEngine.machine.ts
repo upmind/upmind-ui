@@ -8,8 +8,21 @@ import { basketSubscription } from "../basket/helper";
 
 // --- utils
 import { useTime } from "../../utils";
-import { parseBasketItem, parseRecommendations } from "./utils";
-import { defaultsDeep, remove, reduce, some, isEmpty } from "lodash-es";
+import {
+  parseBasketItem,
+  parseRelatedProducts,
+  parseRecommendation,
+} from "./utils";
+import {
+  defaultsDeep,
+  reduce,
+  isEmpty,
+  map,
+  xorBy,
+  find,
+  uniq,
+  concat,
+} from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
@@ -27,26 +40,28 @@ export default createMachine(
     context: {} as RecommendationsEngineContext,
     states: {
       subscribing: {
-        entry: ["setContext", "clearLookups"],
-        always: {
-          target: "loading",
-          actions: ["setBasketHelper"],
-        },
+        entry: ["setContext", "clearLookups", "setBasketHelper", "getBasket"],
         on: {
-          REFRESH: {
-            // do nothing
-          },
+          // REFRESH: {
+          //   target: "loading",
+          //   actions: ["setBasket", "setLookups"],
+          // },
         },
       },
 
       loading: {
-        entry: ["cancelController", "clearError", "getBasket"],
+        entry: ["clearError", "clearRecommendations", "fetchProducts"],
         on: {
-          REFRESH: [
+          REFRESH: {
+            // do nothing
+          },
+          FETCHED: [
             {
               target: "available",
-              actions: ["setLookups"],
+              actions: ["setRecommendations"],
+              cond: "hasData",
             },
+            { target: "unavailable" },
           ],
           ERROR: {
             target: "error",
@@ -93,10 +108,10 @@ export default createMachine(
       },
     },
     on: {
-      FETCH: {
-        // target: ["fetching"],
-        cond: "isValid",
-      },
+      // FETCH: {
+      //   // target: ["fetching"],
+      //   cond: "isValid",
+      // },
 
       ADD: [
         {
@@ -111,16 +126,18 @@ export default createMachine(
       },
 
       RESET: {
-        actions: ["resetModel", "resetLookups"],
+        actions: ["resetModel"],
       },
 
       REFRESH: {
-        actions: ["setLookups"],
+        target: "loading",
+        actions: ["setBasket", "setLookups"],
+        cond: "hasBasketChanged",
       },
 
-      SEEN: {
-        actions: ["setSeenLookups"],
-      },
+      // SEEN: {
+      //   actions: ["setSeenLookups"],
+      // },
       STOP: {
         target: "complete",
       },
@@ -131,15 +148,21 @@ export default createMachine(
       setContext: assign((context, _event) =>
         defaultsDeep(context, {
           model: [],
-          lookups: {
-            recommendations: [],
-            seen: [],
-            added: [],
+          raw: {
+            products: [],
+            related: [],
+            categoryMeta: [],
+            productMeta: [],
           },
+          recommendations: [],
           // ---
           controller: undefined,
           // ---
           error: undefined,
+          // ---
+          basketId: undefined,
+          currencyId: undefined,
+          promotions: [],
           // ---
           basketHelper: undefined,
           itemBuilder: undefined,
@@ -148,6 +171,12 @@ export default createMachine(
         })
       ),
 
+      setBasket: assign({
+        basketId: (_context, { data }: AnyEventObject) => data.id,
+        currencyId: (_context, { data }: AnyEventObject) => data?.currency_id,
+        promotions: (_context, { data }: AnyEventObject) =>
+          data?.promotions ?? [],
+      }),
       // ---
 
       setBasketHelper: assign(({ basketHelper }: any) => {
@@ -209,27 +238,31 @@ export default createMachine(
 
       fetchRelated: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
-        (context, _event) => {
-          // not all values might be products, eg an exiting RecommendationsEngine value,
-          // so we need to filter out any non product values
-          // and then map them to a be a basket item model
-          debugger;
-          const products = reduce(
-            context.model,
-            (result: any[], item: any) => {
-              debugger;
-              if (item?.productId) {
-                const model = context.itemMapper(item);
-                result.push(model);
-              }
-              return result;
-            },
-            []
-          );
-
+        (context, { data }) => {
           return {
-            type: "SYNC",
-            target: products,
+            type: "FETCH_RELATED",
+            target: data.productId,
+            context,
+          };
+        }
+      ),
+
+      fetchProducts: sendTo(
+        ({ basketHelper }: any, _event) => basketHelper,
+        (context, _event) => {
+          const productIds = uniq(
+            map(
+              concat(
+                context.raw.related,
+                context.raw.productMeta,
+                context.raw.categoryMeta
+              ),
+              "object_id"
+            )
+          );
+          return {
+            type: "FETCH_SELECTED",
+            target: productIds,
             context,
           };
         }
@@ -243,22 +276,22 @@ export default createMachine(
 
       add: assign({
         // model: (
-        //   { model, lookups, type }: RecommendationsEngineContext,
+        //   { model, raw, type }: RecommendationsEngineContext,
         //   { data }: AddEvent
         // ) => {
         //   let available: any[] = [];
         //   switch (type) {
         //     case RecommendationsEngineTypes.register:
-        //       available = lookups?.searched || [];
+        //       available = raw?.searched || [];
         //       break;
         //     case RecommendationsEngineTypes.transfer:
-        //       available = lookups?.searched || [];
+        //       available = raw?.searched || [];
         //       break;
         //     // case RecommendationsEngineTypes.existing/owned:
-        //     //   available = lookups?.owned;
+        //     //   available = raw?.owned;
         //     //   break;
         //     case RecommendationsEngineTypes.basket:
-        //       available = lookups?.basket || [];
+        //       available = raw?.basket || [];
         //       break;
         //   }
         //   const RecommendationsEngine = parseValue(data, model, available);
@@ -277,23 +310,23 @@ export default createMachine(
 
       // ---
       setModel: assign({
-        // model: ({ model, lookups, type }: any, { data }: AddEvent) =>
+        // model: ({ model, raw, type }: any, { data }: AddEvent) =>
         //   reduce(
         //     data,
         //     (result, item) => {
         //       let available = [];
         //       switch (type) {
         //         case RecommendationsEngineTypes.register:
-        //           available = lookups?.searched;
+        //           available = raw?.searched;
         //           break;
         //         case RecommendationsEngineTypes.transfer:
-        //           available = lookups?.searched;
+        //           available = raw?.searched;
         //           break;
         //         case RecommendationsEngineTypes.existing:
-        //           available = lookups?.owned;
+        //           available = raw?.owned;
         //           break;
         //         case RecommendationsEngineTypes.basket:
-        //           available = lookups?.basket;
+        //           available = raw?.basket;
         //           break;
         //       }
         //       const RecommendationsEngine: any = parseValue(
@@ -339,72 +372,92 @@ export default createMachine(
       }),
 
       clearLookups: assign({
-        lookups: (
+        raw: (
           _context: RecommendationsEngineContext,
           _event: AnyEventObject
         ) => {
           return {
-            recommendations: [],
-            seen: [],
-            added: [],
+            products: [],
+            related: [],
+            categoryMeta: [],
+            productMeta: [],
           };
         },
       }),
 
       setLookups: assign({
-        lookups: (
-          { lookups }: RecommendationsEngineContext,
+        raw: (
+          _context: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          const recommendations = parseRecommendations(data as IBasket);
-          const added = remove(recommendations, ({ productId }) =>
-            some(data.products, ["productId", productId])
-          );
-          const seen = remove(recommendations, ({ productId }) =>
-            some(lookups.seen, ["productId", productId])
-          );
+          const products = data?.products ?? [];
+          const related = parseRelatedProducts(data as IBasket);
 
           return {
-            recommendations,
-            added,
-            seen: lookups.seen ?? seen, // persist any seen Recommendations
+            products,
+            related,
+            categoryMeta: [], //TODO: add products recommended for this category via META
+            productMeta: [], // TODO: add products recommended for this product via META
           };
         },
       }),
 
-      setSeenLookups: assign({
-        lookups: (
-          { lookups }: RecommendationsEngineContext,
+      // setSeen: assign({
+      //   recommendations: (
+      //     { raw }: RecommendationsEngineContext,
+      //     { data }: AnyEventObject
+      //   ) => {
+      //     // if data is empty assume weve seen ALL recommendations,
+      //     //  otherwise if specified, move only the provided to the seen Recommendations
+      //     const seen = isEmpty(data)
+      //       ? (raw.recommendations ?? [])
+      //       : remove(raw.recommendations ?? [], ({ productId }) =>
+      //           some(data.products, ["productId", productId])
+      //         );
+
+      //     return {
+      //       products: raw.products ?? [],
+      //       recommendations: raw.recommendations ?? [],
+      //       added: raw.added ?? [],
+      //       seen,
+      //     };
+      //   },
+      // }),
+
+      // resetSeen: assign({
+      //   raw: (
+      //     { raw }: RecommendationsEngineContext,
+      //     _event: AnyEventObject
+      //   ) => {
+      //     return {
+      //       products: raw?.products,
+      //       seen: [],
+      //       recommendations: raw?.recommendations,
+      //       added: raw?.added,
+      //     };
+      //   },
+      // }),
+
+      setRecommendations: assign({
+        recommendations: (
+          { raw }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          // if data is empty assume weve seen ALL recommendations,
-          //  otherwise if specified, move only the provided to the seen Recommendations
-          const seen = isEmpty(data)
-            ? (lookups.recommendations ?? [])
-            : remove(lookups.recommendations ?? [], ({ productId }) =>
-                some(data.products, ["productId", productId])
-              );
+          const augmentedRecommendations = reduce(
+            raw.related,
+            (result: any[], raw: any) => {
+              raw.product = find(data, ["id", raw.object_id]);
+              result.push(parseRecommendation(raw));
+              return result;
+            },
+            []
+          );
 
-          return {
-            recommendations: lookups.recommendations ?? [],
-            added: lookups.added ?? [],
-            seen,
-          };
+          return augmentedRecommendations;
         },
       }),
 
-      resetLookups: assign({
-        lookups: (
-          { lookups }: RecommendationsEngineContext,
-          _event: AnyEventObject
-        ) => {
-          return {
-            seen: [],
-            recommendations: lookups?.recommendations,
-            added: lookups?.added,
-          };
-        },
-      }),
+      clearRecommendations: assign({ recommendations: [] }),
 
       setError: assign({
         error: (
@@ -429,15 +482,43 @@ export default createMachine(
         { data }: AnyEventObject
       ) => data?.name !== "AbortError",
 
+      hasData: (
+        _context: RecommendationsEngineContext,
+        { data }: AnyEventObject
+      ) => !isEmpty(data),
+
       hasRecommendations: (
-        { lookups }: RecommendationsEngineContext,
+        { recommendations }: RecommendationsEngineContext,
         _event: AnyEventObject
-      ) => !isEmpty(lookups.recommendations),
+      ) => !isEmpty(recommendations),
 
       hasNoRecommendations: (
-        { lookups }: RecommendationsEngineContext,
+        { recommendations }: RecommendationsEngineContext,
         _event: AnyEventObject
-      ) => isEmpty(lookups.recommendations),
+      ) => isEmpty(recommendations),
+
+      hasBasketChanged: (
+        { basketId, currencyId, promotions, raw }: RecommendationsEngineContext,
+        { data }: AnyEventObject
+      ) => {
+        //  NB: data is raw basket data so use snake_case for comparison
+        const basketChanged = basketId !== data?.id;
+        const currencyChanged = currencyId !== data?.currency_id;
+        const promotionsChanged = !isEmpty(
+          xorBy(promotions, data?.promotions, "promotion_id")
+        );
+        const productsChanged = !isEmpty(
+          xorBy(raw.products, data?.products, "product_id")
+        );
+
+        const value =
+          basketChanged ||
+          currencyChanged ||
+          promotionsChanged ||
+          productsChanged;
+
+        return value;
+      },
     },
 
     delays: {

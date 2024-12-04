@@ -75,7 +75,7 @@ async function fetch(
   }).then(({ data }: any) => data);
 }
 
-async function fetchMany(
+async function fetchSelected(
   {
     basketId,
     currencyId,
@@ -94,6 +94,7 @@ async function fetchMany(
   // ---
   const { get: getRequest, useUrl } = useApi();
 
+  debugger;
   const params = {
     currency_id: currency.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
@@ -175,6 +176,7 @@ async function fetchRelated(
 async function update(
   {
     basketId,
+    currencyId,
     promotions,
   }: {
     basketId: string;
@@ -289,7 +291,7 @@ async function sync(
 
 export default {
   fetch,
-  fetchMany,
+  fetchSelected,
   fetchRelated,
   update,
   remove,
