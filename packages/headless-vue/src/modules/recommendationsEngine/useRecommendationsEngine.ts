@@ -31,9 +31,7 @@ export const useRecommendationsEngine = () => {
   return {
     state: computed(() => state.value.value),
     // ---
-    recommendations: computed(
-      () => state.value.context.lookups?.recommendations
-    ),
+    recommendations: computed(() => state.value.context.recommendations),
     model: computed(() => map(state.value.context.model, "domain")),
     // ---
     errors: computed(() => state.value.context?.error),

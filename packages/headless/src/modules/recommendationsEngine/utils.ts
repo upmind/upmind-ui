@@ -1,8 +1,8 @@
 // --- internal
-import { parseBasketProductModel } from "../product/utils";
+import { parseProduct, parseTerms } from "../product/utils";
 
 // --- utils
-import { get, reduce, uniqBy, isEmpty, sortBy } from "lodash-es";
+import { get, reduce, concat, sortBy, find, reject } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types
@@ -32,7 +32,7 @@ export function parseBasketItem(data: BasketProduct) {
  * @param {IBasket} raw - The raw basket data to parse.
  * @returns {Recommendation[]} The parsed list of recommendations.
  */
-export function parseRecommendations(raw: IBasket): Recommendation[] {
+export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
   const products: IBasketProduct[] = get(
     raw,
     "products",
@@ -41,41 +41,36 @@ export function parseRecommendations(raw: IBasket): Recommendation[] {
 
   return reduce(
     products,
-    (result: Recommendation[], item: IBasketProduct) => {
+    (result: RelatedProduct[], item: IBasketProduct) => {
       // safe check : dont include recommendations for products that are not single products
 
       if (item?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
         return result;
-
-      const recommendations = reduce(
-        sortBy(item?.product?.related, "order"),
-        (resultRelated: Recommendation[], related: RelatedProduct) => {
-          if (!related.active) return resultRelated;
-
-          const model = parseBasketProductModel(related);
-
-          resultRelated.push({
-            id: related.product_id, // this is the productId that forms the basis of the recommendation, is the sou
-            productId: related.object_id, // this is the productId that is recommended
-            name:
-              useTranslateName(related) || useTranslateName(related.product),
-            label: useTranslateField(related, "label"),
-            description:
-              useTranslateField(related, "description") ||
-              useTranslateField(related.product, "description") ||
-              "",
-            model,
-          });
-
-          return resultRelated;
-        },
-        []
+      const related = reject(
+        item?.product?.related,
+        (related: RelatedProduct) =>
+          !related.active || related.object_type !== "product"
       );
-
-      if (!isEmpty(recommendations)) result.push(...recommendations);
-
-      return uniqBy(result, "productId");
+      return concat(result, related); //uniqBy(result, "object_id");
     },
     []
   );
+}
+
+export function parseRecommendation(raw: RelatedProduct): Recommendation {
+  const product = parseProduct(raw.product);
+  const terms = parseTerms(raw?.product?.prices);
+  const term = find(terms, { cycle: product.cycle });
+  return {
+    ...product,
+    ...term,
+    // --- forced overrides
+    id: raw?.product_id, // this is the productId that forms the basis of the recommendation, is the sou
+    productId: product.id, // this is the productId that is recommended
+    label: useTranslateField(raw, "label"),
+    name: useTranslateName(raw) || product.name,
+    description: useTranslateField(raw, "description") || product.description,
+    excerpt: useTranslateField(raw, "short_description") || product.excerpt,
+    imgUrl: raw?.image_url || product.imgUrl,
+  };
 }

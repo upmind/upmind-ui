@@ -21,15 +21,19 @@ export interface Recommendation {
 
 export interface RecommendationsEngineContext {
   model?: string[];
-  lookups: {
-    recommendations?: Recommendation[];
-    seen?: Recommendation[];
-    added?: Recommendation[];
+  recommendations: Recommendation[];
+  raw: {
+    products?: BasketProduct[];
+    related: RelatedProduct[];
+    categoryMeta?: RelatedProduct[];
+    productMeta?: RelatedProduct[];
   };
   // ---
   error?: any;
   controller?: AbortController;
   // ---
+  currencyId?: string;
+  promotions?: string[];
   basketId?: string;
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
@@ -38,6 +42,8 @@ export interface RecommendationsEngineContext {
 }
 
 export interface RelatedProduct extends IRelatedObject {
+  image_url?: string;
+  short_description?: string;
   product?: IProduct;
 }
 // --------------------------------------------------------

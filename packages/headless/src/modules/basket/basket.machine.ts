@@ -153,7 +153,7 @@ export default createMachine(
                 invoke: {
                   src: "refresh",
                   onDone: {
-                    target: "complete",
+                    target: "processed",
                     actions: [
                       "setError",
                       "updateBasket",
@@ -164,6 +164,13 @@ export default createMachine(
                   onError: {
                     target: "complete",
                     actions: ["setError"],
+                  },
+                },
+              },
+              processed: {
+                after: {
+                  wait: {
+                    target: "complete",
                   },
                 },
               },

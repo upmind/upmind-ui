@@ -56,7 +56,7 @@ export const useDomain = (
   const { service: basket } = useBasket();
 
   basket.onTransition(state => {
-    if (state.matches("shopping.refreshing.complete")) {
+    if (state.matches("shopping.refreshing.processed")) {
       // ---
       const currencyActor: any = state.context?.actors?.currency;
       const basketCurrency = currencyActor?.getSnapshot()?.context?.model?.code;

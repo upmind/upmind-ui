@@ -112,7 +112,7 @@ export const parseProduct = (
 
 export const parseTerms = (
   raw: any,
-  promotionDisplayType: PromotionDisplayTypes
+  promotionDisplayType?: PromotionDisplayTypes
 ) => {
   const { getBillingCycle } = useSystem();
 
@@ -158,7 +158,7 @@ export const parseTerms = (
 
 export const parseSubproduct = (
   data: any,
-  promotionDisplayType: PromotionDisplayTypes,
+  promotionDisplayType?: PromotionDisplayTypes,
   cycle?: number
 ) => {
   const { getBillingCycle } = useSystem();
@@ -274,7 +274,7 @@ export const parseSubproduct = (
 
 export const parsePromotion = (
   data: any,
-  promotionDisplayType: PromotionDisplayTypes
+  promotionDisplayType: PromotionDisplayTypes = PromotionDisplayTypes.PERCENTAGE
 ) => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
