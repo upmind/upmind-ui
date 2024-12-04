@@ -11,7 +11,10 @@
           :key="item.value"
           :value="item.const || item.value"
         >
-          {{ item?.label || item?.title || item?.textValue }}
+          <span class="flex items-center space-x-1">
+            <span>{{ item?.title || item?.textValue }}</span>
+            <span v-if="item?.label" class="opacity-60">{{ item?.label }}</span>
+          </span>
         </SelectItem>
       </SelectGroup>
     </SelectContent>
