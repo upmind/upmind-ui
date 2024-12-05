@@ -238,7 +238,7 @@ export default createMachine(
 
       fetchRelated: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
-        (context, { data }) => {
+        (context, { data }: AnyEventObject) => {
           return {
             type: "FETCH_RELATED",
             target: data.productId,

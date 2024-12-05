@@ -41,7 +41,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
   return reduce(
     products,
-    (result: RelatedProduct[], item: IBasketProduct) => {
+    (result: RelatedProduct[], item: IBasketProduct): RelatedProduct[] => {
       // safe check : dont include recommendations for products that are not single products
 
       if (item?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
@@ -51,7 +51,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
         (related: RelatedProduct) =>
           !related.active || related.object_type !== "product"
       );
-      return concat(result, related); //uniqBy(result, "object_id");
+      return concat(result, related) as RelatedProduct[]; //uniqBy(result, "object_id");
     },
     []
   );
