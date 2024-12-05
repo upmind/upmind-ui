@@ -1,11 +1,14 @@
 <template>
-  <p v-if="!free" class="text-muted my-0 text-sm italic leading-5">
-    {{ t(`product.terms.billing.${cycle}`, [currentPrice]) }}.
-    <template v-if="discounted && cycle !== 0"
-      >{{ t("product.terms.renews", [regularPrice]) }}.
+  <p class="text-muted my-0 text-sm italic leading-5">
+    <template v-if="cycle !== 0 || !free">
+      {{ t(`product.terms.billing.${cycle}`, [currentPrice]) }}.
+      <template v-if="discounted && cycle !== 0"
+        >{{ t("product.terms.renews", [regularPrice]) }}.
+      </template>
+      <template v-if="taxes">{{ t("product.terms.taxes") }}.</template>
+      <template v-else>{{ t("product.terms.taxesExcluded") }}.</template>
     </template>
-    <template v-if="taxes">{{ t("product.terms.taxes") }}.</template>
-    <template v-else>{{ t("product.terms.taxesExcluded") }}.</template>
+    <template v-else> {{ t("product.terms.oneTimeFree") }}. </template>
   </p>
 </template>
 

@@ -5,7 +5,6 @@
         v-if="primary"
         v-bind="pricing"
         :discounted="pricing.meta?.discounted"
-        :free="pricing.meta?.free"
         :disabled="error"
         size="md"
         class="mb-2 inline-block md:hidden"
@@ -28,7 +27,6 @@
                 v-if="primary"
                 v-bind="pricing"
                 :discounted="pricing.meta?.discounted"
-                :free="pricing.meta?.free"
                 :disabled="error"
                 class="-mt-3 hidden md:block"
               />
@@ -87,7 +85,6 @@
             <RegularPrice
               :discounted="pricing.meta?.discounted"
               :regular-price="pricing.regularPrice"
-              :free="pricing.meta?.free"
             />
           </div>
           <QuantityField
@@ -111,7 +108,6 @@
         <RegularPrice
           :discounted="pricing.meta?.discounted"
           :regular-price="pricing.regularPrice"
-          :free="pricing.meta?.free"
         />
       </div>
     </div>
