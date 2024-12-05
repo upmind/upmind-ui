@@ -1,5 +1,7 @@
 <template>
-  <div class="flex flex-col items-center justify-between md:flex-row">
+  <div
+    class="flex flex-col items-center justify-between p-5 px-6 md:flex-row md:p-8 md:px-9"
+  >
     <div class="w-full">
       <div class="text-primary font-medium">
         {{ t("payment.noPayment.title") }}
