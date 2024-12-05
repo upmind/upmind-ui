@@ -24,7 +24,7 @@
 
     <span
       v-if="props.meta.discounted"
-      class="text-2xs text-base-500 leading-none line-through"
+      class="text-2xs text-emphasis-medium leading-none line-through"
     >
       {{ props.regularPrice }}
     </span>
