@@ -86,7 +86,7 @@ export const useBasket = () => {
       service.send({ type: "REFRESH", data });
       return waitFor(service, state =>
         state.matches("shopping.refreshing.processed")
-      );
+      ).then(() => service.getSnapshot());
     },
 
     // --- item functions
