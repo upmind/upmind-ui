@@ -82,6 +82,7 @@ export const useSchema = (context: GatewayContext) => {
         title: "Gateway ID",
         // @ts-ignore
         const: context.gateway.id,
+        readOnly: true,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
       // ---
@@ -103,24 +104,28 @@ export const useSchema = (context: GatewayContext) => {
       //  ---
       store_on_payment: {
         type: "boolean",
-        default: true,
+        default: context.can_store,
+        readOnly: context.can_store == false,
       },
       store_on_payment_auto_payment: {
         type: "boolean",
         title: "",
         description: "",
-        default: true,
+        default: context.can_store,
+        readOnly: context.can_store == false,
       },
       return_url: {
         type: "string",
         title: "Return URL",
         format: "uri-reference",
+        readOnly: true,
         const: `?${QUERY_PARAMS.SUCCESS}=${encodeURIComponent(success)}&${QUERY_PARAMS.FAILED}=${encodeURIComponent(fail)}`,
       },
       cancel_url: {
         type: "string",
         title: "Cancel URL",
         format: "uri",
+        readOnly: true,
         const: cancel,
       },
     },
