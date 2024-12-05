@@ -1,5 +1,5 @@
 <template>
-  <p class="text-muted my-0 text-sm italic leading-5">
+  <p class="text-emphasis-medium my-0 text-sm italic leading-5">
     <template v-if="cycle !== 0 || !free">
       {{ t(`product.terms.billing.${cycle}`, [currentPrice]) }}.
       <template v-if="discounted && cycle !== 0"
