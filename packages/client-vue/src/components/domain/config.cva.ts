@@ -21,12 +21,12 @@ export default {
       badges: cva("flex items-center gap-2"),
       title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(
-        "text-base-700 m-0 inline-flex  items-center gap-2 text-xs font-normal leading-5"
+        "text-emphasis-medium m-0 inline-flex  items-center gap-2 text-xs font-normal leading-5"
       ),
 
       // ---
       footer: cva(
-        "text-base-700 m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
+        "text-emphasis-medium m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
       ),
       actions: cva("w-full min-w-48 empty:hidden md:w-auto"),
       owned: {
@@ -37,7 +37,9 @@ export default {
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
-        discount: cva("text-base-500 text-md block font-normal line-through"),
+        discount: cva(
+          "text-emphasis-medium text-md block font-normal line-through"
+        ),
         tld: cva("uppercase not-italic"),
         action: cva(""),
       },
@@ -50,7 +52,9 @@ export default {
         ),
         prices: cva("inline-block"),
         price: cva("not-italic"),
-        discount: cva("text-base-500 text-md block font-normal line-through"),
+        discount: cva(
+          "text-emphasis-medium text-md block font-normal line-through"
+        ),
         action: cva(""),
       },
       available: {
@@ -62,7 +66,9 @@ export default {
         ),
         prices: cva("inline-block"),
         price: cva("m-0 text-lg font-semibold not-italic tracking-wide"),
-        discount: cva("text-base-500 block text-xs font-normal line-through"),
+        discount: cva(
+          "text-emphasis-medium block text-xs font-normal line-through"
+        ),
         action: cva(""),
       },
       transfer: {
@@ -83,8 +89,8 @@ export default {
         "bg-base-muted flex flex-col items-center justify-center gap-4 rounded-lg p-4"
       ),
       title: cva("m-0 text-inherit"),
-      text: cva("text-base-700 m-0 text-center"),
-      icon: cva("text-base-700 size-8"),
+      text: cva("text-emphasis-medium m-0 text-center"),
+      icon: cva("text-emphasis-medium size-8"),
     },
     drawer: {
       root: cva(""),

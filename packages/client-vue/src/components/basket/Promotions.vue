@@ -7,7 +7,7 @@
         @click="toggle = !toggle"
         size="sm"
         color="primary"
-        class="text-base-700 hover:text-base-700 h-6 py-0 underline"
+        class="text-emphasis-medium hover:text-emphasis-none h-6 py-0 underline"
         :label="t('basket.promotions.title')"
       >
         <template v-slot:append>
