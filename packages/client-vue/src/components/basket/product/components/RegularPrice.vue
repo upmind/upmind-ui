@@ -1,5 +1,5 @@
 <template>
-  <del v-if="discounted && !free" class="text-sm italic leading-5 opacity-30">{{
+  <del v-if="discounted" class="text-sm italic leading-5 opacity-30">{{
     regularPrice
   }}</del>
 </template>
