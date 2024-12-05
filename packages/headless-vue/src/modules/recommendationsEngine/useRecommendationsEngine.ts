@@ -47,6 +47,7 @@ export const useRecommendationsEngine = () => {
 
       // ---
       showRecommendations: state.value.matches("available"),
+      hasRecommendations: !isEmpty(state.value.context?.recommendations),
 
       isValid:
         state.value?.matches("available") &&

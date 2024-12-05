@@ -300,8 +300,8 @@ export function basketSubscription(callback: any, onReceive: any) {
         callback({ type: "PROCESSING" });
         remove(event.target, event.context, basket)
           .then(() => {
-            callback({ type: "REMOVED" });
             basket.refresh();
+            callback({ type: "REMOVED" });
           })
           .catch(error => {
             // console.error("basketHelper", "REMOVE", error);
@@ -315,8 +315,9 @@ export function basketSubscription(callback: any, onReceive: any) {
         callback({ type: "PROCESSING" });
         update(event.target, event.context, basket)
           .then(data => {
-            callback({ type: "UPDATED", data });
-            basket.refresh();
+            basket
+              .refresh()
+              .then(snapshot => callback({ type: "UPDATED", data }));
           })
           .catch(error => {
             // console.error("basketHelper", "UPDATE", error);
@@ -333,10 +334,11 @@ export function basketSubscription(callback: any, onReceive: any) {
             callback({ type: "ERROR", data: error });
           })
           .finally(() => {
-            const products = basket.getProducts();
             basket
               .refresh()
-              .then(() => callback({ type: "SYNCED", data: products }));
+              .then(snapshot =>
+                callback({ type: "SYNCED", data: basket.getProducts() })
+              );
           });
         break;
     }

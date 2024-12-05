@@ -94,7 +94,6 @@ async function fetchSelected(
   // ---
   const { get: getRequest, useUrl } = useApi();
 
-  debugger;
   const params = {
     currency_id: currency.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
