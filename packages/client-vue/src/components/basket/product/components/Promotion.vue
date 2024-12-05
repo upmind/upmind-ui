@@ -3,7 +3,7 @@
     <Badge
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
-      class="uppercase"
+      class="rounded-lg uppercase"
       :label="t('product.promotionSave', [currentSaving])"
       :size="size"
     />
