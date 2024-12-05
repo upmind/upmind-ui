@@ -180,7 +180,7 @@ async function update(
     promotions,
   }: {
     basketId: string;
-    bpid?: string;
+    currencyId?: string;
     promotions?: string[];
   },
   { data }: any

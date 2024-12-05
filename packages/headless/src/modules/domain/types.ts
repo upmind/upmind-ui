@@ -23,8 +23,8 @@ export enum DomainTypes {
 export interface DomainProduct {
   type?: DomainTypes;
   domain: string;
-  sld: string;
-  tld: string;
+  sld?: string;
+  tld?: string;
   // --- Options for New/Internal domains
   productId: string;
   quantity?: number;
