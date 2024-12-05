@@ -42,7 +42,7 @@
             class="text-secondary"
           >
             <AccordionContent
-              class="border-base-muted flex flex-col gap-4 border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
+              class="border-base-muted flex flex-col border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
             >
               <VPaymentGateway
                 v-if="meta.hasGateway && gateway.id == model.gateway_id"
