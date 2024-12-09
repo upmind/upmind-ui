@@ -133,33 +133,33 @@ async function fetchSelected(
 /**
  * Add a new item to the basket
  *
- * @param item
+ * @param model
  * @param context
  * @param basket
  * @returns {ActorRef<any, any>} XState Actor representing the new item
  */
 async function add(
-  item: any,
+  model: any,
   context: any,
   basket: any
 ): Promise<ActorRef<any, any> | null> {
-  if (isEmpty(item)) return Promise.resolve(null);
+  if (isEmpty(model)) return Promise.resolve(null);
 
-  const mapping = context.basketItemMapper(item);
+  const mapping = context.basketItemMapper(model);
   const basketItem = basket.findItem(mapping);
   if (basketItem) return Promise.resolve(basketItem); // its allready added, so we can skip it
 
-  return basket.addItem(item);
+  return basket.addItem(model);
 }
 
-async function remove(item: any, context: any, basket: any) {
+async function remove(basketProduct: any, context: any, basket: any) {
   const basketId = basket.getBasketId();
   // ---
-  return productServices.remove({ basketId, bpid: item.id });
+  return productServices.remove({ basketId, bpid: basketProduct.id });
 }
 
-async function update(item: any, context: any, basket: any) {
-  if (isEmpty(item)) return Promise.resolve();
+async function update(model: any, context: any, basket: any) {
+  if (isEmpty(model)) return Promise.resolve();
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
 
   // ---
@@ -171,21 +171,21 @@ async function update(item: any, context: any, basket: any) {
       promotions: basketSnapshot?.promotions,
       currencyId: basketSnapshot?.currency_id,
     },
-    { data: item }
+    { data: model }
   );
 }
 
-async function sync(items: any, context: any, basket: any) {
-  items = isArray(items) ? items : [items]; // safey check to ensure we have an array of items
-  // First ensure all our items are added to the basket...
-  // Then sync all our items with the basket
-  const promises = isEmpty(items)
+async function sync(models: any, context: any, basket: any) {
+  models = isArray(models) ? models : [models]; // safey check to ensure we have an array of models
+  // First ensure all our models are added to the basket...
+  // Then sync all our models with the basket
+  const promises = isEmpty(models)
     ? [Promise.resolve([])]
-    : map(items, item => {
-        return add(item, context, basket).then(
+    : map(models, model => {
+        return add(model, context, basket).then(
           async (actor: ActorRef<any, any> | null) => {
             if (!actor) {
-              // console.error("sync basket helper", "ADD", "failed", item);
+              // console.error("sync basket helper", "ADD", "failed", model);
               return Promise.resolve(actor);
             }
 
@@ -288,12 +288,74 @@ export function basketSubscription(callback: any, onReceive: any) {
 
       case "ADD":
         add(event.target, event.context, basket)
-          .then(data => callback({ type: "ADDED", data }))
+          .then((actor: ActorRef<any, any> | null) =>
+            callback({ type: "ADDED", data: actor })
+          )
           .catch(error => {
             // console.error("basketHelper", "ADD", error);
             callback({ type: "ERROR", data: error });
             callback({ type: "ADDED" });
           });
+        break;
+
+      case "ADD_UPDATE":
+        add(event.target, event.context, basket)
+          .then(async (actor: ActorRef<any, any> | null) => {
+            if (!actor) return Promise.reject("Failed to add item to basket");
+
+            // wait for the actor to be ready to update
+            // if it fails, then we will cancel update
+            return waitFor(
+              actor,
+              actorState => {
+                return actorState.matches("available.valid");
+              },
+              { timeout: 60_000 } // wait 1 min (max)
+            )
+              .then(() => actor)
+              .catch(() => {
+                return Promise.reject(actor);
+              });
+          })
+          .then((actor: ActorRef<any, any>) => {
+            callback({ type: "PROCESSING" });
+            const model = get(
+              actor.getSnapshot(),
+              "context.model",
+              event.target
+            );
+            // try to update the actor we just added
+            // if it fails, then we will cancel update and return the error and
+            return update(model, event.context, basket)
+              .then(data => {
+                debugger;
+                basket.refresh().then(() => callback({ type: "ADDED", data }));
+              })
+              .catch(error => {
+                debugger;
+                callback({
+                  type: "ERROR",
+                  data: {
+                    message: error,
+                    data: actor,
+                  },
+                });
+                return Promise.reject(actor);
+              });
+          })
+          .catch((actor: ActorRef<any, any>) => {
+            debugger;
+            callback({
+              type: "ERROR",
+              data: {
+                // title:"",
+                // message:"",
+                data: actor,
+              },
+            });
+            callback({ type: "CANCEL" });
+          });
+
         break;
 
       case "REMOVE":

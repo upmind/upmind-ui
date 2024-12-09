@@ -3,63 +3,59 @@
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useRecommendationsEngine as useUpmindRecommendationsEngine } from "@upmind-automation/headless";
 
 // --- utils
-import { map, isEmpty } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 // --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
+// a composable that provides a simple interface to the recommendations engine
 //  with some state helpers
 
 /**
  * @ignore
  */
 export const useRecommendationsEngine = () => {
-  const { service, add, remove, toggle, reset, syncBasket, destroy, isReady } =
+  const { service, add, remove, reset, destroy, isReady } =
     useUpmindRecommendationsEngine();
 
-  const { state }: any = useActor(service);
-
-  // --------------------------------------------------------
+  const { state } = useActor(service);
 
   // --------------------------------------------------------
 
   return {
+    isReady: async () => {
+      await isReady();
+
+      return waitFor(
+        service,
+        state => !["subscribing", "loading"].some(state.matches),
+        { timeout: Infinity }
+      );
+    },
+
     state: computed(() => state.value.value),
     // ---
     recommendations: computed(() => state.value.context.recommendations),
-    model: computed(() => map(state.value.context.model, "domain")),
     // ---
     errors: computed(() => state.value.context?.error),
-
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
       isLoading: ["subscribing", "loading"].some(state.value.matches),
-
-      isSyncing: ["processing"].some(state.value.matches),
-
+      isProcessing: ["processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-
       // ---
-      showRecommendations: state.value.matches("available"),
       hasRecommendations: !isEmpty(state.value.context?.recommendations),
-
-      isValid:
-        state.value?.matches("available") &&
-        !isEmpty(state.value.context?.model),
     })),
     // ---
-    isReady,
     add,
     remove,
-    toggle,
     reset,
-    syncBasket,
     destroy,
   };
 };

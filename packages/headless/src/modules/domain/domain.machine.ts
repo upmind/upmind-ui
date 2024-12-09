@@ -439,7 +439,6 @@ export default createMachine(
           authHelper: undefined,
           basketHelper: undefined,
           itemBuilder: undefined,
-          itemMapper: undefined,
           basketItemBuilder: undefined,
           basketItemMapper: undefined,
         })
@@ -514,10 +513,6 @@ export default createMachine(
           itemBuilder: function (item: BasketProduct) {
             return parseBasketItem(item);
           },
-          itemMapper: (product: BasketProduct) => ({
-            productId: product.productId,
-            sld: product?.provisionFields?.sld,
-          }),
           basketItemBuilder: (item: any) => {
             if (!item?.productId) return null;
             return {

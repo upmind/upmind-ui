@@ -5,6 +5,8 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basket/helper";
+import { useFeedback } from "../feedback";
+const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../utils";
@@ -83,6 +85,27 @@ export default createMachine(
         },
       },
 
+      processing: {
+        entry: ["clearError"],
+        on: {
+          REFRESH: {
+            // do nothing
+          },
+          ADDED: {
+            actions: ["setBasket", "setLookups"],
+            target: "loading",
+          },
+          CANCEL: {
+            target: "error",
+            actions: ["setItem"],
+          },
+          ERROR: {
+            target: "error",
+            actions: ["setError"],
+          },
+        },
+      },
+
       error: {},
       // ---
       complete: {
@@ -99,8 +122,13 @@ export default createMachine(
         actions: ["setSeen"],
       },
       ADD: {
-        actions: ["fetchRelated"],
+        target: "processing",
+        actions: ["addToBasket"],
+        cond: "exists",
       },
+      // PROCESSING: {
+      //   target: "processing",
+      // },
       STOP: {
         target: "complete",
       },
@@ -126,7 +154,6 @@ export default createMachine(
           // ---
           basketHelper: undefined,
           itemBuilder: undefined,
-          itemMapper: undefined,
           basketItemMapper: undefined,
         })
       ),
@@ -145,10 +172,18 @@ export default createMachine(
             debugger;
             return parseBasketItem(item);
           },
-          itemMapper: (item: BasketProduct) => {
+
+          basketItemBuilder: (item: any) => {
+            debugger;
+            if (!item?.productId) return null;
             debugger;
             return {
               productId: item.productId,
+              quantity: item?.quantity || 1,
+              term: item.cycle,
+              options: item.options,
+              attributes: item.attributes,
+              provisionFields: item.provisionFields,
             };
           },
 
@@ -194,6 +229,28 @@ export default createMachine(
           return {
             type: "FETCH_SELECTED",
             target: productIds,
+            context,
+          };
+        }
+      ),
+
+      addToBasket: sendTo(
+        ({ basketHelper }: any, _event) => basketHelper,
+        (context, { data }: AnyEventObject) => {
+          debugger;
+          const recommendation = find(context.recommendations, ["id", data]);
+          debugger;
+          const config = defaultsDeep(recommendation?.config, {
+            productId: recommendation.productId,
+            cycle: recommendation.cycle,
+            quantity: recommendation?.min || recommendation?.step,
+          });
+          debugger;
+          const model = context.basketItemBuilder(config);
+          debugger;
+          return {
+            type: "ADD_UPDATE",
+            target: model,
             context,
           };
         }
@@ -295,14 +352,17 @@ export default createMachine(
       setError: assign({
         error: (
           _context: RecommendationsEngineContext,
-          _event: AnyEventObject
+          { data }: AnyEventObject
         ) => {
-          // addError({
-          //   title: data?.title || "We experienced an error getting RecommendationsEngine",
-          //   copy: data?.message,
-          //   data: data?.data,
-          // });
-          // return data;
+          addError({
+            title:
+              data?.title ||
+              "We experienced an error adding the product to your basket",
+            copy: data?.message,
+            data: data?.data,
+          });
+
+          return data;
         },
       }),
 
@@ -310,10 +370,10 @@ export default createMachine(
     },
 
     guards: {
-      isNotCancelled: (
-        _context: RecommendationsEngineContext,
+      exists: (
+        { recommendations }: RecommendationsEngineContext,
         { data }: AnyEventObject
-      ) => data?.name !== "AbortError",
+      ) => some(recommendations, ["id", data]),
 
       hasData: (
         _context: RecommendationsEngineContext,
