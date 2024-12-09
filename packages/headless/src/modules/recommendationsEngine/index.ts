@@ -34,19 +34,6 @@ export const useRecommendationsEngine = () => {
       ),
 
     // ---
-    toggle: function (productId: string) {
-      const type = some(service.getSnapshot()?.context.model, [
-        "productId",
-        productId,
-      ])
-        ? "REMOVE"
-        : "ADD";
-
-      service.send({
-        type,
-        data: productId,
-      });
-    },
 
     reset: function () {
       service.send({

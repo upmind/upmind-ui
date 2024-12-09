@@ -514,9 +514,9 @@ export default createMachine(
           itemBuilder: function (item: BasketProduct) {
             return parseBasketItem(item);
           },
-          itemMapper: (item: BasketProduct) => ({
-            productId: item.productId,
-            sld: item?.provisionFields?.sld,
+          itemMapper: (product: BasketProduct) => ({
+            productId: product.productId,
+            sld: product?.provisionFields?.sld,
           }),
           basketItemBuilder: (item: any) => {
             if (!item?.productId) return null;
