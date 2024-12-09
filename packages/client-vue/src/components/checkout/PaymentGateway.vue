@@ -1,5 +1,11 @@
 <template>
-  <div ref="form" class="flex flex-col gap-6">
+  <div
+    ref="form"
+    class="flex flex-col gap-6"
+    :class="{
+      'mb-6': !meta.isRenderless || instructions,
+    }"
+  >
     <transition-group
       tag="div"
       :class="[
@@ -39,7 +45,7 @@
       <!-- gateway Form (* IF Provided) -->
       <Form
         key="form"
-        v-if="schema && uischema"
+        v-if="schema && uischema && !meta.isRenderless"
         v-show="!meta.isLoading"
         class="w-full"
         :additional-errors="errors?.data"

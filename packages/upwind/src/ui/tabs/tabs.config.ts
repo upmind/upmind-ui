@@ -207,7 +207,7 @@ export const tabsTriggerVariants = cva(
       {
         variant: "flat",
         color: "base",
-        class: "text-base-600 data-[state=active]:text-base-800",
+        class: "text-emphasis-medium data-[state=active]:text-emphasis-high",
       },
       {
         variant: "flat",
@@ -253,7 +253,7 @@ export const tabsTriggerVariants = cva(
       {
         variant: "outline",
         color: "base",
-        class: "text-base-800",
+        class: "text-emphasis-high",
       },
       {
         variant: "outline",
@@ -303,7 +303,7 @@ export const tabsTriggerVariants = cva(
       {
         variant: "tonal",
         color: "base",
-        class: "text-base-800",
+        class: "text-emphasis-high",
       },
       {
         variant: "tonal",

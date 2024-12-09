@@ -31,6 +31,7 @@ import {
   toNumber,
   uniq,
   uniqueId,
+  isNil,
 } from "lodash-es";
 
 // --- types
@@ -302,8 +303,8 @@ export function parseTerm(raw: any): BasketProductSummaryDetail | null {
   // add any saving information (if available)
   if (
     summary.meta.discounted &&
-    summary?.regularAmount &&
-    summary?.currentAmount
+    !isNil(summary?.regularAmount) &&
+    !isNil(summary?.currentAmount)
   ) {
     summary.currentSavingAmount = summary.meta.discounted
       ? ((summary.regularAmount - summary.currentAmount) /
@@ -368,8 +369,8 @@ export function parsPriceSummary(raw: any) {
   // add any saving information (if available)
   if (
     summary.meta.discounted &&
-    summary?.regularAmount &&
-    summary?.currentAmount
+    !isNil(summary?.regularAmount) &&
+    !isNil(summary?.currentAmount)
   ) {
     summary.currentSavingAmount = summary.meta.discounted
       ? ((summary.regularAmount - summary.currentAmount) /

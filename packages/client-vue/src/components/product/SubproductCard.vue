@@ -66,7 +66,7 @@
     </header>
 
     <p
-      class="text-base-700 mb-0 mt-2 whitespace-normal text-xs leading-tight"
+      class="text-emphasis-medium mb-0 mt-2 whitespace-normal text-xs leading-tight"
       v-if="props.excerpt"
     >
       {{ props.excerpt }}

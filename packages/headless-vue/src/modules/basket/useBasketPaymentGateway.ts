@@ -13,7 +13,7 @@ import {
   contextValue,
 } from "../../utils";
 
-import { isEqual, isFunction } from "lodash-es";
+import { every, isEqual, isFunction } from "lodash-es";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machinewith some state helpers
@@ -42,7 +42,12 @@ export const useBasketPaymentGateway = () => {
       isComplete:
         stateValue(paymentGateway, "done", false) ||
         stateMatches(paymentGateway, ["processed", "complete"]),
-      isRenderless: contextMatches(paymentGateway, ["renderless"]),
+      isRenderless:
+        contextMatches(paymentGateway, ["renderless"]) ||
+        every(
+          contextValue(paymentGateway, "schema.properties"),
+          (property: any) => property.readOnly
+        ),
       hasRenderer: !!contextValue(paymentGateway, "renderer"),
       hasInstructions: !!contextValue(
         paymentGateway,
