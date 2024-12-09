@@ -13,20 +13,27 @@ export interface Recommendation {
   name?: any;
   label?: any;
   description?: any;
-
-  model?: any;
+  // ---
+  config?: {
+    productId: string;
+    quantity?: number;
+    term?: number;
+    subproducts?: string[];
+    provisionFields?: {
+      [key: string]: string | number;
+    };
+    coupons?: string[];
+  };
 }
 // --------------------------------------------------------
 // Contexts
 
 export interface RecommendationsEngineContext {
-  model?: string[];
   recommendations: Recommendation[];
   raw: {
-    products?: BasketProduct[];
+    products: BasketProduct[];
     related: RelatedProduct[];
-    categoryMeta?: RelatedProduct[];
-    productMeta?: RelatedProduct[];
+    seen: RelatedProduct[];
   };
   // ---
   error?: any;
@@ -42,9 +49,22 @@ export interface RecommendationsEngineContext {
 }
 
 export interface RelatedProduct extends IRelatedObject {
+  // --- additional fields
   image_url?: string;
   short_description?: string;
+  // --- augmented fields
   product?: IProduct;
+  // --- config to be used in adding the recommendation
+  config?: {
+    productId: string;
+    quantity?: number;
+    term?: number;
+    subproducts?: string[];
+    provisionFields?: {
+      [key: string]: string | number;
+    };
+    coupons?: string[];
+  };
 }
 // --------------------------------------------------------
 // Events

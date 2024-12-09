@@ -2,7 +2,7 @@
 import { parseProduct, parseTerms } from "../product/utils";
 
 // --- utils
-import { get, reduce, concat, sortBy, find, reject } from "lodash-es";
+import { get, reduce, concat, uniqBy, find, reject } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types
@@ -24,6 +24,7 @@ export function parseBasketItem(data: BasketProduct) {
   // return result;
 }
 
+// ---------------------------------------------------------------------------
 /**
  * Parses the given basket and returns a list of recommendations.
  * The recommendations are extracted from the basket products, and only the single products are considered.
@@ -46,16 +47,50 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
       if (item?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
         return result;
-      const related = reject(
+
+      const allRelated = concat(
+        result,
         item?.product?.related,
+        item?.product?.meta?.related,
+        item?.product?.category?.meta?.related
+      );
+
+      return reject(
+        allRelated,
         (related: RelatedProduct) =>
           !related.active || related.object_type !== "product"
-      );
-      return concat(result, related) as RelatedProduct[]; //uniqBy(result, "object_id");
+      ) as RelatedProduct[];
+
+      // const related = reject(
+      //   item?.product?.related,
+      //   (related: RelatedProduct) =>
+      //     !related.active || related.object_type !== "product"
+      // );
+
+      // const relatedMeta = reject(
+      //   item?.product?.meta?.related,
+      //   (related: RelatedProduct) =>
+      //     !related.active || related.object_type !== "product"
+      // );
+
+      // const relatedCategoryMeta = reject(
+      //   item?.product?.category?.meta?.related,
+      //   (related: RelatedProduct) =>
+      //     !related.active || related.object_type !== "product"
+      // );
+
+      // return concat(
+      //   result,
+      //   related,
+      //   relatedMeta,
+      //   relatedCategoryMeta
+      // ) as RelatedProduct[];
     },
     []
   );
 }
+
+// ---------------------------------------------------------------------------
 
 export function parseRecommendation(raw: RelatedProduct): Recommendation {
   const product = parseProduct(raw.product);
