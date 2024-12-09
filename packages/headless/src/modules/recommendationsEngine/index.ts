@@ -41,11 +41,27 @@ export const useRecommendationsEngine = () => {
       });
     },
 
-    add: function (value: string) {
+    /**
+     * Add a product to the basket.
+     * @param {number} index - The index of the recommendations to add.
+     *
+     **/
+    add: function (id: string) {
       service.send({
         type: "ADD",
-        data: value,
+        data: id,
       });
+
+      return waitFor(service, state => !state.matches("processing")).then(
+        state => {
+          if (["error", "available.error"].some(state.matches)) {
+            debugger;
+            return Promise.reject(state.context.error);
+          }
+          debugger;
+          return Promise.resolve();
+        }
+      );
     },
 
     remove: function (value: string) {

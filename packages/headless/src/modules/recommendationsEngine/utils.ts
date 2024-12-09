@@ -2,11 +2,12 @@
 import { parseProduct, parseTerms } from "../product/utils";
 
 // --- utils
-import { get, reduce, concat, uniqBy, find, reject } from "lodash-es";
+import { v4 as uuid } from "uuid";
+import { get, reduce, concat, uniqBy, find, reject, some } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types
-import { ProductTypes } from "@upmind-automation/types";
+import { ProductTypes, UUID } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basket";
 import type { Recommendation, RelatedProduct } from "./types";
@@ -58,7 +59,9 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
       return reject(
         allRelated,
         (related: RelatedProduct) =>
-          !related.active || related.object_type !== "product"
+          !related?.active ||
+          related?.object_type !== "product" ||
+          some(products, { product_id: related.object_id })
       ) as RelatedProduct[];
 
       // const related = reject(
@@ -100,7 +103,7 @@ export function parseRecommendation(raw: RelatedProduct): Recommendation {
     ...product,
     ...term,
     // --- forced overrides
-    id: raw?.product_id, // this is the productId that forms the basis of the recommendation, is the sou
+    id: raw?.id || uuid(), // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
     productId: product.id, // this is the productId that is recommended
     label: useTranslateField(raw, "label"),
     name: useTranslateName(raw) || product.name,

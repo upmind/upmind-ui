@@ -1,4 +1,7 @@
 // --- internal
+import type { BasketProduct } from "../basket/types";
+import type { ProductModel } from "../product/types";
+import type { ActorRef } from "xstate";
 
 // --- enums
 
@@ -101,11 +104,11 @@ export interface DomainContext {
   // ---
   error?: any;
   // ---
-  authHelper?: Function;
-  basketHelper?: Function;
-  itemBuilder?: Function;
-  itemMapper?: Function;
-  basketItemMapper?: Function;
+  authHelper?: ActorRef<any>;
+  basketHelper?: ActorRef<any>;
+  itemBuilder?: (item: ProductModel) => ProductModel;
+  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemBuilder?: (model: ProductModel) => BasketProduct;
   basketProducts?: DomainProduct[];
   //
 }

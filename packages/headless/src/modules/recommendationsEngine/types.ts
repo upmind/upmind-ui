@@ -44,8 +44,8 @@ export interface RecommendationsEngineContext {
   basketId?: string;
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
-  itemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
   basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemBuilder?: (model: ProductModel) => BasketProduct;
 }
 
 export interface RelatedProduct extends IRelatedObject {
