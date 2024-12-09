@@ -1,7 +1,9 @@
 <template>
-  <del v-if="discounted && !free" class="text-sm italic leading-5 opacity-30">{{
-    regularPrice
-  }}</del>
+  <del
+    v-if="discounted"
+    class="text-emphasis-medium text-sm italic leading-5"
+    >{{ regularPrice }}</del
+  >
 </template>
 
 <script lang="ts" setup>

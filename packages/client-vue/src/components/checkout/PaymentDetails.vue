@@ -17,7 +17,7 @@
           :disabled="item.gateway_id === model.gateway_id"
         >
           <AccordionTrigger
-            class="text-base-700 hover:text-primary flex items-center space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
+            class="text-emphasis-medium hover:text-primary flex items-center space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
             @click.stop="selectGateway(item.gateway_id)"
           >
             <div class="text-primary text-sm no-underline">
@@ -42,7 +42,7 @@
             class="text-secondary"
           >
             <AccordionContent
-              class="border-base-muted flex flex-col gap-4 border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
+              class="border-base-muted flex flex-col border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
             >
               <VPaymentGateway
                 v-if="meta.hasGateway && gateway.id == model.gateway_id"
