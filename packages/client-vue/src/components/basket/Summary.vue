@@ -60,51 +60,55 @@
 
     <!-- subtotals -->
     <dl
-      class="m-0 grid grid-cols-2 gap-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+      class="text-primary m-0 grid grid-cols-2 gap-0 border-t py-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
       v-if="!!summary?.discount || !!summary?.taxes"
       v-auto-animate
     >
       <template v-if="summary?.discount">
         <dt
-          class="text-base-700 group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
-            class="m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            class="text-primary text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
             >{{ t("basket.summary.discount.title", products.length) }}</span
           >
         </dt>
 
-        <dd class="flex-0 text-base-700 m-0 block text-right font-medium">
+        <dd class="flex-0 m-0 block text-right font-medium">
           {{ summary.discount }}
         </dd>
       </template>
 
       <template v-if="summary?.subtotal">
         <dt
-          class="text-base-700 group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
-            class="m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
             >{{ t("basket.summary.subtotal.title", products.length) }}</span
           >
         </dt>
 
-        <dd class="flex-0 text-base-700 m-0 block text-right font-medium">
+        <dd
+          class="flex-0 text-emphasis-medium m-0 block text-right font-medium"
+        >
           {{ summary.subtotal }}
         </dd>
       </template>
 
       <template v-for="(value, key) in summary?.taxes" :key="key">
         <dt
-          class="group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-primary text-emphasis-medium group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
-            class="text-base-700 m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
             >{{ key }}</span
           >
         </dt>
 
-        <dd class="flex-0 text-base-700 m-0 block text-right font-medium">
+        <dd
+          class="flex-0 text-emphasis-medium m-0 block text-right font-medium"
+        >
           {{ value }}
         </dd>
       </template>
