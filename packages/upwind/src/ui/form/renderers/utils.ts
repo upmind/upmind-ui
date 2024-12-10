@@ -34,7 +34,7 @@ export const useUpwindRenderer = <
   const onInput = debounce((value: any) => {
     touched.value = true;
     input.handleChange(input.control.value.path, adaptTarget(value));
-  }, 350);
+  }, 0); // 350
 
   const formFieldProps = computed(() => {
     const props = defaults(appliedOptions.value, {
@@ -175,7 +175,7 @@ export const useUpwindArrayRenderer = <
         //
       }
     }
-  }, 350);
+  }, 0); // 350;
 
   return {
     ...input,

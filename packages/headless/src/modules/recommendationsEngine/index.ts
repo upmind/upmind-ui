@@ -7,7 +7,7 @@ import recommendationsEngine from "./recommendationsEngine.machine";
 export * from "./types";
 
 // --- utils
-import { some } from "lodash-es";
+import { some, last } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -55,10 +55,8 @@ export const useRecommendationsEngine = () => {
       return waitFor(service, state => !state.matches("processing")).then(
         state => {
           if (["error", "available.error"].some(state.matches)) {
-            debugger;
             return Promise.reject(state.context.error);
           }
-          debugger;
           return Promise.resolve();
         }
       );

@@ -14,10 +14,10 @@ export interface Recommendation {
   label?: any;
   description?: any;
   // ---
-  config?: {
+  config: {
     productId: string;
-    quantity?: number;
-    term?: number;
+    quantity: number;
+    term: number;
     subproducts?: string[];
     provisionFields?: {
       [key: string]: string | number;
@@ -65,6 +65,17 @@ export interface RelatedProduct extends IRelatedObject {
     };
     coupons?: string[];
   };
+}
+
+export interface IProductConfig {
+  pid?: string;
+  qty?: number;
+  bcm?: number;
+  sub_pids?: string[];
+  pfields?: {
+    [key: string]: string | number;
+  };
+  coupons?: string[];
 }
 // --------------------------------------------------------
 // Events

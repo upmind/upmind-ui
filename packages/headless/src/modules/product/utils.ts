@@ -78,6 +78,7 @@ export const parseProduct = (
   return {
     id: merged.id,
     name: useTranslateName(merged),
+    categoryId: merged.category_id,
     category: useTranslateName(merged.category),
     serviceIdentifier: merged.service_identifier,
     cycle: merged.billing_cycle_months,

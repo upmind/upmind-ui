@@ -15,6 +15,8 @@ import {
   pick,
   pickBy,
   reduce,
+  concat,
+  uniq,
 } from "lodash-es";
 
 // --- types
@@ -168,7 +170,7 @@ async function update(model: any, context: any, basket: any) {
   return productServices.update(
     {
       basketId: basketSnapshot?.id,
-      promotions: basketSnapshot?.promotions,
+      promotions: uniq(concat(basketSnapshot?.promotions, context?.promotions)),
       currencyId: basketSnapshot?.currency_id,
     },
     { data: model }
@@ -299,8 +301,9 @@ export function basketSubscription(callback: any, onReceive: any) {
         break;
 
       case "ADD_UPDATE":
+        debugger;
         add(event.target, event.context, basket)
-          .then(async (actor: ActorRef<any, any> | null) => {
+          .then((actor: ActorRef<any, any> | null) => {
             if (!actor) return Promise.reject("Failed to add item to basket");
 
             // wait for the actor to be ready to update
@@ -324,11 +327,12 @@ export function basketSubscription(callback: any, onReceive: any) {
               "context.model",
               event.target
             );
+            const context = get(actor.getSnapshot(), "context", event.context);
             // try to update the actor we just added
             // if it fails, then we will cancel update and return the error and
-            return update(model, event.context, basket)
+            debugger;
+            return update(model, context, basket)
               .then(data => {
-                debugger;
                 basket.refresh().then(() => callback({ type: "ADDED", data }));
               })
               .catch(error => {
