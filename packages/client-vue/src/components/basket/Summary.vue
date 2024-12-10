@@ -66,22 +66,24 @@
     >
       <template v-if="summary?.discount">
         <dt
-          class="group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-primary group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
-            class="text-primary text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
+            class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
             >{{ t("basket.summary.discount.title", products.length) }}</span
           >
         </dt>
 
-        <dd class="flex-0 m-0 block text-right font-medium">
+        <dd
+          class="flex-0 text-emphasis-medium m-0 block text-right font-medium"
+        >
           {{ summary.discount }}
         </dd>
       </template>
 
       <template v-if="summary?.subtotal">
         <dt
-          class="group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-primary group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
@@ -98,7 +100,7 @@
 
       <template v-for="(value, key) in summary?.taxes" :key="key">
         <dt
-          class="text-primary text-emphasis-medium group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-emphasis-medium group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
