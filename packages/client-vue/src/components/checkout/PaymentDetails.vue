@@ -141,7 +141,6 @@ const { meta: basketMeta, checkout } = useBasket();
 
 const handleCheckout = () => {
   checkout();
-  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 // TODO: Import gateway type from machine (we don't have it yet)
