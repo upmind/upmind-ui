@@ -31,10 +31,10 @@ export const useUpwindRenderer = <
     );
   });
 
-  const onInput = debounce((value: any) => {
+  const onInput = (value: any) => {
     touched.value = true;
     input.handleChange(input.control.value.path, adaptTarget(value));
-  }, 350);
+  };
 
   const formFieldProps = computed(() => {
     const props = defaults(appliedOptions.value, {
@@ -161,7 +161,7 @@ export const useUpwindArrayRenderer = <
     return `${labelValue}`;
   };
 
-  const onInput = debounce((checked: boolean, value: any) => {
+  const onInput = (checked: boolean, value: any) => {
     if (checked) {
       if (isFunction(input?.addItem)) {
         input.addItem(input.control.value.path, value);
@@ -175,7 +175,7 @@ export const useUpwindArrayRenderer = <
         //
       }
     }
-  }, 350);
+  };
 
   return {
     ...input,
