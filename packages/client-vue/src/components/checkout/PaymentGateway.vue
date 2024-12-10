@@ -1,11 +1,5 @@
 <template>
-  <div
-    ref="form"
-    class="flex flex-col gap-6"
-    :class="{
-      'mb-6': !meta.isRenderless || instructions,
-    }"
-  >
+  <div ref="form" class="flex flex-col gap-6">
     <transition-group
       tag="div"
       :class="[
