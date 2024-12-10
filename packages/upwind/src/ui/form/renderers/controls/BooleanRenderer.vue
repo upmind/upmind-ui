@@ -25,7 +25,11 @@
           class="flex w-full flex-col flex-nowrap items-center justify-between"
         >
           <!-- label -->
-          <FormLabel :formItemId="control.id" :invalid="!!control.errors">
+          <FormLabel
+            :formItemId="control.id"
+            :invalid="!!control.errors"
+            class="text-sm"
+          >
             {{ control.label }}
 
             <FormRequiredIndicator
@@ -38,7 +42,7 @@
           <FormDescription
             v-if="control?.description"
             :formDescriptionId="`form-item-description-${control.id}`"
-            class="!my-0"
+            class="text-emphasis-medium mb-0 mt-1 leading-tight"
           >
             {{ control.description }}
           </FormDescription>
