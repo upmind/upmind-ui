@@ -8,7 +8,16 @@ import basketMachine from "./basket.machine";
 export { useBasketProductConfig, useBasketProduct } from "./products";
 
 // --- utils
-import { every, find, get, some, omitBy, isNil, isEqual } from "lodash-es";
+import {
+  every,
+  find,
+  get,
+  some,
+  omitBy,
+  isNil,
+  isEqual,
+  last,
+} from "lodash-es";
 import { responseCodes } from "../api";
 
 // --- types
@@ -127,16 +136,25 @@ export const useBasket = () => {
       // lets wait for our basket  to be ready for shopping
       return waitFor(service, state => state.matches("shopping")).then(() => {
         // lets add the new product base don the provided config to the basket
+        const config = {
+          productId,
+          quantity,
+          term,
+          attributes,
+          options,
+          provisionFields,
+          subproducts,
+          coupons,
+        };
+
         const mapping = omitBy(
           {
-            // id,
             productId,
             quantity,
             term,
             attributes,
             options,
             provisionFields,
-            coupons,
             subproducts,
           },
           isNil
@@ -144,25 +162,21 @@ export const useBasket = () => {
 
         service.send({
           type: "ADD",
-          data: mapping,
+          data: config,
         });
         // then wait/check for the new product actor to be configured
         // then send the update event to the basket
-        return find(
-          service.getSnapshot()?.context?.items,
-          (basketItem: any) => {
-            const found = every(mapping, (value, key) => {
-              if (key == "id" && value) {
-                return basketItem.id == value;
-              } else {
-                const origin = get(basketItem, `state.context.model.${key}`);
-                const matches = isEqual(origin, value);
-                return matches;
-              }
-            });
-            return found;
-          }
-        ) as ActorRef<any, any>;
+        const items = service.getSnapshot()?.context?.items;
+        const actor = (find(items, (basketItem: any) => {
+          const found = every(mapping, (value, key) => {
+            const origin = get(basketItem, `state.context.model.${key}`);
+            const matches = isEqual(origin, value);
+            return matches;
+          });
+          return found;
+        }) || last(items)) as ActorRef<any, any>;
+
+        return actor;
       });
     },
 

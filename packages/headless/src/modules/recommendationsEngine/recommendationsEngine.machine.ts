@@ -22,11 +22,13 @@ import {
   find,
   includes,
   isEmpty,
+  isEqual,
+  isObject,
   map,
+  omit,
   reduce,
   reject,
   remove,
-  set,
   some,
   uniq,
   xorBy,
@@ -173,23 +175,16 @@ export default createMachine(
             return parseBasketItem(item);
           },
 
-          basketItemBuilder: (item: any) => {
-            debugger;
-            if (!item?.productId) return null;
-            debugger;
-            return {
-              productId: item.productId,
-              quantity: item?.quantity || 1,
-              term: item.cycle,
-              options: item.options,
-              attributes: item.attributes,
-              provisionFields: item.provisionFields,
-            };
+          basketItemBuilder: (config: any) => {
+            if (!config?.productId) return null;
+
+            // TODO: map the provision field placeholders to the actual values from products withing the basket
+            // config.provisionFields = config.provisionFields || {};
+            return config;
           },
 
           basketItemMapper: (item: BasketProduct) => ({
             productId: item.productId,
-            "provisionFields.sld": item.provisionFields?.sld,
           }),
         };
       }),
@@ -237,17 +232,30 @@ export default createMachine(
       addToBasket: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, { data }: AnyEventObject) => {
-          debugger;
           const recommendation = find(context.recommendations, ["id", data]);
-          debugger;
-          const config = defaultsDeep(recommendation?.config, {
-            productId: recommendation.productId,
-            cycle: recommendation.cycle,
-            quantity: recommendation?.min || recommendation?.step,
-          });
-          debugger;
-          const model = context.basketItemBuilder(config);
-          debugger;
+          const model = context.basketItemBuilder(recommendation.config);
+
+          // debugger;
+          // context.promotions = reduce(
+          //   concat(context.promotions, model?.coupons),
+          //   (
+          //     result: { promocode: string }[],
+          //     item: string | { promocode: string }
+          //   ) => {
+          //     const promotion: { promocode: string } = isObject(item)
+          //       ? item
+          //       : { promocode: item as string };
+          //     if (
+          //       promotion?.promocode &&
+          //       !some(result, ["promocode", promotion?.promocode])
+          //     )
+          //       result.push(promotion);
+          //     return result;
+          //   },
+          //   [] as { promocode: string }[]
+          // );
+
+          // debugger;
           return {
             type: "ADD_UPDATE",
             target: model,
