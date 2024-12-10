@@ -187,6 +187,7 @@ export const parseSubproduct = (
         multiple: rawSubproduct.category.multiple,
         required: rawSubproduct.category.required,
         priceOverride: rawSubproduct.category.price_override,
+        meta: rawSubproduct?.category.meta,
       });
 
       // check EARLY if we have a price for one of the following:
@@ -247,6 +248,7 @@ export const parseSubproduct = (
 
           return price;
         }),
+        meta: rawSubproduct?.meta,
       };
 
       // First, try get a one off price, othrwise try find the matching term price
