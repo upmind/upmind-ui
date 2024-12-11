@@ -1,6 +1,7 @@
 // --- external
 
 // --- internal
+import { find, isEmpty } from "lodash-es";
 import { useApi, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
@@ -24,6 +25,7 @@ async function load(
 
   return isReady().then(() => {
     const addresses = getItems();
+
     return { addresses };
   });
 }
@@ -49,9 +51,20 @@ async function update(
 // --------------------------------------------------------
 
 async function parse(
-  { model }: BillingDetailsContext,
+  { model, addresses }: BillingDetailsContext,
   _event: BillingDetailsEvent
 ) {
+  const defaultAddress = find(addresses, "default");
+
+  // We should ALWAYs have an address set  ( if we have addresses )
+  // if model is not set, set it to the default address
+  if (!model?.addressId && !isEmpty(defaultAddress)) {
+    model = {
+      addressId: defaultAddress.id,
+      companyId: defaultAddress.company_id,
+    };
+  }
+
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
