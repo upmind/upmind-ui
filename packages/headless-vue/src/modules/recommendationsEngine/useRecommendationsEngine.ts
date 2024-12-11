@@ -7,10 +7,9 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useRecommendationsEngine as useUpmindRecommendationsEngine } from "@upmind-automation/headless";
-
 // --- utils
 import { isEmpty } from "lodash-es";
-
+import { useContext } from "../../utils";
 // --- types
 // --------------------------------------------------------
 // a composable that provides a simple interface to the recommendations engine
@@ -20,7 +19,7 @@ import { isEmpty } from "lodash-es";
  * @ignore
  */
 export const useRecommendationsEngine = () => {
-  const { service, add, remove, reset, destroy, isReady } =
+  const { service, add, remove, reset, cancel, destroy, isReady } =
     useUpmindRecommendationsEngine();
 
   const { state } = useActor(service);
@@ -51,11 +50,14 @@ export const useRecommendationsEngine = () => {
       hasErrors: ["error"].some(state.value.matches),
       // ---
       hasRecommendations: !isEmpty(state.value.context?.recommendations),
+      isConfiguring: ["configuring"].some(state.value.matches),
     })),
     // ---
     add,
     remove,
     reset,
+    cancel,
     destroy,
+    basketItem: useContext(state, "basketItem"),
   };
 };

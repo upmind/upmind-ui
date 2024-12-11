@@ -14,7 +14,7 @@ import { cn } from "../../utils";
 
 const props = defineProps<
   DialogContentProps & {
-    persistent?: boolean;
+    dismissable?: boolean;
     class?: HTMLAttributes["class"];
     classOverlay?: HTMLAttributes["class"];
   }
@@ -59,7 +59,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       >
         <slot />
 
-        <DialogClose v-if="!props.persistent" class="absolute right-0 top-0" />
+        <DialogClose v-if="props.dismissable" class="absolute right-0 top-0" />
       </DialogContent>
     </DialogOverlay>
   </DialogPortal>

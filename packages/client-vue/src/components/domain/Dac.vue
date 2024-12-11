@@ -25,7 +25,7 @@
     :class-content="styles.domain.drawer.content"
     :class-footer="styles.domain.drawer.footer"
     v-model:open="open"
-    persistent
+    :dismissable="false"
     :title="t('domain.dac.title')"
     :description="t('domain.dac.description')"
   >

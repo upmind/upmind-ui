@@ -1,5 +1,5 @@
 // --- types
-import type { ActorRef } from "xstate";
+import type { Actor, ActorRef } from "xstate";
 import type { IRelatedObject, IProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
@@ -37,7 +37,7 @@ export interface RecommendationsEngineContext {
   };
   // ---
   error?: any;
-  controller?: AbortController;
+  basketItem?: ActorRef<any, any>;
   // ---
   currencyId?: string;
   promotions?: string[];

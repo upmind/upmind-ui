@@ -10,7 +10,7 @@
     :fit="fit"
     to="main"
     no-header
-    persistent
+    :dismissable="false"
   >
     <section :class="cn(variants.interstitial.root, props.class)">
       <slot name="avatar">
