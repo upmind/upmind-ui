@@ -31,6 +31,7 @@ import {
   DropdownMenu,
   type DropdownMenuItemProps,
 } from "./ui/dropdown-menu";
+import { SelectCards } from "./ui/select-cards";
 import {
   UwForm,
   Form,
@@ -133,6 +134,7 @@ export {
   RadioCards,
   Separator,
   Select,
+  SelectCards,
   Skeleton,
   SkeletonList,
   Sonner,
