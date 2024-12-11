@@ -5,7 +5,7 @@ import { useApi } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { get, some } from "lodash-es";
+import { get, isEmpty, some } from "lodash-es";
 
 // --- types
 import type { PromotionsEvent, PromotionsContext } from "./types";
@@ -78,7 +78,9 @@ async function validate(
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
-    if (errors?.length) {
+
+    // HACK: we want promocode to be invalid if empty, but not necessarily have an error
+    if (errors?.length || isEmpty(model?.promocode)) {
       reject({ error: errors });
     } else {
       resolve(model);

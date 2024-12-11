@@ -697,11 +697,17 @@ export default createMachine(
       },
 
       promotionsComplete: ({ actors }) => {
-        return actors.promotions?.state?.matches("complete");
+        // promotions should not hold up the process of checking out
+        // unless it is in the process of being updated or loading
+        return !["processing", "loading"].some(
+          actors.promotions?.state?.matches
+        );
       },
 
       promotionsConfiguring: ({ actors }) => {
-        return !actors.promotions?.state?.matches("complete");
+        return ["processing", "loading"].some(
+          actors.promotions?.state?.matches
+        );
       },
 
       customFieldsComplete: ({ actors }) => {

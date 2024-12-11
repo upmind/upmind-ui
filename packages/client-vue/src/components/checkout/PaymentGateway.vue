@@ -3,7 +3,7 @@
     ref="form"
     class="flex flex-col gap-6"
     :class="{
-      'mb-6': !meta.isRenderless || instructions,
+      'mb-4': (schema && uischema && !meta.isRenderless) || instructions,
     }"
   >
     <transition-group
@@ -66,8 +66,12 @@
         :title="t('payment.failed')"
       >
         <div class="mt-2 text-sm">
-          <li v-for="error in errors" :key="error.title" class="my-0 py-0">
-            {{ error.title }}
+          <li
+            v-for="error in errors"
+            :key="error.message || error.title"
+            class="my-0 py-0"
+          >
+            {{ error.message || error.title }}
           </li>
         </div>
       </Alert>

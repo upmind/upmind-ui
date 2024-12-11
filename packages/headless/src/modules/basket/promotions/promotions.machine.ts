@@ -78,16 +78,10 @@ export default createMachine(
                   target: "#complete",
                 },
               ],
-              onError: [
-                {
-                  target: "#invalid",
-                  actions: ["setError"],
-                  cond: "isDirty",
-                },
-                {
-                  target: "#complete",
-                },
-              ],
+              onError: {
+                target: "#invalid",
+                actions: ["setError"],
+              },
             },
           },
         },
@@ -307,7 +301,8 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty,
+      isDirty: ({ dirty, model }, _event) =>
+        !!dirty && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasChanged: ({ promotions, basketId }, { data }: any) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
