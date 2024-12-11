@@ -301,7 +301,6 @@ export function basketSubscription(callback: any, onReceive: any) {
         break;
 
       case "ADD_UPDATE":
-        debugger;
         add(event.target, event.context, basket)
           .then((actor: ActorRef<any, any> | null) => {
             if (!actor) return Promise.reject("Failed to add item to basket");
@@ -330,7 +329,6 @@ export function basketSubscription(callback: any, onReceive: any) {
             const context = get(actor.getSnapshot(), "context", event.context);
             // try to update the actor we just added
             // if it fails, then we will cancel update and return the error and
-            debugger;
             return update(model, context, basket)
               .then(data => {
                 basket.refresh().then(() => callback({ type: "ADDED", data }));

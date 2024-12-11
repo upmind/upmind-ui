@@ -189,7 +189,6 @@ async function update(
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
   const product = parseBasketProductConfig(data, promotions);
-
   // ---
   const isNew = !data?.id;
   const action = isNew ? post : put;
