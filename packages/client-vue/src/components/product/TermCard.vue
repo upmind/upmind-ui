@@ -52,8 +52,8 @@ import { Badge } from "@upmind-automation/upwind";
 
 const props = defineProps<{
   name: string;
-  price: number;
-  cycle: number;
+  price?: number;
+  cycle?: number;
   // ---
   mixedPromotions?: boolean;
   monthlyFromCurrentAmount?: number;
