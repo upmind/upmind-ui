@@ -24,7 +24,7 @@ let state: any = null;
 
 // @ts-ignore
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: true,
+  devTools: false,
 }).onTransition(newState => {
   state = newState;
 });
