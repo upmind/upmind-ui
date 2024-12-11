@@ -159,7 +159,6 @@ export const useBasket = () => {
           },
           isNil
         );
-
         service.send({
           type: "ADD",
           data: config,
