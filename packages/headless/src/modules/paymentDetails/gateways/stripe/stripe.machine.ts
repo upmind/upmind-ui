@@ -373,10 +373,15 @@ export default createMachine(
           } else {
             error = error || data;
 
-            return filter(
-              error,
-              e => isString(e.title) && !includes(lowerCase(e.title), "element")
-            );
+            if (error.message) {
+              return [error];
+            } else {
+              return filter(
+                error,
+                e =>
+                  isString(e.title) && !includes(lowerCase(e.title), "element")
+              );
+            }
           }
         },
       }),

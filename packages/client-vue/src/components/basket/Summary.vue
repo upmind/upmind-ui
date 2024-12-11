@@ -100,7 +100,7 @@
 
       <template v-for="(value, key) in summary?.taxes" :key="key">
         <dt
-          class="text-emphasis-medium group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
+          class="text-primary group m-0 inline-flex flex-1 items-center gap-2 text-left text-sm font-normal leading-normal"
         >
           <span
             class="text-emphasis-medium m-0 inline-flex items-end gap-2 text-left text-sm font-normal leading-normal"
