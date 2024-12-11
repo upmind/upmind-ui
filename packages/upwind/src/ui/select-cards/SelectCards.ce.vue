@@ -1,5 +1,5 @@
 <template>
-  <SelectRoot
+  <Select
     class="w-full gap-0 rounded-md border-control shadow-sm"
     v-model="modelValue"
     :default-value="defaultValue"
@@ -7,31 +7,28 @@
     :disabled="props.disabled"
     @update:model-value="onChange"
   >
-    <SelectTrigger
-      :class="cn(variants.select, props.class)"
-      class="flex items-center px-4 py-3"
-    >
-      <slot name="item" v-bind="{ item: selected, index: 0 }">
+    <SelectTrigger :class="cn(variants.select, props.class)">
+      <slot name="item" v-bind="{ item: selected }">
         {{ selected?.label }}
       </slot>
     </SelectTrigger>
-    <SelectContent
-      class="z-50 max-h-96 overflow-y-scroll border bg-white shadow"
-    >
-      <SelectGroup>
+    <SelectContent class="w-full">
+      <SelectGroup class="w-full">
         <SelectItem
           v-for="(item, index) in items"
           :key="index"
           :value="item.value"
-          class="p-4"
+          class="w-full"
         >
-          <slot name="item" v-bind="{ item, index }">
-            {{ item.label }}
-          </slot>
+          <div class="">
+            <slot name="item" v-bind="{ item, index }">
+              {{ item.label }}
+            </slot>
+          </div>
         </SelectItem>
       </SelectGroup>
     </SelectContent>
-  </SelectRoot>
+  </Select>
 </template>
 
 <script setup lang="ts">
@@ -44,17 +41,13 @@ import { cn, useStyles } from "../../utils";
 import config from "./selectCards.config";
 
 // --- components
-import {
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectItemIndicator,
-  SelectLabel,
-  SelectPortal,
-  SelectRoot,
-  SelectSeparator,
-  SelectTrigger,
-} from "radix-vue";
+import Select from "../select/Select.vue";
+import SelectTrigger from "../select/SelectTrigger.vue";
+import SelectContent from "../select/SelectContent.vue";
+import SelectGroup from "../select/SelectGroup.vue";
+import SelectItem from "../select/SelectItem.vue";
+
+import Icon from "../icon/Icon.ce.vue";
 
 // --- utils
 import { find } from "lodash-es";
