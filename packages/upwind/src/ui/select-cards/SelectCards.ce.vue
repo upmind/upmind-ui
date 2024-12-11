@@ -12,15 +12,14 @@
         {{ selected?.label }}
       </slot>
     </SelectTrigger>
-    <SelectContent class="w-full">
-      <SelectGroup class="w-full">
+    <SelectContent>
+      <SelectGroup>
         <SelectItem
           v-for="(item, index) in items"
           :key="index"
           :value="item.value"
-          class="w-full"
         >
-          <div class="">
+          <div>
             <slot name="item" v-bind="{ item, index }">
               {{ item.label }}
             </slot>
