@@ -69,6 +69,12 @@ export const useRecommendationsEngine = () => {
       });
     },
 
+    cancel: function () {
+      service.send({
+        type: "CANCEL",
+      });
+    },
+
     syncBasket: function () {
       service.send({
         type: "SYNC",

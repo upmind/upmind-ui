@@ -4,7 +4,7 @@
     :is="modal ? Drawer : 'div'"
     :modelValue="isOpen"
     size="xl"
-    persistent
+    :dismissable="false"
     fit="cover"
     skrim="light"
   >

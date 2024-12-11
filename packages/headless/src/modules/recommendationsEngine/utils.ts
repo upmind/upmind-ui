@@ -13,6 +13,7 @@ import {
   reject,
   some,
   toSafeInteger,
+  compact,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -106,9 +107,9 @@ export function parseRecommendation(raw: RelatedProduct): Recommendation {
         config?.qty || product?.min || product?.step || 1
       ),
       term: config?.bcm ?? term?.cycle ?? 0,
-      subproducts: config?.sub_pids?.toString()?.split(",") ?? [],
+      subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
       provisionFields: config?.pfields ?? {},
-      coupons: config?.coupons?.toString()?.split(",") ?? [],
+      coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
     },
   };
 }

@@ -258,8 +258,8 @@ async function checkSubproducts(
         });
       }
 
-      // check if we are missing required subproduct, if we are then automaticaly select the first one
-      if (subproduct?.required && isEmpty(selected)) {
+      // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+      if (subproduct?.required && !subproduct.multiple && isEmpty(selected)) {
         const pid = get(first(subproduct.values), "id");
         if (pid) set(selected, pid, { productId: pid });
       }
@@ -481,8 +481,9 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
     // The subscriber has unsubscribed from this service
     // typically when the transitioning out of the state node
     //  so cancel any pending requests
-    if (controller?.signal && !controller.signal?.aborted)
+    if (controller?.signal && !controller.signal?.aborted) {
       controller?.abort("Subscripton terminated");
+    }
   };
 }
 

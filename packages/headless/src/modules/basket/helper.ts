@@ -333,29 +333,35 @@ export function basketSubscription(callback: any, onReceive: any) {
               .then(data => {
                 basket.refresh().then(() => callback({ type: "ADDED", data }));
               })
-              .catch(error => {
-                debugger;
+              .catch((data: any) => {
+                actor.send({ type: "ERROR", data });
+
+                // get just the error message and add the related basketItem (actor) to it
+                const error = get(data, "error", {});
+
                 callback({
                   type: "ERROR",
-                  data: {
-                    message: error,
-                    data: actor,
-                  },
+                  data: { ...error, basketItem: actor },
                 });
-                return Promise.reject(actor);
+
+                return actor;
               });
           })
-          .catch((actor: ActorRef<any, any>) => {
+          .catch((actor: any) => {
             debugger;
-            callback({
-              type: "ERROR",
-              data: {
-                // title:"",
-                // message:"",
-                data: actor,
-              },
-            });
+            if (actor?.getSnapshot) {
+              callback({
+                type: "ERROR",
+                data: {
+                  // title:"",
+                  // message:"",
+                  basketItem: actor,
+                },
+              });
+            }
             callback({ type: "CANCEL" });
+
+            return actor;
           });
 
         break;

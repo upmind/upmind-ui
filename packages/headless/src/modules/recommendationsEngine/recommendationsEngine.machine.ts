@@ -44,7 +44,7 @@ import type { RecommendationsEngineContext } from "./types";
 
 export default createMachine(
   {
-    id: "RecommendationsEngine",
+    id: "recommendationsManager",
     predictableActionArguments: true,
     initial: "subscribing",
     context: {} as RecommendationsEngineContext,
@@ -87,6 +87,15 @@ export default createMachine(
         },
       },
 
+      configuring: {
+        on: {
+          CANCEL: {
+            target: "available",
+            actions: ["clearItem"],
+          },
+        },
+      },
+
       processing: {
         entry: ["clearError"],
         on: {
@@ -98,13 +107,20 @@ export default createMachine(
             target: "loading",
           },
           CANCEL: {
-            target: "error",
-            actions: ["setItem"],
+            target: "available",
+            actions: ["clearItem"],
           },
-          ERROR: {
-            target: "error",
-            actions: ["setError"],
-          },
+          ERROR: [
+            {
+              target: "configuring",
+              actions: ["setError", "setItem"],
+              cond: "hasBasketItem",
+            },
+            {
+              target: "error",
+              actions: ["setError"],
+            },
+          ],
         },
       },
 
@@ -235,27 +251,6 @@ export default createMachine(
           const recommendation = find(context.recommendations, ["id", data]);
           const model = context.basketItemBuilder(recommendation.config);
 
-          // debugger;
-          // context.promotions = reduce(
-          //   concat(context.promotions, model?.coupons),
-          //   (
-          //     result: { promocode: string }[],
-          //     item: string | { promocode: string }
-          //   ) => {
-          //     const promotion: { promocode: string } = isObject(item)
-          //       ? item
-          //       : { promocode: item as string };
-          //     if (
-          //       promotion?.promocode &&
-          //       !some(result, ["promocode", promotion?.promocode])
-          //     )
-          //       result.push(promotion);
-          //     return result;
-          //   },
-          //   [] as { promocode: string }[]
-          // );
-
-          // debugger;
           return {
             type: "ADD_UPDATE",
             target: model,
@@ -263,6 +258,15 @@ export default createMachine(
           };
         }
       ),
+
+      // ---
+
+      setItem: assign({
+        basketItem: (_context, { data }: AnyEventObject) => {
+          return data?.basketItem;
+        },
+      }),
+      clearItem: assign({ basketItem: undefined }),
 
       // ---
 
@@ -362,19 +366,19 @@ export default createMachine(
           _context: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          addError({
-            title:
-              data?.title ||
-              "We experienced an error adding the product to your basket",
-            copy: data?.message,
-            data: data?.data,
-          });
+          // addError({
+          //   title:
+          //     data?.title ||
+          //     "We experienced an error adding the product to your basket",
+          //   copy: data?.message,
+          //   data: data?.data,
+          // });
 
           return data;
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {
@@ -420,6 +424,11 @@ export default createMachine(
 
         return value;
       },
+
+      hasBasketItem: (
+        _context: RecommendationsEngineContext,
+        { data }: AnyEventObject
+      ) => isObject(data?.basketItem),
     },
 
     delays: {

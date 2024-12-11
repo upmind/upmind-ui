@@ -11,7 +11,7 @@
     to="#vue-app"
     no-close
     no-header
-    persistent
+    :dismissable="false"
   >
     <template #header>
       <div />
