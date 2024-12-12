@@ -6,6 +6,7 @@
         value: item.values[0].id,
         label: item.label,
         price: item.values[0].price,
+        ...item.values[0],
       }"
       :index="0"
       :name="item.label"
@@ -19,7 +20,11 @@
       expandable
       :expanded="isExpanded"
       @toggle-expanded="toggleExpanded"
-    />
+    >
+      <template #default="slotProps">
+        <slot v-bind="slotProps" />
+      </template>
+    </RadioCardItem>
 
     <template v-for="(itemValue, index) in items" :key="itemValue.id || index">
       <RadioCardItem
@@ -27,6 +32,7 @@
           label: itemValue.name,
           value: itemValue.id,
           price: itemValue.price,
+          ...itemValue,
         }"
         :index="index"
         :name="item.label"
@@ -38,7 +44,11 @@
         :model-value="modelValue"
         :variants="variants"
         :price="itemValue.price"
-      />
+      >
+        <template #default="slotProps">
+          <slot v-bind="slotProps" />
+        </template>
+      </RadioCardItem>
     </template>
   </div>
 </template>
