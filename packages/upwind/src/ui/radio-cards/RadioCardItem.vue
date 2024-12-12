@@ -16,26 +16,49 @@
       :class="cn(variants.radioCards.label)"
     >
       <slot name="item" v-bind="{ item, index }">
-        {{ item.label }}
+        {{ props.name }}
       </slot>
     </Label>
+
+    <div
+      v-if="props.label"
+      class="text-emphasis-medium flex cursor-pointer items-center space-x-4 text-nowrap py-1.5 pr-2 text-sm"
+      :class="props.expandable ? 'hover:text-emphasis-high' : 'pr-4'"
+      @click.stop="$emit('toggle-expanded')"
+    >
+      {{ props.label }}
+      <Icon
+        v-if="props.expandable"
+        icon="arrow-down"
+        size="xs"
+        class="mt-0.5 transition-all duration-300"
+        :class="props.expanded ? 'rotate-180' : ''"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // --- internal
 import { RadioGroupItem } from "../radio-group";
-import { Label } from "../label";
 import { cn } from "../../utils";
+import Icon from "../icon/Icon.ce.vue";
 
 const props = defineProps<{
   item: any;
   index: number;
   name: string;
+  label: string;
   required: boolean;
   disabled: boolean;
   radioClass?: string;
   modelValue: any;
   variants: any;
+  expandable?: boolean;
+  expanded?: boolean;
+}>();
+
+defineEmits<{
+  "toggle-expanded": [];
 }>();
 </script>
