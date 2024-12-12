@@ -13,14 +13,14 @@
     />
     <Label
       :for="`${props.name}-${index}`"
-      :class="cn(variants.radioCards.label)"
+      :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
     >
-      <slot v-bind="{ item: props.item }" />
+      <slot v-bind="{ item: props.item, label: 'test' }" label="test2" />
     </Label>
 
     <div
       v-if="props.label"
-      class="text-emphasis-medium flex cursor-pointer items-center space-x-4 text-nowrap py-1.5 pr-2 text-sm"
+      class="text-emphasis-medium mt-[0.075rem] flex cursor-pointer items-center space-x-4 text-nowrap py-2 pr-2 text-sm"
       :class="props.expandable ? 'hover:text-emphasis-high' : 'pr-4'"
       @click.stop="$emit('toggle-expanded')"
     >

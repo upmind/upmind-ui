@@ -46,7 +46,17 @@
         :price="itemValue.price"
       >
         <template #default="slotProps">
-          <slot v-bind="slotProps" />
+          <div>
+            <slot
+              v-bind="{
+                ...slotProps,
+                item: {
+                  ...slotProps.item,
+                  label: item.label,
+                },
+              }"
+            />
+          </div>
         </template>
       </RadioCardItem>
     </template>
