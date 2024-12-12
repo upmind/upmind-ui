@@ -7,35 +7,41 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div
-      v-for="(item, index) in items"
-      :key="item.id || index"
-      :class="cn(variants.radioCards.item, props.radioClass)"
-      :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-    >
-      <RadioGroupItem
-        :id="`${props.name}-${index}`"
-        :value="item.value"
+    <template v-for="(item, index) in items" :key="item.id || index">
+      <RadioCardItemExpandable
+        v-if="item.values"
+        :item="item"
+        :name="props.name"
+        :model-value="modelValue"
+        :variants="variants"
+      >
+        <template #item="slotProps">
+          <slot name="item" v-bind="slotProps" />
+        </template>
+      </RadioCardItemExpandable>
+
+      <RadioCardItem
+        v-else
+        :item="item"
+        :index="index"
         :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
-        :class="variants.radioCards.input"
-      />
-      <Label
-        :for="`${props.name}-${index}`"
-        :class="cn(variants.radioCards.label)"
+        :radio-class="props.radioClass"
+        :model-value="modelValue"
+        :variants="variants"
       >
-        <slot name="item" v-bind="{ item, index }">
-          {{ item.label }}
-        </slot>
-      </Label>
-    </div>
+        <template #item="slotProps">
+          <slot name="item" v-bind="slotProps" />
+        </template>
+      </RadioCardItem>
+    </template>
   </RadioGroup>
 </template>
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -45,6 +51,8 @@ import config from "./radioCards.config";
 // --- components
 import { RadioGroup, RadioGroupItem } from "../radio-group";
 import { Label } from "../label";
+import RadioCardItemExpandable from "./RadioCardItemExpandable.vue";
+import RadioCardItem from "./RadioCardItem.vue";
 
 // --- utils
 import { find } from "lodash-es";
@@ -105,4 +113,7 @@ function onChange(value: any) {
     modelValue.value = undefined;
   else modelValue.value = value;
 }
+
+// Add isExpanded state
+const isExpanded = ref(false);
 </script>

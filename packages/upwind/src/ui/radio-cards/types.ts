@@ -11,6 +11,7 @@ type RadioCardsVariantProps = VariantProps<typeof rootVariants>;
 export interface RadioCardsItemProps extends RadioGroupItemProps {
   // ---
   label: string;
+  values: any[];
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
