@@ -8,8 +8,10 @@
     @update:model-value="onChange"
   >
     <SelectTrigger :class="cn(variants.select, props.class)">
-      <slot name="item" v-bind="{ item: selected }">
-        {{ selected?.label }}
+      <slot name="default" v-bind="{ item: selected }">
+        <slot name="item" v-bind="{ item: selected }">
+          {{ selected?.label }}
+        </slot>
       </slot>
     </SelectTrigger>
     <SelectContent>
@@ -20,8 +22,10 @@
           :value="item.value"
         >
           <div>
-            <slot name="item" v-bind="{ item, index }">
-              {{ item.label }}
+            <slot name="default" v-bind="{ item, index }">
+              <slot name="item" v-bind="{ item, index }">
+                {{ item.label }}
+              </slot>
             </slot>
           </div>
         </SelectItem>
