@@ -15,8 +15,8 @@
         :model-value="modelValue"
         :variants="variants"
       >
-        <template #item="slotProps">
-          <slot name="item" v-bind="slotProps" />
+        <template #item="{ item: item }">
+          <slot name="item" v-bind="{ item: item }" />
         </template>
       </RadioCardItemExpandable>
 
@@ -31,8 +31,8 @@
         :model-value="modelValue"
         :variants="variants"
       >
-        <template #item="slotProps">
-          <slot name="item" v-bind="slotProps" />
+        <template #item="{ item: item }">
+          <slot name="item" v-bind="{ item: item }" />
         </template>
       </RadioCardItem>
     </template>
