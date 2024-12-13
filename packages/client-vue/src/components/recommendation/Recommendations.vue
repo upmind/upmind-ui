@@ -29,7 +29,7 @@
 
     <div v-else v-auto-animate>
       <div class="mt-4 flex flex-col items-center justify-center gap-6 p-2">
-        <div class="text-center text-4xl font-bold">
+        <div class="text-center text-4xl font-bold leading-normal">
           Frequently
           <mask class="bg-accent leading-relaxed">bought</mask>
           together
@@ -44,19 +44,27 @@
       </div>
 
       <UpmContentSection>
-        <div class="relative w-screen">
-          <RecommendationsCarousel
-            :recommendations="recommendationsData"
-            :meta="meta"
-            @resolve="doResolve"
-          />
-        </div>
+        <RecommendationsCarousel
+          :recommendations="recommendationsData"
+          :meta="meta"
+          @resolve="doResolve"
+        />
       </UpmContentSection>
     </div>
 
-    <pre class="mt-32">
-      {{ recommendations[0] }}
-    </pre>
+    <div class="mt-10 justify-end md:flex">
+      <RouterLink :to="{ name: 'cart' }" class="no-underline md:ml-auto">
+        <Button
+          label="Continue to Basket"
+          color="secondary"
+          class="w-full md:w-auto"
+        >
+          <template #append>
+            <Icon icon="arrow-right" size="2xs" />
+          </template>
+        </Button>
+      </RouterLink>
+    </div>
 
     <!-- <VRequiresAction v-if="resolved && requiresAction" /> -->
   </aside>
@@ -122,7 +130,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 // --- components
-import { Button, Drawer, Badge } from "@upmind-automation/upwind";
+import { Button, Drawer, Icon } from "@upmind-automation/upwind";
 import UpmRecommendationCard from "./RecommendationCard.vue";
 import RecommendationsCarousel from "./RecommendationsCarousel.vue";
 
@@ -157,16 +165,18 @@ const recommendationsData = computed(() => {
         rec.name === "Ideation Session"
           ? "Delete the badge and you can see all recommendation card heights readjust to be the same ............................................................"
           : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
-      currentAmount: 99.99,
-      currentPrice: "$99.99",
+      monthlyFromCurrentAmount: 99.99,
+      monthlyFromCurrentPrice: "$99.99",
+      monthlyFromRegularPrice: "$199.99",
+      monthlyFromRegularAmount: 199.99,
       meta: {
         free: false,
         discounted: true,
       },
       promotions: [
         {
-          currentSaving: "10%",
-          currentSavingAmount: "$10",
+          currentSaving: "50%",
+          currentSavingAmount: "$100",
         },
       ],
     }));
@@ -176,16 +186,18 @@ const recommendationsData = computed(() => {
       name: rec.name,
       description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
-      currentAmount: 99.99,
-      currentPrice: "$99.99",
+      monthlyFromCurrentAmount: 99.99,
+      monthlyFromCurrentPrice: "$99.99",
+      monthlyFromRegularPrice: "$199.99",
+      monthlyFromRegularAmount: 199.99,
       meta: {
         free: false,
         discounted: true,
       },
       promotions: [
         {
-          currentSaving: "10%",
-          currentSavingAmount: "$10",
+          currentSaving: "50%",
+          currentSavingAmount: "$100",
         },
       ],
     }));

@@ -7,13 +7,20 @@ defineOptions({
   inheritAttrs: false,
 });
 
-const props = defineProps<WithClassAsProps>();
+const props = defineProps<
+  WithClassAsProps & {
+    overflow?: boolean;
+  }
+>();
 
 const { carouselRef, orientation } = useCarousel();
+
+// **** BREAKING CHANGE ****
+// Updating this component will remove the overflow prop
 </script>
 
 <template>
-  <div ref="carouselRef" class="overflow-hidden">
+  <div ref="carouselRef" :class="!overflow ? 'overflow-hidden' : ''">
     <div
       :class="
         cn(
