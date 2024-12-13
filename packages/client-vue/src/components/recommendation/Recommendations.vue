@@ -52,8 +52,18 @@
       </UpmContentSection>
     </div>
 
-    <div class="mt-10 justify-end md:flex">
-      <RouterLink :to="{ name: 'cart' }" class="no-underline md:ml-auto">
+    <UpmCard
+      class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
+    >
+      <div
+        class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
+      >
+        No additional items added
+      </div>
+      <RouterLink
+        :to="{ name: 'cart' }"
+        class="order-first w-full no-underline md:order-last md:ml-auto md:w-auto"
+      >
         <Button
           label="Continue to Basket"
           color="secondary"
@@ -64,7 +74,7 @@
           </template>
         </Button>
       </RouterLink>
-    </div>
+    </UpmCard>
 
     <!-- <VRequiresAction v-if="resolved && requiresAction" /> -->
   </aside>
@@ -127,6 +137,7 @@ import {
   UpmBasketLoading,
   UpmContentSection,
   UpmProductConfig,
+  UpmCard,
 } from "@upmind-automation/client-vue";
 
 // --- components
