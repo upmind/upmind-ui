@@ -5,15 +5,15 @@
       align: 'start',
     }"
   >
-    <div class="max-w-app mb-6 flex justify-end space-x-2">
+    <div class="mb-6 flex justify-end space-x-2">
       <CarouselPrevious class="!static" />
       <CarouselNext class="!static" />
     </div>
-    <CarouselContent class="embla__container">
+    <CarouselContent class="embla__container" overflow>
       <CarouselItem
         v-for="(recommendation, index) in recommendations"
         :key="index"
-        class="md:basis-1/3 lg:basis-1/4"
+        class="md:basis-1/3"
       >
         <RecommendationCard
           :index="index"
@@ -22,8 +22,6 @@
           @resolve="doResolve"
         />
       </CarouselItem>
-
-      <CarouselItem class="h-full md:basis-1/3 lg:basis-1/4" />
     </CarouselContent>
   </Carousel>
 </template>

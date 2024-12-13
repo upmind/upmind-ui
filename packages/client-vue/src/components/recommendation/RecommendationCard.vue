@@ -71,15 +71,15 @@
               recommendation.monthlyFromCurrentAmount <
               recommendation.monthlyFromRegularAmount
             "
-            class="text-emphasis-medium text-sm"
-            >{{ recommendation.monthlyFromRegularAmount }}</s
+            class="text-emphasis-medium ml-2 text-sm"
+            >{{ recommendation.monthlyFromRegularPrice }}</s
           >
         </div>
 
         <!-- Button section -->
         <div>
           <Button
-            color="secondary"
+            color="primary"
             size="sm"
             :disabled="meta.isProcessing"
             :loading="meta.isProcessing"
