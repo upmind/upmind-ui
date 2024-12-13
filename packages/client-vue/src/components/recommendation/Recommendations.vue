@@ -28,25 +28,33 @@
     </UpmBasketLoading>
 
     <div v-else v-auto-animate>
-      <div
-        class="mb-16 mt-4 flex items-center justify-center p-2 text-4xl font-bold"
-      >
-        We
-        <mask class="bg-accent mx-2 leading-relaxed">think</mask>
-        you may like these
+      <div class="mt-4 flex flex-col items-center justify-center gap-6 p-2">
+        <div class="text-center text-4xl font-bold">
+          Frequently
+          <mask class="bg-accent leading-relaxed">bought</mask>
+          together
+        </div>
+
+        <p
+          class="text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
+        >
+          These products are popular additions among customers who made a
+          similar selection
+        </p>
       </div>
 
       <UpmContentSection>
         <div class="relative w-screen">
           <RecommendationsCarousel
-            :recommendations="recommendations"
+            :recommendations="recommendationsData"
             :meta="meta"
+            @resolve="doResolve"
           />
         </div>
       </UpmContentSection>
     </div>
 
-    <pre>
+    <pre class="mt-32">
       {{ recommendations[0] }}
     </pre>
 
@@ -99,7 +107,8 @@
 
 <script lang="ts" setup>
 // --- external
-import { useRouter } from "vue-router";
+import { computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -113,7 +122,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 // --- components
-import { Button, Drawer } from "@upmind-automation/upwind";
+import { Button, Drawer, Badge } from "@upmind-automation/upwind";
 import UpmRecommendationCard from "./RecommendationCard.vue";
 import RecommendationsCarousel from "./RecommendationsCarousel.vue";
 
@@ -122,6 +131,7 @@ import RecommendationsCarousel from "./RecommendationsCarousel.vue";
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
 // --- basket setup
 const {
@@ -134,6 +144,63 @@ const {
 } = useRecommendationsEngine();
 
 const { isReady, meta, updateItem, removeItem } = useBasket();
+
+const recommendationsData = computed(() => {
+  if ("mock" in route.query) {
+    var firstValues = recommendations.value.map(rec => ({
+      ...rec,
+      name:
+        rec.name === "Ideation Session"
+          ? "This is an extra long example to push the badge up"
+          : rec.name,
+      description:
+        rec.name === "Ideation Session"
+          ? "Delete the badge and you can see all recommendation card heights readjust to be the same ............................................................"
+          : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+      currentAmount: 99.99,
+      currentPrice: "$99.99",
+      meta: {
+        free: false,
+        discounted: true,
+      },
+      promotions: [
+        {
+          currentSaving: "10%",
+          currentSavingAmount: "$10",
+        },
+      ],
+    }));
+
+    var regularValues = recommendations.value.map(rec => ({
+      ...rec,
+      name: rec.name,
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+      currentAmount: 99.99,
+      currentPrice: "$99.99",
+      meta: {
+        free: false,
+        discounted: true,
+      },
+      promotions: [
+        {
+          currentSaving: "10%",
+          currentSavingAmount: "$10",
+        },
+      ],
+    }));
+
+    return [
+      ...firstValues,
+      ...regularValues,
+      ...regularValues,
+      ...regularValues,
+      ...regularValues,
+    ];
+  }
+
+  return recommendations.value;
+});
 
 function doClose() {
   router.replace({ name: "cart" });
