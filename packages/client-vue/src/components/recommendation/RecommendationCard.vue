@@ -20,26 +20,9 @@
         <!-- Title and description -->
         <div class="flex flex-col gap-2">
           <div class="flex flex-col gap-2">
-            <div class="flex flex-wrap-reverse items-start gap-2">
-              <h3 ref="nameRef" class="text-md m-0 flex-1 font-medium">
-                {{ recommendation.name }}
-              </h3>
-
-              <div class="flex" :class="{ 'w-full': isMultiLine }">
-                <span
-                  v-for="promotion in recommendation.promotions"
-                  :key="promotion.id"
-                  class="shrink-0"
-                >
-                  <Promotion
-                    :discounted="recommendation.meta.discounted"
-                    :currentSaving="promotion.currentSaving"
-                    :currentSavingAmount="promotion.currentSavingAmount"
-                    size="xs"
-                  />
-                </span>
-              </div>
-            </div>
+            <h3 class="text-md m-0 font-medium">
+              {{ recommendation.name }}
+            </h3>
 
             <Lineclamp
               v-if="recommendation.description"
@@ -53,27 +36,42 @@
           </div>
         </div>
 
-        <!-- Spacer to push price and button to bottom -->
+        <!-- Spacer to push promotion, price and button to bottom -->
         <div class="-my-2 flex-1"></div>
 
-        <!-- Price section -->
-        <div class="flex items-center text-xl font-bold leading-6">
+        <div class="flex flex-col gap-2">
           <span
-            v-if="meta.free || recommendation.monthlyFromCurrentAmount === 0"
-            >Free</span
+            v-for="promotion in recommendation.promotions"
+            :key="promotion.id"
+            class="shrink-0"
           >
-          <span v-else class="flex items-center"
-            >+ {{ recommendation.monthlyFromCurrentPrice }}</span
-          >
+            <Promotion
+              :discounted="recommendation.meta.discounted"
+              :currentSaving="promotion.currentSaving"
+              :currentSavingAmount="promotion.currentSavingAmount"
+              size="xs"
+            />
+          </span>
 
-          <s
-            v-if="
-              recommendation.monthlyFromCurrentAmount <
-              recommendation.monthlyFromRegularAmount
-            "
-            class="text-emphasis-medium ml-2 text-sm"
-            >{{ recommendation.monthlyFromRegularPrice }}</s
-          >
+          <!-- Price section -->
+          <div class="flex items-center text-xl font-bold leading-6">
+            <span
+              v-if="meta.free || recommendation.monthlyFromCurrentAmount === 0"
+              >Free</span
+            >
+            <span v-else class="flex items-center"
+              >+ {{ recommendation.monthlyFromCurrentPrice }}</span
+            >
+
+            <s
+              v-if="
+                recommendation.monthlyFromCurrentAmount <
+                recommendation.monthlyFromRegularAmount
+              "
+              class="text-emphasis-medium ml-2 text-sm"
+              >{{ recommendation.monthlyFromRegularPrice }}</s
+            >
+          </div>
         </div>
 
         <!-- Button section -->
@@ -131,10 +129,4 @@ const getImageUrl = () => {
 
   return null;
 };
-
-const nameRef = ref(null);
-const isMultiLine = computed(() => {
-  if (!nameRef.value) return false;
-  return nameRef.value.offsetHeight > 24;
-});
 </script>
