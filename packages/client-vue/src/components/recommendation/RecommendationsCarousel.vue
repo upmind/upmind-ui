@@ -13,7 +13,7 @@
       <CarouselItem
         v-for="(recommendation, index) in recommendations"
         :key="index"
-        class="md:basis-1/3"
+        class="md:basis-1/2 xl:basis-1/3"
       >
         <RecommendationCard
           :index="index"

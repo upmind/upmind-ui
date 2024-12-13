@@ -168,21 +168,16 @@ const recommendationsData = computed(() => {
   if ("mock" in route.query) {
     var firstValues = recommendations.value.map(rec => ({
       ...rec,
-      name:
-        rec.name === "Ideation Session"
-          ? "This is an extra long example to push the badge up"
-          : rec.name,
+      name: rec.name,
       description:
-        rec.name === "Ideation Session"
-          ? "Delete the badge and you can see all recommendation card heights readjust to be the same ............................................................"
-          : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
       monthlyFromCurrentAmount: 99.99,
       monthlyFromCurrentPrice: "$99.99",
       monthlyFromRegularPrice: "$199.99",
       monthlyFromRegularAmount: 199.99,
       meta: {
         free: false,
-        discounted: true,
+        discounted: rec.name === "Ideation Session" ? false : true,
       },
       promotions: [
         {
@@ -213,13 +208,7 @@ const recommendationsData = computed(() => {
       ],
     }));
 
-    return [
-      ...firstValues,
-      ...regularValues,
-      ...regularValues,
-      ...regularValues,
-      ...regularValues,
-    ];
+    return [...firstValues, ...regularValues, ...regularValues];
   }
 
   return recommendations.value;
