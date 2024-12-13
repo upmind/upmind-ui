@@ -19,8 +19,11 @@
           :index="index"
           :recommendation="recommendation"
           :meta="meta"
+          @resolve="doResolve"
         />
       </CarouselItem>
+
+      <CarouselItem class="h-full md:basis-1/3 lg:basis-1/4" />
     </CarouselContent>
   </Carousel>
 </template>
@@ -41,6 +44,14 @@ defineProps<{
   recommendations: any[];
   meta: any;
 }>();
+
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
+}>();
+
+const doResolve = (id: string) => {
+  emit("resolve", id);
+};
 
 // // Grab wrapper nodes
 // const rootNode = document.querySelector(".embla");

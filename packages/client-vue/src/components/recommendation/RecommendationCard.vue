@@ -1,74 +1,93 @@
 <template>
-  <UpmCard class="w-full !p-0">
-    <div class="aspect-video overflow-hidden rounded-t-lg">
-      <img
-        v-if="getImageUrl() !== null"
-        class="m-0 h-full w-full object-cover object-center"
-        :src="getImageUrl()"
-        alt="Recommendation"
-      />
-
-      <div
-        v-else
-        class="from-promotion to-promotion-200 h-full w-full bg-gradient-to-br"
-      />
-    </div>
-
-    <div class="flex flex-col gap-4 p-6 text-sm font-medium leading-6">
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between gap-2">
-          <h3 class="text-md m-0 font-medium">{{ recommendation.name }}</h3>
-
-          <span
-            v-for="promotion in recommendation.promotions"
-            :key="promotion.id"
-          >
-            <Promotion
-              :discounted="meta.discounted"
-              :currentSaving="promotion.currentSaving"
-              :currentSavingAmount="promotion.currentSavingAmount"
-              size="xs"
-            />
-          </span>
-        </div>
-        <Lineclamp
-          v-if="recommendation.description"
-          class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
-          :lines="2"
-          :labelMore="t('product.actions.more', 1)"
-          :labelLess="t('product.actions.more', 0)"
-        >
-          {{ recommendation.description }}
-        </Lineclamp>
-      </div>
-
-      <div class="flex items-center text-xl font-bold leading-6">
-        <span v-if="meta.free || recommendation.monthlyFromCurrentAmount === 0"
-          >Free</span
-        >
-        <span v-else class="flex items-center"
-          >+ {{ recommendation.monthlyFromCurrentPrice }}</span
-        >
-
-        <s
-          v-if="
-            recommendation.monthlyFromCurrentAmount <
-            recommendation.monthlyFromRegularAmount
-          "
-          class="text-emphasis-medium text-sm"
-          >{{ recommendation.monthlyFromRegularAmount }}</s
-        >
-      </div>
-
-      <div>
-        <Button
-          color="secondary"
-          size="sm"
-          :disabled="meta.isProcessing"
-          :loading="meta.isProcessing"
-          :label="recommendation.label"
-          block
+  <UpmCard class="h-full w-full !p-0">
+    <div class="flex h-full flex-col">
+      <!-- Image section -->
+      <div class="aspect-video shrink-0 overflow-hidden rounded-t-lg">
+        <img
+          v-if="getImageUrl() !== null"
+          class="m-0 h-full w-full object-cover object-center"
+          :src="getImageUrl()"
+          alt="Recommendation"
         />
+        <div
+          v-else
+          class="from-promotion to-promotion-200 h-full w-full bg-gradient-to-br"
+        />
+      </div>
+
+      <!-- Content section -->
+      <div class="flex flex-1 flex-col gap-4 p-6 text-sm font-medium leading-6">
+        <!-- Title and description -->
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-wrap-reverse items-start gap-2">
+              <h3 ref="nameRef" class="text-md m-0 flex-1 font-medium">
+                {{ recommendation.name }}
+              </h3>
+
+              <div class="flex" :class="{ 'w-full': isMultiLine }">
+                <span
+                  v-for="promotion in recommendation.promotions"
+                  :key="promotion.id"
+                  class="shrink-0"
+                >
+                  <Promotion
+                    :discounted="recommendation.meta.discounted"
+                    :currentSaving="promotion.currentSaving"
+                    :currentSavingAmount="promotion.currentSavingAmount"
+                    size="xs"
+                  />
+                </span>
+              </div>
+            </div>
+
+            <Lineclamp
+              v-if="recommendation.description"
+              class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
+              :lines="2"
+              :labelMore="t('product.actions.more', 1)"
+              :labelLess="t('product.actions.more', 0)"
+            >
+              {{ recommendation.description }}
+            </Lineclamp>
+          </div>
+        </div>
+
+        <!-- Spacer to push price and button to bottom -->
+        <div class="-my-2 flex-1"></div>
+
+        <!-- Price section -->
+        <div class="flex items-center text-xl font-bold leading-6">
+          <span
+            v-if="meta.free || recommendation.monthlyFromCurrentAmount === 0"
+            >Free</span
+          >
+          <span v-else class="flex items-center"
+            >+ {{ recommendation.monthlyFromCurrentPrice }}</span
+          >
+
+          <s
+            v-if="
+              recommendation.monthlyFromCurrentAmount <
+              recommendation.monthlyFromRegularAmount
+            "
+            class="text-emphasis-medium text-sm"
+            >{{ recommendation.monthlyFromRegularAmount }}</s
+          >
+        </div>
+
+        <!-- Button section -->
+        <div>
+          <Button
+            color="secondary"
+            size="sm"
+            :disabled="meta.isProcessing"
+            :loading="meta.isProcessing"
+            :label="recommendation.label"
+            block
+            @click="doResolve(recommendation.id)"
+          />
+        </div>
       </div>
     </div>
   </UpmCard>
@@ -79,6 +98,7 @@ import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp } from "@upmind-automation/upwind";
 import { useI18n } from "vue-i18n";
 import Promotion from "../basket/product/components/Promotion.vue";
+import { computed, ref } from "vue";
 
 const { t } = useI18n();
 
@@ -87,6 +107,14 @@ const props = defineProps<{
   recommendation: any;
   meta: any;
 }>();
+
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
+}>();
+
+const doResolve = (id: string) => {
+  emit("resolve", id);
+};
 
 const getImageUrl = () => {
   if (props.index === 0) {
@@ -103,4 +131,10 @@ const getImageUrl = () => {
 
   return null;
 };
+
+const nameRef = ref(null);
+const isMultiLine = computed(() => {
+  if (!nameRef.value) return false;
+  return nameRef.value.offsetHeight > 24;
+});
 </script>
