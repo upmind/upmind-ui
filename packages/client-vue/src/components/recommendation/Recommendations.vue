@@ -30,16 +30,17 @@
     <div v-else v-auto-animate>
       <div class="mt-4 flex flex-col items-center justify-center gap-6 p-2">
         <div class="text-center text-4xl font-bold leading-normal">
-          Frequently
-          <mask class="bg-accent leading-relaxed">bought</mask>
-          together
+          {{ t("recommendations.header.title.prefix") }}
+          <mask class="bg-accent leading-relaxed">{{
+            t("recommendations.header.title.highlight")
+          }}</mask>
+          {{ t("recommendations.header.title.suffix") }}
         </div>
 
         <p
           class="text-emphasis-medium m-0 mb-8 max-w-md text-center text-lg leading-normal"
         >
-          These products are popular additions among customers who made a
-          similar selection
+          {{ t("recommendations.header.subtitle") }}
         </p>
       </div>
 
@@ -60,14 +61,20 @@
           <div
             class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
           >
-            No additional items added
+            {{
+              t(
+                "recommendations.basket.items." +
+                  (products.length > 1 ? "multiple" : "single"),
+                { count: products.length }
+              )
+            }}
           </div>
           <RouterLink
             :to="{ name: 'cart' }"
             class="order-first w-full no-underline md:order-last md:ml-auto md:w-auto"
           >
             <Button
-              label="Continue to Basket"
+              :label="t('recommendations.basket.continue')"
               color="secondary"
               class="w-full md:w-auto"
             >
@@ -166,7 +173,7 @@ const {
   cancel,
 } = useRecommendationsEngine();
 
-const { isReady, meta, updateItem, removeItem } = useBasket();
+const { isReady, meta, updateItem, removeItem, products } = useBasket();
 
 const recommendationsData = computed(() => {
   if ("mock" in route.query) {

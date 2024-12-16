@@ -57,11 +57,13 @@
           <div class="flex items-center text-xl font-bold leading-6">
             <span
               v-if="meta.free || recommendation.monthlyFromCurrentAmount === 0"
-              >Free</span
             >
-            <span v-else class="flex items-center"
-              >+ {{ recommendation.monthlyFromCurrentPrice }}</span
-            >
+              {{ t("recommendations.card.free") }}
+            </span>
+            <span v-else class="flex items-center">
+              {{ t("recommendations.card.price.prefix") }}
+              {{ recommendation.monthlyFromCurrentPrice }}
+            </span>
 
             <s
               v-if="
@@ -81,7 +83,11 @@
             size="sm"
             :disabled="meta.isProcessing || recommendation.added"
             :loading="meta.isProcessing"
-            :label="recommendation.added ? 'Added' : 'Add'"
+            :label="
+              recommendation.added
+                ? t('recommendations.card.added')
+                : t('recommendations.card.add')
+            "
             block
             @click="doResolve(recommendation)"
           >
