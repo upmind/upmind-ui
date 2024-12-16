@@ -146,7 +146,6 @@ import {
 
 // --- components
 import { Button, Drawer, Icon } from "@upmind-automation/upwind";
-import UpmRecommendationCard from "./RecommendationCard.vue";
 import RecommendationsCarousel from "./RecommendationsCarousel.vue";
 
 // --- utils
@@ -162,6 +161,7 @@ const {
   isReady: isRecommendationsReady,
   recommendations,
   add,
+  remove,
   basketItem,
   cancel,
 } = useRecommendationsEngine();
@@ -219,14 +219,15 @@ const recommendationsData = computed(() => {
 });
 
 function doClose() {
-  router.replace({ name: "cart" });
+  // router.replace({ name: "cart" });
 }
 
-function doResolve(id: string) {
-  add(id).then(() => {
-    // if were successful, then redirect to the cart
-    // doClose();
-  });
+function doResolve(recommendation: any) {
+  if (recommendation.added) {
+    remove(recommendation.id);
+  } else {
+    add(recommendation.id);
+  }
 }
 
 function doReject() {

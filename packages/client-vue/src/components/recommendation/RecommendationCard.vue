@@ -79,14 +79,14 @@
           <Button
             color="primary"
             size="sm"
-            :disabled="meta.isProcessing"
+            :disabled="meta.isProcessing || recommendation.added"
             :loading="meta.isProcessing"
-            label="Add to basket"
+            :label="recommendation.added ? 'Added' : 'Add'"
             block
-            @click="doResolve(recommendation.id)"
+            @click="doResolve(recommendation)"
           >
             <template #prepend>
-              <Icon icon="cart" class="mr-0.5 size-3.5" />
+              <Icon icon="plus" class="size-2.5" />
             </template>
           </Button>
         </div>
