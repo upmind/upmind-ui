@@ -92,7 +92,8 @@
             @click="doResolve(recommendation)"
           >
             <template #prepend>
-              <Icon icon="plus" class="size-2.5" />
+              <Icon v-if="!recommendation.added" icon="plus" size="4xs" />
+              <Icon v-else icon="check" size="2xs" />
             </template>
           </Button>
         </div>

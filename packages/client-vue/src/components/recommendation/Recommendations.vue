@@ -1,7 +1,7 @@
 <template>
   <aside v-auto-animate>
     <UpmBasketLoading
-      v-if="recommendationsMeta.isLoading"
+      v-if="isEmpty(recommendationsData) && !mounted"
       class="min-h-screen"
       skrim="light"
       :text="t('basket.loading.text')"
@@ -140,6 +140,8 @@ import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
+import { isEmpty } from "lodash-es";
+import { ref } from "vue";
 
 // --- internal
 import {
@@ -161,6 +163,7 @@ import RecommendationsCarousel from "./RecommendationsCarousel.vue";
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+const mounted = ref(false);
 
 // --- basket setup
 const {
@@ -261,6 +264,7 @@ if (meta.value.isAvailable) {
   // then wait for the recommendations to be ready and ensure we have recommendations
   await isRecommendationsReady();
   if (!recommendationsMeta.value.hasRecommendations) doClose();
+  mounted.value = true;
 } else {
   doClose();
 }
