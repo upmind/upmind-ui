@@ -75,8 +75,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
         allRelated,
         (related: RelatedProduct) =>
           !related?.active || // exclude because were inactive
-          related?.object_type !== "product" || // exclude because were not a product
-          some(products, { product_id: related.object_id }) // exclude because were already in the basket
+          related?.object_type !== "product" // exclude because were not a product
       ) as RelatedProduct[];
     },
     []
@@ -99,7 +98,7 @@ export function parseRecommendation(raw: RelatedProduct): Recommendation {
     name: useTranslateName(raw) || product.name,
     description: useTranslateField(raw, "description") || product.description,
     excerpt: useTranslateField(raw, "short_description") || product.excerpt,
-    imgUrl: raw?.image_url || product.imgUrl,
+    imgUrl: raw.product?.image?.full_url,
     // --- default config to be used when adding to basket
     config: {
       productId: product.id,

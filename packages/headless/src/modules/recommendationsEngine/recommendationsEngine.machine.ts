@@ -345,11 +345,22 @@ export default createMachine(
           { raw }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
+          const products = raw?.products;
           const augmentedRecommendations = reduce(
             raw.related,
             (result: any[], raw: any) => {
               raw.product = find(data, ["id", raw.object_id]);
-              result.push(parseRecommendation(raw));
+
+              const added = !isEmpty(
+                find(products, product => {
+                  return product.product_id === raw.object_id;
+                })
+              );
+
+              result.push({
+                ...parseRecommendation(raw),
+                added,
+              });
               return result;
             },
             []
