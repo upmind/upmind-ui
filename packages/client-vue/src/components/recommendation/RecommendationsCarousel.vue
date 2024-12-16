@@ -1,5 +1,8 @@
 <template>
   <Carousel
+    v-if="
+      recommendations.length > 3 || (showCarousel && recommendations.length > 1)
+    "
     class="embla relative w-full"
     :opts="{
       align: 'start',
@@ -24,12 +27,27 @@
       </CarouselItem>
     </CarouselContent>
   </Carousel>
+  <div
+    v-else
+    class="mt-8 flex justify-center gap-6"
+    :class="{
+      'flex-col md:flex-row ': recommendations.length === 2,
+    }"
+  >
+    <RecommendationCard
+      v-for="(recommendation, index) in recommendations"
+      :key="index"
+      :index="index"
+      :recommendation="recommendation"
+      :meta="meta"
+      @resolve="doResolve"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
 import {
-  useCarousel,
-  Button,
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -37,8 +55,9 @@ import {
   CarouselPrevious,
 } from "@upmind-automation/upwind";
 import RecommendationCard from "./RecommendationCard.vue";
+import { useMediaQuery } from "@vueuse/core";
 
-defineProps<{
+const props = defineProps<{
   recommendations: any[];
   meta: any;
 }>();
@@ -51,16 +70,9 @@ const doResolve = (id: string) => {
   emit("resolve", id);
 };
 
-// // Grab wrapper nodes
-// const rootNode = document.querySelector(".embla");
-// const viewportNode = rootNode?.querySelector(".embla__viewport");
-
-// // Grab button nodes
-// const prevButtonNode = rootNode?.querySelector(".embla__prev");
-// const nextButtonNode = rootNode?.querySelector(".embla__next");
-
-// const embla = useCarousel(viewportNode);
-
-// prevButtonNode?.addEventListener("click", embla.scrollPrev, false);
-// nextButtonNode?.addEventListener("click", embla.scrollNext, false);
+const showCarousel = computed(() => {
+  return props.recommendations.length === 2
+    ? useMediaQuery("(max-width: 768px)").value
+    : useMediaQuery("(max-width: 1024px)").value;
+});
 </script>
