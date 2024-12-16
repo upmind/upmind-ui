@@ -27,13 +27,7 @@
       </CarouselItem>
     </CarouselContent>
   </Carousel>
-  <div
-    v-else
-    class="mt-8 flex justify-center gap-6"
-    :class="{
-      'flex-col md:flex-row ': recommendations.length === 2,
-    }"
-  >
+  <div v-else class="mt-8 flex justify-center gap-6">
     <RecommendationCard
       v-for="(recommendation, index) in recommendations"
       :key="index"
