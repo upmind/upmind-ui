@@ -43,38 +43,42 @@
         </p>
       </div>
 
-      <UpmContentSection>
+      <UpmContentSection
+        :class="{
+          'mx-auto !max-w-3xl': recommendationsData.length === 1,
+        }"
+      >
         <RecommendationsCarousel
           :recommendations="recommendationsData"
           :meta="meta"
           @resolve="doResolve"
         />
+
+        <UpmCard
+          class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
+        >
+          <div
+            class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
+          >
+            No additional items added
+          </div>
+          <RouterLink
+            :to="{ name: 'cart' }"
+            class="order-first w-full no-underline md:order-last md:ml-auto md:w-auto"
+          >
+            <Button
+              label="Continue to Basket"
+              color="secondary"
+              class="w-full md:w-auto"
+            >
+              <template #append>
+                <Icon icon="arrow-right" size="2xs" />
+              </template>
+            </Button>
+          </RouterLink>
+        </UpmCard>
       </UpmContentSection>
     </div>
-
-    <UpmCard
-      class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
-    >
-      <div
-        class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
-      >
-        No additional items added
-      </div>
-      <RouterLink
-        :to="{ name: 'cart' }"
-        class="order-first w-full no-underline md:order-last md:ml-auto md:w-auto"
-      >
-        <Button
-          label="Continue to Basket"
-          color="secondary"
-          class="w-full md:w-auto"
-        >
-          <template #append>
-            <Icon icon="arrow-right" size="2xs" />
-          </template>
-        </Button>
-      </RouterLink>
-    </UpmCard>
 
     <!-- <VRequiresAction v-if="resolved && requiresAction" /> -->
   </aside>

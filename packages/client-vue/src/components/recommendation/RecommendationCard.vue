@@ -81,10 +81,14 @@
             size="sm"
             :disabled="meta.isProcessing"
             :loading="meta.isProcessing"
-            :label="recommendation.label"
+            label="Add to basket"
             block
             @click="doResolve(recommendation.id)"
-          />
+          >
+            <template #prepend>
+              <Icon icon="cart" class="mr-0.5 size-3.5" />
+            </template>
+          </Button>
         </div>
       </div>
     </div>
@@ -93,10 +97,9 @@
 
 <script lang="ts" setup>
 import { UpmCard } from "@upmind-automation/client-vue";
-import { Button, Lineclamp } from "@upmind-automation/upwind";
+import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import { useI18n } from "vue-i18n";
 import Promotion from "../basket/product/components/Promotion.vue";
-import { computed, ref } from "vue";
 
 const { t } = useI18n();
 
