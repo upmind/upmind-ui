@@ -81,8 +81,8 @@
           <Button
             color="primary"
             size="sm"
-            :disabled="meta.isProcessing || recommendation.added"
-            :loading="meta.isProcessing"
+            :disabled="recommendation.added"
+            :loading="resolved && !recommendation.added"
             :label="
               recommendation.added
                 ? t('recommendations.card.added')
@@ -106,6 +106,7 @@ import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import { useI18n } from "vue-i18n";
 import Promotion from "../basket/product/components/Promotion.vue";
+import { ref } from "vue";
 
 const { t } = useI18n();
 
@@ -116,11 +117,14 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "resolve", id: string): void;
+  (e: "resolve", recommendation: any): void;
 }>();
 
-const doResolve = (id: string) => {
-  emit("resolve", id);
+const resolved = ref(false);
+
+const doResolve = async (recommendation: any) => {
+  resolved.value = true;
+  emit("resolve", recommendation);
 };
 
 const getImageUrl = () => {
