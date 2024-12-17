@@ -87,11 +87,6 @@ export function spawnProductConfiguration(
 }
 
 export function spawnBillingDetails(basket: Basket) {
-  console.log(
-    "spawnBillingDetails",
-    pick(basket, ["address_id", "company_id"])
-  );
-
   return spawn(
     billingDetailsMachine.withContext({
       basketId: basket?.id,
@@ -126,10 +121,6 @@ export function spawnCustomFields(basket: Basket) {
 }
 
 export function spawnPaymentDetails(basket: Basket) {
-  console.log(
-    "spawnPaymentDetails",
-    pick(basket, ["address_id", "company_id"])
-  );
   return spawn(
     // @ts-ignore
     paymentDetailsMachine.withContext({

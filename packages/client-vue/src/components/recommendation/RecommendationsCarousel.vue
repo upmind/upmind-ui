@@ -1,8 +1,5 @@
 <template>
   <Carousel
-    v-if="
-      recommendations.length > 3 || (showCarousel && recommendations.length > 1)
-    "
     class="embla relative w-full"
     :opts="{
       align: 'start',
@@ -14,33 +11,20 @@
     </div>
     <CarouselContent class="embla__container" overflow>
       <CarouselItem
-        v-for="(recommendation, index) in recommendations"
-        :key="index"
+        v-for="recommendation in props.recommendations"
+        :key="recommendation.id"
         class="md:basis-1/2 xl:basis-1/3"
       >
-        <RecommendationCard
-          :index="index"
-          :recommendation="recommendation"
-          :meta="meta"
-          @resolve="doResolve"
-        />
+        <RecommendationCard v-bind="recommendation" @resolve="doResolve" />
       </CarouselItem>
     </CarouselContent>
   </Carousel>
-  <div v-else class="mt-8 flex justify-center gap-6">
-    <RecommendationCard
-      v-for="(recommendation, index) in recommendations"
-      :key="index"
-      :index="index"
-      :recommendation="recommendation"
-      :meta="meta"
-      @resolve="doResolve"
-    />
-  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+// --- external
+
+// ---internal
 import {
   Carousel,
   CarouselContent,
@@ -48,13 +32,23 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@upmind-automation/upwind";
-import RecommendationCard from "./RecommendationCard.vue";
-import { useMediaQuery } from "@vueuse/core";
 
-const props = defineProps<{
-  recommendations: any[];
-  meta: any;
-}>();
+// --- components
+import RecommendationCard from "./RecommendationCard.vue";
+
+//--- utils
+
+// --- types
+import type { Recommendation } from "@upmind-automation/client-vue";
+
+const props = withDefaults(
+  defineProps<{
+    recommendations: Recommendation[];
+  }>(),
+  {
+    recommendations: () => [],
+  }
+);
 
 const emit = defineEmits<{
   (e: "resolve", id: string): void;
@@ -63,10 +57,4 @@ const emit = defineEmits<{
 const doResolve = (id: string) => {
   emit("resolve", id);
 };
-
-const showCarousel = computed(() => {
-  return props.recommendations.length === 2
-    ? useMediaQuery("(max-width: 768px)").value
-    : useMediaQuery("(max-width: 1024px)").value;
-});
 </script>

@@ -4,9 +4,9 @@
       <!-- Image section -->
       <div class="aspect-video shrink-0 overflow-hidden rounded-t-lg">
         <img
-          v-if="getImageUrl() !== null"
+          v-if="imgUrl"
           class="m-0 h-full w-full object-cover object-center"
-          :src="getImageUrl()"
+          :src="imgUrl"
           alt="Recommendation"
         />
         <div
@@ -21,17 +21,17 @@
         <div class="flex flex-col gap-2">
           <div class="flex flex-col gap-2">
             <h3 class="text-md m-0 font-medium">
-              {{ recommendation.name }}
+              {{ name }}
             </h3>
 
             <Lineclamp
-              v-if="recommendation.description"
+              v-if="description"
               class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
               :lines="2"
               :labelMore="t('product.actions.more', 1)"
               :labelLess="t('product.actions.more', 0)"
             >
-              {{ recommendation.description }}
+              {{ description }}
             </Lineclamp>
           </div>
         </div>
@@ -41,12 +41,12 @@
 
         <div class="flex flex-col gap-2">
           <span
-            v-for="promotion in recommendation.promotions"
+            v-for="promotion in promotions"
             :key="promotion.id"
             class="shrink-0"
           >
             <Promotion
-              :discounted="recommendation.meta.discounted"
+              :discounted="meta?.discounted"
               :currentSaving="promotion.currentSaving"
               :currentSavingAmount="promotion.currentSavingAmount"
               size="xs"
@@ -55,23 +55,18 @@
 
           <!-- Price section -->
           <div class="flex items-center text-xl font-bold leading-6">
-            <span
-              v-if="meta.free || recommendation.monthlyFromCurrentAmount === 0"
-            >
+            <span v-if="meta?.free || monthlyFromCurrentAmount === 0">
               {{ t("recommendations.card.free") }}
             </span>
             <span v-else class="flex items-center">
               {{ t("recommendations.card.price.prefix") }}
-              {{ recommendation.monthlyFromCurrentPrice }}
+              {{ monthlyFromCurrentPrice }}
             </span>
 
             <s
-              v-if="
-                recommendation.monthlyFromCurrentAmount <
-                recommendation.monthlyFromRegularAmount
-              "
+              v-if="monthlyFromCurrentAmount < monthlyFromRegularAmount"
               class="text-emphasis-medium ml-2 text-sm"
-              >{{ recommendation.monthlyFromRegularPrice }}</s
+              >{{ monthlyFromRegularPrice }}</s
             >
           </div>
         </div>
@@ -81,18 +76,17 @@
           <Button
             color="primary"
             size="sm"
-            :disabled="recommendation.added"
-            :loading="resolved && !recommendation.added"
+            :disabled="meta?.added"
             :label="
-              recommendation.added
+              meta?.added
                 ? t('recommendations.card.added')
-                : t('recommendations.card.add')
+                : label || t('recommendations.card.add')
             "
             block
-            @click="doResolve(recommendation)"
+            @click="doResolve(id)"
           >
             <template #prepend>
-              <Icon v-if="!recommendation.added" icon="plus" size="4xs" />
+              <Icon v-if="!meta?.added" icon="plus" size="4xs" />
               <Icon v-else icon="check" size="2xs" />
             </template>
           </Button>
@@ -103,44 +97,31 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { useI18n } from "vue-i18n";
+
+// --- internal
+
+// ---components
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
-import { useI18n } from "vue-i18n";
 import Promotion from "../basket/product/components/Promotion.vue";
-import { ref } from "vue";
 
+// --- utils
+
+// --- types
+import type { Recommendation } from "@upmind-automation/headless";
+
+// -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const props = defineProps<{
-  index: number;
-  recommendation: any;
-  meta: any;
-}>();
+const props = defineProps<Recommendation>();
 
 const emit = defineEmits<{
   (e: "resolve", recommendation: any): void;
 }>();
 
-const resolved = ref(false);
-
 const doResolve = async (recommendation: any) => {
-  resolved.value = true;
   emit("resolve", recommendation);
-};
-
-const getImageUrl = () => {
-  if (props.index === 0) {
-    return "https://s3-alpha-sig.figma.com/img/216f/602f/2425f8e0e9b4eab995afb91006ac56cd?Expires=1734912000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=inNDLTycZcT0mr6G9h1bfL9t0OWOFWhhUjvDeK5KPCgN8APXqW8cnmO4rqCw63qlgs9iZs4D-OKEOlEWMvsHfeDe6mms~W7Oo6-rRQID4QWTHf5wdvtybZjoapQVFljPGWpR7C2Ihg9ypOEwE6Kt~sk0bisYKpuC8nsux~7XoZHvfqcKOVUUd3l-jTrQbz69lwZrkAXnhv8JUIKQfycvwNczk3VGDSBLP1VR3Afna0~xadJKSjW0cBSIWkWx3LZrXVMCsq4Ek3cYB8UrVmMRdFlck-9S8VRBpWUblVjq3ATAiRzfndCblVJLj3VpEn94EnJJognnLWk~aCu8iQ-gIg__";
-  }
-
-  if (props.index === 1) {
-    return "https://s3-alpha-sig.figma.com/img/8a9a/0a9e/23175bed04cb61dfea897a7eadbc107a?Expires=1734912000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=UgVcZhux6xWtTGHRZgs8q-iZhpnRmKsohC9FyVeNPVQt9A7jq8eKAK--vkfKFXoUFgnuOuQbGAV-el85JXdWhrmMpBNjZlEhYl-dDY5qTMC6XzH1fYE1H8ttye~VCa4mmfS6Qho2ohcrLL~VSTrpskhMg7c7Dn0-X~oQ0VoBacBiDJcgCMhxYUuFoeQ-ky~BIb8wUU1ZH5~gDytCfhsNxLC3N4DhJKD82HxPOLNDJn0~mCuxHg0WzeDQblCvw-mwBduqHSGDlcm4IVxnjaVedCZIUJHAgMStWi1aWySM-NoRghg-AskzjhrZ0dT86iD1zgnA-mwCL7kwQ~VWpbj7Zg__";
-  }
-
-  if (props.index === 2) {
-    return "https://s3-alpha-sig.figma.com/img/216f/602f/2425f8e0e9b4eab995afb91006ac56cd?Expires=1734912000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=inNDLTycZcT0mr6G9h1bfL9t0OWOFWhhUjvDeK5KPCgN8APXqW8cnmO4rqCw63qlgs9iZs4D-OKEOlEWMvsHfeDe6mms~W7Oo6-rRQID4QWTHf5wdvtybZjoapQVFljPGWpR7C2Ihg9ypOEwE6Kt~sk0bisYKpuC8nsux~7XoZHvfqcKOVUUd3l-jTrQbz69lwZrkAXnhv8JUIKQfycvwNczk3VGDSBLP1VR3Afna0~xadJKSjW0cBSIWkWx3LZrXVMCsq4Ek3cYB8UrVmMRdFlck-9S8VRBpWUblVjq3ATAiRzfndCblVJLj3VpEn94EnJJognnLWk~aCu8iQ-gIg__";
-  }
-
-  return null;
 };
 </script>
