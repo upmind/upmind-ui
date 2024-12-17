@@ -39,7 +39,16 @@ export interface Recommendation {
   regularPrice?: string;
   // ---
   promotions?: string[];
-  config?: IProductConfig;
+  config?: {
+    productId: string;
+    quantity?: number;
+    term?: number;
+    subproducts?: string[];
+    provisionFields?: {
+      [key: string]: string | number;
+    };
+    coupons?: string[];
+  };
   meta?: {
     discounted?: boolean;
     free?: boolean;
@@ -49,6 +58,7 @@ export interface Recommendation {
     // oneoff?: boolean;
     seen?: boolean;
     added?: boolean;
+    processing?: boolean;
   };
 }
 // --------------------------------------------------------
@@ -59,8 +69,8 @@ export interface RecommendationsEngineContext {
   raw: {
     products: BasketProduct[];
     related: RelatedProduct[];
-    seen: RelatedProduct[];
-    added: Record<string, string>;
+    seen: string[];
+    added: string[];
   };
   // ---
   error?: any;
@@ -82,16 +92,7 @@ export interface RelatedProduct extends IRelatedObject {
   // --- augmented fields
   product?: IProduct;
   // --- config to be used in adding the recommendation
-  config?: {
-    productId: string;
-    quantity?: number;
-    term?: number;
-    subproducts?: string[];
-    provisionFields?: {
-      [key: string]: string | number;
-    };
-    coupons?: string[];
-  };
+  config?: IProductConfig;
 }
 
 export interface IProductConfig {

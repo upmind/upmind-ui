@@ -1,8 +1,10 @@
+// --- external
+import { sha1 } from "object-hash";
+
 // --- internal
 import { parseProduct, parseTerms } from "../product/utils";
 
 // --- utils
-import { v4 as uuid } from "uuid";
 import {
   compact,
   concat,
@@ -10,7 +12,7 @@ import {
   get,
   isEqual,
   reduce,
-  reject,
+  some,
   set,
   toSafeInteger,
   uniqWith,
@@ -61,22 +63,28 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
       // so we need to filter out the duplicates
-      const allRelated = uniqWith(
+      const allRelated = reduce(
         concat(
-          result,
           item?.product?.related,
           item?.product?.meta?.related,
           item?.product?.category?.meta?.related
         ),
-        isEqual
-      );
+        (resultB: RelatedProduct[], rawRelated) => {
+          const valid =
+            rawRelated?.object_type === "product" && rawRelated?.active;
 
-      return reject(
-        allRelated,
-        (related: RelatedProduct) =>
-          !related?.active || // exclude because were inactive
-          related?.object_type !== "product" // exclude because were not a product
+          if (valid) {
+            // ensure we have a consistent id for the recommendation based on its config
+            if (!rawRelated?.id) rawRelated.id = sha1(rawRelated.config);
+            resultB.push(rawRelated);
+          }
+
+          return resultB;
+        },
+        []
       ) as RelatedProduct[];
+
+      return uniqWith(concat(result, allRelated), isEqual);
     },
     []
   );
@@ -86,7 +94,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
 export function parseRecommendation(
   raw: RelatedProduct,
-  meta?: { added?: boolean; seen?: boolean }
+  meta?: { added?: boolean; seen?: boolean; processing?: boolean }
 ): Recommendation {
   const product = parseProduct(raw.product);
   const terms = parseTerms(raw?.product?.prices);
@@ -95,13 +103,14 @@ export function parseRecommendation(
   // --- additional state
   set(term.meta, "added", meta?.added ?? false);
   set(term.meta, "seen", meta?.seen ?? false);
+  set(term.meta, "processing", meta?.processing ?? false);
   // ---
   return {
     productId: product.id,
     ...product,
     ...term,
     // --- forced overrides
-    id: raw?.id || uuid(), // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
+    id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
     label: useTranslateField(raw, "label"),
     name: useTranslateName(raw) || product.name,
     description: useTranslateField(raw, "description") || product.description,

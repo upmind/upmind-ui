@@ -290,12 +290,22 @@ export function basketSubscription(callback: any, onReceive: any) {
       case "ADD":
         add(event.target, event.context, basket)
           .then((actor: ActorRef<any, any> | null) =>
-            callback({ type: "ADDED", data: { actor, context: event.context } })
+            callback({
+              type: "ADDED",
+              data: {
+                actor,
+                basket: basket.getSnapshot(),
+                context: event.context,
+              },
+            })
           )
           .catch(error => {
             // console.error("basketHelper", "ADD", error);
             callback({ type: "ERROR", data: error });
-            callback({ type: "ADDED", data: { context: event.context } });
+            callback({
+              type: "ADDED",
+              data: { basket: basket.getSnapshot(), context: event.context },
+            });
           });
         break;
 
@@ -329,13 +339,13 @@ export function basketSubscription(callback: any, onReceive: any) {
             // try to update the actor we just added
             // if it fails, then we will cancel update and return the error and
             return update(model, context, basket)
-              .then(actor => {
-                basket.refresh().then(() =>
+              .then(rawBasket => {
+                basket.refresh().then(() => {
                   callback({
                     type: "ADDED",
-                    data: { actor, context: event.context },
-                  })
-                );
+                    data: { actor, basket: rawBasket, context: event.context },
+                  });
+                });
               })
               .catch((data: any) => {
                 actor.send({ type: "ERROR", data });
@@ -352,7 +362,6 @@ export function basketSubscription(callback: any, onReceive: any) {
               });
           })
           .catch((actor: any) => {
-            debugger;
             if (actor?.getSnapshot) {
               callback({
                 type: "ERROR",
@@ -374,8 +383,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         callback({ type: "PROCESSING" });
         remove(event.target, event.context, basket)
           .then(() => {
-            basket.refresh();
-            callback({ type: "REMOVED" });
+            basket.refresh().then(() => callback({ type: "REMOVED" }));
           })
           .catch(error => {
             // console.error("basketHelper", "REMOVE", error);
@@ -388,10 +396,10 @@ export function basketSubscription(callback: any, onReceive: any) {
       case "UPDATE":
         callback({ type: "PROCESSING" });
         update(event.target, event.context, basket)
-          .then(data => {
+          .then(rawBasket => {
             basket
               .refresh()
-              .then(snapshot => callback({ type: "UPDATED", data }));
+              .then(() => callback({ type: "UPDATED", data: rawBasket }));
           })
           .catch(error => {
             // console.error("basketHelper", "UPDATE", error);
@@ -410,7 +418,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           .finally(() => {
             basket
               .refresh()
-              .then(snapshot =>
+              .then(() =>
                 callback({ type: "SYNCED", data: basket.getProducts() })
               );
           });
