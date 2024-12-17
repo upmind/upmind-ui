@@ -106,7 +106,7 @@ export function parseRecommendation(
     name: useTranslateName(raw) || product.name,
     description: useTranslateField(raw, "description") || product.description,
     excerpt: useTranslateField(raw, "short_description") || product.excerpt,
-    imgUrl: product.imgUrl,
+    imgUrl: raw.image_url || product.imgUrl,
     // --- default config to be used when adding to basket
     config: {
       productId: product.id,
