@@ -1,14 +1,12 @@
 <template>
   <Carousel
-    v-if="
-      recommendations.length > 3 || (showCarousel && recommendations.length > 1)
-    "
     class="embla relative w-full"
     :opts="{
       align: 'start',
+      active: carouselActive,
     }"
   >
-    <div class="mb-6 flex justify-end space-x-2">
+    <div v-if="carouselActive" class="flex justify-end space-x-2">
       <CarouselPrevious class="!static" />
       <CarouselNext class="!static" />
     </div>
@@ -16,7 +14,7 @@
       <CarouselItem
         v-for="(recommendation, index) in recommendations"
         :key="index"
-        class="md:basis-1/2 xl:basis-1/3"
+        :class="getItemClass"
       >
         <RecommendationCard
           :index="index"
@@ -27,16 +25,6 @@
       </CarouselItem>
     </CarouselContent>
   </Carousel>
-  <div v-else class="mt-8 flex justify-center gap-6">
-    <RecommendationCard
-      v-for="(recommendation, index) in recommendations"
-      :key="index"
-      :index="index"
-      :recommendation="recommendation"
-      :meta="meta"
-      @resolve="doResolve"
-    />
-  </div>
 </template>
 
 <script lang="ts" setup>
@@ -64,9 +52,23 @@ const doResolve = (id: string) => {
   emit("resolve", id);
 };
 
-const showCarousel = computed(() => {
-  return props.recommendations.length === 2
-    ? useMediaQuery("(max-width: 768px)").value
-    : useMediaQuery("(max-width: 1024px)").value;
+const isMobile = useMediaQuery("(max-width: 768px)");
+const isTablet = useMediaQuery("(max-width: 1024px)");
+
+const carouselRequiredWidth = computed(() =>
+  props.recommendations.length === 2 ? isMobile.value : isTablet.value
+);
+
+const carouselActive = computed(
+  () =>
+    props.recommendations.length > 3 ||
+    (carouselRequiredWidth.value && props.recommendations.length > 1)
+);
+
+const getItemClass = computed(() => {
+  const count = props.recommendations.length;
+  if (count === 1) return "w-full";
+  if (count === 2) return "md:basis-1/2";
+  return "md:basis-1/2 xl:basis-1/3";
 });
 </script>

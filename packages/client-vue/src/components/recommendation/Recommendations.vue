@@ -46,10 +46,11 @@
 
       <UpmContentSection
         :class="{
-          'mx-auto !max-w-3xl': recommendations.length === 1,
+          'mx-auto !max-w-xl': recommendations.length === 1,
         }"
       >
         <RecommendationsCarousel
+          class="mt-6"
           :recommendations="recommendations"
           :meta="meta"
           @resolve="doResolve"
