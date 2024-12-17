@@ -47,8 +47,8 @@
           >
             <Promotion
               :discounted="meta?.discounted"
-              :currentSaving="promotion.currentSaving"
-              :currentSavingAmount="promotion.currentSavingAmount"
+              :currentSaving="promotion.amountFormatted"
+              :currentSavingAmount="promotion.amount"
               size="xs"
             />
           </span>
@@ -59,7 +59,6 @@
               {{ t("recommendations.card.free") }}
             </span>
             <span v-else class="flex items-center">
-              {{ t("recommendations.card.price.prefix") }}
               {{ monthlyFromCurrentPrice }}
             </span>
 
