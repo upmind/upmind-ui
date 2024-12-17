@@ -231,7 +231,6 @@ export function basketSubscription(callback: any, onReceive: any) {
 
     if (isRefreshing && state.matches("shopping.refreshing.processed")) {
       isRefreshing = false;
-      console.log("basketHelper", "onTransition", state.value);
       callback({ type: "REFRESH", data: state.context?.basket });
     }
   });
@@ -291,12 +290,12 @@ export function basketSubscription(callback: any, onReceive: any) {
       case "ADD":
         add(event.target, event.context, basket)
           .then((actor: ActorRef<any, any> | null) =>
-            callback({ type: "ADDED", data: actor })
+            callback({ type: "ADDED", data: { actor, context: event.context } })
           )
           .catch(error => {
             // console.error("basketHelper", "ADD", error);
             callback({ type: "ERROR", data: error });
-            callback({ type: "ADDED" });
+            callback({ type: "ADDED", data: { context: event.context } });
           });
         break;
 
@@ -326,12 +325,17 @@ export function basketSubscription(callback: any, onReceive: any) {
               "context.model",
               event.target
             );
-            const context = get(actor.getSnapshot(), "context", event.context);
+            const context = get(actor.getSnapshot(), "context");
             // try to update the actor we just added
             // if it fails, then we will cancel update and return the error and
             return update(model, context, basket)
-              .then(data => {
-                basket.refresh().then(() => callback({ type: "ADDED", data }));
+              .then(actor => {
+                basket.refresh().then(() =>
+                  callback({
+                    type: "ADDED",
+                    data: { actor, context: event.context },
+                  })
+                );
               })
               .catch((data: any) => {
                 actor.send({ type: "ERROR", data });

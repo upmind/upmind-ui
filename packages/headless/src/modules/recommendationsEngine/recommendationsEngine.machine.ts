@@ -20,15 +20,16 @@ import {
   defaultsDeep,
   filter,
   find,
+  get,
+  has,
   includes,
   isEmpty,
-  isEqual,
   isObject,
   map,
-  omit,
   reduce,
   reject,
   remove,
+  set,
   some,
   uniq,
   xorBy,
@@ -54,6 +55,26 @@ export default createMachine(
       },
 
       loading: {
+        entry: ["clearError", "clearRecommendations", "fetchProducts"],
+        on: {
+          REFRESH: {
+            // do nothing
+          },
+          FETCHED: [
+            {
+              target: "available",
+              actions: ["setRecommendations"],
+              cond: "hasData",
+            },
+            { target: "unavailable" },
+          ],
+          ERROR: {
+            target: "error",
+          },
+        },
+      },
+
+      refreshing: {
         entry: ["clearError", "clearRecommendations", "fetchProducts"],
         on: {
           REFRESH: {
@@ -102,8 +123,9 @@ export default createMachine(
           REFRESH: {
             // do nothing
           },
+
           ADDED: {
-            actions: ["setBasket", "setLookups"],
+            actions: ["setAdded", "setBasket", "setLookups"],
             target: "loading",
           },
           CANCEL: {
@@ -132,7 +154,7 @@ export default createMachine(
     },
     on: {
       REFRESH: {
-        target: "loading",
+        target: "refreshing",
         actions: ["setBasket", "setLookups"],
         cond: "hasBasketChanged",
       },
@@ -250,15 +272,32 @@ export default createMachine(
         (context, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
           const model = context.basketItemBuilder(recommendation.config);
-
+          debugger;
           return {
             type: "ADD_UPDATE",
             target: model,
-            context,
+            context: {
+              ...context,
+              recommendation,
+            },
           };
         }
       ),
 
+      setAdded: assign({
+        raw: (
+          { raw }: RecommendationsEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          const bpid = get(data?.actor, "state.context.basketProduct.id");
+          const recommendation = get(data?.context, "recommendation");
+          debugger;
+          debugger;
+          if (recommendation) set(raw.added, recommendation.id, bpid);
+          debugger;
+          return raw;
+        },
+      }),
       // ---
 
       setItem: assign({
@@ -266,6 +305,7 @@ export default createMachine(
           return data?.basketItem;
         },
       }),
+
       clearItem: assign({ basketItem: undefined }),
 
       // ---
@@ -279,6 +319,7 @@ export default createMachine(
             products: [],
             related: [],
             seen: [],
+            added: {},
           };
         },
       }),
@@ -295,6 +336,7 @@ export default createMachine(
             products,
             related,
             seen: [],
+            added: {},
           };
         },
       }),
@@ -314,6 +356,7 @@ export default createMachine(
             products: raw.products,
             related: raw.related,
             seen,
+            added: raw.added,
           };
         },
         recommendations: (
@@ -345,22 +388,13 @@ export default createMachine(
           { raw }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          const products = raw?.products;
           const augmentedRecommendations = reduce(
             raw.related,
-            (result: any[], raw: any) => {
-              raw.product = find(data, ["id", raw.object_id]);
-
-              const added = !isEmpty(
-                find(products, product => {
-                  return product.product_id === raw.object_id;
-                })
-              );
-
-              result.push({
-                ...parseRecommendation(raw),
-                added,
-              });
+            (result: any[], rawRelated: any) => {
+              rawRelated.product = find(data, ["id", rawRelated.object_id]);
+              const added = has(raw.added, rawRelated.id);
+              const seen = some(raw.seen, rawRelated.id);
+              result.push(parseRecommendation(rawRelated, { added, seen }));
               return result;
             },
             []

@@ -4,16 +4,16 @@ import { parseProduct, parseTerms } from "../product/utils";
 // --- utils
 import { v4 as uuid } from "uuid";
 import {
-  get,
-  reduce,
-  concat,
-  uniqWith,
-  isEqual,
-  find,
-  reject,
-  some,
-  toSafeInteger,
   compact,
+  concat,
+  find,
+  get,
+  isEqual,
+  reduce,
+  reject,
+  set,
+  toSafeInteger,
+  uniqWith,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -84,12 +84,20 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
 // ---------------------------------------------------------------------------
 
-export function parseRecommendation(raw: RelatedProduct): Recommendation {
+export function parseRecommendation(
+  raw: RelatedProduct,
+  meta?: { added?: boolean; seen?: boolean }
+): Recommendation {
   const product = parseProduct(raw.product);
   const terms = parseTerms(raw?.product?.prices);
   const term = find(terms, { cycle: product.cycle });
   const config: IProductConfig = get(raw, "config", {});
+  // --- additional state
+  set(term.meta, "added", meta?.added ?? false);
+  set(term.meta, "seen", meta?.seen ?? false);
+  // ---
   return {
+    productId: product.id,
     ...product,
     ...term,
     // --- forced overrides
@@ -98,7 +106,7 @@ export function parseRecommendation(raw: RelatedProduct): Recommendation {
     name: useTranslateName(raw) || product.name,
     description: useTranslateField(raw, "description") || product.description,
     excerpt: useTranslateField(raw, "short_description") || product.excerpt,
-    imgUrl: raw.product?.image?.full_url,
+    imgUrl: product.imgUrl,
     // --- default config to be used when adding to basket
     config: {
       productId: product.id,
