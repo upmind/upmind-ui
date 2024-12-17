@@ -1,45 +1,93 @@
 <template>
-  <section v-auto-animate>
-    <UpmContentSection>
-      <slot name="header"> </slot>
+  <Carousel
+    :key="meta.isActive"
+    ref="carousel"
+    class="embla relative"
+    :opts="{
+      active: meta.isActive,
+      loop: false,
+    }"
+  >
+    <div v-if="active" class="flex justify-end space-x-2">
+      <CarouselPrevious class="!static" />
+      <CarouselNext class="!static" />
+    </div>
 
-      <RecommendationsCarousel
-        :recommendations="props.recommendations"
-        @resolve="doResolve"
-      />
-
-      <slot name="footer"></slot>
-    </UpmContentSection>
-  </section>
+    <CarouselContent
+      :class="['embla__container', { 'justify-center': !meta.isActive }]"
+      overflow
+    >
+      <CarouselItem
+        v-for="recommendation in props.recommendations"
+        :key="recommendation.id"
+        class="md:basis-1/2 xl:basis-1/3"
+      >
+        <RecommendationCard v-bind="recommendation" @resolve="doResolve" />
+      </CarouselItem>
+    </CarouselContent>
+  </Carousel>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { vAutoAnimate } from "@formkit/auto-animate";
-import { useI18n } from "vue-i18n";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
 
-// --- internal
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
+// ---internal
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@upmind-automation/upwind";
 
 // --- components
-import { Button, Icon } from "@upmind-automation/upwind";
-import RecommendationsCarousel from "./RecommendationsCarousel.vue";
+import RecommendationCard from "./RecommendationCard.vue";
 
-// --- utils
+//--- utils
+
+// --- types
+import type { Recommendation } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  recommendations: any[];
+const props = withDefaults(
+  defineProps<{
+    recommendations: Recommendation[];
+  }>(),
+  {
+    recommendations: () => [],
+  }
+);
+
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
 }>();
 
-const emit = defineEmits(["resolve"]);
-// ---
-const { t } = useI18n();
+const carousel = useTemplateRef<HTMLDivElement>("carousel");
 
-// --- basket setup
+const doResolve = (id: string) => {
+  emit("resolve", id);
+};
 
-function doResolve(recommendation: any) {
-  emit("resolve", recommendation);
-}
+const active = ref(false);
+const carouselApi = ref();
+const carouselRef = ref();
+
+const meta = computed(() => ({
+  isActive: active.value,
+}));
+
+onMounted(() => {
+  carouselRef.value = carousel.value?.carouselRef;
+  carouselApi.value = carousel.value?.carouselApi;
+  active.value =
+    carouselRef.value?.scrollWidth > carouselRef.value?.clientWidth;
+
+  console.log({
+    carouselApi: carouselApi.value,
+    carouselRef: carouselRef.value,
+    active: active.value,
+  });
+});
 </script>

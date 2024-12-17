@@ -86,8 +86,7 @@
             @click="doResolve(id)"
           >
             <template #prepend>
-              <Icon v-if="!meta?.added" icon="plus" size="4xs" />
-              <Icon v-else icon="check" size="2xs" />
+              <Icon v-if="meta?.added" icon="check" size="2xs" />
             </template>
           </Button>
         </div>
