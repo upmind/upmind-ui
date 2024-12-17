@@ -4,9 +4,9 @@
       <!-- Image section -->
       <div class="aspect-video shrink-0 overflow-hidden rounded-t-lg">
         <img
-          v-if="getImageUrl() !== null"
+          v-if="recommendation.imgUrl"
           class="m-0 h-full w-full object-cover object-center"
-          :src="getImageUrl()"
+          :src="recommendation.imgUrl"
           alt="Recommendation"
         />
         <div
@@ -86,14 +86,13 @@
             :label="
               recommendation.added
                 ? t('recommendations.card.added')
-                : t('recommendations.card.add')
+                : recommendation.label
             "
             block
             @click="doResolve(recommendation)"
           >
             <template #prepend>
-              <Icon v-if="!recommendation.added" icon="plus" size="4xs" />
-              <Icon v-else icon="check" size="2xs" />
+              <Icon v-if="recommendation.added" icon="check" size="2xs" />
             </template>
           </Button>
         </div>
