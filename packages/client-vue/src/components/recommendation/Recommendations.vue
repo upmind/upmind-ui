@@ -46,11 +46,11 @@
 
       <UpmContentSection
         :class="{
-          'mx-auto !max-w-3xl': recommendationsData.length === 1,
+          'mx-auto !max-w-3xl': recommendations.length === 1,
         }"
       >
         <RecommendationsCarousel
-          :recommendations="recommendationsData"
+          :recommendations="recommendations"
           :meta="meta"
           @resolve="doResolve"
         />
@@ -177,56 +177,6 @@ const {
 } = useRecommendationsEngine();
 
 const { isReady, meta, updateItem, removeItem, products } = useBasket();
-
-const recommendationsData = computed(() => {
-  if ("mock" in route.query) {
-    var firstValues = recommendations.value.map(rec => ({
-      ...rec,
-      name: rec.name,
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
-      monthlyFromCurrentAmount: 99.99,
-      monthlyFromCurrentPrice: "$99.99",
-      monthlyFromRegularPrice: "$199.99",
-      monthlyFromRegularAmount: 199.99,
-      meta: {
-        free: false,
-        discounted: rec.name === "Ideation Session" ? false : true,
-      },
-      promotions: [
-        {
-          currentSaving: "50%",
-          currentSavingAmount: "$100",
-        },
-      ],
-    }));
-
-    var regularValues = recommendations.value.map(rec => ({
-      ...rec,
-      name: rec.name,
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco",
-      monthlyFromCurrentAmount: 99.99,
-      monthlyFromCurrentPrice: "$99.99",
-      monthlyFromRegularPrice: "$199.99",
-      monthlyFromRegularAmount: 199.99,
-      meta: {
-        free: false,
-        discounted: true,
-      },
-      promotions: [
-        {
-          currentSaving: "50%",
-          currentSavingAmount: "$100",
-        },
-      ],
-    }));
-
-    return [...firstValues, ...regularValues, ...regularValues];
-  }
-
-  return recommendations.value;
-});
 
 function doClose() {
   // router.replace({ name: "cart" });
