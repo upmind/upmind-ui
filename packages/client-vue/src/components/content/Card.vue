@@ -5,6 +5,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
@@ -16,11 +19,16 @@ const props = withDefaults(
   defineProps<{
     as?: string;
     class?: HTMLAttributes["class"];
+    disabled?: boolean;
   }>(),
   {
     as: "div",
   }
 );
 
-const styles = useStyles(["card"], {}, config);
+const meta = computed(() => ({
+  isDisabled: props.disabled,
+}));
+
+const styles = useStyles(["card"], meta, config);
 </script>

@@ -5,8 +5,6 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basket/helper";
-import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../utils";
@@ -21,14 +19,12 @@ import {
   filter,
   find,
   get,
-  has,
   includes,
   isEmpty,
   isObject,
   map,
   reduce,
   reject,
-  remove,
   set,
   some,
   uniq,
@@ -39,7 +35,7 @@ import {
 import type { IBasket } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { BasketProduct } from "../basket";
-import type { RecommendationsEngineContext } from "./types";
+import type { RecommendationsEngineContext, RelatedProduct } from "./types";
 
 // --------------------------------------------------------
 
@@ -125,8 +121,8 @@ export default createMachine(
           },
 
           ADDED: {
-            actions: ["setAdded", "setBasket", "setLookups"],
-            target: "loading",
+            actions: ["setBasket", "setLookups"],
+            target: "refreshing",
           },
           CANCEL: {
             target: "available",
@@ -163,7 +159,7 @@ export default createMachine(
       },
       ADD: {
         target: "processing",
-        actions: ["addToBasket"],
+        actions: ["addToBasket", "setProcessing"],
         cond: "exists",
       },
       // PROCESSING: {
@@ -199,9 +195,18 @@ export default createMachine(
       ),
 
       setBasket: assign({
-        basketId: (_context, { data }: AnyEventObject) => data.id,
-        currencyId: (_context, { data }: AnyEventObject) => data?.currency_id,
-        promotions: (_context, { data }: AnyEventObject) => data?.promotions,
+        basketId: (_context, { data }: AnyEventObject) => {
+          const basket = get(data, "basket", data);
+          return basket.id;
+        },
+        currencyId: (_context, { data }: AnyEventObject) => {
+          const basket = get(data, "basket", data);
+          return basket?.currency_id;
+        },
+        promotions: (_context, { data }: AnyEventObject) => {
+          const basket = get(data, "basket", data);
+          return basket?.promotions;
+        },
       }),
       // ---
 
@@ -249,16 +254,7 @@ export default createMachine(
       fetchProducts: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, _event) => {
-          const productIds = uniq(
-            map(
-              concat(
-                context.raw.related,
-                context.raw.productMeta,
-                context.raw.categoryMeta
-              ),
-              "object_id"
-            )
-          );
+          const productIds = uniq(map(context.raw.related, "object_id"));
           return {
             type: "FETCH_SELECTED",
             target: productIds,
@@ -272,7 +268,6 @@ export default createMachine(
         (context, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
           const model = context.basketItemBuilder(recommendation.config);
-          debugger;
           return {
             type: "ADD_UPDATE",
             target: model,
@@ -284,20 +279,17 @@ export default createMachine(
         }
       ),
 
-      setAdded: assign({
-        raw: (
-          { raw }: RecommendationsEngineContext,
+      setProcessing: assign({
+        recommendations: (
+          { recommendations }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          const bpid = get(data?.actor, "state.context.basketProduct.id");
-          const recommendation = get(data?.context, "recommendation");
-          debugger;
-          debugger;
-          if (recommendation) set(raw.added, recommendation.id, bpid);
-          debugger;
-          return raw;
+          const recommendation = find(recommendations, ["id", data]);
+          if (recommendation) set(recommendation, "meta.processing", true);
+          return recommendations;
         },
       }),
+
       // ---
 
       setItem: assign({
@@ -319,24 +311,62 @@ export default createMachine(
             products: [],
             related: [],
             seen: [],
-            added: {},
+            added: [],
           };
         },
       }),
 
       setLookups: assign({
         raw: (
-          _context: RecommendationsEngineContext,
+          { raw }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          const products = data?.products;
-          const related = parseRelatedProducts(data as IBasket);
+          const basket = get(data, "basket", data);
+          const products = basket?.products;
+          const related = parseRelatedProducts(basket as IBasket);
 
+          const added = reduce(
+            related,
+            (result: string[], item: RelatedProduct) => {
+              // We considdr a product to be in the basket if it matches
+              // the product_id
+              // the billing_cycle_months (if specified)
+              // the sub_pids (if specified
+              const inBasket = some(products, product => {
+                const productMatches =
+                  product.product_id == item.object_id &&
+                  item.object_type == "product";
+
+                const bcmMatches =
+                  !item?.config?.bcm ||
+                  item.config.bcm == product.billing_cycle_months;
+
+                const subproductsMatch =
+                  isEmpty(item?.config?.sub_pids) ||
+                  some(product.options, option => {
+                    return includes(item.config?.sub_pids, option.product_id);
+                  }) ||
+                  some(product.attributes, attribute => {
+                    return includes(
+                      item.config?.sub_pids,
+                      attribute.product_id
+                    );
+                  });
+
+                return productMatches && bcmMatches && subproductsMatch;
+              });
+
+              debugger;
+              if (inBasket) result.push(item.id);
+              return result;
+            },
+            []
+          );
           return {
             products,
             related,
-            seen: [],
-            added: {},
+            seen: raw?.seen ?? [],
+            added: uniq(concat(raw.added, added)),
           };
         },
       }),
@@ -350,12 +380,12 @@ export default createMachine(
           //  otherwise if specified, move only the provided to the seen Recommendations
           const seen = isEmpty(data)
             ? raw.related
-            : remove(raw.related, ({ object_id }) => includes(data, object_id));
+            : filter(raw.related, ({ object_id }) => includes(data, object_id));
 
           return {
             products: raw.products,
             related: raw.related,
-            seen,
+            seen: map(seen, "id"),
             added: raw.added,
           };
         },
@@ -392,9 +422,12 @@ export default createMachine(
             raw.related,
             (result: any[], rawRelated: any) => {
               rawRelated.product = find(data, ["id", rawRelated.object_id]);
-              const added = has(raw.added, rawRelated.id);
-              const seen = some(raw.seen, rawRelated.id);
-              result.push(parseRecommendation(rawRelated, { added, seen }));
+              const added = includes(raw.added, rawRelated.id);
+              const seen = includes(raw.seen, rawRelated.id);
+              const processing = false;
+              result.push(
+                parseRecommendation(rawRelated, { added, seen, processing })
+              );
               return result;
             },
             []

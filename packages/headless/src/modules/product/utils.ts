@@ -27,7 +27,6 @@ import {
 // --- types
 import { PromotionDisplayTypes } from "./services";
 import type { ProductModel, ProductConfigContext } from "./types";
-import { error } from "console";
 
 // --- types
 

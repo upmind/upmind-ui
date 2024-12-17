@@ -22,7 +22,11 @@
         :key="recommendation.id"
         class="md:basis-1/2 xl:basis-1/3"
       >
-        <RecommendationCard v-bind="recommendation" @resolve="doResolve" />
+        <RecommendationCard
+          v-bind="recommendation"
+          @resolve="doResolve"
+          :disabled="meta.isProcessing"
+        />
       </CarouselItem>
     </CarouselContent>
   </Carousel>
@@ -54,6 +58,7 @@ import type { Recommendation } from "@upmind-automation/client-vue";
 const props = withDefaults(
   defineProps<{
     recommendations: Recommendation[];
+    processing?: boolean;
   }>(),
   {
     recommendations: () => [],
@@ -76,6 +81,7 @@ const carouselRef = ref();
 
 const meta = computed(() => ({
   isActive: active.value,
+  isProcessing: props.processing,
 }));
 
 onMounted(() => {

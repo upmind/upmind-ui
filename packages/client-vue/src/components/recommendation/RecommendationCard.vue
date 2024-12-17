@@ -1,5 +1,5 @@
 <template>
-  <UpmCard class="h-full w-full !p-0">
+  <UpmCard class="h-full w-full !p-0" :disabled="props.disabled">
     <div class="flex h-full flex-col">
       <!-- Image section -->
       <div class="aspect-video shrink-0 overflow-hidden rounded-t-lg">
@@ -77,6 +77,7 @@
             color="primary"
             size="sm"
             :disabled="meta?.added"
+            :loading="meta?.processing"
             :label="
               meta?.added
                 ? t('recommendations.card.added')
@@ -97,6 +98,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -114,13 +116,17 @@ import type { Recommendation } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const props = defineProps<Recommendation>();
+const props = defineProps<
+  Recommendation & {
+    disabled?: boolean;
+  }
+>();
 
 const emit = defineEmits<{
-  (e: "resolve", recommendation: any): void;
+  (e: "resolve", value: string): void;
 }>();
 
-const doResolve = async (recommendation: any) => {
-  emit("resolve", recommendation);
+const doResolve = async (value: string) => {
+  emit("resolve", value);
 };
 </script>
