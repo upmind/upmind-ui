@@ -75,7 +75,12 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
           if (valid) {
             // ensure we have a consistent id for the recommendation based on its config
-            if (!rawRelated?.id) rawRelated.id = sha1(rawRelated.config);
+            if (!rawRelated?.id) {
+              rawRelated.id = sha1({
+                productId: rawRelated.object_id,
+                ...rawRelated.config,
+              });
+            }
             resultB.push(rawRelated);
           }
 
