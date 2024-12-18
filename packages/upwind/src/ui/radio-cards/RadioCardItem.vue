@@ -15,7 +15,11 @@
       :for="`${props.name}-${index}`"
       :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
     >
-      <slot v-bind="{ item: props.item, label: 'test' }" label="test2" />
+      <slot
+        v-bind="{
+          item: { ...props.item, icon: props.item.icon },
+        }"
+      />
     </Label>
 
     <div
