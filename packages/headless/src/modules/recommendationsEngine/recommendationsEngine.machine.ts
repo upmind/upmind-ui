@@ -18,13 +18,15 @@ import {
   defaultsDeep,
   filter,
   find,
+  findLast,
+  first,
   get,
   includes,
   isEmpty,
   isObject,
+  has,
   map,
   reduce,
-  reject,
   set,
   some,
   uniq,
@@ -32,10 +34,15 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IBasket } from "@upmind-automation/types";
+import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { BasketProduct } from "../basket";
-import type { RecommendationsEngineContext, RelatedProduct } from "./types";
+import type {
+  RecommendationsEngineContext,
+  RelatedProduct,
+  Recommendation,
+} from "./types";
+import { mapValues } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
@@ -210,19 +217,40 @@ export default createMachine(
       }),
       // ---
 
-      setBasketHelper: assign(({ basketHelper }: any) => {
+      setBasketHelper: assign(({ basketHelper, raw }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
           itemBuilder: function (item: BasketProduct) {
             return parseBasketItem(item);
           },
 
-          basketItemBuilder: (config: any) => {
-            if (!config?.productId) return null;
+          basketItemBuilder: (
+            recommendation: Recommendation,
+            products: IBasketProduct
+          ) => {
+            if (!recommendation?.config && !recommendation.config?.productId)
+              return null;
 
-            // TODO: map the provision field placeholders to the actual values from products withing the basket
-            // config.provisionFields = config.provisionFields || {};
-            return config;
+            recommendation.config.provisionFields = mapValues(
+              recommendation.config.provisionFields ?? {},
+              (value: any) => {
+                // get any dynamic properties that we need to resolve
+                const dynamicProperty: string = first(
+                  value.match(/(?<=\$\{).+?(?=\})/)
+                );
+
+                const product = findLast(products, product =>
+                  has(product, dynamicProperty)
+                );
+                if (dynamicProperty && product) {
+                  const resolved = get(product, dynamicProperty, null);
+                  return resolved;
+                }
+
+                return value;
+              }
+            );
+            return recommendation.config;
           },
 
           basketItemMapper: (item: BasketProduct) => ({
@@ -266,7 +294,15 @@ export default createMachine(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
-          const model = context.basketItemBuilder(recommendation.config);
+
+          const relatedProducts = filter(context.raw.products, product =>
+            includes(recommendation.relationships, product.id)
+          );
+
+          const model = context.basketItemBuilder(
+            recommendation,
+            relatedProducts
+          );
           return {
             type: "ADD_UPDATE",
             target: model,

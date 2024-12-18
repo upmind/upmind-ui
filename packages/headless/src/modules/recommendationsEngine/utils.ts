@@ -16,6 +16,7 @@ import {
   set,
   toSafeInteger,
   uniqWith,
+  includes,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -65,6 +66,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
       // so we need to filter out the duplicates
       const allRelated = reduce(
         concat(
+          result,
           item?.product?.related,
           item?.product?.meta?.related,
           item?.product?.category?.meta?.related
@@ -81,6 +83,15 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
                 ...rawRelated.config,
               });
             }
+
+            // ---
+            // this is the magic bit. We keep track of the product that we matched the recommendation to.
+            // this will for the basis of any dynamic lookups as we know which products to look at
+            rawRelated.relatonships ??= [];
+            if (!includes(rawRelated.relatonships, item.id))
+              rawRelated.relatonships.push(item.id);
+
+            // ---
             resultB.push(rawRelated);
           }
 
@@ -89,7 +100,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
         []
       ) as RelatedProduct[];
 
-      return uniqWith(concat(result, allRelated), isEqual);
+      return uniqWith(allRelated, isEqual);
     },
     []
   );
@@ -121,6 +132,8 @@ export function parseRecommendation(
     description: useTranslateField(raw, "description") || product.description,
     excerpt: useTranslateField(raw, "short_description") || product.excerpt,
     imgUrl: raw.image_url || product.imgUrl,
+    // ---
+    relationships: raw.relationships,
     // --- default config to be used when adding to basket
     config: {
       productId: product.id,
