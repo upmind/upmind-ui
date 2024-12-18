@@ -6,7 +6,6 @@
         value: item.values[0].id,
         label: item.label,
         price: item.values[0].price,
-        ...item.values[0],
       }"
       :index="0"
       :name="item.label"
@@ -22,7 +21,15 @@
       @toggle-expanded="toggleExpanded"
     >
       <template #default="slotProps">
-        <slot v-bind="slotProps" />
+        <slot
+          v-bind="{
+            ...slotProps,
+            item: {
+              ...slotProps.item,
+              icon: item.values[0].meta?.uischema?.icon,
+            },
+          }"
+        />
       </template>
     </RadioCardItem>
 
@@ -32,7 +39,6 @@
           label: itemValue.name,
           value: itemValue.id,
           price: itemValue.price,
-          ...itemValue,
         }"
         :index="index"
         :name="item.label"
@@ -53,6 +59,7 @@
                 item: {
                   ...slotProps.item,
                   label: item.label,
+                  icon: itemValue.meta?.uischema?.icon,
                 },
               }"
             />
