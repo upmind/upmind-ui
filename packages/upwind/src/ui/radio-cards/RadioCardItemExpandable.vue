@@ -1,7 +1,12 @@
 <!-- ExpandableRadioCards.vue -->
 <template>
-  <div v-auto-animate class="flex flex-col space-y-3">
+  <div
+    v-auto-animate
+    class="flex flex-col space-y-0 border border-control shadow-sm"
+  >
     <RadioCardItem
+      class="border-l-0 border-r-0 border-t-0 border-b-control border-opacity-50 shadow-none"
+      :class="expanded ? 'border-b' : 'border-b-0'"
       :item="{
         value: item.values[0].id,
         label: item.label,
@@ -17,7 +22,7 @@
       :model-value="modelValue"
       :variants="variants"
       expandable
-      :expanded="isExpanded"
+      :expanded="expanded"
       @toggle-expanded="toggleExpanded"
     >
       <template #default="slotProps">
@@ -35,6 +40,7 @@
 
     <template v-for="(itemValue, index) in items" :key="itemValue.id || index">
       <RadioCardItem
+        class="border-b border-l-0 border-r-0 border-t-0 border-b-control border-opacity-50 shadow-none last:border-b-0"
         :item="{
           label: itemValue.name,
           value: itemValue.id,
@@ -50,6 +56,7 @@
         :model-value="modelValue"
         :variants="variants"
         :price="itemValue.price"
+        minify
       >
         <template #default="slotProps">
           <div>
@@ -86,13 +93,13 @@ const props = defineProps<{
   price: any;
 }>();
 
-const isExpanded = ref(false);
+const expanded = ref(false);
 const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value;
+  expanded.value = !expanded.value;
 };
 
 const items = computed(() => {
-  if (props.item.values.length > 1 && isExpanded.value) {
+  if (props.item.values.length > 1 && expanded.value) {
     return props.item.values.slice(1);
   }
   return [];

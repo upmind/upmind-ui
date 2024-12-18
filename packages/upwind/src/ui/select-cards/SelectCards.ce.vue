@@ -1,42 +1,49 @@
 <template>
-  <Select
-    class="w-full gap-0 rounded-md border-control shadow-sm"
-    v-model="modelValue"
-    :default-value="defaultValue"
-    :required="props.required"
-    :disabled="props.disabled"
-    @update:model-value="onChange"
-  >
-    <SelectTrigger :class="cn(variants.select, props.class)">
+  <Popover v-model:open="isOpen">
+    <PopoverTrigger :class="cn(variants.select, props.class)">
       <slot name="default" v-bind="{ item: selected }">
-        <slot name="item" v-bind="{ item: selected }">
-          {{ selected?.label }}
-        </slot>
+        {{ selected?.label }}
       </slot>
-    </SelectTrigger>
-    <SelectContent>
-      <SelectGroup>
-        <SelectItem
-          v-for="(item, index) in items"
-          :key="index"
-          :value="item.value"
-        >
-          <div>
+      <div class="flex h-4 items-center justify-center">
+        <Icon
+          icon="arrow-down"
+          size="xs"
+          class="text-emphasis-medium hover:text-emphasis-none transition-all duration-300"
+          :class="isOpen ? 'rotate-180' : ''"
+        />
+      </div>
+    </PopoverTrigger>
+    <PopoverContent class="w-full p-0" align="start">
+      <Command>
+        <CommandGroup>
+          <CommandItem
+            v-for="(item, index) in items"
+            :key="index"
+            :value="item.value"
+            @select="onChange(item.value)"
+            :class="variants.item"
+          >
+            <div class="flex w-6 items-center justify-center">
+              <Icon
+                v-if="selected?.value === item.value"
+                icon="check"
+                size="2xs"
+                class="mr-2"
+              />
+            </div>
             <slot name="default" v-bind="{ item, index }">
-              <slot name="item" v-bind="{ item, index }">
-                {{ item.label }}
-              </slot>
+              {{ item.label }}
             </slot>
-          </div>
-        </SelectItem>
-      </SelectGroup>
-    </SelectContent>
-  </Select>
+          </CommandItem>
+        </CommandGroup>
+      </Command>
+    </PopoverContent>
+  </Popover>
 </template>
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -44,13 +51,15 @@ import { cn, useStyles } from "../../utils";
 import config from "./selectCards.config";
 
 // --- components
-import Select from "../select/Select.vue";
-import SelectTrigger from "../select/SelectTrigger.vue";
-import SelectContent from "../select/SelectContent.vue";
-import SelectGroup from "../select/SelectGroup.vue";
-import SelectItem from "../select/SelectItem.vue";
-
-import Icon from "../icon/Icon.ce.vue";
+import { Popover, PopoverTrigger, PopoverContent } from "../popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "../command";
+import { Icon } from "../icon";
 
 // --- utils
 import { find } from "lodash-es";
@@ -89,19 +98,21 @@ const meta = computed(() => ({
 }));
 
 const variants = useStyles(
-  ["select"],
+  ["select", "item"],
   meta,
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  select: [];
+  select: string;
+  item: string;
 }>;
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
-// allow for toggle of selected item
+const isOpen = ref(false);
+
 function onChange(value: any) {
-  console.log("onChange", value);
   modelValue.value = value;
+  isOpen.value = false;
 }
 </script>

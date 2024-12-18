@@ -81,7 +81,7 @@
         :disabled="meta.isEmpty || meta.isDisabled || meta.isProcessing"
         @click="onResolve"
         :label="t('domain.dac.actions.continue', values?.length)"
-        prependIcon="plus-circle"
+        prependIcon="plus"
         :color="color"
       />
       <!-- </div> -->
