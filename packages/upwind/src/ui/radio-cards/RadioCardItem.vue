@@ -12,12 +12,13 @@
       :class="variants.radioCards.input"
     />
     <Label
+      v-if="!props.minify"
       :for="`${props.name}-${index}`"
       :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
     >
       <slot
         v-bind="{
-          item: { ...props.item, icon: props.item.icon },
+          item: { ...props.item, icon: props.item.icon, minify: true },
         }"
       />
     </Label>
@@ -58,6 +59,7 @@ const props = defineProps<{
   variants: any;
   expandable?: boolean;
   expanded?: boolean;
+  minify?: boolean;
 }>();
 
 defineEmits<{

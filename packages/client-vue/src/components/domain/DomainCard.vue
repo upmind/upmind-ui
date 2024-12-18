@@ -193,7 +193,7 @@
             :disabled="meta.isDisabled"
             :label="t('domain.card.available.action', props.selected ? 0 : 1)"
             :loading="meta.isProcessing && props.selected"
-            :prepend-icon="props.selected ? 'check' : 'plus-circle'"
+            :prepend-icon="props.selected ? 'check' : 'plus'"
             :variant="props.selected ? 'flat' : 'outline'"
             :color="props.color"
             @click="onUpdate(props.domain)"
