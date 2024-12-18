@@ -8,7 +8,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 import { useRecommendationsEngine as useUpmindRecommendationsEngine } from "@upmind-automation/headless";
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, some } from "lodash-es";
 import { useContext } from "../../utils";
 // --- types
 // --------------------------------------------------------
@@ -19,7 +19,7 @@ import { useContext } from "../../utils";
  * @ignore
  */
 export const useRecommendationsEngine = () => {
-  const { service, add, remove, reset, cancel, destroy, isReady } =
+  const { service, add, remove, seen, reset, cancel, destroy, isReady } =
     useUpmindRecommendationsEngine();
 
   const { state } = useActor(service);
@@ -50,8 +50,17 @@ export const useRecommendationsEngine = () => {
       isRefreshing: ["refreshing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       // ---
-      hasRecommendations: !isEmpty(state.value.context?.recommendations),
       isConfiguring: ["configuring"].some(state.value.matches),
+      hasRecommendations:
+        !isEmpty(state.value.context?.recommendations) &&
+        some(
+          state.value.context?.recommendations,
+          ({ meta }) => !meta?.added && !meta?.seen
+        ),
+      hasUnseenRecommendations: some(
+        state.value.context?.recommendations,
+        ({ meta }) => !meta?.seen
+      ),
     })),
     // ---
     add,
@@ -59,6 +68,7 @@ export const useRecommendationsEngine = () => {
     reset,
     cancel,
     destroy,
+    seen,
     basketItem: useContext(state, "basketItem"),
   };
 };

@@ -214,7 +214,6 @@ export default createMachine(
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
           itemBuilder: function (item: BasketProduct) {
-            debugger;
             return parseBasketItem(item);
           },
 
@@ -389,16 +388,18 @@ export default createMachine(
           };
         },
         recommendations: (
-          { recommendations, raw }: RecommendationsEngineContext,
+          { recommendations }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
-          const seen = isEmpty(data)
-            ? raw.related
-            : filter(raw.related, ({ object_id }) => includes(data, object_id));
+          const markAll = isEmpty(data);
 
-          return reject(recommendations, ({ productId }) =>
-            some(seen, ["object_id", productId])
-          );
+          return map(recommendations, recommendation => {
+            const isSeen = markAll || includes(data, recommendation.id);
+
+            set(recommendation, "meta.seen", isSeen);
+
+            return recommendation;
+          });
         },
       }),
 
