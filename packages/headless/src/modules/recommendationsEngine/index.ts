@@ -69,6 +69,18 @@ export const useRecommendationsEngine = () => {
       });
     },
 
+    /*
+     * Mark the recommendations as seen. Optinally provide an array of ids to mark as seen.
+     * If no values are provided, all recommendations will be marked as seen.
+     * @param {string[]} values - Optional arrat of ids of the recommendations to mark as seen.
+     */
+    seen: function (values?: string[]) {
+      service.send({
+        type: "SEEN",
+        data: values,
+      });
+    },
+
     cancel: function () {
       service.send({
         type: "CANCEL",
