@@ -356,7 +356,6 @@ export default createMachine(
                 return productMatches && bcmMatches && subproductsMatch;
               });
 
-              debugger;
               if (inBasket) result.push(item.id);
               return result;
             },
@@ -422,6 +421,7 @@ export default createMachine(
             raw.related,
             (result: any[], rawRelated: any) => {
               rawRelated.product = find(data, ["id", rawRelated.object_id]);
+              if (isEmpty(rawRelated.product)) return result;
               const added = includes(raw.added, rawRelated.id);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;

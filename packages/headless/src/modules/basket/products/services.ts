@@ -98,6 +98,7 @@ async function fetchSelected(
     currency_id: currency.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     "filter[id]": productIds.join(","),
+    limit: productIds.length,
     with: [
       "image",
       "prices",
