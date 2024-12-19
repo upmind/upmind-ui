@@ -170,8 +170,8 @@ export const parseSubproduct = (
   // And with each category having a list of attributes
   // so to do this we have to do the following:
 
-  // 0. sort the data by order for further lookups
-  const sorted = orderBy(data, "order");
+  // 0. sort the data by attached_order for further lookups
+  const sorted = orderBy(data, "attached_order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
@@ -249,6 +249,7 @@ export const parseSubproduct = (
           return price;
         }),
         meta: rawSubproduct?.meta,
+        order: rawSubproduct?.order,
       };
 
       // First, try get a one off price, othrwise try find the matching term price
@@ -261,7 +262,7 @@ export const parseSubproduct = (
 
       values.push(value);
 
-      set(option, "values", values);
+      set(option, "values", orderBy(values, "order"));
 
       // finally  set the updated option
       set(result, rawSubproduct.category_id, option);
