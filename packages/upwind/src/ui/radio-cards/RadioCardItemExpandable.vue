@@ -23,7 +23,7 @@
       :variants="variants"
       expandable
       :expanded="expanded"
-      @toggle-expanded="toggleExpanded"
+      @expand="toggleExpanded"
     >
       <template #default="slotProps">
         <slot
