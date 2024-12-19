@@ -12,6 +12,8 @@ import {
   parseBasketItem,
   parseRelatedProducts,
   parseRecommendation,
+  parseRelationships,
+  parseAddedProducts,
 } from "./utils";
 import {
   concat,
@@ -43,6 +45,7 @@ import type {
   Recommendation,
 } from "./types";
 import { mapValues } from "xstate/lib/utils";
+import { parse } from "path";
 
 // --------------------------------------------------------
 
@@ -185,7 +188,9 @@ export default createMachine(
           raw: {
             products: [],
             related: [],
+            relationships: {},
             seen: [],
+            added: [],
           },
           recommendations: [],
           // ---
@@ -295,8 +300,14 @@ export default createMachine(
         (context, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
 
+          const relationships = get(
+            context.raw.relationships,
+            recommendation.id,
+            []
+          );
+
           const relatedProducts = filter(context.raw.products, product =>
-            includes(recommendation.relationships, product.id)
+            includes(relationships, product.id)
           );
 
           const model = context.basketItemBuilder(
@@ -345,6 +356,7 @@ export default createMachine(
           return {
             products: [],
             related: [],
+            relationships: {},
             seen: [],
             added: [],
           };
@@ -359,47 +371,13 @@ export default createMachine(
           const basket = get(data, "basket", data);
           const products = basket?.products;
           const related = parseRelatedProducts(basket as IBasket);
-
-          const added = reduce(
-            related,
-            (result: string[], item: RelatedProduct) => {
-              // We considdr a product to be in the basket if it matches
-              // the product_id
-              // the billing_cycle_months (if specified)
-              // the sub_pids (if specified
-              const inBasket = some(products, product => {
-                const productMatches =
-                  product.product_id == item.object_id &&
-                  item.object_type == "product";
-
-                const bcmMatches =
-                  !item?.config?.bcm ||
-                  item.config.bcm == product.billing_cycle_months;
-
-                const subproductsMatch =
-                  isEmpty(item?.config?.sub_pids) ||
-                  some(product.options, option => {
-                    return includes(item.config?.sub_pids, option.product_id);
-                  }) ||
-                  some(product.attributes, attribute => {
-                    return includes(
-                      item.config?.sub_pids,
-                      attribute.product_id
-                    );
-                  });
-
-                return productMatches && bcmMatches && subproductsMatch;
-              });
-
-              if (inBasket) result.push(item.id);
-              return result;
-            },
-            []
-          );
+          const relationships = parseRelationships(basket as IBasket);
+          const added = parseAddedProducts(related, products);
           return {
             products,
             related,
-            seen: raw?.seen ?? [],
+            relationships,
+            seen: raw?.seen ?? [], // TODO: retrieve from local storage
             added: uniq(concat(raw.added, added)),
           };
         },
@@ -419,6 +397,7 @@ export default createMachine(
           return {
             products: raw.products,
             related: raw.related,
+            relationships: raw.relationships,
             seen: map(seen, "id"),
             added: raw.added,
           };

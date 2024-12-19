@@ -13,6 +13,7 @@ import {
   isEqual,
   reduce,
   some,
+  isEmpty,
   set,
   toSafeInteger,
   uniqWith,
@@ -57,45 +58,33 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
   return reduce(
     products,
-    (result: RelatedProduct[], item: IBasketProduct): RelatedProduct[] => {
+    (
+      related: RelatedProduct[],
+      basketProduct: IBasketProduct
+    ): RelatedProduct[] => {
       // safe check : dont include recommendations for products that are not single products
-      if (item?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
-        return result;
+      if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
+        return related;
 
       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
       // so we need to filter out the duplicates
       const allRelated = reduce(
         concat(
-          result,
-          item?.product?.related,
-          item?.product?.meta?.related,
-          item?.product?.category?.meta?.related
+          related,
+          basketProduct?.product?.related,
+          basketProduct?.product?.meta?.related,
+          basketProduct?.product?.category?.meta?.related
         ),
-        (resultB: RelatedProduct[], rawRelated) => {
+        (result: RelatedProduct[], rawRelated) => {
           const valid =
             rawRelated?.object_type === "product" && rawRelated?.active;
 
           if (valid) {
-            // ensure we have a consistent id for the recommendation based on its config
-            if (!rawRelated?.id) {
-              rawRelated.id = sha1({
-                productId: rawRelated.object_id,
-                ...rawRelated.config,
-              });
-            }
-
-            // ---
-            // this is the magic bit. We keep track of the product that we matched the recommendation to.
-            // this will for the basis of any dynamic lookups as we know which products to look at
-            rawRelated.relatonships ??= [];
-            if (!includes(rawRelated.relatonships, item.id))
-              rawRelated.relatonships.push(item.id);
-
-            // ---
-            resultB.push(rawRelated);
+            rawRelated.id = ensureId(rawRelated);
+            result.push(rawRelated);
           }
 
-          return resultB;
+          return result;
         },
         []
       ) as RelatedProduct[];
@@ -106,6 +95,86 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
   );
 }
 
+export function parseRelationships(raw: IBasket): Record<string, string[]> {
+  return reduce(
+    raw.products,
+    (relationships: Record<string, string[]>, product) => {
+      // ---safe check : dont include recommendations for products that are not single products
+      if (product.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
+        return relationships;
+
+      const relatedProducts = concat(
+        product.product?.related,
+        product.product?.meta?.related,
+        product.product?.category?.meta?.related
+      );
+
+      return reduce(
+        relatedProducts,
+        (acc, rawRelated) => {
+          if (rawRelated?.object_type === "product" && rawRelated?.active) {
+            rawRelated.id = ensureId(rawRelated);
+            acc[rawRelated.id] ??= []; // safe check
+            if (!includes(acc[rawRelated.id], product.id))
+              acc[rawRelated.id].push(product.id);
+          }
+          return acc;
+        },
+        relationships
+      );
+    },
+    {}
+  );
+}
+
+export function parseAddedProducts(
+  related: RelatedProduct[],
+  products: IBasketProduct[]
+): string[] {
+  return reduce(
+    related,
+    (result: string[], item: RelatedProduct) => {
+      // We considdr a product to be in the basket if it matches
+      // the product_id
+      // the billing_cycle_months (if specified)
+      // the sub_pids (if specified
+      const inBasket = some(products, product => {
+        const productMatches =
+          product.product_id == item.object_id && item.object_type == "product";
+
+        const bcmMatches =
+          !item?.config?.bcm || item.config.bcm == product.billing_cycle_months;
+
+        const subproductsMatch =
+          isEmpty(item?.config?.sub_pids) ||
+          some(product.options, option => {
+            return includes(item.config?.sub_pids, option.product_id);
+          }) ||
+          some(product.attributes, attribute => {
+            return includes(item.config?.sub_pids, attribute.product_id);
+          });
+
+        return productMatches && bcmMatches && subproductsMatch;
+      });
+
+      if (inBasket) result.push(item.id);
+      return result;
+    },
+    []
+  );
+}
+/*
+  Ensure we have a consistent id for the recommendation based on its configuration
+  If the recommendation has an id, we use it, otherwise we generate a new one based on the product id and the config
+
+  @param {RelatedProduct} raw - The raw recommendation data.
+  @returns {string} The id of the recommendation.
+
+*/
+function ensureId(raw: RelatedProduct) {
+  return get(raw, "id", sha1({ productId: raw.object_id, ...raw.config }));
+}
+
 // ---------------------------------------------------------------------------
 
 export function parseRecommendation(
@@ -113,9 +182,12 @@ export function parseRecommendation(
   meta?: { added?: boolean; seen?: boolean; processing?: boolean }
 ): Recommendation {
   const product = parseProduct(raw.product);
-  const terms = parseTerms(raw?.product?.prices);
-  const term = find(terms, { cycle: product.cycle });
   const config: IProductConfig = get(raw, "config", {});
+  const terms = parseTerms(raw?.product?.prices);
+  const term =
+    find(terms, { cycle: config?.bcm }) ??
+    find(terms, { cycle: product.cycle });
+
   // --- additional state
   set(term.meta, "added", meta?.added ?? false);
   set(term.meta, "seen", meta?.seen ?? false);
@@ -132,8 +204,6 @@ export function parseRecommendation(
     description: useTranslateField(raw, "description") || product.description,
     excerpt: useTranslateField(raw, "short_description") || product.excerpt,
     imgUrl: raw.image_url || product.imgUrl,
-    // ---
-    relationships: raw.relationships,
     // --- default config to be used when adding to basket
     config: {
       productId: product.id,

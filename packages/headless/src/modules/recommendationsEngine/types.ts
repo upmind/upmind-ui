@@ -40,8 +40,6 @@ export interface Recommendation {
   // ---
   promotions?: string[];
   // ---
-  relationships?: string[];
-  // ---
   config?: {
     productId: string;
     quantity?: number;
@@ -72,6 +70,7 @@ export interface RecommendationsEngineContext {
   raw: {
     products: BasketProduct[];
     related: RelatedProduct[];
+    relationships: Record<string, string[]>;
     seen: string[];
     added: string[];
   };
@@ -94,8 +93,6 @@ export interface RelatedProduct extends IRelatedObject {
   short_description?: string;
   // --- augmented fields
   product?: IProduct;
-  // --- relationships that hold any/all the products this recommendation is related to
-  relationships?: string[];
   // --- config to be used in adding the recommendation
   config?: IProductConfig;
 }
