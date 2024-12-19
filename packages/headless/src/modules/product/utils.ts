@@ -81,11 +81,12 @@ export const parseProduct = (
     category: useTranslateName(merged.category),
     serviceIdentifier: merged.service_identifier,
     cycle: merged.billing_cycle_months,
+    // TODO check: cycle: merged.display_price_billing_cycle_months ?? merged.billing_cycle_months,
     quantity: merged.quantity,
     // //
     description: useTranslateField(merged, "description"),
     excerpt: useTranslateField(merged, "short_description"),
-    imgUrl: merged?.product_image_url,
+    imgUrl: merged?.product_image_url ?? merged?.image?.full_url,
     // image: merged.image,
     // images: merged.images,
     // ---
