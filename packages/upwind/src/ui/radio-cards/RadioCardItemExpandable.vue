@@ -46,7 +46,7 @@
           value: itemValue.id,
           price: itemValue.price,
         }"
-        :index="index"
+        :index="index + 1"
         :name="item.label"
         :label="itemValue.name"
         :required="required"
