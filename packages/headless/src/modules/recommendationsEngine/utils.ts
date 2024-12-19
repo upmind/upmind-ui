@@ -69,13 +69,15 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
       // Lets allow the back end to hide the native related products.
       // Any meta level (product, category) can have the hide_native_related flag
-      const hideNative = some(
-        concat(
-          basketProduct?.product?.meta,
-          basketProduct?.product?.category?.meta
-        ),
-        "hide_native_related"
-      );
+      const hideNative =
+        true ||
+        some(
+          concat(
+            basketProduct?.product?.meta,
+            basketProduct?.product?.category?.meta
+          ),
+          "hide_native_related"
+        );
 
       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
       // so we need to filter out the duplicates
