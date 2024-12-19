@@ -43,9 +43,9 @@
           <div class="flex flex-col gap-y-2">
             <div class="flex items-center space-x-2">
               <s
-                v-if="monthlyFromCurrentAmount < monthlyFromRegularAmount"
+                v-if="currentAmount < regularAmount"
                 class="text-emphasis-disabled text-sm italic"
-                >Was {{ monthlyFromRegularPrice }}</s
+                >Was {{ regularPrice }}</s
               >
 
               <template v-for="promotion in promotions" :key="promotion.id">
@@ -64,16 +64,12 @@
                   {{ t("recommendations.card.free") }}
                 </template>
                 <template v-else>
-                  {{ monthlyFromCurrentPrice }}
+                  {{ currentPrice }}
                 </template>
               </span>
               <span
-                v-if="
-                  !meta?.free &&
-                  monthlyFromCurrentAmount &&
-                  monthlyFromCurrentAmount > 0
-                "
-                class="text-emphasis-medium ml-1 text-sm leading-none"
+                v-if="!meta?.free && currentAmount && currentAmount > 0"
+                class="text-emphasis-medium ml-1 text-sm lowercase leading-none"
                 >/ {{ t(`recommendations.terms.${cycle}`) }}</span
               >
             </div>
