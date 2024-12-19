@@ -42,6 +42,7 @@
           <!-- Price section -->
           <div class="flex flex-col gap-y-2">
             <div class="flex items-center space-x-2">
+              <!-- Promotion & Discount -->
               <s
                 v-if="currentAmount < regularAmount"
                 class="text-emphasis-disabled text-sm italic"
@@ -59,20 +60,34 @@
             </div>
 
             <div class="flex items-baseline leading-6">
+              <!-- Current Price -->
               <span class="text-3xl font-bold">
                 <template v-if="meta?.free || monthlyFromCurrentAmount === 0">
                   {{ t("recommendations.card.free") }}
                 </template>
                 <template v-else>
-                  {{ currentPrice }}
+                  <template v-if="monthlyAvailable">{{
+                    monthlyFromCurrentPrice
+                  }}</template>
+                  <template v-else>{{ currentPrice }}</template>
                 </template>
               </span>
+
+              <!-- Term -->
               <span
                 v-if="!meta?.free && currentAmount && currentAmount > 0"
                 class="text-emphasis-medium ml-1 text-sm lowercase leading-none"
-                >/ {{ t(`recommendations.terms.${cycle}`) }}</span
-              >
+                >/
+                <template v-if="monthlyAvailable">{{
+                  t(`recommendations.terms.${1}`)
+                }}</template>
+                <template v-else>{{
+                  t(`recommendations.terms.${cycle}`)
+                }}</template>
+              </span>
             </div>
+
+            <PriceDescription />
           </div>
         </div>
 
@@ -104,11 +119,12 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-
+import { computed } from "vue";
 // ---components
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import Promotion from "../basket/product/components/Promotion.vue";
+import PriceDescription from "./components/PriceDescription.vue";
 
 // --- types
 import type { Recommendation } from "@upmind-automation/headless";
@@ -129,4 +145,13 @@ const emit = defineEmits<{
 const doResolve = async (value: string) => {
   emit("resolve", value);
 };
+
+const monthlyAvailable = computed(() => {
+  return (
+    props.monthlyFromCurrentAmount &&
+    props.monthlyFromCurrentAmount > 0 &&
+    props.cycle &&
+    props.cycle > 0
+  );
+});
 </script>
