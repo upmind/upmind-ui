@@ -18,6 +18,7 @@ import {
   toSafeInteger,
   uniqWith,
   includes,
+  first,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -186,8 +187,8 @@ export function parseRecommendation(
   const terms = parseTerms(raw?.product?.prices);
   const term =
     find(terms, { cycle: config?.bcm }) ??
-    find(terms, { cycle: product.cycle });
-
+    find(terms, { cycle: product.cycle }) ??
+    first(terms);
   // --- additional state
   set(term.meta, "added", meta?.added ?? false);
   set(term.meta, "seen", meta?.seen ?? false);
