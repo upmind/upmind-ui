@@ -16,57 +16,67 @@
       </div>
 
       <!-- Content section -->
-      <div class="flex flex-1 flex-col gap-4 p-6 text-sm font-medium leading-6">
-        <!-- Title and description -->
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-col gap-2">
-            <h3 class="text-md m-0 font-medium">
-              {{ name }}
-            </h3>
+      <div class="flex flex-1 flex-col justify-between space-y-8 p-6">
+        <div
+          class="flex flex-1 flex-col justify-between gap-y-8 text-sm font-medium leading-6"
+        >
+          <!-- Title and description -->
+          <div class="flex flex-col gap-x-2">
+            <div class="flex flex-col gap-2">
+              <h3 class="m-0 text-2xl font-semibold">
+                {{ name }}
+              </h3>
 
-            <Lineclamp
-              v-if="description"
-              class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
-              :lines="2"
-              :labelMore="t('product.actions.more', 1)"
-              :labelLess="t('product.actions.more', 0)"
-            >
-              {{ description }}
-            </Lineclamp>
+              <Lineclamp
+                v-if="description"
+                class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
+                :lines="2"
+                :labelMore="t('product.actions.more', 1)"
+                :labelLess="t('product.actions.more', 0)"
+              >
+                {{ description }}
+              </Lineclamp>
+            </div>
           </div>
-        </div>
-
-        <!-- Spacer to push promotion, price and button to bottom -->
-        <div class="-my-2 flex-1"></div>
-
-        <div class="flex flex-col gap-2">
-          <span
-            v-for="promotion in promotions"
-            :key="promotion.id"
-            class="shrink-0"
-          >
-            <Promotion
-              :discounted="meta?.discounted"
-              :currentSaving="promotion.amountFormatted"
-              :currentSavingAmount="promotion.amount"
-              size="xs"
-            />
-          </span>
 
           <!-- Price section -->
-          <div class="flex items-center text-xl font-bold leading-6">
-            <span v-if="meta?.free || monthlyFromCurrentAmount === 0">
-              {{ t("recommendations.card.free") }}
-            </span>
-            <span v-else class="flex items-center">
-              {{ monthlyFromCurrentPrice }}
-            </span>
+          <div class="flex flex-col gap-y-2">
+            <div class="flex items-center space-x-2">
+              <s
+                v-if="monthlyFromCurrentAmount < monthlyFromRegularAmount"
+                class="text-emphasis-disabled text-sm italic"
+                >Was {{ monthlyFromRegularPrice }}</s
+              >
 
-            <s
-              v-if="monthlyFromCurrentAmount < monthlyFromRegularAmount"
-              class="text-emphasis-medium ml-2 text-sm"
-              >{{ monthlyFromRegularPrice }}</s
-            >
+              <template v-for="promotion in promotions" :key="promotion.id">
+                <Promotion
+                  :discounted="meta?.discounted"
+                  :currentSaving="promotion.amountFormatted"
+                  :currentSavingAmount="promotion.amount"
+                  size="xs"
+                />
+              </template>
+            </div>
+
+            <div class="flex items-baseline leading-6">
+              <span class="text-3xl font-bold">
+                <template v-if="meta?.free || monthlyFromCurrentAmount === 0">
+                  {{ t("recommendations.card.free") }}
+                </template>
+                <template v-else>
+                  {{ monthlyFromCurrentPrice }}
+                </template>
+              </span>
+              <span
+                v-if="
+                  !meta?.free &&
+                  monthlyFromCurrentAmount &&
+                  monthlyFromCurrentAmount > 0
+                "
+                class="text-emphasis-medium ml-1 text-sm leading-none"
+                >/ {{ t(`recommendations.terms.${cycle}`) }}</span
+              >
+            </div>
           </div>
         </div>
 
@@ -97,17 +107,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 
 // ---components
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import Promotion from "../basket/product/components/Promotion.vue";
-
-// --- utils
 
 // --- types
 import type { Recommendation } from "@upmind-automation/headless";
