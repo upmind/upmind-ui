@@ -1,6 +1,5 @@
 // --- utils
-import { defaultsDeep, forIn, trimStart } from "lodash-es";
-import { isArray } from "xstate/lib/utils";
+import { defaultsDeep, forIn, trimStart, isArray } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 /**

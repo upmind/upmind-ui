@@ -132,6 +132,8 @@ export const useQueryParams = () => {
       },
       {}
     );
+
+    // coupons
     const coupons = getParams(QUERY_PARAMS.COUPONS);
 
     const model = [

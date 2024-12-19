@@ -11,7 +11,7 @@
     fit="cover"
     no-close
     no-header
-    persistent
+    :dismissable="false"
   >
     <template #header>
       <div />

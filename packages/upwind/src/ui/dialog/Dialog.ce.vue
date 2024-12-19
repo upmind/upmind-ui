@@ -49,7 +49,7 @@
       <DialogFooter :class="props.classFooter">
         <slot name="footer" />
 
-        <DialogClose @click="forceClose" v-if="$slots.close && !persistent">
+        <DialogClose @click="forceClose" v-if="$slots.close && dismissable">
           <slot name="close" />
         </DialogClose>
 
@@ -90,7 +90,7 @@ import { usePointerEvents } from "../../utils/usePointerEvents";
 const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
   open: false,
-  persistent: false,
+  dismissable: true,
   title: "",
   description: "",
   // --- variants
@@ -143,7 +143,7 @@ const value = useVModel(props, "open", emits);
 const { handlePointerEvents } = usePointerEvents(value, props.to);
 
 const onOpen = (open: boolean, force: boolean = false) => {
-  if (props.persistent && !open && !force) return;
+  if (!props.dismissable && !open && !force) return;
   value.value = open;
   nextTick(() => handlePointerEvents(open));
 };

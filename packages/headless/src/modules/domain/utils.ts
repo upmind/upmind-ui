@@ -121,7 +121,7 @@ export function parseProduct(raw: any) {
   return result;
 }
 
-export function parseBasketItem(data: BasketProduct) {
+export function parseBasketItem(data: BasketProduct): DomainProduct {
   const name = data.product.serviceIdentifier;
   const parsed = parseDomain(name);
 

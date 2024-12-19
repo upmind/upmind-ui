@@ -102,6 +102,8 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
         "products.product.products_options.prices",
         "products.product.provision_field_values",
         "products.tags",
+        "products.product.related",
+        "products.product.category",
         // "status",
         // `products.product.category${".top_category".repeat(4)}`,
       ].join(),

@@ -36,6 +36,7 @@
     "axios": "^1.6.5",
     "libphonenumber-js": "^1.10.54",
     "lodash-es": "^4.17.21",
+    "uuid": "^11.0.3",
     "xstate": "^4.38.2"
   },
   "devDependencies": {

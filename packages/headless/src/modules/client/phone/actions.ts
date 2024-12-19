@@ -38,8 +38,6 @@ export const ItemActions = {
     title: ({ model }: PhoneContext, _event: PhoneEvent) => {
       const phone = get(model, "phone");
       if (isObject(phone)) return get(model, "phone.number");
-      debugger;
-      // DC: Maybe this is raw data or needs to be converted to camelCase
       return get(model, "international_phone");
     },
     description: (

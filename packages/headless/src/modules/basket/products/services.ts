@@ -2,7 +2,10 @@
 
 // --- internal
 import { useApi } from "../../..";
+import { useBrand } from "../../brand";
+
 // --- utils
+import { useTime } from "../../../utils";
 import { parseBasketProductConfig } from "./utils";
 
 import {
@@ -27,11 +30,159 @@ import {
 
 // --------------------------------------------------------
 
+async function fetch(
+  {
+    bpid,
+    basketId,
+    currencyId,
+    promotions,
+  }: {
+    bpid?: string;
+    basketId: string;
+    currencyId?: string;
+    promotions?: string[];
+  },
+  { data: { productId } }: { data: { productId: string } }
+) {
+  if (!productId) return Promise.reject("No Product ID provided");
+
+  // lets ensure we have a valid currency > fallback to default
+  const currency = await useBrand().validateCurrency({ id: currencyId });
+  // ---
+  const { get: getRequest, useUrl } = useApi();
+
+  const params = {
+    currency_id: currency.id,
+    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
+    with: [
+      "image",
+      "prices",
+      "products_attributes",
+      "products_options",
+      "products_options.prices",
+    ].join(),
+  };
+  // conditionally add the basket_id / basket_product_id if we have them,
+  // this is important to get the correct prices once added to the basket
+  if (basketId) set(params, "basket_id", basketId);
+  if (bpid) set(params, "basket_product_id", bpid);
+
+  return getRequest({
+    url: useUrl(`basket/products/${productId}`, params),
+    useCache: true,
+    maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
+    withAccessToken: true,
+  }).then(({ data }: any) => data);
+}
+
+async function fetchSelected(
+  {
+    basketId,
+    currencyId,
+    promotions,
+  }: {
+    basketId: string;
+    currencyId?: string;
+    promotions?: string[];
+  },
+  { data: { productIds } }: { data: { productIds: string[] } }
+) {
+  if (isEmpty(productIds)) return Promise.reject("No Product ID provided");
+
+  // lets ensure we have a valid currency > fallback to default
+  const currency = await useBrand().validateCurrency({ id: currencyId });
+  // ---
+  const { get: getRequest, useUrl } = useApi();
+
+  const params = {
+    currency_id: currency.id,
+    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
+    "filter[id]": productIds.join(","),
+    limit: productIds.length,
+    with: [
+      "image",
+      "prices",
+      "products_attributes",
+      "products_options",
+      "products_options.prices",
+    ].join(),
+  };
+  // conditionally add the basket_id / basket_product_id if we have them,
+  // this is important to get the correct prices once added to the basket
+  if (basketId) set(params, "basket_id", basketId);
+
+  return getRequest({
+    url: useUrl(`basket/products/`, params),
+    useCache: true,
+    withAccessToken: true,
+  }).then(({ data }: any) => data);
+}
+
+async function fetchRelated(
+  {
+    basketId,
+    currencyId,
+    promotions,
+  }: {
+    basketId: string;
+    currencyId?: string;
+    promotions?: string[];
+  },
+  {
+    data: { productId, limit = 4, offset = 0 },
+  }: {
+    data: {
+      productId: string;
+      limit: number;
+      offset: number;
+    };
+  }
+) {
+  if (!productId) return Promise.reject("No Product ID provided");
+
+  // lets ensure we have a valid currency > fallback to default
+  const currency = await useBrand().validateCurrency({ id: currencyId });
+  // ---
+  const { get: getRequest, useUrl } = useApi();
+
+  const params = {
+    currency_id: currency.id,
+    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
+    limit,
+    offset,
+    omit_basket_products: true,
+    "filter[active]": true,
+    order: "order",
+    with: [
+      "image",
+      "prices",
+      "products_attributes",
+      "products_options",
+      "products_options.prices",
+    ].join(),
+  };
+  // conditionally add the basket_id / basket_product_id if we have them,
+  // this is important to get the correct prices once added to the basket
+  if (basketId) set(params, "basket_id", basketId);
+
+  return getRequest({
+    url: useUrl(`basket/products/${productId}/related`, params),
+    useCache: true,
+    maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
+    withAccessToken: true,
+  }).then(({ data }: any) => data);
+}
+
 async function update(
   {
     basketId,
+    currencyId,
     promotions,
-  }: { basketId: string; bpid?: string; promotions?: string[] },
+  }: {
+    basketId: string;
+    currencyId?: string;
+    promotions?: string[];
+  },
   { data }: any
 ) {
   const { put, post, useUrl } = useApi();
@@ -39,7 +190,6 @@ async function update(
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
   const product = parseBasketProductConfig(data, promotions);
-
   // ---
   const isNew = !data?.id;
   const action = isNew ? post : put;
@@ -134,10 +284,14 @@ async function sync(
       return Promise.reject(error);
     });
 }
+
 // --------------------------------------------------------
 // EXPORTS
 
 export default {
+  fetch,
+  fetchSelected,
+  fetchRelated,
   update,
   remove,
   sync,

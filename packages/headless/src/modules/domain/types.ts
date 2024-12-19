@@ -1,4 +1,7 @@
 // --- internal
+import type { BasketProduct } from "../basket/types";
+import type { ProductModel } from "../product/types";
+import type { ActorRef } from "xstate";
 
 // --- enums
 
@@ -23,8 +26,8 @@ export enum DomainTypes {
 export interface DomainProduct {
   type?: DomainTypes;
   domain: string;
-  sld: string;
-  tld: string;
+  sld?: string;
+  tld?: string;
   // --- Options for New/Internal domains
   productId: string;
   quantity?: number;
@@ -101,11 +104,12 @@ export interface DomainContext {
   // ---
   error?: any;
   // ---
-  authHelper?: Function;
-  basketHelper?: Function;
-  itemBuilder?: Function;
-  itemMapper?: Function;
-  basketItemMapper?: Function;
+  authHelper?: ActorRef<any>;
+  basketHelper?: ActorRef<any>;
+  itemBuilder?: (item: ProductModel) => ProductModel;
+  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemBuilder?: (model: ProductModel) => BasketProduct;
+  basketProducts?: DomainProduct[];
   //
 }
 
