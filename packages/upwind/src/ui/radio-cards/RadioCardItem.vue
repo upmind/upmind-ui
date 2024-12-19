@@ -23,11 +23,12 @@
       />
     </Label>
 
-    <div
+    <Label
       v-if="props.label"
       class="text-emphasis-medium mt-[0.075rem] flex cursor-pointer items-center space-x-4 text-nowrap py-2 pr-2 text-sm"
-      :class="props.expandable ? 'hover:text-emphasis-high' : 'pr-4'"
-      @click.stop="$emit('toggle-expanded')"
+      :class="props.expandable ? 'hover:text-emphasis-high' : 'w-full'"
+      @click="$emit('expand')"
+      :for="props.expandable ? '' : `${props.name}-${index}`"
     >
       {{ props.label }}
       <Icon
@@ -37,7 +38,7 @@
         class="mt-0.5 transition-all duration-300"
         :class="props.expanded ? 'rotate-180' : ''"
       />
-    </div>
+    </Label>
   </div>
 </template>
 
@@ -63,6 +64,6 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  "toggle-expanded": [];
+  expand: [];
 }>();
 </script>
