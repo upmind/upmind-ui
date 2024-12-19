@@ -29,7 +29,7 @@ export interface DialogProps
   noHeader?: boolean;
   // ---
   open?: boolean;
-  persistent?: boolean;
+  dismissable?: boolean;
   // --- variants
   size?: DialogContentVariantProps["size"];
   overflow?: DialogContentVariantProps["overflow"];

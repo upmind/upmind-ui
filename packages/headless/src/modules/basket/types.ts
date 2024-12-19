@@ -101,6 +101,7 @@ type ISubProductChoices = Record<
 >;
 
 export interface BasketProduct {
+  product_id?: any;
   id: string; // the basket product id (bpid)
 
   // --- Model

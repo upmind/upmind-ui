@@ -552,7 +552,6 @@ export default createMachine(
           return {
             basketHelper: basketHelper || spawn(basketSubscription),
             itemBuilder: (item: ProductModel) => parseModel(item),
-            itemMapper: (item: BasketProduct) => ({ id: item.id }),
             basketItemMapper: (item: BasketProduct) => ({ id: item.id }),
           };
         }

@@ -60,6 +60,7 @@
         @reject="onClose"
         :color="color"
         open
+        nested
       />
 
       <div

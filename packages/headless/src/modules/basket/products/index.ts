@@ -49,7 +49,7 @@ export const useBasketProduct = (
       basketProduct = getBasketProduct(newBasket);
     },
     update: async (data: BasketProduct): Promise<ActorRef<any, any>> => {
-      return services.update({ basketId: rawBasket.id, bpid: id }, { data });
+      return services.update({ basketId: rawBasket.id }, { data });
     },
 
     remove: async (): Promise<any> => {

@@ -17,13 +17,20 @@ import {
   type CheckboxCardsProps,
   type CheckboxCardsItemProps,
 } from "./ui/checkbox-cards";
-
 import {
   UwCombobox,
   Combobox,
   type ComboboxProps,
   type ComboboxItemProps,
 } from "./ui/combobox";
+import {
+  useCarousel,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
 import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
 import {
@@ -109,6 +116,12 @@ export {
   Button,
   Checkbox,
   CheckboxCards,
+  useCarousel,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   Combobox,
   Dialog,
   Drawer,

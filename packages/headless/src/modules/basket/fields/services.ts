@@ -4,8 +4,8 @@
 import { useApi } from "../../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
-import { useModelParser } from "./utils";
+import { useValidation, useFieldsModelParser } from "../../../utils";
+import { get } from "lodash-es";
 
 // --- types
 import type { FieldsEvent, FieldsContext } from "./types";
@@ -26,15 +26,14 @@ async function load(_context: FieldsContext, _event: FieldsEvent) {
 
 // --------------------------------------------------------
 
-async function update(
-  { basketId, fields, model }: FieldsContext,
-  _event: FieldsEvent
-) {
+async function update({ basketId, model }: FieldsContext, _event: FieldsEvent) {
   const { put, useUrl } = useApi();
   // rebuild the model with ALL custo mfields present, including nullish values
   // @ts-ignore
-  const data = useModelParser({ fields }, model);
-
+  const data = {
+    notes: model?.notes,
+    custom_fields: get(model, "customFields"),
+  };
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basketId}`),

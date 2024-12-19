@@ -27,7 +27,6 @@ import {
 // --- types
 import { PromotionDisplayTypes } from "./services";
 import type { ProductModel, ProductConfigContext } from "./types";
-import { error } from "console";
 
 // --- types
 
@@ -78,14 +77,16 @@ export const parseProduct = (
   return {
     id: merged.id,
     name: useTranslateName(merged),
+    categoryId: merged.category_id,
     category: useTranslateName(merged.category),
     serviceIdentifier: merged.service_identifier,
     cycle: merged.billing_cycle_months,
+    // TODO check: cycle: merged.display_price_billing_cycle_months ?? merged.billing_cycle_months,
     quantity: merged.quantity,
     // //
     description: useTranslateField(merged, "description"),
     excerpt: useTranslateField(merged, "short_description"),
-    imgUrl: merged?.product_image_url,
+    imgUrl: merged?.product_image_url ?? merged?.image?.full_url,
     // image: merged.image,
     // images: merged.images,
     // ---
@@ -112,7 +113,7 @@ export const parseProduct = (
 
 export const parseTerms = (
   raw: any,
-  promotionDisplayType: PromotionDisplayTypes
+  promotionDisplayType?: PromotionDisplayTypes
 ) => {
   const { getBillingCycle } = useSystem();
 
@@ -158,7 +159,7 @@ export const parseTerms = (
 
 export const parseSubproduct = (
   data: any,
-  promotionDisplayType: PromotionDisplayTypes,
+  promotionDisplayType?: PromotionDisplayTypes,
   cycle?: number
 ) => {
   const { getBillingCycle } = useSystem();
@@ -274,7 +275,7 @@ export const parseSubproduct = (
 
 export const parsePromotion = (
   data: any,
-  promotionDisplayType: PromotionDisplayTypes
+  promotionDisplayType: PromotionDisplayTypes = PromotionDisplayTypes.PERCENTAGE
 ) => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
