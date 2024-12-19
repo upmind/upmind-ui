@@ -170,8 +170,8 @@ export const parseSubproduct = (
   // And with each category having a list of attributes
   // so to do this we have to do the following:
 
-  // 0. sort the data by attached_order for further lookups
-  const sorted = orderBy(data, "attached_order");
+  // 0. sort the data by order for further lookups
+  const sorted = orderBy(data, "order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
