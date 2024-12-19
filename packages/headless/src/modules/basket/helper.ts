@@ -127,6 +127,7 @@ async function fetchSelected(
       basketId: basketSnapshot?.id,
       currencyId: basketSnapshot?.currency_id,
       promotions: basketSnapshot?.promotions,
+      // promotions: uniq(concat(basketSnapshot?.promotions, context?.promotions)),
     },
     { data }
   );
