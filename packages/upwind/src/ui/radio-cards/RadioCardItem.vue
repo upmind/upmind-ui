@@ -18,7 +18,7 @@
     >
       <slot
         v-bind="{
-          item: { ...props.item, icon: props.item.icon, minify: true },
+          item: { ...props.item, icon: props.item.icon },
         }"
       />
     </Label>
@@ -27,7 +27,7 @@
       v-if="props.label"
       class="text-emphasis-medium mt-[0.075rem] flex cursor-pointer items-center space-x-4 text-nowrap py-2 pr-2 text-sm"
       :class="props.expandable ? 'hover:text-emphasis-high' : 'w-full'"
-      @click="$emit('expand')"
+      @click="toggleExpanded"
       :for="props.expandable ? '' : `${props.name}-${index}`"
     >
       {{ props.label }}
@@ -36,7 +36,7 @@
         icon="arrow-down"
         size="xs"
         class="mt-0.5 transition-all duration-300"
-        :class="props.expanded ? 'rotate-180' : ''"
+        :class="expanded ? 'rotate-180' : ''"
       />
     </Label>
   </div>
@@ -48,6 +48,7 @@ import { RadioGroupItem } from "../radio-group";
 import { cn } from "../../utils";
 import Icon from "../icon/Icon.ce.vue";
 import Label from "../label/Label.ce.vue";
+import { ref } from "vue";
 
 const props = defineProps<{
   item: any;
@@ -59,11 +60,15 @@ const props = defineProps<{
   modelValue: any;
   variants: any;
   expandable?: boolean;
-  expanded?: boolean;
   minify?: boolean;
+  expanded?: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   expand: [];
 }>();
+
+const toggleExpanded = () => {
+  emit("expand");
+};
 </script>

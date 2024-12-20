@@ -9,13 +9,15 @@
   >
     <template v-for="(item, index) in items" :key="item.id || index">
       <RadioCardItemExpandable
-        v-if="item.values"
+        v-if="item.group"
         :item="item"
         :name="props.name || ''"
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
         :variants="variants"
+        :expanded="expandedItems.has(item.group)"
+        @expand="toggleExpanded(item.group)"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
@@ -32,6 +34,7 @@
         :radio-class="props.radioClass"
         :model-value="modelValue"
         :variants="variants"
+        :expanded="expandedItems.has(item.group)"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
@@ -51,13 +54,12 @@ import { cn, useStyles } from "../../utils";
 import config from "./radioCards.config";
 
 // --- components
-import { RadioGroup, RadioGroupItem } from "../radio-group";
-import { Label } from "../label";
+import { RadioGroup } from "../radio-group";
 import RadioCardItemExpandable from "./RadioCardItemExpandable.vue";
 import RadioCardItem from "./RadioCardItem.vue";
 
 // --- utils
-import { find } from "lodash-es";
+import { xor } from "lodash-es";
 
 // --- types
 import type { RadioCardsProps } from "./types";
@@ -107,15 +109,14 @@ const variants = useStyles(
   };
 }>;
 
-const selected = computed(() => find(props.items, { value: modelValue.value }));
-
-// allow for toggle of selected item
 function onChange(value: any) {
   if (!props.required && modelValue.value == value)
     modelValue.value = undefined;
   else modelValue.value = value;
 }
 
-// Add isExpanded state
-const isExpanded = ref(false);
+const expandedItems = ref(new Set<string>());
+function toggleExpanded(itemId: string) {
+  expandedItems.value = new Set(xor([...expandedItems.value], [itemId]));
+}
 </script>
