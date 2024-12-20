@@ -12,6 +12,8 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   // ---
   label: string;
   values: any[];
+  primary?: boolean;
+  group?: string;
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
