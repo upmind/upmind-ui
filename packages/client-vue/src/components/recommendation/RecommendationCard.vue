@@ -29,65 +29,85 @@
 
               <Lineclamp
                 v-if="description"
-                class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
+                class="text-emphasis-disabled m-0 min-h-12 text-sm leading-6"
                 :lines="2"
                 :labelMore="t('product.actions.more', 1)"
                 :labelLess="t('product.actions.more', 0)"
+                >{{ description }}</Lineclamp
               >
-                {{ description }}
-              </Lineclamp>
             </div>
           </div>
 
           <!-- Price section -->
-          <div class="flex flex-col gap-y-2">
+          <div class="not-prose flex flex-col gap-y-2">
+            <!-- Price Intro: eg. 'From' or 'Was $X.XX' -->
             <div class="flex items-center space-x-2">
-              <!-- Promotion & Discount -->
-              <s
-                v-if="currentAmount < regularAmount"
-                class="text-emphasis-disabled text-sm italic"
-                >Was {{ regularPrice }}</s
-              >
+              <p class="text-emphasis-disabled text-sm">
+                <!-- If discounted, show regular price -->
+                <template v-if="meta?.discounted">
+                  <del class="italic">{{
+                    t("recommendations.card.was_price", {
+                      price: !!cycle ? monthlyFromRegularPrice : regularPrice,
+                    })
+                  }}</del>
+                </template>
+
+                <!-- Otherwise, show 'Only' -->
+                <template v-else>
+                  <span>{{ t("recommendations.card.only") }}</span>
+                </template>
+              </p>
 
               <template v-for="promotion in promotions" :key="promotion.id">
                 <Promotion
                   :discounted="meta?.discounted"
                   :currentSaving="promotion.amountFormatted"
                   :currentSavingAmount="promotion.amount"
-                  size="xs"
+                  size="sm"
                 />
               </template>
             </div>
 
-            <div class="flex items-baseline leading-6">
+            <div class="flex items-baseline">
               <!-- Current Price -->
               <span class="text-3xl font-bold">
-                <template v-if="meta?.free || monthlyFromCurrentAmount === 0">
-                  {{ t("recommendations.card.free") }}
-                </template>
-                <template v-else>
-                  <template v-if="monthlyAvailable">{{
-                    monthlyFromCurrentPrice
-                  }}</template>
-                  <template v-else>{{ currentPrice }}</template>
-                </template>
+                <template v-if="meta?.free">{{
+                  t("recommendations.card.free")
+                }}</template>
+                <template v-else-if="!!cycle">{{
+                  monthlyFromCurrentPrice
+                }}</template>
+                <template v-else>{{ currentPrice }}</template>
               </span>
 
               <!-- Term -->
-              <span
-                v-if="!meta?.free && currentAmount && currentAmount > 0"
-                class="text-emphasis-medium ml-1 text-sm lowercase leading-none"
-                >/
-                <template v-if="monthlyAvailable">{{
-                  t(`recommendations.terms.${1}`)
-                }}</template>
-                <template v-else>{{
-                  t(`recommendations.terms.${cycle}`)
-                }}</template>
-              </span>
+              <template v-if="!!cycle">
+                <span class="text-emphasis-medium ml-1 text-sm leading-none">{{
+                  ` / ${t(`recommendations.terms.month`).toLocaleLowerCase()}`
+                }}</span>
+              </template>
             </div>
 
-            <PriceDescription />
+            <!-- Summary (If there is a billing cycle) -->
+            <template v-if="!!cycle">
+              <p class="text-emphasis-disabled mt-1 text-sm">
+                {{
+                  t(
+                    meta?.discounted
+                      ? "recommendations.card.discounted_summary"
+                      : "recommendations.card.non_discounted_summary",
+                    {
+                      numericTerm: t(`recommendations.terms.numeric.${cycle}`),
+                      descriptiveTerm: t(
+                        `recommendations.terms.descriptive.${cycle}`
+                      ).toLocaleLowerCase(),
+                      currentPrice,
+                      regularPrice,
+                    }
+                  )
+                }}
+              </p>
+            </template>
           </div>
         </div>
 
@@ -117,19 +137,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
-// ---components
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import Promotion from "../basket/product/components/Promotion.vue";
-import PriceDescription from "./components/PriceDescription.vue";
-
-// --- types
 import type { Recommendation } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
+
 const { t } = useI18n();
 
 const props = defineProps<
@@ -145,13 +160,4 @@ const emit = defineEmits<{
 const doResolve = async (value: string) => {
   emit("resolve", value);
 };
-
-const monthlyAvailable = computed(() => {
-  return (
-    props.monthlyFromCurrentAmount &&
-    props.monthlyFromCurrentAmount > 0 &&
-    props.cycle &&
-    props.cycle > 0
-  );
-});
 </script>
