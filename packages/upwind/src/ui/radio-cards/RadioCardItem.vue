@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="cn(variants.radioCards.item, radioClass)"
+    :class="cn(variants.radioCards.item)"
     :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
   >
     <RadioGroupItem
@@ -47,15 +47,15 @@
 import { RadioGroupItem } from "../radio-group";
 import { cn } from "../../utils";
 import Icon from "../icon/Icon.ce.vue";
+import Label from "../label/Label.ce.vue";
 
 const props = defineProps<{
   item: any;
   index: number;
   name: string;
-  label: string;
+  label?: string;
   required: boolean;
   disabled: boolean;
-  radioClass?: string;
   modelValue: any;
   variants: any;
   expandable?: boolean;
