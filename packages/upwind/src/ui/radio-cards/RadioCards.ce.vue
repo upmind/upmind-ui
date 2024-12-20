@@ -11,7 +11,9 @@
       <RadioCardItemExpandable
         v-if="item.values"
         :item="item"
-        :name="props.name"
+        :name="props.name || ''"
+        :required="props.required"
+        :disabled="props.disabled"
         :model-value="modelValue"
         :variants="variants"
       >
@@ -24,7 +26,7 @@
         v-else
         :item="item"
         :index="index"
-        :name="props.name"
+        :name="props.name || ''"
         :required="props.required"
         :disabled="props.disabled"
         :radio-class="props.radioClass"

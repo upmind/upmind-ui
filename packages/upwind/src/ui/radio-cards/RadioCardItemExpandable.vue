@@ -1,4 +1,3 @@
-<!-- ExpandableRadioCards.vue -->
 <template>
   <div
     v-auto-animate
@@ -18,7 +17,6 @@
       :required="required"
       :value="item.values[0].id"
       :disabled="disabled"
-      radio-class=""
       :model-value="modelValue"
       :variants="variants"
       expandable
@@ -52,7 +50,6 @@
         :required="required"
         :value="itemValue.id"
         :disabled="disabled"
-        radio-class=""
         :model-value="modelValue"
         :variants="variants"
         :price="itemValue.price"
@@ -87,10 +84,8 @@ const props = defineProps<{
   name: string;
   required: boolean;
   disabled: boolean;
-  radioClass: string;
   modelValue: any;
   variants: any;
-  price: any;
 }>();
 
 const expanded = ref(false);
