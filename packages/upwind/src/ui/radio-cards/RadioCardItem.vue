@@ -52,8 +52,8 @@ import { ref } from "vue";
 
 const props = defineProps<{
   item: any;
-  index: number;
-  name: string;
+  index: number | string;
+  name?: string;
   label?: string;
   required: boolean;
   disabled: boolean;
