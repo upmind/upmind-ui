@@ -7,7 +7,7 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <template v-for="(item, index) in items" :key="item.id || index">
+    <div v-for="(item, index) in items" :key="item.id || index" v-auto-animate>
       <RadioCardItemExpandable
         v-if="item.group"
         :item="item"
@@ -16,8 +16,17 @@
         :disabled="props.disabled"
         :model-value="modelValue"
         :variants="variants"
-        :expanded="expandedItems.has(item.group)"
+        :expanded="expandedItems.has(item.group ?? '')"
         @expand="toggleExpanded(item.group)"
+        :class="[
+          item.group && item.primary ? 'mt-3' : '',
+          item.group && item.primary && expandedItems.has(item.group ?? '')
+            ? 'border-b-0'
+            : '',
+          item.group && !item.primary && !isLastInGroup(item, index)
+            ? 'border-b-0'
+            : '',
+        ]"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
@@ -34,13 +43,14 @@
         :radio-class="props.radioClass"
         :model-value="modelValue"
         :variants="variants"
-        :expanded="expandedItems.has(item.group)"
+        :expanded="expandedItems.has(item.group ?? '')"
+        class="mt-3"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
         </template>
       </RadioCardItem>
-    </template>
+    </div>
   </RadioGroup>
 </template>
 
@@ -48,6 +58,7 @@
 // ---external
 import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -118,5 +129,11 @@ function onChange(value: any) {
 const expandedItems = ref(new Set<string>());
 function toggleExpanded(itemId: string) {
   expandedItems.value = new Set(xor([...expandedItems.value], [itemId]));
+}
+
+function isLastInGroup(currentItem: any, currentIndex: number) {
+  if (!currentItem.group) return true;
+  const nextItem = props.items[currentIndex + 1];
+  return !nextItem || nextItem.group !== currentItem.group;
 }
 </script>

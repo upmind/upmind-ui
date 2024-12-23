@@ -5,7 +5,7 @@ export const rootVariants = cva(`w-full gap-0 rounded-md border-control`, {
   variants: {
     layout: {
       list: `${ringClasses} ${invalidRingClasses} border border-b-0 shadow-sm`,
-      grid: "grid w-full list-none gap-3",
+      grid: "grid w-full list-none",
     },
   },
   defaultVariants: {
