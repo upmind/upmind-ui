@@ -1,40 +1,13 @@
 <template>
   <RadioCardItem
-    v-if="item.primary"
+    v-if="render"
     :item="{
       value: item.id,
-      label: item.label,
+      label: item.primary ? item.label : undefined,
       price: item.price,
     }"
     :index="item.id"
-    :name="item.group"
-    :label="item.label"
-    :required="required"
-    :value="item.id"
-    :disabled="disabled"
-    :model-value="modelValue"
-    :variants="variants"
-    expandable
-    :expanded="expanded"
-    @expand="toggleExpanded"
-  >
-    <template #default="slotProps">
-      <slot
-        v-bind="{
-          ...slotProps,
-        }"
-      />
-    </template>
-  </RadioCardItem>
-
-  <RadioCardItem
-    v-if="!item.primary && expanded"
-    :item="{
-      value: item.id,
-      price: item.price,
-    }"
-    :index="item.id"
-    :name="item.name"
+    :name="item.primary ? item.group : item.name"
     :label="item.label"
     :required="required"
     :value="item.id"
@@ -42,27 +15,21 @@
     :model-value="modelValue"
     :variants="variants"
     :expanded="expanded"
-    minify
+    :expandable="item.primary"
+    :minify="!item.primary"
+    @expand="item.primary ? toggleExpanded() : undefined"
   >
     <template #default="slotProps">
-      <div>
-        <slot
-          v-bind="{
-            ...slotProps,
-          }"
-        />
-      </div>
+      <slot v-bind="slotProps" />
     </template>
   </RadioCardItem>
-  <!-- <template v-for="(itemValue, index) in items" :key="itemValue.id || index">
-
-    </template> -->
 </template>
 
 <script setup lang="ts">
 import RadioCardItem from "./RadioCardItem.vue";
+import { computed } from "vue";
 
-defineProps<{
+const props = defineProps<{
   item: any;
   name: string;
   required: boolean;
@@ -79,4 +46,8 @@ const emit = defineEmits<{
 const toggleExpanded = () => {
   emit("expand");
 };
+
+const render = computed(
+  () => props.item.primary || (!props.item.primary && props.expanded)
+);
 </script>
