@@ -18,7 +18,7 @@ export default defineConfig({
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
       name: "@upmind-automation/headless-vue",
-      fileName: "headless-vue"
+      fileName: "upmind-headless-vue"
     }
   },
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
