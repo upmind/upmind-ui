@@ -19,19 +19,28 @@ const mockFields = [
     description: "Test Field 1 Description",
     placeholder: "Test Field 1 Placeholder",
     required: true,
+    show_on_order_form: true,
+    hidden: false,
+    value: "VisibleValue1",
   },
   {
     code: "testField2",
-    type_code: "input-checkbox", //TODO: All `type_code` values are snake_case except this one
+    type_code: "input-checkbox",
     name: "Test Field 2",
     description: "Test Field 2 Description",
     required: false,
+    show_on_order_form: true,
+    hidden: false,
+    value: "VisibleValue2",
   },
   {
     code: "testField3",
     type_code: "input_date",
     name: "Test Field 3",
     description: "Test Field 3 Description",
+    show_on_order_form: false,
+    hidden: true,
+    value: "HiddenValue",
   },
   // TODO:
   // Add the remaining input types.
@@ -40,13 +49,7 @@ const mockFields = [
   // not to end up with the original code...
 ];
 
-let expectedSchema: {
-  type: String;
-  title: String;
-  i18n: String;
-  required: String[];
-  properties: Object;
-} = {
+let expectedSchema = {
   type: "object",
   title: "Fields",
   i18n: "fields",
@@ -67,19 +70,12 @@ const expectedProperties = {
     description: "Test Field 2 Description",
     i18n: "fields.testField2",
   },
-  testField3: {
-    type: ["string", "null"],
-    format: "date-time",
-    title: "Test Field 3",
-    description: "Test Field 3 Description",
-    i18n: "fields.testField3",
-  },
 };
 
 const expectedUISchema = [
   {
     type: "Control",
-    scope: "#/properties/custom_fields/properties/testField1",
+    scope: "#/properties/customFields/properties/testField1",
     i18n: "fields.testField1",
     options: {
       label: "Test Field 1",
@@ -91,7 +87,7 @@ const expectedUISchema = [
   },
   {
     type: "Control",
-    scope: "#/properties/custom_fields/properties/testField2",
+    scope: "#/properties/customFields/properties/testField2",
     i18n: "fields.testField2",
     options: {
       label: "Test Field 2",
@@ -101,25 +97,11 @@ const expectedUISchema = [
       type: null, // TODO? Should this be null ?
     },
   },
-  {
-    type: "Control",
-    scope: "#/properties/custom_fields/properties/testField3",
-    i18n: "fields.testField3",
-    options: {
-      label: "Test Field 3",
-      multi: false,
-      description: "Test Field 3 Description",
-      placeholder: undefined, // TODO? Should this be undefined ?
-      type: "date",
-    },
-  },
 ];
 
 describe("useFields.ts", () => {
   describe("useFieldsSchemaParser", () => {
     beforeEach(() => {
-      // vi.resetAllMocks();
-
       expectedSchema = {
         ...expectedSchema,
         required: [],
@@ -141,13 +123,14 @@ describe("useFields.ts", () => {
 
       expect(schema).toEqual(expectedSchema);
     });
+
+    it("should exclude hidden or no show_on_order_form fields", () => {
+      const schema = useFieldsSchemaParser(mockFields);
+      expect(schema.properties.testField3).toBeUndefined();
+    });
   });
 
   describe("useFieldsUischemaParser", () => {
-    // beforeEach(() => {
-    //   vi.resetAllMocks();
-    // });
-
     it("should handle empty data gracefully", () => {
       const uiSchema = useFieldsUischemaParser([]);
       expect(uiSchema).toEqual([]);
@@ -158,6 +141,14 @@ describe("useFields.ts", () => {
       const uiSchema = useFieldsUischemaParser(mockFields);
 
       expect(uiSchema).toEqual(expectedUISchema);
+    });
+
+    it("should exclude hidden or non-order-form fields from UI schema", () => {
+      const uiSchema = useFieldsUischemaParser(mockFields);
+      const excludedField = uiSchema.find(
+        item => item.scope === "#/properties/customFields/properties/testField3"
+      );
+      expect(excludedField).toBeUndefined();
     });
   });
 
