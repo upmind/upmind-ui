@@ -17,16 +17,8 @@
         :model-value="modelValue"
         :variants="variants"
         :expanded="expandedItems.has(item.group ?? '')"
+        :is-last-in-group="isLastInGroup(item, index)"
         @expand="toggleExpanded(item.group)"
-        :class="[
-          item.group && item.primary ? 'mt-3' : '',
-          item.group && item.primary && expandedItems.has(item.group ?? '')
-            ? 'border-b-0'
-            : '',
-          item.group && !item.primary && !isLastInGroup(item, index)
-            ? 'border-b-0'
-            : '',
-        ]"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />

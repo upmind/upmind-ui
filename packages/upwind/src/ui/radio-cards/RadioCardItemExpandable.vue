@@ -17,6 +17,13 @@
     :expanded="expanded"
     :expandable="item.primary"
     :minify="!item.primary"
+    :class="[
+      item.group && item.primary ? 'mt-3' : '',
+      (item.group && item.primary && expanded) ||
+      (item.group && !item.primary && !isLastInGroup)
+        ? 'border-b-0'
+        : '',
+    ]"
     @expand="item.primary ? toggleExpanded() : undefined"
   >
     <template #default="slotProps">
@@ -37,6 +44,7 @@ const props = defineProps<{
   modelValue: any;
   variants: any;
   expanded?: boolean;
+  isLastInGroup?: boolean;
 }>();
 
 const emit = defineEmits<{
