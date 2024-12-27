@@ -18,7 +18,6 @@
     :expandable="item.primary"
     :minify="!item.primary"
     :class="[
-      item.group && item.primary ? 'mt-3' : '',
       (item.group && item.primary && expanded) ||
       (item.group && !item.primary && !isLastInGroup)
         ? 'border-b-0'
