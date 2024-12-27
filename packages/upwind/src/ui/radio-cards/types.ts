@@ -29,6 +29,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   variant?: ButtonProps["variant"];
   layout?: RadioCardsVariantProps["layout"];
   ring?: boolean;
+  size?: number;
   // ---
   upwindConfig?: { tooltip: Partial<RadioCardsProps> };
   class?: HTMLAttributes["class"];
