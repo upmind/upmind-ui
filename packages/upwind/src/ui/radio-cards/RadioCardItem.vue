@@ -11,34 +11,38 @@
       :disabled="props.disabled"
       :class="variants.radioCards.input"
     />
-    <Label
-      v-if="!props.minify"
-      :for="`${props.name}-${index}`"
-      :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
+    <div
+      class="flex w-full flex-col md:flex-row md:justify-between md:space-x-2"
     >
-      <slot
-        v-bind="{
-          item: { ...props.item, icon: props.item.icon },
-        }"
-      />
-    </Label>
+      <Label
+        v-if="!props.minify"
+        :for="`${props.name}-${index}`"
+        :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
+      >
+        <slot
+          v-bind="{
+            item: { ...props.item, icon: props.item.icon },
+          }"
+        />
+      </Label>
 
-    <Label
-      v-if="props.label"
-      class="text-emphasis-medium mt-[0.075rem] flex cursor-pointer items-center space-x-4 text-nowrap py-2 pr-2 text-sm"
-      :class="props.expandable ? 'hover:text-emphasis-high' : 'w-full'"
-      @click="toggleExpanded"
-      :for="props.expandable ? '' : `${props.name}-${index}`"
-    >
-      {{ props.label }}
-      <Icon
-        v-if="props.expandable"
-        icon="arrow-down"
-        size="xs"
-        class="mt-0.5 transition-all duration-300"
-        :class="expanded ? 'rotate-180' : ''"
-      />
-    </Label>
+      <Label
+        v-if="props.label"
+        class="text-emphasis-medium flex cursor-pointer items-center text-nowrap py-2 pr-2 text-sm md:ml-auto md:mt-[0.075rem] md:flex-row md:items-center md:space-x-4"
+        :class="props.expandable ? 'hover:text-emphasis-high' : 'w-full'"
+        @click="toggleExpanded"
+        :for="props.expandable ? '' : `${props.name}-${index}`"
+      >
+        {{ props.label }}
+        <Icon
+          v-if="props.expandable"
+          icon="arrow-down"
+          size="xs"
+          class="mt-0.5 transition-all duration-300"
+          :class="expanded ? 'rotate-180' : ''"
+        />
+      </Label>
+    </div>
   </div>
 </template>
 

@@ -12,9 +12,10 @@
         v-for="(item, index) in items"
         :key="item.id || index"
         v-auto-animate
+        class="col-span-12"
         :class="{
           'mt-3': index >= 12 / props.size && (!item.group || item.primary),
-          [`col-span-${props.size}`]: props.size,
+          [`md:col-span-${props.size}`]: props.size,
         }"
       >
         <RadioCardItemExpandable
