@@ -7,7 +7,12 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div v-for="(item, index) in items" :key="item.id || index" v-auto-animate>
+    <div
+      v-for="(item, index) in items"
+      :key="item.id || index"
+      v-auto-animate
+      :class="{ 'mt-3': index > 0 && (!item.group || item.primary) }"
+    >
       <RadioCardItemExpandable
         v-if="item.group"
         :item="item"
@@ -36,7 +41,6 @@
         :model-value="modelValue"
         :variants="variants"
         :expanded="expandedItems.has(item.group ?? '')"
-        class="mt-3"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
