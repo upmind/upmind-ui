@@ -7,45 +7,50 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div
-      v-for="(item, index) in items"
-      :key="item.id || index"
-      v-auto-animate
-      :class="{ 'mt-3': index > 0 && (!item.group || item.primary) }"
-    >
-      <RadioCardItemExpandable
-        v-if="item.group"
-        :item="item"
-        :name="props.name || ''"
-        :required="props.required"
-        :disabled="props.disabled"
-        :model-value="modelValue"
-        :variants="variants"
-        :expanded="expandedItems.has(item.group ?? '')"
-        :is-last-in-group="isLastInGroup(item, index)"
-        @expand="toggleExpanded(item.group)"
+    <div class="grid grid-cols-12 gap-x-3">
+      <div
+        v-for="(item, index) in items"
+        :key="item.id || index"
+        v-auto-animate
+        :class="{
+          'mt-3': index >= 12 / props.size && (!item.group || item.primary),
+          [`col-span-${props.size}`]: props.size,
+        }"
       >
-        <template #default="slotProps">
-          <slot v-bind="slotProps" />
-        </template>
-      </RadioCardItemExpandable>
+        <RadioCardItemExpandable
+          v-if="item.group"
+          :item="item"
+          :name="props.name || ''"
+          :required="props.required"
+          :disabled="props.disabled"
+          :model-value="modelValue"
+          :variants="variants"
+          :expanded="expandedItems.has(item.group ?? '')"
+          :is-last-in-group="isLastInGroup(item, index)"
+          @expand="toggleExpanded(item.group)"
+        >
+          <template #default="slotProps">
+            <slot v-bind="slotProps" />
+          </template>
+        </RadioCardItemExpandable>
 
-      <RadioCardItem
-        v-else
-        :item="item"
-        :index="index"
-        :name="props.name || ''"
-        :required="props.required"
-        :disabled="props.disabled"
-        :radio-class="props.radioClass"
-        :model-value="modelValue"
-        :variants="variants"
-        :expanded="expandedItems.has(item.group ?? '')"
-      >
-        <template #default="slotProps">
-          <slot v-bind="slotProps" />
-        </template>
-      </RadioCardItem>
+        <RadioCardItem
+          v-else
+          :item="item"
+          :index="index"
+          :name="props.name || ''"
+          :required="props.required"
+          :disabled="props.disabled"
+          :radio-class="props.radioClass"
+          :model-value="modelValue"
+          :variants="variants"
+          :expanded="expandedItems.has(item.group ?? '')"
+        >
+          <template #default="slotProps">
+            <slot v-bind="slotProps" />
+          </template>
+        </RadioCardItem>
+      </div>
     </div>
   </RadioGroup>
 </template>
@@ -84,6 +89,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   layout: "list",
   ring: true,
   // --- styles
+  size: 12,
   class: "",
   radioClass: "",
 });
