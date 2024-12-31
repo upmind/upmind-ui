@@ -42,14 +42,14 @@ variables:
     url: "${FIREBASE_PREVIEW_URL}"
   artifacts:
     reports:
-      dotenv: "${CI_PROJECT_DIR}/deploy.env"
+      dotenv: "deploy.env"
   before_script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
   script:
-    - cd ./docs
-    - npx firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
-    - url=$(npx firebase hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
+    - npx --workspace docs firebase-tools --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
+  after_script:
+    - url=$(npx --workspace docs firebase-tools hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
     - echo "FIREBASE_PREVIEW_URL=${url}" > "${CI_PROJECT_DIR}/deploy.env"
 
 (docs) stop preview:
@@ -67,8 +67,7 @@ variables:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
   script:
-    - cd ./docs
-    - npx firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
+    - npx --workspace docs firebase-tools hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
 
 (docs) deploy production:
   stage: deploy
@@ -87,5 +86,4 @@ variables:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
   script:
-    - cd ./docs
-    - npx firebase deploy
+    - npx --workspace docs firebase-tools deploy
