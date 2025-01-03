@@ -13,12 +13,9 @@
     @blur="blurred = true"
   >
     <component
-      :is="
-        subproduct.multiple || subproduct.values?.length == 1
-          ? CheckboxCards
-          : RadioCards
-      "
+      :is="component"
       :id="subproduct.id"
+      v-model="modelValue"
       :name="subproduct.id"
       :required="subproduct.required"
       :items="parsedValues"
@@ -26,12 +23,16 @@
       :errors="errors"
       :none-text="t('product.select.none')"
       :placeholder="t('product.select.placeholder')"
-      v-model="modelValue"
+      :multiple="subproduct.multiple"
+      :ring="false"
+      :size="subproduct.meta?.uischema?.options?.size"
+      layout="grid"
     >
-      <template #item="{ item: { value } }">
+      <template #item="slotProps">
         <CardSubproduct
-          v-bind="getSubproductValue(value as string)"
-          @update:quantity="doUpdateQuantity(value, $event)"
+          v-if="slotProps.item"
+          v-bind="getSubproductValue(slotProps.item.value)"
+          @update:quantity="doUpdateQuantity(slotProps.item.value, $event)"
         />
       </template>
     </component>
@@ -53,6 +54,7 @@ import {
   RadioCards,
   CheckboxCards,
   FormField,
+  SelectCards,
 } from "@upmind-automation/upwind";
 import CardSubproduct from "./SubproductCard.vue";
 
@@ -76,6 +78,7 @@ const props = defineProps<{
   loading?: boolean;
   processing?: boolean;
   visible?: boolean;
+  size?: number;
 }>();
 
 // ---
@@ -94,15 +97,34 @@ const styles = useStyles(
   config
 );
 
+const component = computed(() => {
+  const control = props.subproduct.meta?.uischema?.control;
+  if (control) {
+    return mapComponent(control);
+  }
+
+  return props.subproduct.multiple || props.subproduct.values?.length == 1
+    ? CheckboxCards
+    : RadioCards;
+});
+
+const mapComponent = (name: string) => {
+  if (name === "select") {
+    return SelectCards;
+  }
+  return RadioCards;
+};
+
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
-  return map(props.subproduct?.values, subproduct => {
-    return {
-      id: subproduct.id,
-      value: subproduct.id,
-      label: subproduct?.name,
-      text: subproduct?.excerpt,
-    };
-  });
+  return map(props.subproduct?.values, subproduct => ({
+    id: subproduct.id,
+    value: subproduct.id,
+    label: subproduct?.name,
+    text: subproduct?.excerpt,
+    values: subproduct.values,
+    primary: subproduct?.meta?.uischema?.primary,
+    group: subproduct?.meta?.uischema?.group,
+  }));
 });
 
 function getSubproductValue(value: string) {
@@ -110,6 +132,10 @@ function getSubproductValue(value: string) {
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
+    name: product?.meta?.uischema?.primary
+      ? product?.meta?.uischema?.group
+      : product?.name,
+    icon: product?.meta?.uischema?.icon,
   };
 }
 
@@ -118,4 +144,10 @@ const blurred = ref(false);
 function doUpdateQuantity(value: any, quantity: number) {
   emit("update:quantity", value, quantity);
 }
+
+const canChangeQuantity = computed(() => {
+  return props.subproduct?.values?.some(
+    value => getSubproductValue(value.id)?.canChangeQuantity
+  );
+});
 </script>

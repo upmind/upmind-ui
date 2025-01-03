@@ -30,8 +30,8 @@
           :is-last-in-group="isLastInGroup(item, index)"
           @expand="toggleExpanded(item.group)"
         >
-          <template #default="slotProps">
-            <slot v-bind="slotProps" />
+          <template #item="slotProps">
+            <slot name="item" v-bind="slotProps" />
           </template>
         </RadioCardItemExpandable>
 
@@ -39,16 +39,15 @@
           v-else
           :item="item"
           :index="index"
-          :name="props.name || ''"
+          :name="props.name"
           :required="props.required"
           :disabled="props.disabled"
-          :radio-class="props.radioClass"
           :model-value="modelValue"
           :variants="variants"
           :expanded="expandedItems.has(item.group ?? '')"
         >
-          <template #default="slotProps">
-            <slot v-bind="slotProps" />
+          <template #item="slotProps">
+            <slot name="item" v-bind="slotProps" />
           </template>
         </RadioCardItem>
       </div>
