@@ -51,14 +51,12 @@ export const useUischema = ({ fields }: FieldsContext) => {
         map(fields, field => {
           if (["input_file", "image"].includes(field.type_code)) {
             field.options ??= {};
-
             field.options.field = {
               field_id: field?.id,
               field_type: "client_custom_field",
               field_is_default: false,
             };
           }
-
           return field;
         }),
         "basket.fields"
@@ -75,11 +73,7 @@ export const useModelParser = (
 ) => {
   const model = {
     notes: values?.notes,
-    customFields: useFieldsModelParser(
-      fields,
-      get(values, "custom_fields", {})
-    ),
+    customFields: useFieldsModelParser(fields, get(values, "customFields", {})),
   };
-
   return model as IField;
 };

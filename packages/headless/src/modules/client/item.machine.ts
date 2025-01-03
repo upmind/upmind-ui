@@ -7,12 +7,12 @@ import { useFeedback } from "../feedback";
 const { addError, addSuccess } = useFeedback();
 
 // --- utils
+import { isString } from "lodash-es";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
 import type { ClientItemContext, ClientItemEvent } from "./types";
 import { responseCodes } from "../api";
-import { isString } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 

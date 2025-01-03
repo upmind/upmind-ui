@@ -222,7 +222,7 @@ const emit = defineEmits(["reject", "resolve"]);
 
 const props = withDefaults(
   defineProps<{
-    as: string;
+    as?: string;
     modelValue: string;
     item: ActorRef<any, any>;
     disabled?: boolean;

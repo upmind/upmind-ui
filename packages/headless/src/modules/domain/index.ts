@@ -7,8 +7,7 @@ import { DomainTypes } from "./types";
 export * from "./types";
 // --- utils
 import { useBasket } from "..";
-import { has, map } from "lodash-es";
-import { isArray } from "xstate/lib/utils";
+import { has, map, isArray } from "lodash-es";
 import { parseDomain } from "./utils";
 
 // --------------------------------------------------------
@@ -48,7 +47,7 @@ export const useDomain = (
 
   // @ts-ignore
   const service = interpret(domainMachine.withContext(context), {
-    devTools: true,
+    devTools: false,
   }).start();
 
   // --------------------------------------------------------
@@ -57,7 +56,7 @@ export const useDomain = (
   const { service: basket } = useBasket();
 
   basket.onTransition(state => {
-    if (state.matches("shopping.refreshing.complete")) {
+    if (state.matches("shopping.refreshing.processed")) {
       // ---
       const currencyActor: any = state.context?.actors?.currency;
       const basketCurrency = currencyActor?.getSnapshot()?.context?.model?.code;
@@ -66,6 +65,7 @@ export const useDomain = (
       const basketPromotions =
         promotionsActor?.getSnapshot()?.context?.model?.promotions;
 
+      const basketProducts = state.context?.products || [];
       // ---
       //  only refresh if the currency or promotions have changed
       const { currency, promotions } = service.getSnapshot().context;
@@ -78,6 +78,7 @@ export const useDomain = (
           data: {
             currency: basketCurrency,
             promotions: basketPromotions,
+            products: basketProducts,
           },
         });
       }

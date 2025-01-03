@@ -11,9 +11,8 @@ import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 
 // --- utils
-import { find, isString, get, isEmpty, some } from "lodash-es";
+import { find, isString, get, isEmpty, some, isArray } from "lodash-es";
 import type { ICountry } from "./types";
-import { isArray } from "xstate/lib/utils";
 
 // --- types
 

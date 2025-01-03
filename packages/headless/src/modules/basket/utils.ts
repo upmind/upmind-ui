@@ -25,6 +25,7 @@ import {
   get,
   isEmpty,
   map,
+  pick,
   reduce,
   set,
   toNumber,
@@ -494,7 +495,6 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
     },
     get(data, "custom_fields", {})
   );
-
   return {
     notes,
     customFields,

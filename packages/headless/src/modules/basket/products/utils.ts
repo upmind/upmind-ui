@@ -9,6 +9,7 @@ import { mapValues, reduce, values, map, isObject } from "lodash-es";
 // --- types
 import type { BasketProductConfig } from "../types";
 import type { ProductModel } from "../../product/types";
+import type { IBasketPromotion, IPromotion } from "@upmind-automation/types";
 // ------------------§-----------------------------------------------------------------
 
 export function parseBasketProductConfig(
@@ -60,8 +61,10 @@ export function parseBasketProductConfig(
     // ---
     provision_field_values: model.provisionFields || [],
     // ---
-    promotions: map(promotions, promotion =>
-      isObject(promotion) ? promotion : { promocode: promotion }
-    ),
+    promotions: map(promotions, (promotion: IBasketPromotion) => {
+      return isObject(promotion)
+        ? { promocode: promotion.promotion.code }
+        : { promocode: promotion };
+    }),
   } as BasketProductConfig;
 }
