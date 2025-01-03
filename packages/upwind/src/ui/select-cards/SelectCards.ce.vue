@@ -1,7 +1,7 @@
 <template>
   <Popover v-model:open="isOpen">
     <PopoverTrigger :class="cn(variants.select, props.class)">
-      <slot name="default" v-bind="{ item: selected }">
+      <slot name="item" v-bind="{ item: selected }">
         {{ selected?.label }}
       </slot>
       <div class="flex h-4 items-center justify-center">
@@ -31,7 +31,7 @@
                 class="mr-2"
               />
             </div>
-            <slot name="default" v-bind="{ item, index }">
+            <slot name="item" v-bind="{ item, index }">
               {{ item.label }}
             </slot>
           </CommandItem>

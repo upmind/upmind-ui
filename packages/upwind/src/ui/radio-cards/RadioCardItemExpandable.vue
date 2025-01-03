@@ -25,8 +25,8 @@
     ]"
     @expand="item.primary ? toggleExpanded() : undefined"
   >
-    <template #default="slotProps">
-      <slot v-bind="slotProps" />
+    <template #item="slotProps">
+      <slot name="item" v-bind="slotProps" />
     </template>
   </RadioCardItem>
 </template>

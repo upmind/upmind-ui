@@ -20,13 +20,14 @@
         :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
       >
         <slot
+          name="item"
           v-bind="{
             item: { ...props.item, icon: props.item.icon },
           }"
         />
       </Label>
 
-      <Label
+      <span
         v-if="props.label"
         class="text-emphasis-medium flex cursor-pointer items-center text-nowrap py-2 pr-2 text-sm md:ml-auto md:mt-[0.075rem] md:flex-row md:items-center md:space-x-4"
         :class="props.expandable ? 'hover:text-emphasis-high' : 'w-full'"
@@ -41,7 +42,7 @@
           class="mt-0.5 transition-all duration-300"
           :class="expanded ? 'rotate-180' : ''"
         />
-      </Label>
+      </span>
     </div>
   </div>
 </template>
