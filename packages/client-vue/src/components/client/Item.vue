@@ -13,6 +13,7 @@
     @reject="onClose"
     @update:open="onClose"
     size="2xl"
+    :nested="nested"
   >
     <SkeletonList
       :class="styles.clientListings.loading"
@@ -77,6 +78,7 @@ export default defineComponent({
     i18nKey: { type: String, required: true },
     open: { type: Boolean },
     modal: { type: Boolean, default: true },
+    nested: { type: Boolean, default: false },
     autosave: { type: Boolean, default: false },
     skrim: { type: String, default: "dark" },
     color: { type: String, default: "base" },

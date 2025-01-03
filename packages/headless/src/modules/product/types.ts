@@ -40,7 +40,6 @@ export interface ProductConfigContext {
   basketProduct?: BasketProduct;
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
-  itemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
   basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
 }
 

@@ -110,7 +110,7 @@ export default createMachine(
           src: "update",
           onDone: {
             target: "processed",
-            actions: ["setModel", "clearDirty", "clearAutoUpdate"],
+            actions: ["clearDirty", "clearAutoUpdate"],
           },
           onError: {
             target: "error",
@@ -189,7 +189,6 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ fields, model }) => useModelParser(fields, model),
       }),
 
       clearSchemas: assign({
@@ -262,7 +261,7 @@ export default createMachine(
       // @ts-ignore
       hasChanged: ({ model, basketId }, { data }: any) =>
         model?.notes !== data?.notes ||
-        model?.customFields !== data?.custom_fields ||
+        model?.customFields !== data?.customFields ||
         basketId !== data?.id,
 
       shouldUpdate: ({ autoupdate, basketId }, _event) =>

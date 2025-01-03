@@ -15,7 +15,7 @@ import {
   contextActor,
 } from "../../utils";
 
-import { isEqual } from "lodash-es";
+import { isEqual, debounce } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -68,7 +68,9 @@ export const useBasketFields = (service?: ActorRef<any, any>) => {
     input: (model: any) =>
       // @ts-ignore
       customFields.value?.send({ type: "SET", data: model }),
-    update(model: any) {
+
+    // debounce as we tend  to update on input as opposed to submitting
+    update: debounce((model: any) => {
       model = toRaw(unref(model));
       if (!model) return;
 
@@ -81,6 +83,6 @@ export const useBasketFields = (service?: ActorRef<any, any>) => {
         // @ts-ignore
         customFields.value?.send({ type: "SET", data: model, update: true });
       }
-    },
+    }, 500),
   };
 };

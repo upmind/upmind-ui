@@ -49,6 +49,6 @@ export default {
         },
       ],
     }),
-    actions: cva("m-0 mt-1"),
+    actions: cva("m-0"),
   },
 };

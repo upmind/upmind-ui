@@ -9,7 +9,6 @@ import {
   set,
   some,
   isString,
-  isObject,
   isEmpty,
   reduce,
 } from "lodash-es";
@@ -160,7 +159,6 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
   if (!data?.length) {
     return [];
   }
-
   const schema = reduce(
     data,
     (result: any[], field) => {
@@ -196,9 +194,11 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
           case "email":
             type = "email";
             break;
+
           case "username":
             type = "email";
             break;
+
           case "input_password":
           case "password":
             type = "password";
@@ -212,7 +212,7 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
 
         const schema = {
           type: "Control",
-          scope: `#/properties/custom_fields/properties/${field.code}`,
+          scope: `#/properties/customFields/properties/${field.code}`,
           i18n: `${i18nKey}.${field.code}`,
           options: {
             label: useTranslateField(field, "name"),
@@ -237,13 +237,11 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
 
 export const useFieldsModelParser = (fields: any, values: any = {}) => {
   const model = values || {};
-
   if (!isEmpty(fields)) {
     forEach(fields, field => {
       const value = get(model, `${field.code}`, field?.value || field?.default);
       set(model, field.code, value);
     });
   }
-
   return model;
 };

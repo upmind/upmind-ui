@@ -14,6 +14,7 @@ const { addError, addSuccess } = useFeedback();
 import { useTime } from "../../utils";
 import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
 import {
+  isArray,
   compact,
   concat,
   defaultsDeep,
@@ -44,7 +45,6 @@ import type {
   DomainEvents,
 } from "./types";
 import type { IDomain, DomainProduct } from "./types";
-import { isArray } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
@@ -94,11 +94,14 @@ export default createMachine(
             initial: "processing",
             states: {
               processing: {
-                entry: ["fetchBasket"],
+                entry: ["loadBasketProducts"],
                 on: {
-                  FETCHED: {
+                  REFRESH: {
+                    // do nothing
+                  },
+                  LOADED: {
                     target: "complete",
-                    actions: ["setBasketItems"],
+                    actions: ["setBasketProducts"],
                   },
                   ERROR: {
                     target: "complete",
@@ -236,7 +239,7 @@ export default createMachine(
 
           REFRESH: {
             target: ".loading",
-            actions: ["setCurrency", "setPromotions"],
+            actions: ["loadBasketProducts", "setCurrency", "setPromotions"],
           },
           RESET: {
             target: ".invalid",
@@ -287,12 +290,12 @@ export default createMachine(
         initial: "loading",
         states: {
           loading: {
-            entry: ["fetchBasket"],
+            entry: ["loadBasketProducts"],
             on: {
-              FETCHED: {
+              LOADED: {
                 target: "invalid",
                 actions: [
-                  "setBasketItems",
+                  "setBasketProducts",
                   "setModel",
                   "ensurePrimary",
                   "checkChoices",
@@ -363,7 +366,11 @@ export default createMachine(
     },
     on: {
       REFRESH: {
-        actions: ["setCurrency", "setPromotions"],
+        actions: ["loadBasketProducts", "setCurrency", "setPromotions"],
+      },
+
+      LOADED: {
+        actions: ["setBasketProducts"],
       },
 
       CHOOSE: [
@@ -432,7 +439,6 @@ export default createMachine(
           authHelper: undefined,
           basketHelper: undefined,
           itemBuilder: undefined,
-          itemMapper: undefined,
           basketItemBuilder: undefined,
           basketItemMapper: undefined,
         })
@@ -457,18 +463,18 @@ export default createMachine(
       }),
 
       checkChoices: assign({
-        choices: ({ basketItems }: any) => {
-          if (!basketItems?.length)
+        choices: ({ basketProducts }: any) => {
+          if (!basketProducts?.length)
             return omit(DomainTypes, DomainTypes.basket);
 
           return DomainTypes;
         },
-        type: ({ type, basketItems, model }) => {
+        type: ({ type, basketProducts, model }) => {
           const selected = find(model, "isPrimary") || first(model);
           const domain = get(selected, "domain");
 
           if (domain) {
-            const inBasket = some(basketItems, ["domain", domain]);
+            const inBasket = some(basketProducts, ["domain", domain]);
             if (inBasket) return DomainTypes.basket;
 
             return DomainTypes.existing;
@@ -494,6 +500,7 @@ export default createMachine(
           return data?.promotions;
         },
       }),
+
       // ---
 
       setAuthHelper: assign(({ authHelper }: any) => {
@@ -506,10 +513,6 @@ export default createMachine(
           itemBuilder: function (item: BasketProduct) {
             return parseBasketItem(item);
           },
-          itemMapper: (item: BasketProduct) => ({
-            productId: item.productId,
-            sld: item?.provisionFields?.sld,
-          }),
           basketItemBuilder: (item: any) => {
             if (!item?.productId) return null;
             return {
@@ -532,8 +535,8 @@ export default createMachine(
         };
       }),
 
-      setBasketItems: assign({
-        basketItems: (_context: any, { data }: any) => data,
+      setBasketProducts: assign({
+        basketProducts: (_context: any, { data }: any) => data,
         lookups: ({ lookups }, { data }) => {
           const available = map(data, item => {
             item.value = item.domain;
@@ -571,10 +574,10 @@ export default createMachine(
         }
       ),
 
-      fetchBasket: sendTo(
+      loadBasketProducts: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, _event) => ({
-          type: "FETCH",
+          type: "LOAD",
           context,
         })
       ),

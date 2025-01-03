@@ -10,15 +10,25 @@ function useBrand(): object
 
 `object`
 
-### getBrandId()
+### checkIncludesTax()
 
 ```ts
-getBrandId: () => any;
+checkIncludesTax: () => boolean;
 ```
 
 #### Returns
 
-`any`
+`boolean`
+
+### getBrandId()
+
+```ts
+getBrandId: () => string;
+```
+
+#### Returns
+
+`string`
 
 ### getConfig()
 
@@ -78,6 +88,16 @@ getCurrencyId: () => any;
 
 ```ts
 getSnapshot: () => any;
+```
+
+#### Returns
+
+`any`
+
+### getTaxType()
+
+```ts
+getTaxType: () => any;
 ```
 
 #### Returns

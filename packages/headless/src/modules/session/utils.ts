@@ -8,11 +8,11 @@ import {
   slice,
   isEmpty,
   includes,
+  isString,
 } from "lodash-es";
 
 // --- types
 import type { Token } from "./types";
-import { isString } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 

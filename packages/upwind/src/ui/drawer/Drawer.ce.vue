@@ -1,11 +1,11 @@
 <template>
-  <Drawer v-bind="forwarded" v-model:open="value" :dismissible="false">
+  <Drawer v-bind="forwardedDrawer" v-model:open="value">
     <DrawerTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DrawerTrigger>
 
     <DrawerContent
-      v-bind="forwarded"
+      v-bind="forwardedDrawerContent"
       :class="cn(variants.drawer.content, props.class)"
       :classOverlay="variants.drawer.overlay"
       @close="() => emits('update:open', false)"
@@ -21,13 +21,10 @@
       >
         <div :class="cn(variants.drawer.container, props.classHeader)">
           <slot name="header">
-            <DrawerTitle v-if="title || $slots.title" v-bind="forwarded">
+            <DrawerTitle v-if="title || $slots.title">
               <slot name="title">{{ title }}</slot>
             </DrawerTitle>
-            <DrawerDescription
-              v-if="description || $slots.description"
-              v-bind="forwarded"
-            >
+            <DrawerDescription v-if="description || $slots.description">
               <slot name="description">{{ description }}</slot>
             </DrawerDescription>
           </slot>
@@ -92,6 +89,7 @@ import type { DrawerProps } from "./types";
 import type { DrawerRootEmits } from "vaul-vue";
 
 // --- utils
+import { pick } from "lodash-es";
 import { usePointerEvents } from "../../utils/usePointerEvents";
 
 const props = withDefaults(defineProps<DrawerProps>(), {
@@ -105,6 +103,8 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   fit: "contain",
   skrim: "dark",
   to: "body",
+  // --- state
+  dismissible: false,
   // --- styles
   upwindConfig: () => ({
     drawer: {
@@ -123,7 +123,27 @@ const props = withDefaults(defineProps<DrawerProps>(), {
 });
 
 const emits = defineEmits<DrawerRootEmits>();
-const forwarded = useForwardPropsEmits(props, emits);
+
+const forwardedDrawer = useForwardPropsEmits(
+  pick(props, [
+    "activeSnapPoint",
+    "closeThreshold",
+    "shouldScaleBackground",
+    "scrollLockTimeout",
+    "fixed",
+    "dismissible",
+    "modal",
+    "open",
+    "defaultOpen",
+    "nested",
+    "direction",
+  ]),
+  emits
+);
+const forwardedDrawerContent = useForwardPropsEmits(
+  pick(props, ["to", "disabled", "forceMount"]),
+  emits
+);
 
 const meta = computed(() => ({
   width: props.width,
