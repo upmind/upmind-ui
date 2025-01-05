@@ -14,7 +14,7 @@
         v-auto-animate
         class="col-span-12"
         :class="{
-          'mt-3': index >= 12 / props.size && (!item.group || item.primary),
+          [`mt-${props.gap}`]: !item.group || item.primary,
           [`md:col-span-${props.size}`]: props.size,
         }"
       >
@@ -40,6 +40,7 @@
           :item="item"
           :index="index"
           :name="props.name"
+          :label="item?.label"
           :required="props.required"
           :disabled="props.disabled"
           :model-value="modelValue"
@@ -90,6 +91,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   ring: true,
   // --- styles
   size: 12,
+  gap: 2,
   class: "",
   radioClass: "",
 });

@@ -8,7 +8,7 @@
     }"
     :index="item.id"
     :name="item.primary ? item.group : item.name"
-    :label="item.label"
+    :sublabel="item.sublabel"
     :required="required"
     :value="item.id"
     :disabled="disabled"
