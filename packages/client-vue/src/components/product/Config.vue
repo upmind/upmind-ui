@@ -97,7 +97,15 @@
           @update:modelValue="updateTerm"
           required
           :monthly="meta.hasMonthlyTerms"
-        />
+          :type="props.terms"
+        >
+          <template #item="slotProps">
+            <slot name="item" v-bind="slotProps"></slot>
+          </template>
+          <template #dropdown="slotProps">
+            <slot name="dropdown" v-bind="slotProps"></slot>
+          </template>
+        </TermsConfigGrid>
 
         <!-- options -->
         <VSubproductCards
@@ -231,6 +239,7 @@ const props = withDefaults(
     noTitle?: boolean;
     noFooter?: boolean;
     class?: HTMLAttributes["class"];
+    terms?: "radio" | "select";
   }>(),
   {
     as: "form",
@@ -239,6 +248,7 @@ const props = withDefaults(
     class: "",
     noHeader: false,
     noFooter: false,
+    terms: "radio",
   }
 );
 
