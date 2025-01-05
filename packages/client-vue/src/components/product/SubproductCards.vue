@@ -24,9 +24,10 @@
       :none-text="t('product.select.none')"
       :placeholder="t('product.select.placeholder')"
       :multiple="subproduct.multiple"
-      :ring="false"
       :size="subproduct.meta?.uischema?.options?.size"
       layout="grid"
+      :ring="false"
+      :gap="3"
     >
       <template #item="slotProps">
         <CardSubproduct
@@ -119,7 +120,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
   return map(props.subproduct?.values, subproduct => ({
     id: subproduct.id,
     value: subproduct.id,
-    label: subproduct?.name,
+    sublabel: subproduct?.name,
     text: subproduct?.excerpt,
     values: subproduct.values,
     primary: subproduct?.meta?.uischema?.primary,

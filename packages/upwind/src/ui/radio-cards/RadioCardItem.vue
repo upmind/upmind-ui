@@ -17,7 +17,9 @@
       <Label
         v-if="!props.minify"
         :for="`${props.name}-${index}`"
-        :class="cn(variants.radioCards.label, props.label ? '!pr-0' : 'pr-4')"
+        :class="
+          cn(variants.radioCards.label, props.sublabel ? '!pr-0' : 'pr-4')
+        "
       >
         <slot
           name="item"
@@ -25,16 +27,17 @@
             item: { ...props.item, icon: props.item.icon },
           }"
         />
+        <span v-if="props.label">{{ props.label }}</span>
       </Label>
 
-      <span
-        v-if="props.label"
+      <Label
+        v-if="props.sublabel"
         class="text-emphasis-medium flex cursor-pointer items-center text-nowrap py-2 pr-2 text-sm md:ml-auto md:mt-[0.075rem] md:flex-row md:items-center md:space-x-4"
         :class="props.expandable ? 'hover:text-emphasis-high' : 'w-full'"
         @click="toggleExpanded"
-        :for="props.expandable ? '' : `${props.name}-${index}`"
+        :for="`${props.name}-${index}`"
       >
-        {{ props.label }}
+        {{ props.sublabel }}
         <Icon
           v-if="props.expandable"
           icon="arrow-down"
@@ -42,7 +45,7 @@
           class="mt-0.5 transition-all duration-300"
           :class="expanded ? 'rotate-180' : ''"
         />
-      </span>
+      </Label>
     </div>
   </div>
 </template>
@@ -60,6 +63,7 @@ const props = defineProps<{
   index: number | string;
   name?: string;
   label?: string;
+  sublabel?: string;
   required: boolean;
   disabled: boolean;
   modelValue: any;
