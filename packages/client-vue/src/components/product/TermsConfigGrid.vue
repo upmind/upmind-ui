@@ -13,6 +13,7 @@
     auto-focus
   >
     <RadioCards
+      v-if="props.type === 'radio'"
       id="terms"
       name="terms"
       :required="props.required"
@@ -31,6 +32,25 @@
         <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
     </RadioCards>
+
+    <SelectCards
+      v-if="props.type === 'select'"
+      id="terms"
+      name="terms"
+      :required="props.required"
+      :items="parsedValues"
+      :disabled="props.disabled || props.processing"
+      :errors="props.errors"
+      :model-value="props.modelValue?.toString()"
+      @update:modelValue="doResolve"
+    >
+      <template v-if="$slots.item" #item="{ item }">
+        <slot name="item" v-bind="getTerm(item.value)" />
+      </template>
+      <template v-if="$slots.dropdown" #dropdown="{ item }">
+        <slot name="dropdown" v-bind="getTerm(item.value)" />
+      </template>
+    </SelectCards>
   </FormField>
 
   <!-- <pre v-if="errors">{{ errors }}</pre> -->
@@ -46,7 +66,7 @@ import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { RadioCards, FormField, Badge } from "@upmind-automation/upwind";
+import { RadioCards, FormField, SelectCards } from "@upmind-automation/upwind";
 import CardTerm from "./TermCard.vue";
 import CardTermPerMonth from "./TermPerMonthCard.vue";
 
@@ -61,6 +81,7 @@ import type { RadioCardsItemProps } from "@upmind-automation/upwind";
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
+    type?: string;
     items: Object[];
     modelValue?: string | number;
     errors?: string;
@@ -76,6 +97,7 @@ const props = withDefaults(
     visible?: boolean;
   }>(),
   {
+    type: "radio",
     required: true,
     disabled: false,
     loading: false,

@@ -31,7 +31,14 @@
                 class="mr-2"
               />
             </div>
-            <slot name="item" v-bind="{ item, index }">
+            <slot
+              v-if="$slots.dropdown"
+              name="dropdown"
+              v-bind="{ item, index }"
+            >
+              {{ item.label }}
+            </slot>
+            <slot v-else name="item" v-bind="{ item, index }">
               {{ item.label }}
             </slot>
           </CommandItem>
