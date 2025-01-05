@@ -23,12 +23,11 @@
             @select="onChange(item.value)"
             :class="variants.item"
           >
-            <div class="flex w-6 items-center justify-center">
+            <div class="flex w-10 items-center justify-center pr-1">
               <Icon
                 v-if="selected?.value === item.value"
                 icon="check"
                 size="2xs"
-                class="mr-2"
               />
             </div>
             <slot

@@ -4,8 +4,10 @@
     <template v-if="discounted && cycle !== 0"
       >{{ t("product.terms.renews", [regularPrice]) }}.
     </template>
-    <template v-if="taxes">{{ t("product.terms.taxes") }}.</template>
-    <template v-else>{{ t("product.terms.taxesExcluded") }}.</template>
+    <template v-if="displayTaxes">
+      <template v-if="taxes">{{ t("product.terms.taxes") }}.</template>
+      <template v-else>{{ t("product.terms.taxesExcluded") }}.</template>
+    </template>
   </p>
 </template>
 
@@ -23,5 +25,6 @@ defineProps<{
   oneOff?: boolean;
   free?: boolean;
   taxes?: boolean;
+  displayTaxes?: boolean;
 }>();
 </script>
