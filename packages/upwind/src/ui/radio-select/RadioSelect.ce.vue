@@ -13,15 +13,17 @@
         :color="props.color"
         :variant="props.variant"
       >
-        <span v-if="selected" class="w-full">
+        <slot v-if="selected" name="selected" v-bind="{ item: selected }">
           <slot name="selected" v-bind="{ item: selected }">
             {{ selected?.label || props.label }}
           </slot>
-        </span>
+        </slot>
 
-        <span v-else class="opacity-50">
-          <slot name="placeholder">{{ props.placeholder }}</slot>
-        </span>
+        <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
+          <span class="opacity-50">
+            <slot name="placeholder">{{ props.placeholder }}</slot>
+          </span>
+        </slot>
 
         <template #append>
           <Icon
@@ -52,7 +54,7 @@
             :name="props.name"
             :required="props.required"
             :disabled="props.disabled"
-            :class="variants.radioSelect.input"
+            class="hidden"
           />
 
           <Label
@@ -138,6 +140,9 @@ const variants = useStyles(
 }>;
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
+const isSelected = computed(() =>
+  props.items.some(item => item.value === modelValue.value)
+);
 
 // allow for toggle of selected item
 function onChange(value: any) {
