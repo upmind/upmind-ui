@@ -4,50 +4,57 @@
     :disabled="props.disabled"
     :class="variants.radioSelect.root"
   >
-    <CollapsibleTrigger as-child>
-      <Button
-        :loading="props.loading"
-        :class="cn('group w-full', variants.radioSelect.trigger, props.class)"
-        :size="props.size"
-        :aria-expanded="open"
-        :color="props.color"
-        :variant="props.variant"
-      >
-        <slot v-if="selected" name="selected" v-bind="{ item: selected }">
-          <slot name="selected" v-bind="{ item: selected }">
-            {{ selected?.label || props.label }}
-          </slot>
-        </slot>
-
-        <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
-          <span class="opacity-50">
-            <slot name="placeholder">{{ props.placeholder }}</slot>
-          </span>
-        </slot>
-
-        <template #append>
-          <Icon
-            class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
-            icon="arrow-down"
-            size="xs"
+    <RadioGroup
+      :disabled="props.disabled"
+      :model-value="modelValue"
+      :default-value="defaultValue"
+      :class="variants.radioSelect.items"
+      @update:model-value="onChange"
+    >
+      <CollapsibleTrigger as-child>
+        <Button
+          :loading="props.loading"
+          :class="cn('group w-full', variants.radioSelect.trigger, props.class)"
+          :size="props.size"
+          :aria-expanded="open"
+          :color="props.color"
+          :variant="props.variant"
+        >
+          <RadioGroupItem
+            :name="props.name"
+            :required="props.required"
+            :disabled="props.disabled"
           />
-        </template>
-      </Button>
-    </CollapsibleTrigger>
 
-    <CollapsibleContent>
-      <RadioGroup
-        :disabled="props.disabled"
-        :model-value="modelValue"
-        :default-value="defaultValue"
-        :class="variants.radioSelect.items"
-        @update:model-value="onChange"
-      >
+          <slot v-if="selected" name="selected" v-bind="{ item: selected }">
+            <slot name="selected" v-bind="{ item: selected }">
+              {{ selected?.label || props.label }}
+            </slot>
+          </slot>
+
+          <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
+            <span class="opacity-50">
+              <slot name="placeholder">{{ props.placeholder }}</slot>
+            </span>
+          </slot>
+
+          <template #append>
+            <Icon
+              class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
+              icon="arrow-down"
+              size="xs"
+            />
+          </template>
+        </Button>
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
         <div
           v-for="(item, index) in items"
           :key="item.id || index"
           :class="variants.radioSelect.item"
         >
+          <!-- Required for the selector to work -->
           <RadioGroupItem
             :id="`${props.name}-${index}`"
             :value="item.value"
@@ -66,8 +73,8 @@
             </slot>
           </Label>
         </div>
-      </RadioGroup>
-    </CollapsibleContent>
+      </CollapsibleContent>
+    </RadioGroup>
   </Collapsible>
 </template>
 
