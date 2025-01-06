@@ -14,7 +14,8 @@
         v-auto-animate
         class="col-span-12"
         :class="{
-          [`mt-${props.gap}`]: !item.group || item.primary,
+          [`mt-${props.gap}`]:
+            index >= 12 / props.size && (!item.group || item.primary),
           [`md:col-span-${props.size}`]: props.size,
         }"
       >
