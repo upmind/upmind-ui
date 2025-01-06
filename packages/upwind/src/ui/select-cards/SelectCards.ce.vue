@@ -13,7 +13,7 @@
         />
       </div>
     </PopoverTrigger>
-    <PopoverContent class="w-full p-0" align="start">
+    <PopoverContent class="w-full p-0" align="end">
       <Command>
         <CommandGroup>
           <CommandItem
