@@ -56,7 +56,7 @@
         >
           <!-- Required for the selector to work -->
           <RadioGroupItem
-            :id="`${props.name}-${overrideIndex || index}`"
+            :id="`${props.name}-${overrideIndex + index || index}`"
             :value="item.value"
             :name="props.name"
             :required="props.required"
@@ -65,7 +65,7 @@
           />
 
           <Label
-            :for="`${props.name}-${overrideIndex || index}`"
+            :for="`${props.name}-${overrideIndex + index || index}`"
             :class="cn(variants.radioSelect.label)"
           >
             <slot name="item" v-bind="{ item, index }">
