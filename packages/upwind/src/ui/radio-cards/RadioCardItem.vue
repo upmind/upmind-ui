@@ -35,7 +35,7 @@ import Label from "../label/Label.ce.vue";
 
 const props = defineProps<{
   item: any;
-  index: number | string;
+  index: number;
   name?: string;
   label?: string;
   sublabel?: string;

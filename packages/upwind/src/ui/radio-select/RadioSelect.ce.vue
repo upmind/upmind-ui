@@ -56,7 +56,7 @@
         >
           <!-- Required for the selector to work -->
           <RadioGroupItem
-            :id="`${props.name}-${index}`"
+            :id="`${props.name}-${overrideIndex || index}`"
             :value="item.value"
             :name="props.name"
             :required="props.required"
@@ -65,7 +65,7 @@
           />
 
           <Label
-            :for="`${props.name}-${index}`"
+            :for="`${props.name}-${overrideIndex || index}`"
             :class="cn(variants.radioSelect.label)"
           >
             <slot name="item" v-bind="{ item, index }">
@@ -111,6 +111,7 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   loading: false,
   placeholder: "Select an option",
   required: false,
+  overrideIndex: 0,
   // -- variants
   color: "base",
   variant: "control",

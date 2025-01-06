@@ -19,7 +19,7 @@
       >
         <RadioCardItem
           :item="item"
-          :index="index"
+          :index="overrideIndex"
           :name="props.name"
           :label="item?.label"
           :required="props.required"
@@ -60,6 +60,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   loading: false,
   placeholder: "Select an option",
   required: false,
+  overrideIndex: 0,
   // -- variants
   color: "base",
   variant: "control",
