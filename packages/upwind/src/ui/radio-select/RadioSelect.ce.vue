@@ -21,6 +21,10 @@
           :variant="props.variant"
         >
           <RadioGroupItem
+            :id="manuallySelected ? manuallySelected.value : first(items).value"
+            :value="
+              manuallySelected ? manuallySelected.value : first(items).value
+            "
             :name="props.name"
             :required="props.required"
             :disabled="props.disabled"
@@ -148,9 +152,11 @@ const variants = useStyles(
 }>;
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
-const isSelected = computed(() =>
-  props.items.some(item => item.value === modelValue.value)
-);
+const manuallySelected = computed(() => {
+  return selected.value && selected.value !== first(props.items)
+    ? selected.value
+    : undefined;
+});
 
 // allow for toggle of selected item
 function onChange(value: any) {
