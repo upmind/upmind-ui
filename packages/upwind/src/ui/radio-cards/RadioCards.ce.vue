@@ -7,37 +7,17 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div class="grid grid-cols-12 gap-x-3">
+    <div class="grid grid-cols-12 gap-3">
       <div
         v-for="(item, index) in items"
         :key="item.id || index"
         v-auto-animate
         class="col-span-12"
         :class="{
-          [`mt-${props.gap}`]:
-            index >= 12 / props.size && (!item.group || item.primary),
           [`md:col-span-${props.size}`]: props.size,
         }"
       >
-        <RadioCardItemExpandable
-          v-if="item.group"
-          :item="item"
-          :name="props.name || ''"
-          :required="props.required"
-          :disabled="props.disabled"
-          :model-value="modelValue"
-          :variants="variants"
-          :expanded="expandedItems.has(item.group ?? '')"
-          :is-last-in-group="isLastInGroup(item, index)"
-          @expand="toggleExpanded(item.group)"
-        >
-          <template #item="slotProps">
-            <slot name="item" v-bind="slotProps" />
-          </template>
-        </RadioCardItemExpandable>
-
         <RadioCardItem
-          v-else
           :item="item"
           :index="index"
           :name="props.name"
