@@ -26,7 +26,6 @@
           :disabled="props.disabled"
           :model-value="modelValue"
           :variants="variants"
-          :expanded="expandedItems.has(item.group ?? '')"
         >
           <template #item="slotProps">
             <slot name="item" v-bind="slotProps" />
@@ -39,7 +38,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -49,11 +48,7 @@ import config from "./radioCards.config";
 
 // --- components
 import { RadioGroup } from "../radio-group";
-import RadioCardItemExpandable from "./RadioCardItemExpandable.vue";
 import RadioCardItem from "./RadioCardItem.vue";
-
-// --- utils
-import { xor } from "lodash-es";
 
 // --- types
 import type { RadioCardsProps } from "./types";
@@ -109,16 +104,5 @@ function onChange(value: any) {
   if (!props.required && modelValue.value == value)
     modelValue.value = undefined;
   else modelValue.value = value;
-}
-
-const expandedItems = ref(new Set<string>());
-function toggleExpanded(itemId: string) {
-  expandedItems.value = new Set(xor([...expandedItems.value], [itemId]));
-}
-
-function isLastInGroup(currentItem: any, currentIndex: number) {
-  if (!currentItem.group) return true;
-  const nextItem = props.items[currentIndex + 1];
-  return !nextItem || nextItem.group !== currentItem.group;
 }
 </script>
