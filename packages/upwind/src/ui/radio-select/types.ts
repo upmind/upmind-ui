@@ -15,6 +15,7 @@ export interface RadioSelectProps extends RadioGroupRootProps {
   placeholder?: string;
   noneText?: string;
   required?: boolean;
+  overrideIndex?: number;
   // --- state
   items: RadioSelectItemProps[];
   loading?: boolean;
