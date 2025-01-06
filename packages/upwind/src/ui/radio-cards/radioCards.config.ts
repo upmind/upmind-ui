@@ -14,7 +14,7 @@ export const rootVariants = cva(`w-full gap-0`, {
 });
 
 export const itemVariants = cva(
-  "hover:bg-control-active-hover flex items-start space-x-2 border border-b-0 bg-control text-control-foreground shadow-sm transition-all duration-200",
+  "hover:bg-control-active-hover flex items-start space-x-1 border border-b-0 bg-control text-control-foreground shadow-sm transition-all duration-200",
   {
     variants: {
       layout: {
@@ -48,6 +48,6 @@ export default {
     label: cva(
       "m-0 h-full w-full cursor-pointer rounded-md py-3.5 pr-4 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
-    input: cva("my-3 ml-3 mr-1 mt-[0.9rem] leading-normal text-control-active"),
+    input: cva("my-3 ml-4 mr-1 mt-4 leading-normal text-control-active"),
   },
 };
