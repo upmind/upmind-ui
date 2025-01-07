@@ -29,4 +29,5 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   // ---
   upwindConfig?: { tooltip: Partial<SelectCardsProps> };
   class?: HTMLAttributes["class"];
+  contentClass?: HTMLAttributes["class"];
 }

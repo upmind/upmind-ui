@@ -58,7 +58,7 @@
 
       <component
         :is="collapsible ? CollapsibleContent : PopoverContent"
-        :class="variants.select.content"
+        :class="cn(variants.select.content, props.contentClass)"
       >
         <div
           v-for="(item, index) in items"
@@ -133,6 +133,7 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   separate: false,
   // --- styles
   class: "",
+  contentClass: "",
 });
 
 const emits = defineEmits(["update:modelValue"]);

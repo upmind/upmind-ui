@@ -243,29 +243,45 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-4"
-          ),
-          // input: cva("text-primary"),
-          header: cva(
-            "flex flex-1 flex-wrap items-center gap-x-2 gap-y-1 leading-tight",
+            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-4 rounded-md",
             {
               variants: {
                 select: {
-                  false: "justify-between",
+                  true: "w-full items-center justify-between",
                 },
               },
             }
           ),
-          footer: cva("flex w-full flex-none flex-col self-end"),
+          // input: cva("text-primary"),
+          header: cva("flex items-center gap-x-2 gap-y-1 leading-tight", {
+            variants: {
+              select: {
+                false: "flex-1 flex-wrap items-center justify-between",
+              },
+            },
+          }),
+          footer: cva("flex font-medium tracking-wide", {
+            variants: {
+              select: {
+                false: "w-full flex-col self-end",
+                true: "items-center gap-x-2",
+              },
+            },
+          }),
           // ---
-          title: cva("text-md m-0 font-normal"),
+          title: cva("text-md m-0 font-medium"),
           text: cva(
             "text-emphasis-medium m-0 block w-full flex-none text-sm font-medium"
           ),
-          total: cva("text-2xl font-medium leading-snug tracking-wide"),
-          discount: cva(
-            "text-emphasis-medium text-sm font-medium leading-snug tracking-wide line-through"
-          ),
+          total: cva("font-medium", {
+            variants: {
+              select: {
+                true: "",
+                false: "text-2xl",
+              },
+            },
+          }),
+          discount: cva("text-emphasis-medium text-sm"),
         },
       },
       // ---
