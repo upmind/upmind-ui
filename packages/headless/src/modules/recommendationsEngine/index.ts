@@ -69,6 +69,13 @@ export const useRecommendationsEngine = () => {
       });
     },
 
+    fetchRecommendation: function (value: string) {
+      service.send({
+        type: "FETCH",
+        data: value,
+      });
+    },
+
     /*
      * Mark the recommendations as seen. Optinally provide an array of ids to mark as seen.
      * If no values are provided, all recommendations will be marked as seen.

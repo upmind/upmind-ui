@@ -36,6 +36,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "./ui/carousel";
 import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
@@ -132,6 +133,7 @@ export {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselApi,
   Combobox,
   Dialog,
   Drawer,
