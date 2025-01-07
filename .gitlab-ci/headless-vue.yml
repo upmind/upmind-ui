@@ -46,6 +46,9 @@
     - dependencies
     - (headless-vue) build
     - (headless-vue) check version
+  dependencies:
+    - dependencies
+    - (headless-vue) build
   script:
     - echo "${INTERNAL_NPMRC}" > .npmrc
     - npm --workspace packages/headless-vue publish
@@ -58,6 +61,10 @@
       when: manual
   needs:
     - dependencies
+    - (headless-vue) build
     - (headless-vue) publish internal
+  dependencies:
+    - dependencies
+    - (headless-vue) build
   script:
     - npm --workspace packages/headless-vue publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
