@@ -20,10 +20,8 @@
       :disabled="props.disabled || props.processing"
       :errors="props.errors"
       :model-value="props.modelValue?.toString()"
+      content-class="!max-h-[18.5rem]"
       @update:modelValue="doResolve"
-      :radio="false"
-      collapsible
-      separate
     >
       <template #item="{ item }">
         <CardTermPerMonth
@@ -38,8 +36,9 @@
           v-if="isMonthly(item)"
           v-bind="getTerm(item.value)"
           select
+          class="pr-3"
         />
-        <CardTerm v-else v-bind="getTerm(item.value)" select />
+        <CardTerm v-else v-bind="getTerm(item.value)" select class="pr-3" />
       </template>
     </SelectCards>
   </FormField>

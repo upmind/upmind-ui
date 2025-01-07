@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "h-auto min-h-10 justify-start rounded-md py-3 pl-4 text-left !text-primary",
+  "h-auto min-h-10 justify-start rounded-md px-4 py-3 text-left !text-primary",
   {
     variants: {
       width: {
@@ -18,11 +18,11 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted flex items-start space-x-2 rounded-lg transition-all duration-300",
+  "hover:bg-control-active-muted flex items-start space-x-2 rounded-md transition-all duration-300",
   {
     variants: {
       collapsible: {
-        false: "border-b border-b-control last:border-b-0",
+        false: "rounded-none border-b border-b-control last:border-b-0",
         true: "border border-t-0 border-control",
       },
       separate: {
@@ -32,13 +32,16 @@ export const itemVariants = cva(
   }
 );
 
-export const contentVariants = cva("!w-[--radix-popover-trigger-width] p-0", {
-  variants: {
-    separate: {
-      true: "mt-2 flex flex-col gap-y-2",
+export const contentVariants = cva(
+  "max-h-72 !w-[--radix-popover-trigger-width] overflow-hidden overflow-y-scroll rounded-md p-0",
+  {
+    variants: {
+      separate: {
+        true: "mt-2 flex flex-col gap-y-2",
+      },
     },
-  },
-});
+  }
+);
 
 export const groupVariants = cva("w-full", {
   variants: {
@@ -50,7 +53,7 @@ export const groupVariants = cva("w-full", {
 
 export default {
   select: {
-    root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded-md`),
+    root: cva(`${ringClasses} ${invalidRingClasses} w-full`),
     content: contentVariants,
     trigger: triggerVariants,
     item: itemVariants,
