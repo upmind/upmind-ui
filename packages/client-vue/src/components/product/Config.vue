@@ -91,7 +91,7 @@
         <component
           v-if="meta.hasTerms"
           :is="
-            product.meta.uischema.billing.control === 'TermsConfigSelect'
+            product?.meta?.uischema?.billing?.control === 'TermsConfigSelect'
               ? TermsConfigSelect
               : TermsConfigGrid
           "
