@@ -28,11 +28,10 @@
       layout="grid"
       :ring="false"
     >
-      <template #item="slotProps">
+      <template #selected="{ item: { value } }">
         <CardSubproduct
-          v-if="slotProps.item"
-          v-bind="getSubproductValue(slotProps.item.value)"
-          @update:quantity="doUpdateQuantity(slotProps.item.value, $event)"
+          v-bind="getSubproductValue(value)"
+          @update:quantity="doUpdateQuantity(value, $event)"
         />
       </template>
     </component>
@@ -152,10 +151,4 @@ const blurred = ref(false);
 function doUpdateQuantity(value: any, quantity: number) {
   emit("update:quantity", value, quantity);
 }
-
-const canChangeQuantity = computed(() => {
-  return props.subproduct?.values?.some(
-    value => getSubproductValue(value.id)?.canChangeQuantity
-  );
-});
 </script>
