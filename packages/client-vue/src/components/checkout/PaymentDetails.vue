@@ -60,7 +60,7 @@
                   "
                   :loading="basketMeta.isProcessingDetails"
                   @click.prevent="handleCheckout"
-                  color="secondary"
+                  :color="color"
                   :label="getGatewayi18n(item, 'actions.submit')"
                   class="block w-full self-center md:inline-block md:w-auto"
                 />
@@ -100,8 +100,6 @@
 // --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { first } from "lodash-es";
-import { computed } from "vue";
 
 // --- internal
 import {
@@ -111,13 +109,16 @@ import {
 import { UpmPaymentNotRequired } from "@upmind-automation/client-vue";
 
 // --- components
-import { Icon, Button, Loading } from "@upmind-automation/upwind";
 import {
+  Icon,
+  Button,
+  Loading,
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@upmind-automation/upwind";
+
 import VPaymentGateway from "./PaymentGateway.vue";
 
 // --- types
@@ -128,6 +129,7 @@ import { set } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
+  color: "secondary",
   cardComponent: "div",
   class: "bg-base shadow-sm",
 });

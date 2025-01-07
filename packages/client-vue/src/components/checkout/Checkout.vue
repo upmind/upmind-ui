@@ -40,7 +40,7 @@
                 <UpmBillingDetails
                   :model-value="billingDetailsModel"
                   @update:modelValue="billingDetailsUpdate"
-                  color="secondary"
+                  :color="color"
                 />
               </slot>
             </component>
@@ -58,6 +58,7 @@
               <UpmPaymentDetails
                 :card-component="props.cardComponent"
                 :class="styles.checkout.paymentDetails"
+                :color="color"
               />
             </slot>
           </component>
@@ -151,6 +152,7 @@ const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 const props = withDefaults(defineProps<CheckoutProps>(), {
   cardComponent: UpmCard,
   contentSectionComponent: UpmContentSection,
+  color: "secondary",
 });
 
 const styles = useStyles(["checkout"], meta, config);
