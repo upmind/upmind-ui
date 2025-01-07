@@ -1,26 +1,31 @@
 <template>
-  <Collapsible
+  <component
+    :is="popover ? Popover : Collapsible"
     v-model:open="open"
-    :disabled="props.disabled"
-    :class="variants.radioSelect.root"
+    :disabled="disabled"
+    class="w-full"
   >
     <RadioGroup
-      :disabled="props.disabled"
+      :disabled="disabled"
       :model-value="modelValue"
       :default-value="defaultValue"
-      :class="variants.radioSelect.items"
       @update:model-value="onChange"
+      :class="variants.radioSelect.group"
     >
-      <CollapsibleTrigger as-child>
+      <component :is="popover ? PopoverTrigger : CollapsibleTrigger" as-child>
         <Button
-          :loading="props.loading"
-          :class="cn('group w-full', variants.radioSelect.trigger, props.class)"
-          :size="props.size"
+          :loading="loading"
+          :class="
+            cn('group !w-full', variants.radioSelect.trigger, props.class)
+          "
+          :size="size"
           :aria-expanded="open"
-          :color="props.color"
-          :variant="props.variant"
+          :color="color"
+          :variant="variant"
+          block
         >
           <RadioGroupItem
+            v-if="radio"
             :id="manuallySelected ? manuallySelected.value : first(items).value"
             :value="
               manuallySelected ? manuallySelected.value : first(items).value
@@ -32,13 +37,13 @@
 
           <slot v-if="selected" name="selected" v-bind="{ item: selected }">
             <slot name="selected" v-bind="{ item: selected }">
-              {{ selected?.label || props.label }}
+              {{ selected?.label || label }}
             </slot>
           </slot>
 
           <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
             <span class="opacity-50">
-              <slot name="placeholder">{{ props.placeholder }}</slot>
+              <slot name="placeholder">{{ placeholder }}</slot>
             </span>
           </slot>
 
@@ -50,9 +55,12 @@
             />
           </template>
         </Button>
-      </CollapsibleTrigger>
+      </component>
 
-      <CollapsibleContent>
+      <component
+        :is="popover ? PopoverContent : CollapsibleContent"
+        class="!w-[--radix-popover-trigger-width] p-0"
+      >
         <div
           v-for="(item, index) in items"
           :key="item.id || index"
@@ -60,16 +68,16 @@
         >
           <!-- Required for the selector to work -->
           <RadioGroupItem
-            :id="`${props.name}-${overrideIndex + index || index}`"
+            :id="`${name}-${overrideIndex + index || index}`"
             :value="item.value"
-            :name="props.name"
-            :required="props.required"
-            :disabled="props.disabled"
+            :name="name"
+            :required="required"
+            :disabled="disabled"
             class="hidden"
           />
 
           <Label
-            :for="`${props.name}-${overrideIndex + index || index}`"
+            :for="`${name}-${overrideIndex + index || index}`"
             :class="cn(variants.radioSelect.label)"
           >
             <slot name="item" v-bind="{ item, index }">
@@ -77,9 +85,9 @@
             </slot>
           </Label>
         </div>
-      </CollapsibleContent>
+      </component>
     </RadioGroup>
-  </Collapsible>
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -102,6 +110,9 @@ import {
   CollapsibleTrigger,
 } from "../collapsible";
 
+// --- components
+import { Popover, PopoverTrigger, PopoverContent } from "../popover";
+
 // --- utils
 import { find, first } from "lodash-es";
 
@@ -116,9 +127,12 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
+  popover: true,
+  radio: true,
   // -- variants
   color: "base",
   variant: "control",
+  width: "full",
   // --- styles
   class: "",
 });
@@ -133,6 +147,7 @@ const open = ref(false);
 
 const meta = computed(() => ({
   color: props.color,
+  popover: props.popover,
 }));
 
 const variants = useStyles(
@@ -148,6 +163,7 @@ const variants = useStyles(
     item: string;
     input: string;
     label: string;
+    group: string;
   };
 }>;
 

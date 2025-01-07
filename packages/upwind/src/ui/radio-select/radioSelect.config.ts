@@ -17,14 +17,33 @@ export const triggerVariants = cva(
   }
 );
 
+export const itemVariants = cva(
+  "hover:bg-control-active-muted flex items-start space-x-2 transition-all duration-300",
+  {
+    variants: {
+      popover: {
+        true: "border-b border-b-control last:border-b-0",
+        false: "border border-t-0 border-control",
+      },
+    },
+  }
+);
+
+export const groupVariants = cva("w-full", {
+  variants: {
+    popover: {
+      false: "gap-0",
+    },
+  },
+});
+
 export default {
   radioSelect: {
     root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded-md`),
     trigger: triggerVariants,
     items: cva("gap-0"),
-    item: cva(
-      "hover:bg-control-active-muted flex items-start space-x-2 border border-t-0 border-control transition-all duration-300"
-    ),
+    item: itemVariants,
+    group: groupVariants,
     label: cva(
       "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
