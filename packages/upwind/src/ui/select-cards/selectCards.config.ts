@@ -18,16 +18,27 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted flex items-start space-x-2 transition-all duration-300",
+  "hover:bg-control-active-muted flex items-start space-x-2 rounded-lg transition-all duration-300",
   {
     variants: {
       collapsible: {
         false: "border-b border-b-control last:border-b-0",
         true: "border border-t-0 border-control",
       },
+      separate: {
+        true: "border border-control",
+      },
     },
   }
 );
+
+export const contentVariants = cva("!w-[--radix-popover-trigger-width] p-0", {
+  variants: {
+    separate: {
+      true: "mt-2 flex flex-col gap-y-2",
+    },
+  },
+});
 
 export const groupVariants = cva("w-full", {
   variants: {
@@ -40,10 +51,11 @@ export const groupVariants = cva("w-full", {
 export default {
   select: {
     root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded-md`),
+    content: contentVariants,
     trigger: triggerVariants,
-    items: cva("gap-0"),
     item: itemVariants,
     group: groupVariants,
+    items: cva("gap-0"),
     label: cva(
       "m-0 h-full w-full cursor-pointer rounded-md px-2 py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),

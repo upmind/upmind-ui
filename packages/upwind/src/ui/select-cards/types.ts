@@ -16,8 +16,6 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   noneText?: string;
   required?: boolean;
   overrideIndex?: number;
-  collapsible?: boolean;
-  radio?: boolean;
   // --- state
   items: SelectCardsItemProps[];
   loading?: boolean;
@@ -25,6 +23,9 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
+  collapsible?: boolean;
+  radio?: boolean;
+  separate?: boolean;
   // ---
   upwindConfig?: { tooltip: Partial<SelectCardsProps> };
   class?: HTMLAttributes["class"];
