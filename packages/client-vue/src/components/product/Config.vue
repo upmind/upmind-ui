@@ -87,9 +87,14 @@
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <!-- terms -->
+
         <component
           v-if="meta.hasTerms"
-          :is="props.terms === 'radio' ? TermsConfigGrid : TermsConfigSelect"
+          :is="
+            product.meta.uischema.billing.control === 'TermsConfigSelect'
+              ? TermsConfigSelect
+              : TermsConfigGrid
+          "
           :errors="errors?.term"
           :items="terms"
           :label="t('product.terms.label')"
@@ -233,7 +238,6 @@ const props = withDefaults(
     noTitle?: boolean;
     noFooter?: boolean;
     class?: HTMLAttributes["class"];
-    terms?: "radio" | "select";
   }>(),
   {
     as: "form",
@@ -242,7 +246,6 @@ const props = withDefaults(
     class: "",
     noHeader: false,
     noFooter: false,
-    terms: "radio",
   }
 );
 
@@ -260,7 +263,6 @@ const {
   model,
   meta,
   summary,
-  updateQuantity,
   updateTerm,
   setAttributes,
   setOptions,
