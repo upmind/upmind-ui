@@ -87,8 +87,9 @@
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <!-- terms -->
-        <TermsConfigGrid
+        <component
           v-if="meta.hasTerms"
+          :is="props.terms === 'radio' ? TermsConfigGrid : TermsConfigSelect"
           :errors="errors?.term"
           :items="terms"
           :label="t('product.terms.label')"
@@ -97,7 +98,6 @@
           @update:modelValue="updateTerm"
           required
           :monthly="meta.hasMonthlyTerms"
-          :type="props.terms"
         >
           <template #item="slotProps">
             <slot name="item" v-bind="slotProps"></slot>
@@ -105,7 +105,7 @@
           <template #dropdown="slotProps">
             <slot name="dropdown" v-bind="slotProps"></slot>
           </template>
-        </TermsConfigGrid>
+        </component>
 
         <!-- options -->
         <VSubproductCards
@@ -212,6 +212,7 @@ import config from "./config.cva";
 // --- components
 import { Markdown, Lineclamp } from "@upmind-automation/upwind";
 import TermsConfigGrid from "./TermsConfigGrid.vue";
+import TermsConfigSelect from "./TermsConfigSelect.vue";
 import VSubproductCards from "./SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 

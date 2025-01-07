@@ -12,25 +12,26 @@
     :tooltip="props.description"
     auto-focus
   >
-    <RadioCards
+    <SelectCards
       id="terms"
       name="terms"
       :required="props.required"
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
       :errors="props.errors"
-      :none-text="t('product.select.none')"
-      :placeholder="t('product.select.placeholder')"
-      :class="styles.product.config.grid.items"
-      layout="grid"
       :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
+      :radio="false"
+      collapsible
+      separate
     >
-      <template #item="{ item }">
-        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
-        <CardTerm v-else v-bind="getTerm(item.value)" />
+      <template v-if="$slots.item" #selected="{ item }">
+        <slot name="item" v-bind="getTerm(item.value)" />
       </template>
-    </RadioCards>
+      <template v-if="$slots.dropdown" #item="{ item }">
+        <slot name="dropdown" v-bind="getTerm(item.value)" />
+      </template>
+    </SelectCards>
   </FormField>
 
   <!-- <pre v-if="errors">{{ errors }}</pre> -->
@@ -46,9 +47,7 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { RadioCards, FormField } from "@upmind-automation/upwind";
-import CardTerm from "./TermCard.vue";
-import CardTermPerMonth from "./TermPerMonthCard.vue";
+import { FormField, SelectCards } from "@upmind-automation/upwind";
 
 // --- utils
 import { isNil, map, toNumber, find } from "lodash-es";
