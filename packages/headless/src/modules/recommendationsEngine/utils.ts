@@ -18,6 +18,7 @@ import {
   toSafeInteger,
   uniqWith,
   includes,
+  first,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -66,14 +67,26 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
       if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
         return related;
 
+      // Lets allow the back end to hide the native related products.
+      // Any meta level (product, category) can have the hide_native_related flag
+      const hideNative = true;
+      // const hideNative = some(
+      //   concat(
+      //     basketProduct?.product?.meta,
+      //     basketProduct?.product?.category?.meta
+      //   ),
+      //   "hide_native_related"
+      // );
+
       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
       // so we need to filter out the duplicates
+
       const allRelated = reduce(
         concat(
           related,
-          basketProduct?.product?.related,
           basketProduct?.product?.meta?.related,
-          basketProduct?.product?.category?.meta?.related
+          basketProduct?.product?.category?.meta?.related,
+          hideNative ? [] : basketProduct?.product?.related
         ),
         (result: RelatedProduct[], rawRelated) => {
           const valid =
@@ -186,8 +199,8 @@ export function parseRecommendation(
   const terms = parseTerms(raw?.product?.prices);
   const term =
     find(terms, { cycle: config?.bcm }) ??
-    find(terms, { cycle: product.cycle });
-
+    find(terms, { cycle: product.cycle }) ??
+    first(terms);
   // --- additional state
   set(term.meta, "added", meta?.added ?? false);
   set(term.meta, "seen", meta?.seen ?? false);

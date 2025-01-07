@@ -1,7 +1,7 @@
 <template>
   <div
     class="auth"
-    :class="styles.session.auth.root"
+    :class="cn(styles.session.auth.root, $props.class)"
     v-if="!meta.isAuthenticated"
   >
     <Tabs
@@ -42,7 +42,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
 import { Form } from "@upmind-automation/upwind";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- custom elements
@@ -60,13 +60,14 @@ export default defineComponent({
   emits: ["update:modelValue"],
   props: {
     modelValue: {
-      type: String as PropType<AuthProps["form"]>,
+      type: String as PropType<AuthProps["show"]>,
       default: "login",
     },
     noTabs: { type: Boolean, default: false },
     blockTabs: { type: Boolean, default: false },
     stretchTabs: { type: Boolean, default: false },
     color: { type: String },
+    class: { type: String },
   },
   setup(props) {
     const { t } = useI18n();
@@ -88,6 +89,7 @@ export default defineComponent({
 
     return {
       t,
+      cn,
       meta,
       errors,
       styles,

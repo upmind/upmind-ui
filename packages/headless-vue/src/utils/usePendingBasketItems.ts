@@ -41,6 +41,7 @@ enum NextBasketItemTypes {
 // -----------------------------------------------------------------------------
 export const usePendingBasketItems = () => {
   const router = useRouter();
+  const { productId, basketProductId, productConfigs } = useQueryParams();
 
   const subscriptions: Ref<null | Record<string, Subscription>> = ref({});
 
@@ -180,7 +181,6 @@ export const usePendingBasketItems = () => {
 
   function syncPendingBasketItems(): Promise<ActorRef<any, any>>[] {
     // get any productIds from the url query params and store them in our pending basket items
-    const { productConfigs } = useQueryParams();
     productIds.value = map(productConfigs, "productId");
     forEach(productConfigs, (product: ProductModel) => {
       // theres a chance we alrady have this product in our pending basket items
@@ -298,14 +298,13 @@ export const usePendingBasketItems = () => {
     return {
       hasInvalidBasketItems: !isEmpty(invalidBasketItems.value),
       hasNextBasketItem:
-        !isEmpty(pendingBasketItems.value) || !isEmpty(productsInvalid.value),
+        !isEmpty(invalidBasketItems.value) ||
+        !isEmpty(pendingBasketItems.value) ||
+        !isEmpty(productsInvalid.value),
     };
   });
 
   const invalidBasketItems = computed(() => {
-    // get our current productId from the url query params
-    const { productId, basketProductId } = useQueryParams();
-
     // NB exclude our current product Id from the pending basket items
     const pending = reject(
       map(productsPending.value, item => {
