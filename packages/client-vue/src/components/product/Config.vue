@@ -98,14 +98,7 @@
           @update:modelValue="updateTerm"
           required
           :monthly="meta.hasMonthlyTerms"
-        >
-          <template #item="slotProps">
-            <slot name="item" v-bind="slotProps"></slot>
-          </template>
-          <template #dropdown="slotProps">
-            <slot name="dropdown" v-bind="slotProps"></slot>
-          </template>
-        </component>
+        />
 
         <!-- options -->
         <VSubproductCards
