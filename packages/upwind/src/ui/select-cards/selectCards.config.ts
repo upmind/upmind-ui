@@ -1,17 +1,52 @@
 import { cva } from "class-variance-authority";
+import { ringClasses, invalidRingClasses } from "../input/input.config";
 
-// -----------------------------------------------------------------------------
-
-export const selectVariants = cva(
-  "hover:bg-control-active-hover !flex w-full !items-center justify-center gap-0 space-x-2 rounded-md border border-control bg-control !py-3 !pl-4 !pr-2 !text-md text-control-foreground shadow-sm transition-all duration-200"
+export const triggerVariants = cva(
+  "h-auto min-h-10 justify-start rounded-md py-3 text-left !text-primary",
+  {
+    variants: {
+      width: {
+        full: "w-full",
+        auto: "w-auto",
+        app: "w-app",
+      },
+    },
+    defaultVariants: {
+      width: "full",
+    },
+  }
 );
 
 export const itemVariants = cva(
-  "!text-emphasis-medium !hover:text-emphasis-none"
+  "hover:bg-control-active-muted flex items-start space-x-2 transition-all duration-300",
+  {
+    variants: {
+      collapsible: {
+        false: "border-b border-b-control last:border-b-0",
+        true: "border border-t-0 border-control",
+      },
+    },
+  }
 );
 
-// -----------------------------------------------------------------------------
+export const groupVariants = cva("w-full", {
+  variants: {
+    collapsible: {
+      true: "gap-0",
+    },
+  },
+});
+
 export default {
-  select: selectVariants,
-  item: itemVariants,
+  select: {
+    root: cva(`${ringClasses} ${invalidRingClasses} w-full rounded-md`),
+    trigger: triggerVariants,
+    items: cva("gap-0"),
+    item: itemVariants,
+    group: groupVariants,
+    label: cva(
+      "m-0 h-full w-full cursor-pointer rounded-md px-2 py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+    ),
+    input: cva("my-3 ml-3 mr-1 bg-control leading-normal text-control-active"),
+  },
 };
