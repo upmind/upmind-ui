@@ -45,6 +45,7 @@
       @update:modelValue="doResolve"
       :radio="false"
       collapsible
+      separate
     >
       <template v-if="$slots.item" #selected="{ item }">
         <slot name="item" v-bind="getTerm(item.value)" />

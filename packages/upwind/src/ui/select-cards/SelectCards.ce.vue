@@ -60,7 +60,7 @@
 
       <component
         :is="collapsible ? CollapsibleContent : PopoverContent"
-        class="!w-[--radix-popover-trigger-width] p-0"
+        :class="variants.select.content"
       >
         <div
           v-for="(item, index) in items"
@@ -132,6 +132,7 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   color: "base",
   variant: "control",
   width: "full",
+  separate: false,
   // --- styles
   class: "",
 });
@@ -147,6 +148,7 @@ const open = ref(false);
 const meta = computed(() => ({
   color: props.color,
   collapsible: props.collapsible,
+  separate: props.separate,
 }));
 
 const variants = useStyles(
@@ -163,6 +165,7 @@ const variants = useStyles(
     input: string;
     label: string;
     group: string;
+    content: string;
   };
 }>;
 
