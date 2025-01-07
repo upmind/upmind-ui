@@ -100,7 +100,10 @@ const styles = useStyles(
 const component = computed(() => {
   const control = props.subproduct.meta?.uischema?.control;
   if (control) {
-    return mapComponent(control);
+    const component = mapComponent(control);
+    if (component) {
+      return component;
+    }
   }
 
   return props.subproduct.multiple || props.subproduct.values?.length == 1
@@ -109,10 +112,15 @@ const component = computed(() => {
 });
 
 const mapComponent = (name: string) => {
-  if (name === "select") {
-    return SelectCards;
+  // TODO: Create a helper that reliably maps the component name to the component (with a soft comparison)
+  switch (name) {
+    case "select":
+    case "selectcards":
+    case "SelectCards":
+      return SelectCards;
+    default:
+      return null;
   }
-  return RadioCards;
 };
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
