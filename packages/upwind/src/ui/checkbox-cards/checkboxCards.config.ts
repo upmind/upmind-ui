@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const rootVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full gap-0 overflow-hidden rounded-md border-control`,
+  `${ringClasses} ${invalidRingClasses} w-full gap-0 space-y-2 overflow-hidden rounded-md border-control`,
   {
     variants: {
       layout: {
