@@ -26,12 +26,20 @@
       separate
     >
       <template #item="{ item }">
-        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
-        <CardTerm v-else v-bind="getTerm(item.value)" />
+        <CardTermPerMonth
+          v-if="isMonthly(item)"
+          v-bind="getTerm(item.value)"
+          select
+        />
+        <CardTerm v-else v-bind="getTerm(item.value)" select />
       </template>
       <template #dropdown-item="{ item }">
-        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
-        <CardTerm v-else v-bind="getTerm(item.value)" />
+        <CardTermPerMonth
+          v-if="isMonthly(item)"
+          v-bind="getTerm(item.value)"
+          select
+        />
+        <CardTerm v-else v-bind="getTerm(item.value)" select />
       </template>
     </SelectCards>
   </FormField>
