@@ -192,34 +192,43 @@ function ensureId(raw: RelatedProduct) {
 
 export function parseRecommendation(
   raw: RelatedProduct,
-  meta?: { added?: boolean; seen?: boolean; processing?: boolean }
+  meta?: {
+    added?: boolean;
+    seen?: boolean;
+    processing?: boolean;
+    loading?: boolean;
+  }
 ): Recommendation {
   const product = parseProduct(raw.product);
   const config: IProductConfig = get(raw, "config", {});
   const terms = parseTerms(raw?.product?.prices);
   const term =
     find(terms, { cycle: config?.bcm }) ??
-    find(terms, { cycle: product.cycle }) ??
+    find(terms, { cycle: product?.cycle }) ??
     first(terms);
+
+  const metaInfo = get(term, "meta", {});
   // --- additional state
-  set(term.meta, "added", meta?.added ?? false);
-  set(term.meta, "seen", meta?.seen ?? false);
-  set(term.meta, "processing", meta?.processing ?? false);
+  set(metaInfo, "added", meta?.added ?? false);
+  set(metaInfo, "seen", meta?.seen ?? false);
+  set(metaInfo, "processing", meta?.processing ?? false);
+  set(metaInfo, "loading", meta?.loading ?? false);
   // ---
   return {
-    productId: product.id,
+    productId: raw.object_id,
     ...product,
     ...term,
+    meta: metaInfo,
     // --- forced overrides
     id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
     label: useTranslateField(raw, "label"),
-    name: useTranslateName(raw) || product.name,
-    description: useTranslateField(raw, "description") || product.description,
-    excerpt: useTranslateField(raw, "short_description") || product.excerpt,
-    imgUrl: raw.image_url || product.imgUrl,
+    name: useTranslateName(raw) || product?.name,
+    description: useTranslateField(raw, "description") || product?.description,
+    excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
+    imgUrl: raw.image_url || product?.imgUrl,
     // --- default config to be used when adding to basket
     config: {
-      productId: product.id,
+      productId: raw.object_id,
       quantity: toSafeInteger(
         config?.qty || product?.min || product?.step || 1
       ),

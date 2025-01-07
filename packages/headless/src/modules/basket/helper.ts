@@ -61,7 +61,6 @@ async function fetch(
 
   const data = { productId };
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
-
   return productServices.fetch(
     {
       basketId: basketSnapshot?.id,
