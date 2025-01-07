@@ -25,11 +25,13 @@
       collapsible
       separate
     >
-      <template v-if="$slots.item" #selected="{ item }">
-        <slot name="item" v-bind="getTerm(item.value)" />
+      <template #selected="{ item }">
+        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
+        <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
-      <template v-if="$slots.dropdown" #item="{ item }">
-        <slot name="dropdown" v-bind="getTerm(item.value)" />
+      <template #item="{ item }">
+        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
+        <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
     </SelectCards>
   </FormField>
@@ -48,6 +50,8 @@ import config from "./config.cva";
 
 // --- components
 import { FormField, SelectCards } from "@upmind-automation/upwind";
+import CardTerm from "./TermCard.vue";
+import CardTermPerMonth from "./TermPerMonthCard.vue";
 
 // --- utils
 import { isNil, map, toNumber, find } from "lodash-es";
