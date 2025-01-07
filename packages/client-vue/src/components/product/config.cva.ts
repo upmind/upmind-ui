@@ -263,7 +263,7 @@ export default {
           footer: cva("flex font-medium tracking-wide", {
             variants: {
               select: {
-                false: "w-full flex-col self-end",
+                false: "w-full flex-col gap-y-1.5 self-end",
                 true: "items-center gap-x-2",
               },
             },
