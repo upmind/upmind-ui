@@ -4,7 +4,7 @@ import { ringClasses, invalidRingClasses } from "../input/input.config";
 export const rootVariants = cva(`w-full gap-0`, {
   variants: {
     layout: {
-      list: `${ringClasses} ${invalidRingClasses}`,
+      list: `${ringClasses} ${invalidRingClasses} gap-2`,
       grid: "grid w-full list-none",
     },
   },
@@ -14,12 +14,12 @@ export const rootVariants = cva(`w-full gap-0`, {
 });
 
 export const itemVariants = cva(
-  "hover:bg-control-active-hover flex items-start space-x-1 border border-b-0 bg-control text-control-foreground shadow-sm transition-all duration-200",
+  "hover:bg-control-active-hover flex items-start space-x-1 border bg-control text-control-foreground shadow-sm transition-all duration-200",
   {
     variants: {
       layout: {
         list: "border-b border-control first:rounded-t-md last:rounded-b-md",
-        grid: "data-[state=checked]:bg-control-active-background hover:data-[state=checked]:bg-control-active-hover rounded-md border border-control shadow-sm",
+        grid: "h-full w-full rounded-md",
       },
       ring: {
         true: "",

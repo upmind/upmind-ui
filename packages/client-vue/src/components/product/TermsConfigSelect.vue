@@ -122,7 +122,7 @@ function getTerm(value: string) {
 }
 
 function isMonthly(item: any) {
-  return props.monthly && item.monthlyFromRegularPrice && item.cycle > 1;
+  return item.monthlyFromRegularPrice && item.cycle > 1;
 }
 function doResolve(item: string | number) {
   if (props.disabled) return;

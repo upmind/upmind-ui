@@ -7,31 +7,22 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div class="grid grid-cols-12 gap-2">
-      <div
-        v-for="(item, index) in items"
-        :key="item.id || index"
-        v-auto-animate
-        class="col-span-12"
-        :class="{
-          [`md:col-span-${props.size}`]: props.size,
-        }"
+    <div v-for="(item, index) in items" :key="item.id || index" v-auto-animate>
+      <RadioCardItem
+        :item="item"
+        :index="overrideIndex || index"
+        :name="props.name"
+        :label="item?.label"
+        :required="props.required"
+        :disabled="props.disabled"
+        :model-value="modelValue"
+        :variants="variants"
+        :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
       >
-        <RadioCardItem
-          :item="item"
-          :index="overrideIndex || index"
-          :name="props.name"
-          :label="item?.label"
-          :required="props.required"
-          :disabled="props.disabled"
-          :model-value="modelValue"
-          :variants="variants"
-        >
-          <template #item="slotProps">
-            <slot name="item" v-bind="slotProps" />
-          </template>
-        </RadioCardItem>
-      </div>
+        <template #item="slotProps">
+          <slot name="item" v-bind="slotProps" />
+        </template>
+      </RadioCardItem>
     </div>
   </RadioGroup>
 </template>

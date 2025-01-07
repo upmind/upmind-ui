@@ -1,9 +1,9 @@
 <template>
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
-      <span :class="styles.product.config.grid.item.title">
+      <strong :class="styles.product.config.grid.item.title">
         {{ t(`product.terms.${props.cycle}`, props.name) }}
-      </span>
+      </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
         <Badge color="promotion" variant="tonal" size="sm">
@@ -23,15 +23,17 @@
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <span
+      <del
         :class="styles.product.config.grid.item.discount"
         v-if="props.meta.discounted"
-        >{{
+      >
+        {{
           t("product.cycle", {
             value: props.monthlyFromRegularPrice,
           })
-        }}</span
-      >
+        }}
+      </del>
+
       <strong :class="styles.product.config.grid.item.total">{{
         t("product.cycle", {
           value: props.monthlyFromCurrentPrice,
