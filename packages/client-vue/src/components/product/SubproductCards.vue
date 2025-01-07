@@ -28,7 +28,7 @@
       layout="grid"
       :ring="false"
     >
-      <template #selected="{ item: { value } }">
+      <template #item="{ item: { value } }">
         <CardSubproduct
           v-bind="getSubproductValue(value)"
           @update:quantity="doUpdateQuantity(value, $event)"

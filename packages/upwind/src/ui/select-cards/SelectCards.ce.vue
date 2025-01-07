@@ -36,10 +36,8 @@
             :disabled="props.disabled"
           />
 
-          <slot v-if="selected" name="selected" v-bind="{ item: selected }">
-            <slot name="selected" v-bind="{ item: selected }">
-              {{ selected?.label || label }}
-            </slot>
+          <slot v-if="selected" name="item" v-bind="{ item: selected }">
+            {{ selected?.label || label }}
           </slot>
 
           <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
@@ -81,7 +79,7 @@
             :for="`${name}-${overrideIndex + index || index}`"
             :class="cn(variants.select.label)"
           >
-            <slot name="item" v-bind="{ item, index }">
+            <slot name="dropdown-item" v-bind="{ item, index }">
               {{ item.label }}
             </slot>
           </Label>

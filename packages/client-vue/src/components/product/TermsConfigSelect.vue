@@ -25,11 +25,11 @@
       collapsible
       separate
     >
-      <template #selected="{ item }">
+      <template #item="{ item }">
         <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
         <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
-      <template #item="{ item }">
+      <template #dropdown-item="{ item }">
         <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
         <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
