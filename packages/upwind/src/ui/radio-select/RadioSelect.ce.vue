@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="popover ? Popover : Collapsible"
+    :is="collapsible ? Collapsible : Popover"
     v-model:open="open"
     :disabled="disabled"
     class="w-full"
@@ -12,7 +12,10 @@
       @update:model-value="onChange"
       :class="variants.radioSelect.group"
     >
-      <component :is="popover ? PopoverTrigger : CollapsibleTrigger" as-child>
+      <component
+        :is="collapsible ? CollapsibleTrigger : PopoverTrigger"
+        as-child
+      >
         <Button
           :loading="loading"
           :class="
@@ -58,7 +61,7 @@
       </component>
 
       <component
-        :is="popover ? PopoverContent : CollapsibleContent"
+        :is="collapsible ? CollapsibleContent : PopoverContent"
         class="!w-[--radix-popover-trigger-width] p-0"
       >
         <div
@@ -127,7 +130,7 @@ const props = withDefaults(defineProps<RadioSelectProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
-  popover: true,
+  collapsible: false,
   radio: true,
   // -- variants
   color: "base",
@@ -147,7 +150,7 @@ const open = ref(false);
 
 const meta = computed(() => ({
   color: props.color,
-  popover: props.popover,
+  collapsible: props.collapsible,
 }));
 
 const variants = useStyles(

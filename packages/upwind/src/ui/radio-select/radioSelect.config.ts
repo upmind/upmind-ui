@@ -21,9 +21,9 @@ export const itemVariants = cva(
   "hover:bg-control-active-muted flex items-start space-x-2 transition-all duration-300",
   {
     variants: {
-      popover: {
-        true: "border-b border-b-control last:border-b-0",
-        false: "border border-t-0 border-control",
+      collapsible: {
+        false: "border-b border-b-control last:border-b-0",
+        true: "border border-t-0 border-control",
       },
     },
   }
@@ -31,8 +31,8 @@ export const itemVariants = cva(
 
 export const groupVariants = cva("w-full", {
   variants: {
-    popover: {
-      false: "gap-0",
+    collapsible: {
+      true: "gap-0",
     },
   },
 });
