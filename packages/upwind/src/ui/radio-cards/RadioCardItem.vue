@@ -43,16 +43,5 @@ const props = defineProps<{
   disabled: boolean;
   modelValue: any;
   variants: any;
-  expandable?: boolean;
-  minify?: boolean;
-  expanded?: boolean;
 }>();
-
-const emit = defineEmits<{
-  expand: [];
-}>();
-
-const toggleExpanded = () => {
-  emit("expand");
-};
 </script>

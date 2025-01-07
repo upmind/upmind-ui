@@ -19,7 +19,7 @@
       >
         <RadioCardItem
           :item="item"
-          :index="overrideIndex"
+          :index="overrideIndex || index"
           :name="props.name"
           :label="item?.label"
           :required="props.required"
