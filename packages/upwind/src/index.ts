@@ -38,7 +38,7 @@ import {
   DropdownMenu,
   type DropdownMenuItemProps,
 } from "./ui/dropdown-menu";
-import { SelectCards } from "./ui/select-cards";
+import { SelectCards, type SelectCardsItemProps } from "./ui/select-cards";
 import {
   UwForm,
   Form,
@@ -76,11 +76,6 @@ import { UwTooltip, Tooltip } from "./ui/tooltip";
 import { UwTextarea, Textarea, type TextareaProps } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
-import {
-  RadioSelect,
-  type RadioSelectProps,
-  type RadioSelectItemProps,
-} from "./ui/radio-select";
 import {
   RadioCards,
   type RadioCardsProps,
@@ -173,14 +168,13 @@ export {
   type InterstitialProps,
   type InputProps,
   type NumberFieldProps,
-  type RadioSelectProps,
-  type RadioSelectItemProps,
   type RadioCardsProps,
   type RadioCardsItemProps,
   type SelectProps,
   type TabItems,
   type TextareaProps,
   type DropdownMenuItemProps,
+  type SelectCardsItemProps,
 
   // --- Custom Elements
   UwAlert,
