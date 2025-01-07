@@ -11,6 +11,166 @@
           {
             "text": "BrandConfigKeys",
             "link": "/@upmind-automation/headless/enumerations/BrandConfigKeys.md"
+          },
+          {
+            "text": "GatewayAuthType",
+            "link": "/@upmind-automation/headless/enumerations/GatewayAuthType.md"
+          },
+          {
+            "text": "GatewayCtx",
+            "link": "/@upmind-automation/headless/enumerations/GatewayCtx.md"
+          },
+          {
+            "text": "GatewayProviderCodes",
+            "link": "/@upmind-automation/headless/enumerations/GatewayProviderCodes.md"
+          },
+          {
+            "text": "GatewayStoreType",
+            "link": "/@upmind-automation/headless/enumerations/GatewayStoreType.md"
+          },
+          {
+            "text": "GatewayTypes",
+            "link": "/@upmind-automation/headless/enumerations/GatewayTypes.md"
+          },
+          {
+            "text": "PaymentMethodTypes",
+            "link": "/@upmind-automation/headless/enumerations/PaymentMethodTypes.md"
+          },
+          {
+            "text": "PaymentTypes",
+            "link": "/@upmind-automation/headless/enumerations/PaymentTypes.md"
+          },
+          {
+            "text": "ProductOrderTypes",
+            "link": "/@upmind-automation/headless/enumerations/ProductOrderTypes.md"
+          },
+          {
+            "text": "QUERY_PARAMS",
+            "link": "/@upmind-automation/headless/enumerations/QUERY_PARAMS.md"
+          },
+          {
+            "text": "TaxTagTypes",
+            "link": "/@upmind-automation/headless/enumerations/TaxTagTypes.md"
+          }
+        ]
+      },
+      {
+        "text": "Interfaces",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "Basket",
+            "link": "/@upmind-automation/headless/interfaces/Basket.md"
+          },
+          {
+            "text": "BasketContext",
+            "link": "/@upmind-automation/headless/interfaces/BasketContext.md"
+          },
+          {
+            "text": "BasketEvent",
+            "link": "/@upmind-automation/headless/interfaces/BasketEvent.md"
+          },
+          {
+            "text": "BasketProduct",
+            "link": "/@upmind-automation/headless/interfaces/BasketProduct.md"
+          },
+          {
+            "text": "BasketProductConfig",
+            "link": "/@upmind-automation/headless/interfaces/BasketProductConfig.md"
+          },
+          {
+            "text": "BasketProductSummaryDetail",
+            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryDetail.md"
+          },
+          {
+            "text": "BasketProductSummaryPrice",
+            "link": "/@upmind-automation/headless/interfaces/BasketProductSummaryPrice.md"
+          },
+          {
+            "text": "DomainProduct",
+            "link": "/@upmind-automation/headless/interfaces/DomainProduct.md"
+          },
+          {
+            "text": "GatewayContext",
+            "link": "/@upmind-automation/headless/interfaces/GatewayContext.md"
+          },
+          {
+            "text": "GatewayEvent",
+            "link": "/@upmind-automation/headless/interfaces/GatewayEvent.md"
+          },
+          {
+            "text": "IGateway",
+            "link": "/@upmind-automation/headless/interfaces/IGateway.md"
+          },
+          {
+            "text": "IGatewayProvider",
+            "link": "/@upmind-automation/headless/interfaces/IGatewayProvider.md"
+          },
+          {
+            "text": "IPaymentDetail",
+            "link": "/@upmind-automation/headless/interfaces/IPaymentDetail.md"
+          },
+          {
+            "text": "IProductConfig",
+            "link": "/@upmind-automation/headless/interfaces/IProductConfig.md"
+          },
+          {
+            "text": "IProductPromotion",
+            "link": "/@upmind-automation/headless/interfaces/IProductPromotion.md"
+          },
+          {
+            "text": "PaymentDetailsContext",
+            "link": "/@upmind-automation/headless/interfaces/PaymentDetailsContext.md"
+          },
+          {
+            "text": "PaymentDetailsEvent",
+            "link": "/@upmind-automation/headless/interfaces/PaymentDetailsEvent.md"
+          },
+          {
+            "text": "Price",
+            "link": "/@upmind-automation/headless/interfaces/Price.md"
+          },
+          {
+            "text": "ProductConfigContext",
+            "link": "/@upmind-automation/headless/interfaces/ProductConfigContext.md"
+          },
+          {
+            "text": "ProductConfigEvent",
+            "link": "/@upmind-automation/headless/interfaces/ProductConfigEvent.md"
+          },
+          {
+            "text": "ProductModel",
+            "link": "/@upmind-automation/headless/interfaces/ProductModel.md"
+          },
+          {
+            "text": "Recommendation",
+            "link": "/@upmind-automation/headless/interfaces/Recommendation.md"
+          },
+          {
+            "text": "RecommendationsEngineContext",
+            "link": "/@upmind-automation/headless/interfaces/RecommendationsEngineContext.md"
+          },
+          {
+            "text": "RecommendationsEngineEvents",
+            "link": "/@upmind-automation/headless/interfaces/RecommendationsEngineEvents.md"
+          },
+          {
+            "text": "RefreshEvent",
+            "link": "/@upmind-automation/headless/interfaces/RefreshEvent.md"
+          },
+          {
+            "text": "RelatedProduct",
+            "link": "/@upmind-automation/headless/interfaces/RelatedProduct.md"
+          }
+        ]
+      },
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "BasketProductDetails",
+            "link": "/@upmind-automation/headless/type-aliases/BasketProductDetails.md"
           }
         ]
       },
@@ -19,8 +179,20 @@
         "collapsed": true,
         "items": [
           {
+            "text": "useBasketProductConfig",
+            "link": "/@upmind-automation/headless/functions/useBasketProductConfig.md"
+          },
+          {
             "text": "useBrand",
             "link": "/@upmind-automation/headless/functions/useBrand.md"
+          },
+          {
+            "text": "useDomain",
+            "link": "/@upmind-automation/headless/functions/useDomain.md"
+          },
+          {
+            "text": "useRecommendationsEngine",
+            "link": "/@upmind-automation/headless/functions/useRecommendationsEngine.md"
           },
           {
             "text": "useSession",
@@ -44,6 +216,18 @@
         "collapsed": true,
         "items": [
           {
+            "text": "BasketProduct",
+            "link": "/@upmind-automation/headless-vue/interfaces/BasketProduct.md"
+          },
+          {
+            "text": "BasketProductSummaryDetail",
+            "link": "/@upmind-automation/headless-vue/interfaces/BasketProductSummaryDetail.md"
+          },
+          {
+            "text": "BasketProductSummaryPrice",
+            "link": "/@upmind-automation/headless-vue/interfaces/BasketProductSummaryPrice.md"
+          },
+          {
             "text": "IUseBrand",
             "link": "/@upmind-automation/headless-vue/interfaces/IUseBrand.md"
           },
@@ -66,6 +250,20 @@
           {
             "text": "IUseSystemMeta",
             "link": "/@upmind-automation/headless-vue/interfaces/IUseSystemMeta.md"
+          },
+          {
+            "text": "Recommendation",
+            "link": "/@upmind-automation/headless-vue/interfaces/Recommendation.md"
+          }
+        ]
+      },
+      {
+        "text": "Type Aliases",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "BasketProductDetails",
+            "link": "/@upmind-automation/headless-vue/type-aliases/BasketProductDetails.md"
           }
         ]
       },
@@ -74,8 +272,44 @@
         "collapsed": true,
         "items": [
           {
+            "text": "useBasketBillingDetails",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketBillingDetails.md"
+          },
+          {
+            "text": "useBasketCurrency",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketCurrency.md"
+          },
+          {
+            "text": "useBasketFields",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketFields.md"
+          },
+          {
+            "text": "useBasketPaymentDetails",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketPaymentDetails.md"
+          },
+          {
+            "text": "useBasketPaymentGateway",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketPaymentGateway.md"
+          },
+          {
+            "text": "useBasketProduct",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketProduct.md"
+          },
+          {
+            "text": "useBasketProductConfig",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketProductConfig.md"
+          },
+          {
+            "text": "useBasketPromotions",
+            "link": "/@upmind-automation/headless-vue/functions/useBasketPromotions.md"
+          },
+          {
             "text": "useBrand",
             "link": "/@upmind-automation/headless-vue/functions/useBrand.md"
+          },
+          {
+            "text": "useProductConfig",
+            "link": "/@upmind-automation/headless-vue/functions/useProductConfig.md"
           },
           {
             "text": "useSession",
@@ -84,6 +318,10 @@
           {
             "text": "useSystem",
             "link": "/@upmind-automation/headless-vue/functions/useSystem.md"
+          },
+          {
+            "text": "useUpload",
+            "link": "/@upmind-automation/headless-vue/functions/useUpload.md"
           }
         ]
       }

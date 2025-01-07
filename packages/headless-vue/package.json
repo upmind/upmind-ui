@@ -1,9 +1,9 @@
 {
   "name": "@upmind-automation/headless-vue",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "type": "module",
-  "main": "./src/upmind-headless-vue.umd.cjs",
+  "main": "./src/index.ts",
   "module": "./dist/upmind-headless-vue.js",
   "types": "./dist/index.d.ts",
   "exports": {

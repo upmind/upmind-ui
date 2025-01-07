@@ -4,22 +4,17 @@
   <template v-else>
     <span class="flex items-center gap-1">
       <Tooltip v-if="props.meta.overrides" :label="t('product.overrides')">
-        <Icon
-          icon="transfer"
-          size="3xs"
-          class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
-        />
+        <span class="hover:cursor-help">
+          <Icon icon="transfer" size="3xs" class="text-inherit" />
+          {{ props.currentPrice }}
+        </span>
       </Tooltip>
 
       <Tooltip v-else :label="t('product.adds')">
-        <Icon
-          icon="plus"
-          size="3xs"
-          class="bg-primary text-primary-foreground rounded-full opacity-50 transition-all duration-300 hover:opacity-100"
-        />
+        <span class="hover:cursor-help">
+          <span>+</span>{{ props.currentPrice }}
+        </span>
       </Tooltip>
-
-      {{ props.currentPrice }}
     </span>
 
     <span

@@ -17,10 +17,13 @@ hero:
     src: /logo.svg
 
 features:
-  - title: Developer Experience
+  - icon: 🛠️
+    title: Developer Experience
     details: Quickly understand and implement complex logic without having to deep dive into API endpoints, processes and structures.
-  - title: Smooth state management
+  - icon: 🔄
+    title: Smooth state management
     details: Takes the hassle out of handling process, transitions, errors and data loading states - offering an efficient way to orchestrate state change.
-  - title: Abstracted API layer
+  - icon: 🧩
+    title: Abstracted API layer
     details: API interactions are abstracted for a declarative and consistent approach to building your apps using Upmind.
 ---

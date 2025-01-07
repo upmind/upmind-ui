@@ -89,11 +89,5 @@ onMounted(() => {
   carouselApi.value = carousel.value?.carouselApi;
   active.value =
     carouselRef.value?.scrollWidth > carouselRef.value?.clientWidth;
-
-  console.log({
-    carouselApi: carouselApi.value,
-    carouselRef: carouselRef.value,
-    active: active.value,
-  });
 });
 </script>

@@ -5,6 +5,12 @@ import "./assets/main.css";
 // --- UI Components / Custom elements
 export * from "./ui/form/renderers/utils";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 import { UwAutocomplete, Autocomplete } from "./ui/autocomplete";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
@@ -110,6 +116,10 @@ import { forEach, kebabCase } from "lodash-es";
 export {
   // --- Components
   Alert,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Autocomplete,
   Avatar,
   Badge,
@@ -252,6 +262,11 @@ export function useCustomElement(
 declare module "vue" {
   export interface GlobalComponents {
     Alert: typeof Alert;
+    Accordion: typeof Accordion;
+    AccordionContent: typeof AccordionContent;
+    AccordionItem: typeof AccordionItem;
+    AccordionTrigger: typeof AccordionTrigger;
+
     Autocomplete: typeof Autocomplete;
     Avatar: typeof Avatar;
     Badge: typeof Badge;

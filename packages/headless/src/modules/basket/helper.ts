@@ -330,6 +330,8 @@ export function basketSubscription(callback: any, onReceive: any) {
               });
           })
           .then((actor: ActorRef<any, any>) => {
+            // tell the subscriber we are processing as well as the actor we spawned
+            actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });
             const model = get(
               actor.getSnapshot(),
@@ -341,7 +343,10 @@ export function basketSubscription(callback: any, onReceive: any) {
             // if it fails, then we will cancel update and return the error and
             return update(model, context, basket)
               .then(rawBasket => {
+                // terminate the actor and refresh the basket
+                actor.send({ type: "UPDATED", data: rawBasket });
                 basket.refresh().then(() => {
+                  // tell the subscriber we are done
                   callback({
                     type: "ADDED",
                     data: { actor, basket: rawBasket, context: event.context },
