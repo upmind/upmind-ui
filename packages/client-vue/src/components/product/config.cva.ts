@@ -251,7 +251,6 @@ export default {
             {
               variants: {
                 select: {
-                  true: "",
                   false: "justify-between",
                 },
               },

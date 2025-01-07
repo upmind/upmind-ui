@@ -25,8 +25,6 @@
       :placeholder="t('product.select.placeholder')"
       :multiple="subproduct.multiple"
       :size="subproduct.meta?.uischema?.options?.size"
-      layout="grid"
-      :ring="false"
     >
       <template #item="{ item: { value } }">
         <CardSubproduct
