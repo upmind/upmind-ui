@@ -247,7 +247,15 @@ export default {
           ),
           // input: cva("text-primary"),
           header: cva(
-            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-1 leading-tight"
+            "flex flex-1 flex-wrap items-center gap-x-2 gap-y-1 leading-tight",
+            {
+              variants: {
+                select: {
+                  true: "",
+                  false: "justify-between",
+                },
+              },
+            }
           ),
           footer: cva("flex w-full flex-none flex-col self-end"),
           // ---

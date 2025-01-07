@@ -85,6 +85,8 @@ const props = defineProps<{
     display?: string;
     mixed?: boolean;
   }[];
+  // ---
+  select?: boolean;
 }>();
 
 // ---
@@ -93,6 +95,7 @@ const { t } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !!props.promotions?.length || props.mixedPromotions,
+  select: props.select,
 }));
 
 const styles = useStyles(
