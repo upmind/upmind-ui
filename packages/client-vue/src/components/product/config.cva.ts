@@ -243,11 +243,11 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-6"
+            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-4"
           ),
           // input: cva("text-primary"),
           header: cva(
-            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-2"
+            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-1 leading-tight"
           ),
           footer: cva("flex w-full flex-none flex-col self-end"),
           // ---
