@@ -1,55 +1,99 @@
 <template>
-  <Popover v-model:open="isOpen">
-    <PopoverTrigger :class="cn(variants.select, props.class)">
-      <slot name="item" v-bind="{ item: selected }">
-        {{ selected?.label }}
-      </slot>
-      <div class="flex h-4 items-center justify-center">
-        <Icon
-          icon="arrow-down"
-          size="xs"
-          class="text-emphasis-medium hover:text-emphasis-none transition-all duration-300"
-          :class="isOpen ? 'rotate-180' : ''"
-        />
-      </div>
-    </PopoverTrigger>
-    <PopoverContent class="w-full p-0" align="end">
-      <Command>
-        <CommandGroup>
-          <CommandItem
-            v-for="(item, index) in items"
-            :key="index"
+  <component
+    :is="collapsible ? Collapsible : Popover"
+    v-model:open="open"
+    :disabled="disabled"
+    class="w-full"
+  >
+    <RadioGroup
+      :disabled="disabled"
+      :model-value="modelValue"
+      :default-value="defaultValue"
+      @update:model-value="onChange"
+      :class="variants.select.group"
+    >
+      <component
+        :is="collapsible ? CollapsibleTrigger : PopoverTrigger"
+        as-child
+      >
+        <Button
+          :loading="loading"
+          :class="cn('group !w-full', variants.select.trigger, props.class)"
+          :size="size"
+          :aria-expanded="open"
+          :color="color"
+          :variant="variant"
+          block
+        >
+          <RadioGroupItem
+            v-if="radio"
+            :id="manuallySelected ? manuallySelected.value : first(items).value"
+            :value="
+              manuallySelected ? manuallySelected.value : first(items).value
+            "
+            :name="props.name"
+            :required="props.required"
+            :disabled="props.disabled"
+          />
+
+          <slot v-if="selected" name="selected" v-bind="{ item: selected }">
+            <slot name="selected" v-bind="{ item: selected }">
+              {{ selected?.label || label }}
+            </slot>
+          </slot>
+
+          <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
+            <span class="opacity-50">
+              <slot name="placeholder">{{ placeholder }}</slot>
+            </span>
+          </slot>
+
+          <template #append>
+            <Icon
+              class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
+              icon="arrow-down"
+              size="xs"
+            />
+          </template>
+        </Button>
+      </component>
+
+      <component
+        :is="collapsible ? CollapsibleContent : PopoverContent"
+        class="!w-[--radix-popover-trigger-width] p-0"
+      >
+        <div
+          v-for="(item, index) in items"
+          :key="item.id || index"
+          :class="variants.select.item"
+        >
+          <!-- Required for the selector to work -->
+          <RadioGroupItem
+            :id="`${name}-${overrideIndex + index || index}`"
             :value="item.value"
-            @select="onChange(item.value)"
-            :class="variants.item"
+            :name="name"
+            :required="required"
+            :disabled="disabled"
+            class="hidden"
+          />
+
+          <Label
+            :for="`${name}-${overrideIndex + index || index}`"
+            :class="cn(variants.select.label)"
           >
-            <div class="flex w-10 items-center justify-center pr-1">
-              <Icon
-                v-if="selected?.value === item.value"
-                icon="check"
-                size="2xs"
-              />
-            </div>
-            <slot
-              v-if="$slots.dropdown"
-              name="dropdown"
-              v-bind="{ item, index }"
-            >
+            <slot name="item" v-bind="{ item, index }">
               {{ item.label }}
             </slot>
-            <slot v-else name="item" v-bind="{ item, index }">
-              {{ item.label }}
-            </slot>
-          </CommandItem>
-        </CommandGroup>
-      </Command>
-    </PopoverContent>
-  </Popover>
+          </Label>
+        </div>
+      </component>
+    </RadioGroup>
+  </component>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // ---external
-import { computed, ref } from "vue";
+import { ref, computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -57,18 +101,21 @@ import { cn, useStyles } from "../../utils";
 import config from "./selectCards.config";
 
 // --- components
-import { Popover, PopoverTrigger, PopoverContent } from "../popover";
-import {
-  Command,
-  CommandInput,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "../command";
 import { Icon } from "../icon";
+import { Button } from "../button";
+import { Label } from "../label";
+import { RadioGroup, RadioGroupItem } from "../radio-group";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../collapsible";
+
+// --- components
+import { Popover, PopoverTrigger, PopoverContent } from "../popover";
 
 // --- utils
-import { find } from "lodash-es";
+import { find, first } from "lodash-es";
 
 // --- types
 import type { SelectCardsProps } from "./types";
@@ -80,14 +127,13 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   loading: false,
   placeholder: "Select an option",
   required: false,
+  overrideIndex: 0,
   // -- variants
   color: "base",
   variant: "control",
-  layout: "list",
-  ring: true,
+  width: "full",
   // --- styles
   class: "",
-  radioClass: "",
 });
 
 const emits = defineEmits(["update:modelValue"]);
@@ -96,29 +142,47 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue,
 });
 
+const open = ref(false);
+
 const meta = computed(() => ({
   color: props.color,
-  layout: props.layout,
-  variant: props.variant,
-  ring: props.ring,
+  collapsible: props.collapsible,
 }));
 
 const variants = useStyles(
-  ["select", "item"],
+  ["select"],
   meta,
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{
-  select: string;
-  item: string;
+  select: {
+    root: string;
+    trigger: string;
+    items: string;
+    item: string;
+    input: string;
+    label: string;
+    group: string;
+  };
 }>;
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
+const manuallySelected = computed(() => {
+  return selected.value && selected.value !== first(props.items)
+    ? selected.value
+    : undefined;
+});
 
-const isOpen = ref(false);
-
+// allow for toggle of selected item
 function onChange(value: any) {
-  modelValue.value = value;
-  isOpen.value = false;
+  if (!props.required && modelValue.value == value)
+    modelValue.value = undefined;
+  else modelValue.value = value;
+
+  open.value = false;
+}
+
+if (props.required && !modelValue.value) {
+  emits("update:modelValue", first(props.items)?.value);
 }
 </script>

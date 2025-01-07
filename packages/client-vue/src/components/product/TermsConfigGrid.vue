@@ -43,11 +43,13 @@
       :errors="props.errors"
       :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
+      :radio="false"
+      collapsible
     >
-      <template v-if="$slots.item" #item="{ item }">
+      <template v-if="$slots.item" #selected="{ item }">
         <slot name="item" v-bind="getTerm(item.value)" />
       </template>
-      <template v-if="$slots.dropdown" #dropdown="{ item }">
+      <template v-if="$slots.dropdown" #item="{ item }">
         <slot name="dropdown" v-bind="getTerm(item.value)" />
       </template>
     </SelectCards>

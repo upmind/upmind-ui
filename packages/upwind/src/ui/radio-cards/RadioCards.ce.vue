@@ -7,7 +7,7 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div class="grid grid-cols-12 gap-3">
+    <div class="grid grid-cols-12 gap-2">
       <div
         v-for="(item, index) in items"
         :key="item.id || index"

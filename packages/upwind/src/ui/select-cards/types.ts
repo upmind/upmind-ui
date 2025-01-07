@@ -4,9 +4,6 @@ import { type HTMLAttributes } from "vue";
 // --- types
 import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
-import type { VariantProps } from "class-variance-authority";
-import type { rootVariants } from "./selectCards.config";
-type SelectCardsVariantProps = VariantProps<typeof rootVariants>;
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   // ---
@@ -18,16 +15,17 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   placeholder?: string;
   noneText?: string;
   required?: boolean;
+  overrideIndex?: number;
+  collapsible?: boolean;
+  radio?: boolean;
   // --- state
   items: SelectCardsItemProps[];
   loading?: boolean;
   // ---
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
-  layout?: SelectCardsVariantProps["layout"];
-  ring?: boolean;
+  size?: ButtonProps["size"];
   // ---
   upwindConfig?: { tooltip: Partial<SelectCardsProps> };
   class?: HTMLAttributes["class"];
-  radioClass?: HTMLAttributes["class"];
 }

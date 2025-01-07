@@ -27,7 +27,6 @@
       :size="subproduct.meta?.uischema?.options?.size"
       layout="grid"
       :ring="false"
-      :gap="3"
     >
       <template #item="slotProps">
         <CardSubproduct
