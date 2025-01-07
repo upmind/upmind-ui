@@ -1,0 +1,12 @@
+.history
+.husky
+.vscode
+# Ignore artifacts:
+build
+coverage
+dist
+node_modules
+vite.config.ts
+
+# Ignore Presets:
+src/presets

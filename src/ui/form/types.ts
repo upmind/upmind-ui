@@ -1,0 +1,129 @@
+// --- external
+import type { HTMLAttributes } from "vue";
+import type { VariantProps, CxOptions } from "class-variance-authority";
+import type {
+  // ValidationMode,
+  JsonSchema,
+  UISchemaElement,
+  Internationalizable,
+  ControlElement,
+  JsonFormsRendererRegistryEntry,
+} from "@jsonforms/core";
+import type { ErrorObject } from "ajv";
+import type Ajv from "ajv";
+
+// --- internal
+import type { formVariants } from "./form.config";
+import type { ButtonProps } from "../button";
+type FormVariantProps = VariantProps<typeof formVariants>;
+
+// --- types
+export interface FormProps {
+  as?: string;
+  translator?: Function;
+  locale?: string;
+  // ---
+  ajv?: Ajv;
+  schema?: JsonSchema;
+  uischema?: UISchemaElement & Internationalizable;
+  modelValue: Object;
+  additionalRenderers?: any[];
+  // ---
+  actions?: Record<string, FormActionProps>;
+  noActions?: boolean;
+  autosave?: boolean;
+  // ---
+  size?: FormVariantProps["size"];
+  color?: ButtonProps["color"];
+
+  // ---
+  loading?: boolean;
+  processing?: boolean;
+  disabled?: boolean;
+  // ---
+  // mode?: ValidationMode;
+  additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
+  // --- Provide a way to add custom variants for a specific instance of the component
+  upwindConfig?: { form: Partial<FormProps> };
+  class?: HTMLAttributes["class"];
+}
+
+export interface FormActionProps extends ButtonProps {
+  type?: HTMLButtonElement["type"];
+  handler?: Function | string;
+  needsValid?: boolean;
+}
+
+export interface FormControlProps {
+  // --- required
+  id: string;
+  name: string;
+  // --- optional
+  label?: string;
+  tooltip?: string;
+  text?: string;
+  tags?: string[];
+  description?: string;
+  errors?: string | string[];
+  // --- variants
+  size?: "sm" | "md" | "lg";
+  noLabel?: boolean;
+
+  // ---state
+  autoFocus?: boolean;
+  required?: boolean;
+  visible?: boolean;
+  disabled?: boolean;
+  dirty?: boolean;
+  touched?: boolean;
+  // 'pristine' doesn't pass through correctly for FormField
+  isPristine?: boolean;
+
+  // --- styles
+  upwindConfig?: {
+    form: {
+      root: CxOptions;
+      loading: CxOptions;
+      content: CxOptions;
+      actions: CxOptions;
+    };
+  };
+  class?: HTMLAttributes["class"];
+}
+
+interface SharedBindingObject<TValue = any> {
+  name: string;
+  onBlur: (e: Event) => void;
+  onInput: (e: Event | unknown) => void;
+  onChange: (e: Event | unknown) => void;
+  "onUpdate:modelValue"?: ((e: TValue) => unknown) | undefined;
+}
+
+export interface FieldBindingObject<TValue = any>
+  extends SharedBindingObject<TValue> {
+  value?: TValue;
+  checked?: boolean;
+}
+
+export interface ComponentFieldBindingObject<TValue = any>
+  extends SharedBindingObject<TValue> {
+  modelValue?: TValue;
+}
+
+// --------------------------------------------
+
+export interface FormControlRenderProps {
+  uischema: ControlElement;
+  schema: NonNullable<JsonSchema>;
+  path: string;
+  enabled: boolean;
+  renderers: JsonFormsRendererRegistryEntry[];
+  data: any;
+  label: string;
+  description: string;
+  required: boolean;
+  visible: boolean;
+  config: any;
+  id: string;
+  errors: string | string[];
+}
