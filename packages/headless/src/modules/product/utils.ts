@@ -95,6 +95,7 @@ export const parseProduct = (
     min: merged.min_order_quantity || merged.unit_quantity,
     max: merged.max_order_quantity > 0 ? merged.max_order_quantity : Infinity,
     defaultPaymentPeriod: merged?.default_payment_period,
+    meta: merged?.meta,
     // ---
     // displayAmount: merged.selling_price,
     // displayPrice: merged.selling_price_formatted,
