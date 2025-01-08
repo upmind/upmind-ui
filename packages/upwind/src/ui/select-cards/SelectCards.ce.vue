@@ -64,6 +64,8 @@
           v-for="(item, index) in items"
           :key="item.id || index"
           :class="variants.select.item"
+          :tabindex="(overrideIndex || index) + 1"
+          @keydown.enter="onChange(item.value)"
         >
           <!-- Required for the selector to work -->
           <RadioGroupItem
@@ -72,7 +74,7 @@
             :name="name"
             :required="required"
             :disabled="disabled"
-            class="hidden"
+            class="sr-only"
           />
 
           <Label
