@@ -60,7 +60,7 @@ export default {
     group: groupVariants,
     items: cva("gap-0"),
     label: cva(
-      "m-0 h-full w-full cursor-pointer rounded-md px-2 py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "m-0 h-full w-full cursor-pointer rounded-md px-4 py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva("my-3 ml-3 mr-1 bg-control leading-normal text-control-active"),
   },
