@@ -95,17 +95,7 @@ const styles = useStyles(
 );
 
 const component = computed(() => {
-  const control = props.subproduct.meta?.uischema?.control;
-  if (control) {
-    const component = mapComponent(control);
-    if (component) {
-      return component;
-    }
-  }
-
-  return props.subproduct.multiple || props.subproduct.values?.length == 1
-    ? CheckboxCards
-    : RadioCards;
+  return mapComponent(props.subproduct.meta?.uischema?.control);
 });
 
 const mapComponent = (name: string) => {
@@ -116,7 +106,9 @@ const mapComponent = (name: string) => {
     case "SelectCards":
       return SelectCards;
     default:
-      return null;
+      return props.subproduct.multiple || props.subproduct.values?.length == 1
+        ? CheckboxCards
+        : RadioCards;
   }
 };
 
@@ -127,7 +119,6 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
     sublabel: subproduct?.name,
     text: subproduct?.excerpt,
     values: subproduct.values,
-    primary: subproduct?.meta?.uischema?.primary,
     group: subproduct?.meta?.uischema?.group,
   }));
 });
