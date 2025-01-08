@@ -87,8 +87,10 @@
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <!-- terms -->
-        <TermsConfigGrid
+
+        <component
           v-if="meta.hasTerms"
+          :is="getTermsComponent"
           :errors="errors?.term"
           :items="terms"
           :label="t('product.terms.label')"
@@ -195,7 +197,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-
+import { computed } from "vue";
 // --- internal
 import { useProductConfig } from "@upmind-automation/headless-vue";
 import { useStyles, cn } from "@upmind-automation/upwind";
@@ -204,6 +206,7 @@ import config from "./config.cva";
 // --- components
 import { Markdown, Lineclamp } from "@upmind-automation/upwind";
 import TermsConfigGrid from "./TermsConfigGrid.vue";
+import TermsConfigSelect from "./TermsConfigSelect.vue";
 import VSubproductCards from "./SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 
@@ -256,7 +259,6 @@ const {
   model,
   meta,
   summary,
-  updateQuantity,
   updateTerm,
   setAttributes,
   setOptions,
@@ -274,6 +276,15 @@ function safeValue(subproduct: Object, value: any): string | string[] {
   const safeValue = shouldBeArray ? safeArray : safeString;
   return safeValue || "";
 }
+
+const getTermsComponent = computed(() => {
+  // TODO: Can we do this in a lookup?
+  const control =
+    product?.value?.meta?.uischema?.billing?.control ||
+    product?.value?.categoryMeta?.uischema?.billing?.control;
+
+  return control === "TermsConfigSelect" ? TermsConfigSelect : TermsConfigGrid;
+});
 
 function getValue(
   type: "options" | "attributes",

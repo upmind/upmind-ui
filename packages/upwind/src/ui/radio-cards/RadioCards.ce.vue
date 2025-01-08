@@ -7,28 +7,22 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div
-      v-for="(item, index) in items"
-      :key="item.id || index"
-      :class="cn(variants.radioCards.item, props.radioClass)"
-      :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-    >
-      <RadioGroupItem
-        :id="`${props.name}-${index}`"
-        :value="item.value"
+    <div v-for="(item, index) in items" :key="item.id || index" v-auto-animate>
+      <RadioCardItem
+        :item="item"
+        :index="overrideIndex || index"
         :name="props.name"
+        :label="item?.label"
         :required="props.required"
         :disabled="props.disabled"
-        :class="variants.radioCards.input"
-      />
-      <Label
-        :for="`${props.name}-${index}`"
-        :class="cn(variants.radioCards.label)"
+        :model-value="modelValue"
+        :variants="variants"
+        :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
       >
-        <slot name="item" v-bind="{ item, index }">
-          {{ item.label }}
-        </slot>
-      </Label>
+        <template #item="slotProps">
+          <slot name="item" v-bind="slotProps" />
+        </template>
+      </RadioCardItem>
     </div>
   </RadioGroup>
 </template>
@@ -37,17 +31,15 @@
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./radioCards.config";
 
 // --- components
-import { RadioGroup, RadioGroupItem } from "../radio-group";
-import { Label } from "../label";
-
-// --- utils
-import { find } from "lodash-es";
+import { RadioGroup } from "../radio-group";
+import RadioCardItem from "./RadioCardItem.vue";
 
 // --- types
 import type { RadioCardsProps } from "./types";
@@ -59,12 +51,15 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   loading: false,
   placeholder: "Select an option",
   required: false,
+  overrideIndex: 0,
   // -- variants
   color: "base",
   variant: "control",
   layout: "list",
   ring: true,
   // --- styles
+  size: 12,
+  gap: 2,
   class: "",
   radioClass: "",
 });
@@ -97,9 +92,6 @@ const variants = useStyles(
   };
 }>;
 
-const selected = computed(() => find(props.items, { value: modelValue.value }));
-
-// allow for toggle of selected item
 function onChange(value: any) {
   if (!props.required && modelValue.value == value)
     modelValue.value = undefined;
