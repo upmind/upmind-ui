@@ -18,7 +18,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted flex items-start space-x-2 rounded-md transition-all duration-300",
+  "hover:bg-control-active-muted flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset focus:ring-offset-background",
   {
     variants: {
       collapsible: {
