@@ -243,11 +243,11 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-4 rounded-md",
+            "m-0 flex h-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
             {
               variants: {
                 select: {
-                  true: "w-full items-center justify-between",
+                  true: "w-full items-start justify-between sm:items-center",
                 },
               },
             }
@@ -260,7 +260,7 @@ export default {
               },
             },
           }),
-          footer: cva("flex font-medium tracking-wide", {
+          footer: cva("flex font-medium leading-none tracking-wide", {
             variants: {
               select: {
                 false: "w-full flex-col gap-y-1.5 self-end",
