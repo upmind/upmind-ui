@@ -1,7 +1,5 @@
 <template>
-  <span v-if="props.meta.free">{{ t("product.free") }}</span>
-
-  <template v-else>
+  <template v-if="!props.meta.free">
     <span class="flex items-center gap-1">
       <Tooltip v-if="props.meta.overrides" :label="t('product.overrides')">
         <span class="hover:cursor-help">

@@ -11,6 +11,9 @@ type RadioCardsVariantProps = VariantProps<typeof rootVariants>;
 export interface RadioCardsItemProps extends RadioGroupItemProps {
   // ---
   label: string;
+  values: any[];
+  primary?: boolean;
+  group?: string;
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
@@ -18,6 +21,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   placeholder?: string;
   noneText?: string;
   required?: boolean;
+  overrideIndex?: number;
   // --- state
   items: RadioCardsItemProps[];
   loading?: boolean;
@@ -26,6 +30,8 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   variant?: ButtonProps["variant"];
   layout?: RadioCardsVariantProps["layout"];
   ring?: boolean;
+  size?: number;
+  gap?: number;
   // ---
   upwindConfig?: { tooltip: Partial<RadioCardsProps> };
   class?: HTMLAttributes["class"];

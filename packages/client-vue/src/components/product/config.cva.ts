@@ -243,22 +243,45 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex h-full cursor-pointer flex-wrap items-start gap-2 gap-y-6"
+            "m-0 flex h-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
+            {
+              variants: {
+                select: {
+                  true: "w-full items-start justify-between sm:items-center",
+                },
+              },
+            }
           ),
           // input: cva("text-primary"),
-          header: cva(
-            "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-2"
-          ),
-          footer: cva("flex w-full flex-none flex-col self-end"),
+          header: cva("flex items-center gap-x-2 gap-y-1 leading-tight", {
+            variants: {
+              select: {
+                false: "flex-1 flex-wrap items-center justify-between",
+              },
+            },
+          }),
+          footer: cva("flex font-medium leading-none tracking-wide", {
+            variants: {
+              select: {
+                false: "w-full flex-col gap-y-1.5 self-end",
+                true: "items-center gap-x-2",
+              },
+            },
+          }),
           // ---
-          title: cva("text-md m-0 font-normal"),
+          title: cva("text-md m-0 text-nowrap font-medium"),
           text: cva(
             "text-emphasis-medium m-0 block w-full flex-none text-sm font-medium"
           ),
-          total: cva("text-2xl font-medium leading-snug tracking-wide"),
-          discount: cva(
-            "text-emphasis-medium text-sm font-medium leading-snug tracking-wide line-through"
-          ),
+          total: cva("font-medium", {
+            variants: {
+              select: {
+                true: "",
+                false: "text-2xl",
+              },
+            },
+          }),
+          discount: cva("text-emphasis-medium text-sm"),
         },
       },
       // ---
