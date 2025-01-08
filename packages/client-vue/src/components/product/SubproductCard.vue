@@ -2,36 +2,36 @@
   <section class="m-0 w-full">
     <header class="flex flex-1 items-start gap-x-1">
       <div class="flex flex-grow flex-col gap-0.5 md:flex-row md:gap-x-2">
-        <h5 class="m-0 font-medium">{{ name }}</h5>
+        <div class="flex flex-wrap items-center gap-2">
+          <h5 class="m-0 font-medium">{{ name }}</h5>
 
-        <div class="flex flex-wrap items-center gap-2 md:block">
-          <div class="my-1 text-xs md:hidden">
-            <SubproductCardPricing
-              v-if="props.price"
-              :regularAmount="props.price.regularAmount"
-              :regularPrice="props.price.regularPrice"
-              :currentAmount="props.price.currentAmount"
-              :currentPrice="props.price.currentPrice"
-              :meta="props.price.meta"
-            />
-          </div>
+          <template
+            v-for="promotion in props.price?.promotions"
+            :key="promotion.id"
+          >
+            <Badge color="promotion" variant="tonal" size="sm">
+              {{
+                promotion.mixed || !promotion.amount
+                  ? t("product.promotion")
+                  : t("product.promotion_save", {
+                      value: promotion.amountFormatted,
+                    })
+              }}
+            </Badge>
+          </template>
+        </div>
 
-          <div class="ml-0">
-            <template
-              v-for="promotion in props.price?.promotions"
-              :key="promotion.id"
-            >
-              <Badge color="promotion" variant="tonal" size="sm">
-                {{
-                  promotion.mixed || !promotion.amount
-                    ? t("product.promotion")
-                    : t("product.promotion_save", {
-                        value: promotion.amountFormatted,
-                      })
-                }}
-              </Badge>
-            </template>
-          </div>
+        <div
+          v-if="props.price && !props.price.meta.free"
+          class="my-1 text-xs md:hidden"
+        >
+          <SubproductCardPricing
+            :regularAmount="props.price.regularAmount"
+            :regularPrice="props.price.regularPrice"
+            :currentAmount="props.price.currentAmount"
+            :currentPrice="props.price.currentPrice"
+            :meta="props.price.meta"
+          />
         </div>
       </div>
 
