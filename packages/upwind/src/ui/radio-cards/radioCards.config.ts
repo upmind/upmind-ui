@@ -31,7 +31,7 @@ export const itemVariants = cva(
         layout: "grid",
         ring: true,
         className:
-          "data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
+          "data-[state=checked]:bg-control-active-focus data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
       },
     ],
     defaultVariants: {
