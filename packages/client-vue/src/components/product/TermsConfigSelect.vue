@@ -21,6 +21,7 @@
       :errors="props.errors"
       :model-value="props.modelValue?.toString()"
       content-class="!max-h-[18.5rem]"
+      side="bottom"
       @update:modelValue="doResolve"
     >
       <template #item="{ item }">

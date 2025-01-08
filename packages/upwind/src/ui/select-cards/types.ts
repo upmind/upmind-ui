@@ -3,7 +3,11 @@ import { type HTMLAttributes } from "vue";
 
 // --- types
 import type { ButtonProps } from "../button";
-import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
+import type {
+  RadioGroupRootProps,
+  RadioGroupItemProps,
+  PopoverContentProps,
+} from "radix-vue";
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   // ---
@@ -26,6 +30,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   collapsible?: boolean;
   radio?: boolean;
   separate?: boolean;
+  side?: PopoverContentProps["side"];
   // ---
   upwindConfig?: { tooltip: Partial<SelectCardsProps> };
   class?: HTMLAttributes["class"];
