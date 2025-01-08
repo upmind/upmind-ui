@@ -59,12 +59,18 @@
       <component
         :is="collapsible ? CollapsibleContent : PopoverContent"
         :class="cn(variants.select.content, props.contentClass)"
+        :onOpenAutoFocus="handleOpenAutoFocus"
       >
         <div
           v-for="(item, index) in items"
           :key="item.id || index"
           :class="variants.select.item"
           :tabindex="(overrideIndex || index) + 1"
+          :ref="
+            el => {
+              if (el) itemRefs[index] = el as HTMLElement;
+            }
+          "
           @keydown.enter="onChange(item.value)"
         >
           <Label
@@ -115,7 +121,8 @@ import {
 import { Popover, PopoverTrigger, PopoverContent } from "../popover";
 
 // --- utils
-import { find, first } from "lodash-es";
+import { find, first, findIndex } from "lodash-es";
+import { useFocus } from "@vueuse/core";
 
 // --- types
 import type { SelectCardsProps } from "./types";
@@ -189,4 +196,19 @@ function onChange(value: any) {
 if (props.required && !modelValue.value) {
   emits("update:modelValue", first(props.items)?.value);
 }
+
+const itemRefs = ref<HTMLElement[]>([]);
+
+const handleOpenAutoFocus = (event: Event) => {
+  event.preventDefault();
+  const selectedItem = findIndex(
+    props.items,
+    item => item.value === modelValue.value
+  );
+  const index = selectedItem >= 0 ? selectedItem : 0;
+  if (itemRefs.value[index]) {
+    const { focused } = useFocus(itemRefs.value[index]);
+    focused.value = true;
+  }
+};
 </script>
