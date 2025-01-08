@@ -67,6 +67,15 @@
           :tabindex="(overrideIndex || index) + 1"
           @keydown.enter="onChange(item.value)"
         >
+          <Label
+            :for="`${name}-${overrideIndex + index || index}`"
+            :class="cn(variants.select.label)"
+          >
+            <slot name="dropdown-item" v-bind="{ item, index }">
+              {{ item.label }}
+            </slot>
+          </Label>
+
           <!-- Required for the selector to work -->
           <RadioGroupItem
             :id="`${name}-${overrideIndex + index || index}`"
@@ -76,15 +85,6 @@
             :disabled="disabled"
             class="sr-only"
           />
-
-          <Label
-            :for="`${name}-${overrideIndex + index || index}`"
-            :class="cn(variants.select.label)"
-          >
-            <slot name="dropdown-item" v-bind="{ item, index }">
-              {{ item.label }}
-            </slot>
-          </Label>
         </div>
       </component>
     </RadioGroup>

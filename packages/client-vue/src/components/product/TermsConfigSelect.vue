@@ -36,9 +36,8 @@
           v-if="isMonthly(item)"
           v-bind="getTerm(item.value)"
           select
-          class="pr-3"
         />
-        <CardTerm v-else v-bind="getTerm(item.value)" select class="pr-3" />
+        <CardTerm v-else v-bind="getTerm(item.value)" select />
       </template>
     </SelectCards>
   </FormField>
