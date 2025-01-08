@@ -269,7 +269,7 @@ export default {
             },
           }),
           // ---
-          title: cva("text-md m-0 font-medium"),
+          title: cva("text-md m-0 text-nowrap font-medium"),
           text: cva(
             "text-emphasis-medium m-0 block w-full flex-none text-sm font-medium"
           ),
