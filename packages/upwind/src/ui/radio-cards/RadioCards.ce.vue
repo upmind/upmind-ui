@@ -17,8 +17,8 @@
         :disabled="props.disabled"
         :model-value="modelValue"
         :variants="variants"
+        :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-        width="half"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -55,7 +55,6 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   // -- variants
   color: "base",
   variant: "control",
-  layout: "list",
   width: 12,
   // --- styles
   class: "",
