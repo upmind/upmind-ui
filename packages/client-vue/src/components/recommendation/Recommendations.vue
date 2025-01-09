@@ -3,10 +3,7 @@
     :key="`recommendations-active-${active}`"
     @init-api="setApi"
     class="embla relative"
-    :opts="{
-      active: active,
-      loop: false,
-    }"
+    :opts="{ loop: false }"
   >
     <div v-if="active" class="flex justify-end space-x-2">
       <CarouselPrevious class="!static" />
@@ -152,7 +149,6 @@ function setApi(api: CarouselApi) {
 
 function fetchVisibleRecommendations() {
   const visible = carouselApi.value?.slidesInView() ?? [];
-
   if (!visible.length) return;
 
   // console.log("Carousel", "visible", visible);
