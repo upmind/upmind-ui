@@ -34,6 +34,7 @@ import {
   uniq,
   xorBy,
   unset,
+  reject,
 } from "lodash-es";
 
 // --- types
@@ -54,6 +55,12 @@ export default createMachine(
     states: {
       subscribing: {
         entry: ["setContext", "clearLookups", "setBasketHelper", "getBasket"],
+      },
+
+      refreshing: {
+        after: {
+          wait: "available",
+        },
       },
 
       available: {
@@ -117,7 +124,7 @@ export default createMachine(
     on: {
       REFRESH: [
         {
-          target: "available",
+          target: "refreshing",
           actions: ["setBasket", "setLookups", "setRecommendations"],
           cond: "hasBasketChanged",
         },
@@ -133,6 +140,10 @@ export default createMachine(
       FETCHED: {
         actions: ["setRecommendation"],
         cond: "hasData",
+      },
+      ERROR: {
+        actions: ["setError", "removeRelated", "setRecommendations"],
+        cond: "hasDataWithContext",
       },
       SEEN: {
         actions: ["setSeen"],
@@ -465,11 +476,26 @@ export default createMachine(
         },
       }),
 
+      removeRelated: assign({
+        raw: (
+          { raw }: RecommendationsEngineContext,
+          { context }: AnyEventObject
+        ) => {
+          debugger;
+          raw.related = reject(raw.related, ["id", context.id]);
+          return raw;
+        },
+      }),
+
       setError: assign({
         error: (
-          _context: RecommendationsEngineContext,
-          { data }: AnyEventObject
+          { recommendations }: RecommendationsEngineContext,
+          { data, context }: AnyEventObject
         ) => {
+          if (!isEmpty(context)) {
+            const recommendation = find(recommendations, ["id", context?.id]);
+            if (recommendation) set(recommendation, "meta.error", true);
+          }
           // addError({
           //   title:
           //     data?.title ||
@@ -503,6 +529,11 @@ export default createMachine(
         _context: RecommendationsEngineContext,
         { data }: AnyEventObject
       ) => !isEmpty(data),
+
+      hasDataWithContext: (
+        _context: RecommendationsEngineContext,
+        { data, context }: AnyEventObject
+      ) => !isEmpty(data) && !isEmpty(context),
 
       hasRecommendations: (
         { raw }: RecommendationsEngineContext,

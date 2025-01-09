@@ -55,6 +55,7 @@ export const useRecommendationsEngine = () => {
     // ---
     meta: computed(() => ({
       isLoading: ["subscribing"].some(state.value.matches),
+      isRefreshing: ["refreshing"].some(state.value.matches),
       isProcessing: ["processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       // ---

@@ -21,7 +21,6 @@
         v-for="recommendation in recommendations"
         :key="recommendation.id"
         class="md:basis-1/2 xl:basis-1/3"
-        v-auto-animate
       >
         <RecommendationCardSkeleton v-if="recommendation.meta?.loading" />
         <RecommendationCard
@@ -29,6 +28,7 @@
           v-bind="recommendation"
           @resolve="doResolve"
           :disabled="meta.isProcessing"
+          class="animate-fade"
         />
       </CarouselItem>
     </CarouselContent>
@@ -80,7 +80,6 @@
 // --- external
 import { nextTick, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {
@@ -151,6 +150,28 @@ function setApi(api: CarouselApi) {
   carouselApi.value = api;
 }
 
+function fetchVisibleRecommendations() {
+  const visible = carouselApi.value?.slidesInView() ?? [];
+
+  if (!visible.length) return;
+
+  // console.log("Carousel", "visible", visible);
+  // now fetch the next batch of recommendations, one by one
+  forEach(recommendations.value, (recommendation, index) => {
+    if (visible.includes(index)) {
+      console.log(
+        "Carousel",
+        "visible",
+        "fetchRecommendation",
+        visible,
+        index,
+        recommendation
+      );
+
+      fetchRecommendation(recommendation.id);
+    }
+  });
+}
 // Now add a watcher that lets the parent know any/all carousel items that are visible/active
 // This will be used to trigger fetching the next batch of recommendations
 const stop = watch(carouselApi, api => {
@@ -163,25 +184,10 @@ const stop = watch(carouselApi, api => {
   const container = api?.containerNode();
   active.value = (container?.scrollWidth ?? 0) > (container?.clientWidth ?? 0);
 
-  api.on("slidesInView", () => {
-    const visible = api?.slidesInView();
+  api.on("slidesInView", fetchVisibleRecommendations);
+});
 
-    // console.log("Carousel", "visible", visible);
-    // now fetch the next batch of recommendations, one by one
-    forEach(recommendations.value, (recommendation, index) => {
-      if (visible.includes(index)) {
-        console.log(
-          "Carousel",
-          "visible",
-          "fetchRecommendation",
-          visible,
-          index,
-          recommendation
-        );
-
-        fetchRecommendation(recommendation.id);
-      }
-    });
-  });
+watch(meta, ({ isProcessing, isRefreshing, isLoading }) => {
+  if (isRefreshing) fetchVisibleRecommendations();
 });
 </script>

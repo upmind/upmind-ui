@@ -58,7 +58,9 @@
 
         <!-- Button section -->
         <div>
-          <Button color="primary" size="sm" disabled block />
+          <Skeleton color="primary" size="sm" class="rounded-pill h-10 w-full"
+            >Button</Skeleton
+          >
         </div>
       </div>
     </div>
@@ -67,5 +69,5 @@
 
 <script lang="ts" setup>
 import { UpmCard } from "@upmind-automation/client-vue";
-import { Button, Skeleton } from "@upmind-automation/upwind";
+import { Skeleton } from "@upmind-automation/upwind";
 </script>
