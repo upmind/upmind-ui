@@ -172,6 +172,12 @@ function fetchVisibleRecommendations() {
     }
   });
 }
+
+function setActive() {
+  active.value =
+    (carouselApi.value?.containerNode()?.scrollWidth ?? 0) >
+    (carouselApi.value?.containerNode()?.clientWidth ?? 0);
+}
 // Now add a watcher that lets the parent know any/all carousel items that are visible/active
 // This will be used to trigger fetching the next batch of recommendations
 const stop = watch(carouselApi, api => {
@@ -181,13 +187,16 @@ const stop = watch(carouselApi, api => {
   nextTick(() => stop());
 
   // --- now set up our carousel api listeners
-  const container = api?.containerNode();
-  active.value = (container?.scrollWidth ?? 0) > (container?.clientWidth ?? 0);
-
+  setActive();
   api.on("slidesInView", fetchVisibleRecommendations);
 });
 
 watch(meta, ({ isProcessing, isRefreshing, isLoading }) => {
-  if (isRefreshing) fetchVisibleRecommendations();
+  if (isLoading || isRefreshing || isProcessing) {
+    active.value = false;
+    if (isRefreshing) fetchVisibleRecommendations();
+  } else {
+    setActive();
+  }
 });
 </script>
