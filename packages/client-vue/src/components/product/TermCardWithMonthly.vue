@@ -1,9 +1,13 @@
 <template>
   <div :class="styles.product.config.grid.item.root">
     <div :class="styles.product.config.grid.item.header">
-      <span :class="styles.product.config.grid.item.title">
-        {{ t(`product.terms.${props.cycle}`, props.name) }}
-      </span>
+      <strong :class="styles.product.config.grid.item.title">
+        {{
+          te(`product.terms.cycle.${props.cycle}`)
+            ? t(`product.terms.cycle.${props.cycle}`)
+            : props.name
+        }}
+      </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
         <Badge color="promotion" variant="tonal" size="sm">
@@ -30,12 +34,12 @@
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <span
+      <del
         :class="styles.product.config.grid.item.discount"
         v-if="props.meta.discounted"
       >
         {{ props.regularPrice }}
-      </span>
+      </del>
       <strong :class="styles.product.config.grid.item.total">
         {{ props.meta.free ? t("product.free") : props.currentPrice }}
       </strong>
@@ -91,7 +95,7 @@ const props = defineProps<{
 
 // ---
 
-const { t } = useI18n();
+const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !!props.promotions?.length || props.mixedPromotions,

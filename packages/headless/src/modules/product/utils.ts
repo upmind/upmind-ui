@@ -95,6 +95,8 @@ export const parseProduct = (
     min: merged.min_order_quantity || merged.unit_quantity,
     max: merged.max_order_quantity > 0 ? merged.max_order_quantity : Infinity,
     defaultPaymentPeriod: merged?.default_payment_period,
+    meta: merged?.meta,
+    categoryMeta: merged?.category?.meta,
     // ---
     // displayAmount: merged.selling_price,
     // displayPrice: merged.selling_price_formatted,
@@ -188,6 +190,7 @@ export const parseSubproduct = (
         multiple: rawSubproduct.category.multiple,
         required: rawSubproduct.category.required,
         priceOverride: rawSubproduct.category.price_override,
+        meta: rawSubproduct?.category.meta,
       });
 
       // check EARLY if we have a price for one of the following:
@@ -248,6 +251,8 @@ export const parseSubproduct = (
 
           return price;
         }),
+        meta: rawSubproduct?.meta,
+        order: rawSubproduct?.order,
       };
 
       // First, try get a one off price, othrwise try find the matching term price
@@ -260,7 +265,7 @@ export const parseSubproduct = (
 
       values.push(value);
 
-      set(option, "values", values);
+      set(option, "values", orderBy(values, "order"));
 
       // finally  set the updated option
       set(result, rawSubproduct.category_id, option);
