@@ -1,14 +1,7 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing">
-    <UpmCard
-      class="relative flex flex-col gap-y-4 !p-6 !py-7 text-inherit md:!p-9 md:!py-10"
-      :class="[
-        !meta.isLoading && meta.hasErrors
-          ? 'ring-error !ring-error-1 ring-1'
-          : 'ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0',
-      ]"
-    >
-      <div class="divide-y divide-dashed">
+    <UpmCard :class="styles.product.root.card">
+      <div :class="styles.product.root.container">
         <UpmBasketProductSummary
           v-for="(pricing, index) in summary.pricing"
           :key="`${props.id}-${index}`"
@@ -28,13 +21,11 @@
         </UpmBasketProductSummary>
       </div>
 
-      <!-- These margins help us position correctly (there is additional space when the details are closed) -->
-      <div v-auto-animate class="-my-2">
+      <div v-auto-animate>
         <UpmBasketConfigurationDetails
           v-if="open"
           :id="id"
           :details="summary.details"
-          class="-mb-2 mt-2"
         />
       </div>
 
@@ -59,6 +50,8 @@ import { computed } from "vue";
 
 // --- internal
 import { useBasketProduct } from "@upmind-automation/client-vue";
+import { useStyles } from "@upmind-automation/upwind";
+import config from "./config.cva";
 
 // --- components
 import { UpmCard } from "@upmind-automation/client-vue";
@@ -68,6 +61,7 @@ import UpmBasketProductSummary from "./BasketProductSummary.vue";
 import UpmBasketProductActions from "./BasketProductActions.vue";
 
 // --- types
+import type { ComputedRef } from "vue";
 import { type BasketProductProps } from "./types";
 import { type BasketProduct } from "@upmind-automation/client-vue";
 // -----------------------------------------------------------------------------
@@ -81,6 +75,20 @@ const emits = defineEmits(["update:open"]);
 const open = useVModel(props, "open", emits);
 
 const { meta, updateQuantity, remove } = useBasketProduct(props.id);
+
+const stylesMeta = computed(() => ({
+  hasErrors: !meta.value.isLoading && meta.value.hasErrors,
+}));
+
+const styles = useStyles(["product.root"], stylesMeta, config) as ComputedRef<{
+  product: {
+    root: {
+      card: string;
+      container: string;
+      details: string;
+    };
+  };
+}>;
 
 const editLink = computed(() => {
   return {
