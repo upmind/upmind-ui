@@ -166,9 +166,19 @@ const stop = watch(carouselApi, api => {
   api.on("slidesInView", () => {
     const visible = api?.slidesInView();
 
+    // console.log("Carousel", "visible", visible);
     // now fetch the next batch of recommendations, one by one
     forEach(recommendations.value, (recommendation, index) => {
       if (visible.includes(index)) {
+        console.log(
+          "Carousel",
+          "visible",
+          "fetchRecommendation",
+          visible,
+          index,
+          recommendation
+        );
+
         fetchRecommendation(recommendation.id);
       }
     });

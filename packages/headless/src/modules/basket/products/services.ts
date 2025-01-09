@@ -63,7 +63,6 @@ async function fetch(
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
   const { get: getRequest, useUrl } = useApi();
-
   const params = {
     currency_id: currency.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
