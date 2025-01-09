@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col gap-y-2 py-3 first:pt-0 last:pb-0">
+  <div
+    v-if="!hasProvisioning"
+    class="flex flex-col gap-y-2 py-3 first:pt-0 last:pb-0"
+  >
     <h5 class="text-emphasis-medium m-0 truncate">{{ category }}</h5>
 
     <template v-if="!invalid">
@@ -55,4 +58,8 @@ const editLink = computed(() => ({
 }));
 
 const invalid = computed(() => some(props.items, "meta.invalid"));
+
+const hasProvisioning = computed(() =>
+  props.items.some(item => item.key.includes("provision_field"))
+);
 </script>
