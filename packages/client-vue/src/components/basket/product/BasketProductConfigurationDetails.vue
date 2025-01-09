@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-3"
-  >
+  <div :class="styles.product.configDetails.container">
     <DetailsGroup
       v-for="(group, index) in groupedDetails"
       :key="'details-group-' + index"
@@ -20,10 +18,27 @@ import { computed } from "vue";
 // --- components
 import DetailsGroup from "./components/DetailsGroup.vue";
 
+// --- internal
+import { useStyles } from "@upmind-automation/upwind";
+import config from "./config.cva";
+
 // --- types
 import { type BasketProductConfigDetailsProps } from "./types";
+import type { ComputedRef } from "vue";
 
 const props = defineProps<BasketProductConfigDetailsProps>();
+
+const styles = useStyles(
+  ["product.configDetails"],
+  props,
+  config
+) as ComputedRef<{
+  product: {
+    configDetails: {
+      container: string;
+    };
+  };
+}>;
 
 const groupedDetails = computed(() => {
   return groupBy(props.details, "category");

@@ -1,5 +1,4 @@
 <template>
-  <!-- Button and icons have built in spacing which we are counteracting with minus margin -->
   <div class="flex items-baseline justify-between">
     <Button
       :label="open ? t('product.hideDetails') : t('product.showDetails')"

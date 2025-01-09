@@ -18,5 +18,17 @@ export default {
       ),
       container: cva("divide-y divide-dashed"),
     },
+    summary: {
+      container: cva("flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0"),
+      imageLink: cva(
+        "m-0 h-12 min-w-12 max-w-12 rounded-lg object-cover object-center"
+      ),
+      imageRoute: cva(""),
+    },
+    configDetails: {
+      container: cva(
+        "flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-3"
+      ),
+    },
   },
 };

@@ -1,7 +1,6 @@
 <template>
-  <span>
+  <span v-if="discounted">
     <Badge
-      v-if="discounted"
       :color="disabled ? 'disabled' : 'promotion'"
       variant="tonal"
       class="rounded-lg uppercase"
