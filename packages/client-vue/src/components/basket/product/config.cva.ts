@@ -16,7 +16,7 @@ export default {
           },
         }
       ),
-      container: cva("divide-y divide-dashed py-2"),
+      container: cva("divide-y divide-dashed"),
     },
   },
 };

@@ -50,9 +50,7 @@
     </div>
 
     <!-- Actions Section -->
-    <div
-      class="-mb-2 mt-4 flex items-baseline justify-between pt-0.5 md:mt-2.5 md:pt-0"
-    >
+    <div class="flex items-baseline justify-between pt-0.5 md:mt-2.5 md:pt-0">
       <Skeleton class="w-32" />
       <!-- Show Details Button -->
       <div class="flex items-end space-x-2">
