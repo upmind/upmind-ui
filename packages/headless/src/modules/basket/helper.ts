@@ -61,11 +61,12 @@ async function fetch(
 
   const data = { productId };
   const basketSnapshot = get(basket.getSnapshot(), "context.basket");
+
   return productServices.fetch(
     {
       basketId: basketSnapshot?.id,
       currencyId: basketSnapshot?.currency_id,
-      promotions: basketSnapshot?.promotions,
+      promotions: uniq(concat(basketSnapshot?.promotions, context?.promotions)),
     },
     { data }
   );
@@ -258,10 +259,12 @@ export function basketSubscription(callback: any, onReceive: any) {
 
       case "FETCH":
         fetch(event.target, event.context, basket)
-          .then(data => callback({ type: "FETCHED", data }))
+          .then(data =>
+            callback({ type: "FETCHED", data, context: event.context })
+          )
           .catch(error => {
             // console.error("basketHelper", "LOAD", error);
-            callback({ type: "ERROR", data: error });
+            callback({ type: "ERROR", data: error, context: event.context });
           });
         break;
 

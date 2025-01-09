@@ -33,6 +33,7 @@ import {
   some,
   uniq,
   xorBy,
+  unset,
 } from "lodash-es";
 
 // --- types
@@ -243,11 +244,16 @@ export default createMachine(
 
       fetchProduct: sendTo(
         ({ basketHelper }: any, _event) => basketHelper,
-        (context, { data }: AnyEventObject) => {
-          const recommendation = find(context.recommendations, ["id", data]);
+        ({ recommendations }, { data }: AnyEventObject) => {
+          const context = find(recommendations, ["id", data]);
+
+          // ensure we add our configured coupons to the recommendation and remove the config as it's not needed
+          set(context, "promotions", context.config.coupons);
+          unset(context, "config");
+
           return {
             type: "FETCH",
-            target: recommendation.productId,
+            target: context.productId,
             context,
           };
         }
@@ -402,12 +408,13 @@ export default createMachine(
       setRecommendations: assign({
         recommendations: (
           { raw }: RecommendationsEngineContext,
-          { data }: AnyEventObject
+          { data, context }: AnyEventObject
         ) => {
           const augmentedRecommendations = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
-              rawRelated.product = find(data, ["id", rawRelated.object_id]);
+              if (context?.id == rawRelated?.id) rawRelated.product = data;
+              rawRelated.product ??= {}; // ensure we at least have an empty product object
               const added = includes(raw.added, rawRelated.id);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
@@ -431,12 +438,13 @@ export default createMachine(
       setRecommendation: assign({
         recommendations: (
           { raw }: RecommendationsEngineContext,
-          { data }: AnyEventObject
+          { data, context }: AnyEventObject
         ) => {
           const augmentedRecommendations = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
-              if (data.id === rawRelated.object_id) rawRelated.product = data;
+              if (context?.id == rawRelated?.id) rawRelated.product = data;
+              rawRelated.product ??= {}; // ensure we at least have an empty product object
               const added = includes(raw.added, rawRelated.id);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
