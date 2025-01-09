@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0">
+  <div :class="styles.product.summary.container">
     <div class="flex flex-col md:gap-y-1">
       <Promotion
         v-if="primary"
@@ -11,11 +11,12 @@
       />
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
-          <router-link v-if="primary && product.imgUrl" :to="editLink">
-            <img
-              :src="product.imgUrl"
-              class="m-0 h-12 min-w-12 max-w-12 rounded-lg object-cover object-center"
-            />
+          <router-link
+            v-if="primary && product.imgUrl"
+            :to="editLink"
+            :class="styles.product.summary.imageRoute"
+          >
+            <img :src="product.imgUrl" :class="styles.product.summary.image" />
           </router-link>
 
           <div class="flex w-full flex-col gap-y-1">
@@ -129,12 +130,27 @@ import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
 
+// --- internal
+import { useStyles } from "@upmind-automation/upwind";
+import config from "./config.cva";
+
 // --- types
 import { type BasketProductSummaryProps } from "./types";
+import type { ComputedRef } from "vue";
 
-defineProps<BasketProductSummaryProps>();
+const props = defineProps<BasketProductSummaryProps>();
 
 const emits = defineEmits(["update:quantity"]);
+
+const styles = useStyles(["product.summary"], props, config) as ComputedRef<{
+  product: {
+    summary: {
+      container: string;
+      image: string;
+      imageRoute: string;
+    };
+  };
+}>;
 
 function doUpdateQuantity(value: number) {
   emits("update:quantity", value);
