@@ -1,11 +1,11 @@
 import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
-export const rootVariants = cva(`w-full gap-0`, {
+export const rootVariants = cva(`w-full gap-2`, {
   variants: {
     layout: {
-      list: `${ringClasses} ${invalidRingClasses} gap-2`,
-      grid: "grid w-full list-none",
+      list: `${ringClasses} ${invalidRingClasses}`,
+      grid: "grid list-none",
     },
   },
   defaultVariants: {
@@ -14,7 +14,7 @@ export const rootVariants = cva(`w-full gap-0`, {
 });
 
 export const itemVariants = cva(
-  "hover:bg-control-active-hover flex items-start space-x-1 border bg-control text-control-foreground shadow-sm transition-all duration-200",
+  "hover:bg-control-active-hover flex items-start space-x-1 border border-control bg-control text-control-foreground shadow-sm transition-all duration-200",
   {
     variants: {
       layout: {
