@@ -30,6 +30,8 @@ export { default as UpmBasketLoading } from "./components/basket/Loading.vue";
 export { default as UpmSummary } from "./components/basket/Summary.vue";
 export { default as UpmBasketProduct } from "./components/basket/product/BasketProduct.vue";
 export { default as UpmBasketProductCards } from "./components/basket/product/BasketProductCards.vue";
+export { default as UpmTermsConfigSelect } from "./components/product/TermsConfigSelect.vue";
+export { default as UpmTermCard } from "./components/product/TermCard.vue";
 // ---
 export { default as UpmTermsDescription } from "./components/basket/product/components/TermsDescription.vue";
 // ---
