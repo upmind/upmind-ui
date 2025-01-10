@@ -25,9 +25,8 @@
           :variant="variant"
           block
         >
-          <span class="flex h-full items-start">
+          <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
-              v-if="radio"
               :id="
                 manuallySelected ? manuallySelected.value : first(items).value
               "
