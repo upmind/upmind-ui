@@ -60,6 +60,7 @@ export interface Recommendation {
     seen?: boolean;
     added?: boolean;
     processing?: boolean;
+    loading?: boolean;
   };
 }
 // --------------------------------------------------------
@@ -85,6 +86,7 @@ export interface RecommendationsEngineContext {
   itemBuilder?: (item: ProductModel) => ProductModel;
   basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
   basketItemBuilder?: (model: ProductModel) => BasketProduct;
+  // ---
 }
 
 export interface RelatedProduct extends IRelatedObject {

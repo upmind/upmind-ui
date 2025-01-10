@@ -66,7 +66,7 @@ async function fetch(
     {
       basketId: basketSnapshot?.id,
       currencyId: basketSnapshot?.currency_id,
-      promotions: basketSnapshot?.promotions,
+      promotions: uniq(concat(basketSnapshot?.promotions, context?.promotions)),
     },
     { data }
   );
@@ -127,6 +127,7 @@ async function fetchSelected(
       basketId: basketSnapshot?.id,
       currencyId: basketSnapshot?.currency_id,
       promotions: basketSnapshot?.promotions,
+      // promotions: uniq(concat(basketSnapshot?.promotions, context?.promotions)),
     },
     { data }
   );
@@ -258,10 +259,12 @@ export function basketSubscription(callback: any, onReceive: any) {
 
       case "FETCH":
         fetch(event.target, event.context, basket)
-          .then(data => callback({ type: "FETCHED", data }))
+          .then(data =>
+            callback({ type: "FETCHED", data, context: event.context })
+          )
           .catch(error => {
             // console.error("basketHelper", "LOAD", error);
-            callback({ type: "ERROR", data: error });
+            callback({ type: "ERROR", data: error, context: event.context });
           });
         break;
 

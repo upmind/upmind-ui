@@ -19,8 +19,17 @@ import { useContext } from "../../utils";
  * @ignore
  */
 export const useRecommendationsEngine = () => {
-  const { service, add, remove, seen, reset, cancel, destroy, isReady } =
-    useUpmindRecommendationsEngine();
+  const {
+    service,
+    add,
+    remove,
+    seen,
+    fetchRecommendation,
+    reset,
+    cancel,
+    destroy,
+    isReady,
+  } = useUpmindRecommendationsEngine();
 
   const { state } = useActor(service);
 
@@ -45,9 +54,9 @@ export const useRecommendationsEngine = () => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: ["subscribing", "loading"].some(state.value.matches),
-      isProcessing: ["processing", "refreshing"].some(state.value.matches),
+      isLoading: ["subscribing"].some(state.value.matches),
       isRefreshing: ["refreshing"].some(state.value.matches),
+      isProcessing: ["processing"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       // ---
       isConfiguring: ["configuring"].some(state.value.matches),
@@ -69,6 +78,7 @@ export const useRecommendationsEngine = () => {
     cancel,
     destroy,
     seen,
+    fetchRecommendation,
     basketItem: useContext(state, "basketItem"),
   };
 };
