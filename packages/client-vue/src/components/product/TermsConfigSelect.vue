@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="props.as === 'FormField' ? FormField : props.as"
+    :is="mapComponent(props.as)"
     v-if="hasItems"
     id="terms"
     name="terms"
@@ -149,4 +149,13 @@ function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));
 }
+
+const mapComponent = (as: string) => {
+  switch (as) {
+    case "FormField" || "formfield":
+      return FormField;
+    default:
+      return as;
+  }
+};
 </script>
