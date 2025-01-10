@@ -4,6 +4,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import routingEngine from "./routingEngine.machine";
+import flows from "./flow.default";
 export * from "./types";
 
 // --- utils
@@ -15,11 +16,13 @@ export * from "./types";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 // @ts-ignore
-const service = interpret(routingEngine, { devTools: true });
+const service = interpret(routingEngine.withContext({ flows }), {
+  devTools: true,
+});
 
 // --------------------------------------------------------
 
-export const useRecommendationsEngine = () => {
+export const useRoutingEngine = () => {
   // --------------------------------------------------------
 
   return {
