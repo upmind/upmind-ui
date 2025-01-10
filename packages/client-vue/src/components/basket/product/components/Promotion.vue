@@ -1,14 +1,11 @@
 <template>
-  <span>
-    <Badge
-      v-if="discounted"
-      :color="disabled ? 'disabled' : 'promotion'"
-      variant="tonal"
-      class="rounded-lg uppercase"
-      :label="t('product.promotionSave', [currentSaving])"
-      :size="size"
-    />
-  </span>
+  <Badge
+    :color="disabled ? 'disabled' : 'promotion'"
+    variant="tonal"
+    class="rounded-lg uppercase"
+    :label="t('product.promotionSave', [currentSaving])"
+    :size="size"
+  />
 </template>
 
 <script lang="ts" setup>
