@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
-    "@upmind-automation/headless-vue": "^0.0.3",
+    "@upmind-automation/headless-vue": "^0.0.4",
     "@upmind-automation/upwind": "^0.0.0",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
