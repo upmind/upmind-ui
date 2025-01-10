@@ -30,6 +30,19 @@ import {
 
 // --------------------------------------------------------
 
+/**
+ * Fetches a single product with details .
+ *
+ * @param context - The parameters for fetching the product details.
+ * @param context.bpid - The basket product ID (optional).
+ * @param context.basketId - The basket ID.
+ * @param context.currencyId - The currency ID (optional).
+ * @param context.promotions - An array of promotion codes (optional).
+ * @param event - The event containing additional data.
+ * @param event.data - The data object containing the product ID.
+ * @param event.data.productId - The product ID.
+ * @returns A promise that resolves with the product data or rejects with an error message.
+ */
 async function fetch(
   {
     bpid,
@@ -50,7 +63,6 @@ async function fetch(
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
   const { get: getRequest, useUrl } = useApi();
-
   const params = {
     currency_id: currency.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
@@ -75,6 +87,19 @@ async function fetch(
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Fetches selected products for a given currency, applying any promotions if provided.
+ *
+ * @param {Object} context - The context for fetching selected products.
+ * @param {string} context.basketId - The ID of the basket.
+ * @param {string} [context.currencyId] - The ID of the currency (optional).
+ * @param {string[]} [context.promotions] - An array of promotion IDs (optional).
+ * @param {Object} event - The event containing product IDs.
+ * @param {Object} event.data - The data object containing product IDs.
+ * @param {string[]} context.data.productIds - An array of product IDs to fetch.
+ * @returns {Promise<any>} A promise that resolves with the fetched product data or rejects with an error message.
+ * @throws Will reject with "No Product ID provided" if no product IDs are given.
+ */
 async function fetchSelected(
   {
     basketId,
@@ -118,6 +143,21 @@ async function fetchSelected(
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Fetches related products for a given product in a basket.
+ *
+ * @param context - The parameters for fetching related products.
+ * @param context.basketId - The ID of the basket.
+ * @param context.currencyId - The ID of the currency (optional).
+ * @param context.promotions - An array of promotion IDs (optional).
+ * @param options - Additional options for fetching related products.
+ * @param event.data - The data for fetching related products.
+ * @param event.data.productId - The ID of the product.
+ * @param event.data.limit - The maximum number of related products to fetch (default is 4).
+ * @param event.data.offset - The offset for pagination (default is 0).
+ * @returns A promise that resolves to the related products data.
+ * @throws Will reject the promise if no product ID is provided.
+ */
 async function fetchRelated(
   {
     basketId,
@@ -173,6 +213,18 @@ async function fetchRelated(
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Updates a product in the basket.
+ *
+ * @param context - The parameters for the update operation.
+ * @param context.basketId - The ID of the basket.
+ * @param context.currencyId - (Optional) The ID of the currency.
+ * @param context.promotions - (Optional) An array of promotion IDs.
+ * @param event - Additional event for the update operation.
+ * @param event.data - The product data to be updated.
+ * @returns A promise that resolves with the updated product data.
+ * @throws Will reject the promise if no basket ID is provided or if no product data is provided.
+ */
 async function update(
   {
     basketId,
@@ -202,6 +254,15 @@ async function update(
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Removes a product from the basket.
+ *
+ * @param {Object} context - The parameters for the remove function.
+ * @param {string} context.basketId - The ID of the basket.
+ * @param {string} context.bpid - The ID of the product in the basket.
+ * @returns {Promise<any>} A promise that resolves with the response data if the product is successfully removed,
+ * or rejects with an error message if no basket ID is provided.
+ */
 async function remove({ basketId, bpid }: { basketId: string; bpid: string }) {
   const { del, useUrl } = useApi();
   if (!basketId) return Promise.reject("No basket provided/available");
@@ -213,6 +274,20 @@ async function remove({ basketId, bpid }: { basketId: string; bpid: string }) {
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Synchronizes the basket by updating it with valid products and existing products.
+ *
+ * @param {Object} context - The parameters for the sync function.
+ * @param {string} context.basketId - The ID of the basket to be updated.
+ * @param {Array} context.basketProducts - The existing products in the basket.
+ * @param {Array} context.promotions - The promotions to be applied to the products.
+ * @param {Object} event - The event for the sync function.
+ * @param {Array} event.data - The data containing the products to be validated and added to the basket.
+ *
+ * @returns {Promise<any>} - A promise that resolves with the updated basket data or rejects with an error.
+ *
+ * @throws {Error} - Throws an error if no basket ID is provided or if a model is not found for a product.
+ */
 async function sync(
   { basketId, basketProducts, promotions }: any,
   { data }: any
