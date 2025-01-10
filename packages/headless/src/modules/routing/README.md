@@ -63,153 +63,53 @@ import { useActor } from "@xstate/vue"; // or @xstate/react, @xstate/svelte, etc
 
 const { service } = useRoutingEngine({
   // Example Flow/Configuration
-  nodes: {
-    product: {
-      add: {
-        handler: (context, event) => {
-          // Assuming context contains productId
-          // This is where you would call your navigation function
-          router.push(`/product/add/${event.pid}`);
-        },
-        guard: context => {
-          // do logic to determine if we can transition to this node
-          const valid = true || false;
-          return valid;
-        },
-        targets: {
-          next: [
-            {
-              target: "product.notFound",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "product/requiresAction.related",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "product.requiresAction.invalid",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "product/recommendations",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "checkout",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "cart",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-          ],
-          back: [{ target: "cart" }],
-          fallback: [{ target: "cart" }],
-        },
-      },
-      edit: {
-        handler: (context, event) => {
-          // Assuming context contains productId
-          // This is where you would call your navigation function
-          router.push(`/product/edit/${event.bpid}`);
-        },
-        guard: context => {
-          // do logic to determine if we can transition to this node
-          const valid = true || false;
-          return valid;
-        },
-        targets: {
-          next: [
-            {
-              target: "product.notFound",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "product/requiresAction.related",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "product.requiresAction.invalid",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "product/recommendations",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "checkout",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-            {
-              target: "cart",
-              guard: context => {
-                // do logic to determine if we can transition to this node
-                const valid = true || false;
-                return valid;
-              },
-            },
-          ],
-          back: [{ target: "cart" }],
-          fallback: [{ target: "cart" }],
-        },
-      },
-      recommendations: {
-        handler: context => {
-          // Assuming context contains productId
-          // This is where you would call your navigation function
-          router.push(`/product/recommendations`);
-        },
-        guard: context => {
-          // do logic to determine if we can transition to this node
-          const valid = true || false;
-          return valid;
-        },
 
-        targets: [
+  [ROUTES.PRODUCT_ADD]: {
+    add: {
+      handler: (context, event) => {
+        // Assuming context contains productId
+        // This is where you would call your navigation function
+        router.push(`/product/add/${event.pid}`);
+      },
+      guard: context => {
+        // do logic to determine if we can transition to this node
+        const valid = true || false;
+        return valid;
+      },
+      targets: {
+        next: [
+          {
+            target: "product.notFound",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
+          {
+            target: "product/requiresAction.related",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
+          {
+            target: "product.requiresAction.invalid",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
+          {
+            target: "product/recommendations",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
           {
             target: "checkout",
             guard: context => {
@@ -227,11 +127,15 @@ const { service } = useRoutingEngine({
             },
           },
         ],
+        back: [{ target: "cart" }],
+        fallback: [{ target: "cart" }],
       },
     },
-    cart: {
-      handler: context => {
-        router.push("/cart");
+    edit: {
+      handler: (context, event) => {
+        // Assuming context contains productId
+        // This is where you would call your navigation function
+        router.push(`/product/edit/${event.bpid}`);
       },
       guard: context => {
         // do logic to determine if we can transition to this node
@@ -240,6 +144,38 @@ const { service } = useRoutingEngine({
       },
       targets: {
         next: [
+          {
+            target: "product.notFound",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
+          {
+            target: "product/requiresAction.related",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
+          {
+            target: "product.requiresAction.invalid",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
+          {
+            target: "product/recommendations",
+            guard: context => {
+              // do logic to determine if we can transition to this node
+              const valid = true || false;
+              return valid;
+            },
+          },
           {
             target: "checkout",
             guard: context => {
@@ -248,24 +184,8 @@ const { service } = useRoutingEngine({
               return valid;
             },
           },
-        ],
-        back: [], // dont go anywhere
-        fallback: [], // dont go anywhere
-      },
-    },
-    auth: {
-      handler: context => {
-        router.push("/auth");
-      },
-      guard: context => {
-        // do logic to determine if we can transition to this node
-        const valid = true || false;
-        return valid;
-      },
-      targets: {
-        next: [
           {
-            target: "checkout",
+            target: "cart",
             guard: context => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
@@ -277,40 +197,119 @@ const { service } = useRoutingEngine({
         fallback: [{ target: "cart" }],
       },
     },
-    checkout: {
+    recommendations: {
       handler: context => {
-        router.push("/checkout");
+        // Assuming context contains productId
+        // This is where you would call your navigation function
+        router.push(`/product/recommendations`);
       },
       guard: context => {
         // do logic to determine if we can transition to this node
         const valid = true || false;
         return valid;
       },
-      targets: {
-        next: [
-          {
-            target: "order.success",
-            guard: context => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
-              return valid;
-            },
+
+      targets: [
+        {
+          target: "checkout",
+          guard: context => {
+            // do logic to determine if we can transition to this node
+            const valid = true || false;
+            return valid;
           },
-          {
-            target: "order.failed",
-            guard: context => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
-              return valid;
-            },
+        },
+        {
+          target: "cart",
+          guard: context => {
+            // do logic to determine if we can transition to this node
+            const valid = true || false;
+            return valid;
           },
-        ],
-        back: [{ target: "cart" }],
-        fallback: [{ target: "cart" }],
-      },
+        },
+      ],
     },
-    // ... other nodes ...
   },
+  cart: {
+    handler: context => {
+      router.push("/cart");
+    },
+    guard: context => {
+      // do logic to determine if we can transition to this node
+      const valid = true || false;
+      return valid;
+    },
+    targets: {
+      next: [
+        {
+          target: "checkout",
+          guard: context => {
+            // do logic to determine if we can transition to this node
+            const valid = true || false;
+            return valid;
+          },
+        },
+      ],
+      back: [], // dont go anywhere
+      fallback: [], // dont go anywhere
+    },
+  },
+  auth: {
+    handler: context => {
+      router.push("/auth");
+    },
+    guard: context => {
+      // do logic to determine if we can transition to this node
+      const valid = true || false;
+      return valid;
+    },
+    targets: {
+      next: [
+        {
+          target: "checkout",
+          guard: context => {
+            // do logic to determine if we can transition to this node
+            const valid = true || false;
+            return valid;
+          },
+        },
+      ],
+      back: [{ target: "cart" }],
+      fallback: [{ target: "cart" }],
+    },
+  },
+  checkout: {
+    handler: context => {
+      router.push("/checkout");
+    },
+    guard: context => {
+      // do logic to determine if we can transition to this node
+      const valid = true || false;
+      return valid;
+    },
+    targets: {
+      next: [
+        {
+          target: "order.success",
+          guard: context => {
+            // do logic to determine if we can transition to this node
+            const valid = true || false;
+            return valid;
+          },
+        },
+        {
+          target: "order.failed",
+          guard: context => {
+            // do logic to determine if we can transition to this node
+            const valid = true || false;
+            return valid;
+          },
+        },
+      ],
+      back: [{ target: "cart" }],
+      fallback: [{ target: "cart" }],
+    },
+  },
+  // ... other nodes ...
 });
 const { state, send } = useActor(service);
 

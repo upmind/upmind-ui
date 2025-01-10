@@ -425,7 +425,6 @@ export default createMachine(
             raw.related,
             (result: any[], rawRelated: any) => {
               if (context?.id == rawRelated?.id) rawRelated.product = data;
-              rawRelated.product ??= {}; // ensure we at least have an empty product object
               const added = includes(raw.added, rawRelated.id);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
@@ -455,7 +454,6 @@ export default createMachine(
             raw.related,
             (result: any[], rawRelated: any) => {
               if (context?.id == rawRelated?.id) rawRelated.product = data;
-              rawRelated.product ??= {}; // ensure we at least have an empty product object
               const added = includes(raw.added, rawRelated.id);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;

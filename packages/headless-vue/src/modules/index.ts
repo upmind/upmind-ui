@@ -5,7 +5,7 @@ export * from "./domain";
 export * from "./feedback";
 export * from "./lookup";
 export * from "./product";
-export * from "./recommendationsEngine";
+export * from "./recommendations";
 export * from "./requests";
 export * from "./session";
 export * from "./system";
