@@ -12,7 +12,7 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 import FormField from "../../FormField.vue";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { has } from "lodash-es";
 
 // --- types
@@ -22,7 +22,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps } = useUpwindRenderer(
+const { control, formFieldProps } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 </script>

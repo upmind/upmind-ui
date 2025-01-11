@@ -18,7 +18,7 @@ import FormField from "../../FormField.vue";
 import { CheckboxCards } from "../../../checkbox-cards";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 
 // --- types
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
@@ -27,7 +27,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpwindRenderer({
+const { control, formFieldProps, onInput } = useUpmindUIRenderer({
   ...useJsonFormsMultiEnumControl(props),
   handleChange: () => {
     debugger;

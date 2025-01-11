@@ -7,6 +7,6 @@ export * from "./types";
 
 // --- custom elements
 import Autocomplete from "./Autocomplete.ce.vue";
-export const UwAutocomplete = defineCustomElement(Autocomplete);
+export const UpmAutocomplete = defineCustomElement(Autocomplete);
 
 // ---

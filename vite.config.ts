@@ -28,12 +28,12 @@ export default defineConfig({
     lib: {
       // entry: ['./src/index.ts','./src/auto.ts'],
       entry: './src/index.ts',
-      name: "upwind",
-      fileName: "upwind",
+      name: "upmind-ui",
+      fileName: "upmind-ui",
     },
     rollupOptions: {
       output: {
-        assetFileNames: "upwind.[ext]",
+        assetFileNames: "upmind-ui.[ext]",
       },
     },
   },

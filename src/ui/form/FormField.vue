@@ -118,7 +118,7 @@ const props = withDefaults(defineProps<FormControlProps>(), {
   dirty: false,
   touched: false,
   // ---
-  upwindConfig: () => ({
+  upmindUIConfig: () => ({
     form: {
       root: [],
       loading: [],
@@ -162,7 +162,7 @@ const variants = useStyles(
   meta,
   config,
   target,
-  props.upwindConfig
+  props.upmindUIConfig
 );
 
 // --- methods

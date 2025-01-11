@@ -19,7 +19,7 @@ import FormField from "../../FormField.vue";
 import { Textarea } from "../../../textarea";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
 
 // --- types
@@ -30,7 +30,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput, formFieldProps } = useUpwindRenderer(
+const { control, appliedOptions, onInput, formFieldProps } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 

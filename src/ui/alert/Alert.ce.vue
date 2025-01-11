@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   variant: "outline",
   color: "base",
   // --- styles
-  upwindConfig: () => ({ alert: {} }),
+  upmindUIConfig: () => ({ alert: {} }),
   class: "",
 });
 
@@ -74,6 +74,6 @@ const variants = useStyles(
   "alert",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ alert: string }>;
 </script>

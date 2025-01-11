@@ -100,7 +100,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   skrim: "dark",
   to: "body",
   // --- styles
-  upwindConfig: () => ({
+  upmindUIConfig: () => ({
     dialog: {
       overlay: {},
       content: {},
@@ -128,7 +128,7 @@ const variants = useStyles(
   ["dialog"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   dialog: { overlay: string; content: string; header: string; footer: string };
 }>;

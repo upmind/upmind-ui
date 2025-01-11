@@ -31,7 +31,7 @@ import {
 // --- local
 import config from "./config.cva";
 // --- utils
-import { useUpwindLayoutRenderer } from "../utils";
+import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
@@ -54,7 +54,7 @@ const props = defineProps({
     default: false,
   },
   // --- Provide a way to add custom styles for a specific instance of the component
-  upwindConfig: { type: [Object, Array], default: () => ({}) },
+  upmindUIConfig: { type: [Object, Array], default: () => ({}) },
 });
 
 const meta = computed(() => ({
@@ -64,8 +64,8 @@ const meta = computed(() => ({
   isPristine: props.pristine,
 }));
 
-const styles = useStyles(["layout"], meta, config, props.upwindConfig);
-const { layout, appliedOptions } = useUpwindLayoutRenderer(
+const styles = useStyles(["layout"], meta, config, props.upmindUIConfig);
+const { layout, appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)
 );
 </script>

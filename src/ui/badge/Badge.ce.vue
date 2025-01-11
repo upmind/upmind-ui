@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   color: "base",
   size: "md",
   // --- styles
-  upwindConfig: () => ({ badge: {} }),
+  upmindUIConfig: () => ({ badge: {} }),
   class: "",
 });
 
@@ -52,6 +52,6 @@ const variants = useStyles(
   "badge",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ badge: string }>;
 </script>

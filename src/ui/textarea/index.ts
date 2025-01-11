@@ -7,4 +7,4 @@ export { type TextareaProps } from "./types";
 
 // --- custom elements
 import Textarea from "./Textarea.ce.vue";
-export const UwTextarea = defineCustomElement(Textarea);
+export const UpmTextarea = defineCustomElement(Textarea);

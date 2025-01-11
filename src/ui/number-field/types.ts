@@ -25,7 +25,7 @@ export interface NumberFieldProps
   variant?: NumberFieldVariants["variant"];
   height?: NumberFieldVariants["height"];
   // --- styles
-  upwindConfig?: {};
+  upmindUIConfig?: {};
   class?: HTMLAttributes["class"];
   classField?: HTMLAttributes["class"];
 }

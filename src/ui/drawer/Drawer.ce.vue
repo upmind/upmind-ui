@@ -106,7 +106,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   // --- state
   dismissible: false,
   // --- styles
-  upwindConfig: () => ({
+  upmindUIConfig: () => ({
     drawer: {
       container: {},
       overlay: {},
@@ -156,7 +156,7 @@ const variants = useStyles(
   ["drawer"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   drawer: {
     overlay: string;

@@ -25,6 +25,6 @@ export interface ToggleProps {
   readonly?: boolean;
   required?: boolean;
   // ---
-  upwindConfig?: { input: Partial<ToggleVariantProps> };
+  upmindUIConfig?: { input: Partial<ToggleVariantProps> };
   class?: HTMLAttributes["class"];
 }

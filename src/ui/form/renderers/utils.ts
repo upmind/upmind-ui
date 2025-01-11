@@ -15,7 +15,7 @@ import type { FormControlProps } from "../types";
 import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 
-export const useUpwindRenderer = <
+export const useUpmindUIRenderer = <
   I extends { control: any; handleChange: Function },
 >(
   input: I,
@@ -72,7 +72,7 @@ export const useUpwindRenderer = <
   };
 };
 
-export const useUpwindLayoutRenderer = <I extends { layout: any }>(
+export const useUpmindUILayoutRenderer = <I extends { layout: any }>(
   input: I
 ) => {
   const appliedOptions = computed(() =>
@@ -88,7 +88,7 @@ export const useUpwindLayoutRenderer = <I extends { layout: any }>(
   };
 };
 
-export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
+export const useUpmindUILabelRenderer = <I extends { label: any }>(input: I) => {
   const appliedOptions = computed(() =>
     merge(
       {},
@@ -102,7 +102,7 @@ export const useUpwindLabelRenderer = <I extends { label: any }>(input: I) => {
   };
 };
 
-export const useUpwindArrayRenderer = <
+export const useUpmindUIArrayRenderer = <
   I extends { control: any; addItem?: Function; removeItem?: Function },
 >(
   input: I

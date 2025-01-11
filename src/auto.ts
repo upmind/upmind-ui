@@ -1,31 +1,31 @@
 // --- styles
-import "./assets/upwind.css";
+import "./assets/upmind-ui.css";
 
-import { UwAlert } from "./ui/alert";
-import { UwAvatar } from "./ui/avatar";
-import { UwBadge } from "./ui/badge";
-import { UwButton } from "./ui/button";
-import { UwCombobox } from "./ui/combobox";
-import { UwDialog } from "./ui/dialog";
-import { UwDrawer } from "./ui/drawer";
-import { UwIcon } from "./ui/icon";
-import { UwIndicator } from "./ui/indicator";
-import { UwSonner } from "./ui/sonner";
-import { UwTabs } from "./ui/tabs";
-import { UwTooltip } from "./ui/tooltip";
+import { UpmAlert } from "./ui/alert";
+import { UpmAvatar } from "./ui/avatar";
+import { UpmBadge } from "./ui/badge";
+import { UpmButton } from "./ui/button";
+import { UpmCombobox } from "./ui/combobox";
+import { UpmDialog } from "./ui/dialog";
+import { UpmDrawer } from "./ui/drawer";
+import { UpmIcon } from "./ui/icon";
+import { UpmIndicator } from "./ui/indicator";
+import { UpmSonner } from "./ui/sonner";
+import { UpmTabs } from "./ui/tabs";
+import { UpmTooltip } from "./ui/tooltip";
 
 // -----------------------------------------------------------------------------
 
 // --- Auto register all custom elements
-customElements.define("uw-alert", UwAlert);
-customElements.define("uw-avatar", UwAvatar);
-customElements.define("uw-badge", UwBadge);
-customElements.define("uw-button", UwButton);
-customElements.define("uw-combobox", UwCombobox);
-customElements.define("uw-dialog", UwDialog);
-customElements.define("uw-drawer", UwDrawer);
-customElements.define("upw-icon", UwIcon);
-customElements.define("uw-indicator", UwIndicator);
-customElements.define("uw-sonner", UwSonner);
-customElements.define("uw-tabs", UwTabs);
-customElements.define("uw-tooltip", UwTooltip);
+customElements.define("upm-alert", UpmAlert);
+customElements.define("upm-avatar", UpmAvatar);
+customElements.define("upm-badge", UpmBadge);
+customElements.define("upm-button", UpmButton);
+customElements.define("upm-combobox", UpmCombobox);
+customElements.define("upm-dialog", UpmDialog);
+customElements.define("upm-drawer", UpmDrawer);
+customElements.define("upm-icon", UpmIcon);
+customElements.define("upm-indicator", UpmIndicator);
+customElements.define("upm-sonner", UpmSonner);
+customElements.define("upm-tabs", UpmTabs);
+customElements.define("upm-tooltip", UpmTooltip);

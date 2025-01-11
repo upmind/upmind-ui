@@ -7,4 +7,4 @@ export { type ButtonProps } from "./types";
 
 // --- custom elements
 import Button from "./Button.ce.vue";
-export const UwButton = defineCustomElement(Button);
+export const UpmButton = defineCustomElement(Button);

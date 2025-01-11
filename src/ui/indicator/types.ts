@@ -16,6 +16,6 @@ export interface IndicatorProps {
   shape?: IndicatorVariantProps["shape"];
 
   // ---
-  upwindConfig?: { indicator: Partial<IndicatorProps> };
+  upmindUIConfig?: { indicator: Partial<IndicatorProps> };
   class?: HTMLAttributes["class"];
 }

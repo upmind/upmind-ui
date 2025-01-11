@@ -8,4 +8,4 @@ export { type SelectProps } from "./types";
 
 // --- custom elements
 import Select from "./Select.ce.vue";
-export const UwSelect = defineCustomElement(Select);
+export const UpmSelect = defineCustomElement(Select);

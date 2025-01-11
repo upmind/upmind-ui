@@ -79,7 +79,7 @@ const variants = useStyles(
   ["radioCards"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   radioCards: {
     trigger: string;

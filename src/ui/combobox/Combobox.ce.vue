@@ -190,7 +190,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   iconSize: "2xs",
 
   // --- styles
-  upwindConfig: () => ({ combobox: {} }),
+  upmindUIConfig: () => ({ combobox: {} }),
   class: "",
   popoverClass: "",
 });
@@ -216,7 +216,7 @@ const variants = useStyles(
   ["combobox"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   combobox: { root: string; trigger: string; content: string; item: string };
 }>;
