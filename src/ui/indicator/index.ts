@@ -7,4 +7,4 @@ export { type IndicatorProps } from "./types";
 
 // --- custom elements
 import Indicator from "./Indicator.ce.vue";
-export const UwIndicator = defineCustomElement(Indicator);
+export const UpmIndicator = defineCustomElement(Indicator);

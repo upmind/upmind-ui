@@ -21,6 +21,6 @@ export interface TooltipProps
   // ---
   color?: TooltipVariantProps["color"];
   // ---
-  upwindConfig?: { tooltip: Partial<TooltipProps> };
+  upmindUIConfig?: { tooltip: Partial<TooltipProps> };
   class?: HTMLAttributes["class"];
 }

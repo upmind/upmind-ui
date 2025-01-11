@@ -40,7 +40,7 @@ import { useStyles, cn } from "../../utils";
 
 // --- components
 import ButtonRoot from "./Button.vue";
-import { Spinner } from "@upmind-automation/upwind";
+import { Spinner } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -59,7 +59,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   variant: "flat",
   block: false,
   // --- styles
-  upwindConfig: () => ({ button: {} }),
+  upmindUIConfig: () => ({ button: {} }),
   class: "",
   contentClass: "",
 });
@@ -77,6 +77,6 @@ const variants = useStyles(
   ["button"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ button: string }>;
 </script>

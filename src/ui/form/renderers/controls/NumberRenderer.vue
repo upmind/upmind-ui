@@ -21,7 +21,7 @@ import FormField from "../../FormField.vue";
 import { NumberField } from "../../../number-field";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
 
 // --- types
@@ -31,7 +31,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } = useUpwindRenderer(
+const { control, appliedOptions, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props),
   (value: string) => {
     return !isNumber(value)

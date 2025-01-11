@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   // ---
   size: "md",
   // ---
-  upwindConfig: () => ({ icon: {} }),
+  upmindUIConfig: () => ({ icon: {} }),
   class: "",
 });
 
@@ -40,7 +40,7 @@ const variants = useStyles(
   "icon",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ icon: string }>;
 
 // ---

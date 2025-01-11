@@ -7,4 +7,4 @@ export { type SwitchProps } from "./types";
 
 // --- custom elements
 import Switch from "./Switch.ce.vue";
-export const UwSwitch = defineCustomElement(Switch);
+export const UpmSwitch = defineCustomElement(Switch);

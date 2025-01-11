@@ -4,6 +4,6 @@ import type { HTMLAttributes } from "vue";
 // --- types
 export interface SkeletonProps {
   // --- styles
-  upwindConfig?: {};
+  upmindUIConfig?: {};
   class?: HTMLAttributes["class"];
 }

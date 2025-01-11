@@ -24,6 +24,6 @@ export { type DropdownMenuProps, type DropdownMenuItemProps } from "./types";
 
 // --- custom elements
 import DropdownMenu from "./DropdownMenu.ce.vue";
-export const UwDropdownMenu = defineCustomElement(DropdownMenu);
+export const UpmDropdownMenu = defineCustomElement(DropdownMenu);
 
 // ---

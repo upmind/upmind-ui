@@ -56,11 +56,11 @@ import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./interstitial.config";
 
 // --- components
-import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upwind";
+import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -91,7 +91,7 @@ const variants = useStyles(
   "interstitial",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   interstitial: {
     root: string;

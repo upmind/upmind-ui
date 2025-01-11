@@ -31,7 +31,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   radio?: boolean;
   side?: PopoverContentProps["side"];
   // ---
-  upwindConfig?: { tooltip: Partial<SelectCardsProps> };
+  upmindUIConfig?: { tooltip: Partial<SelectCardsProps> };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }

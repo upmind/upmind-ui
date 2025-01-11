@@ -55,7 +55,7 @@ import { Button } from "../button";
 
 // --- local
 import config from "./form.config";
-import { upwindRenderers } from "./renderers";
+import { upmindUIRenderers } from "./renderers";
 
 // --- utils
 
@@ -91,7 +91,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   additionalRenderers: () => [],
   additionalErrors: () => [],
   // --- Provide a way to add custom variants for a specific instance of the component
-  upwindConfig: () => ({ form: {} }),
+  upmindUIConfig: () => ({ form: {} }),
   class: "",
 });
 
@@ -139,13 +139,13 @@ const variants = useStyles(
   ["form", "form.button"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   form: { root: string; content: string; actions: string; button: string };
 }>;
 
 const renderers = Object.freeze([
-  ...upwindRenderers,
+  ...upmindUIRenderers,
   ...props.additionalRenderers,
 ]);
 

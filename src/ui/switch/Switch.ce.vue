@@ -28,7 +28,7 @@ import type { SwitchProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SwitchProps>(), {
-  upwindConfig: () => ({ input: {} }),
+  upmindUIConfig: () => ({ input: {} }),
   class: "",
 });
 
@@ -37,7 +37,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upwindConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -51,6 +51,6 @@ const variants = useStyles(
   ["switch"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ switch: string }>;
 </script>

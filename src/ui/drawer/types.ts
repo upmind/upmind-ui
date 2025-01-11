@@ -37,7 +37,7 @@ export interface DrawerProps extends DrawerPortalProps {
   fit?: DrawerInnerVariantProps["fit"];
   skrim?: DrawerOverlayVariantProps["skrim"];
   // --- styles
-  upwindConfig?: {
+  upmindUIConfig?: {
     drawer: {
       overlay: Partial<DrawerOverlayVariantProps>;
       content: CxOptions;

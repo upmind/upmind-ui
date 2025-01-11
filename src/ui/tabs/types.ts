@@ -33,7 +33,7 @@ export interface TabsProps
   alignment?: TabsListVariantProps["alignment"];
   width?: TabsListVariantProps["width"];
   // ---
-  upwindConfig?: {
+  upmindUIConfig?: {
     tabs: {
       trigger: VariantProps<typeof tabsTriggerVariants>;
       list: VariantProps<typeof tabsListVariants>;

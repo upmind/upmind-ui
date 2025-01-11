@@ -28,7 +28,7 @@ import type { CheckboxProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<CheckboxProps>(), {
-  upwindConfig: () => ({ checkbox: {} }),
+  upmindUIConfig: () => ({ checkbox: {} }),
   size: "md",
   width: "full",
   class: "",
@@ -39,7 +39,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upwindConfig", "defaultChecked", "checked"])
+  omit(props, ["class", "upmindUIConfig", "defaultChecked", "checked"])
 );
 
 const checked = useVModel(props, "checked", emits, {
@@ -55,6 +55,6 @@ const variants = useStyles(
   ["checkbox"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ checkbox: string }>;
 </script>

@@ -70,7 +70,7 @@ import FormMessage from "../../FormMessage.vue";
 import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -79,7 +79,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpwindRenderer(
+const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props),
   value => !!value // Ensure bool value is set to the opposite value rather than null
 );

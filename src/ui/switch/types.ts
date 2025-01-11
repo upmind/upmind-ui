@@ -20,6 +20,6 @@ export interface SwitchProps {
   readonly?: boolean;
   required?: boolean;
   // ---
-  upwindConfig?: { input: Partial<InputVariantProps> };
+  upmindUIConfig?: { input: Partial<InputVariantProps> };
   class?: HTMLAttributes["class"];
 }

@@ -84,7 +84,7 @@ const variants = useStyles(
   ["checkboxCards"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   checkboxCards: {
     trigger: string;

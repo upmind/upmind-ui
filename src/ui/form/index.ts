@@ -18,4 +18,4 @@ export * from "./types";
 
 // --- custom elements
 import FormCE from "./Form.ce.vue";
-export const UwForm = defineCustomElement(FormCE);
+export const UpmForm = defineCustomElement(FormCE);

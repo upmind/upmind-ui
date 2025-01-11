@@ -22,7 +22,7 @@ import {
 } from "@jsonforms/vue";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
@@ -39,7 +39,7 @@ const props = defineProps({
   ...rendererProps<ControlElement>(),
 });
 
-const { control } = useUpwindRenderer(useJsonFormsControlWithDetail(props));
+const { control } = useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
 
 const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   const uiSchemaGenerator = () => {

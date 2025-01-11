@@ -46,7 +46,7 @@ export interface DropdownMenuProps
   size?: ButtonProps["size"];
   width?: ContentVariantProps["width"];
   // --- styles
-  upwindConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
+  upmindUIConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
   itemClass?: HTMLAttributes["class"];

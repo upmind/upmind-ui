@@ -23,7 +23,7 @@ import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import FormField from "../../FormField.vue";
 import { Autocomplete } from "../../../autocomplete";
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { has, get } from "lodash-es";
 
 // --- types
@@ -33,7 +33,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput, formFieldProps } = useUpwindRenderer(
+const { control, appliedOptions, onInput, formFieldProps } = useUpmindUIRenderer(
   useJsonFormsOneOfEnumControl(props)
 );
 

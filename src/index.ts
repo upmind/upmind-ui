@@ -11,20 +11,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import { UwAutocomplete, Autocomplete } from "./ui/autocomplete";
+import { UpmAutocomplete, Autocomplete } from "./ui/autocomplete";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
-import { UwAlert, Alert } from "./ui/alert";
-import { UwAvatar, Avatar, type AvatarProps } from "./ui/avatar";
-import { UwBadge, Badge, type BadgeProps } from "./ui/badge";
-import { UwButton, Button, type ButtonProps } from "./ui/button";
-import { UwCheckbox, Checkbox, type CheckboxProps } from "./ui/checkbox";
+import { UpmAlert, Alert } from "./ui/alert";
+import { UpmAvatar, Avatar, type AvatarProps } from "./ui/avatar";
+import { UpmBadge, Badge, type BadgeProps } from "./ui/badge";
+import { UpmButton, Button, type ButtonProps } from "./ui/button";
+import { UpmCheckbox, Checkbox, type CheckboxProps } from "./ui/checkbox";
 import {
   CheckboxCards,
   type CheckboxCardsProps,
   type CheckboxCardsItemProps,
 } from "./ui/checkbox-cards";
 import {
-  UwCombobox,
+  UpmCombobox,
   Combobox,
   type ComboboxProps,
   type ComboboxItemProps,
@@ -38,16 +38,16 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "./ui/carousel";
-import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
-import { UwDrawer, Drawer } from "./ui/drawer";
+import { UpmDialog, Dialog, type DialogProps } from "./ui/dialog";
+import { UpmDrawer, Drawer } from "./ui/drawer";
 import {
-  UwDropdownMenu,
+  UpmDropdownMenu,
   DropdownMenu,
   type DropdownMenuItemProps,
 } from "./ui/dropdown-menu";
 import { SelectCards, type SelectCardsItemProps } from "./ui/select-cards";
 import {
-  UwForm,
+  UpmForm,
   Form,
   FormField,
   FormControl,
@@ -56,31 +56,31 @@ import {
   FormMessage,
   type FormProps,
 } from "./ui/form";
-import { UwIcon, Icon, type IconProps } from "./ui/icon";
+import { UpmIcon, Icon, type IconProps } from "./ui/icon";
 import {
-  UwIconAnimated,
+  UpmIconAnimated,
   IconAnimated,
   type AnimatedIconProps,
 } from "./ui/icon-animated";
-import { UwIndicator, Indicator } from "./ui/indicator";
+import { UpmIndicator, Indicator } from "./ui/indicator";
 import {
-  UwInterstitial,
+  UpmInterstitial,
   Interstitial,
   type InterstitialProps,
   type InterstitialActionProps,
 } from "./ui/interstitial";
-import { UwInput, Input, type InputProps } from "./ui/input";
+import { UpmInput, Input, type InputProps } from "./ui/input";
 import {
-  UwNumberField,
+  UpmNumberField,
   NumberField,
   type NumberFieldProps,
 } from "./ui/number-field";
-import { UwLoading, Loading } from "./ui/loading";
-import { UwSonner, Sonner } from "./ui/sonner";
-import { UwSpinner, Spinner } from "./ui/spinner";
-import { UwTabs, Tabs, type TabItems } from "./ui/tabs";
-import { UwTooltip, Tooltip } from "./ui/tooltip";
-import { UwTextarea, Textarea, type TextareaProps } from "./ui/textarea";
+import { UpmLoading, Loading } from "./ui/loading";
+import { UpmSonner, Sonner } from "./ui/sonner";
+import { UpmSpinner, Spinner } from "./ui/spinner";
+import { UpmTabs, Tabs, type TabItems } from "./ui/tabs";
+import { UpmTooltip, Tooltip } from "./ui/tooltip";
+import { UpmTextarea, Textarea, type TextareaProps } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
 import {
@@ -89,8 +89,8 @@ import {
   type RadioCardsItemProps,
 } from "./ui/radio-cards";
 
-import { UwSelect, Select, type SelectProps } from "./ui/select";
-import { UwSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
+import { UpmSelect, Select, type SelectProps } from "./ui/select";
+import { UpmSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
 
 export { default as Markdown } from "./ui/markdown/Markdown.vue";
 export { default as Lineclamp } from "./ui/lineclamp/Lineclamp.vue";
@@ -188,58 +188,58 @@ export {
   type SelectCardsItemProps,
 
   // --- Custom Elements
-  UwAlert,
-  UwAutocomplete,
-  UwAvatar,
-  UwBadge,
-  UwButton,
-  UwCheckbox,
-  UwCombobox,
-  UwDialog,
-  UwDrawer,
-  UwDropdownMenu,
-  UwForm,
-  UwIcon,
-  UwIconAnimated,
-  UwIndicator,
-  UwInterstitial,
-  UwInput,
-  UwNumberField,
-  UwSelect,
-  UwSkeleton,
-  UwSonner,
-  UwTabs,
-  UwTooltip,
-  UwTextarea,
+  UpmAlert,
+  UpmAutocomplete,
+  UpmAvatar,
+  UpmBadge,
+  UpmButton,
+  UpmCheckbox,
+  UpmCombobox,
+  UpmDialog,
+  UpmDrawer,
+  UpmDropdownMenu,
+  UpmForm,
+  UpmIcon,
+  UpmIconAnimated,
+  UpmIndicator,
+  UpmInterstitial,
+  UpmInput,
+  UpmNumberField,
+  UpmSelect,
+  UpmSkeleton,
+  UpmSonner,
+  UpmTabs,
+  UpmTooltip,
+  UpmTextarea,
 };
 
 // --- utility for registering all custom elements
 export function register() {
-  customElements.define("uw-alert", UwAlert);
-  customElements.define("uw-autocomplete", UwAutocomplete);
-  customElements.define("uw-avatar", UwAvatar);
-  customElements.define("uw-badge", UwBadge);
-  customElements.define("uw-button", UwButton);
-  customElements.define("uw-checkbox", UwCheckbox);
-  customElements.define("uw-combobox", UwCombobox);
-  customElements.define("uw-dialog", UwDialog);
-  customElements.define("uw-drawer", UwDrawer);
-  customElements.define("uw-dropdown-menu", UwDropdownMenu);
-  customElements.define("uw-form", UwForm);
-  customElements.define("uw-icon", UwIcon);
-  customElements.define("uw-icon-animated", UwIconAnimated);
-  customElements.define("uw-indicator", UwIndicator);
-  customElements.define("uw-interstitial", UwInterstitial);
-  customElements.define("uw-input", UwInput);
-  customElements.define("uw-number-field", UwNumberField);
-  customElements.define("uw-sonner", UwSonner);
-  customElements.define("uw-spinner", UwSpinner);
-  customElements.define("uw-select", UwSelect);
-  customElements.define("uw-skeleton", UwSkeleton);
-  customElements.define("uw-tabs", UwTabs);
-  customElements.define("uw-tooltip", UwTooltip);
-  customElements.define("uw-textarea", UwTextarea);
-  customElements.define("uw-loading", UwLoading);
+  customElements.define("upm-alert", UpmAlert);
+  customElements.define("upm-autocomplete", UpmAutocomplete);
+  customElements.define("upm-avatar", UpmAvatar);
+  customElements.define("upm-badge", UpmBadge);
+  customElements.define("upm-button", UpmButton);
+  customElements.define("upm-checkbox", UpmCheckbox);
+  customElements.define("upm-combobox", UpmCombobox);
+  customElements.define("upm-dialog", UpmDialog);
+  customElements.define("upm-drawer", UpmDrawer);
+  customElements.define("upm-dropdown-menu", UpmDropdownMenu);
+  customElements.define("upm-form", UpmForm);
+  customElements.define("upm-icon", UpmIcon);
+  customElements.define("upm-icon-animated", UpmIconAnimated);
+  customElements.define("upm-indicator", UpmIndicator);
+  customElements.define("upm-interstitial", UpmInterstitial);
+  customElements.define("upm-input", UpmInput);
+  customElements.define("upm-number-field", UpmNumberField);
+  customElements.define("upm-sonner", UpmSonner);
+  customElements.define("upm-spinner", UpmSpinner);
+  customElements.define("upm-select", UpmSelect);
+  customElements.define("upm-skeleton", UpmSkeleton);
+  customElements.define("upm-tabs", UpmTabs);
+  customElements.define("upm-tooltip", UpmTooltip);
+  customElements.define("upm-textarea", UpmTextarea);
+  customElements.define("upm-loading", UpmLoading);
 }
 
 // --- utility for registering custom elements and allowing for code splitting

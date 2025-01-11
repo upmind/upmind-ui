@@ -7,6 +7,6 @@ export * from "./types";
 
 // --- custom elements
 import Combobox from "./Combobox.ce.vue";
-export const UwCombobox = defineCustomElement(Combobox);
+export const UpmCombobox = defineCustomElement(Combobox);
 
 // ---

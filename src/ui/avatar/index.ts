@@ -7,4 +7,4 @@ export { type AvatarProps } from "./types";
 
 // --- custom elements
 import Avatar from "./Avatar.ce.vue";
-export const UwAvatar = defineCustomElement(Avatar);
+export const UpmAvatar = defineCustomElement(Avatar);
