@@ -46,6 +46,9 @@
     - dependencies
     - (headless) build
     - (headless) check version
+  dependencies:
+    - dependencies
+    - (headless) build
   script:
     - echo "${INTERNAL_NPMRC}" > .npmrc
     - npm --workspace packages/headless publish
@@ -58,6 +61,10 @@
       when: manual
   needs:
     - dependencies
+    - (headless) build
     - (headless) publish internal
+  dependencies:
+    - dependencies
+    - (headless) build
   script:
     - npm --workspace packages/headless publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
