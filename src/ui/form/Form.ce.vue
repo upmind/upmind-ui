@@ -99,6 +99,7 @@ const emits = defineEmits<{
   reject: [];
   resolve: [Object];
   "update:modelValue": [Object];
+  "update:uischema": [Object];
   valid: [boolean];
   click: [{ model: Object; meta: Object }];
   action: [{ name: string; model: Object; meta: Object }];

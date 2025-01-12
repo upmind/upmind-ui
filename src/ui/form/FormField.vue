@@ -25,6 +25,7 @@
                 :label="tooltip"
                 side="right"
                 color="primary"
+                class="max-w-72 text-center text-xs"
               >
                 <Icon
                   icon="information-circle-alt"

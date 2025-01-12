@@ -61,10 +61,13 @@ function maybeFocus([section]) {
     ) {
       el = el.querySelector("input");
     }
-    if (el.getAttribute("tabindex")) {
+    if (el?.getAttribute("tabindex")) {
       el.setAttribute("tabindex", -1);
     }
-    el.focus();
+
+    if (el) {
+      el.focus();
+    }
 
     // Prevents focusing on hidden elements
     if (!el?.closest('[aria-hidden="true"]')) {

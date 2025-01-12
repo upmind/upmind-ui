@@ -5,6 +5,12 @@ import "./assets/main.css";
 // --- UI Components / Custom elements
 export * from "./ui/form/renderers/utils";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 import { UwAutocomplete, Autocomplete } from "./ui/autocomplete";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { UwAlert, Alert } from "./ui/alert";
@@ -30,6 +36,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "./ui/carousel";
 import { UwDialog, Dialog, type DialogProps } from "./ui/dialog";
 import { UwDrawer, Drawer } from "./ui/drawer";
@@ -38,6 +45,7 @@ import {
   DropdownMenu,
   type DropdownMenuItemProps,
 } from "./ui/dropdown-menu";
+import { SelectCards, type SelectCardsItemProps } from "./ui/select-cards";
 import {
   UwForm,
   Form,
@@ -76,11 +84,6 @@ import { UwTextarea, Textarea, type TextareaProps } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
 import {
-  RadioSelect,
-  type RadioSelectProps,
-  type RadioSelectItemProps,
-} from "./ui/radio-select";
-import {
   RadioCards,
   type RadioCardsProps,
   type RadioCardsItemProps,
@@ -110,6 +113,10 @@ import { forEach, kebabCase } from "lodash-es";
 export {
   // --- Components
   Alert,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Autocomplete,
   Avatar,
   Badge,
@@ -122,6 +129,7 @@ export {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselApi,
   Combobox,
   Dialog,
   Drawer,
@@ -146,6 +154,7 @@ export {
   RadioCards,
   Separator,
   Select,
+  SelectCards,
   Skeleton,
   SkeletonList,
   Sonner,
@@ -171,14 +180,13 @@ export {
   type InterstitialProps,
   type InputProps,
   type NumberFieldProps,
-  type RadioSelectProps,
-  type RadioSelectItemProps,
   type RadioCardsProps,
   type RadioCardsItemProps,
   type SelectProps,
   type TabItems,
   type TextareaProps,
   type DropdownMenuItemProps,
+  type SelectCardsItemProps,
 
   // --- Custom Elements
   UwAlert,
@@ -252,6 +260,11 @@ export function useCustomElement(
 declare module "vue" {
   export interface GlobalComponents {
     Alert: typeof Alert;
+    Accordion: typeof Accordion;
+    AccordionContent: typeof AccordionContent;
+    AccordionItem: typeof AccordionItem;
+    AccordionTrigger: typeof AccordionTrigger;
+
     Autocomplete: typeof Autocomplete;
     Avatar: typeof Avatar;
     Badge: typeof Badge;

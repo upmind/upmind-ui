@@ -7,10 +7,15 @@ import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { VariantProps } from "class-variance-authority";
 import type { rootVariants } from "./radioCards.config";
 type RadioCardsVariantProps = VariantProps<typeof rootVariants>;
+import type { itemVariants } from "./radioCards.config";
+type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
   // ---
   label: string;
+  values: any[];
+  primary?: boolean;
+  group?: string;
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
@@ -18,14 +23,14 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   placeholder?: string;
   noneText?: string;
   required?: boolean;
+  overrideIndex?: number;
   // --- state
   items: RadioCardsItemProps[];
   loading?: boolean;
   // ---
   color?: ButtonProps["color"];
   variant?: ButtonProps["variant"];
-  layout?: RadioCardsVariantProps["layout"];
-  ring?: boolean;
+  width?: RadioCardsItemVariantProps["width"];
   // ---
   upwindConfig?: { tooltip: Partial<RadioCardsProps> };
   class?: HTMLAttributes["class"];

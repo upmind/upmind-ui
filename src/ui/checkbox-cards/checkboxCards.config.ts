@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const rootVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full gap-0 overflow-hidden rounded-md border-control`,
+  `${ringClasses} ${invalidRingClasses} w-full gap-0 space-y-2 overflow-hidden rounded-md border-control`,
   {
     variants: {
       layout: {
@@ -22,7 +22,7 @@ export const itemVariants = cva(
     variants: {
       layout: {
         list: "border-b border-control",
-        grid: "rounded-md border border-control shadow-sm",
+        grid: "grid w-full list-none gap-3 rounded-md border border-control shadow-sm",
       },
     },
     defaultVariants: {
@@ -39,7 +39,7 @@ export default {
       "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva(
-      "my-3 ml-3 mr-1 border-control leading-normal text-control-active"
+      "my-3 ml-3 mr-1 mt-[0.9rem] border-control leading-normal text-control-active"
     ),
   },
 };
