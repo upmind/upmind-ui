@@ -5,6 +5,7 @@ variables:
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
+  VITE_APP_WHITELIST_GATEWAY_PROVIDERS: "Offline,BankTransfer,Stripe_PaymentIntents,PayPal_Express,PayPal_Pro,Micropayment"
 
 stages:
   - dependencies
