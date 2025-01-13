@@ -7,7 +7,7 @@
     :class="cn(variants.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <div v-for="(item, index) in items" :key="item.id || index" v-auto-animate>
+    <template v-for="(item, index) in items" :key="item.id || index">
       <RadioCardItem
         :item="item"
         :index="overrideIndex || index"
@@ -17,13 +17,14 @@
         :disabled="props.disabled"
         :model-value="modelValue"
         :variants="variants"
+        :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
         </template>
       </RadioCardItem>
-    </div>
+    </template>
   </RadioGroup>
 </template>
 
@@ -31,7 +32,6 @@
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -55,11 +55,8 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   // -- variants
   color: "base",
   variant: "control",
-  layout: "list",
-  ring: true,
+  width: 12,
   // --- styles
-  size: 12,
-  gap: 2,
   class: "",
   radioClass: "",
 });
@@ -75,6 +72,7 @@ const meta = computed(() => ({
   layout: props.layout,
   variant: props.variant,
   ring: props.ring,
+  width: props.width,
 }));
 
 const variants = useStyles(

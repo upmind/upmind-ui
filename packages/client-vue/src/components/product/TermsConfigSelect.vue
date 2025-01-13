@@ -1,5 +1,6 @@
 <template>
-  <FormField
+  <component
+    :is="mapComponent(props.as)"
     v-if="hasItems"
     id="terms"
     name="terms"
@@ -21,27 +22,42 @@
       :errors="props.errors"
       :model-value="props.modelValue?.toString()"
       content-class="!max-h-[18.5rem]"
-      side="bottom"
       @update:modelValue="doResolve"
     >
       <template #item="{ item }">
-        <CardTermPerMonth
-          v-if="isMonthly(item)"
-          v-bind="getTerm(item.value)"
-          select
-        />
-        <CardTerm v-else v-bind="getTerm(item.value)" select />
+        <slot name="item" :item="item">
+          <CardTermPerMonth
+            v-if="isMonthly(item)"
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+          <CardTerm
+            v-else
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+        </slot>
       </template>
       <template #dropdown-item="{ item }">
-        <CardTermPerMonth
-          v-if="isMonthly(item)"
-          v-bind="getTerm(item.value)"
-          select
-        />
-        <CardTerm v-else v-bind="getTerm(item.value)" select />
+        <slot name="dropdown" :item="item">
+          <CardTermPerMonth
+            v-if="isMonthly(item)"
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+          <CardTerm
+            v-else
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+        </slot>
       </template>
     </SelectCards>
-  </FormField>
+  </component>
 
   <!-- <pre v-if="errors">{{ errors }}</pre> -->
 </template>
@@ -70,6 +86,7 @@ import type { RadioCardsItemProps } from "@upmind-automation/upwind";
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
+    as?: string;
     items: Object[];
     modelValue?: string | number;
     errors?: string;
@@ -83,13 +100,17 @@ const props = withDefaults(
     loading?: boolean;
     processing?: boolean;
     visible?: boolean;
+    // ---
+    class?: string;
   }>(),
   {
+    as: "FormField",
     required: true,
     disabled: false,
     loading: false,
     processing: false,
     visible: true,
+    class: "",
   }
 );
 
@@ -128,4 +149,13 @@ function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));
 }
+
+const mapComponent = (as: string) => {
+  switch (as) {
+    case "FormField" || "formfield":
+      return FormField;
+    default:
+      return as;
+  }
+};
 </script>
