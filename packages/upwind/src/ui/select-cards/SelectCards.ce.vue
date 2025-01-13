@@ -18,23 +18,27 @@
       >
         <Button
           :loading="loading"
-          :class="cn('group !w-full', variants.select.trigger, props.class)"
+          :class="cn(variants.select.trigger, props.class)"
           :size="size"
           :aria-expanded="open"
           :color="color"
           :variant="variant"
           block
         >
-          <RadioGroupItem
-            v-if="radio"
-            :id="manuallySelected ? manuallySelected.value : first(items).value"
-            :value="
-              manuallySelected ? manuallySelected.value : first(items).value
-            "
-            :name="props.name"
-            :required="props.required"
-            :disabled="props.disabled"
-          />
+          <span v-if="radio" class="flex h-full items-start">
+            <RadioGroupItem
+              :id="
+                manuallySelected ? manuallySelected.value : first(items).value
+              "
+              :value="
+                manuallySelected ? manuallySelected.value : first(items).value
+              "
+              :name="props.name"
+              :required="props.required"
+              :disabled="props.disabled"
+              class="mt-1"
+            />
+          </span>
 
           <slot v-if="selected" name="item" v-bind="{ item: selected }">
             {{ selected?.label || label }}

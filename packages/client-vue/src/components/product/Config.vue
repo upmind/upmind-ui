@@ -87,7 +87,6 @@
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <!-- terms -->
-
         <component
           v-if="meta.hasTerms"
           :is="getTermsComponent"
