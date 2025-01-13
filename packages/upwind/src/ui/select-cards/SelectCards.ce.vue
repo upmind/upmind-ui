@@ -1,11 +1,12 @@
 <template>
   <component
-    :is="collapsible ? Collapsible : Popover"
+    :is="collapsible ? Collapsible : DropdownMenuRoot"
     v-model:open="open"
     :disabled="disabled"
     class="w-full"
   >
-    <RadioGroup
+    <component
+      :is="radio ? RadioGroup : 'div'"
       :disabled="disabled"
       :model-value="modelValue"
       :default-value="defaultValue"
@@ -13,7 +14,7 @@
       :class="variants.select.group"
     >
       <component
-        :is="collapsible ? CollapsibleTrigger : PopoverTrigger"
+        :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
       >
         <Button
@@ -60,44 +61,48 @@
         </Button>
       </component>
 
-      <component
-        :is="collapsible ? CollapsibleContent : PopoverContent"
-        :class="cn(variants.select.content, props.contentClass)"
-        :onOpenAutoFocus="handleOpenAutoFocus"
-      >
-        <div
-          v-for="(item, index) in items"
-          :key="item.id || index"
-          :class="variants.select.item"
-          :tabindex="(overrideIndex || index) + 1"
-          :ref="
-            el => {
-              if (el) itemRefs[index] = el as HTMLElement;
-            }
-          "
-          @keydown.enter="onChange(item.value)"
+      <component :is="collapsible ? 'div' : DropdownMenuPortal">
+        <component
+          :is="collapsible ? CollapsibleContent : DropdownMenuContent"
+          class="data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade min-w-[220px] bg-white"
+          :class="cn(variants.select.content, props.contentClass)"
         >
-          <Label
-            :for="`${name}-${overrideIndex + index || index}`"
-            :class="cn(variants.select.label)"
+          <component
+            v-for="(item, index) in items"
+            :key="item.id || index"
+            :is="collapsible ? 'div' : DropdownMenuItem"
+            :class="variants.select.item"
+            @click="onChange(item.value)"
+            :tabindex="overrideIndex || index"
+            :ref="
+              el => {
+                if (el) itemRefs[index] = el as HTMLElement;
+              }
+            "
           >
-            <slot name="dropdown-item" v-bind="{ item, index }">
-              {{ item.label }}
-            </slot>
-          </Label>
+            <Label
+              :for="`${name}-${overrideIndex + index || index}`"
+              :class="cn(variants.select.label)"
+            >
+              <slot name="dropdown-item" v-bind="{ item, index }">
+                {{ item.label }}
+              </slot>
+            </Label>
 
-          <!-- Required for the selector to work -->
-          <RadioGroupItem
-            :id="`${name}-${overrideIndex + index || index}`"
-            :value="item.value"
-            :name="name"
-            :required="required"
-            :disabled="disabled"
-            class="sr-only"
-          />
-        </div>
+            <!-- Required for the selector to work -->
+            <RadioGroupItem
+              v-if="radio"
+              :id="`${name}-${overrideIndex + index || index}`"
+              :value="item.value"
+              :name="name"
+              :required="required"
+              :disabled="disabled"
+              class="sr-only"
+            />
+          </component>
+        </component>
       </component>
-    </RadioGroup>
+    </component>
   </component>
 </template>
 
@@ -120,9 +125,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../collapsible";
-
-// --- components
-import { Popover, PopoverTrigger, PopoverContent } from "../popover";
+import {
+  DropdownMenuArrow,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuItemIndicator,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "radix-vue";
 
 // --- utils
 import { find, first, findIndex } from "lodash-es";
