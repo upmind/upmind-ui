@@ -53,7 +53,7 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const editLink = computed(() => ({
-  name: "productEdit",
+  name: "product.edit",
   params: { bpid: props.id },
 }));
 

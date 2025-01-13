@@ -92,7 +92,7 @@ const styles = useStyles(["product.root"], stylesMeta, config) as ComputedRef<{
 
 const editLink = computed(() => {
   return {
-    name: "productEdit",
+    name: "product.edit",
     params: {
       bpid: props.id,
     },

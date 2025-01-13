@@ -8,18 +8,103 @@ import { basketSubscription } from "../basket/helper";
 
 // --- utils
 import { useTime } from "../../utils";
-import { defaultsDeep, find, get, isEmpty, isFunction } from "lodash-es";
+import {
+  defaultsDeep,
+  find,
+  get,
+  isEmpty,
+  isFunction,
+  uniqBy,
+} from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import { ROUTE } from "./types";
 import type { RoutingEngineContext, Flow } from "./types";
 
+// ---
+const routeConditions = [
+  {
+    target: "#available.empty",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: any) => {
+      return (event.data as Flow)?.id == ROUTE.EMPTY;
+    },
+  },
+  {
+    target: "#available.product.add",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.PRODUCT_ADD,
+  },
+  {
+    target: "#available.product.edit",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.PRODUCT_EDIT,
+  },
+  {
+    target: "#available.product.requiresAction",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.PRODUCT_REQUIRES_ACTION,
+  },
+  {
+    target: "#available.recommendations",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.RECOMMENDATIONS,
+  },
+  {
+    target: "#available.session.login",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.LOGIN,
+  },
+  {
+    target: "#available.session.register",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.REGISTER,
+  },
+  {
+    target: "#available.session.forgot",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.FORGOT_PASSWORD,
+  },
+  {
+    target: "#available.basket",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.BASKET,
+  },
+  {
+    target: "#available.checkout",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.CHECKOUT,
+  },
+  {
+    target: "#available.order",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.ORDER,
+  },
+  // fallback
+  {
+    target: "#available.basket",
+    actions: assign({
+      currentFlow: ({ flows }: RoutingEngineContext) =>
+        find(flows, { id: ROUTE.BASKET }),
+    }),
+  },
+];
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    id: "recommendationsEngine",
+    id: "routingEngine",
     predictableActionArguments: true,
     initial: "subscribing",
     context: {} as RoutingEngineContext,
@@ -32,6 +117,9 @@ export default createMachine(
           assign({ currentFlow: undefined }),
         ],
         on: {
+          REGISTER: {
+            actions: ["setFlows"],
+          },
           // when we get our basket, then we can start and determine the first route (if any)
           // otherwise we are not available
           REFRESH: [
@@ -40,7 +128,7 @@ export default createMachine(
               actions: ["setBasket"],
               cond: "hasNoFlows",
             },
-            { target: "processing", actions: ["setBasket"] },
+            { target: "available", actions: ["setBasket"] },
           ],
         },
       },
@@ -70,7 +158,7 @@ export default createMachine(
             },
           },
           recommendations: {},
-          auth: {
+          session: {
             initial: "register",
             states: {
               login: {},
@@ -79,7 +167,7 @@ export default createMachine(
               profile: {},
             },
           },
-          cart: {},
+          basket: {},
           checkout: {},
           order: {
             initial: "loading",
@@ -92,13 +180,17 @@ export default createMachine(
         },
         on: {
           NEXT: {
-            target: "processing.next",
+            target: "calculating.next",
           },
           BACK: {
-            target: "processing.back",
+            target: "calculating.back",
           },
           NAVIGATE: {
-            target: "processing.navigate",
+            target: "navigating",
+          },
+          REGISTER: {
+            target: "available",
+            actions: ["setFlows"],
           },
         },
       },
@@ -107,7 +199,7 @@ export default createMachine(
         // if we have no flows in context, we can not do anything
         // but we can still be given flows to process and restart
         on: {
-          SET: {
+          REGISTER: {
             target: "available",
             actions: ["setFlows"],
           },
@@ -116,138 +208,39 @@ export default createMachine(
 
       // ---
       // This is where we calculate the next/back/fallback state and then navigate to it
-      processing: {
-        id: "processing",
+      calculating: {
+        id: "calculating",
         initial: "next",
         states: {
           next: {
             invoke: {
               src: "calculateNextRoute",
-              onDone: "navigate",
-              onError: "fallback",
+              onDone: {
+                target: "#navigating",
+                actions: "setCurrentFlow",
+              },
+              onError: "#navigating",
             },
           },
           back: {
             invoke: {
               src: "calculateBackRoute",
-              onDone: "navigate",
-              onError: "fallback",
+              onDone: {
+                target: "#navigating",
+                actions: "setCurrentFlow",
+              },
+              onError: "#navigating",
             },
           },
-          fallback: {
-            invoke: {
-              src: "calculateFallbackRoute",
-              onDone: "navigate",
-              onError: "navigate",
-            },
-          },
-          navigate: {
-            always: [
-              {
-                target: "#available.empty",
-                actions: assign({
-                  currentFlow: ({ flows }) => find(flows, { id: ROUTE.EMPTY }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.EMPTY,
-              },
-              {
-                target: "#available.product.add",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.PRODUCT_ADD }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.PRODUCT_ADD,
-              },
-              {
-                target: "#available.product.edit",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.PRODUCT_EDIT }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.PRODUCT_EDIT,
-              },
-              {
-                target: "#available.product.requiresAction",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.PRODUCT_REQUIRES_ACTION }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.PRODUCT_REQUIRES_ACTION,
-              },
-              {
-                target: "#available.recommendations",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.RECOMMENDATIONS }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.RECOMMENDATIONS,
-              },
-              {
-                target: "#available.auth.login",
-                actions: assign({
-                  currentFlow: ({ flows }) => find(flows, { id: ROUTE.LOGIN }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.LOGIN,
-              },
-              {
-                target: "#available.auth.register",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.REGISTER }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.REGISTER,
-              },
-              {
-                target: "#available.auth.forgot",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.FORGOT_PASSWORD }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.FORGOT_PASSWORD,
-              },
-              {
-                target: "#available.cart",
-                actions: assign({
-                  currentFlow: ({ flows }) => find(flows, { id: ROUTE.CART }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.CART,
-              },
-              {
-                target: "#available.checkout",
-                actions: assign({
-                  currentFlow: ({ flows }) =>
-                    find(flows, { id: ROUTE.CHECKOUT }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.CHECKOUT,
-              },
-              {
-                target: "#available.order",
-                actions: assign({
-                  currentFlow: ({ flows }) => find(flows, { id: ROUTE.ORDER }),
-                }),
-                cond: (_, event: AnyEventObject) =>
-                  (event.data as Flow)?.id == ROUTE.ORDER,
-              },
-              // fallback
-              {
-                target: "#available.cart",
-                actions: assign({
-                  currentFlow: ({ flows }) => find(flows, { id: ROUTE.CART }),
-                }),
-              },
-            ],
-            exit: ["handleRoute"],
-          },
+        },
+      },
+
+      navigating: {
+        id: "navigating",
+        invoke: {
+          src: "handleRoute",
+          onDone: routeConditions,
+          onError: routeConditions,
         },
       },
 
@@ -259,7 +252,7 @@ export default createMachine(
     on: {
       REFRESH: [
         {
-          actions: ["processing"],
+          actions: ["calculating"],
           cond: "hasBasketChanged",
         },
         { actions: ["setBasket"] },
@@ -285,14 +278,20 @@ export default createMachine(
       setBasket: assign({
         basketId: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
-          return basket.id;
+          return basket?.id;
         },
       }),
 
       setFlows: assign({
-        flows: (_context, { data }: AnyEventObject) => {
-          const flows = get(data, "flows", data);
-          return flows;
+        flows: ({ flows }, { data }: AnyEventObject) => {
+          return uniqBy([...(data || []), ...flows], "id");
+        },
+      }),
+
+      setCurrentFlow: assign({
+        currentFlow: (_context, { data }: AnyEventObject) => {
+          const flow = get(data, "flow", data);
+          return flow;
         },
       }),
 
@@ -310,16 +309,6 @@ export default createMachine(
           context,
         })
       ),
-
-      handleRoute: (_context, event: AnyEventObject, meta: any) => {
-        const flow = event?.data as Flow;
-        console.log("handleRoute", flow, meta);
-
-        if (isFunction(flow.handler)) flow.handler(_context, event);
-
-        // MAYBE we need to accomodate ignoring the handler if the route is already the current route
-        // or do we leave that to the router or handler to decide?
-      },
     },
 
     guards: {

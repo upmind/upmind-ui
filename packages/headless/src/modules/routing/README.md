@@ -44,10 +44,10 @@ The Routing Engine operates as a state machine with a distinct node for each key
   - **Product > RequiresActionRelated:** Represents the state for handling cases where user action is required for related products.
 - **NotFound:** Represents a general "not found" state for any other invalid or non-existent routes.
 - **Cart:** Represents the shopping cart state.
-- **Auth:**
-  - **Auth > Login:** Represents the login state.
-  - **Auth > Register:** Represents the registration state.
-  - **Auth > ForgotPassword:** Represents the state for handling forgotten passwords.
+- **Session:**
+  - **Session > Login:** Represents the login state.
+  - **Session > Register:** Represents the registration state.
+  - **Session > ForgotPassword:** Represents the state for handling forgotten passwords.
 - **Checkout:** Represents the checkout process.
 - **Order:**
   - **Order > Success:** Represents a successful order completion.
@@ -253,9 +253,9 @@ const { service } = useRoutingEngine({
       fallback: [], // dont go anywhere
     },
   },
-  auth: {
+  session: {
     handler: context => {
-      router.push("/auth");
+      router.push("/session");
     },
     guard: context => {
       // do logic to determine if we can transition to this node
@@ -326,7 +326,7 @@ The Routing Engine requires a configuration object or `Flow` to define the possi
 
 - **Route Definitions:**
 
-  - `name`: **Name of the route/node, NB: must match the node naming conventions.** (e.g. 'auth.login', 'auth.register', 'auth.forgot', 'cart', 'checkout', 'product.add', 'product.edit', 'order.success', 'order.failed')
+  - `name`: **Name of the route/node, NB: must match the node naming conventions.** (e.g. 'session.login', 'session.register', 'session.forgot', 'cart', 'checkout', 'product.add', 'product.edit', 'order.success', 'order.failed')
   - `guard` :Conditions for entering the route (e.g., user is logged in, product is available)
   - `handler` function to be executed when the route is entered (e.g., navigation logic)
   - `targets` object:

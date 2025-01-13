@@ -17,6 +17,8 @@ import {
   isNil,
   isEqual,
   last,
+  isEmpty,
+  hasIn,
 } from "lodash-es";
 import { responseCodes } from "../api";
 
@@ -98,9 +100,101 @@ export const useBasket = () => {
       ).then(() => service.getSnapshot());
     },
 
+    // --- meta functions
+    isEmpty: () => {
+      const state = service.getSnapshot();
+      const pendingProducts = state?.context?.items;
+      const products = state?.context?.products;
+      const basketId = state?.context?.basket?.id;
+      return (
+        isEmpty(basketId) || (isEmpty(pendingProducts) && isEmpty(products))
+      );
+    },
+
+    isAvailable: () => {
+      const state = service.getSnapshot();
+      return (
+        [
+          "claiming",
+          "generating",
+          "shopping",
+          "checkout.configuring",
+          "checkout.available",
+        ].some(state.matches) && !isEmpty(state?.context?.products)
+      );
+    },
+    needsAuth: () => {
+      const state = service.getSnapshot();
+      return !state.matches("shopping.account.complete");
+    },
+
+    hasProducts: () => {
+      const state = service.getSnapshot();
+      return !isEmpty(state?.context?.products);
+    },
+
+    hasInvalidProducts: () => {
+      const state = service.getSnapshot();
+      return some(
+        state?.context?.products,
+        product => !isEmpty(product?.error)
+      );
+    },
+
+    hasPromotions: () => {
+      const state = service.getSnapshot();
+      return state.matches("shopping.promotions.complete");
+    },
+
+    hasBillingDetails: () => {
+      const state = service.getSnapshot();
+      return state.matches("shopping.billingDetails.complete");
+    },
+
+    hasCurrency: () => {
+      const state = service.getSnapshot();
+      return state.matches("shopping.currency.complete");
+    },
+
+    hasFields: () => {
+      const state = service.getSnapshot();
+      return state.matches("shopping.customFields.complete");
+    },
+
+    hasPaymentDetails: () => {
+      const state = service.getSnapshot();
+      return ["complete", "available.valid", "available.processing"].some(
+        state.matches
+      );
+    },
+
+    isReadyForCheckout: () => {
+      const state = service.getSnapshot();
+      return [
+        "shopping.products.complete",
+        "shopping.promotions.complete",
+        "shopping.account.complete",
+        "shopping.currency.complete",
+        "shopping.billingDetails.complete",
+        "shopping.customFields.complete",
+        "shopping.paymentDetails.available",
+      ].some(state.matches);
+    },
+
+    isCheckingOut: () => {
+      const state = service.getSnapshot();
+      const paymentState = state.context?.payment?.getSnapshot();
+
+      return (
+        paymentState.matches("approving") ||
+        ["approving", "checkout", "converting", "paying"].some(state.matches)
+      );
+    },
+
     // --- item functions
 
     getProducts: () => get(service.getSnapshot(), "context.products", []),
+    getPendingProducts: () => get(service.getSnapshot(), "context.items", []),
 
     findItem: (mapping: any) =>
       find(service.getSnapshot()?.context?.items, (basketItem: any) =>
@@ -183,21 +277,23 @@ export const useBasket = () => {
 
     updateItem: async (itemId: string): Promise<ActorRef<any, any>> => {
       return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
-        return waitFor(item, state => !state.matches("processing")).then(
-          state => {
-            if (["error", "available.error"].some(state.matches)) {
-              return Promise.reject(state.context.error);
-            }
-            return Promise.resolve(item);
+        return waitFor(item, state => !state.matches("processing"), {
+          timeout: Infinity,
+        }).then(state => {
+          if (["error", "available.error"].some(state.matches)) {
+            return Promise.reject(state.context.error);
           }
-        );
+          return Promise.resolve(item);
+        });
         // .finally(() => service.send({ type: "REFRESH" }));
       });
     },
 
     removeItem: async (itemId: any): Promise<any> => {
       return sendToItem(itemId, "REMOVE", { itemId }).then(item =>
-        waitFor(item, state => ["complete"].some(state.matches))
+        waitFor(item, state => ["complete"].some(state.matches), {
+          timeout: Infinity,
+        })
       );
       // .finally(() => service.send({ type: "REFRESH" }));
     },

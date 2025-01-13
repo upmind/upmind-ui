@@ -222,7 +222,7 @@ export const usePendingBasketItems = () => {
 
     const pid = get(basketItem, "state.context.model.productId");
     return {
-      name: "productAdd",
+      name: "product.add",
       params: { pid },
     };
   }
@@ -238,7 +238,7 @@ export const usePendingBasketItems = () => {
     const basketItem = first(products) as BasketProduct;
     if (!basketItem) return null;
     return {
-      name: "productEdit",
+      name: "product.edit",
       params: { bpid: basketItem.id },
     };
   }
@@ -266,7 +266,7 @@ export const usePendingBasketItems = () => {
     if (!product) return null;
 
     return {
-      name: "productEdit",
+      name: "product.edit",
       params: { bpid: product.id },
     };
   }
