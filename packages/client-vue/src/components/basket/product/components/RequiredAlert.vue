@@ -42,7 +42,7 @@ const props = defineProps<{
 
 const editLink = computed(() => {
   return {
-    name: "productEdit",
+    name: "product.edit",
     params: {
       bpid: props.id,
     },

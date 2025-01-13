@@ -4,10 +4,10 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
+import { isEmpty, some } from "lodash-es";
 export * from "./types";
 
 // --- utils
-import { some, last } from "lodash-es";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -33,6 +33,17 @@ export const useRecommendationsEngine = () => {
         { timeout: Infinity }
       ),
 
+    hasRecommendations: () => {
+      const state = service.getSnapshot();
+
+      return (
+        !isEmpty(state.context?.recommendations) &&
+        some(
+          state.context?.recommendations,
+          ({ meta }) => !meta?.added && !meta?.seen
+        )
+      );
+    },
     // ---
 
     reset: function () {
@@ -52,14 +63,14 @@ export const useRecommendationsEngine = () => {
         data: id,
       });
 
-      return waitFor(service, state => !state.matches("processing")).then(
-        state => {
-          if (["error", "available.error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve();
+      return waitFor(service, state => !state.matches("processing"), {
+        timeout: Infinity,
+      }).then(state => {
+        if (["error", "available.error"].some(state.matches)) {
+          return Promise.reject(state.context.error);
         }
-      );
+        return Promise.resolve();
+      });
     },
 
     remove: function (value: string) {

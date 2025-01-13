@@ -5,38 +5,39 @@ import type { ActorRef, AnyEventObject } from "xstate";
 //
 
 export enum ROUTE {
-  LOADING = "available.loading",
-  EMPTY = "available.empty",
-  PRODUCT_ADD = "available.product.add",
-  PRODUCT_EDIT = "available.product.edit",
-  PRODUCT_REQUIRES_ACTION = "available.product.requiresAction",
-  PRODUCT_NOT_FOUND = "available.product.notFound",
-  RECOMMENDATIONS = "available.recommendations",
-  LOGIN = "available.auth.login",
-  REGISTER = "available.auth.register",
-  FORGOT_PASSWORD = "available.auth.forgot",
-  CART = "available.cart",
-  CHECKOUT = "available.checkout",
-  ORDER = "available.order",
+  LOADING = "loading",
+  EMPTY = "empty",
+  PRODUCT_ADD = "product.add",
+  PRODUCT_EDIT = "product.edit",
+  PRODUCT_REQUIRES_ACTION = "product.requiresAction",
+  PRODUCT_NOT_FOUND = "product.notFound",
+  RECOMMENDATIONS = "recommendations",
+  LOGIN = "session.login",
+  REGISTER = "session.register",
+  FORGOT_PASSWORD = "session.forgot",
+  BASKET = "basket",
+  CHECKOUT = "checkout",
+  ORDER = "order",
 }
 
 export interface Flow {
   id: ROUTE;
-  handler?: (context: any, event: AnyEventObject) => void;
-  guard?: (context: any, event: AnyEventObject) => boolean;
-
+  name?: string;
+  path?: string;
+  // handler?: (context: any, event: AnyEventObject) => void;
+  guard?: () => Promise<boolean>;
   targets?: {
     next?: {
       id: ROUTE;
-      guard: (context: any, event: AnyEventObject) => boolean;
+      guard?: () => Promise<boolean>;
     }[];
     back?: {
       id: ROUTE;
-      guard: (context: any, event: AnyEventObject) => boolean;
+      guard?: () => Promise<boolean>;
     }[];
     fallback?: {
       id: ROUTE;
-      guard: (context: any, event: AnyEventObject) => boolean;
+      guard?: () => Promise<boolean>;
     }[];
   };
 }
