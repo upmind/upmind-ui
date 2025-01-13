@@ -18,7 +18,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset",
+  "hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md first:rounded-t-md last:rounded-b-md focus:outline-none focus:ring-1 focus:ring-inset",
   {
     variants: {
       collapsible: {
@@ -33,7 +33,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  "max-h-72 !w-[--radix-popover-trigger-width] overflow-hidden overflow-y-scroll rounded-md p-0",
+  "mt-1 max-h-72 !w-[--radix-dropdown-menu-trigger-width] overflow-hidden overflow-y-scroll rounded-md border p-0 shadow-md",
   {
     variants: {
       separate: {
