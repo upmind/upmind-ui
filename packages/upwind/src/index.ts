@@ -88,6 +88,7 @@ import {
   type RadioCardsProps,
   type RadioCardsItemProps,
 } from "./ui/radio-cards";
+import { RadioGroup } from "./ui/radio-group";
 
 import { UwSelect, Select, type SelectProps } from "./ui/select";
 import { UwSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
@@ -150,8 +151,8 @@ export {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  RadioSelect,
   RadioCards,
+  RadioGroup,
   Separator,
   Select,
   SelectCards,
@@ -290,7 +291,6 @@ declare module "vue" {
     Popover: typeof Popover;
     PopoverContent: typeof PopoverContent;
     PopoverTrigger: typeof PopoverTrigger;
-    RadioSelect: typeof RadioSelect;
     RadioCards: typeof RadioCards;
     Separator: typeof Separator;
     Sonner: typeof Sonner;

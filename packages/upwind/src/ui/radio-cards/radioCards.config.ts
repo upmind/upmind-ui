@@ -1,5 +1,10 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+
+export const ringClasses =
+  "ring-offset-background focus-within:outline-none focus-within:ring-1 focus-within:ring-primary/50 focus-within:ring-offset-0 rounded-md group-focus-within:ring-0 group-focus-within:ring-offset-0";
+
+export const invalidRingClasses =
+  "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
 
 export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
 

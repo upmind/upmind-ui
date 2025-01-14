@@ -3,6 +3,7 @@
     v-model:checked="checked"
     v-bind="delegatedProps"
     :class="cn(variants.checkbox, props.class)"
+    @keydown.enter="handleEnter"
   />
 </template>
 
@@ -57,4 +58,8 @@ const variants = useStyles(
   config,
   props.upwindConfig ?? {}
 ) as ComputedRef<{ checkbox: string }>;
+
+const handleEnter = () => {
+  checked.value = !checked.value;
+};
 </script>
