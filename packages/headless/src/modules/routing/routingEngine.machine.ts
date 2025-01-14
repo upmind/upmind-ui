@@ -22,90 +22,6 @@ import type { AnyEventObject } from "xstate";
 import { ROUTE } from "./types";
 import type { RoutingEngineContext, Flow } from "./types";
 
-// ---
-const routeConditions = [
-  {
-    target: "#available.empty",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: any) => {
-      return (event.data as Flow)?.id == ROUTE.EMPTY;
-    },
-  },
-  {
-    target: "#available.product.add",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.PRODUCT_ADD,
-  },
-  {
-    target: "#available.product.edit",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.PRODUCT_EDIT,
-  },
-  {
-    target: "#available.product.requiresAction",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.PRODUCT_REQUIRES_ACTION,
-  },
-  {
-    target: "#available.recommendations",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.RECOMMENDATIONS,
-  },
-  {
-    target: "#available.session",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.SESSION,
-  },
-  {
-    target: "#available.session.login",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.SESSION_LOGIN,
-  },
-  {
-    target: "#available.session.register",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.SESSION_REGISTER,
-  },
-  {
-    target: "#available.session.forgot",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.SESSION_FORGOT_PASSWORD,
-  },
-  {
-    target: "#available.basket",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.BASKET,
-  },
-  {
-    target: "#available.checkout",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.CHECKOUT,
-  },
-  {
-    target: "#available.order",
-    actions: "setCurrentFlow",
-    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.ORDER,
-  },
-  // fallback
-  {
-    target: "#available.basket",
-    actions: assign({
-      currentFlow: ({ flows }: RoutingEngineContext) =>
-        find(flows, { id: ROUTE.BASKET }),
-    }),
-  },
-];
 // --------------------------------------------------------
 
 export default createMachine(
@@ -141,51 +57,6 @@ export default createMachine(
 
       // ---
       available: {
-        id: "available",
-        initial: "idle",
-        states: {
-          idle: {
-            entry: [assign({ currentFlow: undefined })],
-          },
-          empty: {
-            entry: [
-              assign({
-                currentFlow: ({ flows }) => find(flows, { id: ROUTE.EMPTY }),
-              }),
-            ],
-          },
-          product: {
-            initial: "notFound",
-            states: {
-              notFound: {},
-              add: {},
-              edit: {},
-              requiresAction: {},
-            },
-          },
-          recommendations: {},
-          session: {
-            initial: "register",
-            states: {
-              login: {},
-              register: {},
-              forgot: {},
-              profile: {},
-              expired: {},
-            },
-          },
-          basket: {},
-          checkout: {},
-          order: {
-            initial: "loading",
-            states: {
-              loading: {},
-              success: {},
-              failed: {},
-              expired: {},
-            },
-          },
-        },
         on: {
           NEXT: {
             target: "calculating.next",
@@ -193,8 +64,8 @@ export default createMachine(
           BACK: {
             target: "calculating.back",
           },
-          NAVIGATE: {
-            target: "navigating",
+          RESOLVE: {
+            target: "resolving",
           },
           REGISTER: {
             target: "available",
@@ -215,7 +86,7 @@ export default createMachine(
       },
 
       // ---
-      // This is where we calculate the next/back/fallback state and then navigate to it
+      // This is where we calculate the next/back/fallback state and then RESOLVE to it
       calculating: {
         id: "calculating",
         initial: "next",
@@ -224,38 +95,48 @@ export default createMachine(
             invoke: {
               src: "calculateNextRoute",
               onDone: {
-                target: "#navigating",
+                target: "#resolving",
                 actions: "setCurrentFlow",
               },
-              onError: "#navigating",
+              onError: "#resolving",
             },
           },
           back: {
             invoke: {
               src: "calculateBackRoute",
               onDone: {
-                target: "#navigating",
+                target: "#resolving",
                 actions: "setCurrentFlow",
               },
-              onError: "#navigating",
+              onError: "#resolving",
             },
           },
         },
       },
 
-      navigating: {
-        id: "navigating",
+      resolving: {
+        id: "resolving",
         invoke: {
-          src: "handleRoute",
-          onDone: routeConditions,
-          onError: routeConditions,
+          src: "resolve",
+          onDone: {
+            target: "resolved",
+            actions: "setCurrentFlow",
+          },
+          onError: {
+            target: "resolved",
+            actions: "setCurrentFlow",
+          },
+        },
+      },
+
+      resolved: {
+        after: {
+          WAIT: "available",
         },
       },
 
       // ---
-      complete: {
-        type: "final",
-      },
+      complete: {},
     },
     on: {
       REFRESH: [

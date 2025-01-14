@@ -32,10 +32,8 @@ export const useProductFlows = () => {
     {
       id: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
-        debugger;
         // do logic to determine if we can transition to this node
         const { productId } = useRouteQueryParams(route);
-        debugger;
 
         if (productId) {
           const productsPending = getPendingProducts();
@@ -53,9 +51,10 @@ export const useProductFlows = () => {
               productId,
               quantity: 1,
             }) as ProductModel;
-            return addItem(model)
+            const valid = addItem(model)
               .then(() => true)
               .catch(() => false);
+            return valid;
           }
         } else {
           return false;

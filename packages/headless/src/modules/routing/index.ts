@@ -51,11 +51,11 @@ export const useRoutingEngine = () => {
     },
     next: (route: Route) => service.send({ type: "NEXT", data: route }),
     back: (route: Route) => service.send({ type: "BACK", data: route }),
-    navigate: async (id: ROUTE, route: Route) => {
-      service.send("NAVIGATE", { data: { id, route } });
+    resolve: async (id: ROUTE, route: Route) => {
+      service.send("RESOLVE", { data: { id, route } });
       await waitFor(
         service,
-        state => !["navigating", "calculating"].some(state.matches),
+        state => !["resolving", "calculating"].some(state.matches),
         { timeout: Infinity }
       );
       const target = get(service.getSnapshot(), "context.currentFlow");

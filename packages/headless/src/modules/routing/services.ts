@@ -16,7 +16,6 @@ import type { Route } from "./types";
 // --- Helper functios/utils
 
 async function matchFlow(routes: Flow[], route: Route) {
-  debugger;
   if (isEmpty(routes)) return Promise.reject();
   // NB cant use odash her as we are async
   const match = routes.find(async target => {
@@ -59,7 +58,7 @@ async function calculateBackRoute(
   return matchFlow(currentFlow?.targets?.back || [], route);
 }
 
-async function handleRoute(
+async function resolve(
   { currentFlow, basketHelper, flows }: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
@@ -71,10 +70,8 @@ async function handleRoute(
   return guardFlow(target, route)
     .then(() => target)
     .catch(() => {
-      debugger;
       // if we still dont have a target, then we need to check if we have any fallbacks for out current route
       return matchFlow(target?.targets?.fallback || [], route).catch(() => {
-        debugger;
         // if we still dont have a target, then we need to check if we have any items in the basket, as it may be empty
         const basket = basketHelper?.getSnapshot();
         if (isEmpty(basket?.context?.products))
@@ -92,5 +89,5 @@ async function handleRoute(
 export default {
   calculateNextRoute,
   calculateBackRoute,
-  handleRoute,
+  resolve,
 } as any;

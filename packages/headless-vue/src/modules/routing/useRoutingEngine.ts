@@ -18,7 +18,7 @@ import { isEmpty } from "lodash-es";
  * @ignore
  */
 export const useRoutingEngine = () => {
-  const { service, destroy, isReady, next, back, navigate } =
+  const { service, destroy, isReady, next, back, resolve } =
     useUpmindRoutingEngine();
 
   const { state } = useActor(service);
@@ -46,16 +46,16 @@ export const useRoutingEngine = () => {
     // ---
     meta: computed(() => ({
       isLoading: ["subscribing"].some(state.value.matches),
-      isRefreshing: ["refreshing"].some(state.value.matches),
-      isProcessing: ["calculating", "navigating"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
+      isProcessing: ["calculating", "resolving"].some(state.value.matches),
+      isUnavailable: ["unavailable"].some(state.value.matches),
+      isAvailable: !["subscribing", "unavailable"].some(state.value.matches),
       // ---
       hasFlows: !isEmpty(state.value.context?.flows),
     })),
     // ---
     next,
     back,
-    navigate,
+    resolve,
     destroy,
   };
 };
