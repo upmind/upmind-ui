@@ -5,7 +5,7 @@ import {
   type AccordionItemProps,
   useForwardProps,
 } from "radix-vue";
-import { cn } from "@/utils";
+import { cn } from "../../utils";
 
 const props = defineProps<
   AccordionItemProps & { class?: HTMLAttributes["class"] }
