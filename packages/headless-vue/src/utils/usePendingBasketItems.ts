@@ -340,7 +340,7 @@ export const usePendingBasketItems = () => {
     if (nextBasketItem) {
       router.replace(nextBasketItem); // navigateNextBasketItem to our firs tproduct that needs configuring
     } else if (products.value.length) {
-      router.replace({ name: "cart" }); // navigate to our cart page if all our productIds are configured
+      router.replace({ name: "basket" }); // navigate to our cart page if all our productIds are configured
       // router.replace({ name: "checkout" }); // navigate to our checkout page if all our productIds are configured
     } else {
       router.replace({ name: "empty" }); // navigate to our empty page if we have no productIds
