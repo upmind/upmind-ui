@@ -13,20 +13,19 @@ import { ROUTE } from "../types";
 // -----------------------------------------------------------------------------
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, needsAuth } = useBasket();
+  const { hasProducts, hasInvalidProducts, hasFields, needsAuth } = useBasket();
 
   let flows: Flow[] = [
     {
       id: ROUTE.CHECKOUT,
       name: "checkout",
       path: "/checkout",
-      // handler: (router: any) => {
+      // handler: (router: any, route: Route) => {
       //   router.push(`/product/recommendations`);
       // },
-      guard: async (_route: Route) => {
-        const valid = hasProducts() && !needsAuth();
-        return valid;
-      },
+      guard: async (_route: Route) =>
+        hasProducts() && !hasInvalidProducts() && hasFields() && !needsAuth(),
+
       targets: {
         next: [{ id: ROUTE.ORDER }],
         back: [{ id: ROUTE.BASKET }],

@@ -21,11 +21,9 @@ export const useSessionFlows = () => {
       name: "auth",
       path: "/auth",
       guard: async (_route: Route) => {
-        debugger;
         const valid = await isAuthenticated()
           .then(() => false)
           .catch(() => true);
-        debugger;
         return valid;
       },
       targets: {
@@ -39,12 +37,11 @@ export const useSessionFlows = () => {
     //   name: "login",
     //   path: "/session/login",
     //   guard: async (_route: Route) => {
-    //     debugger;
 
     //     const valid = await isAuthenticated()
     //       .then(() => false)
     //       .catch(() => true);
-    //     debugger;
+
     //     return valid;
     //   },
     //   targets: {
@@ -58,12 +55,11 @@ export const useSessionFlows = () => {
     //   name: "register",
     //   path: "/session/register",
     //   guard: async (_route: Route) => {
-    //     debugger;
 
     //     const valid = await isAuthenticated()
     //       .then(() => false)
     //       .catch(() => true);
-    //     debugger;
+
     //     return valid;
     //   },
     //   targets: {
