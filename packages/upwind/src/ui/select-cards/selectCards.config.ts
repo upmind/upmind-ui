@@ -25,19 +25,16 @@ export const itemVariants = cva(
         false: "rounded-none border-b border-b-control last:border-b-0",
         true: "border border-t-0 border-control",
       },
-      separate: {
-        true: "border border-control",
-      },
     },
   }
 );
 
 export const contentVariants = cva(
-  "mt-1 max-h-72 !w-[--radix-dropdown-menu-trigger-width] overflow-hidden overflow-y-scroll rounded-md border p-0 shadow-md",
+  "max-h-72 !w-[--radix-dropdown-menu-trigger-width] overflow-hidden overflow-y-scroll",
   {
     variants: {
-      separate: {
-        true: "mt-2 flex flex-col gap-y-2",
+      collapsible: {
+        false: "bg-control-background mt-1 rounded-md border shadow-md",
       },
     },
   }

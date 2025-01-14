@@ -6,7 +6,7 @@
     class="w-full"
   >
     <component
-      :is="radio ? RadioGroup : 'div'"
+      :is="radio ? RadioGroup : 'fieldset'"
       :disabled="disabled"
       :model-value="modelValue"
       :default-value="defaultValue"
@@ -61,11 +61,11 @@
         </Button>
       </component>
 
-      <component :is="collapsible ? 'div' : DropdownMenuPortal">
+      <component :is="collapsible ? 'fieldset' : DropdownMenuPortal">
         <component
           :is="collapsible ? CollapsibleContent : DropdownMenuContent"
-          class="data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade min-w-[220px] bg-white"
           :class="cn(variants.select.content, props.contentClass)"
+          :onOpenAutoFocus="handleOpenAutoFocus"
         >
           <component
             v-for="(item, index) in items"
@@ -73,10 +73,9 @@
             :is="collapsible ? 'div' : DropdownMenuItem"
             :class="variants.select.item"
             @click="onChange(item.value)"
-            :tabindex="overrideIndex || index"
             :ref="
-              el => {
-                if (el) itemRefs[index] = el as HTMLElement;
+              (el: HTMLElement) => {
+                if (el) itemRefs[index] = el;
               }
             "
           >
