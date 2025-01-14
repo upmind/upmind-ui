@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwCheckbox, UpwInput } from "@upmind-automation/upwind";
+import { Checkbox, Input } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
@@ -11,12 +11,12 @@ import { useSystemArgTypes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwCheckbox> = {
+const meta: Meta<typeof Checkbox> = {
   parameters: {
     controls: { exclude: ["layout", "variant", "invalid"] },
   },
-  component: UpwCheckbox,
-  subcomponents: { UpwInput },
+  component: Checkbox,
+  subcomponents: { Input },
   argTypes: {
     size: useSystemArgTypes.size,
     // ---
@@ -55,11 +55,11 @@ const meta: Meta<typeof UpwCheckbox> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwCheckbox>;
+type Story = StoryObj<typeof Checkbox>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwCheckbox },
+    components: { Checkbox },
     setup() {
       return {
         args,
@@ -71,7 +71,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-checkbox v-bind="args" @update:modelValue="doUpdate" />
+        <checkbox v-bind="args" @update:modelValue="doUpdate" />
     `,
   }),
 };

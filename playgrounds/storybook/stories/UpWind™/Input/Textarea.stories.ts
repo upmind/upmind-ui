@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwTextarea, UpwInput } from "@upmind-automation/upwind";
+import { Textarea, Input } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
@@ -11,12 +11,12 @@ import { useSystemArgTypes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwTextarea> = {
+const meta: Meta<typeof Textarea> = {
   parameters: {
     controls: { exclude: ["layout", "variant"] },
   },
-  component: UpwTextarea,
-  subcomponents: { UpwInput },
+  component: Textarea,
+  subcomponents: { Input },
   argTypes: {
     size: useSystemArgTypes.size,
     // ---
@@ -52,11 +52,11 @@ const meta: Meta<typeof UpwTextarea> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwTextarea>;
+type Story = StoryObj<typeof Textarea>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwTextarea },
+    components: { Textarea },
     setup() {
       return {
         args,
@@ -68,7 +68,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-textarea v-bind="args" @update:modelValue="doUpdate" />
+        <textarea v-bind="args" @update:modelValue="doUpdate" />
     `,
   }),
 };
