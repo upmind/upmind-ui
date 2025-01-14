@@ -6,11 +6,12 @@ import { useRoutingEngine } from "..";
 
 // --- utils
 import { useRouteQueryParams } from "../";
-import { uniqBy, find, isEmpty, get, has } from "lodash-es";
+import { uniqBy, find, isEmpty, get } from "lodash-es";
 
 // --- types
-import type { Flow } from "../types";
+import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+
 import type { ProductModel } from "../../product/types";
 
 // -----------------------------------------------------------------------------
@@ -30,10 +31,10 @@ export const useProductFlows = () => {
 
     {
       id: ROUTE.PRODUCT_ADD,
-      guard: async () => {
+      guard: async (route: Route) => {
         debugger;
         // do logic to determine if we can transition to this node
-        const { productId } = useRouteQueryParams();
+        const { productId } = useRouteQueryParams(route);
         debugger;
 
         if (productId) {
@@ -65,7 +66,7 @@ export const useProductFlows = () => {
           // a related product requires action, so we automatically navigate to the related product
           {
             id: ROUTE.PRODUCT_EDIT,
-            guard: async () => {
+            guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
@@ -73,7 +74,7 @@ export const useProductFlows = () => {
           },
           {
             id: ROUTE.PRODUCT_REQUIRES_ACTION,
-            guard: async () => {
+            guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
@@ -81,7 +82,7 @@ export const useProductFlows = () => {
           },
           {
             id: ROUTE.RECOMMENDATIONS,
-            guard: async () => {
+            guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
@@ -95,8 +96,8 @@ export const useProductFlows = () => {
     },
     {
       id: ROUTE.PRODUCT_EDIT,
-      guard: async () => {
-        const { basketProductId } = useRouteQueryParams();
+      guard: async (route: Route) => {
+        const { basketProductId } = useRouteQueryParams(route);
         if (basketProductId) {
           const products = getProducts();
           const basketItem = find(products, ["id", basketProductId]);
@@ -109,7 +110,7 @@ export const useProductFlows = () => {
         next: [
           {
             id: ROUTE.PRODUCT_EDIT,
-            guard: async () => {
+            guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
@@ -117,7 +118,7 @@ export const useProductFlows = () => {
           },
           {
             id: ROUTE.PRODUCT_REQUIRES_ACTION,
-            guard: async () => {
+            guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
@@ -125,7 +126,7 @@ export const useProductFlows = () => {
           },
           {
             id: ROUTE.RECOMMENDATIONS,
-            guard: async () => {
+            guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
@@ -139,7 +140,7 @@ export const useProductFlows = () => {
     },
     {
       id: ROUTE.PRODUCT_REQUIRES_ACTION,
-      guard: async () => {
+      guard: async (_route: Route) => {
         // do logic to determine if we can transition to this node
         const valid = true || false;
         return valid;

@@ -1,47 +1,31 @@
 // --- external
 
 // --- internal
-import { useBasket } from "../../basket";
+import { useSession } from "../../session";
 import { useRoutingEngine } from "..";
 // --- utils
 import { uniqBy } from "lodash-es";
 
 // --- types
-import type { Flow } from "../types";
+import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
 export const useSessionFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, needsAuth } = useBasket();
+  const { isAuthenticated } = useSession();
 
   let flows: Flow[] = [
     {
-      id: ROUTE.LOGIN,
-      name: "login",
-      path: "/session/login",
-      // handler: (router: any) => {
-      //   router.push(`/product/recommendations`);
-      // },
-      guard: async () => {
-        const valid = hasProducts() && !needsAuth();
-        return valid;
-      },
-      targets: {
-        next: [{ id: ROUTE.CHECKOUT }],
-        back: [{ id: ROUTE.BASKET }],
-        fallback: [{ id: ROUTE.BASKET }],
-      },
-    },
-    {
-      id: ROUTE.REGISTER,
-      name: "register",
-      path: "/session/register",
-      // handler: (router: any) => {
-      //   router.push(`/product/recommendations`);
-      // },
-      guard: async () => {
-        const valid = hasProducts() && !needsAuth();
+      id: ROUTE.SESSION,
+      name: "auth",
+      path: "/auth",
+      guard: async (_route: Route) => {
+        debugger;
+        const valid = await isAuthenticated()
+          .then(() => false)
+          .catch(() => true);
+        debugger;
         return valid;
       },
       targets: {
@@ -51,16 +35,53 @@ export const useSessionFlows = () => {
       },
     },
     // {
-    //   id: ROUTE.FORGOT_PASSWORD,
+    //   id: ROUTE.SESSION_LOGIN,
+    //   name: "login",
+    //   path: "/session/login",
+    //   guard: async (_route: Route) => {
+    //     debugger;
+
+    //     const valid = await isAuthenticated()
+    //       .then(() => false)
+    //       .catch(() => true);
+    //     debugger;
+    //     return valid;
+    //   },
+    //   targets: {
+    //     next: [{ id: ROUTE.CHECKOUT }],
+    //     back: [{ id: ROUTE.BASKET }],
+    //     fallback: [{ id: ROUTE.BASKET }],
+    //   },
+    // },
+    // {
+    //   id: ROUTE.SESSION_REGISTER,
+    //   name: "register",
+    //   path: "/session/register",
+    //   guard: async (_route: Route) => {
+    //     debugger;
+
+    //     const valid = await isAuthenticated()
+    //       .then(() => false)
+    //       .catch(() => true);
+    //     debugger;
+    //     return valid;
+    //   },
+    //   targets: {
+    //     next: [{ id: ROUTE.CHECKOUT }],
+    //     back: [{ id: ROUTE.BASKET }],
+    //     fallback: [{ id: ROUTE.BASKET }],
+    //   },
+    // },
+    // {
+    //   id: ROUTE.SESSION_FORGOT_PASSWORD,
     //   name: "register",
     //   path: "/session/forgot",
     //   // handler: (router: any) => {
     //   //   router.push(`/product/recommendations`);
     //   // },
-    //   guard: async () => {
-    //     const valid = hasProducts() && !needsAuth();
-    //     return valid;
-    //   },
+    //  guard: async (_route: Route) => await  isAuthenticated()
+    // .then(() => false)
+    // .catch(() => true),
     //   targets: {
     //     next: [{ id: ROUTE.CHECKOUT }],
     //     back: [{ id: ROUTE.BASKET }],
@@ -74,10 +95,9 @@ export const useSessionFlows = () => {
     //   // handler: (router: any) => {
     //   //   router.push(`/product/recommendations`);
     //   // },
-    //   guard: async () => {
-    //     const valid = hasProducts() && !needsAuth();
-    //     return valid;
-    //   },
+    //   guard: async (_route: Route) =>await isAuthenticated()
+    // .then(() => true)
+    // .catch(() => false)
     //   targets: {
     //     next: [{ id: ROUTE.CHECKOUT }],
     //     back: [{ id: ROUTE.BASKET }],

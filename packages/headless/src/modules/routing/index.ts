@@ -11,7 +11,7 @@ export * from "./types";
 export * from "./utils";
 
 // --- types
-import type { ROUTE, Flow } from "./types";
+import type { ROUTE, Flow, Route } from "./types";
 import { isEmpty, get } from "lodash-es";
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -47,12 +47,12 @@ export const useRoutingEngine = () => {
     },
     // --- methods
     register: (flows: Flow[]) => {
-      service.send("REGISTER", { data: flows });
+      service.send({ type: "REGISTER", data: flows });
     },
-    next: () => service.send("NEXT"),
-    back: () => service.send("BACK"),
-    navigate: async (route: ROUTE) => {
-      service.send("NAVIGATE", { data: route });
+    next: (route: Route) => service.send({ type: "NEXT", data: route }),
+    back: (route: Route) => service.send({ type: "BACK", data: route }),
+    navigate: async (id: ROUTE, route: Route) => {
+      service.send("NAVIGATE", { data: { id, route } });
       await waitFor(
         service,
         state => !["navigating", "calculating"].some(state.matches),
@@ -60,10 +60,11 @@ export const useRoutingEngine = () => {
       );
       const target = get(service.getSnapshot(), "context.currentFlow");
 
-      if (route == target?.id) return Promise.resolve(target);
+      // if our target is the same as the requested id, then we are good
+      // otherwise we need to reject the promise with the new target
+      if (id == target?.id) return Promise.resolve(target);
       else return Promise.reject(target);
     },
-
     // ---
     destroy: () => service.stop(),
   };

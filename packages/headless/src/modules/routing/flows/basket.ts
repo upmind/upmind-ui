@@ -7,7 +7,7 @@ import { useRoutingEngine } from "..";
 import { uniqBy } from "lodash-es";
 
 // --- types
-import type { Flow } from "../types";
+import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -19,9 +19,7 @@ export const useBasketFlows = () => {
     {
       id: ROUTE.EMPTY,
       // handler: (_context: any, _event: AnyEventObject) => {},
-      guard: async () => {
-        return isEmpty();
-      },
+      guard: async (_route: Route) => isEmpty(),
     },
     {
       id: ROUTE.BASKET,
@@ -30,14 +28,11 @@ export const useBasketFlows = () => {
       // handler: (router: any) => {
       //   router.push(`/product/recommendations`);
       // },
-      guard: async () => {
-        const valid = hasProducts();
-        return valid;
-      },
+      guard: async (_route: Route) => hasProducts(),
       targets: {
         next: [{ id: ROUTE.CHECKOUT }],
         back: [],
-        fallback: [],
+        fallback: [{ id: ROUTE.EMPTY }],
       },
     },
   ];

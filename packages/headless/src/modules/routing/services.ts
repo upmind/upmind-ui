@@ -11,34 +11,30 @@ import { find, isEmpty } from "lodash-es";
 import { isFunction } from "xstate/lib/utils";
 
 // --- types
+import type { Route } from "./types";
 
 // --- Helper functios/utils
 
-async function matchRoute(routes: Flow[]) {
+async function matchFlow(routes: Flow[], route: Route) {
   debugger;
   if (isEmpty(routes)) return Promise.reject();
-  debugger;
   // NB cant use odash her as we are async
-  routes.forEach(async target => {
-    debugger;
-    const valid = await guardRoute(target);
-    debugger;
-    if (valid) return Promise.resolve(target);
+  const match = routes.find(async target => {
+    return await guardFlow(target, route);
   });
 
-  //  if we dont have any matches, then we  need to remail the current route
-  return Promise.reject();
+  return new Promise((resolve, reject) => (match ? resolve(match) : reject()));
 }
 
-async function guardRoute(route: Flow) {
-  if (isFunction(route.guard)) {
-    const valid = await route.guard();
-    if (valid) return true;
-  } else {
-    return true;
+async function guardFlow(flow: Flow, route: Route) {
+  let valid = true;
+  if (isFunction(flow.guard)) {
+    valid = await flow.guard(route);
   }
 
-  return false;
+  return new Promise((resolve, reject) =>
+    valid ? resolve(valid) : reject(valid)
+  );
 }
 
 // --------------------------------------------------------
@@ -48,19 +44,19 @@ async function guardRoute(route: Flow) {
 // ---
 
 async function calculateNextRoute(
-  { currentFlow, flows }: RoutingEngineContext,
-  _event: AnyEventObject
+  { currentFlow }: RoutingEngineContext,
+  { data }: AnyEventObject
 ) {
-  debugger;
-  console.log(flows, currentFlow);
-  return matchRoute(currentFlow?.targets?.next || []);
+  const route = data as Route;
+  return matchFlow(currentFlow?.targets?.next || [], route);
 }
 
 async function calculateBackRoute(
   { currentFlow }: RoutingEngineContext,
-  _event: AnyEventObject
+  { data }: AnyEventObject
 ) {
-  return matchRoute(currentFlow?.targets?.back || []);
+  const route = data as Route;
+  return matchFlow(currentFlow?.targets?.back || [], route);
 }
 
 async function handleRoute(
@@ -68,16 +64,17 @@ async function handleRoute(
   { data }: AnyEventObject
 ) {
   // ---
-  debugger;
-  const target = find(flows, ["id", data]) || currentFlow;
-  debugger;
+  const route = data.route as Route;
+  const id = data.id as ROUTE;
+  const target = find(flows, ["id", id]) || currentFlow;
   if (!target) return Promise.reject();
-  debugger;
-  return guardRoute(target)
+  return guardFlow(target, route)
     .then(() => target)
     .catch(() => {
+      debugger;
       // if we still dont have a target, then we need to check if we have any fallbacks for out current route
-      return matchRoute(currentFlow?.targets?.fallback || []).catch(() => {
+      return matchFlow(target?.targets?.fallback || [], route).catch(() => {
+        debugger;
         // if we still dont have a target, then we need to check if we have any items in the basket, as it may be empty
         const basket = basketHelper?.getSnapshot();
         if (isEmpty(basket?.context?.products))

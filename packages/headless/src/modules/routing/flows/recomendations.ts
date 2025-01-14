@@ -8,7 +8,7 @@ import { useRoutingEngine } from "..";
 import { uniqBy } from "lodash-es";
 
 // --- types
-import type { Flow } from "../types";
+import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ export const useRecommendationsFlows = () => {
       // handler: (router: any) => {
       //   router.push(`/product/recommendations`);
       // },
-      guard: async () => {
+      guard: async (_route: Route) => {
         const valid = hasProducts() && hasRecommendations();
         return valid;
       },
