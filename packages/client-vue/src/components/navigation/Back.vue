@@ -1,5 +1,5 @@
 <template>
-  <RouterLink :to="{ name: 'cart' }">
+  <RouterLink :to="{ name: 'basket' }">
     <Button
       v-bind="$attrs"
       size="sm"
