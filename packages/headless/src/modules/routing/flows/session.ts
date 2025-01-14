@@ -17,9 +17,7 @@ export const useSessionFlows = () => {
 
   let flows: Flow[] = [
     {
-      id: ROUTE.SESSION,
-      name: "auth",
-      path: "/auth",
+      name: ROUTE.SESSION,
       guard: async (_route: Route) => {
         const valid = await isAuthenticated()
           .then(() => false)
@@ -27,15 +25,13 @@ export const useSessionFlows = () => {
         return valid;
       },
       targets: {
-        next: [{ id: ROUTE.CHECKOUT }],
-        back: [{ id: ROUTE.BASKET }],
-        fallback: [{ id: ROUTE.BASKET }],
+        next: [{ name: ROUTE.CHECKOUT }],
+        back: [{ name: ROUTE.BASKET }],
+        fallback: [{ name: ROUTE.BASKET }],
       },
     },
     // {
-    //   id: ROUTE.SESSION_LOGIN,
-    //   name: "login",
-    //   path: "/session/login",
+    //   name: ROUTE.SESSION_LOGIN,
     //   guard: async (_route: Route) => {
 
     //     const valid = await isAuthenticated()
@@ -45,15 +41,13 @@ export const useSessionFlows = () => {
     //     return valid;
     //   },
     //   targets: {
-    //     next: [{ id: ROUTE.CHECKOUT }],
-    //     back: [{ id: ROUTE.BASKET }],
-    //     fallback: [{ id: ROUTE.BASKET }],
+    //     next: [{ name: ROUTE.CHECKOUT }],
+    //     back: [{ name: ROUTE.BASKET }],
+    //     fallback: [{ name: ROUTE.BASKET }],
     //   },
     // },
     // {
-    //   id: ROUTE.SESSION_REGISTER,
-    //   name: "register",
-    //   path: "/session/register",
+    //   name: ROUTE.SESSION_REGISTER,
     //   guard: async (_route: Route) => {
 
     //     const valid = await isAuthenticated()
@@ -63,15 +57,13 @@ export const useSessionFlows = () => {
     //     return valid;
     //   },
     //   targets: {
-    //     next: [{ id: ROUTE.CHECKOUT }],
-    //     back: [{ id: ROUTE.BASKET }],
-    //     fallback: [{ id: ROUTE.BASKET }],
+    //     next: [{ name: ROUTE.CHECKOUT }],
+    //     back: [{ name: ROUTE.BASKET }],
+    //     fallback: [{ name: ROUTE.BASKET }],
     //   },
     // },
     // {
-    //   id: ROUTE.SESSION_FORGOT_PASSWORD,
-    //   name: "register",
-    //   path: "/session/forgot",
+    //   name: ROUTE.SESSION_FORGOT_PASSWORD,
     //   // handler: (router: any) => {
     //   //   router.push(`/product/recommendations`);
     //   // },
@@ -79,15 +71,13 @@ export const useSessionFlows = () => {
     // .then(() => false)
     // .catch(() => true),
     //   targets: {
-    //     next: [{ id: ROUTE.CHECKOUT }],
-    //     back: [{ id: ROUTE.BASKET }],
-    //     fallback: [{ id: ROUTE.BASKET }],
+    //     next: [{ name: ROUTE.CHECKOUT }],
+    //     back: [{ name: ROUTE.BASKET }],
+    //     fallback: [{ name: ROUTE.BASKET }],
     //   },
     // },
     // {
-    //   id: ROUTE.PROFILE,
-    //   name: "profile",
-    //   path: "/session/profile",
+    //   name: ROUTE.PROFILE,
     //   // handler: (router: any) => {
     //   //   router.push(`/product/recommendations`);
     //   // },
@@ -95,9 +85,9 @@ export const useSessionFlows = () => {
     // .then(() => true)
     // .catch(() => false)
     //   targets: {
-    //     next: [{ id: ROUTE.CHECKOUT }],
-    //     back: [{ id: ROUTE.BASKET }],
-    //     fallback: [{ id: ROUTE.BASKET }],
+    //     next: [{ name: ROUTE.CHECKOUT }],
+    //     back: [{ name: ROUTE.BASKET }],
+    //     fallback: [{ name: ROUTE.BASKET }],
     //   },
     // },
   ];

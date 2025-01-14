@@ -17,22 +17,20 @@ export const useBasketFlows = () => {
 
   let flows: Flow[] = [
     {
-      id: ROUTE.EMPTY,
+      name: ROUTE.EMPTY,
       // handler: (_context: any, _event: AnyEventObject) => {},
       guard: async (_route: Route) => isEmpty(),
     },
     {
-      id: ROUTE.BASKET,
-      name: "cart",
-      path: "/cart",
+      name: ROUTE.BASKET,
       // handler: (router: any) => {
       //   router.push(`/product/recommendations`);
       // },
       guard: async (_route: Route) => hasProducts(),
       targets: {
-        next: [{ id: ROUTE.CHECKOUT }],
+        next: [{ name: ROUTE.CHECKOUT }],
         back: [],
-        fallback: [{ id: ROUTE.EMPTY }],
+        fallback: [{ name: ROUTE.EMPTY }],
       },
     },
   ];
@@ -40,7 +38,7 @@ export const useBasketFlows = () => {
   return {
     getFlows: () => flows,
     register: (data?: Flow[]) => {
-      flows = uniqBy([...(data ?? []), ...flows], "id");
+      flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
     },
   };
