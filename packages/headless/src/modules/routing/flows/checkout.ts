@@ -17,9 +17,7 @@ export const useCheckoutFlows = () => {
 
   let flows: Flow[] = [
     {
-      id: ROUTE.CHECKOUT,
-      name: "checkout",
-      path: "/checkout",
+      name: ROUTE.CHECKOUT,
       // handler: (router: any, route: Route) => {
       //   router.push(`/product/recommendations`);
       // },
@@ -27,14 +25,14 @@ export const useCheckoutFlows = () => {
         hasProducts() && !hasInvalidProducts() && hasFields() && !needsAuth(),
 
       targets: {
-        next: [{ id: ROUTE.ORDER }],
-        back: [{ id: ROUTE.BASKET }],
+        next: [{ name: ROUTE.ORDER }],
+        back: [{ name: ROUTE.BASKET }],
         fallback: [
           {
-            id: ROUTE.SESSION,
+            name: ROUTE.SESSION,
             guard: async (_route: Route) => needsAuth(),
           },
-          { id: ROUTE.BASKET },
+          { name: ROUTE.BASKET },
         ],
       },
     },

@@ -28,22 +28,20 @@ export interface Route {
 }
 
 export interface Flow {
-  id: ROUTE;
-  name?: string;
-  path?: string;
-  // handler?: (context: any, event: AnyEventObject) => void;
+  name: ROUTE;
+  // handler?: (router: any, route: ROUTE) => Promise<void>;
   guard?: (route: Route) => Promise<boolean>;
   targets?: {
     next?: {
-      id: ROUTE;
+      name: ROUTE;
       guard?: (route: Route) => Promise<boolean>;
     }[];
     back?: {
-      id: ROUTE;
+      name: ROUTE;
       guard?: (route: Route) => Promise<boolean>;
     }[];
     fallback?: {
-      id: ROUTE;
+      name: ROUTE;
       guard?: (route: Route) => Promise<boolean>;
     }[];
   };

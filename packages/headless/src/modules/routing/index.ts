@@ -51,8 +51,8 @@ export const useRoutingEngine = () => {
     },
     next: (route: Route) => service.send({ type: "NEXT", data: route }),
     back: (route: Route) => service.send({ type: "BACK", data: route }),
-    resolve: async (id: ROUTE, route: Route) => {
-      service.send("RESOLVE", { data: { id, route } });
+    resolve: async (name: ROUTE, route: Route) => {
+      service.send("RESOLVE", { data: { name, route } });
       await waitFor(
         service,
         state => !["resolving", "calculating"].some(state.matches),
@@ -60,9 +60,9 @@ export const useRoutingEngine = () => {
       );
       const target = get(service.getSnapshot(), "context.currentFlow");
 
-      // if our target is the same as the requested id, then we are good
+      // if our target is the same as the requested route name, then we are good
       // otherwise we need to reject the promise with the new target
-      if (id == target?.id) return Promise.resolve(target);
+      if (name == target?.name) return Promise.resolve(target);
       else return Promise.reject(target);
     },
     // ---

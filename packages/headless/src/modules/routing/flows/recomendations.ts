@@ -19,9 +19,7 @@ export const useRecommendationsFlows = () => {
 
   let flows: Flow[] = [
     {
-      id: ROUTE.RECOMMENDATIONS,
-      name: "recommendations",
-      path: "/product/recommendations",
+      name: ROUTE.RECOMMENDATIONS,
       // handler: (router: any) => {
       //   router.push(`/product/recommendations`);
       // },
@@ -30,9 +28,9 @@ export const useRecommendationsFlows = () => {
         return valid;
       },
       targets: {
-        next: [{ id: ROUTE.CHECKOUT }],
-        back: [{ id: ROUTE.BASKET }],
-        fallback: [{ id: ROUTE.BASKET }],
+        next: [{ name: ROUTE.CHECKOUT }],
+        back: [{ name: ROUTE.BASKET }],
+        fallback: [{ name: ROUTE.BASKET }],
       },
     },
   ];

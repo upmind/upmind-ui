@@ -173,7 +173,7 @@ export default createMachine(
 
       setFlows: assign({
         flows: ({ flows }, { data }: AnyEventObject) => {
-          return uniqBy([...(data || []), ...flows], "id");
+          return uniqBy([...(data || []), ...flows], "name");
         },
       }),
 

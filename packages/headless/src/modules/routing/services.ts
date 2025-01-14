@@ -64,8 +64,9 @@ async function resolve(
 ) {
   // ---
   const route = data.route as Route;
-  const id = data.id as ROUTE;
-  const target = find(flows, ["id", id]) || currentFlow;
+  const name = data.name as ROUTE;
+  const target = find(flows, ["name", name]) || currentFlow;
+
   if (!target) return Promise.reject();
   return guardFlow(target, route)
     .then(() => target)
@@ -75,7 +76,7 @@ async function resolve(
         // if we still dont have a target, then we need to check if we have any items in the basket, as it may be empty
         const basket = basketHelper?.getSnapshot();
         if (isEmpty(basket?.context?.products))
-          return find(flows, ["id", ROUTE.EMPTY]);
+          return find(flows, ["name", ROUTE.EMPTY]);
 
         //   if we get to this point and we still dont have a target, then we need to check if we have a fallback
         return Promise.reject();

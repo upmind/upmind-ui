@@ -13,6 +13,7 @@ import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 import type { ProductModel } from "../../product/types";
+import { waitFor } from "xstate/lib/waitFor";
 
 // -----------------------------------------------------------------------------
 export const useProductFlows = () => {
@@ -30,7 +31,7 @@ export const useProductFlows = () => {
     // ---
 
     {
-      id: ROUTE.PRODUCT_ADD,
+      name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
         // do logic to determine if we can transition to this node
         const { productId } = useRouteQueryParams(route);
@@ -51,9 +52,21 @@ export const useProductFlows = () => {
               productId,
               quantity: 1,
             }) as ProductModel;
-            const valid = addItem(model)
-              .then(() => true)
-              .catch(() => false);
+            // Try add the item to the basket, if it has an error, then the route is invalid
+            const valid = await addItem(model)
+              .then(async actor => {
+                return waitFor(
+                  actor,
+                  state => !["loading", "subscribing"].some(state.matches),
+                  { timeout: Infinity }
+                ).then(state => {
+                  return !state.matches("error");
+                });
+              })
+              .catch(() => {
+                return false;
+              });
+
             return valid;
           }
         } else {
@@ -64,7 +77,7 @@ export const useProductFlows = () => {
         next: [
           // a related product requires action, so we automatically navigate to the related product
           {
-            id: ROUTE.PRODUCT_EDIT,
+            name: ROUTE.PRODUCT_EDIT,
             guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
@@ -72,7 +85,7 @@ export const useProductFlows = () => {
             },
           },
           {
-            id: ROUTE.PRODUCT_REQUIRES_ACTION,
+            name: ROUTE.PRODUCT_REQUIRES_ACTION,
             guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
@@ -80,21 +93,21 @@ export const useProductFlows = () => {
             },
           },
           {
-            id: ROUTE.RECOMMENDATIONS,
+            name: ROUTE.RECOMMENDATIONS,
             guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
             },
           },
-          { id: ROUTE.CHECKOUT },
+          { name: ROUTE.CHECKOUT },
         ],
-        back: [{ id: ROUTE.BASKET }],
-        fallback: [{ id: ROUTE.PRODUCT_NOT_FOUND }],
+        back: [{ name: ROUTE.BASKET }],
+        fallback: [{ name: ROUTE.PRODUCT_NOT_FOUND }],
       },
     },
     {
-      id: ROUTE.PRODUCT_EDIT,
+      name: ROUTE.PRODUCT_EDIT,
       guard: async (route: Route) => {
         const { basketProductId } = useRouteQueryParams(route);
         if (basketProductId) {
@@ -108,7 +121,7 @@ export const useProductFlows = () => {
       targets: {
         next: [
           {
-            id: ROUTE.PRODUCT_EDIT,
+            name: ROUTE.PRODUCT_EDIT,
             guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
@@ -116,7 +129,7 @@ export const useProductFlows = () => {
             },
           },
           {
-            id: ROUTE.PRODUCT_REQUIRES_ACTION,
+            name: ROUTE.PRODUCT_REQUIRES_ACTION,
             guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
@@ -124,21 +137,21 @@ export const useProductFlows = () => {
             },
           },
           {
-            id: ROUTE.RECOMMENDATIONS,
+            name: ROUTE.RECOMMENDATIONS,
             guard: async (_route: Route) => {
               // do logic to determine if we can transition to this node
               const valid = true || false;
               return valid;
             },
           },
-          { id: ROUTE.CHECKOUT },
+          { name: ROUTE.CHECKOUT },
         ],
-        back: [{ id: ROUTE.BASKET }],
-        fallback: [{ id: ROUTE.PRODUCT_NOT_FOUND }],
+        back: [{ name: ROUTE.BASKET }],
+        fallback: [{ name: ROUTE.PRODUCT_NOT_FOUND }],
       },
     },
     {
-      id: ROUTE.PRODUCT_REQUIRES_ACTION,
+      name: ROUTE.PRODUCT_REQUIRES_ACTION,
       guard: async (_route: Route) => {
         // do logic to determine if we can transition to this node
         const valid = true || false;
