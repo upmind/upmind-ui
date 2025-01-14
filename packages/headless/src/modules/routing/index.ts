@@ -12,7 +12,8 @@ export * from "./utils";
 
 // --- types
 import type { ROUTE, Flow, Route } from "./types";
-import { isEmpty, get } from "lodash-es";
+import { isEmpty, get, some } from "lodash-es";
+import { exists } from "fs";
 // --------------------------------------------------------
 // create a global instance of the basket machine
 // and a global object to store state
@@ -44,6 +45,11 @@ export const useRoutingEngine = () => {
     getFlows: () => {
       const state = service.getSnapshot();
       return get(state, "context.flows", []);
+    },
+    exists: (name: ROUTE) => {
+      const state = service.getSnapshot();
+      const flows = get(state, "context.flows", []);
+      return some(flows, flow => flow.name === name);
     },
     // --- methods
     register: (flows: Flow[]) => {

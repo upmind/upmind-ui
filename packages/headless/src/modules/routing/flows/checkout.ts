@@ -23,16 +23,21 @@ export const useCheckoutFlows = () => {
       // },
       guard: async (_route: Route) =>
         hasProducts() && !hasInvalidProducts() && hasFields() && !needsAuth(),
-
       targets: {
         next: [{ name: ROUTE.ORDER }],
         back: [{ name: ROUTE.BASKET }],
         fallback: [
           {
+            name: ROUTE.BASKET,
+            guard: async (_route: Route) => hasInvalidProducts(),
+          },
+          {
             name: ROUTE.SESSION,
             guard: async (_route: Route) => needsAuth(),
           },
-          { name: ROUTE.BASKET },
+          {
+            name: ROUTE.EMPTY,
+          },
         ],
       },
     },

@@ -18,7 +18,7 @@ import { isEmpty } from "lodash-es";
  * @ignore
  */
 export const useRoutingEngine = () => {
-  const { service, destroy, isReady, next, back, resolve } =
+  const { service, exists, destroy, isReady, next, back, resolve } =
     useUpmindRoutingEngine();
 
   const { state } = useActor(service);
@@ -53,6 +53,7 @@ export const useRoutingEngine = () => {
       hasFlows: !isEmpty(state.value.context?.flows),
     })),
     // ---
+    exists,
     next,
     back,
     resolve,

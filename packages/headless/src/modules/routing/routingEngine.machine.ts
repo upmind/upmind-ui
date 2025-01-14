@@ -131,7 +131,7 @@ export default createMachine(
 
       resolved: {
         after: {
-          WAIT: "available",
+          wait: "available",
         },
       },
 
