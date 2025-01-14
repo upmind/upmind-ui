@@ -20,68 +20,25 @@ import {
 
 // --- types
 import { QUERY_PARAMS } from "@upmind-automation/types";
-import type { ProductModel } from "@upmind-automation/headless";
-
+import type { ProductModel } from "../product/types";
+import type { Route } from "./types";
 // -----------------------------------------------------------------------------
 
 // vanilla js function to parse the current route, similar to vue-router
-function useRoute() {
-  const currentUrl = window.location.href;
-  const [path, queryString] = currentUrl.split("?");
 
-  const segments = path.split("/").filter(Boolean);
-  const params: { [key: string]: any } = {};
-
-  segments.forEach((segment, index) => {
-    const match = segment.match(/^:(.+)$/);
-    if (match) {
-      const paramName = match[1];
-      params[paramName] = segments[index + 1];
-    }
-  });
-
-  const query: { [key: string]: any } = {};
-  if (queryString) {
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    urlSearchParams.forEach((value, key) => {
-      // Handle arrays:
-      if (key.endsWith("[]")) {
-        const keyWithoutBrackets = key.slice(0, -2);
-        if (!query[keyWithoutBrackets]) {
-          query[keyWithoutBrackets] = [];
-        }
-        query[keyWithoutBrackets].push(value);
-      } else {
-        // Handle single values:
-        query[key] = value;
-      }
-    });
-  }
-
-  return {
-    params,
-    query,
-  };
-}
-
-export const useRouteQueryParams = () => {
-  const { query, params } = useRoute();
-
+export const useRouteQueryParams = (route: Route) => {
+  const { query, params } = route;
   // parse our  query/params that may be passed in as ARRAY
   function getParams(type: QUERY_PARAMS, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
-
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
-
     return compact(isArray(value) ? value : [value]);
   }
 
   // parse our query/params that may be passed in as STRING
   function getParam(type: QUERY_PARAMS, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
-
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
-
     return isArray(value) ? first(value) : value;
   }
 

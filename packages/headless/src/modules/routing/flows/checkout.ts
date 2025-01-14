@@ -7,7 +7,7 @@ import { useRoutingEngine } from "..";
 import { uniqBy } from "lodash-es";
 
 // --- types
-import type { Flow } from "../types";
+import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -23,14 +23,20 @@ export const useCheckoutFlows = () => {
       // handler: (router: any) => {
       //   router.push(`/product/recommendations`);
       // },
-      guard: async () => {
+      guard: async (_route: Route) => {
         const valid = hasProducts() && !needsAuth();
         return valid;
       },
       targets: {
         next: [{ id: ROUTE.ORDER }],
         back: [{ id: ROUTE.BASKET }],
-        fallback: [{ id: ROUTE.BASKET }],
+        fallback: [
+          {
+            id: ROUTE.SESSION,
+            guard: async (_route: Route) => needsAuth(),
+          },
+          { id: ROUTE.BASKET },
+        ],
       },
     },
   ];

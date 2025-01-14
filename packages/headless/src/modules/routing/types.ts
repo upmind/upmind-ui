@@ -12,12 +12,19 @@ export enum ROUTE {
   PRODUCT_REQUIRES_ACTION = "product.requiresAction",
   PRODUCT_NOT_FOUND = "product.notFound",
   RECOMMENDATIONS = "recommendations",
-  LOGIN = "session.login",
-  REGISTER = "session.register",
-  FORGOT_PASSWORD = "session.forgot",
+  SESSION = "session",
+  SESSION_LOGIN = "session.login",
+  SESSION_REGISTER = "session.register",
+  SESSION_FORGOT_PASSWORD = "session.forgot",
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
+}
+
+export interface Route {
+  path: string;
+  params?: Record<string, string | string[]>;
+  query?: Record<string, any>;
 }
 
 export interface Flow {
@@ -25,19 +32,19 @@ export interface Flow {
   name?: string;
   path?: string;
   // handler?: (context: any, event: AnyEventObject) => void;
-  guard?: () => Promise<boolean>;
+  guard?: (route: Route) => Promise<boolean>;
   targets?: {
     next?: {
       id: ROUTE;
-      guard?: () => Promise<boolean>;
+      guard?: (route: Route) => Promise<boolean>;
     }[];
     back?: {
       id: ROUTE;
-      guard?: () => Promise<boolean>;
+      guard?: (route: Route) => Promise<boolean>;
     }[];
     fallback?: {
       id: ROUTE;
-      guard?: () => Promise<boolean>;
+      guard?: (route: Route) => Promise<boolean>;
     }[];
   };
 }

@@ -56,22 +56,28 @@ const routeConditions = [
       (event.data as Flow)?.id == ROUTE.RECOMMENDATIONS,
   },
   {
+    target: "#available.session",
+    actions: "setCurrentFlow",
+    cond: (_: RoutingEngineContext, event: AnyEventObject) =>
+      (event.data as Flow)?.id == ROUTE.SESSION,
+  },
+  {
     target: "#available.session.login",
     actions: "setCurrentFlow",
     cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.LOGIN,
+      (event.data as Flow)?.id == ROUTE.SESSION_LOGIN,
   },
   {
     target: "#available.session.register",
     actions: "setCurrentFlow",
     cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.REGISTER,
+      (event.data as Flow)?.id == ROUTE.SESSION_REGISTER,
   },
   {
     target: "#available.session.forgot",
     actions: "setCurrentFlow",
     cond: (_: RoutingEngineContext, event: AnyEventObject) =>
-      (event.data as Flow)?.id == ROUTE.FORGOT_PASSWORD,
+      (event.data as Flow)?.id == ROUTE.SESSION_FORGOT_PASSWORD,
   },
   {
     target: "#available.basket",
@@ -165,6 +171,7 @@ export default createMachine(
               register: {},
               forgot: {},
               profile: {},
+              expired: {},
             },
           },
           basket: {},
@@ -175,6 +182,7 @@ export default createMachine(
               loading: {},
               success: {},
               failed: {},
+              expired: {},
             },
           },
         },
