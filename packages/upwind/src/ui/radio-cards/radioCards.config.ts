@@ -1,15 +1,9 @@
 import { cva } from "class-variance-authority";
+import { ringClasses, invalidRingClasses } from "../../assets/styles.config";
 
-export const ringClasses =
-  "ring-offset-background focus-within:outline-none focus-within:ring-1 focus-within:ring-primary/50 focus-within:ring-offset-0 rounded-md group-focus-within:ring-0 group-focus-within:ring-offset-0";
-
-export const invalidRingClasses =
-  "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
-
-export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
-
-export const itemVariants = cva(
-  `${ringClasses} ${invalidRingClasses} hover:bg-control-active-hover col-span-12 flex items-start space-x-1 border border-control bg-control text-control-foreground shadow-sm transition-all duration-200`,
+const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
+const itemVariants = cva(
+  `hover:bg-control-active-hover col-span-12 flex items-start space-x-1 border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} ${invalidRingClasses}`,
   {
     variants: {
       layout: {
