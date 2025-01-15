@@ -1,8 +1,12 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles.config";
+import {
+  ringClasses,
+  inputClasses,
+  invalidRingClasses,
+} from "../../assets/styles.config";
 
 export const triggerVariants = cva(
-  `${ringClasses} ${invalidRingClasses} h-auto min-h-10 items-center justify-start rounded-md px-4 py-3 text-left !text-primary`,
+  `${invalidRingClasses} h-auto min-h-10 items-center justify-start rounded-md px-4 py-3 text-left !text-primary`,
   {
     variants: {
       width: {
@@ -18,7 +22,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md first:rounded-t-md last:rounded-b-md focus:outline-none focus:ring-1 focus:ring-inset",
+  `${ringClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md first:rounded-t-md last:rounded-b-md focus:outline-none focus:ring-1 focus:ring-inset`,
   {
     variants: {
       collapsible: {
@@ -30,11 +34,13 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  "max-h-72 !w-[--radix-dropdown-menu-trigger-width] overflow-hidden overflow-y-scroll",
+  "max-h-72 !w-[--radix-dropdown-menu-trigger-width]",
   {
     variants: {
       collapsible: {
-        false: "bg-control-background mt-1 rounded-md border shadow-md",
+        true: "!overflow-auto",
+        false:
+          "bg-control-background mt-1 overflow-hidden overflow-y-scroll rounded-md border shadow-md",
       },
     },
   }
@@ -50,7 +56,7 @@ export const groupVariants = cva("w-full", {
 
 export default {
   select: {
-    root: cva(`${ringClasses} ${invalidRingClasses} w-full`),
+    root: cva(`${invalidRingClasses} w-full`),
     content: contentVariants,
     trigger: triggerVariants,
     item: itemVariants,
@@ -59,6 +65,8 @@ export default {
     label: cva(
       "m-0 h-full w-full cursor-pointer rounded-md px-4 py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
-    input: cva("my-3 ml-3 mr-1 bg-control leading-normal text-control-active"),
+    input: cva(
+      `${inputClasses} my-3 ml-3 mr-1 bg-control leading-normal text-control-active`
+    ),
   },
 };

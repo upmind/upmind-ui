@@ -6,7 +6,7 @@
     class="w-full"
   >
     <component
-      :is="radio ? RadioGroup : 'fieldset'"
+      :is="radio && radioGroup ? RadioGroup : 'div'"
       :disabled="disabled"
       :model-value="modelValue"
       :default-value="defaultValue"
@@ -38,6 +38,8 @@
               :required="props.required"
               :disabled="props.disabled"
               class="mt-1"
+              @focus="handleFocus"
+              @blur="handleBlur"
             />
           </span>
 
@@ -61,7 +63,7 @@
         </Button>
       </component>
 
-      <component :is="collapsible ? 'fieldset' : DropdownMenuPortal">
+      <component :is="collapsible ? 'div' : DropdownMenuPortal">
         <component
           :is="collapsible ? CollapsibleContent : DropdownMenuContent"
           :class="cn(variants.select.content, props.contentClass)"
@@ -107,7 +109,7 @@
 
 <script lang="ts" setup>
 // ---external
-import { ref, computed } from "vue";
+import { ref, computed, watch, nextTick } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -125,20 +127,10 @@ import {
   CollapsibleTrigger,
 } from "../collapsible";
 import {
-  DropdownMenuArrow,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuItemIndicator,
-  DropdownMenuLabel,
   DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuRoot,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "radix-vue";
 
@@ -157,6 +149,7 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
+  radioGroup: true,
   // -- variants
   color: "base",
   variant: "control",
@@ -198,6 +191,31 @@ const variants = useStyles(
     content: string;
   };
 }>;
+
+const focusedElement = ref<HTMLElement | null>(null);
+
+const handleFocus = (event: FocusEvent) => {
+  focusedElement.value = event.target as HTMLElement;
+};
+
+const handleBlur = () => {
+  if (!props.disabled) {
+    focusedElement.value = null;
+  }
+};
+
+watch(
+  () => props.disabled,
+  isDisabled => {
+    if (!isDisabled && focusedElement.value) {
+      nextTick(() => {
+        const { focused } = useFocus(focusedElement.value);
+        focused.value = true;
+        console.log("focused", focused.value);
+      });
+    }
+  }
+);
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 const manuallySelected = computed(() => {

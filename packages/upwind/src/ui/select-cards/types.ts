@@ -20,6 +20,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   noneText?: string;
   required?: boolean;
   overrideIndex?: number;
+  radioGroup?: boolean;
   // --- state
   items: SelectCardsItemProps[];
   loading?: boolean;

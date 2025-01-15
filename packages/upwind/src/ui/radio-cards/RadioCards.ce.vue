@@ -1,5 +1,6 @@
 <template>
-  <RadioGroup
+  <component
+    :is="radioGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
@@ -25,7 +26,7 @@
         </template>
       </RadioCardItem>
     </template>
-  </RadioGroup>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -52,6 +53,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
+  radioGroup: true,
   // -- variants
   color: "base",
   variant: "control",
