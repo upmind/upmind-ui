@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../radio-cards/radioCards.config";
+import { ringClasses } from "../../assets/styles.config";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(

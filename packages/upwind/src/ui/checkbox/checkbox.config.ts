@@ -1,9 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import {
-  ringClasses,
-  invalidRingClasses,
-} from "../radio-cards/radioCards.config";
+import { ringClasses, invalidRingClasses } from "../../assets/styles.config";
 // -----------------------------------------------------------------------------
 
 export const checkboxVariants = cva(
