@@ -25,6 +25,7 @@
           :color="color"
           :variant="variant"
           block
+          @keydown.enter.prevent="open = !open"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
@@ -55,7 +56,8 @@
 
           <template #append>
             <Icon
-              class="ml-auto opacity-75 transition-all duration-200 group-aria-expanded:rotate-180"
+              class="ml-auto opacity-75 transition-all duration-200"
+              :class="open ? 'rotate-180' : ''"
               icon="arrow-down"
               size="xs"
             />

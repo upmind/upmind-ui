@@ -22,7 +22,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  `${ringClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md first:rounded-t-md last:rounded-b-md focus:outline-none focus:ring-1 focus:ring-inset`,
+  `hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md first:rounded-t-md last:rounded-b-md ${ringClasses}`,
   {
     variants: {
       collapsible: {
@@ -38,7 +38,7 @@ export const contentVariants = cva(
   {
     variants: {
       collapsible: {
-        true: "!overflow-auto",
+        true: "!overflow-visible",
         false:
           "bg-control-background mt-1 overflow-hidden overflow-y-scroll rounded-md border shadow-md",
       },
