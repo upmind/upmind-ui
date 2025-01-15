@@ -18,7 +18,7 @@ import {
   isEqual,
   last,
   isEmpty,
-  hasIn,
+  filter,
 } from "lodash-es";
 import { responseCodes } from "../api";
 
@@ -195,6 +195,11 @@ export const useBasket = () => {
 
     getProducts: () => get(service.getSnapshot(), "context.products", []),
     getPendingProducts: () => get(service.getSnapshot(), "context.items", []),
+    getInvalidProducts: () => {
+      const state = service.getSnapshot();
+      const products = get(state, "context.products", []);
+      return filter(products, product => !isEmpty(product?.error));
+    },
 
     findItem: (mapping: any) =>
       find(service.getSnapshot()?.context?.items, (basketItem: any) =>
