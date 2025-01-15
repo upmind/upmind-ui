@@ -17,6 +17,23 @@ export const useBasketFlows = () => {
 
   let flows: Flow[] = [
     {
+      name: ROUTE.LOADING,
+      guard: async (_route: Route) => false, // force to go to the next route
+      targets: {
+        next: [],
+        back: [],
+        fallback: [
+          {
+            name: ROUTE.PRODUCT_ADD,
+            guard: async (_route: Route) => {
+              const valid = true || false;
+              return valid;
+            },
+          },
+        ],
+      },
+    },
+    {
       name: ROUTE.EMPTY,
       // handler: (_context: any, _event: AnyEventObject) => {},
       guard: async (_route: Route) => isEmpty(),
