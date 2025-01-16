@@ -15,7 +15,7 @@ import type { Route } from "./types";
 
 // --- Helper functios/utils
 
-async function matchFlow(routes: Flow[], route: Route) {
+async function matchFlow(routes: Flow[], route: Route): Promise<Flow> {
   if (isEmpty(routes)) return Promise.reject();
   // NB cant use odash her as we are async
   const guards = map(routes, flow => guardFlow(flow, route));
@@ -31,7 +31,7 @@ async function matchFlow(routes: Flow[], route: Route) {
   return new Promise((resolve, reject) => (match ? resolve(match) : reject()));
 }
 
-async function guardFlow(flow: Flow, route: Route) {
+async function guardFlow(flow: Flow, route: Route): Promise<boolean> {
   let valid = true;
   if (isFunction(flow.guard)) {
     valid = await flow.guard(route);
@@ -71,20 +71,42 @@ async function resolve(
   const target = find(flows, ["name", name]) || currentFlow;
 
   if (!target) return Promise.reject();
-  return guardFlow(target, route).then(value => {
-    if (value) return target;
-    // if we still dont have a target, then we need to check if we have any fallbacks for out current route
-    return matchFlow(target?.targets?.fallback || [], route).catch(() => {
-      // if we still dont have a target, then we need to check if we have any items in the basket, as it may be empty
-      const basket = basketHelper?.getSnapshot();
-      if (isEmpty(basket?.context?.products)) {
-        return find(flows, ["name", ROUTE.EMPTY]);
-      }
 
-      // if we get to this point and we still dont have a target, then we need to check if we have a fallback
-      return Promise.reject();
-    });
+  const flow = await guardFlow(target, route).then(async valid => {
+    // if we have a valid target, then we can resolve the route,
+    // otherwise we need to check if we have a fallback
+    // if we dont have a fallback, then we need to check if we have any items in the basket, as it may be empty
+
+    const flow: Flow | undefined = valid
+      ? target
+      : await matchFlow(target?.targets?.fallback || [], route).catch(() => {
+          const basket = basketHelper?.getSnapshot();
+          if (isEmpty(basket?.context?.products)) {
+            return find(flows, ["name", ROUTE.EMPTY]);
+          }
+
+          // if we get to this point and we still dont have a target, then we need to bail
+          return undefined;
+        });
+
+    return flow;
   });
+
+  const resolvedRoute = flow ? await resolveRoute(flow, route) : undefined;
+
+  return new Promise((resolve, reject) => {
+    if (flow && resolvedRoute) {
+      resolve({ flow, route: resolvedRoute });
+    } else {
+      reject();
+    }
+  });
+}
+
+async function resolveRoute(flow: Flow, route: Route): Promise<Route> {
+  return isFunction(flow?.resolve)
+    ? flow.resolve(route)
+    : Promise.resolve({ name: flow.name });
 }
 
 // --------------------------------------------------------

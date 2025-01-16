@@ -3,8 +3,10 @@
 // --- internal
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
+
 // --- utils
-import { uniqBy } from "lodash-es";
+import { useRoutePendingProducts } from "../utils";
+import { uniqBy, get } from "lodash-es";
 
 // --- types
 import type { Flow, Route } from "../types";
@@ -25,9 +27,23 @@ export const useBasketFlows = () => {
         fallback: [
           {
             name: ROUTE.PRODUCT_ADD,
-            guard: async (_route: Route) => {
-              const valid = true || false;
-              return valid;
+            guard: async (route: Route) => {
+              const { syncPendingProducts, hasPendingProducts } =
+                useRoutePendingProducts(route);
+              await Promise.all(syncPendingProducts());
+              return hasPendingProducts();
+            },
+            resolve: async (route: Route) => {
+              const { getPendingProduct } = useRoutePendingProducts(route);
+              const product = await getPendingProduct();
+              const pid = get(product.getSnapshot(), "context.model.productId");
+              if (pid) {
+                return {
+                  name: ROUTE.PRODUCT_ADD,
+                  params: { pid },
+                };
+              }
+              return Promise.reject();
             },
           },
         ],

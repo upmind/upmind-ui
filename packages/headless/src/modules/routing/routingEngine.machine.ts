@@ -36,7 +36,7 @@ export default createMachine(
           "setContext",
           "setBasketHelper",
           "getBasket",
-          assign({ currentFlow: undefined }),
+          assign({ currentFlow: undefined, currentRoute: undefined }),
         ],
         on: {
           REGISTER: {
@@ -120,11 +120,11 @@ export default createMachine(
           src: "resolve",
           onDone: {
             target: "resolved",
-            actions: "setCurrentFlow",
+            actions: "setResolved",
           },
           onError: {
             target: "resolved",
-            actions: "setCurrentFlow",
+            actions: "setResolved",
           },
         },
       },
@@ -180,6 +180,17 @@ export default createMachine(
       setCurrentFlow: assign({
         currentFlow: (_context, { data }: AnyEventObject) => {
           const flow = get(data, "flow", data);
+          return flow;
+        },
+      }),
+
+      setResolved: assign({
+        currentFlow: (_context, { data }: AnyEventObject) => {
+          const flow = get(data, "flow", data);
+          return flow;
+        },
+        currentRoute: (_context, { data }: AnyEventObject) => {
+          const flow = get(data, "route", data);
           return flow;
         },
       }),

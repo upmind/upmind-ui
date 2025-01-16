@@ -17,7 +17,7 @@ import {
   isArray,
   isEmpty,
   isFunction,
-  isObjectLike,
+  keys,
   map,
   merge,
   omit,
@@ -126,8 +126,7 @@ export const useRouteQueryParams = (route: Route) => {
     getParam,
     productId: getParam(QUERY_PARAMS.PRODUCT_ID),
     products: getParams(QUERY_PARAMS.PRODUCT_ID),
-    productConfigs: getProductConfigs(),
-
+    getProductConfigs,
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
 
     currency: getParam(
@@ -143,12 +142,12 @@ export const useRouteQueryParams = (route: Route) => {
 const useSessionStorage = () => {
   return {
     get(key: string, fallback: any) {
-      debugger;
-      const value = JSON.parse(
-        sessionStorage.getItem(key) || fallback.toString() || null
-      );
-      debugger;
-      return value;
+      const value = sessionStorage.getItem(key) || fallback || null;
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value;
+      }
     },
     set(key: string, value: any) {
       sessionStorage.setItem(key, JSON.stringify(value));
@@ -167,16 +166,14 @@ const useSessionStorage = () => {
 };
 
 export const useRoutePendingProducts = (route: Route) => {
-  const { productConfigs } = useRouteQueryParams(route);
-
+  const { getProductConfigs } = useRouteQueryParams(route);
   const { addItem, getPendingProducts, getProducts, removeItem } = useBasket();
-
   const storage = useSessionStorage();
+  const pendingProducts = storage.get("pendingProducts", {});
   // this is used to store subscriptions to changes on the product and update the local storage
-  let subscriptions: Record<string, Subscription> = {};
+  const subscriptions: Record<string, Subscription> = {};
 
   // setup our localstorage driver
-  const pendingProducts = storage.get("pendingProducts", {});
 
   // --- utils
 
@@ -237,29 +234,44 @@ export const useRoutePendingProducts = (route: Route) => {
   }
 
   async function getPendingProduct(
-    productId: string,
+    productId?: string,
     sync?: boolean
   ): Promise<ActorRef<any, any>> {
-    return ensureBasketItem(
-      productId,
-      get(getPendingProducts(), productId, { productId })
-    ).then((basketItem: ActorRef<any, any>) => {
-      if (sync) {
+    let basketItem: ActorRef<any, any> | undefined;
+    const target = productId || first(keys(pendingProducts));
+
+    if (target) {
+      basketItem = await ensureBasketItem(
+        target,
+        get(pendingProducts, target, { target })
+      );
+
+      if (basketItem && sync) {
         const subscription: Subscription = basketItem.subscribe(
           (state: State<any, any>) => {
             if (state.matches("error")) {
-              unsetPendingProduct(productId);
-              removeItem(basketItem.id);
+              unsetPendingProduct(target);
+              removeItem(basketItem?.id);
             } else if (state.matches("available.configuring")) {
-              setPendingProduct(productId, state);
+              setPendingProduct(target, state);
             }
           }
         );
 
-        subscriptions ??= {}; // ensure we have a subscriptions object
-        set(subscriptions, productId, subscription);
+        set(subscriptions, target, subscription);
       }
-      return basketItem;
+    }
+
+    return new Promise((resolve, reject) => {
+      if (basketItem) {
+        resolve(basketItem);
+      } else {
+        // if we get here, then we dont have any pending products
+        reject({
+          message: "No pending product found",
+          code: responseCodes.Not_Found,
+        });
+      }
     });
   }
 
@@ -291,13 +303,13 @@ export const useRoutePendingProducts = (route: Route) => {
 
   function syncPendingProducts(): Promise<ActorRef<any, any>>[] {
     // get any productIds from the url query params and store them in our pending basket items
-    forEach(productConfigs, (product: ProductModel) => {
+    const configs = getProductConfigs();
+    forEach(configs, (product: ProductModel) => {
       // theres a chance we alrady have this product in our pending basket items
       // so we merge the existing product with the new product so we dont lose any data
       const existingProduct = get(pendingProducts, product.productId);
       setPendingProduct(product.productId, merge(existingProduct, product));
     });
-
     const promises = map(pendingProducts.value, (model, productId) => {
       return ensureBasketItem(productId, model).then(
         (basketItem: ActorRef<any, any>) => {
@@ -314,6 +326,7 @@ export const useRoutePendingProducts = (route: Route) => {
 
   return {
     getProduct,
+    hasPendingProducts: () => !isEmpty(pendingProducts),
     getPendingProduct,
     setPendingProduct,
     unsetPendingProduct,
