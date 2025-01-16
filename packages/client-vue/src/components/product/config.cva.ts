@@ -264,7 +264,7 @@ export default {
             variants: {
               select: {
                 false: "w-full flex-col gap-y-1.5 self-end",
-                true: "items-center gap-x-2",
+                true: "items-baseline gap-x-2",
               },
             },
           }),
@@ -281,7 +281,7 @@ export default {
               },
             },
           }),
-          discount: cva("text-emphasis-medium text-sm text-inherit"),
+          discount: cva("text-2xs text-emphasis-medium leading-none"),
         },
       },
       // ---
