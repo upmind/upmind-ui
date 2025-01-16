@@ -22,7 +22,8 @@ export enum ROUTE {
 }
 
 export interface Route {
-  path: string;
+  path?: string;
+  name?: string;
   params?: Record<string, string | string[]>;
   query?: Record<string, any>;
 }
@@ -31,18 +32,22 @@ export interface Flow {
   name: ROUTE;
   // handler?: (router: any, route: ROUTE) => Promise<void>;
   guard?: (route: Route) => Promise<boolean>;
+  resolve?: (route: Route) => Promise<Route>;
   targets?: {
     next?: {
       name: ROUTE;
       guard?: (route: Route) => Promise<boolean>;
+      resolve?: (route: Route) => Promise<Route>;
     }[];
     back?: {
       name: ROUTE;
       guard?: (route: Route) => Promise<boolean>;
+      resolve?: (route: Route) => Promise<Route>;
     }[];
     fallback?: {
       name: ROUTE;
       guard?: (route: Route) => Promise<boolean>;
+      resolve?: (route: Route) => Promise<Route>;
     }[];
   };
 }
@@ -53,6 +58,7 @@ export interface Flow {
 export interface RoutingEngineContext {
   flows: Flow[];
   currentFlow?: Flow;
+  currentRoute?: Route;
   // ---
   error?: any;
   // ---

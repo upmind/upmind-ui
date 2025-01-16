@@ -64,12 +64,15 @@ export const useRoutingEngine = () => {
         state => !["resolving", "calculating"].some(state.matches),
         { timeout: Infinity }
       );
-      const target = get(service.getSnapshot(), "context.currentFlow");
+      const resolvedRoute = get(service.getSnapshot(), "context.currentRoute");
 
-      // if our target is the same as the requested route name, then we are good
-      // otherwise we need to reject the promise with the new target
-      if (name == target?.name) return Promise.resolve(target);
-      else return Promise.reject(target);
+      // if our resolvedRoute is the same as the requested route name, then we are good
+      // otherwise we need to reject the promise with the new resolvedRoute
+      if (resolvedRoute) {
+        return Promise.resolve(resolvedRoute);
+      } else {
+        return Promise.reject(resolvedRoute);
+      }
     },
     // ---
     destroy: () => service.stop(),
