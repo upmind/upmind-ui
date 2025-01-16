@@ -29,7 +29,6 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   size?: ButtonProps["size"];
   collapsible?: boolean;
   radio?: boolean;
-  separate?: boolean;
   side?: PopoverContentProps["side"];
   // ---
   upwindConfig?: { tooltip: Partial<SelectCardsProps> };
