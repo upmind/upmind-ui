@@ -39,7 +39,7 @@ export const useSchema = ({
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["name", "address1", "city", "countryId", "postcode", "type"],
+    required: ["address1", "city", "countryId", "postcode", "type"],
     // --- conditionally required fields
     if: {
       properties: {
@@ -137,7 +137,7 @@ export const useSchema = ({
       countryId: {
         type: "string",
         title: "Country",
-        default: baseModel?.countryId,
+        default: baseModel?.country_id,
         oneOf: !countries?.length
           ? undefined
           : map(countries, item => {

@@ -34,7 +34,7 @@ export const useClientCompany = (item: any, context?: any) => {
       // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
-      isProcessing: ["checking", "processing"].some(state.value.matches),
+      isProcessing: ["processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
       canRemove: !!state.value?.context?.model?.canDelete,
@@ -53,7 +53,7 @@ export const useClientCompany = (item: any, context?: any) => {
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear: () => send({ type: "CLEAR" }),
-    input: (model: any) => send({ type: "SET", data: model }),
+    input: debounce((model: any) => send({ type: "SET", data: model }), 300),
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
