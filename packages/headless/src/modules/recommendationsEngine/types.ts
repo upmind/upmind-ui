@@ -19,6 +19,8 @@ export interface Recommendation {
   category?: string;
   serviceIdentifier?: string;
   imgUrl?: string;
+  badge?: string;
+  benefits?: Benefit[];
   // ---
   cycle?: number;
   quantity?: number;
@@ -97,6 +99,8 @@ export interface RelatedProduct extends IRelatedObject {
   product?: IProduct;
   // --- config to be used in adding the recommendation
   config?: IProductConfig;
+  badge?: string;
+  benefits?: Benefit[];
 }
 
 export interface IProductConfig {
@@ -116,4 +120,9 @@ export interface RecommendationsEngineEvents {
   type: "CHECK" | "REFRESH";
   data?: any;
   error?: any;
+}
+
+export interface Benefit {
+  label: string;
+  icon: string;
 }

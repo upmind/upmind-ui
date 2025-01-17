@@ -41,6 +41,11 @@ const props = withDefaults(defineProps<IconProps>(), {
   class: "",
 });
 
+// Add emit definition
+const emit = defineEmits<{
+  error: [{ type: string; message: string; details: any }];
+}>();
+
 const meta = computed(() => ({
   size: props.size,
   // ---
@@ -83,6 +88,11 @@ watchEffect(async () => {
       icon: props.icon,
       icons,
     });
+    emit("error", {
+      type: "ICON_NOT_FOUND",
+      message: "Icon import not found",
+      details: { icon: props.icon, icons },
+    });
     svg.value = null;
     return;
   }
@@ -92,6 +102,11 @@ watchEffect(async () => {
       icon: props.icon,
       error,
       icons,
+    });
+    emit("error", {
+      type: "ICON_IMPORT_ERROR",
+      message: "Failed to import icon",
+      details: { icon: props.icon, error, icons },
     });
     return null;
   });

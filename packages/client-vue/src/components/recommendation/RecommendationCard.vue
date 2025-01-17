@@ -1,5 +1,7 @@
 <template>
-  <UpmCard class="h-full w-full !p-0" :disabled="props.disabled">
+  <UpmCard class="relative h-full w-full !p-0" :disabled="props.disabled">
+    <RecommendationBadge :badge="badge" />
+
     <div class="flex h-full flex-col">
       <!-- Image section -->
       <div class="aspect-video shrink-0 overflow-hidden rounded-t-lg">
@@ -18,7 +20,7 @@
       <!-- Content section -->
       <div class="flex flex-1 flex-col justify-between space-y-8 p-6">
         <div
-          class="flex flex-1 flex-col justify-between gap-y-8 text-sm font-medium leading-6"
+          class="flex flex-1 flex-col justify-between gap-y-6 text-sm font-medium leading-6"
         >
           <!-- Title and description -->
           <div class="flex flex-col gap-x-2">
@@ -29,20 +31,22 @@
 
               <Lineclamp
                 v-if="description"
-                class="text-emphasis-disabled m-0 min-h-12 text-sm leading-6"
+                class="text-emphasis-medium m-0 min-h-12 text-sm leading-6"
                 :lines="2"
                 :labelMore="t('product.actions.more', 1)"
                 :labelLess="t('product.actions.more', 0)"
                 >{{ description }}</Lineclamp
               >
             </div>
+
+            <RecommendationBenefits :benefits="benefits" class="mt-6" />
           </div>
 
           <!-- Price section -->
           <div class="not-prose flex flex-col gap-y-2">
             <!-- Price Intro: eg. 'From' or 'Was $X.XX' -->
             <div class="flex items-center space-x-2">
-              <p class="text-emphasis-disabled text-sm">
+              <p class="text-emphasis-medium text-sm">
                 <!-- If discounted, show regular price -->
                 <template v-if="meta?.discounted">
                   <del class="italic">{{
@@ -90,7 +94,7 @@
 
             <!-- Summary (If there is a billing cycle) -->
             <template v-if="!!cycle">
-              <p class="text-emphasis-disabled mt-1 text-sm">
+              <p class="text-emphasis-medium mt-1 text-sm">
                 {{
                   t(
                     meta?.discounted
@@ -115,7 +119,6 @@
         <div>
           <Button
             color="primary"
-            size="sm"
             :disabled="meta?.added"
             :loading="meta?.processing"
             :label="
@@ -141,6 +144,8 @@ import { useI18n } from "vue-i18n";
 import { UpmCard } from "@upmind-automation/client-vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import Promotion from "../basket/product/components/Promotion.vue";
+import RecommendationBadge from "./components/Badge.vue";
+import RecommendationBenefits from "./components/Benefits.vue";
 import type { Recommendation } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -150,6 +155,8 @@ const { t } = useI18n();
 const props = defineProps<
   Recommendation & {
     disabled?: boolean;
+    badge?: string;
+    benefits?: string[];
   }
 >();
 
