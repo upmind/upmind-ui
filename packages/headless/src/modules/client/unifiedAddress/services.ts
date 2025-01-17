@@ -410,7 +410,6 @@ async function loadLookups(
       const address = addresses.getDefault()?.state?.context?.model;
       const email = emails.getDefault()?.state?.context?.model;
       const phone = phones.getDefault()?.state?.context?.model;
-
       return {
         countries,
         regions,
@@ -473,15 +472,13 @@ async function parse(
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country fro mthe address
     // this will in turn update the phone schema to match the country
-    if (!some(regions, ["countryId", model.countryId])) {
+    if (!some(regions, ["countryId", model.countryId]))
       regions = await fetchRegions(model.countryId);
-
-      country = getCountry(model.countryId);
-    }
 
     // now lets check our regions list to see if we have a match
     // if so, then we need to update the model with the new region id
     // otherwise the region_id is reset to null
+    country = getCountry(model.countryId);
     const region = find(regions, ["id", model?.regionId]);
     model.regionId = get(region, "id", undefined);
 
@@ -493,16 +490,19 @@ async function parse(
 
       const countryCode =
         model?.phone?.country || model?.phoneCountryCode || country?.code;
-      const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
+      const phone = parsePhoneNumber(phonenumber, countryCode) || undefined;
 
       // now map the phone number to the model in the correct format with fallbacks
-      model.phone = {
-        number: phone?.number || model.phone?.number,
-        nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
-        countryCallingCode:
-          phone?.countryCallingCode || model.phone?.countryCallingCode,
-        country: countryCode,
-      };
+      model.phone = phone
+        ? {
+            number: phone?.number || model.phone?.number,
+            nationalNumber:
+              phone?.nationalNumber || model.phone?.nationalNumber,
+            countryCallingCode:
+              phone?.countryCallingCode || model.phone?.countryCallingCode,
+            country: countryCode,
+          }
+        : undefined;
     }
 
     // finally lets force a manual place if we are invalid:
@@ -523,7 +523,20 @@ async function parse(
     }
 
     // force the type as company if we have added company details
-    if (model.companyId) model.type = 4; // company
+    if (model.companyId) {
+      model.type = 4; // company
+      model.companyDetails = true;
+    }
+
+    if (!model.companyDetails) {
+      // housekeeping
+      model.phone = undefined;
+      model.email = undefined;
+      model.companyName = undefined;
+      model.regNumber = undefined;
+      model.vatNumber = undefined;
+      model.vatPercent = undefined;
+    }
   }
 
   return Promise.resolve({ model, regions, country });
