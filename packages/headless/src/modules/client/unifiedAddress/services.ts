@@ -428,7 +428,6 @@ async function loadLookups(
           type: first(AddressTypes)?.key,
           phone: phone?.phone,
           email: email?.email,
-          place: address?.id,
           country_id: address?.countryId || country?.id,
         },
       };
