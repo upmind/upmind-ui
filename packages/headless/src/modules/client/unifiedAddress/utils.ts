@@ -15,7 +15,6 @@ import {
   defaultsDeep,
   uniqueId,
   compact,
-  pick,
   isArray,
 } from "lodash-es";
 
@@ -162,7 +161,7 @@ export const useSchema = ({
       },
 
       email: {
-        type: "string",
+        type: ["string", "null"],
         title: "Email",
         format: "email",
         default: baseModel.email,
@@ -170,7 +169,7 @@ export const useSchema = ({
       },
 
       phone: {
-        type: "object",
+        type: ["object", "null"],
         title: "Phone",
         isPhoneNumber: country?.code,
         properties: {
