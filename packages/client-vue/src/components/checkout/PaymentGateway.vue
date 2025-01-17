@@ -86,14 +86,12 @@ import { isEmpty } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind-automation/client-vue";
+import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
 import { Markdown } from "@upmind-automation/upwind";
 
 // --- components
 import { Form, Spinner, Alert } from "@upmind-automation/upwind";
 
-// --- types
-// import { GatewayProviderCodes, GatewayTypes } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   id: string;
