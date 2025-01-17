@@ -105,8 +105,8 @@ import { useI18n } from "vue-i18n";
 import {
   useBasketPaymentDetails,
   useBasket,
-} from "@upmind-automation/client-vue";
-import { UpmPaymentNotRequired } from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
+import UpmPaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- components
 import {
