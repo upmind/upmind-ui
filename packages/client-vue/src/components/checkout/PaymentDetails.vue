@@ -17,12 +17,23 @@
           :disabled="item.gateway_id === model.gateway_id"
         >
           <AccordionTrigger
-            class="text-emphasis-medium hover:text-primary flex items-center space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
+            class="text-emphasis-medium hover:text-primary flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
             @click.stop="selectGateway(item.gateway_id)"
           >
-            <div class="text-primary text-sm no-underline">
-              {{ item.gateway.name }}
-            </div>
+            <header class="flex w-full items-center justify-between space-x-2">
+              <h5
+                class="text-primary text-left text-sm leading-tight no-underline"
+              >
+                {{ item.gateway.name }}
+              </h5>
+
+              <img
+                :src="`/gateways/${item.gateway_id}.png`"
+                :alt="item.gateway.name"
+                class="m-0 h-6 md:h-7"
+                @error="$event.target.style.display = 'none'"
+              />
+            </header>
 
             <template #icon>
               <Icon

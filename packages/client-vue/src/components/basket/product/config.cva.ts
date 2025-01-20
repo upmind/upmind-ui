@@ -20,7 +20,7 @@ export default {
     },
     summary: {
       container: cva("flex flex-col gap-y-4 py-4 first:pt-0 last:pb-0"),
-      imageLink: cva(
+      image: cva(
         "m-0 h-12 min-w-12 max-w-12 rounded-lg object-cover object-center"
       ),
       imageRoute: cva(""),
