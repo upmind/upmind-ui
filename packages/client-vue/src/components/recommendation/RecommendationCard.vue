@@ -164,11 +164,15 @@ const props = defineProps<
   }
 >();
 
-const meta = computed(() => ({
+const configMeta = computed(() => ({
   disabled: props.disabled,
 }));
 
-const styles = useStyles(["recommendation"], {}, config) as ComputedRef<{
+const styles = useStyles(
+  ["recommendation"],
+  configMeta,
+  config
+) as ComputedRef<{
   recommendation: {
     root: string;
     container: string;
