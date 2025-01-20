@@ -30,11 +30,12 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  " !w-[--radix-popover-trigger-width] rounded-md p-0",
+  "max-h-72 !w-[--radix-dropdown-menu-trigger-width]",
   {
     variants: {
       collapsible: {
-        false: "flex max-h-72 flex-col overflow-y-scroll",
+        false:
+          "bg-control-background mt-1 flex max-h-72 flex-col overflow-hidden overflow-y-scroll rounded-md border border-control shadow-sm",
       },
     },
   }
