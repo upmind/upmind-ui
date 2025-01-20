@@ -302,8 +302,8 @@ function doReject() {
 }
 
 function updateUischema(uischema: FormProps["uischema"]) {
-  if (!uischema?.value) return;
-  iterateSchema(uischema.value, (child: FormProps["uischema"]) => {
+  if (!uischema) return;
+  iterateSchema(uischema, (child: FormProps["uischema"]) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
 
