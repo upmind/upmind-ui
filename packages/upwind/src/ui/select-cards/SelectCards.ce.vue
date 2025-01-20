@@ -16,6 +16,7 @@
       <component
         :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
+        @keydown.prevent.arrow-down="focusFirstItem"
       >
         <Button
           :loading="loading"
@@ -25,6 +26,9 @@
           :color="color"
           :variant="variant"
           block
+          @keydown.prevent.arrow-down="focusFirstItem"
+          @keydown.prevent.arrow-up="focusLastItem"
+          @keydown.prevent.enter="open = !open"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
@@ -75,7 +79,11 @@
             :key="item.id || index"
             :is="collapsible ? 'div' : DropdownMenuItem"
             :class="variants.select.item"
+            tabindex="0"
             @click="onChange(item.value)"
+            @keydown.prevent.arrow-down="focusNextItem(index)"
+            @keydown.prevent.arrow-up="focusPreviousItem(index)"
+            @keydown.prevent.enter="onChange(item.value)"
             :ref="
               (el: HTMLElement) => {
                 if (el) itemRefs[index] = el;
@@ -172,7 +180,6 @@ const open = ref(false);
 const meta = computed(() => ({
   color: props.color,
   collapsible: props.collapsible,
-  separate: props.separate,
 }));
 
 const variants = useStyles(
@@ -250,6 +257,29 @@ const handleOpenAutoFocus = (event: Event) => {
   if (itemRefs.value[index]) {
     const { focused } = useFocus(itemRefs.value[index]);
     focused.value = true;
+  }
+};
+
+const focusItem = (index: number) => {
+  const item = itemRefs.value[index];
+  if (item) {
+    const { focused } = useFocus(item);
+    focused.value = true;
+  }
+};
+
+const focusFirstItem = () => focusItem(0);
+const focusLastItem = () => focusItem(itemRefs.value.length - 1);
+const focusNextItem = (currentIndex: number) => {
+  const nextIndex = currentIndex + 1;
+  if (nextIndex < itemRefs.value.length) {
+    focusItem(nextIndex);
+  }
+};
+const focusPreviousItem = (currentIndex: number) => {
+  const previousIndex = currentIndex - 1;
+  if (previousIndex >= 0) {
+    focusItem(previousIndex);
   }
 };
 </script>

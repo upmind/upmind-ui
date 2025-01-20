@@ -1,10 +1,10 @@
 import { cva } from "class-variance-authority";
-import { inputClasses, invalidRingClasses } from "../../assets/styles";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
 
 export const itemVariants = cva(
-  `hover:bg-control-active-hover flex items-start space-x-1 border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${invalidRingClasses}`,
+  `hover:bg-control-active-hover flex items-start space-x-1 border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} ${invalidRingClasses}`,
   {
     variants: {
       layout: {
@@ -48,6 +48,6 @@ export default {
     label: cva(
       "m-0 h-full w-full min-w-0 cursor-pointer rounded-md py-3.5 pr-4 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
-    input: cva(`${inputClasses} my-3 ml-4 mr-1 mt-4 leading-normal`),
+    input: cva(`${ringClasses} my-3 ml-4 mr-1 mt-4 leading-normal`),
   },
 };
