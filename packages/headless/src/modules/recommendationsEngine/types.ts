@@ -1,9 +1,9 @@
 // --- types
-import type { Actor, ActorRef } from "xstate";
+import type { ActorRef } from "xstate";
 import type { IRelatedObject, IProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
-
+import type { BadgeProps, IconProps } from "@upmind-automation/upwind";
 // --------------------------------------------------------
 //
 
@@ -19,7 +19,7 @@ export interface Recommendation {
   category?: string;
   serviceIdentifier?: string;
   imgUrl?: string;
-  badge?: string;
+  badge?: BadgeProps;
   benefits?: Benefit[];
   // ---
   cycle?: number;
@@ -124,5 +124,5 @@ export interface RecommendationsEngineEvents {
 
 export interface Benefit {
   label: string;
-  icon: string;
+  icon: IconProps;
 }
