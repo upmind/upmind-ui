@@ -21,6 +21,12 @@ export enum ROUTE {
   ORDER = "order",
 }
 
+export enum REQUIRES_ACTION {
+  PENDING = "pending",
+  INVALID = "invalid",
+  RELATED = "related",
+}
+
 export interface Route {
   path?: string;
   name?: string;

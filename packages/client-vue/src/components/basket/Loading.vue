@@ -43,6 +43,8 @@
         </Button>
       </footer>
     </section>
+
+    <slot name="background"></slot>
   </component>
 </template>
 
@@ -63,6 +65,7 @@ import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upwind";
 import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { BasketModalProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -81,7 +84,16 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
 
 const { meta } = useBasket();
 
-const styles = useStyles(["basket.loading"], meta, config);
+const styles = useStyles(["basket.loading"], meta, config) as ComputedRef<{
+  basket: {
+    loading: {
+      root: string;
+      title: string;
+      text: string;
+      actions: string;
+    };
+  };
+}>;
 
 const processing = ref(false);
 const isOpen = computed(() => meta.value.isLoading || props.open);

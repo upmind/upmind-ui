@@ -2,7 +2,7 @@
   <ProductConfig
     v-if="open || selected"
     v-bind="$props"
-    :class="'styles.basket.item'"
+    :class="styles.basket.item"
     :processing="meta.isProcessing"
     :required="selected"
     @reject="open = false"
@@ -23,7 +23,7 @@
   <ProductCard
     v-else
     v-bind="$props"
-    :class="'styles.basket.item'"
+    :class="styles.basket.item"
     @reject="removeItem"
     @resolve="open = true"
   >

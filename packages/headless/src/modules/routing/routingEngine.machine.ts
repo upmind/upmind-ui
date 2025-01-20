@@ -8,6 +8,7 @@ import { basketSubscription } from "../basket/helper";
 
 // --- utils
 import { useTime } from "../../utils";
+import { useRouteQueryParams } from "./utils";
 import {
   defaultsDeep,
   find,
@@ -95,20 +96,26 @@ export default createMachine(
             invoke: {
               src: "calculateNextRoute",
               onDone: {
-                target: "#resolving",
-                actions: "setCurrentFlow",
+                target: "#resolved",
+                actions: "setResolved",
               },
-              onError: "#resolving",
+              onError: {
+                target: "#resolved",
+                actions: "setResolved",
+              },
             },
           },
           back: {
             invoke: {
               src: "calculateBackRoute",
               onDone: {
-                target: "#resolving",
-                actions: "setCurrentFlow",
+                target: "#resolved",
+                actions: "setResolved",
               },
-              onError: "#resolving",
+              onError: {
+                target: "#resolved",
+                actions: "setResolved",
+              },
             },
           },
         },
@@ -130,6 +137,7 @@ export default createMachine(
       },
 
       resolved: {
+        id: "resolved",
         after: {
           wait: "available",
         },
@@ -174,13 +182,6 @@ export default createMachine(
       setFlows: assign({
         flows: ({ flows }, { data }: AnyEventObject) => {
           return uniqBy([...(data || []), ...flows], "name");
-        },
-      }),
-
-      setCurrentFlow: assign({
-        currentFlow: (_context, { data }: AnyEventObject) => {
-          const flow = get(data, "flow", data);
-          return flow;
         },
       }),
 

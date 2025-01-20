@@ -1,6 +1,5 @@
 // --- external
-import type { ActorRef } from "xstate";
-import { interpret } from "xstate";
+import { interpret, toActorRef } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -23,6 +22,7 @@ import {
 import { responseCodes } from "../api";
 
 // --- types
+import type { ActorRef } from "xstate";
 import type { ProductModel } from "../product/types";
 export * from "./types";
 // --------------------------------------------------------
@@ -141,24 +141,48 @@ export const useBasket = () => {
       );
     },
 
-    hasPromotions: () => {
+    hasPromotions: async (): Promise<boolean> => {
       const state = service.getSnapshot();
-      return state.matches("shopping.promotions.complete");
+      const promotions = get(state, "context.actors.promotions");
+      if (!promotions) return false;
+      return waitFor(promotions as ActorRef<any, any>, state =>
+        state.matches("complete")
+      )
+        .then(() => true)
+        .catch(() => false);
     },
 
-    hasBillingDetails: () => {
+    hasBillingDetails: async (): Promise<boolean> => {
       const state = service.getSnapshot();
-      return state.matches("shopping.billingDetails.complete");
+      const billingDetails = get(state, "context.actors.billingDetails");
+      if (!billingDetails) return false;
+      return waitFor(billingDetails as ActorRef<any, any>, state =>
+        state.matches("complete")
+      )
+        .then(() => true)
+        .catch(() => false);
     },
 
-    hasCurrency: () => {
+    hasCurrency: async (): Promise<boolean> => {
       const state = service.getSnapshot();
-      return state.matches("shopping.currency.complete");
+      const currency = get(state, "context.actors.currency");
+      if (!currency) return false;
+      return waitFor(currency as ActorRef<any, any>, state =>
+        state.matches("complete")
+      )
+        .then(() => true)
+        .catch(() => false);
     },
 
-    hasFields: () => {
+    hasFields: async (): Promise<boolean> => {
       const state = service.getSnapshot();
-      return state.matches("shopping.customFields.complete");
+      const customFields = get(state, "context.actors.customFields");
+      if (!customFields) return false;
+      return waitFor(customFields as ActorRef<any, any>, state =>
+        state.matches("complete")
+      )
+        .then(() => true)
+        .catch(() => false);
     },
 
     hasPaymentDetails: () => {
@@ -193,15 +217,25 @@ export const useBasket = () => {
 
     // --- item functions
 
-    getProducts: () => get(service.getSnapshot(), "context.products", []),
-    getPendingProducts: () => get(service.getSnapshot(), "context.items", []),
-    getInvalidProducts: () => {
+    getProducts: (): ActorRef<any, any>[] =>
+      get(service.getSnapshot(), "context.products", []) as ActorRef<
+        any,
+        any
+      >[],
+
+    getPendingProducts: (): ActorRef<any, any>[] =>
+      get(service.getSnapshot(), "context.items", []) as ActorRef<any, any>[],
+
+    getInvalidProducts: (): ActorRef<any, any>[] => {
       const state = service.getSnapshot();
       const products = get(state, "context.products", []);
-      return filter(products, product => !isEmpty(product?.error));
+      return filter(
+        products,
+        product => !isEmpty(product?.error)
+      ) as unknown as ActorRef<any, any>[];
     },
 
-    findItem: (mapping: any) =>
+    findItem: (mapping: any): ActorRef<any, any> | undefined =>
       find(service.getSnapshot()?.context?.items, (basketItem: any) =>
         every(mapping, (value, key) => {
           if (key == "id") {
@@ -277,6 +311,75 @@ export const useBasket = () => {
         return actor;
       });
     },
+
+    //  --- Basket Settings
+    setCurrency: async (currency: any) => {
+      return waitFor(service, state => state.matches("shopping")).then(() => {
+        // first check if our currency has change, ie: model.code has changed
+        const actor = service.getSnapshot()?.context?.actors?.currency;
+        if (!actor) return Promise.reject("Currency service not available");
+
+        const code = currency?.toUpperCase();
+        const value = actor.getSnapshot()?.context?.model;
+
+        // if it has not then bail
+        if (!code || code == value?.code) return Promise.resolve();
+
+        actor?.send({ type: "SET", data: { code }, update: true });
+
+        // then wait for the paymentGateway actor to be updated
+        return waitFor(service as ActorRef<any, any>, state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        }).then(state => {
+          if (["error"].some(state.matches)) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve();
+        });
+      });
+    },
+
+    addPromotion: async (coupon: any) => {
+      return waitFor(service, state => state.matches("shopping")).then(
+        async () => {
+          const actor = service.getSnapshot()?.context?.actors?.promotions;
+
+          if (!actor) return Promise.reject("Promotions service not available");
+
+          if (coupon) {
+            actor?.send({ type: "SET", data: { promocode: coupon } });
+            const state = await waitFor(service as ActorRef<any, any>, state =>
+              ["valid", "error"].some(state.matches)
+            );
+            if (state.matches("error")) {
+              return Promise.reject(state.context.error);
+            }
+          }
+
+          actor?.send({ type: "ADD" });
+
+          // then wait for the paymentGateway actor to be updated
+          return waitFor(service as ActorRef<any, any>, state => {
+            return ["processed", "complete", "error"].some(state.matches);
+          }).then(state => {
+            if (["error"].some(state.matches)) {
+              return Promise.reject(state.context.error);
+            }
+            return Promise.resolve();
+          });
+        }
+      );
+
+      // return service.send({
+      //   type: "UPDATE_PROMOTIONS",
+      //   data: { promodcode: coupon },
+      // });
+    },
+
+    // TODO
+    // setLocale: async (lang: any) => {
+    //   return service.send({ type: "UPDATE_LOCALE", data: lang });
+    // },
 
     // --- Item CRUD
 

@@ -38,7 +38,7 @@ export const useRecommendationsFlows = () => {
   return {
     getFlows: () => flows,
     register: (data?: Flow[]) => {
-      flows = uniqBy([...(data ?? []), ...flows], "id");
+      flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
     },
   };

@@ -9,6 +9,8 @@ export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
+  prependIcon?: string;
+  appendIcon?: string;
 }
 
 export interface ProductModalProps {
