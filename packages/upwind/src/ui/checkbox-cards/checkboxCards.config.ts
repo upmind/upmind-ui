@@ -1,21 +1,12 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles.config";
+import { ringClasses, invalidRingClasses } from "../input/input.config";
 
-export const rootVariants = cva(`w-full space-y-2`);
+export const rootVariants = cva(
+  `${ringClasses} ${invalidRingClasses} w-full gap-0 space-y-2 overflow-hidden rounded-md`
+);
 
 export const itemVariants = cva(
-  ` hover:bg-control-active-muted flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300 ${ringClasses} ${invalidRingClasses}`,
-  {
-    variants: {
-      layout: {
-        list: "",
-        grid: "grid w-full list-none gap-3",
-      },
-    },
-    defaultVariants: {
-      layout: "list",
-    },
-  }
+  "hover:bg-control-active-muted flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300"
 );
 
 export default {
