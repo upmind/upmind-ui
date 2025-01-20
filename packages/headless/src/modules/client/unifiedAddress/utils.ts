@@ -15,7 +15,6 @@ import {
   defaultsDeep,
   uniqueId,
   compact,
-  pick,
   isArray,
 } from "lodash-es";
 
@@ -39,7 +38,7 @@ export const useSchema = ({
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["name", "address1", "city", "countryId", "postcode", "type"],
+    required: ["address1", "city", "countryId", "postcode", "type"],
     // --- conditionally required fields
     if: {
       properties: {
@@ -137,7 +136,7 @@ export const useSchema = ({
       countryId: {
         type: "string",
         title: "Country",
-        default: baseModel?.countryId,
+        default: baseModel?.country_id,
         oneOf: !countries?.length
           ? undefined
           : map(countries, item => {
@@ -162,7 +161,7 @@ export const useSchema = ({
       },
 
       email: {
-        type: "string",
+        type: ["string", "null"],
         title: "Email",
         format: "email",
         default: baseModel.email,
@@ -170,7 +169,7 @@ export const useSchema = ({
       },
 
       phone: {
-        type: "object",
+        type: ["object", "null"],
         title: "Phone",
         isPhoneNumber: country?.code,
         properties: {
