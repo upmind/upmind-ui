@@ -25,6 +25,7 @@
       layout="grid"
       :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
+      :width="0"
     >
       <template #item="{ item }">
         <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
