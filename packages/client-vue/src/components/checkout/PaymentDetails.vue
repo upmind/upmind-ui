@@ -28,7 +28,7 @@
               </h5>
 
               <img
-                :src="`/providers/${item.gateway_id}.png`"
+                :src="`/gateways/${item.gateway_id}.png`"
                 :alt="item.gateway.name"
                 class="m-0 h-6 md:h-7"
                 @error="$event.target.style.display = 'none'"
