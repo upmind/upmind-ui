@@ -25,7 +25,6 @@
           :color="color"
           :variant="variant"
           block
-          @keydown.enter.prevent="open = !open"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
