@@ -20,6 +20,8 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
+        :tabindex="radioGroup ? undefined : 0"
+        @keydown.prevent.enter="onChange(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
