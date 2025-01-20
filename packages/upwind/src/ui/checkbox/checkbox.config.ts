@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles.config";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const checkboxVariants = cva(
