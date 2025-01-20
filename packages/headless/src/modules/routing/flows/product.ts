@@ -103,7 +103,19 @@ export const useProductFlows = () => {
           { name: ROUTE.CHECKOUT },
         ],
         back: [{ name: ROUTE.BASKET }],
-        fallback: [{ name: ROUTE.PRODUCT_NOT_FOUND }],
+        fallback: [
+          {
+            name: ROUTE.PRODUCT_NOT_FOUND,
+            resolve: async (route: Route) => {
+              const { productId } = useRouteQueryParams(route);
+              // include the product id in the query params so we can track it in analytics, etc
+              return {
+                name: ROUTE.PRODUCT_NOT_FOUND,
+                query: { pid: productId },
+              };
+            },
+          },
+        ],
       },
     },
     {
@@ -158,12 +170,25 @@ export const useProductFlows = () => {
         return valid;
       },
     },
+    {
+      name: ROUTE.PRODUCT_NOT_FOUND,
+      guard: async (_route: Route) => {
+        // do logic to determine if we can transition to this node
+        const valid = true || false;
+        return valid;
+      },
+      targets: {
+        next: [],
+        back: [{ name: ROUTE.BASKET }],
+        fallback: [],
+      },
+    },
   ];
 
   return {
     getFlows: () => flows,
     register: (data?: Flow[]) => {
-      flows = uniqBy([...(data ?? []), ...flows], "id");
+      flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
     },
   };

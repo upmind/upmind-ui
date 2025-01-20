@@ -8,12 +8,17 @@ export * from "./flows";
 export * from "./types";
 
 // --- utils
+import {
+  awaitResolved,
+  useRoutePendingProducts,
+  useRouteRequiresAction,
+  useRouteQueryParams,
+} from "./utils";
 export * from "./utils";
 
 // --- types
 import type { ROUTE, Flow, Route } from "./types";
 import { isEmpty, get, some } from "lodash-es";
-import { exists } from "fs";
 // --------------------------------------------------------
 // create a global instance of the basket machine
 // and a global object to store state
@@ -28,8 +33,6 @@ const service = interpret(routingEngine, {
 // --------------------------------------------------------
 
 export const useRoutingEngine = () => {
-  // --------------------------------------------------------
-
   return {
     service: service.start(),
     getSnapshot: () => service.getSnapshot(),
@@ -55,25 +58,22 @@ export const useRoutingEngine = () => {
     register: (flows: Flow[]) => {
       service.send({ type: "REGISTER", data: flows });
     },
-    next: (route: Route) => service.send({ type: "NEXT", data: route }),
-    back: (route: Route) => service.send({ type: "BACK", data: route }),
+    next: (route: Route) => {
+      service.send({ type: "NEXT", data: route });
+      return awaitResolved(service);
+    },
+    back: (route: Route) => {
+      service.send({ type: "BACK", data: route });
+      return awaitResolved(service);
+    },
     resolve: async (name: ROUTE, route: Route) => {
       service.send("RESOLVE", { data: { name, route } });
-      await waitFor(
-        service,
-        state => !["resolving", "calculating"].some(state.matches),
-        { timeout: Infinity }
-      );
-      const resolvedRoute = get(service.getSnapshot(), "context.currentRoute");
-
-      // if our resolvedRoute is the same as the requested route name, then we are good
-      // otherwise we need to reject the promise with the new resolvedRoute
-      if (resolvedRoute) {
-        return Promise.resolve(resolvedRoute);
-      } else {
-        return Promise.reject(resolvedRoute);
-      }
+      return awaitResolved(service);
     },
+    // ---
+    usePendingProducts: useRoutePendingProducts,
+    useRequiresAction: useRouteRequiresAction,
+    useQueryParams: useRouteQueryParams,
     // ---
     destroy: () => service.stop(),
   };

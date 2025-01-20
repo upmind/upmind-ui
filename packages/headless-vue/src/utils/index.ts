@@ -10,5 +10,3 @@ export const useTracking = utils.useTracking;
 
 // --- expose our custom utils
 export * from "./useState";
-export * from "./usePendingBasketItems";
-export * from "./useQueryParams";

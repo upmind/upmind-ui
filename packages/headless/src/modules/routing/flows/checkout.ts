@@ -21,8 +21,12 @@ export const useCheckoutFlows = () => {
       // handler: (router: any, route: Route) => {
       //   router.push(`/product/recommendations`);
       // },
-      guard: async (_route: Route) =>
-        hasProducts() && !hasInvalidProducts() && hasFields() && !needsAuth(),
+      guard: async (_route: Route) => {
+        const validProducts = hasProducts() && !hasInvalidProducts();
+        const validFields = await hasFields();
+        const validAuth = !needsAuth();
+        return validProducts && validFields && validAuth;
+      },
       targets: {
         next: [{ name: ROUTE.ORDER }],
         back: [{ name: ROUTE.BASKET }],
@@ -46,7 +50,7 @@ export const useCheckoutFlows = () => {
   return {
     getFlows: () => flows,
     register: (data?: Flow[]) => {
-      flows = uniqBy([...(data ?? []), ...flows], "id");
+      flows = uniqBy([...(data ?? []), ...flows], "name");
       routing.register(flows);
     },
   };

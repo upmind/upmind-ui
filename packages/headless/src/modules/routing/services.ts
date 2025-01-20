@@ -46,19 +46,45 @@ async function guardFlow(flow: Flow, route: Route): Promise<boolean> {
 // ---
 
 async function calculateNextRoute(
-  { currentFlow }: RoutingEngineContext,
+  context: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
   const route = data as Route;
-  return matchFlow(currentFlow?.targets?.next || [], route);
+  const currentFlow = get(
+    context,
+    "currentFlow",
+    find(context.flows, ["name", data?.name])
+  );
+  return matchFlow(currentFlow?.targets?.next || [], route).then(flow => {
+    return resolve(context, {
+      type: "RESOLVE",
+      data: {
+        flow,
+        route,
+      },
+    });
+  });
 }
 
 async function calculateBackRoute(
-  { currentFlow }: RoutingEngineContext,
+  context: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
   const route = data as Route;
-  return matchFlow(currentFlow?.targets?.back || [], route);
+  const currentFlow = get(
+    context,
+    "currentFlow",
+    find(context.flows, ["name", data?.name])
+  );
+  return matchFlow(currentFlow?.targets?.back || [], route).then(flow => {
+    return resolve(context, {
+      type: "RESOLVE",
+      data: {
+        flow,
+        route,
+      },
+    });
+  });
 }
 
 async function resolve(
@@ -68,11 +94,12 @@ async function resolve(
   // ---
   const route = data.route as Route;
   const name = data.name as ROUTE;
-  const target = find(flows, ["name", name]) || currentFlow;
+  const flow = data?.flow as Flow;
+  const target = flow || find(flows, ["name", name]) || currentFlow;
 
   if (!target) return Promise.reject();
 
-  const flow = await guardFlow(target, route).then(async valid => {
+  const resolvedFlow = await guardFlow(target, route).then(async valid => {
     // if we have a valid target, then we can resolve the route,
     // otherwise we need to check if we have a fallback
     // if we dont have a fallback, then we need to check if we have any items in the basket, as it may be empty
@@ -92,13 +119,15 @@ async function resolve(
     return flow;
   });
 
-  const resolvedRoute = flow ? await resolveRoute(flow, route) : undefined;
+  const resolvedRoute = resolvedFlow
+    ? await resolveRoute(resolvedFlow, route)
+    : undefined;
 
   return new Promise((resolve, reject) => {
-    if (flow && resolvedRoute) {
-      resolve({ flow, route: resolvedRoute });
+    if (resolvedRoute) {
+      resolve({ flow: resolvedFlow, route: resolvedRoute });
     } else {
-      reject();
+      reject({ name, target });
     }
   });
 }

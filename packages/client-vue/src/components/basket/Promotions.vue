@@ -102,7 +102,6 @@ import { useBasketPromotions } from "@upmind-automation/client-vue";
 const { t } = useI18n();
 
 const {
-  state,
   meta,
   errors,
   model,

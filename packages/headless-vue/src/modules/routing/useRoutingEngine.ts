@@ -4,12 +4,17 @@
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
+import { useRoute, useRouter } from "vue-router";
 
 // --- internal
 import { useRoutingEngine as useUpmindRoutingEngine } from "@upmind-automation/headless";
+
 // --- utils
+
 import { isEmpty } from "lodash-es";
+
 // --- types
+import type { Route } from "@upmind-automation/headless";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the flows engine
 //  with some state helpers
@@ -22,6 +27,9 @@ export const useRoutingEngine = () => {
     useUpmindRoutingEngine();
 
   const { state } = useActor(service);
+
+  const route = useRoute();
+  const router = useRouter();
 
   // --------------------------------------------------------
 
@@ -54,8 +62,26 @@ export const useRoutingEngine = () => {
     })),
     // ---
     exists,
-    next,
-    back,
+    next: () =>
+      next({
+        name: route.name?.toString(),
+        params: route.params,
+        query: route.query,
+      }).then((response: Route | undefined) => {
+        if (response) {
+          router.push(response);
+        }
+      }),
+    back: () =>
+      back({
+        name: route.name?.toString(),
+        params: route.params,
+        query: route.query,
+      }).then((response: Route | undefined) => {
+        if (response) {
+          router.push(response);
+        }
+      }),
     resolve,
     destroy,
   };
