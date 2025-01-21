@@ -9,11 +9,13 @@ import { uniqBy } from "lodash-es";
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import { useSession } from "../../session";
 
 // -----------------------------------------------------------------------------
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
   const { hasProducts, hasInvalidProducts, hasFields, needsAuth } = useBasket();
+  const { isAuthenticated } = useSession();
 
   let flows: Flow[] = [
     {
@@ -24,7 +26,9 @@ export const useCheckoutFlows = () => {
       guard: async (_route: Route) => {
         const validProducts = hasProducts() && !hasInvalidProducts();
         const validFields = await hasFields();
-        const validAuth = !needsAuth();
+        const validAuth = await isAuthenticated()
+          .then(() => true)
+          .catch(() => false);
         return validProducts && validFields && validAuth;
       },
       targets: {

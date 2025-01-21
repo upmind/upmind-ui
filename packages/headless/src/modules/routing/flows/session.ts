@@ -13,7 +13,14 @@ import { ROUTE } from "../types";
 // -----------------------------------------------------------------------------
 export const useSessionFlows = () => {
   const routing = useRoutingEngine();
-  const { isAuthenticated } = useSession();
+  const { service, isAuthenticated, reset } = useSession();
+
+  service.onTransition((state, event) => {
+    // this type indicates the session has ended
+    if (event.type === "done.invoke.clientMachine") {
+      reset();
+    }
+  });
 
   let flows: Flow[] = [
     {
@@ -28,6 +35,20 @@ export const useSessionFlows = () => {
         next: [ROUTE.CHECKOUT, ROUTE.BASKET],
         back: [ROUTE.BASKET],
         fallback: [ROUTE.BASKET],
+      },
+    },
+    {
+      name: ROUTE.SESSION_END,
+      guard: async (_route: Route) => {
+        const valid = await isAuthenticated()
+          .then(() => false)
+          .catch(() => true);
+        return valid;
+      },
+      resolve: async () => {
+        // @ts-ignore
+        const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+        return storefrontUrl ?? "/"; //redirect to storefront OR the app root as fallback
       },
     },
     // {
