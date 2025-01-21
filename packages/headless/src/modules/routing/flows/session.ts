@@ -85,9 +85,6 @@ export const useSessionFlows = () => {
     // },
     // {
     //   name: ROUTE.SESSION_FORGOT_PASSWORD,
-    //   // handler: (router: any) => {
-    //   //   router.push(`/product/recommendations`);
-    //   // },
     //  guard: async (_route: Route) => await  isAuthenticated()
     // .then(() => false)
     // .catch(() => true),
@@ -99,9 +96,6 @@ export const useSessionFlows = () => {
     // },
     // {
     //   name: ROUTE.PROFILE,
-    //   // handler: (router: any) => {
-    //   //   router.push(`/product/recommendations`);
-    //   // },
     //   guard: async (_route: Route) =>await isAuthenticated()
     // .then(() => true)
     // .catch(() => false)

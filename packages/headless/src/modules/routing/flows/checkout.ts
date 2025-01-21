@@ -20,9 +20,6 @@ export const useCheckoutFlows = () => {
   let flows: Flow[] = [
     {
       name: ROUTE.CHECKOUT,
-      // handler: (router: any, route: Route) => {
-      //   router.push(`/product/recommendations`);
-      // },
       guard: async (_route: Route) => {
         const validProducts = hasProducts() && !hasInvalidProducts();
         const validFields = await hasFields();
