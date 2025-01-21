@@ -328,8 +328,8 @@ export default {
     },
 
     pricing: {
-      exPrice: cva("text-emphasis-medium text-xs"),
-      currentPrice: cva(""),
+      exPrice: cva("text-emphasis-medium text-xs leading-none"),
+      currentPrice: cva("leading-none"),
     },
   },
 };
