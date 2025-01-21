@@ -7,9 +7,8 @@
     <slot name="header" />
 
     <main class="w-full flex-1 overflow-hidden">
-      <template v-if="meta.isLoading || meta.isProcessing">
-        <!-- routing engine -->
-        <component :is="props.contentComponent">
+      <component :is="props.contentComponent">
+        <template v-if="meta.isLoading || meta.isProcessing">
           <UpmBasketLoading
             class="min-h-screen"
             skrim="light"
@@ -32,10 +31,8 @@
               <slot name="loading-background" />
             </template>
           </UpmBasketLoading>
-        </component>
-      </template>
+        </template>
 
-      <component :is="props.contentComponent">
         <RouterView v-slot="{ Component }" :key="$route.fullPath">
           <template v-if="Component">
             <Transition mode="out-in">

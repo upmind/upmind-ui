@@ -118,57 +118,57 @@ export interface IUseSession {
   /**
    * Function to reject an ongoing authentication or registration request.
    */
-  reject: any;
+  reject: () => Promise<any>;
 
   /**
    * Function to resolve an ongoing authentication or registration request.
    */
-  resolve: any;
+  resolve: (model: any) => Promise<any>;
 
   /**
    * Initiates the login process for a user, typically used in conjunction with a form and model data.
    * @returns {Promise<void>} A promise that resolves when the login operation is completed.
    */
-  login: Function;
+  login: (model: any) => Promise<any>;
 
   /**
    * Logs out the currently authenticated user.
    * @returns {Promise<void>} A promise that resolves when the logout operation is completed.
    */
-  logout: Function;
+  logout: () => Promise<any>;
 
   /**
    * Registers a new user, typically used with a form and model data.
-   * @returns {Promise<void>} A promise that resolves when the registration operation is completed.
+   * @returns {Promise<Promise<any>>} A promise that resolves when the registration operation is completed.
    */
-  register: Function;
+  register: (model: any) => Promise<any>;
 
   /**
    * Displays the login form for user authentication.
    */
-  showLogin: Function;
+  showLogin: () => Promise<any>;
 
   /**
    * Displays the registration form for user sign-up.
    */
-  showRegister: Function;
+  showRegister: () => Promise<any>;
 
   /**
    * Verifies the 2-factor authentication (2FA) code provided by the user.
    * @param {string} code The 2FA code entered by the user.
    * @returns {Promise<void>} A promise that resolves when the verification is successful.
    */
-  verify2fa: Function;
+  verify2fa: ({ token }: { token: string }) => Promise<any>;
 
   /**
    * Verifies the ReCaptcha challenge response from the user.
    * @param {string} response The ReCaptcha response token from the user.
    * @returns {Promise<void>} A promise that resolves when the verification is successful.
    */
-  verifyReCaptcha: Function;
+  verifyReCaptcha: (response: string) => Promise<any>;
 
   /**
    * Transfer session data between different parts of the application, such as from guest to client.
    */
-  transfer: any;
+  transfer: () => Promise<any>;
 }

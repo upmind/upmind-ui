@@ -1,6 +1,7 @@
 // --- external
 import { computed, unref, watch, toRaw } from "vue";
 import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession as useUpmindSession } from "@upmind-automation/headless";
@@ -90,65 +91,83 @@ export const useSession = (inspector?: Function): IUseSession => {
   const errors = computed(() => guest.value?.context?.error);
 
   // --------------------------------------------------------
-  function showLogin() {
+  function showLogin(): Promise<any> {
     send({
       type: "LOGIN",
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["login"].some(state.matches));
   }
 
-  function showRegister() {
+  function showRegister(): Promise<any> {
     send({
       type: "REGISTER",
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["register"].some(state.matches));
   }
 
   // ---
-  function login(model: any) {
+  function login(model: any): Promise<any> {
     send({
       type: "AUTHENTICATE",
       data: unref(model),
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
   }
 
-  function verify2fa({ token }: any) {
+  function verify2fa({ token }: { token: string }): Promise<any> {
     send({
       type: "VERIFY",
       data: unref(token),
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
   }
 
-  function register(model: any) {
+  function register(model: any): Promise<any> {
     send({
       type: "REGISTER",
       data: unref(model),
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
   }
 
-  function verifyReCaptcha(token: any) {
+  function verifyReCaptcha(token: any): Promise<any> {
     send({
       type: "VERIFY",
       data: unref(token),
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
   }
 
-  function logout() {
+  function logout(): Promise<any> {
     send({
       type: "LOGOUT",
     });
+    const clientMachine = state.value?.children?.clientMachine;
+    return waitFor(clientMachine, state => ["complete"].some(state.matches));
   }
 
   // ---
 
-  function resolve(model: any) {
-    if (meta.value.showLoginForm && !meta.value.show2fa) login(model);
-    if (meta.value.show2fa) verify2fa(model);
-    if (meta.value.showRegisterForm) register(model);
+  function resolve(model: any): Promise<any> {
+    if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
+    if (meta.value.show2fa) return verify2fa(model);
+    if (meta.value.showRegisterForm) return register(model);
+
+    return Promise.reject();
   }
 
-  function reject() {
+  function reject(): Promise<any> {
     send({
       type: "CANCEL",
     });
+    const guestMachine = state.value?.children?.guestMachine;
+    return waitFor(guestMachine, state => ["available"].some(state.matches));
   }
   // --------------------------------------------------------
 
@@ -200,16 +219,7 @@ export const useSession = (inspector?: Function): IUseSession => {
     // ---
     reject,
     resolve,
-    /**
-     * Test
-     * @returns {void} Test.
-     */
-    login: (model: any) => {
-      send({
-        type: "AUTHENTICATE",
-        data: unref(model),
-      });
-    },
+    login,
     logout,
     register,
     showLogin,

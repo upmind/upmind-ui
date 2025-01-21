@@ -20,17 +20,14 @@ export const useRecommendationsFlows = () => {
   let flows: Flow[] = [
     {
       name: ROUTE.RECOMMENDATIONS,
-      // handler: (router: any) => {
-      //   router.push(`/product/recommendations`);
-      // },
       guard: async (_route: Route) => {
         const valid = hasProducts() && hasRecommendations();
         return valid;
       },
       targets: {
-        next: [{ name: ROUTE.CHECKOUT }],
-        back: [{ name: ROUTE.BASKET }],
-        fallback: [{ name: ROUTE.BASKET }],
+        next: [ROUTE.CHECKOUT, ROUTE.SESSION, ROUTE.BASKET],
+        back: [ROUTE.BASKET],
+        fallback: [ROUTE.BASKET],
       },
     },
   ];

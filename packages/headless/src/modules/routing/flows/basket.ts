@@ -59,26 +59,27 @@ export const useBasketFlows = () => {
                 }));
             },
           },
-          { name: ROUTE.BASKET, guard: async (_route: Route) => hasProducts() },
-          { name: ROUTE.EMPTY },
+          ROUTE.BASKET,
+          ROUTE.EMPTY,
         ],
       },
     },
     {
       name: ROUTE.EMPTY,
-      // handler: (_context: any, _event: AnyEventObject) => {},
       guard: async (_route: Route) => isEmpty(),
+      targets: {
+        next: [],
+        back: [],
+        fallback: [ROUTE.BASKET],
+      },
     },
     {
       name: ROUTE.BASKET,
-      // handler: (router: any) => {
-      //   router.push(`/product/recommendations`);
-      // },
       guard: async (_route: Route) => hasProducts(),
       targets: {
-        next: [{ name: ROUTE.CHECKOUT }],
+        next: [ROUTE.CHECKOUT],
         back: [],
-        fallback: [{ name: ROUTE.EMPTY }],
+        fallback: [ROUTE.EMPTY],
       },
     },
   ];

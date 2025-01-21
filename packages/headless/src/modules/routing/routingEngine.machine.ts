@@ -186,9 +186,12 @@ export default createMachine(
       }),
 
       setResolved: assign({
-        currentFlow: (_context, { data }: AnyEventObject) => {
+        currentFlow: ({ flows }, { data }: AnyEventObject) => {
           const flow = get(data, "flow", data);
-          return flow;
+          const registerdFlow = find(flows, ["name", flow?.name]);
+          // ensure we keep all the defaults from the registered flow, so we dont haveto repeat ourselves
+          const value = defaultsDeep(flow, registerdFlow);
+          return value;
         },
         currentRoute: (_context, { data }: AnyEventObject) => {
           const flow = get(data, "route", data);

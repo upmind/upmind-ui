@@ -28,8 +28,8 @@ export const useCheckoutFlows = () => {
         return validProducts && validFields && validAuth;
       },
       targets: {
-        next: [{ name: ROUTE.ORDER }],
-        back: [{ name: ROUTE.BASKET }],
+        next: [ROUTE.ORDER],
+        back: [ROUTE.BASKET],
         fallback: [
           {
             name: ROUTE.EMPTY,

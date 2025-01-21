@@ -27,34 +27,29 @@ export enum REQUIRES_ACTION {
   RELATED = "related",
 }
 
-export interface Route {
+export type Route = {
   path?: string;
   name?: string;
   params?: Record<string, string | string[]>;
   query?: Record<string, any>;
-}
+};
+
+export type Target =
+  | ROUTE
+  | {
+      name: ROUTE;
+      guard?: (route: Route, data?: any) => Promise<boolean>;
+      resolve?: (route: Route, data?: any) => Promise<Route>;
+    };
 
 export interface Flow {
   name: ROUTE;
-  // handler?: (router: any, route: ROUTE) => Promise<void>;
   guard?: (route: Route, data?: any) => Promise<boolean>;
   resolve?: (route: Route, data?: any) => Promise<Route>;
   targets?: {
-    next?: {
-      name: ROUTE;
-      guard?: (route: Route, data?: any) => Promise<boolean>;
-      resolve?: (route: Route, data?: any) => Promise<Route>;
-    }[];
-    back?: {
-      name: ROUTE;
-      guard?: (route: Route, data?: any) => Promise<boolean>;
-      resolve?: (route: Route, data?: any) => Promise<Route>;
-    }[];
-    fallback?: {
-      name: ROUTE;
-      guard?: (route: Route, data?: any) => Promise<boolean>;
-      resolve?: (route: Route, data?: any) => Promise<Route>;
-    }[];
+    next?: Target[];
+    back?: Target[];
+    fallback?: Target[];
   };
 }
 
