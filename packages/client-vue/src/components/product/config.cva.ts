@@ -256,7 +256,8 @@ export default {
           header: cva("flex items-center gap-x-2 gap-y-1 leading-tight", {
             variants: {
               select: {
-                false: "flex-1 flex-wrap items-center justify-between",
+                false:
+                  "flex-1 flex-wrap items-center justify-start sm:justify-between",
               },
             },
           }),
@@ -281,7 +282,7 @@ export default {
               },
             },
           }),
-          discount: cva("text-emphasis-medium text-sm text-inherit"),
+          discount: cva("!text-emphasis-medium text-2xs text-inherit"),
         },
       },
       // ---
