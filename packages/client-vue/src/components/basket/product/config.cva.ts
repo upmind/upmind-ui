@@ -5,7 +5,7 @@ export default {
   product: {
     root: {
       card: cva(
-        "relative flex flex-col gap-y-4 !p-6 !py-7 text-inherit md:!p-9 md:!py-10",
+        "relative flex flex-col gap-y-3 p-6 text-inherit md:gap-y-4 md:p-8",
         {
           variants: {
             hasErrors: {
