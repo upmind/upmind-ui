@@ -261,7 +261,7 @@ export default {
               },
             },
           }),
-          footer: cva("flex font-medium leading-none tracking-wide", {
+          footer: cva("flex", {
             variants: {
               select: {
                 false: "w-full flex-col gap-y-1.5 self-end",
@@ -327,6 +327,11 @@ export default {
       ),
       avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center"),
+    },
+
+    pricing: {
+      exPrice: cva("text-emphasis-medium text-xs"),
+      currentPrice: cva(""),
     },
   },
 };

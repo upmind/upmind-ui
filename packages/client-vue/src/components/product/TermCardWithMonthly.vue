@@ -34,15 +34,11 @@
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <del
-        :class="styles.product.config.grid.item.discount"
-        v-if="props.meta.discounted"
-      >
-        {{ props.regularPrice }}
-      </del>
-      <strong :class="styles.product.config.grid.item.total">
-        {{ props.meta.free ? t("product.free") : props.currentPrice }}
-      </strong>
+      <ExPrice v-bind="props" />
+      <CurrentPrice
+        :class="styles.product.config.grid.item.total"
+        v-bind="props"
+      />
     </div>
   </div>
 </template>
@@ -58,6 +54,8 @@ import config from "./config.cva";
 
 // --- components
 import { Badge } from "@upmind-automation/upwind";
+import ExPrice from "./pricing/ExPrice.vue";
+import CurrentPrice from "./pricing/CurrentPrice.vue";
 
 // --- utils
 
