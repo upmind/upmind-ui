@@ -1,6 +1,7 @@
 <template>
   <component
     :is="radioGroup ? RadioGroup : 'div'"
+    :is="radioGroup ? RadioGroup : 'span'"
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
@@ -20,7 +21,7 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-        :tabindex="radioGroup ? undefined : 0"
+        :tabindex="isSelected(item) && radioGroup ? 0 : -1"
         @keydown.prevent.enter="onChange(item.value)"
       >
         <template #item="slotProps">
@@ -70,6 +71,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
+
+const isSelected = (item: any) => {
+  return modelValue.value === item.value;
+};
 
 const meta = computed(() => ({
   color: props.color,
