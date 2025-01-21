@@ -28,10 +28,9 @@
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <ExPrice v-bind="props" show-cycle />
-      <CurrentPrice
-        :class="styles.product.config.grid.item.total"
+      <Pricing
         v-bind="props"
+        :currentClass="styles.product.config.grid.item.total"
         show-cycle
       />
     </div>
@@ -50,7 +49,7 @@ import config from "./config.cva";
 // --- components
 import { Badge } from "@upmind-automation/upwind";
 import CurrentPrice from "./pricing/CurrentPrice.vue";
-import ExPrice from "./pricing/ExPrice.vue";
+import Pricing from "./pricing/Pricing.vue";
 
 // --- utils
 
