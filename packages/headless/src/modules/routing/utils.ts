@@ -342,41 +342,30 @@ export const useRouteRequiresAction = () => {
   function getNextPending(current?: ActorRef<any, any>) {
     const productsPending = reject(getPendingProducts(), ["id", current?.id]);
     const pendingProduct = first(productsPending) as ActorRef<any, any>;
-
-    if (!pendingProduct) return;
-
-    return {
-      name: ROUTE.PRODUCT_ADD,
-      params: { pid: get(pendingProduct, "state.context.model.productId") },
-    };
+    return pendingProduct;
   }
 
   function getNextInvalid(current?: ActorRef<any, any>) {
     const pid = get(current, "state.context.model.productId", {});
     const products = reject(getInvalidProducts(), ["productId", pid]);
     const basketProduct = first(products);
-
-    if (!basketProduct) return;
-
-    return {
-      name: ROUTE.PRODUCT_EDIT,
-      params: { bpid: basketProduct.id },
-    };
+    return basketProduct;
   }
 
-  function getNextRelated(current?: ActorRef<any, any>) {
+  function getNextRelated(
+    current: ActorRef<any, any>
+  ): undefined | ActorRef<any, any> {
     // Related items ar when the current items provision fields
     // contain the service identifier of another basket item
     const provisionFields = get(
-      current,
-      "state.context.model.provisionFields",
+      current?.getSnapshot(),
+      "context.model.provisionFields",
       {}
     );
 
     if (isEmpty(provisionFields)) return;
 
     const basketProduct = find(getProducts(), basketProduct => {
-      debugger;
       const serviceIdentifier = get(basketProduct, "product.serviceIdentifier");
       if (!serviceIdentifier) return false;
       const value = includes(values(provisionFields), serviceIdentifier);
@@ -384,12 +373,7 @@ export const useRouteRequiresAction = () => {
       return value && hasError;
     });
 
-    if (!basketProduct) return;
-
-    return {
-      name: ROUTE.PRODUCT_EDIT,
-      params: { bpid: basketProduct.id },
-    };
+    return basketProduct;
   }
 
   function getNext(
@@ -420,10 +404,7 @@ export const useRouteRequiresAction = () => {
     getNextPending,
     getNextInvalid,
     getNextRelated,
-    getProducts: () => {
-      const pendingProducts = getPendingProducts();
-      const invalidProducts = getInvalidProducts();
-      return concat(pendingProducts, invalidProducts);
-    },
+    getProducts: () => getInvalidProducts(),
+    hasProducts: () => !isEmpty(getInvalidProducts()),
   };
 };

@@ -58,16 +58,16 @@ export const useRoutingEngine = () => {
     register: (flows: Flow[]) => {
       service.send({ type: "REGISTER", data: flows });
     },
-    next: (route: Route) => {
-      service.send({ type: "NEXT", data: route });
+    next: (route: Route, event?: any) => {
+      service.send({ type: "NEXT", data: { route, event } });
       return awaitResolved(service);
     },
-    back: (route: Route) => {
-      service.send({ type: "BACK", data: route });
+    back: (route: Route, event?: any) => {
+      service.send({ type: "BACK", data: { route, event } });
       return awaitResolved(service);
     },
-    resolve: async (name: ROUTE, route: Route) => {
-      service.send("RESOLVE", { data: { name, route } });
+    resolve: async (name: ROUTE, route: Route, event?: any) => {
+      service.send("RESOLVE", { data: { name, route, event } });
       return awaitResolved(service);
     },
     // ---
