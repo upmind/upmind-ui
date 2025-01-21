@@ -48,10 +48,13 @@ const props = defineProps<{
   variants: any;
 }>();
 
+const emits = defineEmits(["focus"]);
+
 const focusedElement = ref<HTMLElement | null>(null);
 
 const handleFocus = (event: FocusEvent) => {
   focusedElement.value = event.target as HTMLElement;
+  emits("focus", event);
 };
 
 const handleBlur = () => {

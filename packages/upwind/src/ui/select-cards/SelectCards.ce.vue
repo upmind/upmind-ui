@@ -4,6 +4,7 @@
     v-model:open="open"
     :disabled="disabled"
     class="w-full"
+    tabindex="-1"
   >
     <component
       :is="radio && radioGroup ? RadioGroup : 'div'"
@@ -12,12 +13,11 @@
       :default-value="defaultValue"
       @update:model-value="onChange"
       :class="variants.select.group"
+      tabindex="-1"
     >
       <component
         :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
-        @keydown.prevent.arrow-down="focusFirstItem"
-        @keydown.prevent.arrow-up="focusLastItem"
       >
         <Button
           :loading="loading"
@@ -29,6 +29,7 @@
           block
           :tabindex="isSelected && radioGroup ? 0 : -1"
           @focus="handleFocus"
+          @keydown.prevent.enter="open = !open"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
@@ -222,7 +223,6 @@ watch(
       nextTick(() => {
         const { focused } = useFocus(focusedElement.value);
         focused.value = true;
-        console.log("focused", focused.value);
       });
     }
   }
