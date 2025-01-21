@@ -1,7 +1,6 @@
 <template>
   <component
     :is="radioGroup ? RadioGroup : 'div'"
-    :is="radioGroup ? RadioGroup : 'span'"
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
@@ -23,6 +22,7 @@
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
         :tabindex="isSelected(item) && radioGroup ? 0 : -1"
         @keydown.prevent.enter="onChange(item.value)"
+        @focus="onChange(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -48,6 +48,7 @@ import RadioCardItem from "./RadioCardItem.vue";
 // --- types
 import type { RadioCardsProps } from "./types";
 import type { ComputedRef } from "vue";
+import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
@@ -78,9 +79,7 @@ const isSelected = (item: any) => {
 
 const meta = computed(() => ({
   color: props.color,
-  layout: props.layout,
   variant: props.variant,
-  ring: props.ring,
   width: props.width,
 }));
 
