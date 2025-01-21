@@ -35,19 +35,17 @@
         </component>
       </template>
 
-      <RouterView v-slot="viewProps" :key="$route.fullPath">
-        <slot v-bind="viewProps" v-if="viewProps?.Component">
-          <Transition mode="out-in">
-            <KeepAlive>
-              <Suspense>
-                <!-- main content -->
-                <component :is="props.contentComponent">
-                  <component :is="viewProps.Component" />
-                </component>
+      <component :is="props.contentComponent">
+        <RouterView v-slot="{ Component }" :key="$route.fullPath">
+          <template v-if="Component">
+            <Transition mode="out-in">
+              <KeepAlive>
+                <Suspense>
+                  <!-- main content -->
+                  <component :is="Component" />
 
-                <!-- fallback / loading state -->
-                <template #fallback>
-                  <component :is="props.contentComponent">
+                  <!-- fallback / loading state -->
+                  <template #fallback>
                     <UpmBasketLoading
                       class="min-h-screen"
                       skrim="light"
@@ -70,13 +68,13 @@
                         <slot name="loading-background" />
                       </template>
                     </UpmBasketLoading>
-                  </component>
-                </template>
-              </Suspense>
-            </KeepAlive>
-          </Transition>
-        </slot>
-      </RouterView>
+                  </template>
+                </Suspense>
+              </KeepAlive>
+            </Transition>
+          </template>
+        </RouterView>
+      </component>
 
       <UpmSessionExpired
         :title="t('session.expired.title')"

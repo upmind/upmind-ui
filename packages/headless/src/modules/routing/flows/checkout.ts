@@ -32,15 +32,16 @@ export const useCheckoutFlows = () => {
         back: [{ name: ROUTE.BASKET }],
         fallback: [
           {
+            name: ROUTE.EMPTY,
+            guard: async (_route: Route) => !hasProducts(),
+          },
+          {
             name: ROUTE.BASKET,
             guard: async (_route: Route) => hasInvalidProducts(),
           },
           {
             name: ROUTE.SESSION,
             guard: async (_route: Route) => needsAuth(),
-          },
-          {
-            name: ROUTE.EMPTY,
           },
         ],
       },

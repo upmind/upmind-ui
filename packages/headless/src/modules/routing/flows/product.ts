@@ -1,19 +1,19 @@
 // --- external
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
 
 // --- utils
-import { useRouteQueryParams } from "../";
+import { useRouteQueryParams, useRouteRequiresAction } from "../";
 import { uniqBy, find, isEmpty, get } from "lodash-es";
 
 // --- types
-import type { Flow, Route } from "../types";
+import type { ActorRef } from "xstate";
 import { ROUTE } from "../types";
-
+import type { Flow, Route } from "../types";
 import type { ProductModel } from "../../product/types";
-import { waitFor } from "xstate/lib/waitFor";
 
 // -----------------------------------------------------------------------------
 export const useProductFlows = () => {
@@ -78,17 +78,27 @@ export const useProductFlows = () => {
           // a related product requires action, so we automatically navigate to the related product
           {
             name: ROUTE.PRODUCT_EDIT,
-            guard: async (_route: Route) => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
+            guard: async (_route: Route, context: any) => {
+              const { getNextRelated } = useRouteRequiresAction();
+              const valid = !!getNextRelated(context);
               return valid;
+            },
+            resolve: async (route: Route, context: any) => {
+              const { getNextRelated } = useRouteRequiresAction();
+              const basketProduct = getNextRelated(context);
+
+              if (!basketProduct) return route;
+              return {
+                name: ROUTE.PRODUCT_EDIT,
+                params: { bpid: basketProduct?.id },
+              };
             },
           },
           {
             name: ROUTE.PRODUCT_REQUIRES_ACTION,
             guard: async (_route: Route) => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
+              const { hasProducts } = useRouteRequiresAction();
+              const valid = hasProducts();
               return valid;
             },
           },
@@ -168,6 +178,30 @@ export const useProductFlows = () => {
         // do logic to determine if we can transition to this node
         const valid = true || false;
         return valid;
+      },
+      targets: {
+        next: [
+          {
+            name: ROUTE.PRODUCT_EDIT,
+            guard: async (_route: Route, context: any) => {
+              const { getNextInvalid } = useRouteRequiresAction();
+              const valid = !!getNextInvalid(context);
+              return valid;
+            },
+            resolve: async (route: Route, context: any) => {
+              const { getNextInvalid } = useRouteRequiresAction();
+              const basketProduct = getNextInvalid(context);
+
+              if (!basketProduct) return route;
+              return {
+                name: ROUTE.PRODUCT_EDIT,
+                params: { bpid: basketProduct?.id },
+              };
+            },
+          },
+        ],
+        back: [{ name: ROUTE.BASKET }],
+        fallback: [{ name: ROUTE.BASKET }],
       },
     },
     {

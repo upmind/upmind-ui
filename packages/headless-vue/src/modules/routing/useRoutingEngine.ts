@@ -62,22 +62,29 @@ export const useRoutingEngine = () => {
     })),
     // ---
     exists,
-    next: () =>
-      next({
-        name: route.name?.toString(),
-        params: route.params,
-        query: route.query,
-      }).then((response: Route | undefined) => {
+    next: (data?: any) =>
+      next(
+        {
+          name: route.name?.toString(),
+          params: route.params,
+          query: route.query,
+        },
+        data
+      ).then((response: Route | undefined) => {
         if (response) {
           router.push(response);
         }
       }),
-    back: () =>
-      back({
-        name: route.name?.toString(),
-        params: route.params,
-        query: route.query,
-      }).then((response: Route | undefined) => {
+
+    back: (data?: any) =>
+      back(
+        {
+          name: route.name?.toString(),
+          params: route.params,
+          query: route.query,
+        },
+        data
+      ).then((response: Route | undefined) => {
         if (response) {
           router.push(response);
         }

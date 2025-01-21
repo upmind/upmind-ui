@@ -24,6 +24,7 @@ import { responseCodes } from "../api";
 // --- types
 import type { ActorRef } from "xstate";
 import type { ProductModel } from "../product/types";
+import type { BasketProduct } from "./types";
 export * from "./types";
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -226,13 +227,10 @@ export const useBasket = () => {
     getPendingProducts: (): ActorRef<any, any>[] =>
       get(service.getSnapshot(), "context.items", []) as ActorRef<any, any>[],
 
-    getInvalidProducts: (): ActorRef<any, any>[] => {
+    getInvalidProducts: (): BasketProduct[] => {
       const state = service.getSnapshot();
       const products = get(state, "context.products", []);
-      return filter(
-        products,
-        product => !isEmpty(product?.error)
-      ) as unknown as ActorRef<any, any>[];
+      return filter(products, product => !isEmpty(product?.error));
     },
 
     findItem: (mapping: any): ActorRef<any, any> | undefined =>

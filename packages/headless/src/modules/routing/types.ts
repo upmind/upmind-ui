@@ -37,23 +37,23 @@ export interface Route {
 export interface Flow {
   name: ROUTE;
   // handler?: (router: any, route: ROUTE) => Promise<void>;
-  guard?: (route: Route) => Promise<boolean>;
-  resolve?: (route: Route) => Promise<Route>;
+  guard?: (route: Route, data?: any) => Promise<boolean>;
+  resolve?: (route: Route, data?: any) => Promise<Route>;
   targets?: {
     next?: {
       name: ROUTE;
-      guard?: (route: Route) => Promise<boolean>;
-      resolve?: (route: Route) => Promise<Route>;
+      guard?: (route: Route, data?: any) => Promise<boolean>;
+      resolve?: (route: Route, data?: any) => Promise<Route>;
     }[];
     back?: {
       name: ROUTE;
-      guard?: (route: Route) => Promise<boolean>;
-      resolve?: (route: Route) => Promise<Route>;
+      guard?: (route: Route, data?: any) => Promise<boolean>;
+      resolve?: (route: Route, data?: any) => Promise<Route>;
     }[];
     fallback?: {
       name: ROUTE;
-      guard?: (route: Route) => Promise<boolean>;
-      resolve?: (route: Route) => Promise<Route>;
+      guard?: (route: Route, data?: any) => Promise<boolean>;
+      resolve?: (route: Route, data?: any) => Promise<Route>;
     }[];
   };
 }
