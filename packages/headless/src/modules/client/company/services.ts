@@ -59,7 +59,6 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
     phones.isReady(),
     emails.isReady(),
   ]).then(() => {
-    debugger;
     return {
       emails,
       addresses,

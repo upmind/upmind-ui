@@ -24,7 +24,6 @@
           >
             <template #title v-if="$slots['loading-title']">
               <slot name="loading-title" />
-              <pre>ROUTING ENGINE</pre>
             </template>
 
             <template #background v-if="$slots['loading-background']">
@@ -58,7 +57,6 @@
                     >
                       <template #title v-if="$slots['loading-title']">
                         <slot name="loading-title" />
-                        <pre>SUSPENSE</pre>
                       </template>
 
                       <template #background v-if="$slots['loading-background']">
@@ -112,11 +110,12 @@ import {
   UpmSessionExpired,
   UpmBasketLoading,
   useRoutingEngine,
+  useSession,
 } from "@upmind-automation/client-vue";
 import UpmContent from "./content/Content.vue";
 
 // --- types
-import type { Component } from "vue";
+import { watch, type Component } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(

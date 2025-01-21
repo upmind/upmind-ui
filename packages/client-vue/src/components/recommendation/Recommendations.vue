@@ -155,7 +155,6 @@ function fetchVisibleRecommendations() {
   const visible = carouselApi.value?.slidesInView() ?? [];
   if (!visible.length) return;
 
-  // console.log("Carousel", "visible", visible);
   // now fetch the next batch of recommendations, one by one
   forEach(recommendations.value, (recommendation, index) => {
     if (visible.includes(index)) {

@@ -18,7 +18,17 @@ import type { IUseSession, IUseSessionMeta } from "./types";
  * @param {Function} [inspector] - Optional function that can inspect the session's state and context changes.
  */
 export const useSession = (inspector?: Function): IUseSession => {
-  const { service, transfer } = useUpmindSession();
+  const {
+    service,
+    showRegister,
+    showLogin,
+    login,
+    register,
+    verify2fa,
+    verifyReCaptcha,
+    logout,
+    transfer,
+  } = useUpmindSession();
   const { state, send } = useActor(service);
 
   // We can create reactive refs to the child machines,
@@ -91,66 +101,6 @@ export const useSession = (inspector?: Function): IUseSession => {
   const errors = computed(() => guest.value?.context?.error);
 
   // --------------------------------------------------------
-  function showLogin(): Promise<any> {
-    send({
-      type: "LOGIN",
-    });
-    const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["login"].some(state.matches));
-  }
-
-  function showRegister(): Promise<any> {
-    send({
-      type: "REGISTER",
-    });
-    const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["register"].some(state.matches));
-  }
-
-  // ---
-  function login(model: any): Promise<any> {
-    send({
-      type: "AUTHENTICATE",
-      data: unref(model),
-    });
-    const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
-  }
-
-  function verify2fa({ token }: { token: string }): Promise<any> {
-    send({
-      type: "VERIFY",
-      data: unref(token),
-    });
-    const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
-  }
-
-  function register(model: any): Promise<any> {
-    send({
-      type: "REGISTER",
-      data: unref(model),
-    });
-    const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
-  }
-
-  function verifyReCaptcha(token: any): Promise<any> {
-    send({
-      type: "VERIFY",
-      data: unref(token),
-    });
-    const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
-  }
-
-  function logout(): Promise<any> {
-    send({
-      type: "LOGOUT",
-    });
-    const clientMachine = state.value?.children?.clientMachine;
-    return waitFor(clientMachine, state => ["complete"].some(state.matches));
-  }
 
   // ---
 

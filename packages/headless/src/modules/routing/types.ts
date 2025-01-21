@@ -1,5 +1,5 @@
 // --- types
-import type { ActorRef, AnyEventObject } from "xstate";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 //
@@ -16,6 +16,7 @@ export enum ROUTE {
   SESSION_LOGIN = "session.login",
   SESSION_REGISTER = "session.register",
   SESSION_FORGOT_PASSWORD = "session.forgot",
+  SESSION_END = "session.end",
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
