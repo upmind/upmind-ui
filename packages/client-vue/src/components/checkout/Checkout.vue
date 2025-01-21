@@ -146,7 +146,7 @@ const router = useRouter();
 // ---
 
 const { meta: account } = useSession();
-const { state, isReady, meta, invoice } = useBasket();
+const { state, meta, invoice } = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -156,13 +156,6 @@ const props = withDefaults(defineProps<CheckoutProps>(), {
 });
 
 const styles = useStyles(["checkout"], meta, config);
-
-await isReady();
-
-// --- route guards
-if (meta.value.isEmpty) {
-  router.replace({ name: "empty" });
-}
 
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();
