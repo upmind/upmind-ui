@@ -271,10 +271,8 @@ export default {
           }),
           // ---
           title: cva("text-md m-0 text-nowrap font-medium text-inherit"),
-          text: cva(
-            "text-emphasis-medium m-0 block w-full flex-none text-sm font-medium"
-          ),
-          total: cva("font-medium text-inherit", {
+          text: cva("text-emphasis-medium w-full text-xs"),
+          total: cva("text-inherit", {
             variants: {
               select: {
                 true: "",
