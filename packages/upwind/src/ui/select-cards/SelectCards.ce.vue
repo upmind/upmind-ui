@@ -27,9 +27,8 @@
           :color="color"
           :variant="variant"
           block
-          @keydown.prevent.arrow-down="focusFirstItem"
-          @keydown.prevent.arrow-up="focusLastItem"
-          @keydown.prevent.enter="open = !open"
+          :tabindex="isSelected && radioGroup ? 0 : -1"
+          @focus="handleFocus"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
@@ -205,6 +204,9 @@ const focusedElement = ref<HTMLElement | null>(null);
 
 const handleFocus = (event: FocusEvent) => {
   focusedElement.value = event.target as HTMLElement;
+  if (!props.radioGroup) {
+    modelValue.value = first(props.items)?.value;
+  }
 };
 
 const handleBlur = () => {
@@ -227,6 +229,8 @@ watch(
 );
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
+const isSelected = computed(() => selected.value?.value === modelValue.value);
+
 const manuallySelected = computed(() => {
   return selected.value && selected.value !== first(props.items)
     ? selected.value
