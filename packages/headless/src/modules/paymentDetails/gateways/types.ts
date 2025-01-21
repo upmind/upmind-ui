@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- types
 // TODO:
-// import type { IGateway } from "@/modules/payment/types";
+// import type { IGateway } from "../../../modules/payment/types";
 // import type { GatewayTypes } from "../types";
 import type { ICurrency } from "../../../modules/system/types";
 

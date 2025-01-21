@@ -70,11 +70,19 @@ export const useRoutingEngine = () => {
           query: route.query,
         },
         data
-      ).then((response: Route | undefined) => {
-        if (response) {
-          router.push(response);
-        }
-      }),
+      )
+        .then((response: Route | undefined) => {
+          if (response) {
+            router.push(response);
+          }
+        })
+        .catch((error: any) => {
+          console.warn("UseRouteingEngine", "Next route Not Found", {
+            route,
+            data,
+            error,
+          });
+        }),
 
     back: (data?: any) =>
       back(
@@ -84,11 +92,19 @@ export const useRoutingEngine = () => {
           query: route.query,
         },
         data
-      ).then((response: Route | undefined) => {
-        if (response) {
-          router.push(response);
-        }
-      }),
+      )
+        .then((response: Route | undefined) => {
+          if (response) {
+            router.push(response);
+          }
+        })
+        .catch((error: any) => {
+          console.warn("UseRouteingEngine", "Back route Not Found", {
+            route,
+            data,
+            error,
+          });
+        }),
     resolve,
     destroy,
   };

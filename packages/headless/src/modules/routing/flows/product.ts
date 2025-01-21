@@ -7,10 +7,9 @@ import { useRoutingEngine } from "..";
 
 // --- utils
 import { useRouteQueryParams, useRouteRequiresAction } from "../";
-import { uniqBy, find, isEmpty, get } from "lodash-es";
+import { uniqBy, find, isEmpty, get, set } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import type { ProductModel } from "../../product/types";
@@ -21,15 +20,6 @@ export const useProductFlows = () => {
   const { addItem, getPendingProducts, getProducts } = useBasket();
 
   let flows: Flow[] = [
-    // {
-    //       const animation = new Promise(resolve => setTimeout(resolve, 2_000));
-    // await Promise.all(syncPendingBasketItems());
-    // await animation; // ensure we wait for the animation to complete
-    // // finally navigate to the next basket route
-    // navigateNextBasketItem();
-    // },
-    // ---
-
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
@@ -75,57 +65,14 @@ export const useProductFlows = () => {
       },
       targets: {
         next: [
-          // a related product requires action, so we automatically navigate to the related product
-          {
-            name: ROUTE.PRODUCT_EDIT,
-            guard: async (_route: Route, context: any) => {
-              const { getNextRelated } = useRouteRequiresAction();
-              const valid = !!getNextRelated(context);
-              return valid;
-            },
-            resolve: async (route: Route, context: any) => {
-              const { getNextRelated } = useRouteRequiresAction();
-              const basketProduct = getNextRelated(context);
-
-              if (!basketProduct) return route;
-              return {
-                name: ROUTE.PRODUCT_EDIT,
-                params: { bpid: basketProduct?.id },
-              };
-            },
-          },
-          {
-            name: ROUTE.PRODUCT_REQUIRES_ACTION,
-            guard: async (_route: Route) => {
-              const { hasProducts } = useRouteRequiresAction();
-              const valid = hasProducts();
-              return valid;
-            },
-          },
-          {
-            name: ROUTE.RECOMMENDATIONS,
-            guard: async (_route: Route) => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
-              return valid;
-            },
-          },
-          { name: ROUTE.CHECKOUT },
+          ROUTE.PRODUCT_REQUIRES_ACTION,
+          ROUTE.RECOMMENDATIONS,
+          ROUTE.CHECKOUT,
+          ROUTE.SESSION,
+          ROUTE.BASKET,
         ],
-        back: [{ name: ROUTE.BASKET }],
-        fallback: [
-          {
-            name: ROUTE.PRODUCT_NOT_FOUND,
-            resolve: async (route: Route) => {
-              const { productId } = useRouteQueryParams(route);
-              // include the product id in the query params so we can track it in analytics, etc
-              return {
-                name: ROUTE.PRODUCT_NOT_FOUND,
-                query: { pid: productId },
-              };
-            },
-          },
-        ],
+        back: [ROUTE.BASKET],
+        fallback: [ROUTE.PRODUCT_NOT_FOUND],
       },
     },
     {
@@ -142,42 +89,36 @@ export const useProductFlows = () => {
       },
       targets: {
         next: [
-          {
-            name: ROUTE.PRODUCT_EDIT,
-            guard: async (_route: Route) => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
-              return valid;
-            },
-          },
-          {
-            name: ROUTE.PRODUCT_REQUIRES_ACTION,
-            guard: async (_route: Route) => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
-              return valid;
-            },
-          },
-          {
-            name: ROUTE.RECOMMENDATIONS,
-            guard: async (_route: Route) => {
-              // do logic to determine if we can transition to this node
-              const valid = true || false;
-              return valid;
-            },
-          },
-          { name: ROUTE.CHECKOUT },
+          ROUTE.PRODUCT_REQUIRES_ACTION,
+          ROUTE.RECOMMENDATIONS,
+          ROUTE.CHECKOUT,
+          ROUTE.SESSION,
+          ROUTE.BASKET,
         ],
-        back: [{ name: ROUTE.BASKET }],
-        fallback: [{ name: ROUTE.PRODUCT_NOT_FOUND }],
+        back: [ROUTE.BASKET],
+        fallback: [ROUTE.PRODUCT_NOT_FOUND],
       },
     },
     {
       name: ROUTE.PRODUCT_REQUIRES_ACTION,
       guard: async (_route: Route) => {
-        // do logic to determine if we can transition to this node
-        const valid = true || false;
+        const { hasProducts } = useRouteRequiresAction();
+        const valid = hasProducts();
         return valid;
+      },
+      resolve: async (_route: Route, context?: any) => {
+        const { getNextRelated } = useRouteRequiresAction();
+        const basketProduct = getNextRelated(context);
+        if (basketProduct) {
+          return {
+            name: ROUTE.PRODUCT_EDIT,
+            params: { bpid: basketProduct?.id },
+          };
+        }
+
+        return {
+          name: ROUTE.PRODUCT_REQUIRES_ACTION,
+        };
       },
       targets: {
         next: [
@@ -200,20 +141,26 @@ export const useProductFlows = () => {
             },
           },
         ],
-        back: [{ name: ROUTE.BASKET }],
-        fallback: [{ name: ROUTE.BASKET }],
+        back: [ROUTE.RECOMMENDATIONS, ROUTE.BASKET],
+        fallback: [ROUTE.BASKET],
       },
     },
     {
       name: ROUTE.PRODUCT_NOT_FOUND,
-      guard: async (_route: Route) => {
-        // do logic to determine if we can transition to this node
-        const valid = true || false;
-        return valid;
+      resolve: async (route: Route) => {
+        const { productId, basketProductId } = useRouteQueryParams(route);
+        // include the product id in the query params so we can track it in analytics, etc
+        const query = {};
+        if (productId) set(query, "pid", productId);
+        if (basketProductId) set(query, "bpid", basketProductId);
+        return {
+          name: ROUTE.PRODUCT_NOT_FOUND,
+          query,
+        };
       },
       targets: {
         next: [],
-        back: [{ name: ROUTE.BASKET }],
+        back: [ROUTE.BASKET],
         fallback: [],
       },
     },

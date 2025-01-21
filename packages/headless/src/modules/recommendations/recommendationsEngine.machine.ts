@@ -146,6 +146,7 @@ export default createMachine(
         cond: "hasDataWithContext",
       },
       SEEN: {
+        target: "refreshing",
         actions: ["setSeen"],
       },
       ADD: {

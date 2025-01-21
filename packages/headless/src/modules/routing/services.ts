@@ -1,50 +1,64 @@
 // --- external
 
-import type { AnyEventObject } from "xstate";
-import { ROUTE } from "./types";
-import type { RoutingEngineContext, Flow } from "./types";
-
 // --- internal
 
 // --- utils
-import { find, findIndex, isEmpty, map, get } from "lodash-es";
-import { isFunction } from "xstate/lib/utils";
+import {
+  find,
+  findIndex,
+  isEmpty,
+  map,
+  get,
+  isObject,
+  isFunction,
+  compact,
+} from "lodash-es";
 
 // --- types
-import type { Route } from "./types";
+import type { AnyEventObject } from "xstate";
+import { ROUTE } from "./types";
+import type { Route, Target, Flow, RoutingEngineContext } from "./types";
 
 // --- Helper functios/utils
 
-async function matchFlow(
-  routes: Flow[],
+async function matchTargets(
+  targets: Flow[],
   route: Route,
   event?: any
 ): Promise<Flow> {
-  if (isEmpty(routes)) return Promise.reject();
+  if (isEmpty(targets)) return Promise.reject();
   // NB cant use odash her as we are async
-  const guards = map(routes, flow => guardFlow(flow, route, event));
+  const guards = map(targets, flow => guardTarget(flow, route, event));
   const match = await Promise.all(guards)
     .then(responses => {
       const match = findIndex(responses, response => response === true);
-      return get(routes, match);
+      return get(targets, match);
     })
-    .catch(() => {
+    .catch(errors => {
       return undefined;
     });
 
   return new Promise((resolve, reject) => (match ? resolve(match) : reject()));
 }
 
-async function guardFlow(
-  flow: Flow,
+async function guardTarget(
+  target: Flow,
   route: Route,
   event?: any
 ): Promise<boolean> {
   let valid = true;
-  if (isFunction(flow.guard)) {
-    valid = await flow.guard(route, event);
+  if (isFunction(target.guard)) {
+    valid = await target.guard(route, event);
   }
   return valid;
+}
+
+function mapTargets(targets: Target[], flows: Flow[]): Flow[] {
+  return compact(
+    map(targets, target => {
+      return isObject(target) ? target : find(flows, ["name", target]);
+    })
+  );
 }
 
 // --------------------------------------------------------
@@ -57,6 +71,7 @@ async function calculateNextRoute(
   context: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
+  const { flows } = context;
   const route = data.route as Route;
   const event = data.event as any;
 
@@ -65,24 +80,27 @@ async function calculateNextRoute(
     "currentFlow",
     find(context.flows, ["name", route?.name])
   );
-  return matchFlow(currentFlow?.targets?.next || [], route, event).then(
-    flow => {
-      return resolve(context, {
-        type: "RESOLVE",
-        data: {
-          flow,
-          route,
-          event,
-        },
-      });
-    }
-  );
+  const targets = mapTargets(currentFlow?.targets?.next || [], flows);
+
+  if (isEmpty(targets)) return Promise.reject();
+
+  return matchTargets(targets, route, event).then(flow => {
+    return resolve(context, {
+      type: "RESOLVE",
+      data: {
+        flow,
+        route,
+        event,
+      },
+    });
+  });
 }
 
 async function calculateBackRoute(
   context: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
+  const { flows } = context;
   const route = data.route as Route;
   const event = data.event as any;
 
@@ -91,17 +109,18 @@ async function calculateBackRoute(
     "currentFlow",
     find(context.flows, ["name", route?.name])
   );
-  return matchFlow(currentFlow?.targets?.back || [], route, event).then(
-    flow => {
-      return resolve(context, {
-        type: "RESOLVE",
-        data: {
-          flow,
-          route,
-        },
-      });
-    }
-  );
+
+  const targets = mapTargets(currentFlow?.targets?.back || [], flows);
+
+  return matchTargets(targets, route, event).then(flow => {
+    return resolve(context, {
+      type: "RESOLVE",
+      data: {
+        flow,
+        route,
+      },
+    });
+  });
 }
 
 async function resolve(
@@ -117,25 +136,24 @@ async function resolve(
 
   if (!target) return Promise.reject();
 
-  const resolvedFlow = await guardFlow(target, route, event).then(
+  const resolvedFlow = await guardTarget(target, route, event).then(
     async valid => {
       // if we have a valid target, then we can resolve the route,
       // otherwise we need to check if we have a fallback
       // if we dont have a fallback, then we need to check if we have any items in the basket, as it may be empty
 
+      const targets = mapTargets(target?.targets?.fallback || [], flows);
       const flow: Flow | undefined = valid
         ? target
-        : await matchFlow(target?.targets?.fallback || [], route, event).catch(
-            () => {
-              const basket = basketHelper?.getSnapshot();
-              if (isEmpty(basket?.context?.products)) {
-                return find(flows, ["name", ROUTE.EMPTY]);
-              }
-
-              // if we get to this point and we still dont have a target, then we need to bail
-              return undefined;
+        : await matchTargets(targets, route, event).catch(() => {
+            const basket = basketHelper?.getSnapshot();
+            if (isEmpty(basket?.context?.products)) {
+              return find(flows, ["name", ROUTE.EMPTY]);
             }
-          );
+
+            // if we get to this point and we still dont have a target, then we need to bail
+            return undefined;
+          });
 
       return flow;
     }

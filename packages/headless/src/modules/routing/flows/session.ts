@@ -25,9 +25,9 @@ export const useSessionFlows = () => {
         return valid;
       },
       targets: {
-        next: [{ name: ROUTE.CHECKOUT }],
-        back: [{ name: ROUTE.BASKET }],
-        fallback: [{ name: ROUTE.BASKET }],
+        next: [ROUTE.CHECKOUT, ROUTE.BASKET],
+        back: [ROUTE.BASKET],
+        fallback: [ROUTE.BASKET],
       },
     },
     // {
