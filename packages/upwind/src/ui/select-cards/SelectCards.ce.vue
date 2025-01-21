@@ -17,6 +17,7 @@
         :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
         @keydown.prevent.arrow-down="focusFirstItem"
+        @keydown.prevent.arrow-up="focusLastItem"
       >
         <Button
           :loading="loading"
@@ -261,6 +262,7 @@ const handleOpenAutoFocus = (event: Event) => {
 };
 
 const focusItem = (index: number) => {
+  open.value = true;
   const item = itemRefs.value[index];
   if (item) {
     const { focused } = useFocus(item);
