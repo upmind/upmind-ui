@@ -54,8 +54,10 @@
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
-                  :class="styles.product.pricing.currentPrice"
                   v-bind="pricing"
+                  :upwind-config="{
+                    pricing: { current: styles.product.pricing.current },
+                  }"
                 />
               </div>
             </div>
@@ -74,10 +76,15 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <CurrentPrice
-              :class="styles.product.pricing.currentPrice"
               v-bind="pricing"
+              :upwind-config="{
+                pricing: { current: styles.product.pricing.current },
+              }"
             />
-            <ExPrice :class="styles.product.pricing.exPrice" v-bind="pricing" />
+            <ExPrice
+              v-bind="pricing"
+              :upwind-config="{ pricing: { ex: styles.product.pricing.ex } }"
+            />
           </div>
           <QuantityField
             v-bind="product"
@@ -97,7 +104,10 @@
           :one-off="pricing.meta?.oneoff"
           :taxes="taxes"
         />
-        <ExPrice :class="styles.product.pricing.exPrice" v-bind="pricing" />
+        <ExPrice
+          v-bind="pricing"
+          :upwind-config="{ pricing: { ex: styles.product.pricing.ex } }"
+        />
       </div>
     </div>
 
@@ -142,8 +152,8 @@ const styles = useStyles(
       imageRoute: string;
     };
     pricing: {
-      currentPrice: string;
-      exPrice: string;
+      current: string;
+      ex: string;
     };
   };
 }>;
