@@ -95,7 +95,7 @@ import { Form } from "@upmind-automation/upwind";
 import { Button, Icon, Badge, Tooltip } from "@upmind-automation/upwind";
 
 // --- internal
-import { useBasketPromotions } from "@upmind-automation/client-vue";
+import { useBasketPromotions } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
