@@ -51,14 +51,14 @@ export async function awaitResolved(service: ActorRef<any, any>) {
 export const useRouteQueryParams = (route: Route) => {
   const { query, params } = route;
   // parse our  query/params that may be passed in as ARRAY
-  function getParams(type: QUERY_PARAMS, fallback?: any) {
+  function getParams(type: QUERY_PARAMS | string, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
     return compact(isArray(value) ? value : [value]);
   }
 
   // parse our query/params that may be passed in as STRING
-  function getParam(type: QUERY_PARAMS, fallback?: any) {
+  function getParam(type: QUERY_PARAMS | string, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
     return isArray(value) ? first(value) : value;
