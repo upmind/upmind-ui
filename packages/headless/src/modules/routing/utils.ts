@@ -226,8 +226,10 @@ export const useRoutePendingProducts = (route: Route) => {
 
     return new Promise((resolve, reject) => {
       if (basketItem) {
+        debugger;
         resolve(basketItem);
       } else {
+        debugger;
         reject({
           message: "Basket item not found",
           code: responseCodes.Not_Found,

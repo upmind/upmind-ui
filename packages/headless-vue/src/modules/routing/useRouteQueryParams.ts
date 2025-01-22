@@ -15,6 +15,8 @@ export const useQueryParams = () => {
 
   const { path, name, query, params } = useRoute();
   const {
+    getParam,
+    getParams,
     productConfigs,
     productId,
     products,
@@ -24,6 +26,8 @@ export const useQueryParams = () => {
   } = useQueryParams({ name: name?.toString(), path, query, params });
 
   return {
+    getParam,
+    getParams,
     productId,
     products,
     productConfigs,

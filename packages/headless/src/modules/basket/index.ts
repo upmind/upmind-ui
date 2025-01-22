@@ -38,7 +38,7 @@ const service = interpret(basketMachine, { devTools: true });
 // --------------------------------------------------------
 // methods
 // --------------------------------------------------------
-const exists = (items = [], mapping: any, context = null) => {
+function exists(items = [], mapping: any, context = null) {
   // @ts-ignore
   context = context ? `${context}.` : "";
   return some(items, item =>
@@ -48,9 +48,9 @@ const exists = (items = [], mapping: any, context = null) => {
       return matches;
     })
   );
-};
+}
 
-const sendToItem = async (itemId: any, type: any, data: any) => {
+async function sendToItem(itemId: any, type: any, data: any) {
   const item = find(service.getSnapshot()?.context?.items, ["id", itemId]);
 
   if (item) {
@@ -62,207 +62,275 @@ const sendToItem = async (itemId: any, type: any, data: any) => {
       code: responseCodes.Not_Found,
     });
   }
-};
+}
 
 /**
  * @ignore
  */
 export const useBasket = () => {
-  return {
-    service: service.start(),
-    getSnapshot: () => service.getSnapshot(),
-    getBasketId: () => service.getSnapshot()?.context?.basket?.id,
+  // --- meta functions
+  async function isReady() {
+    return waitFor(
+      service,
+      state => {
+        const basketReady = ["shopping"].some(state.matches);
+        // const productsReady = every(
+        //   state.context?.items,
+        //   s => !["subscribing", "loading"].some(s.state.matches)
+        // );
+        return basketReady; //&& productsReady;
+      },
+      {
+        timeout: Infinity, // infinity = no timeout
+      }
+    );
+  }
 
-    // --- basket functions
-    isReady: async () =>
-      waitFor(
-        service,
-        state => {
-          const basketReady = ["shopping"].some(state.matches);
-          // const productsReady = every(
-          //   state.context?.items,
-          //   s => !["subscribing", "loading"].some(s.state.matches)
-          // );
-          return basketReady; //&& productsReady;
-        },
-        {
-          timeout: Infinity, // infinity = no timeout
+  function isAvailable() {
+    const state = service.getSnapshot();
+    return (
+      [
+        "claiming",
+        "generating",
+        "shopping",
+        "checkout.configuring",
+        "checkout.available",
+      ].some(state.matches) && !isEmpty(state?.context?.products)
+    );
+  }
+
+  function needsAuth() {
+    const state = service.getSnapshot();
+    return !state.matches("shopping.account.complete");
+  }
+
+  function hasProducts() {
+    const state = service.getSnapshot();
+    return !isEmpty(state?.context?.products);
+  }
+
+  function hasInvalidProducts() {
+    const state = service.getSnapshot();
+    return some(state?.context?.products, product => !isEmpty(product?.error));
+  }
+
+  async function hasPromotions(): Promise<boolean> {
+    const state = service.getSnapshot();
+    const promotions = get(state, "context.actors.promotions");
+    if (!promotions) return false;
+    return waitFor(promotions as ActorRef<any, any>, state =>
+      state.matches("complete")
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function hasBillingDetails(): Promise<boolean> {
+    const state = service.getSnapshot();
+    const billingDetails = get(state, "context.actors.billingDetails");
+    if (!billingDetails) return false;
+    return waitFor(billingDetails as ActorRef<any, any>, state =>
+      state.matches("complete")
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function hasCurrency(): Promise<boolean> {
+    const state = service.getSnapshot();
+    const currency = get(state, "context.actors.currency");
+    if (!currency) return false;
+    return waitFor(currency as ActorRef<any, any>, state =>
+      state.matches("complete")
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function hasFields(): Promise<boolean> {
+    const state = service.getSnapshot();
+    const customFields = get(state, "context.actors.customFields");
+    if (!customFields) return false;
+    return waitFor(customFields as ActorRef<any, any>, state =>
+      state.matches("complete")
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  function hasPaymentDetails() {
+    const state = service.getSnapshot();
+    return ["complete", "available.valid", "available.processing"].some(
+      state.matches
+    );
+  }
+
+  function isReadyForCheckout() {
+    const state = service.getSnapshot();
+    return [
+      "shopping.products.complete",
+      "shopping.promotions.complete",
+      "shopping.account.complete",
+      "shopping.currency.complete",
+      "shopping.billingDetails.complete",
+      "shopping.customFields.complete",
+      "shopping.paymentDetails.available",
+    ].some(state.matches);
+  }
+
+  function isCheckingOut() {
+    const state = service.getSnapshot();
+    const paymentState = state.context?.payment?.getSnapshot();
+
+    return (
+      paymentState.matches("approving") ||
+      ["approving", "checkout", "converting", "paying"].some(state.matches)
+    );
+  }
+
+  // --- basket functions
+
+  function clear() {
+    return service.send({ type: "CLEAR" });
+  }
+
+  function checkout() {
+    return service.send({ type: "CHECKOUT" });
+  }
+
+  function refresh(data?: any) {
+    service.send({ type: "REFRESH", data });
+    return waitFor(service, state =>
+      state.matches("shopping.refreshing.processed")
+    ).then(() => service.getSnapshot());
+  }
+
+  async function setCurrency(currency: any) {
+    return waitFor(service, state => state.matches("shopping")).then(() => {
+      // first check if our currency has change, ie: model.code has changed
+      const actor = service.getSnapshot()?.context?.actors?.currency;
+      if (!actor) return Promise.reject("Currency service not available");
+
+      const code = currency?.toUpperCase();
+      const value = actor.getSnapshot()?.context?.model;
+
+      // if it has not then bail
+      if (!code || code == value?.code) return Promise.resolve();
+
+      actor?.send({ type: "SET", data: { code }, update: true });
+
+      // then wait for the paymentGateway actor to be updated
+      return waitFor(service as ActorRef<any, any>, state => {
+        return ["processed", "complete", "error"].some(state.matches);
+      }).then(state => {
+        if (["error"].some(state.matches)) {
+          return Promise.reject(state.context.error);
         }
-      ),
+        return Promise.resolve();
+      });
+    });
+  }
 
-    clear: () => service.send({ type: "CLEAR" }),
+  async function addPromotion(coupon: any) {
+    return waitFor(service, state => state.matches("shopping")).then(
+      async () => {
+        const actor = service.getSnapshot()?.context?.actors?.promotions;
 
-    checkout: () => service.send({ type: "CHECKOUT" }),
+        if (!actor) return Promise.reject("Promotions service not available");
 
-    refresh: (data?: any) => {
-      service.send({ type: "REFRESH", data });
-      return waitFor(service, state =>
-        state.matches("shopping.refreshing.processed")
-      ).then(() => service.getSnapshot());
-    },
-
-    // --- meta functions
-    isEmpty: () => {
-      const state = service.getSnapshot();
-      const products = state?.context?.products;
-      const basketId = state?.context?.basket?.id;
-      return isEmpty(basketId) || isEmpty(products);
-    },
-
-    isAvailable: () => {
-      const state = service.getSnapshot();
-      return (
-        [
-          "claiming",
-          "generating",
-          "shopping",
-          "checkout.configuring",
-          "checkout.available",
-        ].some(state.matches) && !isEmpty(state?.context?.products)
-      );
-    },
-    needsAuth: () => {
-      const state = service.getSnapshot();
-      return !state.matches("shopping.account.complete");
-    },
-
-    hasProducts: () => {
-      const state = service.getSnapshot();
-      return !isEmpty(state?.context?.products);
-    },
-
-    hasInvalidProducts: () => {
-      const state = service.getSnapshot();
-      return some(
-        state?.context?.products,
-        product => !isEmpty(product?.error)
-      );
-    },
-
-    hasPromotions: async (): Promise<boolean> => {
-      const state = service.getSnapshot();
-      const promotions = get(state, "context.actors.promotions");
-      if (!promotions) return false;
-      return waitFor(promotions as ActorRef<any, any>, state =>
-        state.matches("complete")
-      )
-        .then(() => true)
-        .catch(() => false);
-    },
-
-    hasBillingDetails: async (): Promise<boolean> => {
-      const state = service.getSnapshot();
-      const billingDetails = get(state, "context.actors.billingDetails");
-      if (!billingDetails) return false;
-      return waitFor(billingDetails as ActorRef<any, any>, state =>
-        state.matches("complete")
-      )
-        .then(() => true)
-        .catch(() => false);
-    },
-
-    hasCurrency: async (): Promise<boolean> => {
-      const state = service.getSnapshot();
-      const currency = get(state, "context.actors.currency");
-      if (!currency) return false;
-      return waitFor(currency as ActorRef<any, any>, state =>
-        state.matches("complete")
-      )
-        .then(() => true)
-        .catch(() => false);
-    },
-
-    hasFields: async (): Promise<boolean> => {
-      const state = service.getSnapshot();
-      const customFields = get(state, "context.actors.customFields");
-      if (!customFields) return false;
-      return waitFor(customFields as ActorRef<any, any>, state =>
-        state.matches("complete")
-      )
-        .then(() => true)
-        .catch(() => false);
-    },
-
-    hasPaymentDetails: () => {
-      const state = service.getSnapshot();
-      return ["complete", "available.valid", "available.processing"].some(
-        state.matches
-      );
-    },
-
-    isReadyForCheckout: () => {
-      const state = service.getSnapshot();
-      return [
-        "shopping.products.complete",
-        "shopping.promotions.complete",
-        "shopping.account.complete",
-        "shopping.currency.complete",
-        "shopping.billingDetails.complete",
-        "shopping.customFields.complete",
-        "shopping.paymentDetails.available",
-      ].some(state.matches);
-    },
-
-    isCheckingOut: () => {
-      const state = service.getSnapshot();
-      const paymentState = state.context?.payment?.getSnapshot();
-
-      return (
-        paymentState.matches("approving") ||
-        ["approving", "checkout", "converting", "paying"].some(state.matches)
-      );
-    },
-
-    // --- item functions
-
-    getProducts: (): ActorRef<any, any>[] =>
-      get(service.getSnapshot(), "context.products", []) as ActorRef<
-        any,
-        any
-      >[],
-
-    getPendingProducts: (): ActorRef<any, any>[] =>
-      get(service.getSnapshot(), "context.items", []) as ActorRef<any, any>[],
-
-    getInvalidProducts: (): BasketProduct[] => {
-      const state = service.getSnapshot();
-      const products = get(state, "context.products", []);
-      return filter(products, product => !isEmpty(product?.error));
-    },
-
-    findItem: (mapping: any): ActorRef<any, any> | undefined =>
-      find(service.getSnapshot()?.context?.items, (basketItem: any) =>
-        every(mapping, (value, key) => {
-          if (key == "id") {
-            return basketItem.id == value;
-          } else {
-            return get(basketItem, `state.context.model.${key}`) == value;
+        if (coupon) {
+          actor?.send({ type: "SET", data: { promocode: coupon } });
+          const state = await waitFor(service as ActorRef<any, any>, state =>
+            ["valid", "error"].some(state.matches)
+          );
+          if (state.matches("error")) {
+            return Promise.reject(state.context.error);
           }
-        })
-      ),
+        }
 
-    itemExists: (mapping: any) =>
-      exists(
-        // @ts-ignore
-        service.getSnapshot()?.context?.items,
-        mapping,
-        // @ts-ignore
-        "state.context.model"
-      ),
+        actor?.send({ type: "ADD" });
 
-    addItem: async ({
-      // id,
-      productId,
-      quantity,
-      term,
-      attributes,
-      options,
-      provisionFields,
-      coupons,
-      subproducts,
-    }: ProductModel) => {
-      // lets wait for our basket  to be ready for shopping
-      return waitFor(service, state => state.matches("shopping")).then(() => {
+        // then wait for the paymentGateway actor to be updated
+        return waitFor(service as ActorRef<any, any>, state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        }).then(state => {
+          if (["error"].some(state.matches)) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve();
+        });
+      }
+    );
+
+    // return service.send({
+    //   type: "UPDATE_PROMOTIONS",
+    //   data: { promodcode: coupon },
+    // });
+  }
+
+  // TODO
+  // setLocale: async (lang: any) => {
+  //   return service.send({ type: "UPDATE_LOCALE", data: lang });
+  // },
+
+  // --- item functions
+
+  function getProducts(): ActorRef<any, any>[] {
+    return get(service.getSnapshot(), "context.products", []) as ActorRef<
+      any,
+      any
+    >[];
+  }
+
+  function getPendingProducts(): ActorRef<any, any>[] {
+    return get(service.getSnapshot(), "context.items", []) as ActorRef<
+      any,
+      any
+    >[];
+  }
+
+  function getInvalidProducts(): BasketProduct[] {
+    const state = service.getSnapshot();
+    const products = get(state, "context.products", []);
+    return filter(products, product => !isEmpty(product?.error));
+  }
+
+  function findItem(mapping: any): ActorRef<any, any> | undefined {
+    return find(service.getSnapshot()?.context?.items, (basketItem: any) =>
+      every(mapping, (value, key) => {
+        if (key == "id") {
+          return basketItem.id == value;
+        } else {
+          return get(basketItem, `state.context.model.${key}`) == value;
+        }
+      })
+    );
+  }
+
+  function itemExists(mapping: any) {
+    return exists(
+      // @ts-ignore
+      service.getSnapshot()?.context?.items,
+      mapping,
+      // @ts-ignore
+      "state.context.model"
+    );
+  }
+
+  async function addItem({
+    // id,
+    productId,
+    quantity,
+    term,
+    attributes,
+    options,
+    provisionFields,
+    coupons,
+    subproducts,
+  }: ProductModel): Promise<ActorRef<any, any>> {
+    // lets wait for our basket  to be ready for shopping
+    return waitFor(service, state => state.matches("shopping")).then(
+      async () => {
         // lets add the new product base don the provided config to the basket
         const config = {
           productId,
@@ -287,6 +355,7 @@ export const useBasket = () => {
           },
           isNil
         );
+
         service.send({
           type: "ADD",
           data: config,
@@ -304,101 +373,65 @@ export const useBasket = () => {
         }) || last(items)) as ActorRef<any, any>;
 
         return actor;
-      });
-    },
+      }
+    );
+  }
 
-    //  --- Basket Settings
-    setCurrency: async (currency: any) => {
-      return waitFor(service, state => state.matches("shopping")).then(() => {
-        // first check if our currency has change, ie: model.code has changed
-        const actor = service.getSnapshot()?.context?.actors?.currency;
-        if (!actor) return Promise.reject("Currency service not available");
-
-        const code = currency?.toUpperCase();
-        const value = actor.getSnapshot()?.context?.model;
-
-        // if it has not then bail
-        if (!code || code == value?.code) return Promise.resolve();
-
-        actor?.send({ type: "SET", data: { code }, update: true });
-
-        // then wait for the paymentGateway actor to be updated
-        return waitFor(service as ActorRef<any, any>, state => {
-          return ["processed", "complete", "error"].some(state.matches);
-        }).then(state => {
-          if (["error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve();
-        });
-      });
-    },
-
-    addPromotion: async (coupon: any) => {
-      return waitFor(service, state => state.matches("shopping")).then(
-        async () => {
-          const actor = service.getSnapshot()?.context?.actors?.promotions;
-
-          if (!actor) return Promise.reject("Promotions service not available");
-
-          if (coupon) {
-            actor?.send({ type: "SET", data: { promocode: coupon } });
-            const state = await waitFor(service as ActorRef<any, any>, state =>
-              ["valid", "error"].some(state.matches)
-            );
-            if (state.matches("error")) {
-              return Promise.reject(state.context.error);
-            }
-          }
-
-          actor?.send({ type: "ADD" });
-
-          // then wait for the paymentGateway actor to be updated
-          return waitFor(service as ActorRef<any, any>, state => {
-            return ["processed", "complete", "error"].some(state.matches);
-          }).then(state => {
-            if (["error"].some(state.matches)) {
-              return Promise.reject(state.context.error);
-            }
-            return Promise.resolve();
-          });
+  async function updateItem(itemId: string): Promise<ActorRef<any, any>> {
+    return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
+      return waitFor(item, state => !state.matches("processing"), {
+        timeout: Infinity,
+      }).then(state => {
+        if (["error", "available.error"].some(state.matches)) {
+          return Promise.reject(state.context.error);
         }
-      );
-
-      // return service.send({
-      //   type: "UPDATE_PROMOTIONS",
-      //   data: { promodcode: coupon },
-      // });
-    },
-
-    // TODO
-    // setLocale: async (lang: any) => {
-    //   return service.send({ type: "UPDATE_LOCALE", data: lang });
-    // },
-
-    // --- Item CRUD
-
-    updateItem: async (itemId: string): Promise<ActorRef<any, any>> => {
-      return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
-        return waitFor(item, state => !state.matches("processing"), {
-          timeout: Infinity,
-        }).then(state => {
-          if (["error", "available.error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve(item);
-        });
-        // .finally(() => service.send({ type: "REFRESH" }));
+        return Promise.resolve(item);
       });
-    },
-
-    removeItem: async (itemId: any): Promise<any> => {
-      return sendToItem(itemId, "REMOVE", { itemId }).then(item =>
-        waitFor(item, state => ["complete"].some(state.matches), {
-          timeout: Infinity,
-        })
-      );
       // .finally(() => service.send({ type: "REFRESH" }));
-    },
+    });
+  }
+
+  async function removeItem(itemId: any): Promise<any> {
+    return sendToItem(itemId, "REMOVE", { itemId }).then(item =>
+      waitFor(item, state => ["complete"].some(state.matches), {
+        timeout: Infinity,
+      })
+    );
+    // .finally(() => service.send({ type: "REFRESH" }));
+  }
+
+  // ---------------------------------------------------------------------------
+  return {
+    service: service.start(),
+    getSnapshot: () => service.getSnapshot(),
+    getBasketId: () => service.getSnapshot()?.context?.basket?.id,
+    // --- meta functions
+    isReady,
+    isAvailable,
+    needsAuth,
+    hasProducts,
+    hasInvalidProducts,
+    hasPromotions,
+    hasBillingDetails,
+    hasCurrency,
+    hasFields,
+    hasPaymentDetails,
+    isReadyForCheckout,
+    isCheckingOut,
+    // --- basket functions
+    clear,
+    checkout,
+    refresh,
+    setCurrency,
+    addPromotion,
+    // --- item functions
+    getProducts,
+    getPendingProducts,
+    getInvalidProducts,
+    findItem,
+    itemExists,
+    addItem,
+    updateItem,
+    removeItem,
   };
 };
