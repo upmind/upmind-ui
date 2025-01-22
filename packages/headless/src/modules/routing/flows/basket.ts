@@ -15,7 +15,7 @@ import { ROUTE } from "../types";
 // -----------------------------------------------------------------------------
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, isEmpty, setCurrency, addPromotion } = useBasket();
+  const { hasProducts, setCurrency, addPromotion } = useBasket();
 
   let flows: Flow[] = [
     {
@@ -66,7 +66,7 @@ export const useBasketFlows = () => {
     },
     {
       name: ROUTE.EMPTY,
-      guard: async (_route: Route) => isEmpty(),
+      guard: async (_route: Route) => !hasProducts(),
       targets: {
         next: [],
         back: [],

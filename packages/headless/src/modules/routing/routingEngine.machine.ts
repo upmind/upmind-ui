@@ -8,7 +8,6 @@ import { basketSubscription } from "../basket/helper";
 
 // --- utils
 import { useTime } from "../../utils";
-import { useRouteQueryParams } from "./utils";
 import {
   defaultsDeep,
   find,
@@ -20,8 +19,7 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import { ROUTE } from "./types";
-import type { RoutingEngineContext, Flow } from "./types";
+import type { RoutingEngineContext } from "./types";
 
 // --------------------------------------------------------
 
