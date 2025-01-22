@@ -88,8 +88,8 @@ import config from "./config.cva";
 import {
   useBasket,
   useRecommendationsEngine,
-  UpmProductConfig,
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
+import UpmProductConfig from "../product/Config.vue";
 
 // --- components
 import {

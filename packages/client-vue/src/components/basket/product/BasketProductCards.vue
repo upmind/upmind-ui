@@ -32,7 +32,8 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasket, UpmBasketProduct } from "@upmind-automation/client-vue";
+import { useBasket } from "@upmind-automation/headless-vue";
+import UpmBasketProduct from "./BasketProduct.vue";
 
 // --- components
 import { every, reduce, set } from "lodash-es";

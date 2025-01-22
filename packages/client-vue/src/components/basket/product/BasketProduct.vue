@@ -49,12 +49,12 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 
 // --- internal
-import { useBasketProduct } from "@upmind-automation/client-vue";
+import { useBasketProduct } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { UpmCard } from "@upmind-automation/client-vue";
+import UpmCard from "../../content/Card.vue";
 import { Loading } from "@upmind-automation/upwind";
 import UpmBasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import UpmBasketProductSummary from "./BasketProductSummary.vue";
@@ -63,7 +63,7 @@ import UpmBasketProductActions from "./BasketProductActions.vue";
 // --- types
 import type { ComputedRef } from "vue";
 import { type BasketProductProps } from "./types";
-import { type BasketProduct } from "@upmind-automation/client-vue";
+import { type BasketProduct } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<BasketProduct & BasketProductProps>(), {
