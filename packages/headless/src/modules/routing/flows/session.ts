@@ -33,8 +33,8 @@ export const useSessionFlows = () => {
       },
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.BASKET],
-        back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
     {

@@ -71,7 +71,7 @@ export const useProductFlows = () => {
           ROUTE.SESSION,
           ROUTE.BASKET,
         ],
-        back: [ROUTE.BASKET],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.PRODUCT_NOT_FOUND],
       },
     },
@@ -95,7 +95,7 @@ export const useProductFlows = () => {
           ROUTE.SESSION,
           ROUTE.BASKET,
         ],
-        back: [ROUTE.BASKET],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.PRODUCT_NOT_FOUND],
       },
     },
@@ -142,7 +142,7 @@ export const useProductFlows = () => {
           },
         ],
         back: [ROUTE.RECOMMENDATIONS, ROUTE.BASKET],
-        fallback: [ROUTE.BASKET],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
     {
@@ -160,8 +160,8 @@ export const useProductFlows = () => {
       },
       targets: {
         next: [],
-        back: [ROUTE.BASKET],
-        fallback: [ROUTE.BASKET],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
   ];
