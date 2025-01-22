@@ -161,7 +161,7 @@ export const useProductFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET],
-        fallback: [],
+        fallback: [ROUTE.BASKET],
       },
     },
   ];

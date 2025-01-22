@@ -6,7 +6,7 @@ import { useRoutingEngine } from "..";
 
 // --- utils
 import { useRoutePendingProducts, useRouteQueryParams } from "../utils";
-import { uniqBy, get } from "lodash-es";
+import { uniqBy } from "lodash-es";
 
 // --- types
 import type { Flow, Route } from "../types";
