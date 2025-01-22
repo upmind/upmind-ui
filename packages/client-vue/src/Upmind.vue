@@ -7,80 +7,91 @@
     <slot name="header" />
 
     <main class="w-full flex-1 overflow-hidden">
-      <component :is="props.contentComponent">
-        <template v-if="meta.isLoading || meta.isProcessing">
-          <UpmBasketLoading
-            class="min-h-screen"
-            skrim="light"
-            :title="t('basket.loading.title')"
-            :text="t('basket.loading.text')"
-            :animated-icon="{
-              icon: 'basket',
-              delay: 250,
-              primaryColor: props.loadingPrimaryColor,
-              secondaryColor: props.loadingSecondaryColor,
-              size: '4xl',
-            }"
-          >
-            <template #title v-if="$slots['loading-title']">
-              <slot name="loading-title" />
-            </template>
+      <template v-if="meta.isLoading || meta.isProcessing">
+        <slot name="loading">
+          <UpmContent>
+            <UpmBasketLoading
+              class="min-h-screen"
+              skrim="light"
+              :title="t('basket.loading.title')"
+              :text="t('basket.loading.text')"
+              :animated-icon="{
+                icon: 'basket',
+                delay: 250,
+                primaryColor: props.loadingPrimaryColor,
+                secondaryColor: props.loadingSecondaryColor,
+                size: '4xl',
+              }"
+            >
+              <template #title v-if="$slots['loading-title']">
+                <slot name="loading-title" />
+              </template>
 
-            <template #background v-if="$slots['loading-background']">
-              <slot name="loading-background" />
-            </template>
-          </UpmBasketLoading>
-        </template>
+              <template #background v-if="$slots['loading-background']">
+                <slot name="loading-background" />
+              </template>
+            </UpmBasketLoading>
+          </UpmContent>
+        </slot>
+      </template>
 
-        <RouterView v-slot="{ Component }" :key="$route.fullPath">
-          <template v-if="Component">
-            <Transition mode="out-in">
-              <KeepAlive>
-                <Suspense>
-                  <!-- main content -->
-                  <component :is="Component" />
+      <RouterView v-slot="routerViewProps" :key="$route.fullPath">
+        <slot v-bind="routerViewProps">
+          <template v-if="routerViewProps.Component">
+            <UpmContent>
+              <Transition mode="out-in">
+                <KeepAlive>
+                  <Suspense>
+                    <!-- main content -->
+                    <component :is="routerViewProps.Component" />
 
-                  <!-- fallback / loading state -->
-                  <template #fallback>
-                    <UpmBasketLoading
-                      class="min-h-screen"
-                      skrim="light"
-                      :title="t('basket.loading.title')"
-                      :text="t('basket.loading.text')"
-                      :animated-icon="{
-                        icon: 'basket',
-                        delay: 250,
-                        primaryColor: props.loadingPrimaryColor,
-                        secondaryColor: props.loadingSecondaryColor,
-                        size: '4xl',
-                      }"
-                    >
-                      <template #title v-if="$slots['loading-title']">
-                        <slot name="loading-title" />
-                      </template>
+                    <!-- fallback / loading state -->
+                    <template #fallback>
+                      <UpmBasketLoading
+                        class="min-h-screen"
+                        skrim="light"
+                        :title="t('basket.loading.title')"
+                        :text="t('basket.loading.text')"
+                        :animated-icon="{
+                          icon: 'basket',
+                          delay: 250,
+                          primaryColor: props.loadingPrimaryColor,
+                          secondaryColor: props.loadingSecondaryColor,
+                          size: '4xl',
+                        }"
+                      >
+                        <template #title v-if="$slots['loading-title']">
+                          <slot name="loading-title" />
+                        </template>
 
-                      <template #background v-if="$slots['loading-background']">
-                        <slot name="loading-background" />
-                      </template>
-                    </UpmBasketLoading>
-                  </template>
-                </Suspense>
-              </KeepAlive>
-            </Transition>
+                        <template
+                          #background
+                          v-if="$slots['loading-background']"
+                        >
+                          <slot name="loading-background" />
+                        </template>
+                      </UpmBasketLoading>
+                    </template>
+                  </Suspense>
+                </KeepAlive>
+              </Transition>
+            </UpmContent>
           </template>
-        </RouterView>
-      </component>
+        </slot>
+      </RouterView>
 
-      <UpmSessionExpired
-        :title="t('session.expired.title')"
-        :text="t('session.expired.text')"
-        :action="{
-          label: t('session.expired.actions.continue'),
-          color: 'primary',
-          handler: reload,
-          auto: true,
-        }"
-      />
+      <slot name="expired">
+        <UpmSessionExpired
+          :title="t('session.expired.title')"
+          :text="t('session.expired.text')"
+          :action="{
+            label: t('session.expired.actions.continue'),
+            color: 'primary',
+            handler: reload,
+            auto: true,
+          }"
+        />
+      </slot>
     </main>
 
     <slot name="footer" />
@@ -110,17 +121,14 @@ import {
   UpmSessionExpired,
   UpmBasketLoading,
   useRoutingEngine,
-  useSession,
 } from "@upmind-automation/client-vue";
-import UpmContent from "./content/Content.vue";
+import UpmContent from "./components/content/Content.vue";
 
 // --- types
-import { watch, type Component } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
   defineProps<{
-    contentComponent?: Component | string;
     theme: any;
     loadingPrimaryColor?: string;
     loadingSecondaryColor?: string;
@@ -128,7 +136,6 @@ const props = withDefaults(
   {
     loadingPrimaryColor: "base-foreground",
     loadingSecondaryColor: "secondary",
-    contentComponent: UpmContent,
   }
 );
 
