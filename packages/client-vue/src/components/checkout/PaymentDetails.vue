@@ -2,22 +2,25 @@
   <Accordion
     v-show="!meta.isFree"
     type="multiple"
-    class="flex flex-col gap-4"
+    :class="styles.checkout.accordion.root"
     collapsible
   >
     <template v-for="item in gateways" :key="item.id">
       <component
         :is="props.cardComponent"
-        :class="[!props.cardComponent && 'bg-base shadow-sm', props.class]"
+        :class="[
+          !props.cardComponent && styles.checkout.accordion.card,
+          props.class,
+        ]"
       >
         <AccordionItem
           :value="item.gateway_id"
-          class="border-none"
+          :class="styles.checkout.accordion.item"
           :open="item.gateway_id === model.gateway_id"
           :disabled="item.gateway_id === model.gateway_id"
         >
           <AccordionTrigger
-            class="text-emphasis-medium hover:text-primary flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
+            :class="styles.checkout.accordion.trigger.root"
             @click.stop="selectGateway(item.gateway_id)"
           >
             <GatewayTrigger v-bind="item" />
@@ -25,10 +28,12 @@
             <template #icon>
               <Icon
                 icon="arrow-down"
-                class="h-6 w-6 shrink-0 transition-transform duration-200"
-                :class="{
-                  'rotate-180': item.gateway_id === model.gateway_id,
-                }"
+                :class="[
+                  styles.checkout.accordion.trigger.icon,
+                  {
+                    'rotate-180': item.gateway_id === model.gateway_id,
+                  },
+                ]"
               />
             </template>
           </AccordionTrigger>
@@ -37,13 +42,12 @@
             :active="
               item.gateway_id === model.gateway_id && basketMeta.isProcessing
             "
-            class="text-secondary"
+            :class="styles.checkout.accordion.loading"
           >
-            <AccordionContent
-              class="border-base-muted flex flex-col border-t p-5 px-6 transition-all duration-300 md:p-8 md:px-9"
-            >
+            <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
-                :gateway="item"
+                :item="item"
+                :gateway="gateway"
                 :model="model"
                 :meta="meta"
                 :basket-meta="basketMeta"
@@ -60,7 +64,7 @@
   <component
     v-if="meta.isFree"
     :is="props.cardComponent"
-    :class="[!props.cardComponent && 'bg-base shadow-sm', props.class]"
+    :class="[!props.cardComponent && styles.checkout.isFree, props.class]"
   >
     <UpmPaymentNotRequired />
   </component>
@@ -73,6 +77,8 @@ import {
   useBasket,
 } from "@upmind-automation/client-vue";
 import { UpmPaymentNotRequired } from "@upmind-automation/client-vue";
+import config from "./config.cva";
+import { useStyles } from "@upmind-automation/upwind";
 
 // --- components
 import {
@@ -88,6 +94,7 @@ import GatewayContent from "./components/gateway/Content.vue";
 
 // --- types
 import type { PaymentDetailsProps } from "./types";
+import type { ComputedRef } from "vue";
 
 // --- utils
 import { set } from "lodash-es";
@@ -102,6 +109,27 @@ const props = withDefaults(defineProps<PaymentDetailsProps>(), {
 const { meta, model, gateway, input, gateways } = useBasketPaymentDetails();
 
 const { meta: basketMeta, checkout } = useBasket();
+
+const styles = useStyles(
+  ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
+  {},
+  config
+) as ComputedRef<{
+  checkout: {
+    accordion: {
+      root: string;
+      trigger: {
+        root: string;
+        icon: string;
+      };
+      item: string;
+      card: string;
+      loading: string;
+      content: string;
+    };
+    isFree: string;
+  };
+}>;
 
 const handleCheckout = () => {
   checkout();
