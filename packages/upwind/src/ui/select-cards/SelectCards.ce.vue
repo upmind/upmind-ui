@@ -20,6 +20,7 @@
         as-child
       >
         <Button
+          :id="`${name}-${overrideIndex}`"
           :loading="loading"
           :class="cn(variants.select.trigger, props.class)"
           :size="size"
@@ -27,12 +28,13 @@
           :color="color"
           :variant="variant"
           block
-          :tabindex="isSelected && radioGroup ? 0 : -1"
+          :tabindex="radioGroup ? 0 : -1"
           @focus="handleFocus"
           @keydown.prevent.enter="open = !open"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
+              ref="radioGroupItemRef"
               :id="
                 manuallySelected ? manuallySelected.value : first(items).value
               "
@@ -84,7 +86,10 @@
             @click="onChange(item.value)"
             @keydown.prevent.arrow-down="focusNextItem(index)"
             @keydown.prevent.arrow-up="focusPreviousItem(index)"
-            @keydown.prevent.enter="onChange(item.value)"
+            @keydown.prevent.enter="
+              onChange(item.value);
+              focusRadio();
+            "
             :ref="
               (el: HTMLElement) => {
                 if (el) itemRefs[index] = el;
@@ -205,7 +210,7 @@ const focusedElement = ref<HTMLElement | null>(null);
 
 const handleFocus = (event: FocusEvent) => {
   focusedElement.value = event.target as HTMLElement;
-  if (!props.radioGroup) {
+  if (!props.radioGroup && !find(props.items, { value: modelValue.value })) {
     modelValue.value = first(props.items)?.value;
   }
 };
@@ -274,8 +279,6 @@ const focusItem = (index: number) => {
   }
 };
 
-const focusFirstItem = () => focusItem(0);
-const focusLastItem = () => focusItem(itemRefs.value.length - 1);
 const focusNextItem = (currentIndex: number) => {
   const nextIndex = currentIndex + 1;
   if (nextIndex < itemRefs.value.length) {
@@ -286,6 +289,18 @@ const focusPreviousItem = (currentIndex: number) => {
   const previousIndex = currentIndex - 1;
   if (previousIndex >= 0) {
     focusItem(previousIndex);
+  } else {
+    focusRadio();
   }
 };
+
+const radioGroupItemRef = ref<HTMLElement | null>(null);
+
+function focusRadio() {
+  if (radioGroupItemRef.value) {
+    const { focused } = useFocus(radioGroupItemRef.value);
+    focused.value = true;
+    open.value = false;
+  }
+}
 </script>
