@@ -18,6 +18,8 @@
       <component
         :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
+        @keydown.prevent.arrow-down="radioGroup ? focusFirstItem() : null"
+        @keydown.prevent.arrow-up="radioGroup ? focusLastItem() : null"
       >
         <Button
           :id="`${name}-${overrideIndex}`"
@@ -30,16 +32,16 @@
           block
           :tabindex="radioGroup ? 0 : -1"
           @focus="handleFocus"
-          @keydown.prevent.enter="open = !open"
+          @keydown.prevent.enter="keyEnter"
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
               ref="radioGroupItemRef"
               :id="
-                manuallySelected ? manuallySelected.value : first(items).value
+                manuallySelected ? manuallySelected.value : first(items)?.value
               "
               :value="
-                manuallySelected ? manuallySelected.value : first(items).value
+                manuallySelected ? manuallySelected.value : first(items)?.value
               "
               :name="props.name"
               :required="props.required"
@@ -90,6 +92,7 @@
               onChange(item.value);
               focusRadio();
             "
+            :onKeyDown
             :ref="
               (el: HTMLElement) => {
                 if (el) itemRefs[index] = el;
@@ -125,7 +128,8 @@
 <script lang="ts" setup>
 // ---external
 import { ref, computed, watch, nextTick } from "vue";
-import { useVModel } from "@vueuse/core";
+import { onKeyDown, useVModel } from "@vueuse/core";
+import { vOnKeyStroke } from "@vueuse/components";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -257,19 +261,25 @@ if (props.required && !modelValue.value) {
 
 const itemRefs = ref<HTMLElement[]>([]);
 
-const handleOpenAutoFocus = (event: Event) => {
-  event.preventDefault();
-  const selectedItem = findIndex(
-    props.items,
-    item => item.value === modelValue.value
-  );
-  const index = selectedItem >= 0 ? selectedItem : 0;
-  if (itemRefs.value[index]) {
-    const { focused } = useFocus(itemRefs.value[index]);
-    focused.value = true;
-  }
+const handleOpenAutoFocus = (event?: Event) => {
+  event?.preventDefault();
+  // Wait for the next frame to focus the item (avoids race condition)
+  // nextTick doesn't guarantee any portal tasks have settled
+  requestAnimationFrame(() => {
+    const selectedItem = findIndex(
+      props.items,
+      item => item.value === modelValue.value
+    );
+    const index = selectedItem >= 0 ? selectedItem : 0;
+    if (itemRefs.value[index]) {
+      const { focused } = useFocus(itemRefs.value[index]);
+      focused.value = true;
+    }
+  });
 };
 
+const focusFirstItem = () => focusItem(0);
+const focusLastItem = () => focusItem(itemRefs.value.length - 1);
 const focusItem = (index: number) => {
   open.value = true;
   const item = itemRefs.value[index];
@@ -303,4 +313,9 @@ function focusRadio() {
     open.value = false;
   }
 }
+
+const keyEnter = () => {
+  open.value = !open.value;
+  handleOpenAutoFocus();
+};
 </script>
