@@ -30,7 +30,11 @@
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
         v-bind="props"
-        :currentClass="styles.product.config.grid.item.total"
+        :upwind-config="{
+          pricing: {
+            current: styles.product.config.grid.item.total,
+          },
+        }"
         show-cycle
       />
     </div>
@@ -48,8 +52,8 @@ import config from "./config.cva";
 
 // --- components
 import { Badge } from "@upmind-automation/upwind";
-import CurrentPrice from "./pricing/CurrentPrice.vue";
-import Pricing from "./pricing/Pricing.vue";
+import CurrentPrice from "../pricing/CurrentPrice.vue";
+import Pricing from "../pricing/Pricing.vue";
 
 // --- utils
 
