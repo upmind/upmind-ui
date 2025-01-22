@@ -1,5 +1,5 @@
 <template>
-  <UpmCard class="relative flex flex-col gap-y-4 !p-6 !py-7 md:!p-9 md:!py-10">
+  <UpmCard class="relative flex flex-col gap-y-3 p-6 md:gap-y-4 md:p-8">
     <!-- Main Product Summary Section -->
     <div class="flex flex-col md:gap-y-1">
       <!-- Product Header with Image and Main Info -->
@@ -64,6 +64,6 @@
 </template>
 
 <script lang="ts" setup>
-import { UpmCard } from "@upmind-automation/client-vue";
+import UpmCard from "../../content/Card.vue";
 import { Skeleton } from "@upmind-automation/upwind";
 </script>

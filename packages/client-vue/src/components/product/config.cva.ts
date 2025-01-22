@@ -282,7 +282,7 @@ export default {
               },
             },
           }),
-          discount: cva("text-emphasis-medium text-sm text-inherit"),
+          discount: cva("!text-emphasis-medium text-2xs text-inherit"),
         },
       },
       // ---

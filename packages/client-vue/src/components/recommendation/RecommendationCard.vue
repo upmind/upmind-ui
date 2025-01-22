@@ -149,6 +149,10 @@
 // --- external
 import { computed, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
+import UpmCard from "../content/Card.vue";
+import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
+import Promotion from "../basket/product/components/Promotion.vue";
+import type { Recommendation } from "@upmind-automation/headless-vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upwind";
