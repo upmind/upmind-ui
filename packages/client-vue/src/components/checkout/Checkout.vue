@@ -119,19 +119,16 @@ import {
   useSession,
   useBasket,
   useBasketBillingDetails,
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
 import config from "./config.cva.js";
 import { useStyles } from "@upmind-automation/upwind";
 
 // -- components
-import {
-  UpmSession,
-  UpmBillingDetails,
-  UpmBasketProcessing,
-  UpmPaymentDetails,
-  UpmSummary,
-  useBasketPaymentDetails,
-} from "@upmind-automation/client-vue";
+import UpmSession from "../session/Session.vue";
+import UpmBillingDetails from "./BillingDetails.vue";
+import UpmBasketProcessing from "../basket/Procesing.vue";
+import UpmPaymentDetails from "./PaymentDetails.vue";
+import UpmSummary from "../basket/Summary.vue";
 import UpmCard from "../content/Card.vue";
 import UpmContentSection from "../content/ContentSection.vue";
 import UpmBack from "../navigation/Back.vue";

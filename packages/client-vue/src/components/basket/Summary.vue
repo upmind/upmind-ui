@@ -148,7 +148,7 @@ import BasketPromotions from "./Promotions.vue";
 import SummarySkeleton from "./SummarySkeleton.vue";
 
 // --- internal
-import { useBasket } from "@upmind-automation/client-vue";
+import { useBasket } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
