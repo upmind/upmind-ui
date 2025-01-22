@@ -112,8 +112,8 @@
 <script lang="ts" setup>
 // --- components
 import UpmRequiredAlert from "./components/RequiredAlert.vue";
-import CurrentPrice from "../../product/pricing/CurrentPrice.vue";
-import ExPrice from "../../product/pricing/ExPrice.vue";
+import CurrentPrice from "../../pricing/CurrentPrice.vue";
+import ExPrice from "../../pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";

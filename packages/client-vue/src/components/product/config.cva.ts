@@ -272,7 +272,7 @@ export default {
           // ---
           title: cva("text-md m-0 text-nowrap font-medium text-inherit"),
           text: cva("text-emphasis-medium w-full text-xs"),
-          total: cva("text-inherit", {
+          total: cva("!leading-none text-inherit", {
             variants: {
               select: {
                 true: "",
