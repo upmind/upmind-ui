@@ -30,7 +30,7 @@ export const useCheckoutFlows = () => {
       },
       targets: {
         next: [ROUTE.ORDER],
-        back: [ROUTE.BASKET],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
           {
             name: ROUTE.EMPTY,

@@ -104,12 +104,9 @@ export const useBasket = () => {
     // --- meta functions
     isEmpty: () => {
       const state = service.getSnapshot();
-      const pendingProducts = state?.context?.items;
       const products = state?.context?.products;
       const basketId = state?.context?.basket?.id;
-      return (
-        isEmpty(basketId) || (isEmpty(pendingProducts) && isEmpty(products))
-      );
+      return isEmpty(basketId) || isEmpty(products);
     },
 
     isAvailable: () => {
