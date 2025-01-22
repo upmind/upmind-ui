@@ -9,7 +9,7 @@
       dragFree: true,
     }"
   >
-    <div v-if="active" class="flex justify-end space-x-2">
+    <div v-if="active" :class="styles.recommendation.carousel.navigation">
       <CarouselPrevious class="!static" />
       <CarouselNext class="!static" />
     </div>
@@ -21,7 +21,7 @@
       <CarouselItem
         v-for="recommendation in recommendations"
         :key="recommendation.id"
-        class="md:basis-1/2 xl:basis-1/3"
+        :class="styles.recommendation.carousel.item"
       >
         <RecommendationCardSkeleton v-if="recommendation.meta?.loading" />
         <RecommendationCard
@@ -44,7 +44,7 @@
     :title="t('recommendations.configuration.title')"
     :description="t('recommendations.configuration.description')"
     :dismissible="false"
-    class-footer="flex-row items-center justify-between gap-x-4"
+    :class-footer="styles.recommendation.carousel.footer"
   >
     <UpmProductConfig
       :item="basketItem"
@@ -83,6 +83,8 @@ import { nextTick, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { useStyles } from "@upmind-automation/upwind";
+import config from "./config.cva";
 import {
   useBasket,
   useRecommendationsEngine,
@@ -108,6 +110,7 @@ import { forEach } from "lodash-es";
 
 // --- types
 import type { CarouselApi } from "@upmind-automation/upwind";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -123,6 +126,20 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+const styles = useStyles(
+  ["recommendation.carousel"],
+  {},
+  config
+) as ComputedRef<{
+  recommendation: {
+    carousel: {
+      navigation: string;
+      item: string;
+      footer: string;
+    };
+  };
+}>;
 
 // --- basket setup
 const { meta, recommendations, add, basketItem, cancel, fetchRecommendation } =

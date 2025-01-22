@@ -1,14 +1,14 @@
 <template>
-  <div :class="styles.recommendation.benefit">
-    <span :class="styles.recommendation.benefitIconContainer">
+  <div :class="styles.recommendation.benefit.root">
+    <span :class="styles.recommendation.benefit.iconContainer">
       <Icon
         :icon="icon.icon && !iconError ? icon.icon : 'dot'"
-        :class="styles.recommendation.benefitIcon"
+        :class="styles.recommendation.benefit.icon"
         @error="iconError = true"
       />
     </span>
 
-    <p :class="styles.recommendation.benefitLabel">{{ label }}</p>
+    <p :class="styles.recommendation.benefit.label">{{ label }}</p>
   </div>
 </template>
 
@@ -18,12 +18,18 @@ import { Icon, type IconProps } from "@upmind-automation/upwind";
 import { useStyles } from "@upmind-automation/upwind";
 import config from "../config.cva";
 
-const styles = useStyles(["recommendation"], {}, config) as ComputedRef<{
+const styles = useStyles(
+  ["recommendation.benefit"],
+  {},
+  config
+) as ComputedRef<{
   recommendation: {
-    benefit: string;
-    benefitIconContainer: string;
-    benefitIcon: string;
-    benefitLabel: string;
+    benefit: {
+      root: string;
+      iconContainer: string;
+      icon: string;
+      label: string;
+    };
   };
 }>;
 
