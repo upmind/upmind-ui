@@ -10,7 +10,7 @@
       </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Badge color="promotion" :variant="variant" size="sm">
+        <Badge v-bind="badge">
           {{
             promotion.mixed || !promotion.amount
               ? t("product.promotion")
@@ -82,10 +82,14 @@ const props = withDefaults(
     }[];
     // ---
     select?: boolean;
-    variant?: BadgeProps["variant"];
+    badge?: BadgeProps;
   }>(),
   {
-    variant: "tonal",
+    badge: {
+      color: "promotion",
+      variant: "tonal",
+      size: "sm",
+    },
   }
 );
 
