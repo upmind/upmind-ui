@@ -1,30 +1,29 @@
 <template>
   <PaymentGateway
-    v-show="meta.hasGateway && gateway.gateway_id == model.gateway_id"
-    :id="gateway.gateway_id"
+    v-show="meta.hasGateway && gateway.id == model.gateway_id"
+    :id="gateway.id"
+    :class="styles.checkout.gateway"
     class="w-full"
   />
 
-  <footer
-    class="flex flex-col items-stretch justify-start space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0"
-    v-auto-animate
-  >
+  <footer :class="styles.checkout.footer" v-auto-animate>
     <Button
       :disabled="!basketMeta.isReadyForCheckout || meta.isProcessing"
       :loading="basketMeta.isProcessingDetails"
+      :color="color"
       @click.prevent="handleCheckout"
       :label="getGatewayi18n('actions.submit')"
-      class="block w-full self-center md:inline-block md:w-auto"
+      :class="styles.checkout.action"
     />
 
     <div
       v-if="!getGatewayi18n('footer.title').includes('basket')"
-      class="bg-base-background text-primary flex items-center justify-center space-x-2 self-stretch px-4 py-2 md:py-0"
+      :class="styles.checkout.additional"
     >
       <Icon :icon="getGatewayi18n('footer.icon')" class="size-3" />
-      <div class="text-xs">
+      <span>
         {{ getGatewayi18n("footer.title") }}
-      </div>
+      </span>
     </div>
   </footer>
 </template>
@@ -34,12 +33,27 @@
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
+// --- internal
+import config from "../../config.cva";
+import { useStyles } from "@upmind-automation/upwind";
+
 // --- components
-import { Icon } from "@upmind-automation/upwind";
+import { Icon, Button } from "@upmind-automation/upwind";
 import PaymentGateway from "../../PaymentGateway.vue";
+
+// --- types
+import type { ComputedRef } from "vue";
 
 // --- props
 const props = defineProps<{
+  item: {
+    gateway: {
+      type: number;
+      gateway_provider: {
+        code: string;
+      };
+    };
+  };
   meta: {
     hasGateway: boolean;
     isProcessing: boolean;
@@ -52,11 +66,11 @@ const props = defineProps<{
     gateway_id: string;
   };
   gateway: {
-    gateway_id: string;
-    type: number;
+    id: string;
     gateway_provider: {
       code: string;
     };
+    type: number;
   };
   // ---
   color?: string;
@@ -66,10 +80,20 @@ const { t, te } = useI18n();
 
 const emit = defineEmits(["checkout"]);
 
+const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
+  checkout: {
+    gateway: string;
+    content: string;
+    footer: string;
+    action: string;
+    additional: string;
+  };
+}>;
+
 // TODO: Import gateway type from machine (we don't have it yet)
 const getGatewayi18n = (property: string) => {
-  const type = props.gateway.type;
-  const code = props.gateway.gateway_provider?.code;
+  const type = props.item.gateway.type;
+  const code = props.item.gateway.gateway_provider?.code;
   if (type === 1) {
     const codeKey = `basket.${code}.${property}`;
     if (te(codeKey)) return t(codeKey);

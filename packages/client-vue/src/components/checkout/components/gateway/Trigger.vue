@@ -1,6 +1,6 @@
 <template>
-  <header class="flex w-full items-center justify-between space-x-2">
-    <h5 class="text-primary text-left text-sm leading-tight no-underline">
+  <header :class="styles.checkout.header">
+    <h5 :class="styles.checkout.title">
       {{ gateway.name }}
     </h5>
 
@@ -8,7 +8,7 @@
       v-if="!hasImgError"
       :src="`/gateways/${gateway_id}.png`"
       :alt="gateway.name"
-      class="m-0 h-6 md:h-7"
+      :class="styles.checkout.image"
       @error="hasImgError = true"
     />
   </header>
@@ -18,6 +18,13 @@
 // --- external
 import { ref } from "vue";
 
+// --- internal
+import config from "../../config.cva";
+import { useStyles } from "@upmind-automation/upwind";
+
+// --- types
+import type { ComputedRef } from "vue";
+
 // --- props
 defineProps<{
   gateway: {
@@ -25,6 +32,14 @@ defineProps<{
   };
   gateway_id: string;
 }>();
+
+const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
+  checkout: {
+    header: string;
+    title: string;
+    image: string;
+  };
+}>;
 
 const hasImgError = ref(false);
 </script>
