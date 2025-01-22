@@ -42,7 +42,7 @@ import { some } from "lodash-es";
 import DetailsItem from "./DetailsItem.vue";
 
 // --- types
-import type { BasketProductSummaryDetail } from "@upmind-automation/client-vue";
+import type { BasketProductSummaryDetail } from "@upmind-automation/headless-vue";
 
 const props = defineProps<{
   id: string;
