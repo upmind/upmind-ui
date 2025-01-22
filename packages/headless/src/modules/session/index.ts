@@ -219,18 +219,18 @@ export const useSession = () => {
     ).then(newState => newState.context.transfer);
   }
 
-  function reset() {
-    // TODO: remove/delete any session/local storage data
+  // function reset() {
+  //   // TODO: remove/delete any session/local storage data
 
-    // @ts-ignore
-    const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
-    // on session end first try to redirect to the storefront, otherwise just reload the app
-    if (storefrontUrl) {
-      window?.location?.replace(storefrontUrl);
-    } else {
-      window.location.reload();
-    }
-  }
+  //   // @ts-ignore
+  //   const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+  //   // on session end first try to redirect to the storefront, otherwise just reload the app
+  //   if (storefrontUrl) {
+  //     window?.location?.replace(storefrontUrl);
+  //   } else {
+  //     window.location.reload();
+  //   }
+  // }
   // --------------------------------------------------------
 
   return {
@@ -261,7 +261,6 @@ export const useSession = () => {
     verifyReCaptcha,
     logout,
     transfer,
-    reset,
     reauth: () => service.send({ type: "EXPIRED" }),
   };
 };
