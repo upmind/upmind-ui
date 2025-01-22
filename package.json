@@ -47,6 +47,7 @@
     "dompurify": "^3.1.6",
     "embla-carousel-vue": "^8.5.1",
     "flag-icons": "^7.1.0",
+    "libphonenumber-js": "^1.11.18",
     "lodash-es": "^4.17.21",
     "lottie-web": "^5.12.2",
     "lucide-react": "^0.447.0",
