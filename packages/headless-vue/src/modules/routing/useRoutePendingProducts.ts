@@ -2,35 +2,27 @@
 import { useRoute } from "vue-router";
 
 // --- internal
+import type { Route } from "@upmind-automation/headless";
 import { useRoutingEngine } from "@upmind-automation/headless";
 // import { useBasket } from "../basket";
 
 // --- utils
-import {
-  concat,
-  find,
-  first,
-  forEach,
-  get,
-  has,
-  includes,
-  isEmpty,
-  map,
-  merge,
-  omit,
-  reject,
-  set,
-  unset,
-  values,
-} from "lodash-es";
 import { computed } from "vue";
+import { defaultsDeep } from "lodash-es";
 
 // --- types
 
 // -----------------------------------------------------------------------------
-export const useProductsPending = () => {
-  const { path, name, query, params } = useRoute();
-  const route = {
+export const useProductsPending = (route?: Route) => {
+  const safeRoute = defaultsDeep(route || useRoute(), {
+    name: undefined,
+    path: undefined,
+    query: undefined,
+    params: undefined,
+  });
+  const { path, name, query, params } = safeRoute;
+
+  const parsedRoute = {
     name: name?.toString(),
     path,
     query,
@@ -46,7 +38,7 @@ export const useProductsPending = () => {
     setPendingProduct,
     unsetPendingProduct,
     syncPendingProducts,
-  } = usePendingProducts(route);
+  } = usePendingProducts(parsedRoute);
 
   // ---
 

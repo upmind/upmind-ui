@@ -87,7 +87,7 @@
           :action="{
             label: t('session.expired.actions.continue'),
             color: 'primary',
-            handler: reload,
+            handler: refresh,
             auto: true,
           }"
         />
@@ -143,9 +143,5 @@ const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
 
 // setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
-const { meta } = useRoutingEngine();
-
-function reload() {
-  window.location.reload();
-}
+const { meta, refresh } = useRoutingEngine();
 </script>

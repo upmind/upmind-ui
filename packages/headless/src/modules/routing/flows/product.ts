@@ -1,67 +1,31 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
+// import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket } from "../../basket";
-import { useRoutingEngine } from "..";
+import { useRoutePendingProducts, useRoutingEngine } from "..";
 
 // --- utils
 import { useRouteQueryParams, useRouteRequiresAction } from "../";
-import { uniqBy, find, isEmpty, get, set } from "lodash-es";
+import { uniqBy, isEmpty, set } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
-import type { ProductModel } from "../../product/types";
 
 // -----------------------------------------------------------------------------
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
-  const { addItem, getPendingProducts, getProducts } = useBasket();
 
   let flows: Flow[] = [
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
-        // do logic to determine if we can transition to this node
         const { productId } = useRouteQueryParams(route);
-
-        if (productId) {
-          const productsPending = getPendingProducts();
-          const basketItem = find(productsPending, [
-            "state.context.model.productId",
-            productId,
-          ]);
-
-          if (!isEmpty(basketItem)) {
-            return true;
-          } else {
-            // if we have a product id but no basket item, we need to add it
-            const pendingBasketItems = getPendingProducts();
-            const model = get(pendingBasketItems, productId, {
-              productId,
-              quantity: 1,
-            }) as ProductModel;
-            // Try add the item to the basket, if it has an error, then the route is invalid
-            const valid = await addItem(model)
-              .then(async actor => {
-                return waitFor(
-                  actor,
-                  state => !["loading", "subscribing"].some(state.matches),
-                  { timeout: Infinity }
-                ).then(state => {
-                  return !state.matches("error");
-                });
-              })
-              .catch(() => {
-                return false;
-              });
-
-            return valid;
-          }
-        } else {
-          return false;
-        }
+        const { getPendingProduct } = useRoutePendingProducts(route);
+        const valid = await getPendingProduct(productId, true)
+          .then(() => true)
+          .catch(() => false);
+        return valid;
       },
       targets: {
         next: [
@@ -79,13 +43,11 @@ export const useProductFlows = () => {
       name: ROUTE.PRODUCT_EDIT,
       guard: async (route: Route) => {
         const { basketProductId } = useRouteQueryParams(route);
-        if (basketProductId) {
-          const products = getProducts();
-          const basketItem = find(products, ["id", basketProductId]);
-          return !isEmpty(basketItem);
-        } else {
-          return false;
-        }
+        const { getBasketProduct } = useRoutePendingProducts(route);
+        const valid = await getBasketProduct(basketProductId)
+          .then(() => true)
+          .catch(() => false);
+        return valid;
       },
       targets: {
         next: [
