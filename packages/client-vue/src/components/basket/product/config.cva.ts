@@ -32,8 +32,8 @@ export default {
     },
 
     pricing: {
-      currentPrice: cva("text-lg font-semibold leading-7 md:text-xl"),
-      exPrice: cva("!text-sm italic leading-5"),
+      current: cva("text-lg font-semibold !leading-7 md:text-xl"),
+      ex: cva("!text-sm italic !leading-5"),
     },
   },
 };

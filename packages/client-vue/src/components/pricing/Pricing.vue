@@ -1,6 +1,6 @@
 <template>
-  <ExPrice v-bind="props" :upwind-config="upwindConfig" />
-  <CurrentPrice v-bind="props" :upwind-config="upwindConfig" />
+  <ExPrice v-bind="props" />
+  <CurrentPrice v-bind="props" />
 </template>
 
 <script setup lang="ts">
