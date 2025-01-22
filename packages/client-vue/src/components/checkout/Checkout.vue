@@ -119,6 +119,7 @@ import {
   useSession,
   useBasket,
   useBasketBillingDetails,
+  useBasketPaymentDetails,
 } from "@upmind-automation/headless-vue";
 import config from "./config.cva.js";
 import { useStyles } from "@upmind-automation/upwind";
