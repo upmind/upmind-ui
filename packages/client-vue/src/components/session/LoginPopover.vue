@@ -21,7 +21,7 @@
 import { ref } from "vue";
 
 // --- components
-import { UpmSession } from "@upmind-automation/client-vue";
+import UpmSession from "./Session.vue";
 
 import {
   Popover,
