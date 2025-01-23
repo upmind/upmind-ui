@@ -1,6 +1,9 @@
 <template>
-  <Icon v-if="meta.showFallback" v-bind="props" :icon="fallbackIcon" />
-  <Icon v-if="!meta.showFallback" v-bind="props" @error="iconError = true" />
+  <Icon
+    v-bind="props"
+    :icon="meta.fallbackIcon || props.icon"
+    @error="iconError = true"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -13,6 +16,7 @@ const props = defineProps<IconProps>();
 const iconError = ref(false);
 
 const meta = computed(() => ({
-  showFallback: iconError.value && props.fallbackIcon,
+  fallbackIcon:
+    props.fallbackIcon && iconError.value ? props.fallbackIcon : null,
 }));
 </script>
