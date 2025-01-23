@@ -6,7 +6,7 @@
   >
     <slot name="header" />
 
-    <main class="w-full flex-1 overflow-hidden">
+    <main class="w-full flex-1">
       <RouterView v-slot="{ Component }" :key="$route.fullPath">
         <template v-if="Component">
           <component :is="props.contentComponent">
