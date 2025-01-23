@@ -92,7 +92,6 @@
               onChange(item.value);
               focusRadio();
             "
-            :onKeyDown
             :ref="
               (el: HTMLElement) => {
                 if (el) itemRefs[index] = el;
@@ -128,8 +127,7 @@
 <script lang="ts" setup>
 // ---external
 import { ref, computed, watch, nextTick } from "vue";
-import { onKeyDown, useVModel } from "@vueuse/core";
-import { vOnKeyStroke } from "@vueuse/components";
+import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -238,7 +236,6 @@ watch(
 );
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
-const isSelected = computed(() => selected.value?.value === modelValue.value);
 
 const manuallySelected = computed(() => {
   return selected.value && selected.value !== first(props.items)
@@ -264,7 +261,7 @@ const itemRefs = ref<HTMLElement[]>([]);
 const handleOpenAutoFocus = (event?: Event) => {
   event?.preventDefault();
   // Wait for the next frame to focus the item (avoids race condition)
-  // nextTick doesn't guarantee any portal tasks have settled
+  // nextTick doesn't guarantee portal tasks have settled
   requestAnimationFrame(() => {
     const selectedItem = findIndex(
       props.items,
