@@ -360,6 +360,14 @@ export const useBasket = () => {
           type: "ADD",
           data: config,
         });
+
+        // then we check if we are still generating the basket ( happens when adding the first item )
+        if (service.getSnapshot().matches("generating")) {
+          await waitFor(service, state => state.matches("shopping"), {
+            timeout: Infinity,
+          });
+        }
+
         // then wait/check for the new product actor to be configured
         // then send the update event to the basket
         const items = service.getSnapshot()?.context?.items;

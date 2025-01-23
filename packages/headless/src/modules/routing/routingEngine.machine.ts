@@ -155,7 +155,7 @@ export default createMachine(
     on: {
       REFRESH: [
         {
-          actions: ["calculating"],
+          actions: ["setBasket"],
           cond: "hasBasketChanged",
         },
         { actions: ["setBasket"] },
@@ -200,8 +200,8 @@ export default createMachine(
           return value;
         },
         currentRoute: (_context, { data }: AnyEventObject) => {
-          const flow = get(data, "route", data);
-          return flow;
+          const route = get(data, "route", data);
+          return route;
         },
       }),
 

@@ -20,6 +20,9 @@ export enum ROUTE {
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
+  // --- express routes
+  EXPRESS_PRODUCT_ADD = "express.product.add",
+  EXPRESS_CHECKOUT = "express.checkout",
 }
 
 export enum REQUIRES_ACTION {
@@ -33,6 +36,9 @@ export type Route = {
   name?: string;
   params?: Record<string, string | string[]>;
   query?: Record<string, any>;
+  meta?: {
+    [key: string]: any; // allow for any meta data to help enhance the route/navigation
+  };
 };
 
 export type Target =
@@ -41,12 +47,19 @@ export type Target =
       name: ROUTE;
       guard?: (route: Route, data?: any) => Promise<boolean>;
       resolve?: (route: Route, data?: any) => Promise<Route>;
+      meta?: {
+        [key: string]: any; // allow for any  meta data
+      };
     };
 
 export interface Flow {
   name: ROUTE;
   guard?: (route: Route, data?: any) => Promise<boolean>;
   resolve?: (route: Route, data?: any) => Promise<Route>;
+  meta?: {
+    replace?: boolean; // this is so we know to replace the current route instead of redirecting
+    [key: string]: any; // allow for any other meta data
+  };
   targets?: {
     next?: Target[];
     back?: Target[];

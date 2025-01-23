@@ -16,7 +16,7 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import { ROUTE } from "./types";
+import type { ROUTE } from "./types";
 import type { Route, Target, Flow, RoutingEngineContext } from "./types";
 
 // --- Helper functios/utils
@@ -68,60 +68,71 @@ function mapTargets(targets: Target[], flows: Flow[]): Flow[] {
 // ---
 
 async function calculateNextRoute(
-  context: RoutingEngineContext,
+  { flows }: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
-  const { flows } = context;
   const route = data.route as Route;
   const event = data.event as any;
-  const currentFlow = get(
-    context,
-    "currentFlow",
-    find(context.flows, ["name", route?.name])
-  );
+
+  // get the current flow based on the passed route
+  const currentFlow = find(flows, ["name", route?.name]);
+
   const targets = mapTargets(currentFlow?.targets?.next || [], flows);
+
   if (isEmpty(targets)) return Promise.reject();
+
   return matchTargets(targets, route, event).then(flow => {
-    return resolve(context, {
-      type: "RESOLVE",
-      data: {
-        flow,
-        route,
-        event,
+    return resolve(
+      {
+        flows,
+        currentFlow,
       },
-    });
+      {
+        type: "RESOLVE",
+        data: {
+          flow,
+          route,
+          event,
+        },
+      }
+    );
   });
 }
 
 async function calculateBackRoute(
-  context: RoutingEngineContext,
+  { flows }: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
-  const { flows } = context;
   const route = data.route as Route;
   const event = data.event as any;
 
-  const currentFlow = get(
-    context,
-    "currentFlow",
-    find(context.flows, ["name", route?.name])
-  );
+  // get the current flow based on the passed route
+  const currentFlow = find(flows, ["name", route?.name]);
 
   const targets = mapTargets(currentFlow?.targets?.back || [], flows);
 
+  if (isEmpty(targets)) return Promise.reject();
+
   return matchTargets(targets, route, event).then(flow => {
-    return resolve(context, {
-      type: "RESOLVE",
-      data: {
-        flow,
-        route,
+    return resolve(
+      {
+        flows,
+        currentFlow,
       },
-    });
+      {
+        type: "RESOLVE",
+        data: {
+          flow,
+          route,
+          event,
+        },
+      }
+    );
   });
 }
 
 async function resolve(
-  { currentFlow, basketHelper, flows }: RoutingEngineContext,
+  { currentFlow, flows }: RoutingEngineContext,
   { data }: AnyEventObject
 ) {
   // ---
@@ -142,15 +153,12 @@ async function resolve(
       const targets = mapTargets(target?.targets?.fallback || [], flows);
       const flow: Flow | undefined = valid
         ? target
-        : await matchTargets(targets, route, event).catch(() => {
-            const basket = basketHelper?.getSnapshot();
-            if (isEmpty(basket?.context?.products)) {
-              return find(flows, ["name", ROUTE.EMPTY]);
-            }
-
-            // if we get to this point and we still dont have a target, then we need to bail
-            return undefined;
-          });
+        : await matchTargets(targets, route, event)
+            .then(fallback => {
+              fallback.meta = { fallback: true };
+              return fallback;
+            })
+            .catch(() => undefined);
 
       return flow;
     }
@@ -175,8 +183,10 @@ async function resolveRoute(
   event?: any
 ): Promise<Route> {
   return isFunction(flow?.resolve)
-    ? flow.resolve(route, event)
-    : Promise.resolve({ name: flow.name });
+    ? flow
+        .resolve(route, event)
+        .then(resolved => ({ ...resolved, meta: flow?.meta }))
+    : Promise.resolve({ name: flow.name, meta: flow?.meta });
 }
 
 // --------------------------------------------------------

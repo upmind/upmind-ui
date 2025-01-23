@@ -55,7 +55,11 @@ export const useRoutingEngine = () => {
     )
       .then((response: Route | undefined) => {
         if (response) {
-          router.push(response);
+          if (response?.meta?.replace) {
+            router.replace(response);
+          } else {
+            router.push(response);
+          }
         }
       })
       .catch((error: any) => {
@@ -78,7 +82,11 @@ export const useRoutingEngine = () => {
     )
       .then((response: Route | undefined) => {
         if (response) {
-          router.push(response);
+          if (response?.meta?.replace) {
+            router.replace(response);
+          } else {
+            router.push(response);
+          }
         }
       })
       .catch((error: any) => {
@@ -106,7 +114,11 @@ export const useRoutingEngine = () => {
     )
       .then((response: Route | undefined) => {
         if (response) {
-          router.push(response);
+          if (response?.meta?.replace) {
+            router.replace(response);
+          } else {
+            router.push(response);
+          }
         }
       })
       .catch((error: any) => {
@@ -139,7 +151,11 @@ export const useRoutingEngine = () => {
     )
       .then((response: Route | undefined) => {
         if (response) {
-          router.push(response);
+          if (response?.meta?.replace) {
+            router.replace(response);
+          } else {
+            router.push(response);
+          }
         }
       })
       .catch((error: any) => {
