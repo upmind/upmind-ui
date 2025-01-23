@@ -1,106 +1,18 @@
 <template>
-  <!--<link rel="stylesheet" :href="stylesheet" />-->
-
-  <i
-    v-if="svg"
-    class="icon"
-    :class="cn(variants.icon, props.class)"
-    v-html="svg"
-    role="img"
-    :aria-label="`${isObject(icon) ? icon.name : icon} icon`"
-  />
+  <Icon v-if="meta.showFallback" v-bind="props" :icon="fallbackIcon" />
+  <Icon v-if="!meta.showFallback" v-bind="props" @error="iconError = true" />
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed, ref, watchEffect } from "vue";
+import { ref, computed } from "vue";
+import Icon from "./Icon.vue";
+import { type IconProps } from "./types";
 
-// --- internal
+const props = defineProps<IconProps>();
 
-import {
-  useStyles,
-  cn,
-  //stylesheet
-} from "../../utils";
-import config from "./icon.config";
-
-// --- utils
-import { find, isObject, endsWith, isEmpty } from "lodash-es";
-
-// --- types
-import type { ComputedRef } from "vue";
-import type { IconProps } from ".";
-
-// ----------------------------------------------
-
-const props = withDefaults(defineProps<IconProps>(), {
-  //  --- variants
-  size: "auto",
-  // --- styles
-  upwindConfig: () => ({ icon: {} }),
-  class: "",
-});
-
-// Add emit definition
-const emit = defineEmits<{
-  error: [Error];
-}>();
+const iconError = ref(false);
 
 const meta = computed(() => ({
-  size: props.size,
-  // ---
-  hasIcon: !isEmpty(props.icon),
+  showFallback: iconError.value && props.fallbackIcon,
 }));
-
-const variants = useStyles(
-  "icon",
-  meta,
-  config,
-  props.upwindConfig ?? {}
-) as ComputedRef<{ icon: string }>;
-
-const icons = import.meta.glob("@icons/**/*.svg", {
-  query: "?raw",
-  eager: false,
-  import: "default",
-});
-
-const svg = ref();
-
-watchEffect(async () => {
-  const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
-  const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
-
-  const exactMatch = find(icons, (fn, iconPath) => {
-    const pathParts = iconPath.split("/");
-    const fileName = pathParts[pathParts.length - 1];
-    return fileName === `${safeName}.svg`;
-  });
-
-  const asyncImport =
-    exactMatch ||
-    find(icons, (fn, iconPath) =>
-      endsWith(iconPath, `${safePath}${safeName}.svg`)
-    );
-
-  if (!asyncImport) {
-    console.warn("icon", "import not found", {
-      icon: props.icon,
-      icons,
-    });
-    emit("error", new Error(`Icon not found: ${safeName}`));
-    svg.value = null;
-    return;
-  }
-
-  svg.value = await asyncImport().catch(error => {
-    console.error("icon", "import error", {
-      icon: props.icon,
-      error,
-      icons,
-    });
-    emit("error", new Error(`Failed to process content: ${safeName}`));
-    return null;
-  });
-});
 </script>
