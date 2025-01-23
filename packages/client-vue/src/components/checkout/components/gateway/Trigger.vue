@@ -1,12 +1,12 @@
 <template>
-  <header :class="styles.checkout.header">
+  <header :class="styles.checkout.accordion.trigger.header">
     <h5 :class="styles.checkout.title">
       {{ gateway.name }}
     </h5>
 
     <img
-      v-if="!hasImgError"
-      :src="`/gateways/${gateway_id}.png`"
+      v-if="!hasImgError && gateway?.gateway_provider?.code"
+      :src="`/gateways/${gateway?.gateway_provider?.code}.svg`"
       :alt="gateway.name"
       :class="styles.checkout.image"
       @error="hasImgError = true"
@@ -29,9 +29,17 @@ import type { GatewayTriggerProps } from "./types";
 // --- props
 defineProps<GatewayTriggerProps>();
 
-const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
+const styles = useStyles(
+  ["checkout", "checkout.accordion.trigger"],
+  {},
+  config
+) as ComputedRef<{
   checkout: {
-    header: string;
+    accordion: {
+      trigger: {
+        header: string;
+      };
+    };
     title: string;
     image: string;
   };

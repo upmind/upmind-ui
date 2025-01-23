@@ -32,6 +32,9 @@ export interface GatewayContentProps {
 export interface GatewayTriggerProps {
   gateway: {
     name: string;
+    gateway_provider: {
+      code: string;
+    };
   };
   gateway_id: string;
 }

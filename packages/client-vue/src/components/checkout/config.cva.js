@@ -26,7 +26,7 @@ export default {
           "text-emphasis-medium hover:text-primary flex items-center justify-between space-x-2 p-4 px-6 transition-all duration-300 hover:no-underline md:p-5 md:px-9"
         ),
         icon: cva("h-6 w-6 shrink-0 transition-transform duration-200"),
-        header: cva("flex items-center justify-between space-x-2"),
+        header: cva("flex w-full items-center justify-between space-x-2"),
       },
       item: cva("border-none"),
       card: cva("bg-base shadow-sm"),
