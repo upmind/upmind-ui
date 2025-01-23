@@ -64,6 +64,6 @@
 </template>
 
 <script lang="ts" setup>
-import { UpmCard } from "@upmind-automation/client-vue";
+import UpmCard from "../../content/Card.vue";
 import { Skeleton } from "@upmind-automation/upwind";
 </script>

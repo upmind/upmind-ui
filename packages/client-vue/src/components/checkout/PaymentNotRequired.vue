@@ -27,7 +27,7 @@ import { Button } from "@upmind-automation/upwind";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket } from "@upmind-automation/client-vue";
+import { useBasket } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();

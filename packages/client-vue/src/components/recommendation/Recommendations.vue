@@ -86,8 +86,8 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useRecommendationsEngine,
-  UpmProductConfig,
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
+import UpmProductConfig from "../product/Config.vue";
 
 // --- components
 import {
