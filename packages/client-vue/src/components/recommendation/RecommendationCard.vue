@@ -5,7 +5,7 @@
   >
     <Badge
       v-if="badge"
-      :label="badge"
+      v-bind="badge"
       variant="flat"
       size="lg"
       :class="styles.recommendation.badge"
@@ -155,7 +155,13 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upwind";
+import {
+  Button,
+  Lineclamp,
+  Icon,
+  Badge,
+  type BadgeProps,
+} from "@upmind-automation/upwind";
 import { UpmCard } from "@upmind-automation/client-vue";
 import Promotion from "../basket/product/components/Promotion.vue";
 import RecommendationBenefit from "./components/Benefit.vue";
@@ -170,7 +176,7 @@ const { t } = useI18n();
 const props = defineProps<
   Recommendation & {
     disabled?: boolean;
-    badge?: string;
+    badge?: BadgeProps;
     benefits?: Benefit[];
   }
 >();
