@@ -177,14 +177,6 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   contentClass: "",
 });
 
-const emits = defineEmits(["update:modelValue"]);
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue,
-});
-
-const open = ref(false);
-
 const meta = computed(() => ({
   color: props.color,
   collapsible: props.collapsible,
@@ -208,20 +200,17 @@ const variants = useStyles(
   };
 }>;
 
+const emits = defineEmits(["update:modelValue"]);
+const modelValue = useVModel(props, "modelValue", emits, {
+  passive: true,
+  defaultValue: props.defaultValue,
+});
+
+const open = ref(false);
+const selected = computed(() => find(props.items, { value: modelValue.value }));
 const focusedElement = ref<HTMLElement | null>(null);
-
-const handleFocus = (event: FocusEvent) => {
-  focusedElement.value = event.target as HTMLElement;
-  if (!props.radioGroup && !find(props.items, { value: modelValue.value })) {
-    modelValue.value = first(props.items)?.value;
-  }
-};
-
-const handleBlur = () => {
-  if (!props.disabled) {
-    focusedElement.value = null;
-  }
-};
+const itemRefs = ref<HTMLElement[]>([]);
+const radioGroupItemRef = ref<HTMLElement | null>(null);
 
 watch(
   () => props.disabled,
@@ -235,7 +224,18 @@ watch(
   }
 );
 
-const selected = computed(() => find(props.items, { value: modelValue.value }));
+const handleFocus = (event: FocusEvent) => {
+  focusedElement.value = event.target as HTMLElement;
+  if (!props.radioGroup && !find(props.items, { value: modelValue.value })) {
+    modelValue.value = first(props.items)?.value;
+  }
+};
+
+const handleBlur = () => {
+  if (!props.disabled) {
+    focusedElement.value = null;
+  }
+};
 
 const manuallySelected = computed(() => {
   return selected.value && selected.value !== first(props.items)
@@ -255,8 +255,6 @@ function onChange(value: any) {
 if (props.required && !modelValue.value) {
   emits("update:modelValue", first(props.items)?.value);
 }
-
-const itemRefs = ref<HTMLElement[]>([]);
 
 const handleOpenAutoFocus = (event?: Event) => {
   event?.preventDefault();
@@ -300,8 +298,6 @@ const focusPreviousItem = (currentIndex: number) => {
     focusRadio();
   }
 };
-
-const radioGroupItemRef = ref<HTMLElement | null>(null);
 
 function focusRadio() {
   if (radioGroupItemRef.value) {
