@@ -315,7 +315,7 @@ function focusRadio() {
 }
 
 const keyEnter = () => {
-  open.value = !open.value;
+  if (props.collapsible) open.value = !open.value;
   handleOpenAutoFocus();
 };
 </script>
