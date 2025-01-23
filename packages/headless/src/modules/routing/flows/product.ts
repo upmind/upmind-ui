@@ -1,12 +1,15 @@
 // --- external
-// import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useRoutePendingProducts, useRoutingEngine } from "..";
+import {
+  useRoutePendingProducts,
+  useRoutingEngine,
+  useRouteQueryParams,
+  useRouteRequiresAction,
+} from "..";
 
 // --- utils
-import { useRouteQueryParams, useRouteRequiresAction } from "../";
-import { uniqBy, isEmpty, set } from "lodash-es";
+import { uniqBy, set } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
@@ -20,8 +23,12 @@ export const useProductFlows = () => {
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
+        //  ensure we sync the pending products, if any
+        const { getPendingProduct, syncPendingProducts } =
+          useRoutePendingProducts(route);
+
+        await Promise.all(syncPendingProducts());
         const { productId } = useRouteQueryParams(route);
-        const { getPendingProduct } = useRoutePendingProducts(route);
         const valid = await getPendingProduct(productId, true)
           .then(() => true)
           .catch(() => false);
