@@ -54,6 +54,16 @@ export const useRoutingEngine = () => {
       const flows = get(state, "context.flows", []);
       return some(flows, flow => flow.name === name);
     },
+    currentFlow: () => {
+      const state = service.getSnapshot();
+      const currentFlow = get(state, "context.currentFlow");
+      return currentFlow;
+    },
+    currentRoute: () => {
+      const state = service.getSnapshot();
+      const currentRoute = get(state, "context.currentRoute");
+      return currentRoute;
+    },
     // --- methods
     register: (flows: Flow[]) => {
       service.send({ type: "REGISTER", data: flows });

@@ -12,7 +12,7 @@ import { useBasket } from "../basket";
 
 // --- utils
 
-import { isEmpty, get } from "lodash-es";
+import { isEmpty, get, defaultsDeep } from "lodash-es";
 
 // --- types
 import type { Route } from "@upmind-automation/headless";
@@ -184,6 +184,7 @@ export const useRoutingEngine = () => {
     // ---
     flows: computed(() => state.value.context.flows),
     currentFlow: computed(() => state.value.context.currentFlow),
+    currentRoute: computed(() => state.value.context.currentRoute),
     // ---
     errors: computed(() => state.value.context?.error),
     //messages: computed(() => state.value.context?.messages),
@@ -199,7 +200,9 @@ export const useRoutingEngine = () => {
     // ---
     exists,
     next,
+    resolveNext,
     back,
+    resolveBack,
     refresh,
     navigate,
     resolve,
