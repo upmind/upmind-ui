@@ -46,9 +46,8 @@ export default {
     badge: cva("absolute left-4 -translate-y-1/2 !text-sm ring-1 ring-white"),
 
     benefit: {
-      root: cva("text-base-foreground flex items-start gap-2 leading-tight"),
-      iconContainer: cva("text-secondary flex-shrink-0"),
-      icon: cva("size-5"),
+      root: cva("text-base-foreground flex items-start gap-2 leading-tight "),
+      icon: cva("text-secondary size-5 flex-shrink-0"),
       label: cva("m-0"),
     },
 
