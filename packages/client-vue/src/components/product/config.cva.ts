@@ -261,7 +261,7 @@ export default {
               },
             },
           }),
-          footer: cva("flex font-medium leading-none tracking-wide", {
+          footer: cva("flex", {
             variants: {
               select: {
                 false: "w-full flex-col gap-y-1.5 self-end",
@@ -271,10 +271,8 @@ export default {
           }),
           // ---
           title: cva("text-md m-0 text-nowrap font-medium text-inherit"),
-          text: cva(
-            "text-emphasis-medium m-0 block w-full flex-none text-sm font-medium"
-          ),
-          total: cva("font-medium text-inherit", {
+          text: cva("text-emphasis-medium w-full text-xs"),
+          total: cva("!leading-none text-inherit", {
             variants: {
               select: {
                 true: "",
@@ -327,6 +325,11 @@ export default {
       ),
       avatar: cva("bg-primary text-primary-foreground size-20 p-2"),
       actions: cva("flex w-full justify-center"),
+    },
+
+    pricing: {
+      exPrice: cva("text-emphasis-medium text-xs leading-none"),
+      currentPrice: cva("leading-none"),
     },
   },
 };

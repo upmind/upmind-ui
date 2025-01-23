@@ -30,5 +30,10 @@ export default {
         "flex flex-col divide-y divide-solid rounded-lg border bg-gray-50/50 p-4 px-5 text-sm font-medium leading-3"
       ),
     },
+
+    pricing: {
+      current: cva("text-lg font-semibold !leading-7 md:text-xl"),
+      ex: cva("!text-sm italic !leading-5"),
+    },
   },
 };
