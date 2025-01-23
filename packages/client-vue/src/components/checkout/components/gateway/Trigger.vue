@@ -24,14 +24,10 @@ import { useStyles } from "@upmind-automation/upwind";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type { GatewayTriggerProps } from "./types";
 
 // --- props
-defineProps<{
-  gateway: {
-    name: string;
-  };
-  gateway_id: string;
-}>();
+defineProps<GatewayTriggerProps>();
 
 const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
   checkout: {
