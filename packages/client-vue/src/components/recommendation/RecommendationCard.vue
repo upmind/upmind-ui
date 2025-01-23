@@ -138,10 +138,10 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmCard } from "@upmind-automation/client-vue";
+import UpmCard from "../content/Card.vue";
 import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
 import Promotion from "../basket/product/components/Promotion.vue";
-import type { Recommendation } from "@upmind-automation/headless";
+import type { Recommendation } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
