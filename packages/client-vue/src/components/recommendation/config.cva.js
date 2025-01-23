@@ -56,5 +56,46 @@ export default {
       item: cva("md:basis-1/2 xl:basis-1/3"),
       footer: cva("flex-row items-center justify-between gap-x-4"),
     },
+
+    skeleton: {
+      root: cva("h-full w-full !p-0"),
+      container: cva("flex h-full flex-col"),
+      image: {
+        root: cva("aspect-video shrink-0 overflow-hidden"),
+        skeleton: cva(
+          "text-primary h-full w-full !rounded-b-none rounded-t-lg pt-2 text-lg font-medium"
+        ),
+      },
+      content: {
+        root: cva("flex flex-1 flex-col justify-between space-y-8 p-6"),
+        inner: cva(
+          "flex flex-1 flex-col justify-between gap-y-8 text-sm font-medium leading-6"
+        ),
+        title: {
+          root: cva("flex flex-col gap-x-2"),
+          container: cva("flex flex-col gap-2"),
+          skeleton: cva("m-0 text-2xl font-semibold"),
+          description: cva(
+            "text-emphasis-disabled m-0 min-h-12 text-sm leading-6"
+          ),
+        },
+        price: {
+          root: cva("not-prose flex flex-col gap-y-2"),
+          intro: {
+            root: cva("flex items-center space-x-2"),
+            skeleton: cva("text-emphasis-disabled text-sm"),
+          },
+          current: {
+            root: cva("flex items-baseline"),
+            skeleton: cva("text-3xl font-bold"),
+            term: cva("text-emphasis-medium ml-1 text-sm leading-none"),
+          },
+          summary: cva("text-emphasis-disabled mt-1 text-sm"),
+        },
+        button: {
+          skeleton: cva("rounded-pill h-12 w-full"),
+        },
+      },
+    },
   },
 };
