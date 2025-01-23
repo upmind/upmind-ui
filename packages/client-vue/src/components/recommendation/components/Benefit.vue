@@ -2,9 +2,9 @@
   <div :class="styles.recommendation.benefit.root">
     <span :class="styles.recommendation.benefit.iconContainer">
       <Icon
-        :icon="icon.icon && !iconError ? icon.icon : 'dot'"
+        v-bind="icon"
+        fallback-icon="dot"
         :class="styles.recommendation.benefit.icon"
-        @error="iconError = true"
       />
     </span>
 
@@ -32,8 +32,6 @@ const styles = useStyles(
     };
   };
 }>;
-
-const iconError = ref(false);
 
 defineProps<{
   label: string;
