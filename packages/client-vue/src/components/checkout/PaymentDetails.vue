@@ -74,7 +74,7 @@
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket
+  useBasket,
 } from "@upmind-automation/headless-vue";
 import config from "./config.cva";
 import { useStyles } from "@upmind-automation/upwind";
