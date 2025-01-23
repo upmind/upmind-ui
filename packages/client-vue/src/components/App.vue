@@ -6,7 +6,7 @@
   >
     <slot name="header" />
 
-    <main class="w-full flex-1 overflow-hidden">
+    <main class="w-full flex-1">
       <RouterView v-slot="{ Component }" :key="$route.fullPath">
         <template v-if="Component">
           <component :is="props.contentComponent">
@@ -72,11 +72,9 @@ import { useI18n } from "vue-i18n";
 import { useThemes } from "@upmind-automation/upwind";
 
 // --- components
-import {
-  UpmFeedback,
-  UpmSessionExpired,
-  UpmBasketLoading,
-} from "@upmind-automation/client-vue";
+import UpmFeedback from "./feedback/Feedback.vue";
+import UpmSessionExpired from "./session/Expired.vue";
+import UpmBasketLoading from "./basket/Loading.vue";
 import UpmContent from "./content/Content.vue";
 
 // --- types

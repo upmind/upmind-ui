@@ -10,7 +10,7 @@
       </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Badge color="promotion" :variant="variant" size="sm">
+        <Badge v-bind="badge">
           {{
             promotion.mixed || !promotion.amount
               ? t("product.promotion")
@@ -23,15 +23,14 @@
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <del
-        :class="styles.product.config.grid.item.discount"
-        v-if="props.meta.discounted"
-      >
-        {{ props.regularPrice }}
-      </del>
-      <strong :class="styles.product.config.grid.item.total">
-        {{ props.meta.free ? t("product.free") : props.currentPrice }}
-      </strong>
+      <Pricing
+        v-bind="props"
+        :upwind-config="{
+          pricing: {
+            current: styles.product.config.grid.item.total,
+          },
+        }"
+      />
     </div>
   </div>
 </template>
@@ -47,6 +46,7 @@ import config from "./config.cva";
 
 // --- components
 import { Badge, type BadgeProps } from "@upmind-automation/upwind";
+import Pricing from "../pricing/Pricing.vue";
 
 // --- utils
 
@@ -82,10 +82,14 @@ const props = withDefaults(
     }[];
     // ---
     select?: boolean;
-    variant?: BadgeProps["variant"];
+    badge?: BadgeProps;
   }>(),
   {
-    variant: "tonal",
+    badge: {
+      color: "promotion",
+      variant: "tonal",
+      size: "sm",
+    },
   }
 );
 

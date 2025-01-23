@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  `${invalidRingClasses} h-auto min-h-10 min-w-0 items-center justify-start rounded-md px-4 py-3 text-left !text-primary`,
+  `h-auto min-h-10 min-w-0 items-center justify-start rounded-md px-4 py-3 text-left !text-primary`,
   {
     variants: {
       width: {
@@ -18,7 +18,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  `${ringClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset`,
+  `${ringClasses} ${invalidRingClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset`,
   {
     variants: {
       collapsible: {
