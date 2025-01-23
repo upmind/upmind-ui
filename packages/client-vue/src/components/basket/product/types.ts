@@ -3,7 +3,7 @@ import {
   type BasketProductSummaryPrice,
   type BasketProductDetails,
   type BasketProductSummaryDetail,
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
 import { type RouteLocationRaw } from "vue-router";
 
 export interface BasketProductProps {

@@ -74,11 +74,11 @@
 // --- internal
 import {
   useBasketPaymentDetails,
-  useBasket,
-} from "@upmind-automation/client-vue";
-import { UpmPaymentNotRequired } from "@upmind-automation/client-vue";
+  useBasket
+} from "@upmind-automation/headless-vue";
 import config from "./config.cva";
 import { useStyles } from "@upmind-automation/upwind";
+import UpmPaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- components
 import {

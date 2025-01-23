@@ -50,7 +50,7 @@
           variant="minimal"
         />
 
-        <div class="hidden flex-col text-right font-semibold md:flex">
+        <div class="hidden flex-col text-right md:flex">
           <span class="flex flex-shrink-0 items-center justify-end gap-x-1">
             <SubproductCardPricing
               v-if="props.price"
