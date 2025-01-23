@@ -8,8 +8,10 @@ import {
   useRouteRequiresAction,
 } from "..";
 
+import { useBasket } from "../../basket";
+
 // --- utils
-import { uniqBy, set } from "lodash-es";
+import { uniqBy, set, isEmpty } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
@@ -18,8 +20,61 @@ import type { Flow, Route } from "../types";
 // -----------------------------------------------------------------------------
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
+  const { updateItem } = useBasket();
 
   let flows: Flow[] = [
+    {
+      name: ROUTE.EXPRESS_PRODUCT_ADD,
+      guard: async (route: Route) => {
+        const { getPendingProduct } = useRoutePendingProducts(route);
+        const { productId, express } = useRouteQueryParams(route);
+        const valid =
+          express &&
+          (await getPendingProduct(productId)
+            .then(() => true)
+            .catch(() => false));
+        return valid;
+      },
+      resolve: async (route: Route) => {
+        const { productId } = useRouteQueryParams(route);
+        const { getPendingProduct, unsetPendingProduct } =
+          useRoutePendingProducts(route);
+
+        const basketItem = await getPendingProduct(productId, true).catch(
+          () => undefined
+        );
+        if (!isEmpty(basketItem)) {
+          return updateItem(basketItem.id)
+            .then(async () => {
+              unsetPendingProduct(productId);
+              route.name ??= ROUTE.EXPRESS_PRODUCT_ADD; // ensure we have a name for the current route
+              return routing.next(route, basketItem);
+            })
+            .catch(err => {
+              return {
+                name: ROUTE.PRODUCT_ADD,
+                params: { pid: productId },
+              };
+            });
+        } else {
+          return {
+            name: ROUTE.PRODUCT_NOT_FOUND,
+            query: { pid: productId },
+          };
+        }
+      },
+      targets: {
+        next: [
+          ROUTE.PRODUCT_REQUIRES_ACTION,
+          ROUTE.RECOMMENDATIONS,
+          ROUTE.CHECKOUT,
+          ROUTE.SESSION,
+          ROUTE.BASKET,
+        ],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.PRODUCT_NOT_FOUND],
+      },
+    },
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {

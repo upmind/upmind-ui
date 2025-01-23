@@ -32,33 +32,14 @@ export const useBasketFlows = () => {
         const { syncPendingProducts } = useRoutePendingProducts(route);
         await Promise.all(syncPendingProducts());
 
-        return false;
+        return false; //NB ALWAYS return false as we dont want the currentFlow to be Loading, but rather its fallback
       },
       targets: {
         next: [],
         back: [],
         fallback: [
-          {
-            name: ROUTE.PRODUCT_ADD,
-            guard: async (route: Route) => {
-              const { hasPendingProducts } = useRoutePendingProducts(route);
-              const valid = hasPendingProducts();
-              return valid;
-            },
-            resolve: async (route: Route) => {
-              const { getPendingProduct } = useRoutePendingProducts(route);
-              const { productId } = useRouteQueryParams(route);
-              return await getPendingProduct(productId)
-                .then(() => ({
-                  name: ROUTE.PRODUCT_ADD,
-                  params: { pid: productId },
-                }))
-                .catch(() => ({
-                  name: ROUTE.PRODUCT_NOT_FOUND,
-                  query: { pid: productId },
-                }));
-            },
-          },
+          ROUTE.EXPRESS_PRODUCT_ADD,
+          ROUTE.PRODUCT_ADD,
           ROUTE.BASKET,
           ROUTE.EMPTY,
         ],

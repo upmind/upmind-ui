@@ -34,8 +34,7 @@ import {
 import type { ActorRef, State, Subscription } from "xstate";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { ProductModel } from "../product";
-import type { BasketProduct } from "../basket";
-import { ROUTE, REQUIRES_ACTION, type Route } from "./types";
+import { REQUIRES_ACTION, type Route } from "./types";
 import { responseCodes } from "../api";
 
 // -----------------------------------------------------------------------------
@@ -59,14 +58,14 @@ export const useRouteQueryParams = (route: Route) => {
   const { query, params } = route;
 
   // parse our  query/params that may be passed in as ARRAY
-  function getParams(type: QUERY_PARAMS | string, fallback?: any) {
+  function getParams(type: string, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
     return compact(isArray(value) ? value : [value]);
   }
 
   // parse our query/params that may be passed in as STRING
-  function getParam(type: QUERY_PARAMS | string, fallback?: any) {
+  function getParam(type: string, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
     if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
     return isArray(value) ? first(value) : value;
@@ -134,6 +133,7 @@ export const useRouteQueryParams = (route: Route) => {
     parse: safeParse,
     getParams,
     getParam,
+    express: safeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
     productId: getParam(QUERY_PARAMS.PRODUCT_ID),
     products: getParams(QUERY_PARAMS.PRODUCT_ID),
     productConfigs: getProductConfigs(),
