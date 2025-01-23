@@ -43,38 +43,10 @@ import PaymentGateway from "../../PaymentGateway.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type { GatewayContentProps } from "./types";
 
 // --- props
-const props = defineProps<{
-  item: {
-    gateway: {
-      type: number;
-      gateway_provider: {
-        code: string;
-      };
-    };
-  };
-  meta: {
-    hasGateway: boolean;
-    isProcessing: boolean;
-  };
-  basketMeta: {
-    isReadyForCheckout: boolean;
-    isProcessingDetails: boolean;
-  };
-  model: {
-    gateway_id: string;
-  };
-  gateway: {
-    id: string;
-    gateway_provider: {
-      code: string;
-    };
-    type: number;
-  };
-  // ---
-  color?: string;
-}>();
+const props = defineProps<GatewayContentProps>();
 
 const { t, te } = useI18n();
 
