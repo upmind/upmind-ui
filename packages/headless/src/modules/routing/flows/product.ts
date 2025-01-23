@@ -23,11 +23,8 @@ export const useProductFlows = () => {
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
-        //  ensure we sync the pending products, if any
-        const { getPendingProduct, syncPendingProducts } =
-          useRoutePendingProducts(route);
+        const { getPendingProduct } = useRoutePendingProducts(route);
 
-        await Promise.all(syncPendingProducts());
         const { productId } = useRouteQueryParams(route);
         const valid = await getPendingProduct(productId, true)
           .then(() => true)

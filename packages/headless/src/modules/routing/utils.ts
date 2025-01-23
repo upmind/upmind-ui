@@ -245,16 +245,9 @@ export const useRoutePendingProducts = (route: Route) => {
     pid?: string,
     sync?: boolean
   ): Promise<ActorRef<any, any>> {
-    const basketItems = getPendingProducts();
     const target = pid || productId || first(keys(pendingProducts));
-    const basketItem = await ensureBasketItem(
-      target,
-      get(pendingProducts, target, { target })
-    );
-
-    // const basketItem = find(basketItems, item => {
-    //   return item.getSnapshot()?.context?.model?.productId === target;
-    // }) as ActorRef<any, any>;
+    const model = get(pendingProducts, target, { productId: target });
+    const basketItem = await ensureBasketItem(target, model);
 
     if (basketItem && sync) {
       const subscription: Subscription = basketItem.subscribe(
@@ -262,7 +255,7 @@ export const useRoutePendingProducts = (route: Route) => {
           if (state.matches("error")) {
             unsetPendingProduct(target);
             removeItem(basketItem?.id);
-          } else if (state.matches("available.configuring")) {
+          } else if (state.matches("available")) {
             setPendingProduct(target, state);
           }
         }
