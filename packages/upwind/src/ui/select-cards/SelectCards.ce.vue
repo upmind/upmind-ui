@@ -18,8 +18,8 @@
       <component
         :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
-        @keydown.prevent.arrow-down="radioGroup ? focusFirstItem() : null"
-        @keydown.prevent.arrow-up="radioGroup ? focusLastItem() : null"
+        @keydown.prevent.arrow-down="keyArrowDown"
+        @keydown.prevent.arrow-up="keyArrowUp"
       >
         <Button
           :id="`${name}-${overrideIndex}`"
@@ -36,7 +36,7 @@
         >
           <span v-if="radio" class="flex h-full items-start">
             <RadioGroupItem
-              ref="radioGroupItemRef"
+              ref="focusRoot"
               :id="
                 manuallySelected ? manuallySelected.value : first(items)?.value
               "
@@ -154,6 +154,7 @@ import {
 // --- utils
 import { find, first, findIndex } from "lodash-es";
 import { useFocus } from "@vueuse/core";
+import { useFocusNavigation } from "../../utils/useFocusNavigation";
 
 // --- types
 import type { SelectCardsProps } from "./types";
@@ -210,7 +211,7 @@ const open = ref(false);
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 const focusedElement = ref<HTMLElement | null>(null);
 const itemRefs = ref<HTMLElement[]>([]);
-const radioGroupItemRef = ref<HTMLElement | null>(null);
+const focusRoot = ref<HTMLElement | null>(null);
 
 watch(
   () => props.disabled,
@@ -256,6 +257,17 @@ if (props.required && !modelValue.value) {
   emits("update:modelValue", first(props.items)?.value);
 }
 
+const focusRadio = () => {
+  if (focusRoot.value) {
+    const { focused } = useFocus(focusRoot.value);
+    focused.value = true;
+  }
+  open.value = false;
+};
+
+const { focusFirstItem, focusLastItem, focusNextItem, focusPreviousItem } =
+  useFocusNavigation(itemRefs, focusRadio);
+
 const handleOpenAutoFocus = (event?: Event) => {
   event?.preventDefault();
   // Wait for the next frame to focus the item (avoids race condition)
@@ -273,42 +285,22 @@ const handleOpenAutoFocus = (event?: Event) => {
   });
 };
 
-const focusFirstItem = () => focusItem(0);
-const focusLastItem = () => focusItem(itemRefs.value.length - 1);
-const focusItem = (index: number) => {
-  open.value = true;
-  const item = itemRefs.value[index];
-  if (item) {
-    const { focused } = useFocus(item);
-    focused.value = true;
-  }
-};
-
-const focusNextItem = (currentIndex: number) => {
-  const nextIndex = currentIndex + 1;
-  if (nextIndex < itemRefs.value.length) {
-    focusItem(nextIndex);
-  }
-};
-const focusPreviousItem = (currentIndex: number) => {
-  const previousIndex = currentIndex - 1;
-  if (previousIndex >= 0) {
-    focusItem(previousIndex);
-  } else {
-    focusRadio();
-  }
-};
-
-function focusRadio() {
-  if (radioGroupItemRef.value) {
-    const { focused } = useFocus(radioGroupItemRef.value);
-    focused.value = true;
-    open.value = false;
-  }
-}
-
 const keyEnter = () => {
   if (props.collapsible) open.value = !open.value;
   handleOpenAutoFocus();
+};
+
+const keyArrowDown = () => {
+  if (props.radioGroup) {
+    open.value = true;
+    focusFirstItem();
+  }
+};
+
+const keyArrowUp = () => {
+  if (props.radioGroup) {
+    open.value = true;
+    focusLastItem();
+  }
 };
 </script>
