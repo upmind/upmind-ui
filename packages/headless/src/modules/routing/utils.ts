@@ -245,30 +245,32 @@ export const useRoutePendingProducts = (route: Route) => {
     pid?: string,
     sync?: boolean
   ): Promise<ActorRef<any, any>> {
-    let basketItem: ActorRef<any, any> | undefined;
+    const basketItems = getPendingProducts();
     const target = pid || productId || first(keys(pendingProducts));
+    const basketItem = await ensureBasketItem(
+      target,
+      get(pendingProducts, target, { target })
+    );
 
-    if (target) {
-      basketItem = await ensureBasketItem(
-        target,
-        get(pendingProducts, target, { target })
+    // const basketItem = find(basketItems, item => {
+    //   return item.getSnapshot()?.context?.model?.productId === target;
+    // }) as ActorRef<any, any>;
+
+    if (basketItem && sync) {
+      const subscription: Subscription = basketItem.subscribe(
+        (state: State<any, any>) => {
+          if (state.matches("error")) {
+            unsetPendingProduct(target);
+            removeItem(basketItem?.id);
+          } else if (state.matches("available.configuring")) {
+            setPendingProduct(target, state);
+          }
+        }
       );
 
-      if (basketItem && sync) {
-        const subscription: Subscription = basketItem.subscribe(
-          (state: State<any, any>) => {
-            if (state.matches("error")) {
-              unsetPendingProduct(target);
-              removeItem(basketItem?.id);
-            } else if (state.matches("available.configuring")) {
-              setPendingProduct(target, state);
-            }
-          }
-        );
-
-        set(subscriptions, target, subscription);
-      }
+      set(subscriptions, target, subscription);
     }
+
     return new Promise((resolve, reject) => {
       if (basketItem) {
         resolve(basketItem);
@@ -316,7 +318,8 @@ export const useRoutePendingProducts = (route: Route) => {
       const existingProduct = get(pendingProducts, product.productId);
       setPendingProduct(product.productId, merge(existingProduct, product));
     });
-    const promises = map(pendingProducts.value, (model, productId) => {
+
+    const promises = map(pendingProducts, (model, productId) => {
       return ensureBasketItem(productId, model).then(
         (basketItem: ActorRef<any, any>) => {
           setPendingProduct(productId, basketItem?.getSnapshot()); // update our pending basket items with the new value
