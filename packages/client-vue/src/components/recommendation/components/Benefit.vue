@@ -1,13 +1,10 @@
 <template>
   <div :class="styles.recommendation.benefit.root">
-    <span :class="styles.recommendation.benefit.iconContainer">
-      <Icon
-        v-bind="icon"
-        fallback-icon="dot"
-        :class="styles.recommendation.benefit.icon"
-      />
-    </span>
-
+    <Icon
+      v-bind="icon"
+      fallback-icon="dot"
+      :class="styles.recommendation.benefit.icon"
+    />
     <p :class="styles.recommendation.benefit.label">{{ label }}</p>
   </div>
 </template>
