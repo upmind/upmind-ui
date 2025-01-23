@@ -378,17 +378,32 @@ export const useBasket = () => {
   }
 
   async function updateItem(itemId: string): Promise<ActorRef<any, any>> {
-    return sendToItem(itemId, "UPDATE", { itemId }).then(item => {
-      return waitFor(item, state => !state.matches("processing"), {
-        timeout: Infinity,
-      }).then(state => {
-        if (["error", "available.error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
-        }
-        return Promise.resolve(item);
+    const basketItem = find(service.getSnapshot()?.context?.items, [
+      "id",
+      itemId,
+    ]);
+
+    if (!basketItem) {
+      return Promise.reject({
+        message: `Basket item ${itemId} not found`,
+        code: responseCodes.Not_Found,
       });
-      // .finally(() => service.send({ type: "REFRESH" }));
-    });
+    }
+    return waitFor(basketItem, state => {
+      return state.matches("available.valid");
+    }).then(() =>
+      sendToItem(itemId, "UPDATE", { itemId }).then(item => {
+        return waitFor(item, state => !state.matches("processing"), {
+          timeout: Infinity,
+        }).then(state => {
+          if (["error", "available.error"].some(state.matches)) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve(item);
+        });
+        // .finally(() => service.send({ type: "REFRESH" }));
+      })
+    );
   }
 
   async function removeItem(itemId: any): Promise<any> {

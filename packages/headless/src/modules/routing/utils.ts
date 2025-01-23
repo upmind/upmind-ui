@@ -39,6 +39,13 @@ import { ROUTE, REQUIRES_ACTION, type Route } from "./types";
 import { responseCodes } from "../api";
 
 // -----------------------------------------------------------------------------
+function safeParse(value: any) {
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
+}
 
 export async function awaitResolved(service: ActorRef<any, any>) {
   return waitFor(service, state => ["resolved"].some(state.matches), {
@@ -50,6 +57,7 @@ export async function awaitResolved(service: ActorRef<any, any>) {
 
 export const useRouteQueryParams = (route: Route) => {
   const { query, params } = route;
+
   // parse our  query/params that may be passed in as ARRAY
   function getParams(type: QUERY_PARAMS | string, fallback?: any) {
     const value = get(params, type, get(query, type, fallback));
@@ -123,6 +131,7 @@ export const useRouteQueryParams = (route: Route) => {
   }
 
   return {
+    parse: safeParse,
     getParams,
     getParam,
     productId: getParam(QUERY_PARAMS.PRODUCT_ID),
@@ -144,11 +153,7 @@ const useSessionStorage = () => {
   return {
     get(key: string, fallback: any) {
       const value = sessionStorage.getItem(key) || fallback || null;
-      try {
-        return JSON.parse(value);
-      } catch (e) {
-        return value;
-      }
+      return safeParse(value);
     },
     set(key: string, value: any) {
       sessionStorage.setItem(key, JSON.stringify(value));

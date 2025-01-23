@@ -132,6 +132,14 @@ export default createMachine(
             actions: "setResolved",
           },
         },
+        on: {
+          NEXT: {
+            target: "calculating.next",
+          },
+          BACK: {
+            target: "calculating.back",
+          },
+        },
       },
 
       resolved: {

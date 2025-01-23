@@ -74,16 +74,13 @@ async function calculateNextRoute(
   const { flows } = context;
   const route = data.route as Route;
   const event = data.event as any;
-
   const currentFlow = get(
     context,
     "currentFlow",
     find(context.flows, ["name", route?.name])
   );
   const targets = mapTargets(currentFlow?.targets?.next || [], flows);
-
   if (isEmpty(targets)) return Promise.reject();
-
   return matchTargets(targets, route, event).then(flow => {
     return resolve(context, {
       type: "RESOLVE",
