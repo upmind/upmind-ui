@@ -23,9 +23,7 @@
         :key="recommendation.id"
         :class="styles.recommendation.carousel.item"
       >
-        <RecommendationCardSkeleton
-          v-if="recommendation.meta?.loading || true"
-        />
+        <RecommendationCardSkeleton v-if="recommendation.meta?.loading" />
         <RecommendationCard
           v-else
           v-bind="recommendation"
