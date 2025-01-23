@@ -13,10 +13,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, type ComputedRef } from "vue";
-import { Icon, type IconProps } from "@upmind-automation/upwind";
+// --- external
+import { type ComputedRef } from "vue";
+
+// --- internal
 import { useStyles } from "@upmind-automation/upwind";
 import config from "../config.cva";
+
+// --- components
+import { Icon } from "@upmind-automation/upwind";
+
+// --- types
+import { type RecommendationBenefitProps } from "../types";
 
 const styles = useStyles(
   ["recommendation.benefit"],
@@ -33,8 +41,5 @@ const styles = useStyles(
   };
 }>;
 
-defineProps<{
-  label: string;
-  icon: IconProps;
-}>();
+defineProps<RecommendationBenefitProps>();
 </script>
