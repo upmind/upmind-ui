@@ -99,7 +99,7 @@ export interface RelatedProduct extends IRelatedObject {
   product?: IProduct;
   // --- config to be used in adding the recommendation
   config?: IProductConfig;
-  badge?: string;
+  badge?: BadgeProps;
   benefits?: Benefit[];
 }
 

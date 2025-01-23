@@ -231,8 +231,8 @@ export function parseRecommendation(
     description: useTranslateField(raw, "description") || product?.description,
     excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
     imgUrl: raw.image_url || product?.imgUrl,
-    badge: raw.badge,
-    benefits: raw.benefits,
+    badge: raw?.badge,
+    benefits: raw?.benefits,
     // --- default config to be used when adding to basket
     config: {
       productId: raw.object_id,
