@@ -111,15 +111,10 @@ import { forEach } from "lodash-es";
 // --- types
 import type { CarouselApi } from "@upmind-automation/upwind";
 import type { ComputedRef } from "vue";
-
+import type { RecommendationsProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<{
-    disabled?: boolean;
-  }>(),
-  {}
-);
+const props = withDefaults(defineProps<RecommendationsProps>(), {});
 
 const emit = defineEmits<{
   (e: "resolve", ids: string[]): void;

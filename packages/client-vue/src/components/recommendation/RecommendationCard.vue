@@ -155,31 +155,19 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import {
-  Button,
-  Lineclamp,
-  Icon,
-  Badge,
-  type BadgeProps,
-} from "@upmind-automation/upwind";
+import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upwind";
 import { UpmCard } from "@upmind-automation/client-vue";
 import Promotion from "../basket/product/components/Promotion.vue";
 import RecommendationBenefit from "./components/Benefit.vue";
 
 // --- types
-import type { Recommendation } from "@upmind-automation/headless";
-import type { Benefit } from "@upmind-automation/headless";
+import type { RecommendationItemProps } from "./types";
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const props = defineProps<
-  Recommendation & {
-    disabled?: boolean;
-    badge?: BadgeProps;
-    benefits?: Benefit[];
-  }
->();
+const props = defineProps<RecommendationItemProps>();
 
 const configMeta = computed(() => ({
   isDisabled: props.disabled,
