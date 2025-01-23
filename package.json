@@ -36,6 +36,7 @@
     "@jsonforms/vue-vanilla": "^3.2.1",
     "@lordicon/element": "^1.10.0",
     "@radix-ui/react-dialog": "^1.1.2",
+    "@upmind-automation/headless-vue": "^0.0.5",
     "@vee-validate/zod": "^4.13.2",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.11.1",
