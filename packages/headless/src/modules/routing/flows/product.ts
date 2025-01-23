@@ -11,7 +11,7 @@ import {
 import { useBasket } from "../../basket";
 
 // --- utils
-import { uniqBy, set, isEmpty } from "lodash-es";
+import { uniqBy, get, set, isEmpty } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
@@ -85,6 +85,20 @@ export const useProductFlows = () => {
           .then(() => true)
           .catch(() => false);
         return valid;
+      },
+      resolve: async (route: Route) => {
+        const { getPendingProduct } = useRoutePendingProducts(route);
+        const { productId } = useRouteQueryParams(route);
+        const pendingProduct = await getPendingProduct(productId, true);
+        const pid = get(
+          pendingProduct?.getSnapshot(),
+          "context.model.productId",
+          productId
+        );
+        return {
+          name: ROUTE.PRODUCT_ADD,
+          params: { pid },
+        };
       },
       targets: {
         next: [

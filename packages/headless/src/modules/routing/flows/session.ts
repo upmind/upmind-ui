@@ -2,7 +2,8 @@
 
 // --- internal
 import { useSession } from "../../session";
-import { useRoutingEngine } from "..";
+import { useRoutingEngine, useRoutePendingProducts } from "..";
+
 // --- utils
 import { uniqBy } from "lodash-es";
 
@@ -32,10 +33,15 @@ export const useSessionFlows = () => {
     },
     {
       name: ROUTE.SESSION_END,
-      guard: async (_route: Route) => {
+      guard: async (route: Route) => {
         const valid = await isAuthenticated()
           .then(() => false)
           .catch(() => true);
+
+        if (valid) {
+          const { clearPendingProducts } = useRoutePendingProducts(route);
+          clearPendingProducts();
+        }
         return valid;
       },
     },

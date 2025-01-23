@@ -149,7 +149,7 @@ export const useRouteQueryParams = (route: Route) => {
 
 // -----------------------------------------------------------------------------
 
-const useSessionStorage = () => {
+export const useSessionStorage = () => {
   return {
     get(key: string, fallback: any) {
       const value = sessionStorage.getItem(key) || fallback || null;
@@ -176,9 +176,9 @@ export const useRoutePendingProducts = (route: Route) => {
     useRouteQueryParams(route);
   const { addItem, getPendingProducts, getProducts, removeItem } = useBasket();
   const storage = useSessionStorage();
-  const pendingProducts = storage.get("pendingProducts", {});
+  let pendingProducts = storage.get("pendingProducts", {});
   // this is used to store subscriptions to changes on the product and update the local storage
-  const subscriptions: Record<string, Subscription> = {};
+  let subscriptions: Record<string, Subscription> = {};
 
   // setup our localstorage driver
 
@@ -324,6 +324,15 @@ export const useRoutePendingProducts = (route: Route) => {
     return promises;
   }
 
+  function clearPendingProducts() {
+    pendingProducts = {};
+    storage.clear();
+
+    // ensure we unsubscribe from the item if it exists
+    map(subscriptions, sub => sub?.unsubscribe());
+    subscriptions = {};
+  }
+
   // ---
 
   return {
@@ -334,6 +343,7 @@ export const useRoutePendingProducts = (route: Route) => {
     unsetPendingProduct,
     // ---
     syncPendingProducts,
+    clearPendingProducts,
   };
 };
 

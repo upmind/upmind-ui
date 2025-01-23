@@ -7,7 +7,10 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useRoute, useRouter } from "vue-router";
 
 // --- internal
-import { useRoutingEngine as useUpmindRoutingEngine } from "@upmind-automation/headless";
+import {
+  useRoutingEngine as useUpmindRoutingEngine,
+  useRoutePendingProducts,
+} from "@upmind-automation/headless";
 import { useBasket } from "../basket";
 
 // --- utils
@@ -41,6 +44,12 @@ export const useRoutingEngine = () => {
 
   const route = useRoute();
   const router = useRouter();
+
+  const { clearPendingProducts } = useRoutePendingProducts({
+    name: route?.name?.toString(),
+    params: route?.params,
+    query: route?.query,
+  });
 
   // -----------------------------------------------------------------------------
 
