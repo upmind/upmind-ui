@@ -3,7 +3,7 @@ import { useVModel } from "@vueuse/core";
 import { find, first, findIndex } from "lodash-es";
 import { useFocus } from "@vueuse/core";
 import { useFocusNavigation } from "../../../utils/useFocusNavigation";
-import type { ComputedRef } from "vue";
+
 import type { SelectCardsProps } from "../types";
 
 export function useSelectCards(
