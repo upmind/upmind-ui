@@ -1,4 +1,4 @@
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, type Ref } from "vue";
 import { useVModel } from "@vueuse/core";
 import { find, first, findIndex } from "lodash-es";
 import { useFocus } from "@vueuse/core";
@@ -6,7 +6,12 @@ import { useFocusNavigation } from "../../../utils/useFocusNavigation";
 import type { ComputedRef } from "vue";
 import type { SelectCardsProps } from "../types";
 
-export function useSelectCards(props: SelectCardsProps, emits: any) {
+export function useSelectCards(
+  props: SelectCardsProps,
+  emits: any,
+  itemRefs: Ref<HTMLElement[]>,
+  focusRoot?: Ref<HTMLElement | null>
+) {
   const modelValue = useVModel(props, "modelValue", emits, {
     passive: true,
     defaultValue: props.defaultValue,
@@ -14,8 +19,6 @@ export function useSelectCards(props: SelectCardsProps, emits: any) {
 
   const open = ref(false);
   const focusedElement = ref<HTMLElement | null>(null);
-  const itemRefs = ref<HTMLElement[]>([]);
-  const focusRoot = ref<HTMLElement | null>(null);
 
   const selected = computed(() =>
     find(props.items, { value: modelValue.value })
@@ -70,7 +73,7 @@ export function useSelectCards(props: SelectCardsProps, emits: any) {
   }
 
   const focusRadio = () => {
-    if (focusRoot.value) {
+    if (focusRoot?.value) {
       const { focused } = useFocus(focusRoot.value);
       focused.value = true;
     }

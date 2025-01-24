@@ -47,6 +47,7 @@
 <script setup lang="ts">
 // --- external
 import { first } from "lodash-es";
+import { ref } from "vue";
 
 // --- internal
 import { useSelectCards } from "./utils/useSelectCards";
@@ -73,10 +74,12 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 });
 
 const emits = defineEmits(["update:modelValue"]);
+const itemRefs = ref<HTMLElement[]>([]);
 
 const { modelValue, open, onChange, selected, meta } = useSelectCards(
   props,
-  emits
+  emits,
+  itemRefs
 );
 
 const variants = useStyles(

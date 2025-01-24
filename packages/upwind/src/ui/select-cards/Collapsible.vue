@@ -8,8 +8,13 @@
     :class="variants.select.group"
     tabindex="-1"
   >
-    <Collapsible v-model:open="open">
-      <CollapsibleTrigger class="w-full">
+    <Collapsible v-model:open="open" :disabled="disabled" tabindex="-1">
+      <CollapsibleTrigger
+        class="w-full"
+        as-child
+        @keydown.prevent.arrow-down="keyArrowDown"
+        @keydown.prevent.arrow-up="keyArrowUp"
+      >
         <TriggerButton
           v-bind="props"
           :name="name"
@@ -18,6 +23,7 @@
           :selected="selected"
           :manuallySelected="manuallySelected"
           :meta="meta"
+          @keydown.prevent.enter="keyEnter"
         >
           <template #item="{ item }">
             <slot name="item" :item="item" />
@@ -32,8 +38,19 @@
           v-for="(item, index) in items"
           :key="item.id || index"
           tabindex="0"
-          @click="onChange(item.value)"
           :class="variants.select.item"
+          @click="onChange(item.value)"
+          @keydown.prevent.arrow-down="focusNextItem(index)"
+          @keydown.prevent.arrow-up="focusPreviousItem(index)"
+          @keydown.prevent.enter="
+            onChange(item.value);
+            focusRadio();
+          "
+          :ref="
+            (el: HTMLElement) => {
+              if (el) itemRefs[index] = el;
+            }
+          "
         >
           <Label
             :for="`${name}-${overrideIndex + index || index}`"
@@ -61,6 +78,9 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { ref } from "vue";
+
 // --- internal
 import { useSelectCards } from "./utils/useSelectCards";
 import { cn, useStyles } from "../../utils";
@@ -86,8 +106,23 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 
 const emits = defineEmits(["update:modelValue"]);
 
-const { modelValue, open, meta, onChange, selected, manuallySelected } =
-  useSelectCards(props, emits);
+const itemRefs = ref<HTMLElement[]>([]);
+const focusRoot = ref<HTMLElement | null>(null);
+
+const {
+  modelValue,
+  open,
+  meta,
+  onChange,
+  selected,
+  manuallySelected,
+  keyArrowDown,
+  keyArrowUp,
+  keyEnter,
+  focusRadio,
+  focusNextItem,
+  focusPreviousItem,
+} = useSelectCards(props, emits, itemRefs, focusRoot);
 
 const variants = useStyles(
   ["select"],
