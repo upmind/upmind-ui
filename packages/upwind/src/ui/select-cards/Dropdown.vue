@@ -1,74 +1,59 @@
 <template>
-  <BaseSelectCards
-    v-bind="$props"
-    :modelValue="modelValue"
-    @update:modelValue="$emit('update:modelValue', $event)"
-  >
-    <template
-      #root="{
-        openValue,
-        setOpenValue,
-        items,
-        onChange,
-        handleOpenAutoFocus,
-        props,
-        selected,
-      }"
-    >
-      <DropdownMenuRoot
-        :open="openValue"
-        @update:open="(val: boolean) => setOpenValue(val)"
-        tabindex="-1"
+  <DropdownMenuRoot v-model:open="open" tabindex="-1">
+    <DropdownMenuTrigger as-child>
+      <TriggerButton
+        v-bind="props"
+        :open="open"
+        :selected="selected"
+        :manuallySelected="manuallySelected"
+        :meta="meta"
+        :name="name"
+        :overrideIndex="overrideIndex"
       >
-        <DropdownMenuTrigger as-child>
-          <TriggerButton v-bind="{ selected, ...props }">
-            <template #item="{ item }">
-              <slot name="item" :item="item" />
-            </template>
-            <template #placeholder>
-              <slot name="placeholder" />
-            </template>
-          </TriggerButton>
-        </DropdownMenuTrigger>
+        <template #item="{ item }">
+          <slot name="item" :item="item" />
+        </template>
+        <template #placeholder>
+          <slot name="placeholder" />
+        </template>
+      </TriggerButton>
+    </DropdownMenuTrigger>
 
-        <DropdownMenuPortal>
-          <DropdownMenuContent
-            :class="cn(variants.select.content, props.contentClass)"
-            :onOpenAutoFocus="handleOpenAutoFocus"
+    <DropdownMenuPortal>
+      <DropdownMenuContent
+        :class="cn(variants.select.content, props.contentClass)"
+      >
+        <DropdownMenuItem
+          v-for="(item, index) in items"
+          :key="item.id || index"
+          tabindex="0"
+          @click="onChange(item.value)"
+          :class="variants.select.item"
+        >
+          <Label
+            :for="`${name}-${overrideIndex + index || index}`"
+            :class="cn(variants.select.label)"
           >
-            <DropdownMenuItem
-              v-for="(item, i) in items"
-              :key="item.value || i"
-              tabindex="0"
-              @click="onChange(item.value)"
-              :class="variants.select.item"
-            >
-              <Label
-                :for="`${name}-${overrideIndex + index || index}`"
-                :class="cn(variants.select.label)"
-              >
-                <slot name="dropdown-item" v-bind="{ item, index }">
-                  {{ item.label }}
-                </slot>
-              </Label>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenuPortal>
-      </DropdownMenuRoot>
-    </template>
-  </BaseSelectCards>
+            <slot name="dropdown-item" v-bind="{ item, index }">
+              {{ item.label }}
+            </slot>
+          </Label>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenuPortal>
+  </DropdownMenuRoot>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { first } from "lodash-es";
 
 // --- internal
+import { useSelectCards } from "./utils/useSelectCards";
 import { cn, useStyles } from "../../utils";
 import config from "./selectCards.config";
 
 // --- components
-import BaseSelectCards from "./BaseSelectCards.vue";
 import TriggerButton from "./components/TriggerButton.vue";
 import { Label } from "../label";
 import {
@@ -87,12 +72,12 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   variant: "dropdown",
 });
 
-defineEmits(["update:modelValue"]);
+const emits = defineEmits(["update:modelValue"]);
 
-const meta = computed(() => ({
-  variant: props.variant,
-  isCollapsible: props.variant === "collapsible",
-}));
+const { modelValue, open, onChange, selected, meta } = useSelectCards(
+  props,
+  emits
+);
 
 const variants = useStyles(
   ["select"],
@@ -101,12 +86,13 @@ const variants = useStyles(
   props.upwindConfig ?? {}
 ) as ComputedRef<{
   select: {
-    root: string;
-    items: string;
     item: string;
-    input: string;
     label: string;
     content: string;
   };
 }>;
+
+if (props.required && !modelValue.value) {
+  emits("update:modelValue", first(props.items)?.value);
+}
 </script>
