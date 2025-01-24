@@ -20,6 +20,7 @@ interface SelectCardsPropsBase extends RadioGroupRootProps {
   placeholder?: string;
   noneText?: string;
   required?: boolean;
+  name?: string;
   overrideIndex?: number;
   useInputGroup?: boolean;
   // --- state

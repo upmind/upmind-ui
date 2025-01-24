@@ -21,15 +21,10 @@ export function useSelectCards(props: SelectCardsProps, emits: any) {
     find(props.items, { value: modelValue.value })
   );
 
-  // e.g. for toggling between collapsible & dropdown
   const meta = computed(() => ({
     variant: props.variant,
     isCollapsible: props.variant === "collapsible",
   }));
-
-  if (props.required && !modelValue.value) {
-    emits("update:modelValue", first(props.items)?.value);
-  }
 
   watch(
     () => props.disabled,

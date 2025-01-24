@@ -4,7 +4,7 @@
     :loading="loading"
     :class="cn(variants.select.trigger)"
     :size="size"
-    :aria-expanded="openValue"
+    :aria-expanded="open"
     variant="control"
     block
     :tabindex="useInputGroup ? 0 : -1"
@@ -14,7 +14,6 @@
         ref="focusRoot"
         :id="manuallySelected ? manuallySelected.value : first(items)?.value"
         :value="manuallySelected ? manuallySelected.value : first(items)?.value"
-        :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
         class="mt-1"
@@ -34,7 +33,7 @@
     <template #append>
       <Icon
         class="ml-auto opacity-75 transition-all duration-200"
-        :class="openValue ? 'rotate-180' : ''"
+        :class="open ? 'rotate-180' : ''"
         icon="arrow-down"
         size="xs"
       />
@@ -45,7 +44,6 @@
 <script setup lang="ts">
 // --- external
 import { first } from "lodash-es";
-import { computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../../utils";
@@ -63,28 +61,30 @@ import type { ButtonProps } from "../../button/types";
 const props = defineProps<{
   name: string;
   overrideIndex: number;
+  manuallySelected?: {
+    value: string;
+  };
+  selected?: {
+    label: string;
+  };
   loading: boolean;
+  placeholder?: string;
+  label?: string;
   size: ButtonProps["size"];
-  openValue: boolean;
+  open: boolean;
   useInputGroup: boolean;
   class: string;
   items: any[];
-  selected: any;
-  label: string;
-  placeholder: string;
   radio: boolean;
   required: boolean;
   disabled: boolean;
-  manuallySelected: any;
-  variant: string;
+  meta: {
+    variant: string;
+    isCollapsible: boolean;
+  };
 }>();
 
-const meta = computed(() => ({
-  variant: props.variant,
-  isCollapsible: props.variant === "collapsible",
-}));
-
-const variants = useStyles(["select"], meta, config, {}) as ComputedRef<{
+const variants = useStyles(["select"], props.meta, config, {}) as ComputedRef<{
   select: {
     trigger: string;
   };
