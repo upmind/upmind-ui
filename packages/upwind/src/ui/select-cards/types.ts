@@ -14,7 +14,7 @@ export interface SelectCardsItemProps extends RadioGroupItemProps {
   label: string;
 }
 
-export interface SelectCardsProps extends RadioGroupRootProps {
+interface SelectCardsPropsBase extends RadioGroupRootProps {
   variant?: "collapsible" | "dropdown";
   label?: string;
   placeholder?: string;
@@ -29,9 +29,25 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   color?: ButtonProps["color"];
   size?: ButtonProps["size"];
   radio?: boolean;
-  side?: PopoverContentProps["side"];
-  // ---
-  upwindConfig?: { tooltip: Partial<SelectCardsProps> };
+  upwindConfig?: { tooltip: Partial<SelectCardsPropsBase> };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }
+
+interface CollapsibleSelectCardsProps
+  extends Omit<SelectCardsPropsBase, "upwindConfig"> {
+  variant: "collapsible";
+  side?: never;
+  upwindConfig?: { tooltip: Partial<CollapsibleSelectCardsProps> };
+}
+
+interface DropdownSelectCardsProps
+  extends Omit<SelectCardsPropsBase, "upwindConfig"> {
+  variant: "dropdown";
+  side?: PopoverContentProps["side"];
+  upwindConfig?: { tooltip: Partial<DropdownSelectCardsProps> };
+}
+
+export type SelectCardsProps =
+  | CollapsibleSelectCardsProps
+  | DropdownSelectCardsProps;
