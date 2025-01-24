@@ -52,3 +52,22 @@ interface DropdownSelectCardsProps
 export type SelectCardsProps =
   | CollapsibleSelectCardsProps
   | DropdownSelectCardsProps;
+
+export interface SelectCardsTriggerProps extends ButtonProps {
+  name: string;
+  overrideIndex: number;
+  selected?: {
+    label: string;
+  };
+  loading: boolean;
+  placeholder?: string;
+  label?: string;
+  size: ButtonProps["size"];
+  open: boolean;
+  useInputGroup: boolean;
+  class: string;
+  meta: {
+    variant: string;
+    isCollapsible: boolean;
+  };
+}

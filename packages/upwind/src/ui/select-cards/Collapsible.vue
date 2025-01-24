@@ -23,8 +23,31 @@
           :selected="selected"
           :manuallySelected="manuallySelected"
           :meta="meta"
+          @focus="handleFocus"
           @keydown.prevent.enter="keyEnter"
         >
+          <template #prepend>
+            <span v-if="radio" class="flex h-full items-start">
+              <RadioGroupItem
+                ref="focusRoot"
+                :id="
+                  manuallySelected
+                    ? manuallySelected.value
+                    : first(items)?.value
+                "
+                :value="
+                  manuallySelected
+                    ? manuallySelected.value
+                    : first(items)?.value
+                "
+                :required="props.required"
+                :disabled="props.disabled"
+                class="mt-1"
+                @focus="handleFocus"
+                @blur="handleBlur"
+              />
+            </span>
+          </template>
           <template #item="{ item }">
             <slot name="item" :item="item" />
           </template>
@@ -33,7 +56,7 @@
           </template>
         </TriggerButton>
       </CollapsibleTrigger>
-      <CollapsibleContent>
+      <CollapsibleContent :onOpenAutoFocus="handleOpenAutoFocus">
         <div
           v-for="(item, index) in items"
           :key="item.id || index"
@@ -46,6 +69,7 @@
             onChange(item.value);
             focusRadio();
           "
+          @keydown.prevent.escape="focusRadio"
           :ref="
             (el: HTMLElement) => {
               if (el) itemRefs[index] = el;
@@ -80,6 +104,7 @@
 <script setup lang="ts">
 // --- external
 import { ref } from "vue";
+import { first } from "lodash-es";
 
 // --- internal
 import { useSelectCards } from "./utils/useSelectCards";
@@ -122,6 +147,8 @@ const {
   focusRadio,
   focusNextItem,
   focusPreviousItem,
+  handleFocus,
+  handleBlur,
 } = useSelectCards(props, emits, itemRefs, focusRoot);
 
 const variants = useStyles(

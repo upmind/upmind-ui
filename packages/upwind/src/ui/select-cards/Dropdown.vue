@@ -22,6 +22,7 @@
     <DropdownMenuPortal>
       <DropdownMenuContent
         :class="cn(variants.select.content, props.contentClass)"
+        :onOpenAutoFocus="handleOpenAutoFocus"
       >
         <DropdownMenuItem
           v-for="(item, index) in items"
@@ -29,6 +30,11 @@
           tabindex="0"
           @click="onChange(item.value)"
           :class="variants.select.item"
+          :ref="
+            (el: HTMLElement) => {
+              if (el) itemRefs[index] = el;
+            }
+          "
         >
           <Label
             :for="`${name}-${overrideIndex + index || index}`"
@@ -76,11 +82,15 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 const emits = defineEmits(["update:modelValue"]);
 const itemRefs = ref<HTMLElement[]>([]);
 
-const { modelValue, open, onChange, selected, meta } = useSelectCards(
-  props,
-  emits,
-  itemRefs
-);
+const {
+  modelValue,
+  open,
+  onChange,
+  selected,
+  meta,
+  keyEnter,
+  handleOpenAutoFocus,
+} = useSelectCards(props, emits, itemRefs);
 
 const variants = useStyles(
   ["select"],

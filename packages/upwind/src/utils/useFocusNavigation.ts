@@ -19,6 +19,8 @@ export function useFocusNavigation(
     const nextIndex = currentIndex + 1;
     if (nextIndex < itemRefs.value.length) {
       focusItem(nextIndex);
+    } else {
+      focusItem(0);
     }
   };
   const focusPreviousItem = (currentIndex: number) => {
