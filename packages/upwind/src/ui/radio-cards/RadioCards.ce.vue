@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="radioGroup ? RadioGroup : 'div'"
+    :is="useInputGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
@@ -20,7 +20,7 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-        :tabindex="isSelected(item) && radioGroup ? 0 : -1"
+        :tabindex="isSelected(item) && useInputGroup ? 0 : -1"
         @keydown.prevent.enter="onChange(item.value)"
         @focus="onChange(item.value)"
       >
@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -48,7 +48,6 @@ import RadioCardItem from "./RadioCardItem.vue";
 // --- types
 import type { RadioCardsProps } from "./types";
 import type { ComputedRef } from "vue";
-import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
@@ -57,7 +56,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
-  radioGroup: true,
+  useInputGroup: true,
   // -- variants
   color: "base",
   variant: "control",
