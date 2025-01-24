@@ -1,51 +1,61 @@
 <template>
-  <UpmCard class="h-full w-full !p-0" :disabled="props.disabled">
-    <div class="flex h-full flex-col">
+  <UpmCard
+    :class="styles.recommendation.root"
+    :disabled="configMeta?.isDisabled"
+  >
+    <Badge
+      v-if="badge"
+      v-bind="badge"
+      variant="flat"
+      size="lg"
+      :class="styles.recommendation.badge"
+    />
+
+    <article :class="styles.recommendation.container">
       <!-- Image section -->
-      <div class="aspect-video shrink-0 overflow-hidden rounded-t-lg">
+      <figure :class="styles.recommendation.image.root">
         <img
           v-if="imgUrl"
-          class="m-0 h-full w-full object-cover object-center"
+          :class="styles.recommendation.image.image"
           :src="imgUrl"
-          alt="Recommendation"
+          :alt="`${name} item image`"
         />
-        <div
-          v-else
-          class="from-promotion to-promotion-200 h-full w-full bg-gradient-to-br"
-        />
-      </div>
+        <span v-else :class="styles.recommendation.image.placeholder" />
+      </figure>
 
-      <!-- Content section -->
-      <div class="flex flex-1 flex-col justify-between space-y-8 p-6">
-        <div
-          class="flex flex-1 flex-col justify-between gap-y-8 text-sm font-medium leading-6"
-        >
+      <!-- Content -->
+      <div :class="styles.recommendation.content.root">
+        <header :class="styles.recommendation.content.breakdown">
           <!-- Title and description -->
-          <div class="flex flex-col gap-x-2">
-            <div class="flex flex-col gap-2">
-              <h3 class="m-0 text-2xl font-semibold">
-                {{ name }}
-              </h3>
+          <section :class="styles.recommendation.content.details.root">
+            <h3 :class="styles.recommendation.content.details.title">
+              {{ name }}
+            </h3>
 
-              <Lineclamp
-                v-if="description"
-                class="text-emphasis-disabled m-0 min-h-12 text-sm leading-6"
-                :lines="2"
-                :labelMore="t('product.actions.more', 1)"
-                :labelLess="t('product.actions.more', 0)"
-                >{{ description }}</Lineclamp
-              >
-            </div>
-          </div>
+            <Lineclamp
+              v-if="description"
+              :class="styles.recommendation.content.details.description"
+              :lines="2"
+              :labelMore="t('product.actions.more', 1)"
+              :labelLess="t('product.actions.more', 0)"
+              >{{ description }}</Lineclamp
+            >
+
+            <ul :class="styles.recommendation.content.list">
+              <template v-for="benefit in benefits" :key="benefit.label">
+                <RecommendationBenefit v-bind="benefit" />
+              </template>
+            </ul>
+          </section>
 
           <!-- Price section -->
-          <div class="not-prose flex flex-col gap-y-2">
-            <!-- Price Intro: eg. 'From' or 'Was $X.XX' -->
-            <div class="flex items-center space-x-2">
-              <p class="text-emphasis-disabled text-sm">
+          <section :class="styles.recommendation.content.price.root">
+            <!-- Price intro: eg. 'From' or 'Was $X.XX' -->
+            <small :class="styles.recommendation.content.price.intro.root">
+              <p :class="styles.recommendation.content.price.intro.text">
                 <!-- If discounted, show regular price -->
                 <template v-if="meta?.discounted">
-                  <del class="italic">{{
+                  <del>{{
                     t("recommendations.card.was_price", {
                       price: !!cycle ? monthlyFromRegularPrice : regularPrice,
                     })
@@ -66,11 +76,11 @@
                   size="sm"
                 />
               </template>
-            </div>
+            </small>
 
-            <div class="flex items-baseline">
+            <div :class="styles.recommendation.content.price.current.root">
               <!-- Current Price -->
-              <span class="text-3xl font-bold">
+              <span :class="styles.recommendation.content.price.current.text">
                 <template v-if="meta?.free">{{
                   t("recommendations.card.free")
                 }}</template>
@@ -82,7 +92,7 @@
 
               <!-- Term -->
               <template v-if="!!cycle">
-                <span class="text-emphasis-medium ml-1 text-sm leading-none">{{
+                <span :class="styles.recommendation.content.price.term">{{
                   ` / ${t(`recommendations.terms.month`).toLocaleLowerCase()}`
                 }}</span>
               </template>
@@ -90,7 +100,7 @@
 
             <!-- Summary (If there is a billing cycle) -->
             <template v-if="!!cycle">
-              <p class="text-emphasis-disabled mt-1 text-sm">
+              <small :class="styles.recommendation.content.price.summary">
                 {{
                   t(
                     meta?.discounted
@@ -106,16 +116,15 @@
                     }
                   )
                 }}
-              </p>
+              </small>
             </template>
-          </div>
-        </div>
+          </section>
+        </header>
 
         <!-- Button section -->
-        <div>
+        <footer>
           <Button
             color="primary"
-            size="sm"
             :disabled="meta?.added"
             :loading="meta?.processing"
             :label="
@@ -130,28 +139,88 @@
               <Icon v-if="meta?.added" icon="check" size="2xs" />
             </template>
           </Button>
-        </div>
+        </footer>
       </div>
-    </div>
+    </article>
   </UpmCard>
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
-import UpmCard from "../content/Card.vue";
-import { Button, Lineclamp, Icon } from "@upmind-automation/upwind";
+
+// --- internal
+import { useStyles } from "@upmind-automation/upwind";
+import config from "./config.cva";
+
+// --- components
+import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upwind";
+import { UpmCard } from "@upmind-automation/client-vue";
 import Promotion from "../basket/product/components/Promotion.vue";
-import type { Recommendation } from "@upmind-automation/headless-vue";
+import RecommendationBenefit from "./components/Benefit.vue";
+
+// --- types
+import type { RecommendationItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const props = defineProps<
-  Recommendation & {
-    disabled?: boolean;
-  }
->();
+const props = defineProps<RecommendationItemProps>();
+
+const configMeta = computed(() => ({
+  isDisabled: props.disabled,
+}));
+
+const styles = useStyles(
+  [
+    "recommendation",
+    "recommendation.image",
+    "recommendation.content",
+    "recommendation.content.price",
+    "recommendation.content.price.intro",
+    "recommendation.content.price.current",
+    "recommendation.content.details",
+    "recommendation.content.list",
+  ],
+  configMeta,
+  config
+) as ComputedRef<{
+  recommendation: {
+    root: string;
+    container: string;
+    image: {
+      root: string;
+      placeholder: string;
+      image: string;
+    };
+    content: {
+      root: string;
+      breakdown: string;
+      details: {
+        root: string;
+        title: string;
+        description: string;
+      };
+      price: {
+        root: string;
+        intro: {
+          root: string;
+          text: string;
+        };
+        current: {
+          root: string;
+          text: string;
+        };
+        term: string;
+        summary: string;
+      };
+      list: string;
+    };
+    badge: string;
+  };
+}>;
 
 const emit = defineEmits<{
   (e: "resolve", value: string): void;

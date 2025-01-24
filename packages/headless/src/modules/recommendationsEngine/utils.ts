@@ -26,7 +26,12 @@ import { useTranslateField, useTranslateName } from "../../utils";
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basket";
-import type { Recommendation, RelatedProduct, IProductConfig } from "./types";
+import type {
+  Recommendation,
+  RelatedProduct,
+  IProductConfig,
+  Benefit,
+} from "./types";
 // ---------------------------------------------------------------------------
 export function parseBasketItem(data: BasketProduct) {
   // TODO: implement
@@ -226,6 +231,8 @@ export function parseRecommendation(
     description: useTranslateField(raw, "description") || product?.description,
     excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
     imgUrl: raw.image_url || product?.imgUrl,
+    badge: raw?.badge,
+    benefits: raw?.benefits,
     // --- default config to be used when adding to basket
     config: {
       productId: raw.object_id,

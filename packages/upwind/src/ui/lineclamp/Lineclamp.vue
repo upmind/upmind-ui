@@ -12,6 +12,7 @@
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
           :append-icon="meta.isOpen ? iconLess : iconMore"
+          :class="styles.lineclamp.action"
         />
       </p>
     </transition>
