@@ -7,7 +7,7 @@
     tabindex="-1"
   >
     <component
-      :is="radio && radioGroup ? RadioGroup : 'div'"
+      :is="radio && useInputGroup ? RadioGroup : 'div'"
       :disabled="disabled"
       :model-value="modelValue"
       :default-value="defaultValue"
@@ -30,7 +30,7 @@
           :color="color"
           :variant="variant"
           block
-          :tabindex="radioGroup ? 0 : -1"
+          :tabindex="useInputGroup ? 0 : -1"
           @focus="handleFocus"
           @keydown.prevent.enter="keyEnter"
         >
@@ -167,7 +167,7 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
-  radioGroup: true,
+  useInputGroup: true,
   // -- variants
   color: "base",
   variant: "control",
@@ -227,7 +227,7 @@ watch(
 
 const handleFocus = (event: FocusEvent) => {
   focusedElement.value = event.target as HTMLElement;
-  if (!props.radioGroup && !find(props.items, { value: modelValue.value })) {
+  if (!props.useInputGroup && !find(props.items, { value: modelValue.value })) {
     modelValue.value = first(props.items)?.value;
   }
 };
@@ -291,14 +291,14 @@ const keyEnter = () => {
 };
 
 const keyArrowDown = () => {
-  if (props.radioGroup) {
+  if (props.useInputGroup) {
     open.value = true;
     focusFirstItem();
   }
 };
 
 const keyArrowUp = () => {
-  if (props.radioGroup) {
+  if (props.useInputGroup) {
     open.value = true;
     focusLastItem();
   }
