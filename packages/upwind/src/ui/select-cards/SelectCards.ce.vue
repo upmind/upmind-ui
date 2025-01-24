@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="collapsible ? Collapsible : DropdownMenuRoot"
+    :is="meta.isCollapsible ? Collapsible : DropdownMenuRoot"
     v-model:open="open"
     :disabled="disabled"
     class="w-full"
@@ -16,7 +16,7 @@
       tabindex="-1"
     >
       <component
-        :is="collapsible ? CollapsibleTrigger : DropdownMenuTrigger"
+        :is="meta.isCollapsible ? CollapsibleTrigger : DropdownMenuTrigger"
         as-child
         @keydown.prevent.arrow-down="keyArrowDown"
         @keydown.prevent.arrow-up="keyArrowUp"
@@ -27,8 +27,7 @@
           :class="cn(variants.select.trigger, props.class)"
           :size="size"
           :aria-expanded="open"
-          :color="color"
-          :variant="variant"
+          variant="control"
           block
           :tabindex="useInputGroup ? 0 : -1"
           @focus="handleFocus"
@@ -73,16 +72,16 @@
         </Button>
       </component>
 
-      <component :is="collapsible ? 'div' : DropdownMenuPortal">
+      <component :is="meta.isCollapsible ? 'div' : DropdownMenuPortal">
         <component
-          :is="collapsible ? CollapsibleContent : DropdownMenuContent"
+          :is="meta.isCollapsible ? CollapsibleContent : DropdownMenuContent"
           :class="cn(variants.select.content, props.contentClass)"
           :onOpenAutoFocus="handleOpenAutoFocus"
         >
           <component
             v-for="(item, index) in items"
             :key="item.id || index"
-            :is="collapsible ? 'div' : DropdownMenuItem"
+            :is="meta.isCollapsible ? 'div' : DropdownMenuItem"
             :class="variants.select.item"
             tabindex="0"
             @click="onChange(item.value)"
@@ -163,14 +162,13 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SelectCardsProps>(), {
   // --- props
+  variant: "dropdown",
   loading: false,
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
   useInputGroup: true,
   // -- variants
-  color: "base",
-  variant: "control",
   width: "full",
   separate: false,
   // --- styles
@@ -179,8 +177,8 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 });
 
 const meta = computed(() => ({
-  color: props.color,
-  collapsible: props.collapsible,
+  variant: props.variant,
+  isCollapsible: props.variant === "collapsible",
 }));
 
 const variants = useStyles(
@@ -225,6 +223,10 @@ watch(
   }
 );
 
+if (props.required && !modelValue.value) {
+  emits("update:modelValue", first(props.items)?.value);
+}
+
 const handleFocus = (event: FocusEvent) => {
   focusedElement.value = event.target as HTMLElement;
   if (!props.useInputGroup && !find(props.items, { value: modelValue.value })) {
@@ -244,17 +246,12 @@ const manuallySelected = computed(() => {
     : undefined;
 });
 
-// allow for toggle of selected item
 function onChange(value: any) {
   if (!props.required && modelValue.value == value)
     modelValue.value = undefined;
   else modelValue.value = value;
 
   open.value = false;
-}
-
-if (props.required && !modelValue.value) {
-  emits("update:modelValue", first(props.items)?.value);
 }
 
 const focusRadio = () => {
@@ -286,7 +283,7 @@ const handleOpenAutoFocus = (event?: Event) => {
 };
 
 const keyEnter = () => {
-  if (props.collapsible) open.value = !open.value;
+  if (meta.value.isCollapsible) open.value = !open.value;
   handleOpenAutoFocus();
 };
 

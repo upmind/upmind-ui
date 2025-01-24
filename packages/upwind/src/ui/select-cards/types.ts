@@ -15,6 +15,7 @@ export interface SelectCardsItemProps extends RadioGroupItemProps {
 }
 
 export interface SelectCardsProps extends RadioGroupRootProps {
+  variant?: "collapsible" | "dropdown";
   label?: string;
   placeholder?: string;
   noneText?: string;
@@ -26,9 +27,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   loading?: boolean;
   // ---
   color?: ButtonProps["color"];
-  variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
-  collapsible?: boolean;
   radio?: boolean;
   side?: PopoverContentProps["side"];
   // ---
