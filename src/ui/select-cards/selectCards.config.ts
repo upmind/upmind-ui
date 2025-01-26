@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "h-auto min-h-10 items-center justify-start rounded-md px-4 py-3 text-left !text-primary",
+  "h-auto min-h-10 min-w-0 items-center justify-start rounded-md px-4 py-3 text-left font-medium !text-primary",
   {
     variants: {
       width: {
@@ -25,19 +25,16 @@ export const itemVariants = cva(
         false: "rounded-none border-b border-b-control last:border-b-0",
         true: "border border-t-0 border-control",
       },
-      separate: {
-        true: "border border-control",
-      },
     },
   }
 );
 
 export const contentVariants = cva(
-  "max-h-72 !w-[--radix-popover-trigger-width] overflow-hidden overflow-y-scroll rounded-md p-0",
+  " !w-[--radix-popover-trigger-width] rounded-md p-0",
   {
     variants: {
-      separate: {
-        true: "mt-2 flex flex-col gap-y-2",
+      collapsible: {
+        false: "flex max-h-72 flex-col overflow-y-scroll",
       },
     },
   }

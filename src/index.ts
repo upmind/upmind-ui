@@ -150,7 +150,6 @@ export {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  RadioSelect,
   RadioCards,
   Separator,
   Select,
@@ -290,7 +289,6 @@ declare module "vue" {
     Popover: typeof Popover;
     PopoverContent: typeof PopoverContent;
     PopoverTrigger: typeof PopoverTrigger;
-    RadioSelect: typeof RadioSelect;
     RadioCards: typeof RadioCards;
     Separator: typeof Separator;
     Sonner: typeof Sonner;
