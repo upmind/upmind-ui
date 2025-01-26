@@ -2,33 +2,11 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const rootVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full gap-0 space-y-2 overflow-hidden rounded-md border-control`,
-  {
-    variants: {
-      layout: {
-        list: "border border-b-0 shadow-sm",
-        grid: "",
-      },
-    },
-    defaultVariants: {
-      layout: "list",
-    },
-  }
+  `${ringClasses} ${invalidRingClasses} w-full gap-0 space-y-2 overflow-hidden rounded-md`
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted flex items-start space-x-2 bg-control text-control-foreground transition-all duration-300",
-  {
-    variants: {
-      layout: {
-        list: "border-b border-control",
-        grid: "grid w-full list-none gap-3 rounded-md border border-control shadow-sm",
-      },
-    },
-    defaultVariants: {
-      layout: "list",
-    },
-  }
+  "hover:bg-control-active-muted flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300"
 );
 
 export default {

@@ -41,3 +41,10 @@ const delegatedProps = computed(() => {
 
 const forwardedProps = useForwardProps(delegatedProps);
 </script>
+
+<style scoped>
+svg {
+  /* Forces Safari to create a new stacking context, fixing SVG centering issues specific to Safari */
+  transform: scale(1);
+}
+</style>

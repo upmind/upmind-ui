@@ -50,5 +50,6 @@ export default {
       ],
     }),
     actions: cva("m-0"),
+    action: cva("h-6 py-0 !text-inherit underline"),
   },
 };
