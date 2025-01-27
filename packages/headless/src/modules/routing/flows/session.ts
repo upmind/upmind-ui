@@ -18,7 +18,7 @@ export const useSessionFlows = () => {
 
   let flows: Flow[] = [
     {
-      name: ROUTE.SESSION,
+      name: ROUTE.SESSION_LOGIN,
       guard: async (_route: Route) => {
         const valid = await isAuthenticated()
           .then(() => false)
@@ -26,7 +26,21 @@ export const useSessionFlows = () => {
         return valid;
       },
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.BASKET],
+        next: [ROUTE.CHECKOUT, ROUTE.BASKET, ROUTE.EMPTY],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
+      },
+    },
+    {
+      name: ROUTE.SESSION_REGISTER,
+      guard: async (_route: Route) => {
+        const valid = await isAuthenticated()
+          .then(() => false)
+          .catch(() => true);
+        return valid;
+      },
+      targets: {
+        next: [ROUTE.CHECKOUT, ROUTE.BASKET, ROUTE.EMPTY],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
@@ -45,38 +59,7 @@ export const useSessionFlows = () => {
         return valid;
       },
     },
-    // {
-    //   name: ROUTE.SESSION_LOGIN,
-    //   guard: async (_route: Route) => {
 
-    //     const valid = await isAuthenticated()
-    //       .then(() => false)
-    //       .catch(() => true);
-
-    //     return valid;
-    //   },
-    //   targets: {
-    //     next: [{ name: ROUTE.CHECKOUT }],
-    //     back: [{ name: ROUTE.BASKET }],
-    //     fallback: [{ name: ROUTE.BASKET }],
-    //   },
-    // },
-    // {
-    //   name: ROUTE.SESSION_REGISTER,
-    //   guard: async (_route: Route) => {
-
-    //     const valid = await isAuthenticated()
-    //       .then(() => false)
-    //       .catch(() => true);
-
-    //     return valid;
-    //   },
-    //   targets: {
-    //     next: [{ name: ROUTE.CHECKOUT }],
-    //     back: [{ name: ROUTE.BASKET }],
-    //     fallback: [{ name: ROUTE.BASKET }],
-    //   },
-    // },
     // {
     //   name: ROUTE.SESSION_FORGOT_PASSWORD,
     //  guard: async (_route: Route) => await  isAuthenticated()

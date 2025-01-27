@@ -9,7 +9,7 @@
     >
       <div class="flex h-full flex-col md:flex-row">
         <div class="w-screen p-8 md:w-[26rem]">
-          <UpmSession no-header no-tabs :show="show" color="secondary" />
+          <Session no-header no-tabs model-value="login" color="secondary" />
         </div>
       </div>
     </PopoverContent>
@@ -18,16 +18,13 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
 
 // --- components
-import UpmSession from "./Session.vue";
+import Session from "./Session.vue";
 
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@upmind-automation/upwind";
-
-const show = ref("login");
 </script>

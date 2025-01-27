@@ -34,7 +34,6 @@ export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
       let format = null;
       const contentMediaType = null;
       const contentEncoding = null;
-
       // lets map our field types...
       switch (field.type_code) {
         case "input_number":

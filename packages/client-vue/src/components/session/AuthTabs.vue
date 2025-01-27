@@ -4,6 +4,16 @@
     :class="cn(styles.session.auth.root, $props.class)"
     v-if="!meta.isAuthenticated"
   >
+    <Tabs
+      :default-value="modelValue"
+      :tabs="tabs"
+      :width="stretchTabs ? 'full' : 'auto'"
+      v-if="
+        !noTabs &&
+        (meta.canShowForms || meta.showLoginForm || meta.showRegisterForm)
+      "
+    />
+
     <Form
       :key="modelValue"
       :loading="meta.isLoading"
@@ -23,24 +33,13 @@
   <div :class="styles.session.auth.actions">
     <slot name="toggle">
       <Button
-        v-if="meta.showRegisterForm || meta.showLoginForm"
-        @click="() => toggleForm(meta.showRegisterForm ? 'login' : 'register')"
-        variant="link"
+        variant="ghost"
+        block
+        type="reset"
+        @click.prevent="logout"
+        v-if="meta.isAuthenticated"
       >
-        <span class="font-normal">
-          {{
-            t(
-              `session.unauthenticated.${meta.showRegisterForm ? "register" : "login"}.actions.text`
-            )
-          }}
-        </span>
-        <span>
-          {{
-            t(
-              `session.unauthenticated.${meta.showRegisterForm ? "register" : "login"}.actions.action`
-            )
-          }}
-        </span>
+        logout
       </Button>
     </slot>
   </div>
@@ -59,7 +58,14 @@ import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- custom elements
-import { Button } from "@upmind-automation/upwind";
+import { Button, Tabs } from "@upmind-automation/upwind";
+
+type TabItem = {
+  value: string;
+  label: string;
+};
+
+type TabItems = TabItem[];
 
 // --- types
 import type { AuthProps } from "./types";
@@ -91,6 +97,19 @@ const styles = useStyles(["session.auth"], meta, config);
 const modelValue = useVModel(props, "modelValue", emit);
 
 // ---
+
+const tabs = computed((): TabItems => {
+  return [
+    {
+      value: "register",
+      label: t("auth.actions.toggle.register"),
+    },
+    {
+      value: "login",
+      label: t("auth.actions.toggle.login"),
+    },
+  ];
+});
 
 const authActions = computed(() => {
   return {
@@ -128,9 +147,6 @@ function toggleForm(type: AuthProps["modelValue"]) {
       if (!meta.value.showRegisterForm)
         showRegister().then(() => (modelValue.value = type));
       break;
-    // case "forgot":
-    //   if (!meta.value.showForgotForm)
-    //     showForgot().then(() => (modelValue.value = type));
   }
 }
 

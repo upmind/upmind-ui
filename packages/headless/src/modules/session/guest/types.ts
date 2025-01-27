@@ -23,7 +23,7 @@ export interface GuestContext {
 }
 
 export interface AuthModel {
-  custom_fields: { [key: string]: number | string | boolean };
+  customFields: { [key: string]: number | string | boolean };
   username: string;
   firstname: string;
   lastname: string;
