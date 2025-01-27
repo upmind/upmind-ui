@@ -27,8 +27,14 @@ interface Icon {
         name: string;
         path: string;
       };
-  size?: string;
+  size?: "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
   class?: string;
+}
+
+interface Promotion {
+  id: string;
+  amount: number;
+  amountFormatted: string;
 }
 
 // ---
@@ -66,7 +72,7 @@ export interface Recommendation {
   regularAmount?: number;
   regularPrice?: string;
   // ---
-  promotions?: string[];
+  promotions?: Promotion[];
   // ---
   config?: {
     productId: string;
