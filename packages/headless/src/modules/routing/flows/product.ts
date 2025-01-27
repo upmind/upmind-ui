@@ -84,6 +84,7 @@ export const useProductFlows = () => {
         const valid = await getPendingProduct(productId, true)
           .then(() => true)
           .catch(() => false);
+
         return valid;
       },
       resolve: async (route: Route) => {

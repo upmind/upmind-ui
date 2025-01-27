@@ -153,12 +153,7 @@ async function resolve(
       const targets = mapTargets(target?.targets?.fallback || [], flows);
       const flow: Flow | undefined = valid
         ? target
-        : await matchTargets(targets, route, event)
-            .then(fallback => {
-              fallback.meta = { fallback: true };
-              return fallback;
-            })
-            .catch(() => undefined);
+        : await matchTargets(targets, route, event).catch(() => undefined);
 
       return flow;
     }
