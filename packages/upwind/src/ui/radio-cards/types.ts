@@ -25,6 +25,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   required?: boolean;
   overrideIndex?: number;
   useInputGroup?: boolean;
+  ring?: boolean;
   // --- state
   items: RadioCardsItemProps[];
   loading?: boolean;

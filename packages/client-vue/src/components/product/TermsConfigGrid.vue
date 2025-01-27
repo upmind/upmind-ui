@@ -23,6 +23,7 @@
       :placeholder="t('product.select.placeholder')"
       :class="styles.product.config.grid.items"
       layout="grid"
+      ring
       :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
       :width="0"
