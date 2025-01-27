@@ -40,6 +40,7 @@ export const useBasketFlows = () => {
         fallback: [
           ROUTE.EXPRESS_PRODUCT_ADD,
           ROUTE.PRODUCT_ADD,
+          ROUTE.PRODUCT_NOT_FOUND,
           ROUTE.BASKET,
           ROUTE.EMPTY,
         ],

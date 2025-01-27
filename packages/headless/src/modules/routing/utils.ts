@@ -195,17 +195,28 @@ export const useRoutePendingProducts = (route: Route) => {
         productId,
       ]);
       if (!isEmpty(basketItem)) {
-        return Promise.resolve(basketItem);
+        if (!basketItem.getSnapshot().matches("error")) {
+          return Promise.resolve(basketItem);
+        } else {
+          unsetPendingProduct(productId);
+          return Promise.reject({
+            message: "Error adding item to basket",
+            code: responseCodes.Unprocessable_Entity,
+          });
+        }
       } else {
         return addItem(model)
           .then(async actor => {
             return waitFor(
               actor,
-              state => !["loading", "subscribing"].some(state.matches),
+              state =>
+                !["loading", "subscribing", "processing", "refreshing"].some(
+                  state.matches
+                ),
               { timeout: Infinity }
-            ).then(state =>
-              !state.matches("error") ? actor : Promise.reject()
-            );
+            ).then(state => {
+              return !state.matches("error") ? actor : Promise.reject();
+            });
           })
           .catch(() => {
             unsetPendingProduct(productId);
@@ -253,7 +264,6 @@ export const useRoutePendingProducts = (route: Route) => {
         code: responseCodes.Unprocessable_Entity,
       });
     });
-
     if (basketItem && sync) {
       const subscription: Subscription = basketItem.subscribe(
         (state: State<any, any>) => {
