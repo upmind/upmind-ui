@@ -7,15 +7,13 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useRoute, useRouter } from "vue-router";
 
 // --- internal
-import {
-  useRoutingEngine as useUpmindRoutingEngine,
-  useRoutePendingProducts,
-} from "@upmind-automation/headless";
+import { useRoutingEngine as useUpmindRoutingEngine } from "@upmind-automation/headless";
 import { useBasket } from "../basket";
+import { useSession } from "../session";
 
 // --- utils
 
-import { isEmpty, get, defaultsDeep } from "lodash-es";
+import { isEmpty, get } from "lodash-es";
 
 // --- types
 import type { Route } from "@upmind-automation/headless";
@@ -29,6 +27,7 @@ import { ROUTE } from "@upmind-automation/headless";
  */
 export const useRoutingEngine = () => {
   const { meta } = useBasket();
+  const { meta: sessionMeta } = useSession();
 
   const {
     service,
@@ -45,18 +44,12 @@ export const useRoutingEngine = () => {
   const route = useRoute();
   const router = useRouter();
 
-  const { clearPendingProducts } = useRoutePendingProducts({
-    name: route?.name?.toString(),
-    params: route?.params,
-    query: route?.query,
-  });
-
   // -----------------------------------------------------------------------------
 
   async function next(data?: any): Promise<void> {
     return resolveNext(
       {
-        name: route.name?.toString(),
+        name: route?.name?.toString(),
         params: route.params,
         query: route.query,
       },
@@ -178,16 +171,16 @@ export const useRoutingEngine = () => {
 
   // ---
   // set up automatic refresh when the user logs in or out or if the basket is emptied
+  watch(meta, ({ hasProducts }, { hasProducts: hadProducts }) => {
+    if (!hasProducts && hadProducts) {
+      navigate(ROUTE.EMPTY);
+    }
+  });
   watch(
-    meta,
-    (
-      { hasProducts, needsAuth },
-      { hasProducts: hadProducts, needsAuth: neededAuth }
-    ) => {
-      if (needsAuth && !neededAuth) {
+    sessionMeta,
+    ({ isAuthenticated }, { isAuthenticated: wasAuthenticated }) => {
+      if (!isAuthenticated && wasAuthenticated) {
         navigate(ROUTE.SESSION_END);
-      } else if (!hasProducts && hadProducts) {
-        navigate(ROUTE.EMPTY);
       }
     }
   );

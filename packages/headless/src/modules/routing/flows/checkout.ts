@@ -14,7 +14,14 @@ import { useSession } from "../../session";
 // -----------------------------------------------------------------------------
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, hasInvalidProducts, hasFields, needsAuth } = useBasket();
+  const {
+    hasProducts,
+    hasInvalidProducts,
+    hasFields,
+    hasOrder,
+    isOrderPaid,
+    getInvoice,
+  } = useBasket();
   const { isAuthenticated } = useSession();
 
   let flows: Flow[] = [
@@ -26,12 +33,46 @@ export const useCheckoutFlows = () => {
         const validAuth = await isAuthenticated()
           .then(() => true)
           .catch(() => false);
+
         return validProducts && validFields && validAuth;
       },
       targets: {
-        next: [ROUTE.ORDER],
+        next: [
+          {
+            name: ROUTE.ORDER,
+            guard: async (_route: Route) => {
+              const valid = hasOrder();
+              return valid;
+            },
+            resolve: async (_route: Route) => {
+              const invoice = getInvoice();
+              return {
+                name: ROUTE.ORDER,
+                params: { orderId: invoice?.id },
+                query: { payment_success: isOrderPaid().toString() },
+                meta: { replace: true },
+              };
+            },
+          },
+        ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [
+          {
+            name: ROUTE.ORDER,
+            guard: async (_route: Route) => {
+              const valid = hasOrder();
+              return valid;
+            },
+            resolve: async (_route: Route) => {
+              const invoice = getInvoice();
+              return {
+                name: ROUTE.ORDER,
+                params: { orderId: invoice?.id },
+                query: { payment_success: isOrderPaid().toString() },
+                meta: { replace: true },
+              };
+            },
+          },
           {
             name: ROUTE.EMPTY,
             guard: async (_route: Route) => !hasProducts(),
@@ -42,7 +83,12 @@ export const useCheckoutFlows = () => {
           },
           {
             name: ROUTE.SESSION,
-            guard: async (_route: Route) => needsAuth(),
+            guard: async (_route: Route) => {
+              const validAuth = await isAuthenticated()
+                .then(() => true)
+                .catch(() => false);
+              return !validAuth;
+            },
           },
         ],
       },

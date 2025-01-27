@@ -252,6 +252,11 @@ export const useSession = () => {
         .then(() => clientMachine.state.context.user)
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
+
+    hasExpired: () => {
+      const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
+      return clientMachine && clientMachine?.state?.matches("expired");
+    },
     // ---
     showLogin,
     showRegister,
