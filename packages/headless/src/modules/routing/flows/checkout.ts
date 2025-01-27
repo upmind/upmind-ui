@@ -82,7 +82,7 @@ export const useCheckoutFlows = () => {
             guard: async (_route: Route) => hasInvalidProducts(),
           },
           {
-            name: ROUTE.SESSION,
+            name: ROUTE.SESSION_REGISTER,
             guard: async (_route: Route) => {
               const validAuth = await isAuthenticated()
                 .then(() => true)
