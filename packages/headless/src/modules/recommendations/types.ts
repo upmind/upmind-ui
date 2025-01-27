@@ -1,11 +1,37 @@
 // --- types
-import type { Actor, ActorRef } from "xstate";
+import type { ActorRef } from "xstate";
 import type { IRelatedObject, IProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 
 // --------------------------------------------------------
-//
+
+interface Badge {
+  label?: string;
+  color?: string;
+  variant?: string;
+  size?: string;
+  class?: string;
+}
+
+interface Icon {
+  icon:
+    | string
+    | {
+        name: string;
+        path: string;
+      };
+  fallback?:
+    | string
+    | {
+        name: string;
+        path: string;
+      };
+  size?: string;
+  class?: string;
+}
+
+// ---
 
 export interface Recommendation {
   id: string;
@@ -19,6 +45,8 @@ export interface Recommendation {
   category?: string;
   serviceIdentifier?: string;
   imgUrl?: string;
+  badge?: Badge;
+  benefits?: Benefit[];
   // ---
   cycle?: number;
   quantity?: number;
@@ -97,6 +125,8 @@ export interface RelatedProduct extends IRelatedObject {
   product?: IProduct;
   // --- config to be used in adding the recommendation
   config?: IProductConfig;
+  badge?: Badge;
+  benefits?: Benefit[];
 }
 
 export interface IProductConfig {
@@ -116,4 +146,9 @@ export interface RecommendationsEngineEvents {
   type: "CHECK" | "REFRESH";
   data?: any;
   error?: any;
+}
+
+export interface Benefit {
+  label: string;
+  icon: Icon;
 }

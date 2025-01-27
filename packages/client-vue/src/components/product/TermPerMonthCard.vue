@@ -21,28 +21,22 @@
         </Badge>
       </template>
 
-      <span :class="styles.product.config.grid.item.text">{{
-        props.meta.free ? t("product.free") : props.currentPrice
-      }}</span>
+      <CurrentPrice
+        v-bind="props"
+        :class="styles.product.config.grid.item.text"
+      />
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <del
-        :class="styles.product.config.grid.item.discount"
-        v-if="props.meta.discounted"
-      >
-        {{
-          t("product.cycle", {
-            value: props.monthlyFromRegularPrice,
-          })
-        }}
-      </del>
-
-      <strong :class="styles.product.config.grid.item.total">{{
-        t("product.cycle", {
-          value: props.monthlyFromCurrentPrice,
-        })
-      }}</strong>
+      <Pricing
+        v-bind="props"
+        :upwind-config="{
+          pricing: {
+            current: styles.product.config.grid.item.total,
+          },
+        }"
+        show-cycle
+      />
     </div>
   </div>
 </template>
@@ -58,6 +52,8 @@ import config from "./config.cva";
 
 // --- components
 import { Badge } from "@upmind-automation/upwind";
+import CurrentPrice from "../pricing/CurrentPrice.vue";
+import Pricing from "../pricing/Pricing.vue";
 
 // --- utils
 
