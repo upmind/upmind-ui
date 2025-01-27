@@ -247,7 +247,12 @@ export const useRoutePendingProducts = (route: Route) => {
   ): Promise<ActorRef<any, any>> {
     const target = pid || productId || first(keys(pendingProducts));
     const model = get(pendingProducts, target, { productId: target });
-    const basketItem = await ensureBasketItem(target, model);
+    const basketItem = await ensureBasketItem(target, model).catch(() => {
+      return Promise.reject({
+        message: "Error ensuring pending product",
+        code: responseCodes.Unprocessable_Entity,
+      });
+    });
 
     if (basketItem && sync) {
       const subscription: Subscription = basketItem.subscribe(

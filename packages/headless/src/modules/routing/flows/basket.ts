@@ -30,7 +30,7 @@ export const useBasketFlows = () => {
 
         //  then we can try to sync the pending products, if any
         const { syncPendingProducts } = useRoutePendingProducts(route);
-        await Promise.all(syncPendingProducts());
+        await Promise.allSettled(syncPendingProducts());
 
         return false; //NB ALWAYS return false as we dont want the currentFlow to be Loading, but rather its fallback
       },
