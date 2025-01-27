@@ -1,9 +1,9 @@
 <template>
   <component
-    v-if="modal || (!modal && isOpen)"
+    v-if="modal || (!modal && meta.isOpen)"
     :is="modal ? Dialog : 'div'"
     :description="text"
-    :open="isOpen"
+    :open="meta.isOpen"
     :size="size"
     :skrim="skrim"
     :title="title"
@@ -34,7 +34,7 @@
           v-for="(action, index) in actions"
           :key="`action-${index}`"
           v-bind="action"
-          :loading="processing"
+          :loading="meta.isProcessing"
           @click.stop="doAction(action?.handler)"
         >
           <template #prepend>
@@ -55,7 +55,6 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless-vue";
 import { useStyles, cn } from "@upmind-automation/upwind";
 import config from "./interstitial.config";
 
@@ -85,7 +84,11 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   }),
 });
 
-const { meta } = useBasket();
+const processing = ref(false);
+const meta = computed(() => ({
+  isProcessing: processing.value,
+  isOpen: props.open,
+}));
 
 const variants = useStyles(
   "interstitial",
@@ -101,9 +104,6 @@ const variants = useStyles(
     actions: string;
   };
 }>;
-
-const processing = ref(false);
-const isOpen = computed(() => meta.value.isEmpty || props.open);
 
 async function doAction(handler: InterstitialActionProps["handler"]) {
   if (isFunction(handler)) {

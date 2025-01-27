@@ -9,6 +9,7 @@ import {
 } from "..";
 
 import { useBasket } from "../../basket";
+import { useRecommendationsEngine } from "../../recommendations";
 
 // --- utils
 import { uniqBy, get, set, isEmpty } from "lodash-es";
@@ -20,7 +21,7 @@ import type { Flow, Route } from "../types";
 // -----------------------------------------------------------------------------
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
-  const { updateItem } = useBasket();
+  const { updateItem, findProduct, productExists } = useBasket();
 
   let flows: Flow[] = [
     {
@@ -31,7 +32,10 @@ export const useProductFlows = () => {
         const valid =
           express &&
           (await getPendingProduct(productId)
-            .then(basketItem => !basketItem.getSnapshot().matches("error"))
+            .then(
+              basketItem =>
+                !["error", "complete"].some(basketItem.getSnapshot().matches)
+            )
             .catch(() => false));
         return valid;
       },
@@ -66,7 +70,16 @@ export const useProductFlows = () => {
       targets: {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
-          ROUTE.RECOMMENDATIONS,
+          {
+            name: ROUTE.RECOMMENDATIONS,
+            guard: async (_route: Route) => {
+              const { hasUnseenRecommendations, isReady } =
+                useRecommendationsEngine();
+              await isReady();
+              const valid = hasUnseenRecommendations();
+              return valid;
+            },
+          },
           ROUTE.CHECKOUT,
           ROUTE.SESSION,
           ROUTE.BASKET,
@@ -82,7 +95,10 @@ export const useProductFlows = () => {
 
         const { productId } = useRouteQueryParams(route);
         const valid = await getPendingProduct(productId, true)
-          .then(basketItem => !basketItem.getSnapshot().matches("error"))
+          .then(
+            basketItem =>
+              !["error", "complete"].some(basketItem.getSnapshot().matches)
+          )
           .catch(() => false);
         return valid;
       },
@@ -103,13 +119,47 @@ export const useProductFlows = () => {
       targets: {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
-          ROUTE.RECOMMENDATIONS,
+          {
+            name: ROUTE.RECOMMENDATIONS,
+            guard: async (_route: Route) => {
+              const { hasUnseenRecommendations, isReady } =
+                useRecommendationsEngine();
+              await isReady();
+              const valid = hasUnseenRecommendations();
+              return valid;
+            },
+          },
           ROUTE.CHECKOUT,
           ROUTE.SESSION,
           ROUTE.BASKET,
         ],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [ROUTE.PRODUCT_NOT_FOUND],
+        fallback: [
+          {
+            name: ROUTE.PRODUCT_EDIT,
+            guard: async (route: Route) => {
+              const { productId } = useRouteQueryParams(route);
+              const valid = productExists({ productId });
+              return valid;
+            },
+            resolve: async (route: Route) => {
+              const { productId } = useRouteQueryParams(route);
+              const basketItem = findProduct({ productId });
+
+              if (!basketItem?.id)
+                return {
+                  name: ROUTE.PRODUCT_NOT_FOUND,
+                  query: { pid: productId },
+                };
+              else
+                return {
+                  name: ROUTE.PRODUCT_EDIT,
+                  params: { bpid: basketItem?.id },
+                };
+            },
+          },
+          ROUTE.PRODUCT_NOT_FOUND,
+        ],
       },
     },
     {
@@ -125,7 +175,16 @@ export const useProductFlows = () => {
       targets: {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
-          ROUTE.RECOMMENDATIONS,
+          {
+            name: ROUTE.RECOMMENDATIONS,
+            guard: async (_route: Route) => {
+              const { hasUnseenRecommendations, isReady } =
+                useRecommendationsEngine();
+              await isReady();
+              const valid = hasUnseenRecommendations();
+              return valid;
+            },
+          },
           ROUTE.CHECKOUT,
           ROUTE.SESSION,
           ROUTE.BASKET,
