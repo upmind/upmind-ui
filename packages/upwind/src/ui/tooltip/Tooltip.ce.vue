@@ -3,7 +3,9 @@
 
   <TooltipProvider v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger :color="color"><slot /></TooltipTrigger>
+      <TooltipTrigger :color="color" :tabindex="props.allowTab ? 0 : -1"
+        ><slot
+      /></TooltipTrigger>
       <TooltipContent
         v-bind="forwarded"
         :class="cn(variants.tooltip, props.class)"
@@ -46,6 +48,7 @@ import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 
 const props = withDefaults(defineProps<TooltipProps>(), {
   delayDuration: 150,
+  allowTab: true,
   // --- variants
   color: "base",
   // --- styles

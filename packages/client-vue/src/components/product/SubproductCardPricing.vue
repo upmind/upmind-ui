@@ -2,14 +2,18 @@
   <template v-if="!props.meta.free">
     <ExPrice v-bind="props" />
 
-    <Tooltip v-if="props.meta.overrides" :label="t('product.overrides')">
+    <Tooltip
+      v-if="props.meta.overrides"
+      :label="t('product.overrides')"
+      :allow-tab="false"
+    >
       <span class="hover:cursor-help">
         <Icon icon="transfer" size="3xs" class="text-inherit" />
         {{ props.currentPrice }}
       </span>
     </Tooltip>
 
-    <Tooltip v-else :label="t('product.adds')">
+    <Tooltip v-else :label="t('product.adds')" :allow-tab="false">
       <span class="hover:cursor-help">
         <span>+</span><CurrentPrice v-bind="props" />
       </span>
