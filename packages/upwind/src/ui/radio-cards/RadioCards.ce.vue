@@ -20,9 +20,6 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-        :tabindex="isSelected(item) && useInputGroup ? 0 : -1"
-        @keydown.prevent.enter="onChange(item.value)"
-        @focus="onChange(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -71,10 +68,6 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
-
-const isSelected = (item: any) => {
-  return modelValue.value === item.value;
-};
 
 const meta = computed(() => ({
   color: props.color,
