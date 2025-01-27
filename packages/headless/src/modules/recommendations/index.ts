@@ -35,6 +35,11 @@ export const useRecommendationsEngine = () => {
 
     hasRecommendations: () => {
       const state = service.getSnapshot();
+      return !isEmpty(state.context?.recommendations);
+    },
+
+    hasUnseenRecommendations: () => {
+      const state = service.getSnapshot();
 
       return (
         !isEmpty(state.context?.recommendations) &&

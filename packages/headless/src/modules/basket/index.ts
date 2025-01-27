@@ -10,6 +10,7 @@ export { useBasketProductConfig, useBasketProduct } from "./products";
 import {
   every,
   find,
+  findLast,
   get,
   some,
   omitBy,
@@ -38,7 +39,7 @@ const service = interpret(basketMachine, { devTools: true });
 // --------------------------------------------------------
 // methods
 // --------------------------------------------------------
-function exists(items = [], mapping: any, context = null) {
+function exists(items: ActorRef<any, any>[] = [], mapping: any, context: any) {
   // @ts-ignore
   context = context ? `${context}.` : "";
   return some(items, item =>
@@ -308,26 +309,26 @@ export const useBasket = () => {
     return filter(products, product => !isEmpty(product?.error));
   }
 
-  function findItem(mapping: any): ActorRef<any, any> | undefined {
-    return find(service.getSnapshot()?.context?.items, (basketItem: any) =>
+  function findProduct(
+    mapping: any,
+    pending?: boolean
+  ): ActorRef<any, any> | undefined {
+    const products = pending ? getPendingProducts() : getProducts();
+    return findLast(products, (basketItem: any) =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return basketItem.id == value;
         } else {
-          return get(basketItem, `state.context.model.${key}`) == value;
+          const modelValue = get(basketItem, key);
+          return modelValue == value;
         }
       })
     );
   }
 
-  function itemExists(mapping: any) {
-    return exists(
-      // @ts-ignore
-      service.getSnapshot()?.context?.items,
-      mapping,
-      // @ts-ignore
-      "state.context.model"
-    );
+  function productExists(mapping: any, pending?: boolean) {
+    const products = pending ? getPendingProducts() : getProducts();
+    return exists(products, mapping, "state.context.model");
   }
 
   async function addItem({
@@ -467,8 +468,10 @@ export const useBasket = () => {
     getProducts,
     getPendingProducts,
     getInvalidProducts,
-    findItem,
-    itemExists,
+    findProduct,
+    productExists,
+    findItem: (mapping: any) => findProduct(mapping, true),
+    itemExists: (mapping: any) => productExists(mapping, true),
     addItem,
     updateItem,
     removeItem,
