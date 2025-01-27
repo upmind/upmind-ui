@@ -218,7 +218,7 @@ export default createMachine(
               return null;
 
             recommendation.config.provisionFields = mapValues(
-              recommendation.config.provisionFields ?? {},
+              recommendation.config?.provisionFields ?? {},
               (value: any) => {
                 // get any dynamic properties that we need to resolve
                 const dynamicProperty: string = first(
@@ -259,7 +259,7 @@ export default createMachine(
           const context = find(recommendations, ["id", data]);
 
           // ensure we add our configured coupons to the recommendation and remove the config as it's not needed
-          set(context, "promotions", context.config.coupons);
+          set(context, "promotions", context?.config?.coupons);
           unset(context, "config");
 
           return {
