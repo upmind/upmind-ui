@@ -7,10 +7,14 @@ export { default as Upm } from "./Upmind.vue";
 // --- expose our modules & components
 export { default as UpmFeedback } from "./components/feedback/Feedback.vue";
 // ---
+export type { AuthProps } from "./components/session/types";
 export { default as UpmSession } from "./components/session/Session.vue";
+export { default as UpmAuth } from "./components/session/Auth.vue";
+export { default as UpmAuthTabs } from "./components/session/AuthTabs.vue";
 export { default as UpmSessionLoginPopover } from "./components/session/LoginPopover.vue";
 export { default as UpmSessionDetailsDropdown } from "./components/session/DetailsDropdown.vue";
-export { default as UpmAuth } from "./components/session/Auth.vue";
+export { default as UpmSessionDrawer } from "./components/session/Drawer.vue";
+export { default as UpmSessionDialog } from "./components/session/Dialog.vue";
 export { default as UpmProfile } from "./components/session/Profile.vue";
 export { default as UpmSessionExpired } from "./components/session/Expired.vue";
 // ---

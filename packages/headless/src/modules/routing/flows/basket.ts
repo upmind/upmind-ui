@@ -57,7 +57,19 @@ export const useBasketFlows = () => {
     },
     {
       name: ROUTE.BASKET,
-      guard: async (_route: Route) => hasProducts(),
+      guard: async (_route: Route) => {
+        const valid = hasProducts();
+        return valid;
+      },
+      //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.
+      // eg: ** OPTIONALLY ** if we have an alias for basket that is cart, then the router would force the redirec tto basket
+      // othgerwise `/cart` would stil lresolve to the basket flow but not have `/basket` in the url
+      // resolve: async (_route: Route) => {
+      //   return {
+      //     name: ROUTE.BASKET,
+      //     path: "/basket",
+      //   };
+      // },
       targets: {
         next: [ROUTE.CHECKOUT],
         back: [],

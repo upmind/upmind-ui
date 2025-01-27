@@ -1,6 +1,6 @@
 <template>
   <section class="session" :class="styles.session.root">
-    <header :class="styles.session.header" v-if="!noHeader">
+    <header :class="styles.session.header" v-if="!noHeader || !!$slots.header">
       <slot name="header" v-bind="{ meta, user }">
         <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
@@ -59,19 +59,18 @@
       :stretch-tabs="stretchTabs"
       :no-tabs="noTabs"
       :color="color"
-      :model-value="show"
+      :model-value="modelValue"
     >
     </Auth>
 
-    <footer :class="styles.session.footer" v-if="noFooter || !!$slots.footer">
+    <footer :class="styles.session.footer" v-if="!noFooter || !!$slots.footer">
       <slot name="footer" v-bind="{ meta, user }"> </slot>
     </footer>
   </section>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -80,53 +79,23 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import Auth from "./Auth.vue";
+import Auth from "./AuthTabs.vue";
 
 // --- custom elements
 import { Button } from "@upmind-automation/upwind";
 
 // --- types
-import type { PropType } from "vue";
 import type { AuthProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "Session",
-  components: {
-    Auth,
-    Button,
-  },
-  props: {
-    show: {
-      type: String as PropType<AuthProps["form"]>,
-      default: "register",
-    },
-    noHeader: {
-      type: Boolean,
-      default: false,
-    },
-    noFooter: {
-      type: Boolean,
-      default: false,
-    },
-    color: { type: String },
-    blockTabs: { type: Boolean, default: false },
-    stretchTabs: { type: Boolean, default: false },
-    noTabs: { type: Boolean, default: false },
-  },
-
-  setup(props, { slots }) {
-    const { t } = useI18n();
-    const styles = useStyles(["session"], props, config);
-
-    return {
-      t,
-      ...useSession(),
-      styles,
-    };
-  },
+const props = withDefaults(defineProps<AuthProps>(), {
+  modelValue: "register",
 });
+
+const { t } = useI18n();
+const styles = useStyles(["session"], props, config);
+const { meta, user } = useSession();
 
 // ---
 </script>
