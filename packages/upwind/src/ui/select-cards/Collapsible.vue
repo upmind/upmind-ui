@@ -24,6 +24,7 @@
           :manuallySelected="manuallySelected"
           :meta="meta"
           @focus="handleFocus"
+          @blur="handleBlur"
           @keydown.prevent.enter="keyEnter"
         >
           <template #prepend>
@@ -62,7 +63,7 @@
           :key="item.id || index"
           tabindex="0"
           :class="variants.select.item"
-          @click="onChange(item.value)"
+          @click.prevent="onChange(item.value)"
           @keydown.prevent.arrow-down="focusNextItem(index)"
           @keydown.prevent.arrow-up="focusPreviousItem(index)"
           @keydown.prevent.enter="
