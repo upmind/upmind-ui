@@ -10,7 +10,9 @@
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
-      :class="cn(variants.checkboxCards.item)"
+      tabindex="0"
+      @keydown.enter="onChange(item.value)"
+      :class="variants.checkboxCards.item"
     >
       <CheckboxGroupItem
         :id="`${props.name}-${index}`"
@@ -18,8 +20,8 @@
         :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
-        :class="variants.checkboxCards.input"
         :no-input="props.noInput"
+        :class="variants.checkboxCards.input"
       >
         <Label
           :for="`${props.name}-${index}`"
@@ -99,8 +101,10 @@ const selected = computed(() => find(props.items, { value: modelValue.value }));
 
 // allow for toggle of selected item
 function onChange(value: any) {
-  if (!props.required && modelValue.value == value)
+  if (modelValue.value == value || !value) {
     modelValue.value = undefined;
-  else modelValue.value = value;
+  } else {
+    modelValue.value = value;
+  }
 }
 </script>

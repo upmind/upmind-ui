@@ -88,6 +88,7 @@ import {
   type RadioCardsProps,
   type RadioCardsItemProps,
 } from "./ui/radio-cards";
+import { RadioGroup } from "./ui/radio-group";
 
 import { UwSelect, Select, type SelectProps } from "./ui/select";
 import { UwSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
@@ -151,6 +152,7 @@ export {
   PopoverContent,
   PopoverTrigger,
   RadioCards,
+  RadioGroup,
   Separator,
   Select,
   SelectCards,
