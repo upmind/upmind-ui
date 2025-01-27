@@ -8,6 +8,8 @@ import {
   useBrand,
 } from "@upmind-automation/headless";
 
+import { useSession } from "../session";
+
 // --- utils
 import {
   contextActor,
@@ -43,6 +45,8 @@ export const useBasket = (): any => {
     updateItem,
     removeItem,
   } = useUpmindBasket();
+
+  const { meta: sessionMeta } = useSession();
   // --------------------------------------------------------
   // we need this for reactive state
   const { state } = useActor(service);
@@ -108,7 +112,7 @@ export const useBasket = (): any => {
             "checkout.available",
           ]) && contextMatches(state, ["products"]),
 
-        needsAuth: !stateMatches(state, ["shopping.account.complete"]),
+        needsAuth: !sessionMeta.value?.isAuthenticated,
 
         // ---
         hasProducts: contextMatches(state, ["products"]),

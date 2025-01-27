@@ -7,7 +7,7 @@ import { useProductFlows } from "./product";
 import { useRecommendationsFlows } from "./recomendations";
 import { useSessionFlows } from "./session";
 import { useCheckoutFlows } from "./checkout";
-// import { useOrderFlows } from "./order";
+import { useOrderFlows } from "./order";
 
 // --- utils
 
@@ -24,7 +24,7 @@ export const useRoutingFlows = () => {
   const recommendationsFlows = useRecommendationsFlows();
   const sessionFlows = useSessionFlows();
   const checkoutFlows = useCheckoutFlows();
-  // const orderFlows = useOrderFlows();
+  const orderFlows = useOrderFlows();
 
   return {
     basket: basketFlows,
@@ -32,7 +32,7 @@ export const useRoutingFlows = () => {
     recommendations: recommendationsFlows,
     session: sessionFlows,
     checkout: checkoutFlows,
-    // order: orderFlows,
+    order: orderFlows,
     // ---
     register: (data?: Flow[]) => {
       // register our default flows
@@ -41,7 +41,7 @@ export const useRoutingFlows = () => {
       recommendationsFlows.register();
       sessionFlows.register();
       checkoutFlows.register();
-      // orderFlows.register();
+      orderFlows.register();
       // ---
       if (data) routing.register(data);
     },
@@ -54,5 +54,5 @@ export {
   useRecommendationsFlows,
   useSessionFlows,
   useCheckoutFlows,
-  // useOrderFlows,
+  useOrderFlows,
 };

@@ -1,5 +1,5 @@
 // --- external
-import { interpret, toActorRef } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -99,11 +99,6 @@ export const useBasket = () => {
     );
   }
 
-  function needsAuth() {
-    const state = service.getSnapshot();
-    return !state.matches("shopping.account.complete");
-  }
-
   function hasProducts() {
     const state = service.getSnapshot();
     return !isEmpty(state?.context?.products);
@@ -188,6 +183,24 @@ export const useBasket = () => {
     );
   }
 
+  function hasOrder() {
+    const state = service.getSnapshot();
+    return ["complete", "failed"].some(state.matches);
+    // hasPaid: stateMatches(state, ["complete"]),
+    // hasFailed: stateMatches(state, ["failed"]),
+  }
+  function getInvoice() {
+    const state = service.getSnapshot();
+    return state.context?.invoice;
+  }
+  function isOrderPaid() {
+    const state = service.getSnapshot();
+    return state.matches("complete");
+  }
+  function isOrderFailed() {
+    const state = service.getSnapshot();
+    return state.matches("failed");
+  }
   // --- basket functions
 
   function clear() {
@@ -431,7 +444,6 @@ export const useBasket = () => {
     // --- meta functions
     isReady,
     isAvailable,
-    needsAuth,
     hasProducts,
     hasInvalidProducts,
     hasPromotions,
@@ -441,6 +453,10 @@ export const useBasket = () => {
     hasPaymentDetails,
     isReadyForCheckout,
     isCheckingOut,
+    hasOrder,
+    getInvoice,
+    isOrderPaid,
+    isOrderFailed,
     // --- basket functions
     clear,
     checkout,

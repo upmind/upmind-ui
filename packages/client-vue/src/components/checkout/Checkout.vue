@@ -112,7 +112,6 @@
 import { watch, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 
 // --- internal
 import {
@@ -120,6 +119,7 @@ import {
   useBasket,
   useBasketBillingDetails,
   useBasketPaymentDetails,
+  useRoutingEngine,
 } from "@upmind-automation/headless-vue";
 import config from "./config.cva.js";
 import { useStyles } from "@upmind-automation/upwind";
@@ -140,11 +140,11 @@ import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const router = useRouter();
 // ---
 
 const { meta: account } = useSession();
-const { state, meta, invoice } = useBasket();
+const { state, meta } = useBasket();
+const { next } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -264,11 +264,7 @@ watch(meta, (value, oldValue) => {
   }
 
   if (value.isComplete) {
-    router.replace({
-      name: "order",
-      params: { orderId: invoice.value?.id },
-      query: { payment_success: value.hasPaid.toString() },
-    });
+    next();
     return;
   }
 });
