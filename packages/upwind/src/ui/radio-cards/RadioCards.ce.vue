@@ -1,5 +1,6 @@
 <template>
-  <RadioGroup
+  <component
+    :is="useInputGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
@@ -19,13 +20,16 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
+        :tabindex="isSelected(item) && useInputGroup ? 0 : -1"
+        @keydown.prevent.enter="onChange(item.value)"
+        @focus="onChange(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
         </template>
       </RadioCardItem>
     </template>
-  </RadioGroup>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -52,6 +56,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
+  useInputGroup: true,
   // -- variants
   color: "base",
   variant: "control",
@@ -67,11 +72,13 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue,
 });
 
+const isSelected = (item: any) => {
+  return modelValue.value === item.value;
+};
+
 const meta = computed(() => ({
   color: props.color,
-  layout: props.layout,
   variant: props.variant,
-  ring: props.ring,
   width: props.width,
 }));
 
