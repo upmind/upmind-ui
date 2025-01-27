@@ -31,7 +31,7 @@ export const useProductFlows = () => {
         const valid =
           express &&
           (await getPendingProduct(productId)
-            .then(() => true)
+            .then(basketItem => !basketItem.getSnapshot().matches("error"))
             .catch(() => false));
         return valid;
       },
@@ -82,9 +82,8 @@ export const useProductFlows = () => {
 
         const { productId } = useRouteQueryParams(route);
         const valid = await getPendingProduct(productId, true)
-          .then(() => true)
+          .then(basketItem => !basketItem.getSnapshot().matches("error"))
           .catch(() => false);
-
         return valid;
       },
       resolve: async (route: Route) => {
@@ -183,6 +182,10 @@ export const useProductFlows = () => {
     },
     {
       name: ROUTE.PRODUCT_NOT_FOUND,
+      guard: async (route: Route) => {
+        const { productId, basketProductId } = useRouteQueryParams(route);
+        return !!productId || !!basketProductId;
+      },
       resolve: async (route: Route) => {
         const { productId, basketProductId } = useRouteQueryParams(route);
         // include the product id in the query params so we can track it in analytics, etc
