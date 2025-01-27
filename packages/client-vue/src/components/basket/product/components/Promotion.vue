@@ -19,7 +19,7 @@ withDefaults(
     currentSaving?: string;
     currentSavingAmount?: number;
     disabled?: boolean;
-    size?: "xs" | "md";
+    size?: "xs" | "sm" | "md";
   }>(),
   {
     size: "xs",

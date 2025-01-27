@@ -4,7 +4,7 @@
     :disabled="configMeta?.isDisabled"
   >
     <Badge
-      v-if="badge"
+      v-if="badge?.label"
       v-bind="badge"
       variant="flat"
       size="lg"
@@ -43,7 +43,10 @@
 
             <ul :class="styles.recommendation.content.list">
               <template v-for="benefit in benefits" :key="benefit.label">
-                <RecommendationBenefit v-bind="benefit" />
+                <RecommendationBenefit
+                  v-if="benefit?.label && benefit?.icon"
+                  v-bind="benefit"
+                />
               </template>
             </ul>
           </section>
