@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwLineclamp } from "@upmind-automation/upwind";
+import { Lineclamp } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";
@@ -13,8 +13,8 @@ import { text } from "stream/consumers";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwLineclamp> = {
-  component: UpwLineclamp,
+const meta: Meta<typeof Lineclamp> = {
+  component: Lineclamp,
   argTypes: {
     lines: {
       options: [1, 2, 3, 4, 5, 6],
@@ -34,13 +34,13 @@ const meta: Meta<typeof UpwLineclamp> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwLineclamp>;
+type Story = StoryObj<typeof Lineclamp>;
 
 // export const Base: Story = {};
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwLineclamp },
+    components: { Lineclamp },
     setup() {
       return {
         args: omit(args, ["text"]),
@@ -53,7 +53,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-lineclamp v-bind="args">{{text}}</upw-lineclamp>
+        <lineclamp v-bind="args">{{text}}</lineclamp>
     `,
   }),
 };

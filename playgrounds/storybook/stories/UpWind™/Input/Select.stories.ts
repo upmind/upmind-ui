@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { UpwSelect, UpwInput } from "@upmind-automation/upwind";
+import { Select, Input } from "@upmind-automation/upwind";
 
 // --- utils
 import { useSystemArgTypes } from "../../../utils";
@@ -11,12 +11,12 @@ import { useSystemArgTypes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
-const meta: Meta<typeof UpwSelect> = {
+const meta: Meta<typeof Select> = {
   parameters: {
     controls: { exclude: ["layout", "variant"] },
   },
-  component: UpwSelect,
-  subcomponents: { UpwInput },
+  component: Select,
+  subcomponents: { Input },
   argTypes: {
     size: useSystemArgTypes.size,
     // ---
@@ -71,11 +71,11 @@ const meta: Meta<typeof UpwSelect> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UpwSelect>;
+type Story = StoryObj<typeof Select>;
 
 export const Base: Story = {
   render: (args, { updateArgs }) => ({
-    components: { UpwSelect },
+    components: { Select },
     setup() {
       return {
         args,
@@ -87,7 +87,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-Select v-bind="args" @update:modelValue="doUpdate" />
+        <Select v-bind="args" @update:modelValue="doUpdate" />
     `,
   }),
 };
