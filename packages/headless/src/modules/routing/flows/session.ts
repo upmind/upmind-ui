@@ -18,6 +18,20 @@ export const useSessionFlows = () => {
 
   let flows: Flow[] = [
     {
+      name: ROUTE.SESSION,
+      guard: async (_route: Route) => {
+        const valid = await isAuthenticated()
+          .then(() => false)
+          .catch(() => true);
+        return valid;
+      },
+      targets: {
+        next: [ROUTE.CHECKOUT, ROUTE.BASKET, ROUTE.EMPTY],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
+      },
+    },
+    {
       name: ROUTE.SESSION_LOGIN,
       guard: async (_route: Route) => {
         const valid = await isAuthenticated()

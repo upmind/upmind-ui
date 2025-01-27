@@ -25,7 +25,7 @@ export const useRecommendationsFlows = () => {
         return valid;
       },
       targets: {
-        next: [ROUTE.CHECKOUT, ROUTE.SESSION, ROUTE.BASKET],
+        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
