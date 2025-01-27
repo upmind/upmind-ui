@@ -46,7 +46,7 @@ export default {
     root: rootVariants,
     item: itemVariants,
     label: cva(
-      "m-0 h-full w-full cursor-pointer rounded-md py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      "m-0 h-full w-full min-w-0 cursor-pointer rounded-md py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva("my-3 ml-4 mr-1 mt-4 leading-normal text-control-active"),
   },

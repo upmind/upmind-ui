@@ -14,6 +14,7 @@ interface Icon {
 // --- types
 export interface IconProps {
   icon: string | Icon;
+  fallback?: string | Icon;
   // ---
   size?: IconVariantProps["size"];
   // ---

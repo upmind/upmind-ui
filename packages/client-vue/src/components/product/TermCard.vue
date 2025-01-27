@@ -10,7 +10,7 @@
       </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Badge color="promotion" variant="tonal" size="sm">
+        <Badge v-bind="badge">
           {{
             promotion.mixed || !promotion.amount
               ? t("product.promotion")
@@ -23,15 +23,14 @@
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
-      <del
-        :class="styles.product.config.grid.item.discount"
-        v-if="props.meta.discounted"
-      >
-        {{ props.regularPrice }}
-      </del>
-      <strong :class="styles.product.config.grid.item.total">
-        {{ props.meta.free ? t("product.free") : props.currentPrice }}
-      </strong>
+      <Pricing
+        v-bind="props"
+        :upwind-config="{
+          pricing: {
+            current: styles.product.config.grid.item.total,
+          },
+        }"
+      />
     </div>
   </div>
 </template>
@@ -46,43 +45,53 @@ import { useStyles } from "@upmind-automation/upwind";
 import config from "./config.cva";
 
 // --- components
-import { Badge } from "@upmind-automation/upwind";
+import { Badge, type BadgeProps } from "@upmind-automation/upwind";
+import Pricing from "../pricing/Pricing.vue";
 
 // --- utils
 
 // --- types
 
 // -----------------------------------------------------------------------------
-
-const props = defineProps<{
-  name: string;
-  price?: number;
-  cycle?: number;
-  // ---
-  mixedPromotions?: boolean;
-  monthlyFromCurrentAmount?: number;
-  monthlyFromCurrentPrice?: string;
-  monthlyFromRegularAmount?: number;
-  monthlyFromRegularPrice?: string;
-  regularAmount?: number;
-  regularPrice?: string;
-  currentPrice?: string;
-  currentAmount?: number;
-  meta: {
-    discounted?: boolean;
-    free?: boolean;
-  };
-  promotions?: {
-    name?: string;
-    amount?: number;
-    amountFormatted?: string;
-    code: string[];
-    display?: string;
-    mixed?: boolean;
-  }[];
-  // ---
-  select?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    name: string;
+    price?: number;
+    cycle?: number;
+    // ---
+    mixedPromotions?: boolean;
+    monthlyFromCurrentAmount?: number;
+    monthlyFromCurrentPrice?: string;
+    monthlyFromRegularAmount?: number;
+    monthlyFromRegularPrice?: string;
+    regularAmount?: number;
+    regularPrice?: string;
+    currentPrice?: string;
+    currentAmount?: number;
+    meta: {
+      discounted?: boolean;
+      free?: boolean;
+    };
+    promotions?: {
+      name?: string;
+      amount?: number;
+      amountFormatted?: string;
+      code: string[];
+      display?: string;
+      mixed?: boolean;
+    }[];
+    // ---
+    select?: boolean;
+    badge?: BadgeProps;
+  }>(),
+  {
+    badge: {
+      color: "promotion",
+      variant: "tonal",
+      size: "sm",
+    },
+  }
+);
 
 // ---
 

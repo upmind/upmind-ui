@@ -54,11 +54,10 @@
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
-                  :id="id"
-                  :loading="loading"
-                  :processing="processing"
-                  :free="pricing.meta?.free"
-                  :current-price="pricing.currentPrice"
+                  v-bind="pricing"
+                  :upwind-config="{
+                    pricing: { current: styles.product.pricing.current },
+                  }"
                 />
               </div>
             </div>
@@ -77,15 +76,14 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <CurrentPrice
-              :id="id"
-              :loading="loading"
-              :processing="processing"
-              :free="pricing.meta?.free"
-              :current-price="pricing.currentPrice"
+              v-bind="pricing"
+              :upwind-config="{
+                pricing: { current: styles.product.pricing.current },
+              }"
             />
-            <RegularPrice
-              :discounted="pricing.meta?.discounted"
-              :regular-price="pricing.regularPrice"
+            <ExPrice
+              v-bind="pricing"
+              :upwind-config="{ pricing: { ex: styles.product.pricing.ex } }"
             />
           </div>
           <QuantityField
@@ -106,9 +104,9 @@
           :one-off="pricing.meta?.oneoff"
           :taxes="taxes"
         />
-        <RegularPrice
-          :discounted="pricing.meta?.discounted"
-          :regular-price="pricing.regularPrice"
+        <ExPrice
+          v-bind="pricing"
+          :upwind-config="{ pricing: { ex: styles.product.pricing.ex } }"
         />
       </div>
     </div>
@@ -124,8 +122,8 @@
 <script lang="ts" setup>
 // --- components
 import UpmRequiredAlert from "./components/RequiredAlert.vue";
-import CurrentPrice from "./components/CurrentPrice.vue";
-import RegularPrice from "./components/RegularPrice.vue";
+import CurrentPrice from "../../pricing/CurrentPrice.vue";
+import ExPrice from "../../pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
@@ -142,12 +140,20 @@ const props = defineProps<BasketProductSummaryProps>();
 
 const emits = defineEmits(["update:quantity"]);
 
-const styles = useStyles(["product.summary"], props, config) as ComputedRef<{
+const styles = useStyles(
+  ["product.summary", "product.pricing"],
+  props,
+  config
+) as ComputedRef<{
   product: {
     summary: {
       container: string;
       image: string;
       imageRoute: string;
+    };
+    pricing: {
+      current: string;
+      ex: string;
     };
   };
 }>;

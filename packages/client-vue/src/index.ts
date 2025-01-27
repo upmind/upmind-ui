@@ -52,6 +52,8 @@ export { default as UpmContentSection } from "./components/content/ContentSectio
 // ---
 export { default as UpmBack } from "./components/navigation/Back.vue";
 // ---
+export { default as UpmPromotionBadge } from "./components/badge/Promotion.vue";
+// ---
 export { default as UpmOrderConfirmation } from "./components/order/Confirmation.vue";
 // ---
 export { default as UpmDomain } from "./components/domain/Domain.vue";
