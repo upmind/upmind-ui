@@ -6,7 +6,7 @@ import type { ProductModel } from "../product/types";
 
 // --------------------------------------------------------
 
-interface Badge {
+export interface Badge {
   label?: string;
   color?: string;
   variant?: string;
@@ -156,5 +156,5 @@ export interface RecommendationsEngineEvents {
 
 export interface Benefit {
   label: string;
-  icon: Icon;
+  icon?: Icon;
 }
