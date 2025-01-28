@@ -118,7 +118,7 @@ const props = withDefaults(defineProps<FormControlProps>(), {
   dirty: false,
   touched: false,
   // ---
-  upmindUIConfig: () => ({
+  uiConfig: () => ({
     form: {
       root: [],
       loading: [],
@@ -134,35 +134,49 @@ const slots = useSlots();
 const target = ref();
 
 // --- computed
-const meta = computed(() => ({
-  // size: props.size,
-  // layout: props.layout,
-  // variant: props.variant,
-  // ---
-  // isInline: props.layout == "inline",
-  // isPersisted: props.persistFeedback || !isEmpty(props.errors),
-  // ---
-  isInvalid: !isEmpty(props.errors) && (props.dirty || props.touched),
-  isValid: isEmpty(props.errors),
-  isDirty: props.dirty,
-  isTouched: props.touched,
-  isRequired: props.required,
-  isVisible: isNil(props.visible) || props.visible,
-  isDisabled: props.disabled,
-  hasDescription: !isEmpty(props.description),
-  hasLabel: (!isEmpty(props.label) || some(slots, "label")) && !props.noLabel,
-  hasFeedback:
-    (isEmpty(props.errors) && !isEmpty(props.description)) ||
-    !isEmpty(props.errors),
-  shouldFocus: !!props.autoFocus,
-}));
+const meta = computed(
+  (): {
+    isInvalid: boolean;
+    isValid: boolean;
+    isDirty: boolean;
+    isTouched: boolean;
+    isRequired: boolean;
+    isVisible: boolean | null;
+    isDisabled: boolean;
+    hasDescription: boolean;
+    hasLabel: boolean;
+    hasFeedback: boolean;
+    shouldFocus: boolean;
+  } => ({
+    // size: props.size,
+    // layout: props.layout,
+    // variant: props.variant,
+    // ---
+    // isInline: props.layout == "inline",
+    // isPersisted: props.persistFeedback || !isEmpty(props.errors),
+    // ---
+    isInvalid: !isEmpty(props.errors) && (props.dirty || props.touched),
+    isValid: isEmpty(props.errors),
+    isDirty: props.dirty,
+    isTouched: props.touched,
+    isRequired: props.required,
+    isVisible: isNil(props.visible) || props.visible,
+    isDisabled: props.disabled,
+    hasDescription: !isEmpty(props.description),
+    hasLabel: (!isEmpty(props.label) || some(slots, "label")) && !props.noLabel,
+    hasFeedback:
+      (isEmpty(props.errors) && !isEmpty(props.description)) ||
+      !isEmpty(props.errors),
+    shouldFocus: !!props.autoFocus,
+  })
+);
 
-const variants = useStyles(
+const styles = useStyles(
   ["input", "input.feedback"],
   meta,
   config,
   target,
-  props.upmindUIConfig
+  props.uiConfig ?? {}
 );
 
 // --- methods

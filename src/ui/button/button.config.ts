@@ -1,9 +1,10 @@
 // ---  external
 import { cva } from "class-variance-authority";
+import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "focus-visible:ring-ring relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ",
+  `relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ${ringClasses}`,
   {
     variants: {
       variant: {

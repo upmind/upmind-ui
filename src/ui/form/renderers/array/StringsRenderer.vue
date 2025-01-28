@@ -30,7 +30,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps, onInput } = useUpmindUIRenderer({
   ...useJsonFormsMultiEnumControl(props),
   handleChange: () => {
-    debugger;
+    // debugger;
   }, // Provide a default handleChange function
 });
 </script>

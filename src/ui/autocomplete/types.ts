@@ -55,7 +55,7 @@ export interface AutocompleteProps
   popoverWidth?: ContentVariantProps["popoverWidth"];
   iconSize?: IconProps["size"];
   // --- styles
-  upmindUIConfig?: { autocomplete: Partial<AutocompleteProps> };
+  uiConfig?: { autocomplete: Partial<AutocompleteProps> };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
 }

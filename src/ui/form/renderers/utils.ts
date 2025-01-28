@@ -88,7 +88,9 @@ export const useUpmindUILayoutRenderer = <I extends { layout: any }>(
   };
 };
 
-export const useUpmindUILabelRenderer = <I extends { label: any }>(input: I) => {
+export const useUpmindUILabelRenderer = <I extends { label: any }>(
+  input: I
+) => {
   const appliedOptions = computed(() =>
     merge(
       {},

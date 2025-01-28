@@ -20,6 +20,6 @@ export interface AvatarProps {
   shape?: AvatarVariantProps["shape"];
   variant?: AvatarVariantProps["variant"];
   // ---
-  upmindUIConfig?: { avatar: Partial<AvatarProps> };
+  uiConfig?: { avatar: Partial<AvatarProps> };
   class?: HTMLAttributes["class"];
 }

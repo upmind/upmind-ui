@@ -18,9 +18,10 @@ export interface TooltipProps
     TooltipProviderProps,
     TooltipTriggerProps {
   label?: string;
+  allowTab?: boolean;
   // ---
   color?: TooltipVariantProps["color"];
   // ---
-  upmindUIConfig?: { tooltip: Partial<TooltipProps> };
+  uiConfig?: { tooltip: Partial<TooltipProps> };
   class?: HTMLAttributes["class"];
 }

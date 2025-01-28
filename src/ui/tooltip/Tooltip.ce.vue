@@ -3,13 +3,15 @@
 
   <TooltipProvider v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger :color="color"><slot /></TooltipTrigger>
+      <TooltipTrigger :color="color" :tabindex="props.allowTab ? 0 : -1"
+        ><slot
+      /></TooltipTrigger>
       <TooltipContent
         v-bind="forwarded"
-        :class="cn(variants.tooltip, props.class)"
+        :class="cn(styles.tooltip, props.class)"
       >
         <slot name="content">{{ props.label }}</slot>
-        <TooltipArrow fill="currentColor" :class="variants.arrow" />
+        <TooltipArrow fill="currentColor" :class="styles.arrow" />
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>
@@ -46,10 +48,11 @@ import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 
 const props = withDefaults(defineProps<TooltipProps>(), {
   delayDuration: 150,
-  // --- variants
+  allowTab: true,
+  // --- styles
   color: "base",
   // --- styles
-  upmindUIConfig: () => ({ tooltip: {} }),
+  uiConfig: () => ({ tooltip: {} }),
   class: "",
 });
 
@@ -63,10 +66,10 @@ const meta = computed(() => ({
   hasLabel: !isEmpty(props.label),
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["tooltip", "arrow"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ tooltip: string; arrow: string }>;
 </script>

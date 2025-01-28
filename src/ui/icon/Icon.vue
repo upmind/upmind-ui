@@ -4,7 +4,7 @@
   <i
     v-if="svg"
     class="icon"
-    :class="cn(variants.icon, props.class)"
+    :class="cn(styles.icon, props.class)"
     v-html="svg"
     role="img"
     :aria-label="`${isObject(icon) ? icon.name : icon} icon`"
@@ -34,10 +34,10 @@ import type { IconProps } from ".";
 // ----------------------------------------------
 
 const props = withDefaults(defineProps<IconProps>(), {
-  //  --- variants
+  //  --- styles
   size: "auto",
   // --- styles
-  upwindConfig: () => ({ icon: {} }),
+  uiConfig: () => ({ icon: {} }),
   class: "",
 });
 
@@ -52,11 +52,11 @@ const meta = computed(() => ({
   hasIcon: !isEmpty(props.icon),
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "icon",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ icon: string }>;
 
 const icons = import.meta.glob("@icons/**/*.svg", {

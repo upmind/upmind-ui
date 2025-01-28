@@ -14,10 +14,10 @@ interface Icon {
 // --- types
 export interface IconProps {
   icon: string | Icon;
-  fallbackIcon?: string | Icon;
+  fallback?: string | Icon;
   // ---
   size?: IconVariantProps["size"];
   // ---
-  upmindUIConfig?: { icon: Partial<IconProps> };
+  uiConfig?: { icon: Partial<IconProps> };
   class?: HTMLAttributes["class"];
 }

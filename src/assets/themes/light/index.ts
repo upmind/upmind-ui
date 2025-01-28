@@ -1,5 +1,5 @@
 import theme from "./tailwind.config";
-import upmindUI from "./upmind-ui.config";
+import uiConfig from "./ui.config";
 
 export default {
   name: "Light",
@@ -7,5 +7,5 @@ export default {
   selectors: ['[data-theme="light"]'],
   mediaQuery: "@media (prefers-color-scheme: light)",
   extend: theme,
-  upmindUI,
+  uiConfig,
 };

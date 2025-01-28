@@ -1,6 +1,8 @@
+import type { Config } from "tailwindcss";
+// ---
 import themer from "tailwindcss-themer";
 import typography from "@tailwindcss/typography";
-
+import animate from "tailwindcss-animate";
 // --- utils
 import { find, omit } from "lodash-es";
 
@@ -22,7 +24,7 @@ export default {
       defaultTheme,
       themes,
     }),
-    require("tailwindcss-animate"),
+    animate,
   ],
   theme: {},
-};
+} satisfies Config;

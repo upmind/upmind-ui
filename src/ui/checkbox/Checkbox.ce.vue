@@ -2,7 +2,8 @@
   <Checkbox
     v-model:checked="checked"
     v-bind="delegatedProps"
-    :class="cn(variants.checkbox, props.class)"
+    :class="cn(styles.checkbox, props.class)"
+    @keydown.enter="handleEnter"
   />
 </template>
 
@@ -28,7 +29,7 @@ import type { CheckboxProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<CheckboxProps>(), {
-  upmindUIConfig: () => ({ checkbox: {} }),
+  uiConfig: () => ({ checkbox: {} }),
   size: "md",
   width: "full",
   class: "",
@@ -39,7 +40,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upmindUIConfig", "defaultChecked", "checked"])
+  omit(props, ["class", "uiConfig", "defaultChecked", "checked"])
 );
 
 const checked = useVModel(props, "checked", emits, {
@@ -51,10 +52,14 @@ const meta = computed(() => ({
   size: props.size,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["checkbox"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ checkbox: string }>;
+
+const handleEnter = () => {
+  checked.value = !checked.value;
+};
 </script>

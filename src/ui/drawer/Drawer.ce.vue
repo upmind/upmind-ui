@@ -6,8 +6,8 @@
 
     <DrawerContent
       v-bind="forwardedDrawerContent"
-      :class="cn(variants.drawer.content, props.class)"
-      :classOverlay="variants.drawer.overlay"
+      :class="cn(styles.drawer.content, props.class)"
+      :classOverlay="styles.drawer.overlay"
       @close="() => emits('update:open', false)"
     >
       <DrawerHeader
@@ -19,7 +19,7 @@
           $slots.description
         "
       >
-        <div :class="cn(variants.drawer.container, props.classHeader)">
+        <div :class="cn(styles.drawer.container, props.classHeader)">
           <slot name="header">
             <DrawerTitle v-if="title || $slots.title">
               <slot name="title">{{ title }}</slot>
@@ -33,11 +33,7 @@
 
       <div
         :class="
-          cn(
-            variants.drawer.inner,
-            variants.drawer.container,
-            props.classContent
-          )
+          cn(styles.drawer.inner, styles.drawer.container, props.classContent)
         "
       >
         <slot />
@@ -45,11 +41,7 @@
 
       <DrawerFooter
         :class="
-          cn(
-            'flex flex-col gap-2',
-            variants.drawer.container,
-            props.classFooter
-          )
+          cn('flex flex-col gap-2', styles.drawer.container, props.classFooter)
         "
       >
         <slot name="footer" />
@@ -96,7 +88,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   // --- props
   title: "",
   description: "",
-  // --- variants
+  // --- styles
   size: "md",
   width: "app",
   overflow: "auto",
@@ -106,7 +98,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   // --- state
   dismissible: false,
   // --- styles
-  upmindUIConfig: () => ({
+  uiConfig: () => ({
     drawer: {
       container: {},
       overlay: {},
@@ -152,11 +144,11 @@ const meta = computed(() => ({
   skrim: props.skrim,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["drawer"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   drawer: {
     overlay: string;

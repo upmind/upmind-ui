@@ -1,7 +1,7 @@
 <template>
   <component
     :is="as"
-    :class="variants.form.root"
+    :class="styles.form.root"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
@@ -17,7 +17,7 @@
       :additionalErrors="additionalErrors"
       :enabled="!meta.isDisabled"
       @change="onChange"
-      :class="variants.form.content"
+      :class="styles.form.content"
     />
 
     <slot name="footer" v-bind="{ meta }">
@@ -26,7 +26,7 @@
     </slot>
 
     <!-- actions -->
-    <div v-if="actions && !noActions" :class="variants.form.actions">
+    <div v-if="actions && !noActions" :class="styles.form.actions">
       <slot name="actions" v-bind="{ meta, doReject, doResolve: doSubmit }">
         <Button
           v-for="(action, key) in actions"
@@ -90,8 +90,8 @@ const props = withDefaults(defineProps<FormProps>(), {
   modelValue: () => ({}),
   additionalRenderers: () => [],
   additionalErrors: () => [],
-  // --- Provide a way to add custom variants for a specific instance of the component
-  upmindUIConfig: () => ({ form: {} }),
+  // --- Provide a way to add custom styles for a specific instance of the component
+  uiConfig: () => ({ form: {} }),
   class: "",
 });
 
@@ -135,11 +135,11 @@ const meta = computed(() => {
   };
 });
 
-const variants = useStyles(
+const styles = useStyles(
   ["form", "form.button"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   form: { root: string; content: string; actions: string; button: string };
 }>;

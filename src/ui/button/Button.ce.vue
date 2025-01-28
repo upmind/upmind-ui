@@ -3,7 +3,7 @@
 
   <ButtonRoot
     :as="props.as"
-    :class="cn(variants.button, props.class)"
+    :class="cn(styles.button, props.class)"
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
     :type="props.type || 'button'"
@@ -40,7 +40,7 @@ import { useStyles, cn } from "../../utils";
 
 // --- components
 import ButtonRoot from "./Button.vue";
-import { Spinner } from "@upmind-automation/upmind-ui";
+import { Spinner } from "../spinner";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -53,13 +53,13 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   iconOnly: false,
   spinner: true,
   type: "button",
-  // --- variants
+  // --- styles
   size: "md",
   color: "base",
   variant: "flat",
   block: false,
   // --- styles
-  upmindUIConfig: () => ({ button: {} }),
+  uiConfig: () => ({ button: {} }),
   class: "",
   contentClass: "",
 });
@@ -73,10 +73,10 @@ const meta = computed(() => ({
   loading: props.loading,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["button"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ button: string }>;
 </script>

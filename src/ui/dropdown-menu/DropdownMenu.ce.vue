@@ -6,7 +6,7 @@
           :variant="props.variant"
           :color="props.color"
           :loading="props.loading"
-          :class="cn(variants.dropdownMenu.trigger, props.class)"
+          :class="cn(styles.dropdownMenu.trigger, props.class)"
           :label="props.label"
           :size="props.size"
           :aria-expanded="open"
@@ -54,7 +54,7 @@
       :align="align"
       :class="
         cn(
-          variants.dropdownMenu.content,
+          styles.dropdownMenu.content,
           props.popoverClass ? props.popoverClass : props.class
         )
       "
@@ -72,7 +72,7 @@
             :class="
               cn(
                 'group flex cursor-pointer items-center justify-start gap-4',
-                variants.dropdownMenu.item,
+                styles.dropdownMenu.item,
                 item.class,
                 props.itemClass
               )
@@ -127,7 +127,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   label: "",
   items: () => [],
   loading: false,
-  // -- variants
+  // -- styles
   color: "base",
   size: "md",
   width: "md",
@@ -137,7 +137,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   icon: "navigation-menu-vertical",
 
   // --- styles
-  upmindUIConfig: () => ({ dropdownMenu: {} }),
+  uiConfig: () => ({ dropdownMenu: {} }),
   class: "",
   popoverClass: "",
   itemClass: "",
@@ -154,11 +154,11 @@ const processing = ref(false);
 
 // ---
 
-const variants = useStyles(
+const styles = useStyles(
   ["dropdownMenu"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   dropdownMenu: { trigger: string; content: string; item: string };
 }>;

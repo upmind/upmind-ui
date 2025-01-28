@@ -31,16 +31,14 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props),
-  (value: string) => {
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props), (value: string) => {
     return !isNumber(value)
       ? undefined
       : isInteger.value
         ? parseInt(value)
         : parseFloat(value);
-  }
-);
+  });
 
 const isInteger = computed(() => {
   let type = control.value.schema.type;

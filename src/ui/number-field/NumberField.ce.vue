@@ -2,19 +2,19 @@
   <NumberField
     v-bind="delegatedProps"
     v-model:modelValue="modelValue"
-    :class="cn(variants.numberField.root, props.class)"
+    :class="cn(styles.numberField.root, props.class)"
   >
     <NumberFieldContent>
       <NumberFieldDecrement
         class="rounded-l-lg"
-        :class="variants.numberField.input"
+        :class="styles.numberField.input"
       />
       <NumberFieldInput
-        :class="cn(variants.numberField.field, props.classField)"
+        :class="cn(styles.numberField.field, props.classField)"
       />
       <NumberFieldIncrement
         class="rounded-r-lg"
-        :class="variants.numberField.input"
+        :class="styles.numberField.input"
       />
     </NumberFieldContent>
   </NumberField>
@@ -46,11 +46,11 @@ import type { NumberFieldProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<NumberFieldProps>(), {
-  // -- variants
+  // -- styles
   width: "full",
   variant: "flat",
   // --- styles
-  upmindUIConfig: () => ({ numberField: {} }),
+  uiConfig: () => ({ numberField: {} }),
   class: "",
   classField: "",
 });
@@ -60,14 +60,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, [
-    "class",
-    "upmindUIConfig",
-    "modelValue",
-    "size",
-    "width",
-    "variant",
-  ])
+  omit(props, ["class", "uiConfig", "modelValue", "size", "width", "variant"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -82,11 +75,11 @@ const meta = computed(() => ({
   height: props.height,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["numberField"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   numberField: {
     root: string;

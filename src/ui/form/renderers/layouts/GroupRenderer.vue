@@ -51,7 +51,7 @@ const props = defineProps({
     default: null,
   },
   // --- Provide a way to add custom styles for a specific instance of the component
-  upmindUIConfig: { type: [Object, Array], default: () => ({}) },
+  uiConfig: { type: [Object, Array], default: () => ({}) },
 });
 
 const meta = computed(() => ({
@@ -59,7 +59,7 @@ const meta = computed(() => ({
   isDisabled: !layout.value.enabled,
 }));
 
-const styles = useStyles(["group"], meta, config, props.upmindUIConfig);
+const styles = useStyles(["group"], meta, config, props.uiConfig ?? {});
 const { layout } = useUpmindUILayoutRenderer(useJsonFormsLayout(props));
 </script>
 

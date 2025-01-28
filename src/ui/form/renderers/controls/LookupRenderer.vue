@@ -33,9 +33,8 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput, formFieldProps } = useUpmindUIRenderer(
-  useJsonFormsOneOfEnumControl(props)
-);
+const { control, appliedOptions, onInput, formFieldProps } =
+  useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
 
 const doSearch = get(control.value, "schema.lookup");
 </script>

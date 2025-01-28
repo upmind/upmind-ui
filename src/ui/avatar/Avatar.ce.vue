@@ -1,7 +1,7 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <AvatarRoot :class="cn(variants.avatar, props.class)">
+  <AvatarRoot :class="cn(styles.avatar, props.class)">
     <slot>
       <Icon
         v-if="meta.hasIcon"
@@ -61,14 +61,14 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   animatedIcon: undefined,
   src: "",
   caption: "",
-  //  --- variants
+  //  --- styles
   color: "base",
   fit: "cover",
   shape: "circle",
   size: "auto",
   variant: "flat",
   // --- styles
-  upmindUIConfig: () => ({ avatar: {} }),
+  uiConfig: () => ({ avatar: {} }),
   class: "",
 });
 
@@ -100,10 +100,10 @@ const mergedAnimatedIcon = computed(() => ({
   trigger: isString(props.animatedIcon) ? "loop" : props.animatedIcon?.trigger,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "avatar",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ avatar: string }>;
 </script>

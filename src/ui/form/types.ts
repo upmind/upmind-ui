@@ -44,7 +44,7 @@ export interface FormProps {
   // mode?: ValidationMode;
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   // --- Provide a way to add custom variants for a specific instance of the component
-  upmindUIConfig?: { form: Partial<FormProps> };
+  uiConfig?: { form: Partial<FormProps> };
   class?: HTMLAttributes["class"];
 }
 
@@ -80,7 +80,7 @@ export interface FormControlProps {
   isPristine?: boolean;
 
   // --- styles
-  upmindUIConfig?: {
+  uiConfig: {
     form: {
       root: CxOptions;
       loading: CxOptions;

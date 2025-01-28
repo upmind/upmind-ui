@@ -7,20 +7,20 @@
     @update:model-value="doSelect"
     @update:search-term="onSearch"
     :filter-function="noFilter"
-    :class="variants.autocomplete.root"
+    :class="styles.autocomplete.root"
     :displayValue="displayValue"
     :resetSearchTermOnBlur="false"
   >
-    <ComboboxAnchor :class="cn(variants.autocomplete.anchor, props.class)">
+    <ComboboxAnchor :class="cn(styles.autocomplete.anchor, props.class)">
       <slot name="prepend" />
       <ComboboxInput
-        :class="variants.autocomplete.input"
+        :class="styles.autocomplete.input"
         :placeholder="placeholder"
         :auto-focus="props.autoFocus"
       />
       <ComboboxTrigger class="group" v-if="!!results?.length">
         <Icon
-          :class="variants.autocomplete.anchorIcon"
+          :class="styles.autocomplete.anchorIcon"
           icon="arrow-down"
           :size="props.iconSize"
         />
@@ -29,12 +29,12 @@
 
     <ComboboxContent
       avoidCollisions
-      :class="cn(variants.autocomplete.content, props.popoverClass)"
+      :class="cn(styles.autocomplete.content, props.popoverClass)"
       v-if="!!results?.length"
     >
       <ComboboxViewport>
         <!-- <ComboboxEmpty
-          :class="variants.autocomplete.empty"
+          :class="styles.autocomplete.empty"
           v-if="!results?.length"
         >
           {{ emptyMessage }}
@@ -44,12 +44,12 @@
           v-for="item in results"
           :key="(item as Record<string, any>)[props.itemValue]"
           :value="(item as Record<string, any>)[props.itemValue]"
-          :class="variants.autocomplete.item"
+          :class="styles.autocomplete.item"
         >
           <span class="flex w-full items-center gap-2">
             <ComboboxItemIndicator
               v-if="isSelected(item)"
-              :class="variants.autocomplete.indicator"
+              :class="styles.autocomplete.indicator"
             >
               <Icon icon="check" size="3xs" />
             </ComboboxItemIndicator>
@@ -133,14 +133,14 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
-  // -- variants
+  // -- styles
   width: "md",
   popoverWidth: "md",
   align: "end",
   side: "bottom",
   // --- styles
   iconSize: "2xs",
-  upmindUIConfig: () => ({ autocomplete: {} }),
+  uiConfig: () => ({ autocomplete: {} }),
 });
 
 const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
@@ -159,7 +159,7 @@ const delegatedProps = computed(() =>
     "width",
     "popoverWidth",
     "iconSize",
-    "upmindUIConfig",
+    "uiConfig",
     "class",
     "popoverClass",
     "type",
@@ -183,11 +183,11 @@ const searchTerm = ref();
 
 // ---
 
-const variants = useStyles(
+const styles = useStyles(
   ["autocomplete"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   autocomplete: {
     root: string;

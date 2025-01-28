@@ -1,10 +1,11 @@
 <template>
-  <RadioGroup
+  <component
+    :is="useInputGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
     :default-value="defaultValue"
     :required="props.required"
     :disabled="props.disabled"
-    :class="cn(variants.radioCards.root, props.class)"
+    :class="cn(styles.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
     <template v-for="(item, index) in items" :key="item.id || index">
@@ -16,7 +17,7 @@
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
-        :variants="variants"
+        :styles="styles"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
       >
@@ -25,7 +26,7 @@
         </template>
       </RadioCardItem>
     </template>
-  </RadioGroup>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -52,10 +53,12 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   placeholder: "Select an option",
   required: false,
   overrideIndex: 0,
-  // -- variants
+  useInputGroup: true,
+  // -- styles
   color: "base",
   variant: "control",
   width: 12,
+  ring: false,
   // --- styles
   class: "",
   radioClass: "",
@@ -69,17 +72,16 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   color: props.color,
-  layout: props.layout,
   variant: props.variant,
-  ring: props.ring,
   width: props.width,
+  showRing: props.ring,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["radioCards"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   radioCards: {
     trigger: string;
