@@ -32,6 +32,7 @@ import {
   set,
   some,
   uniq,
+  uniqBy,
   xorBy,
   unset,
   reject,
@@ -90,16 +91,17 @@ export default createMachine(
         entry: ["clearError"],
         on: {
           REFRESH: {
-            // do nothing
+            actions: ["setBasket", "setLookups", "setRecommendations"],
+            cond: "hasBasketProductsChanged",
           },
 
           ADDED: {
-            actions: ["setBasket", "setLookups"],
+            actions: ["setBasket", "setLookups", "setRecommendations"],
             target: "available",
           },
           CANCEL: {
             target: "available",
-            actions: ["clearItem"],
+            actions: ["clearItem", "setRecommendations"],
           },
           ERROR: [
             {
@@ -294,7 +296,7 @@ export default createMachine(
             []
           );
 
-          const relatedProducts = filter(context.raw.products, product =>
+          const relatedProducts = filter(context.raw.added, product =>
             includes(relationships, product.id)
           );
 
@@ -362,7 +364,7 @@ export default createMachine(
           const relationships = parseRelationships(basket as IBasket);
           const added = parseAddedProducts(related, products);
           return {
-            products,
+            products: raw?.products ?? [],
             related,
             relationships,
             seen: raw?.seen ?? [], // TODO: retrieve from local storage
@@ -414,17 +416,18 @@ export default createMachine(
       //     set(raw, "seen", []);
       //     return raw;
       //   },
-      // }),
+      // }),§
 
       setRecommendations: assign({
         recommendations: (
           { raw }: RecommendationsEngineContext,
-          { data, context }: AnyEventObject
+          _event: AnyEventObject
         ) => {
           const augmentedRecommendations = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
-              if (context?.id == rawRelated?.id) rawRelated.product = data;
+              const product = find(raw.products, ["id", rawRelated.object_id]);
+              rawRelated.product = product;
               const added = includes(raw.added, rawRelated.id);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
@@ -446,6 +449,13 @@ export default createMachine(
       }),
 
       setRecommendation: assign({
+        raw: (
+          { raw }: RecommendationsEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          raw.products = uniqBy(concat(raw.products, data), "id");
+          return raw;
+        },
         recommendations: (
           { raw }: RecommendationsEngineContext,
           { data, context }: AnyEventObject
@@ -563,7 +573,7 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
-        return !isEmpty(xorBy(raw.products, data?.products, "product_id"));
+        return !isEmpty(xorBy(raw.added, data?.products, "product_id"));
       },
 
       hasBasketItem: (
