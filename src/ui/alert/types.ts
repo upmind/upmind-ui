@@ -17,6 +17,6 @@ export interface AlertProps {
   color?: AlertVariantProps["color"];
   border?: boolean;
   // ---
-  upmindUIConfig?: { alert: Partial<AlertProps> };
+  uiConfig?: { alert: Partial<AlertProps> };
   class?: HTMLAttributes["class"];
 }

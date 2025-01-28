@@ -2,7 +2,7 @@
   <Switch
     v-model="modelValue"
     v-bind="delegatedProps"
-    :class="cn(variants.switch, props.class)"
+    :class="cn(styles.switch, props.class)"
   />
 </template>
 
@@ -28,7 +28,7 @@ import type { SwitchProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SwitchProps>(), {
-  upmindUIConfig: () => ({ input: {} }),
+  uiConfig: () => ({ input: {} }),
   class: "",
 });
 
@@ -37,7 +37,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -47,10 +47,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({}));
 
-const variants = useStyles(
+const styles = useStyles(
   ["switch"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ switch: string }>;
 </script>

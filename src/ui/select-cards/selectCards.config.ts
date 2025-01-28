@@ -1,8 +1,8 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  "h-auto min-h-10 min-w-0 items-center justify-start rounded-md px-4 py-3 text-left font-medium !text-primary",
+  `h-auto min-h-10 min-w-0 items-center justify-start rounded-md border-control px-4 py-3 text-left font-medium !text-primary`,
   {
     variants: {
       width: {
@@ -18,23 +18,24 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset",
+  `${ringClasses} ${invalidRingClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset`,
   {
     variants: {
-      collapsible: {
-        false: "rounded-none border-b border-b-control last:border-b-0",
-        true: "border border-t-0 border-control",
+      variant: {
+        dropdown: "rounded-none border-b border-b-control last:border-b-0",
+        collapsible: "border border-t-0 border-control",
       },
     },
   }
 );
 
 export const contentVariants = cva(
-  " !w-[--radix-popover-trigger-width] rounded-md p-0",
+  "max-h-72 !w-[--radix-dropdown-menu-trigger-width]",
   {
     variants: {
-      collapsible: {
-        false: "flex max-h-72 flex-col overflow-y-scroll",
+      variant: {
+        dropdown:
+          "bg-control-background mt-1 flex max-h-72 flex-col overflow-hidden overflow-y-scroll rounded-md border border-control shadow-sm",
       },
     },
   }
@@ -42,8 +43,8 @@ export const contentVariants = cva(
 
 export const groupVariants = cva("w-full", {
   variants: {
-    collapsible: {
-      true: "gap-0",
+    variant: {
+      collapsible: "gap-0",
     },
   },
 });

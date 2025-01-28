@@ -1,9 +1,9 @@
 <template>
   <component
-    v-if="modal || (!modal && isOpen)"
+    v-if="modal || (!modal && meta.isOpen)"
     :is="modal ? Dialog : 'div'"
     :description="text"
-    :open="isOpen"
+    :open="meta.isOpen"
     :size="size"
     :skrim="skrim"
     :title="title"
@@ -12,29 +12,29 @@
     no-header
     :dismissable="false"
   >
-    <section :class="cn(variants.interstitial.root, props.class)">
+    <section :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
         <Avatar :animated-icon="animatedIcon" color="transparent" size="xl" />
       </slot>
 
-      <h3 :class="variants.interstitial.title">
+      <h3 :class="styles.interstitial.title">
         <slot name="title">{{ title }}</slot>
       </h3>
 
-      <p :class="variants.interstitial.text">
+      <p :class="styles.interstitial.text">
         <slot name="text">{{ text }}</slot>
       </p>
 
-      <div v-if="!!$slots.default" :class="variants.interstitial.content">
+      <div v-if="!!$slots.default" :class="styles.interstitial.content">
         <slot></slot>
       </div>
 
-      <footer :class="variants.interstitial.actions">
+      <footer :class="styles.interstitial.actions">
         <Button
           v-for="(action, index) in actions"
           :key="`action-${index}`"
           v-bind="action"
-          :loading="processing"
+          :loading="meta.isProcessing"
           @click.stop="doAction(action?.handler)"
         >
           <template #prepend>
@@ -55,12 +55,14 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { useStyles, cn } from "../../utils";
 import config from "./interstitial.config";
 
 // --- components
-import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upmind-ui";
+import { Dialog } from "../dialog";
+import { Button } from "../button";
+import { Avatar } from "../avatar";
+import { Icon } from "../icon";
 
 // --- utils
 import { isFunction } from "lodash-es";
@@ -85,13 +87,17 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   }),
 });
 
-const { meta } = useBasket();
+const processing = ref(false);
+const meta = computed(() => ({
+  isProcessing: processing.value,
+  isOpen: props.open,
+}));
 
-const variants = useStyles(
+const styles = useStyles(
   "interstitial",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   interstitial: {
     root: string;
@@ -101,9 +107,6 @@ const variants = useStyles(
     actions: string;
   };
 }>;
-
-const processing = ref(false);
-const isOpen = computed(() => meta.value.isEmpty || props.open);
 
 async function doAction(handler: InterstitialActionProps["handler"]) {
   if (isFunction(handler)) {

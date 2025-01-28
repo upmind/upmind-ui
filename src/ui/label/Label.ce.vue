@@ -1,5 +1,5 @@
 <template>
-  <Label v-bind="delegatedProps" :class="cn(variants.label, props.class)">
+  <Label v-bind="delegatedProps" :class="cn(styles.label, props.class)">
     <slot />
   </Label>
 </template>
@@ -25,17 +25,17 @@ import type { LabelProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<LabelProps>(), {
-  upmindUIConfig: () => ({ label: {} }),
+  uiConfig: () => ({ label: {} }),
   class: "",
 });
-const delegatedProps = computed(() => omit(props, ["upmindUIConfig", "class"]));
+const delegatedProps = computed(() => omit(props, ["uiConfig", "class"]));
 
 const meta = computed(() => ({}));
 
-const variants = useStyles(
+const styles = useStyles(
   ["label"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ label: string }>;
 </script>

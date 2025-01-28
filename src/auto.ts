@@ -17,15 +17,15 @@ import { UpmTooltip } from "./ui/tooltip";
 // -----------------------------------------------------------------------------
 
 // --- Auto register all custom elements
-customElements.define("upm-alert", UpmAlert);
-customElements.define("upm-avatar", UpmAvatar);
-customElements.define("upm-badge", UpmBadge);
-customElements.define("upm-button", UpmButton);
-customElements.define("upm-combobox", UpmCombobox);
-customElements.define("upm-dialog", UpmDialog);
-customElements.define("upm-drawer", UpmDrawer);
-customElements.define("upm-icon", UpmIcon);
-customElements.define("upm-indicator", UpmIndicator);
-customElements.define("upm-sonner", UpmSonner);
-customElements.define("upm-tabs", UpmTabs);
-customElements.define("upm-tooltip", UpmTooltip);
+customElements.define("uw-alert", UpmAlert);
+customElements.define("uw-avatar", UpmAvatar);
+customElements.define("uw-badge", UpmBadge);
+customElements.define("uw-button", UpmButton);
+customElements.define("uw-combobox", UpmCombobox);
+customElements.define("uw-dialog", UpmDialog);
+customElements.define("uw-drawer", UpmDrawer);
+customElements.define("upw-icon", UpmIcon);
+customElements.define("uw-indicator", UpmIndicator);
+customElements.define("uw-sonner", UpmSonner);
+customElements.define("uw-tabs", UpmTabs);
+customElements.define("uw-tooltip", UpmTooltip);

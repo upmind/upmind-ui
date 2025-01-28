@@ -24,6 +24,8 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   noneText?: string;
   required?: boolean;
   overrideIndex?: number;
+  useInputGroup?: boolean;
+  ring?: boolean;
   // --- state
   items: RadioCardsItemProps[];
   loading?: boolean;
@@ -32,7 +34,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   variant?: ButtonProps["variant"];
   width?: RadioCardsItemVariantProps["width"];
   // ---
-  upmindUIConfig?: { tooltip: Partial<RadioCardsProps> };
+  uiConfig?: { tooltip: Partial<RadioCardsProps> };
   class?: HTMLAttributes["class"];
   radioClass?: HTMLAttributes["class"];
 }

@@ -6,8 +6,8 @@
 
     <DialogContent
       v-bind="forwarded"
-      :class="cn(variants.dialog.content, props.class)"
-      :classOverlay="variants.dialog.overlay"
+      :class="cn(styles.dialog.content, props.class)"
+      :classOverlay="styles.dialog.overlay"
       @update:open="onOpen"
     >
       <DialogHeader
@@ -93,14 +93,14 @@ const props = withDefaults(defineProps<DialogProps>(), {
   dismissable: true,
   title: "",
   description: "",
-  // --- variants
+  // --- styles
   size: "app",
   overflow: "auto",
   fit: "contain",
   skrim: "dark",
   to: "body",
   // --- styles
-  upmindUIConfig: () => ({
+  uiConfig: () => ({
     dialog: {
       overlay: {},
       content: {},
@@ -124,11 +124,11 @@ const meta = computed(() => ({
   skrim: props.skrim,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["dialog"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   dialog: { overlay: string; content: string; header: string; footer: string };
 }>;

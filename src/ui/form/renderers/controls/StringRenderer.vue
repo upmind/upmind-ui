@@ -49,9 +49,8 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, onInput, formFieldProps } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const { control, appliedOptions, onInput, formFieldProps } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
 
 const safeMin: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.minLength;

@@ -9,26 +9,13 @@
   <!-- End Popover -->
 </template>
 
-<script>
-import { inject, defineComponent, computed } from "vue";
+<script lang="ts" setup>
+import { inject, computed } from "vue";
 import { DropdownMenu } from "../dropdown-menu";
 import { startCase, keys } from "lodash-es";
 
-export default defineComponent({
-  name: "UpmThemeSwitcher",
-  components: {
-    DropdownMenu,
-  },
-  setup() {
-    const { activeTheme, themes } = inject("upmind-ui");
+const { activeTheme, themes } = inject("uiConfig");
 
-    return {
-      hasThemes: computed(() => keys(themes.value).length > 1),
-      themes,
-      activeTheme,
-      activeThemeName: computed(() => startCase(activeTheme.value || "light")),
-      startCase,
-    };
-  },
-});
+const hasThemes = computed(() => keys(themes.value).length > 1);
+const activeThemeName = computed(() => startCase(activeTheme.value || "light"));
 </script>

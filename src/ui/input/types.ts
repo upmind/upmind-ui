@@ -31,6 +31,6 @@ export interface InputProps {
   size?: InputVariantProps["size"];
   width?: InputVariantProps["width"];
   // ---
-  upmindUIConfig?: { input: Partial<InputVariantProps> };
+  uiConfig?: { input: Partial<InputVariantProps> };
   class?: HTMLAttributes["class"];
 }

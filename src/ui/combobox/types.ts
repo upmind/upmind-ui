@@ -60,7 +60,7 @@ export interface ComboboxProps
   width?: ContentVariantsProps["width"];
   iconSize?: IconProps["size"];
   // --- styles
-  upmindUIConfig?: { combobox: Partial<ComboboxProps> };
+  uiConfig?: { combobox: Partial<ComboboxProps> };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
 }

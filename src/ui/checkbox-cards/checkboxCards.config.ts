@@ -1,12 +1,10 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../input/input.config";
+import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
-export const rootVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full gap-0 space-y-2 overflow-hidden rounded-md`
-);
+export const rootVariants = cva(`w-full space-y-2`);
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300"
+  `hover:bg-control-active-muted flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300 ${ringClasses} ${invalidRingClasses}`
 );
 
 export default {

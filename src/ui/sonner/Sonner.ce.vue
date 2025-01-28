@@ -7,76 +7,76 @@
     :toast-options="{
       classes: {
         toast: cn(
-          variants.sonner.base.toast,
-          variants.sonner.primary.toast,
-          variants.sonner.secondary.toast,
-          variants.sonner.accent.toast,
-          variants.sonner.success.toast,
-          variants.sonner.error.toast,
-          variants.sonner.warning.toast,
-          variants.sonner.info.toast,
-          variants.sonner.promotion.toast,
-          variants.sonner.destructive.toast
+          styles.sonner.base.toast,
+          styles.sonner.primary.toast,
+          styles.sonner.secondary.toast,
+          styles.sonner.accent.toast,
+          styles.sonner.success.toast,
+          styles.sonner.error.toast,
+          styles.sonner.warning.toast,
+          styles.sonner.info.toast,
+          styles.sonner.promotion.toast,
+          styles.sonner.destructive.toast
         ),
         actionButton: cn(
-          variants.sonner.base.actionButton,
-          variants.sonner.primary.actionButton,
-          variants.sonner.secondary.actionButton,
-          variants.sonner.accent.actionButton,
-          variants.sonner.success.actionButton,
-          variants.sonner.error.actionButton,
-          variants.sonner.warning.actionButton,
-          variants.sonner.info.actionButton,
-          variants.sonner.promotion.actionButton,
-          variants.sonner.destructive.actionButton
+          styles.sonner.base.actionButton,
+          styles.sonner.primary.actionButton,
+          styles.sonner.secondary.actionButton,
+          styles.sonner.accent.actionButton,
+          styles.sonner.success.actionButton,
+          styles.sonner.error.actionButton,
+          styles.sonner.warning.actionButton,
+          styles.sonner.info.actionButton,
+          styles.sonner.promotion.actionButton,
+          styles.sonner.destructive.actionButton
         ),
         closeButton: cn(
-          variants.sonner.base.closeButton,
-          variants.sonner.primary.closeButton,
-          variants.sonner.secondary.closeButton,
-          variants.sonner.accent.closeButton,
-          variants.sonner.success.closeButton,
-          variants.sonner.error.closeButton,
-          variants.sonner.warning.closeButton,
-          variants.sonner.info.closeButton,
-          variants.sonner.promotion.closeButton,
-          variants.sonner.destructive.closeButton
+          styles.sonner.base.closeButton,
+          styles.sonner.primary.closeButton,
+          styles.sonner.secondary.closeButton,
+          styles.sonner.accent.closeButton,
+          styles.sonner.success.closeButton,
+          styles.sonner.error.closeButton,
+          styles.sonner.warning.closeButton,
+          styles.sonner.info.closeButton,
+          styles.sonner.promotion.closeButton,
+          styles.sonner.destructive.closeButton
         ),
         // title: cn(
-        //   variants.sonner.base.title,
-        //   variants.sonner.primary.title,
-        //   variants.sonner.secondary.title,
-        //   variants.sonner.accent.title,
-        //   variants.sonner.success.title,
-        //   variants.sonner.error.title,
-        //   variants.sonner.warning.title,
-        //   variants.sonner.info.title,
-        //   variants.sonner.promotion.title,
-        //   variants.sonner.destructive.title
+        //   styles.sonner.base.title,
+        //   styles.sonner.primary.title,
+        //   styles.sonner.secondary.title,
+        //   styles.sonner.accent.title,
+        //   styles.sonner.success.title,
+        //   styles.sonner.error.title,
+        //   styles.sonner.warning.title,
+        //   styles.sonner.info.title,
+        //   styles.sonner.promotion.title,
+        //   styles.sonner.destructive.title
         // ),
         // description: cn(
-        //   variants.sonner.base.description,
-        //   variants.sonner.primary.description,
-        //   variants.sonner.secondary.description,
-        //   variants.sonner.accent.description,
-        //   variants.sonner.success.description,
-        //   variants.sonner.error.description,
-        //   variants.sonner.warning.description,
-        //   variants.sonner.info.description,
-        //   variants.sonner.promotion.description,
-        //   variants.sonner.destructive.description
+        //   styles.sonner.base.description,
+        //   styles.sonner.primary.description,
+        //   styles.sonner.secondary.description,
+        //   styles.sonner.accent.description,
+        //   styles.sonner.success.description,
+        //   styles.sonner.error.description,
+        //   styles.sonner.warning.description,
+        //   styles.sonner.info.description,
+        //   styles.sonner.promotion.description,
+        //   styles.sonner.destructive.description
         // ),
         // cancelButton: cn(
-        //   variants.sonner.base.cancelButton,
-        //   variants.sonner.primary.cancelButton,
-        //   variants.sonner.secondary.cancelButton,
-        //   variants.sonner.accent.cancelButton,
-        //   variants.sonner.success.cancelButton,
-        //   variants.sonner.error.cancelButton,
-        //   variants.sonner.warning.cancelButton,
-        //   variants.sonner.info.cancelButton,
-        //   variants.sonner.promotion.cancelButton,
-        //   variants.sonner.destructive.cancelButton
+        //   styles.sonner.base.cancelButton,
+        //   styles.sonner.primary.cancelButton,
+        //   styles.sonner.secondary.cancelButton,
+        //   styles.sonner.accent.cancelButton,
+        //   styles.sonner.success.cancelButton,
+        //   styles.sonner.error.cancelButton,
+        //   styles.sonner.warning.cancelButton,
+        //   styles.sonner.info.cancelButton,
+        //   styles.sonner.promotion.cancelButton,
+        //   styles.sonner.destructive.cancelButton
         // ),
       },
     }"
@@ -103,7 +103,7 @@ import { type SonnerProps } from ".";
 
 const props = defineProps<SonnerProps>();
 
-const variants = useStyles(
+const styles = useStyles(
   [
     "sonner",
     "sonner.base",
@@ -119,7 +119,7 @@ const variants = useStyles(
   ],
   {},
   config,
-  props.upmindUIConfig ?? {} ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   sonner: {
     base: {

@@ -2,12 +2,12 @@
   <Popover
     v-model:open="open"
     :disabled="props.disabled"
-    :class="variants.combobox.root"
+    :class="styles.combobox.root"
   >
     <PopoverTrigger as-child>
       <Button
         :loading="props.loading"
-        :class="cn('group w-full', variants.combobox.trigger, props.class)"
+        :class="cn('group w-full', styles.combobox.trigger, props.class)"
         :size="props.size"
         :aria-expanded="open"
         :color="props.color"
@@ -58,7 +58,7 @@
       :align="align"
       :side="side"
       avoidCollisions
-      :class="cn(variants.combobox.content, props.popoverClass)"
+      :class="cn(styles.combobox.content, props.popoverClass)"
     >
       <Command>
         <template v-if="props.search">
@@ -87,7 +87,7 @@
               :value="(item as Record<string, any>)[props.itemValue]"
               @select="doSelect(item)"
               class="group flex cursor-pointer items-center justify-start gap-4"
-              :class="variants.combobox.item"
+              :class="styles.combobox.item"
             >
               <Avatar
                 v-if="item.avatar"
@@ -178,7 +178,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
-  // -- variants
+  // -- styles
   color: "base",
   size: "md",
   width: "xl",
@@ -190,7 +190,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   iconSize: "2xs",
 
   // --- styles
-  upmindUIConfig: () => ({ combobox: {} }),
+  uiConfig: () => ({ combobox: {} }),
   class: "",
   popoverClass: "",
 });
@@ -212,11 +212,11 @@ const searchTerm = ref();
 
 // ---
 
-const variants = useStyles(
+const styles = useStyles(
   ["combobox"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   combobox: { root: string; trigger: string; content: string; item: string };
 }>;

@@ -1,6 +1,6 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <Badge :class="cn(variants.badge, props.class)">
+  <Badge :class="cn(styles.badge, props.class)">
     <slot name="prepend"></slot>
     <span>
       <slot> {{ label }}</slot>
@@ -33,12 +33,12 @@ import type { BadgeProps } from "./types";
 const props = withDefaults(defineProps<BadgeProps>(), {
   // --- props
   label: "",
-  // --- variants
+  // --- styles
   variant: "outline",
   color: "base",
   size: "md",
   // --- styles
-  upmindUIConfig: () => ({ badge: {} }),
+  uiConfig: () => ({ badge: {} }),
   class: "",
 });
 
@@ -48,10 +48,10 @@ const meta = computed(() => ({
   size: props.size,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "badge",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ badge: string }>;
 </script>
