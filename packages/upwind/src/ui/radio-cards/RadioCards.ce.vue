@@ -50,9 +50,7 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
   // --- props
-  loading: false,
   placeholder: "Select an option",
-  required: false,
   overrideIndex: 0,
   useInputGroup: true,
   // -- variants
@@ -74,7 +72,6 @@ const meta = computed(() => ({
   color: props.color,
   variant: props.variant,
   width: props.width,
-  showRing: props.ring,
 }));
 
 const variants = useStyles(
