@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  `h-auto min-h-10 min-w-0 items-center justify-start rounded-md border-control px-4 py-3 text-left font-medium !text-primary`,
+  `h-auto min-h-10 min-w-0 items-center justify-start rounded-md border-control px-4 py-3 text-left font-medium !text-primary ${ringClasses} ${invalidRingClasses}`,
   {
     variants: {
       width: {
@@ -18,7 +18,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  `${ringClasses} ${invalidRingClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-inset`,
+  `hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-inset`,
   {
     variants: {
       variant: {
@@ -31,7 +31,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  "max-h-72 !w-[--radix-dropdown-menu-trigger-width]",
+  `max-h-72 !w-[--radix-dropdown-menu-trigger-width] ${ringClasses}`,
   {
     variants: {
       variant: {
@@ -52,7 +52,7 @@ export const groupVariants = cva("w-full", {
 
 export default {
   select: {
-    root: cva(`${ringClasses} ${invalidRingClasses} w-full`),
+    root: cva(`w-full`),
     content: contentVariants,
     trigger: triggerVariants,
     item: itemVariants,
