@@ -1,23 +1,25 @@
 <template>
   <div
-    :class="cn(variants.radioCards.item)"
+    :class="variants.radioCards.item"
     :data-state="isSelected ? 'checked' : 'unchecked'"
   >
-    <RadioGroupItem
-      :id="`${props.name}-${index}`"
-      :value="item.value"
-      :name="props.name"
-      :required="props.required"
-      :disabled="props.disabled"
-      :class="variants.radioCards.input"
-      @focus="handleFocus"
-      @blur="handleBlur"
-      :tabindex="isSelected ? 0 : -1"
-    />
     <Label
       :for="`${props.name}-${index}`"
       :class="cn(variants.radioCards.label)"
     >
+      <div :class="variants.radioCards.radio">
+        <RadioGroupItem
+          :id="`${props.name}-${index}`"
+          :value="item.value"
+          :name="props.name"
+          :required="props.required"
+          :disabled="props.disabled"
+          :class="variants.radioCards.input"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          :tabindex="isSelected ? 0 : -1"
+        />
+      </div>
       <slot
         name="item"
         v-bind="{

@@ -84,6 +84,7 @@ const variants = useStyles(
     trigger: string;
     root: string;
     item: string;
+    radio: string;
     input: string;
     label: string;
   };
