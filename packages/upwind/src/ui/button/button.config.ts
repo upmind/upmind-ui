@@ -15,7 +15,7 @@ export const buttonVariants = cva(
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
-          "!hover:bg-opacity-80 !border-input bg-control !text-control-foreground shadow-sm ring-offset-background",
+          "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background",
       },
       color: {
         base: "",

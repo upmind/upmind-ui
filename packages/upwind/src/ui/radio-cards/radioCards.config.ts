@@ -4,7 +4,7 @@ import { ringClasses } from "../../assets/styles";
 export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
 
 export const itemVariants = cva(
-  `hover:bg-control-active-hover flex items-start space-x-1 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} data-[state=checked]:bg-control-active-focus`,
+  `hover:border-control-strong group flex items-start space-x-1 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} data-[state=checked]:bg-control-active-focus`,
   {
     variants: {
       width: {
@@ -37,7 +37,7 @@ export default {
       "m-0 h-full w-full min-w-0 cursor-pointer rounded-md py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva(
-      `${ringClasses} my-3 ml-4 mr-1 mt-4 leading-normal ring-offset-2`
+      `group-hover:border-control-strong my-3 ml-4 mr-1 mt-4 border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     ),
   },
 };
