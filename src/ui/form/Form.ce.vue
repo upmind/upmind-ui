@@ -7,17 +7,18 @@
   >
     <JsonForms
       ref="form"
-      :i18n="i18n"
+      :additionalErrors="additionalErrors"
       :ajv="ajv"
+      :class="styles.form.content"
       :data="model"
+      :enabled="!meta.isDisabled"
+      :i18n="i18n"
+      :readonly="readonly"
+      :renderers="renderers"
       :schema="schema"
       :uischema="uischema"
-      :renderers="renderers"
       :validationMode="mode"
-      :additionalErrors="additionalErrors"
-      :enabled="!meta.isDisabled"
       @change="onChange"
-      :class="styles.form.content"
     />
 
     <slot name="footer" v-bind="{ meta }">
@@ -44,7 +45,6 @@
 // --- external
 import { ref, watch, computed, useTemplateRef, onMounted } from "vue";
 import { useVModel } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
 
 // --- components
 import { iterateSchema } from "@jsonforms/core";
@@ -80,7 +80,12 @@ import type {
   ValidationMode,
   UISchemaElement,
 } from "@jsonforms/core";
-import type { FormProps, FormActionProps } from "./types";
+import type {
+  FormProps,
+  FormActionProps,
+  FormActionsProps,
+  FormFooterProps,
+} from "./types";
 import type { ErrorObject } from "ajv";
 // ----------------------------------------------
 
@@ -105,6 +110,11 @@ const emits = defineEmits<{
   action: [{ name: string; model: Object; meta: Object }];
 }>();
 
+const slots = defineSlots<{
+  footer(props: FormFooterProps): void;
+  actions(props: FormActionsProps): void;
+}>();
+
 // --- state
 const { ajv } = useValidation(props.ajv);
 
@@ -125,6 +135,7 @@ const touched = ref(false);
 
 const meta = computed(() => {
   return {
+    canTranslate: !isEmpty(props.i18n),
     isLoading: props.loading,
     isProcessing: props.processing,
     isPristine: isDeepEmpty(model.value),
@@ -185,39 +196,6 @@ const actions = computed<Record<string, FormActionProps>>(() => {
 const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
   return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
-});
-
-// --- i18n
-const { t, tm, locale } = useI18n();
-
-const i18n = computed<JsonFormsI18nState>(() => {
-  // if we are given an i18n object, use it
-  // otherwise, if we have vue-i18n enabled, it will provide the$locale & t function, use that
-  // otherwise, return null
-
-  const createTranslator =
-    (_locale: string) => (key: string, defaultMessage: string) => {
-      let value = null;
-      // console.debug(
-      //   `Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`
-      // );
-
-      // If we have been given a translator function, use it
-      if (isFunction(props.translator)) value = props.translator(key);
-      // otherwise, if we have vue-i18n enabled, it will provide the $locale & t function, use that
-      else if (isFunction(t)) value = t(key);
-
-      // otherwise return the default message
-      if (!value || value == key) value = defaultMessage;
-
-      return value;
-    };
-
-  const safeLocale: string = props.locale || locale.value;
-  return {
-    locale: safeLocale,
-    translate: createTranslator(safeLocale),
-  } as JsonFormsI18nState;
 });
 
 // --- methods
@@ -311,9 +289,16 @@ function updateUischema(uischema: FormProps["uischema"]) {
     // child.options.size ??= props.size; // only set if not already set
 
     // map additional i18n, json forms just does title & description
-    if (child?.i18n) {
-      const values: Record<string, any> = tm(child.i18n);
-      merge(child.options, values);
+    debugger;
+    if (child?.i18n && isFunction(props?.i18n?.translate)) {
+      debugger;
+      const value = props?.i18n?.translate(
+        child.i18n,
+        child?.options?.title,
+        model.value
+      );
+      debugger;
+      merge(child.options, value);
     }
   });
 }
