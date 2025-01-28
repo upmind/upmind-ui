@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -89,15 +89,21 @@ const variants = useStyles(
   };
 }>;
 
+const deselected = ref(false);
+
 const handleFocus = (value: any) => {
-  if (value !== modelValue.value) {
+  if (value !== modelValue.value && !deselected.value) {
     onChange(value);
   }
 };
 
 const onChange = (value: any) => {
-  if (!props.required && modelValue.value == value)
+  if (!props.required && value === modelValue.value) {
     modelValue.value = undefined;
-  else modelValue.value = value;
+    deselected.value = true;
+  } else {
+    modelValue.value = value;
+    deselected.value = false;
+  }
 };
 </script>
