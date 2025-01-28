@@ -5,7 +5,6 @@
         v-bind="props"
         :open="open"
         :selected="selected"
-        :manuallySelected="manuallySelected"
         :meta="meta"
         :name="name"
         :overrideIndex="overrideIndex"

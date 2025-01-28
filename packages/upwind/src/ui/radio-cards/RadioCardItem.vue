@@ -1,7 +1,7 @@
 <template>
   <div
     :class="cn(variants.radioCards.item)"
-    :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
+    :data-state="isSelected ? 'checked' : 'unchecked'"
   >
     <RadioGroupItem
       :id="`${props.name}-${index}`"
@@ -12,6 +12,7 @@
       :class="variants.radioCards.input"
       @focus="handleFocus"
       @blur="handleBlur"
+      :tabindex="isSelected ? 0 : -1"
     />
     <Label
       :for="`${props.name}-${index}`"
@@ -30,27 +31,30 @@
 </template>
 
 <script setup lang="ts">
-// --- internal
-import { RadioGroupItem } from "../radio-group";
-import { cn } from "../../utils";
-import Label from "../label/Label.ce.vue";
+// --- external
+import { computed } from "vue";
 import { ref, watch, nextTick } from "vue";
 import { useFocus } from "@vueuse/core";
-const props = defineProps<{
-  item: any;
-  index: number;
-  name?: string;
-  label?: string;
-  sublabel?: string;
-  required: boolean;
-  disabled: boolean;
-  modelValue: any;
-  variants: any;
-}>();
+
+// --- internal
+import { cn } from "../../utils";
+
+// --- components
+import Label from "../label/Label.ce.vue";
+import { RadioGroupItem } from "../radio-group";
+
+// --- types
+import type { RadioCardsItemProps } from "./types";
+
+const props = defineProps<RadioCardsItemProps>();
 
 const emits = defineEmits(["focus"]);
 
 const focusedElement = ref<HTMLElement | null>(null);
+
+const isSelected = computed(() => {
+  return props.modelValue === props.item.value;
+});
 
 const handleFocus = (event: FocusEvent) => {
   focusedElement.value = event.target as HTMLElement;

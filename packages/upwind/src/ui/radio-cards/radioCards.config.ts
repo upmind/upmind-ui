@@ -1,10 +1,10 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles";
+import { ringClasses } from "../../assets/styles";
 
 export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
 
 export const itemVariants = cva(
-  `hover:bg-control-active-hover flex items-start space-x-1 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} ${invalidRingClasses}`,
+  `hover:bg-control-active-hover flex items-start space-x-1 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} data-[state=checked]:bg-control-active-focus`,
   {
     variants: {
       width: {
@@ -22,9 +22,6 @@ export const itemVariants = cva(
         11: "col-span-12 md:col-span-11",
         12: "col-span-12 md:col-span-12",
       },
-      showRing: {
-        true: "data-[state=checked]:bg-control-active-focus data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
-      },
     },
     defaultVariants: {
       width: 12,
@@ -39,6 +36,8 @@ export default {
     label: cva(
       "m-0 h-full w-full min-w-0 cursor-pointer rounded-md py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
-    input: cva(`${ringClasses} my-3 ml-4 mr-1 mt-4 leading-normal`),
+    input: cva(
+      `${ringClasses} my-3 ml-4 mr-1 mt-4 leading-normal ring-offset-2`
+    ),
   },
 };

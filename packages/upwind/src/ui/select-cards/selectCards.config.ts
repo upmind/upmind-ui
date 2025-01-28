@@ -18,11 +18,12 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  `${ringClasses} ${invalidRingClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-1 focus:ring-inset`,
+  `${ringClasses} ${invalidRingClasses} hover:bg-control-active-muted focus:bg-control-active-focus flex items-start space-x-2 rounded-md focus:outline-none focus:ring-inset`,
   {
     variants: {
       variant: {
-        dropdown: "rounded-none border-b border-b-control last:border-b-0",
+        dropdown:
+          "rounded-none border-b border-b-control first:rounded-t-md last:rounded-b-md last:border-b-0",
         collapsible: "border border-t-0 border-control",
       },
     },

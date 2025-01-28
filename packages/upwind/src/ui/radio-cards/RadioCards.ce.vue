@@ -58,7 +58,6 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   color: "base",
   variant: "control",
   width: 12,
-  ring: false,
   // --- styles
   class: "",
   radioClass: "",
