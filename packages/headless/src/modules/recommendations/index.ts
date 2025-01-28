@@ -71,7 +71,7 @@ export const useRecommendationsEngine = () => {
       return waitFor(service, state => !state.matches("processing"), {
         timeout: Infinity,
       }).then(state => {
-        if (["error", "available.error"].some(state.matches)) {
+        if (["error", "configuring"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }
         return Promise.resolve();
