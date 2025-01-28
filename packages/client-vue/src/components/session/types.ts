@@ -3,7 +3,7 @@ import type {
   ButtonProps,
   DialogProps,
   AvatarProps,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 // ---
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {

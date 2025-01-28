@@ -1,4 +1,4 @@
-import { registerEntry } from "@upmind-automation/upwind";
+import { registerEntry } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

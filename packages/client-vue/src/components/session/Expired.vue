@@ -43,11 +43,11 @@ import { ref, computed, watch } from "vue";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button } from "@upmind-automation/upwind";
+import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";

@@ -64,6 +64,7 @@
     "packages/headless",
     "packages/headless-vue",
     "packages/types",
+    "packages/ui",
     "packages/upwind",
     "playgrounds/storybook",
     "playgrounds/storybook-ce",

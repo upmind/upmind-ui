@@ -129,7 +129,7 @@ import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- types

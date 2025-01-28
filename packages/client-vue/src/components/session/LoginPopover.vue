@@ -26,5 +26,5 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 </script>

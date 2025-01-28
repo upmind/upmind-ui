@@ -32,7 +32,7 @@ import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 
 // --- components
-import { Alert, Button, Icon } from "@upmind-automation/upwind";
+import { Alert, Button, Icon } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();
 

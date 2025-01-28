@@ -6,6 +6,6 @@
 </template>
 
 <script lang="ts" setup>
-import { Drawer } from "@upmind-automation/upwind";
+import { Drawer } from "@upmind-automation/upmind-ui";
 import Session from "./Session.vue";
 </script>

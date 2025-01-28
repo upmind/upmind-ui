@@ -55,11 +55,14 @@
 import { ref, computed } from "vue";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "../../utils";
 import config from "./interstitial.config";
 
 // --- components
-import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upwind";
+import { Dialog } from "../../dialog";
+import { Button } from "../button";
+import { Avatar } from "../avatar";
+import { Icon } from "../icon";
 
 // --- utils
 import { isFunction } from "lodash-es";

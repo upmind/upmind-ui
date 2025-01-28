@@ -48,7 +48,7 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Icon, Button, Tooltip } from "@upmind-automation/upwind";
+import { Icon, Button, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { type BasketProductActionsProps } from "./types";

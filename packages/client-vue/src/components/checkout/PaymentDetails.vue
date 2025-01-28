@@ -77,7 +77,7 @@ import {
   useBasket,
 } from "@upmind-automation/headless-vue";
 import config from "./config.cva";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import UpmPaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- components
@@ -88,7 +88,7 @@ import {
   AccordionTrigger,
   AccordionContent,
   Icon,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 import GatewayTrigger from "./components/gateway/Trigger.vue";
 import GatewayContent from "./components/gateway/Content.vue";
 

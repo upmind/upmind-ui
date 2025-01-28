@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Dialog, Button, Form } from "@upmind-automation/upwind";
+import { Dialog, Button, Form } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { keys, first } from "lodash-es";

@@ -50,12 +50,12 @@ import { computed } from "vue";
 
 // --- internal
 import { useBasketProduct } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
 import UpmCard from "../../content/Card.vue";
-import { Loading } from "@upmind-automation/upwind";
+import { Loading } from "@upmind-automation/upmind-ui";
 import UpmBasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import UpmBasketProductSummary from "./BasketProductSummary.vue";
 import UpmBasketProductActions from "./BasketProductActions.vue";

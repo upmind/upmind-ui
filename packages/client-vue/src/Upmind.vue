@@ -113,7 +113,7 @@ export default {
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useThemes } from "@upmind-automation/upwind";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import {

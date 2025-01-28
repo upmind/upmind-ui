@@ -35,10 +35,10 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import config from "../../config.cva";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Icon, Button } from "@upmind-automation/upwind";
+import { Icon, Button } from "@upmind-automation/upmind-ui";
 import PaymentGateway from "../../PaymentGateway.vue";
 
 // --- types

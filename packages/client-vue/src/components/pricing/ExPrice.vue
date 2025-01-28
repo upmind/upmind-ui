@@ -14,7 +14,7 @@ import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- types
