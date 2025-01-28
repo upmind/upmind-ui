@@ -45,7 +45,7 @@ import { Button } from "../../../button";
 import { Icon } from "../../../icon";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
 
 // --- types
@@ -56,7 +56,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } = useUpwindRenderer(
+const { control, appliedOptions, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 

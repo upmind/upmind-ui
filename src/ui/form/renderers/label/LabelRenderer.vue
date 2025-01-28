@@ -10,7 +10,7 @@ import { useJsonFormsLabel } from "@jsonforms/vue";
 import { Label } from "../../../label";
 
 // --- utils
-import { useUpwindLabelRenderer } from "../utils";
+import { useUpmindUILabelRenderer } from "../utils";
 
 // --- types
 import type { LabelElement } from "@jsonforms/core";
@@ -20,7 +20,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<LabelElement>>();
 
-const renderer = useUpwindLabelRenderer(useJsonFormsLabel(props));
+const renderer = useUpmindUILabelRenderer(useJsonFormsLabel(props));
 
 // Destructure renderer properties
 const { label, appliedOptions } = renderer;

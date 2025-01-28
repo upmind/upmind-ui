@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   // -- variants
   width: "full",
   // --- styles
-  upwindConfig: () => ({ select: {} }),
+  upmindUIConfig: () => ({ select: {} }),
   class: "",
 });
 
@@ -65,7 +65,7 @@ const variants = useStyles(
   ["select"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   select: [];
 }>;

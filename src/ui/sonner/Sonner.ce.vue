@@ -119,7 +119,7 @@ const variants = useStyles(
   ],
   {},
   config,
-  props.upwindConfig ?? {} ?? {}
+  props.upmindUIConfig ?? {} ?? {}
 ) as ComputedRef<{
   sonner: {
     base: {

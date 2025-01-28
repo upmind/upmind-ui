@@ -167,7 +167,7 @@ const variants = useStyles(
   ["select"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   select: {
     root: string;

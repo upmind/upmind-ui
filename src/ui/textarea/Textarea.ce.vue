@@ -28,7 +28,7 @@ import type { TextareaProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TextareaProps>(), {
-  upwindConfig: () => ({ textarea: {} }),
+  upmindUIConfig: () => ({ textarea: {} }),
   class: "",
 });
 
@@ -37,7 +37,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upwindConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -53,6 +53,6 @@ const variants = useStyles(
   ["textarea"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ textarea: string }>;
 </script>

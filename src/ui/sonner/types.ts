@@ -5,7 +5,7 @@ import { type ToasterProps } from "vue-sonner";
 // --- internal
 export interface SonnerProps extends ToasterProps {
   // ---
-  upwindConfig?: {
+  upmindUIConfig?: {
     sonner?: {
       base: Partial<SonnerProps>;
       primary: Partial<SonnerProps>;

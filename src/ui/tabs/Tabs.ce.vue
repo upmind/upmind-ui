@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
   color: "base",
   variant: "flat",
   // --- styles
-  upwindConfig: () => ({
+  upmindUIConfig: () => ({
     tabs: {
       list: {},
       trigger: {},
@@ -79,7 +79,7 @@ const variants = useStyles(
   "tabs",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   tabs: {
     list: string;

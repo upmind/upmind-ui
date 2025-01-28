@@ -6,7 +6,7 @@ export { default as CheckboxCards } from "./CheckboxCards.ce.vue";
 
 // --- custom elements
 import CheckboxCards from "./CheckboxCards.ce.vue";
-export const UwCheckboxCards = defineCustomElement(CheckboxCards);
+export const UpmCheckboxCards = defineCustomElement(CheckboxCards);
 
 // --- types
 export * from "./types";

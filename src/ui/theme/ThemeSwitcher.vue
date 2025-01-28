@@ -15,12 +15,12 @@ import { DropdownMenu } from "../dropdown-menu";
 import { startCase, keys } from "lodash-es";
 
 export default defineComponent({
-  name: "UwpwThemeSwitcher",
+  name: "UpmThemeSwitcher",
   components: {
     DropdownMenu,
   },
   setup() {
-    const { activeTheme, themes } = inject("upwind");
+    const { activeTheme, themes } = inject("upmind-ui");
 
     return {
       hasThemes: computed(() => keys(themes.value).length > 1),

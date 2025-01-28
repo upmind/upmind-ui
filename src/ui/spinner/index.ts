@@ -7,4 +7,4 @@ export { type SpinnerProps } from "./types";
 
 // --- custom elements
 import Spinner from "./Spinner.ce.vue";
-export const UwSpinner = defineCustomElement(Spinner);
+export const UpmSpinner = defineCustomElement(Spinner);

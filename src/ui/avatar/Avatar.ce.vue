@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   size: "auto",
   variant: "flat",
   // --- styles
-  upwindConfig: () => ({ avatar: {} }),
+  upmindUIConfig: () => ({ avatar: {} }),
   class: "",
 });
 
@@ -104,6 +104,6 @@ const variants = useStyles(
   "avatar",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ avatar: string }>;
 </script>

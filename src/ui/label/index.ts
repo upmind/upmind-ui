@@ -7,4 +7,4 @@ export { type LabelProps } from "./types";
 
 // --- custom elements
 import Label from "./Label.ce.vue";
-export const UwLabel = defineCustomElement(Label);
+export const UpmLabel = defineCustomElement(Label);

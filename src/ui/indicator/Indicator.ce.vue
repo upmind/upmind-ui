@@ -48,7 +48,7 @@ const props = withDefaults(defineProps<IndicatorProps>(), {
   shape: "circle",
   size: "full",
   // --- styles
-  upwindConfig: () => ({ indicator: {} }),
+  upmindUIConfig: () => ({ indicator: {} }),
   class: "",
 });
 
@@ -65,6 +65,6 @@ const variants = useStyles(
   "indicator",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ indicator: string }>;
 </script>

@@ -21,7 +21,7 @@ export interface ButtonProps {
   color?: ButtonVariantProps["color"];
   size?: ButtonVariantProps["size"];
   // ---
-  upwindConfig?: { button: Partial<ButtonProps> };
+  upmindUIConfig?: { button: Partial<ButtonProps> };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }

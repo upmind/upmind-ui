@@ -50,7 +50,7 @@ const props = withDefaults(defineProps<NumberFieldProps>(), {
   width: "full",
   variant: "flat",
   // --- styles
-  upwindConfig: () => ({ numberField: {} }),
+  upmindUIConfig: () => ({ numberField: {} }),
   class: "",
   classField: "",
 });
@@ -62,7 +62,7 @@ const emits = defineEmits<{
 const delegatedProps = computed(() =>
   omit(props, [
     "class",
-    "upwindConfig",
+    "upmindUIConfig",
     "modelValue",
     "size",
     "width",
@@ -86,7 +86,7 @@ const variants = useStyles(
   ["numberField"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   numberField: {
     root: string;

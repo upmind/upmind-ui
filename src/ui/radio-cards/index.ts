@@ -6,7 +6,7 @@ export { default as RadioCards } from "./RadioCards.ce.vue";
 
 // --- custom elements
 import RadioCards from "./RadioCards.ce.vue";
-export const UwRadioCards = defineCustomElement(RadioCards);
+export const UpmRadioCards = defineCustomElement(RadioCards);
 
 // --- types
 export * from "./types";

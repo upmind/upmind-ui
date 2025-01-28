@@ -52,7 +52,7 @@ import {
 import { Icon } from "../../../icon";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 import { get, map, trimStart, includes, filter, isString } from "lodash-es";
 
 // --- types
@@ -77,7 +77,7 @@ const countryItems = computed<AutocompleteItemProps[]>(() =>
   })
 );
 
-const { control, formFieldProps, onInput } = useUpwindRenderer(
+const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 

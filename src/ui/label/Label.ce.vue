@@ -25,10 +25,10 @@ import type { LabelProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<LabelProps>(), {
-  upwindConfig: () => ({ label: {} }),
+  upmindUIConfig: () => ({ label: {} }),
   class: "",
 });
-const delegatedProps = computed(() => omit(props, ["upwindConfig", "class"]));
+const delegatedProps = computed(() => omit(props, ["upmindUIConfig", "class"]));
 
 const meta = computed(() => ({}));
 
@@ -36,6 +36,6 @@ const variants = useStyles(
   ["label"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ label: string }>;
 </script>

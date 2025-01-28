@@ -140,7 +140,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   side: "bottom",
   // --- styles
   iconSize: "2xs",
-  upwindConfig: () => ({ autocomplete: {} }),
+  upmindUIConfig: () => ({ autocomplete: {} }),
 });
 
 const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
@@ -159,7 +159,7 @@ const delegatedProps = computed(() =>
     "width",
     "popoverWidth",
     "iconSize",
-    "upwindConfig",
+    "upmindUIConfig",
     "class",
     "popoverClass",
     "type",
@@ -187,7 +187,7 @@ const variants = useStyles(
   ["autocomplete"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{
   autocomplete: {
     root: string;

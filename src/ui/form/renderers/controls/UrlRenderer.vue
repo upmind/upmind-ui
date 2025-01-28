@@ -18,7 +18,7 @@ import FormField from "../../FormField.vue";
 import { Input } from "../../../input";
 
 // --- utils
-import { useUpwindRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../utils";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -27,7 +27,7 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, onInput, formFieldProps } = useUpwindRenderer(
+const { control, onInput, formFieldProps } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 </script>
