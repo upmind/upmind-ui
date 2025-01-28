@@ -20,6 +20,7 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
+        @focus="handleFocus(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -91,9 +92,15 @@ const variants = useStyles(
   };
 }>;
 
-function onChange(value: any) {
+const handleFocus = (value: any) => {
+  if (value !== modelValue.value) {
+    onChange(value);
+  }
+};
+
+const onChange = (value: any) => {
   if (!props.required && modelValue.value == value)
     modelValue.value = undefined;
   else modelValue.value = value;
-}
+};
 </script>
