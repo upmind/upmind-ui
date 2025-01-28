@@ -43,6 +43,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
+  variant: props.variant,
+  // ---
   isCollapsible: props.variant === "collapsible",
 }));
 </script>
