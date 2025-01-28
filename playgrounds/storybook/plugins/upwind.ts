@@ -8,10 +8,10 @@ import type { App, Plugin } from "vue";
 
 // -----------------------------------------------------------------------------
 
-const upwindPlugin: Plugin = {
+const upmindPlugin: Plugin = {
   install: (app: App): void => {
     app.component("UpwProvider", ThemeProvider);
   },
 };
 
-export default upwindPlugin;
+export default upmindPlugin;

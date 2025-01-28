@@ -68,7 +68,7 @@ import Session from "../session/Session.vue";
 import BasketSummary from "./Summary.vue";
 import BillingDetails from "../checkout/BillingDetails.vue";
 import PaymentDetails from "../checkout/PaymentDetails.vue";
-import { Form } from "@upmind-automation/upmind-ui";
+import Form from "../form/Form.vue";
 
 // --- types
 

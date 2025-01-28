@@ -1,3 +1,6 @@
+import type { Config } from "tailwindcss";
+import type { PluginUtils } from "tailwindcss/types/config";
+// ---
 import defaultTheme from "tailwindcss/defaultTheme";
 
 // -----------------------------------------------------------------------------
@@ -271,11 +274,24 @@ const colors = {
 // -----------------------------------------------------------------------------
 
 export default {
+  content: [],
   colors,
   fontFamily: {
-    sans: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.sans],
-    serif: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.serif],
-    mono: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.mono],
+    sans: [
+      "Inconsolata",
+      "monospace",
+      ...defaultTheme.fontFamily.sans,
+    ].toString(),
+    serif: [
+      "Inconsolata",
+      "monospace",
+      ...defaultTheme.fontFamily.serif,
+    ].toString(),
+    mono: [
+      "Inconsolata",
+      "monospace",
+      ...defaultTheme.fontFamily.mono,
+    ].toString(),
   },
   textSizes: {
     xs: ".75rem", // 12px
@@ -342,4 +358,4 @@ export default {
     invalid: colors.control.error.muted,
     active: colors.control.active.DEFAULT,
   },
-};
+} satisfies Config;

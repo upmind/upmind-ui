@@ -67,5 +67,5 @@
 // Upmind Admin
 // - We're probably not doing it for playgrounds/doteasy (DotEasy)
 // - However, this approach is my recommendation for the admin app
-// (because it will also be a "client" of our upflow-vue and upwind libs - or even Client-vue if that's the way)
+// (because it will also be a "client" of our upflow-vue and upmind-ui libs - or even Client-vue if that's the way)
 //
