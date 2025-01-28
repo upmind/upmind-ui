@@ -11,7 +11,6 @@
     :visible="props.visible"
     :errors="props.errors"
     :tooltip="props.description"
-    auto-focus
   >
     <SelectCards
       id="terms"
