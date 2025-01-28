@@ -23,7 +23,8 @@ export { default as UpmCurrency } from "./components/basket/CurrencySwitcher.vue
 // ---
 export { default as UpmProductConfig } from "./components/product/Config.vue";
 export { default as UpmProductNotFound } from "./components/product/NotFound.vue";
-export * from "./components/renderers";
+
+export * from "./components/form";
 // ---
 export { default as UpmBasketProducts } from "./components/basket/ItemListings.vue";
 export { default as UpmBasketSummary } from "./components/basket/Summary.vue";

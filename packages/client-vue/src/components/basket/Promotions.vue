@@ -89,7 +89,7 @@ import { useI18n } from "vue-i18n";
 import { set } from "lodash-es";
 
 // --- components
-import { Form } from "@upmind-automation/upmind-ui";
+import Form from "../form/Form.vue";
 
 // --- custom elements
 import { Button, Icon, Badge, Tooltip } from "@upmind-automation/upmind-ui";

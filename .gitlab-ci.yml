@@ -56,7 +56,6 @@ dependencies:
         - playgrounds/storybook/node_modules
         - playgrounds/velia/node_modules
         - playgrounds/webcentral/node_modules
-        - packages/upwind/node_modules
         - packages/headless/node_modules
         - packages/headless-vue/node_modules
         - packages/client-vue/node_modules
@@ -70,7 +69,6 @@ dependencies:
       - playgrounds/storybook/node_modules
       - playgrounds/velia/node_modules
       - playgrounds/webcentral/node_modules
-      - packages/upwind/node_modules
       - packages/headless/node_modules
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules

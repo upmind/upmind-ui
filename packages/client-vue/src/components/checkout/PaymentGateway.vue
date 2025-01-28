@@ -90,8 +90,8 @@ import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
 import { Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Form, Spinner, Alert } from "@upmind-automation/upmind-ui";
-
+import { Spinner, Alert } from "@upmind-automation/upmind-ui";
+import Form from "../form/Form.vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   id: string;

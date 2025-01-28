@@ -8,7 +8,7 @@ import { useArgs } from "@storybook/preview-api";
 import { createI18n } from "vue-i18n";
 
 // --- internal
-import upwind from "../plugins/upwind";
+import upmind from "../plugins/upmind";
 import themes from "@/assets/themes";
 
 // --- utils
@@ -47,7 +47,7 @@ setup(app => {
   });
   app.use(i18n);
 
-  app.use(upwind);
+  app.use(upmind);
 });
 
 const preview: Preview = {

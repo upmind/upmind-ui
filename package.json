@@ -65,7 +65,6 @@
     "packages/headless-vue",
     "packages/types",
     "packages/ui",
-    "packages/upwind",
     "playgrounds/storybook",
     "playgrounds/velia",
     "playgrounds/webcentral",
