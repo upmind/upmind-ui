@@ -103,7 +103,7 @@ export interface Recommendation {
 export interface RecommendationsEngineContext {
   recommendations: Recommendation[];
   raw: {
-    products: BasketProduct[];
+    products: IProduct[];
     related: RelatedProduct[];
     relationships: Record<string, string[]>;
     seen: string[];
