@@ -36,7 +36,7 @@
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
         v-bind="props"
-        :upwind-config="{
+        :ui-config="{
           pricing: {
             current: styles.product.config.grid.item.total,
           },

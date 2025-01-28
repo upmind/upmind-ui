@@ -34,7 +34,7 @@
       @resolve="doAdd"
       @update:modelValue="input"
       :actions="actions"
-      :upwind-config="{
+      :ui-config="{
         form: {
           root: 'flex-row gap-1 items-start space-x-2',
           actions: 'w-auto items-start',
