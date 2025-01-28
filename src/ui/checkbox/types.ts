@@ -15,6 +15,6 @@ export interface CheckboxProps extends CheckboxRootProps {
   size?: CheckboxVariantProps["size"];
   width?: CheckboxVariantProps["width"];
   // ---
-  upwindConfig?: { checkbox: Partial<CheckboxVariantProps> };
+  upmindUIConfig?: { checkbox: Partial<CheckboxVariantProps> };
   class?: HTMLAttributes["class"];
 }

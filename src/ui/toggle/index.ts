@@ -7,4 +7,4 @@ export { type ToggleProps } from "./types";
 
 // --- custom elements
 import Toggle from "./Toggle.ce.vue";
-export const UwToggle = defineCustomElement(Toggle);
+export const UpmToggle = defineCustomElement(Toggle);

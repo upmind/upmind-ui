@@ -18,6 +18,6 @@ export interface IconProps {
   // ---
   size?: IconVariantProps["size"];
   // ---
-  upwindConfig?: { icon: Partial<IconProps> };
+  upmindUIConfig?: { icon: Partial<IconProps> };
   class?: HTMLAttributes["class"];
 }

@@ -7,4 +7,4 @@ export { type BadgeProps } from "./types";
 
 // --- custom elements
 import Badge from "./Badge.ce.vue";
-export const UwBadge = defineCustomElement(Badge);
+export const UpmBadge = defineCustomElement(Badge);

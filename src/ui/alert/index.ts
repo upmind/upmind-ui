@@ -7,4 +7,4 @@ export { type AlertProps } from "./types";
 
 // --- custom elements
 import Alert from "./Alert.ce.vue";
-export const UwAlert = defineCustomElement(Alert);
+export const UpmAlert = defineCustomElement(Alert);

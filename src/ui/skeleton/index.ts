@@ -8,4 +8,4 @@ export * from "./types";
 
 // --- custom elements
 import Skeleton from "./Skeleton.ce.vue";
-export const UwSkeleton = defineCustomElement(Skeleton);
+export const UpmSkeleton = defineCustomElement(Skeleton);

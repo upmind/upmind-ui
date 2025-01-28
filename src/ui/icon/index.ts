@@ -7,4 +7,4 @@ export { type IconProps } from "./types";
 
 // --- custom elements
 import Icon from "./Icon.ce.vue";
-export const UwIcon = defineCustomElement(Icon);
+export const UpmIcon = defineCustomElement(Icon);

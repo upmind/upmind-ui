@@ -7,4 +7,4 @@ export * from "./types";
 
 // --- custom elements
 import Interstitial from "./Interstitial.ce.vue";
-export const UwInterstitial = defineCustomElement(Interstitial);
+export const UpmInterstitial = defineCustomElement(Interstitial);

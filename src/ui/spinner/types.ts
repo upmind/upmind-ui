@@ -11,6 +11,6 @@ export interface SpinnerProps extends PrimitiveProps {
   // ---
   size?: SpinnerVariantProps["size"];
   // ---
-  upwindConfig?: { spinner: Partial<SpinnerProps> };
+  upmindUIConfig?: { spinner: Partial<SpinnerProps> };
   class?: HTMLAttributes["class"];
 }

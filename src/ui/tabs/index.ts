@@ -7,4 +7,4 @@ export type { TabsProps, TabItems } from "./types";
 
 // --- custom elements
 import Tabs from "./Tabs.ce.vue";
-export const UwTabs = defineCustomElement(Tabs);
+export const UpmTabs = defineCustomElement(Tabs);

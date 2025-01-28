@@ -14,4 +14,4 @@ export { type NumberFieldProps } from "./types";
 
 // --- custom elements
 import NumberField from "./NumberField.ce.vue";
-export const UwNumberField = defineCustomElement(NumberField);
+export const UpmNumberField = defineCustomElement(NumberField);

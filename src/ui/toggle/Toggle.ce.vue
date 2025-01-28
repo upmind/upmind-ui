@@ -30,7 +30,7 @@ import type { ToggleProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ToggleProps>(), {
-  upwindConfig: () => ({ input: {} }),
+  upmindUIConfig: () => ({ input: {} }),
   class: "",
 });
 
@@ -39,7 +39,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upwindConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -56,6 +56,6 @@ const variants = useStyles(
   ["toggle"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ toggle: string }>;
 </script>

@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
   //  --- variants
   size: "auto",
   // --- styles
-  upwindConfig: () => ({ spinner: {} }),
+  upmindUIConfig: () => ({ spinner: {} }),
   class: "",
 });
 
@@ -49,6 +49,6 @@ const variants = useStyles(
   "spinner",
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ spinner: string }>;
 </script>

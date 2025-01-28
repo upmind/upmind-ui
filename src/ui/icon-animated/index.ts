@@ -7,4 +7,4 @@ export { type AnimatedIconProps } from "./types";
 
 // --- custom elements
 import IconAnimated from "./IconAnimated.ce.vue";
-export const UwIconAnimated = defineCustomElement(IconAnimated);
+export const UpmIconAnimated = defineCustomElement(IconAnimated);

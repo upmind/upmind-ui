@@ -7,4 +7,4 @@ export * from "./types";
 
 // --- custom elements
 import Input from "./Input.ce.vue";
-export const UwInput = defineCustomElement(Input);
+export const UpmInput = defineCustomElement(Input);

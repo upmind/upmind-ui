@@ -7,4 +7,4 @@ export { type CheckboxProps } from "./types";
 
 // --- custom elements
 import Checkbox from "./Checkbox.ce.vue";
-export const UwCheckbox = defineCustomElement(Checkbox);
+export const UpmCheckbox = defineCustomElement(Checkbox);

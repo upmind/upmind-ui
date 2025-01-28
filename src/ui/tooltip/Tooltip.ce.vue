@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<TooltipProps>(), {
   // --- variants
   color: "base",
   // --- styles
-  upwindConfig: () => ({ tooltip: {} }),
+  upmindUIConfig: () => ({ tooltip: {} }),
   class: "",
 });
 
@@ -67,6 +67,6 @@ const variants = useStyles(
   ["tooltip", "arrow"],
   meta,
   config,
-  props.upwindConfig ?? {}
+  props.upmindUIConfig ?? {}
 ) as ComputedRef<{ tooltip: string; arrow: string }>;
 </script>

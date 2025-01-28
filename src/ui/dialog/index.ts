@@ -8,4 +8,4 @@ export { type DialogProps } from "./types";
 
 // --- custom elements
 import Dialog from "./Dialog.ce.vue";
-export const UwDialog = defineCustomElement(Dialog);
+export const UpmDialog = defineCustomElement(Dialog);

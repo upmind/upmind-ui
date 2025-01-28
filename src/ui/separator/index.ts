@@ -6,4 +6,4 @@ export { default as Separator } from "./Separator.ce.vue";
 
 // --- custom elements
 import Separator from "./Separator.ce.vue";
-export const UwSeparator = defineCustomElement(Separator);
+export const UpmSeparator = defineCustomElement(Separator);
