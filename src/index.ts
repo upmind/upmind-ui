@@ -55,6 +55,8 @@ import {
   FormDescription,
   FormMessage,
   type FormProps,
+  type FormFooterProps,
+  type FormActionsProps,
 } from "./ui/form";
 import { UpmIcon, Icon, type IconProps } from "./ui/icon";
 import {
@@ -176,6 +178,8 @@ export {
   type ComboboxItemProps,
   type DialogProps,
   type FormProps,
+  type FormFooterProps,
+  type FormActionsProps,
   type IconProps,
   type AnimatedIconProps,
   type InterstitialProps,

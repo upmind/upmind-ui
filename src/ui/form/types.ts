@@ -8,6 +8,9 @@ import type {
   Internationalizable,
   ControlElement,
   JsonFormsRendererRegistryEntry,
+  JsonFormsI18nState,
+  ValidationMode,
+  Middleware,
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";
@@ -20,18 +23,22 @@ type FormVariantProps = VariantProps<typeof formVariants>;
 // --- types
 export interface FormProps {
   as?: string;
-  translator?: Function;
-  locale?: string;
-  // ---
-  ajv?: Ajv;
-  schema?: JsonSchema;
+  // --- JSOn Forms props
+  i18n?: JsonFormsI18nState;
+  schema: JsonSchema;
   uischema?: UISchemaElement & Internationalizable;
+  validationMode?: ValidationMode;
+  ajv?: Ajv;
+  additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
+  middleware?: Middleware;
+  // ---  props
   modelValue: Object;
   additionalRenderers?: any[];
   // ---
   actions?: Record<string, FormActionProps>;
   noActions?: boolean;
   autosave?: boolean;
+  readonly?: boolean;
   // ---
   size?: FormVariantProps["size"];
   color?: ButtonProps["color"];
@@ -41,11 +48,30 @@ export interface FormProps {
   processing?: boolean;
   disabled?: boolean;
   // ---
-  // mode?: ValidationMode;
-  additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   // --- Provide a way to add custom variants for a specific instance of the component
   uiConfig?: { form: Partial<FormProps> };
   class?: HTMLAttributes["class"];
+}
+
+export type FormMeta = {
+  canTranslate: boolean;
+  isLoading: boolean;
+  isProcessing: boolean;
+  isPristine: boolean;
+  isDirty: boolean;
+  isTouched: boolean;
+  isValid: boolean;
+  isDisabled: boolean;
+};
+
+export interface FormActionsProps {
+  meta: FormMeta;
+  doReject: () => void;
+  doResolve: () => void;
+}
+
+export interface FormFooterProps {
+  meta: FormMeta;
 }
 
 export interface FormActionProps extends ButtonProps {
