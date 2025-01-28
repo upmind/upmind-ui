@@ -81,7 +81,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useDomain } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
@@ -92,7 +92,7 @@ import {
   SkeletonList,
   Input,
   FormControl,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { map } from "lodash-es";

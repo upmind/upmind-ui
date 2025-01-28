@@ -122,7 +122,7 @@ import {
   useRoutingEngine,
 } from "@upmind-automation/headless-vue";
 import config from "./config.cva.js";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // -- components
 import UpmSession from "../session/Session.vue";

@@ -95,11 +95,16 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Input, Button, Drawer, FormControl } from "@upmind-automation/upwind";
+import {
+  Input,
+  Button,
+  Drawer,
+  FormControl,
+} from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
 
 // -----------------------------------------------------------------------------

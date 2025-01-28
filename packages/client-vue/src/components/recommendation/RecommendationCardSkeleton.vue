@@ -94,11 +94,11 @@
 <script lang="ts" setup>
 // --- internal
 import config from "./config.cva";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
 import UpmCard from "../content/Card.vue";
-import { Skeleton } from "@upmind-automation/upwind";
+import { Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";

@@ -19,7 +19,7 @@ import { useBasketCurrency } from "@upmind-automation/headless-vue";
 import rawCurrencies from "./currencies";
 
 // --- components
-import { Combobox } from "@upmind-automation/upwind";
+import { Combobox } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { map } from "lodash-es";

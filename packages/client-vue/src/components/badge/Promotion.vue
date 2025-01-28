@@ -7,7 +7,7 @@
 <script setup lang="ts">
 // --- imports
 import { computed, useSlots } from "vue";
-import { Badge } from "@upmind-automation/upwind";
+import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { PromotionBadgeProps } from "./types";

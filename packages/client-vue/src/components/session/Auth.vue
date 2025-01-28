@@ -54,12 +54,12 @@ import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { Form } from "@upmind-automation/upwind";
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upmind-ui";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- custom elements
-import { Button } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { AuthProps } from "./types";

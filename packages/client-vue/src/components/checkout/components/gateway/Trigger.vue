@@ -20,7 +20,7 @@ import { ref } from "vue";
 
 // --- internal
 import config from "../../config.cva";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";

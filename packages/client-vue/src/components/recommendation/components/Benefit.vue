@@ -14,11 +14,11 @@
 import { type ComputedRef } from "vue";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../config.cva";
 
 // --- components
-import { Icon } from "@upmind-automation/upwind";
+import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { type RecommendationBenefitProps } from "../types";

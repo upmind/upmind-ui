@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
 
 // -- components
-import { Drawer, Button } from "@upmind-automation/upwind";
+import { Drawer, Button } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

@@ -44,11 +44,11 @@ import { computed, toRefs } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { RadioCards, FormField } from "@upmind-automation/upwind";
+import { RadioCards, FormField } from "@upmind-automation/upmind-ui";
 import CardTerm from "./TermCard.vue";
 import CardTermPerMonth from "./TermPerMonthCard.vue";
 
@@ -56,7 +56,7 @@ import CardTermPerMonth from "./TermPerMonthCard.vue";
 import { isNil, map, toNumber, find } from "lodash-es";
 
 // --- types
-import type { RadioCardsItemProps } from "@upmind-automation/upwind";
+import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);

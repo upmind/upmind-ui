@@ -65,11 +65,11 @@ import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upwind";
+import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";

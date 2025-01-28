@@ -75,14 +75,14 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
 import Auth from "./AuthTabs.vue";
 
 // --- custom elements
-import { Button } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { AuthProps } from "./types";

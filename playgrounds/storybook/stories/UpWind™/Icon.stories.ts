@@ -2,7 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import { Icon } from "@upmind-automation/upwind";
+import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useSystemArgTypes } from "../../utils";

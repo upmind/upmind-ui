@@ -6,6 +6,6 @@
 </template>
 
 <script lang="ts" setup>
-import { Dialog } from "@upmind-automation/upwind";
+import { Dialog } from "@upmind-automation/upmind-ui";
 import Session from "./Session.vue";
 </script>

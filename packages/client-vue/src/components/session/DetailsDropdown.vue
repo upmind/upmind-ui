@@ -21,10 +21,10 @@
 import { useSession } from "@upmind-automation/headless-vue";
 
 // --- components
-import { DropdownMenu } from "@upmind-automation/upwind";
+import { DropdownMenu } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { DropdownMenuItemProps } from "@upmind-automation/upwind";
+import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 
 import { useI18n } from "vue-i18n";
 

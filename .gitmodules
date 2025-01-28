@@ -7,3 +7,9 @@
 [submodule "playgrounds/doteasy"]
 	path = playgrounds/doteasy
 	url = git@git.upmind.io:upmind/groups/frontend-team/doteasy-checkout.git
+[submodule "packages/types"]
+	path = packages/types
+	url = git@github.com:upmind/types.git
+[submodule "packages/ui"]
+	path = packages/ui
+	url = git@github.com:upmind/upmind-ui.git

@@ -67,11 +67,11 @@ import { useRouter } from "vue-router";
 
 // --- internal
 import { useSession, utils } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Avatar, Dialog, Button } from "@upmind-automation/upwind";
+import { Icon, Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isEmpty } from "lodash-es";

@@ -1,6 +1,6 @@
 import type { Recommendation, Benefit } from "@upmind-automation/headless";
-import type { IconProps } from "@upmind-automation/upwind";
-import type { BadgeProps } from "@upmind-automation/upwind";
+import type { IconProps } from "@upmind-automation/upmind-ui";
+import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 export interface RecommendationsProps {
   disabled?: boolean;

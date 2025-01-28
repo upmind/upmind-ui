@@ -44,19 +44,19 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
 import CardDomain from "./DomainCard.vue";
 import Empty from "./Empty.vue";
-import { SkeletonList, CheckboxCards } from "@upmind-automation/upwind";
+import { SkeletonList, CheckboxCards } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
-import type { CheckboxCardsItemProps } from "@upmind-automation/upwind";
+import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { IDomain } from "./types";
 
 // -----------------------------------------------------------------------------

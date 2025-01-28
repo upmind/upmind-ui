@@ -89,10 +89,10 @@ import { useI18n } from "vue-i18n";
 import { set } from "lodash-es";
 
 // --- components
-import { Form } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Button, Icon, Badge, Tooltip } from "@upmind-automation/upwind";
+import { Button, Icon, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless-vue";

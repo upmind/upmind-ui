@@ -7,7 +7,7 @@ import * as messages from "./locales";
 // import { countries } from "country-data";
 
 // --- components
-import { Form } from "@upmind-automation/upwind";
+import { Form } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isEmpty, omitBy } from "lodash-es";

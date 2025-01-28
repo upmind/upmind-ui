@@ -143,7 +143,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Button } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upmind-ui";
 import BasketPromotions from "./Promotions.vue";
 import SummarySkeleton from "./SummarySkeleton.vue";
 

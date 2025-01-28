@@ -19,11 +19,11 @@ import { defineComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { DropdownMenu } from "@upmind-automation/upwind";
+import { DropdownMenu } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- types

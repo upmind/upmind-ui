@@ -172,14 +172,14 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useProductConfig } from "@upmind-automation/headless-vue";
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Spinner } from "@upmind-automation/upwind";
+import { Spinner } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Icon, Badge, Button } from "@upmind-automation/upwind";
+import { Icon, Badge, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isNil, find, reject } from "lodash-es";
