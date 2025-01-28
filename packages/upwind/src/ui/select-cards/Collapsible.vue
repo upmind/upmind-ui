@@ -57,7 +57,10 @@
           </template>
         </TriggerButton>
       </CollapsibleTrigger>
-      <CollapsibleContent :onOpenAutoFocus="handleOpenAutoFocus">
+      <CollapsibleContent
+        :onOpenAutoFocus="handleOpenAutoFocus"
+        :class="variants.select.content"
+      >
         <div
           v-for="(item, index) in items"
           :key="item.id || index"
@@ -134,7 +137,7 @@ const emits = defineEmits(["update:modelValue"]);
 
 const itemRefs = ref<HTMLElement[]>([]);
 const focusRoot = ref<HTMLElement | null>(null);
-
+const focusButton = ref<HTMLElement | null>(null);
 const {
   modelValue,
   open,
@@ -150,7 +153,12 @@ const {
   focusPreviousItem,
   handleFocus,
   handleBlur,
-} = useSelectCards(props, emits, itemRefs, focusRoot);
+} = useSelectCards(
+  props,
+  emits,
+  itemRefs,
+  props.radio ? focusRoot : focusButton
+);
 
 const variants = useStyles(
   ["select"],

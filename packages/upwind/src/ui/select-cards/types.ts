@@ -70,4 +70,5 @@ export interface SelectCardsTriggerProps extends ButtonProps {
     variant: string;
     isCollapsible: boolean;
   };
+  focusRings: boolean;
 }

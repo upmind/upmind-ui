@@ -15,6 +15,7 @@ export interface ButtonProps {
   loading?: boolean;
   iconOnly?: boolean;
   spinner?: boolean;
+  focusRings?: boolean;
   // ---
   block?: boolean;
   variant?: ButtonVariantProps["variant"];
