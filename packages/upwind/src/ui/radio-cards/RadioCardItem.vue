@@ -17,7 +17,7 @@
           :class="variants.radioCards.input"
           @focus="handleFocus"
           @blur="handleBlur"
-          :tabindex="isSelected ? 0 : -1"
+          :tabindex="isSelected || !modelValue ? 0 : -1"
         />
       </div>
       <slot
