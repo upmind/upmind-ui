@@ -5,7 +5,7 @@
     :size="size"
     :placement="placement"
     :disabled="meta.isProcessing"
-    :upwind-config="{ dropdown: config.session.profile }"
+    :ui-config="{ dropdown: config.session.profile }"
     :loading="meta.isProcessing"
     :prepend-avatar="user?.avatar"
     :label="user?.display"

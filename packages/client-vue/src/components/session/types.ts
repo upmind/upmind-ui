@@ -22,7 +22,7 @@ export interface AuthProps {
   blockTabs?: boolean;
   stretchTabs?: boolean;
   // ---
-  upwindConfig?: { alert: Partial<AuthProps> };
+  uiConfig?: { alert: Partial<AuthProps> };
   class?: HTMLAttributes["class"];
 }
 

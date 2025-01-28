@@ -34,7 +34,7 @@ const styles = useStyles(
   ["pricing"],
   priceMeta,
   config,
-  props.upwindConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   pricing: {
     ex: string;

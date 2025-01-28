@@ -55,7 +55,7 @@
                 />
                 <CurrentPrice
                   v-bind="pricing"
-                  :upwind-config="{
+                  :ui-config="{
                     pricing: { current: styles.product.pricing.current },
                   }"
                 />
@@ -77,13 +77,13 @@
           <div class="flex items-center gap-x-2">
             <CurrentPrice
               v-bind="pricing"
-              :upwind-config="{
+              :ui-config="{
                 pricing: { current: styles.product.pricing.current },
               }"
             />
             <ExPrice
               v-bind="pricing"
-              :upwind-config="{ pricing: { ex: styles.product.pricing.ex } }"
+              :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
             />
           </div>
           <QuantityField
@@ -106,7 +106,7 @@
         />
         <ExPrice
           v-bind="pricing"
-          :upwind-config="{ pricing: { ex: styles.product.pricing.ex } }"
+          :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
         />
       </div>
     </div>
