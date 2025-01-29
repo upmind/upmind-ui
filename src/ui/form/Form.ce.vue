@@ -289,15 +289,12 @@ function updateUischema(uischema: FormProps["uischema"]) {
     // child.options.size ??= props.size; // only set if not already set
 
     // map additional i18n, json forms just does title & description
-    debugger;
     if (child?.i18n && isFunction(props?.i18n?.translate)) {
-      debugger;
       const value = props?.i18n?.translate(
         child.i18n,
         child?.options?.title,
         model.value
       );
-      debugger;
       merge(child.options, value);
     }
   });
