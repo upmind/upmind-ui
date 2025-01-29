@@ -2,7 +2,6 @@
   <component
     :is="useInputGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
-    :default-value="defaultValue"
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.radioCards.root, props.class)"
@@ -18,8 +17,8 @@
         :disabled="props.disabled"
         :model-value="modelValue"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
-        @focus="handleFocus(item.value)"
         :width="props.width"
+        @keydown.enter="onChange(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -85,21 +84,15 @@ const styles = useStyles(
   };
 }>;
 
-const deselected = ref(false);
-
 const handleFocus = (value: any) => {
-  if (value !== modelValue.value && !deselected.value) {
-    onChange(value);
-  }
+  onChange(value);
 };
 
 const onChange = (value: any) => {
   if (!props.required && value === modelValue.value) {
     modelValue.value = undefined;
-    deselected.value = true;
   } else {
     modelValue.value = value;
-    deselected.value = false;
   }
 };
 </script>

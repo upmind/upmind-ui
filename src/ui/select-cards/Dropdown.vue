@@ -1,7 +1,7 @@
 <template>
   <span :class="styles.select.group">
     <DropdownMenuRoot v-model:open="open" tabindex="-1">
-      <DropdownMenuTrigger as-child>
+      <DropdownMenuTrigger as-child :disabled="disabled">
         <TriggerButton
           :class="props.class"
           focusable
