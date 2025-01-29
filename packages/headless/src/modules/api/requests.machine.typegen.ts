@@ -17,6 +17,7 @@ export interface Typegen0 {
     add: "ADD";
     cancel: "CANCEL";
     remove: "REMOVE";
+    setLocale: "SET_LOCALE";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
