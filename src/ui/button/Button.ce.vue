@@ -58,6 +58,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   color: "base",
   variant: "flat",
   block: false,
+  focusable: true,
   // --- styles
   uiConfig: () => ({ button: {} }),
   class: "",
@@ -71,6 +72,7 @@ const meta = computed(() => ({
   block: props.block,
   disabled: props.disabled,
   loading: props.loading,
+  focusable: props.focusable,
 }));
 
 const styles = useStyles(

@@ -16,15 +16,21 @@
         @keydown.prevent.arrow-up="keyArrowUp"
       >
         <TriggerButton
-          v-bind="props"
-          :name="name"
-          :overrideIndex="overrideIndex"
-          :open="open"
-          :selected="selected"
+          :class="props.class"
+          :focusable?="props.focusable"
+          :label="props.label"
+          :loading="props.loading"
           :manuallySelected="manuallySelected"
-          :meta="meta"
-          @focus="handleFocus"
+          :name="name"
+          :open="open"
+          :overrideIndex="overrideIndex"
+          :placeholder="props.placeholder"
+          :selected="selected"
+          :size="props.size"
+          :useInputGroup="props.useInputGroup"
+          :variant="props.variant"
           @blur="handleBlur"
+          @focus="handleFocus"
           @keydown.prevent.enter="keyEnter"
         >
           <template #prepend>
@@ -50,14 +56,17 @@
             </span>
           </template>
           <template #item="{ item }">
-            <slot name="item" :item="item" />
+            <slot name="item" :item="item"></slot>
           </template>
           <template #placeholder>
-            <slot name="placeholder" />
+            <slot name="placeholder"></slot>
           </template>
         </TriggerButton>
       </CollapsibleTrigger>
-      <CollapsibleContent :onOpenAutoFocus="handleOpenAutoFocus">
+      <CollapsibleContent
+        :onOpenAutoFocus="handleOpenAutoFocus"
+        :class="styles.select.content"
+      >
         <div
           v-for="(item, index) in items"
           :key="item.id || index"
@@ -134,7 +143,7 @@ const emits = defineEmits(["update:modelValue"]);
 
 const itemRefs = ref<HTMLElement[]>([]);
 const focusRoot = ref<HTMLElement | null>(null);
-
+const focusButton = ref<HTMLElement | null>(null);
 const {
   modelValue,
   open,
@@ -150,7 +159,12 @@ const {
   focusPreviousItem,
   handleFocus,
   handleBlur,
-} = useSelectCards(props, emits, itemRefs, focusRoot);
+} = useSelectCards(
+  props,
+  emits,
+  itemRefs,
+  props.radio ? focusRoot : focusButton
+);
 
 const styles = useStyles(
   ["select"],
