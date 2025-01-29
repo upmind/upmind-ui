@@ -26,6 +26,7 @@ interface SelectCardsPropsBase extends RadioGroupRootProps {
   // --- state
   items: SelectCardsItemProps[];
   loading?: boolean;
+  disabled: boolean;
   // ---
   color?: ButtonProps["color"];
   size?: ButtonProps["size"];
