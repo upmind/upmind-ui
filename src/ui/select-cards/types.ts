@@ -30,7 +30,9 @@ interface SelectCardsPropsBase extends RadioGroupRootProps {
   color?: ButtonProps["color"];
   size?: ButtonProps["size"];
   radio?: boolean;
-  uiConfig?: { tooltip: Partial<SelectCardsPropsBase> };
+  focusable?: boolean;
+
+  uiConfig?: { select: Partial<SelectCardsPropsBase> };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }
@@ -39,7 +41,7 @@ interface CollapsibleSelectCardsProps
   extends Omit<SelectCardsPropsBase, "uiConfig"> {
   variant: "collapsible";
   side?: never;
-  uiConfig?: { tooltip: Partial<CollapsibleSelectCardsProps> };
+  uiConfig?: { select: Partial<CollapsibleSelectCardsProps> };
 }
 
 interface DropdownSelectCardsProps
@@ -53,12 +55,11 @@ export type SelectCardsProps =
   | CollapsibleSelectCardsProps
   | DropdownSelectCardsProps;
 
-export interface SelectCardsTriggerProps extends ButtonProps {
+export interface SelectCardsTriggerProps
+  extends Omit<ButtonProps, "variant" | "uiConfig"> {
   name: string;
   overrideIndex: number;
-  selected?: {
-    label: string;
-  };
+  selected?: { label: string };
   loading: boolean;
   placeholder?: string;
   label?: string;
@@ -66,8 +67,7 @@ export interface SelectCardsTriggerProps extends ButtonProps {
   open: boolean;
   useInputGroup: boolean;
   class: string;
-  meta: {
-    variant: string;
-    isCollapsible: boolean;
-  };
+  variant: string;
+  focusable?: boolean;
+  // uiConfig?: { select: Partial<SelectCardsTriggerProps> };
 }

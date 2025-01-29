@@ -9,7 +9,7 @@ import type { SelectCardsProps } from "../types";
 export function useSelectCards(
   props: SelectCardsProps,
   emits: any,
-  itemRefs: Ref<HTMLElement[]>,
+  itemRefs: TemplateRef[],
   focusRoot?: Ref<HTMLElement | null>
 ) {
   const modelValue = useVModel(props, "modelValue", emits, {

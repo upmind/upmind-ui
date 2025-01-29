@@ -2,12 +2,13 @@
   <Button
     :id="`${name}-${overrideIndex}`"
     :loading="loading"
-    :class="cn(styles.select.trigger)"
+    :class="cn(variants.select.trigger)"
     :size="size"
     :aria-expanded="open"
     variant="control"
     block
     :tabindex="useInputGroup ? 0 : -1"
+    :focusable="focusable"
   >
     <slot name="prepend" />
 
@@ -33,6 +34,9 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import { cn, useStyles } from "../../../utils";
 import config from "../selectCards.config";
@@ -47,7 +51,11 @@ import type { SelectCardsTriggerProps } from "../types";
 
 const props = defineProps<SelectCardsTriggerProps>();
 
-const styles = useStyles(["select"], props.meta, config, {}) as ComputedRef<{
+const meta = computed(() => ({
+  variant: props.variant,
+  isCollapsible: props.variant === "collapsible",
+}));
+const variants = useStyles(["select"], meta, config, {}) as ComputedRef<{
   select: {
     trigger: string;
   };

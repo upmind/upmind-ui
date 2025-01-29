@@ -1,10 +1,10 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ${ringClasses}`,
+  `relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
   {
     variants: {
       variant: {
@@ -15,7 +15,11 @@ export const buttonVariants = cva(
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
-          "!hover:bg-opacity-80 !border-input bg-control !text-control-foreground shadow-sm ring-offset-background",
+          "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background",
+      },
+      focusable: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "focus:outline-none focus:ring-0",
       },
       color: {
         base: "",

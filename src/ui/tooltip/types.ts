@@ -18,7 +18,6 @@ export interface TooltipProps
     TooltipProviderProps,
     TooltipTriggerProps {
   label?: string;
-  allowTab?: boolean;
   // ---
   color?: TooltipVariantProps["color"];
   // ---

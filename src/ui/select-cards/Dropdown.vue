@@ -1,53 +1,57 @@
 <template>
-  <DropdownMenuRoot v-model:open="open" tabindex="-1">
-    <DropdownMenuTrigger as-child>
-      <TriggerButton
-        v-bind="props"
-        :open="open"
-        :selected="selected"
-        :manuallySelected="manuallySelected"
-        :meta="meta"
-        :name="name"
-        :overrideIndex="overrideIndex"
-      >
-        <template #item="{ item }">
-          <slot name="item" :item="item" />
-        </template>
-        <template #placeholder>
-          <slot name="placeholder" />
-        </template>
-      </TriggerButton>
-    </DropdownMenuTrigger>
-
-    <DropdownMenuPortal>
-      <DropdownMenuContent
-        :class="cn(styles.select.content, props.contentClass)"
-        :onOpenAutoFocus="handleOpenAutoFocus"
-      >
-        <DropdownMenuItem
-          v-for="(item, index) in items"
-          :key="item.id || index"
-          tabindex="0"
-          @click="onChange(item.value)"
-          :class="styles.select.item"
-          :ref="
-            (el: HTMLElement) => {
-              if (el) itemRefs[index] = el;
-            }
-          "
+  <span :class="styles.select.group">
+    <DropdownMenuRoot v-model:open="open" tabindex="-1">
+      <DropdownMenuTrigger as-child>
+        <TriggerButton
+          :class="props.class"
+          focusable
+          :label="props.label"
+          :loading="props.loading"
+          :manuallySelected="manuallySelected"
+          :name="name"
+          :open="open"
+          :overrideIndex="overrideIndex"
+          :placeholder="props.placeholder"
+          :selected="selected"
+          :size="props.size"
+          :useInputGroup="props.useInputGroup"
+          :variant="props.variant"
+          @blur="handleBlur"
+          @focus="handleFocus"
+          @keydown.prevent.enter="keyEnter"
         >
-          <Label
-            :for="`${name}-${overrideIndex + index || index}`"
-            :class="cn(styles.select.label)"
+          <template #item="{ item }">
+            <slot name="item" :item="item"></slot>
+          </template>
+          <template #placeholder>
+            <slot name="placeholder"></slot>
+          </template>
+        </TriggerButton>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuPortal>
+        <DropdownMenuContent
+          :class="cn(styles.select.content, props.contentClass)"
+        >
+          <DropdownMenuItem
+            v-for="(item, index) in items"
+            :key="item.id || index"
+            @click="onChange(item.value)"
+            :class="styles.select.item"
           >
-            <slot name="dropdown-item" v-bind="{ item, index }">
-              {{ item.label }}
-            </slot>
-          </Label>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenuPortal>
-  </DropdownMenuRoot>
+            <Label
+              :for="`${name}-${overrideIndex + index || index}`"
+              :class="cn(styles.select.label)"
+            >
+              <slot name="dropdown-item" v-bind="{ item, index }">
+                {{ item.label }}
+              </slot>
+            </Label>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenuRoot>
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -102,6 +106,7 @@ const styles = useStyles(
     item: string;
     label: string;
     content: string;
+    group: string;
   };
 }>;
 
