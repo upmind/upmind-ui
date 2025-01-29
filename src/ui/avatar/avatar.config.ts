@@ -1,10 +1,11 @@
 // ---  external
 import { cva } from "class-variance-authority";
+import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 // --- for out Typescript type
 export const avatarVariants = cva(
-  " relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-normal",
+  `${ringClasses} relative inline-flex aspect-square shrink-0 select-none items-center justify-center overflow-hidden font-normal`,
   {
     variants: {
       color: {

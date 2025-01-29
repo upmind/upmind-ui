@@ -1,7 +1,10 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <AvatarRoot :class="cn(styles.avatar, props.class)">
+  <AvatarRoot
+    :class="cn(styles.avatar, props.class)"
+    :tabindex="focusable ? 0 : -1"
+  >
     <slot>
       <Icon
         v-if="meta.hasIcon"
