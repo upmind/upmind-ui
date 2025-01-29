@@ -3,13 +3,13 @@ import { useVModel } from "@vueuse/core";
 import { find, first, findIndex } from "lodash-es";
 import { useFocus } from "@vueuse/core";
 import { useFocusNavigation } from "../../../utils/useFocusNavigation";
-import type {TemplateRef}
+
 import type { SelectCardsProps } from "../types";
 
 export function useSelectCards(
   props: SelectCardsProps,
   emits: any,
-  itemRefs: TemplateRef,
+  itemRefs: Ref<HTMLElement[]>,
   focusRoot?: Ref<HTMLElement | null>
 ) {
   const modelValue = useVModel(props, "modelValue", emits, {
