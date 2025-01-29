@@ -58,6 +58,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   color: "base",
   variant: "flat",
   block: false,
+  focusRings: true,
   // --- styles
   upwindConfig: () => ({ button: {} }),
   class: "",
@@ -71,6 +72,7 @@ const meta = computed(() => ({
   block: props.block,
   disabled: props.disabled,
   loading: props.loading,
+  focusRings: props.focusRings,
 }));
 
 const variants = useStyles(
