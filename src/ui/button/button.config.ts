@@ -22,7 +22,7 @@ export const buttonVariants = cva(
         false: "focus:outline-none focus:ring-0",
       },
       color: {
-        base: "!ring-base",
+        base: "",
         primary: "!ring-primary",
         secondary: "!ring-secondary",
         accent: "!ring-accent",
