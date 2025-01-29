@@ -8,6 +8,7 @@
     variant="control"
     block
     :tabindex="useInputGroup ? 0 : -1"
+    :focus-rings="focusRings"
   >
     <slot name="prepend" />
 

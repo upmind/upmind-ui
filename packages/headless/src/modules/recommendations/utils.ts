@@ -19,6 +19,8 @@ import {
   uniqWith,
   includes,
   first,
+  isString,
+  map,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -30,6 +32,7 @@ import type {
   Recommendation,
   RelatedProduct,
   IProductConfig,
+  Badge,
   Benefit,
 } from "./types";
 // ---------------------------------------------------------------------------
@@ -231,8 +234,11 @@ export function parseRecommendation(
     description: useTranslateField(raw, "description") || product?.description,
     excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
     imgUrl: raw.image_url || product?.imgUrl,
-    badge: raw?.badge,
-    benefits: raw?.benefits,
+    badge: isString(raw?.badge) ? ({ label: raw?.badge } as Badge) : raw?.badge,
+    benefits: map(raw?.benefits, benefit => {
+      if (isString(benefit)) return { label: benefit } as Benefit;
+      return benefit;
+    }),
     // --- default config to be used when adding to basket
     config: {
       productId: raw.object_id,

@@ -48,7 +48,6 @@ import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 
 const props = withDefaults(defineProps<TooltipProps>(), {
   delayDuration: 150,
-  allowTab: true,
   // --- variants
   color: "base",
   // --- styles

@@ -11,11 +11,16 @@ import type { itemVariants } from "./radioCards.config";
 type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
-  // ---
-  label: string;
-  values: any[];
-  primary?: boolean;
-  group?: string;
+  item: any;
+  index: number;
+  name?: string;
+  label?: string;
+  sublabel?: string;
+  required: boolean;
+  disabled: boolean;
+  modelValue: any;
+  variants: any;
+  selected?: boolean;
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
@@ -25,7 +30,6 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   required?: boolean;
   overrideIndex?: number;
   useInputGroup?: boolean;
-  ring?: boolean;
   // --- state
   items: RadioCardsItemProps[];
   loading?: boolean;
