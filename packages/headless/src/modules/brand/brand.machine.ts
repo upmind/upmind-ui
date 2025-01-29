@@ -3,13 +3,14 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
+import { useApi } from "../api";
 import type { BrandContext, BrandEvent } from "./types";
 
 // --- utils
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 import { useTime } from "../../utils";
-import { set, unset } from "lodash-es";
+import { find, get, set, unset } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -162,7 +163,7 @@ export default createMachine(
                   src: "fetchBrandSettings",
                   onDone: {
                     target: "complete",
-                    actions: ["setSettings"],
+                    actions: ["setSettings", "setDefaultLocale"],
                   },
                   onError: {
                     target: "error",
@@ -279,6 +280,11 @@ export default createMachine(
       setSettings: assign((_context: BrandContext, { data }: BrandEvent) =>
         useBrandParser(data)
       ),
+
+      setDefaultLocale: ({ languages, language_id }: BrandContext) => {
+        const locale = get(find(languages, ["id", language_id]), "code");
+        if (locale) useApi().setLocale(locale);
+      },
 
       setModules: assign({
         // @ts-ignore

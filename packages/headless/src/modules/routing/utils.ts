@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useBasket } from "../basket";
 
 // --- utils
+import { useSafeParse, useSessionStorage } from "../../utils";
 import {
   compact,
   concat,
@@ -38,13 +39,6 @@ import { REQUIRES_ACTION, type Route } from "./types";
 import { responseCodes } from "../api";
 
 // -----------------------------------------------------------------------------
-function safeParse(value: any) {
-  try {
-    return JSON.parse(value);
-  } catch (e) {
-    return value;
-  }
-}
 
 export async function awaitResolved(service: ActorRef<any, any>) {
   return waitFor(service, state => ["resolved"].some(state.matches), {
@@ -130,10 +124,10 @@ export const useRouteQueryParams = (route: Route) => {
   }
 
   return {
-    parse: safeParse,
+    parse: useSafeParse,
     getParams,
     getParam,
-    express: safeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
+    express: useSafeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
     productId: getParam(QUERY_PARAMS.PRODUCT_ID),
     products: getParams(QUERY_PARAMS.PRODUCT_ID),
     productConfigs: getProductConfigs(),
@@ -148,28 +142,6 @@ export const useRouteQueryParams = (route: Route) => {
 };
 
 // -----------------------------------------------------------------------------
-
-export const useSessionStorage = () => {
-  return {
-    get(key: string, fallback: any) {
-      const value = sessionStorage.getItem(key) || fallback || null;
-      return safeParse(value);
-    },
-    set(key: string, value: any) {
-      sessionStorage.setItem(key, JSON.stringify(value));
-      return value;
-    },
-    remove(key: string) {
-      sessionStorage.removeItem(key);
-      return null;
-    },
-
-    clear() {
-      sessionStorage.clear();
-      return null;
-    },
-  };
-};
 
 export const useRoutePendingProducts = (route: Route) => {
   const { productConfigs, basketProductId, productId } =
