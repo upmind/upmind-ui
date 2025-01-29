@@ -81,6 +81,7 @@ const meta = computed(() => ({
   shape: props.shape,
   size: props.size,
   variant: props.variant,
+  focusable: props.focusable,
   // ---
   hasIcon: !isEmpty(props.icon),
   hasImage: !isEmpty(props.src),
