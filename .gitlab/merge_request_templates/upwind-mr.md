@@ -49,10 +49,10 @@ Please provide a A brief summary of:
     - eg: max-w-[123px]?
 
 - [ ] Is there any custom styles/CSS used in the component
-  - CSS should only be defined as tailwind classes in Upwind config 'config.js',
+  - CSS should only be defined as tailwind classes in UI Config 'config.js',
   - We should **NOT** be using any custom CSS
 - [ ] Are there any inline tailwind classes used in the component
-  - Classes should only be defined in Upwind config 'config.js'
+  - Classes should only be defined in UI config 'config.js'
 
 ## Code Checks
 
