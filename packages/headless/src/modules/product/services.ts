@@ -2,7 +2,7 @@
 
 // --- internal
 import { useApi } from "../api";
-import { useBrand, BrandConfigKeys } from "../brand";
+import { useBrand } from "../brand";
 
 // --- utils
 import { useTime, useValidation } from "../../utils";
@@ -30,6 +30,7 @@ import {
 } from "lodash-es";
 
 // --- types
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { ProductConfigContext } from "./types";
 // --------------------------------------------------------
 // ENUMS
@@ -39,12 +40,6 @@ export enum DefaultPaymentPeriod {
   LOWEST_PRICE = 1,
   LOWEST_MONTHLY_PRICE = 2,
   HIGHEST_PRICE = 3,
-}
-
-export enum TrialEndActionTypes {
-  CONTINUE = 0,
-  MIGRATE = 1,
-  CANCEL = 2,
 }
 
 export enum PromotionDisplayTypes {
@@ -420,15 +415,12 @@ const calculateBillingTerm = async (
       term = minBy(availableTerms, "monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = await getConfig(
-        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-      ).then(async config => {
-        const period = get(
-          config,
-          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-        );
-        return await calculateBillingTerm(period, availableTerms);
-      });
+      term = await getConfig(BrandConfigKeys.DEFAULT_PAYMENT_PERIOD).then(
+        async config => {
+          const period = get(config, BrandConfigKeys.DEFAULT_PAYMENT_PERIOD);
+          return await calculateBillingTerm(period, availableTerms);
+        }
+      );
 
       break;
 

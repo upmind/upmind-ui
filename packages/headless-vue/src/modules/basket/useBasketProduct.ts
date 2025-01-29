@@ -26,7 +26,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { Basket } from "@upmind-automation/headless";
+import type { IBasket } from "@upmind-automation/types";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the  basket machine and then spawns a  product configuration machine
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
@@ -56,7 +56,7 @@ export const useBasketProduct = (id: string) => {
   // in case of any changes to currency, promotions etc
   basket.onTransition(basketProduct => {
     if (basketProduct.matches("refreshing.complete")) {
-      refresh(basketProduct?.context?.basket as Basket);
+      refresh(basketProduct?.context?.basket as IBasket);
     }
   });
 

@@ -1,29 +1,12 @@
 // --- internal
-import type { RequestError } from "../../api/types";
-
+// import type { RequestError } from "../../api/types";
+import type {
+  ImageObjectTypes,
+  ImageUploadTypes,
+} from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
-export enum ImageObjectTypes {
-  PRODUCT = "product",
-  PRODUCT_CATEGORY = "product_category",
-  USER = "user",
-  BRAND = "brand",
-  BRAND_FAVICON = "favicon",
-  BRAND_EMAIL_LOGO = "brandEmailLogo",
-  CLIENT = "client",
-  ORGANIZATION = "organisation",
-  CLIENT_CUSTOM_FIELD = "client_custom_field",
-}
-
-export const ImageUploadTypes = [
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/bmp",
-  "image/svg+xml",
-];
 // --------------------------------------------------------
 // private
 

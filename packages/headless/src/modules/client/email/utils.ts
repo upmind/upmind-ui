@@ -102,6 +102,6 @@ export const spawnItem = (model?: IEmail) => {
       }
     );
   } catch (err) {
-    console.error("EmailListings", "spawnItem", { model });
+    // console.error("EmailListings", "spawnItem", { model });
   }
 };

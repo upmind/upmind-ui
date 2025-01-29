@@ -2,10 +2,11 @@
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import services, { BrandConfigKeys, OrgFeatureKeys } from "./services";
+import services from "./services";
 import type { BrandContext, BrandEvent } from "./types";
 
 // --- utils
+import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 import { useTime } from "../../utils";
 import { set, unset } from "lodash-es";
@@ -19,7 +20,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "processing",
     context: {
-      modules: null,
+      modules: undefined,
       keys: {
         // start with these defaults
         organisation: [
@@ -53,7 +54,7 @@ export default createMachine(
           BrandConfigKeys.SUPPORT_PIN_ENABLED,
           BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
-          BrandConfigKeys.UI_CLIENT_APP_PAYMENT_TERM_DESCRIPTIONS,
+          BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
           BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
         ],

@@ -12,13 +12,14 @@ import { useTranslateName } from "../../utils";
 import { omit, map } from "lodash-es";
 
 // --- types
-import { PaymentTypes } from "./types";
-import {
-  GatewayCtx,
-  GatewayTypes,
-  GatewayProviderCodes,
-} from "./gateways/types";
 
+import {
+  PaymentType,
+  GatewayProviderCodes,
+  GatewayContext,
+} from "@upmind-automation/types";
+
+import { GatewayTypes } from "./gateways/types";
 import type { PaymentDetailsContext } from "./types";
 import type { UISchemaElement } from "@jsonforms/core";
 
@@ -49,7 +50,7 @@ export const useSchema = ({
       type: {
         type: "string",
         title: "Payment type",
-        const: PaymentTypes.PAY_IN_FULL,
+        const: PaymentType.PAY_IN_FULL,
         oneOf: !payment_types
           ? undefined
           : map(payment_types, (value, key) => ({
@@ -71,7 +72,7 @@ export const useSchema = ({
 
     if: {
       properties: {
-        type: { const: PaymentTypes.PAY_IN_FULL },
+        type: { const: PaymentType.PAY_IN_FULL },
       },
     },
     then: {
@@ -279,7 +280,7 @@ export function spawnStripe({
       basketId,
       gateway,
       // @ts-ignore
-      ctx: GatewayCtx.PAY,
+      ctx: GatewayContext.PAY,
       amount,
       currency,
       type: GatewayTypes.CARD,

@@ -1,26 +1,7 @@
 import type { RequestError } from "../api/types";
-
+import type { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
-
-export enum GrantTypes {
-  ADMIN = "admin",
-  ADMIN_PASSWORD_RESET = "admin_password_reset",
-  COMPLETE_ORG_REGISTRATION = "complete_org_registration",
-  COMPLETE_USER_REGISTRATION = "complete_user_registration",
-  COMPLETE_REGISTRATION = "complete_registration",
-  GUEST = "guest",
-  GUEST_CUSTOMER = "guest_customer",
-  PASSWORD = "password",
-  PASSWORD_RESET = "password_reset",
-  REFRESH_TOKEN = "refresh_token",
-  TWOFA_ADMIN = "twofa-admin",
-  TWOFA = "twofa",
-}
-
-export enum TwofaProviders {
-  GOOGLE = "google",
-}
 
 // --------------------------------------------------------
 // Contexts

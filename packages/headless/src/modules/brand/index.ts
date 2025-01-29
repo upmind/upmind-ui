@@ -4,12 +4,10 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import brandMachine from "./brand.machine";
-import type { BrandConfigKeys } from "./services";
-export { BrandConfigKeys } from "./services";
-import type { IBrand } from "@upmind-automation/types";
+import type { IBrand, BrandConfigKeys } from "@upmind-automation/types";
 
 // --- utils
-import { pick, isArray, find, some, first, isEmpty } from "lodash-es";
+import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
 // --- types
 import { BrandTaxType } from "@upmind-automation/types";
@@ -23,7 +21,7 @@ import { BrandTaxType } from "@upmind-automation/types";
 let state: any = null;
 
 // @ts-ignore
-const service = interpret(brandMachine, { devTools: false }).onTransition(
+const service = interpret(brandMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -100,6 +98,17 @@ export const useBrand = () => {
     },
 
     getBrandId: (): IBrand["id"] => state?.context?.id,
+    getLocale: () => {
+      const state = service.getSnapshot();
+      debugger;
+      const languages = get(state, "context.settings.languages");
+      const language = get(state, "context.settings.language_id");
+      debugger;
+      const locale = get(find(languages, ["id", language]), "code");
+      debugger;
+      return locale;
+    },
+    // ---
     getCurrencyId: () => state?.context?.currency_id,
     getCurrency: () =>
       find(state.context.currencies, ["id", state?.context?.currency_id]),

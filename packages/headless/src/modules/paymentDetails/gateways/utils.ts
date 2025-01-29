@@ -5,9 +5,9 @@
 // --- utils
 
 // --- types
-import { QUERY_PARAMS } from "./types";
-import { GatewayStoreType } from "./types";
-import type { GatewayContext, IGateway } from "./types";
+import type { IGateway } from "@upmind-automation/types";
+import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
+import type { GatewayContext } from "./types";
 import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------

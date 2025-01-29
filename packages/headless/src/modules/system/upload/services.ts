@@ -1,6 +1,6 @@
 // --- internal
 import { useApi } from "../../api";
-import { useBrand, BrandConfigKeys } from "../../brand";
+import { useBrand } from "../../brand";
 
 // --- utils
 import { compact, includes, isEmpty, get } from "lodash-es";
@@ -8,7 +8,11 @@ import { compact, includes, isEmpty, get } from "lodash-es";
 // --- types
 // import type { UploadEvent, UploadContext } from "./types";
 import type { UploadEvent } from "./types";
-import { ImageObjectTypes, ImageUploadTypes } from "./types";
+import {
+  ImageObjectTypes,
+  ImageUploadTypes,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
 
 // --------------------------------------------------------
 // HELPERS

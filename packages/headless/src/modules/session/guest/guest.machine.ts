@@ -298,7 +298,7 @@ export default createMachine(
 
       setError: assign({
         error: (_context, event: any, state) => {
-          console.error("session", "client", "error", { event, state });
+          // console.error("session", "client", "error", { event, state });
 
           const data: any = event?.data;
 
