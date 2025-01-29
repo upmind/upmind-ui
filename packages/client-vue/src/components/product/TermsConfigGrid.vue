@@ -10,7 +10,6 @@
     :visible="props.visible"
     :errors="props.errors"
     :tooltip="props.description"
-    auto-focus
   >
     <RadioCards
       id="terms"

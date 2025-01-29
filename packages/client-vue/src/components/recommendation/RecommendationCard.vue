@@ -43,10 +43,7 @@
 
             <ul :class="styles.recommendation.content.list">
               <template v-for="benefit in benefits" :key="benefit.label">
-                <RecommendationBenefit
-                  v-if="benefit?.label && benefit?.icon"
-                  v-bind="benefit"
-                />
+                <RecommendationBenefit v-if="benefit?.label" v-bind="benefit" />
               </template>
             </ul>
           </section>

@@ -22,7 +22,11 @@ import Collapsible from "./Collapsible.vue";
 import Dropdown from "./Dropdown.vue";
 import type { SelectCardsProps } from "./types";
 import { useVModel } from "@vueuse/core";
+import { useStyles } from "../../utils";
+import config from "./selectCards.config";
 
+// --- types
+import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SelectCardsProps>(), {
   variant: "dropdown",
   loading: false,
@@ -43,6 +47,19 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
+  variant: props.variant,
+  // ---
   isCollapsible: props.variant === "collapsible",
 }));
+
+const styles = useStyles(
+  ["select"],
+  meta,
+  config,
+  props.upwindConfig ?? {}
+) as ComputedRef<{
+  select: {
+    root: string;
+  };
+}>;
 </script>
