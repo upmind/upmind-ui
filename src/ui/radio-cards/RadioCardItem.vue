@@ -12,8 +12,6 @@
           :required="props.required"
           :disabled="props.disabled"
           :class="styles.radioCards.input"
-          @focus="handleFocus"
-          @blur="handleBlur"
           :tabindex="isSelected || !modelValue ? 0 : -1"
         />
       </div>
@@ -56,22 +54,9 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
 
 const emits = defineEmits(["focus"]);
 
-const focusedElement = ref<HTMLElement | null>(null);
-
 const isSelected = computed(() => {
   return props.modelValue === props.item.value;
 });
-
-const handleFocus = (event: FocusEvent) => {
-  focusedElement.value = event.target as HTMLElement;
-  emits("focus", event);
-};
-
-const handleBlur = () => {
-  if (!props.disabled) {
-    focusedElement.value = null;
-  }
-};
 
 const meta = computed(() => ({
   width: props.width,
@@ -92,16 +77,4 @@ const styles = useStyles(
     label: string;
   };
 }>;
-
-watch(
-  () => props.disabled,
-  isDisabled => {
-    if (!isDisabled && focusedElement.value) {
-      nextTick(() => {
-        const { focused } = useFocus(focusedElement.value);
-        focused.value = true;
-      });
-    }
-  }
-);
 </script>
