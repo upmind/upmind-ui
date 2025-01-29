@@ -62,24 +62,10 @@
     >
       <Command>
         <template v-if="props.search">
-          <span class="flex items-center overflow-hidden border-b pl-4">
-            <Icon
-              icon="search"
-              size="2xs"
-              class="text-control-foreground opacity-50"
-            />
-            <Input
-              v-model="searchTerm"
-              @update:modelValue="onSearch"
-              autoFocus
-              class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
-              :placeholder="placeholder"
-            >
-            </Input>
-          </span>
+          <CommandInput v-model="searchTerm" :placeholder="placeholder" />
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
         </template>
-        <CommandList class="w-full max-w-full">
+        <CommandList class="w-full max-w-full" loop>
           <CommandGroup>
             <CommandItem
               v-for="item in results"
@@ -147,6 +133,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  CommandInput,
 } from "../command";
 
 // --- utils
