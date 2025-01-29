@@ -260,6 +260,7 @@ export const useApi = () => {
 
     return request({ url, init, withAccessToken, useCache, maxAge });
   }
+
   // --------------------------------------------------------
 
   return {
@@ -269,6 +270,9 @@ export const useApi = () => {
     useUrl,
     generateHash,
     useTime,
+    // ---
+    setLocale: (locale: string) =>
+      service.send({ type: "SET_LOCALE", data: locale }),
     // ---
     get: getRequest,
     post: postRequest,
