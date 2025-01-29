@@ -20,6 +20,7 @@
         :variants="variants"
         :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
+        @focus="handleFocus(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -31,7 +32,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -49,16 +50,13 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
   // --- props
-  loading: false,
   placeholder: "Select an option",
-  required: false,
   overrideIndex: 0,
   useInputGroup: true,
   // -- variants
   color: "base",
   variant: "control",
   width: 12,
-  ring: false,
   // --- styles
   class: "",
   radioClass: "",
@@ -74,7 +72,6 @@ const meta = computed(() => ({
   color: props.color,
   variant: props.variant,
   width: props.width,
-  showRing: props.ring,
 }));
 
 const variants = useStyles(
@@ -87,14 +84,27 @@ const variants = useStyles(
     trigger: string;
     root: string;
     item: string;
+    radio: string;
     input: string;
     label: string;
   };
 }>;
 
-function onChange(value: any) {
-  if (!props.required && modelValue.value == value)
+const deselected = ref(false);
+
+const handleFocus = (value: any) => {
+  if (value !== modelValue.value && !deselected.value) {
+    onChange(value);
+  }
+};
+
+const onChange = (value: any) => {
+  if (!props.required && value === modelValue.value) {
     modelValue.value = undefined;
-  else modelValue.value = value;
-}
+    deselected.value = true;
+  } else {
+    modelValue.value = value;
+    deselected.value = false;
+  }
+};
 </script>

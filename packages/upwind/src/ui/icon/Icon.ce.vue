@@ -5,7 +5,7 @@
     :icon="props.icon"
     @error="iconError = true"
   />
-  <Icon v-else v-bind="props" :icon="props.fallback!" />
+  <Icon v-else v-bind="props" :icon="fallback!" />
 </template>
 
 <script lang="ts" setup>

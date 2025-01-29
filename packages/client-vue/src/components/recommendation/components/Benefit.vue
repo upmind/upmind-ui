@@ -2,7 +2,8 @@
   <div :class="styles.recommendation.benefit.root">
     <Icon
       v-bind="icon"
-      fallback-icon="dot"
+      :icon="icon?.icon || 'dot'"
+      fallback="dot"
       :class="styles.recommendation.benefit.icon"
     />
     <p :class="styles.recommendation.benefit.label">{{ label }}</p>

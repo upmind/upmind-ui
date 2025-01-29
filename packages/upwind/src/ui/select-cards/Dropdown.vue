@@ -1,53 +1,55 @@
 <template>
-  <DropdownMenuRoot v-model:open="open" tabindex="-1">
-    <DropdownMenuTrigger as-child>
-      <TriggerButton
-        v-bind="props"
-        :open="open"
-        :selected="selected"
-        :manuallySelected="manuallySelected"
-        :meta="meta"
-        :name="name"
-        :overrideIndex="overrideIndex"
-      >
-        <template #item="{ item }">
-          <slot name="item" :item="item" />
-        </template>
-        <template #placeholder>
-          <slot name="placeholder" />
-        </template>
-      </TriggerButton>
-    </DropdownMenuTrigger>
-
-    <DropdownMenuPortal>
-      <DropdownMenuContent
-        :class="cn(variants.select.content, props.contentClass)"
-        :onOpenAutoFocus="handleOpenAutoFocus"
-      >
-        <DropdownMenuItem
-          v-for="(item, index) in items"
-          :key="item.id || index"
-          tabindex="0"
-          @click="onChange(item.value)"
-          :class="variants.select.item"
-          :ref="
-            (el: HTMLElement) => {
-              if (el) itemRefs[index] = el;
-            }
-          "
+  <span :class="variants.select.group">
+    <DropdownMenuRoot v-model:open="open" tabindex="-1">
+      <DropdownMenuTrigger as-child>
+        <TriggerButton
+          v-bind="props"
+          :open="open"
+          :selected="selected"
+          :meta="meta"
+          :name="name"
+          :overrideIndex="overrideIndex"
+          focus-rings
         >
-          <Label
-            :for="`${name}-${overrideIndex + index || index}`"
-            :class="cn(variants.select.label)"
+          <template #item="{ item }">
+            <slot name="item" :item="item" />
+          </template>
+          <template #placeholder>
+            <slot name="placeholder" />
+          </template>
+        </TriggerButton>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuPortal>
+        <DropdownMenuContent
+          :class="cn(variants.select.content, props.contentClass)"
+          :onOpenAutoFocus="handleOpenAutoFocus"
+        >
+          <DropdownMenuItem
+            v-for="(item, index) in items"
+            :key="item.id || index"
+            tabindex="0"
+            @click="onChange(item.value)"
+            :class="variants.select.item"
+            :ref="
+              (el: HTMLElement) => {
+                if (el) itemRefs[index] = el;
+              }
+            "
           >
-            <slot name="dropdown-item" v-bind="{ item, index }">
-              {{ item.label }}
-            </slot>
-          </Label>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenuPortal>
-  </DropdownMenuRoot>
+            <Label
+              :for="`${name}-${overrideIndex + index || index}`"
+              :class="cn(variants.select.label)"
+            >
+              <slot name="dropdown-item" v-bind="{ item, index }">
+                {{ item.label }}
+              </slot>
+            </Label>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenuRoot>
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -102,6 +104,7 @@ const variants = useStyles(
     item: string;
     label: string;
     content: string;
+    group: string;
   };
 }>;
 
