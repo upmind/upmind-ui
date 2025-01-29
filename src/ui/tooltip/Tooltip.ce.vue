@@ -3,7 +3,7 @@
 
   <TooltipProvider v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger :color="color"><slot /></TooltipTrigger>
+      <TooltipTrigger :color="color" tabindex="-1"><slot /></TooltipTrigger>
       <TooltipContent
         v-bind="forwarded"
         :class="cn(styles.tooltip, props.class)"
