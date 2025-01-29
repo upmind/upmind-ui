@@ -1,5 +1,8 @@
 // --------------------------------------------------------
 // ENUMS
+
+import type { ActorRef } from "xstate";
+
 /**
  * @ignore
  */
@@ -42,9 +45,9 @@ export interface RequestError {
 
 export interface RequestParams {
   url: URL;
-  init?: RequestInit | null;
-  useCache?: boolean | null;
-  maxAge?: number | null;
+  init?: RequestInit;
+  useCache?: boolean;
+  maxAge?: number;
   data?: any;
   withAccessToken?: boolean;
   hash?: string;
@@ -55,26 +58,24 @@ export interface RequestParams {
 // Context Types
 
 export interface RequestContext {
-  url: URL | null;
-  init: RequestInit | null;
-  useCache: boolean | null;
-  hash: string | null;
+  url: URL;
+  init: RequestInit;
+  useCache: boolean;
+  hash: string;
   maxAge: number;
+  locale?: string;
   // ---
-  created: null | EpochTimeStamp;
-  completed: null | EpochTimeStamp;
-
-  response: null | RequestResponse["data"];
-  error: null | RequestError;
-  // TODO:
-  // parent: null | StateMachine;
-  parent: any;
+  created?: EpochTimeStamp;
+  completed?: EpochTimeStamp;
+  // ---
+  attempts?: 0;
+  response?: RequestResponse["data"];
+  error?: RequestError;
 }
 
 export interface RequestsContext {
-  // TODO:
-  // requests: Record<string, StateMachine>;
-  requests: any;
+  requests: Record<string, ActorRef<any>>;
+  locale: string | undefined;
 }
 
 // --------------------------------------------------------

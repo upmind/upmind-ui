@@ -7,7 +7,7 @@ import { useSession } from "../session";
 import type { RequestContext } from "./types";
 
 // --- utils
-import { includes, get, set } from "lodash-es";
+import { includes, get, set, isEmpty } from "lodash-es";
 import {
   getTokenfromStorage,
   persistTokenToStorage,
@@ -15,7 +15,7 @@ import {
 } from "../session/utils";
 
 // --- types
-import { GrantTypes } from "../session/types";
+import { GrantTypes } from "@upmind-automation/types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -34,11 +34,16 @@ export enum FetchMethods {
 
 // this will process the request and return a promise, this WONT allow the request to be cancelled
 // TODO: async function doFetch({ url, init }: RequestContext) {
-async function doFetch({ url, init }: any) {
+async function doFetch({ url, init, locale }: any) {
   // safety check, not sure we need this as our machine implementation is pretty strict
 
   if (!includes(FetchMethods, init?.method)) {
     return Promise.reject(`Invalid method: ${init?.method}`);
+  }
+
+  if (!url.searchParams.has("lang") && !isEmpty(locale)) {
+    url.searchParams.set("lang", locale);
+    console.log("doFetch", url, url?.searchParams.toString());
   }
 
   // do the fetch

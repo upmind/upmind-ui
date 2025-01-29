@@ -46,8 +46,8 @@ export const useApi = () => {
     url,
     init,
     withAccessToken,
+    maxAge,
     useCache = false,
-    maxAge = null,
     refresh = false,
   }: RequestParams) {
     // re-enable once we have locales
@@ -102,12 +102,12 @@ export const useApi = () => {
             }
           })
           .catch(error => {
-            console.error(
-              "api request",
-              "timeout",
-              { hash, url, init, useCache, maxAge },
-              error
-            );
+            // console.error(
+            //   "api request",
+            //   "timeout",
+            //   { hash, url, init, useCache, maxAge },
+            //   error
+            // );
             // throw error;
             reject(error);
           });
@@ -131,8 +131,8 @@ export const useApi = () => {
     url,
     init,
     withAccessToken,
+    maxAge,
     useCache = true,
-    maxAge = null,
     refresh = false,
   }: RequestParams) {
     // re-enable once we have locales
@@ -245,8 +245,8 @@ export const useApi = () => {
     url,
     init,
     withAccessToken,
+    maxAge,
     useCache = true,
-    maxAge = null,
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);
