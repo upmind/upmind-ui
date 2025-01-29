@@ -19,7 +19,7 @@ import { isFunction } from "lodash-es";
 
 // --- types
 import type { StripeContext, StripeEvent } from "./types";
-import { GatewayCtx } from "../types";
+import { GatewayContext } from "@upmind-automation/types";
 import { responseCodes } from "../../../api";
 
 // --------------------------------------------------------
@@ -392,11 +392,11 @@ export default createMachine(
     guards: {
       // @ts-ignore
       hasChanged: (
-        { basket_id, currency, amount, address }: StripeContext,
+        { basketId, currency, amount, address }: StripeContext,
         { data }: StripeEvent
       ) => {
         const value =
-          basket_id !== data.basket_id ||
+          basketId !== data.basket_id ||
           currency !== data.currency ||
           amount !== data.amount ||
           address?.id !== data.address?.id;
@@ -419,12 +419,12 @@ export default createMachine(
       // @ts-ignore
       isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
         // @ts-ignore
-        return ctx === GatewayCtx.ADD;
+        return ctx === GatewayContext.ADD;
       },
       // @ts-ignore
       isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
         // @ts-ignore
-        return ctx === GatewayCtx.PAY;
+        return ctx === GatewayContext.PAY;
       },
     },
 

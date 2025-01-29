@@ -380,7 +380,8 @@ export const spawnItem = (model?: IAddress) => {
       }
     );
   } catch (err) {
-    console.error("AddressListings", "spawnItem", { model });
+    // do nothing
+    // console.error("AddressListings", "spawnItem", { model });
   }
 };
 

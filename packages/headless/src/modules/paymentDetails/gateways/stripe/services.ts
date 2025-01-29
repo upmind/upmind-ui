@@ -12,7 +12,6 @@ import { reject, set } from "lodash-es";
 
 // --- types
 import type { StripeEvent, StripeContext } from "./types";
-
 // --------------------------------------------------------
 //  ENUMS
 

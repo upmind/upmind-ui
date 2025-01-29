@@ -10,38 +10,11 @@ import { useSession } from "../session";
 import { useCookies, useTracking } from "../../utils";
 import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 
-import {
-  compact,
-  concat,
-  forEach,
-  has,
-  isEmpty,
-  map,
-  reduce,
-  set,
-} from "lodash-es";
+import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
 
 // --- types
-import type { Basket, BasketContext, BasketEvent } from "./types";
-
-// --------------------------------------------------------
-// ENUMS
-
-export enum SemanticTypes {
-  DOMAIN_NAMES = "domain_name",
-}
-
-export enum InvoiceStatus {
-  ADJUSTED = "invoice_adjusted",
-  CANCELLED = "invoice_cancelled",
-  DRAFT = "invoice_draft",
-  OVERDUE = "invoice_overdue",
-  PAID = "invoice_paid",
-  REFUNDED = "invoice_refunded",
-  REPLACED = "invoice_replaced", // Only on imported invoices
-  UNPAID = "invoice_unpaid",
-  CANCELLATION_REQUEST = "invoice_cancellation_request",
-}
+import type { BasketContext, BasketEvent } from "./types";
+import type { IBasket } from "@upmind-automation/types";
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -183,7 +156,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function getProvisioningFieldsValues(basket: Basket) {
+async function getProvisioningFieldsValues(basket: IBasket) {
   const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products

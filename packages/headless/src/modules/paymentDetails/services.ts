@@ -1,7 +1,8 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
+import { useApi, useSession, useBrand } from "..";
+
 // --- utils
 import { useValidation } from "../../utils";
 import {
@@ -19,8 +20,8 @@ import {
 } from "lodash-es";
 
 // --- types
+import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
 import { GatewayTypes } from "./gateways/types";
-import { PaymentTypes } from "./types";
 import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -60,10 +61,10 @@ async function load(
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
   ]).then(data => {
     if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
-      unset(PaymentTypes, "PARTIAL_PAYMENT");
+      unset(PaymentType, "PARTIAL_PAYMENT");
 
     if (!get(data, BrandConfigKeys.PAY_LATER_ENABLED))
-      unset(PaymentTypes, "PAY_LATER");
+      unset(PaymentType, "PAY_LATER");
   });
 
   // ---
@@ -131,7 +132,7 @@ async function load(
       return {
         stored_payment_methods,
         gateways,
-        payment_types: PaymentTypes,
+        payment_types: PaymentType,
         address,
       };
     }
@@ -159,7 +160,7 @@ async function parse(
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
-  safeModel.type ??= PaymentTypes.PAY_IN_FULL;
+  safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
   // Gateway vs Stored Payment Methods Logic...
 
@@ -179,7 +180,7 @@ async function parse(
   }
 
   // 3) Safety Check...if the payment type is pay later or Free, clear the gateway_id
-  if (safeModel?.type == PaymentTypes.PAY_LATER || safeModel?.amount <= 0) {
+  if (safeModel?.type == PaymentType.PAY_LATER || safeModel?.amount <= 0) {
     unset(safeModel, "gateway_id");
     gateway = null;
   }

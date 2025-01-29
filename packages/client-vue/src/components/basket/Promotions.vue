@@ -22,6 +22,7 @@
     </header>
 
     <Form
+      v-if="schema"
       v-show="toggle"
       :additional-errors="errors?.data"
       :loading="meta.isLoading"

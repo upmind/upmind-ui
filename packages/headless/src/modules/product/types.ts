@@ -66,7 +66,7 @@ export interface ProductModel {
 }
 
 export interface IProductPromotion {
-  promocode: string;
+  code: string;
 }
 
 // --------------------------------------------------------

@@ -328,7 +328,10 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        address: (_context, { data: basket }: RefreshEvent) => basket?.address,
+        address: (_context, { data: basket }: RefreshEvent) => {
+          // @ts-ignore // address is a relation of basket
+          return basket?.address;
+        },
         actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, (actor: ActorRef<any, any>) => {
             if (actor?.send && !actor?.getSnapshot()?.done) {

@@ -1,7 +1,7 @@
 // --- internal
 import { useApi } from "../../api";
 import { useSystemRecaptcha } from "../../system/recaptcha";
-import { GrantTypes, TwofaProviders } from "../types";
+import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
 // --- utils
 import { useCookies, useTracking } from "../../../utils";

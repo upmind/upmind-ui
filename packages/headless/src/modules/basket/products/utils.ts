@@ -9,7 +9,7 @@ import { mapValues, reduce, values, map, isObject } from "lodash-es";
 // --- types
 import type { BasketProductConfig } from "../types";
 import type { ProductModel } from "../../product/types";
-import type { IBasketPromotion, IPromotion } from "@upmind-automation/types";
+import type { IBasketPromotion } from "@upmind-automation/types";
 // ------------------§-----------------------------------------------------------------
 
 export function parseBasketProductConfig(

@@ -1,18 +1,23 @@
 // --- internal
-import type { RequestError } from "..//api/types";
-
-// --------------------------------------------------------
-// ENUMS
+// import type { RequestError } from "..//api/types";
+import type {
+  IBrand,
+  OrgFeatureKeys,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
 
 // --------------------------------------------------------
 // Contexts
 
-export interface BrandContext {
-  // TODO: add all the other types
-  // ---
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+export interface BrandContext extends IBrand {
+  keys: {
+    config: BrandConfigKeys[];
+    organisation: OrgFeatureKeys[];
+  };
+  modules?: any;
+  config?: BrandConfigKeys;
+  organisation?: OrgFeatureKeys;
+  error?: any; //TODO:  RequestError;
 }
 
 // --------------------------------------------------------
@@ -21,7 +26,5 @@ export interface BrandContext {
 export interface BrandEvent {
   type: string;
   data: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+  error?: any; //TODO:  RequestError;
 }
