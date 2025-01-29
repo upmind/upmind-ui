@@ -25,7 +25,7 @@ export interface FormProps {
   as?: string;
   // --- JSOn Forms props
   i18n?: JsonFormsI18nState;
-  schema: JsonSchema;
+  schema?: JsonSchema;
   uischema?: UISchemaElement & Internationalizable;
   validationMode?: ValidationMode;
   ajv?: Ajv;
@@ -106,7 +106,7 @@ export interface FormControlProps {
   isPristine?: boolean;
 
   // --- styles
-  uiConfig: {
+  uiConfig?: {
     form: {
       root: CxOptions;
       loading: CxOptions;

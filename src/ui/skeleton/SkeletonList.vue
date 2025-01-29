@@ -23,7 +23,7 @@
 // ----------------------------------------------
 const props = withDefaults(
   defineProps<{
-    rows: number;
+    rows?: number;
   }>(),
   {
     rows: 5,
