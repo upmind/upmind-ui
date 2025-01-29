@@ -1,6 +1,6 @@
 import { addons } from "@storybook/manager-api";
-import UpWindTheme from "./UpWindTheme";
+import UpmindUITheme from "./UpmindUITheme";
 
 addons.setConfig({
-  theme: UpWindTheme,
+  theme: UpmindUITheme,
 });

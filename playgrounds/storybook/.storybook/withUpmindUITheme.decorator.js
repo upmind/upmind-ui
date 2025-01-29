@@ -5,7 +5,7 @@ import { reduce, set } from "lodash-es";
 const { initializeThemeState, pluckThemeFromContext, useThemeParameters } =
   DecoratorHelpers;
 
-export const withUpwindTheme = ({
+export const withUpmindUITheme = ({
   themes,
   defaultTheme = "light",
   locales,

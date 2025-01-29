@@ -3,7 +3,7 @@ import "../stories/assets/main.css";
 
 // --- external
 import { setup } from "@storybook/vue3";
-import { withUpwindTheme } from "./withUpwindTheme.decorator";
+import { withUpmindUITheme } from "./withUpmindUITheme.decorator";
 import { useArgs } from "@storybook/preview-api";
 import { createI18n } from "vue-i18n";
 
@@ -83,7 +83,7 @@ const preview: Preview = {
   },
 
   decorators: [
-    withUpwindTheme({
+    withUpmindUITheme({
       themes,
       defaultTheme: "light",
       locales: [],
