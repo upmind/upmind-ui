@@ -11,7 +11,7 @@ export const buttonVariants = cva(
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-transparent",
         ghost: "border-transparent",
-        link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4 hover:text-opacity-70",
+        link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4 hover:text-opacity-70 focus:outline-offset-4",
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
