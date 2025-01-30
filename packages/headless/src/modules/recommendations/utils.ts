@@ -184,6 +184,38 @@ export function parseAddedProducts(
     []
   );
 }
+
+export function checkInBasket(
+  recommendation: RelatedProduct,
+  products: IBasketProduct[]
+): boolean {
+  // We considdr a product to be in the basket if it matches
+  // the product_id
+  // the billing_cycle_months (if specified)
+  // the sub_pids (if specified
+  const inBasket = some(products, product => {
+    const productMatches =
+      product.product_id == recommendation.object_id &&
+      recommendation.object_type == "product";
+
+    const bcmMatches =
+      !recommendation?.config?.bcm ||
+      recommendation.config.bcm == product.billing_cycle_months;
+
+    const subproductsMatch =
+      isEmpty(recommendation?.config?.sub_pids) ||
+      some(product.options, option => {
+        return includes(recommendation.config?.sub_pids, option.product_id);
+      }) ||
+      some(product.attributes, attribute => {
+        return includes(recommendation.config?.sub_pids, attribute.product_id);
+      });
+
+    return productMatches && bcmMatches && subproductsMatch;
+  });
+
+  return inBasket;
+}
 /*
   Ensure we have a consistent id for the recommendation based on its configuration
   If the recommendation has an id, we use it, otherwise we generate a new one based on the product id and the config
