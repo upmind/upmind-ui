@@ -6,7 +6,7 @@
   >
     <slot name="header" />
 
-    <main class="w-full flex-1 overflow-hidden">
+    <main class="w-full flex-1">
       <template v-if="meta.isLoading || meta.isProcessing">
         <slot name="loading">
           <UpmContent>
@@ -68,7 +68,7 @@
                           #background
                           v-if="$slots['loading-background']"
                         >
-                          <slot name="loading-background" />
+                          <slot name="loading-background"></slot>
                         </template>
                       </UpmBasketLoading>
                     </template>

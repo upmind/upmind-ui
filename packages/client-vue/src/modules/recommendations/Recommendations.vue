@@ -1,0 +1,80 @@
+<template>
+  <aside v-auto-animate>
+    <div class="flex flex-col items-center justify-center p-2">
+      <i18n-t
+        keypath="recommendations.header.title"
+        tag="span"
+        for="recommendations.header.toolkit"
+        class="text-center text-4xl font-bold leading-normal text-primary"
+      >
+        <mask class="bg-accent leading-relaxed"
+          >{{ t("recommendations.header.toolkit") }}!</mask
+        >
+      </i18n-t>
+
+      <p
+        class="m-0 mb-12 max-w-md text-center text-lg leading-normal text-emphasis-medium"
+      >
+        {{ t("recommendations.header.subtitle") }}
+      </p>
+    </div>
+
+    <UpmRecommendations @resolve="doClose" />
+
+    <UpmCard
+      class="mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:bg-base-background md:!px-8 md:!py-6 md:shadow-sm"
+    >
+      <div
+        class="order-last mt-4 text-center text-md font-medium md:order-first md:mt-0 md:text-left"
+      >
+        {{ t("recommendations.toolbar.title", { count: products?.length }) }}
+      </div>
+
+      <Button
+        @click="doClose"
+        :label="t('recommendations.toolbar.actions.continue')"
+        color="secondary"
+        class="w-full md:w-auto"
+      >
+        <template #append>
+          <Icon icon="arrow-right" size="2xs" />
+        </template>
+      </Button>
+    </UpmCard>
+  </aside>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { vAutoAnimate } from "@formkit/auto-animate";
+import { useI18n } from "vue-i18n";
+
+// --- internal
+import {
+  useBasket,
+  useRecommendationsEngine,
+  useRoutingEngine,
+  UpmCard,
+} from "@upmind-automation/client-vue";
+
+// --- components
+import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { UpmRecommendations } from "@upmind-automation/client-vue";
+
+// --- utils
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+
+// --- basket setup
+const { next } = useRoutingEngine();
+const { seen } = useRecommendationsEngine();
+const { products } = useBasket();
+
+// ---
+
+function doClose() {
+  seen();
+  next();
+}
+</script>
