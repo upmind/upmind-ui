@@ -31,6 +31,7 @@ const service = interpret(routingEngine, {
 });
 
 // --------------------------------------------------------
+export type RouteQueryParams = typeof useRouteQueryParams;
 
 export const useRoutingEngine = () => {
   return {
@@ -83,7 +84,7 @@ export const useRoutingEngine = () => {
     // ---
     usePendingProducts: useRoutePendingProducts,
     useRequiresAction: useRouteRequiresAction,
-    useQueryParams: useRouteQueryParams,
+    useQueryParams: useRouteQueryParams as RouteQueryParams,
     // ---
     destroy: () => service.stop(),
   };
