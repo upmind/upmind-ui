@@ -17,6 +17,7 @@ export interface BrandContext extends IBrand {
   modules?: any;
   config?: BrandConfigKeys;
   organisation?: OrgFeatureKeys;
+  initialised?: boolean;
   error?: any; //TODO:  RequestError;
 }
 

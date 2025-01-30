@@ -23,6 +23,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "processing",
     context: {
+      initialised: false,
       modules: undefined,
       keys: {
         // start with these defaults
@@ -251,7 +252,7 @@ export default createMachine(
         onDone: "complete",
       },
       complete: {
-        entry: ["setDefaultLocale"],
+        entry: ["setDefaultLocale", "setInitialised"],
         // type: "final",
         on: {
           "CONFIG.GET": {
@@ -284,14 +285,18 @@ export default createMachine(
         useBrandParser(data)
       ),
 
-      setDefaultLocale: (_context: BrandContext, _event: BrandEvent) =>
-        useI18n().setDefaultLocale(),
+      setDefaultLocale: ({ initialised }: BrandContext, _event: BrandEvent) => {
+        if (!initialised) useI18n().setDefaultLocale();
+      },
 
       setModules: assign({
         // @ts-ignore
         modules: (_context: BrandContext, { data }: BrandEvent) => data,
       }),
 
+      setInitialised: assign({
+        initialised: true,
+      }),
       // ---
     },
     guards: {},

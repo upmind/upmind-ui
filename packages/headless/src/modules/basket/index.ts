@@ -282,11 +282,6 @@ export const useBasket = () => {
     // });
   }
 
-  // TODO
-  // setLocale: async (lang: any) => {
-  //   return service.send({ type: "UPDATE_LOCALE", data: lang });
-  // },
-
   // --- item functions
 
   function getProducts(): ActorRef<any, any>[] {
