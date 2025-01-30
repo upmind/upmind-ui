@@ -50,9 +50,6 @@ export const useApi = () => {
     useCache = false,
     refresh = false,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -135,9 +132,6 @@ export const useApi = () => {
     useCache = true,
     refresh = false,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -248,9 +242,6 @@ export const useApi = () => {
     maxAge,
     useCache = true,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 

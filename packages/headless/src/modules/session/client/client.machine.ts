@@ -2,6 +2,8 @@
 import { createMachine, assign } from "xstate";
 
 // --- internal
+import { useApi } from "../../api";
+import { useBrand } from "../../brand";
 import services from "./services";
 import type { ClientContext } from "./types";
 import { useFeedback } from "../../feedback";
@@ -13,6 +15,7 @@ import { dumpTokenFromStorage } from "../utils";
 
 // --- types
 import { responseCodes } from "../../api/types";
+import { useI18n } from "@/modules/system/i18n";
 
 // --------------------------------------------------------
 
@@ -23,10 +26,10 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      user: null,
-      transfer: null,
+      user: undefined,
+      transfer: undefined,
       // ---
-      error: null,
+      error: undefined,
     } as ClientContext,
     states: {
       loading: {
@@ -34,7 +37,7 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "load",
-          onDone: { target: "idle", actions: "setUser" },
+          onDone: { target: "idle", actions: ["setUser", "setLocale"] },
           onError: { target: "complete", actions: ["setError"] },
         },
       },
@@ -106,6 +109,12 @@ export default createMachine(
       }),
       // ---
       setUser: assign({ user: (_context, { data }) => data }),
+      setLocale: ({ user }) => {
+        if (!user) return;
+        const locale = user.locale;
+        useI18n().setLocale(locale);
+      },
+
       // @ts-ignore
       setTransfer: assign({ transfer: (_context, { data }) => data }),
       clearTransfer: assign({ transfer: null }),

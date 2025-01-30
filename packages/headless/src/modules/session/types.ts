@@ -1,5 +1,10 @@
+import { I } from "vitest/dist/chunks/reporters.D7Jzd9GS.js";
 import type { RequestError } from "../api/types";
-import type { GrantTypes, TwofaProviders } from "@upmind-automation/types";
+import type {
+  GrantTypes,
+  IUser,
+  TwofaProviders,
+} from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -27,7 +32,22 @@ export interface Token {
   guest_token?: string | null;
 }
 
-export interface User {}
+export interface User {
+  id: IUser["id"];
+  email: IUser["email"];
+  name: IUser["name"];
+  username: IUser["username"];
+  fullname: IUser["fullname"];
+  firstname: IUser["firstname"];
+  lastname: IUser["lastname"];
+  display: string;
+  avatar: {
+    caption: string;
+    src: IUser["image_url"];
+    forceCaption: boolean;
+  };
+  locale: IUser["interface_language_code"];
+}
 
 // --------------------------------------------------------
 // Events

@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine } from "xstate";
 
 // --- internal
 import services from "./services";

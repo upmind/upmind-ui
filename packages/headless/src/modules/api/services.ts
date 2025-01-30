@@ -3,6 +3,7 @@
 // --- internal
 import { useApi } from ".";
 import { useSession } from "../session";
+import { useI18n } from "../system/i18n";
 
 import type { RequestContext } from "./types";
 
@@ -34,16 +35,17 @@ export enum FetchMethods {
 
 // this will process the request and return a promise, this WONT allow the request to be cancelled
 // TODO: async function doFetch({ url, init }: RequestContext) {
-async function doFetch({ url, init, locale }: any) {
+async function doFetch({ url, init }: any) {
   // safety check, not sure we need this as our machine implementation is pretty strict
 
   if (!includes(FetchMethods, init?.method)) {
     return Promise.reject(`Invalid method: ${init?.method}`);
   }
 
-  if (!url.searchParams.has("lang") && !isEmpty(locale)) {
-    url.searchParams.set("lang", locale);
-    console.log("doFetch", url, url?.searchParams.toString());
+  if (!url.searchParams.has("lang")) {
+    const { getLocale } = useI18n();
+    const locale = await getLocale();
+    if (!isEmpty(locale)) url.searchParams.set("lang", locale);
   }
 
   // do the fetch

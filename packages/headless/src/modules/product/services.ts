@@ -72,7 +72,7 @@ async function load(
   const { get: getRequest, useUrl } = useApi();
 
   const params = {
-    currency_id: currency.id,
+    currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     with_staged_imports: true,
     with: [
@@ -417,7 +417,8 @@ const calculateBillingTerm = async (
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = await getConfig(BrandConfigKeys.DEFAULT_PAYMENT_PERIOD).then(
         async config => {
-          const period = get(config, BrandConfigKeys.DEFAULT_PAYMENT_PERIOD);
+          const period =
+            get(config, BrandConfigKeys.DEFAULT_PAYMENT_PERIOD) || 0;
           return await calculateBillingTerm(period, availableTerms);
         }
       );

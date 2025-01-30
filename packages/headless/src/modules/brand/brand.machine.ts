@@ -4,6 +4,8 @@ import { createMachine, assign } from "xstate";
 // --- internal
 import services from "./services";
 import { useApi } from "../api";
+import { useI18n } from "../system/i18n";
+
 import type { BrandContext, BrandEvent } from "./types";
 
 // --- utils
@@ -163,7 +165,7 @@ export default createMachine(
                   src: "fetchBrandSettings",
                   onDone: {
                     target: "complete",
-                    actions: ["setSettings", "setDefaultLocale"],
+                    actions: ["setSettings"],
                   },
                   onError: {
                     target: "error",
@@ -249,6 +251,7 @@ export default createMachine(
         onDone: "complete",
       },
       complete: {
+        entry: ["setDefaultLocale"],
         // type: "final",
         on: {
           "CONFIG.GET": {
@@ -281,10 +284,8 @@ export default createMachine(
         useBrandParser(data)
       ),
 
-      setDefaultLocale: ({ languages, language_id }: BrandContext) => {
-        const locale = get(find(languages, ["id", language_id]), "code");
-        if (locale) useApi().setLocale(locale);
-      },
+      setDefaultLocale: (_context: BrandContext, _event: BrandEvent) =>
+        useI18n().setDefaultLocale(),
 
       setModules: assign({
         // @ts-ignore

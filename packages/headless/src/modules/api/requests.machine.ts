@@ -7,7 +7,7 @@ import services from "./services";
 
 // --- utils
 import { generateHash } from "./utils";
-import { useTime, useLocalStorage } from "../../utils";
+import { useTime } from "../../utils";
 import { isEmpty, set, get, unset, keys, isFunction } from "lodash-es";
 
 // --- types
@@ -23,7 +23,6 @@ export default createMachine(
     initial: "empty",
     context: {
       requests: {},
-      locale: useLocalStorage().get("i18n/locale", window?.navigator?.language),
     } as RequestsContext,
     states: {
       // our initial state depends on if the machine has any requests
@@ -66,7 +65,7 @@ export default createMachine(
     actions: {
       add: assign({
         requests: (
-          { requests, locale }: RequestsContext,
+          { requests }: RequestsContext,
           {
             data: { hash, url, init, useCache, maxAge, refresh },
           }: AnyEventObject
@@ -86,7 +85,6 @@ export default createMachine(
                 init,
                 useCache,
                 maxAge: maxAge ?? useTime().MINUTE,
-                locale,
               }),
               {
                 name: hash,
@@ -159,15 +157,6 @@ export default createMachine(
           }
 
           return requests;
-        },
-      }),
-
-      setLocale: assign({
-        locale: (_context, { data }: AnyEventObject) => {
-          const locale =
-            data.toString().toLowerCase() || window?.navigator?.language;
-          useLocalStorage().set("i18n/locale", locale);
-          return locale;
         },
       }),
     },

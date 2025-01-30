@@ -63,7 +63,6 @@ export interface RequestContext {
   useCache: boolean;
   hash: string;
   maxAge: number;
-  locale?: string;
   // ---
   created?: EpochTimeStamp;
   completed?: EpochTimeStamp;
@@ -75,7 +74,6 @@ export interface RequestContext {
 
 export interface RequestsContext {
   requests: Record<string, ActorRef<any>>;
-  locale: string | undefined;
 }
 
 // --------------------------------------------------------
