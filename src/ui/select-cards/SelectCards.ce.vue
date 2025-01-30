@@ -1,48 +1,118 @@
 <template>
-  <component
-    :is="meta.isCollapsible ? Collapsible : Dropdown"
-    v-bind="props"
-    v-model="modelValue"
-  >
-    <template #placeholder>
-      <slot name="placeholder" />
-    </template>
-    <template #item="{ item }">
-      <slot name="item" :item="item" />
-    </template>
-    <template #dropdown-item="{ item }">
-      <slot name="dropdown-item" :item="item" />
-    </template>
-  </component>
+  <span :class="styles.select.group">
+    <DropdownMenuRoot v-model:open="open" tabindex="-1">
+      <DropdownMenuTrigger as-child :disabled="disabled">
+        <TriggerButton
+          :class="props.class"
+          :label="props.label"
+          :loading="props.loading"
+          :name="name"
+          :open="open"
+          :overrideIndex="overrideIndex"
+          :placeholder="props.placeholder"
+          :selected="selected"
+          :size="props.size"
+          :useInputGroup="props.useInputGroup"
+          @keydown.prevent.enter="keyEnter"
+          focusable
+        >
+          <template #item="{ item }">
+            <slot name="item" :item="item"></slot>
+          </template>
+          <template #placeholder>
+            <slot name="placeholder"></slot>
+          </template>
+        </TriggerButton>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuPortal>
+        <DropdownMenuContent
+          :class="cn(styles.select.content, props.contentClass)"
+        >
+          <DropdownMenuItem
+            v-for="(item, index) in items"
+            :key="item.id || index"
+            @click="onChange(item.value)"
+            :class="styles.select.item"
+            v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+            :data-state="item.value === modelValue ? 'checked' : null"
+          >
+            <Label
+              :for="`${name}-${(overrideIndex || 0) + index || index}`"
+              :class="cn(styles.select.label)"
+            >
+              <slot name="dropdown-item" v-bind="{ item, index }">
+                {{ item.label }}
+              </slot>
+            </Label>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenuRoot>
+  </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import Collapsible from "./Collapsible.vue";
-import Dropdown from "./Dropdown.vue";
-import type { SelectCardsProps } from "./types";
-import { useVModel } from "@vueuse/core";
+// --- external
+import { first } from "lodash-es";
+import { ref } from "vue";
+import { vIntersectionObserver } from "@vueuse/components";
 
-const props = withDefaults(defineProps<SelectCardsProps>(), {
-  variant: "dropdown",
-  loading: false,
-  placeholder: "Select an option",
-  required: false,
-  overrideIndex: 0,
-  useInputGroup: true,
-  width: "full",
-  separate: false,
-  class: "",
-  contentClass: "",
-});
+// --- internal
+import { useSelectCards } from "./utils/useSelectCards";
+import { cn, useStyles } from "../../utils";
+import config from "./selectCards.config";
+
+// --- components
+import TriggerButton from "./components/TriggerButton.vue";
+import { Label } from "../label";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "radix-vue";
+
+// --- types
+import type { SelectCardsProps } from "./types";
+import type { ComputedRef } from "vue";
+
+const props = defineProps<SelectCardsProps>();
 
 const emits = defineEmits(["update:modelValue"]);
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue,
-});
+const itemRefs = ref<HTMLElement[]>([]);
 
-const meta = computed(() => ({
-  isCollapsible: props.variant === "collapsible",
-}));
+const { modelValue, open, onChange, selected, meta, keyEnter } = useSelectCards(
+  props,
+  emits,
+  itemRefs
+);
+
+const styles = useStyles(
+  ["select"],
+  meta,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
+  select: {
+    item: string;
+    label: string;
+    content: string;
+    group: string;
+  };
+}>;
+
+function maybeFocus([section]: IntersectionObserverEntry[]) {
+  if (section?.isIntersecting) {
+    let el = section.target;
+    if (el && (el as HTMLElement).dataset.state === "checked") {
+      (el as HTMLElement).focus();
+    }
+  }
+}
+
+if (props.required && !modelValue.value) {
+  emits("update:modelValue", first(props.items)?.value);
+}
 </script>
