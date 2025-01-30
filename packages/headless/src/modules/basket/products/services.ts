@@ -64,7 +64,7 @@ async function fetch(
   // ---
   const { get: getRequest, useUrl } = useApi();
   const params = {
-    currency_id: currency.id,
+    currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     with: [
       "image",
@@ -120,7 +120,7 @@ async function fetchSelected(
   const { get: getRequest, useUrl } = useApi();
 
   const params = {
-    currency_id: currency.id,
+    currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     "filter[id]": productIds.join(","),
     limit: productIds.length,
@@ -186,7 +186,7 @@ async function fetchRelated(
   const { get: getRequest, useUrl } = useApi();
 
   const params = {
-    currency_id: currency.id,
+    currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     limit,
     offset,
