@@ -7,6 +7,7 @@
     :items="currencies"
     :loading="meta.isLoading"
     @update:modelValue="updateCurrency"
+    search
   />
 </template>
 
