@@ -28,6 +28,6 @@ export interface TextareaProps {
   // --- variants
   size?: TextareaVariantProps["size"];
   // ---
-  upmindUIConfig?: { textarea: Partial<TextareaVariantProps> };
+  uiConfig?: { textarea: Partial<TextareaVariantProps> };
   class?: HTMLAttributes["class"];
 }

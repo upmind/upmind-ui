@@ -1,7 +1,7 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <Alert :class="cn(variants.alert, props.class)">
+  <Alert :class="cn(styles.alert, props.class)">
     <div class="flex items-center justify-start gap-2">
       <Icon v-if="icon" :icon="icon" size="xs" />
       <div class="flex w-full items-center justify-between gap-2">
@@ -56,11 +56,11 @@ const props = withDefaults(defineProps<AlertProps>(), {
   title: "",
   description: "",
   action: "",
-  // --- variants
+  // --- styles
   variant: "outline",
   color: "base",
   // --- styles
-  upmindUIConfig: () => ({ alert: {} }),
+  uiConfig: () => ({ alert: {} }),
   class: "",
 });
 
@@ -70,10 +70,10 @@ const meta = computed(() => ({
   border: props.border,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "alert",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ alert: string }>;
 </script>

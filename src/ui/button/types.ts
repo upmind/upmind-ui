@@ -16,12 +16,13 @@ export interface ButtonProps {
   iconOnly?: boolean;
   spinner?: boolean;
   // ---
+  focusable?: boolean;
   block?: boolean;
   variant?: ButtonVariantProps["variant"];
   color?: ButtonVariantProps["color"];
   size?: ButtonVariantProps["size"];
   // ---
-  upmindUIConfig?: { button: Partial<ButtonProps> };
+  uiConfig?: { button: Partial<ButtonProps> };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }

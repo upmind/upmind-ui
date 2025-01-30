@@ -35,7 +35,7 @@ import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
-import type { PropType } from "vue";
+import type { PropType, ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { InputProps } from "../controls/types";
@@ -54,7 +54,7 @@ const props = defineProps({
     default: false,
   },
   // --- Provide a way to add custom styles for a specific instance of the component
-  upmindUIConfig: { type: [Object, Array], default: () => ({}) },
+  uiConfig: { type: [Object, Array], default: () => ({}) },
 });
 
 const meta = computed(() => ({
@@ -64,7 +64,18 @@ const meta = computed(() => ({
   isPristine: props.pristine,
 }));
 
-const styles = useStyles(["layout"], meta, config, props.upmindUIConfig);
+const styles = useStyles(
+  ["layout"],
+  meta,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
+  layout: {
+    root: string;
+    item: string;
+  };
+}>;
+
 const { layout, appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)
 );

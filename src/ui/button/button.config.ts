@@ -1,32 +1,37 @@
 // ---  external
 import { cva } from "class-variance-authority";
+import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  "focus-visible:ring-ring relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50 ",
+  `relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
   {
     variants: {
       variant: {
         flat: "border-transparent hover:bg-opacity-90",
         outline: "bg-transparent",
         ghost: "border-transparent",
-        link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4 hover:text-opacity-70",
+        link: "!hover:underline border-none !bg-transparent !px-0 !underline-offset-4 hover:text-opacity-70 focus:outline-offset-4",
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
-          "!hover:bg-opacity-80 !border-input bg-control !text-control-foreground shadow-sm ring-offset-background",
+          "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background",
+      },
+      focusable: {
+        true: `${ringClasses} ${invalidRingClasses}`,
+        false: "outline-none focus:outline-none focus:ring-0",
       },
       color: {
         base: "",
-        primary: "",
-        secondary: "",
-        accent: "",
-        promotion: "",
-        destructive: "",
-        success: "",
-        info: "",
-        error: "",
-        warning: "",
+        primary: "!ring-primary",
+        secondary: "!ring-secondary",
+        accent: "!ring-accent",
+        promotion: "!ring-promotion",
+        destructive: "!ring-destructive",
+        success: "!ring-success",
+        info: "!ring-info",
+        error: "!ring-error",
+        warning: "!ring-warning",
       },
       size: {
         xs: "h-7 gap-1 px-2 py-1 text-xs",

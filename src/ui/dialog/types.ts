@@ -37,7 +37,7 @@ export interface DialogProps
   skrim?: DialogOverlayVariantProps["skrim"];
 
   // ---
-  upmindUIConfig?: {
+  uiConfig?: {
     dialog: {
       overlay: Partial<DialogContentVariantProps>;
       content: Partial<DialogOverlayVariantProps>;

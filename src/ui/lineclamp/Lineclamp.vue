@@ -1,5 +1,5 @@
 <template>
-  <div class="upw-lineclamp" :class="styles.lineclamp.root">
+  <div class="upm-lineclamp" :class="styles.lineclamp.root">
     <div ref="wrapper" :class="styles.lineclamp.wrapper">
       <slot />
     </div>

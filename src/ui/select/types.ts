@@ -26,6 +26,6 @@ export interface SelectProps
   size?: SelectVariants["size"];
   width?: SelectVariants["width"];
   // --- styles
-  upmindUIConfig?: {};
+  uiConfig?: {};
   class?: HTMLAttributes["class"];
 }

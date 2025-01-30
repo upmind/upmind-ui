@@ -55,6 +55,8 @@ import {
   FormDescription,
   FormMessage,
   type FormProps,
+  type FormFooterProps,
+  type FormActionsProps,
 } from "./ui/form";
 import { UpmIcon, Icon, type IconProps } from "./ui/icon";
 import {
@@ -88,6 +90,7 @@ import {
   type RadioCardsProps,
   type RadioCardsItemProps,
 } from "./ui/radio-cards";
+import { RadioGroup } from "./ui/radio-group";
 
 import { UpmSelect, Select, type SelectProps } from "./ui/select";
 import { UpmSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
@@ -151,6 +154,7 @@ export {
   PopoverContent,
   PopoverTrigger,
   RadioCards,
+  RadioGroup,
   Separator,
   Select,
   SelectCards,
@@ -174,6 +178,8 @@ export {
   type ComboboxItemProps,
   type DialogProps,
   type FormProps,
+  type FormFooterProps,
+  type FormActionsProps,
   type IconProps,
   type AnimatedIconProps,
   type InterstitialProps,

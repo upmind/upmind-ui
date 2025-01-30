@@ -2,7 +2,7 @@
   <Textarea
     v-model="modelValue"
     v-bind="delegatedProps"
-    :class="cn(variants.textarea, props.class)"
+    :class="cn(styles.textarea, props.class)"
   />
 </template>
 
@@ -28,7 +28,7 @@ import type { TextareaProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TextareaProps>(), {
-  upmindUIConfig: () => ({ textarea: {} }),
+  uiConfig: () => ({ textarea: {} }),
   class: "",
 });
 
@@ -37,7 +37,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -49,10 +49,10 @@ const meta = computed(() => ({
   size: props.size,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["textarea"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ textarea: string }>;
 </script>

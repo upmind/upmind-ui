@@ -38,6 +38,6 @@ export interface InterstitialProps {
   skrim?: DialogProps["skrim"];
   fit?: DialogProps["fit"];
   // ---
-  upmindUIConfig?: { interstitial: Partial<InterstitialVariantProps> };
+  uiConfig?: { interstitial: Partial<InterstitialVariantProps> };
   class?: HTMLAttributes["class"];
 }

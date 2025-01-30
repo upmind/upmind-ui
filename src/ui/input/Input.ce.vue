@@ -2,7 +2,7 @@
   <Input
     v-model="modelValue"
     v-bind="delegatedProps"
-    :class="cn(variants.input, props.class)"
+    :class="cn(styles.input, props.class)"
   />
 </template>
 
@@ -30,7 +30,7 @@ import type { InputProps } from "./types";
 const props = withDefaults(defineProps<InputProps>(), {
   width: "full",
   // ---
-  upmindUIConfig: () => ({ input: {} }),
+  uiConfig: () => ({ input: {} }),
   class: "",
 });
 
@@ -39,7 +39,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -52,10 +52,10 @@ const meta = computed(() => ({
   width: props.width,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["input"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ input: string }>;
 </script>

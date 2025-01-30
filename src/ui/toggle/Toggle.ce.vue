@@ -2,7 +2,7 @@
   <Toggle
     v-model="modelValue"
     v-bind="delegatedProps"
-    :class="cn(variants.toggle, props.class)"
+    :class="cn(styles.toggle, props.class)"
   >
     <slot />
   </Toggle>
@@ -30,7 +30,7 @@ import type { ToggleProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ToggleProps>(), {
-  upmindUIConfig: () => ({ input: {} }),
+  uiConfig: () => ({ input: {} }),
   class: "",
 });
 
@@ -39,7 +39,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "upmindUIConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -52,10 +52,10 @@ const meta = computed(() => ({
   size: props.size,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["toggle"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ toggle: string }>;
 </script>

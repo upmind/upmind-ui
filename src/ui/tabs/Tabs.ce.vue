@@ -2,11 +2,11 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
   <Tabs v-bind="forwarded">
-    <TabsList :class="variants.tabs.list" :color="color" :variant="variant">
+    <TabsList :class="styles.tabs.list" :color="color" :variant="variant">
       <template v-for="item in tabs" :key="item.value">
         <TabsTrigger
           :value="item.value"
-          :class="variants.tabs.trigger"
+          :class="styles.tabs.trigger"
           :color="props.color"
           :variant="props.variant"
         >
@@ -52,11 +52,11 @@ const props = withDefaults(defineProps<TabsProps>(), {
   // --- props
   tabs: (): TabItems[] => [],
   defaultValue: "",
-  // -- variants
+  // -- styles
   color: "base",
   variant: "flat",
   // --- styles
-  upmindUIConfig: () => ({
+  uiConfig: () => ({
     tabs: {
       list: {},
       trigger: {},
@@ -75,11 +75,11 @@ const meta = computed(() => ({
   width: props.width,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "tabs",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   tabs: {
     list: string;

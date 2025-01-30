@@ -14,12 +14,14 @@ export interface AvatarProps {
   icon?: IconProps["icon"];
   animatedIcon?: AnimatedIconProps | string;
   // ---
+  focusable?: boolean;
+  // ---
   color?: AvatarVariantProps["color"];
   fit?: AvatarVariantProps["fit"];
   size?: AvatarVariantProps["size"];
   shape?: AvatarVariantProps["shape"];
   variant?: AvatarVariantProps["variant"];
   // ---
-  upmindUIConfig?: { avatar: Partial<AvatarProps> };
+  uiConfig?: { avatar: Partial<AvatarProps> };
   class?: HTMLAttributes["class"];
 }

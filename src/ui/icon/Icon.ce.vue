@@ -5,7 +5,7 @@
     :icon="props.icon"
     @error="iconError = true"
   />
-  <Icon v-else v-bind="props" :icon="props.fallbackIcon!" />
+  <Icon v-else v-bind="props" :icon="props.fallback!" />
 </template>
 
 <script lang="ts" setup>
@@ -18,6 +18,6 @@ const props = defineProps<IconProps>();
 const iconError = ref(false);
 
 const meta = computed(() => ({
-  hasIconError: props.fallbackIcon && iconError.value,
+  hasIconError: props.fallback && iconError.value,
 }));
 </script>

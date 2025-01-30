@@ -4,13 +4,15 @@
     :default-value="defaultValue"
     :required="props.required"
     :disabled="props.disabled"
-    :class="cn(variants.checkboxCards.root, props.class)"
+    :class="cn(styles.checkboxCards.root, props.class)"
     @update:model-value="onChange"
   >
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
-      :class="cn(variants.checkboxCards.item)"
+      tabindex="0"
+      @keydown.enter="onChange(item.value)"
+      :class="styles.checkboxCards.item"
     >
       <CheckboxGroupItem
         :id="`${props.name}-${index}`"
@@ -18,12 +20,12 @@
         :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
-        :class="variants.checkboxCards.input"
         :no-input="props.noInput"
+        :class="styles.checkboxCards.input"
       >
         <Label
           :for="`${props.name}-${index}`"
-          :class="cn(variants.checkboxCards.label)"
+          :class="cn(styles.checkboxCards.label)"
         >
           <slot name="item" v-bind="{ item, index }">
             {{ item.label }}
@@ -60,7 +62,7 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   loading: false,
   placeholder: "Select an option",
   required: false,
-  // -- variants
+  // -- styles
   color: "base",
   variant: "control",
   layout: "list",
@@ -80,11 +82,11 @@ const meta = computed(() => ({
   noInput: props.noInput,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["checkboxCards"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   checkboxCards: {
     trigger: string;
@@ -99,8 +101,10 @@ const selected = computed(() => find(props.items, { value: modelValue.value }));
 
 // allow for toggle of selected item
 function onChange(value: any) {
-  if (!props.required && modelValue.value == value)
+  if (modelValue.value == value || !value) {
     modelValue.value = undefined;
-  else modelValue.value = value;
+  } else {
+    modelValue.value = value;
+  }
 }
 </script>
