@@ -10,7 +10,7 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
 import { FormField } from "@upmind-automation/upmind-ui";
-import Domain from "../../domain/Domain.vue";
+import Domain from "../../../modules/domain/components/Domain.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
