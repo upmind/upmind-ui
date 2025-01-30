@@ -19,7 +19,7 @@ export const buttonVariants = cva(
       },
       focusable: {
         true: `${ringClasses} ${invalidRingClasses}`,
-        false: "focus:outline-none focus:ring-0",
+        false: "outline-none focus:outline-none focus:ring-0",
       },
       color: {
         base: "",

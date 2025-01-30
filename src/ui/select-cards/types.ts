@@ -10,18 +10,13 @@ import type {
 } from "radix-vue";
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
-  // ---
   label: string;
 }
 
 export interface SelectCardsProps extends RadioGroupRootProps {
   label?: string;
   placeholder?: string;
-  noneText?: string;
   required?: boolean;
-  name?: string;
-  overrideIndex?: number;
-  useInputGroup?: boolean;
   // --- state
   items: SelectCardsItemProps[];
   loading?: boolean;
@@ -30,7 +25,6 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   color?: ButtonProps["color"];
   side?: PopoverContentProps["side"];
   size?: ButtonProps["size"];
-  radio?: boolean;
   focusable?: boolean;
 
   uiConfig?: { select: Partial<SelectCardsProps> };
@@ -39,15 +33,12 @@ export interface SelectCardsProps extends RadioGroupRootProps {
 }
 export interface SelectCardsTriggerProps
   extends Omit<ButtonProps, "variant" | "uiConfig"> {
-  name?: string;
-  overrideIndex?: number;
   selected?: { label: string };
   loading?: boolean;
   placeholder?: string;
   label?: string;
   size?: ButtonProps["size"];
   open?: boolean;
-  useInputGroup?: boolean;
   class?: string;
   focusable?: boolean;
 }

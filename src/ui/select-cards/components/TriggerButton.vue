@@ -1,6 +1,5 @@
 <template>
   <Button
-    :id="`${name}-${overrideIndex}`"
     :loading="loading"
     :class="cn(variants.select.trigger)"
     :size="size"
