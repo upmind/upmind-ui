@@ -1,10 +1,10 @@
 <template>
-  <RadioGroup
+  <component
+    :is="useInputGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
-    :default-value="defaultValue"
     :required="props.required"
     :disabled="props.disabled"
-    :class="cn(variants.radioCards.root, props.class)"
+    :class="cn(styles.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
     <template v-for="(item, index) in items" :key="item.id || index">
@@ -16,21 +16,21 @@
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
-        :variants="variants"
-        :width="props.width"
         :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
+        :width="props.width"
+        @keydown.enter="onChange(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
         </template>
       </RadioCardItem>
     </template>
-  </RadioGroup>
+  </component>
 </template>
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -48,13 +48,10 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {
   // --- props
-  loading: false,
   placeholder: "Select an option",
-  required: false,
   overrideIndex: 0,
+  useInputGroup: true,
   // -- variants
-  color: "base",
-  variant: "control",
   width: 12,
   // --- styles
   class: "",
@@ -68,31 +65,34 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  color: props.color,
-  layout: props.layout,
-  variant: props.variant,
-  ring: props.ring,
   width: props.width,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["radioCards"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   radioCards: {
     trigger: string;
     root: string;
     item: string;
+    radio: string;
     input: string;
     label: string;
   };
 }>;
 
-function onChange(value: any) {
-  if (!props.required && modelValue.value == value)
+const handleFocus = (value: any) => {
+  onChange(value);
+};
+
+const onChange = (value: any) => {
+  if (!props.required && value === modelValue.value) {
     modelValue.value = undefined;
-  else modelValue.value = value;
-}
+  } else {
+    modelValue.value = value;
+  }
+};
 </script>

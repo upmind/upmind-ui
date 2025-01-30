@@ -1,6 +1,6 @@
 <template>
   <Select v-bind="forwarded">
-    <SelectTrigger :class="cn(variants.select, props.class)">
+    <SelectTrigger :class="cn(styles.select, props.class)">
       <SelectValue :placeholder="placeholder" />
     </SelectTrigger>
 
@@ -46,10 +46,10 @@ import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
   items: () => [],
-  // -- variants
+  // -- styles
   width: "full",
   // --- styles
-  upmindUIConfig: () => ({ select: {} }),
+  uiConfig: () => ({ select: {} }),
   class: "",
 });
 
@@ -61,11 +61,11 @@ const meta = computed(() => ({
   width: props.width,
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   ["select"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   select: [];
 }>;

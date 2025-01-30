@@ -56,9 +56,8 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
 
 const unmask = ref(false);
 

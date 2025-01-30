@@ -32,6 +32,6 @@ export interface CheckboxCardsProps extends ListboxRootProps {
   variant?: ButtonProps["variant"];
   layout?: CheckboxCardsVariantProps["layout"];
   // ---
-  upmindUIConfig?: { tooltip: Partial<CheckboxCardsProps> };
+  uiConfig?: { tooltip: Partial<CheckboxCardsProps> };
   class?: HTMLAttributes["class"];
 }

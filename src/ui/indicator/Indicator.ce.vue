@@ -1,7 +1,7 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
 
-  <span :class="cn(variants.indicator, props.class)">
+  <span :class="cn(styles.indicator, props.class)">
     <slot>
       <Icon
         v-if="meta.hasIcon"
@@ -43,12 +43,12 @@ import type { IndicatorProps } from ".";
 const props = withDefaults(defineProps<IndicatorProps>(), {
   // --- props
   icon: undefined,
-  //  --- variants
+  //  --- styles
   color: "base",
   shape: "circle",
   size: "full",
   // --- styles
-  upmindUIConfig: () => ({ indicator: {} }),
+  uiConfig: () => ({ indicator: {} }),
   class: "",
 });
 
@@ -61,10 +61,10 @@ const meta = computed(() => ({
   hasValue: !isEmpty(props.modelValue),
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "indicator",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ indicator: string }>;
 </script>

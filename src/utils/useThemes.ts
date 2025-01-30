@@ -34,12 +34,12 @@ export const useThemes = (themes?: Array<Object>, defaultTheme?: string) => {
     activeTheme.value = theme || activeTheme.value || defaultTheme;
     if (themes) {
       const themeConfig = find(themes, ["id", activeTheme.value]);
-      config.value = themeConfig?.upmindUI || {};
+      config.value = themeConfig?.uiConfig || {};
     }
   }
 
   // make our theme available to the app
-  provide("upmind-ui", {
+  provide("uiConfig", {
     activeTheme,
     config,
     themes: providedThemes,

@@ -2,7 +2,7 @@
   <Primitive
     :as="as"
     :as-child="asChild"
-    :class="cn(variants.spinner, props.class)"
+    :class="cn(styles.spinner, props.class)"
     role="status"
     aria-label="animated loading icon"
   >
@@ -33,10 +33,10 @@ import type { SpinnerProps } from ".";
 const props = withDefaults(defineProps<SpinnerProps>(), {
   // --- props
   as: "span",
-  //  --- variants
+  //  --- styles
   size: "auto",
   // --- styles
-  upmindUIConfig: () => ({ spinner: {} }),
+  uiConfig: () => ({ spinner: {} }),
   class: "",
 });
 
@@ -45,10 +45,10 @@ const meta = computed(() => ({
   // ---
 }));
 
-const variants = useStyles(
+const styles = useStyles(
   "spinner",
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{ spinner: string }>;
 </script>

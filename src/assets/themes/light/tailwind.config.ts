@@ -1,30 +1,33 @@
+import type { Config } from "tailwindcss";
+import type { PluginUtils } from "tailwindcss/types/config";
+// ---
 import defaultTheme from "tailwindcss/defaultTheme";
 
 // -----------------------------------------------------------------------------
-// Dark theme
+// Light theme
 // -----------------------------------------------------------------------------
 
 const colors = {
-  background: "#000000",
-  foreground: "#ffffff",
+  background: "#ffffff",
+  foreground: "#000000",
 
   // --- Theme Variants
 
   base: {
-    DEFAULT: "#000000",
-    50: "#000000",
-    100: "#1e1e1e",
-    200: "#3e3e3e",
-    300: "#5e5e5e",
-    400: "#7e7e7e",
+    DEFAULT: "#ffffff",
+    50: "#fefefe",
+    100: "#f5f5f5",
+    200: "#efefef",
+    300: "#dcdcdc",
+    400: "#bcbcbc",
     500: "#9e9e9e",
-    600: "#bcbcbc",
-    700: "#dcdcdc",
-    800: "#efefef",
-    900: "#f5f5f5",
-    950: "#fefefe",
-    foreground: "#ffffff",
-    background: "#000000",
+    600: "#7e7e7e",
+    700: "#5e5e5e",
+    800: "#3e3e3e",
+    900: "#1e1e1e",
+    950: "#000000",
+    foreground: "#000000",
+    background: "#ffffff",
   },
 
   // ---
@@ -98,18 +101,18 @@ const colors = {
   },
 
   destructive: {
-    DEFAULT: "#ff4d6d",
-    50: "#300313",
-    100: "#4c0519",
-    200: "#7f172b",
-    300: "#9f1239",
-    400: "#be123c",
-    500: "#e11d48",
-    600: "#f43f5e",
-    700: "#ff4d6d",
-    800: "#fda4af",
-    900: "#fecdd3",
-    950: "#fff1f2",
+    DEFAULT: "#e11d48",
+    50: "#fff1f2",
+    100: "#ffe4e6",
+    200: "#fecdd3",
+    300: "#fda4af",
+    400: "#fb7185",
+    500: "#f43f5e",
+    600: "#e11d48",
+    700: "#be123c",
+    800: "#9f1239",
+    900: "#881337",
+    950: "#4c0519",
     foreground: "#ffffff",
     background: "#ff4d6d",
   },
@@ -215,11 +218,12 @@ const colors = {
 // -----------------------------------------------------------------------------
 
 export default {
+  content: [],
   colors,
   fontFamily: {
-    sans: ["Inter", ...defaultTheme.fontFamily.sans].toString(","),
-    serif: ["Inter", ...defaultTheme.fontFamily.serif].toString(","),
-    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(","),
+    sans: ["Inter", ...defaultTheme.fontFamily.sans].toString(),
+    serif: ["Inter", ...defaultTheme.fontFamily.serif].toString(),
+    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(),
   },
 
   fontSize: {
@@ -284,7 +288,7 @@ export default {
   ringColor: {
     DEFAULT: colors.control.active,
   },
-  typography: ({ theme }) => ({
+  typography: ({ theme }: PluginUtils) => ({
     DEFAULT: {
       css: {
         fontFamily: theme("fontFamily.body"),
@@ -312,4 +316,4 @@ export default {
       },
     },
   }),
-};
+} satisfies Config;

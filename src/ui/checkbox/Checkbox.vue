@@ -6,7 +6,6 @@ import {
   CheckboxRoot,
   useForwardPropsEmits,
 } from "radix-vue";
-import { Icon } from "../icon";
 import { Check } from "lucide-vue-next";
 import { cn } from "../../utils";
 

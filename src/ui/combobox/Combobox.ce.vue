@@ -2,12 +2,12 @@
   <Popover
     v-model:open="open"
     :disabled="props.disabled"
-    :class="variants.combobox.root"
+    :class="styles.combobox.root"
   >
     <PopoverTrigger as-child>
       <Button
         :loading="props.loading"
-        :class="cn('group w-full', variants.combobox.trigger, props.class)"
+        :class="cn('group w-full', styles.combobox.trigger, props.class)"
         :size="props.size"
         :aria-expanded="open"
         :color="props.color"
@@ -58,28 +58,14 @@
       :align="align"
       :side="side"
       avoidCollisions
-      :class="cn(variants.combobox.content, props.popoverClass)"
+      :class="cn(styles.combobox.content, props.popoverClass)"
     >
       <Command>
         <template v-if="props.search">
-          <span class="flex items-center overflow-hidden border-b pl-4">
-            <Icon
-              icon="search"
-              size="2xs"
-              class="text-control-foreground opacity-50"
-            />
-            <Input
-              v-model="searchTerm"
-              @update:modelValue="onSearch"
-              autoFocus
-              class="flex h-11 w-full rounded-none border-none bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
-              :placeholder="placeholder"
-            >
-            </Input>
-          </span>
+          <CommandInput v-model="searchTerm" :placeholder="placeholder" />
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
         </template>
-        <CommandList class="w-full max-w-full">
+        <CommandList class="w-full max-w-full" loop>
           <CommandGroup>
             <CommandItem
               v-for="item in results"
@@ -87,7 +73,7 @@
               :value="(item as Record<string, any>)[props.itemValue]"
               @select="doSelect(item)"
               class="group flex cursor-pointer items-center justify-start gap-4"
-              :class="variants.combobox.item"
+              :class="styles.combobox.item"
             >
               <Avatar
                 v-if="item.avatar"
@@ -147,6 +133,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  CommandInput,
 } from "../command";
 
 // --- utils
@@ -178,7 +165,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
-  // -- variants
+  // -- styles
   color: "base",
   size: "md",
   width: "xl",
@@ -190,7 +177,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   iconSize: "2xs",
 
   // --- styles
-  upmindUIConfig: () => ({ combobox: {} }),
+  uiConfig: () => ({ combobox: {} }),
   class: "",
   popoverClass: "",
 });
@@ -212,11 +199,11 @@ const searchTerm = ref();
 
 // ---
 
-const variants = useStyles(
+const styles = useStyles(
   ["combobox"],
   meta,
   config,
-  props.upmindUIConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   combobox: { root: string; trigger: string; content: string; item: string };
 }>;

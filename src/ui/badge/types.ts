@@ -13,6 +13,6 @@ export interface BadgeProps {
   variant?: BadgeVariantProps["variant"];
   size?: BadgeVariantProps["size"];
   // --- styles
-  upmindUIConfig?: { badge: Partial<BadgeProps> };
+  uiConfig?: { badge: Partial<BadgeProps> };
   class?: HTMLAttributes["class"];
 }

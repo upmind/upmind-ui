@@ -11,6 +11,6 @@ type LabelVariantProps = VariantProps<typeof labelVariants>;
 export interface LabelProps extends RootLabelProps {
   label?: string | number;
   // ---
-  upmindUIConfig?: { label: Partial<LabelVariantProps> };
+  uiConfig?: { label: Partial<LabelVariantProps> };
   class?: HTMLAttributes["class"];
 }

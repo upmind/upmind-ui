@@ -5,17 +5,22 @@ import { type HTMLAttributes } from "vue";
 import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { VariantProps } from "class-variance-authority";
-import type { rootVariants } from "./radioCards.config";
-type RadioCardsVariantProps = VariantProps<typeof rootVariants>;
 import type { itemVariants } from "./radioCards.config";
 type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface RadioCardsItemProps extends RadioGroupItemProps {
+  item: any;
+  index: number;
+  name?: string;
+  label?: string;
+  sublabel?: string;
+  required: boolean;
+  disabled: boolean;
+  modelValue: any;
+  selected?: boolean;
   // ---
-  label: string;
-  values: any[];
-  primary?: boolean;
-  group?: string;
+  width?: RadioCardsItemVariantProps["width"];
+  uiConfig?: { radioCards: Partial<RadioCardsItemVariantProps> };
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
@@ -24,15 +29,14 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   noneText?: string;
   required?: boolean;
   overrideIndex?: number;
+  useInputGroup?: boolean;
   // --- state
   items: RadioCardsItemProps[];
   loading?: boolean;
   // ---
-  color?: ButtonProps["color"];
-  variant?: ButtonProps["variant"];
   width?: RadioCardsItemVariantProps["width"];
   // ---
-  upmindUIConfig?: { tooltip: Partial<RadioCardsProps> };
+  uiConfig?: { radioCards: Partial<RadioCardsProps> };
   class?: HTMLAttributes["class"];
   radioClass?: HTMLAttributes["class"];
 }
