@@ -13,7 +13,7 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  parseAddedProducts,
+  checkInBasket,
 } from "./utils";
 import {
   concat,
@@ -226,7 +226,6 @@ export default createMachine(
                 const dynamicProperty: string = first(
                   value.match(/(?<=\$\{).+?(?=\})/)
                 );
-
                 const product = findLast(products, product =>
                   has(product, dynamicProperty)
                 );
@@ -296,9 +295,9 @@ export default createMachine(
             []
           );
 
-          const relatedProducts = filter(context.raw.added, product =>
-            includes(relationships, product.id)
-          );
+          const relatedProducts = filter(context.raw.added, product => {
+            return includes(relationships, product.id);
+          });
 
           const model = context.basketItemBuilder(
             recommendation,
@@ -340,7 +339,7 @@ export default createMachine(
 
       clearLookups: assign({
         raw: (
-          _context: RecommendationsEngineContext,
+          { raw }: RecommendationsEngineContext,
           _event: AnyEventObject
         ) => {
           return {
@@ -348,7 +347,7 @@ export default createMachine(
             related: [],
             relationships: {},
             seen: [],
-            added: [],
+            added: raw.added,
           };
         },
       }),
@@ -362,13 +361,15 @@ export default createMachine(
           const products = basket?.products;
           const related = parseRelatedProducts(basket as IBasket);
           const relationships = parseRelationships(basket as IBasket);
-          const added = parseAddedProducts(related, products);
+          const added = products; //parseAddedProducts(related, products);
+
           return {
             products: raw?.products ?? [],
             related,
             relationships,
             seen: raw?.seen ?? [], // TODO: retrieve from local storage
-            added: uniq(concat(raw.added, added)),
+            added,
+            // added: uniq(concat(raw.added, added)),
           };
         },
       }),
@@ -422,30 +423,27 @@ export default createMachine(
         recommendations: (
           { raw }: RecommendationsEngineContext,
           _event: AnyEventObject
-        ) => {
-          const augmentedRecommendations = reduce(
+        ) =>
+          reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
               const product = find(raw.products, ["id", rawRelated.object_id]);
               rawRelated.product = product;
-              const added = includes(raw.added, rawRelated.id);
+              const added = checkInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
               const loading = isEmpty(rawRelated.product);
-              result.push(
-                parseRecommendation(rawRelated, {
-                  added,
-                  seen,
-                  processing,
-                  loading,
-                })
-              );
+              const parsed = parseRecommendation(rawRelated, {
+                added,
+                seen,
+                processing,
+                loading,
+              });
+              result.push(parsed);
               return result;
             },
             []
-          );
-          return augmentedRecommendations;
-        },
+          ),
       }),
 
       setRecommendation: assign({
@@ -464,18 +462,17 @@ export default createMachine(
             raw.related,
             (result: any[], rawRelated: any) => {
               if (context?.id == rawRelated?.id) rawRelated.product = data;
-              const added = includes(raw.added, rawRelated.id);
+              const added = checkInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
               const loading = isEmpty(rawRelated.product);
-              result.push(
-                parseRecommendation(rawRelated, {
-                  added,
-                  seen,
-                  processing,
-                  loading,
-                })
-              );
+              const parsed = parseRecommendation(rawRelated, {
+                added,
+                seen,
+                processing,
+                loading,
+              });
+              result.push(parsed);
               return result;
             },
             []
