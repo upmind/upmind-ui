@@ -115,12 +115,7 @@
           :required="option.required"
           :visible="!!option.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
-          :disabled="
-            props.disabled ||
-            meta.isLoading ||
-            meta.isProcessing ||
-            meta.isCalculating
-          "
+          :disabled="props.disabled || meta.isLoading || meta.isProcessing"
         />
 
         <!-- attributes -->
