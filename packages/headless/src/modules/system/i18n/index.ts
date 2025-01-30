@@ -6,7 +6,7 @@ import type { SupportedLocaleCodes } from "./locales";
 // --- utils
 import { useLocalStorage } from "../../../utils";
 
-import { uniq, map, compact, find, first, reduce, some } from "lodash";
+import { uniq, map, compact, isEmpty, first, reduce, some } from "lodash";
 
 // --- types
 import { QUERY_PARAMS } from "@upmind-automation/types";
@@ -14,9 +14,15 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 export const useI18n = () => {
-  const { validateLanguage, getLanguages } = useBrand();
+  const { validateLanguage, getLanguages, isReady } = useBrand();
+  const { setLocale: setAPI } = useApi();
+  const { get, set } = useLocalStorage();
 
   async function getLocale(): Promise<string | undefined> {
+    //  if we don't have a brand languages, we can't get the locale
+    const languages = getLanguages();
+    if (isEmpty(languages)) return get("i18n/locale");
+
     // to set locale we do a few things:
     // 2. if not, check if we have any url params and use that if it is valid/supported by the brand
     // 2. if not, check if we have a stored locale
@@ -29,7 +35,7 @@ export const useI18n = () => {
         compact([
           searchParams.get(QUERY_PARAMS.LOCALE),
           searchParams.get(QUERY_PARAMS.LANG),
-          localStorage?.getItem("i18n/active_locale_code"),
+          get("i18n/locale"),
           window.navigator.language,
         ]),
         code => code.replace("_", "-") as SupportedLocaleCodes
@@ -45,7 +51,6 @@ export const useI18n = () => {
     const localeIntersection = reduce(
       preferredLocales,
       (result: string[], code: SupportedLocaleCodes) => {
-        const languages = getLanguages();
         const exactMatch = some(
           languages,
           language =>
@@ -74,6 +79,7 @@ export const useI18n = () => {
   }
 
   async function setDefaultLocale(): Promise<string> {
+    await isReady();
     const locale = await getLocale();
     // /**
     //  * @desc Here we silently clean 'locale' and 'lang' params from the URL
@@ -97,11 +103,12 @@ export const useI18n = () => {
 
   async function setLocale(code: string): Promise<string> {
     const locale = await validateLanguage({ code });
+
     // Switch i18n locale
     return new Promise((resolve, reject) => {
       if (locale?.code) {
-        useLocalStorage().set("i18n/locale", locale.code);
-        useApi().setLocale(locale.code);
+        set("i18n/locale", locale.code);
+        setAPI(locale.code);
         return resolve(locale.code);
       }
       return reject({
