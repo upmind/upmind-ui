@@ -24,7 +24,7 @@ customElements.define("upm-button", UpmButton);
 customElements.define("upm-combobox", UpmCombobox);
 customElements.define("upm-dialog", UpmDialog);
 customElements.define("upm-drawer", UpmDrawer);
-customElements.define("upw-icon", UpmIcon);
+customElements.define("upm-icon", UpmIcon);
 customElements.define("upm-indicator", UpmIndicator);
 customElements.define("upm-sonner", UpmSonner);
 customElements.define("upm-tabs", UpmTabs);
