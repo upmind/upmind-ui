@@ -1,6 +1,10 @@
 // --- types
 import type { ActorRef } from "xstate";
-import type { IRelatedObject, IProduct } from "@upmind-automation/types";
+import type {
+  IRelatedObject,
+  IProduct,
+  IBasketProduct,
+} from "@upmind-automation/types";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 
@@ -107,7 +111,7 @@ export interface RecommendationsEngineContext {
     related: RelatedProduct[];
     relationships: Record<string, string[]>;
     seen: string[];
-    added: string[];
+    added: IBasketProduct[];
   };
   // ---
   error?: any;
