@@ -221,31 +221,31 @@ export {
 
 // --- utility for registering all custom elements
 export function register() {
-  customElements.define("upm--alert", UpmAlert);
-  customElements.define("upm--autocomplete", UpmAutocomplete);
-  customElements.define("upm--avatar", UpmAvatar);
-  customElements.define("upm--badge", UpmBadge);
-  customElements.define("upm--button", UpmButton);
-  customElements.define("upm--checkbox", UpmCheckbox);
-  customElements.define("upm--combobox", UpmCombobox);
-  customElements.define("upm--dialog", UpmDialog);
-  customElements.define("upm--drawer", UpmDrawer);
-  customElements.define("upm--dropdown-menu", UpmDropdownMenu);
-  customElements.define("upm--form", UpmForm);
-  customElements.define("upm--icon", UpmIcon);
-  customElements.define("upm--icon-animated", UpmIconAnimated);
-  customElements.define("upm--indicator", UpmIndicator);
-  customElements.define("upm--interstitial", UpmInterstitial);
-  customElements.define("upm--input", UpmInput);
-  customElements.define("upm--number-field", UpmNumberField);
-  customElements.define("upm--sonner", UpmSonner);
-  customElements.define("upm--spinner", UpmSpinner);
-  customElements.define("upm--select", UpmSelect);
-  customElements.define("upm--skeleton", UpmSkeleton);
-  customElements.define("upm--tabs", UpmTabs);
-  customElements.define("upm--tooltip", UpmTooltip);
-  customElements.define("upm--textarea", UpmTextarea);
-  customElements.define("upm--loading", UpmLoading);
+  customElements.define("upm-alert", UpmAlert);
+  customElements.define("upm-autocomplete", UpmAutocomplete);
+  customElements.define("upm-avatar", UpmAvatar);
+  customElements.define("upm-badge", UpmBadge);
+  customElements.define("upm-button", UpmButton);
+  customElements.define("upm-checkbox", UpmCheckbox);
+  customElements.define("upm-combobox", UpmCombobox);
+  customElements.define("upm-dialog", UpmDialog);
+  customElements.define("upm-drawer", UpmDrawer);
+  customElements.define("upm-dropdown-menu", UpmDropdownMenu);
+  customElements.define("upm-form", UpmForm);
+  customElements.define("upm-icon", UpmIcon);
+  customElements.define("upm-icon-animated", UpmIconAnimated);
+  customElements.define("upm-indicator", UpmIndicator);
+  customElements.define("upm-interstitial", UpmInterstitial);
+  customElements.define("upm-input", UpmInput);
+  customElements.define("upm-number-field", UpmNumberField);
+  customElements.define("upm-sonner", UpmSonner);
+  customElements.define("upm-spinner", UpmSpinner);
+  customElements.define("upm-select", UpmSelect);
+  customElements.define("upm-skeleton", UpmSkeleton);
+  customElements.define("upm-tabs", UpmTabs);
+  customElements.define("upm-tooltip", UpmTooltip);
+  customElements.define("upm-textarea", UpmTextarea);
+  customElements.define("upm-loading", UpmLoading);
 }
 
 // --- utility for registering custom elements and allowing for code splitting
