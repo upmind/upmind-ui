@@ -7,7 +7,6 @@
     :aria-expanded="open"
     variant="control"
     block
-    :tabindex="useInputGroup ? 0 : -1"
     :focusable="focusable"
   >
     <slot name="prepend" />
@@ -34,9 +33,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed } from "vue";
-
 // --- internal
 import { cn, useStyles } from "../../../utils";
 import config from "../selectCards.config";
@@ -49,13 +45,9 @@ import { Icon } from "../../icon";
 import type { ComputedRef } from "vue";
 import type { SelectCardsTriggerProps } from "../types";
 
-const props = defineProps<SelectCardsTriggerProps>();
+defineProps<SelectCardsTriggerProps>();
 
-const meta = computed(() => ({
-  variant: props.variant,
-  isCollapsible: props.variant === "collapsible",
-}));
-const variants = useStyles(["select"], meta, config, {}) as ComputedRef<{
+const variants = useStyles(["select"], {}, config, {}) as ComputedRef<{
   select: {
     trigger: string;
   };

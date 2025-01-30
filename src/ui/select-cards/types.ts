@@ -14,8 +14,7 @@ export interface SelectCardsItemProps extends RadioGroupItemProps {
   label: string;
 }
 
-interface SelectCardsPropsBase extends RadioGroupRootProps {
-  variant?: "collapsible" | "dropdown";
+export interface SelectCardsProps extends RadioGroupRootProps {
   label?: string;
   placeholder?: string;
   noneText?: string;
@@ -29,46 +28,26 @@ interface SelectCardsPropsBase extends RadioGroupRootProps {
   disabled: boolean;
   // ---
   color?: ButtonProps["color"];
+  side?: PopoverContentProps["side"];
   size?: ButtonProps["size"];
   radio?: boolean;
   focusable?: boolean;
 
-  uiConfig?: { select: Partial<SelectCardsPropsBase> };
+  uiConfig?: { select: Partial<SelectCardsProps> };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }
-
-interface CollapsibleSelectCardsProps
-  extends Omit<SelectCardsPropsBase, "uiConfig"> {
-  variant: "collapsible";
-  side?: never;
-  uiConfig?: { select: Partial<CollapsibleSelectCardsProps> };
-}
-
-interface DropdownSelectCardsProps
-  extends Omit<SelectCardsPropsBase, "uiConfig"> {
-  variant: "dropdown";
-  side?: PopoverContentProps["side"];
-  uiConfig?: { tooltip: Partial<DropdownSelectCardsProps> };
-}
-
-export type SelectCardsProps =
-  | CollapsibleSelectCardsProps
-  | DropdownSelectCardsProps;
-
 export interface SelectCardsTriggerProps
   extends Omit<ButtonProps, "variant" | "uiConfig"> {
-  name: string;
-  overrideIndex: number;
+  name?: string;
+  overrideIndex?: number;
   selected?: { label: string };
-  loading: boolean;
+  loading?: boolean;
   placeholder?: string;
   label?: string;
-  size: ButtonProps["size"];
-  open: boolean;
-  useInputGroup: boolean;
-  class: string;
-  variant: string;
+  size?: ButtonProps["size"];
+  open?: boolean;
+  useInputGroup?: boolean;
+  class?: string;
   focusable?: boolean;
-  // uiConfig?: { select: Partial<SelectCardsTriggerProps> };
 }

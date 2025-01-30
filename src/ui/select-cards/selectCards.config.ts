@@ -18,36 +18,16 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  `hover:bg-control-active-muted focus:bg-control-active-focus flex w-full items-start space-x-2 focus:outline-none`,
-  {
-    variants: {
-      variant: {
-        dropdown:
-          "rounded-none border-b border-b-control first:rounded-t-md last:rounded-b-md last:border-b-0",
-        collapsible:
-          "border border-t-0 border-control first:pt-1 last:rounded-b-md",
-      },
-    },
-  }
+  "hover:bg-control-active-muted focus:bg-control-active-focus flex w-full items-start space-x-2 rounded-none border-b border-b-control first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
 );
 
-export const contentVariants = cva(``, {
-  variants: {
-    variant: {
-      dropdown: `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-md border border-control shadow-sm`,
-      collapsible: "-mt-1",
-    },
-  },
-});
+export const contentVariants = cva(
+  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-md border border-control shadow-sm`
+);
 
-const groupVariants = cva("w-full", {
-  variants: {
-    variant: {
-      dropdown: "",
-      collapsible: `${ringClasses} ${invalidRingClasses} rounded-md transition-all duration-200`,
-    },
-  },
-});
+const groupVariants = cva(
+  `${ringClasses} ${invalidRingClasses} w-full rounded-md transition-all duration-200`
+);
 
 export default {
   select: {
