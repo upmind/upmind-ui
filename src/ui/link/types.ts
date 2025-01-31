@@ -14,6 +14,7 @@ import type {
 export interface LinkProps {
   label?: string;
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
+  href?: string;
   // ---
   disabled?: boolean;
   loading?: boolean;
