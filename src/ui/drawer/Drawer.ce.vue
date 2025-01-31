@@ -91,7 +91,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   // --- styles
   size: "md",
   width: "app",
-  overflow: "auto",
+  overflow: "visible",
   fit: "contain",
   skrim: "dark",
   to: "body",
