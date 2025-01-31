@@ -1,10 +1,9 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `${ringClasses} inline-flex cursor-pointer items-center space-x-1 underline-offset-4 transition-all duration-200`,
+  `inline-flex cursor-pointer items-center space-x-1 underline-offset-4 outline-none transition-all duration-200 focus:outline-none`,
   {
     variants: {
       variant: {
