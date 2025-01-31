@@ -1,5 +1,9 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles";
+import {
+  ringClasses,
+  groupRingClasses,
+  invalidRingClasses,
+} from "../../assets/styles";
 
 export const rootVariants = cva(`w-full space-y-2`);
 
@@ -15,7 +19,7 @@ export default {
       "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva(
-      `${ringClasses} my-3 ml-3 mr-1 mt-[0.9rem] rounded-md border-control leading-normal text-control-active`
+      `${groupRingClasses} my-3 ml-3 mr-1 mt-[0.9rem] rounded-md border-control leading-normal text-control-active`
     ),
   },
 };
