@@ -67,7 +67,7 @@ const emit = defineEmits<{
 }>();
 
 const handleClick = (event: Event) => {
-  if (props.disabled) {
+  if (props.disabled || props.loading) {
     event.preventDefault();
   } else {
     emit("click", event);
