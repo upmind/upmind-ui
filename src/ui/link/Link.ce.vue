@@ -3,6 +3,7 @@
   <component
     :is="to ? 'router-link' : 'a'"
     :to="to"
+    :href="href"
     tabindex="0"
     :class="styles.link.root"
     :aria-disabled="disabled"
