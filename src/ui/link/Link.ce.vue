@@ -9,6 +9,7 @@
     :aria-disabled="disabled"
     :data-disabled="disabled"
     @click="handleClick"
+    @keydown.enter="handleClick"
   >
     <slot name="prepend"></slot>
     <slot
