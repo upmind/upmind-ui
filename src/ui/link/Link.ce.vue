@@ -5,6 +5,7 @@
     :to="to"
     tabindex="0"
     :class="styles.link.root"
+    :aria-disabled="disabled"
     :data-disabled="disabled"
     @click="handleClick"
   >

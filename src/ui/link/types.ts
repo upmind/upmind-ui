@@ -21,7 +21,7 @@ export interface LinkProps {
   size?: LinkVariantProps["size"];
   variant?: LinkVariantProps["variant"];
   offset?: LinkVariantProps["offset"];
-  // color?: LinkVariantProps["color"];
+  color?: LinkVariantProps["color"];
   // ---
   uiConfig?: { link: Partial<LinkProps> };
 }
