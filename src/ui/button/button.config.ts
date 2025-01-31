@@ -271,44 +271,52 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "link",
-        class: "bg-transparent text-base-foreground",
+        class: "bg-transparent text-base-foreground !ring-control-active",
       },
       {
         color: "primary",
         variant: "link",
-        class: "bg-transparent text-primary",
+        class: "bg-transparent text-primary !ring-control-active",
       },
       {
         color: "secondary",
         variant: "link",
-        class: "bg-transparent text-secondary",
+        class: "bg-transparent text-secondary !ring-control-active",
       },
       {
         color: "accent",
         variant: "link",
-        class: "bg-transparent text-accent",
+        class: "bg-transparent text-accent !ring-control-active",
       },
       {
         color: "promotion",
         variant: "link",
-        class: "bg-transparent text-promotion",
+        class: "bg-transparent text-promotion !ring-control-active",
       },
       {
         color: "destructive",
         variant: "link",
-        class: "bg-transparent text-destructive",
+        class: "bg-transparent text-destructive !ring-control-active",
       },
       {
         color: "success",
         variant: "link",
-        class: "bg-transparent text-success",
+        class: "bg-transparent text-success !ring-control-active",
       },
-      { color: "info", variant: "link", class: "bg-transparent text-info" },
-      { color: "error", variant: "link", class: "bg-transparent text-error" },
+      {
+        color: "info",
+        variant: "link",
+        class: "bg-transparent text-info !ring-control-active",
+      },
+      {
+        color: "error",
+        variant: "link",
+        class: "bg-transparent text-error !ring-control-active",
+      },
       {
         color: "warning",
         variant: "link",
-        class: "bg-transparent text-warning",
+        class: "bg-transparent text-warning !ring-control-active",
       },
 
       // --- inverse
