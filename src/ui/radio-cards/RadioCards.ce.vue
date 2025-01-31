@@ -18,7 +18,6 @@
         :model-value="modelValue"
         :width="props.width"
         @keydown.enter="onChange(item.value)"
-        @blur="onBlur(item.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -30,7 +29,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed, ref, watch, nextTick } from "vue";
+import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal

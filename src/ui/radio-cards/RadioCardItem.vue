@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="styles.radioCards.item"
-    :data-state="isSelected ? 'checked' : 'unchecked'"
-  >
+  <div :class="styles.radioCards.item">
     <Label :for="`${props.name}-${index}`" :class="cn(styles.radioCards.label)">
       <div :class="styles.radioCards.radio">
         <RadioGroupItem
@@ -13,6 +10,7 @@
           :disabled="props.disabled"
           :class="styles.radioCards.input"
           :tabindex="isSelected || !modelValue ? 0 : -1"
+          :data-state="isSelected ? 'checked' : 'unchecked'"
           @blur="onBlur"
         />
       </div>
