@@ -69,8 +69,8 @@ const emit = defineEmits<{
 const handleClick = (event: Event) => {
   if (props.disabled) {
     event.preventDefault();
-    return;
+  } else {
+    emit("click", event);
   }
-  emit("click", event);
 };
 </script>
