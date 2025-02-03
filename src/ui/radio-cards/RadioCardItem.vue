@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="styles.radioCards.item"
-    :data-state="isSelected ? 'checked' : 'unchecked'"
-  >
+  <div :class="styles.radioCards.item">
     <Label :for="`${props.name}-${index}`" :class="cn(styles.radioCards.label)">
       <div :class="styles.radioCards.radio">
         <RadioGroupItem
@@ -13,6 +10,8 @@
           :disabled="props.disabled"
           :class="styles.radioCards.input"
           :tabindex="isSelected || !modelValue ? 0 : -1"
+          :data-state="isSelected ? 'checked' : null"
+          @blur="onBlur"
         />
       </div>
       <slot
@@ -30,8 +29,7 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { ref, watch, nextTick } from "vue";
-import { useFocus } from "@vueuse/core";
+import { watchOnce } from "@vueuse/core";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -77,4 +75,18 @@ const styles = useStyles(
     label: string;
   };
 }>;
+
+const onBlur = (e: FocusEvent) => {
+  if (props.disabled) {
+    watchOnce(
+      () => props.disabled,
+      () => {
+        const el = e.target as HTMLElement;
+        if (el && el.dataset.state === "checked") {
+          el.focus();
+        }
+      }
+    );
+  }
+};
 </script>
