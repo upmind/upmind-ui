@@ -3,9 +3,9 @@
     <!-- this event component has no template, its purely functional -->
   </span>
 </template>
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
+import { watch, inject, onBeforeUnMount } from "vue";
 
 // --- internal
 import { useMessage } from "@upmind-automation/headless-vue";
@@ -14,40 +14,29 @@ import { useMessage } from "@upmind-automation/headless-vue";
 import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "TrackEvent",
-  props: {
-    item: {
-      type: Object, // xstate actor
-      required: true,
-    },
+const props = defineProps({
+  item: {
+    type: Object, // xstate actor
+    required: true,
   },
-  setup(props) {
-    const { message, dismiss, state } = useMessage(props.item);
-    return {
-      message,
-      dismiss,
-      state,
-    };
-  },
-  watch: {
-    state: {
-      immediate: true,
-      handler(state) {
-        if (!state.matches("active")) return;
-        if (!this.$gtm) {
-          this.dismiss();
-        } else {
-          if (!isEmpty(this.message?.data))
-            this.$gtm.trackEvent(this.message?.data);
-          this.dismiss();
-        }
-      },
-    },
-  },
-  beforeUnmount() {
-    // dismiss the message if the component is destroyed, lets be 100% sure
-    if (!this.state.done) this.dismiss();
-  },
+});
+
+const { message, dismiss, state } = useMessage(props.item);
+
+const $gtm = inject("gtm");
+
+watch(state, state => {
+  if (!state.matches("active")) return;
+  if (!$gtm) {
+    dismiss();
+  } else {
+    if (!isEmpty(message?.data)) $gtm.trackEvent(message?.data);
+    dismiss();
+  }
+});
+
+onBeforeUnMount(() => {
+  // dismiss the message if the component is destroyed, lets be 100% sure
+  if (!state.done) dismiss();
 });
 </script>

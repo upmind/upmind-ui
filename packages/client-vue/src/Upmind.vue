@@ -9,8 +9,8 @@
     <main class="w-full flex-1">
       <template v-if="meta.isLoading || meta.isProcessing">
         <slot name="loading">
-          <UpmContent>
-            <UpmBasketLoading
+          <Content>
+            <BasketLoading
               class="min-h-screen"
               skrim="light"
               :title="t('basket.loading.title')"
@@ -30,15 +30,15 @@
               <template #background v-if="$slots['loading-background']">
                 <slot name="loading-background" />
               </template>
-            </UpmBasketLoading>
-          </UpmContent>
+            </BasketLoading>
+          </Content>
         </slot>
       </template>
 
       <RouterView v-slot="routerViewProps" :key="$route.fullPath">
         <slot v-bind="routerViewProps">
           <template v-if="routerViewProps.Component">
-            <UpmContent>
+            <Content>
               <Transition mode="out-in">
                 <KeepAlive>
                   <Suspense>
@@ -47,7 +47,7 @@
 
                     <!-- fallback / loading state -->
                     <template #fallback>
-                      <UpmBasketLoading
+                      <BasketLoading
                         class="min-h-screen"
                         skrim="light"
                         :title="t('basket.loading.title')"
@@ -70,18 +70,18 @@
                         >
                           <slot name="loading-background"></slot>
                         </template>
-                      </UpmBasketLoading>
+                      </BasketLoading>
                     </template>
                   </Suspense>
                 </KeepAlive>
               </Transition>
-            </UpmContent>
+            </Content>
           </template>
         </slot>
       </RouterView>
 
       <slot name="expired">
-        <UpmSessionExpired
+        <SessionExpired
           :title="t('session.expired.title')"
           :text="t('session.expired.text')"
           :action="{
@@ -97,12 +97,12 @@
     <slot name="footer" />
   </div>
 
-  <UpmFeedback />
+  <Feedback />
 </template>
 
 <script lang="ts">
 export default {
-  name: "Upmind",
+  name: "ind",
   inheritAttrs: false,
   customOptions: {},
 };
@@ -114,15 +114,13 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useThemes } from "@upmind-automation/upmind-ui";
+import { useRoutingEngine } from "@upmind-automation/client-vue";
 
 // --- components
-import {
-  UpmFeedback,
-  UpmSessionExpired,
-  UpmBasketLoading,
-  useRoutingEngine,
-} from "@upmind-automation/client-vue";
-import UpmContent from "./components/content/Content.vue";
+import Feedback from "./components/feedback/Feedback.vue";
+import SessionExpired from "./modules/session/components/Expired.vue";
+import BasketLoading from "./modules/basket/components/Loading.vue";
+import Content from "./components/content/Content.vue";
 
 // --- types
 
