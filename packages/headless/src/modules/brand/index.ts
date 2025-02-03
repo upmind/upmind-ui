@@ -23,7 +23,7 @@ import { BrandTaxType } from "@upmind-automation/types";
 let state: any = null;
 
 // @ts-ignore
-const service = interpret(brandMachine, { devTools: true }).onTransition(
+const service = interpret(brandMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------

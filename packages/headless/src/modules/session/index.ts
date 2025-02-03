@@ -18,7 +18,7 @@ import { get } from "lodash-es";
 let hasSession = false;
 
 // @ts-ignore
-const service = interpret(sessionMachine, { devTools: true });
+const service = interpret(sessionMachine, { devTools: false });
 
 // --------------------------------------------------------
 
