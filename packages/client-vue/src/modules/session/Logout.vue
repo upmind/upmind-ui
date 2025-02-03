@@ -26,7 +26,7 @@
             keypath="basket.empty.title"
             tag="span"
             for="basket.empty.basket"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
             <mask class="bg-accent leading-relaxed">{{
               t("basket.empty.basket")

@@ -21,7 +21,7 @@
           keypath="session.unauthenticated.register.title"
           tag="span"
           for="session.unauthenticated.register.account"
-          class="font-bold text-primary"
+          class="text-primary font-bold"
         >
           <mask class="bg-accent leading-relaxed">{{
             t("session.unauthenticated.register.account")
@@ -31,7 +31,7 @@
 
       <UpmCard class="pb-3 md:pb-3">
         <UpmAuth
-          class="w-full max-w-5xl items-start rounded-box"
+          class="rounded-box w-full max-w-5xl items-start"
           no-tabs
           no-header
           model-value="register"

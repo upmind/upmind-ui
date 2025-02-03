@@ -1,11 +1,11 @@
 <template>
   <UpmCard class="flex w-full flex-col items-start gap-4" as="aside">
     <header
-      class="flex w-full flex-col space-y-6 text-sm font-medium leading-none text-emphasis-medium"
+      class="text-emphasis-medium flex w-full flex-col space-y-6 text-sm font-medium leading-none"
       v-auto-animate
     >
       <div
-        class="flex items-end justify-between text-lg font-medium leading-none text-primary"
+        class="text-primary flex items-end justify-between text-lg font-medium leading-none"
         v-for="(item, index) in summary?.pricing"
         :key="`pricing-${index}`"
       >
@@ -13,7 +13,7 @@
         <span>
           <span
             v-if="item.meta?.discounted"
-            class="mb-1 mt-1 block text-right text-xs text-emphasis-medium line-through"
+            class="text-emphasis-medium mb-1 mt-1 block text-right text-xs line-through"
           >
             <span>
               {{ item.regularPrice }}
@@ -66,23 +66,23 @@
     </li> -->
     <li
       v-if="hasSummaryDetails"
-      class="m-0 flex flex-nowrap items-start gap-x-1.5 gap-y-1 p-0 leading-none text-base-foreground"
+      class="text-base-foreground m-0 flex flex-nowrap items-start gap-x-1.5 gap-y-1 p-0 leading-none"
     >
-      <Icon icon="configuration" size="2xs" class="mr-1 text-secondary" />
+      <Icon icon="configuration" size="2xs" class="text-secondary mr-1" />
 
       <ul class="m-0 flex flex-col gap-y-4 p-0 text-sm">
         <li
           v-if="termSummary"
-          class="m-0 flex flex-wrap items-baseline gap-x-1.5 space-y-1 p-0 text-base-foreground"
+          class="text-base-foreground m-0 flex flex-wrap items-baseline gap-x-1.5 space-y-1 p-0"
         >
           <span
-            class="basis-full text-xs leading-none text-emphasis-medium"
+            class="text-emphasis-medium basis-full text-xs leading-none"
             v-if="termSummary.category"
           >
             {{ termSummary.category }}
           </span>
 
-          <strong class="font-medium text-base-foreground">
+          <strong class="text-base-foreground font-medium">
             {{
               te(`product.terms.cycle.${termSummary.cycle}`)
                 ? t(`product.terms.cycle.${termSummary.cycle}`)
@@ -101,16 +101,16 @@
 
         <template v-for="item in summaryItems" :key="item.name">
           <li
-            class="m-0 flex flex-wrap items-baseline gap-x-1.5 space-y-1 p-0 text-base-foreground"
+            class="text-base-foreground m-0 flex flex-wrap items-baseline gap-x-1.5 space-y-1 p-0"
           >
             <span
-              class="basis-full text-xs leading-none text-emphasis-medium"
+              class="text-emphasis-medium basis-full text-xs leading-none"
               v-if="item.category"
             >
               {{ item.category }}
             </span>
 
-            <strong class="font-medium text-base-foreground">{{
+            <strong class="text-base-foreground font-medium">{{
               item.name ?? "&ndash;"
             }}</strong>
 
@@ -119,7 +119,7 @@
               {{ item.meta.free ?  t("product.free") : `+ ${item.currentPrice}` }}
             </span> -->
 
-            <span class="text-xs text-emphasis-high" v-if="item.quantity > 1">
+            <span class="text-emphasis-high text-xs" v-if="item.quantity > 1">
               {{ `x ${item.quantity}` }}
             </span>
           </li>

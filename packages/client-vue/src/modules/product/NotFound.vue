@@ -18,9 +18,9 @@
             keypath="cart.notFound.title"
             tag="span"
             for="cart.notFound.title"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
-            <mask class="bg-promotion leading-relaxed text-accent-foreground">{{
+            <mask class="bg-promotion text-accent-foreground leading-relaxed">{{
               t("cart.notFound.product")
             }}</mask>
           </i18n-t>

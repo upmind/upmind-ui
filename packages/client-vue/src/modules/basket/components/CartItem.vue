@@ -3,8 +3,8 @@
     class="relative !py-0"
     :class="[
       !meta.isProcessing && (meta.hasErrors || props.error)
-        ? 'ring-2 ring-invalid !ring-offset-2'
-        : 'ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 group-focus-within:ring-0 group-focus-within:ring-offset-0',
+        ? 'ring-invalid ring-2 !ring-offset-2'
+        : 'ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 group-focus-within:ring-0 group-focus-within:ring-offset-0',
     ]"
   >
     <DropdownMenu :items="actions" size="sm" class="absolute right-0 top-0" />
@@ -14,7 +14,7 @@
     >
       <div
         v-if="meta?.isProcessing || meta?.isLoading"
-        class="absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-base bg-opacity-75"
+        class="bg-base absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-opacity-75"
       >
         <Spinner size="md" />
       </div>
@@ -30,12 +30,12 @@
             />
           </div>
 
-          <div class="mt-2 text-sm leading-snug text-emphasis-medium md:mt-1">
+          <div class="text-emphasis-medium mt-2 text-sm leading-snug md:mt-1">
             {{ props.product.category }}
           </div>
           <router-link
             :to="editLink"
-            class="h-auto p-0 text-lg font-medium text-primary underline hover:bg-transparent hover:opacity-80"
+            class="text-primary h-auto p-0 text-lg font-medium underline hover:bg-transparent hover:opacity-80"
           >
             <span class="font-semibold">{{ props.product.name }}</span>
             <span v-if="props.product.serviceIdentifier">
@@ -43,10 +43,10 @@
             </span>
           </router-link>
 
-          <div class="mt-2 text-sm leading-snug text-emphasis-medium md:mt-1">
+          <div class="text-emphasis-medium mt-2 text-sm leading-snug md:mt-1">
             {{ props.product.description }}
           </div>
-          <div class="mt-2 text-sm leading-snug text-emphasis-medium md:mt-1">
+          <div class="text-emphasis-medium mt-2 text-sm leading-snug md:mt-1">
             {{ props.product.excerpt }}
           </div>
 
@@ -82,7 +82,7 @@
         >
           <span
             v-if="price.meta.discounted"
-            class="mb-1 block text-xs text-emphasis-medium line-through"
+            class="text-emphasis-medium mb-1 block text-xs line-through"
           >
             {{ price.regularPrice }}
           </span>
@@ -94,7 +94,7 @@
           </span>
           <span
             v-if="termSummary"
-            class="mt-1 block text-sm leading-snug text-emphasis-medium"
+            class="text-emphasis-medium mt-1 block text-sm leading-snug"
           >
             {{ t(`product.terms.${termSummary?.cycle}`, termSummary?.name) }}
           </span>

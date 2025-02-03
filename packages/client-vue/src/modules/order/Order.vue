@@ -23,7 +23,7 @@
             keypath="order.confirmation.invalid.title"
             tag="span"
             for="order.confirmation.invalid.title"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
             <mask class="bg-accent leading-relaxed">{{
               t("order.confirmation.invalid.session")
@@ -34,7 +34,7 @@
             keypath="order.confirmation.success.title"
             tag="span"
             for="order.confirmation.success.title"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
             <mask class="bg-accent leading-relaxed">{{
               t("order.confirmation.success.complete")
@@ -45,7 +45,7 @@
             keypath="order.confirmation.failed.title"
             tag="span"
             for="order.confirmation.failed.title"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
             <mask class="bg-accent leading-relaxed">{{
               t("order.confirmation.failed.process")

@@ -22,7 +22,7 @@
             keypath="errors.404.title"
             tag="span"
             for="errors.404.title"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
             <mask class="bg-accent leading-relaxed">{{
               t("errors.404.page")
@@ -31,7 +31,7 @@
         </h3>
 
         <p
-          class="m-0 text-center text-sm leading-5 tracking-tight text-emphasis-medium"
+          class="text-emphasis-medium m-0 text-center text-sm leading-5 tracking-tight"
         >
           {{ t("errors.404.description") }}
         </p>
