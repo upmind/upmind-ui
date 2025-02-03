@@ -132,43 +132,6 @@ export const useRoutingEngine = () => {
       });
   }
 
-  async function refresh(data?: any) {
-    const target = get(state.value, "context.currentFlow");
-
-    // bail out if we are already processing
-    const isProcessing = ["calculating", "resolving"].some(state.value.matches);
-    if (isProcessing) return;
-
-    //  safeguard against empty flows
-    if (isEmpty(target)) return Promise.reject("No current flow");
-
-    return resolve(
-      target.name,
-      {
-        name: route.name?.toString(),
-        params: route.params,
-        query: route.query,
-      },
-      data
-    )
-      .then((response: Route | undefined) => {
-        if (response) {
-          if (response?.meta?.replace) {
-            router.replace(response);
-          } else {
-            router.push(response);
-          }
-        }
-      })
-      .catch((error: any) => {
-        console.warn("UseRouteingEngine", "Navigate route Failed", {
-          route,
-          data,
-          error,
-        });
-      });
-  }
-
   // ---
   // set up automatic refresh when the user logs in or out or if the basket is emptied
   watch(meta, ({ hasProducts }, { hasProducts: hadProducts }) => {
@@ -221,7 +184,7 @@ export const useRoutingEngine = () => {
     resolveNext,
     back,
     resolveBack,
-    refresh,
+    refresh: () => window.location.reload(),
     navigate,
     resolve,
     destroy,
