@@ -25,7 +25,7 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
 
   const { isReady, getConfig } = useBrand();
 
-  await isReady();
+  await isReady().catch(error => Promise.reject(error));
 
   // ---
   // check our brand for what to do with card storage and auto payment

@@ -240,12 +240,18 @@ export function basketSubscription(callback: any, onReceive: any) {
     switch (event.type) {
       case "INIT":
       case "REFRESH":
-        basket.isReady().then(() => {
-          callback({
-            type: "REFRESH",
-            data: basket.getSnapshot()?.context?.basket,
+        basket
+          .isReady()
+          .then(() => {
+            callback({
+              type: "REFRESH",
+              data: basket.getSnapshot()?.context?.basket,
+            });
+          })
+          .catch(error => {
+            // console.error("basketHelper", "REFRESH", error);
+            callback({ type: "ERROR", data: error });
           });
-        });
         break;
 
       case "LOAD":

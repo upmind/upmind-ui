@@ -23,7 +23,7 @@ import { BrandTaxType } from "@upmind-automation/types";
 let state: any = null;
 
 // @ts-ignore
-const service = interpret(brandMachine, { devTools: false }).onTransition(
+const service = interpret(brandMachine, { devTools: true }).onTransition(
   newState => (state = newState)
 );
 // --------------------------------------------------------
@@ -43,8 +43,17 @@ export const useBrand = () => {
       // @ts-ignore
       waitFor(service, state => state.matches(`processing.${module}.complete`)),
     isReady: async () =>
-      waitFor(service, state => state.matches("complete"), {
-        timeout: Infinity,
+      waitFor(
+        service,
+        state => {
+          return ["complete", "error"].some(state.matches);
+        },
+        {
+          timeout: Infinity,
+        }
+      ).then(state => {
+        if (["error"].some(state.matches))
+          return Promise.reject("Brand is not available");
       }),
     // ---
     getSnapshot: () => state,

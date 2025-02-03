@@ -56,6 +56,15 @@ export default createMachine(
     states: {
       subscribing: {
         entry: ["setContext", "clearLookups", "setBasketHelper", "getBasket"],
+        on: {
+          REFRESH: {
+            target: "available",
+            actions: ["setBasket", "setLookups", "setRecommendations"],
+          },
+          ERROR: {
+            target: "unavailable",
+          },
+        },
       },
 
       refreshing: {

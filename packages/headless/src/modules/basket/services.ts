@@ -10,16 +10,7 @@ import { useSession } from "../session";
 import { useCookies, useTracking } from "../../utils";
 import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 
-import {
-  compact,
-  concat,
-  forEach,
-  has,
-  isEmpty,
-  map,
-  reduce,
-  set,
-} from "lodash-es";
+import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
 
 // --- types
 import type { Basket, BasketContext, BasketEvent } from "./types";
@@ -73,7 +64,7 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
 
   // We depend on the brand being ready, so we need to wait for it
   const { isReady } = useBrand();
-  await isReady();
+  await isReady().catch(error => Promise.reject(error));
 
   // finally return a the basket with all the relevant data, include the provisioning fields
   return get({

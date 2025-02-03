@@ -6,6 +6,7 @@ import type { ActorRef } from "xstate";
 
 export enum ROUTE {
   LOADING = "loading",
+  ERROR = "error",
   EMPTY = "empty",
   PRODUCT_ADD = "product.add",
   PRODUCT_EDIT = "product.edit",

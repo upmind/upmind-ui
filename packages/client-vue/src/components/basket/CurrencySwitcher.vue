@@ -1,95 +1,77 @@
 <template>
   <Combobox
-    v-if="currencies?.length > 1 || meta.isLoading"
+    v-if="meta.isAvailable && (items?.length > 1 || meta.isLoading)"
     class="w-dropdown-xs md:w-dropdown-2xs bg-base text-primary"
-    :popoverClass="['w-dropdown-xs md:w-dropdown-2xs', popoverClass]"
-    :modelValue="selected?.value"
-    :items="currencies"
+    :popoverClass="['w-dropdown-xs md:w-dropdown-2xs', props.popoverClass]"
+    :modelValue="model?.code"
+    :items="items"
     :loading="meta.isLoading"
     @update:modelValue="updateCurrency"
     search
   />
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, computed } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import { useBasketCurrency } from "@upmind-automation/headless-vue";
-import rawCurrencies from "./currencies";
+import rawCurrencies from "./currencies.json";
+
+interface Currency {
+  code: string;
+  name: string;
+  country: string;
+  country_code: string;
+}
+
+const typedRawCurrencies: Record<string, Currency> = rawCurrencies;
 
 // --- components
 import { Combobox } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { map } from "lodash-es";
+import { get, map } from "lodash-es";
 
+// --- types
+import type { HTMLAttributes } from "vue";
+import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "VCurrencySwitcher",
-  components: { Combobox },
+// props: {
+//   popoverClass: { type: String, default: "mt-0" },
+// }
 
-  props: {
-    popoverClass: { type: String, default: "mt-0" },
-  },
+const props = withDefaults(
+  defineProps<{
+    popoverClass: HTMLAttributes["class"];
+  }>(),
+  {
+    popoverClass: "mt-0",
+  }
+);
 
-  setup() {
-    const {
-      state,
-      meta,
-      model,
-      schema,
-      uischema,
-      currencies,
-      clear,
-      input,
-      update,
-    } = useBasketCurrency();
+const { meta, model, currencies, update } = useBasketCurrency();
 
-    function updateCurrency(value) {
-      update({ code: value });
-    }
+function updateCurrency(value: string) {
+  update({ code: value });
+}
 
+const items = computed(() => {
+  return map(currencies.value, currency => {
     return {
-      state,
-      meta,
-      model,
-      schema,
-      uischema,
-      clear,
-      input,
-      updateCurrency,
-      //---
-      selected: computed(() => {
-        if (meta.value?.isLoading) return undefined;
-        const code = model.value.code;
-
-        return {
-          label: code,
-          value: code,
-          avatar: {
-            icon: rawCurrencies[
-              code?.toUpperCase()
-            ]?.country_code?.toLowerCase(),
-          },
-        };
-      }),
-
-      currencies: computed(() => {
-        return map(currencies.value, currency => ({
-          avatar: {
-            icon: rawCurrencies[
-              currency?.code?.toUpperCase()
-            ]?.country_code?.toLowerCase(),
-          },
-          label: currency.code,
-          value: currency.code,
-          selected: currency.code === model.value.code,
-        }));
-      }),
+      avatar: {
+        icon: get(
+          rawCurrencies,
+          currency.code?.toUpperCase()
+        )?.country_code?.toLowerCase(),
+      },
+      label: currency.code,
+      selectedLabel: currency.code,
+      value: currency.code,
+      selected: currency.code === model.value.code,
     };
-  },
+  }) as ComboboxItemProps[];
 });
 </script>

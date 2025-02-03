@@ -13,7 +13,7 @@ import { useSession } from "../session";
 
 // --- utils
 
-import { isEmpty, get } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { Route } from "@upmind-automation/headless";
@@ -105,6 +105,11 @@ export const useRoutingEngine = () => {
     const isProcessing = ["calculating", "resolving"].some(state.value.matches);
     if (isProcessing) return;
 
+    if (!route?.name) {
+      console.debug("UseRouteingEngine", "No route name", route);
+      return Promise.reject("No route name");
+    }
+
     resolve(
       target,
       {
@@ -151,15 +156,22 @@ export const useRoutingEngine = () => {
   // --------------------------------------------------------
 
   return {
-    isReady: async () => {
-      await isReady();
-
-      return waitFor(
-        service,
-        state => !["subscribing", "loading"].some(state.matches),
-        { timeout: Infinity }
-      );
-    },
+    isReady: async () =>
+      isReady()
+        .then(() => {
+          return waitFor(
+            service,
+            state => !["subscribing", "loading"].some(state.matches),
+            { timeout: Infinity }
+          ).then(state => {
+            if (state.matches("unavailable")) {
+              return Promise.reject("Routing Engine is unavailable");
+            }
+          });
+        })
+        .catch(() => {
+          return Promise.reject("Routing Engine is not ready");
+        }),
 
     state: computed(() => state.value.value),
     // ---
