@@ -32,9 +32,9 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, watch, ref } from "vue";
+import { watch, ref } from "vue";
 
 // --- internal
 import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
@@ -50,69 +50,54 @@ import TrackEvent from "./TrackEvent.vue";
 import { forEach, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-
-export default defineComponent({
-  name: "Feedback",
-  components: {
-    Sonner,
-    Message,
-    TrackEvent,
+const props = defineProps({
+  scheduled: {
+    type: Boolean,
+    default: false,
   },
-  props: {
-    scheduled: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
-    const styles = useStyles(
-      [
-        "feedback",
-        "bannerTransitionEnter",
-        "bannerTransitionLeave",
-        "toastTransitionEnter",
-        "toastTransitionLeave",
-      ],
-      props,
-      config
-    );
-
-    const feedback = useFeedback();
-    const activeToasts = ref([]);
-
-    function dismissToast(id) {
-      feedback.dismiss(id);
-      toast.dismiss(id);
-      activeToasts.value = activeToasts.value.filter(t => t !== id);
-    }
-    watch(feedback.toasts, toasts => {
-      forEach(toasts, msg => {
-        let { message, dismiss, meta } = useMessage(msg);
-        if (meta.value.isActive) {
-          const id = toast(message.value.title, {
-            id: message.value.hash,
-            description: message.value.copy,
-            duration: 10000,
-            onDismiss: t => dismissToast(t.id),
-            onAutoClose: t => dismissToast(t.id),
-            type: message.value.type,
-            position: "top-right",
-          });
-          activeToasts.value.push(id);
-        }
-      });
-
-      forEach(activeToasts.value, id => {
-        if (!some(feedback.toasts.value, ["id", id])) dismissToast(id);
-      });
-    });
-
-    return {
-      ...feedback,
-      styles,
-    };
-  },
-
-  computed: {},
 });
+
+const styles = useStyles(
+  [
+    "feedback",
+    "bannerTransitionEnter",
+    "bannerTransitionLeave",
+    "toastTransitionEnter",
+    "toastTransitionLeave",
+  ],
+  props,
+  config
+);
+
+const { events, notifications, toasts, dismiss } = useFeedback();
+const activeToasts = ref([]);
+
+function dismissToast(id) {
+  dismiss(id);
+  toast.dismiss(id);
+  activeToasts.value = activeToasts.value.filter(t => t !== id);
+}
+watch(toasts, toasts => {
+  forEach(toasts, msg => {
+    let { message, dismiss, meta } = useMessage(msg);
+    if (meta.value.isActive) {
+      const id = toast(message.value.title, {
+        id: message.value.hash,
+        description: message.value.copy,
+        duration: 10000,
+        onDismiss: t => dismissToast(t.id),
+        onAutoClose: t => dismissToast(t.id),
+        type: message.value.type,
+        position: "top-right",
+      });
+      activeToasts.value.push(id);
+    }
+  });
+
+  forEach(activeToasts.value, id => {
+    if (!some(toasts.value, ["id", id])) dismissToast(id);
+  });
+});
+
+// ...feedback,
 </script>

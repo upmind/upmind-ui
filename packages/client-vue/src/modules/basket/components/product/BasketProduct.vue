@@ -1,8 +1,8 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing">
-    <UpmCard :class="styles.product.root.card">
+    <Card :class="styles.product.root.card">
       <div :class="styles.product.root.container">
-        <UpmBasketProductSummary
+        <BasketProductSummary
           v-for="(pricing, index) in summary.pricing"
           :key="`${props.id}-${index}`"
           :id="id"
@@ -18,18 +18,18 @@
           @update:quantity="updateQuantity"
         >
           <slot :product="product" :pricing="pricing" :summary="summary" />
-        </UpmBasketProductSummary>
+        </BasketProductSummary>
       </div>
 
       <div v-auto-animate>
-        <UpmBasketConfigurationDetails
+        <BasketConfigurationDetails
           v-if="open"
           :id="id"
           :details="summary.details"
         />
       </div>
 
-      <UpmBasketProductActions
+      <BasketProductActions
         v-model:open="open"
         :id="props.id"
         :details="summary.details"
@@ -38,7 +38,7 @@
         :edit-link="editLink"
         @remove="remove"
       />
-    </UpmCard>
+    </Card>
   </Loading>
 </template>
 
@@ -54,11 +54,11 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import UpmCard from "../../content/Card.vue";
 import { Loading } from "@upmind-automation/upmind-ui";
-import UpmBasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
-import UpmBasketProductSummary from "./BasketProductSummary.vue";
-import UpmBasketProductActions from "./BasketProductActions.vue";
+import Card from "../../../../components/content/Card.vue";
+import BasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
+import BasketProductSummary from "./BasketProductSummary.vue";
+import BasketProductActions from "./BasketProductActions.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
