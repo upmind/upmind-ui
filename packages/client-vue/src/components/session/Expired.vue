@@ -40,6 +40,7 @@
 <script lang="ts" setup>
 // --- external
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
@@ -55,8 +56,11 @@ import { isEmpty, isFunction } from "lodash-es";
 // --- types
 import type { SessionExpiredProps } from "./types";
 // -----------------------------------------------------------------------------
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<SessionExpiredProps>(), {
+  title: t("session.expired.title"),
+  text: t("session.expired.text"),
   modal: true,
   skrim: "primary",
   size: "2xl",
@@ -68,10 +72,10 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
     fit: "contain",
   }),
   action: () => ({
-    label: "Reload",
-    color: "base",
+    label: t("session.expired.actions.continue"),
+    color: "primary",
     handler: () => window.location.reload(),
-    auto: false,
+    auto: true,
   }),
 });
 

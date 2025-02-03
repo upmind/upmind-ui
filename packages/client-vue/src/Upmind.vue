@@ -24,11 +24,11 @@
               }"
             >
               <template #title v-if="$slots['loading-title']">
-                <slot name="loading-title" />
+                <slot name="loading-title"></slot>
               </template>
 
               <template #background v-if="$slots['loading-background']">
-                <slot name="loading-background" />
+                <slot name="loading-background"></slot>
               </template>
             </UpmBasketLoading>
           </UpmContent>
@@ -61,14 +61,14 @@
                         }"
                       >
                         <template #title v-if="$slots['loading-title']">
-                          <slot name="loading-title" />
+                          <slot name="loading-title"></slot>
                         </template>
 
                         <template
                           #background
                           v-if="$slots['loading-background']"
                         >
-                          <slot name="loading-background" />
+                          <slot name="loading-background"></slot>
                         </template>
                       </UpmBasketLoading>
                     </template>
@@ -81,20 +81,11 @@
       </RouterView>
 
       <slot name="expired">
-        <UpmSessionExpired
-          :title="t('session.expired.title')"
-          :text="t('session.expired.text')"
-          :action="{
-            label: t('session.expired.actions.continue'),
-            color: 'primary',
-            handler: refresh,
-            auto: true,
-          }"
-        />
+        <UpmSessionExpired />
       </slot>
     </main>
 
-    <slot name="footer" />
+    <slot name="footer"></slot>
   </div>
 
   <UpmFeedback />
@@ -143,5 +134,5 @@ const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
 
 // setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
-const { meta, refresh } = useRoutingEngine();
+const { meta } = useRoutingEngine();
 </script>

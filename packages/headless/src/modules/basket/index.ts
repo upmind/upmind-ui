@@ -220,7 +220,9 @@ export const useBasket = () => {
   }
 
   async function setCurrency(currency: any) {
-    return waitFor(service, state => state.matches("shopping")).then(() => {
+    return waitFor(service, state => state.matches("shopping"), {
+      timeout: 60_000,
+    }).then(() => {
       // first check if our currency has change, ie: model.code has changed
       const actor = service.getSnapshot()?.context?.actors?.currency;
       if (!actor) return Promise.reject("Currency service not available");
@@ -246,35 +248,35 @@ export const useBasket = () => {
   }
 
   async function addPromotion(coupon: any) {
-    return waitFor(service, state => state.matches("shopping")).then(
-      async () => {
-        const actor = service.getSnapshot()?.context?.actors?.promotions;
+    return waitFor(service, state => state.matches("shopping"), {
+      timeout: 60_000,
+    }).then(async () => {
+      const actor = service.getSnapshot()?.context?.actors?.promotions;
 
-        if (!actor) return Promise.reject("Promotions service not available");
+      if (!actor) return Promise.reject("Promotions service not available");
 
-        if (coupon) {
-          actor?.send({ type: "SET", data: { promocode: coupon } });
-          const state = await waitFor(service as ActorRef<any, any>, state =>
-            ["valid", "error"].some(state.matches)
-          );
-          if (state.matches("error")) {
-            return Promise.reject(state.context.error);
-          }
+      if (coupon) {
+        actor?.send({ type: "SET", data: { promocode: coupon } });
+        const state = await waitFor(service as ActorRef<any, any>, state =>
+          ["valid", "error"].some(state.matches)
+        );
+        if (state.matches("error")) {
+          return Promise.reject(state.context.error);
         }
-
-        actor?.send({ type: "ADD" });
-
-        // then wait for the paymentGateway actor to be updated
-        return waitFor(service as ActorRef<any, any>, state => {
-          return ["processed", "complete", "error"].some(state.matches);
-        }).then(state => {
-          if (["error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve();
-        });
       }
-    );
+
+      actor?.send({ type: "ADD" });
+
+      // then wait for the paymentGateway actor to be updated
+      return waitFor(service as ActorRef<any, any>, state => {
+        return ["processed", "complete", "error"].some(state.matches);
+      }).then(state => {
+        if (["error"].some(state.matches)) {
+          return Promise.reject(state.context.error);
+        }
+        return Promise.resolve();
+      });
+    });
 
     // return service.send({
     //   type: "UPDATE_PROMOTIONS",
@@ -343,10 +345,23 @@ export const useBasket = () => {
     subproducts,
   }: ProductModel): Promise<ActorRef<any, any>> {
     // lets wait for our basket  to be ready for shopping
-    return waitFor(service, state => state.matches("shopping")).then(
-      async () => {
-        // lets add the new product base don the provided config to the basket
-        const config = {
+    return waitFor(service, state => state.matches("shopping"), {
+      timeout: 60_000,
+    }).then(async () => {
+      // lets add the new product base don the provided config to the basket
+      const config = {
+        productId,
+        quantity,
+        term,
+        attributes,
+        options,
+        provisionFields,
+        subproducts,
+        coupons,
+      };
+
+      const mapping = omitBy(
+        {
           productId,
           quantity,
           term,
@@ -354,49 +369,36 @@ export const useBasket = () => {
           options,
           provisionFields,
           subproducts,
-          coupons,
-        };
+        },
+        isNil
+      );
 
-        const mapping = omitBy(
-          {
-            productId,
-            quantity,
-            term,
-            attributes,
-            options,
-            provisionFields,
-            subproducts,
-          },
-          isNil
-        );
+      service.send({
+        type: "ADD",
+        data: config,
+      });
 
-        service.send({
-          type: "ADD",
-          data: config,
+      // then we check if we are still generating the basket ( happens when adding the first item )
+      if (service.getSnapshot().matches("generating")) {
+        await waitFor(service, state => state.matches("shopping"), {
+          timeout: Infinity,
         });
-
-        // then we check if we are still generating the basket ( happens when adding the first item )
-        if (service.getSnapshot().matches("generating")) {
-          await waitFor(service, state => state.matches("shopping"), {
-            timeout: Infinity,
-          });
-        }
-
-        // then wait/check for the new product actor to be configured
-        // then send the update event to the basket
-        const items = service.getSnapshot()?.context?.items;
-        const actor = (find(items, (basketItem: any) => {
-          const found = every(mapping, (value, key) => {
-            const origin = get(basketItem, `state.context.model.${key}`);
-            const matches = isEqual(origin, value);
-            return matches;
-          });
-          return found;
-        }) || last(items)) as ActorRef<any, any>;
-
-        return actor;
       }
-    );
+
+      // then wait/check for the new product actor to be configured
+      // then send the update event to the basket
+      const items = service.getSnapshot()?.context?.items;
+      const actor = (find(items, (basketItem: any) => {
+        const found = every(mapping, (value, key) => {
+          const origin = get(basketItem, `state.context.model.${key}`);
+          const matches = isEqual(origin, value);
+          return matches;
+        });
+        return found;
+      }) || last(items)) as ActorRef<any, any>;
+
+      return actor;
+    });
   }
 
   async function updateItem(itemId: string): Promise<ActorRef<any, any>> {
