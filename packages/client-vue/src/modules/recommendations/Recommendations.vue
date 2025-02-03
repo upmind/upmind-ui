@@ -5,7 +5,7 @@
         keypath="recommendations.header.title"
         tag="span"
         for="recommendations.header.toolkit"
-        class="text-center text-4xl font-bold leading-normal text-primary"
+        class="text-primary text-center text-4xl font-bold leading-normal"
       >
         <mask class="bg-accent leading-relaxed"
           >{{ t("recommendations.header.toolkit") }}!</mask
@@ -13,7 +13,7 @@
       </i18n-t>
 
       <p
-        class="m-0 mb-12 max-w-md text-center text-lg leading-normal text-emphasis-medium"
+        class="text-emphasis-medium m-0 mb-12 max-w-md text-center text-lg leading-normal"
       >
         {{ t("recommendations.header.subtitle") }}
       </p>
@@ -22,10 +22,10 @@
     <UpmRecommendations @resolve="doClose" />
 
     <UpmCard
-      class="mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:bg-base-background md:!px-8 md:!py-6 md:shadow-sm"
+      class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
     >
       <div
-        class="order-last mt-4 text-center text-md font-medium md:order-first md:mt-0 md:text-left"
+        class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
       >
         {{ t("recommendations.toolbar.title", { count: products?.length }) }}
       </div>

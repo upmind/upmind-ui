@@ -5,7 +5,7 @@
         keypath="basket.billing_details.title"
         tag="span"
         for="basket.billing_details.title"
-        class="font-bold text-primary"
+        class="text-primary font-bold"
       >
         <mask
           v-if="!paymentDetailsMeta.isFree"
@@ -29,7 +29,7 @@
           keypath="basket.payment_details.title"
           tag="span"
           for="basket.payment_details.title"
-          class="font-bold text-primary"
+          class="text-primary font-bold"
         >
           <mask class="bg-accent">{{
             t("basket.payment_details.details")
@@ -43,7 +43,7 @@
         :keypath="processingTitle"
         tag="span"
         :for="processingTitle"
-        class="font-bold text-primary"
+        class="text-primary font-bold"
       >
         <mask class="bg-accent leading-relaxed">{{
           t(processingTitleMask)

@@ -32,7 +32,7 @@
           <i18n-t
             keypath="cart.requiresAction.title.text"
             tag="span"
-            class="font-medium text-primary"
+            class="text-primary font-medium"
             :plural="products.length"
           >
             <template v-slot:mask>

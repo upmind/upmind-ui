@@ -18,7 +18,7 @@
             keypath="basket.loading.title"
             tag="span"
             for="basket.loading.exciting"
-            class="font-bold text-primary"
+            class="text-primary font-bold"
           >
             <mask class="bg-accent leading-relaxed">{{
               t("basket.loading.exciting")

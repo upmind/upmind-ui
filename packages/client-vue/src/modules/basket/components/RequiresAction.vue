@@ -31,7 +31,7 @@
       <i18n-t
         keypath="cart.requiresAction.title.text"
         tag="span"
-        class="font-bold text-primary"
+        class="text-primary font-bold"
         :plural="productsInvalid.length"
       >
         <template v-slot:mask>
