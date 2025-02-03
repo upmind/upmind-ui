@@ -6,7 +6,7 @@
 
     <DrawerContent
       v-bind="forwardedDrawerContent"
-      :class="cn(styles.drawer.content, props.class)"
+      :class="cn(styles.drawer.content, props.class, 'drawer-content')"
       :classOverlay="styles.drawer.overlay"
       @close="() => emits('update:open', false)"
     >
@@ -31,12 +31,10 @@
         </div>
       </DrawerHeader>
 
-      <div
-        :class="
-          cn(styles.drawer.inner, styles.drawer.container, props.classContent)
-        "
-      >
-        <slot />
+      <div :class="cn(styles.drawer.inner)">
+        <div :class="cn('py-1', styles.drawer.container, props.classContent)">
+          <slot></slot>
+        </div>
       </div>
 
       <DrawerFooter
@@ -91,7 +89,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   // --- styles
   size: "md",
   width: "app",
-  overflow: "visible",
+  overflow: "auto",
   fit: "contain",
   skrim: "dark",
   to: "body",
