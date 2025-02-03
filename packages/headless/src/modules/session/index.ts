@@ -18,7 +18,7 @@ import { get } from "lodash-es";
 let hasSession = false;
 
 // @ts-ignore
-const service = interpret(sessionMachine, { devTools: false });
+const service = interpret(sessionMachine, { devTools: true });
 
 // --------------------------------------------------------
 
@@ -32,6 +32,10 @@ const authCallback = (callback: any) => {
   // Valid session
   const clientMachine: any = state?.children?.clientMachine;
   const guestMachine: any = state?.children?.guestMachine;
+
+  if (state.matches("error")) {
+    callback({ type: "ERROR", data: state.context.error });
+  }
 
   if (
     (state.matches("guest") &&

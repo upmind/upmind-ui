@@ -63,6 +63,8 @@ export const useSession = (inspector?: Function): IUseSession => {
         client.value?.matches("loading") ||
         false,
 
+      isAvailable: !["error", "checking"].some(state.value.matches),
+
       isProcessing:
         (guest.value?.matches &&
           [

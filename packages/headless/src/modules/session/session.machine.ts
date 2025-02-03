@@ -46,6 +46,7 @@ export default createMachine(
           src: guestMachine,
           autoForward: true,
           onDone: { target: "#client" },
+          onError: { target: "error", actions: "setError" },
         },
       },
 
@@ -56,10 +57,13 @@ export default createMachine(
           src: clientMachine,
           autoForward: true,
           onDone: { target: "#guest" },
+          onError: { target: "error", actions: "setError" },
         },
       },
 
       expired: {},
+
+      error: {},
 
       // ---
 
@@ -75,7 +79,11 @@ export default createMachine(
     },
   },
   {
-    actions: {},
+    actions: {
+      setError: assign({
+        error: (_context, { data }: any) => data,
+      }),
+    },
 
     guards: {
       isClientToken: (_context, { data }: any) => data?.actor_type === "client",

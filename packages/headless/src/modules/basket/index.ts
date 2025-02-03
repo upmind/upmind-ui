@@ -74,17 +74,18 @@ export const useBasket = () => {
     return waitFor(
       service,
       state => {
-        const basketReady = ["shopping"].some(state.matches);
-        // const productsReady = every(
-        //   state.context?.items,
-        //   s => !["subscribing", "loading"].some(s.state.matches)
-        // );
-        return basketReady; //&& productsReady;
+        const basketReady = ["shopping", "error"].some(state.matches);
+        return basketReady;
       },
       {
         timeout: Infinity, // infinity = no timeout
       }
-    );
+    ).then(state => {
+      if (state.matches("error")) {
+        return Promise.reject(state.context.error);
+      }
+      return Promise.resolve();
+    });
   }
 
   function isAvailable() {

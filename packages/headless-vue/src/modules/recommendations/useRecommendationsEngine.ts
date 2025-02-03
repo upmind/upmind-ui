@@ -37,12 +37,12 @@ export const useRecommendationsEngine = () => {
 
   return {
     isReady: async () => {
-      await isReady();
-
-      return waitFor(
-        service,
-        state => !["subscribing", "loading"].some(state.matches),
-        { timeout: Infinity }
+      return isReady().then(() =>
+        waitFor(
+          service,
+          state => !["subscribing", "loading"].some(state.matches),
+          { timeout: Infinity }
+        )
       );
     },
 
