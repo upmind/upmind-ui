@@ -5,7 +5,7 @@ import {
   invalidRingClasses,
 } from "../../assets/styles";
 
-export const rootVariants = cva(`w-full space-y-2`);
+export const rootVariants = cva(`w-full`);
 
 export const itemVariants = cva(
   `hover:bg-control-active-muted group flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300 ${ringClasses} ${invalidRingClasses}`
