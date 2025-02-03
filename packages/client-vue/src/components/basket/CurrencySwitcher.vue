@@ -45,7 +45,7 @@ import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(
   defineProps<{
-    popoverClass: HTMLAttributes["class"];
+    popoverClass?: HTMLAttributes["class"];
   }>(),
   {
     popoverClass: "mt-0",

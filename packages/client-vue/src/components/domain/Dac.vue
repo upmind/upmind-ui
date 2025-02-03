@@ -28,6 +28,7 @@
     :dismissable="false"
     :title="t('domain.dac.title')"
     :description="t('domain.dac.description')"
+    @close="onReject"
   >
     <template #header>
       <FormControl autoFocus :formItemId="id">
@@ -95,7 +96,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { useStyles, cn, type ButtonProps } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
@@ -121,7 +122,7 @@ const props = withDefaults(
     id: string;
     modelValue?: string;
     query?: string;
-    color?: string;
+    color?: ButtonProps["color"];
     offset?: number;
     values?: string[];
     items?: string[];
@@ -173,8 +174,8 @@ function onReject() {
 function onResolve() {
   emit("resolve");
 }
-function onSearch(value: string) {
-  emit("search", value);
+function onSearch(value: string | number) {
+  emit("search", value?.toString());
 }
 function onSearchOffset(value: number) {
   emit("search:more", value);
