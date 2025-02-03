@@ -81,7 +81,16 @@
       </RouterView>
 
       <slot name="expired">
-        <UpmSessionExpired />
+        <UpmSessionExpired
+          :title="t('session.expired.title')"
+          :text="t('session.expired.text')"
+          :action="{
+            label: t('session.expired.actions.continue'),
+            color: 'primary',
+            handler: () => window.location.reload(),
+            auto: true,
+          }"
+        />
       </slot>
     </main>
 
