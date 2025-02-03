@@ -4,7 +4,7 @@
     :data-theme="activeTheme"
     id="vue-app"
   >
-    <slot name="header" />
+    <slot name="header"></slot>
 
     <main class="w-full flex-1">
       <template v-if="meta.isLoading || meta.isProcessing">
@@ -87,7 +87,7 @@
           :action="{
             label: t('session.expired.actions.continue'),
             color: 'primary',
-            handler: () => window.location.reload(),
+            handler: refresh,
             auto: true,
           }"
         />
@@ -143,5 +143,5 @@ const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
 
 // setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
-const { meta } = useRoutingEngine();
+const { meta, refresh } = useRoutingEngine();
 </script>

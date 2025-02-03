@@ -196,7 +196,7 @@ export const useRoutingEngine = () => {
     resolveNext,
     back,
     resolveBack,
-    refresh: () => window.location.reload(),
+    refresh: () => router.go(0), // = roload current route
     navigate,
     resolve,
     destroy,
