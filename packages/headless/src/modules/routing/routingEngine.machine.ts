@@ -8,14 +8,7 @@ import { basketSubscription } from "../basket/helper";
 
 // --- utils
 import { useTime } from "../../utils";
-import {
-  defaultsDeep,
-  find,
-  get,
-  isEmpty,
-  isFunction,
-  uniqBy,
-} from "lodash-es";
+import { defaultsDeep, find, get, isEmpty, uniqBy } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -51,6 +44,9 @@ export default createMachine(
             },
             { target: "available", actions: ["setBasket"] },
           ],
+          ERROR: {
+            target: "unavailable",
+          },
         },
       },
 

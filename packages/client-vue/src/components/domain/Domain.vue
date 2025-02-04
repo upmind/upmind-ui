@@ -81,7 +81,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useDomain } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, type ButtonProps } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
@@ -109,7 +109,7 @@ const props = withDefaults(
     modelValue?: string | string[];
     multiple?: boolean;
     parentId?: string;
-    color?: string;
+    color?: ButtonProps["color"];
   }>(),
   {
     sync: true,

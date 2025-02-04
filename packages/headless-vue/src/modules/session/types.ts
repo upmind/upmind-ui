@@ -12,6 +12,11 @@ export interface IUseSessionMeta {
   isLoading: boolean;
 
   /**
+   * Indicates whether the session is ready to be used, typically after initialization and loading.
+   */
+  isAvailable: boolean;
+
+  /**
    * Indicates whether the session is currently processing an action, such as authentication or registration.
    */
   isProcessing: boolean;
