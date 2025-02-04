@@ -48,7 +48,7 @@ export const innerVariant = cva("mx-auto max-h-[75vh] w-full ", {
   },
   defaultVariants: {
     width: "app",
-    overflow: "visible",
+    overflow: "auto",
     fit: "contain",
   },
 });

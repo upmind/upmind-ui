@@ -6,7 +6,7 @@
 
     <DrawerContent
       v-bind="forwardedDrawerContent"
-      :class="cn(styles.drawer.content, props.class, 'drawer-content')"
+      :class="cn(styles.drawer.content, props.class)"
       :classOverlay="styles.drawer.overlay"
       @close="() => emits('update:open', false)"
     >
