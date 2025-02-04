@@ -69,9 +69,9 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
   }),
   action: () => ({
     label: "Reload",
-    color: "base",
+    color: "primary",
     handler: () => window.location.reload(),
-    auto: false,
+    auto: true,
   }),
 });
 

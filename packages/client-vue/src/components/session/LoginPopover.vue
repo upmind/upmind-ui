@@ -1,7 +1,7 @@
 <template>
   <Popover>
     <PopoverTrigger>
-      <slot />
+      <slot></slot>
     </PopoverTrigger>
     <PopoverContent
       class="relative z-30 mt-4 h-screen w-auto border-0 border-t p-0 md:mt-8 md:h-auto md:border"

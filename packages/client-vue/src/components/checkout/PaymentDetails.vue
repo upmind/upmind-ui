@@ -18,6 +18,7 @@
           :class="styles.checkout.accordion.item"
           :open="item.gateway_id === model.gateway_id"
           :disabled="item.gateway_id === model.gateway_id"
+          asChild
         >
           <AccordionTrigger
             :class="styles.checkout.accordion.trigger.root"

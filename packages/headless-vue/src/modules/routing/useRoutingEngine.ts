@@ -13,7 +13,7 @@ import { useSession } from "../session";
 
 // --- utils
 
-import { isEmpty, get } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { Route } from "@upmind-automation/headless";
@@ -105,45 +105,13 @@ export const useRoutingEngine = () => {
     const isProcessing = ["calculating", "resolving"].some(state.value.matches);
     if (isProcessing) return;
 
+    if (!route?.name) {
+      console.debug("UseRouteingEngine", "No route name", route);
+      return Promise.reject("No route name");
+    }
+
     resolve(
       target,
-      {
-        name: route.name?.toString(),
-        params: route.params,
-        query: route.query,
-      },
-      data
-    )
-      .then((response: Route | undefined) => {
-        if (response) {
-          if (response?.meta?.replace) {
-            router.replace(response);
-          } else {
-            router.push(response);
-          }
-        }
-      })
-      .catch((error: any) => {
-        console.warn("UseRouteingEngine", "Navigate route Failed", {
-          route,
-          data,
-          error,
-        });
-      });
-  }
-
-  async function refresh(data?: any) {
-    const target = get(state.value, "context.currentFlow");
-
-    // bail out if we are already processing
-    const isProcessing = ["calculating", "resolving"].some(state.value.matches);
-    if (isProcessing) return;
-
-    //  safeguard against empty flows
-    if (isEmpty(target)) return Promise.reject("No current flow");
-
-    return resolve(
-      target.name,
       {
         name: route.name?.toString(),
         params: route.params,
@@ -188,15 +156,22 @@ export const useRoutingEngine = () => {
   // --------------------------------------------------------
 
   return {
-    isReady: async () => {
-      await isReady();
-
-      return waitFor(
-        service,
-        state => !["subscribing", "loading"].some(state.matches),
-        { timeout: Infinity }
-      );
-    },
+    isReady: async () =>
+      isReady()
+        .then(() => {
+          return waitFor(
+            service,
+            state => !["subscribing", "loading"].some(state.matches),
+            { timeout: Infinity }
+          ).then(state => {
+            if (state.matches("unavailable")) {
+              return Promise.reject("Routing Engine is unavailable");
+            }
+          });
+        })
+        .catch(() => {
+          return Promise.reject("Routing Engine is not ready");
+        }),
 
     state: computed(() => state.value.value),
     // ---
@@ -221,7 +196,7 @@ export const useRoutingEngine = () => {
     resolveNext,
     back,
     resolveBack,
-    refresh,
+    refresh: () => router.go(0), // = roload current route
     navigate,
     resolve,
     destroy,

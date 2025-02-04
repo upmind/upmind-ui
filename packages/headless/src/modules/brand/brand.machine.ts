@@ -85,7 +85,7 @@ export default createMachine(
                     actions: ["setOrganisation"],
                   },
                   onError: {
-                    target: "error",
+                    target: "#error",
                     actions: assign({
                       error: (
                         { error }: BrandContext,
@@ -101,19 +101,7 @@ export default createMachine(
               complete: {
                 type: "final",
               },
-              error: {
-                on: {
-                  RETRY: {
-                    target: "loading",
-                    actions: assign({
-                      error: ({ error }: BrandContext) => {
-                        unset(error, "organisation");
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
+              error: {},
             },
           },
           config: {
@@ -144,17 +132,7 @@ export default createMachine(
                 type: "final",
               },
               error: {
-                on: {
-                  RETRY: {
-                    target: "loading",
-                    actions: assign({
-                      error: ({ error }: BrandContext) => {
-                        unset(error, "config");
-                        return error;
-                      },
-                    }),
-                  },
-                },
+                on: {},
               },
             },
           },
@@ -185,19 +163,7 @@ export default createMachine(
               complete: {
                 type: "final",
               },
-              error: {
-                on: {
-                  RETRY: {
-                    target: "loading",
-                    actions: assign({
-                      error: ({ error }: BrandContext) => {
-                        unset(error, "settings");
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
+              error: {},
             },
 
             // Brand Settings
@@ -230,19 +196,7 @@ export default createMachine(
               complete: {
                 type: "final",
               },
-              error: {
-                on: {
-                  RETRY: {
-                    target: "loading",
-                    actions: assign({
-                      error: ({ error }: BrandContext) => {
-                        unset(error, "modules");
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
+              error: {},
             },
 
             // Modules
@@ -251,6 +205,7 @@ export default createMachine(
         },
         onDone: "complete",
       },
+      error: { id: "error" },
       complete: {
         entry: ["setDefaultLocale", "setInitialised"],
         // type: "final",

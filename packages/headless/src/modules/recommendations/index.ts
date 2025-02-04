@@ -16,7 +16,7 @@ export * from "./types";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 // @ts-ignore
-const service = interpret(recommendationsEngine, { devTools: true });
+const service = interpret(recommendationsEngine, { devTools: false });
 
 // --------------------------------------------------------
 
