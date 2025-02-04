@@ -22,26 +22,17 @@
 
   <div :class="styles.session.auth.actions">
     <slot name="toggle">
-      <Button
+      <div
         v-if="meta.showRegisterForm || meta.showLoginForm"
-        @click="() => toggleForm(meta.showRegisterForm ? 'login' : 'register')"
-        variant="link"
+        @click="toggleForm(meta.showRegisterForm ? 'login' : 'register')"
       >
-        <span class="font-normal">
-          {{
-            t(
-              `session.unauthenticated.${meta.showRegisterForm ? "register" : "login"}.actions.text`
-            )
-          }}
-        </span>
-        <span>
-          {{
-            t(
-              `session.unauthenticated.${meta.showRegisterForm ? "register" : "login"}.actions.action`
-            )
-          }}
-        </span>
-      </Button>
+        <Link>
+          <span class="font-normal">
+            {{ buttonText }}
+          </span>
+          &nbsp;{{ buttonAction }}
+        </Link>
+      </div>
     </slot>
   </div>
 </template>
@@ -55,7 +46,7 @@ import { useVModel } from "@vueuse/core";
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
 import Form from "../form/Form.vue";
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { useStyles, cn, Link } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- custom elements
@@ -144,6 +135,18 @@ function doReject() {
 
 onMounted(() => {
   toggleForm(modelValue.value);
+});
+
+const buttonText = computed(() => {
+  return meta.value.showRegisterForm
+    ? t("session.unauthenticated.register.actions.text")
+    : t("session.unauthenticated.login.actions.text");
+});
+
+const buttonAction = computed(() => {
+  return meta.value.showRegisterForm
+    ? t("session.unauthenticated.register.actions.action")
+    : t("session.unauthenticated.login.actions.action");
 });
 
 watch(meta, ({ canShowForms }) => {

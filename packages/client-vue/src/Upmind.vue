@@ -4,7 +4,7 @@
     :data-theme="activeTheme"
     id="vue-app"
   >
-    <slot name="header" />
+    <slot name="header"></slot>
 
     <main class="w-full flex-1">
       <template v-if="meta.isLoading || meta.isProcessing">
@@ -24,11 +24,11 @@
               }"
             >
               <template #title v-if="$slots['loading-title']">
-                <slot name="loading-title" />
+                <slot name="loading-title"></slot>
               </template>
 
               <template #background v-if="$slots['loading-background']">
-                <slot name="loading-background" />
+                <slot name="loading-background"></slot>
               </template>
             </BasketLoading>
           </Content>
@@ -61,7 +61,7 @@
                         }"
                       >
                         <template #title v-if="$slots['loading-title']">
-                          <slot name="loading-title" />
+                          <slot name="loading-title"></slot>
                         </template>
 
                         <template
@@ -94,7 +94,7 @@
       </slot>
     </main>
 
-    <slot name="footer" />
+    <slot name="footer"></slot>
   </div>
 
   <Feedback />

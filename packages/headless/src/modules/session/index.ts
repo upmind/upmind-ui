@@ -33,6 +33,10 @@ const authCallback = (callback: any) => {
   const clientMachine: any = state?.children?.clientMachine;
   const guestMachine: any = state?.children?.guestMachine;
 
+  if (state.matches("error")) {
+    callback({ type: "ERROR", data: state.context.error });
+  }
+
   if (
     (state.matches("guest") &&
       guestMachine?.state?.matches &&

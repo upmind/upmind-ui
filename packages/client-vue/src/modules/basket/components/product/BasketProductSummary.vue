@@ -33,17 +33,14 @@
               />
             </div>
             <div class="flex items-end justify-between">
-              <router-link
-                :to="editLink"
-                class="text-inherit underline-offset-2"
-              >
+              <Link :to="editLink" offset="2">
                 <strong class="text-xl font-semibold leading-7">
                   {{ pricing.name }}
                   <template v-if="pricing.serviceIdentifier">
                     ({{ pricing.serviceIdentifier }})
                   </template>
                 </strong>
-              </router-link>
+              </Link>
 
               <div class="hidden items-center gap-x-6 md:flex">
                 <QuantityField
@@ -121,6 +118,7 @@
 
 <script lang="ts" setup>
 // --- components
+import { Link } from "@upmind-automation/upmind-ui";
 import UpmRequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "../../../../components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../../components/pricing/ExPrice.vue";
