@@ -1,6 +1,7 @@
 // --- external
 
 // --- internal
+import type { ProductModel } from "../../..";
 import { useApi } from "../../..";
 import { useBrand } from "../../brand";
 
@@ -9,7 +10,6 @@ import { useTime } from "../../../utils";
 import { parseBasketProductConfig } from "./utils";
 
 import {
-  compact,
   concat,
   filter,
   forEach,
@@ -235,7 +235,7 @@ async function update(
     currencyId?: string;
     promotions?: string[];
   },
-  { data }: any
+  { data }: { data: ProductModel }
 ) {
   const { put, post, useUrl } = useApi();
   if (!basketId) return Promise.reject("No basket provided/available");
@@ -244,6 +244,7 @@ async function update(
   const product = parseBasketProductConfig(data, promotions);
   // ---
   const isNew = !data?.id;
+
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${data.id}`;
   // ---

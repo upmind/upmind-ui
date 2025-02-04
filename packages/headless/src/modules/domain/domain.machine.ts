@@ -33,17 +33,13 @@ import {
   some,
   uniqBy,
   every,
+  cloneDeep,
 } from "lodash-es";
 
 // --- types
 import type { BasketProduct } from "../basket";
 import { DomainTypes } from "./types";
-import type {
-  DomainContext,
-  AddEvent,
-  RemoveEvent,
-  DomainEvents,
-} from "./types";
+import type { DomainContext, AddEvent, RemoveEvent } from "./types";
 import type { IDomain, DomainProduct } from "./types";
 
 // --------------------------------------------------------
@@ -246,6 +242,7 @@ export default createMachine(
             actions: ["resetModel", "resetLookups", "clearSearch"],
           },
         },
+        exit: ["resetModel"],
       },
 
       existing: {
@@ -274,15 +271,10 @@ export default createMachine(
         on: {
           UPDATE: {
             target: ".invalid",
-            actions: [
-              "clearError",
-              "clearModel",
-              "setExisting",
-              "ensurePrimary",
-            ],
+            actions: ["clearError", "setExisting", "ensurePrimary"],
           },
         },
-        exit: ["clearModel"],
+        exit: ["resetModel"],
       },
 
       basket: {
@@ -356,7 +348,7 @@ export default createMachine(
             },
           ],
         },
-        exit: ["clearModel"],
+        exit: ["resetModel"],
       },
 
       // ---
@@ -445,7 +437,7 @@ export default createMachine(
       ),
 
       persistModel: assign({
-        baseModel: ({ model }) => model,
+        baseModel: ({ model }) => cloneDeep(model), // we use spread to ensure its a new array
       }),
 
       checkModel: assign({
@@ -454,9 +446,9 @@ export default createMachine(
 
       ensurePrimary: assign({
         model: ({ model }) => {
-          if (!!model?.length && !some(model, "isPrimary")) {
-            // @ts-ignore
-            first(model).isPrimary = true;
+          if (!isEmpty(model) && !some(model, "isPrimary")) {
+            const primaryDomain = first(model);
+            if (primaryDomain) set(primaryDomain, "isPrimary", true);
           }
           return model;
         },
@@ -642,12 +634,11 @@ export default createMachine(
 
       // ---
 
-      // @ts-ignore
       setModel: assign({
         model: ({ model, lookups, type }: any, { data }: AddEvent) =>
           reduce(
             data,
-            (result, item) => {
+            (result: IDomain[], item) => {
               let available = [];
               switch (type) {
                 case DomainTypes.register:
@@ -664,15 +655,10 @@ export default createMachine(
                   break;
               }
 
-              const domain: any = parseValue(item, model, available);
+              const domain: IDomain = parseValue(item, model, available);
 
-              // ensure we persist any prev selected/primary domain
-              if (domain) {
-                const exists = find(model, ["domain", domain.domain]);
-                domain.isPrimary = exists?.isPrimary;
-                // @ts-ignore
-                result.push(domain);
-              }
+              if (domain) result.push(domain);
+
               return result;
             },
             []
@@ -680,9 +666,7 @@ export default createMachine(
       }),
 
       resetModel: assign({
-        model: ({ baseModel }, _event) => {
-          return baseModel;
-        },
+        model: ({ baseModel }, _event) => cloneDeep(baseModel),
       }),
 
       clearModel: assign({

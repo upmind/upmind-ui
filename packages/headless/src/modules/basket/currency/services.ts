@@ -18,7 +18,7 @@ import type { CurrencyEvent, CurrencyContext } from "./types";
 async function load(_context: CurrencyContext, _event: CurrencyEvent) {
   const { getCurrencies, getCurrency, isReady } = useBrand();
 
-  await isReady();
+  await isReady().catch(error => Promise.reject(error));
   const currencies = getCurrencies();
 
   // set our base model to match the default brand currency

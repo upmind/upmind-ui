@@ -34,10 +34,6 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.loading:invocation[0]": {
-      type: "error.platform.loading:invocation[0]";
-      data: unknown;
-    };
     "error.platform.sessionGuest.login.authenticating:invocation[0]": {
       type: "error.platform.sessionGuest.login.authenticating:invocation[0]";
       data: unknown;
@@ -99,7 +95,6 @@ export interface Typegen0 {
     set2faToken: "done.invoke.sessionGuest.login.authenticating:invocation[0]";
     setCustomFields: "done.invoke.sessionGuest.register.loading:invocation[0]";
     setError:
-      | "error.platform.loading:invocation[0]"
       | "error.platform.sessionGuest.login.authenticating:invocation[0]"
       | "error.platform.sessionGuest.login.verifying:invocation[0]"
       | "error.platform.sessionGuest.register.authenticating:invocation[0]"

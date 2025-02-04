@@ -46,7 +46,7 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
 
   // We depend on the brand being ready, so we need to wait for it
   const { isReady } = useBrand();
-  await isReady();
+  await isReady().catch(error => Promise.reject(error));
 
   // finally return a the basket with all the relevant data, include the provisioning fields
   return get({

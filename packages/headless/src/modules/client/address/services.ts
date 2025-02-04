@@ -190,7 +190,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so theres no worry about performance
-  await isReady();
+  await isReady().catch(error => Promise.reject(error));
   const countries = await fetchCountries();
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);

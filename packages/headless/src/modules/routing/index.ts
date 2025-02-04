@@ -38,9 +38,13 @@ export const useRoutingEngine = () => {
     service: service.start(),
     getSnapshot: () => service.getSnapshot(),
     isReady: async () =>
-      waitFor(service, state => !["syncing"].some(state.matches), {
+      waitFor(service, state => !["subscribing"].some(state.matches), {
         timeout: Infinity,
+      }).then(state => {
+        if (["unavailable"].some(state.matches))
+          return Promise.reject("Routing Engine is not available");
       }),
+
     //  ---
     hasFlows: () => {
       const state = service.getSnapshot();
