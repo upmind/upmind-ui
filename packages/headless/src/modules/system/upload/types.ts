@@ -47,7 +47,7 @@ export interface ImageTypeEvent {
 // Contexts
 
 export interface UploadContext {
-  field: Object;
+  field: object;
 
   // ---
   fileTypes: [];
@@ -58,8 +58,8 @@ export interface UploadContext {
 
   // ---
   progress: number;
-  request?: Object | null;
-  response?: Object | null;
+  request?: object | null;
+  response?: object | null;
   file?: string | null;
   name?: string | null;
   src?: string | null;

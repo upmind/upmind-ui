@@ -19,7 +19,7 @@ export function generateHash(message: Message) {
   return hash;
 }
 
-export const useMessageParser = (data?: Object) => {
+export const useMessageParser = (data?: object) => {
   const defaultMessage = {
     display: messageDisplays.TOAST,
     type: messageTypes.INFO,

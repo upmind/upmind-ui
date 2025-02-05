@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
+    "allowJs": false,
+    "declaration": true,
     "composite": true,
+    "outDir": "./dist",
+    "declarationDir": "./dist/types", // Correct declaration directory
     "paths": {
       "@/*": ["./src/*"]
     },
-    "allowJs": false,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "outDir": "dist",
     "noImplicitThis": true,
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  "include": ["src/**/*"]
 }

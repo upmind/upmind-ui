@@ -24,7 +24,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "idle",
     context: {
-      field: Object,
+      field: {},
 
       // ---
       fileTypes: [],

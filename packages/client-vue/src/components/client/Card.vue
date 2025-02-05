@@ -55,10 +55,10 @@ export default defineComponent({
   emits: ["update:modelValue", "click:action"],
   props: {
     modelValue: {
-      type: Object, // xstate actor
+      type: object, // xstate actor
       required: true,
     },
-    i18nKey: { type: String, required: true },
+    i18nKey: { type: string, required: true },
     // ---
     selected: { type: Boolean },
     loading: { type: Boolean },

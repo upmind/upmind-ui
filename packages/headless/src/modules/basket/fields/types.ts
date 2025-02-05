@@ -19,7 +19,7 @@ export interface IField {
 // Contexts
 
 export interface FieldsContext {
-  basketId?: String;
+  basketId?: string;
   // ---
   fields?: any[]; // IFields[];
   schema?: JsonSchema;

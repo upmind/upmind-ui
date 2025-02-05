@@ -72,12 +72,12 @@ const props = withDefaults(
 );
 // props: {
 //   modal: { type: Boolean },
-//   title: { type: String },
-//   text: { type: String },
-//   action: { type: Object, default: () => null },
+//   title: { type: string },
+//   text: { type: string },
+//   action: { type: object, default: () => null },
 //   modelValue: { type: Boolean, default: true },
 //   avatar: {
-//     type: Object,
+//     type: object,
 //     default: () => ({
 //       size: "lg",
 //       shape: "circle",

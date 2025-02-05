@@ -32,8 +32,8 @@ export interface DomainProduct {
   productId: string;
   quantity?: number;
   cycle?: number;
-  options?: Object;
-  attributes?: Object;
+  options?: object;
+  attributes?: object;
 
   summary?: {
     isAvailable?: boolean;

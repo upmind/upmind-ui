@@ -17,7 +17,7 @@ import uploadMachine from "./upload.machine";
 /**
  * @ignore
  */
-export const useSystemUpload = (field?: Object) => {
+export const useSystemUpload = (field?: object) => {
   let state: any = null;
 
   const context = {

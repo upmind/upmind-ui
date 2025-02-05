@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
-    "@upmind-automation/upmind-ui": "^0.0.0",
+    "@upmind-automation/upmind-ui": "workspace:*",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {

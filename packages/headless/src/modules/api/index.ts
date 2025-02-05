@@ -47,7 +47,7 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = false,
-    maxAge = null,
+    maxAge = undefined,
     refresh = false,
   }: RequestParams) {
     // re-enable once we have locales
@@ -132,7 +132,7 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null,
+    maxAge = undefined,
     refresh = false,
   }: RequestParams) {
     // re-enable once we have locales
@@ -246,7 +246,7 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null,
+    maxAge = undefined,
   }: RequestParams) {
     // re-enable once we have locales
     // url?.searchParams?.set("lang", activeLocale.value);

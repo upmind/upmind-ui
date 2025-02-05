@@ -263,7 +263,7 @@ const {
 
 const styles = useStyles(["product.config"], meta, config);
 
-function safeValue(subproduct: Object, value: any): string | string[] {
+function safeValue(subproduct: object, value: any): string | string[] {
   const shouldBeArray = subproduct?.multiple || subproduct?.values?.length == 1;
   const safeArray = !isArray(value) ? [value] : value;
   const safeString = isArray(value) ? first(value) : value;
@@ -282,13 +282,13 @@ const getTermsComponent = computed(() => {
 
 function getValue(
   type: "options" | "attributes",
-  subproduct: Object
+  subproduct: object
 ): string | string[] {
   const value = keys(model.value?.[type]?.[subproduct.id]);
   return safeValue(subproduct, value);
 }
 
-function getQuantities(subproduct: Object): Record<string, number> {
+function getQuantities(subproduct: object): Record<string, number> {
   const value = reduce(
     model.value?.options?.[subproduct.id],
     (result: Record<string, number>, value, productId) => {
@@ -303,7 +303,7 @@ function getQuantities(subproduct: Object): Record<string, number> {
   return value;
 }
 
-function getErrors(type: "options" | "attributes", subproduct: Object) {
+function getErrors(type: "options" | "attributes", subproduct: object) {
   //  prevent error message from showing if the field has not been touched
   if (!meta.value.isTouched) return undefined;
 

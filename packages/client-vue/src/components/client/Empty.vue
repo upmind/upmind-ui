@@ -22,7 +22,7 @@ import config from "./config.cva";
 export default defineComponent({
   name: "ClientEmpty",
   props: {
-    i18nKey: { type: String, required: true },
+    i18nKey: { type: string, required: true },
   },
   setup() {
     const { t } = useI18n();

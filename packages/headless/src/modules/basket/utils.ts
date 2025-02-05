@@ -48,7 +48,7 @@ import type {
 // SPAWN ACTORS
 export function spawnProductConfiguration(
   data: any,
-  basket: Basket,
+  basket?: Basket,
   errorExternal?: any
 ) {
   const id = data?.id || uniqueId("product-");
@@ -86,7 +86,7 @@ export function spawnProductConfiguration(
   return item;
 }
 
-export function spawnBillingDetails(basket: Basket) {
+export function spawnBillingDetails(basket?: Basket) {
   return spawn(
     billingDetailsMachine.withContext({
       basketId: basket?.id,
@@ -100,7 +100,7 @@ export function spawnBillingDetails(basket: Basket) {
   );
 }
 
-export function spawnCurrency(basket: Basket) {
+export function spawnCurrency(basket?: Basket) {
   return spawn(
     currencyMachine.withContext({
       basketId: basket?.id,
@@ -110,7 +110,7 @@ export function spawnCurrency(basket: Basket) {
   );
 }
 
-export function spawnCustomFields(basket: Basket) {
+export function spawnCustomFields(basket?: Basket) {
   return spawn(
     customFieldsMachine.withContext({
       basketId: basket?.id,
@@ -120,7 +120,7 @@ export function spawnCustomFields(basket: Basket) {
   );
 }
 
-export function spawnPaymentDetails(basket: Basket) {
+export function spawnPaymentDetails(basket?: Basket) {
   return spawn(
     // @ts-ignore
     paymentDetailsMachine.withContext({
@@ -135,7 +135,7 @@ export function spawnPaymentDetails(basket: Basket) {
   );
 }
 
-export function spawnPromotions(basket: Basket) {
+export function spawnPromotions(basket?: Basket) {
   return spawn(
     promotionsMachine.withContext({
       basketId: basket?.id,

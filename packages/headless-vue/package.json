@@ -3,13 +3,17 @@
   "version": "0.0.5",
   "description": "",
   "type": "module",
-  "main": "./src/index.ts",
-  "module": "./dist/upmind-headless-vue.js",
-  "types": "./dist/index.d.ts",
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "main": "./dist/headless-vue.umd.cjs",
+  "module": "./dist/headless-vue.js",
+  "types": "./dist/headless-vue.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "require": "./dist/upmind-headless-vue.umd.cjs"
+      "import": "./dist/headless-vue.js",
+      "require": "./dist/headless-vue.umd.cjs",
+      "types": "./dist/headless-vue.d.ts"
     }
   },
   "files": [
@@ -17,16 +21,19 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.build.json && vite build",
+    "build:old": "tsc -p tsconfig.build.json && vite build",
+    "build:only": "vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:dev": "vitest",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix ",
     "format": "prettier --write src/",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "type-check:debug": "tsc --noEmit --traceResolution"
   },
   "dependencies": {
-    "@upmind-automation/headless": "0.0.3",
+    "@upmind-automation/headless": "workspace:*",
     "@xstate/vue": "^2.0.0",
     "lodash-es": "^4.17.21",
     "vue-router": "^4.2.4",
@@ -38,7 +45,6 @@
     "@types/jsdom": "^21.1.2",
     "@types/lodash-es": "^4.17.9",
     "@types/node": "^18.17.15",
-    "@upmind-automation/types": "0.0.0",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
     "@vitest/coverage-istanbul": "^2.1.1",

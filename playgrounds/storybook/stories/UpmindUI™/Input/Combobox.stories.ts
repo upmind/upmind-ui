@@ -48,7 +48,7 @@ export const Base: Story = {};
 export const Countries: Story = {
   args: {
     label: "Select a country",
-    items: Object.values(countries).map(c => ({
+    items: object.values(countries).map(c => ({
       value: c.value,
       label: c.label,
       icon: c.prependAvatar.name,

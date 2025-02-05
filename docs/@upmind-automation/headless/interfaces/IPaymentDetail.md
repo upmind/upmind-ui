@@ -10,15 +10,15 @@
 amount: Number;
 ```
 
-***
+---
 
-### gateway\_id?
+### gateway_id?
 
 ```ts
-optional gateway_id: String;
+optional gateway_id: string;
 ```
 
-***
+---
 
 ### type?
 

@@ -18,6 +18,7 @@ describe("useTranslation.ts", () => {
       expect(useTranslateField(null, "name")).toBeUndefined();
       // @ts-ignore
       expect(useTranslateField(undefined, "name")).toBeUndefined();
+      // @ts-ignore
       expect(useTranslateField(123, "name")).toBeUndefined();
     });
 

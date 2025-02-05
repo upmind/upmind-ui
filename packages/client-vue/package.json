@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "description": "",
   "type": "module",
-  "main": "./src/upmind-client.umd.cjs",
-  "module": "./dist/upmind-client.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/client-vue.umd.cjs",
+  "module": "./dist/client-vue.js",
+  "types": "./dist/client-vue.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "require": "./dist/upmind-client.umd.cjs"
+      "import": "./dist/client-vue.js",
+      "require": "./dist/client-vue.umd.cjs"
     }
   },
   "files": [
@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
-    "@upmind-automation/headless-vue": "0.0.5",
-    "@upmind-automation/upmind-ui": "^0.0.0",
+    "@upmind-automation/headless-vue": "workspace:*",
+    "@upmind-automation/upmind-ui": "workspace:*",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
     "lodash-es": "^4.17.21",

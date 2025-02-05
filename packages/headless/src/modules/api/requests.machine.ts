@@ -1,14 +1,16 @@
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign, spawn, Actor } from "xstate";
 
 // --- internal
 import requestMachine from "./request.machine";
-import type { RequestsContext, RequestsEvents } from "./types";
 import services from "./services";
 import { generateHash } from "./utils";
 // --- utils
 import { isEmpty, set, get, unset, keys } from "lodash-es";
 
+// ---types
+import type { ActorRef } from "xstate";
+import type { RequestsContext, RequestsEvents } from "./types";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -108,15 +110,16 @@ export default createMachine(
           { data: { hash } }: RequestsEvents
         ) => {
           // try find any requests with the same hash
-          const request = get(requests, hash);
+          const request = get(requests, hash) as ActorRef<any, any>;
 
           // if it exists, stop the referenced machine
           // and remove it from our list of requests
           if (request) {
-            if (request.state.matches("processing")) {
+            const state = request.getSnapshot();
+            if (state.matches("processing")) {
               request.send({ type: "CANCELLED" });
             }
-            if (!request?.state?.done) {
+            if (state?.done && request?.stop) {
               request.stop();
             }
           }
@@ -136,7 +139,7 @@ export default createMachine(
 
           // if it exists, stop the referenced machine
           // and remove it from our list of requests
-          if (request && !request?.state?.done) {
+          if (request && !request?.getSnapshot()?.done) {
             request.send({ type: "CANCEL" });
           } else {
             unset(requests, hash);
