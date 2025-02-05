@@ -247,7 +247,7 @@ const onSearch = debounce(safeSearch, 350);
 const results = ref(props.items || []);
 
 // --- methods
-function doSelect(item: String | ComboboxItemProps) {
+function doSelect(item: string | ComboboxItemProps) {
   const selected: ComboboxItemProps = isString(item)
     ? (find(props.items, [props.itemValue, item]) as ComboboxItemProps)
     : (item as ComboboxItemProps);

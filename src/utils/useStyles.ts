@@ -30,7 +30,7 @@ import { type ClassNameValue } from "tailwind-merge";
 let customStyleSheet: string = "";
 // -----------------------------------------------------------------------------
 
-function applyVariants(configs: ClassValue[], context: Object = {}) {
+function applyVariants(configs: ClassValue[], context: object = {}) {
   // ----------------------------------------------
   //  NB: This works by getting ALL the unique keys from ALL of the provided configs
   //      then we loop over each key
@@ -67,7 +67,7 @@ function applyVariants(configs: ClassValue[], context: Object = {}) {
 
 export function useStyles(
   components: string | string[],
-  context: Object = {},
+  context: object = {},
   ...configs: Array<Object>
 ): ComputedRef<Object> {
   return computed(() => {

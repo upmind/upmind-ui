@@ -49,6 +49,6 @@ export const useValidation = (ajv?: Ajv) => {
     },
   } as {
     ajv: Ajv;
-    validate: (schema: JsonSchema, data: Object) => Object[];
+    validate: (schema: JsonSchema, data: object) => Object[];
   };
 };
