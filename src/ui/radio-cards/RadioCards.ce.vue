@@ -16,7 +16,6 @@
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
-        :data-state="modelValue === item.value ? 'checked' : 'unchecked'"
         :width="props.width"
         @keydown.enter="onChange(item.value)"
       >
@@ -30,7 +29,7 @@
 
 <script setup lang="ts">
 // ---external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -83,10 +82,6 @@ const styles = useStyles(
     label: string;
   };
 }>;
-
-const handleFocus = (value: any) => {
-  onChange(value);
-};
 
 const onChange = (value: any) => {
   if (!props.required && value === modelValue.value) {

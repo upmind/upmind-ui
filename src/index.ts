@@ -78,6 +78,7 @@ import {
   type NumberFieldProps,
 } from "./ui/number-field";
 import { UpmLoading, Loading } from "./ui/loading";
+import { UpmLink, Link } from "./ui/link";
 import { UpmSonner, Sonner } from "./ui/sonner";
 import { UpmSpinner, Spinner } from "./ui/spinner";
 import { UpmTabs, Tabs, type TabItems } from "./ui/tabs";
@@ -149,6 +150,7 @@ export {
   Interstitial,
   Input,
   NumberField,
+  Link,
   Loading,
   Popover,
   PopoverContent,
