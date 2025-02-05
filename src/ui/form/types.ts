@@ -32,7 +32,7 @@ export interface FormProps {
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   middleware?: Middleware;
   // ---  props
-  modelValue: Object;
+  modelValue: object;
   additionalRenderers?: any[];
   // ---
   actions?: Record<string, FormActionProps>;

@@ -249,7 +249,7 @@ async function doSearch(value: string) {
 
 // --- methods
 
-function doSelect(item: String | AutocompleteItemProps) {
+function doSelect(item: string | AutocompleteItemProps) {
   const selected: AutocompleteItemProps | undefined = isString(item)
     ? (find(results.value, [props.itemValue, item]) as AutocompleteItemProps)
     : (item as AutocompleteItemProps);

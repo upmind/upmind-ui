@@ -106,8 +106,8 @@ const emits = defineEmits<{
   "update:modelValue": [Object];
   "update:uischema": [Object];
   valid: [boolean];
-  click: [{ model: Object; meta: Object }];
-  action: [{ name: string; model: Object; meta: Object }];
+  click: [{ model: object; meta: object }];
+  action: [{ name: string; model: object; meta: object }];
 }>();
 
 const slots = defineSlots<{
