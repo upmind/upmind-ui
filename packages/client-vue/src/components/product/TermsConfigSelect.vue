@@ -86,7 +86,7 @@ const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
-    items: Object[];
+    items: object[];
     modelValue?: string | number;
     errors?: string;
     // ---

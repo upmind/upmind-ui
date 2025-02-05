@@ -35,8 +35,8 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
-import type { BasketContext, BasketEvent } from "./types";
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { BasketContext } from "./types";
 import { responseCodes } from "../api";
 import { PaymentTypes } from "../paymentDetails/types";
 import { GatewayTypes } from "../paymentDetails/gateways/types";
@@ -458,14 +458,14 @@ export default createMachine(
     actions: {
       // @ts-ignore
       updateBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvent) =>
+        basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
-        error: ({ error }: BasketContext, { data }: BasketEvent) => {
+        error: ({ error }: BasketContext, { data }: AnyEventObject) => {
           error ??= {}; // safety check
           set(error, "provisioningErrors", get(data, "provisioningErrors"));
           return error;
         },
-        products: (_context: BasketContext, { data }: BasketEvent) => {
+        products: (_context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
           const provisioningErrors = get(data, "provisioningErrors");
@@ -473,7 +473,7 @@ export default createMachine(
             parseBasketProduct(product, provisioningErrors)
           );
         },
-        summary: (_context: BasketContext, { data }: BasketEvent) => {
+        summary: (_context: BasketContext, { data }: AnyEventObject) => {
           const provisioningErrors = get(data, "provisioningErrors");
           return parseSummary(parseBasket(data), provisioningErrors);
         },
@@ -490,13 +490,13 @@ export default createMachine(
       }),
 
       setPaymentDetails: assign({
-        paymentDetails: (_context: BasketContext, { data }: BasketEvent) =>
+        paymentDetails: (_context: BasketContext, { data }: AnyEventObject) =>
           data,
       }),
 
       // @ts-ignore
       setInvoice: assign({
-        invoice: (_context: BasketContext, { data }: BasketEvent) => data,
+        invoice: (_context: BasketContext, { data }: AnyEventObject) => data,
         basket: undefined,
         summary: undefined,
         items: ({ items }: BasketContext, _event) => {
@@ -522,7 +522,7 @@ export default createMachine(
 
       // @ts-ignore
       setPayment: assign({
-        payment: (_context: BasketContext, { data }: BasketEvent) => data,
+        payment: (_context: BasketContext, { data }: AnyEventObject) => data,
       }),
 
       trackPayment: ({ invoice }: any, { data }: any) => {
@@ -550,7 +550,7 @@ export default createMachine(
 
       // --- Spawned Actors Actions
       spawnActors: assign({
-        actors: ({ actors, basket }) => {
+        actors: ({ actors, basket }: BasketContext) => {
           // only spawn if we have not already spawned
           actors.billingDetails ??= spawnBillingDetails(basket);
           actors.currency ??= spawnCurrency(basket);
@@ -563,8 +563,8 @@ export default createMachine(
       }),
 
       // @ts-ignore
-      refreshActors: pure(({ basket, actors }) => {
-        forEach(actors, (actor: ActorRef<any, any>) => {
+      refreshActors: pure(({ basket, actors }: BasketContext) => {
+        forEach(actors, actor => {
           if (actor?.send && !actor.getSnapshot()?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
@@ -600,6 +600,7 @@ export default createMachine(
         items: ({ items, basket }, { data }) => {
           const machine = spawnProductConfiguration(data, basket);
 
+          items ??= [];
           items.push(machine);
           return items;
         },
@@ -635,7 +636,7 @@ export default createMachine(
       clearItems: assign({
         items: ({ items }, _event) => {
           forEach(items, item => {
-            if (item?.send && !item?.state?.done) {
+            if (item?.send && !item?.getSnapshot()?.done) {
               item.send({ type: "REMOVE" });
             }
           });
@@ -655,11 +656,11 @@ export default createMachine(
       }),
 
       // ---
-      setFeedbackSuccess: (_context: BasketContext, _event: BasketEvent) => {
+      setFeedbackSuccess: (_context: BasketContext, _event: AnyEventObject) => {
         addSuccess("Successfully updated the basket");
       },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
         if (
           !error ||
           error?.code == responseCodes.Unprocessable_Entity ||
@@ -676,7 +677,7 @@ export default createMachine(
 
       // @ts-ignore
       setError: assign({
-        error: (context, { data }: BasketEvent) =>
+        error: (_context: BasketContext, { data }: AnyEventObject) =>
           data?.error || data || undefined,
       }),
 
@@ -684,83 +685,86 @@ export default createMachine(
     },
 
     guards: {
-      hasNoBasket: ({ basket }) => isEmpty(basket),
+      hasNoBasket: ({ basket }: BasketContext) => isEmpty(basket),
 
-      hasNewBasket: ({ basket }, { data }) =>
+      hasNewBasket: ({ basket }: BasketContext, { data }: AnyEventObject) =>
         !isEmpty(data) && !isEqual(basket, data),
 
       // --- Actor Guards
-      currencyComplete: ({ actors }) => {
-        return actors.currency?.state?.matches("complete");
+      currencyComplete: ({ actors }: BasketContext) => {
+        return actors.currency?.getSnapshot()?.matches("complete");
       },
 
-      currencyConfiguring: ({ actors }) => {
-        return !actors.currency?.state?.matches("complete");
+      currencyConfiguring: ({ actors }: BasketContext) => {
+        return !actors.currency?.getSnapshot()?.matches("complete");
       },
 
-      promotionsComplete: ({ actors }) => {
+      promotionsComplete: ({ actors }: BasketContext) => {
         // promotions should not hold up the process of checking out
         // unless it is in the process of being updated or loading
         return !["processing", "loading"].some(
-          actors.promotions?.state?.matches
+          actors.promotions?.getSnapshot()?.matches
         );
       },
 
-      promotionsConfiguring: ({ actors }) => {
+      promotionsConfiguring: ({ actors }: BasketContext) => {
         return ["processing", "loading"].some(
-          actors.promotions?.state?.matches
+          actors.promotions?.getSnapshot()?.matches
         );
       },
 
-      customFieldsComplete: ({ actors }) => {
-        return actors.customFields?.state?.matches("complete");
+      customFieldsComplete: ({ actors }: BasketContext) => {
+        return actors.customFields?.getSnapshot()?.matches("complete");
       },
 
-      customFieldsConfiguring: ({ actors }) => {
-        return !actors.customFields?.state?.matches("complete");
+      customFieldsConfiguring: ({ actors }: BasketContext) => {
+        return !actors.customFields?.getSnapshot()?.matches("complete");
       },
 
-      billingComplete: ({ actors }) => {
-        return actors.billingDetails?.state?.matches("complete");
+      billingComplete: ({ actors }: BasketContext) => {
+        return actors.billingDetails?.getSnapshot()?.matches("complete");
       },
 
-      billingConfiguring: ({ actors }) => {
-        return !actors.billingDetails?.state?.matches("complete");
+      billingConfiguring: ({ actors }: BasketContext) => {
+        return !actors.billingDetails?.getSnapshot()?.matches("complete");
       },
 
-      paymentDetailsValid: ({ actors }) => {
+      paymentDetailsValid: ({ actors }: BasketContext) => {
         return (
-          actors.paymentDetails?.state?.done ||
-          actors.paymentDetails?.state?.matches("available.valid")
+          actors.paymentDetails?.getSnapshot()?.done ||
+          actors.paymentDetails?.getSnapshot()?.matches("available.valid")
         );
       },
 
-      paymentDetailsComplete: ({ actors }, { data }) => {
+      paymentDetailsComplete: ({ actors }: BasketContext, { data }) => {
         const value =
-          (actors.paymentDetails?.state?.done ||
-            actors.paymentDetails?.state?.matches("complete")) &&
+          (actors.paymentDetails?.getSnapshot()?.done ||
+            actors.paymentDetails?.getSnapshot()?.matches("complete")) &&
           !isEmpty(data);
 
         return value;
       },
 
-      hasPaymentDetails: ({ paymentDetails }) => {
+      hasPaymentDetails: ({ paymentDetails }: BasketContext) => {
         const value = !isNil(paymentDetails) && !isEmpty(paymentDetails);
 
         return value;
       },
 
-      paymentDetailsConfiguring: ({ actors, paymentDetails }) => {
+      paymentDetailsConfiguring: ({
+        actors,
+        paymentDetails,
+      }: BasketContext) => {
         return (
           isEmpty(paymentDetails) &&
           ["available.invalid", "available.checking", "available.loading"].some(
-            actors.paymentDetails?.state?.matches
+            actors.paymentDetails?.getSnapshot()?.matches
           )
         );
       },
 
-      paymentNeeded: ({ paymentDetails }) => {
-        const hasOustandingBalance = paymentDetails?.amount > 0;
+      paymentNeeded: ({ paymentDetails }: BasketContext) => {
+        const hasOustandingBalance = paymentDetails?.amount ?? 0 > 0;
 
         const payingNow = paymentDetails?.type != PaymentTypes.PAY_LATER;
 
@@ -786,7 +790,8 @@ export default createMachine(
       isNotLoading: ({ items }) => {
         return every(
           items,
-          actor => !["subscribing", "loading"].some(actor?.state.matches)
+          actor =>
+            !["subscribing", "loading"].some(actor?.getSnapshot().matches)
         );
       },
 

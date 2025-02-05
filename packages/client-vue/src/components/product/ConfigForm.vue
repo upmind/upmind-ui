@@ -57,11 +57,11 @@ export default defineComponent({
       default: false,
     },
     fields: {
-      type: Object,
+      type: object,
       required: true,
     },
     modelValue: {
-      type: Object,
+      type: object,
       required: true,
     },
     additionalErrors: {
@@ -69,7 +69,7 @@ export default defineComponent({
       default: () => [],
     },
     label: {
-      type: String,
+      type: string,
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

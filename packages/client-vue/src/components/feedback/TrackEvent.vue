@@ -18,7 +18,7 @@ export default defineComponent({
   name: "TrackEvent",
   props: {
     item: {
-      type: Object, // xstate actor
+      type: object, // xstate actor
       required: true,
     },
   },

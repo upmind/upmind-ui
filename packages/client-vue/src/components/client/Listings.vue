@@ -151,14 +151,14 @@ export default defineComponent({
   emits: ["update:open", "add", "select"],
   props: {
     type: {
-      type: String, //as PropType<"addresses" | "emails" | "phones" | "companies">,
+      type: string, //as PropType<"addresses" | "emails" | "phones" | "companies">,
       required: true,
     },
-    i18nKey: { type: String, required: true },
+    i18nKey: { type: string, required: true },
     open: { type: Boolean },
     modal: { type: Boolean, default: false },
-    color: { type: String, default: "base" },
-    skrim: { type: String, default: "dark" },
+    color: { type: string, default: "base" },
+    skrim: { type: string, default: "dark" },
     // ---
     noActions: { type: Boolean },
     noFilter: { type: Boolean },

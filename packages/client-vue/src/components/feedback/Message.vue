@@ -37,7 +37,7 @@ export default defineComponent({
   },
   props: {
     item: {
-      type: Object, // xstate actor
+      type: object, // xstate actor
       required: true,
     },
     scheduled: {
@@ -45,10 +45,10 @@ export default defineComponent({
       default: false,
     },
     anchor: {
-      type: String,
+      type: string,
     },
     variant: {
-      type: String,
+      type: string,
       default: "inline",
     },
     block: {

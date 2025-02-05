@@ -42,7 +42,7 @@ async function load(_context: RecaptchaContext, _event: RecaptchaEvent) {
   });
 }
 
-export async function generateToken(grecaptcha: any, action?: String) {
+export async function generateToken(grecaptcha: any, action?: string) {
   if (!grecaptcha) return Promise.reject("Recaptcha not loaded");
 
   return grecaptcha.execute(siteKey, { action });

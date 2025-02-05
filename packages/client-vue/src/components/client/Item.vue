@@ -74,16 +74,16 @@ export default defineComponent({
   components: { Form, Drawer, Button, SkeletonList },
   props: {
     modelValue: {
-      type: Object, // xstate actor
+      type: object, // xstate actor
       required: true,
     },
-    i18nKey: { type: String, required: true },
+    i18nKey: { type: string, required: true },
     open: { type: Boolean },
     modal: { type: Boolean, default: true },
     nested: { type: Boolean, default: false },
     autosave: { type: Boolean, default: false },
-    skrim: { type: String, default: "dark" },
-    color: { type: String, default: "base" },
+    skrim: { type: string, default: "dark" },
+    color: { type: string, default: "base" },
   },
   setup(props) {
     const { t } = useI18n();

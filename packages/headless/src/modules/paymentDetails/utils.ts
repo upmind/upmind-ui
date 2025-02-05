@@ -24,7 +24,7 @@ import type { UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const parsePaymentDetails = (raw: any) => {
+export const parsePaymentDetails = (raw: any): Record<string, any> => {
   // TODO: map the actual allowed params fr the endpoint
   return omit(raw, ["can_store"]);
 };

@@ -61,7 +61,7 @@ import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
-    items: Object[];
+    items: object[];
     modelValue?: string | number;
     errors?: string;
     // ---

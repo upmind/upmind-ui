@@ -160,7 +160,10 @@ async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
 
 // --------------------------------------------------------
 
-async function loadLookups(_context: PhoneContext, _event: PhoneEvent) {
+async function loadLookups(
+  _context: PhoneContext,
+  _event: PhoneEvent
+): Promise<{ types: Record<string, any>; country: any }> {
   // we dont have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
   await fetchCountries();

@@ -143,11 +143,11 @@ export default defineComponent({
       required: true,
     },
     itemKey: {
-      type: String,
+      type: string,
       required: true,
     },
     label: {
-      type: String,
+      type: string,
     },
     errors: {
       type: Array,

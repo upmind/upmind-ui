@@ -1,5 +1,7 @@
 // --- extrnal
 import type { ActorRef } from "xstate";
+import { IPaymentDetail } from "../paymentDetails";
+import { responseCodes } from "../api";
 // --------------------------------------------------------
 // ENUMS
 
@@ -204,6 +206,10 @@ export interface BasketContext {
   products: BasketProduct[]; // Array of products in the basket
   // ---
   error?: {
+    code?: string | responseCodes;
+    title?: string;
+    message?: string;
+    data?: any;
     provisioningErrors?: Record<string, any>;
   };
   controller?: AbortController;
@@ -217,7 +223,7 @@ export interface BasketContext {
     promotions?: ActorRef<any, any>;
   };
   // --- Payments
-  paymentDetails?: ActorRef<any, any>;
+  paymentDetails?: any; //IPaymentDetail;
   payment?: ActorRef<any, any>;
 }
 

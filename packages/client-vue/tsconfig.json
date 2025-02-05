@@ -6,7 +6,7 @@
   "references": [
     { "path": "../headless" },
     { "path": "../headless-vue" },
-
+    { "path": "../ui" },
     {
       "path": "./tsconfig.node.json"
     },

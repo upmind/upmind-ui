@@ -22,11 +22,11 @@ export interface UnifiedAddressContext {
   baseModel?: IAddress;
 
   // --- our internal lookup objects
-  countries: Object;
-  places: Object;
-  addresses: Object;
-  phones: Object;
-  emails: Object;
+  countries: object;
+  places: object;
+  addresses: object;
+  phones: object;
+  emails: object;
 
   // ---
   autocomplete?: {

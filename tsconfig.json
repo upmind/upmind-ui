@@ -20,8 +20,9 @@
     "resolveJsonModule": true
   },
   "references": [
-    { "path": "packages/headless/tsconfig.build.json" },
-    { "path": "packages/headless-vue/tsconfig.build.json" }
+    { "path": "./packages/headless" },
+    { "path": "./packages/headless-vue" },
+    { "path": "./packages/types" }
   ],
   "exclude": ["node_modules", "coverage", "dist", "*.d.ts"]
 }

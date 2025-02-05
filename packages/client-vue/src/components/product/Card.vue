@@ -192,11 +192,11 @@ export default defineComponent({
   emits: ["reject", "resolve"],
   props: {
     modelValue: {
-      type: String,
+      type: string,
       required: true,
     },
     item: {
-      type: Object, // xstate actor
+      type: object, // xstate actor
       required: true,
     },
   },

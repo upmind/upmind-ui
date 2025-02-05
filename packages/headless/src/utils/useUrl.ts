@@ -11,7 +11,7 @@ import { defaultsDeep, forIn, trimStart, isArray } from "lodash-es";
  */
 export function useUrl(
   path: string | URL["pathname"],
-  params: Object = {},
+  params: object = {},
   instance?: { base?: string; context?: string }
 ) {
   // ensure our instance has the correct defaults
@@ -28,8 +28,7 @@ export function useUrl(
   // and add any params
   forIn(params, (value, key) => {
     if (isArray(value))
-      value.forEach(v => url.searchParams.append(`${key}[]`, v));
-    // @ts-ignore
+      (value as any[]).forEach(v => url.searchParams.append(`${key}[]`, v));
     else url.searchParams.set(key, value);
   });
 

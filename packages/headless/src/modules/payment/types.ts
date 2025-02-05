@@ -14,7 +14,7 @@ import type { Basket } from "../basket/types";
 export interface PaymentContext {
   id?: string;
   order?: Basket;
-  paymentDetails?: Object;
+  paymentDetails?: object;
   payment?: any; //IPayment
   urls: {
     return?: URL;

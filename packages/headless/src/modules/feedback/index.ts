@@ -43,7 +43,7 @@ export const useFeedback = () => {
   // --- syntactic sugar
 
   function addError(
-    message: string | Object | any,
+    message: string | object | any,
     // TODO: display?: messageDisplays = messageDisplays.TOAST,
     // TODO: delay?: number = 0,
     // TODO: maxAge?: number = useTime().SECOND * 6
@@ -85,7 +85,7 @@ export const useFeedback = () => {
     } as Message);
   }
 
-  function trackEvent(data: Object) {
+  function trackEvent(data: object) {
     const message: Message = {
       type: messageTypes.EVENT,
       display: messageDisplays.SILENT,

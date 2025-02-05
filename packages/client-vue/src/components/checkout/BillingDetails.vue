@@ -120,9 +120,9 @@ export default defineComponent({
   },
   emits: ["update:modelValue"],
   props: {
-    i18nKey: { type: String },
-    modelValue: { type: Object },
-    color: { type: String, default: "base" },
+    i18nKey: { type: string },
+    modelValue: { type: object },
+    color: { type: string, default: "base" },
   },
   setup() {
     const { t } = useI18n();

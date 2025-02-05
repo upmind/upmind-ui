@@ -40,7 +40,7 @@ import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 // props: {
-//   popoverClass: { type: String, default: "mt-0" },
+//   popoverClass: { type: string, default: "mt-0" },
 // }
 
 const props = withDefaults(

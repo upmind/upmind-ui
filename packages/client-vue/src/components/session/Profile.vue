@@ -39,12 +39,12 @@ export default defineComponent({
   emits: [],
   props: {
     size: {
-      type: String,
+      type: string,
       default: "md",
       validator: value => ["sm", "md", "lg"].includes(value),
     },
     placement: {
-      type: String, //as PropType<DropdownProps["position"]>,
+      type: string, //as PropType<DropdownProps["position"]>,
       default: "bottom-start",
     },
   },

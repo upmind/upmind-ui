@@ -1,6 +1,6 @@
 import { reduce, set } from "lodash-es";
 
-export const useBrandParser = (data: Object) =>
+export const useBrandParser = (data: object) =>
   reduce(
     data,
     (result, value, key) => {
