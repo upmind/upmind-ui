@@ -3,64 +3,36 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 // import type { RequestError } from "../..//api/types";
+import { ICountry, IRegion, IAddress } from "@upmind-automation/types";
+import type { ClientItemContext, ClientListingsContext } from "../types";
+// -----------------------------------------------------------------------------
 
-// --------------------------------------------------------
-// ENUMS
-
-// --------------------------------------------------------
-// private
-
-export interface IAddress {
-  id?: string;
-  // ---
-  place?: string; // used for place lookup
-  // ---
-  address_1?: string;
-  address_2?: string;
-  city?: string;
-  postcode?: string;
-  country_id?: string; //ICountry["id"];
-  country?: any; //ICountry; // Requires relation
-  region?: any; //IRegion; // Requires relation
-  region_id?: string; //IRegion["id"] ;
-  state?: string;
-  // ---
-  type?: number;
-  name?: string;
-  default?: boolean;
-  // --- readonly/system data
-  can_delete?: boolean;
-  client_id?: string; // IClient["id"];
-  created_at?: string;
-  deleted_at?: null;
-  updated_at?: Date | string;
-  user_id?: string; // IUser["id"];
-  verified?: number;
-}
+export const AddressTypes = [
+  { key: 1, value: "Home" },
+  { key: 2, value: "Office" },
+  { key: 3, value: "Holiday" },
+  { key: 4, value: "Company" },
+];
 
 export interface IAddressData {
   id?: string;
-  name?: string;
+  name?: string | null;
   address1?: string;
   address2?: string;
-  city?: string;
-  postcode?: string;
-  countryId?: string; //ICountry["id"];
-  country?: object; //ICountry; // Requires relation
-  regionId?: string; //IRegion["id"] ;
-  state?: string;
+  city?: string | null;
+  postcode?: string | null;
+  countryId?: ICountry["id"];
+  country?: ICountry; // Requires relation
+  regionId?: IRegion["id"];
+  state?: string | null;
 }
 
-// --------------------------------------------------------
-// Contexts
+export interface AddressContext extends ClientItemContext {
+  country?: ICountry;
+  regions?: IRegion[];
+  types?: typeof AddressTypes;
+  baseModel?: IAddress;
 
-export interface AddressContext {
-  country?: any[]; //ICountry[];
-  regions?: any[]; //IRegion[];
-  types?: any[]; //IAddressType[];
-  baseModel?: IAddressData;
-
-  // ---
   autocomplete?: {
     schema?: JsonSchema;
     uischema?: UISchemaElement;
@@ -70,30 +42,7 @@ export interface AddressContext {
     };
     results?: any[]; //AddressAutocompleteResult[];
   };
-  // ---
-  schema?: JsonSchema;
-  uischema?: UISchemaElement;
   model?: IAddressData;
-  // ---
-  error?: any;
 }
 
-export interface AddressesContext {
-  items?: IAddress[];
-  selected?: IAddress;
-  error?: any;
-}
-// --------------------------------------------------------
-// Events
-
-export interface AddressEvent {
-  type?: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
-  data?: any;
-  error?: any;
-}
-
-export interface AddressesEvents {
-  type?: "ADD" | "SELECT" | "REFRESH" | "STOP";
-  data?: any;
-  error?: any;
-}
+export interface AddressesContext extends ClientListingsContext {}

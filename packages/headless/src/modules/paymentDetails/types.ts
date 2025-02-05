@@ -1,7 +1,7 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
-import type { Basket } from "../basket/types";
+import type { IBasket } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -81,6 +81,6 @@ export interface PaymentDetailsEvent {
 
 export interface RefreshEvent {
   type: "REFRESH";
-  data?: Basket;
+  data?: IBasket;
   error?: any;
 }

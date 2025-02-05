@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { RequestError } from "../..//api/types";
-export type { ICurrency } from "../../system/types";
+import type { ICurrency } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -18,7 +18,7 @@ export interface CurrencyContext {
   // ---
   // TODO:
   // currencies?: ICurrency[];
-  currencies?: any[];
+  currencies?: ICurrency[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   // TODO:
@@ -26,8 +26,9 @@ export interface CurrencyContext {
   // baseModel?: ICurrency;
   model?: any;
   baseModel?: any;
+  autoupdate?: boolean;
   // ---
-  dirty?: Boolean;
+  dirty?: boolean;
   // TODO:
   // error?: RequestError;
   error?: any;

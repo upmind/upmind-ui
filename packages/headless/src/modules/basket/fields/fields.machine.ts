@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, AnyEventObject } from "xstate";
 // const { sendParent } = actions; DEPRECATED
 
 // --- internal
@@ -256,15 +256,18 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basketId }, _event) => !!basketId,
+      isDirty: ({ dirty }: FieldsContext) => !!dirty,
+      hasBasket: ({ basketId }: FieldsContext) => !!basketId,
       // @ts-ignore
-      hasChanged: ({ model, basketId }, { data }: any) =>
+      hasChanged: (
+        { model, basketId }: FieldsContext,
+        { data }: AnyEventObject
+      ) =>
         model?.notes !== data?.notes ||
         model?.customFields !== data?.customFields ||
         basketId !== data?.id,
 
-      shouldUpdate: ({ autoupdate, basketId }, _event) =>
+      shouldUpdate: ({ autoupdate, basketId }: FieldsContext) =>
         !!autoupdate && !!basketId,
     },
 

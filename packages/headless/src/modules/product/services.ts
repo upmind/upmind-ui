@@ -68,7 +68,7 @@ async function load(
   }: ProductConfigContext,
   _event: any
 ) {
-  const { productId } = model;
+  const productId = get(model, "productId");
   if (!productId) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
@@ -139,7 +139,7 @@ async function checkQuantity(
   { lookups, model }: ProductConfigContext,
   { data }: any
 ) {
-  const { product } = lookups;
+  const product = get(lookups, "product");
   const value = data?.quantity || model?.quantity;
   const quantity = parseQuantity(value, product);
   // ---
@@ -186,7 +186,7 @@ async function checkTerm(
   // ---
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
-  times(model.quantity, () => {
+  times(model?.quantity ?? 0, () => {
     price.push(term?.currentAmount);
   });
 
@@ -374,7 +374,7 @@ const calculateSummary = (
   // NB: remove the term price if we have any price overrides
   const values = reject(
     concat(
-      checkPriceOverride(model.options, lookups.options)
+      checkPriceOverride(model?.options, lookups?.options)
         ? []
         : prices?.term || [],
       prices?.attributes,
@@ -490,7 +490,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   load,
   refresh: load, // alias
   // ---

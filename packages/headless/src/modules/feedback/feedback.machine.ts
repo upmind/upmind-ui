@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign, spawn, AnyEventObject } from "xstate";
 
 // --- internal
 import messageMachine from "./message.machine";
@@ -7,8 +7,10 @@ import type { MessagesContext } from "./types";
 
 // --- utils
 import { generateHash, useMessageParser } from "./utils";
-import { find, isEmpty, remove, set } from "lodash-es";
+import { find, isEmpty, remove, set, some } from "lodash-es";
 
+// --- types
+import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -57,19 +59,17 @@ export default createMachine(
     actions: {
       // @ts-ignore
       add: assign({
-        // TODO: messages: ({ messages }: MessagesContext, { data }: MessagesEvents) => {
-        messages: ({ messages }: MessagesContext, { data }: any) => {
-          const id = data?.id || generateHash(data);
+        messages: ({ messages }: MessagesContext, { data }: AnyEventObject) => {
+          messages = messages ?? [];
 
-          // ensure we set the hash based on the id provided or generated
+          const id = data?.id || generateHash(data);
           set(data, "hash", id);
 
-          // check if we already have a feedback with the same id
-          const message = find(messages, ["id", id]);
+          const exists = some(messages, ["id", id]);
 
           // if we dont then spawn an actor for the new message
-          if (!message) {
-            const machine = spawn(
+          if (!exists) {
+            const machine: ActorRef<any, any> = spawn(
               messageMachine.withContext(useMessageParser(data)),
               { name: id, sync: true }
             );
@@ -84,15 +84,15 @@ export default createMachine(
       remove: assign({
         messages: (
           { messages }: MessagesContext,
-          // TODO: { data: { id } }: MessagesEvents
-          { data: { id } }: any
+          { data: { id } }: AnyEventObject
         ) => {
+          messages = messages ?? [];
           // try find any messages with the same id
           const message = find(messages, ["id", id]);
 
           // if it exists, stop the referenced machine
           // and remove it from our list of message
-          if (message && !message?.state?.done) message.stop();
+          if (message?.stop && !message?.getSnapshot()?.done) message.stop();
 
           remove(messages, ["id", id]);
           return messages;
@@ -103,15 +103,16 @@ export default createMachine(
       dismiss: assign({
         messages: (
           { messages }: MessagesContext,
-          // TODO: { data: { id } }: MessagesEvents
-          { data: { id } }: any
+          { data: { id } }: AnyEventObject
         ) => {
+          messages = messages ?? [];
+
           // try find any messages with the same id
           const message = find(messages, ["id", id]);
 
           // if it exists, stop the referenced machine
           // and remove it from our list of message
-          if (message && !message?.state?.done) {
+          if (message?.send && !message?.getSnapshot()?.done) {
             message.send({ type: "DISMISS" });
           } else {
             remove(messages, ["id", id]);

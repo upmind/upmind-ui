@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
+import { createMachine, assign, actions, AnyEventObject } from "xstate";
 const { sendParent } = actions;
 
 // --- internal
@@ -218,7 +218,8 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context: any, { update }: any) => !!update,
+        autoupdate: (_context: CurrencyContext, { update }: AnyEventObject) =>
+          !!update,
       }),
       clearAutoUpdate: assign({
         // @ts-ignore

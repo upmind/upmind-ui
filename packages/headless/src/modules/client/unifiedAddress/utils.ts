@@ -23,7 +23,7 @@ import {
 import type { IAddress, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const useSchema = ({
   country,
@@ -591,7 +591,7 @@ export const useModelParser = (
   return defaultsDeep(model, values) as IAddress;
 };
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const spawnItem = (model?: IAddress) => {
   try {

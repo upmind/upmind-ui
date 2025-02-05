@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, AnyEventObject } from "xstate";
 
 // --- internal
 import services, { BrandConfigKeys, OrgFeatureKeys } from "./services";
@@ -19,7 +19,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "processing",
     context: {
-      modules: null,
+      modules: undefined,
       keys: {
         // start with these defaults
         organisation: [
@@ -62,7 +62,7 @@ export default createMachine(
       //  we dont have a set type for this yet as its 100% dynamic from the API
       //  on fetch we will inject the data into the context
       // ---
-      error: {},
+      error: undefined,
     } as BrandContext,
 
     states: {
@@ -223,7 +223,7 @@ export default createMachine(
       ),
 
       setConfigKeys: assign({
-        keys: ({ keys }: any, { data }: { data: BrandConfigKeys[] }) => {
+        keys: ({ keys }: BrandContext, { data }: AnyEventObject) => {
           keys.config.push(...data);
           return keys;
         },

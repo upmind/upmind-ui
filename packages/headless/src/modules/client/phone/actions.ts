@@ -7,27 +7,24 @@ import { useSchema, useUischema, spawnItem } from "./utils";
 import { find, map, get, compact, isObject } from "lodash-es";
 
 // --- types
-import type { PhoneContext, PhoneEvent } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
-// --------------------------------------------------------
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { PhoneContext, PhonesContext } from "./types";
+// -----------------------------------------------------------------------------
 
 export const ListingActions = {
   add: assign({
-    initial: ({ selected, initial }) => selected?.id || initial,
-    selected: (
-      _context: ClientListingsContext,
-      { data }: ClientListingsEvents
-    ) => {
+    initial: ({ selected, initial }: PhonesContext) => selected?.id || initial,
+    selected: (_context: PhonesContext, { data }: AnyEventObject) => {
       return spawnItem(data); // spawn an actor for the new raw
     },
   }),
   setItems: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
+    raw: ({ raw }: PhonesContext, { data }: AnyEventObject) =>
       map(data, item => {
         const found = find(raw, ["id", item.id]);
         if (!found) return spawnItem(item);
         return found;
-      }),
+      }) as ActorRef<any, any>[],
     error: null,
   }),
 };
@@ -35,15 +32,14 @@ export const ListingActions = {
 export const ItemActions = {
   setMeta: assign({
     // @ts-ignore
-    title: ({ model }: PhoneContext, _event: PhoneEvent) => {
+    title: ({ model }: PhoneContext) => {
       const phone = get(model, "phone");
       if (isObject(phone)) return get(model, "phone.number");
       return get(model, "international_phone");
     },
     description: (
       // TODO: { model, country, types }: PhoneContext,
-      { model, country, types }: any,
-      _event: PhoneEvent
+      { model, country, types }: PhoneContext
     ) => {
       let type = get(model, "type");
       type = get(types, type);
@@ -51,14 +47,12 @@ export const ItemActions = {
     },
   }),
   setSchemas: assign({
-    schema: (context: PhoneContext, _event: PhoneEvent) => useSchema(context),
-    // TODO: uischema: (context: PhoneContext, _event: PhoneEvent) =>
-    // TODO: useUischema(context),
-    uischema: (_context, _event: PhoneEvent) => useUischema(),
+    schema: (context: PhoneContext) => useSchema(context),
+    uischema: (context: PhoneContext) => useUischema(),
   }),
 
   setModel: assign({
-    model: ({ schema, model }: any, { data }: any) =>
+    model: ({ schema, model }: PhoneContext, { data }: AnyEventObject) =>
       useModelParser(schema, data || model),
   }),
 };

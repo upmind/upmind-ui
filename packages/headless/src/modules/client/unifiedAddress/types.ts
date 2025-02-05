@@ -4,30 +4,34 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // --- internal
 // import type { RequestError } from "../..//api/types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ENUMS
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // private
+import type {
+  ICountry,
+  IRegion,
+  IAddress,
+  IPhone,
+  IEmail,
+} from "@upmind-automation/types";
 
-import type { IAddress, IAddressData } from "../address/types";
+import { AddressTypes } from "../address/types";
+import type { ClientItemContext, ClientListingsContext } from "../types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Contexts
 
-export interface UnifiedAddressContext {
-  country?: any[]; //ICountry[];
-  regions?: any[]; //IRegion[];
-  types?: any[]; //IAddressType[];
-  baseModel?: IAddress;
-
-  // --- our internal lookup objects
-  countries: object;
-  places: object;
-  addresses: object;
-  phones: object;
-  emails: object;
-
+export interface UnifiedAddressContext extends ClientItemContext {
+  country?: ICountry;
+  regions?: IRegion[];
+  types?: typeof AddressTypes;
+  countries: ICountry[];
+  places: any;
+  addresses: IAddress[];
+  phones: IPhone[];
+  emails: IEmail[];
   // ---
   autocomplete?: {
     schema?: JsonSchema;
@@ -40,30 +44,6 @@ export interface UnifiedAddressContext {
     // results?: AddressAutocompleteResult[];
     results?: any[];
   };
-  // ---
-  schema?: JsonSchema;
-  uischema?: UISchemaElement;
-  model?: IAddressData;
-  // ---
-  error?: any;
 }
 
-export interface UnifiedAddressesContext {
-  items?: IAddress[];
-  selected?: IAddress;
-  error?: any;
-}
-// --------------------------------------------------------
-// Events
-
-export interface UnifiedAddressEvent {
-  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
-  data: any;
-  error?: any;
-}
-
-export interface UnifiedAddressesEvents {
-  type: "ADD" | "SELECT" | "REFRESH" | "STOP";
-  data: any;
-  error?: any;
-}
+export interface UnifiedAddressesContext extends ClientListingsContext {}

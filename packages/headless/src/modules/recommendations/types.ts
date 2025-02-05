@@ -122,7 +122,7 @@ export interface RecommendationsEngineContext {
   basketId?: string;
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
-  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemMapper?: (item: BasketProduct) => Partial<ProductModel>;
   basketItemBuilder?: (model: ProductModel) => BasketProduct;
   // ---
 }

@@ -14,7 +14,7 @@ import { find, map, compact } from "lodash-es";
 // @ts-ignore
 import type { IAddressData, IAddress } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // create a global instance of the system machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
@@ -29,7 +29,7 @@ const service = interpret(listingsMachine.withConfig({ actions, services }), {
   state = newState;
 });
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 /**
  * @ignore

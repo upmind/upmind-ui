@@ -10,10 +10,10 @@ import services from "./services";
 import { get, uniqueId, map } from "lodash-es";
 
 // --- types
-import type { ICompany } from "./types";
+import type { ICompany } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // TODO: export const useSchema = ({ addresses, emails, phones, baseModel }) => {
 export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
@@ -198,7 +198,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const spawnItem = (model?: ICompany) => {
   try {

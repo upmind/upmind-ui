@@ -3,7 +3,6 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 // import type { RequestError } from "../api/types";
-
 // --------------------------------------------------------
 // ENUMS
 
@@ -21,12 +20,13 @@ export interface IField {
 export interface FieldsContext {
   basketId?: string;
   // ---
-  fields?: any[]; // IFields[];
+  fields?: any; //IFields[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IField;
+  autoupdate?: boolean;
   // ---
-  dirty?: Boolean;
+  dirty?: boolean;
   error?: any;
 }
 

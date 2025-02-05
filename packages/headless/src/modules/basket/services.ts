@@ -13,7 +13,8 @@ import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
 
 // --- types
-import type { Basket, BasketContext, BasketEvent } from "./types";
+import type { IBasket } from "@upmind-automation/types";
+import type { BasketContext, BasketEvent } from "./types";
 
 // --------------------------------------------------------
 // ENUMS
@@ -174,7 +175,7 @@ async function convert({ basket }: BasketContext, { data }: BasketEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function getProvisioningFieldsValues(basket: Basket) {
+async function getProvisioningFieldsValues(basket: IBasket) {
   const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products

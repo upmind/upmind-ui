@@ -1,6 +1,6 @@
 // --- internal
 import type { RequestError } from "..//api/types";
-
+import type { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -8,10 +8,12 @@ import type { RequestError } from "..//api/types";
 // Contexts
 
 export interface BrandContext {
-  // TODO: add all the other types
-  // ---
-  // TODO:
-  // error?: RequestError;
+  keys: {
+    organisation: any; //OrgFeatureKeys[];
+    config: any; //BrandConfigKeys[];
+  };
+
+  modules?: Record<string, any>;
   error?: any;
 }
 

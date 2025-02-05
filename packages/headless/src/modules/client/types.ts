@@ -3,14 +3,14 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { RequestError } from "..//api/types";
-
-// --------------------------------------------------------
-// ENUMS
-
-// --------------------------------------------------------
-// private
-
-// --------------------------------------------------------
+import type { ActorRef } from "xstate";
+import type {
+  IAddress,
+  ICompany,
+  IEmail,
+  IPhone,
+} from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 // Contexts
 
 export interface ClientItemContext {
@@ -19,43 +19,16 @@ export interface ClientItemContext {
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  // TODO:
-  // model?: IAddress;
+  baseModel?: any;
   model?: any;
-  // ---
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }
 
 export interface ClientListingsContext {
+  selected?: ActorRef<any | any> | any;
+  error?: any;
   initial?: string;
   filters: any;
-  // TODO:
-  // items?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
-  // raw?: IAddress[] | ICompany[] | IEmail[] | IPhone[];
-  // selected?: IAddress;
-  // error?: RequestError;
-  items?: any[];
-  raw?: any[];
-  selected?: any;
-  error?: any;
-}
-// --------------------------------------------------------
-// Events
-
-export interface ClientItemEvent {
-  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
-  data: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}
-
-export interface ClientListingsEvents {
-  type: "ADD" | "SELECT" | "REFRESH" | "STOP";
-  data: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+  items?: ActorRef<any | any>[]; //IAddress[] | ICompany[] | IEmail[] | IPhone[];
+  raw?: ActorRef<any | any>[]; //IAddress[] | ICompany[] | IEmail[] | IPhone[];
 }

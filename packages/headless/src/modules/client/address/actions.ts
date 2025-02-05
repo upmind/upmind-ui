@@ -1,5 +1,5 @@
 // --- external
-import { assign } from "xstate";
+import { AnyEventObject, assign } from "xstate";
 
 // --- utils
 import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
@@ -7,28 +7,25 @@ import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map, get, compact } from "lodash-es";
 
 // --- types
-import type { AddressContext, AddressEvent } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { ActorRef } from "xstate";
+import type { AddressContext, AddressesContext, IAddressData } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const ListingActions = {
   add: assign({
-    initial: ({ selected, initial }) => selected?.id || initial,
-    selected: (
-      _context: ClientListingsContext,
-      { data }: ClientListingsEvents
-    ) => {
-      return spawnItem(data); // spawn an actor for the new raw
-    },
+    initial: ({ selected, initial }: AddressesContext) =>
+      selected?.id || initial,
+    selected: (_context: AddressesContext, { data }: AnyEventObject) =>
+      spawnItem(data), // spawn an actor for the new raw
   }),
   setItems: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
+    raw: ({ raw }: AddressesContext, { data }: AnyEventObject) =>
       map(data, item => {
         const found = find(raw, ["id", item.id]);
         if (!found) return spawnItem(item);
         return found;
-      }),
+      }) as ActorRef<any, any>[],
     error: null,
   }),
 };
@@ -36,12 +33,10 @@ export const ListingActions = {
 export const ItemActions = {
   setMeta: assign({
     // @ts-ignore
-    title: ({ model }: AddressContext, _event: AddressEvent) =>
-      model?.name || "New Address",
+    title: ({ model }: AddressContext) => model?.name || "New Address",
     description: (
       // TODO: { model, countries, regions }: AddressContext,
-      { model }: any,
-      _event: AddressEvent
+      { model }: any
     ) => {
       // BUG: Think this is the source of our timeout son address lookups
       // const country = find(countries, ["id", get(model, "countryId")]);
@@ -59,8 +54,8 @@ export const ItemActions = {
   }),
 
   setSchemas: assign({
-    schema: (context: AddressContext, _event) => useSchema(context),
-    uischema: (context: AddressContext, _event) => useUischema(context),
+    schema: (context: AddressContext) => useSchema(context),
+    uischema: (context: AddressContext) => useUischema(context),
   }),
 
   setModel: assign({
@@ -68,7 +63,10 @@ export const ItemActions = {
     // model: ({ schema, baseModel }: AddressContext, { data }: AddressEvent) =>
     //   useModelParser(schema, data, baseModel),
 
-    model: ({ schema, baseModel }: AddressContext, { data }: any) => {
+    model: (
+      { schema, baseModel }: AddressContext,
+      { data }: AnyEventObject
+    ) => {
       if (!schema) {
         throw new Error("Schema is undefined");
       }
