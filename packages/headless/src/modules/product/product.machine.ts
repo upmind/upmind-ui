@@ -44,12 +44,9 @@ import {
 import { calculateSubscription } from "./services";
 
 // ---types
+import type { AnyEventObject } from "xstate";
 import type { BasketProduct, Price } from "../basket";
-import type {
-  ProductConfigContext,
-  ProductConfigEvent,
-  ProductModel,
-} from "./types";
+import type { ProductConfigContext, ProductModel } from "./types";
 // --------------------------------------------------------
 // as this is a sub machine, we need to be initialised with a product
 export default createMachine(
@@ -58,8 +55,7 @@ export default createMachine(
     id: "productConfigurator",
     predictableActionArguments: true,
     initial: "subscribing",
-    // @ts-ignore
-    context: {},
+    context: {} as ProductConfigContext,
     states: {
       // this is our initial state where we are conditionally waiting for the basket helper to be created
       // this is so we can add/update our product to the basket
@@ -334,12 +330,16 @@ export default createMachine(
           ],
           REMOVE: {
             actions: sendTo(
-              // @ts-ignore
-              ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => {
+              ({ basketHelper }: ProductConfigContext, _event) => {
+                if (!basketHelper)
+                  throw new Error("basketHelper is not defined");
+
+                return basketHelper;
+              },
+              (context: ProductConfigContext, _event) => {
                 const { model, basketProduct } = context;
                 // NB:ensure we ad dout basket product id to the model, so we update instead of add
-                if (basketProduct) model.id = basketProduct.id;
+                if (basketProduct && model) model.id = basketProduct.id;
 
                 return {
                   type: "REMOVE",
@@ -352,13 +352,17 @@ export default createMachine(
           },
           UPDATE: {
             actions: sendTo(
-              // @ts-ignore
-              ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => {
+              ({ basketHelper }: ProductConfigContext, _event) => {
+                if (!basketHelper)
+                  throw new Error("basketHelper is not defined");
+
+                return basketHelper;
+              },
+              (context: ProductConfigContext, _event) => {
                 const { model, basketProduct } = context;
 
                 // NB:ensure we ad dout basket product id to the model, so we update instead of add
-                if (basketProduct) model.id = basketProduct.id;
+                if (basketProduct && model) model.id = basketProduct.id;
 
                 return {
                   type: "UPDATE",
@@ -413,9 +417,13 @@ export default createMachine(
         on: {
           REMOVE: {
             actions: sendTo(
-              // @ts-ignore
-              ({ basketHelper }, _event) => basketHelper,
-              (context, _event) => ({
+              ({ basketHelper }: ProductConfigContext, _event) => {
+                if (!basketHelper)
+                  throw new Error("basketHelper is not defined");
+
+                return basketHelper;
+              },
+              (context: ProductConfigContext, _event) => ({
                 type: "REMOVE",
                 target: context.model,
                 context,
@@ -481,7 +489,7 @@ export default createMachine(
             errorExternal,
             error,
           }: ProductConfigContext,
-          _event: ProductConfigEvent
+          _event: AnyEventObject
         ) => {
           return {
             errorExternal,
@@ -491,7 +499,7 @@ export default createMachine(
             clientId,
             currencyId,
 
-            promotions: uniq(concat(promotions ?? [], coupons ?? [])),
+            promotions: promotions ?? [],
             coupons: coupons ?? [],
             // ---
             baseModel: !isEmpty(basketProduct)
@@ -517,7 +525,7 @@ export default createMachine(
             coupons,
             basketProduct,
           }: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => {
           const {
             basket_product,
@@ -527,6 +535,7 @@ export default createMachine(
             error: errorExternal,
           } = data;
 
+          lookups ??= {};
           lookups.product = parseProduct(rawProduct, basket_product);
 
           if (basketProduct && basketProduct != basket_product) {
@@ -564,10 +573,7 @@ export default createMachine(
       ),
 
       setBasketHelper: assign(
-        ({
-          basketHelper,
-          promotions,
-        }: ProductConfigContext): Partial<ProductConfigContext> => {
+        ({ basketHelper, promotions }: ProductConfigContext) => {
           return {
             basketHelper: basketHelper || spawn(basketSubscription),
             itemBuilder: (item: ProductModel) => parseModel(item),
@@ -578,15 +584,15 @@ export default createMachine(
       // ---
 
       setLookups: assign({
-        currencyId: (_context, { data }: ProductConfigEvent) => {
+        currencyId: (_context, { data }: AnyEventObject) => {
           return data?.currency?.id;
         },
 
-        rawProduct: (_context, { data }: ProductConfigEvent) => data.product,
+        rawProduct: (_context, { data }: AnyEventObject) => data.product,
 
         lookups: (
           { model, basketProduct }: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => {
           return {
             product: parseProduct(data.product, basketProduct),
@@ -609,8 +615,9 @@ export default createMachine(
         baseModel: ({ model }: ProductConfigContext, _event) =>
           cloneDeep(model),
       }),
+
       setModel: assign({
-        model: (_context, { data }: ProductConfigEvent) =>
+        model: (_context, { data }: AnyEventObject) =>
           parseModel(data?.product),
       }),
 
@@ -627,7 +634,7 @@ export default createMachine(
       setSummary: assign({
         summary: (
           { model, lookups, error, summary }: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => {
           const fallback: Price = first(summary?.pricing);
           const totals = has(data, "total")
@@ -659,12 +666,7 @@ export default createMachine(
           return summary;
         },
       }),
-      cancelCalculation: sendTo(
-        ({ calculateCallback }, _event) => calculateCallback,
-        (_context, _event) => ({
-          type: "CANCEL",
-        })
-      ),
+
       calculate: sendTo(
         ({ calculateCallback }: ProductConfigContext, _event) => {
           if (!calculateCallback) {
@@ -683,42 +685,39 @@ export default createMachine(
 
       //  ---
       setQuantity: assign({
-        model: (
-          { model }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
-          const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
-          set(model, "quantity", Math.max(1, quantity)); //TODO: min check? step check
+        model: ({ model }: ProductConfigContext, { data }: AnyEventObject) => {
+          if (model) {
+            const quantity: number = toNumber(get(data, "quantity", data)); // workaround to allow the same action to be used for different event sources
+            set(model, "quantity", Math.max(1, quantity)); //TODO: min check? step check
+          }
           return model;
         },
       }),
 
       setTerm: assign({
-        model: (
-          { model }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
-          let term = get(data, "term");
-          term = isObject(term) ? (term as any)?.cycle : term;
-          set(model, "term", term);
+        model: ({ model }: ProductConfigContext, { data }: AnyEventObject) => {
+          if (model) {
+            let term = get(data, "term");
+            term = isObject(term) ? (term as any)?.cycle : term;
+            set(model, "term", term);
+          }
           return model;
         },
-        lookups: (
-          { lookups, rawProduct, model },
-          _event: ProductConfigEvent
-        ) => {
+        lookups: ({ lookups, rawProduct, model }, _event: AnyEventObject) => {
           // reset the lookup options options based on the term selected,
           //  as this may impact what price and options are available
+          lookups ??= {};
           lookups.options = parseSubproduct(
             rawProduct?.products_options,
+            // @ts-ignore -- this is added
             rawProduct?.promotionDisplayType,
-            model.term
+            model?.term
           );
           return lookups;
         },
         prices: (
           { prices }: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => {
           if (!data?.price) return prices;
           return { ...prices, term: data.price };
@@ -726,17 +725,16 @@ export default createMachine(
       }),
 
       setAttributes: assign({
-        model: (
-          { model }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
-          const attributes = get(data, "attributes");
-          set(model, "attributes", attributes);
+        model: ({ model }: ProductConfigContext, { data }: AnyEventObject) => {
+          if (model) {
+            const attributes = get(data, "attributes");
+            set(model, "attributes", attributes);
+          }
           return model;
         },
         prices: (
           { prices }: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => {
           if (!data?.price) return prices;
           return { ...prices, attributes: data.price };
@@ -744,17 +742,16 @@ export default createMachine(
       }),
 
       setOptions: assign({
-        model: (
-          { model }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
-          const options = get(data, "options");
-          set(model, "options", options);
+        model: ({ model }: ProductConfigContext, { data }: AnyEventObject) => {
+          if (model) {
+            const options = get(data, "options");
+            set(model, "options", options);
+          }
           return model;
         },
         prices: (
           { prices }: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => {
           if (!data?.price) return prices;
           return { ...prices, options: data.price };
@@ -762,18 +759,14 @@ export default createMachine(
       }),
 
       setProvisioning: assign({
-        model: (
-          { model }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
-          const provisionFields = get(data, "provisionFields");
-          set(model, "provisionFields", provisionFields);
+        model: ({ model }: ProductConfigContext, { data }: AnyEventObject) => {
+          if (model) {
+            const provisionFields = get(data, "provisionFields");
+            set(model, "provisionFields", provisionFields);
+          }
           return model;
         },
-        error: (
-          { error }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
+        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
           // lets parse/override our error message and data, specifically external errors.
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
@@ -800,12 +793,9 @@ export default createMachine(
       setError: assign({
         errorExternal: (
           _context: ProductConfigContext,
-          { data }: ProductConfigEvent
+          { data }: AnyEventObject
         ) => data?.error,
-        error: (
-          { error }: ProductConfigContext,
-          { data }: ProductConfigEvent
-        ) => {
+        error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
           let err = data?.error;
 
           if (!err) return error;
@@ -857,7 +847,7 @@ export default createMachine(
 
       hasChanged: (
         { model }: ProductConfigContext,
-        { data }: ProductConfigEvent
+        { data }: AnyEventObject
       ) => {
         const cleanModel = compactDeep(model);
         const cleanProduct = data?.basketProduct
@@ -877,7 +867,7 @@ export default createMachine(
           promotions,
           basketProduct,
         }: ProductConfigContext,
-        { data }: ProductConfigEvent
+        { data }: AnyEventObject
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
         const clientChanged = clientId == data?.client_id!;
@@ -907,7 +897,7 @@ export default createMachine(
 
       needsCalculating: (
         { prices, summary }: ProductConfigContext,
-        { data }: ProductConfigEvent
+        { data }: AnyEventObject
       ) => {
         // work out which property we need to compare
         let prop;
@@ -933,7 +923,7 @@ export default createMachine(
 
       hasSummaryData: (
         _context: ProductConfigContext,
-        { data }: ProductConfigEvent
+        { data }: AnyEventObject
       ) => !isEmpty(data),
     },
     delays: {

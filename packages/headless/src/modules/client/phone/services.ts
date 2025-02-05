@@ -17,26 +17,15 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { PhoneEvent, PhoneContext, IPhoneData } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { AnyEventObject } from "xstate";
+import { PhoneTypes } from "./types";
+import type { PhoneContext, IPhoneData, PhonesContext } from "./types";
 
-// --------------------------------------------------------
-//  ENUMS
-export const PhoneTypes: any[] = [
-  { key: 1, value: "Mobile" },
-  { key: 2, value: "Home" },
-  { key: 3, value: "Office" },
-  { key: 4, value: "Company" },
-];
-
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(
-  _context: ClientListingsContext,
-  _event: ClientListingsEvents
-) {
+async function load(_context: PhonesContext) {
   const { get, useUrl } = useApi();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -51,23 +40,23 @@ async function load(
   }).then(({ data }: any) => data);
 }
 
-async function filterItems(
-  { raw }: ClientListingsContext,
-  { data }: ClientListingsEvents
-) {
+async function filterItems({ raw }: PhonesContext, { data }: AnyEventObject) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
 
   const filteredItems = filter(
     raw,
     item =>
-      includes(item.state.context?.title?.toLowerCase(), data.toLowerCase()) ||
       includes(
-        item.state.context?.description?.toLowerCase(),
+        item.getSnapshot().context?.title?.toLowerCase(),
         data.toLowerCase()
       ) ||
       includes(
-        item.state.context?.country?.code.toUpperCase(),
+        item.getSnapshot().context?.description?.toLowerCase(),
+        data.toLowerCase()
+      ) ||
+      includes(
+        item.getSnapshot().context?.country?.code.toUpperCase(),
         data.toUpperCase()
       )
   );
@@ -76,7 +65,7 @@ async function filterItems(
 }
 
 async function findItem(
-  { raw }: ClientListingsContext,
+  { raw }: PhonesContext,
   { data }: { data: IPhoneData }
 ) {
   if (isEmpty(data))
@@ -85,8 +74,8 @@ async function findItem(
   const found = find(
     raw,
     item =>
-      isEqual(item.state.context.model.id, data) ||
-      isEqual(item.state.context.model.phone, data)
+      isEqual(item.getSnapshot().context.model.id, data) ||
+      isEqual(item.getSnapshot().context.model.phone, data)
   );
 
   return new Promise((resolve, reject) => {
@@ -95,9 +84,9 @@ async function findItem(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-async function add({ model }: PhoneContext, _event: PhoneEvent) {
+async function add({ model }: PhoneContext) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -115,7 +104,7 @@ async function add({ model }: PhoneContext, _event: PhoneEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function update({ model }: PhoneContext, _event: PhoneEvent) {
+async function update({ model }: PhoneContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -133,7 +122,7 @@ async function update({ model }: PhoneContext, _event: PhoneEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function remove({ model }: PhoneContext, _event: PhoneEvent) {
+async function remove({ model }: PhoneContext) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -145,7 +134,7 @@ async function remove({ model }: PhoneContext, _event: PhoneEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
+async function setDefault({ model }: PhoneContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -158,11 +147,10 @@ async function setDefault({ model }: PhoneContext, _event: PhoneEvent) {
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 async function loadLookups(
-  _context: PhoneContext,
-  _event: PhoneEvent
+  _context: PhoneContext
 ): Promise<{ types: Record<string, any>; country: any }> {
   // we dont have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
@@ -173,8 +161,8 @@ async function loadLookups(
   });
 }
 
-// TODO: async function parse({ model, country }: PhoneContext, _event: PhoneEvent) {
-async function parse({ model, country }: any, _event: PhoneEvent) {
+// TODO: async function parse({ model, country }: PhoneContext, ) {
+async function parse({ model, country }: any) {
   // ---
 
   if (!model?.phone) return Promise.resolve({ model, country });
@@ -205,7 +193,7 @@ async function parse({ model, country }: any, _event: PhoneEvent) {
   return Promise.resolve({ model, country });
 }
 
-async function validate({ schema, model }: PhoneContext, _event: PhoneEvent) {
+async function validate({ schema, model }: PhoneContext) {
   // ---
 
   // Now validate the model as per normal
@@ -221,7 +209,7 @@ async function validate({ schema, model }: PhoneContext, _event: PhoneEvent) {
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

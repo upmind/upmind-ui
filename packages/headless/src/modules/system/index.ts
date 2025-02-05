@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { AnyEventObject, interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- exports
@@ -39,7 +39,11 @@ export const useSystem = () => {
 
   // --- Helpers
 
-  async function fetch(node: string, getValues: Function, data?: any) {
+  async function fetch(
+    node: string,
+    getValues: (data: any) => any,
+    data?: any
+  ) {
     // ---
     // then  check if we have the regions for this country and return them
     const values = getValues(data);

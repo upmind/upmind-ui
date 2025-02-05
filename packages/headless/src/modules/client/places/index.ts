@@ -11,7 +11,7 @@ import { actions } from "./actions";
 
 // --- types
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // create a global instance of the system machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
@@ -24,7 +24,7 @@ const service = interpret(listingsMachine.withConfig({ actions, services }), {
   devTools: false,
 }).onTransition(newState => (state = newState));
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const usePlaces = () => {
   return {

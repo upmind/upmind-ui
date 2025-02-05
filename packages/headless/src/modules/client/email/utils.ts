@@ -11,10 +11,10 @@ import { get, uniqueId } from "lodash-es";
 export { useModelParser } from "../../../utils";
 
 // --- types
-import type { IEmail } from "./types";
+import type { IEmail } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const useSchema = () => {
   const schema = {
@@ -82,7 +82,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const spawnItem = (model?: IEmail) => {
   try {

@@ -3,37 +3,16 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { RequestError } from "../..//api/types";
+import type { ClientItemContext, ClientListingsContext } from "../types";
+import { ICountry } from "@upmind-automation/types";
 
-// --------------------------------------------------------
-// ENUMS
-
-// --------------------------------------------------------
-// private
-
-export interface IPhone {
-  id: string;
-  // ---
-  full_phone: string;
-  international_phone: string;
-  phone: string | null;
-  phone_code: string;
-  phone_country_code: string;
-  type: number | null;
-  // ---
-  default: boolean;
-  // --- readonly/system data
-  can_delete: boolean;
-  // TODO:
-  // client_id: IClient["id"];
-  client_id: any["id"];
-  created_at: string | null;
-  deleted_at: null;
-  updated_at: Date | string | null;
-  // TODO:
-  // user_id: IUser["id"];
-  user_id: any["id"];
-  verified: number | null;
-}
+// -----------------------------------------------------------------------------
+export const PhoneTypes: any[] = [
+  { key: 1, value: "Mobile" },
+  { key: 2, value: "Home" },
+  { key: 3, value: "Office" },
+  { key: 4, value: "Company" },
+];
 
 export interface IPhoneData {
   nationalNumber: string;
@@ -41,28 +20,9 @@ export interface IPhoneData {
   country: string;
 }
 
-// --------------------------------------------------------
-// Contexts
-
-export interface PhoneContext {
-  schema?: JsonSchema;
-  uischema?: UISchemaElement;
-  // TODO:
-  // model?: IAddress;
-  model?: any;
-  // ---
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+export interface PhoneContext extends ClientItemContext {
+  country: ICountry;
+  types: typeof PhoneTypes;
 }
 
-// --------------------------------------------------------
-// Events
-
-export interface PhoneEvent {
-  type: "ADD" | "UPDATE" | "REMOVE" | "CLEAR" | "SET" | "DEFAULT" | "RETRY";
-  data: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}
+export interface PhonesContext extends ClientListingsContext {}

@@ -1,35 +1,31 @@
 // --- external
-import { assign } from "xstate";
+import { assign, type AnyEventObject } from "xstate";
 
 // --- utils
 import { useModelParser } from "../../../utils";
 import { useSchema, useUischema, spawnItem } from "./utils";
-// TODO: import { find, map, compact, get, isFunction } from "lodash-es";
 import { find, map, compact, get } from "lodash-es";
 
 // --- types
-import type { CompanyContext, CompanyEvent } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { ActorRef } from "xstate";
+import type { CompanyContext, CompaniesContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const ListingActions = {
   add: assign({
-    initial: ({ selected, initial }) => selected?.id || initial,
-    selected: (
-      _context: ClientListingsContext,
-      { data }: ClientListingsEvents
-    ) => {
+    initial: ({ selected, initial }: CompaniesContext) =>
+      selected?.id || initial,
+    selected: (_context: CompaniesContext, { data }: AnyEventObject) => {
       return spawnItem(data); // spawn an actor for the new raw
     },
   }),
   setItems: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
+    raw: ({ raw }: CompaniesContext, { data }: AnyEventObject) =>
       map(data, item => {
         const found = find(raw, ["id", item.id]);
-        if (!found) return spawnItem(item);
-        return found;
-      }),
+        return found || spawnItem(item);
+      }) as ActorRef<any, any>[],
     error: null,
   }),
 };
@@ -37,12 +33,8 @@ export const ListingActions = {
 export const ItemActions = {
   setMeta: assign({
     // @ts-ignore
-    title: ({ model }: CompanyContext, _event: CompanyEvent) => model?.name,
-    description: (
-      // TODO: { model, addresses }: CompanyContext,
-      { model, addresses }: any,
-      _event: CompanyEvent
-    ) => {
+    title: ({ model }: CompanyContext) => model?.name,
+    description: ({ model, addresses }: CompanyContext) => {
       let address = null;
       if (addresses && model?.addressId) {
         address = addresses?.getItemSnapshot(model.addressId);
@@ -54,11 +46,8 @@ export const ItemActions = {
     },
   }),
   setSchemas: assign({
-    schema: (context: CompanyContext, _event: CompanyEvent) =>
-      useSchema(context),
-    // TODO: uischema: (context: CompanyContext, _event: CompanyEvent) =>
-    // TODO: useUischema(context),
-    uischema: (_context, _event: CompanyEvent) => useUischema(),
+    schema: (context: CompanyContext) => useSchema(context),
+    uischema: (_context: CompanyContext) => useUischema(),
   }),
 
   setModel: assign({

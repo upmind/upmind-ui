@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { AnyEventObject, interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -11,9 +11,10 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
-import type { IAddressData, IAddress } from "./types";
+import type { IAddressData } from "./types";
+import type { IAddress } from "@upmind-automation/types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // create a global instance of the system machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
@@ -26,7 +27,7 @@ const service = interpret(listingsMachine.withConfig({ actions, services }), {
   devTools: false,
 }).onTransition(newState => (state = newState));
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 /**
  * @ignore
@@ -79,7 +80,8 @@ export const useClientAddresses = () => {
         return state.context.items;
       });
     },
-    find: (data: IAddressData) => services.find(state.context, { data }),
+    find: (data: IAddressData) =>
+      services.find(state.context, { type: "FIND", data } as AnyEventObject),
     // @ts-ignore
     add: (data: IAddress) => services.add(data),
   };

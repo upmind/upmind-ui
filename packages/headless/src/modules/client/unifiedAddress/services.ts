@@ -26,23 +26,19 @@ import {
 } from "lodash-es";
 
 // --- types
-import type {
-  UnifiedAddressEvent,
-  UnifiedAddressContext,
-  UnifiedAddressesEvents,
-  UnifiedAddressesContext,
-} from "./types";
+import { AddressTypes } from "../address/types";
 import type { IAddressData } from "../address/types";
-import { AddressTypes } from "../address/services";
+import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ENUMS
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// async function getEnums({ field }: UnifiedAddressContext, _event: UnifiedAddressEvent) {
+// async function getEnums({ field }: UnifiedAddressContext, _event: AnyEventObject) {
 //   const { getConfig } = useBrand();
 
 //   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
@@ -52,10 +48,7 @@ import { AddressTypes } from "../address/services";
 //   );
 // }
 
-async function load(
-  _context: UnifiedAddressesContext,
-  _event: UnifiedAddressesEvents
-) {
+async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
   const { get, useUrl } = useApi();
 
   const { isAuthenticated } = useSession();
@@ -94,7 +87,7 @@ async function load(
 
 async function filterItems(
   // TODO: { raw }: ClientListingsContext,
-  // TODO: { data }: ClientListingsEvents
+  // TODO: { data }: AnyEventObject
   { raw }: any,
   { data }: any
 ) {
@@ -150,12 +143,12 @@ async function findItem(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 async function add(
   // TODO: { model, addresses, phones, emails }: UnifiedAddressContext,
   { model, addresses, phones, emails }: any,
-  _event?: UnifiedAddressEvent
+  _event?: AnyEventObject
 ) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -215,7 +208,7 @@ async function add(
 
 async function update(
   { model, addresses, phones, emails }: any,
-  _event: UnifiedAddressEvent
+  _event: AnyEventObject
 ) {
   const { post, put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -284,7 +277,7 @@ async function update(
 async function remove(
   // TODO: { model }: UnifiedAddressContext,
   { model }: any,
-  _event: UnifiedAddressEvent
+  _event: AnyEventObject
 ) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -307,7 +300,7 @@ async function remove(
 async function setDefault(
   // TODO: { model }: UnifiedAddressContext,
   { model }: any,
-  _event: UnifiedAddressEvent
+  _event: AnyEventObject
 ) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -320,7 +313,7 @@ async function setDefault(
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 async function ensureDependencies({
   model,
@@ -376,7 +369,7 @@ async function ensureDependencies({
 
 async function loadLookups(
   { model }: UnifiedAddressContext,
-  _event: UnifiedAddressEvent
+  _event: AnyEventObject
 ) {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -439,7 +432,7 @@ async function loadLookups(
 async function parse(
   // TODO: { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
   { addresses, schema, model, regions, country, places }: any,
-  event: UnifiedAddressEvent
+  event: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -544,7 +537,7 @@ async function parse(
 
 async function validate(
   { schema, model }: UnifiedAddressContext,
-  _event: UnifiedAddressEvent
+  _event: AnyEventObject
 ) {
   // ---
 
@@ -561,7 +554,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

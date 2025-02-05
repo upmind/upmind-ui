@@ -1,4 +1,5 @@
 // --- internal
+import { Domain } from "domain";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 import type { ActorRef } from "xstate";
@@ -32,8 +33,8 @@ export interface DomainProduct {
   productId: string;
   quantity?: number;
   cycle?: number;
-  options?: object;
-  attributes?: object;
+  options?: Object;
+  attributes?: Object;
 
   summary?: {
     isAvailable?: boolean;
@@ -79,7 +80,7 @@ export interface IDomainSearch {
  * @ignore
  */
 export interface DomainContext {
-  choices: Partial<DomainTypes>;
+  choices: DomainTypes[];
   type?: DomainTypes;
   model?: Array<DomainProduct | IDomain>;
   baseModel?: Array<DomainProduct | IDomain>;
@@ -92,10 +93,10 @@ export interface DomainContext {
   total?: number;
   // ---
   search?: {
-    value: string;
     limit: number;
     offset: number;
     total: number;
+    query: string;
   };
   currency?: string;
   promotions?: Array<string>;
@@ -104,50 +105,11 @@ export interface DomainContext {
   // ---
   error?: any;
   // ---
-  authHelper?: ActorRef<any>;
-  basketHelper?: ActorRef<any>;
-  itemBuilder?: (item: ProductModel) => ProductModel;
-  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
-  basketItemBuilder?: (model: ProductModel) => BasketProduct;
+  authHelper: ActorRef<any>;
+  basketHelper: ActorRef<any>;
+  itemBuilder?: (item: any) => DomainProduct;
+  basketItemBuilder?: (model: DomainProduct) => ProductModel | undefined;
+  basketItemMapper?: (item: BasketProduct) => Partial<ProductModel>;
   basketProducts?: DomainProduct[];
   //
 }
-
-// --- Events
-/**
- * @ignore
- */
-export type SearchEvent = {
-  type: "SEARCH";
-  data: IDomainSearch;
-};
-
-/**
- * @ignore
- */
-export type AddEvent = {
-  type: string; //"ADD";
-  data?: DomainProduct | IDomain;
-};
-
-/**
- * @ignore
- */
-export type RemoveEvent = {
-  type: "REMOVE";
-  data: string;
-};
-
-/**
- * @ignore
- */
-export type ResetEvent = {
-  type: "CLEAR";
-};
-
-// Create a type which represents only one of the above types
-// but you aren't sure which it is yet.
-/**
- * @ignore
- */
-export type DomainEvents = ResetEvent | AddEvent | RemoveEvent | SearchEvent;

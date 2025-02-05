@@ -12,7 +12,8 @@ import { find } from "lodash-es";
 import { responseCodes } from "../../api";
 
 // --- types
-import type { Basket, BasketProduct } from "../types";
+import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+import type { BasketProduct } from "../types";
 import { parseBasketProduct } from "../utils";
 
 // --------------------------------------------------------
@@ -26,10 +27,10 @@ import { parseBasketProduct } from "../utils";
  */
 export const useBasketProduct = (
   id: string,
-  rawBasket: Basket,
+  rawBasket: IBasket,
   errorExternal?: any
 ) => {
-  function getBasketProduct(basket: Basket) {
+  function getBasketProduct(basket: IBasket) {
     const value = find(basket?.products, { id });
     if (!value) {
       const error = new Error("Product not found in basket");
@@ -45,7 +46,7 @@ export const useBasketProduct = (
 
   return {
     basketProduct: parseBasketProduct(basketProduct, errorExternal),
-    refresh: async (newBasket: Basket) => {
+    refresh: async (newBasket: IBasket) => {
       basketProduct = getBasketProduct(newBasket);
     },
     update: async (data: BasketProduct): Promise<ActorRef<any, any>> => {
@@ -60,10 +61,11 @@ export const useBasketProduct = (
 
 export const useBasketProductConfig = (
   id: string,
-  rawBasket: Basket,
+  rawBasket: IBasket,
   errorExternal?: any
 ) => {
   const basketProduct = find(rawBasket?.products, { id });
+
   if (!basketProduct) {
     const error = new Error("Product not found in basket");
     //@ts-ignore
@@ -78,6 +80,7 @@ export const useBasketProductConfig = (
       basketProduct,
       currencyId: rawBasket.currency_id,
       promotions: rawBasket.promotions,
+      clientId: rawBasket.client_id,
       errorExternal,
     }),
     {
@@ -95,7 +98,7 @@ export const useBasketProductConfig = (
         timeout: Infinity, // infinity = no timeout
       }),
 
-    refresh: (basket: Basket) => {
+    refresh: (basket: IBasket) => {
       service.send({ type: "REFRESH", basket });
       return waitFor(service, state => state.matches("available"));
     },

@@ -22,28 +22,15 @@ import {
 } from "lodash-es";
 
 // --- types
-import type {
-  AddressEvent,
-  AddressContext,
-  AddressesEvents,
-  AddressesContext,
-  IAddressData,
-} from "./types";
+import type { AnyEventObject } from "xstate";
+import { AddressTypes } from "./types";
+import type { AddressContext, AddressesContext, IAddressData } from "./types";
 
-// --------------------------------------------------------
-// ENUMS
-export const AddressTypes = [
-  { key: 1, value: "Home" },
-  { key: 2, value: "Office" },
-  { key: 3, value: "Holiday" },
-  { key: 4, value: "Company" },
-];
-
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// async function getEnums({ field }: AddressContext, _event: AddressEvent) {
+// async function getEnums({ field }: AddressContext,) {
 //   const { getConfig } = useBrand();
 
 //   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
@@ -53,7 +40,7 @@ export const AddressTypes = [
 //   );
 // }
 
-async function load(_context: AddressesContext, _event: AddressesEvents) {
+async function load(_context: AddressesContext) {
   const { get, useUrl } = useApi();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -70,10 +57,8 @@ async function load(_context: AddressesContext, _event: AddressesEvents) {
 }
 
 async function filterItems(
-  // TODO: { raw }: ClientListingsContext,
-  // TODO: { data }: ClientListingsEvents
-  { raw }: any,
-  { data }: any
+  { raw }: AddressesContext,
+  { data }: AnyEventObject
 ) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
@@ -81,9 +66,12 @@ async function filterItems(
   const filteredItems = filter(
     raw,
     item =>
-      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
       includes(
-        item.state.context?.description?.toLowerCase(),
+        item.getSnapshot().context?.title?.toLowerCase(),
+        data?.toLowerCase()
+      ) ||
+      includes(
+        item.getSnapshot().context?.description?.toLowerCase(),
         data?.toLowerCase()
       )
   );
@@ -91,11 +79,7 @@ async function filterItems(
   return Promise.resolve(filteredItems);
 }
 
-async function findItem(
-  // TODO: { raw }: ClientListingsContext,
-  { raw }: any,
-  { data }: { data: IAddressData }
-) {
+async function findItem({ raw }: AddressesContext, { data }: AnyEventObject) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
   const value = pick(data, [
@@ -110,9 +94,9 @@ async function findItem(
   const found = find(
     raw,
     item =>
-      isEqual(item.state.context.model.id, data) ||
+      isEqual(item.getSnapshot().context.model.id, data) ||
       isEqual(
-        pick(item.state.context.model, [
+        pick(item.getSnapshot().context.model, [
           "address1",
           "address2",
           "city",
@@ -130,9 +114,9 @@ async function findItem(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-async function add({ model }: AddressContext, _event: AddressEvent) {
+async function add({ model }: AddressContext) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -145,7 +129,7 @@ async function add({ model }: AddressContext, _event: AddressEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function update({ model }: AddressContext, _event: AddressEvent) {
+async function update({ model }: AddressContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -158,7 +142,7 @@ async function update({ model }: AddressContext, _event: AddressEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function remove({ model }: AddressContext, _event: AddressEvent) {
+async function remove({ model }: AddressContext) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -170,7 +154,7 @@ async function remove({ model }: AddressContext, _event: AddressEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function setDefault({ model }: AddressContext, _event: AddressEvent) {
+async function setDefault({ model }: AddressContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -182,10 +166,10 @@ async function setDefault({ model }: AddressContext, _event: AddressEvent) {
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // @ts-ignore
-async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
+async function loadLookups({ model }: AddressContext) {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
@@ -231,8 +215,7 @@ async function loadLookups({ model }: AddressContext, _event: AddressEvent) {
 
 async function parse(
   // { addresses, schema, model, regions, country, places }: AddressContext,
-  { addresses, schema, model, regions, country, places }: any,
-  _event: AddressEvent
+  { addresses, schema, model, regions, country, places }: any
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -278,7 +261,7 @@ async function parse(
     model.regionId = get(region, "id");
 
     // finally lets force a manual place if we are invalid:
-    const isValid = await validate({ schema, model }, _event)
+    const isValid = await validate({ schema, model })
       .then(() => true)
       .catch(() => false);
 
@@ -297,10 +280,7 @@ async function parse(
   return Promise.resolve({ model, regions, country });
 }
 
-async function validate(
-  { schema, model }: AddressContext,
-  _event: AddressEvent
-) {
+async function validate({ schema, model }: AddressContext) {
   // ---
 
   // Now validate the model as per normal
@@ -316,7 +296,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

@@ -8,17 +8,14 @@ import { useValidation } from "../../../utils";
 import { includes, reduce, get, isEmpty, isEqual, find } from "lodash-es";
 
 // --- types
-import type { EmailEvent, EmailContext } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { AnyEventObject } from "xstate";
+import type { EmailContext, EmailsContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(
-  _context: ClientListingsContext,
-  _event: ClientListingsEvents
-) {
+async function load(_context: EmailsContext) {
   const { get, useUrl } = useApi();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -33,10 +30,7 @@ async function load(
   }).then(({ data }: any) => data);
 }
 
-async function filterItems(
-  { raw }: ClientListingsContext,
-  { data }: ClientListingsEvents
-) {
+async function filterItems({ raw }: EmailsContext, { data }: AnyEventObject) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
 
@@ -45,16 +39,16 @@ async function filterItems(
     (result, item) => {
       const matches =
         includes(
-          item.state.context?.title?.toLowerCase(),
+          item.getSnapshot().context?.title?.toLowerCase(),
           data?.toLowerCase()
         ) ||
         includes(
-          item.state.context?.description?.toLowerCase(),
+          item.getSnapshot().context?.description?.toLowerCase(),
           data?.toLowerCase()
         );
 
       if (matches) {
-        const model = get(item, "state.context.model");
+        const model = get(item.getSnapshot, "context.model");
         // @ts-ignore
         result.push(model);
       }
@@ -67,18 +61,15 @@ async function filterItems(
   return Promise.resolve(filteredItems);
 }
 
-async function findItem(
-  { raw }: ClientListingsContext,
-  { data }: { data: string }
-) {
+async function findItem({ raw }: EmailsContext, { data }: { data: string }) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
 
   const found = find(
     raw,
     item =>
-      isEqual(item.state.context.model.id, data) ||
-      isEqual(item.state.context.model.email, data)
+      isEqual(item.getSnapshot().context.model.id, data) ||
+      isEqual(item.getSnapshot().context.model.email, data)
   );
 
   return new Promise((resolve, reject) => {
@@ -87,9 +78,9 @@ async function findItem(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-async function add({ model }: EmailContext, _event: EmailEvent) {
+async function add({ model }: EmailContext) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -105,7 +96,7 @@ async function add({ model }: EmailContext, _event: EmailEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function update({ model }: EmailContext, _event: EmailEvent) {
+async function update({ model }: EmailContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -121,7 +112,7 @@ async function update({ model }: EmailContext, _event: EmailEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function remove({ model }: EmailContext, _event: EmailEvent) {
+async function remove({ model }: EmailContext) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -133,7 +124,7 @@ async function remove({ model }: EmailContext, _event: EmailEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function setDefault({ model }: EmailContext, _event: EmailEvent) {
+async function setDefault({ model }: EmailContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -146,19 +137,19 @@ async function setDefault({ model }: EmailContext, _event: EmailEvent) {
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-async function loadLookups(_context: EmailContext, _event: EmailEvent) {
+async function loadLookups(_context: EmailContext) {
   // we dont have any lookups for emails, so just return null
   return Promise.resolve(null);
 }
 
-async function parse({ model }: EmailContext, _event: EmailEvent) {
+async function parse({ model }: EmailContext) {
   // ---
   return Promise.resolve({ model });
 }
 
-async function validate({ schema, model }: EmailContext, _event: EmailEvent) {
+async function validate({ schema, model }: EmailContext) {
   // ---
 
   // Now validate the model as per normal
@@ -174,7 +165,7 @@ async function validate({ schema, model }: EmailContext, _event: EmailEvent) {
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

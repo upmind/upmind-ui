@@ -29,7 +29,8 @@
     "url": "git@git.upmind.io:upmind/upmind-monorepo.git"
   },
   "scripts": {
-    "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo}",
+    "preinstall": "npm i -g pnpm",
+    "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "start": "pnpm -r start",
     "start:storybook": "pnpm storybook --workspace=playgrounds/storybook",
     "build": "pnpm -r build",

@@ -12,12 +12,14 @@ import { spawnGateway, parsePaymentDetails } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
-import { set, unset, forEach } from "lodash-es";
+import { get, set, unset, forEach } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
+
+import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext, RefreshEvent } from "./types";
 import { responseCodes } from "../api";
+import { P } from "vitest/dist/chunks/environment.LoooBwUu.js";
 
 // --------------------------------------------------------
 
@@ -328,9 +330,10 @@ export default createMachine(
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        address: (_context, { data: basket }: RefreshEvent) => basket?.address,
+        address: (_context, { data: basket }: RefreshEvent) =>
+          get(basket, "address"),
         actors: ({ actors }, { data: basket }: any) => {
-          forEach(actors, (actor: ActorRef<any, any>) => {
+          forEach(actors, actor => {
             if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({
                 type: "REFRESH",
@@ -338,7 +341,7 @@ export default createMachine(
                   basketId: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
-                  address: basket?.address,
+                  address: get(basket, "address"),
                 },
               });
             }
@@ -351,10 +354,10 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, basketId, currency, address },
-          { data }: any
+          { model, basketId, currency, address }: PaymentDetailsContext,
+          { data }: AnyEventObject
         ) => {
-          const amount = model.amount;
+          const amount = model?.amount || 0;
           return parsePaymentDetails({
             ...model,
             ...data,
@@ -440,14 +443,14 @@ export default createMachine(
         !!autoupdate && !!basketId && model?.amount !== 0,
 
       hasChanged: (
-        { basketId, currency, clientId, model, address },
-        { data }: any
+        { basketId, currency, clientId, model, address }: PaymentDetailsContext,
+        { data }: AnyEventObject
       ) => {
         const basketChanged = basketId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged =
-          model.amount == (data?.unpaid_amount_converted || 0.0);
+          model?.amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;
 
         return (

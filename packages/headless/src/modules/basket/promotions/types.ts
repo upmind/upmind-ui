@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 // import type { RequestError } from "../..//api/types";
-
+import { IBasketPromotion } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -20,7 +20,7 @@ export interface IPromotion {
 export interface PromotionsContext {
   basketId?: string;
   // ---
-  promotions?: IPromotion[];
+  promotions?: IBasketPromotion[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   model?: IPromotion;

@@ -1,7 +1,7 @@
 // --- extrnal
 
 // --- internal
-import type { Basket } from "../basket/types";
+import type { IBasket } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -13,7 +13,7 @@ import type { Basket } from "../basket/types";
 
 export interface PaymentContext {
   id?: string;
-  order?: Basket;
+  order?: IBasket;
   paymentDetails?: object;
   payment?: any; //IPayment
   urls: {

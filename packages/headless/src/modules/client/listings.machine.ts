@@ -7,13 +7,14 @@ import { createMachine, assign } from "xstate";
 import { find, forEach, isEmpty, every, isString } from "lodash-es";
 
 // - --types
-import type { ClientListingsContext, ClientListingsEvents } from "./types";
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { ClientListingsContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./listings.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./listings.machine.typegen").Typegen0,`
     id: "clientListingsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -24,7 +25,7 @@ export default createMachine(
       selected: undefined,
       // ---
       error: undefined,
-    },
+    } as ClientListingsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
@@ -217,31 +218,37 @@ export default createMachine(
       setInitial: assign({
         initial: (
           { raw, initial }: ClientListingsContext,
-          { data }: ClientListingsEvents
+          { data }: AnyEventObject
         ) => {
           if (isString(data) && !isEmpty(data)) return data; // if weve explicitly been given an id, use it. eg when we add a new item and its not yet in the raw list
           // otherwise use our existing initial value or the default
           return initial || find(raw, "state.context.model.default")?.id;
         },
+        // @ts-ignore
         selected: (
           { raw, initial }: ClientListingsContext,
-          _event: ClientListingsEvents
+          _event: AnyEventObject
         ) => {
-          initial ??= find(raw, "state.context.model.default")?.id;
-          return find(raw, ["id", initial]); //|| find(raw, "state.context.model.default")
+          const id = initial ?? find(raw, "state.context.model.default")?.id;
+          const selectedItem = find(raw, ["id", id]);
+          return selectedItem
+            ? (selectedItem as ActorRef<any, any>)
+            : undefined;
         },
       }),
 
       // @ts-ignore
       setSelected: assign({
-        initial: ({ selected, initial }) => selected?.id || initial,
+        initial: ({ selected, initial }: ClientListingsContext) =>
+          selected?.id || initial,
         // filters: undefined,
         // items: ({ raw }, _event) => raw,
         selected: (
           { raw }: ClientListingsContext,
-          { data }: ClientListingsEvents
+          { data }: AnyEventObject
         ) => {
-          return find(raw, ["id", data]); // || find(raw, "state.context.model.default")
+          const id = data as string;
+          return find(raw, ["id", id]) || undefined; // || find(raw, "state.context.model.default")
         },
       }),
 
@@ -266,7 +273,10 @@ export default createMachine(
     },
     guards: {
       isNotProcessing: ({ raw }) => {
-        return every(raw, (item: any) => !item?.state?.matches("loading"));
+        return every(
+          raw,
+          (item: ActorRef<any, any>) => !item?.getSnapshot().matches("loading")
+        );
       },
       hasItems: ({ raw }) => !isEmpty(raw),
       hasNoItems: ({ raw }) => isEmpty(raw),

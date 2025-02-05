@@ -4,18 +4,17 @@ import { spawn } from "xstate";
 // --- internal
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
-import services, { PhoneTypes } from "./services";
+import services from "./services";
 
 // --- utils
 import { map, get, uniqueId } from "lodash-es";
 
 // --- types
-// TODO:
-// import type { IPhone, PhoneContext } from "./types";
-import type { IPhone } from "./types";
+import type { IPhone } from "@upmind-automation/types";
+import { PhoneTypes } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // TODO:
 // export const useSchema = ({ country }: PhoneContext) => {
@@ -133,7 +132,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const spawnItem = (model?: IPhone) => {
   try {
