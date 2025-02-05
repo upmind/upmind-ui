@@ -8,6 +8,7 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { getTokenfromStorage } from "./utils";
+import { get } from "lodash-es";
 // --------------------------------------------------------
 // create a global instance of the session machine
 // and a global object to store state
@@ -26,11 +27,15 @@ const service = interpret(sessionMachine, { devTools: false });
 const authCallback = (callback: any) => {
   const state = service.getSnapshot();
 
-  // callback({ type: "TRANSITIONED", data: state.value });
+  // callback({ type: "TRANSITIONED", data: get(service.getSnapshot(), 'state.value }')');
 
   // Valid session
   const clientMachine: any = state?.children?.clientMachine;
   const guestMachine: any = state?.children?.guestMachine;
+
+  if (state.matches("error")) {
+    callback({ type: "ERROR", data: state.context.error });
+  }
 
   if (
     (state.matches("guest") &&
@@ -132,6 +137,73 @@ export const useSession = () => {
 
   // --------------------------------------------------------
 
+  function showLogin(): Promise<any> {
+    service.send({
+      type: "LOGIN",
+    });
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    return waitFor(guestMachine, state => ["login"].some(state.matches));
+  }
+
+  function showRegister(): Promise<any> {
+    service.send({
+      type: "REGISTER",
+    });
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    return waitFor(guestMachine, state => ["register"].some(state.matches));
+  }
+
+  // ---
+  function login(model: any): Promise<any> {
+    service.send({
+      type: "AUTHENTICATE",
+      data: get(model, "value", model), // ensure we dont have any reactive refs
+    });
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
+  }
+
+  function verify2fa({ token }: { token: string }): Promise<any> {
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    if (!guestMachine) return Promise.resolve(); // were already logged in
+
+    service.send({
+      type: "VERIFY",
+      data: get(token, "value", token), // ensure we dont have any reactive refs
+    });
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
+  }
+
+  function register(model: any): Promise<any> {
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    if (!guestMachine) return Promise.resolve(); // were already logged in
+
+    service.send({
+      type: "REGISTER",
+      data: get(model, "value", model), // ensure we dont have any reactive refs
+    });
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
+  }
+
+  function verifyReCaptcha(token: any): Promise<any> {
+    service.send({
+      type: "VERIFY",
+      data: get(token, "value", token), // ensure we dont have any reactive refs
+    });
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    return waitFor(guestMachine, state => ["complete"].some(state.matches));
+  }
+
+  function logout(): Promise<any> {
+    const clientMachine = get(service.getSnapshot(), "children.clientMachine");
+    if (!clientMachine) return Promise.resolve(); // were already logged out
+
+    service.send({
+      type: "LOGOUT",
+    });
+    return waitFor(clientMachine, state => ["complete"].some(state.matches));
+  }
+
   async function transfer() {
     const state = service.getSnapshot();
     const clientMachine = state?.children?.clientMachine;
@@ -150,6 +222,19 @@ export const useSession = () => {
       newState.matches("transferring.available")
     ).then(newState => newState.context.transfer);
   }
+
+  // function reset() {
+  //   // TODO: remove/delete any session/local storage data
+
+  //   // @ts-ignore
+  //   const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+  //   // on session end first try to redirect to the storefront, otherwise just reload the app
+  //   if (storefrontUrl) {
+  //     window?.location?.replace(storefrontUrl);
+  //   } else {
+  //     window.location.reload();
+  //   }
+  // }
   // --------------------------------------------------------
 
   return {
@@ -171,6 +256,19 @@ export const useSession = () => {
         .then(() => clientMachine.state.context.user)
         .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
     },
+
+    hasExpired: () => {
+      const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
+      return clientMachine && clientMachine?.state?.matches("expired");
+    },
+    // ---
+    showLogin,
+    showRegister,
+    login,
+    register,
+    verify2fa,
+    verifyReCaptcha,
+    logout,
     transfer,
     reauth: () => service.send({ type: "EXPIRED" }),
   };

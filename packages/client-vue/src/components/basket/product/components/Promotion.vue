@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { Badge } from "@upmind-automation/upwind";
+import { Badge } from "@upmind-automation/upmind-ui";
 
 withDefaults(
   defineProps<{
@@ -19,7 +19,7 @@ withDefaults(
     currentSaving?: string;
     currentSavingAmount?: number;
     disabled?: boolean;
-    size?: "xs" | "md";
+    size?: "xs" | "sm" | "md";
   }>(),
   {
     size: "xs",

@@ -3,7 +3,7 @@ import type {
   ButtonProps,
   DialogProps,
   AvatarProps,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 // ---
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {
@@ -13,16 +13,16 @@ export interface ActionProps extends ButtonProps {
 }
 
 export interface AuthProps {
-  show: "login" | "register" | "forgot" | "reset" | "profile";
-  noHeader: boolean;
-  noFooter: boolean;
-  noTabs: boolean;
+  modelValue: "login" | "register" | "forgot" | "reset" | "profile";
+  noHeader?: boolean;
+  noFooter?: boolean;
+  noTabs?: boolean;
   // --- varants
-  color: string;
-  blockTabs: boolean;
-  stretchTabs: boolean;
+  color?: ButtonProps["color"];
+  blockTabs?: boolean;
+  stretchTabs?: boolean;
   // ---
-  upwindConfig?: { alert: Partial<AuthProps> };
+  uiConfig?: { alert: Partial<AuthProps> };
   class?: HTMLAttributes["class"];
 }
 

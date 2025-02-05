@@ -20,7 +20,7 @@ import { ref, watch, onMounted } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 // --- internal
-import { useThemes } from "@upmind-automation/upwind";
+import { useThemes } from "@upmind-automation/upmind-ui";
 import themes from "@/assets/themes";
 
 // --- utils

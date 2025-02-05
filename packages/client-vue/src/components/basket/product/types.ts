@@ -1,4 +1,4 @@
-import { type ButtonProps } from "@upmind-automation/upwind";
+import { type ButtonProps } from "@upmind-automation/upmind-ui";
 import {
   type BasketProductSummaryPrice,
   type BasketProductDetails,

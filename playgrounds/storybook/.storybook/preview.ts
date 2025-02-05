@@ -3,12 +3,12 @@ import "../stories/assets/main.css";
 
 // --- external
 import { setup } from "@storybook/vue3";
-import { withUpwindTheme } from "./withUpwindTheme.decorator";
+import { withUpmindUITheme } from "./withUpmindUITheme.decorator";
 import { useArgs } from "@storybook/preview-api";
 import { createI18n } from "vue-i18n";
 
 // --- internal
-import upwind from "../plugins/upwind";
+import upmind from "../plugins/upmind";
 import themes from "@/assets/themes";
 
 // --- utils
@@ -47,7 +47,7 @@ setup(app => {
   });
   app.use(i18n);
 
-  app.use(upwind);
+  app.use(upmind);
 });
 
 const preview: Preview = {
@@ -83,7 +83,7 @@ const preview: Preview = {
   },
 
   decorators: [
-    withUpwindTheme({
+    withUpmindUITheme({
       themes,
       defaultTheme: "light",
       locales: [],

@@ -33,7 +33,7 @@ export const useRegisterSchemaParser = (data: any) => {
         minLength: 8,
         format: "password",
       },
-      custom_fields: useFieldsSchemaParser(data, "auth"),
+      customFields: useFieldsSchemaParser(data, "auth"),
     },
   };
 
@@ -97,7 +97,7 @@ export const useRegisterModelParser = (data: any) => {
     lastname: undefined,
     username: undefined,
     password: undefined,
-    custom_fields: useFieldsModelParser(data),
+    customFields: useFieldsModelParser(data),
   };
 
   return model;

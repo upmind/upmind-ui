@@ -10,7 +10,7 @@ interface BasePrice {
     free?: boolean;
   };
   showCycle?: boolean;
-  upwindConfig?: {
+  uiConfig?: {
     pricing: {
       ex?: ExVariantProps;
       current?: CurrentVariantProps;

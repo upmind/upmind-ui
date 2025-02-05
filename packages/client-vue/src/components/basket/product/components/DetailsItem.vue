@@ -42,7 +42,7 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon, Tooltip } from "@upmind-automation/upwind";
+import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
 const props = defineProps<{
   id: string;

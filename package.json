@@ -60,15 +60,8 @@
   },
   "workspaces": [
     "docs",
-    "packages/client-vue",
-    "packages/headless",
-    "packages/headless-vue",
-    "packages/types",
-    "packages/upwind",
-    "playgrounds/storybook",
-    "playgrounds/storybook-ce",
-    "playgrounds/velia",
-    "playgrounds/webcentral",
-    "playgrounds/doteasy"
+    "packages/*",
+    "playgrounds/*",
+    "apps/*"
   ]
 }

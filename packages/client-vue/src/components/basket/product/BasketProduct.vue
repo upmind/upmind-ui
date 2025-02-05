@@ -50,12 +50,12 @@ import { computed } from "vue";
 
 // --- internal
 import { useBasketProduct } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
 import UpmCard from "../../content/Card.vue";
-import { Loading } from "@upmind-automation/upwind";
+import { Loading } from "@upmind-automation/upmind-ui";
 import UpmBasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import UpmBasketProductSummary from "./BasketProductSummary.vue";
 import UpmBasketProductActions from "./BasketProductActions.vue";
@@ -92,7 +92,7 @@ const styles = useStyles(["product.root"], stylesMeta, config) as ComputedRef<{
 
 const editLink = computed(() => {
   return {
-    name: "productEdit",
+    name: "product.edit",
     params: {
       bpid: props.id,
     },

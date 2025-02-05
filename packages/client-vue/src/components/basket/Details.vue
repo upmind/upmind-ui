@@ -60,7 +60,7 @@ import {
   // useBasketPaymentDetails,
   useBasketFields,
 } from "@upmind-automation/headless-vue";
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
@@ -68,7 +68,7 @@ import Session from "../session/Session.vue";
 import BasketSummary from "./Summary.vue";
 import BillingDetails from "../checkout/BillingDetails.vue";
 import PaymentDetails from "../checkout/PaymentDetails.vue";
-import { Form } from "@upmind-automation/upwind";
+import Form from "../form/Form.vue";
 
 // --- types
 

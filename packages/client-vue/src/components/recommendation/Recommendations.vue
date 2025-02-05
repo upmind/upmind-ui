@@ -83,7 +83,7 @@ import { nextTick, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 import {
   useBasket,
@@ -100,7 +100,7 @@ import {
   CarouselPrevious,
   Drawer,
   Button,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 
 import RecommendationCard from "./RecommendationCard.vue";
 import RecommendationCardSkeleton from "./RecommendationCardSkeleton.vue";
@@ -109,7 +109,7 @@ import RecommendationCardSkeleton from "./RecommendationCardSkeleton.vue";
 import { forEach } from "lodash-es";
 
 // --- types
-import type { CarouselApi } from "@upmind-automation/upwind";
+import type { CarouselApi } from "@upmind-automation/upmind-ui";
 import type { ComputedRef } from "vue";
 import type { RecommendationsProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -167,7 +167,6 @@ function fetchVisibleRecommendations() {
   const visible = carouselApi.value?.slidesInView() ?? [];
   if (!visible.length) return;
 
-  // console.log("Carousel", "visible", visible);
   // now fetch the next batch of recommendations, one by one
   forEach(recommendations.value, (recommendation, index) => {
     if (visible.includes(index)) {

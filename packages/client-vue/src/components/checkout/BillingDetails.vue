@@ -89,14 +89,18 @@ import {
   useClientUnifiedAddress,
   useClientUnifiedAddresses,
 } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../client/config.cva";
 
 // --- components
 import Item from "../Client/Item.vue";
 import Card from "../Client/Card.vue";
 import Listings from "../Client/Listings.vue";
-import { SkeletonList, Button, DropdownMenu } from "@upmind-automation/upwind";
+import {
+  SkeletonList,
+  Button,
+  DropdownMenu,
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";

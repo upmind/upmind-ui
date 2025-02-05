@@ -21,7 +21,7 @@ import { defineComponent } from "vue";
 import { useMessage } from "@upmind-automation/headless-vue";
 
 // custom elements
-import { Alert } from "@upmind-automation/upwind";
+import { Alert } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useTimestamp } from "@vueuse/core";

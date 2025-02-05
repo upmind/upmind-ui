@@ -8,7 +8,7 @@
 // --- external
 
 // --- internal
-import { cn, useStyles } from "@upmind-automation/upwind";
+import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 // --- types
 import type { HTMLAttributes } from "vue";

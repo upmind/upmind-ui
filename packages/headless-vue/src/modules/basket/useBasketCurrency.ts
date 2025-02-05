@@ -47,6 +47,7 @@ export const useBasketCurrency = (actorRef?: ActorRef<any, any>) => {
 
     // ---
     meta: computed(() => ({
+      isAvailable: !!actor.value,
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
       hasCurrency: contextMatches(actor, ["currency"]),
       hasErrors: stateMatches(actor, ["error"]),

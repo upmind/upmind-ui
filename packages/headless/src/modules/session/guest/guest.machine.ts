@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, actions } from "xstate";
+const { escalate } = actions;
 
 // --- internal
 import services from "./services";
@@ -43,7 +44,10 @@ export default createMachine(
         invoke: {
           src: "load",
           onDone: { target: "idle" },
-          onError: { target: "error", actions: ["setError"] },
+          onError: {
+            target: "error",
+            actions: escalate((_context, { data }) => data?.error || data),
+          },
         },
       },
 
