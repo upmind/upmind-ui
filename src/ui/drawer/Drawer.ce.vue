@@ -31,12 +31,10 @@
         </div>
       </DrawerHeader>
 
-      <div
-        :class="
-          cn(styles.drawer.inner, styles.drawer.container, props.classContent)
-        "
-      >
-        <slot />
+      <div :class="cn(styles.drawer.inner)">
+        <div :class="cn('py-1', styles.drawer.container, props.classContent)">
+          <slot></slot>
+        </div>
       </div>
 
       <DrawerFooter
