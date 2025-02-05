@@ -19,7 +19,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- types
@@ -39,7 +39,7 @@ const styles = useStyles(
   ["pricing"],
   priceMeta,
   config,
-  props.upwindConfig ?? {}
+  props.uiConfig ?? {}
 ) as ComputedRef<{
   pricing: {
     current: string;

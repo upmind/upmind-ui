@@ -2,7 +2,7 @@
   <ProductConfig
     v-if="open || selected"
     v-bind="$props"
-    :class="'styles.basket.item'"
+    :class="styles.basket.item"
     :processing="meta.isProcessing"
     :required="selected"
     @reject="open = false"
@@ -23,7 +23,7 @@
   <ProductCard
     v-else
     v-bind="$props"
-    :class="'styles.basket.item'"
+    :class="styles.basket.item"
     @reject="removeItem"
     @resolve="open = true"
   >
@@ -60,7 +60,7 @@ import {
   utils,
 } from "@upmind-automation/headless-vue";
 const { stateMatches } = utils;
-import { useStyles, cn } from "@upmind-automation/upwind";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 import config from "./config.cva";
 
@@ -69,7 +69,7 @@ import ProductCard from "../product/Card.vue";
 import ProductConfig from "../product/Config.vue";
 
 // --- custom elements
-import { Badge } from "@upmind-automation/upwind";
+import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
 

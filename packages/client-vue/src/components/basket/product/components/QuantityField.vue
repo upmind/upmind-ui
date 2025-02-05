@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { NumberField } from "@upmind-automation/upwind";
+import { NumberField } from "@upmind-automation/upmind-ui";
 
 defineProps<{
   id: string;

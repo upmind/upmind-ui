@@ -65,5 +65,5 @@
 
 <script lang="ts" setup>
 import UpmCard from "../../content/Card.vue";
-import { Skeleton } from "@upmind-automation/upwind";
+import { Skeleton } from "@upmind-automation/upmind-ui";
 </script>

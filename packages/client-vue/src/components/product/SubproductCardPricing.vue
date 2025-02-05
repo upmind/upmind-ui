@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { Icon, Tooltip } from "@upmind-automation/upwind";
+import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 import ExPrice from "../pricing/ExPrice.vue";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
 

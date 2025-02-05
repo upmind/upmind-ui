@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 // --- components
-import { Button } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- external
 import { useI18n } from "vue-i18n";

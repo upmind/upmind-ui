@@ -44,7 +44,7 @@ async function load(
   const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
   const { get: getRequest, useUrl } = useApi();
 
-  await isReady();
+  await isReady().catch(error => Promise.reject(error));
 
   // ---
 

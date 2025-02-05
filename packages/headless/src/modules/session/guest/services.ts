@@ -96,7 +96,7 @@ async function register({ model }: GuestContext) {
   const { getTracking } = useTracking();
 
   const data: any = {
-    custom_fields: model?.custom_fields,
+    custom_fields: model?.customFields,
     email: model?.username,
     username: model?.username,
     firstname: model?.firstname,

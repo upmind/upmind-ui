@@ -117,7 +117,7 @@ export const useSystem = () => {
 
     if (isEmpty(country)) {
       // ensure we have our brand settings loaded before we try to get the default country
-      await isReady();
+      await isReady().catch(error => Promise.reject(error));
       country = getDefaultCountry();
     }
 

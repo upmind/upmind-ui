@@ -39,11 +39,11 @@
 
 //
 // Client-Vue
-// As of right now, compacts Headless-vue, UpWind and "standard"(?) Vue components
+// As of right now, compacts Headless-vue, Upmind Ui and "standard"(?) Vue components
 // so it's the only lib client would need to import.
 // TODO: To discuss (not sure this is the way forward)
 //
-// - Not testing Headless-vue nor UpWind (those are tested separately)
+// - Not testing Headless-vue nor Upmind Ui (those are tested separately)
 // So the only remaining features left to test are the Vue components
 //
 // - Integration tests (for Vue components)
@@ -67,5 +67,5 @@
 // Upmind Admin
 // - We're probably not doing it for playgrounds/doteasy (DotEasy)
 // - However, this approach is my recommendation for the admin app
-// (because it will also be a "client" of our upflow-vue and upwind libs - or even Client-vue if that's the way)
+// (because it will also be a "client" of our upflow-vue and upmind-ui libs - or even Client-vue if that's the way)
 //

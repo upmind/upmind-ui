@@ -113,19 +113,19 @@ import {
   useClientUnifiedAddresses,
   useClientUnifiedAddress,
 } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
 import Section from "../Section.vue";
-import Auth from "../session/Auth.vue";
+import Auth from "../session/AuthTabs.vue";
 import Empty from "./Empty.vue";
 import Card from "./Card.vue";
 import Item from "./Item.vue";
-import { Input, SkeletonList } from "@upmind-automation/upwind";
+import { Input, SkeletonList } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Button, Drawer } from "@upmind-automation/upwind";
+import { Button, Drawer } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isFunction } from "lodash-es";

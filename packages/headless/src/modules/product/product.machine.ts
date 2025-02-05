@@ -439,7 +439,7 @@ export default createMachine(
             { target: "complete", cond: "isNew" },
             {
               target: "complete",
-              actions: ["setBaseModel", "calculate"],
+              actions: ["persistModel", "calculate"],
             },
           ],
         },
@@ -509,7 +509,14 @@ export default createMachine(
       ),
       refreshContext: assign(
         (
-          { model, lookups, rawProduct, error, coupons }: ProductConfigContext,
+          {
+            model,
+            lookups,
+            rawProduct,
+            error,
+            coupons,
+            basketProduct,
+          }: ProductConfigContext,
           { data }: ProductConfigEvent
         ) => {
           const {
@@ -522,12 +529,24 @@ export default createMachine(
 
           lookups.product = parseProduct(rawProduct, basket_product);
 
+          if (basketProduct && basketProduct != basket_product) {
+            console.warn(
+              "Product Machine",
+              "refresh",
+              "basketProduct mismatch",
+              {
+                basketProduct,
+                basket_product,
+              }
+            );
+          }
+
           const newContext = {
             clientId: client_id,
             currencyId: currency_id,
             promotions: uniq(concat(promotions ?? [], coupons ?? [])),
             coupons: coupons ?? [],
-            basketProduct: basket_product,
+            basketProduct: basketProduct ?? basket_product, // ensure we honoure any given basket product
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
@@ -586,7 +605,7 @@ export default createMachine(
         },
       }),
 
-      setBaseModel: assign({
+      persistModel: assign({
         baseModel: ({ model }: ProductConfigContext, _event) =>
           cloneDeep(model),
       }),

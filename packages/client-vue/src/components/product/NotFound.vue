@@ -55,16 +55,17 @@ import { ref, computed } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upwind";
+import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { ProductModalProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -84,7 +85,16 @@ const props = withDefaults(defineProps<ProductModalProps>(), {
 
 const { meta } = useBasket();
 
-const styles = useStyles(["product.notFound"], meta, config);
+const styles = useStyles(["product.notFound"], meta, config) as ComputedRef<{
+  product: {
+    NotFound: {
+      root: string;
+      title: string;
+      text: string;
+      actions: string;
+    };
+  };
+}>;
 
 const processing = ref(false);
 const isOpen = computed(() => meta.value.isEmpty || props.open);

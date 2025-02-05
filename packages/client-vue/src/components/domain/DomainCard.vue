@@ -151,12 +151,11 @@
         </template>
 
         <template #[`action`]>
-          <Button
+          <Link
             :class="styles.domain.card.transfer.action"
             :disabled="meta.isDisabled || props.selected"
             :label="t('domain.card.transfer.action')"
             :color="props.color"
-            variant="link"
             @click="onUpdate(props.domain)"
             size="sm"
           />
@@ -226,14 +225,13 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Icon, Badge, Button } from "@upmind-automation/upwind";
+import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { isNil } from "lodash-es";
 
 // --- types
 import type { DomainCardProps } from "./types";

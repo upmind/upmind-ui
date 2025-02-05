@@ -1,5 +1,5 @@
 <template>
-  <RouterLink :to="{ name: 'cart' }">
+  <RouterLink :to="{ name: 'basket' }" tabindex="-1">
     <Button
       v-bind="$attrs"
       size="sm"
@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Button, Icon } from "@upmind-automation/upwind";
+import { Button, Icon } from "@upmind-automation/upmind-ui";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 </script>

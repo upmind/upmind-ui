@@ -4,7 +4,7 @@
     :name="subproduct.id"
     :class="styles.product.config.list.root"
     :required="subproduct.required"
-    :disabled="props.disabled || props.processing"
+    :disabled="props.disabled"
     :visible="props.visible"
     :dirty="blurred"
     :errors="props.errors"
@@ -19,7 +19,7 @@
       :name="subproduct.id"
       :required="subproduct.required"
       :items="parsedValues"
-      :disabled="props.disabled || props.processing"
+      :disabled="props.disabled"
       :errors="errors"
       :none-text="t('product.select.none')"
       :placeholder="t('product.select.placeholder')"
@@ -43,7 +43,7 @@ import { useVModel } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
@@ -52,14 +52,14 @@ import {
   CheckboxCards,
   FormField,
   SelectCards,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 import CardSubproduct from "./SubproductCard.vue";
 
 // --- utils
 import { find, map, get } from "lodash-es";
 
 // --- types
-import { type RadioCardsItemProps } from "@upmind-automation/upwind";
+import { type RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

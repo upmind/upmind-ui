@@ -71,7 +71,17 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     // @ts-ignore
     input: model => actor.value?.send({ type: "SET", data: model }),
 
-    async add() {
+    async add(coupon?: string) {
+      if (coupon) {
+        actor.value?.send({ type: "SET", data: { promocode: coupon } });
+        const state = await waitFor(service as ActorRef<any, any>, state =>
+          ["valid", "error"].some(state.matches)
+        );
+        if (state.matches("error")) {
+          return Promise.reject(state.context.error);
+        }
+      }
+
       actor.value?.send({ type: "ADD" });
 
       // then wait for the paymentGateway actor to be updated

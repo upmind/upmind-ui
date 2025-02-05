@@ -84,6 +84,7 @@ export default createMachine(
         },
         on: {
           SESSION: { target: "#loading" },
+          ERROR: { target: "#error", actions: "setError" },
         },
       },
       // our initial state will check and see if we have an existing basket
@@ -675,7 +676,8 @@ export default createMachine(
 
       // @ts-ignore
       setError: assign({
-        error: (context, { data }: BasketEvent) => data?.error,
+        error: (context, { data }: BasketEvent) =>
+          data?.error || data || undefined,
       }),
 
       clearError: assign({ error: undefined }),

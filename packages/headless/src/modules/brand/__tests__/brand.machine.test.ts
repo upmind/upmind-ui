@@ -76,7 +76,7 @@ describe("Brand Machine", async () => {
     brandService.start();
     await waitFor(brandService, state => state.matches("complete"));
 
-    brandService.send("CONFIG.GET");
+    brandService.send({ type: "CONFIG.GET" });
     await waitFor(brandService, state => state.matches("complete"));
 
     expect(mockActions.setConfigKeys).toHaveBeenCalledOnce();
@@ -141,7 +141,7 @@ describe("Brand Machine", async () => {
     // correctly on RETRY event
     vi.clearAllMocks();
 
-    brandService.send("RETRY");
+    brandService.send({ type: "RETRY" });
     await waitFor(brandService, state => state.matches(expectedState));
 
     expect(mockServices.fetchOrganisationConfig).toHaveBeenCalledOnce();

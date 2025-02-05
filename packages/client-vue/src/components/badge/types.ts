@@ -1,4 +1,4 @@
-import type { BadgeProps } from "@upmind-automation/upwind";
+import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 export interface PromotionBadgeProps {
   id?: string;

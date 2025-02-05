@@ -38,11 +38,11 @@ import { defineComponent, watch, ref } from "vue";
 
 // --- internal
 import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
-import { useStyles, toast } from "@upmind-automation/upwind";
+import { useStyles, toast } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Sonner } from "@upmind-automation/upwind";
+import { Sonner } from "@upmind-automation/upmind-ui";
 import Message from "./Message.vue";
 import TrackEvent from "./TrackEvent.vue";
 

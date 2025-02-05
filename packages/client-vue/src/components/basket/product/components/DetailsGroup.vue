@@ -35,7 +35,7 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upmind-ui";
 import { some } from "lodash-es";
 
 // --- components
@@ -53,7 +53,7 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const editLink = computed(() => ({
-  name: "productEdit",
+  name: "product.edit",
   params: { bpid: props.id },
 }));
 

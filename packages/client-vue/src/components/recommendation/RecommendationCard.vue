@@ -4,7 +4,7 @@
     :disabled="configMeta?.isDisabled"
   >
     <Badge
-      v-if="badge"
+      v-if="badge?.label"
       v-bind="badge"
       variant="flat"
       size="lg"
@@ -43,7 +43,7 @@
 
             <ul :class="styles.recommendation.content.list">
               <template v-for="benefit in benefits" :key="benefit.label">
-                <RecommendationBenefit v-bind="benefit" />
+                <RecommendationBenefit v-if="benefit?.label" v-bind="benefit" />
               </template>
             </ul>
           </section>
@@ -151,11 +151,11 @@ import { computed, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upwind";
+import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upmind-ui";
 import { UpmCard } from "@upmind-automation/client-vue";
 import Promotion from "../basket/product/components/Promotion.vue";
 import RecommendationBenefit from "./components/Benefit.vue";

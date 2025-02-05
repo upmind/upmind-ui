@@ -92,5 +92,5 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { Skeleton } from "@upmind-automation/upwind";
+import { Skeleton } from "@upmind-automation/upmind-ui";
 </script>

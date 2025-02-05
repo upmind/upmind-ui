@@ -4,18 +4,8 @@
     :class="cn(styles.session.auth.root, $props.class)"
     v-if="!meta.isAuthenticated"
   >
-    <Tabs
-      :default-value="modelValue"
-      :tabs="tabs"
-      :width="stretchTabs ? 'full' : 'auto'"
-      v-if="
-        !noTabs &&
-        (meta.canShowForms || meta.showLoginForm || meta.showRegisterForm)
-      "
-    />
-
     <Form
-      :key="active"
+      :key="modelValue"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -23,157 +13,145 @@
       :uischema="uischema"
       :additional-errors="errors?.data"
       :color="color"
-      @reject="reject"
-      @resolve="resolve"
+      @reject="doReject"
+      @resolve="doResolve"
       :class="styles.session.auth.form"
       :actions="authActions"
     />
   </div>
-  <Button variant="ghost" block type="reset" @click.prevent="logout" v-else>
-    logout
-  </Button>
+
+  <div :class="styles.session.auth.actions">
+    <slot name="toggle">
+      <div
+        v-if="meta.showRegisterForm || meta.showLoginForm"
+        @click="toggleForm(meta.showRegisterForm ? 'login' : 'register')"
+      >
+        <Link>
+          <span class="font-normal">
+            {{ buttonText }}
+          </span>
+          &nbsp;{{ buttonAction }}
+        </Link>
+      </div>
+    </slot>
+  </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import { Form } from "@upmind-automation/upwind";
-import { useStyles, cn } from "@upmind-automation/upwind";
+import Form from "../form/Form.vue";
+import { useStyles, cn, Link } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- custom elements
-import { Button, Tabs, type TabItems } from "@upmind-automation/upwind";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { PropType } from "vue";
 import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "Auth",
-  components: { Form, Tabs, Button },
+const emit = defineEmits(["update:modelValue", "resolve", "reject"]);
+const props = withDefaults(defineProps<AuthProps>(), {
+  modelValue: "login",
+  color: "secondary",
+});
 
-  emits: ["update:modelValue"],
-  props: {
-    modelValue: {
-      type: String as PropType<AuthProps["show"]>,
-      default: "login",
+const { t } = useI18n();
+
+const {
+  meta,
+  errors,
+  showLogin,
+  showRegister,
+  verify2fa,
+  model,
+  schema,
+  uischema,
+  resolve,
+  reject,
+} = useSession();
+
+const styles = useStyles(["session.auth"], meta, config);
+
+const modelValue = useVModel(props, "modelValue", emit);
+
+// ---
+
+const authActions = computed(() => {
+  return {
+    submit: {
+      type: "submit" as "submit",
+      label: meta.value.showLoginForm
+        ? t("auth.actions.login")
+        : meta.value.showRegisterForm
+          ? t("auth.actions.register")
+          : t("auth.actions.continue"),
+      block: true,
+      needsValid: true,
     },
-    noTabs: { type: Boolean, default: false },
-    blockTabs: { type: Boolean, default: false },
-    stretchTabs: { type: Boolean, default: false },
-    color: { type: String },
-    class: { type: String },
-  },
-  setup(props) {
-    const { t } = useI18n();
+  };
 
-    const {
-      meta,
-      errors,
-      showLogin,
-      showRegister,
-      verify2fa,
-      model,
-      schema,
-      uischema,
-      resolve,
-      reject,
-    } = useSession();
+  // TODO: implement forgot password flow
+  // if (this.meta.showLoginForm) {
+  //   actions.forgot = {
+  //     label: this.t("auth.actions.forgot"),
+  //     block: true,
+  //     variant: "link",
+  //     size: "sm",
+  //     action: () => this.toggleForm("forgot"),
+  //   };
+  // }
+});
 
-    const styles = useStyles(["session.auth"], meta, config);
+function toggleForm(type: AuthProps["modelValue"]) {
+  switch (type) {
+    case "login":
+      if (!meta.value.showLoginForm)
+        showLogin().then(() => (modelValue.value = type));
+      break;
+    case "register":
+      if (!meta.value.showRegisterForm)
+        showRegister().then(() => (modelValue.value = type));
+      break;
+    // case "forgot":
+    //   if (!meta.value.showForgotForm)
+    //     showForgot().then(() => (modelValue.value = type));
+  }
+}
 
-    return {
-      t,
-      cn,
-      meta,
-      errors,
-      styles,
-      active: ref(props.modelValue),
-      // ---
-      model,
-      schema,
-      uischema,
-      // ---
-      resolve,
-      reject,
-      showLogin,
-      showRegister,
-      verify2fa,
-    };
-  },
-  computed: {
-    tabs(): TabItems {
-      return [
-        {
-          value: "register",
-          label: this.t("auth.actions.toggle.register"),
-        },
-        {
-          value: "login",
-          label: this.t("auth.actions.toggle.login"),
-        },
-      ];
-    },
-    authActions() {
-      const actions = {
-        submit: {
-          type: "submit",
-          label: this.meta.showLoginForm
-            ? this.t("auth.actions.login")
-            : this.meta.showRegisterForm
-              ? this.t("auth.actions.register")
-              : this.t("auth.actions.continue"),
-          block: true,
-          needsValid: true,
-        },
-      };
+function doResolve(model: any) {
+  resolve(model).then(() => emit("resolve", model));
+}
 
-      // TODO: implement forgot password flow
-      // if (this.meta.showLoginForm) {
-      //   actions.forgot = {
-      //     label: this.t("auth.actions.forgot"),
-      //     block: true,
-      //     variant: "link",
-      //     size: "sm",
-      //     action: () => this.toggleForm("forgot"),
-      //   };
-      // }
+function doReject() {
+  reject().then(() => emit("reject"));
+}
 
-      return actions;
-    },
-  },
-  methods: {
-    toggleForm(type: AuthProps.form) {
-      switch (type) {
-        case "login":
-          if (!this.meta.showLoginForm) this.showLogin();
-          break;
-        case "register":
-          if (!this.meta.showRegisterForm) this.showRegister();
-          break;
-      }
+onMounted(() => {
+  toggleForm(modelValue.value);
+});
 
-      this.active = type;
-      this.$emit("update:modelValue", type);
-    },
-  },
-  mounted() {
-    this.toggleForm(this.active);
-  },
-  watch: {
-    meta({ canShowForms }) {
-      if (canShowForms) {
-        this.toggleForm(this.active);
-      }
-    },
-    modelValue(value) {
-      this.toggleForm(value);
-    },
-  },
+const buttonText = computed(() => {
+  return meta.value.showRegisterForm
+    ? t("session.unauthenticated.register.actions.text")
+    : t("session.unauthenticated.login.actions.text");
+});
+
+const buttonAction = computed(() => {
+  return meta.value.showRegisterForm
+    ? t("session.unauthenticated.register.actions.action")
+    : t("session.unauthenticated.login.actions.action");
+});
+
+watch(meta, ({ canShowForms }) => {
+  if (canShowForms) {
+    toggleForm(modelValue.value);
+  }
 });
 </script>

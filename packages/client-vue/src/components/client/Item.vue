@@ -56,11 +56,13 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upwind";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import { Form, Button, Drawer, SkeletonList } from "@upmind-automation/upwind";
+import { Button, Drawer, SkeletonList } from "@upmind-automation/upmind-ui";
+
+import Form from "../form/Form.vue";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";

@@ -3,12 +3,14 @@ import type {
   DialogProps,
   ButtonProps,
   AnimatedIconProps,
-} from "@upmind-automation/upwind";
+} from "@upmind-automation/upmind-ui";
 // ---
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
+  prependIcon?: string;
+  appendIcon?: string;
 }
 
 export interface ProductModalProps {
