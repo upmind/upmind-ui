@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { useUrl, useUrlParams } from "@/utils/useUrl";
+import { useUrl, useUrlParams } from "../../utils/useUrl";
 
 // TODO: Perhaps we can move env variables to a constants file?
 // We would then only have to mock the constants file as the dependency

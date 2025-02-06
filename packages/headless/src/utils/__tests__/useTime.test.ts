@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { useTime, useRelativeTime } from "@/utils/useTime";
+import { useTime, useRelativeTime } from "../../utils/useTime";
 
 describe("useTime.ts", () => {
   // These tests aren't very useful.. maybe this shouldn't be a function ?

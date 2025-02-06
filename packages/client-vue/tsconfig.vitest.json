@@ -1,9 +1,8 @@
 {
-  "extends": "./tsconfig.app.json",
-  "exclude": [],
+  "extends": "./tsconfig.json", // Extend the main client-vue config
   "compilerOptions": {
     "composite": true,
-    "lib": [],
+    "lib": ["dom", "esnext"],
     "types": ["node", "jsdom"]
   }
 }

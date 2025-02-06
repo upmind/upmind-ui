@@ -21,7 +21,7 @@ export const useDomain = (
     model?: Array<string> | string;
     sync?: boolean;
     type?: DomainTypes;
-    parentId?: object; // id of basket item machine representing the parent context
+    parentId?: string; // id of basket item machine representing the parent context
   } = {
     model: [],
     sync: false,

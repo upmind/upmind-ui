@@ -1,47 +1,48 @@
 {
   "name": "@upmind-automation/client-vue",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
   "main": "./dist/client-vue.umd.cjs",
   "module": "./dist/client-vue.js",
-  "types": "./dist/client-vue.d.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/client-vue.js",
-      "require": "./dist/client-vue.umd.cjs"
-    }
+    ".": "./dist/client-vue.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "tsc --noEmit && vite build",
+    "build:only": "vite build",
     "preview": "vite preview",
-    "test": "vitest",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "format": "prettier --write src/"
+    "test": "vitest run",
+    "test:dev": "vitest",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix ",
+    "format": "prettier --write src/",
+    "type-check": "tsc --noEmit",
+    "type-check:debug": "tsc --noEmit --traceResolution"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
     "@upmind-automation/headless-vue": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
-    "@vueuse/components": "^10.7.2",
-    "@vueuse/core": "^10.7.2",
-    "lodash-es": "^4.17.21",
-    "vue": "^3.3.4"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.0",
     "@rushstack/eslint-patch": "^1.3.3",
     "@tsconfig/node18": "^18.2.2",
     "@types/jsdom": "^21.1.2",
     "@types/lodash-es": "^4.17.9",
-    "@types/node": "^18.17.15",
+    "@types/node": "^20.6.2",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@vitest/coverage-istanbul": "^2.1.1",
     "@vue/eslint-config-prettier": "^8.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
     "@vue/test-utils": "^2.4.1",
@@ -52,13 +53,21 @@
     "jsdom": "^22.1.0",
     "npm-run-all": "^4.1.5",
     "postcss": "^8",
-    "prettier": "^3.2.5",
+    "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.12",
     "sass": "^1.67.0",
-    "tailwindcss": "^3",
-    "typescript": "~5.1.6",
-    "vite": "^4.4.9",
-    "vitest": "^0.34.4",
+    "typescript": "^5.6.2",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^2.0.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.1.1",
     "vue-tsc": "^1.8.11"
+  },
+  "peerDependencies": {
+    "@vueuse/components": "^10.7.2",
+    "@vueuse/core": "^10.7.2",
+    "vue": "^3.5.1",
+    "vue-i18n": "^9.1.0",
+    "vue-router": "^4.2.4"
   }
 }

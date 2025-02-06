@@ -3,7 +3,7 @@ import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
   useFieldsModelParser,
-} from "@/utils/useFields";
+} from "../../utils/useFields";
 // import { useTranslateField } from '@/utils/useTranslation';
 // import { forEach, get, set } from 'lodash-es';
 

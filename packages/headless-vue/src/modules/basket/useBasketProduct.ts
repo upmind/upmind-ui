@@ -26,12 +26,42 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { Basket } from "@upmind-automation/headless";
+import type { IBasket } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the  basket machine and then spawns a  product configuration machine
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
-export const useBasketProduct = (id: string) => {
+import type { ComputedRef } from "vue";
+
+export const useBasketProduct = (
+  id: string
+): {
+  id: string;
+  meta: ComputedRef<{
+    isLoading: boolean;
+    isNew: boolean;
+    isDirty: boolean;
+    isTouched: boolean;
+    isUnavailable: boolean;
+    hasErrors: boolean;
+    isProcessing: boolean;
+    hasProvisioning: boolean;
+    hasAttributes: boolean;
+    hasOptions: boolean;
+    hasTerms: boolean;
+    hasTaxIncluded: boolean;
+  }>;
+  error: ComputedRef<any>;
+  product: ComputedRef<any>;
+  model: ComputedRef<any>;
+  summary: ComputedRef<any>;
+  updateQuantity: (value: number) => Promise<ActorRef<any, any>>;
+  incrementQuantity: () => Promise<ActorRef<any, any>>;
+  decrementQuantity: () => Promise<ActorRef<any, any>>;
+  remove: () => Promise<void>;
+  stop: () => void;
+} => {
   // we need our basket
   const { checkIncludesTax } = useBrand();
   const { service: basket, refresh: refreshBasket } = useBasket();
@@ -39,7 +69,7 @@ export const useBasketProduct = (id: string) => {
   const processing = ref(false);
 
   if (!rawBasket) {
-    const error = new Error("No Basket available");
+    const error = new Error("No IBasket available");
     // @ts-ignore
     error.code = responseCodes.Not_Found;
     throw error;
@@ -56,12 +86,12 @@ export const useBasketProduct = (id: string) => {
   // in case of any changes to currency, promotions etc
   basket.onTransition(basketProduct => {
     if (basketProduct.matches("refreshing.complete")) {
-      refresh(basketProduct?.context?.basket as Basket);
+      refresh(basketProduct?.context?.basket as IBasket);
     }
   });
 
   // ---------------------------------------------------------------------------
-  const parseQuantity = (quantity: number, product: any) => {
+  const parseQuantity = (quantity: number, product: any): number => {
     quantity = toNumber(quantity) || 1; // ensure we have a number;
     // Check the product data is available
     // Check the quantity is valid,
@@ -87,7 +117,9 @@ export const useBasketProduct = (id: string) => {
     return quantity;
   };
 
-  const updateQuantity = debounce(async (value: number) => {
+  const updateQuantity: (value: number) => Promise<ActorRef<any, any>> = async (
+    value: number
+  ) => {
     // sanity check
     if (!basketProduct.product) return Promise.reject("Product not found");
     if (processing.value) return Promise.reject("Already processing");
@@ -99,14 +131,14 @@ export const useBasketProduct = (id: string) => {
     return update(basketProduct).finally(() => {
       return refreshBasket().finally(() => (processing.value = false));
     });
-  }, 350);
+  };
 
-  async function incrementQuantity() {
+  async function incrementQuantity(): Promise<ActorRef<any, any>> {
     const qty = get(basketProduct, "quantity", 0);
     return updateQuantity(add(qty, basketProduct.product.step || 1));
   }
 
-  async function decrementQuantity() {
+  async function decrementQuantity(): Promise<ActorRef<any, any>> {
     const qty = get(basketProduct, "quantity", 0);
     return updateQuantity(subtract(qty, basketProduct.product?.step || 1));
   }
@@ -142,9 +174,17 @@ export const useBasketProduct = (id: string) => {
     model: computed(() => omit(basketProduct, ["product", "summary", "error"])),
     summary: computed(() => get(basketProduct, "summary")),
     // ---
-    updateQuantity,
-    incrementQuantity,
-    decrementQuantity,
+    updateQuantity: debounce(updateQuantity, 350) as (
+      value: number
+    ) => Promise<ActorRef<any, any>>,
+    incrementQuantity: debounce(
+      incrementQuantity,
+      350
+    ) as unknown as () => Promise<ActorRef<any, any>>,
+    decrementQuantity: debounce(
+      decrementQuantity,
+      350
+    ) as unknown as () => Promise<ActorRef<any, any>>,
     // ---
 
     // update: async () => {
@@ -155,11 +195,11 @@ export const useBasketProduct = (id: string) => {
     //     .then(refreshBasket)
     //     .finally(() => (processing.value = false));
     // },
-    remove: async () => {
+    remove: async (): Promise<void> => {
       if (!basketProduct.product) return Promise.reject("Product not found");
       if (processing.value) return Promise.reject("Already processing");
       processing.value = true;
-      return remove()
+      remove()
         .then(refreshBasket)
         .finally(() => (processing.value = false));
     },
@@ -174,7 +214,7 @@ export const useBasketProductConfig = (id: string) => {
   const rawBasket = get(basket.getSnapshot(), "context.basket");
 
   if (!rawBasket) {
-    const error = new Error("No Basket available");
+    const error = new Error("No IBasket available");
     // @ts-ignore
     error.code = responseCodes.Not_Found;
     throw error;

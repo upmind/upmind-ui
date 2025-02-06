@@ -1,29 +1,53 @@
-import { fileURLToPath, URL } from 'node:url'
-
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue'
+import { configDefaults } from "vitest/config";
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    preserveSymlinks: true,
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: '@upmind-automation/headless-vue',
+    },
+    outDir: 'dist',
+    sourcemap: true,
+    rollupOptions: {
+      external: ['vue'], // Vue is an external dependency
+      plugins: [nodeResolve()],
+    },
+  },
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => tag.startsWith('uw-')
-        }
-      }
+    vue(),
+    tsconfigPaths(),
+    dts({
+      entryRoot: 'src',
+      outputDir: 'dist/types',
+      // compilerOptions: {
+      //   declarationMap: true,
+      // },
     }),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+
+  // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  test: {
+    environment: "jsdom",
+    exclude: [...configDefaults.exclude, "e2e/*"],
+    root: resolve(__dirname, './'),
+    // https://vitest.dev/guide/coverage.html
+    coverage: {
+      provider: 'istanbul',
+      enabled: true
+    },
   },
-    build: {
-    lib: {
-      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "upmind-client",
-      fileName: "upmind-client"
-    }
-  },
-})
+});
+
+

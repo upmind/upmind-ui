@@ -1,32 +1,37 @@
-import { resolve } from "path";
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths'; // Import the plugin
+import nodeResolve from '@rollup/plugin-node-resolve';
 import { configDefaults } from "vitest/config";
 
 export default defineConfig({
   resolve: {
+    preserveSymlinks: true,
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': resolve(__dirname, './src'),
     },
-    preserveSymlinks: true
   },
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "@upmind-automation/headless",
-      fileName: "headless"
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: '@upmind-automation/headless',
     },
-    rollupOptions: {
-      // Externalize deps that shouldn't be bundled
-      external: ['@upmind-automation/types'],
-    },
-    outDir: "dist",
+    outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      external: [], // Only truly external dependencies here (e.g., React, Vue)
+      plugins: [nodeResolve()], // Essential for monorepo dependencies
+    },
   },
   plugins: [
+    tsconfigPaths(), // Add this plugin for path mapping
     dts({
-      rollupTypes: true, // or compilerOptions: { declarationDir: "dist/types" }
+      entryRoot: 'src',
+      outputDir: 'dist/types',
+      // compilerOptions: {
+      //   declarationMap: true,
+      // },
     }),
   ],
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
@@ -34,7 +39,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "e2e/*"],
-    root: fileURLToPath(new URL("./", import.meta.url)),
+    root: resolve(__dirname, './'),
     // https://vitest.dev/guide/coverage.html
     coverage: {
       provider: 'istanbul',
