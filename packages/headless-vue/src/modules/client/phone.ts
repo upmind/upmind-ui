@@ -119,7 +119,7 @@ export const useClientPhones = () => {
         !["available.editing", "available.adding", "available.loading"].some(
           state.value.matches
         ) &&
-        state.value.context?.raw?.length > 1,
+        (state.value.context?.raw?.length ?? 0) > 1,
     })),
     // ---
     items,

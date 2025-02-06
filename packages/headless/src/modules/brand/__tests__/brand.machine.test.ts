@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
-import brandMachine from "@/modules/brand/brand.machine";
+import brandMachine from "../brand.machine";
 
 const mockServices = {
   fetchOrganisationConfig: vi.fn(() => Promise.resolve(true)),

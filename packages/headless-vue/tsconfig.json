@@ -1,15 +1,23 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
     "allowJs": false,
+    "declaration": true,
+    "declarationDir": "./dist/types", // Correct declaration directory
+    "composite": true,
+    "outDir": "dist", // Output directory for JS files
+    "rootDir": "src", // Root of your source files
+    "baseUrl": ".", // Important for path resolution
+    "paths": {
+      "@upmind-automation/types": ["../types/dist/types"], // Path to the types package's .d.ts files
+      "@upmind-automation/headless": ["../headless/dist/types"] // Path to the types package's .d.ts files
+    },
     "module": "esnext",
-    "moduleResolution": "bundler",
-    "outDir": "dist",
+    "moduleResolution": "node",
     "noImplicitThis": true,
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*"],
+  "references": [{ "path": "../types" }, { "path": "../headless" }] // Essential for monorepo dependencies
 }

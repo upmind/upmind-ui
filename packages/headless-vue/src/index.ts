@@ -1,5 +1,3 @@
-import "@upmind-automation/headless";
-
 export * from "./modules";
 
 /**

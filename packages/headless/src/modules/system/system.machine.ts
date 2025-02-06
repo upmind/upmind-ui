@@ -3,12 +3,14 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-import type { SystemContext, SystemEvent } from "./types";
+import type { SystemContext } from "./types";
 
 // --- utils
 import { useTime } from "../../utils";
 import { set, unset, keys, includes, every } from "lodash-es";
 
+// --- types
+import type { AnyEventObject } from "xstate";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -52,7 +54,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "currencies", data);
                     return error;
                   },
@@ -98,7 +103,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "billingCycles", data);
                     return error;
                   },
@@ -148,7 +156,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "countries", data);
                     return error;
                   },
@@ -196,7 +207,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "regions", data);
                     return error;
                   },
@@ -247,7 +261,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "languages", data);
                     return error;
                   },
@@ -295,7 +312,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "statuses", data);
                     return error;
                   },
@@ -343,7 +363,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "departments", data);
                     return error;
                   },
@@ -393,7 +416,7 @@ export default createMachine(
       //         onError: {
       //           target: "error",
       //           actions: assign({
-      //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
+      //             error: ({ error }: SystemContext, { data }: AnyEventObject) => {
       //               set(error, "systemIPAddresses", data);
       //               return error;
       //             }
@@ -441,7 +464,7 @@ export default createMachine(
       //         onError: {
       //           target: "error",
       //           actions: assign({
-      //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
+      //             error: ({ error }: SystemContext, { data }: AnyEventObject) => {
       //               set(error, "taxBusinesstypes", data);
       //               return error;
       //             }
@@ -475,39 +498,41 @@ export default createMachine(
   {
     actions: {
       setCurrencies: assign({
-        currencies: (_context: SystemContext, { data }: SystemEvent) => data,
+        currencies: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setBillingCycles: assign({
-        billingCycles: (_context: SystemContext, { data }: SystemEvent) => data,
+        billingCycles: (_context: SystemContext, { data }: AnyEventObject) =>
+          data,
       }),
       setCountries: assign({
-        countries: (_context: SystemContext, { data }: SystemEvent) => data,
+        countries: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setRegions: assign({
-        regions: ({ regions }: SystemContext, { data }: SystemEvent) => {
+        regions: ({ regions }: SystemContext, { data }: AnyEventObject) => {
           regions ??= {}; // ensure we have a regions object
           set(regions, data.key, data.values);
           return regions;
         },
       }),
       setLanguages: assign({
-        languages: (_context: SystemContext, { data }: SystemEvent) => data,
+        languages: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setStatuses: assign({
-        statuses: (_context: SystemContext, { data }: SystemEvent) => data,
+        statuses: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setDepartments: assign({
-        departments: (_context: SystemContext, { data }: SystemEvent) => data,
+        departments: (_context: SystemContext, { data }: AnyEventObject) =>
+          data,
       }),
 
       // --- admin only endpoints
 
       // setSystemIPAddresses: assign({
-      //   systemIPAddresses: (_context: SystemContext, { data }: SystemEvent) =>
+      //   systemIPAddresses: (_context: SystemContext, { data }: AnyEventObject) =>
       //     data
       // }),
       // setTaxBusinessTypes: assign({
-      //   taxBusinessTypes: (_context: SystemContext, { data }: SystemEvent) =>
+      //   taxBusinessTypes: (_context: SystemContext, { data }: AnyEventObject) =>
       //     data
       // })
 
@@ -517,7 +542,7 @@ export default createMachine(
       // @ts-ignore
       allRegionsLoaded: (
         { countries, regions }: SystemContext,
-        _event: SystemEvent
+        _event: AnyEventObject
       ) => {
         const existing = keys(regions);
         return (

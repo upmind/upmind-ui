@@ -1,36 +1,48 @@
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue'
-import { resolve } from "path";
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from "vite";
 import { configDefaults } from "vitest/config";
 
-// https://vitejs.dev/guide/build.html#library-mode
 export default defineConfig({
   resolve: {
+    preserveSymlinks: true,
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      '@': resolve(__dirname, './src'),
+    },
+  },
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: '@upmind-automation/headless-vue',
+    },
+    outDir: 'dist',
+    sourcemap: true,
+    rollupOptions: {
+      external: ['vue'], // Vue is an external dependency
+      plugins: [nodeResolve()],
+    },
   },
   plugins: [
     vue(),
+    tsconfigPaths(),
+    dts({
+      entryRoot: 'src',
+      outputDir: 'dist/types',
+      // compilerOptions: {
+      //   declarationMap: true,
+      // },
+    }),
   ],
-  build: {
-    lib: {
-      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "@upmind-automation/headless-vue",
-      fileName: "upmind-headless-vue"
-    },
-    rollupOptions: {
-      // Externalize deps that shouldn't be bundled
-      external: [/^@upmind-automation\//]
-    }
-  },
+
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
   // @ts-ignore
   test: {
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "e2e/*"],
-    root: fileURLToPath(new URL("./", import.meta.url)),
+    root: resolve(__dirname, './'),
     // https://vitest.dev/guide/coverage.html
     coverage: {
       provider: 'istanbul',

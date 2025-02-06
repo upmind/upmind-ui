@@ -43,7 +43,7 @@ export const useSystem = () => {
     node: string,
     getValues: (data: any) => any,
     data?: any
-  ) {
+  ): Promise<any> {
     // ---
     // then  check if we have the regions for this country and return them
     const values = getValues(data);
