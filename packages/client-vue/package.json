@@ -28,7 +28,7 @@
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
     "@upmind-automation/headless-vue": "0.0.5",
-    "@upmind-automation/upmind-ui": "^0.0.0",
+    "@upmind-automation/upmind-ui": "*",
     "@vueuse/components": "^10.7.2",
     "@vueuse/core": "^10.7.2",
     "lodash-es": "^4.17.21",
