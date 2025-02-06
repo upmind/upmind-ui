@@ -11,20 +11,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import { UpmAutocomplete, Autocomplete } from "./ui/autocomplete";
+import { Autocomplete } from "./ui/autocomplete";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
-import { UpmAlert, Alert } from "./ui/alert";
-import { UpmAvatar, Avatar, type AvatarProps } from "./ui/avatar";
-import { UpmBadge, Badge, type BadgeProps } from "./ui/badge";
-import { UpmButton, Button, type ButtonProps } from "./ui/button";
-import { UpmCheckbox, Checkbox, type CheckboxProps } from "./ui/checkbox";
+import { Alert } from "./ui/alert";
+import { Avatar, type AvatarProps } from "./ui/avatar";
+import { Badge, type BadgeProps } from "./ui/badge";
+import { Button, type ButtonProps } from "./ui/button";
+import { Checkbox, type CheckboxProps } from "./ui/checkbox";
 import {
   CheckboxCards,
   type CheckboxCardsProps,
   type CheckboxCardsItemProps,
 } from "./ui/checkbox-cards";
 import {
-  UpmCombobox,
   Combobox,
   type ComboboxProps,
   type ComboboxItemProps,
@@ -38,16 +37,11 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "./ui/carousel";
-import { UpmDialog, Dialog, type DialogProps } from "./ui/dialog";
-import { UpmDrawer, Drawer } from "./ui/drawer";
-import {
-  UpmDropdownMenu,
-  DropdownMenu,
-  type DropdownMenuItemProps,
-} from "./ui/dropdown-menu";
+import { Dialog, type DialogProps } from "./ui/dialog";
+import { Drawer } from "./ui/drawer";
+import { DropdownMenu, type DropdownMenuItemProps } from "./ui/dropdown-menu";
 import { SelectCards, type SelectCardsItemProps } from "./ui/select-cards";
 import {
-  UpmForm,
   Form,
   FormField,
   FormControl,
@@ -58,32 +52,19 @@ import {
   type FormFooterProps,
   type FormActionsProps,
 } from "./ui/form";
-import { UpmIcon, Icon, type IconProps } from "./ui/icon";
-import {
-  UpmIconAnimated,
-  IconAnimated,
-  type AnimatedIconProps,
-} from "./ui/icon-animated";
-import { UpmIndicator, Indicator } from "./ui/indicator";
-import {
-  UpmInterstitial,
-  Interstitial,
-  type InterstitialProps,
-  type InterstitialActionProps,
-} from "./ui/interstitial";
-import { UpmInput, Input, type InputProps } from "./ui/input";
-import {
-  UpmNumberField,
-  NumberField,
-  type NumberFieldProps,
-} from "./ui/number-field";
-import { UpmLoading, Loading } from "./ui/loading";
-import { UpmLink, Link } from "./ui/link";
-import { UpmSonner, Sonner } from "./ui/sonner";
-import { UpmSpinner, Spinner } from "./ui/spinner";
-import { UpmTabs, Tabs, type TabItems } from "./ui/tabs";
-import { UpmTooltip, Tooltip } from "./ui/tooltip";
-import { UpmTextarea, Textarea, type TextareaProps } from "./ui/textarea";
+import { Icon, type IconProps } from "./ui/icon";
+import { IconAnimated, type AnimatedIconProps } from "./ui/icon-animated";
+import { Indicator } from "./ui/indicator";
+import { Interstitial, type InterstitialProps } from "./ui/interstitial";
+import { Input, type InputProps } from "./ui/input";
+import { NumberField, type NumberFieldProps } from "./ui/number-field";
+import { Loading } from "./ui/loading";
+import { Link } from "./ui/link";
+import { Sonner } from "./ui/sonner";
+import { Spinner } from "./ui/spinner";
+import { Tabs, type TabItems } from "./ui/tabs";
+import { Tooltip } from "./ui/tooltip";
+import { Textarea, type TextareaProps } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
 import {
@@ -93,8 +74,8 @@ import {
 } from "./ui/radio-cards";
 import { RadioGroup } from "./ui/radio-group";
 
-import { UpmSelect, Select, type SelectProps } from "./ui/select";
-import { UpmSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
+import { Select, type SelectProps } from "./ui/select";
+import { Skeleton, SkeletonList } from "./ui/skeleton";
 
 export { default as Markdown } from "./ui/markdown/Markdown.vue";
 export { default as Lineclamp } from "./ui/lineclamp/Lineclamp.vue";
@@ -110,7 +91,6 @@ export {
   initializeLottie,
   usePointerEvents,
 } from "./utils";
-import { forEach, kebabCase } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
@@ -194,73 +174,7 @@ export {
   type TextareaProps,
   type DropdownMenuItemProps,
   type SelectCardsItemProps,
-
-  // --- Custom Elements
-  UpmAlert,
-  UpmAutocomplete,
-  UpmAvatar,
-  UpmBadge,
-  UpmButton,
-  UpmCheckbox,
-  UpmCombobox,
-  UpmDialog,
-  UpmDrawer,
-  UpmDropdownMenu,
-  UpmForm,
-  UpmIcon,
-  UpmIconAnimated,
-  UpmIndicator,
-  UpmInterstitial,
-  UpmInput,
-  UpmNumberField,
-  UpmSelect,
-  UpmSkeleton,
-  UpmSonner,
-  UpmTabs,
-  UpmTooltip,
-  UpmTextarea,
 };
-
-// --- utility for registering all custom elements
-export function register() {
-  customElements.define("upm-alert", UpmAlert);
-  customElements.define("upm-autocomplete", UpmAutocomplete);
-  customElements.define("upm-avatar", UpmAvatar);
-  customElements.define("upm-badge", UpmBadge);
-  customElements.define("upm-button", UpmButton);
-  customElements.define("upm-checkbox", UpmCheckbox);
-  customElements.define("upm-combobox", UpmCombobox);
-  customElements.define("upm-dialog", UpmDialog);
-  customElements.define("upm-drawer", UpmDrawer);
-  customElements.define("upm-dropdown-menu", UpmDropdownMenu);
-  customElements.define("upm-form", UpmForm);
-  customElements.define("upm-icon", UpmIcon);
-  customElements.define("upm-icon-animated", UpmIconAnimated);
-  customElements.define("upm-indicator", UpmIndicator);
-  customElements.define("upm-interstitial", UpmInterstitial);
-  customElements.define("upm-input", UpmInput);
-  customElements.define("upm-number-field", UpmNumberField);
-  customElements.define("upm-sonner", UpmSonner);
-  customElements.define("upm-spinner", UpmSpinner);
-  customElements.define("upm-select", UpmSelect);
-  customElements.define("upm-skeleton", UpmSkeleton);
-  customElements.define("upm-tabs", UpmTabs);
-  customElements.define("upm-tooltip", UpmTooltip);
-  customElements.define("upm-textarea", UpmTextarea);
-  customElements.define("upm-loading", UpmLoading);
-}
-
-// --- utility for registering custom elements and allowing for code splitting
-export function useCustomElement(
-  ...constructors: CustomElementConstructor[]
-): void {
-  forEach(constructors, constructor => {
-    const componentName = kebabCase(constructor.name); // no more name in definition as we use setup scripts
-    if (!customElements.get(componentName)) {
-      customElements.define(componentName, constructor);
-    }
-  });
-}
 
 // -----------------------------------------------------------------------------
 
