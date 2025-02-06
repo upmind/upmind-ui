@@ -21,17 +21,17 @@ export function generateResponseUrls(
   //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
 
   // ---
-  const successUrl = new URL(`orders/${basketId}`, url);
+  const successUrl = new URL(`order/${basketId}`, url);
   // successUrl.searchParams.append("invoiceId", basketId);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   // ---
-  const failUrl = new URL(`orders/${basketId}`, url);
+  const failUrl = new URL(`order/${basketId}`, url);
   // failUrl.searchParams.append("invoiceId", basketId);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   // ---
-  const cancelUrl = new URL(`orders/${basketId}`, url);
+  const cancelUrl = new URL(`order/${basketId}`, url);
   // cancelUrl.searchParams.append("invoiceId", basketId);
   // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basketId);
   cancelUrl.searchParams.append(
