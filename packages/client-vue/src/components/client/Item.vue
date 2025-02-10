@@ -51,7 +51,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, type FormActionProps } from "@upmind-automation/upmind-ui";
-import config from "./client.config";
+import config from "../client/client.config";
 
 // --- components
 import { Button, Drawer, SkeletonList } from "@upmind-automation/upmind-ui";
@@ -63,7 +63,7 @@ import { isEmpty, omit, isFunction } from "lodash-es";
 
 // ---types
 import type { ComputedRef } from "vue";
-import type { ClientItemProps } from "./types";
+import type { ClientItemProps } from "../client/types";
 
 // -----------------------------------------------------------------------------
 

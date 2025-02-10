@@ -161,6 +161,7 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
     aside?: string;
     asideInner?: string;
     backButton?: string;
+    paymentDetails?: string;
   };
 }>;
 

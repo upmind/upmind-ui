@@ -5,7 +5,7 @@ export interface ClientItemProps {
   modelValue: ActorRef<any, any>;
   i18nKey: string;
   open?: boolean;
-  modal: boolean;
+  modal?: boolean;
   nested?: boolean;
   autosave?: boolean;
   skrim?: string;
