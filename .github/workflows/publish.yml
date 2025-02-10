@@ -17,10 +17,15 @@ jobs:
           node-version: "20.11"
           registry-url: "https://registry.npmjs.org"
 
+      - name: 🛠️ Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: 🏗️ Install dependencies and build
-        run: npm ci && npm run build-only
+        run: pnpm i && pnpm build
 
       - name: 📦 Publish package to NPM
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public
+        run: pnpm publish --no-git-checks --access public
