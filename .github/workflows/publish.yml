@@ -23,9 +23,9 @@ jobs:
           version: 10
 
       - name: 🏗️ Install dependencies and build
-        run: pnpm i && pnpm run build-only
+        run: pnpm i && pnpm build
 
       - name: 📦 Publish package to NPM
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm publish --access public
+        run: pnpm publish --no-git-checks --access public
