@@ -17,7 +17,7 @@ import type {
   IEmail,
 } from "@upmind-automation/types";
 
-import { AddressTypes } from "../address/types";
+import type { AddressTypes } from "../address/types";
 import type { ClientItemContext, ClientListingsContext } from "../types";
 
 // -----------------------------------------------------------------------------

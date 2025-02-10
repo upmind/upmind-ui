@@ -19,7 +19,6 @@ import { get, set, unset, forEach } from "lodash-es";
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext, RefreshEvent } from "./types";
 import { responseCodes } from "../api";
-import { P } from "vitest/dist/chunks/environment.LoooBwUu.js";
 
 // --------------------------------------------------------
 

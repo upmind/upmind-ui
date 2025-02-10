@@ -114,7 +114,7 @@ import {
   useClientUnifiedAddress,
 } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./client.config";
 
 // --- components
 import Section from "../Section.vue";

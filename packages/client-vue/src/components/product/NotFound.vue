@@ -74,13 +74,13 @@ const props = withDefaults(defineProps<ProductModalProps>(), {
   modal: false,
   skrim: "primary",
   size: "2xl",
-  animatedIcon: {
+  animatedIcon: () => ({
     icon: "basket",
     delay: 5000,
     primaryColor: "primary",
     secondaryColor: "accent",
     size: "4xl",
-  },
+  }),
 });
 
 const { meta } = useBasket();

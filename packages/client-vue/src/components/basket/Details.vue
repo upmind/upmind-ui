@@ -61,7 +61,7 @@ import {
   useBasketFields,
 } from "@upmind-automation/headless-vue";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./basket.config";
 
 // --- components
 import Session from "../session/Session.vue";

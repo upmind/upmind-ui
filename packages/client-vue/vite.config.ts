@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type PluginOption } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -11,43 +11,28 @@ export default defineConfig({
     preserveSymlinks: true,
     alias: {
       '@': resolve(__dirname, './src'),
-    },
+      '@icons': resolve(__dirname,'./src/assets/icons'),
+      '@themes': resolve(__dirname,'./src/assets/themes'),
+    }
   },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: '@upmind-automation/headless-vue',
+      name: '@upmind-automation/upmind-ui',
     },
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      external: ['vue'], // Vue is an external dependency
       plugins: [nodeResolve()],
     },
   },
   plugins: [
     vue(),
-    tsconfigPaths(),
+    tsconfigPaths() as PluginOption,
     dts({
       entryRoot: 'src',
       outputDir: 'dist/types',
-      // compilerOptions: {
-      //   declarationMap: true,
-      // },
+      tsConfigFilePath: 'tsconfig.build.json',
     }),
   ],
-
-  // Vitest config - https://vitest.dev/guide/#configuring-vitest
-  test: {
-    environment: "jsdom",
-    exclude: [...configDefaults.exclude, "e2e/*"],
-    root: resolve(__dirname, './'),
-    // https://vitest.dev/guide/coverage.html
-    coverage: {
-      provider: 'istanbul',
-      enabled: true
-    },
-  },
 });
-
-

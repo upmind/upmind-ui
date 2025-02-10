@@ -34,7 +34,6 @@
                   type="button"
                   size="sm"
                   class="!p-0"
-                  color="current"
                   icon-only
                   label="modify product"
                   prependIcon="edit"
@@ -45,7 +44,6 @@
                   type="button"
                   size="sm"
                   class="!p-0"
-                  color="current"
                   icon-only
                   label="remove product"
                   prependIcon="remove"

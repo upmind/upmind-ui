@@ -62,7 +62,7 @@ import {
 const { stateMatches } = utils;
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
-import config from "./config.cva";
+import config from "./basket.config";
 
 // --- components
 import ProductCard from "../product/Card.vue";

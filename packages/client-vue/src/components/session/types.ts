@@ -13,7 +13,7 @@ export interface ActionProps extends ButtonProps {
 }
 
 export interface AuthProps {
-  modelValue: "login" | "register" | "forgot" | "reset" | "profile";
+  modelValue?: "login" | "register" | "forgot" | "reset" | "profile";
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;

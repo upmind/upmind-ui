@@ -54,7 +54,7 @@ import { ref, computed } from "vue";
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./basket.config";
 
 // --- components
 import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upmind-ui";
@@ -72,12 +72,12 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
   modal: false,
   skrim: "primary",
   size: "2xl",
-  animatedIcon: {
+  animatedIcon: () => ({
     icon: "tapping-card",
     primaryColor: "primary",
     secondaryColor: "secondary",
     size: "4xl",
-  },
+  }),
 });
 
 const { meta } = useBasket();
