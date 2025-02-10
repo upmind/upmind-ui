@@ -45,12 +45,10 @@ const styles = useStyles(
 
 // ---
 
-const iconSrc = computed(
-  () => {
-    // @ts-ignore
-  return new URL(`../../assets/animations/${props.icon}.json`, import.meta.url)
-  }
-);
+const iconSrc = computed(() => {
+  // @ts-ignore
+  return new URL(`../../assets/animations/${props.icon}.json`, import.meta.url);
+});
 
 const primaryHex = computed(() => getComputedColor("icon-primary"));
 const secondaryHex = computed(() => getComputedColor("icon-secondary"));

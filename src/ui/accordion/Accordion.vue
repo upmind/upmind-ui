@@ -10,8 +10,6 @@ const props = defineProps<AccordionRootProps>();
 const emits = defineEmits<AccordionRootEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);
-
-
 </script>
 
 <template>
