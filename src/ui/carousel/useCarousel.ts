@@ -6,6 +6,7 @@ import type {
 import { createInjectionState } from "@vueuse/core";
 import emblaCarouselVue from "embla-carousel-vue";
 import { onMounted, ref } from "vue";
+import type { EmblaPluginType, EmblaCarouselType, EmblaEventListType,EmblaEventType,EmblaOptionsType,EmblaPluginsType } from 'embla-carousel'; // Correct types
 
 const [useProvideCarousel, useInjectCarousel] = createInjectionState(
   ({ opts, orientation, plugins }: CarouselProps, emits: CarouselEmits) => {

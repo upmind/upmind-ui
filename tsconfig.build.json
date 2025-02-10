@@ -9,13 +9,13 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@iconify/vue": ["../../.histoire/node_modules/@iconify/vue"],
+      "@vue/shared": ["node_modules/@vue/shared"]
     },
     "resolveJsonModule": true,
-    "types": ["node", "jsdom"],
     "strict": true,
     "declaration": false,
-    "declarationDir": "./dist/types", // Correct declaration directory
     "outDir": "dist",
     "sourceMap": true,
     "esModuleInterop": true,
@@ -27,5 +27,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
   ]
 }
