@@ -14,7 +14,7 @@ import Sanitized from "../sanitized/Sanitized.vue";
 import { first } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
+import type { ComputedRef, VNode } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ const props = defineProps<{
   modelValue: string;
 }>();
 
-const slots = useSlots();
+const slots = useSlots() as { default?: () => VNode[] };
 
 marked.setOptions({ breaks: true });
 

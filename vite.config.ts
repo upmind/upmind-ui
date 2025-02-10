@@ -1,41 +1,47 @@
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig, type PluginOption } from 'vite';
+import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import nodeResolve from '@rollup/plugin-node-resolve';
+import vue from '@vitejs/plugin-vue'
+import { configDefaults } from "vitest/config";
 
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-   vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => tag.startsWith('lord-'),
-        },
-      },
-    }),
-  ],
   resolve: {
+    preserveSymlinks: true,
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@icons': fileURLToPath(new URL('./src/assets/icons', import.meta.url)),
-      '@themes': fileURLToPath(new URL('./src/assets/themes', import.meta.url)),
+      '@': resolve(__dirname, './src'),
+      '@icons': resolve(__dirname,'./src/assets/icons'),
+      '@themes': resolve(__dirname,'./src/assets/themes'),
     }
   },
-   define: {
+  define: {
     "process.env": {},
   },
   build: {
     lib: {
-      // entry: ['./src/index.ts','./src/auto.ts'],
-      entry: './src/index.ts',
-      name: "upmind-ui",
-      fileName: "upmind-ui",
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: '@upmind-automation/upmind-ui',
     },
+    outDir: 'dist',
+    sourcemap: true,
     rollupOptions: {
+      external: ['vue'], // Vue is an external dependency
       output: {
-        assetFileNames: "upmind-ui.[ext]",
+        globals: {
+          vue: 'Vue',
+        },
       },
+      plugins: [nodeResolve()],
     },
   },
-
-})
+  plugins: [
+    vue(),
+    tsconfigPaths() as PluginOption,
+    dts({
+      entryRoot: 'src',
+      outDir: 'dist/types',
+      tsconfigPath: 'tsconfig.build.json',
+    }),
+  ],
+});

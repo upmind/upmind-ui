@@ -8,7 +8,7 @@ import type { indicatorVariants } from "./indicator.config";
 type IndicatorVariantProps = VariantProps<typeof indicatorVariants>;
 
 export interface IndicatorProps {
-  modelValue: { type: String };
+  modelValue: { type: string };
   icon?: IconProps["icon"];
   // ---
   size?: IndicatorVariantProps["size"];

@@ -21,6 +21,8 @@ import type { ButtonProps } from "../button";
 type FormVariantProps = VariantProps<typeof formVariants>;
 
 // --- types
+import type { InputProps, InputVariantProps } from "../input";
+
 export interface FormProps {
   as?: string;
   // --- JSOn Forms props
@@ -32,7 +34,7 @@ export interface FormProps {
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   middleware?: Middleware;
   // ---  props
-  modelValue: Object;
+  modelValue: object;
   additionalRenderers?: any[];
   // ---
   actions?: Record<string, FormActionProps>;
@@ -80,7 +82,7 @@ export interface FormActionProps extends ButtonProps {
   needsValid?: boolean;
 }
 
-export interface FormControlProps {
+export interface FormControlProps extends InputProps {
   // --- required
   id: string;
   name: string;
@@ -92,22 +94,18 @@ export interface FormControlProps {
   description?: string;
   errors?: string | string[];
   // --- variants
-  size?: "sm" | "md" | "lg";
   noLabel?: boolean;
 
   // ---state
-  autoFocus?: boolean;
-  required?: boolean;
   visible?: boolean;
-  disabled?: boolean;
   dirty?: boolean;
   touched?: boolean;
-  // 'pristine' doesn't pass through correctly for FormField
-  isPristine?: boolean;
+  pristine?: boolean;
 
   // --- styles
   uiConfig?: {
-    form: {
+    input?: Partial<InputVariantProps>;
+    form?: {
       root: CxOptions;
       loading: CxOptions;
       content: CxOptions;

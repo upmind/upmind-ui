@@ -59,6 +59,7 @@ const styles = useStyles(
   props.uiConfig ?? {}
 ) as ComputedRef<{ icon: string }>;
 
+// @ts-ignore
 const icons = import.meta.glob("@icons/**/*.svg", {
   query: "?raw",
   eager: false,
@@ -93,12 +94,7 @@ watchEffect(async () => {
     return;
   }
 
-  svg.value = await asyncImport().catch(error => {
-    console.error("icon", "import error", {
-      icon: props.icon,
-      error,
-      icons,
-    });
+  svg.value = await asyncImport().catch(() => {
     emit("error", new Error(`Failed to process content: ${safeName}`));
     return null;
   });

@@ -9,7 +9,7 @@
     :aria-invalid="!!props.invalid"
     class="w-full"
     v-bind="attributesToRemove"
-    v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+    v-intersection-observer="maybeFocus"
   >
     <slot />
   </Slot>
@@ -51,18 +51,19 @@ const meta = computed(() => ({
 
 // --- methods
 
-function maybeFocus([section]) {
+function maybeFocus(entries: IntersectionObserverEntry[]) {
+  const section = entries[0];
   if (meta.value.shouldFocus && section.isIntersecting) {
-    let el = section.target;
+    let el = section.target as HTMLInputElement;
     if (
       !["input", "textarea", "select", "button"].includes(
         el.tagName.toLowerCase()
       )
     ) {
-      el = el.querySelector("input");
+      el = el.querySelector("input") as HTMLInputElement;
     }
     if (el?.getAttribute("tabindex")) {
-      el.setAttribute("tabindex", -1);
+      el.setAttribute("tabindex", "-1");
     }
 
     if (el) {
