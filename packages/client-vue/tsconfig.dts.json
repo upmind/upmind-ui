@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "composite": true, // Important for declaration generation
+    "declaration": true,
+    "declarationDir": "dist/types", // Output directory for .d.ts files
+    "emitDeclarationOnly": true, // This is CRUCIAL - Only emit .d.ts files
+    "allowJs": false, // Usually false for Vue projects
+    "noEmit": false,
+    "moduleResolution": "node",
+    "module": "esnext",
+    "esModuleInterop": true, // Often necessary for compatibility
+    "skipLibCheck": true, // Can help with type resolution speed (but can mask some type errors)
+    "allowSyntheticDefaultImports": true, // Can also help with module resolution
+    // If you have any specific type mappings or paths, include them here:
+    "baseUrl": ".", // Or wherever your base URL is
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["node"],
+    "lib": ["esnext", "dom"]
+  },
+  "include": [
+    "src/**/*.ts", // Include TypeScript files
+    "src/**/*.tsx", // Include TypeScript JSX files (if you use JSX)
+    "src/**/*.d.ts" // In case you have some manually created declaration files
+  ],
+  "exclude": [
+    "src/**/*.vue", // Exclude Vue files
+    "src/**/*.spec.ts", // Exclude test files
+    "src/**/*.test.ts",
+    "test/**/*", // Or exclude the entire test directory
+    "src/**/*.config.ts", // Example of excluding config files
+    "dist/**/*", // Exclude build output
+    "node_modules"
+  ]
+}
