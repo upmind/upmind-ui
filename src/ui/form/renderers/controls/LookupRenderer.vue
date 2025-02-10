@@ -29,7 +29,7 @@ import { has, get } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type {AutocompleteSearchFunction} from "../../../autocomplete";
+import type { AutocompleteSearchFunction } from "../../../autocomplete";
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
@@ -37,7 +37,10 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, appliedOptions, onInput, formFieldProps } =
   useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
 
-const doSearch:AutocompleteSearchFunction | undefined = get(control.value, "schema.lookup");
+const doSearch: AutocompleteSearchFunction | undefined = get(
+  control.value,
+  "schema.lookup"
+);
 </script>
 
 <script lang="ts">
