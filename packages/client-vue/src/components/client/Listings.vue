@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="modal || (!modal && isOpen)"
-    :is="modal ? 'Drawer' : 'Section'"
+    :is="modal ? Drawer : Section"
     title="Change address"
     :open="isOpen"
     @reject="onClose"
@@ -94,9 +94,9 @@
   </component>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, provide, ref } from "vue";
+import { computed, provide, ref, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -113,8 +113,12 @@ import {
   useClientUnifiedAddresses,
   useClientUnifiedAddress,
 } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./client.config";
+import {
+  useStyles,
+  type ButtonProps,
+  type FormActionProps,
+} from "@upmind-automation/upmind-ui";
+import config from "../client/client.config";
 
 // --- components
 import Section from "../Section.vue";
@@ -130,137 +134,136 @@ import { Button, Drawer } from "@upmind-automation/upmind-ui";
 // --- utils
 import { isFunction } from "lodash-es";
 
+// ---types
+import type { ActorRef } from "xstate";
+import { type ClientComposables } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "ClientListings",
-  directives: { autoAnimate: vAutoAnimate },
-  components: {
-    Button,
-    Drawer,
-    Input,
-    SkeletonList,
-    Section,
-    // ---
-    Auth,
-    // ---
-    Empty,
-    Card,
-    Item,
-  },
-  emits: ["update:open", "add", "select"],
-  props: {
-    type: {
-      type: string, //as PropType<"addresses" | "emails" | "phones" | "companies">,
-      required: true,
+const emit = defineEmits<{
+  (e: "update:open", payload: boolean): void;
+}>();
+
+const props = withDefaults(
+  defineProps<{
+    type: string;
+    i18nKey: string;
+    open?: boolean;
+    modal?: boolean;
+    color?: ButtonProps["color"];
+    skrim?: string;
+    noActions?: boolean;
+    noFilter?: boolean;
+    cols?: string | number;
+  }>(),
+  {
+    open: false,
+    modal: false,
+    color: "base",
+    skrim: "dark",
+    noActions: false,
+    noFilter: false,
+    cols: 1,
+  }
+);
+
+const { t } = useI18n();
+
+let clientListings: ClientComposables["useClientListing"],
+  client: ClientComposables["useClientItem"];
+
+switch (props.type) {
+  case "addresses":
+    clientListings = useClientAddresses;
+    client = useClientAddress;
+    break;
+  case "emails":
+    clientListings = useClientEmails;
+    client = useClientEmail;
+    break;
+  case "phones":
+    clientListings = useClientPhones;
+    client = useClientPhone;
+    break;
+  case "companies":
+    clientListings = useClientCompanies;
+    client = useClientCompany;
+    break;
+
+  default:
+  case "unified":
+    clientListings = useClientUnifiedAddresses;
+    client = useClientUnifiedAddress;
+    break;
+}
+
+const { select, selected, items, isReady, add, meta, filter } =
+  clientListings();
+
+const styles = useStyles(["clientListings"], meta, config) as ComputedRef<{
+  clientListings: {
+    root: string;
+    items: string;
+    loading: string;
+    actions: string;
+    footer: string;
+  };
+}>;
+
+// provide the correct composable to our child components
+provide("client", client);
+
+const active = ref(selected.value);
+
+// safetycheck to ensure we have a selected item
+isReady().then(() => (active.value = selected.value));
+
+const actions = computed((): Record<string, FormActionProps> => {
+  return {
+    add: {
+      label: t(`client.${props.type}.actions.add`),
+      variant: "link",
+      color: props.color,
+      block: true,
+      handler: () => {
+        add();
+      },
     },
-    i18nKey: { type: string, required: true },
-    open: { type: Boolean },
-    modal: { type: Boolean, default: false },
-    color: { type: string, default: "base" },
-    skrim: { type: string, default: "dark" },
-    // ---
-    noActions: { type: Boolean },
-    noFilter: { type: Boolean },
-    cols: { type: [String, Number], default: 1 },
-  },
-  setup(props) {
-    const { t } = useI18n();
-
-    let clientListings, client;
-
-    switch (props.type) {
-      case "addresses":
-        clientListings = useClientAddresses();
-        client = useClientAddress;
-        break;
-      case "emails":
-        clientListings = useClientEmails();
-        client = useClientEmail;
-        break;
-      case "phones":
-        clientListings = useClientPhones();
-        client = useClientPhone;
-        break;
-      case "companies":
-        clientListings = useClientCompanies();
-        client = useClientCompany;
-        break;
-      case "unified":
-        clientListings = useClientUnifiedAddresses();
-        client = useClientUnifiedAddress;
-        break;
-    }
-
-    const styles = useStyles(["clientListings"], clientListings.meta, config);
-
-    // provide the correct composable to our child components
-    provide("client", client);
-
-    const active = ref(clientListings.selected.value);
-
-    // safetycheck to ensure we have a selected item
-    clientListings
-      .isReady()
-      .then(() => (active.value = clientListings.selected.value));
-
-    return {
-      t,
-      ...clientListings,
-      active,
-      styles,
-    };
-  },
-
-  computed: {
-    actions() {
-      return {
-        add: {
-          label: this?.t(`client.${this.type}.actions.add`),
-          variant: "link",
-          color: this.color,
-          block: true,
-          handler: () => {
-            this.add();
-          },
-        },
-        confirm: {
-          label: this?.t(`client.${this.type}.actions.confirm`),
-          variant: "flat",
-          color: this.color,
-          block: true,
-          handler: () => {
-            this.onClose();
-          },
-        },
-      };
+    confirm: {
+      label: t(`client.${props.type}.actions.confirm`),
+      variant: "flat",
+      color: props.color,
+      block: true,
+      handler: () => {
+        onClose(true);
+      },
     },
-    sortedItems() {
-      // if we may have an active 'selected', and we want to sort the items so that the selected item is always on top
-      // we dont do this to the  reactive 'selected' to prevent jank re-ordering
-      // we use the inital value as opposed to the reactive value
-      return this.items.sort((x, y) =>
-        x.id == this.active?.id ? -1 : y.id == this.active?.id ? 1 : 0
-      );
-    },
-    isOpen() {
-      return this.open;
-    },
-  },
-  methods: {
-    onClose(value) {
-      this.$emit("update:open", value);
-    },
-
-    onSelect(item) {
-      this.select(item.id);
-      this.$emit("update:open", false);
-    },
-    doAction(item) {
-      if (isFunction(item?.handler)) {
-        item.handler();
-      }
-    },
-  },
+  };
 });
+
+const sortedItems = computed(() => {
+  // if we may have an active 'selected', and we want to sort the items so that the selected item is always on top
+  // we dont do this to the  reactive 'selected' to prevent jank re-ordering
+  // we use the inital value as opposed to the reactive value
+  return [...items.value].sort(
+    (x: ActorRef<any, any>, y: ActorRef<any, any>) =>
+      x.id == active.value?.id ? -1 : y.id == active.value?.id ? 1 : 0
+  );
+});
+const isOpen = computed(() => {
+  return open;
+});
+
+function onClose(value: boolean) {
+  emit("update:open", value);
+}
+
+function onSelect(item: ActorRef<any, any>) {
+  select(item.id);
+  emit("update:open", false);
+}
+function doAction(item: FormActionProps) {
+  if (isFunction(item?.handler)) {
+    item.handler();
+  }
+}
 </script>

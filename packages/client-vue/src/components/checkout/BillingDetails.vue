@@ -79,9 +79,9 @@ import {
 import config from "../client/client.config";
 
 // --- components
-import Item from "../Client/Item.vue";
-import Card from "../Client/Card.vue";
-import Listings from "../Client/Listings.vue";
+import Item from "../client/Item.vue";
+import Card from "../client/Card.vue";
+import Listings from "../client/Listings.vue";
 import { SkeletonList, DropdownMenu } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -178,7 +178,7 @@ watch(props.modelValue, (model, oldModel) => {
 watch(selected, (value, oldValue) => {
   if (value?.id === oldValue?.id) return;
 
-  const model = get(value?.state?.value, "context.model", {});
+  const model = get(value?.getSnapshot()?.value, "context.model", {});
   if (isEmpty(model)) return;
 
   emit("update:modelValue", model);

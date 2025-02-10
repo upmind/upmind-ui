@@ -4,13 +4,13 @@ import type { Component, HtmlHTMLAttributes } from "vue";
 export interface PaymentDetailsProps {
   cardComponent?: Component | "div";
   class?: HtmlHTMLAttributes["class"];
-  color?: string;
+  color?: ButtonProps["color"];
 }
 
 export interface CheckoutProps {
   cardComponent?: Component | "div";
   contentSectionComponent?: Component | "div";
-  color?: string;
+  color?: ButtonProps["color"];
 }
 
 export interface BillingDetailsProps {
