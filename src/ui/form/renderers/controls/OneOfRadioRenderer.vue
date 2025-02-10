@@ -2,7 +2,7 @@
   <FormField v-bind="formFieldProps">
     <RadioCards
       :model-value="control.data"
-      :items="control.options"
+      :items="items"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -10,12 +10,16 @@
 
 <script lang="ts" setup>
 // --- external
+import { computed } from "vue";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
+
 // --- components
 import FormField from "../../FormField.vue";
 import { RadioCards } from "../../../radio-cards";
+
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
+import { map } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -27,6 +31,16 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsOneOfEnumControl(props)
 );
+
+const items = computed(() => {
+  return map(control.value.options, (option, index) => {
+    return {
+      item: option,
+      index,
+      modelValue: control.value.data,
+    };
+  });
+});
 </script>
 
 <script lang="ts">

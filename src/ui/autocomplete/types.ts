@@ -42,7 +42,8 @@ export interface AutocompleteProps
   // --- state
   items: AutocompleteItemProps[];
   modelValue?: string | AutocompleteItemProps;
-  defaultValue?: string | AutocompleteItemProps;
+  defaultValue?: AutocompleteItemProps | AutocompleteItemProps[];
+
   // --- Search
   search?: AutocompleteSearchFunction;
   placeholder?: string;

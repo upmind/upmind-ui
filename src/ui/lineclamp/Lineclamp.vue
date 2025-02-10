@@ -71,7 +71,14 @@ const meta = computed(() => ({
   isTruncated: truncated.value,
 }));
 
-const styles = useStyles("lineclamp", meta, config);
+const styles = useStyles("lineclamp", meta, config) as ComputedRef<{
+  lineclamp: {
+    root: string;
+    wrapper: string;
+    actions: string;
+    action: string;
+  };
+}>;
 
 const windowWidth: ComputedRef<number> = computed(() => {
   return window.innerWidth;
