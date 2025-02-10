@@ -10,7 +10,14 @@ export default {
     root: cva(""),
     wrapper: cva("[&_p]:mb-0 [&_pre]:!whitespace-pre-wrap", {
       variants: {
-        lines: {},
+        lines: {
+          1: "",
+          2: "",
+          3: "",
+          4: "",
+          5: "",
+          6: "",
+        },
         isOpen: {
           true: "line-clamp-none",
           false: "is-clamped",

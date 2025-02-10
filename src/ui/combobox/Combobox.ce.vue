@@ -16,27 +16,23 @@
         <template v-if="!isEmpty(modelValue) || searchTerm">
           <slot name="selected" v-bind="{ item: modelValue }">
             <Avatar
-              v-if="modelValue?.avatar || props.avatar"
-              v-bind="modelValue?.avatar || props?.avatar"
+              v-if="meta.hasAvatar"
+              v-bind="avatar"
               size="3xs"
               shape="circle"
               fit="cover"
               aria-hidden="true"
             />
             <Icon
-              v-if="modelValue?.icon || props.icon"
-              :icon="modelValue?.icon || props?.icon"
+              v-if="meta.hasIcon"
+              :icon="icon"
               shape="circle"
               size="3xs"
               fit="cover"
               aria-hidden="true"
             />
 
-            {{
-              modelValue?.selectedLabel ||
-              modelValue?.[props.itemLabel] ||
-              searchTerm
-            }}
+            {{ label }}
           </slot>
         </template>
 
@@ -143,16 +139,18 @@ import {
   find,
   get,
   includes,
+  isObject,
   isEmpty,
   isEqual,
   isFunction,
   isString,
   reject,
+  has,
 } from "lodash-es";
 
 // --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Ref } from "vue";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
   // --- props
@@ -188,15 +186,31 @@ const meta = computed(() => ({
   color: props.color,
   size: props.size,
   width: props.width,
+  hasAvatar: props.avatar || has(modelValue.value, "avatar"),
+  hasIcon: props.icon || has(modelValue.value, "icon"),
 }));
 
 const open = ref(false);
 const processing = ref(false);
-const modelValue = ref(
+const modelValue: Ref<string | ComboboxItemProps> = ref(
   find(props.items, [props.itemValue, props.modelValue]) || props.modelValue
 );
 const searchTerm = ref();
-
+const avatar = computed(
+  () =>
+    (isObject(modelValue.value) ? modelValue.value.avatar : undefined) ||
+    props.avatar
+);
+const icon = computed(
+  () =>
+    (isObject(modelValue.value) ? modelValue.value.icon : undefined) ||
+    props.icon
+);
+const label = computed(() => {
+  const selectedLabel = get(modelValue.value, "selectedLabel");
+  const itemLabel = get(modelValue.value, props.itemLabel);
+  return selectedLabel || itemLabel || searchTerm.value;
+});
 // ---
 
 const styles = useStyles(
@@ -247,7 +261,7 @@ const onSearch = debounce(safeSearch, 350);
 const results = ref(props.items || []);
 
 // --- methods
-function doSelect(item: String | ComboboxItemProps) {
+function doSelect(item: string | ComboboxItemProps) {
   const selected: ComboboxItemProps = isString(item)
     ? (find(props.items, [props.itemValue, item]) as ComboboxItemProps)
     : (item as ComboboxItemProps);

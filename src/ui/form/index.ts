@@ -2,9 +2,9 @@
 import { defineCustomElement } from "vue";
 
 // --- vue elements
+export * from "./renderers/utils";
 export { default as Form } from "./Form.ce.vue";
 export { default as FormField } from "./FormField.vue";
-
 export { default as FormItem } from "./FormItem.vue";
 export { default as FormLabel } from "./FormLabel.vue";
 export { default as FormControl } from "./FormControl.vue";

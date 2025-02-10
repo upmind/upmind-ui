@@ -26,5 +26,5 @@ export const iconVariants = cva(
 );
 
 export default {
-  icon: iconVariants,
+  iconAnimated: iconVariants,
 };

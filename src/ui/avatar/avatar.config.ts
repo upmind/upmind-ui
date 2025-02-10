@@ -31,6 +31,7 @@ export const avatarVariants = cva(
       },
       size: {
         auto: "h-full w-auto text-inherit",
+        "4xs": "h-4 w-4 text-xs",
         "3xs": "h-5 w-5 text-xs",
         "2xs": "h-6 w-6 text-xs",
         xs: "h-8 w-8 text-xs",

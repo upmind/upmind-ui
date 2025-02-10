@@ -37,9 +37,9 @@ import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
-import type { PropType } from "vue";
+import type { PropType, ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
-import type { InputProps } from "../controls/types";
+import type { InputProps } from "../../../input";
 
 // -------------------------------------------------------------------
 
@@ -59,7 +59,18 @@ const meta = computed(() => ({
   isDisabled: !layout.value.enabled,
 }));
 
-const styles = useStyles(["group"], meta, config, props.uiConfig ?? {});
+const styles = useStyles(
+  ["group"],
+  meta,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
+  group: {
+    root: string;
+    label: string;
+    item: string;
+  };
+}>;
 const { layout } = useUpmindUILayoutRenderer(useJsonFormsLayout(props));
 </script>
 

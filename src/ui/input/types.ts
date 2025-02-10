@@ -4,7 +4,7 @@ import type { VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { inputVariants } from "./input.config";
-type InputVariantProps = VariantProps<typeof inputVariants>;
+export type InputVariantProps = VariantProps<typeof inputVariants>;
 
 export interface InputProps {
   modelValue?: string | number;
@@ -31,6 +31,6 @@ export interface InputProps {
   size?: InputVariantProps["size"];
   width?: InputVariantProps["width"];
   // ---
-  uiConfig?: { input: Partial<InputVariantProps> };
+  uiConfig?: { input?: Partial<InputVariantProps> };
   class?: HTMLAttributes["class"];
 }
