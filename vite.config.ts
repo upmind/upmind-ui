@@ -40,7 +40,8 @@ export default defineConfig({
     tsconfigPaths() as PluginOption,
     dts({
       entryRoot: 'src',
-      outputDir: 'dist/types',
-    }) as PluginOption,
+      outDir: 'dist/types',
+      tsconfigPath: 'tsconfig.build.json',
+    }),
   ],
 });

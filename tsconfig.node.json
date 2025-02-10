@@ -1,15 +1,8 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json", // Extend Node's base config directly
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "skipLibCheck": true,
     "module": "ESNext",
-    "moduleResolution": "node",
-    // "outDir": "dist/node",
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "noEmit": true,
     "types": ["node"]
   },
   "include": [
