@@ -70,6 +70,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   shape: "circle",
   size: "auto",
   variant: "flat",
+
   // --- styles
   uiConfig: () => ({ avatar: {} }),
   class: "",
@@ -92,7 +93,7 @@ const meta = computed(() => ({
 const mergedAnimatedIcon = computed(() => ({
   icon: isString(props.animatedIcon)
     ? props.animatedIcon
-    : props.animatedIcon?.icon,
+    : (props.animatedIcon?.icon as string),
   primaryColor: isString(props.animatedIcon)
     ? "base"
     : props.animatedIcon?.primaryColor,

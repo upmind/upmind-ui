@@ -38,7 +38,7 @@ import { useStyles } from "../../../../utils";
 import type { PropType, ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { InputProps } from "../controls/types";
+import type { InputProps } from "../../../input";
 
 // -------------------------------------------------------------------
 

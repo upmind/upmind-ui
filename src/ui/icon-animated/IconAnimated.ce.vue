@@ -4,7 +4,7 @@
     :trigger="trigger"
     :delay="delay"
     :sequence="sequence"
-    :class="cn(styles.icon, props.class)"
+    :class="cn(styles.iconAnimated, props.class)"
     :colors="`primary:${primaryHex},secondary:${secondaryHex}`"
   />
 </template>
@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   // ---
   size: "md",
   // ---
-  uiConfig: () => ({ icon: {} }),
+  uiConfig: () => ({ iconAnimated: {} }),
   class: "",
 });
 
@@ -37,11 +37,11 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(
-  "icon",
+  "iconAnimated",
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{ icon: string }>;
+) as ComputedRef<{ iconAnimated: string }>;
 
 // ---
 

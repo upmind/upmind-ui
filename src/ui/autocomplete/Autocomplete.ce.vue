@@ -1,13 +1,27 @@
 <template>
   <ComboboxRoot
-    v-bind="delegatedProps"
+    :itemLabel="props.itemLabel"
+    :itemValue="props.itemValue"
+    :items="props.items"
+    :search="props.search"
+    :placeholder="props.placeholder"
+    :emptyMessage="props.emptyMessage"
+    :size="props.size"
+    :width="props.width"
+    :popoverWidth="props.popoverWidth"
+    :iconSize="props.iconSize"
+    :uiConfig="props.uiConfig"
+    :popoverClass="props.popoverClass"
+    :type="props.type"
+    :disabled="props.disabled"
+    :autoFocus="props.autoFocus"
     :model-value="modelValue"
     v-model:open="open"
     v-model:searchTerm="searchTerm"
     @update:model-value="doSelect"
     @update:search-term="onSearch"
     :filter-function="noFilter"
-    :class="styles.autocomplete.root"
+    :class="cn(styles.autocomplete.root, props.class)"
     :displayValue="displayValue"
     :resetSearchTermOnBlur="false"
   >
@@ -60,7 +74,11 @@
               :size="props.iconSize"
             />
 
-            <Icon v-if="item.icon" v-bind="item.icon" :size="props.iconSize" />
+            <Icon
+              v-if="isObject(item.icon)"
+              :size="props.iconSize"
+              :icon="item.icon"
+            />
 
             <span class="flex w-full items-center justify-between">
               <span
@@ -145,29 +163,6 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
 
 const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
 
-const delegatedProps = computed(() =>
-  omit(props, [
-    "itemLabel",
-    "itemValue",
-    "items",
-    "search",
-    "placeholder",
-    "emptyMessage",
-    "size",
-    // "color",
-    // "variant",
-    "width",
-    "popoverWidth",
-    "iconSize",
-    "uiConfig",
-    "class",
-    "popoverClass",
-    "type",
-    "disabled",
-    "autoFocus",
-  ])
-);
-
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
@@ -177,7 +172,7 @@ const meta = computed(() => ({
 const open = ref(false);
 const processing = ref(false);
 const modelValue = ref<AutocompleteItemProps | undefined>(
-  find(props.items, [props.itemValue, props.modelValue])
+  find(props.items, [props.itemValue, props.modelValue as string])
 );
 const searchTerm = ref();
 
@@ -303,7 +298,7 @@ watch(
       props.itemValue
     );
     // results.value.push(...newProps.items);
-    doSelect(newProps.modelValue?.toString());
+    if (newProps.modelValue) doSelect(newProps.modelValue.toString());
   },
   { deep: true }
 );

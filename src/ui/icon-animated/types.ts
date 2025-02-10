@@ -16,4 +16,6 @@ export interface AnimatedIconProps {
   // ---
   uiConfig?: { iconAnimated: Partial<AnimatedIconProps> };
   class?: HTMLAttributes["class"];
+  primaryColor?: string;
+  secondaryColor?: string;
 }

@@ -17,6 +17,9 @@ const delegatedProps = computed(() => {
   return delegated;
 });
 
+defineSlots<{
+  default(props: { headingValue: string }): void;
+}>();
 const forwardedProps = useForwardProps(delegatedProps);
 </script>
 

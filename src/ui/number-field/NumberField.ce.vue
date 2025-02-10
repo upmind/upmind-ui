@@ -69,7 +69,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  size: props.size,
+  // size: props.size,
   width: props.width,
   variant: props.variant,
   height: props.height,

@@ -87,7 +87,6 @@ export {
   cn,
   useThemes,
   useStyleSheet,
-  useScrollSpy,
   initializeLottie,
   usePointerEvents,
 } from "./utils";

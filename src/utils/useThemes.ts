@@ -1,25 +1,58 @@
 import { ref, provide } from "vue";
-import { find, reduce, set, lowerCase, isArray, first } from "lodash-es";
-
+import {
+  find,
+  reduce,
+  set,
+  lowerCase,
+  isArray,
+  first,
+  compact,
+} from "lodash-es";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
-const activeTheme = ref();
+const activeTheme = ref(<string>"");
 const config = ref({});
-const providedThemes = ref();
+const providedThemes = ref(<Record<string, ITheme>>{});
 
-export const useThemes = (themes?: Array<Object>, defaultTheme?: string) => {
+type Theme = {
+  id: string;
+  name: string;
+  icon?: string;
+  uiConfig: object;
+};
+
+export interface ITheme {
+  value: string;
+  label: string;
+  icon?: string;
+  handler: () => void;
+}
+
+export const useThemes = (
+  themes?: Theme | Theme[],
+  defaultTheme?: string
+): {
+  activeTheme: Ref<string>;
+  themes: Ref<Record<string, ITheme>>;
+  config: Ref<any>;
+  updateTheme: (theme: string) => void;
+} => {
   // safety checks
-  themes ??= [];
-  defaultTheme ??= isArray(themes) ? first(themes)?.id : themes?.id;
-  themes = isArray(themes) ? themes : [themes];
+
+  const safeThemes: Theme[] =
+    compact(isArray(themes) ? themes : [themes]) || [];
+
+  defaultTheme ??= first(safeThemes)?.id || "default";
 
   // ---
   providedThemes.value = reduce(
-    themes,
-    (result, { id, name, icon }) => {
+    safeThemes,
+    (result, { id, name, icon }: Theme) => {
       set(result, lowerCase(id), {
         label: name,
+        value: id,
         icon,
-        action: () => updateTheme(id),
+        handler: () => updateTheme(id),
       });
       return result;
     },
@@ -31,10 +64,12 @@ export const useThemes = (themes?: Array<Object>, defaultTheme?: string) => {
   function updateTheme(theme: string) {
     if (theme == activeTheme.value) return;
 
-    activeTheme.value = theme || activeTheme.value || defaultTheme;
+    activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
     if (themes) {
-      const themeConfig = find(themes, ["id", activeTheme.value]);
-      config.value = themeConfig?.uiConfig || {};
+      const themeConfig = find(themes, ["id", activeTheme.value]) as
+        | Theme
+        | undefined;
+      if (themeConfig) config.value = themeConfig.uiConfig || {};
     }
   }
 

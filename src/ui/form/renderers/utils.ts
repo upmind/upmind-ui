@@ -23,13 +23,15 @@ export const useUpmindUIRenderer = <
 ) => {
   const touched: Ref<boolean> = ref(false);
 
-  const appliedOptions: ComputedRef<FormControlProps> = computed(() => {
-    return merge(
-      {},
-      cloneDeep(input.control.value.config),
-      cloneDeep(input.control.value.uischema.options)
-    );
-  });
+  const appliedOptions: ComputedRef<Partial<FormControlProps> | any> = computed(
+    () => {
+      return merge(
+        {},
+        cloneDeep(input.control.value.config),
+        cloneDeep(input.control.value.uischema.options)
+      );
+    }
+  );
 
   const onInput = (value: any) => {
     touched.value = true;

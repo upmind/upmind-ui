@@ -3,6 +3,7 @@ import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
+// @ts-ignore
 import defaultStylesheet from "../assets/main.css?url";
 
 // --- utils
@@ -20,6 +21,7 @@ import {
   omitBy,
   reduce,
   set,
+  keys,
 } from "lodash-es";
 
 // --- types
@@ -39,7 +41,7 @@ function applyVariants(configs: ClassValue[], context: object = {}) {
   //      and merge the results into a single object with the CX helper
   //      finally we us the twMerge helper to clean up the final object
 
-  const configKeys = configs.map(Object.keys).flat();
+  const configKeys = configs.map(keys).flat();
 
   if (isEmpty(configKeys)) {
     return twMerge(
@@ -117,6 +119,7 @@ export function cn(...styles: ClassNameValue[]) {
 }
 
 export const stylesheet = computed((): string => {
+  // @ts-ignore
   const isDev = import.meta.env.DEV;
   return isDev || isEmpty(customStyleSheet)
     ? defaultStylesheet
