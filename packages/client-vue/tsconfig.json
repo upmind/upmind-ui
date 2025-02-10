@@ -1,22 +1,4 @@
 {
-  "compilerOptions": {
-    "composite": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@upmind-automation/types": ["../types/dist/types"],
-      "@upmind-automation/headless": ["../headless/dist/types"],
-      "@upmind-automation/headless-vue": ["../headless-vue/dist/types"],
-      "@upmind-automation/ui": ["../ui/dist/types"]
-    },
-    "moduleResolution": "node", // Or "nodenext"
-    "types": ["node"]
-  },
-  "include": ["src/**/*", "src/**/*.vue", "env.d.ts"],
-  "exclude": ["src/**/__tests__/*"],
-  "references": [
-    { "path": "../headless" },
-    { "path": "../headless-vue" },
-    { "path": "../ui" }
-  ]
+  "extends": ["./tsconfig.app.json"],
+  "files": []
 }

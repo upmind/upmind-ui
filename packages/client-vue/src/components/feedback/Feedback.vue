@@ -2,12 +2,12 @@
   <div class="feedback" :class="styles.feedback.root">
     <aside :class="styles.feedback.banners">
       <transition-group
-        :enter-active-class="styles.bannerTransitionEnter.active"
-        :enter-from-class="styles.bannerTransitionEnter.from"
-        :enter-to-class="styles.bannerTransitionEnter.to"
-        :leave-active-class="styles.bannerTransitionLeave.active"
-        :leave-from-class="styles.bannerTransitionLeave.from"
-        :leave-to-class="styles.bannerTransitionLeave.to"
+        :enter-active-class="styles.feedback.transitions.banner.enter.active"
+        :enter-from-class="styles.feedback.transitions.banner.enter.from"
+        :enter-to-class="styles.feedback.transitions.banner.enter.to"
+        :leave-active-class="styles.feedback.transitions.banner.leave.active"
+        :leave-from-class="styles.feedback.transitions.banner.leave.from"
+        :leave-to-class="styles.feedback.transitions.banner.leave.to"
         appear
       >
         <Message
@@ -32,9 +32,9 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, watch, ref } from "vue";
+import { watch, ref, type ComputedRef } from "vue";
 
 // --- internal
 import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
@@ -50,69 +50,69 @@ import TrackEvent from "./TrackEvent.vue";
 import { forEach, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
+const props = defineProps<{
+  scheduled?: boolean;
+}>();
 
-export default defineComponent({
-  name: "Feedback",
-  components: {
-    Sonner,
-    Message,
-    TrackEvent,
-  },
-  props: {
-    scheduled: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
-    const styles = useStyles(
-      [
-        "feedback",
-        "bannerTransitionEnter",
-        "bannerTransitionLeave",
-        "toastTransitionEnter",
-        "toastTransitionLeave",
-      ],
-      props,
-      config
-    );
-
-    const feedback = useFeedback();
-    const activeToasts = ref([]);
-
-    function dismissToast(id) {
-      feedback.dismiss(id);
-      toast.dismiss(id);
-      activeToasts.value = activeToasts.value.filter(t => t !== id);
-    }
-    watch(feedback.toasts, toasts => {
-      forEach(toasts, msg => {
-        let { message, dismiss, meta } = useMessage(msg);
-        if (meta.value.isActive) {
-          const id = toast(message.value.title, {
-            id: message.value.hash,
-            description: message.value.copy,
-            duration: 10000,
-            onDismiss: t => dismissToast(t.id),
-            onAutoClose: t => dismissToast(t.id),
-            type: message.value.type,
-            position: "top-right",
-          });
-          activeToasts.value.push(id);
-        }
-      });
-
-      forEach(activeToasts.value, id => {
-        if (!some(feedback.toasts.value, ["id", id])) dismissToast(id);
-      });
-    });
-
-    return {
-      ...feedback,
-      styles,
+const styles = useStyles(
+  [
+    "feedback",
+    "transitions.banner.enter",
+    "transitions.banner.leave",
+    "transitions.toasts.enter",
+    "transitions.toasts.leave",
+  ],
+  props,
+  config
+) as ComputedRef<{
+  feedback: {
+    root: string;
+    banners: string;
+    transitions: {
+      banner: {
+        enter: {
+          active: string;
+          from: string;
+          to: string;
+        };
+        leave: {
+          active: string;
+          from: string;
+          to: string;
+        };
+      };
     };
-  },
+  };
+}>;
 
-  computed: {},
+const { notifications, toasts, dismiss, events } = useFeedback();
+const activeToasts = ref<(string | number)[]>([]);
+
+function dismissToast(id: string) {
+  dismiss(id);
+  toast.dismiss(id);
+  activeToasts.value = activeToasts.value.filter(t => t !== id);
+}
+watch(toasts, toasts => {
+  forEach(toasts, msg => {
+    let { message, meta } = useMessage(msg);
+    if (meta.value.isActive) {
+      const id = toast(message.value.title, {
+        id: message.value.hash,
+        description: message.value.copy,
+        duration: 10000,
+        onDismiss: t => dismissToast(t.id.toString()),
+        onAutoClose: t => dismissToast(t.id.toString()),
+        // @ts-ignore
+        type: message.value.type,
+        position: "top-right",
+      });
+      activeToasts.value.push(id);
+    }
+  });
+
+  forEach(activeToasts.value, id => {
+    if (!some(toasts.value, ["id", id])) dismissToast(id.toString());
+  });
 });
 </script>

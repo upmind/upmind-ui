@@ -8,7 +8,7 @@
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <Item
       v-else-if="(meta.isAdding || meta.isEditing) && !open"
-      :model-value="selected"
+      :model-value="selected as unknown as ActorRef<any, any>"
       :modal="meta.isEditing"
       :key="selected?.id"
       :color="color"
@@ -22,23 +22,6 @@
         {{ t("client.title") }}
 
         <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
-
-        <!-- <span :class="styles.client.actions">
-          <Button
-            :key="selected?.id"
-            variant="tonal"
-            :label="t('client.actions.convert')"
-            size="xs"
-            @click="onEdit"
-            v-if="!selected?.state?.value?.context?.model?.companyDetails"
-          />
-          <Button
-            variant="tonal"
-            :label="t('client.actions.change')"
-            size="xs"
-            @click="onChange"
-          />
-        </span> -->
       </h5>
 
       <Card
@@ -78,9 +61,9 @@
   </section>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, provide, ref } from "vue";
+import { provide, ref, computed, watch, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -89,130 +72,115 @@ import {
   useClientUnifiedAddress,
   useClientUnifiedAddresses,
 } from "@upmind-automation/headless-vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../client/config.cva";
+import {
+  useStyles,
+  type DropdownMenuItemProps,
+} from "@upmind-automation/upmind-ui";
+import config from "../client/client.config";
 
 // --- components
 import Item from "../Client/Item.vue";
 import Card from "../Client/Card.vue";
 import Listings from "../Client/Listings.vue";
-import {
-  SkeletonList,
-  Button,
-  DropdownMenu,
-} from "@upmind-automation/upmind-ui";
+import { SkeletonList, DropdownMenu } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
 
+// --- types
+import type { ActorRef } from "xstate";
+import type { BillingDetailsProps } from "./types";
+
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "Client",
-  directives: { autoAnimate: vAutoAnimate },
-  components: {
-    SkeletonList,
-    Button,
-    DropdownMenu,
-    // ---
-    Item,
-    Card,
-    Listings,
-  },
-  emits: ["update:modelValue"],
-  props: {
-    i18nKey: { type: string },
-    modelValue: { type: object },
-    color: { type: string, default: "base" },
-  },
-  setup() {
-    const { t } = useI18n();
-    const client = useClientUnifiedAddresses();
-    const styles = useStyles(["client"], client.meta, config);
-    // ---
 
-    const { select, selected, getSelected, addresses, add, meta, state } =
-      client;
+const emit = defineEmits<{
+  (e: "update:modelValue", payload: object): void;
+}>();
 
-    // Provide the client to the form/card components
-    provide("client", useClientUnifiedAddress);
+const props = withDefaults(defineProps<BillingDetailsProps>(), {
+  modelValue: () => ({}),
+  color: "base",
+});
 
-    // ---
-    // check if we have a selected client, if we dont then we are creating a new one
-    getSelected().then(selected => {
-      if (!selected) add();
-    });
+const { t } = useI18n();
+const client = useClientUnifiedAddresses();
+const styles = useStyles(["client"], client.meta, config) as ComputedRef<{
+  client: {
+    root: string;
+    header: string;
+    loading: string;
+    content: string;
+    title: string;
+    actions: string;
+    footer: string;
+  };
+}>;
+// ---
 
-    // ---
+const { select, selected, getSelected, add, meta } = client;
 
-    return {
-      t,
-      add,
-      selected,
-      select,
-      useClientUnifiedAddress,
-      meta,
-      state,
-      styles,
-      addresses,
-      // ---
-      open: ref(false),
-    };
-  },
+// Provide the client to the form/card components
+provide("client", useClientUnifiedAddress);
 
-  computed: {
-    actions() {
-      return [
-        // {
-        //   label: this.t(
-        //     "client.actions.edit",
-        //     this.selected?.state?.value?.context?.model?.companyDetails ? 0 : 1
-        //   ),
-        //   handler: () => this.onEdit(),
-        // },
-        {
-          label: this.t("client.actions.convert"),
-          handler: () => this.onEdit(true),
-          hidden: this.selected?.state?.value?.context?.model?.companyDetails,
-        },
-        {
-          label: this.t("client.actions.change"),
-          handler: () => this.onChange(),
-        },
-      ];
+// ---
+// check if we have a selected client, if we dont then we are creating a new one
+getSelected().then(selected => {
+  if (!selected) add();
+});
+
+const open = ref(false);
+
+const actions = computed((): DropdownMenuItemProps[] => {
+  return [
+    // {
+    //   label: t(
+    //     "client.actions.edit",
+    //     selected?.state?.value?.context?.model?.companyDetails ? 0 : 1
+    //   ),
+    //   handler: () => onEdit(),
+    // },
+    {
+      label: t("client.actions.convert"),
+      value: "convert",
+      handler: () => onEdit(true),
+      hidden: selected.value?.getSnapshot()?.context?.model?.companyDetails,
     },
-  },
-  methods: {
-    onChange() {
-      this.open = true;
+    {
+      label: t("client.actions.change"),
+      value: "change",
+      handler: () => onChange(),
     },
-    onEdit(companyDetails = false) {
-      const client = this.useClientUnifiedAddress(this.selected);
-      const model = client.model.value;
-      client.edit();
-      // force the company details to be shown
-      client.input({ ...model, companyDetails });
-    },
-    onClose(value) {
-      this.open = value;
-    },
-  },
+  ];
+});
 
-  watch: {
-    modelValue(model, oldModel) {
-      const id = model?.companyId || model?.addressId;
-      const oldId = oldModel?.companyId || oldModel?.addressId;
+function onChange() {
+  open.value = true;
+}
 
-      if (id && id != oldId) this.select(id);
-    },
-    selected(value, oldValue) {
-      if (value?.id === oldValue?.id) return;
+function onEdit(companyDetails = false) {
+  const client = useClientUnifiedAddress(selected);
+  const model = client.model.value;
+  client.edit();
+  // force the company details to be shown
+  client.input({ ...model, companyDetails });
+}
+function onClose(value: boolean) {
+  open.value = value;
+}
 
-      const model = get(value?.state?.value, "context.model", {});
-      if (isEmpty(model)) return;
+watch(props.modelValue, (model, oldModel) => {
+  const id = model?.companyId || model?.addressId;
+  const oldId = oldModel?.companyId || oldModel?.addressId;
 
-      this.$emit("update:modelValue", model);
-    },
-  },
+  if (id && id != oldId) select(id);
+});
+
+watch(selected, (value, oldValue) => {
+  if (value?.id === oldValue?.id) return;
+
+  const model = get(value?.state?.value, "context.model", {});
+  if (isEmpty(model)) return;
+
+  emit("update:modelValue", model);
 });
 </script>
-.

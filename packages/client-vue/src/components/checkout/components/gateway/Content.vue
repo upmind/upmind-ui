@@ -34,7 +34,7 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import config from "../../config.cva";
+import config from "../../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components

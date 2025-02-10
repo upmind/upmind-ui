@@ -122,9 +122,6 @@ export const useFeedback = (): any => {
   };
 };
 
-/**
- * @ignore
- */
 export const useMessage = (item: any) => {
   const { state, send } = item;
 

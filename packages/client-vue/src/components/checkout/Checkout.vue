@@ -14,15 +14,14 @@
               v-if="!meta.hasAccount && !meta.isCheckout"
             >
               <component :is="props.cardComponent">
-                <UpmSession
+                <Session
                   :class="styles.checkout.session"
                   id="account"
-                  ref="account"
                   :noTabs="true"
                   no-header
                   :aria-disabled="meta.hasAccount"
-                >
-                </UpmSession>
+                  model-value="register"
+                />
               </component>
             </component>
           </slot>
@@ -109,7 +108,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed } from "vue";
+import { watch, computed, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -121,11 +120,11 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
 } from "@upmind-automation/headless-vue";
-import config from "./config.cva.js";
+import config from "./checkout.config.js";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // -- components
-import UpmSession from "../session/Session.vue";
+import Session from "../session/Session.vue";
 import UpmBillingDetails from "./BillingDetails.vue";
 import UpmBasketProcessing from "../basket/Procesing.vue";
 import UpmPaymentDetails from "./PaymentDetails.vue";
@@ -153,7 +152,17 @@ const props = withDefaults(defineProps<CheckoutProps>(), {
   color: "secondary",
 });
 
-const styles = useStyles(["checkout"], meta, config);
+const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
+  checkout: {
+    session?: string;
+    section?: string;
+    container?: string;
+    mainContent?: string;
+    aside?: string;
+    asideInner?: string;
+    backButton?: string;
+  };
+}>;
 
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();

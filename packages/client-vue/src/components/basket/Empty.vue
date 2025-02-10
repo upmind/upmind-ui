@@ -61,12 +61,12 @@
 <!-- eslint-disable vue/component-api-style -->
 <script lang="ts" setup>
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, type ComputedRef } from "vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./basket.config";
 
 // --- components
 import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upmind-ui";
@@ -76,6 +76,7 @@ import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
 import type { BasketModalProps } from "./types";
+import type { AnimatedIconProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<BasketModalProps>(), {
@@ -83,19 +84,28 @@ const props = withDefaults(defineProps<BasketModalProps>(), {
   modal: false,
   skrim: "primary",
   size: "2xl",
-  animatedIcon: {
+  animatedIcon: () => ({
     icon: "basket",
     delay: 5000,
     primaryColor: "primary",
     secondaryColor: "secondary",
     size: "4xl",
-  },
+  }),
   fit: "contain",
 });
 
 const { meta } = useBasket();
 
-const styles = useStyles(["basket.empty"], meta, config);
+const styles = useStyles(["basket.empty"], meta, config) as ComputedRef<{
+  basket: {
+    empty: {
+      root: string;
+      title: string;
+      text: string;
+      actions: string;
+    };
+  };
+}>;
 
 const processing = ref(false);
 const isOpen = computed(() => meta.value.isEmpty || props.open);

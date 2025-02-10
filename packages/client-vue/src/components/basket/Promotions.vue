@@ -32,12 +32,7 @@
       @resolve="doAdd"
       @update:modelValue="input"
       :actions="actions"
-      :ui-config="{
-        form: {
-          root: 'flex-row gap-1 items-start space-x-2',
-          actions: 'w-auto items-start',
-        },
-      }"
+      :ui-config="formConfig"
     />
 
     <footer
@@ -85,11 +80,10 @@ import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 import { set } from "lodash-es";
+import { cva } from "class-variance-authority";
 
 // --- components
 import Form from "../form/Form.vue";
-
-// --- custom elements
 import {
   Button,
   Icon,
@@ -100,7 +94,10 @@ import {
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless-vue";
+import config from "./basket.config";
 
+// --- types
+import type { FormActionProps, FormProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -120,7 +117,9 @@ const {
 
 // ---
 const toggle = ref(false);
-const processing = ref({});
+const processing = ref<Record<string, boolean>>({});
+
+const formConfig = config.basket.promotions as unknown as FormProps["uiConfig"];
 
 function doAdd() {
   add().then(() => (toggle.value = false));
@@ -130,7 +129,7 @@ function doRemove(value: string) {
   remove(value);
 }
 
-const actions = computed(() => {
+const actions = computed((): Record<string, FormActionProps> => {
   return {
     submit: {
       type: "submit",

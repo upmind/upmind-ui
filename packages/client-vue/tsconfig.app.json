@@ -1,14 +1,40 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json", // Extend Vue's base config directly
+  // This tsconfig is for development. Allowing *.story.vue, and __test__/*.vue to have types support
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
-    "composite": true,
+    "target": "esnext",
+    "jsx": "preserve",
+    "lib": ["esnext", "dom"],
     "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "node",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"],
+      "@upmind-automation/types": ["../types/dist/types"],
+      "@upmind-automation/headless": ["../headless/dist/types"],
+      "@upmind-automation/headless-vue": ["../headless-vue/dist/types"],
+      "@upmind-automation/ui": ["../ui/dist/types"]
     },
-    "outDir": "dist/app",
-    "target": "esnext", // Or your target environment (e.g., "es5", "es2020")
-    "lib": ["esnext", "dom"] // Or your required browser libraries
+    "resolveJsonModule": true,
+    "types": ["node", "jsdom"],
+    "strict": true,
+    "declaration": false,
+    "declarationDir": "./dist/types", // Correct declaration directory
+    "outDir": "dist",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "//": "No other changes needed here"
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+  "references": [
+    { "path": "../headless" },
+    { "path": "../headless-vue" },
+    { "path": "../ui" }
+  ]
 }

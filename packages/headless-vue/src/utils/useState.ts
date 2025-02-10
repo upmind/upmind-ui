@@ -1,4 +1,5 @@
 // --- external
+import type { ComputedRef } from "vue";
 import { computed, unref } from "vue";
 import { useActor } from "@xstate/vue";
 
@@ -15,6 +16,7 @@ import {
   isEmpty,
   isNil,
 } from "lodash-es";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // These are some helper to reduce the repetition of the same code when using xstate/vue
@@ -140,22 +142,31 @@ export const useState = (
   state: any,
   prop?: string | string[],
   fallback?: any
-) => computed(() => stateValue(state, prop, fallback));
+): ComputedRef<any> => computed(() => stateValue(state, prop, fallback));
 
 export const useContext = (
   state: any,
   prop?: string | string[],
   fallback?: any
-) => computed(() => contextValue(state, prop, fallback));
+): ComputedRef<any> => computed(() => contextValue(state, prop, fallback));
 
 export const useChildActor = (
   state: any,
   prop?: string | string[],
   fallback?: any
-) => computed(() => childActor(state, prop, fallback));
+): ComputedRef<ActorRef<any, any>> =>
+  computed(() => childActor(state, prop, fallback));
 
 export const useContextActor = (
   state: any,
   prop?: string | string[],
   fallback?: any
-) => computed(() => contextActor(state, prop, fallback));
+): ComputedRef<ActorRef<any, any>> =>
+  computed(() => contextActor(state, prop, fallback));
+
+export const useContextActors = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+): ComputedRef<ActorRef<any, any>[]> =>
+  computed(() => contextActor(state, prop, fallback));
