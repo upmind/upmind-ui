@@ -5,7 +5,7 @@
     :to="to"
     :href="href"
     tabindex="0"
-    :class="styles.link.root"
+    :class="styles.link"
     :aria-disabled="disabled"
     :data-disabled="disabled"
     @click="handleClick"
@@ -58,9 +58,7 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  link: {
-    root: string;
-  };
+  link: string;
 }>;
 
 const emit = defineEmits<{

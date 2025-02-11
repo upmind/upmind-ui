@@ -2,8 +2,8 @@
 import type { VariantProps } from "class-variance-authority";
 
 // --- internal
-import type { rootVariants } from "./link.config";
-type LinkVariantProps = VariantProps<typeof rootVariants>;
+import type { linkVariants } from "./link.config";
+type LinkVariantProps = VariantProps<typeof linkVariants>;
 
 // --- types
 import type {
