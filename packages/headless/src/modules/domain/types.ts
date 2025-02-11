@@ -1,5 +1,4 @@
 // --- internal
-import { Domain } from "domain";
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 import type { ActorRef } from "xstate";
@@ -12,9 +11,7 @@ import type { ActorRef } from "xstate";
 //   existing = "I will use my existing domain and update my nameservers",
 //   basket = "I will use a domain from my basket",
 // }
-/**
- * @ignore
- */
+
 export enum DomainTypes {
   register = "register",
   transfer = "transfer",
@@ -30,7 +27,7 @@ export interface DomainProduct {
   sld?: string;
   tld?: string;
   // --- Options for New/Internal domains
-  productId: string;
+  productId?: string;
   quantity?: number;
   cycle?: number;
   options?: Object;
@@ -54,10 +51,7 @@ export interface DomainProduct {
   isPrimary?: boolean;
 }
 
-/**
- * @ignore
- */
-export interface IDomain {
+export interface Domain {
   type: DomainTypes;
   domain: string;
   // --- Should these not rather be computed?
@@ -66,24 +60,18 @@ export interface IDomain {
   isPrimary: boolean;
 }
 
-/**
- * @ignore
- */
-export interface IDomainSearch {
+export interface DomainSearch {
   domain: string;
   offset: number;
 }
 
 // --- Contexts
 
-/**
- * @ignore
- */
 export interface DomainContext {
   choices: DomainTypes[];
   type?: DomainTypes;
-  model?: Array<DomainProduct | IDomain>;
-  baseModel?: Array<DomainProduct | IDomain>;
+  model?: Array<DomainProduct>;
+  baseModel?: Array<DomainProduct>;
   lookups?: {
     searched: Array<DomainProduct>;
     history: Array<DomainProduct>;

@@ -7,16 +7,14 @@ import { useApi, useClientUnifiedAddresses, useSession } from "../../..";
 // --- utils
 import { useValidation } from "../../../utils";
 // --- types
-import type { BillingDetailsEvent, BillingDetailsContext } from "./types";
+import type { BillingDetailsContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(
-  _context: BillingDetailsContext,
-  _event: BillingDetailsEvent
-) {
+async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   const { isAuthenticated } = useSession();
 
   await isAuthenticated().catch(error => Promise.reject(error));
@@ -33,7 +31,7 @@ async function load(
 // --------------------------------------------------------
 async function update(
   { basketId, model }: BillingDetailsContext,
-  _event: BillingDetailsEvent
+  _event: AnyEventObject
 ) {
   const { put, useUrl } = useApi();
 
@@ -52,7 +50,7 @@ async function update(
 
 async function parse(
   { model, addresses }: BillingDetailsContext,
-  _event: BillingDetailsEvent
+  _event: AnyEventObject
 ) {
   const defaultAddress = find(addresses, "default");
 
@@ -72,7 +70,7 @@ async function parse(
 
 async function validate(
   { schema, model }: BillingDetailsContext,
-  _event: BillingDetailsEvent
+  _event: AnyEventObject
 ) {
   // Now validate the model as per normal
   const { validate } = useValidation();

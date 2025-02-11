@@ -75,7 +75,6 @@ export const useBasketPaymentDetails = (service?: ActorRef<any, any>) => {
     // ---
     clear: () => paymentDetails.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
-      // @ts-ignore
       paymentDetails.value?.send({ type: "SET", data: model }),
     update(model: any) {
       model = toRaw(unref(model));
@@ -87,7 +86,6 @@ export const useBasketPaymentDetails = (service?: ActorRef<any, any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
-        // @ts-ignore
         paymentDetails.value?.send({ type: "SET", data: model, update: true });
       }
     },

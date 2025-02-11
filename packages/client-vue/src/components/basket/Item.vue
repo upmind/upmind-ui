@@ -48,9 +48,9 @@
   </ProductCard>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -72,72 +72,51 @@ import ProductConfig from "../product/Config.vue";
 import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
+import type { ComputedRef } from "vue";
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "BasketProduct",
-  components: { Badge, ProductCard, ProductConfig },
-  emits: ["reject", "resolve"],
-  props: {
-    modelValue: {
-      type: string,
-      required: true,
-    },
-    item: {
-      type: object, // xstate actor
-      required: true,
-    },
-    selected: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
-    const { t } = useI18n();
 
-    const { removeItem, updateItem } = useBasket();
+const props = withDefaults(
+  defineProps<{
+    modelValue: string;
+    item: ActorRef<any, any>;
+    selected?: boolean;
+  }>(),
+  {
+    selected: false,
+  }
+);
 
-    const {
-      meta,
-      updateAttributes,
-      updateOptions,
-      updateProvisioning,
-      updateQuantity,
-      updateTerm,
-    } = useProductConfig(props.item);
+const { t } = useI18n();
 
-    const styles = useStyles(["basket.item", "basket.item.ping"], meta, config);
-    // ---
+const { removeItem, updateItem } = useBasket();
 
-    const open = ref(props.selected);
+const {
+  meta,
+  updateAttributes,
+  updateOptions,
+  updateProvisioning,
+  updateQuantity,
+  updateTerm,
+} = useProductConfig(props.item);
 
-    // ---
+const styles = useStyles(
+  ["basket.item", "basket.item.ping"],
+  meta,
+  config
+) as ComputedRef<{
+  basket: {
+    item: string;
+  };
+}>;
+// ---
 
-    return {
-      t,
-      meta,
-      removeItem,
-      updateItem,
-      updateAttributes,
-      updateOptions,
-      updateProvisioning,
-      updateQuantity,
-      updateTerm,
-      // ---
-      open,
-      // ---
-      styles,
-      cn,
-    };
-  },
-  computed: {},
-  methods: {
-    async doResolve() {
-      this.updateItem(this.modelValue).then(item => {
-        this.open = !stateMatches(item.state, ["available.complete"]);
-      });
-    },
-  },
-});
+const open = ref(props.selected);
+
+async function doResolve() {
+  updateItem(props.modelValue).then(item => {
+    open.value = !stateMatches(item.state, ["available.complete"]);
+  });
+}
 </script>
-.

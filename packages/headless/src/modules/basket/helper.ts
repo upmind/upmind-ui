@@ -27,13 +27,12 @@ import type { IProduct } from "@upmind-automation/types";
 async function load(context: any, basket: any) {
   const products = reduce(
     basket.getProducts(),
-    (result, product) => {
+    (result: ActorRef<any, any>[], product) => {
       // check all our mapping values are set, if not then its not a valid mapping and we can skip it
       const mapping = context.basketItemMapper(product);
       const isValid = isEmpty(pickBy(mapping, isEmpty));
       if (isValid) {
         const data = context.itemBuilder(product);
-        // @ts-ignore
         result.push(data);
       }
 
@@ -225,7 +224,7 @@ export function basketSubscription(callback: any, onReceive: any) {
   let isRefreshing = false;
 
   // lets let our subscriber know when the basket has been refreshed
-  basket.service.onTransition(state => {
+  basket.service.onTransition((state: any) => {
     if (state.matches("shopping.refreshing.processing")) {
       isRefreshing = true;
     }

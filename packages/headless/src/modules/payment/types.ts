@@ -14,20 +14,11 @@ import type { IBasket } from "@upmind-automation/types";
 export interface PaymentContext {
   id?: string;
   order?: IBasket;
-  paymentDetails?: object;
+  paymentDetails?: any;
   payment?: any; //IPayment
-  urls: {
+  urls?: {
     return?: URL;
     cancel?: URL;
   };
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface PaymentEvent {
-  type: "PROCESS" | "CANCEL" | "RETRY";
-  data?: any; //IPayment
   error?: any;
 }

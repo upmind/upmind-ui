@@ -20,16 +20,12 @@ import { find, map } from "lodash-es";
 
 let state: any = null;
 
-// @ts-ignore
 const service = interpret(listingsMachine.withConfig({ actions, services }), {
   devTools: false,
 }).onTransition(newState => (state = newState));
 
 // -----------------------------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useClientCompanies = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it

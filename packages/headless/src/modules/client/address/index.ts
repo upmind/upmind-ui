@@ -1,5 +1,6 @@
 // --- external
-import { AnyEventObject, interpret } from "xstate";
+import type { AnyEventObject } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -22,16 +23,15 @@ import type { IAddress } from "@upmind-automation/types";
 
 let state: any = null;
 
-// @ts-ignore
-const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => (state = newState));
+const service = interpret(
+  listingsMachine.withConfig({ actions, services: services as any }),
+  {
+    devTools: false,
+  }
+).onTransition(newState => (state = newState));
 
 // -----------------------------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useClientAddresses = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
@@ -82,7 +82,6 @@ export const useClientAddresses = () => {
     },
     find: (data: IAddressData) =>
       services.find(state.context, { type: "FIND", data } as AnyEventObject),
-    // @ts-ignore
-    add: (data: IAddress) => services.add(data),
+    add: (data: any) => services.add(data),
   };
 };

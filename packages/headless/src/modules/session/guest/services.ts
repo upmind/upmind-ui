@@ -137,7 +137,7 @@ async function register({ model }: GuestContext) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   load,
   // ---
   verify2fa,

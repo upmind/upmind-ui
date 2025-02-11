@@ -8,6 +8,7 @@ import services from "./services";
 import { actions } from "./actions";
 
 // --- utils
+import { map } from "lodash-es";
 
 // --- types
 
@@ -19,10 +20,15 @@ import { actions } from "./actions";
 
 let state: any = null;
 
-// @ts-ignore
-const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => (state = newState));
+const service = interpret(
+  listingsMachine.withConfig({
+    actions: actions as any,
+    services: services as any,
+  }),
+  {
+    devTools: false,
+  }
+).onTransition(newState => (state = newState));
 
 // -----------------------------------------------------------------------------
 
@@ -38,7 +44,6 @@ export const usePlaces = () => {
       ),
     getSnapshot: () => state,
     getItemsSnapshot: () => state?.context?.items,
-    // @ts-ignore
     getItems: () => map(state?.context?.items, "state.context.model"),
     getSelected: () => state?.context?.selected,
     getDefault: () => null, // we have no default in this machine,
@@ -51,8 +56,10 @@ export const usePlaces = () => {
       });
     },
     getPlaceDetails: (id: any) =>
-      // @ts-ignore
-      services.parse(state?.context, { data: { place: id } }),
+      services.parse(state?.context, {
+        type: "PARSE_PLACE",
+        data: { place: id },
+      }),
     reset: () => service.send({ type: "REFRESH" }),
   };
 };

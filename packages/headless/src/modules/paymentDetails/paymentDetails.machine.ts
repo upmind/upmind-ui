@@ -17,14 +17,14 @@ import { get, set, unset, forEach } from "lodash-es";
 // --- types
 
 import type { ActorRef, AnyEventObject } from "xstate";
-import type { PaymentDetailsContext, RefreshEvent } from "./types";
+import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../api";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -234,10 +234,8 @@ export default createMachine(
       }),
 
       setSchemas: assign({
-        // @ts-ignore
         schema: context => useSchema(context),
-        // @ts-ignore
-        uischema: context => useUischema(context),
+        uischema: _context => useUischema(),
         model: ({ schema, model }) => useModelParser(schema, model),
       }),
 
@@ -246,7 +244,6 @@ export default createMachine(
         uischema: undefined,
       }),
 
-      // @ts-ignore
       setModel: assign({
         model: ({ schema, model }: any, { data }: any) =>
           useModelParser(schema, data || model),
@@ -257,7 +254,6 @@ export default createMachine(
       }),
 
       setDirty: assign({
-        // @ts-ignore
         dirty: true,
       }),
 
@@ -269,13 +265,11 @@ export default createMachine(
         autoupdate: (_context: any, { update }: any) => !!update,
       }),
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
       setGateway: assign({
         // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
-        // @ts-ignore
         actors: (
           {
             address,
@@ -291,11 +285,8 @@ export default createMachine(
           actors ??= {}; //sanity check
 
           // stop any existing gateways if they are different and not done/complete
-          // @ts-ignore
           if (actors?.gateway?.id != gateway?.id) {
-            // @ts-ignore
             if (actors?.gateway && !actors.gateway?.state?.done)
-              // @ts-ignore
               actors.gateway?.stop();
             unset(actors, "gateway");
           }
@@ -318,18 +309,18 @@ export default createMachine(
       }),
 
       refreshBasket: assign({
-        basketId: (_context, { data: basket }: RefreshEvent) => basket?.id,
-        clientId: (_context, { data: basket }: RefreshEvent) =>
+        basketId: (_context, { data: basket }: AnyEventObject) => basket?.id,
+        clientId: (_context, { data: basket }: AnyEventObject) =>
           basket?.client_id,
-        currency: (_context, { data: basket }: RefreshEvent) =>
+        currency: (_context, { data: basket }: AnyEventObject) =>
           basket?.currency,
-        model: ({ model }, { data: basket }: RefreshEvent) => {
+        model: ({ model }, { data: basket }: AnyEventObject) => {
           return {
             ...model,
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        address: (_context, { data: basket }: RefreshEvent) =>
+        address: (_context, { data: basket }: AnyEventObject) =>
           get(basket, "address"),
         actors: ({ actors }, { data: basket }: any) => {
           forEach(actors, actor => {
@@ -384,14 +375,13 @@ export default createMachine(
       },
       // ---
 
-      // @ts-ignore
-      forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
+      forwardCheckout: ({ actors }: PaymentDetailsContext) => {
         forEach(actors, (actor: ActorRef<any, any> | undefined) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }
         });
-      }),
+      },
 
       // ---
 
@@ -430,7 +420,6 @@ export default createMachine(
     },
 
     guards: {
-      // @ts-ignore
       isDirty: ({ dirty }: any, _event: any) => !!dirty,
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasLookups: (
@@ -467,7 +456,6 @@ export default createMachine(
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

@@ -68,9 +68,8 @@ export const useBasketBillingDetails = (service?: ActorRef<any, any>) => {
 
     // ---
     clear: () => billingDetails.value?.send({ type: "CLEAR" }),
-    // @ts-ignore
+
     input: (model: any) =>
-      // @ts-ignore
       billingDetails.value?.send({ type: "SET", data: model }),
     update(model: any) {
       if (!model) return;
@@ -89,7 +88,7 @@ export const useBasketBillingDetails = (service?: ActorRef<any, any>) => {
       // if it has then send the new model to the machine
       billingDetails.value?.send({
         type: "SET",
-        // @ts-ignore
+
         data: model,
         update: true,
       });

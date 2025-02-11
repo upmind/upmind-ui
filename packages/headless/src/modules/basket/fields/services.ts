@@ -8,7 +8,8 @@ import { useValidation, useFieldsModelParser } from "../../../utils";
 import { get } from "lodash-es";
 
 // --- types
-import type { FieldsEvent, FieldsContext } from "./types";
+import type { FieldsContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 
@@ -16,7 +17,7 @@ import type { FieldsEvent, FieldsContext } from "./types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(_context: FieldsContext, _event: FieldsEvent) {
+async function load(_context: FieldsContext, _event: AnyEventObject) {
   const { get, useUrl } = useApi();
 
   return get({
@@ -26,10 +27,12 @@ async function load(_context: FieldsContext, _event: FieldsEvent) {
 
 // --------------------------------------------------------
 
-async function update({ basketId, model }: FieldsContext, _event: FieldsEvent) {
+async function update(
+  { basketId, model }: FieldsContext,
+  _event: AnyEventObject
+) {
   const { put, useUrl } = useApi();
   // rebuild the model with ALL custo mfields present, including nullish values
-  // @ts-ignore
   const data = {
     notes: model?.notes,
     custom_fields: get(model, "customFields"),
@@ -44,13 +47,16 @@ async function update({ basketId, model }: FieldsContext, _event: FieldsEvent) {
 
 // --------------------------------------------------------
 
-async function parse({ model }: FieldsContext, _event: FieldsEvent) {
+async function parse({ model }: FieldsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
 }
 
-async function validate({ schema, model }: FieldsContext, _event: FieldsEvent) {
+async function validate(
+  { schema, model }: FieldsContext,
+  _event: AnyEventObject
+) {
   // ---
 
   // Now validate the model as per normal

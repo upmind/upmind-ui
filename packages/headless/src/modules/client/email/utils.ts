@@ -90,10 +90,8 @@ export const spawnItem = (model?: IEmail) => {
     return spawn(
       itemMachine
         .withConfig({
-          // @ts-ignore
           actions,
-          // @ts-ignore
-          services,
+          services: services as any,
         })
         .withContext({ model }),
       {

@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign, spawn, actions, AnyEventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
+import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
 
 // --- internal
@@ -41,16 +42,16 @@ import {
 import type { BasketProduct } from "../basket";
 import { DomainTypes } from "./types";
 import type { DomainContext } from "./types";
-import type { IDomain, DomainProduct } from "./types";
-import { ProductModel } from "../product";
+import type { DomainProduct } from "./types";
+import type { Domain } from "./types";
+import type { ProductModel } from "../product";
 import { isFunction } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QCcwEcCucAusCyAhgHYEzIDEAggCLUDaADALqKgAOA9rAJbbcdFWIAB6IA7GIB0AZjEAWaXIBM0hmICcS9XICsAGhABPRAEYlAX3MHUmHPmKkwySQQDGfAG5hyAYUoA5HwBRABlGFiQQTh4+ASFRBAA2HUl1aR0dXQkdeTlE9QNjBDl1E0lEk3UxRIYGHRNExWlLa3QsWFxCEjIXd24vcgAlIIAVQYBNcKFo3n5BSITk1PTMnLEcuTyCo0RpdUSZXQYlOuTEgA5pRRaQG3bOhx63T29hvAB5ADUgqciZ2PmoEWKQyeXOYhM6yuDEhhV2MMkamO5xMaiq0iUcksVhARA4EDgQjudi6jmQ0y4sziC0QAFoTHCENpJEp5GI9nJzjp1DoGGkbsSOvZuk5JNwIAAbMAUmJzeKIc5ySRmHSJZRaMRqNViRmYpSSHTnJEZaSQk6GgVtEmPUXPfrSv6UgHyhDVSTnc41HJqpSJE4oxncsrnbQlHmyQ31S22IWknquDgAWzYUuwDvYTrlNOKOp2CBMKINVWSnIYeSUmKx2KAA */
-    // tsTypes: {} as import("./domain.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./domain.machine.typegen").Typegen0,
     id: "domainManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -445,10 +446,7 @@ export default createMachine(
 
       checkModel: assign({
         model: ({ model }: DomainContext) =>
-          map(
-            compact(model),
-            item => parseDomain(item) as DomainProduct | IDomain
-          ),
+          map(compact(model), item => parseDomain(item)) as DomainProduct[],
       }),
 
       ensurePrimary: assign({
@@ -598,7 +596,6 @@ export default createMachine(
 
       // ---
 
-      // @ts-ignore
       add: assign({
         model: (
           { model, lookups, type }: DomainContext,
@@ -630,7 +627,7 @@ export default createMachine(
         model: (_context: DomainContext, { data }: AnyEventObject) => {
           const value = isArray(data) ? first(data) : data;
           const parsed = parseDomain(value, true);
-          const domain: IDomain = {
+          const domain: Domain = {
             domain: parsed?.domain || "",
             tld: parsed?.tld || "",
             sld: parsed?.sld || "",
@@ -642,7 +639,6 @@ export default createMachine(
         },
       }),
 
-      // @ts-ignore
       remove: assign({
         model: ({ model }: DomainContext, { data }: AnyEventObject) =>
           reject(model, ["domain", data]),
@@ -654,7 +650,7 @@ export default createMachine(
         model: ({ model, lookups, type }: any, { data }: AnyEventObject) =>
           reduce(
             data,
-            (result: IDomain[], item) => {
+            (result: Domain[], item) => {
               let available = [];
               switch (type) {
                 case DomainTypes.register:
@@ -671,7 +667,7 @@ export default createMachine(
                   break;
               }
 
-              const domain: IDomain = parseValue(item, model, available);
+              const domain: Domain = parseValue(item, model, available);
 
               if (domain) result.push(domain);
 
@@ -690,12 +686,11 @@ export default createMachine(
       }),
 
       cancelController: assign({
-        // @ts-ignore
-        controller: ({ controller }) => {
+        controller: ({ controller }: DomainContext) => {
           if (controller?.signal && !controller.signal?.aborted) {
             controller?.abort();
           }
-          return null;
+          return undefined;
         },
       }),
 
@@ -706,12 +701,11 @@ export default createMachine(
       }),
 
       setSearchQuery: assign({
-        // @ts-ignore
-        search: ({ search }, { data }) => {
+        search: ({ search }: DomainContext, { data }: AnyEventObject) => {
           return {
-            query: data,
+            query: data ?? "",
             offset: 0,
-            limit: search?.limit,
+            limit: search?.limit ?? 10,
             total: 0,
           };
         },
@@ -771,7 +765,9 @@ export default createMachine(
         },
         search: ({ search }: DomainContext, { data }: AnyEventObject) => {
           return {
-            ...(search ?? { query: "", offset: 0, limit: 10 }),
+            query: search?.query ?? "",
+            offset: search?.offset ?? 0,
+            limit: search?.limit ?? 10,
             total: data?.total || 0,
           };
         },
@@ -791,7 +787,6 @@ export default createMachine(
       }),
 
       clearLookups: assign({
-        // @ts-ignore
         lookups: (_context: any, _event: any) => {
           return {
             searched: [],
@@ -814,7 +809,7 @@ export default createMachine(
       }),
 
       setPrimary: assign({
-        model: ({ model }, { data }: any) => {
+        model: ({ model }: DomainContext, { data }: any) => {
           const primary = find(model, ["domain", data]);
           return map(model, value => {
             value.isPrimary = value === primary;
@@ -824,13 +819,12 @@ export default createMachine(
       }),
 
       // ---
-      // @ts-ignore
       setSuccess: (_context, _event) => {
         // addSuccess("Successfully set Domain");
       },
 
       setError: assign({
-        error: (_context, { data }) => {
+        error: (_context, { data }: AnyEventObject) => {
           // addError({
           //   title: data?.title || "We experienced an error getting domains",
           //   copy: data?.message,
@@ -845,7 +839,7 @@ export default createMachine(
     },
 
     guards: {
-      // hasData: (_context, { data }) => isObject(data) && !isEmpty(data),
+      // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
 
       isInvalidType: ({ choices }: DomainContext, { data }: AnyEventObject) => {
         return isEmpty(choices) || !has(DomainTypes, data);
@@ -860,7 +854,6 @@ export default createMachine(
       },
       validSearchQuery: (_context, { data }: AnyEventObject) => {
         const sld = parseSld(data);
-        // @ts-ignore
         return sld?.length >= 2;
       },
       validSearchOffset: ({ search }: DomainContext, _event) => {
@@ -880,31 +873,26 @@ export default createMachine(
         data?.name !== "AbortError",
 
       // ---
-      // @ts-ignore
       isDomainTransfer: (
         { choices }: DomainContext,
         { data }: AnyEventObject
       ) => !isEmpty(choices) && data === DomainTypes.transfer,
 
-      // @ts-ignore
       isExistingDomain: (
         { choices }: DomainContext,
         { data }: AnyEventObject
       ) => !isEmpty(choices) && data === DomainTypes.existing,
 
-      // @ts-ignore
       isDomainRegister: (
         { choices }: DomainContext,
         { data }: AnyEventObject
       ) => !isEmpty(choices) && data === DomainTypes.register,
 
-      // @ts-ignore
       isBasket: ({ choices }: DomainContext, { data }: AnyEventObject) =>
         !isEmpty(choices) && data === DomainTypes.basket,
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },

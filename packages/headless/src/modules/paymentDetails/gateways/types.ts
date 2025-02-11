@@ -3,55 +3,15 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- types
 // TODO:
-// import type { IGateway } from "../../../modules/payment/types";
-// import type { GatewayTypes } from "../types";
-import type { ICurrency } from "../../../modules/system/types";
+
+import type {
+  ICurrency,
+  GatewayAuthType,
+  GatewayStoreType,
+} from "@upmind-automation/types";
 
 // --------------------------------------------------------
 // ENUMS
-
-export enum QUERY_PARAMS {
-  ABORT = "abort",
-  ACCOUNT_ID = "aid",
-  ATTEMPT = "attempt",
-  AUTHORIZATION_UUID = "authorization_uuid",
-  AUTO_PAY = "auto_pay",
-  BASKET_ID = "bid",
-  BASKET_PRODUCT_ID = "bpid",
-  BILLING_CYCLE_MONTHS = "bcm",
-  CATEGORY_ID = "catid",
-  CLIENT_ID = "client_id",
-  COUPONS = "coupons",
-  CROSS_SELL_PRODUCT = "csp",
-  CURRENCY = "curr",
-  CURRENCY_CODE = "currency",
-  CURRENCY_ID = "currId",
-  DATE = "date",
-  EMAIL_ID = "email_id",
-  FAILED = "failed",
-  GATEWAY_PROVIDER_ID = "gpid",
-  HASH = "hash",
-  INIT = "init",
-  INIT_PAY = "init_pay",
-  MODAL_REQUEST_ID = "modal_request_id",
-  OPERATION_ID = "operation_id",
-  ORDER_ID = "oid",
-  ORDER_TEMPLATE_CODE = "order_template_code",
-  PAYMENT_DETAILS_ID = "payment_details_id",
-  PAYMENT_METHOD_TYPE = "pmt",
-  PAYMENT_SUCCESS = "payment_success",
-  PRODUCT_FIELDS = "pfields",
-  PRODUCT_ID = "pid",
-  QUANTITY = "qty",
-  READ_MORE = "read_more",
-  SEARCH = "search",
-  STORE_SUCCESS = "store_success",
-  SUBPRODUCT_IDS = "sub_pids",
-  SUBPRODUCT_QUANTITY = "subproduct_qty",
-  SUCCESS = "success",
-  USERNAME = "username",
-  VIEW = "view",
-}
 
 export enum GatewayTypes {
   FREE = -1,
@@ -66,34 +26,9 @@ export enum GatewayTypes {
   WALLET = 7,
 }
 
-export enum GatewayAuthType {
-  NONE = "none",
-  SETTINGS = "settings",
-  OAUTH2 = "oauth2",
-}
-
-export enum GatewayStoreType {
-  /**
-   * none (gateway does NOT support stored payment details)
-   */
-  NONE = "none",
-  /**
-   * either (gateway supports one-off payments + stored payment details)
-   */
-  EITHER = "either",
-  /**
-   * always (gateway does NOT support one-off payments; stored payment details only) - this is the case for GoCardless where an agreement (mandate) must be set up first
-   */
-  ALWAYS = "always",
-}
-
 export enum GatewayCtx {
   PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
   ADD = "add", // ADD = Gateways are shown in the context of adding a stored payment detail
-}
-
-export enum GatewayProviderCodes {
-  STRIPE = "Stripe_PaymentIntents",
 }
 
 // --------------------------------------------------------
@@ -182,7 +117,7 @@ export interface GatewayContext {
   gateway?: IGateway;
   // ---
   type?: GatewayTypes;
-  ctx?: GatewayContext;
+  ctx?: GatewayCtx;
   stored_payment_methods?: Array<any>;
   code?: string;
 
@@ -201,17 +136,6 @@ export interface GatewayContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---
-  // error?: RequestError;
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface GatewayEvent {
-  type: "CHECKOUT";
-  data?: any;
-  // TODO:
   // error?: RequestError;
   error?: any;
 }

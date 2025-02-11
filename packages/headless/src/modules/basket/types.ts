@@ -1,12 +1,9 @@
 // --- extrnal
 import type { ActorRef } from "xstate";
 import { IPaymentDetail } from "../paymentDetails";
-import { responseCodes } from "../api";
-import {
-  IBasket,
-  TaxTagTypes,
-  ProductOrderTypes,
-} from "@upmind-automation/types";
+import type { responseCodes } from "../api";
+import type { IBasket } from "@upmind-automation/types";
+import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -148,13 +145,4 @@ export interface BasketContext {
   // --- Payments
   paymentDetails?: any; //IPaymentDetail;
   payment?: ActorRef<any, any>;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface BasketEvent {
-  type: "CHECK" | "REFRESH" | "AUTHENTICATED";
-  data?: any; //Basket;
-  error?: any;
 }

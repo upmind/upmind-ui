@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { escalate } = actions;
 
@@ -23,13 +24,13 @@ import {
 } from "./utils";
 
 // --- types
-import { responseCodes } from "../../api/types";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    tsTypes: {} as import("./guest.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./guest.machine.typegen").Typegen0,
     id: "sessionGuest",
     predictableActionArguments: true,
     initial: "loading",
@@ -46,7 +47,9 @@ export default createMachine(
           onDone: { target: "idle" },
           onError: {
             target: "error",
-            actions: escalate((_context, { data }) => data?.error || data),
+            actions: escalate(
+              (_context, { data }: AnyEventObject) => data?.error || data
+            ),
           },
         },
       },
@@ -240,36 +243,37 @@ export default createMachine(
   {
     actions: {
       setCustomFields: assign({
-        // @ts-ignore
-        customFields: (_context, { data }) => data,
+        customFields: (_context, { data }: AnyEventObject) => data,
       }),
 
       setRegisterSchemas: assign({
-        schema: ({ customFields }) => useRegisterSchemaParser(customFields),
-        uischema: ({ customFields }) => useRegisterUischemaParser(customFields),
-        // @ts-ignore
-        model: ({ customFields }) => useRegisterModelParser(customFields),
+        schema: ({ customFields }: GuestContext) =>
+          useRegisterSchemaParser(customFields),
+
+        uischema: ({ customFields }: GuestContext) =>
+          useRegisterUischemaParser(customFields),
+
+        model: ({ customFields }: GuestContext) =>
+          useRegisterModelParser(customFields),
       }),
 
       setLoginSchemas: assign({
         schema: _context => useLoginSchemaParser(),
         uischema: _context => useLoginUischemaParser(),
-        // @ts-ignore
         model: _context => useLoginModelParser(),
       }),
 
       set2faSchemas: assign({
         schema: _context => use2faSchemaParser(),
         uischema: _context => use2faUischemaParser(),
-        // @ts-ignore
         model: _context => use2faModelParser(),
       }),
 
       setModel: assign({
-        model: (_context, { data }) => data,
+        model: (_context, { data }: AnyEventObject) => data,
       }),
       set2faToken: assign({
-        token: (_context, { data }) => data,
+        token: (_context, { data }: AnyEventObject) => data,
       }),
 
       setFeedbackError: ({ error }, _event) => {

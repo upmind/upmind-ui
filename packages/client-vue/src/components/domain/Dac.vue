@@ -92,7 +92,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -110,13 +110,14 @@ import DomainCards from "./DomainCards.vue";
 
 // -----------------------------------------------------------------------------
 
-const emit = defineEmits([
-  "update:selected",
-  "search",
-  "search:more",
-  "resolve",
-  "reject",
-]);
+const emit = defineEmits<{
+  (e: "reject"): void;
+  (e: "resolve"): void;
+  (e: "search", query: string): void;
+  (e: "search:more", offset: number): void;
+  (e: "update:selected", value?: string): void;
+}>();
+
 const props = withDefaults(
   defineProps<{
     id: string;
@@ -164,7 +165,25 @@ const meta = computed(() => ({
   showDialog: props.dialog && open.value,
 }));
 
-const styles = useStyles(["domain", "domain.drawer"], meta, config);
+const styles = useStyles(
+  ["domain", "domain.drawer"],
+  meta,
+  config
+) as ComputedRef<{
+  domain: {
+    root: string;
+    search: string;
+    dialog: {
+      container: string;
+    };
+    drawer: {
+      root: string;
+      header: string;
+      content: string;
+      footer: string;
+    };
+  };
+}>;
 
 const queryValue = ref(props.query);
 

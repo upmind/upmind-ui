@@ -309,8 +309,7 @@ async function fetchBrandConfig(context: any, _event: any) {
     // this is to ensure that the config object has all the keys that were requested
     const template = reduce(
       missingKeys,
-      (acc, key) => {
-        // @ts-ignore
+      (acc: { [key: string]: any }, key: string) => {
         acc[key] = null;
         return acc;
       },
@@ -334,7 +333,7 @@ async function fetchModules(_context: any, _event: any) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   fetchOrganisationConfig,
   fetchBrandSettings,
   fetchBrandConfig,

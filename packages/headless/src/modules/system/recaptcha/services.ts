@@ -31,9 +31,9 @@ async function load(_context: RecaptchaContext, _event: RecaptchaEvent) {
     });
 
     script.addEventListener("load", async () => {
-      // @ts-ignore
+      // @
       window["grecaptcha"].ready(() => {
-        // @ts-ignore
+        // @
         const grecaptcha = window["grecaptcha"];
         return resolve(grecaptcha);
       });

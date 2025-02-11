@@ -22,9 +22,6 @@ import { ROUTE } from "@upmind-automation/headless";
 // a composable that provides a simple interface to the flows engine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useRoutingEngine = () => {
   const { meta } = useBasket();
   const { meta: sessionMeta } = useSession();

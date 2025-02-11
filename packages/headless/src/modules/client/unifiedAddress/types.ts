@@ -29,9 +29,9 @@ export interface UnifiedAddressContext extends ClientItemContext {
   types?: typeof AddressTypes;
   countries: ICountry[];
   places: any;
-  addresses: IAddress[];
-  phones: IPhone[];
-  emails: IEmail[];
+  addresses: any; // Cpmposable to the address context
+  phones: any; // Composable to the phone context
+  emails: any; // Composable to the email context
   // ---
   autocomplete?: {
     schema?: JsonSchema;

@@ -21,16 +21,15 @@ import type { IPhoneData } from "./types";
 
 let state: any = null;
 
-// @ts-ignore
-const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => (state = newState));
+const service = interpret(
+  listingsMachine.withConfig({ actions, services: services as any }),
+  {
+    devTools: false,
+  }
+).onTransition(newState => (state = newState));
 
 // -----------------------------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useClientPhones = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
@@ -80,7 +79,6 @@ export const useClientPhones = () => {
       });
     },
     find: (data: IPhoneData) => services.find(state.context, { data }),
-    // @ts-ignore
-    add: (data: IPhone) => services.add(data),
+    add: (data: any) => services.add(data),
   };
 };

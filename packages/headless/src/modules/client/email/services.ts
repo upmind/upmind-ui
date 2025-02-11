@@ -36,7 +36,7 @@ async function filterItems({ raw }: EmailsContext, { data }: AnyEventObject) {
 
   const filteredItems = reduce(
     raw,
-    (result, item) => {
+    (result: any[], item) => {
       const matches =
         includes(
           item.getSnapshot().context?.title?.toLowerCase(),
@@ -49,7 +49,6 @@ async function filterItems({ raw }: EmailsContext, { data }: AnyEventObject) {
 
       if (matches) {
         const model = get(item.getSnapshot, "context.model");
-        // @ts-ignore
         result.push(model);
       }
 

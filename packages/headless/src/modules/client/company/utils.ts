@@ -206,10 +206,8 @@ export const spawnItem = (model?: ICompany) => {
     return spawn(
       itemMachine
         .withConfig({
-          // @ts-ignore
           actions,
-          // @ts-ignore
-          services,
+          services: services as any,
         })
         .withContext({ model }),
       {

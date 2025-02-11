@@ -18,23 +18,10 @@ export interface Badge {
   class?: string;
 }
 
-interface Icon {
-  icon:
-    | string
-    | {
-        name: string;
-        path: string;
-      };
-  fallback?:
-    | string
-    | {
-        name: string;
-        path: string;
-      };
-  size?: "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
-  class?: string;
+export interface Benefit {
+  label: string;
+  icon?: string | object;
 }
-
 interface Promotion {
   id: string;
   amount: number;
@@ -148,17 +135,4 @@ export interface IProductConfig {
     [key: string]: string | number;
   };
   coupons?: string[];
-}
-// --------------------------------------------------------
-// Events
-
-export interface RecommendationsEngineEvents {
-  type: "CHECK" | "REFRESH";
-  data?: any;
-  error?: any;
-}
-
-export interface Benefit {
-  label: string;
-  icon?: Icon;
 }

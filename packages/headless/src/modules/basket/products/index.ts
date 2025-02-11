@@ -15,6 +15,7 @@ import { responseCodes } from "../../api";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../types";
 import { parseBasketProduct } from "../utils";
+import { DetailedError } from "src/utils";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -22,9 +23,6 @@ import { parseBasketProduct } from "../utils";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-/**
- * @ignore
- */
 export const useBasketProduct = (
   id: string,
   rawBasket: IBasket,
@@ -33,10 +31,10 @@ export const useBasketProduct = (
   function getBasketProduct(basket: IBasket) {
     const value = find(basket?.products, { id });
     if (!value) {
-      const error = new Error("Product not found in basket");
-      //@ts-ignore
-      error.code = responseCodes.Not_Found;
-      throw error;
+      throw new DetailedError(
+        "Product not found in basket",
+        responseCodes.Not_Found
+      );
     }
 
     return value;
@@ -67,10 +65,10 @@ export const useBasketProductConfig = (
   const basketProduct = find(rawBasket?.products, { id });
 
   if (!basketProduct) {
-    const error = new Error("Product not found in basket");
-    //@ts-ignore
-    error.code = responseCodes.Not_Found;
-    throw error;
+    throw new DetailedError(
+      "Product not found in basket",
+      responseCodes.Not_Found
+    );
   }
 
   const service = interpret(
@@ -111,7 +109,6 @@ export const useBasketProductConfig = (
       return waitFor(service, state => !state.matches("processing")).then(
         state => {
           if (["error", "available.error"].some(state.matches)) {
-            // @ts-ignore
             return Promise.reject(state?.context?.error);
           }
           return Promise.resolve(service);

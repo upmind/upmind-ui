@@ -1,21 +1,7 @@
 // --------------------------------------------------------
 // ENUMS
 
-import { ActorRef } from "xstate";
-
-/**
- * @ignore
- */
-export enum responseCodes {
-  "OK" = 200,
-  "No_Content" = 204,
-  "Unauthorized" = 401,
-  "Forbidden" = 403,
-  "Not_Found" = 404,
-  "Conflict" = 409,
-  "Too_Many_Requests" = 429,
-  "Unprocessable_Entity" = 422,
-}
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // Request Types
@@ -78,29 +64,3 @@ export interface RequestContext {
 export interface RequestsContext {
   requests: Record<string, ActorRef<any, any>>;
 }
-
-// --------------------------------------------------------
-// Event Types
-
-export interface RequestEvent {
-  type: string;
-  data: {
-    url: URL;
-    init: RequestInit;
-    useCache: boolean;
-    hash: string;
-  };
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}
-
-export type RequestEvents = {
-  type: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "CANCEL" | "RETRY";
-  data: RequestEvent;
-};
-
-export type RequestsEvents = {
-  type: "ADD" | "REMOVE" | "STASH" | "DUMP" | "CANCEL" | "RETRY";
-  data: any;
-};

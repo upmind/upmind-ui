@@ -21,16 +21,15 @@ import type { IEmail } from "@upmind-automation/types";
 
 let state: any = null;
 
-// @ts-ignore
-const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => (state = newState));
+const service = interpret(
+  listingsMachine.withConfig({ actions, services: services as any }),
+  {
+    devTools: false,
+  }
+).onTransition(newState => (state = newState));
 
 // -----------------------------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useClientEmails = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
@@ -80,7 +79,6 @@ export const useClientEmails = () => {
       });
     },
     find: (data: string) => services.find(state.context, { data }),
-    // @ts-ignore
-    add: (data: IEmail) => services.add(data),
+    add: (data: any) => services.add(data),
   };
 };

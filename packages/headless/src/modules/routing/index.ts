@@ -25,7 +25,6 @@ import { isEmpty, get, some } from "lodash-es";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-// @ts-ignore
 const service = interpret(routingEngine, {
   devTools: true,
 });

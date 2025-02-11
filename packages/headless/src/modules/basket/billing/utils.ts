@@ -36,8 +36,7 @@ export const useSchema = (_context: BillingDetailsContext) => {
     ],
   };
 
-  // @ts-ignore
-  return schema as JsonSchema;
+  return schema as unknown as JsonSchema;
 };
 
 export const useUischema = (_context: BillingDetailsContext) => {

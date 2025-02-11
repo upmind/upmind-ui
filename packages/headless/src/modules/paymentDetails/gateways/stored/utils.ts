@@ -7,7 +7,7 @@ import { generateResponseUrls } from "../utils";
 import { map } from "lodash-es";
 
 // --- types
-import { QUERY_PARAMS } from "../types";
+import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 

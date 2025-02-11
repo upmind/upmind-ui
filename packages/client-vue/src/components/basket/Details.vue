@@ -48,9 +48,9 @@
   </section>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -71,50 +71,39 @@ import PaymentDetails from "../checkout/PaymentDetails.vue";
 import Form from "../form/Form.vue";
 
 // --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "BasketDetails",
-  components: {
-    Session,
-    BasketSummary,
-    BillingDetails,
-    PaymentDetails,
-    Form,
-  },
-  props: {},
-  setup() {
-    const { t } = useI18n();
 
-    const { meta, summary } = useBasket();
-    const billingDetails = useBasketBillingDetails();
-    const fields = useBasketFields();
+const { t } = useI18n();
 
-    const styles = useStyles(["basket.details"], meta, config);
+const { meta, summary } = useBasket();
+const {
+  model: billingDetails,
+  update: billingDetailsUpdate,
+  meta: billingDetailsMeta,
+} = useBasketBillingDetails();
 
-    // ---
+const {
+  model: fields,
+  meta: fieldsMeta,
+  schema: fieldsSchema,
+  uischema: fieldsUischema,
+  errors: fieldsErrors,
+  update: fieldsUpdate,
+  clear: fieldsClear,
+} = useBasketFields();
 
-    return {
-      t,
-      meta,
-      billingDetailsModel: billingDetails.model,
-      billingDetailsUpdate: billingDetails.update,
-      billingDetailsMeta: billingDetails.meta,
-      // ---
-      fieldsMeta: fields.meta,
-      fieldsModel: fields.model,
-      fieldsSchema: fields.schema,
-      fieldsUischema: fields.uischema,
-      fieldsErrors: fields.errors,
-      fieldsUpdate: fields.update,
-      fieldsClear: fields.clear,
-      // ---
-      summary,
-      // ---
-      styles,
-      cn,
+const styles = useStyles(["basket.details"], meta, config) as ComputedRef<{
+  basket: {
+    details: {
+      root: string;
+      header: string;
+      content: string;
+      footer: string;
+      text: string;
+      title: string;
     };
-  },
-});
+  };
+}>;
 </script>
-.

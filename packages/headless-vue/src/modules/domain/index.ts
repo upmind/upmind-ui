@@ -16,9 +16,6 @@ import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useDomain = (
   {
     model,

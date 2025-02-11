@@ -3,8 +3,7 @@ import type { ActorRef } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 export enum messageDisplays {
-  // @ts-ignore
-  SILENT = null,
+  SILENT = "",
   TOAST = "toast",
   NOTIFICATION = "notification",
   SNACKBAR = "snackbar",

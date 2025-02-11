@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
@@ -9,7 +10,7 @@ import services from "./services";
 // --------------------------------------------------------
 export default createMachine(
   {
-    // tsTypes: {} as import("./recaptcha.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./recaptcha.machine.typegen").Typegen0,
     id: "recaptchaTokenManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -46,19 +47,16 @@ export default createMachine(
   {
     actions: {
       setGrecaptcha: assign({
-        // @ts-ignore
-        grecaptcha: (_context, { data }) => data,
+        grecaptcha: (_context, { data }: AnyEventObject) => data,
       }),
 
       setError: assign({
-        // @ts-ignore
-        error: (_context, { data }) => data,
+        error: (_context, { data }: AnyEventObject) => data,
       }),
 
-      // @ts-ignore
       clearError: assign({ error: null }),
     },
-    // @ts-ignore
+
     services,
     guards: {},
     delays: {},

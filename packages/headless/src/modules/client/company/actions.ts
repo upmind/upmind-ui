@@ -32,7 +32,6 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
-    // @ts-ignore
     title: ({ model }: CompanyContext) => model?.name,
     description: ({ model, addresses }: CompanyContext) => {
       let address = null;

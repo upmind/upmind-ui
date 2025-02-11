@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { computed, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -56,8 +56,11 @@ import { SkeletonList, CheckboxCards } from "@upmind-automation/upmind-ui";
 import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
-import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { IDomain } from "./types";
+import type {
+  ButtonProps,
+  CheckboxCardsItemProps,
+} from "@upmind-automation/upmind-ui";
+import type { Domain } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["update:modelValue", "update:selected"]);
@@ -65,11 +68,11 @@ const emit = defineEmits(["update:modelValue", "update:selected"]);
 const props = withDefaults(
   defineProps<{
     i18n?: string;
-    modelValue?: string | string[];
-    items: Record<string, any>[];
+    modelValue?: Domain;
+    items: Domain[];
     offset?: number;
     // ---
-    color?: string;
+    color?: ButtonProps["color"];
     // ---
     loading?: boolean;
     processing?: boolean;
@@ -84,7 +87,7 @@ const props = withDefaults(
   }
 );
 
-const { t, tm } = useI18n();
+const { t } = useI18n();
 
 const meta = computed(() => ({
   isOpen: props.modelValue || !props.items?.length,
@@ -95,7 +98,15 @@ const meta = computed(() => ({
   isProcessing: props.processing,
 }));
 
-const styles = useStyles(["domain.listings"], meta, config);
+const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
+  domain: {
+    listings: {
+      root: string;
+      items: string;
+      loading: string;
+    };
+  };
+}>;
 
 const safeValue = computed(() => {
   return isNil(props.modelValue)
@@ -105,27 +116,19 @@ const safeValue = computed(() => {
       : [props.modelValue];
 });
 
-function getDomain(value: string): IDomain {
-  const domain = find(props.items, ["value", value]) as IDomain;
+function getDomain(value: string): Domain {
+  const domain = find(props.items, ["value", value]) as Domain;
   return domain;
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
-  return map(props.items, domain => {
+  return map(props.items, item => {
     return {
-      id: domain.value,
-      value: domain.value,
-      label: domain?.domain,
+      id: item.value,
+      value: item.value,
+      label: item?.domain,
     };
   });
-});
-
-const translations = computed(() => {
-  return tm(props.i18nKey);
-});
-
-const title = computed(() => {
-  return get(translations, "title", "Select your domain");
 });
 
 function isSelected(value: string): boolean {

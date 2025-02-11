@@ -1,20 +1,21 @@
 // --- external
-import { createMachine, assign, AnyEventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- internal
 import services, { BrandConfigKeys, OrgFeatureKeys } from "./services";
-import type { BrandContext, BrandEvent } from "./types";
+import type { BrandContext } from "./types";
 
 // --- utils
 import { useBrandParser } from "./utils";
 import { useTime } from "../../utils";
-import { set, unset } from "lodash-es";
+import { set } from "lodash-es";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./brand.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
     initial: "processing",
@@ -84,7 +85,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "organisation", data);
                         return error;
@@ -114,7 +115,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "config", data);
                         return error;
@@ -146,7 +147,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "settings", data);
                         return error;
@@ -179,7 +180,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "modules", data);
                         return error;
@@ -214,11 +215,12 @@ export default createMachine(
   },
   {
     actions: {
-      setOrganisation: assign((_context: BrandContext, { data }: BrandEvent) =>
-        useBrandParser(data)
+      setOrganisation: assign(
+        (_context: BrandContext, { data }: AnyEventObject) =>
+          useBrandParser(data)
       ),
       // ---
-      setConfig: assign((_context: BrandContext, { data }: BrandEvent) =>
+      setConfig: assign((_context: BrandContext, { data }: AnyEventObject) =>
         useBrandParser(data)
       ),
 
@@ -230,13 +232,12 @@ export default createMachine(
       }),
 
       // ---
-      setSettings: assign((_context: BrandContext, { data }: BrandEvent) =>
+      setSettings: assign((_context: BrandContext, { data }: AnyEventObject) =>
         useBrandParser(data)
       ),
 
       setModules: assign({
-        // @ts-ignore
-        modules: (_context: BrandContext, { data }: BrandEvent) => data,
+        modules: (_context: BrandContext, { data }: AnyEventObject) => data,
       }),
 
       // ---
@@ -246,7 +247,6 @@ export default createMachine(
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
     services,
   }
 );

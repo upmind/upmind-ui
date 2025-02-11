@@ -30,6 +30,7 @@ export interface IAddressData {
 export interface AddressContext extends ClientItemContext {
   country?: ICountry;
   regions?: IRegion[];
+  addresses: any; // Cpmposable to the address context
   types?: typeof AddressTypes;
   baseModel?: IAddress;
 

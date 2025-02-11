@@ -12,11 +12,3 @@ export interface ClientContext {
   error?: any;
   transfer?: string | null;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface ClientEvents {
-  type: "CHECK" | "LOGOUT" | "TRANSFER";
-  payload?: any;
-}

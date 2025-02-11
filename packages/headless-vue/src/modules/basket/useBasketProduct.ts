@@ -70,7 +70,6 @@ export const useBasketProduct = (
 
   if (!rawBasket) {
     const error = new Error("No IBasket available");
-    // @ts-ignore
     error.code = responseCodes.Not_Found;
     throw error;
   }
@@ -215,7 +214,6 @@ export const useBasketProductConfig = (id: string) => {
 
   if (!rawBasket) {
     const error = new Error("No IBasket available");
-    // @ts-ignore
     error.code = responseCodes.Not_Found;
     throw error;
   }
