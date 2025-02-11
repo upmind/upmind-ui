@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { sendParent } = actions;
 
@@ -13,14 +14,14 @@ import { useSchema, useUischema } from "./utils";
 import { set } from "lodash-es";
 
 // --- types
-import type { BillingDetailsContext, BillingDetailsEvent } from "./types";
+import type { BillingDetailsContext } from "./types";
 import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./details.machine.typegen").Typegen0,
+    tsTypes: {} as import("./details.machine.typegen").Typegen0,
     id: "billingDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -143,7 +144,7 @@ export default createMachine(
 
           processed: {
             id: "processed",
-            entry: sendParent((_context, { data }: any) => ({
+            entry: sendParent((_context, { data }: AnyEventObject) => ({
               type: "REFRESH",
               data,
             })),
@@ -182,7 +183,7 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: BillingDetailsContext, { data }: any) => {
+        (_context: BillingDetailsContext, { data }: AnyEventObject) => {
           return {
             basketId: data?.id,
             clientId: data?.client_id,
@@ -191,11 +192,11 @@ export default createMachine(
       ),
 
       setParsed: assign({
-        model: (_context, { data }: any) => data.model,
+        model: (_context, { data }: AnyEventObject) => data.model,
       }),
 
       setLookups: assign({
-        addresses: (_context, { data }: any) => data.addresses,
+        addresses: (_context, { data }: AnyEventObject) => data.addresses,
       }),
 
       setSchemas: assign({
@@ -222,19 +223,17 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context: any, { update }: any) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
 
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      // @ts-ignore
-      setFeedbackSuccess: (_context: any, _event: any) => {
-        addSuccess("Successfully updated billing details");
-      },
+      // setFeedbackSuccess: (_context, _event: any) => {
+      //   addSuccess("Successfully updated billing details");
+      // },
 
       setFeedbackError: ({ error }, _event) => {
         // dont show any unauthorized errors
@@ -254,7 +253,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -273,7 +272,7 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
-      hasChanged: ({ clientId, basketId }, { data }: any) => {
+      hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {
         // NB data is raw basket data so use snake_case for comparison
         return basketId !== data?.id || clientId !== data?.client_id;
       },
@@ -283,12 +282,10 @@ export default createMachine(
     },
 
     delays: {
-      // @ts-ignore
-      error: () => useTime().ERROR,
+      // error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

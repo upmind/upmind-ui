@@ -26,8 +26,8 @@ export enum TwofaProviders {
 // Contexts
 
 export interface SessionContext {
-  // TODO:
-  // error?: RequestError | null;
+  history?: string[];
+
   error?: any | null;
 }
 
@@ -47,11 +47,3 @@ export interface Token {
 }
 
 export interface User {}
-
-// --------------------------------------------------------
-// Events
-
-export interface SessionEvents {
-  type: "CHECK" | "REFRESH";
-  payload?: any;
-}

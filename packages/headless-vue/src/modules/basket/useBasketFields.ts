@@ -66,7 +66,6 @@ export const useBasketFields = (service?: ActorRef<any, any>) => {
     // ---
     clear: () => customFields.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
-      // @ts-ignore
       customFields.value?.send({ type: "SET", data: model }),
 
     // debounce as we tend  to update on input as opposed to submitting
@@ -80,7 +79,7 @@ export const useBasketFields = (service?: ActorRef<any, any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
-        // @ts-ignore
+
         customFields.value?.send({ type: "SET", data: model, update: true });
       }
     }, 500),

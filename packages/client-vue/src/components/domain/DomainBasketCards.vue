@@ -22,7 +22,10 @@ import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  type RadioCardsItemProps,
+} from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
@@ -31,10 +34,14 @@ import { RadioCards } from "@upmind-automation/upmind-ui";
 // --- utils
 
 // --- types
+import { type ComputedRef } from "vue";
+import { map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
 
 const props = withDefaults(
   defineProps<{
@@ -63,5 +70,23 @@ const meta = computed(() => ({
   isProcessing: props.processing,
 }));
 
-const styles = useStyles(["domain.listings"], meta, config);
+const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
+  domain: {
+    listings: {
+      root: string;
+      items: string;
+    };
+  };
+}>;
+
+const items = computed((): RadioCardsItemProps[] => {
+  debugger;
+  return map(props.items, (item, index) => ({
+    item,
+    index,
+    modelValue: modelValue.value,
+    value: item,
+    label: item,
+  }));
+});
 </script>

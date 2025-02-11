@@ -43,7 +43,6 @@ export function compactDeep(value?: any): any {
         if (!isNil(cleanedValue)) {
           // Check if the object itself is empty, even if it has properties
           if (!isEmpty(cleanedValue) || !isObjectLike(cleanedValue)) {
-            // @ts-ignore
             acc[key] = cleanedValue;
           }
         }

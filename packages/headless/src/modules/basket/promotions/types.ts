@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 // import type { RequestError } from "../..//api/types";
-import { IBasketPromotion } from "@upmind-automation/types";
+import type { IBasketPromotion } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -27,16 +27,5 @@ export interface PromotionsContext {
   // ---
   dirty?: Boolean;
   autoupdate?: Boolean;
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface PromotionsEvent {
-  type: "ADD" | "REMOVE" | "CLEAR" | "SET" | "RETRY";
-  data?: IPromotion;
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }

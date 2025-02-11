@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
@@ -12,13 +13,13 @@ import { useTime } from "../../../utils";
 import { dumpTokenFromStorage } from "../utils";
 
 // --- types
-import { responseCodes } from "../../api/types";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./client.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./client.machine.typegen").Typegen0,
     id: "sessionClient",
     predictableActionArguments: true,
     initial: "loading",
@@ -105,13 +106,14 @@ export default createMachine(
         return {};
       }),
       // ---
-      setUser: assign({ user: (_context, { data }) => data }),
-      // @ts-ignore
-      setTransfer: assign({ transfer: (_context, { data }) => data }),
+      setUser: assign({ user: (_context, { data }: AnyEventObject) => data }),
+      setTransfer: assign({
+        transfer: (_context, { data }: AnyEventObject) => data,
+      }),
       clearTransfer: assign({ transfer: null }),
       // ---
       setError: assign({
-        error: (context, { data }) => data,
+        error: (context, { data }: AnyEventObject) => data,
       }),
 
       setFeedbackError: ({ error }, _event) => {
@@ -132,11 +134,9 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
-      // @ts-ignore
       wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5,
     },
-    // @ts-ignore
     services,
   }
 );

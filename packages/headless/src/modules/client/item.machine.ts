@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendParent, pure } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import { useFeedback } from "../feedback";
@@ -19,7 +19,7 @@ import { responseCodes } from "../api";
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./item.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./item.machine.typegen").Typegen0,
     id: "clientItemManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -118,10 +118,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully added ${context.title}`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -137,10 +136,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully updated ${context.title}`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -156,10 +154,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "clearModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully deleted ${context.title}`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -175,10 +172,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully set ${context.title} as default`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -239,7 +235,6 @@ export default createMachine(
   },
   {
     actions: {
-      // @ts-ignore
       setContext: assign(
         (_context: ClientItemContext, { data }: AnyEventObject) => data
       ),
@@ -291,20 +286,16 @@ export default createMachine(
       },
     },
     guards: {
-      // @ts-ignore
       isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>
         !model?.id,
 
-      // @ts-ignore
       isNotDefault: ({ model }: ClientItemContext, _event: AnyEventObject) =>
         !!model?.id && !model?.default,
 
-      // @ts-ignore
       canRemove: ({ model }: ClientItemContext, _event: AnyEventObject) =>
         !!model?.id && !!model?.canDelete,
     },
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },

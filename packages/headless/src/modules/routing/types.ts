@@ -81,6 +81,3 @@ export interface RoutingEngineContext {
   basketId?: string;
   basketHelper?: ActorRef<any>;
 }
-
-// --------------------------------------------------------
-// Events

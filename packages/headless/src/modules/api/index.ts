@@ -10,7 +10,7 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types";
 
 import { useSession } from "../session";
-export { responseCodes } from "./types";
+export { responseCodes } from "../../utils";
 
 // --- utils
 import { useUrl } from "../../utils";
@@ -21,15 +21,12 @@ import { set, get, unset, keys, isString } from "lodash-es";
 // create a global instance of the requests machine
 // and a global object to store state
 
-let state: any = null;
-const service = interpret(requestsMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service: any = interpret(requestsMachine, {
+  devTools: false,
+});
+
 // --------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useApi = () => {
   // --------------------------------------------------------
   // methods
@@ -76,6 +73,7 @@ export const useApi = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
+    const state = service.getSnapshot();
     const queue = keys(state?.context?.requests);
     const hash = generateHash(url, init, useCache, queue);
 
@@ -265,7 +263,7 @@ export const useApi = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
+    getSnapshot: service.getSnapshot,
     useUrl,
     generateHash,
     useTime,

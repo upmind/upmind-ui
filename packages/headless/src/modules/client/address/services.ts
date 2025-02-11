@@ -168,7 +168,6 @@ async function setDefault({ model }: AddressContext) {
 }
 // -----------------------------------------------------------------------------
 
-// @ts-ignore
 async function loadLookups({ model }: AddressContext) {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -280,7 +279,7 @@ async function parse(
   return Promise.resolve({ model, regions, country });
 }
 
-async function validate({ schema, model }: AddressContext) {
+async function validate({ schema, model }: Partial<AddressContext>) {
   // ---
 
   // Now validate the model as per normal

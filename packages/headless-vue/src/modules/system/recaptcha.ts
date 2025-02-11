@@ -15,9 +15,6 @@ import { isEmpty } from "lodash-es";
 // a composable that provides a simple interface to the recaptchas machine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useRecaptcha = () => {
   const { service, destroy, generate, clear } = useSystemRecaptcha();
   const { state } = useActor(service);
@@ -42,7 +39,6 @@ export const useRecaptcha = () => {
       isLoading: state.value.matches("loading"),
       isAvailable: state.value.matches("available"),
       isProcessing: ["checking", "processing"].some(state.value.matches),
-      // @ts-ignore
       hasErrors: state.value.matches("error"),
       hasToken:
         state.value.matches("complete") && !isEmpty(state.value.context?.token),

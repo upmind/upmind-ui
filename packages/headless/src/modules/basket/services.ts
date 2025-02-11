@@ -13,34 +13,23 @@ import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
 
 // --- types
-import type { IBasket } from "@upmind-automation/types";
-import type { BasketContext, BasketEvent } from "./types";
+import type {
+  IBasket,
+  InvoiceStatus,
+  SemanticTypes,
+} from "@upmind-automation/types";
+import type { BasketContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // ENUMS
-
-export enum SemanticTypes {
-  DOMAIN_NAMES = "domain_name",
-}
-
-export enum InvoiceStatus {
-  ADJUSTED = "invoice_adjusted",
-  CANCELLED = "invoice_cancelled",
-  DRAFT = "invoice_draft",
-  OVERDUE = "invoice_overdue",
-  PAID = "invoice_paid",
-  REFUNDED = "invoice_refunded",
-  REPLACED = "invoice_replaced", // Only on imported invoices
-  UNPAID = "invoice_unpaid",
-  CANCELLATION_REQUEST = "invoice_cancellation_request",
-}
 
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
-async function load({ controller }: BasketContext, _event: BasketEvent) {
+async function load({ controller }: BasketContext, _event: AnyEventObject) {
   const { get, patch, useUrl } = useApi();
 
   // check if we are logged in as a client
@@ -111,7 +100,7 @@ async function load({ controller }: BasketContext, _event: BasketEvent) {
 // this generates an empty basket!
 async function generate(
   { basket, actors }: BasketContext,
-  _event: BasketEvent
+  _event: AnyEventObject
 ) {
   // safety check, if we have a basket, we dont need to generate one
   if (!isEmpty(basket)) return Promise.resolve(basket);
@@ -127,8 +116,7 @@ async function generate(
   // add currency if available
   const { validateCurrency } = useBrand();
   const currency = await validateCurrency(
-    // @ts-ignore
-    actors?.currency?.state?.context?.model
+    actors?.currency?.getSnapshot()?.context?.model
   );
 
   if (currency?.code) data.currency_code = currency.code;
@@ -147,7 +135,7 @@ async function generate(
   }).then(({ data }: any) => data);
 }
 
-async function convert({ basket }: BasketContext, { data }: BasketEvent) {
+async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
   const { patch, useUrl } = useApi();
   const { getCookie } = useCookies();
   const { getTracking } = useTracking();
@@ -179,7 +167,6 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   const { get, patch, useUrl } = useApi();
 
   // bail if we have no basket, or if we have a basket with products
-  // @ts-ignore
   if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
 
   const provisioningPromises: any[] = [];

@@ -15,9 +15,6 @@ import { map, reduce, isEmpty, sortBy } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useFeedback = (): any => {
   const { service, dismiss, add, addError, addSuccess, trackEvent } =
     useUpmindFeedback();
@@ -38,7 +35,6 @@ export const useFeedback = (): any => {
         state.value.context.messages,
         (result, item: any) => {
           if (item.state.context.display === "notification") {
-            // @ts-ignore
             result.push({
               id: item.id,
               ...useActor(item),
@@ -58,7 +54,6 @@ export const useFeedback = (): any => {
         state.value.context.messages,
         (result, item: any) => {
           if (item.state.context.display === "toast") {
-            // @ts-ignore
             result.push({
               id: item.id,
               ...useActor(item),
@@ -78,7 +73,6 @@ export const useFeedback = (): any => {
         state.value.context.messages,
         (result, item: any) => {
           if (item.state.context.type === "event") {
-            // @ts-ignore
             result.push({
               id: item.id,
               ...useActor(item),

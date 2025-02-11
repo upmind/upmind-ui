@@ -33,16 +33,3 @@ export interface CurrencyContext {
   // error?: RequestError;
   error?: any;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface CurrencyEvent {
-  type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  // TODO:
-  // data?: ICurrency;
-  data?: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}

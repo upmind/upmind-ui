@@ -43,7 +43,7 @@ export interface PaymentDetailsContext {
   clientId?: string;
   currency?: any; // ICurrency
   address?: any;
-
+  amount?: number;
   // ---
   gateways?: any[]; // IGateway[];
   payment_types?: PaymentTypes;
@@ -67,20 +67,5 @@ export interface PaymentDetailsContext {
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface PaymentDetailsEvent {
-  type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: IPaymentDetail;
-  error?: any;
-}
-
-export interface RefreshEvent {
-  type: "REFRESH";
-  data?: IBasket;
   error?: any;
 }

@@ -16,14 +16,3 @@ export interface BrandContext {
   modules?: Record<string, any>;
   error?: any;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface BrandEvent {
-  type: string;
-  data: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}

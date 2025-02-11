@@ -30,9 +30,6 @@ import { some, filter, isEmpty } from "lodash-es";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useBasket = (): any => {
   const { checkIncludesTax } = useBrand();
   const {

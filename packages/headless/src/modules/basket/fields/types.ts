@@ -29,12 +29,3 @@ export interface FieldsContext {
   dirty?: boolean;
   error?: any;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface FieldsEvent {
-  type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: IField;
-  error?: any;
-}

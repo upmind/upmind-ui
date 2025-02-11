@@ -123,7 +123,6 @@ export const useUischema = () => {
           },
         ],
       },
-      // @ts-ignore
       ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
     ],
   };

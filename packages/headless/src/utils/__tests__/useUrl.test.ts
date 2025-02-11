@@ -46,7 +46,7 @@ describe("useUrl.ts", () => {
     beforeEach(() => {
       location = window.location;
       // TODO:
-      // @ts-ignore
+
       delete window.location;
 
       window.location = {
@@ -81,7 +81,7 @@ describe("useUrl.ts", () => {
       it("should sync parameter to URL", () => {
         syncParamToUrl("foo", "bar");
         expect(window.history.replaceState).toHaveBeenCalled();
-        // @ts-ignore
+
         const url = new URL(window.history.replaceState.mock.calls[0][2]);
         expect(url.searchParams.get("foo")).toBe("bar");
       });
@@ -90,18 +90,17 @@ describe("useUrl.ts", () => {
         window.location.search = "?foo=bar";
         syncParamToUrl("foo");
         expect(window.history.replaceState).toHaveBeenCalled();
-        // @ts-ignore
+
         const url = new URL(window.history.replaceState.mock.calls[0][2]);
         expect(url.searchParams.get("foo")).toBeNull();
       });
 
       it("should handle null parameters and empty strings correctly", () => {
-        // @ts-ignore
         expect(getParamFromUrl(null)).toBeNull();
         expect(getParamFromUrl("")).toBeNull();
         syncParamToUrl("");
         expect(window.history.replaceState).toHaveBeenCalled();
-        // @ts-ignore
+
         const url = new URL(window.history.replaceState.mock.calls[0][2]);
         expect(url.searchParams.toString()).toBe("");
       });

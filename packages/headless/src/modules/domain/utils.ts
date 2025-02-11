@@ -17,7 +17,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { DomainProduct, IDomain } from "./types";
+import type { DomainProduct, Domain } from "./types";
 import type { BasketProduct } from "../basket";
 // ----------------------------------------------------------------------------
 
@@ -60,12 +60,11 @@ export function parseAvailable(sld: string, results = [] as DomainProduct[]) {
 
 export function parseValue(
   raw: any,
-  values: (IDomain | DomainProduct)[] = [],
+  values: (Domain | DomainProduct)[] = [],
   available: any[] = []
 ) {
   // parse the domain name provided
-  // @ts-ignore
-  const value = (isObject(raw) ? raw?.domain : raw)?.toLowerCase();
+  const value = (isObject(raw) ? get(raw, "domain") : raw)?.toLowerCase();
 
   // check if we already have the domain
   let domain: any = find(values, ["domain", value]);

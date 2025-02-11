@@ -11,7 +11,8 @@ import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
 
 // --- types
-import type { StripeEvent, StripeContext } from "./types";
+import type { StripeContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -58,10 +59,9 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
-async function load({ gateway }: StripeContext, _event: StripeEvent) {
+async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   const options = await sharedServices.load({ gateway }, _event);
 
-  // @ts-ignore
   const key = getPublicKey(gateway);
   if (!key) return Promise.reject("Stripe public key not found.");
 
@@ -78,9 +78,8 @@ async function load({ gateway }: StripeContext, _event: StripeEvent) {
 // --------------------------------------------------------
 
 async function validate(
-  // @ts-ignore
   { schema, model, element, elementStatus }: StripeContext,
-  { data }: StripeEvent
+  { data }: AnyEventObject
 ) {
   // ---
 
@@ -96,7 +95,6 @@ async function validate(
     // NB: we are invalid if the stripe element status is NOT complete!
     if (!elementStatus?.complete) {
       errors.push({
-        // @ts-ignore
         title: "Stripe element is incomplete.",
         data,
       });
@@ -115,7 +113,7 @@ async function validate(
 
 async function createPaymentElement(
   { amount, currency, gateway, stripe, address }: StripeContext,
-  _event: StripeEvent
+  _event: AnyEventObject
 ) {
   // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
   const elements = stripe.elements({
@@ -124,7 +122,6 @@ async function createPaymentElement(
     locale: "auto", // TODO: add i18n local
     mode: "payment",
     paymentMethodCreation: "manual",
-    // @ts-ignore
     paymentMethodTypes: getSupportedPaymentMethods(gateway),
     setupFutureUsage: "off_session",
   });
@@ -204,15 +201,14 @@ async function update({ elements, stripe, model }: StripeContext) {
  */
 async function createAddElement(
   { stripe, gateway, address }: StripeContext,
-  _event: StripeEvent
+  _event: AnyEventObject
 ) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
   const client_id = await getUserId();
 
   return post({
-    // @ts-ignore
-    url: useUrl(`gateway/frontend/tokenize-begin/${gateway.id}`),
+    url: useUrl(`gateway/frontend/tokenize-begin/${gateway?.id}`),
     withAccessToken: true,
     data: {
       client_id,

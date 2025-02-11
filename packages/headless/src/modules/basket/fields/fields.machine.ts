@@ -1,5 +1,6 @@
 // --- external
-import { createMachine, assign, AnyEventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
+import { createMachine, assign } from "xstate";
 // const { sendParent } = actions; DEPRECATED
 
 // --- internal
@@ -13,15 +14,14 @@ import { useSchema, useUischema } from "./utils";
 import { parseBasketFieldsModel } from "../utils";
 
 // --- types
-import type { FieldsContext, FieldsEvent } from "./types";
+import type { FieldsContext } from "./types";
 import { responseCodes } from "../../api";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // @ts-ignore
-    // tsTypes: {} as import("./fields.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./fields.machine.typegen").Typegen0,
     id: "basketFieldsManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -171,19 +171,16 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: FieldsContext, { data }: FieldsEvent) => {
+        (_context: FieldsContext, { data }: AnyEventObject) => {
           return {
-            // @ts-ignore
             basketId: data?.id,
             model: parseBasketFieldsModel(data),
           };
         }
       ),
 
-      // @ts-ignore
       setContext: assign(
-        // @ts-ignore
-        (_context: FieldsContext, { data }: FieldsEvent) => data
+        (_context: FieldsContext, { data }: AnyEventObject) => data
       ),
 
       setSchemas: assign({
@@ -197,7 +194,7 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
+        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) =>
           useModelParser(schema, data || model),
       }),
 
@@ -214,20 +211,18 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        // @ts-ignore
-        autoupdate: (_context, { update }) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      setFeedbackSuccess: (_context: any, _event: any) => {
-        addSuccess("Successfully updated the basket fields");
-      },
+      // setFeedbackSuccess: (_context: any, _event: any) => {
+      //   addSuccess("Successfully updated the basket fields");
+      // },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: FieldsContext, _event) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
 
         addError({
@@ -258,7 +253,6 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }: FieldsContext) => !!dirty,
       hasBasket: ({ basketId }: FieldsContext) => !!basketId,
-      // @ts-ignore
       hasChanged: (
         { model, basketId }: FieldsContext,
         { data }: AnyEventObject
@@ -272,12 +266,10 @@ export default createMachine(
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

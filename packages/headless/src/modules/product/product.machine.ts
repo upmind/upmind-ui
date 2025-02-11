@@ -51,7 +51,7 @@ import type { ProductConfigContext, ProductModel } from "./types";
 // as this is a sub machine, we need to be initialised with a product
 export default createMachine(
   {
-    // tsTypes: {} as import("./product.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./product.machine.typegen").Typegen0,
     id: "productConfigurator",
     predictableActionArguments: true,
     initial: "subscribing",

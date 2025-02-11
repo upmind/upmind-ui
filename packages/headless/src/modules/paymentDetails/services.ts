@@ -21,8 +21,9 @@ import {
 // --- types
 import { GatewayTypes } from "./gateways/types";
 import { PaymentTypes } from "./types";
-import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types";
+import type { PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // ENUMS
@@ -35,7 +36,7 @@ const whitelistGatewayProviders =
 // Invoked by machines, providing context and event data
 async function load(
   { currency, address }: PaymentDetailsContext,
-  _event: PaymentDetailsEvent
+  _event: AnyEventObject
 ) {
   const { isAuthenticated, getUserId } = useSession();
 
@@ -145,7 +146,7 @@ async function load(
 
 async function parse(
   { model, gateways }: PaymentDetailsContext,
-  { data }: PaymentDetailsEvent
+  { data }: AnyEventObject
 ) {
   // ---
   let gateway = null;
@@ -189,7 +190,7 @@ async function parse(
 
 async function validate(
   { schema, model, actors }: PaymentDetailsContext,
-  _event: PaymentDetailsEvent
+  _event: AnyEventObject
 ) {
   // ---
 
@@ -201,13 +202,13 @@ async function validate(
 
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed
-  const promises = map(actors, actor =>
-    waitFor(
-      // @ts-ignore
+  const promises = map(actors, actor => {
+    if (!actor) return;
+    return waitFor(
       actor,
       state => !["loading", "checking", "error"].some(state.matches)
-    )
-  );
+    );
+  });
 
   await Promise.all(promises)
     .then(responses => {

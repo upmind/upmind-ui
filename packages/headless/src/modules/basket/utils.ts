@@ -35,12 +35,8 @@ import {
 } from "lodash-es";
 
 // --- types
-import {
-  IBasket,
-  TaxTagTypes,
-  ProductOrderTypes,
-} from "@upmind-automation/types";
-// @ts-ignore
+import type { IBasket } from "@upmind-automation/types";
+import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
 import type {
   BasketProduct,
   BasketProductSummaryDetail,
@@ -125,7 +121,6 @@ export function spawnCustomFields(basket?: IBasket) {
 
 export function spawnPaymentDetails(basket?: IBasket) {
   return spawn(
-    // @ts-ignore
     paymentDetailsMachine.withContext({
       basketId: basket?.id,
       currency: basket?.currency,

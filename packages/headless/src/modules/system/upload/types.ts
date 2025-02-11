@@ -68,13 +68,3 @@ export interface UploadContext {
   // error?: RequestError;
   error?: any;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface UploadEvent {
-  type: string;
-  data: any;
-  // error?: RequestError;
-  error?: any;
-}

@@ -116,14 +116,3 @@ export interface SystemContext {
   // error?: RequestError;
   error?: any;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface SystemEvent {
-  type: string;
-  data: any;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}

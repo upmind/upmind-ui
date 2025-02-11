@@ -61,7 +61,6 @@ export const useClientAddress = (
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
         waitFor(service, newState =>
-          // @ts-ignore
           newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
@@ -122,7 +121,6 @@ export const useClientAddresses = (): ClientListingDefinition => {
     // ---
     items,
     selected,
-    // @ts-ignore
     initial: computed(() => state.value.context?.initial),
 
     // ---

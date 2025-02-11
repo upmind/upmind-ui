@@ -3,6 +3,7 @@ import { interpret } from "xstate";
 
 // --- internal
 import domainMachine from "./domain.machine";
+import type { DomainContext } from "./types";
 import { DomainTypes } from "./types";
 export * from "./types";
 // --- utils
@@ -33,8 +34,7 @@ export const useDomain = (
   // create a new instance of the  domain machine
 
   // safetycheck to ensure forcedType is valid
-  // @ts-ignore
-  const safeType = has(DomainTypes, type) ? type : null;
+  const safeType = type && has(DomainTypes, type) ? type : null;
   const safeModel = map(isArray(model) ? model : [model], parseDomain);
 
   // ---
@@ -45,8 +45,7 @@ export const useDomain = (
     model: safeModel,
   };
 
-  // @ts-ignore
-  const service = interpret(domainMachine.withContext(context), {
+  const service = interpret(domainMachine.withContext(context as any), {
     devTools: true,
   }).start();
 
@@ -55,7 +54,7 @@ export const useDomain = (
   // and get the currency and promotions to update our domain prices
   const { service: basket } = useBasket();
 
-  basket.onTransition(state => {
+  basket.onTransition((state: any) => {
     if (state.matches("shopping.refreshing.processed")) {
       // ---
       const currencyActor: any = state.context?.actors?.currency;

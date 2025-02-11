@@ -13,7 +13,7 @@ import { useTime } from "../../utils";
 // instead of using an event
 export default createMachine(
   {
-    // tsTypes: {} as import("./message.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./message.machine.typegen").Typegen0,
     id: "message",
     predictableActionArguments: true,
     initial: "pending",

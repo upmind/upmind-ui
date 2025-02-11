@@ -209,7 +209,6 @@ async function checkAttributes(
 ) {
   const value = model?.attributes;
   return checkSubproducts(
-    // @ts-ignore
     { error, lookups, model },
     { data: value, type: "attributes", subproductIds: model?.subproducts }
   );
@@ -221,7 +220,6 @@ async function checkOptions(
 ) {
   const value = model?.options;
   return checkSubproducts(
-    // @ts-ignore
     { error, lookups, model },
     { data: value, type: "options", subproductIds: model?.subproducts }
   );

@@ -15,7 +15,7 @@ import type { AnyEventObject } from "xstate";
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./system.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./system.machine.typegen").Typegen0,
     id: "systemManager",
     predictableActionArguments: true,
     initial: "processing",
@@ -539,7 +539,6 @@ export default createMachine(
       // ---
     },
     guards: {
-      // @ts-ignore
       allRegionsLoaded: (
         { countries, regions }: SystemContext,
         _event: AnyEventObject
@@ -552,11 +551,9 @@ export default createMachine(
       },
     },
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
     services,
   }
 );

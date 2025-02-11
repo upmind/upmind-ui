@@ -14,7 +14,7 @@ import type { ClientListingsContext } from "./types";
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./listings.machine.typegen").Typegen0,`
+    //tsTypes: {} as import("./listings.machine.typegen").Typegen0,
     id: "clientListingsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -192,12 +192,11 @@ export default createMachine(
       }),
 
       setFiltered: assign({
-        // @ts-ignore
-        items: (_context, { data }) => data,
+        items: (_context, { data }: AnyEventObject) => data,
       }),
 
       setFilters: assign({
-        filters: (_context, { data }: any) => data,
+        filters: (_context, { data }: AnyEventObject) => data,
       }),
       // --------------------------------------------
 
@@ -214,7 +213,6 @@ export default createMachine(
         filters: undefined,
       }),
 
-      // @ts-ignore
       setInitial: assign({
         initial: (
           { raw, initial }: ClientListingsContext,
@@ -224,7 +222,6 @@ export default createMachine(
           // otherwise use our existing initial value or the default
           return initial || find(raw, "state.context.model.default")?.id;
         },
-        // @ts-ignore
         selected: (
           { raw, initial }: ClientListingsContext,
           _event: AnyEventObject
@@ -237,7 +234,6 @@ export default createMachine(
         },
       }),
 
-      // @ts-ignore
       setSelected: assign({
         initial: ({ selected, initial }: ClientListingsContext) =>
           selected?.id || initial,
@@ -253,7 +249,6 @@ export default createMachine(
       }),
 
       clearSelected: assign({
-        // @ts-ignore
         initial: undefined,
         filters: undefined,
         items: ({ raw }, _event) => raw,
@@ -268,7 +263,6 @@ export default createMachine(
         },
       }),
 
-      // @ts-ignore
       clearError: assign({ error: null }),
     },
     guards: {

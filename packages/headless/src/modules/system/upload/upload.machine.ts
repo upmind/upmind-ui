@@ -3,7 +3,6 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-// @ts-ignore
 import type { UploadContext, UploadEvent } from "../types";
 
 // --- utils
@@ -18,8 +17,8 @@ const base = import.meta.env.VITE_API_URL;
 
 export default createMachine(
   {
-    // @ts-ignore
-    // tsTypes: {} as import("./upload.machine.typegen").Typegen0,
+    // @
+    //tsTypes: {} as import("./upload.machine.typegen").Typegen0,
     id: "uploadManager",
     predictableActionArguments: true,
     initial: "idle",
@@ -172,9 +171,9 @@ export default createMachine(
       // ---
       setError: assign({
         error: (_context, { data }: any) => {
-          // @ts-ignore
+          // @
           let error = data?.error;
-          // @ts-ignore
+          // @
           if (errore.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
@@ -189,11 +188,11 @@ export default createMachine(
     },
     guards: {},
     delays: {
-      // @ts-ignore
+      // @
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
+    // @
     services,
   }
 );

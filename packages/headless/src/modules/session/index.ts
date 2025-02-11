@@ -17,7 +17,6 @@ import { get } from "lodash-es";
 
 let hasSession = false;
 
-// @ts-ignore
 const service = interpret(sessionMachine, { devTools: false });
 
 // --------------------------------------------------------
@@ -79,9 +78,6 @@ const authCallback = (callback: any) => {
 // --------------------------------------------------------
 // Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
-/**
- * @ignore
- */
 export const authSubscription = async (callback: any, onReceive: any) => {
   // firstly, send service's current state upon subscription
 
@@ -101,8 +97,8 @@ export const authSubscription = async (callback: any, onReceive: any) => {
 
     // watch for our child machines to transition to a non-loading state
     // and then send the callback to the subscriber
-    // @ts-ignore
-    currentMachine?.onTransition(() => {
+    currentMachine.getSnapshot().onTransition(() => {
+      debugger;
       authCallback(callback);
     });
 
@@ -223,18 +219,6 @@ export const useSession = () => {
     ).then(newState => newState.context.transfer);
   }
 
-  // function reset() {
-  //   // TODO: remove/delete any session/local storage data
-
-  //   // @ts-ignore
-  //   const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
-  //   // on session end first try to redirect to the storefront, otherwise just reload the app
-  //   if (storefrontUrl) {
-  //     window?.location?.replace(storefrontUrl);
-  //   } else {
-  //     window.location.reload();
-  //   }
-  // }
   // --------------------------------------------------------
 
   return {
@@ -242,7 +226,6 @@ export const useSession = () => {
     // ---
     getSnapshot: () => service.getSnapshot(),
     getToken: () => getTokenfromStorage()?.access_token,
-    // @ts-ignore
     getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,

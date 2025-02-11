@@ -32,7 +32,6 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
-    // @ts-ignore
     title: ({ model }: AddressContext) => model?.name || "New Address",
     description: (
       // TODO: { model, countries, regions }: AddressContext,

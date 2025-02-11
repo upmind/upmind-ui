@@ -27,7 +27,6 @@ import {
 
 // --- types
 import { AddressTypes } from "../address/types";
-import type { IAddressData } from "../address/types";
 import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
@@ -86,10 +85,8 @@ async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
 }
 
 async function filterItems(
-  // TODO: { raw }: ClientListingsContext,
-  // TODO: { data }: AnyEventObject
-  { raw }: any,
-  { data }: any
+  { raw }: UnifiedAddressesContext,
+  { data }: AnyEventObject
 ) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
@@ -97,9 +94,12 @@ async function filterItems(
   const filteredItems = filter(
     raw,
     item =>
-      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
       includes(
-        item.state.context?.description?.toLowerCase(),
+        item.getSnapshot().context?.title?.toLowerCase(),
+        data?.toLowerCase()
+      ) ||
+      includes(
+        item.getSnapshot().context?.description?.toLowerCase(),
         data?.toLowerCase()
       )
   );
@@ -108,9 +108,8 @@ async function filterItems(
 }
 
 async function findItem(
-  // TODO: { raw }: ClientListingsContext,
-  { raw }: any,
-  { data }: { data: IAddressData }
+  { raw }: UnifiedAddressesContext,
+  { data }: AnyEventObject
 ) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
@@ -125,7 +124,7 @@ async function findItem(
 
   const found = find(raw, item =>
     isEqual(
-      pick(item.state.context.model, [
+      pick(item.getSnapshot().context.model, [
         "address1",
         "address2",
         "city",
@@ -146,8 +145,7 @@ async function findItem(
 // -----------------------------------------------------------------------------
 
 async function add(
-  // TODO: { model, addresses, phones, emails }: UnifiedAddressContext,
-  { model, addresses, phones, emails }: any,
+  { model, addresses, phones, emails }: UnifiedAddressContext,
   _event?: AnyEventObject
 ) {
   const { post, useUrl } = useApi();
@@ -180,7 +178,6 @@ async function add(
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // thhen create the address, email and phone as necessary and use the ids to create the company
-    // @ts-ignore
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
@@ -207,7 +204,7 @@ async function add(
 }
 
 async function update(
-  { model, addresses, phones, emails }: any,
+  { model, addresses, phones, emails }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
   const { post, put, useUrl } = useApi();
@@ -230,7 +227,6 @@ async function update(
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // thhen create the address, email and phone as necessary and use the ids to the company
-    // @ts-ignore
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
@@ -275,8 +271,7 @@ async function update(
 }
 
 async function remove(
-  // TODO: { model }: UnifiedAddressContext,
-  { model }: any,
+  { model }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
   const { del, useUrl } = useApi();
@@ -298,8 +293,7 @@ async function remove(
 }
 
 async function setDefault(
-  // TODO: { model }: UnifiedAddressContext,
-  { model }: any,
+  { model }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
   const { put, useUrl } = useApi();
@@ -320,8 +314,7 @@ async function ensureDependencies({
   addresses,
   emails,
   phones,
-  // TODO: }: UnifiedAddressContext) {
-}: any) {
+}: Partial<UnifiedAddressContext>): Promise<any> {
   const address = pick(model, [
     "address1",
     "address2",
@@ -430,8 +423,7 @@ async function loadLookups(
 }
 
 async function parse(
-  // TODO: { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
-  { addresses, schema, model, regions, country, places }: any,
+  { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
   event: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -499,7 +491,6 @@ async function parse(
     }
 
     // finally lets force a manual place if we are invalid:
-    // @ts-ignore
     const isValid = await validate({ schema, model }, event)
       .then(() => true)
       .catch(() => false);
@@ -536,7 +527,7 @@ async function parse(
 }
 
 async function validate(
-  { schema, model }: UnifiedAddressContext,
+  { schema, model }: Partial<UnifiedAddressContext>,
   _event: AnyEventObject
 ) {
   // ---

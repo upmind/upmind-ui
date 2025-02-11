@@ -31,7 +31,6 @@ export const ListingActions = {
 
 export const ItemActions = {
   setMeta: assign({
-    // @ts-ignore
     title: ({ model }: PhoneContext) => {
       const phone = get(model, "phone");
       if (isObject(phone)) return get(model, "phone.number");

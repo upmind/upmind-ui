@@ -10,9 +10,10 @@ import { computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./content.config";
+
 // --- types
-import type { HTMLAttributes } from "vue";
+import type { HTMLAttributes, ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
@@ -30,5 +31,7 @@ const meta = computed(() => ({
   isDisabled: props.disabled,
 }));
 
-const styles = useStyles(["card"], meta, config);
+const styles = useStyles(["card"], meta, config) as ComputedRef<{
+  card: string;
+}>;
 </script>

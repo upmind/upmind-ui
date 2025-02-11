@@ -76,7 +76,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, watch, onBeforeUnmount } from "vue";
+import { computed, watch, onBeforeUnmount, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -96,24 +96,28 @@ import {
 
 // --- utils
 import { map } from "lodash-es";
+import { DomainTypes } from "@upmind-automation/headless";
 
 // --- types
 
 // -----------------------------------------------------------------------------
-const emit = defineEmits(["update:modelValue"]);
+// const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string | string[]): void;
+}>();
 
 const props = withDefaults(
   defineProps<{
     sync?: boolean;
-    type?: "register" | "transfer" | "existing" | "basket";
-    modelValue?: string | string[];
+    type?: DomainTypes;
+    modelValue?: string;
     multiple?: boolean;
     parentId?: string;
     color?: ButtonProps["color"];
   }>(),
   {
     sync: true,
-    type: "register",
+    type: DomainTypes.register,
     modelValue: "",
     multiple: false,
     parentId: "",
@@ -153,7 +157,14 @@ const {
   parentId: props.parentId,
 });
 
-const styles = useStyles(["domain"], meta, config);
+const styles = useStyles(["domain"], meta, config) as ComputedRef<{
+  domain: {
+    root: string;
+    choices: string;
+    existing: string;
+    basket: string;
+  };
+}>;
 
 // ---
 

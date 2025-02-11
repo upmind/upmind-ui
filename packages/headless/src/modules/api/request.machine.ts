@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { sendParent, forwardTo } = actions;
 
@@ -7,12 +8,12 @@ import machineServices, { FetchMethods } from "./services";
 import { useTime } from "../../utils";
 
 // --utils
-import { toNumber, set, includes, isEmpty } from "lodash-es";
+import { toNumber, set, includes } from "lodash-es";
 import { getTokenfromStorage } from "../session/utils";
 // TODO: import { stateValuesEqual } from "xstate/lib/State";
 
 // ---types
-import { responseCodes } from "./types";
+import { responseCodes } from "../../utils";
 import type { RequestContext, RequestParams } from "./types";
 // --------------------------------------------------------
 
@@ -21,7 +22,7 @@ import type { RequestContext, RequestParams } from "./types";
 export default (request: RequestParams) =>
   createMachine(
     {
-      // tsTypes: {} as import("./request.machine.typegen").Typegen0,
+      tsTypes: {} as import("./request.machine.typegen").Typegen0,
       id: "request",
       predictableActionArguments: true,
       initial: "available",
@@ -100,19 +101,16 @@ export default (request: RequestParams) =>
           initial: "available",
           states: {
             available: {
-              after: [
+              always: [
                 {
-                  delay: 0,
                   target: "empty",
                   cond: "hasNoContent",
                 },
                 {
-                  delay: 0,
                   target: "cached",
                   cond: "isCachable",
                 },
                 {
-                  delay: "wait",
                   target: "#complete",
                 },
               ],
@@ -207,9 +205,8 @@ export default (request: RequestParams) =>
     {
       actions: {
         setResponse: assign({
-          // @ts-ignore
-          response: (context, { data }) => data,
-          // @ts-ignore
+          response: (context, { data }: AnyEventObject) => data,
+
           completed: () => Date.now(),
         }),
 
@@ -221,11 +218,10 @@ export default (request: RequestParams) =>
         })),
 
         setError: assign({
-          // @ts-ignore
-          error: (context, { data }) => data,
+          error: (context, { data }: AnyEventObject) => data,
         }),
 
-        // escalateError: escalate(_context, ({ data }) => data),
+        // escalateError: escalate(_context, ({ data }: AnyEventObject) => data),
 
         clearError: assign({ error: undefined }),
 
@@ -241,7 +237,7 @@ export default (request: RequestParams) =>
           },
         }),
       },
-      // @ts-ignore
+
       services: machineServices,
       guards: {
         hasRequest: ({ hash, url, init }) => !!hash && !!url && !!init,
@@ -262,25 +258,30 @@ export default (request: RequestParams) =>
           return value;
         },
         // ---
+
         isUnauthorized: ({ error }: RequestContext) =>
           error?.status === responseCodes.Unauthorized,
+
         isForbidden: ({ error }: RequestContext) =>
           error?.status === responseCodes.Forbidden,
+
         isNotFound: ({ error }: RequestContext) =>
           error?.status === responseCodes.Not_Found,
+
         hasConflict: ({ error }: RequestContext) =>
           error?.status === responseCodes.Conflict,
+
         hasTooManyRequests: ({ error }: RequestContext) =>
           error?.status === responseCodes.Too_Many_Requests,
+
         hasNoContent: ({ response }: RequestContext) =>
           response?.status === responseCodes.No_Content,
+
         isCachable: ({ init, useCache }: RequestContext) =>
           init?.method === FetchMethods.GET && !!useCache,
       },
       delays: {
-        // @ts-ignore
-        maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
-        error: () => useTime().ERROR,
+        maxAge: ({ maxAge }) => maxAge ?? useTime().MINUTE, // this allows us to override the max age in the context
         wait: () => useTime().WAIT,
       },
     }

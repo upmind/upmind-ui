@@ -23,7 +23,7 @@ import {
 import { responseCodes } from "../api";
 
 // --- types
-import type { ActorRef } from "xstate";
+import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
 import type { ProductModel } from "../product/types";
 import type { BasketProduct } from "./types";
 export * from "./types";
@@ -33,14 +33,14 @@ export * from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-// @ts-ignore
-const service = interpret(basketMachine, { devTools: true });
+const service: any = interpret(basketMachine, {
+  devTools: true,
+});
 
 // --------------------------------------------------------
 // methods
 // --------------------------------------------------------
 function exists(items: ActorRef<any, any>[] = [], mapping: any, context: any) {
-  // @ts-ignore
   context = context ? `${context}.` : "";
   return some(items, item =>
     every(mapping, (value, key) => {
@@ -65,9 +65,6 @@ async function sendToItem(itemId: any, type: any, data: any) {
   }
 }
 
-/**
- * @ignore
- */
 export const useBasket = () => {
   // --- meta functions
   async function isReady() {

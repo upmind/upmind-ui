@@ -15,10 +15,8 @@ import type { DomainContext } from "./types";
 function search({ promotions, currency, controller, search }: DomainContext) {
   const { get, useUrl } = useApi();
 
-  // @ts-ignore
   if (!search?.query?.length) return Promise.reject("No query provided");
 
-  // @ts-ignore
   const sld = parseSld(search.query);
 
   // --- Build the request, and Fetch the search results

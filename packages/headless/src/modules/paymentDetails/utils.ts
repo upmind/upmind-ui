@@ -13,11 +13,8 @@ import { omit, map } from "lodash-es";
 
 // --- types
 import { PaymentTypes } from "./types";
-import {
-  GatewayCtx,
-  GatewayTypes,
-  GatewayProviderCodes,
-} from "./gateways/types";
+import { GatewayCtx, GatewayTypes } from "./gateways/types";
+import { GatewayProviderCodes } from "@upmind-automation/types";
 
 import type { PaymentDetailsContext } from "./types";
 import type { UISchemaElement } from "@jsonforms/core";
@@ -174,7 +171,7 @@ export function spawnGateway({
     });
   }
   if (isStripe(gateway))
-    return spawnStripe({ basketId, gateway, amount, currency, address });
+    return spawnStripe({ basketId, gateway, amount, currency, address } as any);
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       basketId,
@@ -240,8 +237,7 @@ export function spawnStored({
   stored_payment_methods,
 }: any) {
   return spawn(
-    // @ts-ignore
-    gatewayMachine.withConfig(storedConfig).withContext({
+    gatewayMachine.withConfig(storedConfig as any).withContext({
       stored_payment_methods,
       basketId,
       amount,
@@ -254,8 +250,7 @@ export function spawnStored({
 
 export function spawnCard({ basketId, gateway, amount, currency }: any) {
   return spawn(
-    // @ts-ignore
-    gatewayMachine.withConfig(cardConfig).withContext({
+    gatewayMachine.withConfig(cardConfig as any).withContext({
       basketId,
       gateway,
       amount,
@@ -273,19 +268,18 @@ export function spawnStripe({
   amount,
   currency,
   address,
-}: any) {
+}: PaymentDetailsContext) {
   return spawn(
     stripeMachine.withContext({
       basketId,
       gateway,
-      // @ts-ignore
       ctx: GatewayCtx.PAY,
       amount,
       currency,
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider.code,
       address,
-    }),
+    } as any),
     { name: gateway.id, sync: true }
   );
 }

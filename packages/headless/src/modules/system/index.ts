@@ -24,7 +24,6 @@ import type { ICountry } from "./types";
 
 let state: any = null;
 
-// @ts-ignore
 const service = interpret(systemMachine, { devTools: false }).onTransition(
   newState => (state = newState)
 );

@@ -11,8 +11,8 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
-// @ts-ignore
-import type { IAddressData, IAddress } from "./types";
+import type { IAddressData } from "../address/types";
+import type { UnifiedAddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the system machine
@@ -21,19 +21,17 @@ import type { IAddressData, IAddress } from "./types";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 let state: any = null;
-
-// @ts-ignore
-const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => {
+const service = interpret(
+  listingsMachine.withConfig({ actions, services } as any),
+  {
+    devTools: false,
+  }
+).onTransition(newState => {
   state = newState;
 });
 
 // -----------------------------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useClientUnifiedAddresses = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
@@ -86,7 +84,8 @@ export const useClientUnifiedAddresses = () => {
         return state.context.items;
       });
     },
-    find: (data: IAddressData) => services.find(state.context, { data }),
-    add: (data: IAddress) => services.add(data),
+    find: (data: IAddressData) =>
+      services.find(state.context, { type: "FIND", data }),
+    add: (data: any) => services.add(data),
   };
 };

@@ -55,6 +55,7 @@ export interface Typegen0 {
       | "RETRY"
       | "done.invoke.request.authorizing:invocation[0]";
     sendClearRequest:
+      | ""
       | "CANCEL"
       | "xstate.after(wait)#request.processed.cancelled";
     setAuthHeader: "done.invoke.request.authorizing:invocation[0]";
@@ -64,14 +65,17 @@ export interface Typegen0 {
     setResponse: "done.invoke.process";
   };
   eventsCausingDelays: {
+    maxAge: "";
     wait: "" | "CANCELLED";
   };
   eventsCausingGuards: {
     canAuthorize: "error.platform.process";
     hasConflict: "";
+    hasNoContent: "";
     hasRequest: "";
     hasRetried: "";
     hasTooManyRequests: "";
+    isCachable: "";
     isForbidden: "";
     isNotFound: "";
     isUnauthorized: "";

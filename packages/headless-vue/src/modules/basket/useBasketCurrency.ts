@@ -65,7 +65,7 @@ export const useBasketCurrency = (actorRef?: ActorRef<any, any>) => {
     currencies: computed(() => contextValue(actor, "currencies")),
     // ---
     clear: () => actor.value?.send({ type: "CLEAR" }),
-    // @ts-ignore
+
     input: (model: any) => actor.value?.send({ type: "SET", data: model }),
 
     async update(model: any) {

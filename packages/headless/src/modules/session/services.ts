@@ -39,7 +39,7 @@ async function transfer(_context: SessionContext, _event: any) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   check,
   transfer,
 };

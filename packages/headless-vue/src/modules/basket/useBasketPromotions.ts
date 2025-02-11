@@ -68,7 +68,6 @@ export const useBasketPromotions = (actorRef?: ActorRef<any, any>) => {
     uischema: computed(() => contextValue(actor, "uischema")),
     promotions: computed(() => contextValue(actor, "promotions")), // ---
     clear: () => actor.value?.send({ type: "CLEAR" }),
-    // @ts-ignore
     input: model => actor.value?.send({ type: "SET", data: model }),
 
     async add(coupon?: string) {
