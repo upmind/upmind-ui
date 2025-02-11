@@ -31,7 +31,7 @@ import {
 
 // --- types
 import type { ProductConfigContext } from "./types";
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ENUMS
 
 export enum DefaultPaymentPeriod {
@@ -259,9 +259,17 @@ async function checkSubproducts(
       }
 
       // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
-      if (subproduct?.required && !subproduct.multiple && isEmpty(selected)) {
-        const pid = get(first(subproduct.values), "id");
-        if (pid) set(selected, pid, { productId: pid });
+
+      if (isEmpty(selected)) {
+        const defaultSubproduct = find(subproduct.values, "default");
+        if (defaultSubproduct) {
+          set(selected, defaultSubproduct.id, {
+            productId: defaultSubproduct.id,
+          });
+        } else if (subproduct?.required && !subproduct.multiple) {
+          const pid = get(first(subproduct.values), "id");
+          if (pid) set(selected, pid, { productId: pid });
+        }
       }
 
       // if we have selected values, ensure they are valid and fully formed
