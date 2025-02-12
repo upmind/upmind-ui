@@ -1,5 +1,5 @@
 <template>
-   <Sanitized :key="compiledMarkdown" :modelValue="compiledMarkdown" />
+  <Sanitized :key="compiledMarkdown" :modelValue="compiledMarkdown" />
 </template>
 
 <script lang="ts" setup>
@@ -40,4 +40,3 @@ onMounted(() => {
   emits("mounted");
 });
 </script>
-
