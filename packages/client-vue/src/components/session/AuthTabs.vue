@@ -30,15 +30,9 @@
     />
   </div>
 
-  <div :class="styles.session.auth.actions">
+  <div v-if="meta.isAuthenticated" :class="styles.session.auth.actions">
     <slot name="toggle">
-      <Button
-        variant="ghost"
-        block
-        type="reset"
-        @click.prevent="logout"
-        v-if="meta.isAuthenticated"
-      >
+      <Button variant="ghost" block type="reset" @click.prevent="logout">
         logout
       </Button>
     </slot>
