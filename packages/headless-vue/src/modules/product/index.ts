@@ -41,9 +41,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
   // syntactic sugar
   const product = computed(() => state.value.context?.lookups?.product);
   const productImage = (size: string = "400x400") => {
-    const product = state.value.context?.lookups?.product || null;
+    const product = state.value.context?.lookups?.product;
 
-    if (!product?.full_url) return null;
+    if (!product?.full_url) return undefined;
 
     const url = new URL(product.full_url);
     url.searchParams.set("size", size);
