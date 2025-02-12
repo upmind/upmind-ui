@@ -36,18 +36,15 @@ export interface ImageHashEvent {
   hash: string;
 }
 
-export interface ImageTypeEvent {
+// --------------------------------------------------------
+// Contexts
+
+export interface UploadContext {
   field: {
     field_type: ImageObjectTypes;
     field_id: string;
     field_is_default: boolean;
   };
-}
-// --------------------------------------------------------
-// Contexts
-
-export interface UploadContext {
-  field: object;
 
   // ---
   fileTypes: [];

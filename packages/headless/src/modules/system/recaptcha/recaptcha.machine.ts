@@ -53,8 +53,6 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: AnyEventObject) => data,
       }),
-
-      clearError: assign({ error: null }),
     },
 
     services,

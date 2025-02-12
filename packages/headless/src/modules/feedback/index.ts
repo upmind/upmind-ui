@@ -18,11 +18,7 @@ import { messageDisplays, type Message } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state: any = null;
-
-const service = interpret(feedbackMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service = interpret(feedbackMachine, { devTools: false });
 // --------------------------------------------------------
 
 export const useFeedback = () => {
@@ -41,9 +37,6 @@ export const useFeedback = () => {
 
   function addError(
     message: string | object | any,
-    // TODO: display?: messageDisplays = messageDisplays.TOAST,
-    // TODO: delay?: number = 0,
-    // TODO: maxAge?: number = useTime().SECOND * 6
     display: messageDisplays = messageDisplays.TOAST,
     delay: number = 0,
     maxAge: number = useTime().SECOND * 6
@@ -110,11 +103,9 @@ export const useFeedback = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
-
-    // ---
-    getMessages: () => state.context.messages,
-    getMessage: (id: any) => get(state.context.messages, id),
+    getSnapshot: service.getSnapshot,
+    getMessages: () => service.getSnapshot().context.messages,
+    getMessage: (id: any) => get(service.getSnapshot().context.messages, id),
     // ---
     add,
     addError,

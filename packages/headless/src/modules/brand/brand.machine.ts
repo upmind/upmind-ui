@@ -59,10 +59,6 @@ export default createMachine(
           BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
         ],
       },
-      // ---
-      //  we dont have a set type for this yet as its 100% dynamic from the API
-      //  on fetch we will inject the data into the context
-      // ---
       error: undefined,
     } as BrandContext,
 

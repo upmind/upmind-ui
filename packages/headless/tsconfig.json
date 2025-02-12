@@ -1,22 +1,22 @@
 {
   "compilerOptions": {
-    "allowJs": false,
-    "declaration": true,
-    "declarationDir": "./dist/types", // Correct declaration directory
-    "composite": true,
-    "outDir": "dist", // Output directory for JS files
-    "rootDir": "src", // Root of your source files
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
     "baseUrl": ".", // Important for path resolution
+    "module": "esnext",
+    "moduleResolution": "node",
     "paths": {
       "@upmind-automation/types": ["../types/dist/types"] // Path to the types package's .d.ts files
     },
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noImplicitThis": true,
-    "skipLibCheck": true,
-    "strict": true
+    "resolveJsonModule": true,
+    "strict": true,
+    "declaration": false,
+    "outDir": "dist",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
   "references": [{ "path": "../types" }] // Essential for monorepo dependencies
 }

@@ -16,7 +16,7 @@ import type { RequestsContext } from "./types";
 
 export default createMachine(
   {
-    tsTypes: {} as import("./requests.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./requests.machine.typegen").Typegen0,
     id: "requestsManager",
     predictableActionArguments: true,
     initial: "empty",
@@ -158,6 +158,6 @@ export default createMachine(
         return isEmpty(requests);
       },
     },
-    services,
+    services: services as any,
   }
 );

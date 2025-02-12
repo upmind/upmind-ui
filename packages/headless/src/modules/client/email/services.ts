@@ -60,7 +60,7 @@ async function filterItems({ raw }: EmailsContext, { data }: AnyEventObject) {
   return Promise.resolve(filteredItems);
 }
 
-async function findItem({ raw }: EmailsContext, { data }: { data: string }) {
+async function findItem({ raw }: EmailsContext, { data }: AnyEventObject) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
 

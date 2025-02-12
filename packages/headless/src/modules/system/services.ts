@@ -5,16 +5,17 @@ import { useApi } from "../api";
 
 // --- types
 import type {
-  SystemContext,
-  SystemEvent,
-  ICurrency,
   IBillingCycle,
   ICountry,
-  IRegion,
+  ICurrency,
   ILanguage,
-  IStatuses,
+  IRegion,
   ITicketDepartment,
-} from "./types";
+  IStatus,
+} from "@upmind-automation/types";
+
+import type { SystemContext } from "./types";
+import { AnyEventObject } from "xstate";
 // --------------------------------------------------------
 // ENUMS
 
@@ -25,7 +26,10 @@ import type {
 // TODO: session type contextual/guest/client/admin endpoint logic
 //       as we are only guest/client at this point, we can ignore this for now
 
-async function fetchCurrencies(_context: SystemContext, _event: SystemEvent) {
+async function fetchCurrencies(
+  _context: SystemContext,
+  _event: AnyEventObject
+) {
   const { get, useUrl, useTime } = useApi();
 
   return get({
@@ -37,7 +41,7 @@ async function fetchCurrencies(_context: SystemContext, _event: SystemEvent) {
 
 async function fetchBillingCycles(
   _context: SystemContext,
-  _event: SystemEvent
+  _event: AnyEventObject
 ) {
   const { get, useUrl, useTime } = useApi();
 
@@ -48,7 +52,7 @@ async function fetchBillingCycles(
   }).then(({ data }: any) => data as IBillingCycle[]);
 }
 
-async function fetchCountries(_context: SystemContext, _event: SystemEvent) {
+async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
   const { get, useUrl, useTime } = useApi();
 
   return get({
@@ -75,7 +79,7 @@ async function fetchRegions(
   );
 }
 
-async function fetchLanguages(_context: SystemContext, _event: SystemEvent) {
+async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
   const { get, useUrl, useTime } = useApi();
 
   return get({
@@ -86,17 +90,20 @@ async function fetchLanguages(_context: SystemContext, _event: SystemEvent) {
   }).then(({ data }: any) => data as ILanguage[]);
 }
 
-async function fetchStatuses(_context: SystemContext, _event: SystemEvent) {
+async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
   const { get, useUrl, useTime } = useApi();
 
   return get({
     url: useUrl("statuses", { limit: 0 }),
     useCache: true,
     maxAge: useTime()?.DAY,
-  }).then(({ data }: any) => data as IStatuses);
+  }).then(({ data }: any) => data as IStatus);
 }
 
-async function fetchDepartments(_context: SystemContext, _event: SystemEvent) {
+async function fetchDepartments(
+  _context: SystemContext,
+  _event: AnyEventObject
+) {
   const { get, useUrl, useTime } = useApi();
 
   return get({

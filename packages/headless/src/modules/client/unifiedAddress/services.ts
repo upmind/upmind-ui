@@ -393,9 +393,9 @@ async function loadLookups(
     .then(() => {
       places.reset();
 
-      const address = addresses.getDefault()?.state?.context?.model;
-      const email = emails.getDefault()?.state?.context?.model;
-      const phone = phones.getDefault()?.state?.context?.model;
+      const address = addresses.getDefault();
+      const email = emails.getDefault();
+      const phone = phones.getDefault();
       return {
         countries,
         regions,

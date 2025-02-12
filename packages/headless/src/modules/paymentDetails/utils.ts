@@ -12,12 +12,10 @@ import { useTranslateName } from "../../utils";
 import { omit, map } from "lodash-es";
 
 // --- types
-import { PaymentTypes } from "./types";
 import { GatewayCtx, GatewayTypes } from "./gateways/types";
-import { GatewayProviderCodes } from "@upmind-automation/types";
-
+import { GatewayProviderCodes, PaymentType } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "./types";
-import type { UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
@@ -30,7 +28,7 @@ export const parsePaymentDetails = (raw: any): Record<string, any> => {
 export const useSchema = ({
   payment_types,
   gateways,
-}: PaymentDetailsContext) => {
+}: PaymentDetailsContext): JsonSchema => {
   const schema = {
     type: "object",
     title: "Payment details",
@@ -46,7 +44,7 @@ export const useSchema = ({
       type: {
         type: "string",
         title: "Payment type",
-        const: PaymentTypes.PAY_IN_FULL,
+        const: PaymentType.PAY_IN_FULL,
         oneOf: !payment_types
           ? undefined
           : map(payment_types, (value, key) => ({
@@ -68,7 +66,7 @@ export const useSchema = ({
 
     if: {
       properties: {
-        type: { const: PaymentTypes.PAY_IN_FULL },
+        type: { const: PaymentType.PAY_IN_FULL },
       },
     },
     then: {
@@ -79,7 +77,7 @@ export const useSchema = ({
     },
   };
 
-  return schema;
+  return schema as JsonSchema;
 };
 
 // --------------------------------------------------------
@@ -280,7 +278,7 @@ export function spawnStripe({
       code: gateway?.gateway_provider.code,
       address,
     } as any),
-    { name: gateway.id, sync: true }
+    { name: gateway?.id, sync: true }
   );
 }
 

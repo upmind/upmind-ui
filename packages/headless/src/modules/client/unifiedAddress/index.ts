@@ -1,4 +1,5 @@
 // --- external
+import type { ActorRef, AnyEventObject } from "xstate";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -20,15 +21,15 @@ import type { UnifiedAddressContext } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state: any = null;
 const service = interpret(
-  listingsMachine.withConfig({ actions, services } as any),
+  listingsMachine.withConfig({
+    actions: actions as any,
+    services: services as any,
+  }),
   {
     devTools: false,
   }
-).onTransition(newState => {
-  state = newState;
-});
+);
 
 // -----------------------------------------------------------------------------
 
@@ -45,25 +46,30 @@ export const useClientUnifiedAddresses = () => {
           timeout: Infinity,
         }
       ),
-    getSnapshot: () => state,
-    getItemsSnapshot: () => state?.context?.items,
-    getItems: () => compact(map(state?.context?.items, "state.context.model")),
-    getItemSnapshot: (id: any) => find(state?.context?.items, ["id", id]),
+    getSnapshot: service.getSnapshot,
+    getItemsSnapshot: () => service.getSnapshot()?.context?.items,
+    getItems: () =>
+      compact(
+        map(service.getSnapshot()?.context?.items, "state.context.model")
+      ),
+    getItemSnapshot: (id: any) =>
+      find(service.getSnapshot()?.context?.items, ["id", id]),
     getItem: (id: any) =>
-      find(state?.context?.items, ["id", id])?.state?.context?.model,
+      find(service.getSnapshot()?.context?.items, ["id", id])?.getSnapshot()
+        ?.context?.model,
     getSelected: () => {
       return waitFor(
         service,
         state =>
           state.matches("available") && !state.matches("available.loading")
-      ).then(() => {
+      ).then(state => {
         // first try to get the selected address from the context
         if (state?.context?.selected) return state.context.selected;
 
         // if no selected address, try to get the default address
         const defaultAddress = find(
           state?.context?.items,
-          item => item.state?.context?.model?.default
+          "state.context.model.default"
         );
 
         // if we have a default address, select it
@@ -74,18 +80,24 @@ export const useClientUnifiedAddresses = () => {
       });
     },
     getDefault: () =>
-      find(state?.context?.items, "state.context.model.default"),
+      find(
+        service.getSnapshot()?.context?.items,
+        "state.context.model.default"
+      )?.getSnapshot()?.context?.model,
 
     search: async (data: any) => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>
         state.matches("available.filtered")
-      ).then(() => {
+      ).then(state => {
         return state.context.items;
       });
     },
     find: (data: IAddressData) =>
-      services.find(state.context, { type: "FIND", data }),
+      services.find(service.getSnapshot().context, {
+        type: "FIND",
+        data,
+      } as AnyEventObject),
     add: (data: any) => services.add(data),
   };
 };

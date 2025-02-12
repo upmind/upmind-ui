@@ -221,12 +221,12 @@ export default createMachine(
   {
     actions: {
       setParsed: assign({
-        model: (_context, { data }: any) => data.model,
-        gateway: (_context, { data }: any) => data.gateway,
+        model: (_context, { data }: AnyEventObject) => data.model,
+        gateway: (_context, { data }: AnyEventObject) => data.gateway,
       }),
 
       setLookups: assign({
-        stored_payment_methods: (_context, { data }: any) =>
+        stored_payment_methods: (_context, { data }: AnyEventObject) =>
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
@@ -234,9 +234,10 @@ export default createMachine(
       }),
 
       setSchemas: assign({
-        schema: context => useSchema(context),
+        schema: (context: PaymentDetailsContext) => useSchema(context),
         uischema: _context => useUischema(),
-        model: ({ schema, model }) => useModelParser(schema, model),
+        model: ({ schema, model }: PaymentDetailsContext) =>
+          useModelParser(schema, model),
       }),
 
       clearSchemas: assign({
@@ -245,8 +246,10 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }: any, { data }: any) =>
-          useModelParser(schema, data || model),
+        model: (
+          { schema, model }: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => useModelParser(schema, data || model),
       }),
 
       clearModel: assign({
@@ -262,7 +265,7 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context: any, { update }: any) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
       clearAutoUpdate: assign({
         autoupdate: false,
@@ -286,8 +289,9 @@ export default createMachine(
 
           // stop any existing gateways if they are different and not done/complete
           if (actors?.gateway?.id != gateway?.id) {
-            if (actors?.gateway && !actors.gateway?.state?.done)
+            if (!actors.gateway?.getSnapshot()?.done && actors.gateway?.stop)
               actors.gateway?.stop();
+
             unset(actors, "gateway");
           }
 
@@ -369,7 +373,7 @@ export default createMachine(
         type: "CANCEL",
       })),
 
-      trackPaymentDetails: (_context: any, _event: any) => {
+      trackPaymentDetails: (_context, _event) => {
         trackEvent({ ecommerce: null });
         trackEvent({ event: "add_payment_info" });
       },
@@ -404,7 +408,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data

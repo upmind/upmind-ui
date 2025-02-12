@@ -20,25 +20,21 @@ import { BrandTaxType } from "@upmind-automation/types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state: any = null;
-
-const service = interpret(brandMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service = interpret(brandMachine, { devTools: false });
 // --------------------------------------------------------
 
 export const useBrand = () => {
   // --------------------------------------------------------
   // methods
-  const hasModuleEnabled = (code: any) =>
-    some(state?.context?.modules, ["code", code]);
+  const hasModuleEnabled = (code: string) =>
+    some(service.getSnapshot()?.context?.modules, ["code", code]);
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
 
-    isModuleReady: async (module: any) =>
+    isModuleReady: async (module: string) =>
       waitFor(service, state => state.matches(`processing.${module}.complete`)),
     isReady: async () =>
       waitFor(
@@ -54,7 +50,7 @@ export const useBrand = () => {
           return Promise.reject("Brand is not available");
       }),
     // ---
-    getSnapshot: () => state,
+    getSnapshot: service.getSnapshot,
     getConfig: async (keys: BrandConfigKeys | BrandConfigKeys[]) => {
       // ensure we have an array of keys
       keys = isArray(keys) ? keys : [keys];
@@ -73,11 +69,12 @@ export const useBrand = () => {
       });
 
       // finally return the requested keys from the config
-      return pick(state.context, keys);
+      return pick(service.getSnapshot().context, keys);
     },
     // ---
     hasModuleEnabled,
     validateCurrency: async (model: { id?: string; code?: string }) => {
+      const state = service.getSnapshot();
       // lets wait for the brand to be ready
       await waitFor(service, state => state.matches("complete"));
 
@@ -106,15 +103,18 @@ export const useBrand = () => {
       return model;
     },
 
-    getBrandId: (): IBrand["id"] => state?.context?.id,
-    getCurrencyId: () => state?.context?.currency_id,
+    getBrandId: (): IBrand["id"] => service.getSnapshot()?.context?.id,
+    getCurrencyId: () => service.getSnapshot()?.context?.currency_id,
     getCurrency: () =>
-      find(state.context.currencies, ["id", state?.context?.currency_id]),
-    getCurrencies: () => state?.context?.currencies,
-    getCountry: () => state?.context?.country_id,
+      find(service.getSnapshot().context.currencies, [
+        "id",
+        service.getSnapshot()?.context?.currency_id,
+      ]),
+    getCurrencies: () => service.getSnapshot()?.context?.currencies,
+    getCountry: () => service.getSnapshot()?.context?.country_id,
     // ---
-    getTaxType: () => state?.context?.tax_type,
+    getTaxType: () => service.getSnapshot()?.context?.tax_type,
     checkIncludesTax: () =>
-      state?.context?.tax_type != BrandTaxType.EXCLUDE_TAX,
+      service.getSnapshot()?.context?.tax_type != BrandTaxType.EXCLUDE_TAX,
   };
 };

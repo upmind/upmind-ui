@@ -64,10 +64,7 @@ async function filterItems({ raw }: PhonesContext, { data }: AnyEventObject) {
   return Promise.resolve(filteredItems);
 }
 
-async function findItem(
-  { raw }: PhonesContext,
-  { data }: { data: IPhoneData }
-) {
+async function findItem({ raw }: PhonesContext, { data }: AnyEventObject) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
 

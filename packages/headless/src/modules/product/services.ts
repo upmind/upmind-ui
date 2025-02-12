@@ -77,7 +77,7 @@ async function load(
   const { get: getRequest, useUrl } = useApi();
 
   const params = {
-    currency_id: currency.id,
+    currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     with_staged_imports: true,
     with: [
@@ -398,7 +398,7 @@ const calculateSummary = (
 };
 
 const calculateBillingTerm = async (
-  period: DefaultPaymentPeriod,
+  period: DefaultPaymentPeriod | undefined,
   availableTerms: any
 ): Promise<any> => {
   // because we have multiple options, we need to select one base don the following strategy:

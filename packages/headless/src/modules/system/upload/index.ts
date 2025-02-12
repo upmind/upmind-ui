@@ -15,22 +15,18 @@ import uploadMachine from "./upload.machine";
 // and we need to be able to start and stop them individually
 
 export const useSystemUpload = (field?: object) => {
-  let state: any = null;
-
   const context = {
     field,
   };
 
-  const service = interpret(uploadMachine.withContext(context), {
+  const service = interpret(uploadMachine.withContext(context as any), {
     devTools: false,
-  })
-    .onTransition(newState => (state = newState))
-    .start();
+  });
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
+    getSnapshot: service.getSnapshot,
     destroy: service.stop,
   };
 };

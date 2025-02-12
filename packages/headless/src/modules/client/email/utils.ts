@@ -90,7 +90,7 @@ export const spawnItem = (model?: IEmail) => {
     return spawn(
       itemMachine
         .withConfig({
-          actions,
+          actions: actions as any,
           services: services as any,
         })
         .withContext({ model }),

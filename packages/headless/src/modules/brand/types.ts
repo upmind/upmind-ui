@@ -1,18 +1,22 @@
 // --- internal
 import type { RequestError } from "..//api/types";
-import type { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
+import type {
+  BrandConfigKeys,
+  OrgFeatureKeys,
+  IBrandSettings,
+} from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
 // Contexts
 
-export interface BrandContext {
+export interface BrandContext extends IBrandSettings {
   keys: {
-    organisation: any; //OrgFeatureKeys[];
+    organisation: OrgFeatureKeys[];
     config: any; //BrandConfigKeys[];
   };
-
+  // ---
   modules?: Record<string, any>;
   error?: any;
 }

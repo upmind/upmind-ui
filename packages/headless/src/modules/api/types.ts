@@ -50,14 +50,12 @@ export interface RequestContext {
   hash?: string;
   maxAge?: number;
   // ---
-  created?: EpochTimeStamp;
-  completed?: EpochTimeStamp;
+  created?: number;
+  completed?: number;
 
   response?: RequestResponse["data"];
   attempts?: number;
   error?: RequestError;
-  // TODO:
-  // parent?: StateMachine;
   parent?: ActorRef<any, any>;
 }
 
