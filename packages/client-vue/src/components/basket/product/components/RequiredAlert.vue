@@ -7,16 +7,16 @@
     class="p-2 px-3"
   >
     <template #title>
-      <h5 class="m-0 hidden md:inline">{{ t("cart.item.md.invalid") }}</h5>
-      <h5 class="m-0 md:hidden">{{ t("cart.item.base.invalid") }}</h5>
+      <h5 class="m-0 hidden md:inline">{{ t("basket.item.md.invalid") }}</h5>
+      <h5 class="m-0 md:hidden">{{ t("basket.item.base.invalid") }}</h5>
     </template>
     <template #action>
       <router-link :to="editLink">
         <Button variant="link" size="sm" color="error" class="-mr-1 underline">
           <p class="m-0 hidden md:inline">
-            {{ t("cart.item.md.invalidAction") }}
+            {{ t("basket.item.md.invalidAction") }}
           </p>
-          <p class="m-0 md:hidden">{{ t("cart.item.base.invalidAction") }}</p>
+          <p class="m-0 md:hidden">{{ t("basket.item.base.invalidAction") }}</p>
           <template #append>
             <Icon icon="chevron-right" size="xs" class="-ml-1.5" />
           </template>
