@@ -1,6 +1,6 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing">
-    <Card :class="styles.product.root.card">
+    <Card :class="styles.product.root.card" v-auto-animate>
       <div :class="styles.product.root.container">
         <BasketProductSummary
           v-for="(pricing, index) in summary.pricing"
@@ -21,13 +21,11 @@
         </BasketProductSummary>
       </div>
 
-      <div v-auto-animate>
-        <BasketConfigurationDetails
-          v-if="open"
-          :id="id"
-          :details="summary.details"
-        />
-      </div>
+      <BasketConfigurationDetails
+        v-if="open"
+        :id="id"
+        :details="summary.details"
+      />
 
       <BasketProductActions
         v-model:open="open"

@@ -34,7 +34,7 @@
             </div>
             <div class="flex items-end justify-between">
               <Link :to="editLink" offset="2">
-                <strong class="text-xl font-semibold leading-7">
+                <strong class="text-xl font-semibold leading-7 underline">
                   {{ pricing.name }}
                   <template v-if="pricing.serviceIdentifier">
                     ({{ pricing.serviceIdentifier }})
