@@ -7,7 +7,7 @@
   "module": "./dist/upmind-ui.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": "./dist/umpind-ui.js"
+    ".": "./dist/upmind-ui.js"
   },
   "files": [
     "dist"
