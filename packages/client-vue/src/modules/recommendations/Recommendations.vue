@@ -19,7 +19,7 @@
       </p>
     </div>
 
-    <UpmRecommendations @resolve="doClose" />
+    <Recommendations @resolve="doClose" />
 
     <UpmCard
       class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
@@ -59,7 +59,7 @@ import {
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import { UpmRecommendations } from "@upmind-automation/client-vue";
+import Recommendations from "./Recommendations.vue";
 
 // --- utils
 // -----------------------------------------------------------------------------

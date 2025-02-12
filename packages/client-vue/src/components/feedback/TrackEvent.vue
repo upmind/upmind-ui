@@ -5,7 +5,7 @@
 </template>
 <script lang="ts" setup>
 // --- external
-import { watch, inject, onBeforeUnMount } from "vue";
+import { watch, inject, onBeforeUnmount } from "vue";
 
 // --- internal
 import { useMessage } from "@upmind-automation/headless-vue";
@@ -35,7 +35,7 @@ watch(state, state => {
   }
 });
 
-onBeforeUnMount(() => {
+onBeforeUnmount(() => {
   // dismiss the message if the component is destroyed, lets be 100% sure
   if (!state.done) dismiss();
 });

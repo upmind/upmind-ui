@@ -30,7 +30,7 @@
       </template>
 
       <UpmCard class="pb-3 md:pb-3">
-        <UpmAuth
+        <Auth
           class="rounded-box w-full max-w-5xl items-start"
           no-tabs
           no-header
@@ -38,7 +38,7 @@
           @update:model-value="doLogin"
           @resolve="doResolve"
         >
-        </UpmAuth>
+        </Auth>
       </UpmCard>
     </UpmContentSection>
   </article>
@@ -52,15 +52,11 @@ import { useI18n } from "vue-i18n";
 import { useRoutingEngine, ROUTE } from "@upmind-automation/client-vue";
 
 // --- components
-import {
-  UpmCard,
-  UpmContentSection,
-  UpmAuth,
-} from "@upmind-automation/client-vue";
+import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
-
+import Auth from "./components/Auth.vue";
 // --- types
-import type { AuthProps } from "@upmind-automation/client-vue";
+import type { AuthProps } from "./components/types";
 
 // -----------------------------------------------------------------------------
 

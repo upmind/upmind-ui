@@ -1,5 +1,5 @@
 <template>
-  <UpmCheckout>
+  <Checkout>
     <template #billing-details-title>
       <i18n-t
         keypath="basket.billing_details.title"
@@ -50,15 +50,13 @@
         }}</mask>
       </i18n-t>
     </template>
-  </UpmCheckout>
+  </Checkout>
 </template>
 
 <script lang="ts" setup>
 // --- components
-import {
-  UpmCheckout,
-  useBasketPaymentDetails,
-} from "@upmind-automation/client-vue";
+import { useBasketPaymentDetails } from "@upmind-automation/client-vue";
+import Checkout from "./components/Checkout.vue";
 
 // --- utils
 import { useI18n } from "vue-i18n";

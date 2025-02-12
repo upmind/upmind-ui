@@ -90,8 +90,8 @@ import {
   AccordionContent,
   Icon,
 } from "@upmind-automation/upmind-ui";
-import GatewayTrigger from "./components/gateway/Trigger.vue";
-import GatewayContent from "./components/gateway/Content.vue";
+import GatewayTrigger from "./gateway/Trigger.vue";
+import GatewayContent from "./gateway/Content.vue";
 
 // --- types
 import type { PaymentDetailsProps } from "./types";

@@ -30,10 +30,11 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
-import { formRenderers } from "../form";
+import { formRenderers } from "../../../components/form";
+
 // --- components
 import { FormField } from "@upmind-automation/upmind-ui";
-import Form from "../form/Form.vue";
+import Form from "../../../components/form/Form.vue";
 // --- utils
 import { isEmpty } from "lodash-es";
 

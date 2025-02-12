@@ -90,12 +90,12 @@ import {
   useClientUnifiedAddresses,
 } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../client/config.cva";
+import config from "./config.cva";
 
 // --- components
-import Item from "../Client/Item.vue";
-import Card from "../Client/Card.vue";
-import Listings from "../Client/Listings.vue";
+import Item from "../../client/components/Item.vue";
+import Card from "../../client/components/Card.vue";
+import Listings from "../../client/components/Listings.vue";
 import {
   SkeletonList,
   Button,

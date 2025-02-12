@@ -1,7 +1,7 @@
 <template>
   <article v-auto-animate>
-    <UpmContentSection v-auto-animate>
-      <UpmOrderConfirmation
+    <ContentSection v-auto-animate>
+      <OrderConfirmation
         open
         modal
         skrim="light"
@@ -52,8 +52,8 @@
             }}</mask>
           </i18n-t>
         </template>
-      </UpmOrderConfirmation>
-    </UpmContentSection>
+      </OrderConfirmation>
+    </ContentSection>
   </article>
 </template>
 
@@ -64,12 +64,11 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession, UpmContentSection } from "@upmind-automation/client-vue";
+import { useSession } from "@upmind-automation/client-vue";
 
 // -- components
-import { UpmOrderConfirmation } from "@upmind-automation/client-vue";
-
-// --- types
+import OrderConfirmation from "./components/Confirmation.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 
 // -----------------------------------------------------------------------------
 
