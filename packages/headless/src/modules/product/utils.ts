@@ -212,6 +212,7 @@ export const parseSubproduct = (
       // add this raw option to the values, with limited properties
 
       const value: any = {
+        default: !!rawSubproduct?.pivot?.default,
         id: rawSubproduct.id,
         name: useTranslateName(rawSubproduct),
         description: useTranslateField(rawSubproduct, "description"),
