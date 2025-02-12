@@ -60,6 +60,12 @@ export interface Domain {
   isPrimary: boolean;
 }
 
+export interface DomainLookup extends DomainProduct {
+  value: string;
+  isOwned: boolean;
+  inBasket: boolean;
+  disabled: boolean;
+}
 export interface DomainSearch {
   domain: string;
   offset: number;
@@ -73,7 +79,7 @@ export interface DomainContext {
   model?: Array<DomainProduct>;
   baseModel?: Array<DomainProduct>;
   lookups?: {
-    searched: Array<DomainProduct>;
+    searched: Array<DomainLookup>;
     history: Array<DomainProduct>;
     owned: Array<DomainProduct>;
     basket: Array<DomainProduct>;

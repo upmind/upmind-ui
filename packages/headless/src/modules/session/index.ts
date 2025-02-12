@@ -97,7 +97,9 @@ export const authSubscription = async (callback: any, onReceive: any) => {
 
     // watch for our child machines to transition to a non-loading state
     // and then send the callback to the subscriber
-    currentMachine.getSnapshot().onTransition(() => {
+    debugger;
+    // @ts-ignore
+    currentMachine.onTransition(() => {
       debugger;
       authCallback(callback);
     });

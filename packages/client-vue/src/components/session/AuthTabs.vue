@@ -6,6 +6,7 @@
   >
     <Tabs
       :default-value="modelValue"
+      :value="modelValue"
       :tabs="tabs"
       :width="stretchTabs ? 'full' : 'auto'"
       v-if="
@@ -55,7 +56,7 @@ import { useVModel } from "@vueuse/core";
 import { useSession } from "@upmind-automation/headless-vue";
 import Form from "../form/Form.vue";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./session.config";
 
 // --- custom elements
 import { Button, Tabs } from "@upmind-automation/upmind-ui";
@@ -68,6 +69,7 @@ type TabItem = {
 type TabItems = TabItem[];
 
 // --- types
+import type { ComputedRef, Ref } from "vue";
 import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -84,15 +86,23 @@ const {
   errors,
   showLogin,
   showRegister,
-  verify2fa,
   model,
   schema,
   uischema,
   resolve,
   reject,
+  logout,
 } = useSession();
 
-const styles = useStyles(["session.auth"], meta, config);
+const styles = useStyles(["session.auth"], meta, config) as ComputedRef<{
+  session: {
+    auth: {
+      root: string;
+      form: string;
+      actions: string;
+    };
+  };
+}>;
 
 const modelValue = useVModel(props, "modelValue", emit);
 

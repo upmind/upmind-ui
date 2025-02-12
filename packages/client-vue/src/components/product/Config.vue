@@ -110,7 +110,8 @@
           :quantities="getQuantities(option)"
           @update:modelValue="setOptions(option, safeValue(option, $event))"
           @update:quantity="
-            (value, qty) => updateOptionQuantity(option, value, qty)
+            (value: string, qty: number) =>
+              updateOptionQuantity(option, value, qty)
           "
           :required="option.required"
           :visible="!!option.values?.length"
@@ -211,7 +212,7 @@ import { reduce, get, first, isArray, set, keys } from "lodash-es";
 
 // -- -types
 import type { ActorRef } from "xstate";
-import type { HTMLAttributes } from "vue";
+import type { ComputedRef, HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["reject", "resolve"]);
@@ -260,9 +261,28 @@ const {
   reset,
 } = useProductConfig(props.item);
 
-const styles = useStyles(["product.config"], meta, config);
+const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
+  product: {
+    config: {
+      root: string;
+      header: string;
+      content: string;
+      media: string;
+      image: string;
+      wrapper: string;
+      heading: string;
+      headingContent: string;
+      title: string;
+      text: string;
+      fields: string;
+      footer: string;
+      itemtotal: string;
+      bold: string;
+    };
+  };
+}>;
 
-function safeValue(subproduct: object, value: any): string | string[] {
+function safeValue(subproduct: any, value: any): string | string[] {
   const shouldBeArray = subproduct?.multiple || subproduct?.values?.length == 1;
   const safeArray = !isArray(value) ? [value] : value;
   const safeString = isArray(value) ? first(value) : value;
@@ -281,13 +301,13 @@ const getTermsComponent = computed(() => {
 
 function getValue(
   type: "options" | "attributes",
-  subproduct: object
+  subproduct: any
 ): string | string[] {
   const value = keys(model.value?.[type]?.[subproduct.id]);
   return safeValue(subproduct, value);
 }
 
-function getQuantities(subproduct: object): Record<string, number> {
+function getQuantities(subproduct: any): Record<string, number> {
   const value = reduce(
     model.value?.options?.[subproduct.id],
     (result: Record<string, number>, value, productId) => {
@@ -302,7 +322,7 @@ function getQuantities(subproduct: object): Record<string, number> {
   return value;
 }
 
-function getErrors(type: "options" | "attributes", subproduct: object) {
+function getErrors(type: "options" | "attributes", subproduct: any) {
   //  prevent error message from showing if the field has not been touched
   if (!meta.value.isTouched) return undefined;
 

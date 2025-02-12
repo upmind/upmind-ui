@@ -20,7 +20,7 @@ export interface Badge {
 
 export interface Benefit {
   label: string;
-  icon?: string | object;
+  icon?: string | any;
 }
 interface Promotion {
   id: string;

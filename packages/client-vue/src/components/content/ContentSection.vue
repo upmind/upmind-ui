@@ -35,7 +35,7 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./content.config";
 
 // --- types
-import type { HTMLAttributes } from "vue";
+import type { HTMLAttributes, ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -48,5 +48,14 @@ const props = defineProps<{
   classFooter?: HTMLAttributes["class"];
 }>();
 
-const styles = useStyles(["section"], {}, config);
+const styles = useStyles(["section"], {}, config) as ComputedRef<{
+  section: {
+    root: string;
+    header: string;
+    title: string;
+    tagline: string;
+    content: string;
+    footer: string;
+  };
+}>;
 </script>

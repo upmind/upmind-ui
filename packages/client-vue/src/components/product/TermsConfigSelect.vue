@@ -23,7 +23,7 @@
       content-class="!max-h-[18.5rem]"
       @update:modelValue="doResolve"
     >
-      <template #item="{ item }">
+      <template #item="{ item }: any">
         <slot name="item" :item="item">
           <CardTermPerMonth
             v-if="isMonthly(item)"
@@ -39,7 +39,7 @@
           />
         </slot>
       </template>
-      <template #dropdown-item="{ item }">
+      <template #dropdown-item="{ item }: any">
         <slot name="dropdown" :item="item">
           <CardTermPerMonth
             v-if="isMonthly(item)"
@@ -79,14 +79,15 @@ import CardTermPerMonth from "./TermPerMonthCard.vue";
 import { isNil, map, toNumber, find } from "lodash-es";
 
 // --- types
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { ComputedRef, HTMLAttributes } from "vue";
+import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
-    items: object[];
+    items: any[];
     modelValue?: string | number;
     errors?: string;
     // ---
@@ -100,7 +101,7 @@ const props = withDefaults(
     processing?: boolean;
     visible?: boolean;
     // ---
-    class?: string;
+    class?: HTMLAttributes["class"];
   }>(),
   {
     as: "FormField",
@@ -109,7 +110,6 @@ const props = withDefaults(
     loading: false,
     processing: false,
     visible: true,
-    class: "",
   }
 );
 
@@ -119,9 +119,18 @@ const styles = useStyles(
   ["product.config.grid", "product.config.grid.item"],
   toRefs(props),
   config
-);
+) as ComputedRef<{
+  product: {
+    config: {
+      grid: {
+        root: string;
+        items: string;
+      };
+    };
+  };
+}>;
 
-const parsedValues = computed<RadioCardsItemProps[]>(() => {
+const parsedValues = computed<any[]>(() => {
   return map(props.items, (item: any) => {
     return {
       id: item.cycle,
@@ -151,7 +160,8 @@ function doResolve(item: string | number) {
 
 const mapComponent = (as: string) => {
   switch (as) {
-    case "FormField" || "formfield":
+    case "FormField":
+    case "formfield":
       return FormField;
     default:
       return as;

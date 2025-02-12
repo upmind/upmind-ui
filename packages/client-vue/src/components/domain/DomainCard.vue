@@ -17,7 +17,7 @@
         </span>
 
         <span
-          v-else-if="props.summary.isAvailable"
+          v-else-if="props?.summary?.isAvailable"
           :class="styles.domain.card.text"
         >
           <span :class="styles.domain.card.available.icon">
@@ -35,7 +35,7 @@
         </span>
 
         <Badge
-          v-if="props.summary.meta.discounted"
+          v-if="props?.summary?.meta.discounted"
           color="promotion"
           :label="t('domain.card.promotion')"
           variant="tonal"
@@ -65,7 +65,7 @@
 
         <template #[`price`]>
           <em :class="styles.domain.card.owned.price">{{
-            props.summary.regularPrice
+            props?.summary?.regularPrice
           }}</em>
         </template>
 
@@ -90,7 +90,7 @@
 
         <template #[`price`]>
           <em :class="styles.domain.card.basket.price">{{
-            props.summary.regularPrice
+            props?.summary?.regularPrice
           }}</em>
         </template>
 
@@ -100,7 +100,7 @@
       </i18n-t>
 
       <i18n-t
-        v-else-if="props.summary.isAvailable"
+        v-else-if="props?.summary?.isAvailable"
         :class="styles.domain.card.available.root"
         keypath="domain.card.available.instruction"
         tag="p"
@@ -117,15 +117,15 @@
           <span :class="styles.domain.card.available.prices">
             <span
               :class="styles.domain.card.available.discount"
-              v-if="props.summary.meta.discounted"
+              v-if="props?.summary?.meta.discounted"
             >
-              {{ props.summary.regularPrice }}
+              {{ props?.summary?.regularPrice }}
             </span>
             <em :class="styles.domain.card.available.price">
               {{
-                props.summary.meta.free
+                props?.summary?.meta.free
                   ? t("product.free")
-                  : props.summary.currentPrice
+                  : props?.summary?.currentPrice
               }}
             </em>
           </span>
@@ -165,15 +165,15 @@
           <span :class="styles.domain.card.transfer.prices">
             <span
               :class="styles.domain.card.transfer.discount"
-              v-if="props.summary.meta.discounted"
+              v-if="props?.summary?.meta.discounted"
             >
-              {{ props.summary.regularPrice }}
+              {{ props?.summary?.regularPrice }}
             </span>
             <em :class="styles.domain.card.transfer.price">
               {{
-                props.summary.meta.free
+                props?.summary?.meta.free
                   ? t("product.free")
-                  : props.summary.currentPrice
+                  : props?.summary?.currentPrice
               }}
             </em>
           </span>
@@ -187,7 +187,7 @@
       <div :class="styles.domain.card.actions">
         <template v-if="!props.isOwned && !props.inBasket">
           <Button
-            v-if="props.summary.isAvailable"
+            v-if="props?.summary?.isAvailable"
             :class="styles.domain.card.available.action"
             :disabled="meta.isDisabled"
             :label="t('domain.card.available.action', props.selected ? 0 : 1)"
@@ -234,9 +234,13 @@ import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
 // --- utils
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { DomainCardProps } from "./types";
 // -----------------------------------------------------------------------------
-const emit = defineEmits(["update:selected"]);
+const emit = defineEmits<{
+  (e: "update:selected", domain: string): void;
+}>();
+
 const props = withDefaults(defineProps<DomainCardProps>(), {
   color: "base",
 });
@@ -260,7 +264,55 @@ const styles = useStyles(
   ],
   meta,
   config
-);
+) as ComputedRef<{
+  domain: {
+    card: {
+      root: string;
+      header: string;
+      badges: string;
+      text: string;
+      title: string;
+      underline: string;
+      footer: string;
+      actions: string;
+      // ---
+      owned: {
+        root: string;
+        icon: string;
+        ownership: string;
+        price: string;
+        tld: string;
+      };
+      basket: {
+        root: string;
+        icon: string;
+        ownership: string;
+        price: string;
+        tld: string;
+      };
+      available: {
+        root: string;
+        icon: string;
+        ownership: string;
+        prices: string;
+        discount: string;
+        price: string;
+        tld: string;
+        action: string;
+      };
+      transfer: {
+        root: string;
+        icon: string;
+        ownership: string;
+        action: string;
+        prices: string;
+        discount: string;
+        price: string;
+        tld: string;
+      };
+    };
+  };
+}>;
 
 function onUpdate(value: string): void {
   if (meta.value.isDisabled || meta.value.isProcessing) return;

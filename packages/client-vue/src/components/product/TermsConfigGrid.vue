@@ -55,13 +55,14 @@ import CardTermPerMonth from "./TermPerMonthCard.vue";
 import { isNil, map, toNumber, find } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
-    items: object[];
+    items: any[];
     modelValue?: string | number;
     errors?: string;
     // ---
@@ -90,7 +91,16 @@ const styles = useStyles(
   ["product.config.grid", "product.config.grid.item"],
   toRefs(props),
   config
-);
+) as ComputedRef<{
+  product: {
+    config: {
+      grid: {
+        root: string;
+        items: string;
+      };
+    };
+  };
+}>;
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
   return map(props.items, (item: any) => {

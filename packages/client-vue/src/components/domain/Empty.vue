@@ -42,6 +42,7 @@ import { Avatar, Button, Drawer } from "@upmind-automation/upmind-ui";
 import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { AvatarProps, ButtonProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
@@ -70,25 +71,18 @@ const props = withDefaults(
     }),
   }
 );
-// props: {
-//   modal: { type: Boolean },
-//   title: { type: string },
-//   text: { type: string },
-//   action: { type: object, default: () => null },
-//   modelValue: { type: Boolean, default: true },
-//   avatar: {
-//     type: object,
-//     default: () => ({
-//       size: "lg",
-//       shape: "circle",
-//       color: "primary",
-//       icon: "basket",
-//       fit: "contain",
-//     }),
-//   },
-// },
 
-const styles = useStyles(["domain.empty"], {}, config);
+const styles = useStyles(["domain.empty"], {}, config) as ComputedRef<{
+  domain: {
+    empty: {
+      root: string;
+      title: string;
+      text: string;
+      actions: string;
+    };
+  };
+}>;
+
 const processing = ref(false);
 
 const isOpen = computed(() => {

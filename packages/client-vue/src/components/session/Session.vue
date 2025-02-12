@@ -76,7 +76,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./session.config";
 
 // --- components
 import Auth from "./AuthTabs.vue";
@@ -85,6 +85,7 @@ import Auth from "./AuthTabs.vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { AuthProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -94,8 +95,18 @@ const props = withDefaults(defineProps<AuthProps>(), {
 });
 
 const { t } = useI18n();
-const styles = useStyles(["session"], props, config);
-const { meta, user } = useSession();
+const styles = useStyles(["session"], props, config) as ComputedRef<{
+  session: {
+    root: string;
+    header: string;
+    content: string;
+    footer: string;
+    text: string;
+    title: string;
+    name: string;
+  };
+}>;
+const { meta, user, logout } = useSession();
 
 // ---
 </script>

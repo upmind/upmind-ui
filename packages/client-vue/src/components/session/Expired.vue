@@ -44,7 +44,7 @@ import { ref, computed, watch } from "vue";
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./session.config";
 
 // --- components
 import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
@@ -53,6 +53,7 @@ import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
 import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { SessionExpiredProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -77,7 +78,15 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
 
 const { meta } = useSession();
 
-const styles = useStyles(["session.expired"], meta, config);
+const styles = useStyles(["session.expired"], meta, config) as ComputedRef<{
+  session: {
+    expired: {
+      root: string;
+      title: string;
+      text: string;
+    };
+  };
+}>;
 
 const processing = ref(false);
 const isOpen = computed(() => meta.value.hasExpired && !props.action?.auto);

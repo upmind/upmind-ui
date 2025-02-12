@@ -62,7 +62,7 @@ import Pricing from "../pricing/Pricing.vue";
 // --- utils
 
 // --- types
-
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -105,5 +105,20 @@ const styles = useStyles(
   ["product.config.grid", "product.config.grid.item"],
   meta,
   config
-);
+) as ComputedRef<{
+  product: {
+    config: {
+      grid: {
+        item: {
+          root: string;
+          header: string;
+          title: string;
+          text: string;
+          footer: string;
+          total: string;
+        };
+      };
+    };
+  };
+}>;
 </script>

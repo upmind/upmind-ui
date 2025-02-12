@@ -22,9 +22,9 @@
   </FormField>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, toRefs } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -37,66 +37,56 @@ import Form from "../form/Form.vue";
 // --- utils
 import { isEmpty } from "lodash-es";
 
+// ---types
+import type { ComputedRef } from "vue";
+
+const emit = defineEmits<{
+  (e: "update:modelValue", model: any): void;
+}>();
+
+const props = withDefaults(
+  defineProps<{
+    disabled?: boolean;
+    loading?: boolean;
+    processing?: boolean;
+    fields: any;
+    modelValue: any;
+    additionalErrors?: any[];
+    label?: string;
+  }>(),
+  {
+    disabled: false,
+    loading: false,
+    processing: false,
+    additionalErrors: () => [],
+    label: "",
+  }
+);
+
 // -----------------------------------------------------------------------------
 
-export default defineComponent({
-  name: "ProductConfigForm",
-  components: { Form, FormField },
-  emits: ["update:modelValue"],
-  props: {
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    processing: {
-      type: Boolean,
-      default: false,
-    },
-    fields: {
-      type: object,
-      required: true,
-    },
-    modelValue: {
-      type: object,
-      required: true,
-    },
-    additionalErrors: {
-      type: Array,
-      default: () => [],
-    },
-    label: {
-      type: string,
-    },
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setup(props) {
-    const { t, locale } = useI18n();
+const { t, locale } = useI18n();
 
-    const styles = useStyles(["product.config.form"], toRefs(props), config);
-
-    return {
-      locale,
-      t,
-
-      styles,
-      cn,
-      formRenderers,
+const styles = useStyles(
+  ["product.config.form"],
+  props,
+  config
+) as ComputedRef<{
+  product: {
+    config: {
+      form: {
+        root: string;
+      };
     };
-  },
-  computed: {
-    hasFields() {
-      return !isEmpty(this.fields?.properties);
-    },
-  },
-  methods: {
-    doResolve(model) {
-      if (this.disabled) return;
-      this.$emit("update:modelValue", model);
-    },
-  },
+  };
+}>;
+
+const hasFields = computed(() => {
+  return !isEmpty(props.fields?.properties);
 });
+
+function doResolve(model: any) {
+  if (props.disabled) return;
+  emit("update:modelValue", model);
+}
 </script>

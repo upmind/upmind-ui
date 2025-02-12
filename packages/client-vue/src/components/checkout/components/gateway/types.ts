@@ -1,4 +1,4 @@
-import type { ButtonProps } from "@upmind-automation/ui";
+import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
 export interface GatewayContentProps {
   item: {

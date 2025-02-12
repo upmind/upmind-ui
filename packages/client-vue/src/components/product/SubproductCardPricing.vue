@@ -31,7 +31,7 @@ interface PricingProps {
   meta: {
     discounted?: boolean;
     free?: boolean;
-    overrides: boolean;
+    overrides?: boolean;
   };
 }
 

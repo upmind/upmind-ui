@@ -47,12 +47,13 @@ import { useVModel } from "@vueuse/core";
 import { useSession } from "@upmind-automation/headless-vue";
 import Form from "../form/Form.vue";
 import { useStyles, cn, Link } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./session.config";
 
 // --- custom elements
 import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -77,7 +78,15 @@ const {
   reject,
 } = useSession();
 
-const styles = useStyles(["session.auth"], meta, config);
+const styles = useStyles(["session.auth"], meta, config) as ComputedRef<{
+  session: {
+    auth: {
+      root: string;
+      form: string;
+      actions: string;
+    };
+  };
+}>;
 
 const modelValue = useVModel(props, "modelValue", emit);
 
