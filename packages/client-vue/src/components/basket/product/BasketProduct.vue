@@ -1,6 +1,6 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing">
-    <UpmCard :class="styles.product.root.card">
+    <UpmCard :class="styles.product.root.card" v-auto-animate>
       <div :class="styles.product.root.container">
         <UpmBasketProductSummary
           v-for="(pricing, index) in summary.pricing"
@@ -21,13 +21,11 @@
         </UpmBasketProductSummary>
       </div>
 
-      <div v-auto-animate>
-        <UpmBasketConfigurationDetails
-          v-if="open"
-          :id="id"
-          :details="summary.details"
-        />
-      </div>
+      <UpmBasketConfigurationDetails
+        v-if="open"
+        :id="id"
+        :details="summary.details"
+      />
 
       <UpmBasketProductActions
         v-model:open="open"
