@@ -7,7 +7,11 @@
   "module": "./dist/upmind-ui.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": "./dist/upmind-ui.js"
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/upmind-ui.js",
+      "require": "./dist/upmind-ui.umd.cjs"
+    }
   },
   "files": [
     "dist"
