@@ -497,7 +497,7 @@ export default createMachine(
         basket: undefined,
         summary: undefined,
         items: ({ items }: BasketContext, _event) => {
-          forEach(items, (actor: ActorRef<any, any>) => {
+          forEach(items, (actor: ActorRef<any>) => {
             if (!actor.getSnapshot()?.done && actor?.stop) actor.stop();
           });
           return [];
@@ -603,7 +603,7 @@ export default createMachine(
 
       refreshItems: assign({
         items: ({ basket, items }: BasketContext) => {
-          const newItems: ActorRef<any, any>[] = [];
+          const newItems: ActorRef<any>[] = [];
 
           forEach(items, actor => {
             if (!actor?.getSnapshot()?.done) {

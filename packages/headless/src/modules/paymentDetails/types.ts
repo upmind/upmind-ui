@@ -49,7 +49,7 @@ export interface PaymentDetailsContext {
   paymentDetails?: any; // This is the response from the actual payment gateway
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    gateway?: ActorRef<any, any>;
+    gateway?: ActorRef<any>;
   };
 
   // ---

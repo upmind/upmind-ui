@@ -165,9 +165,9 @@
   </article>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, ref } from "vue";
+import { computed, ref, watch, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -182,74 +182,78 @@ import { Spinner } from "@upmind-automation/upmind-ui";
 import { Icon, Badge, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { isNil, find, reject } from "lodash-es";
+import { find, reject } from "lodash-es";
+
 // --- types
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "ProductCard",
-  components: { Spinner, Icon, Badge, Button },
-  emits: ["reject", "resolve"],
-  props: {
-    modelValue: {
-      type: string,
-      required: true,
-    },
-    item: {
-      type: object, // xstate actor
-      required: true,
-    },
-  },
-  setup(props, { emit }) {
-    const { t } = useI18n();
+const emit = defineEmits<{
+  (e: "reject", value: string): void;
+  (e: "resolve", value: string): void;
+}>();
 
-    const { state, product, productImage, model, meta, summary } =
-      useProductConfig(props.item);
+const props = defineProps<{
+  modelValue: string;
+  item: ActorRef<any>;
+}>();
 
-    const styles = useStyles(
-      ["product.card", "product.card.details"],
-      meta,
-      config
-    );
+const { t } = useI18n();
 
-    // ---
+const { product, productImage, meta, summary } = useProductConfig(props.item);
 
-    return {
-      t,
-      state,
-      product,
-      model,
-      meta,
-      summary,
-      productImage,
-      // ---
-      doReject: () => emit("reject", props.modelValue),
-      doResolve: () => emit("resolve", props.modelValue),
-      toggle: ref(meta.value.hasErrors && !meta.value.isNew),
-      // ---
-      styles,
-      cn,
-      // ---
-      isNil,
+const styles = useStyles(
+  ["product.card", "product.card.details"],
+  meta,
+  config
+) as ComputedRef<{
+  product: {
+    card: {
+      root: string;
+      media: string;
+      image: string;
+      wrapper: string;
+      header: string;
+      title: string;
+      meta: string;
+      more: string;
+      content: string;
+      collapsible: string;
+      details: {
+        root: string;
+        item: string;
+        title: string;
+        invalid: string;
+        text: string;
+      };
+      footer: string;
+      summary: string;
+      discount: string;
+      total: string;
+      actions: string;
+      toggle: string;
     };
-  },
-  computed: {
-    termSummary() {
-      return find(this?.summary?.details, detail => detail.key === "term");
-    },
-    hasSummaryDetails() {
-      return reject(this?.summary?.details, ["key", "term"])?.length;
-    },
-  },
+  };
+}>;
 
-  watch: {
-    "meta.hasErrors": {
-      immediate: true,
-      handler(value) {
-        this.toggle = value && !this.meta.isNew;
-      },
-    },
-  },
+// ---
+function doReject() {
+  emit("reject", props.modelValue);
+}
+function doResolve() {
+  emit("resolve", props.modelValue);
+}
+const toggle = ref(meta.value.hasErrors && !meta.value.isNew);
+
+const termSummary = computed(() => {
+  return find(summary.value?.details, detail => detail.key === "term");
+});
+
+const hasSummaryDetails = computed(() => {
+  return reject(summary.value?.details, ["key", "term"])?.length;
+});
+
+watch(meta, ({ hasErrors, isNew }) => {
+  toggle.value = hasErrors && !isNew;
 });
 </script>
-.

@@ -67,7 +67,7 @@ export default createMachine(
 
           // if we dont then spawn an actor for the new message
           if (!exists) {
-            const machine: ActorRef<any, any> = spawn(
+            const machine: ActorRef<any> = spawn(
               messageMachine.withContext(useMessageParser(data)),
               { name: id, sync: true }
             );

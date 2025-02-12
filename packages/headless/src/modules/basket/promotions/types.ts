@@ -10,7 +10,7 @@ import type { IBasketPromotion } from "@upmind-automation/types";
 // --------------------------------------------------------
 // private
 
-export interface IPromotion {
+export interface Promotion {
   promocode: string;
 }
 
@@ -23,7 +23,7 @@ export interface PromotionsContext {
   promotions?: IBasketPromotion[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IPromotion;
+  model?: Promotion;
   // ---
   dirty?: Boolean;
   autoupdate?: Boolean;

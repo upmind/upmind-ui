@@ -380,7 +380,7 @@ export default createMachine(
       // ---
 
       forwardCheckout: ({ actors }: PaymentDetailsContext) => {
-        forEach(actors, (actor: ActorRef<any, any> | undefined) => {
+        forEach(actors, (actor: ActorRef<any> | undefined) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }

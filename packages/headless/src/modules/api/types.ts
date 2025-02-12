@@ -56,9 +56,9 @@ export interface RequestContext {
   response?: RequestResponse["data"];
   attempts?: number;
   error?: RequestError;
-  parent?: ActorRef<any, any>;
+  parent?: ActorRef<any>;
 }
 
 export interface RequestsContext {
-  requests: Record<string, ActorRef<any, any>>;
+  requests: Record<string, ActorRef<any>>;
 }

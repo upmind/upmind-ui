@@ -32,7 +32,7 @@
         v-if="meta.isNew"
         color="accent"
         variant="flat"
-        :class="styles.basket.item.ping.root"
+        :class="styles.basket.item.root"
       >
         {{ t("basket.items.pending.badge") }}
       </Badge>
@@ -40,7 +40,7 @@
         v-else-if="meta.hasErrors"
         color="error"
         variant="flat"
-        :class="styles.basket.item.ping.root"
+        :class="styles.basket.item.root"
       >
         {{ t("basket.items.invalid.badge") }}
       </Badge>
@@ -80,7 +80,7 @@ import type { ActorRef } from "xstate";
 const props = withDefaults(
   defineProps<{
     modelValue: string;
-    item: ActorRef<any, any>;
+    item: ActorRef<any>;
     selected?: boolean;
   }>(),
   {
@@ -102,12 +102,14 @@ const {
 } = useProductConfig(props.item);
 
 const styles = useStyles(
-  ["basket.item", "basket.item.ping"],
+  ["basket.item", "basket.item"],
   meta,
   config
 ) as ComputedRef<{
   basket: {
-    item: string;
+    item: {
+      root: string;
+    };
   };
 }>;
 // ---
@@ -115,8 +117,8 @@ const styles = useStyles(
 const open = ref(props.selected);
 
 async function doResolve() {
-  updateItem(props.modelValue).then(item => {
-    open.value = !stateMatches(item.state, ["available.complete"]);
+  updateItem(props.modelValue).then((item: ActorRef<any>) => {
+    open.value = !stateMatches(item, ["available.complete"]);
   });
 }
 </script>

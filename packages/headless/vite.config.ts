@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
-import tsconfigPaths from 'vite-tsconfig-paths'; // Import the plugin
-import nodeResolve from '@rollup/plugin-node-resolve';
+// import tsconfigPaths from 'vite-tsconfig-paths'; // Import the plugin
+// import nodeResolve from '@rollup/plugin-node-resolve';
 import { configDefaults } from "vitest/config";
 
 export default defineConfig({
@@ -21,11 +21,11 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       external: [], // Only truly external dependencies here (e.g., React, Vue)
-      plugins: [nodeResolve()], // Essential for monorepo dependencies
+      // plugins: [nodeResolve()], // Essential for monorepo dependencies
     },
   },
   plugins: [
-    tsconfigPaths(), // Add this plugin for path mapping
+    // tsconfigPaths(), // Add this plugin for path mapping
     dts({
       entryRoot: 'src',
       outputDir: 'dist/types',
@@ -35,6 +35,7 @@ export default defineConfig({
     }),
   ],
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  // @ts-ignore
   test: {
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "e2e/*"],

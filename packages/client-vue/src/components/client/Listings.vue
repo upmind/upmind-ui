@@ -244,9 +244,8 @@ const sortedItems = computed(() => {
   // if we may have an active 'selected', and we want to sort the items so that the selected item is always on top
   // we dont do this to the  reactive 'selected' to prevent jank re-ordering
   // we use the inital value as opposed to the reactive value
-  return [...items.value].sort(
-    (x: ActorRef<any, any>, y: ActorRef<any, any>) =>
-      x.id == active.value?.id ? -1 : y.id == active.value?.id ? 1 : 0
+  return [...items.value].sort((x: ActorRef<any>, y: ActorRef<any>) =>
+    x.id == active.value?.id ? -1 : y.id == active.value?.id ? 1 : 0
   );
 });
 const isOpen = computed(() => {
@@ -257,7 +256,7 @@ function onClose(value: boolean) {
   emit("update:open", value);
 }
 
-function onSelect(item: ActorRef<any, any>) {
+function onSelect(item: ActorRef<any>) {
   select(item.id);
   emit("update:open", false);
 }

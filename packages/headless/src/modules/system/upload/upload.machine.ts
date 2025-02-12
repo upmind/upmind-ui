@@ -22,34 +22,7 @@ export default createMachine(
     id: "uploadManager",
     predictableActionArguments: true,
     initial: "idle",
-    context: {
-      field: {},
-
-      // ---
-      fileTypes: [],
-      // maxFileSize: 0,
-      // minFileSize: 0,
-      // minDimensions: {
-      //   width: 0,
-      //   height: 0
-      // },
-      // maxDimensions: {
-      //   width: 0,
-      //   height: 0
-      // },
-
-      // ---
-      progress: 0,
-      request: null,
-      response: null,
-      // ---
-      file: null,
-      name: null,
-      src: null,
-
-      // ---
-      error: null,
-    } as UploadContext,
+    context: {} as UploadContext,
     states: {
       idle: {
         on: {

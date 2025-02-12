@@ -15,7 +15,7 @@ import { responseCodes } from "../../api";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../types";
 import { parseBasketProduct } from "../utils";
-import { DetailedError } from "src/utils";
+import { DetailedError } from "../../../utils";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -47,7 +47,7 @@ export const useBasketProduct = (
     refresh: async (newBasket: IBasket) => {
       basketProduct = getBasketProduct(newBasket);
     },
-    update: async (data: BasketProduct): Promise<ActorRef<any, any>> => {
+    update: async (data: BasketProduct): Promise<ActorRef<any>> => {
       return services.update({ basketId: rawBasket.id }, { data });
     },
 
@@ -103,7 +103,7 @@ export const useBasketProductConfig = (
 
     stop: () => service.stop(),
 
-    update: async (): Promise<ActorRef<any, any>> => {
+    update: async (): Promise<ActorRef<any>> => {
       service.send({ type: "UPDATE" });
 
       return waitFor(service, state => !state.matches("processing")).then(

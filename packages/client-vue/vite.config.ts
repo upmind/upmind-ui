@@ -1,8 +1,8 @@
-import { defineConfig, type PluginOption } from 'vite';
+import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import nodeResolve from '@rollup/plugin-node-resolve';
+// import tsconfigPaths from 'vite-tsconfig-paths';
+// import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue'
 import { configDefaults } from "vitest/config";
 
@@ -18,21 +18,30 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: '@upmind-automation/upmind-ui',
+      name: '@upmind-automation/client-vue',
     },
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      plugins: [nodeResolve()],
+      external: ['vue', 'vue-router'],
+      output: {
+        globals: {
+          vue: 'Vue', // Provide global name for 'vue'
+          'vue-router': 'VueRouter', // Provide global name for 'vue-router'
+        },
+      },
+      // plugins: [nodeResolve()],
+
     },
+
   },
   plugins: [
     vue(),
-    tsconfigPaths() as PluginOption,
+    // tsconfigPaths() as PluginOption,
     dts({
       entryRoot: 'src',
-      outputDir: 'dist/types',
-      tsConfigFilePath: 'tsconfig.build.json',
+      outDir: 'dist/types',
+      tsconfigPath: 'tsconfig.build.json',
     }),
   ],
 });

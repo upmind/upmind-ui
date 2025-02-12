@@ -221,7 +221,7 @@ const props = withDefaults(
   defineProps<{
     as?: string;
     modelValue: string;
-    item: ActorRef<any, any>;
+    item: ActorRef<any>;
     disabled?: boolean;
     required?: boolean;
     noHeader?: boolean;

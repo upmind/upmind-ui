@@ -39,7 +39,7 @@ export interface ProductConfigContext {
     options?: number[];
   };
   // ---
-  calculateCallback?: ActorRef<any, any>;
+  calculateCallback?: ActorRef<any>;
   error?: any;
   errorExternal?: any;
   // ---

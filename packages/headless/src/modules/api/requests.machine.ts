@@ -110,7 +110,7 @@ export default createMachine(
           { data: { hash } }: AnyEventObject
         ) => {
           // try find any requests with the same hash
-          const request = get(requests, hash) as ActorRef<any, any>;
+          const request = get(requests, hash) as ActorRef<any>;
 
           // if it exists, stop the referenced machine
           // and remove it from our list of requests
