@@ -22,7 +22,7 @@ import type { RequestContext, RequestParams } from "./types";
 export default (request: RequestParams) =>
   createMachine(
     {
-      tsTypes: {} as import("./request.machine.typegen").Typegen0,
+      // tsTypes: {} as import("./request.machine.typegen").Typegen0,
       id: "request",
       predictableActionArguments: true,
       initial: "available",
@@ -39,7 +39,7 @@ export default (request: RequestParams) =>
         error: undefined,
         // ---
         attempts: 0,
-      },
+      } as RequestContext,
       states: {
         // our initial state depends on how the machine was invoked
         // If we have context > url + init, we can skip to generating
@@ -205,8 +205,7 @@ export default (request: RequestParams) =>
     {
       actions: {
         setResponse: assign({
-          response: (context, { data }: AnyEventObject) => data,
-
+          response: (_context, { data }: AnyEventObject) => data,
           completed: () => Date.now(),
         }),
 

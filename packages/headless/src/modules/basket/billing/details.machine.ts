@@ -16,12 +16,13 @@ import { set } from "lodash-es";
 // --- types
 import type { BillingDetailsContext } from "./types";
 import { responseCodes } from "../../api";
+import { PaymentDetailsContext } from "src/modules/paymentDetails";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    tsTypes: {} as import("./details.machine.typegen").Typegen0,
+    // tsTypes: {} as import("./details.machine.typegen").Typegen0,
     id: "billingDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -202,12 +203,15 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model),
+        model: ({ schema, model }: BillingDetailsContext) =>
+          useModelParser(schema, model),
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
-          useModelParser(schema, data || model),
+        model: (
+          { schema, model }: BillingDetailsContext,
+          { data }: AnyEventObject
+        ) => useModelParser(schema, data || model),
       }),
 
       clearModel: assign({
@@ -235,7 +239,7 @@ export default createMachine(
       //   addSuccess("Successfully updated billing details");
       // },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: BillingDetailsContext, _event) => {
         // dont show any unauthorized errors
         if (
           !error ||
@@ -286,6 +290,6 @@ export default createMachine(
       wait: () => useTime().WAIT,
     },
 
-    services,
+    services: services as any,
   }
 );

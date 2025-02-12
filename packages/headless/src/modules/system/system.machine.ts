@@ -19,24 +19,7 @@ export default createMachine(
     id: "systemManager",
     predictableActionArguments: true,
     initial: "processing",
-    context: {
-      currencies: null,
-      billingCycles: null,
-      countries: null,
-      regions: null,
-      languages: null,
-      statuses: null,
-      departments: null,
-
-      // --- admin only endpoints
-
-      // systemIPAddresses: null,
-      // taxBusinessTypes: null,
-
-      // ---
-      error: {},
-    } as SystemContext,
-
+    context: {} as SystemContext,
     type: "parallel",
     states: {
       // --- obligatory: we need these to be loaded before we can do anything else

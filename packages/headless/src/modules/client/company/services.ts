@@ -56,19 +56,22 @@ async function loadLookups({ model }: CompanyContext) {
     phones.isReady(),
     emails.isReady(),
   ]).then(() => {
+    const defaultAddress = addresses.getDefault();
+    const defaultPhone = phones.getDefault();
+    const defaultEmail = emails.getDefault();
     return {
       emails,
       addresses,
       phones,
       baseModel: {
         ...model,
-        addressId: addresses.getDefault()?.id,
-        email: emails.getDefault()?.email,
+        addressId: defaultAddress?.id,
+        email: defaultEmail?.email,
         phone: {
-          number: phones.getDefault()?.phone?.number,
-          nationalNumber: phones.getDefault()?.phone?.national_number,
-          countryCallingCode: phones.getDefault()?.phone?.country_calling_code,
-          country: phones.getDefault()?.phone?.country,
+          number: defaultEmail?.phone?.number,
+          nationalNumber: defaultEmail?.phone?.national_number,
+          countryCallingCode: defaultEmail?.phone?.country_calling_code,
+          country: defaultEmail?.phone?.country,
         },
       },
     };

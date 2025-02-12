@@ -1,12 +1,12 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, AnyEventObject } from "xstate";
 
 // --- internal
 import services from "./services";
-import type { UploadContext, UploadEvent } from "../types";
+import type { UploadContext } from "./types";
 
 // --- utils
-import { useTime, useValidationParser } from "../../../utils";
+import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
 // --- types
@@ -148,24 +148,24 @@ export default createMachine(
       }),
 
       setRequest: assign({
-        request: (_context: UploadContext, { data }: UploadEvent) =>
+        request: (_context: UploadContext, { data }: AnyEventObject) =>
           useFileParser(data),
-        name: (_context: UploadContext, { data }: UploadEvent) => data?.name,
-        src: (_context: UploadContext, { data }: UploadEvent) =>
+        name: (_context: UploadContext, { data }: AnyEventObject) => data?.name,
+        src: (_context: UploadContext, { data }: AnyEventObject) =>
           useFileSrcParser(data),
       }),
 
       setResponse: assign({
-        response: ({ _context }: UploadContext, { data }: UploadEvent) => data,
-        file: (_context: UploadContext, { data }: UploadEvent) => data.value,
-        name: ({ name }: UploadContext, { data }: UploadEvent) =>
+        response: (_context: UploadContext, { data }: AnyEventObject) => data,
+        file: (_context: UploadContext, { data }: AnyEventObject) => data.value,
+        name: ({ name }: UploadContext, { data }: AnyEventObject) =>
           data?.name || name,
-        src: (_context: UploadContext, { data }: UploadEvent) =>
+        src: (_context: UploadContext, { data }: AnyEventObject) =>
           `${base}/api/images/${data.value}/download`,
       }),
 
       setProgress: assign({
-        progress: (_context: UploadContext, { data }: UploadEvent) => data,
+        progress: (_context: UploadContext, { data }: AnyEventObject) => data,
       }),
 
       // ---
@@ -174,7 +174,7 @@ export default createMachine(
           // @
           let error = data?.error;
           // @
-          if (errore.code == responseCodes.Unprocessable_Entity) {
+          if (error.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);

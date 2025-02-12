@@ -38,7 +38,7 @@ import {
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { BasketContext } from "./types";
 import { responseCodes } from "../api";
-import { PaymentTypes } from "../paymentDetails/types";
+import { PaymentType } from "@upmind-automation/types";
 import { GatewayTypes } from "../paymentDetails/gateways/types";
 
 // --------------------------------------------------------
@@ -762,7 +762,7 @@ export default createMachine(
       paymentNeeded: ({ paymentDetails }: BasketContext) => {
         const hasOustandingBalance = paymentDetails?.amount ?? 0 > 0;
 
-        const payingNow = paymentDetails?.type != PaymentTypes.PAY_LATER;
+        const payingNow = paymentDetails?.type != PaymentType.PAY_LATER;
 
         const manualPayment = includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],

@@ -25,7 +25,7 @@ function parseCountry(addressComponents: any) {
 async function parseRegion(
   regionLevel1: string,
   regionLevel2: string,
-  country: ICountry
+  country: string
 ) {
   const { fetchRegions, getRegion } = useSystem();
   await fetchRegions(country);
@@ -82,7 +82,7 @@ export async function usePlaceParser(result: any): Promise<IAddressData> {
   const region = await parseRegion(
     parseValue(address, ["administrative_area_level_1"]),
     parseValue(address, ["administrative_area_level_2"]),
-    country
+    country?.code ?? ""
   );
 
   return {

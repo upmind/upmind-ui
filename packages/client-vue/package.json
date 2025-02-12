@@ -10,7 +10,11 @@
   "module": "./dist/client-vue.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": "./src/client-vue.ts"
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/client-vue.js",
+      "require": "./dist/client-vue.umd.cjs"
+    }
   },
   "files": [
     "dist"
@@ -27,7 +31,7 @@
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
     "@upmind-automation/headless-vue": "workspace:*",
-    "@upmind-automation/upmind-ui": "workspace:*",
+    "@upmind-automation/client-vue": "workspace:*",
     "@vueuse/components": "^10.11.1",
     "@vueuse/core": "^10.11.1",
     "lodash-es": "^4.17.21",

@@ -206,7 +206,7 @@ export const spawnItem = (model?: ICompany) => {
     return spawn(
       itemMachine
         .withConfig({
-          actions,
+          actions: actions as any,
           services: services as any,
         })
         .withContext({ model }),

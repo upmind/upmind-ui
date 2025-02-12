@@ -59,12 +59,12 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
+      '@upmind-automation/client-vue':
+        specifier: workspace:*
+        version: 'link:'
       '@upmind-automation/headless-vue':
         specifier: workspace:*
         version: link:../headless-vue
-      '@upmind-automation/upmind-ui':
-        specifier: workspace:*
-        version: link:../ui
       '@vueuse/components':
         specifier: ^10.11.1
         version: 10.11.1(vue@3.5.13(typescript@5.7.3))

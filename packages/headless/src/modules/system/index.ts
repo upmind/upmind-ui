@@ -12,7 +12,7 @@ import { useBrand } from "../brand";
 
 // --- utils
 import { find, isString, get, isEmpty, some, isArray } from "lodash-es";
-import type { ICountry } from "./types";
+import type { ICountry, IRegion } from "@upmind-automation/types";
 
 // --- types
 
@@ -22,11 +22,7 @@ import type { ICountry } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state: any = null;
-
-const service = interpret(systemMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service = interpret(systemMachine, { devTools: false });
 // --------------------------------------------------------
 
 export const useSystem = () => {
@@ -52,7 +48,7 @@ export const useSystem = () => {
     // Are we already fetching this node?
     // if we are, then wait for the fetch to complete
 
-    if (state.matches(`${node}.loading`)) {
+    if (service.getSnapshot().matches(`${node}.loading`)) {
       await waitFor(service, newstate =>
         [`${node}.idle`, `${node}.complete`].some(newstate.matches)
       );
@@ -73,7 +69,7 @@ export const useSystem = () => {
         state => [`${node}.processed`, `${node}.error`].some(state.matches)
         // { timeout: Infinity }
       )
-        .then(() => {
+        .then(state => {
           if (state.matches(`${node}.processed`)) {
             resolve(getValues(data));
           } else {
@@ -88,8 +84,9 @@ export const useSystem = () => {
 
   // --- Methods
 
-  const getCurrencies = () => state.context.currencies;
+  const getCurrencies = () => service.getSnapshot().context.currencies;
   const getCurrency = (value?: string) => {
+    const state = service.getSnapshot();
     // if we are not passed a country, then we need to get the default country
     value ??= getDefaultCurrency();
 
@@ -99,13 +96,14 @@ export const useSystem = () => {
   };
   // ---
 
-  const getBillingCycles = () => state.context.billingCycles;
+  const getBillingCycles = () => service.getSnapshot().context.billingCycles;
   const getBillingCycle = (value: any) =>
-    find(state.context.billingCycles, ["months", value]);
+    find(service.getSnapshot().context.billingCycles, ["months", value]);
   // ---
 
-  const getCountries = () => state.context.countries;
+  const getCountries = () => service.getSnapshot().context.countries;
   const getCountry = (value?: string) => {
+    const state = service.getSnapshot();
     // if we are not passed a country, then we need to get the default country
     value ??= getDefaultCountry();
 
@@ -133,8 +131,15 @@ export const useSystem = () => {
     return fetch("regions", getRegions, country);
   };
 
-  const getRegions = (value: string | ICountry) =>
-    get(state.context.regions, isString(value) ? value : value.code);
+  const getRegions = (value: string | ICountry) => {
+    const countryCode = isString(value) ? value : value.code;
+    const emptyRegions: Record<string, IRegion[]> = { countryCode: [] };
+    return get(
+      service.getSnapshot().context.regions,
+      countryCode,
+      emptyRegions
+    ) as Record<string, IRegion[]>;
+  };
 
   const getRegion = (
     values: string | Array<string>,
@@ -144,14 +149,15 @@ export const useSystem = () => {
 
     const regions = getRegions(country);
 
-    if (!regions?.length) return found;
+    if (isEmpty(regions)) return found;
 
     if (isArray(values)) {
       return find(regions, region =>
-        some(values, value => {
-          const name = get(region, "name");
-          return value?.toLowerCase() == name?.toLowerCase();
-        })
+        some(
+          values,
+          value =>
+            value?.toLowerCase() == get(region, "name", "")?.toLowerCase()
+        )
       );
     }
 
@@ -159,26 +165,26 @@ export const useSystem = () => {
   };
   // ---
 
-  const getLanguages = () => state.context.languages;
+  const getLanguages = () => service.getSnapshot().context.languages;
   const getLanguage = (value: any) =>
-    find(state.context.languages, ["code", value]);
+    find(service.getSnapshot().context.languages, ["code", value]);
   // ---
 
-  const getStatuses = () => state.context.statuses;
+  const getStatuses = () => service.getSnapshot().context.statuses;
   const getStatus = (value: any) =>
-    find(state.context.statuses, ["code", value]);
+    find(service.getSnapshot().context.statuses, ["code", value]);
   // ---
 
-  const getDepartments = () => state.context.departments;
+  const getDepartments = () => service.getSnapshot().context.departments;
   const getDepartment = (value: any) =>
-    find(state.context.departments, ["code", value]);
+    find(service.getSnapshot().context.departments, ["code", value]);
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     isReady,
-    getSnapshot: () => state,
+    getSnapshot: service.getSnapshot,
 
     // ---
     getCurrencies,
