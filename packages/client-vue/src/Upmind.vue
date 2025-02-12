@@ -113,6 +113,7 @@ export default {
 import { useI18n } from "vue-i18n";
 
 // --- internal
+import { useRoutingEngine } from "@upmind-automation/headless-vue";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components

@@ -68,7 +68,7 @@ import { useRouter } from "vue-router";
 // --- internal
 import { useSession, utils } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./order.config";
 
 // --- components
 import { Icon, Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
@@ -77,6 +77,7 @@ import { Icon, Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
 import { isEmpty } from "lodash-es";
 
 // --- types
+import type { ComputedRef } from "vue";
 import type { OrderConfirmationProps } from "./types";
 // -----------------------------------------------------------------------------
 const router = useRouter();
@@ -96,7 +97,16 @@ const props = withDefaults(defineProps<OrderConfirmationProps>(), {
 
 const { transfer: transferSession, meta } = useSession();
 
-const styles = useStyles(["order.confirmation"], meta, config);
+const styles = useStyles(["order.confirmation"], meta, config) as ComputedRef<{
+  order: {
+    confirmation: {
+      root: string;
+      title: string;
+      text: string;
+      actions: string;
+    };
+  };
+}>;
 
 const processing = ref(false);
 const isOpen = computed(() => meta.value.isProcessing || props.open);

@@ -44,7 +44,6 @@
             variant="link"
             @click="toggle = !toggle"
             size="sm"
-            color="current"
             :label="t('product.actions.more', toggle ? 0 : 1)"
             :class="styles.product.card.more"
             v-if="hasSummaryDetails"
@@ -135,9 +134,7 @@
               meta.isProcessing ||
               (!meta.isConfigurable && !product?.quantifiable)
             "
-            :color="
-              meta.isNew ? 'accent' : meta.hasErrors ? 'error' : 'current'
-            "
+            :color="meta.isNew ? 'accent' : meta.hasErrors ? 'error' : null"
             :label="t('product.actions.configure')"
             @click="doResolve"
             icon-only
@@ -153,7 +150,6 @@
             :label="t('product.actions.remove')"
             :loading="meta.isProcessing"
             @click="doReject"
-            color="current"
             icon-only
             prependIcon="remove"
             type="button"

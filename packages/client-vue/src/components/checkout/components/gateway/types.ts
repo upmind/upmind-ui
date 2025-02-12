@@ -1,3 +1,5 @@
+import type { ButtonProps } from "@upmind-automation/ui";
+
 export interface GatewayContentProps {
   item: {
     gateway: {
@@ -26,7 +28,7 @@ export interface GatewayContentProps {
     type: number;
   };
   // ---
-  color?: string;
+  color?: ButtonProps["color"];
 }
 
 export interface GatewayTriggerProps {

@@ -103,6 +103,7 @@ watch(toasts, toasts => {
         duration: 10000,
         onDismiss: t => dismissToast(t.id.toString()),
         onAutoClose: t => dismissToast(t.id.toString()),
+        // @ts-ignore
         type: message.value.type,
         position: "top-right",
       });

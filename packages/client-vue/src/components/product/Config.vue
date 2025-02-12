@@ -162,7 +162,6 @@
           tabindex="1"
           :label="t('product.actions.reject')"
           :disabled="meta.isProcessing || required"
-          color="current"
           variant="link"
           @click="doReject"
         />

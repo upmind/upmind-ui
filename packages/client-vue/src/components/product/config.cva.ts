@@ -13,32 +13,18 @@ export default {
         {
           variants: {
             isProcessing: {
-              // true: "pointer-events-none opacity-50",
+              true: "",
+              false: "",
             },
             isDisabled: {
-              // true: "pointer-events-none",
+              true: "",
+              false: "",
             },
-
-            // hasErrors: {
-            //   true: "bg-error text-error-foreground",
-            // },
-            // isNew: {
-            //   true: "bg-accent text-accent-foreground",
-            // },
+            isInvalid: {
+              true: "",
+              false: "",
+            },
           },
-
-          // compoundVariants: [
-          //   {
-          //     isLoading: false,
-          //     hasErrors: true,
-          //     class: "border-error",
-          //   },
-          //   {
-          //     isLoading: false,
-          //     isInvalid: false,
-          //     class: "rounded-none border-none",
-          //   },
-          // ],
 
           defaultVariants: {
             isDisabled: false,
