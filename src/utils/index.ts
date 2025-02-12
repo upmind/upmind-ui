@@ -5,3 +5,4 @@ export * from "./useValidation";
 export * from "./useScrollSpy";
 export * from "./useLottie";
 export * from "./usePointerEvents";
+export * from "./useFocusNavigation";

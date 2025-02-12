@@ -30,6 +30,12 @@ import {
   type ComboboxItemProps,
 } from "./ui/combobox";
 import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  type CollapsibleProps,
+} from "./ui/collapsible";
+import {
   useCarousel,
   Carousel,
   CarouselContent,
@@ -77,6 +83,7 @@ import {
   NumberField,
   type NumberFieldProps,
 } from "./ui/number-field";
+import { Label } from "./ui/label";
 import { UpmLoading, Loading } from "./ui/loading";
 import { UpmLink, Link } from "./ui/link";
 import { UpmSonner, Sonner } from "./ui/sonner";
@@ -91,7 +98,7 @@ import {
   type RadioCardsProps,
   type RadioCardsItemProps,
 } from "./ui/radio-cards";
-import { RadioGroup } from "./ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 import { UpmSelect, Select, type SelectProps } from "./ui/select";
 import { UpmSkeleton, Skeleton, SkeletonList } from "./ui/skeleton";
@@ -109,8 +116,11 @@ export {
   useScrollSpy,
   initializeLottie,
   usePointerEvents,
+  useFocusNavigation,
 } from "./utils";
 import { forEach, kebabCase } from "lodash-es";
+
+export { ringClasses, invalidRingClasses } from "./assets/styles";
 
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
@@ -134,6 +144,10 @@ export {
   CarouselNext,
   CarouselPrevious,
   CarouselApi,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  CollapsibleProps,
   Combobox,
   Dialog,
   Drawer,
@@ -150,6 +164,7 @@ export {
   Interstitial,
   Input,
   NumberField,
+  Label,
   Link,
   Loading,
   Popover,
@@ -157,6 +172,7 @@ export {
   PopoverTrigger,
   RadioCards,
   RadioGroup,
+  RadioGroupItem,
   Separator,
   Select,
   SelectCards,
@@ -261,7 +277,6 @@ export function useCustomElement(
     }
   });
 }
-
 // -----------------------------------------------------------------------------
 
 declare module "vue" {
