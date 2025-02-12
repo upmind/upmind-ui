@@ -19,9 +19,9 @@
       </p>
     </div>
 
-    <Recommendations @resolve="doClose" />
+    <Carousel @resolve="doClose" />
 
-    <UpmCard
+    <Card
       class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
     >
       <div
@@ -40,7 +40,7 @@
           <Icon icon="arrow-right" size="2xs" />
         </template>
       </Button>
-    </UpmCard>
+    </Card>
   </aside>
 </template>
 
@@ -54,12 +54,12 @@ import {
   useBasket,
   useRecommendationsEngine,
   useRoutingEngine,
-  UpmCard,
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import Recommendations from "./Recommendations.vue";
+import Carousel from "./components/Carousel.vue";
+import Card from "../../components/content/Card.vue";
 
 // --- utils
 // -----------------------------------------------------------------------------

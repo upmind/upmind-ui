@@ -46,7 +46,7 @@
     :dismissible="false"
     :class-footer="styles.recommendation.carousel.footer"
   >
-    <UpmProductConfig
+    <ProductConfig
       :item="basketItem"
       :processing="meta?.isProcessing"
       :model-value="basketItem.id"
@@ -89,7 +89,7 @@ import {
   useBasket,
   useRecommendationsEngine,
 } from "@upmind-automation/headless-vue";
-import UpmProductConfig from "../product/Config.vue";
+import ProductConfig from "../../product/product/Config.vue";
 
 // --- components
 import {
@@ -102,8 +102,8 @@ import {
   Button,
 } from "@upmind-automation/upmind-ui";
 
-import RecommendationCard from "./RecommendationCard.vue";
-import RecommendationCardSkeleton from "./RecommendationCardSkeleton.vue";
+import RecommendationCard from "./Card.vue";
+import RecommendationCardSkeleton from "./CardSkeleton.vue";
 
 //--- utils
 import { forEach } from "lodash-es";

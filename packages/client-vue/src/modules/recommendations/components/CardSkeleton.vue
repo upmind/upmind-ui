@@ -97,7 +97,7 @@ import config from "./config.cva";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
-import UpmCard from "../content/Card.vue";
+import UpmCard from "./Card.vue";
 import { Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types
