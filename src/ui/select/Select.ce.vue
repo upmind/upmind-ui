@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   // -- styles
   width: "full",
   // --- styles
-  uiConfig: () => ({ select: {} }),
+  uiConfig: () => ({ select: [] }),
   class: "",
 });
 

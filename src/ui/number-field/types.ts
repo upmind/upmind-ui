@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   NumberFieldRootProps,
   NumberFieldDecrementProps,
@@ -25,7 +25,7 @@ export interface NumberFieldProps
   variant?: NumberFieldVariants["variant"];
   height?: NumberFieldVariants["height"];
   // --- styles
-  uiConfig?: {};
+  uiConfig?: { numberField: CxOptions };
   class?: HTMLAttributes["class"];
   classField?: HTMLAttributes["class"];
 }

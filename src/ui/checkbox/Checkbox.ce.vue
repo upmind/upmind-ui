@@ -29,7 +29,7 @@ import type { CheckboxProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<CheckboxProps>(), {
-  uiConfig: () => ({ checkbox: {} }),
+  uiConfig: () => ({ checkbox: [] }),
   size: "md",
   width: "full",
   class: "",

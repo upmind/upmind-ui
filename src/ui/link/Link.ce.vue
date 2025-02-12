@@ -40,7 +40,7 @@ const props = withDefaults(defineProps<LinkProps>(), {
   color: "base",
   variant: "flat",
   // --- styles
-  uiConfig: () => ({ link: {} }),
+  uiConfig: () => ({ link: [] }),
 });
 
 const meta = computed(() => ({

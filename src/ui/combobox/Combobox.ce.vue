@@ -175,7 +175,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   iconSize: "2xs",
 
   // --- styles
-  uiConfig: () => ({ combobox: {} }),
+  uiConfig: () => ({ combobox: [] }),
   class: "",
   popoverClass: "",
 });

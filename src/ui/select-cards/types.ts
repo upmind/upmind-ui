@@ -8,6 +8,7 @@ import type {
   RadioGroupItemProps,
   PopoverContentProps,
 } from "radix-vue";
+import type { CxOptions } from "class-variance-authority";
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   label: string;
@@ -27,7 +28,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   size?: ButtonProps["size"];
   focusable?: boolean;
 
-  uiConfig?: { select: Partial<SelectCardsProps> };
+  uiConfig?: { select: CxOptions };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }

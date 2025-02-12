@@ -25,7 +25,7 @@ import type { LabelProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<LabelProps>(), {
-  uiConfig: () => ({ label: {} }),
+  uiConfig: () => ({ label: [] }),
   class: "",
 });
 const delegatedProps = computed(() => omit(props, ["uiConfig", "class"]));

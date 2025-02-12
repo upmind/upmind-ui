@@ -1,6 +1,6 @@
 // --- external
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { switchVariants } from "./switch.config";
@@ -20,6 +20,6 @@ export interface SwitchProps {
   readonly?: boolean;
   required?: boolean;
   // ---
-  uiConfig?: { input: Partial<InputVariantProps> };
+  uiConfig?: { input: CxOptions };
   class?: HTMLAttributes["class"];
 }

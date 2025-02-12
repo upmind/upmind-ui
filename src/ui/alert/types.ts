@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { IconProps } from "../icon";
@@ -13,10 +13,10 @@ export interface AlertProps {
   icon?: IconProps["icon"];
   action?: string;
   // ---
-  variant?: AlertVariantProps["variant"];
-  color?: AlertVariantProps["color"];
+  variant?: AlertVariantProps["variant"] | string;
+  color?: AlertVariantProps["color"] | string;
   border?: boolean;
   // ---
-  uiConfig?: { alert: Partial<AlertProps> };
+  uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
 }

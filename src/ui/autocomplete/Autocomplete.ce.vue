@@ -158,7 +158,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   side: "bottom",
   // --- styles
   iconSize: "2xs",
-  uiConfig: () => ({ autocomplete: {} }),
+  uiConfig: () => ({ autocomplete: [] }),
 });
 
 const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();

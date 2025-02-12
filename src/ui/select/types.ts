@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   SelectRootProps,
   SelectContentProps,
@@ -26,6 +26,6 @@ export interface SelectProps
   size?: SelectVariants["size"];
   width?: SelectVariants["width"];
   // --- styles
-  uiConfig?: {};
+  uiConfig?: { select: CxOptions };
   class?: HTMLAttributes["class"];
 }

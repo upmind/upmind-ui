@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { IconProps } from "../icon";
@@ -11,11 +11,11 @@ export interface IndicatorProps {
   modelValue: { type: string };
   icon?: IconProps["icon"];
   // ---
-  size?: IndicatorVariantProps["size"];
-  color?: IndicatorVariantProps["color"];
-  shape?: IndicatorVariantProps["shape"];
+  size?: IndicatorVariantProps["size"] | string;
+  color?: IndicatorVariantProps["color"] | string;
+  shape?: IndicatorVariantProps["shape"] | string;
 
   // ---
-  uiConfig?: { indicator: Partial<IndicatorProps> };
+  uiConfig?: { indicator: CxOptions };
   class?: HTMLAttributes["class"];
 }

@@ -98,10 +98,10 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   // --- styles
   uiConfig: () => ({
     drawer: {
-      container: {},
-      overlay: {},
+      container: [],
+      overlay: [],
       content: [],
-      inner: {},
+      inner: [],
       header: [],
       footer: [],
     },

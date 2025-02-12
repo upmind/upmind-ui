@@ -30,7 +30,7 @@ import type { ToggleProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ToggleProps>(), {
-  uiConfig: () => ({ input: {} }),
+  uiConfig: () => ({ input: [] }),
   class: "",
 });
 

@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<TooltipProps>(), {
   // --- styles
   color: "base",
   // --- styles
-  uiConfig: () => ({ tooltip: {} }),
+  uiConfig: () => ({ tooltip: [] }),
   class: "",
 });
 

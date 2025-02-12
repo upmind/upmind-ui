@@ -96,7 +96,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   additionalRenderers: () => [],
   additionalErrors: () => [],
   // --- Provide a way to add custom styles for a specific instance of the component
-  uiConfig: () => ({ form: {} }),
+  uiConfig: () => ({ form: [] }),
   class: "",
 });
 

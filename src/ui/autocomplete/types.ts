@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   ComboboxRootProps,
   ComboboxInputProps,
@@ -49,14 +49,14 @@ export interface AutocompleteProps
   placeholder?: string;
   emptyMessage?: string;
   // --- variants
-  size?: AnchorVariantProps["size"];
+  size?: AnchorVariantProps["size"] | string;
   // color?: ItemVariantProps["color"];
   // variant?: ButtonProps["variant"];
-  width?: AnchorVariantProps["width"];
-  popoverWidth?: ContentVariantProps["popoverWidth"];
-  iconSize?: IconProps["size"];
+  width?: AnchorVariantProps["width"] | string;
+  popoverWidth?: ContentVariantProps["popoverWidth"] | string;
+  iconSize?: IconProps["size"] | string;
   // --- styles
-  uiConfig?: { autocomplete: Partial<AutocompleteProps> };
+  uiConfig?: { autocomplete: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
 }

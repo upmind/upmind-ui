@@ -1,6 +1,6 @@
 // --- external
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { inputVariants } from "./input.config";
@@ -28,9 +28,9 @@ export interface InputProps {
   min?: number | string;
   step?: number;
   // --- variants
-  size?: InputVariantProps["size"];
-  width?: InputVariantProps["width"];
+  size?: InputVariantProps["size"] | string;
+  width?: InputVariantProps["width"] | string;
   // ---
-  uiConfig?: { input?: Partial<InputVariantProps> };
+  uiConfig?: { input?: CxOptions };
   class?: HTMLAttributes["class"];
 }

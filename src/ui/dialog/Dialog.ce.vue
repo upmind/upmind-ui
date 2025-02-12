@@ -102,8 +102,8 @@ const props = withDefaults(defineProps<DialogProps>(), {
   // --- styles
   uiConfig: () => ({
     dialog: {
-      overlay: {},
-      content: {},
+      overlay: [],
+      content: [],
       header: [],
       footer: [],
     },
