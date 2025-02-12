@@ -1,5 +1,5 @@
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { iconVariants } from "./iconAnimated.config";
@@ -12,9 +12,9 @@ export interface AnimatedIconProps {
   sequence?: string;
   delay?: number;
   // ---
-  size?: IconVariantProps["size"];
+  size?: IconVariantProps["size"] | string;
   // ---
-  uiConfig?: { iconAnimated: Partial<AnimatedIconProps> };
+  uiConfig?: { iconAnimated: CxOptions };
   class?: HTMLAttributes["class"];
   primaryColor?: string;
   secondaryColor?: string;

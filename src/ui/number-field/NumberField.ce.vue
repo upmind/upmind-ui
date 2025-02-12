@@ -50,7 +50,7 @@ const props = withDefaults(defineProps<NumberFieldProps>(), {
   width: "full",
   variant: "flat",
   // --- styles
-  uiConfig: () => ({ numberField: {} }),
+  uiConfig: () => ({ numberField: [] }),
   class: "",
   classField: "",
 });

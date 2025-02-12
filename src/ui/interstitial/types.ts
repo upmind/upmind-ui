@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { AvatarProps } from "../avatar/types";
@@ -38,6 +38,6 @@ export interface InterstitialProps {
   skrim?: DialogProps["skrim"];
   fit?: DialogProps["fit"];
   // ---
-  uiConfig?: { interstitial: Partial<InterstitialVariantProps> };
+  uiConfig?: { interstitial: CxOptions };
   class?: HTMLAttributes["class"];
 }

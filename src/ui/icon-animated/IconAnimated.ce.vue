@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   // ---
   size: "md",
   // ---
-  uiConfig: () => ({ iconAnimated: {} }),
+  uiConfig: () => ({ iconAnimated: [] }),
   class: "",
 });
 

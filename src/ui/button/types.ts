@@ -1,4 +1,5 @@
 // --- external
+import type { CxOptions } from "class-variance-authority";
 import { type HTMLAttributes } from "vue";
 import type { VariantProps } from "class-variance-authority";
 
@@ -18,11 +19,11 @@ export interface ButtonProps {
   // ---
   focusable?: boolean;
   block?: boolean;
-  variant?: ButtonVariantProps["variant"];
-  color?: ButtonVariantProps["color"];
-  size?: ButtonVariantProps["size"];
+  variant?: ButtonVariantProps["variant"] | string;
+  color?: ButtonVariantProps["color"] | string;
+  size?: ButtonVariantProps["size"] | string;
   // ---
-  uiConfig?: { button: Partial<ButtonProps> };
+  uiConfig?: { button: CxOptions };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 }

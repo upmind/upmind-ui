@@ -28,7 +28,7 @@ import type { TextareaProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TextareaProps>(), {
-  uiConfig: () => ({ textarea: {} }),
+  uiConfig: () => ({ textarea: [] }),
   class: "",
 });
 

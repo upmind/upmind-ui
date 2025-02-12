@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   PopoverRootProps,
   PopoverContentProps,
@@ -55,12 +55,12 @@ export interface ComboboxProps
   emptyMessage?: string;
   // --- variants
   size?: ButtonProps["size"];
-  color?: ItemVariantProps["color"];
+  color?: ItemVariantProps["color"] | string;
   variant?: ButtonProps["variant"];
-  width?: ContentVariantsProps["width"];
+  width?: ContentVariantsProps["width"] | string;
   iconSize?: IconProps["size"];
   // --- styles
-  uiConfig?: { combobox: Partial<ComboboxProps> };
+  uiConfig?: { combobox: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
 }

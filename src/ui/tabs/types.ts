@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   TabsRootProps,
   TabsListProps,
@@ -28,15 +28,19 @@ export interface TabsProps
   // ---
   variant?:
     | TabsTriggerVariantProps["variant"]
-    | TabsListVariantProps["variant"];
-  color?: TabsTriggerVariantProps["color"] | TabsListVariantProps["color"];
-  alignment?: TabsListVariantProps["alignment"];
-  width?: TabsListVariantProps["width"];
+    | TabsListVariantProps["variant"]
+    | string;
+  color?:
+    | TabsTriggerVariantProps["color"]
+    | TabsListVariantProps["color"]
+    | string;
+  alignment?: TabsListVariantProps["alignment"] | string;
+  width?: TabsListVariantProps["width"] | string;
   // ---
   uiConfig?: {
     tabs: {
-      trigger: VariantProps<typeof tabsTriggerVariants>;
-      list: VariantProps<typeof tabsListVariants>;
+      trigger: CxOptions;
+      list: CxOptions;
     };
   };
   class?: HTMLAttributes["class"];

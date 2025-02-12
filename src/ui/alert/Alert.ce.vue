@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   variant: "outline",
   color: "base",
   // --- styles
-  uiConfig: () => ({ alert: {} }),
+  uiConfig: () => ({ alert: [] }),
   class: "",
 });
 

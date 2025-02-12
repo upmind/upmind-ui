@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { AnimatedIconProps } from "../icon-animated";
@@ -16,12 +16,12 @@ export interface AvatarProps {
   // ---
   focusable?: boolean;
   // ---
-  color?: AvatarVariantProps["color"];
-  fit?: AvatarVariantProps["fit"];
-  size?: AvatarVariantProps["size"];
-  shape?: AvatarVariantProps["shape"];
-  variant?: AvatarVariantProps["variant"];
+  color?: AvatarVariantProps["color"] | string;
+  fit?: AvatarVariantProps["fit"] | string;
+  size?: AvatarVariantProps["size"] | string;
+  shape?: AvatarVariantProps["shape"] | string;
+  variant?: AvatarVariantProps["variant"] | string;
   // ---
-  uiConfig?: { avatar: Partial<AvatarProps> };
+  uiConfig?: { avatar: CxOptions };
   class?: HTMLAttributes["class"];
 }

@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<IconProps>(), {
   //  --- styles
   size: "auto",
   // --- styles
-  uiConfig: () => ({ icon: {} }),
+  uiConfig: () => ({ icon: [] }),
   class: "",
 });
 

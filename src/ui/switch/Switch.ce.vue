@@ -28,7 +28,7 @@ import type { SwitchProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SwitchProps>(), {
-  uiConfig: () => ({ input: {} }),
+  uiConfig: () => ({ input: [] }),
   class: "",
 });
 
