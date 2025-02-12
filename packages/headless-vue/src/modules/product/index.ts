@@ -29,7 +29,7 @@ import type { ActorRef } from "xstate";
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-export const useProductConfig = (service: ActorRef<any, any>) => {
+export const useProductConfig = (service: ActorRef<any>) => {
   const { checkIncludesTax } = useBrand();
 
   const { state, send } = useActor(service);
@@ -41,7 +41,7 @@ export const useProductConfig = (service: ActorRef<any, any>) => {
   // syntactic sugar
   const product = computed(() => state.value.context?.lookups?.product);
   const productImage = (size: string = "400x400") => {
-    const product = state.value.context?.lookups?.product;
+    const product = state.value.context?.lookups?.product || null;
 
     if (!product?.full_url) return null;
 

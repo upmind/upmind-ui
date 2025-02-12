@@ -40,7 +40,7 @@ const service: any = interpret(basketMachine, {
 // --------------------------------------------------------
 // methods
 // --------------------------------------------------------
-function exists(items: ActorRef<any, any>[] = [], mapping: any, context: any) {
+function exists(items: ActorRef<any>[] = [], mapping: any, context: any) {
   context = context ? `${context}.` : "";
   return some(items, item =>
     every(mapping, (value, key) => {
@@ -112,7 +112,7 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const promotions = get(state, "context.actors.promotions");
     if (!promotions) return false;
-    return waitFor(promotions as ActorRef<any, any>, state =>
+    return waitFor(promotions as ActorRef<any>, state =>
       state.matches("complete")
     )
       .then(() => true)
@@ -123,7 +123,7 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const billingDetails = get(state, "context.actors.billingDetails");
     if (!billingDetails) return false;
-    return waitFor(billingDetails as ActorRef<any, any>, state =>
+    return waitFor(billingDetails as ActorRef<any>, state =>
       state.matches("complete")
     )
       .then(() => true)
@@ -134,7 +134,7 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const currency = get(state, "context.actors.currency");
     if (!currency) return false;
-    return waitFor(currency as ActorRef<any, any>, state =>
+    return waitFor(currency as ActorRef<any>, state =>
       state.matches("complete")
     )
       .then(() => true)
@@ -145,7 +145,7 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const customFields = get(state, "context.actors.customFields");
     if (!customFields) return false;
-    return waitFor(customFields as ActorRef<any, any>, state =>
+    return waitFor(customFields as ActorRef<any>, state =>
       state.matches("complete")
     )
       .then(() => true)
@@ -234,7 +234,7 @@ export const useBasket = () => {
       actor?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any, any>, state => {
+      return waitFor(service as ActorRef<any>, state => {
         return ["processed", "complete", "error"].some(state.matches);
       }).then(state => {
         if (["error"].some(state.matches)) {
@@ -255,7 +255,7 @@ export const useBasket = () => {
 
       if (coupon) {
         actor?.send({ type: "SET", data: { promocode: coupon } });
-        const state = await waitFor(service as ActorRef<any, any>, state =>
+        const state = await waitFor(service as ActorRef<any>, state =>
           ["valid", "error"].some(state.matches)
         );
         if (state.matches("error")) {
@@ -266,7 +266,7 @@ export const useBasket = () => {
       actor?.send({ type: "ADD" });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any, any>, state => {
+      return waitFor(service as ActorRef<any>, state => {
         return ["processed", "complete", "error"].some(state.matches);
       }).then(state => {
         if (["error"].some(state.matches)) {
@@ -289,14 +289,14 @@ export const useBasket = () => {
 
   // --- item functions
 
-  function getProducts(): ActorRef<any, any>[] {
+  function getProducts(): ActorRef<any>[] {
     return get(service.getSnapshot(), "context.products", []) as ActorRef<
       any,
       any
     >[];
   }
 
-  function getPendingProducts(): ActorRef<any, any>[] {
+  function getPendingProducts(): ActorRef<any>[] {
     return get(service.getSnapshot(), "context.items", []) as ActorRef<
       any,
       any
@@ -312,7 +312,7 @@ export const useBasket = () => {
   function findProduct(
     mapping: any,
     pending?: boolean
-  ): ActorRef<any, any> | undefined {
+  ): ActorRef<any> | undefined {
     const products = pending ? getPendingProducts() : getProducts();
     return findLast(products, (basketItem: any) =>
       every(mapping, (value, key) => {
@@ -341,7 +341,7 @@ export const useBasket = () => {
     provisionFields,
     coupons,
     subproducts,
-  }: ProductModel): Promise<ActorRef<any, any>> {
+  }: ProductModel): Promise<ActorRef<any>> {
     // lets wait for our basket  to be ready for shopping
     return waitFor(service, state => state.matches("shopping"), {
       timeout: 60_000,
@@ -393,13 +393,13 @@ export const useBasket = () => {
           return matches;
         });
         return found;
-      }) || last(items)) as ActorRef<any, any>;
+      }) || last(items)) as ActorRef<any>;
 
       return actor;
     });
   }
 
-  async function updateItem(itemId: string): Promise<ActorRef<any, any>> {
+  async function updateItem(itemId: string): Promise<ActorRef<any>> {
     const basketItem = find(service.getSnapshot()?.context?.items, [
       "id",
       itemId,

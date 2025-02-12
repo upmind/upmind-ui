@@ -2,7 +2,7 @@ import type { ButtonProps } from "@upmind-automation/ui";
 import type { ActorRef } from "xstate";
 
 export interface ClientItemProps {
-  modelValue: ActorRef<any, any>;
+  modelValue: ActorRef<any>;
   i18nKey: string;
   open?: boolean;
   modal?: boolean;

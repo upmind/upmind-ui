@@ -79,13 +79,13 @@ const { t } = useI18n();
 
 const { meta, summary } = useBasket();
 const {
-  model: billingDetails,
+  model: billingDetailsModel,
   update: billingDetailsUpdate,
   meta: billingDetailsMeta,
 } = useBasketBillingDetails();
 
 const {
-  model: fields,
+  model: fieldsModel,
   meta: fieldsMeta,
   schema: fieldsSchema,
   uischema: fieldsUischema,

@@ -19,7 +19,7 @@ import type { ActorRef } from "xstate";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  item?: ActorRef<any, any>;
+  item?: ActorRef<any>;
 }>();
 
 const { message, dismiss, state } = useMessage(props.item);

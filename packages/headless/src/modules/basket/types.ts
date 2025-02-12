@@ -122,7 +122,7 @@ export interface BasketContext {
   basket?: IBasket;
   invoice?: any; //IInvoice;
   // ---
-  items?: ActorRef<any, any>[]; // Array of actors of items pending or basket products being configured
+  items?: ActorRef<any>[]; // Array of actors of items pending or basket products being configured
   products: BasketProduct[]; // Array of products in the basket
   // ---
   error?: {
@@ -136,13 +136,13 @@ export interface BasketContext {
   summary?: any; //IBasketSummary;
   // --- SPAWNED ACTORS/MACHINES
   actors: {
-    billingDetails?: ActorRef<any, any>;
-    currency?: ActorRef<any, any>;
-    customFields?: ActorRef<any, any>;
-    paymentDetails?: ActorRef<any, any>;
-    promotions?: ActorRef<any, any>;
+    billingDetails?: ActorRef<any>;
+    currency?: ActorRef<any>;
+    customFields?: ActorRef<any>;
+    paymentDetails?: ActorRef<any>;
+    promotions?: ActorRef<any>;
   };
   // --- Payments
   paymentDetails?: any; //IPaymentDetail;
-  payment?: ActorRef<any, any>;
+  payment?: ActorRef<any>;
 }

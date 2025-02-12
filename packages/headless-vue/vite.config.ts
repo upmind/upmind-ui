@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import nodeResolve from '@rollup/plugin-node-resolve';
+// import tsconfigPaths from 'vite-tsconfig-paths';
+// import nodeResolve from '@rollup/plugin-node-resolve';
 import vue from '@vitejs/plugin-vue'
 import { configDefaults } from "vitest/config";
 
@@ -21,13 +21,21 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      external: ['vue'], // Vue is an external dependency
-      plugins: [nodeResolve()],
+      external: ['vue', 'vue-router'],
+      output: {
+        globals: {
+          vue: 'Vue', // Provide global name for 'vue'
+          'vue-router': 'VueRouter', // Provide global name for 'vue-router'
+        },
+      },
+      // plugins: [nodeResolve()],
+
     },
+
   },
   plugins: [
     vue(),
-    tsconfigPaths(),
+    // tsconfigPaths(),
     dts({
       entryRoot: 'src',
       outputDir: 'dist/types',
@@ -38,6 +46,7 @@ export default defineConfig({
   ],
 
   // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  // @ts-ignore
   test: {
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "e2e/*"],

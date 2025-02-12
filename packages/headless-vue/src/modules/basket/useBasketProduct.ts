@@ -27,12 +27,14 @@ import {
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
-import type { ActorRef } from "xstate";
+import type { ActorRef, State } from "xstate";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the  basket machine and then spawns a  product configuration machine
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 import type { ComputedRef } from "vue";
+import { utils } from "@upmind-automation/headless";
+const { DetailedError } = utils;
 
 export const useBasketProduct = (
   id: string
@@ -56,9 +58,9 @@ export const useBasketProduct = (
   product: ComputedRef<any>;
   model: ComputedRef<any>;
   summary: ComputedRef<any>;
-  updateQuantity: (value: number) => Promise<ActorRef<any, any>>;
-  incrementQuantity: () => Promise<ActorRef<any, any>>;
-  decrementQuantity: () => Promise<ActorRef<any, any>>;
+  updateQuantity: (value: number) => Promise<ActorRef<any>>;
+  incrementQuantity: () => Promise<ActorRef<any>>;
+  decrementQuantity: () => Promise<ActorRef<any>>;
   remove: () => Promise<void>;
   stop: () => void;
 } => {
@@ -69,9 +71,7 @@ export const useBasketProduct = (
   const processing = ref(false);
 
   if (!rawBasket) {
-    const error = new Error("No IBasket available");
-    error.code = responseCodes.Not_Found;
-    throw error;
+    throw new DetailedError("No IBasket available", responseCodes.Not_Found);
   }
 
   // and then we can generate our product machine
@@ -83,7 +83,7 @@ export const useBasketProduct = (
 
   // NB: watch for the basket to be refreshed, so we can refresh the product config
   // in case of any changes to currency, promotions etc
-  basket.onTransition(basketProduct => {
+  basket.onTransition((basketProduct: State<any>) => {
     if (basketProduct.matches("refreshing.complete")) {
       refresh(basketProduct?.context?.basket as IBasket);
     }
@@ -116,7 +116,7 @@ export const useBasketProduct = (
     return quantity;
   };
 
-  const updateQuantity: (value: number) => Promise<ActorRef<any, any>> = async (
+  const updateQuantity: (value: number) => Promise<ActorRef<any>> = async (
     value: number
   ) => {
     // sanity check
@@ -132,12 +132,12 @@ export const useBasketProduct = (
     });
   };
 
-  async function incrementQuantity(): Promise<ActorRef<any, any>> {
+  async function incrementQuantity(): Promise<ActorRef<any>> {
     const qty = get(basketProduct, "quantity", 0);
     return updateQuantity(add(qty, basketProduct.product.step || 1));
   }
 
-  async function decrementQuantity(): Promise<ActorRef<any, any>> {
+  async function decrementQuantity(): Promise<ActorRef<any>> {
     const qty = get(basketProduct, "quantity", 0);
     return updateQuantity(subtract(qty, basketProduct.product?.step || 1));
   }
@@ -175,15 +175,15 @@ export const useBasketProduct = (
     // ---
     updateQuantity: debounce(updateQuantity, 350) as (
       value: number
-    ) => Promise<ActorRef<any, any>>,
+    ) => Promise<ActorRef<any>>,
     incrementQuantity: debounce(
       incrementQuantity,
       350
-    ) as unknown as () => Promise<ActorRef<any, any>>,
+    ) as unknown as () => Promise<ActorRef<any>>,
     decrementQuantity: debounce(
       decrementQuantity,
       350
-    ) as unknown as () => Promise<ActorRef<any, any>>,
+    ) as unknown as () => Promise<ActorRef<any>>,
     // ---
 
     // update: async () => {
@@ -213,9 +213,7 @@ export const useBasketProductConfig = (id: string) => {
   const rawBasket = get(basket.getSnapshot(), "context.basket");
 
   if (!rawBasket) {
-    const error = new Error("No IBasket available");
-    error.code = responseCodes.Not_Found;
-    throw error;
+    throw new DetailedError("No IBasket available", responseCodes.Not_Found);
   }
 
   // and then we can generate our product machine
@@ -224,7 +222,7 @@ export const useBasketProductConfig = (id: string) => {
 
   // NB: watch for the basket to be refreshed, so we can refresh the product config
   // in case of any changes to currency, promotions etc
-  basket.onTransition(state => {
+  basket.onTransition((state: State<any>) => {
     if (state.matches("refreshing.complete")) {
       service.send("REFRESH", { basket: state.context.basket });
     }

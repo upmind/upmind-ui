@@ -102,7 +102,7 @@ export interface RecommendationsEngineContext {
   };
   // ---
   error?: any;
-  basketItem?: ActorRef<any, any>;
+  basketItem?: ActorRef<any>;
   // ---
   currencyId?: string;
   promotions?: string[];

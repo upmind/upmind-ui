@@ -8,7 +8,7 @@ import { compact, includes, isEmpty, get } from "lodash-es";
 // --- types
 // import type { AnyEventObject, UploadContext } from "./types";
 import type { UploadContext } from "./types";
-import { ImageObjectTypes, ImageUploadTypes } from "./types";
+import { ImageObjectTypes, ImageUploadTypes } from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------

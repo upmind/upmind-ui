@@ -228,9 +228,7 @@ export default createMachine(
         ) => {
           const id = initial ?? find(raw, "state.context.model.default")?.id;
           const selectedItem = find(raw, ["id", id]);
-          return selectedItem
-            ? (selectedItem as ActorRef<any, any>)
-            : undefined;
+          return selectedItem ? (selectedItem as ActorRef<any>) : undefined;
         },
       }),
 
@@ -269,7 +267,7 @@ export default createMachine(
       isNotProcessing: ({ raw }) => {
         return every(
           raw,
-          (item: ActorRef<any, any>) => !item?.getSnapshot().matches("loading")
+          (item: ActorRef<any>) => !item?.getSnapshot().matches("loading")
         );
       },
       hasItems: ({ raw }) => !isEmpty(raw),

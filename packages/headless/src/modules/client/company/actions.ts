@@ -25,7 +25,7 @@ export const ListingActions = {
       map(data, item => {
         const found = find(raw, ["id", item.id]);
         return found || spawnItem(item);
-      }) as ActorRef<any, any>[],
+      }) as ActorRef<any>[],
     error: null,
   }),
 };

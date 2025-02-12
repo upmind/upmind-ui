@@ -22,7 +22,7 @@ import type { ActorRef } from "xstate";
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
-export const useBasketCurrency = (actorRef?: ActorRef<any, any>) => {
+export const useBasketCurrency = (actorRef?: ActorRef<any>) => {
   const { service: basket } = useBasket();
   let service = actorRef;
   const actor = ref();
@@ -80,7 +80,7 @@ export const useBasketCurrency = (actorRef?: ActorRef<any, any>) => {
       actor.value?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any, any>, state => {
+      return waitFor(service as ActorRef<any>, state => {
         return ["processed", "complete", "error"].some(state.matches);
       }).then(state => {
         if (["error"].some(state.matches)) {

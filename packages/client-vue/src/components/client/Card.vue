@@ -64,7 +64,7 @@ const emit = defineEmits<{
 
 const props = withDefaults(
   defineProps<{
-    modelValue: ActorRef<any, any>;
+    modelValue: ActorRef<any>;
     i18nKey: string;
     selected?: boolean;
     loading?: boolean;

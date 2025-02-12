@@ -8,7 +8,7 @@
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <Item
       v-else-if="(meta.isAdding || meta.isEditing) && !open"
-      :model-value="selected as unknown as ActorRef<any, any>"
+      :model-value="selected as unknown as ActorRef<any>"
       :modal="meta.isEditing"
       :key="selected?.id"
       :color="color"
