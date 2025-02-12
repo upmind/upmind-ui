@@ -13,7 +13,7 @@
       "@upmind-automation/types": ["../types/dist/types"],
       "@upmind-automation/headless": ["../headless/dist/types"],
       "@upmind-automation/headless-vue": ["../headless-vue/dist/types"],
-      "@upmind-automation/ui": ["../ui/dist/types"]
+      "@upmind-automation/upmind-ui": ["../ui/dist/types"]
     },
     "resolveJsonModule": true,
     "types": ["node", "jsdom"],
@@ -33,6 +33,7 @@
     "src/**/*.vue"
   ],
   "references": [
+    { "path": "../types" },
     { "path": "../headless" },
     { "path": "../headless-vue" },
     { "path": "../ui" }

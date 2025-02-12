@@ -13,7 +13,7 @@
     @blur="blurred = true"
   >
     <component
-      :is="component"
+      :is="as"
       :id="subproduct.id"
       v-model="modelValue"
       :name="subproduct.id"
@@ -59,14 +59,14 @@ import CardSubproduct from "./SubproductCard.vue";
 import { find, map, get } from "lodash-es";
 
 // --- types
-import { type RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["update:modelValue", "update:quantity"]);
 
 const props = defineProps<{
-  subproduct: object;
+  subproduct: any;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
   errors?: string;
@@ -92,9 +92,17 @@ const styles = useStyles(
   ["product.config.list", "product.config.list.item"],
   props,
   config
-);
+) as ComputedRef<{
+  product: {
+    config: {
+      list: {
+        root: string;
+      };
+    };
+  };
+}>;
 
-const component = computed(() => {
+const as = computed(() => {
   return mapComponent(props.subproduct.meta?.uischema?.control);
 });
 
@@ -112,14 +120,17 @@ const mapComponent = (name: string) => {
   }
 };
 
-const parsedValues = computed<RadioCardsItemProps[]>(() => {
-  return map(props.subproduct?.values, subproduct => ({
+const parsedValues = computed<any[]>(() => {
+  return map(props.subproduct?.values, (subproduct, index) => ({
     id: subproduct.id,
     value: subproduct.id,
-    sublabel: subproduct?.name,
+    sublabel: subproduct?.name ?? "",
     text: subproduct?.excerpt,
     values: subproduct.values,
     group: subproduct?.meta?.uischema?.group,
+    item: subproduct,
+    index,
+    modelValue: modelValue.value,
   }));
 });
 

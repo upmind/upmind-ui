@@ -1,6 +1,6 @@
 <template>
   <div :class="cn(styles.content, props.class)">
-    <slot />
+    <slot></slot>
   </div>
 </template>
 
@@ -11,12 +11,14 @@
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./content.config";
 // --- types
-import type { HTMLAttributes } from "vue";
+import type { HTMLAttributes, ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
 
-const styles = useStyles(["content"], {}, config);
+const styles = useStyles(["content"], {}, config) as ComputedRef<{
+  content: string;
+}>;
 </script>

@@ -87,16 +87,15 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
-import { Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Spinner, Alert } from "@upmind-automation/upmind-ui";
+import { Spinner, Alert, Markdown } from "@upmind-automation/upmind-ui";
 import Form from "../form/Form.vue";
+
+// --- types
+import type { PaymentGatewayProps } from "./types";
 // -----------------------------------------------------------------------------
-const props = defineProps<{
-  id: string;
-  variant?: string;
-}>();
+const props = defineProps<PaymentGatewayProps>();
 
 const {
   meta,

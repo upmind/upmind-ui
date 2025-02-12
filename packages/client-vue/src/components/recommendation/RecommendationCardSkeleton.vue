@@ -93,7 +93,7 @@
 
 <script lang="ts" setup>
 // --- internal
-import config from "./config.cva";
+import config from "./recommendation.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components

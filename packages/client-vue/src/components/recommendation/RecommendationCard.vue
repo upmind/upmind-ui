@@ -1,8 +1,5 @@
 <template>
-  <UpmCard
-    :class="styles.recommendation.root"
-    :disabled="configMeta?.isDisabled"
-  >
+  <Card :class="styles.recommendation.root" :disabled="configMeta?.isDisabled">
     <Badge
       v-if="badge?.label"
       v-bind="badge"
@@ -43,7 +40,11 @@
 
             <ul :class="styles.recommendation.content.list">
               <template v-for="benefit in benefits" :key="benefit.label">
-                <RecommendationBenefit v-if="benefit?.label" v-bind="benefit" />
+                <RecommendationBenefit
+                  v-if="benefit?.label"
+                  :label="benefit.label"
+                  :icon="benefit.icon as IconProps"
+                />
               </template>
             </ul>
           </section>
@@ -142,7 +143,7 @@
         </footer>
       </div>
     </article>
-  </UpmCard>
+  </Card>
 </template>
 
 <script lang="ts" setup>
@@ -152,15 +153,16 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./recommendation.config";
 
 // --- components
 import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upmind-ui";
-import { UpmCard } from "@upmind-automation/client-vue";
+import Card from "../content/Card.vue";
 import Promotion from "../basket/product/components/Promotion.vue";
 import RecommendationBenefit from "./components/Benefit.vue";
 
 // --- types
+import type { IconProps } from "@upmind-automation/upmind-ui";
 import type { RecommendationItemProps } from "./types";
 
 // -----------------------------------------------------------------------------

@@ -107,6 +107,7 @@ import {
   FormControl,
 } from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
+import type { DacProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -118,30 +119,13 @@ const emit = defineEmits<{
   (e: "update:selected", value?: string): void;
 }>();
 
-const props = withDefaults(
-  defineProps<{
-    id: string;
-    modelValue?: string;
-    query?: string;
-    color?: ButtonProps["color"];
-    offset?: number;
-    values?: string[];
-    items?: string[];
-    dialog?: boolean;
-    loading?: boolean;
-    processing?: boolean;
-    disabled?: boolean;
-    complete?: boolean;
-    more?: boolean;
-  }>(),
-  {
-    offset: 0,
-    values: () => [],
-    items: () => [],
-    dialog: true,
-    color: "base",
-  }
-);
+const props = withDefaults(defineProps<DacProps>(), {
+  offset: 0,
+  values: () => [],
+  items: () => [],
+  dialog: true,
+  color: "base",
+});
 
 const { t } = useI18n();
 

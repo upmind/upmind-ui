@@ -1,4 +1,4 @@
-import type { ButtonProps } from "@upmind-automation/ui";
+import type { ButtonProps } from "@upmind-automation/upmind-ui";
 import type { Component, HtmlHTMLAttributes } from "vue";
 // ---
 export interface PaymentDetailsProps {
@@ -18,4 +18,9 @@ export interface BillingDetailsProps {
   modelValue: any;
   color?: ButtonProps["color"];
   noActions?: boolean;
+}
+
+export interface PaymentGatewayProps {
+  id: string;
+  variant?: string;
 }

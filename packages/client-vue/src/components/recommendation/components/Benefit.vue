@@ -16,7 +16,7 @@ import { isString } from "lodash-es";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../config.cva";
+import config from "../recommendation.config";
 
 // --- components
 import { Icon } from "@upmind-automation/upmind-ui";

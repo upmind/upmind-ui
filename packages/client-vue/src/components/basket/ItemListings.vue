@@ -3,7 +3,7 @@
     <header :class="styles.basket.items.header">
       <slot name="header" v-bind="{ meta }">
         <span :class="styles.basket.items.text">
-          {{ t("basket.items.text", items?.length) }}
+          {{ t("basket.items.text", products?.length) }}
         </span>
 
         <h1 :class="styles.basket.items.title">
@@ -33,9 +33,9 @@
   </section>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent } from "vue";
+import { computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -49,52 +49,44 @@ import BasketProduct from "./Item.vue";
 import { findIndex } from "lodash-es";
 
 // --- types
+import type { ActorRef } from "xstate";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-export default defineComponent({
-  name: "BaskeItemListings",
-  components: { BasketProduct },
-  directives: { autoAnimate: vAutoAnimate },
-  props: {},
-  setup() {
-    const { t } = useI18n();
-    const { meta, products, productsPending } = useBasket();
+const { t } = useI18n();
+const { meta, products } = useBasket();
 
-    const styles = useStyles(
-      ["basket.items", "basket.items.pending", "basket.items.invalid"],
-      meta,
-      config
-    );
-
-    // ---
-
-    return {
-      t,
-      meta,
-      products,
-      productsPending,
-
-      // ---
-      styles,
-      cn,
+const styles = useStyles(
+  ["basket.items", "basket.items.pending", "basket.items.invalid"],
+  meta,
+  config
+) as ComputedRef<{
+  basket: {
+    items: {
+      root: string;
+      header: string;
+      content: string;
+      footer: string;
+      text: string;
+      title: string;
     };
-  },
-  computed: {},
-  methods: {
-    isSelected(index) {
-      const firstForcedIndex = findIndex(this.products, product => {
-        const isNew = !product.state.value.context?.basketProduct;
-        // const hasErrors = !!product.state.value.context?.errors;
-        // const needsConfiguring = [
-        //   "available.invalid",
-        //   "available.valid",
-        // ].some(product.state.value.matches);
+  };
+}>;
 
-        return isNew;
-      });
+// ---
 
-      return index === firstForcedIndex;
-    },
-  },
-});
+function isSelected(index: number) {
+  const firstForcedIndex = findIndex(products, (product: ActorRef<any>) => {
+    const isNew = !product.getSnapshot().context?.basketProduct;
+    // const hasErrors = !!product.state.value.context?.errors;
+    // const needsConfiguring = [
+    //   "available.invalid",
+    //   "available.valid",
+    // ].some(product.state.value.matches);
+
+    return isNew;
+  });
+
+  return index === firstForcedIndex;
+}
 </script>

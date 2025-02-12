@@ -24,6 +24,7 @@
         :class="styles.recommendation.carousel.item"
       >
         <RecommendationCardSkeleton v-if="recommendation.meta?.loading" />
+
         <RecommendationCard
           v-else
           v-bind="recommendation"
@@ -84,7 +85,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./recommendation.config";
 import {
   useBasket,
   useRecommendationsEngine,

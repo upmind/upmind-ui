@@ -36,16 +36,19 @@ import {
   uniqBy,
   every,
   cloneDeep,
+  isFunction,
 } from "lodash-es";
 
 // --- types
 import type { BasketProduct } from "../basket";
 import { DomainTypes } from "./types";
-import type { DomainContext } from "./types";
-import type { DomainProduct } from "./types";
-import type { Domain } from "./types";
+import type {
+  Domain,
+  DomainContext,
+  DomainProduct,
+  DomainLookup,
+} from "./types";
 import type { ProductModel } from "../product";
-import { isFunction } from "xstate/lib/utils";
 
 // --------------------------------------------------------
 
@@ -736,12 +739,12 @@ export default createMachine(
         lookups: ({ lookups, model, search }: any, { data }: any) => {
           const previous = search.offset > 0 ? lookups.searched : [];
 
-          const available = map(data?.available, item => {
+          const available: DomainLookup[] = map(data?.available, item => {
             item.value = item.domain;
             item.isOwned = some(lookups.owned, ["domain", item.domain]);
             item.inBasket = some(lookups.basket, ["domain", item.domain]);
             item.disabled = item.isOwned || item.inBasket;
-            return item;
+            return item as DomainLookup;
           });
 
           const persisted = filter(lookups.history, ({ domain }) =>

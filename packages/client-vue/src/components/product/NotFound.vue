@@ -87,7 +87,7 @@ const { meta } = useBasket();
 
 const styles = useStyles(["product.notFound"], meta, config) as ComputedRef<{
   product: {
-    NotFound: {
+    notFound: {
       root: string;
       title: string;
       text: string;

@@ -51,6 +51,7 @@ import Pricing from "../pricing/Pricing.vue";
 // --- utils
 
 // --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
@@ -85,11 +86,11 @@ const props = withDefaults(
     badge?: BadgeProps;
   }>(),
   {
-    badge: {
+    badge: () => ({
       color: "promotion",
       variant: "tonal",
       size: "sm",
-    },
+    }),
   }
 );
 
@@ -106,5 +107,20 @@ const styles = useStyles(
   ["product.config.grid", "product.config.grid.item"],
   meta,
   config
-);
+) as ComputedRef<{
+  product: {
+    config: {
+      grid: {
+        root: string;
+        item: {
+          root: string;
+          header: string;
+          title: string;
+          footer: string;
+          total: string;
+        };
+      };
+    };
+  };
+}>;
 </script>

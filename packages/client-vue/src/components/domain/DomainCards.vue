@@ -21,9 +21,7 @@
       <template #item="{ item: { value } }">
         <CardDomain
           v-bind="getDomain(value as string)"
-          :selected="isSelected(value as string)"
           @update:selected="onToggleSelected"
-          :color="props.color"
         />
       </template>
     </CheckboxCards>
@@ -56,36 +54,23 @@ import { SkeletonList, CheckboxCards } from "@upmind-automation/upmind-ui";
 import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
-import type {
-  ButtonProps,
-  CheckboxCardsItemProps,
-} from "@upmind-automation/upmind-ui";
-import type { Domain } from "@upmind-automation/headless-vue";
+import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { DomainCardProps, DomainCardsProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const emit = defineEmits(["update:modelValue", "update:selected"]);
+// const emit = defineEmits(["update:modelValue", "update:selected"]);
+const emit = defineEmits<{
+  (e: "update:modelValue", model: DomainCardsProps["modelValue"]): void;
+  (e: "update:selected", domain: string): void;
+}>();
 
-const props = withDefaults(
-  defineProps<{
-    i18n?: string;
-    modelValue?: Domain;
-    items: Domain[];
-    offset?: number;
-    // ---
-    color?: ButtonProps["color"];
-    // ---
-    loading?: boolean;
-    processing?: boolean;
-    disabled?: boolean;
-  }>(),
-  {
-    offset: 0,
-    color: "base",
-    loading: false,
-    processing: false,
-    disabled: false,
-  }
-);
+const props = withDefaults(defineProps<DomainCardsProps>(), {
+  offset: 0,
+  color: "base",
+  loading: false,
+  processing: false,
+  disabled: false,
+});
 
 const { t } = useI18n();
 
@@ -116,27 +101,27 @@ const safeValue = computed(() => {
       : [props.modelValue];
 });
 
-function getDomain(value: string): Domain {
-  const domain = find(props.items, ["value", value]) as Domain;
+function getDomain(value: string): DomainCardProps {
+  const domain = find(props.items, ["value", value]) as DomainCardProps;
+  domain.selected = includes(props.modelValue, value);
+  domain.color = props.color;
   return domain;
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
+  debugger;
   return map(props.items, item => {
+    debugger;
     return {
       id: item.value,
       value: item.value,
-      label: item?.domain,
+      label: item.domain,
     };
   });
 });
 
-function isSelected(value: string): boolean {
-  return includes(props.modelValue, value);
-}
-
-function onToggleSelected(value?: string) {
+function onToggleSelected(domain: string) {
   if (meta.value.isProcessing) return;
-  emit("update:selected", value);
+  emit("update:selected", domain);
 }
 </script>
