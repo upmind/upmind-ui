@@ -91,7 +91,7 @@ import { Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { Spinner, Alert } from "@upmind-automation/upmind-ui";
-import Form from "../form/Form.vue";
+import Form from "../../../components/form/Form.vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   id: string;

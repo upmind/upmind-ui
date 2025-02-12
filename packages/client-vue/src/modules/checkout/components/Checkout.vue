@@ -125,14 +125,14 @@ import config from "./config.cva.js";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // -- components
-import UpmSession from "../session/Session.vue";
+import UpmSession from "../../session/components/Session.vue";
 import UpmBillingDetails from "./BillingDetails.vue";
-import UpmBasketProcessing from "../../modules/basket/components/Procesing.vue";
+import UpmBasketProcessing from "../../basket/components/Procesing.vue";
 import UpmPaymentDetails from "./PaymentDetails.vue";
-import UpmSummary from "../../modules/basket/components/Summary.vue";
-import UpmCard from "../content/Card.vue";
-import UpmContentSection from "../content/ContentSection.vue";
-import UpmBack from "../navigation/Back.vue";
+import UpmSummary from "../../basket/components/Summary.vue";
+import UpmCard from "../../../components/content/Card.vue";
+import UpmContentSection from "../../../components/content/ContentSection.vue";
+import UpmBack from "../../../components/navigation/Back.vue";
 
 // --- types
 import type { CheckoutProps } from "./types.js";

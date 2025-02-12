@@ -46,7 +46,7 @@ import config from "./config.cva";
 
 // --- components
 import { Badge, type BadgeProps } from "@upmind-automation/upmind-ui";
-import Pricing from "../pricing/Pricing.vue";
+import Pricing from "../../../components/pricing/Pricing.vue";
 
 // --- utils
 

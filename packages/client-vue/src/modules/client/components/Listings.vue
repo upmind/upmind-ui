@@ -117,8 +117,8 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components
-import Section from "../content/Section.vue";
-import Auth from "../session/AuthTabs.vue";
+import Section from "../../../components/content/ContentSection.vue";
+import Auth from "../../session/components/AuthTabs.vue";
 import Empty from "./Empty.vue";
 import Card from "./Card.vue";
 import Item from "./Item.vue";

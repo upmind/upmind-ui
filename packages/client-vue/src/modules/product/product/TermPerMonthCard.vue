@@ -52,8 +52,8 @@ import config from "./config.cva";
 
 // --- components
 import { Badge } from "@upmind-automation/upmind-ui";
-import CurrentPrice from "../pricing/CurrentPrice.vue";
-import Pricing from "../pricing/Pricing.vue";
+import CurrentPrice from "../../../components/pricing/CurrentPrice.vue";
+import Pricing from "../../../components/pricing/Pricing.vue";
 
 // --- utils
 

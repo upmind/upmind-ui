@@ -62,7 +62,7 @@ import config from "./config.cva";
 // --- components
 import { Button, Drawer, SkeletonList } from "@upmind-automation/upmind-ui";
 
-import Form from "../form/Form.vue";
+import Form from "../../../components/form/Form.vue";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";

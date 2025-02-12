@@ -19,7 +19,7 @@
 import { ref } from "vue";
 
 // --- internal
-import config from "../../config.cva";
+import config from "../config.cva";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types

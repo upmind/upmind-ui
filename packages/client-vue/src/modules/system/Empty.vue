@@ -1,7 +1,7 @@
 <template>
   <article>
     <UpmContentSection v-auto-animate>
-      <UpmBasketEmpty
+      <BasketEmpty
         open
         modal
         skrim="light"
@@ -33,7 +33,7 @@
             }}</mask>
           </i18n-t>
         </template>
-      </UpmBasketEmpty>
+      </BasketEmpty>
     </UpmContentSection>
   </article>
 </template>
@@ -43,10 +43,8 @@
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 // -- components
-import {
-  UpmBasketEmpty,
-  UpmContentSection,
-} from "@upmind-automation/client-vue";
+import { UpmContentSection } from "@upmind-automation/client-vue";
+import BasketEmpty from "../basket/components/Empty.vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
