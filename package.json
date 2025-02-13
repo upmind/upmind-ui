@@ -1,8 +1,13 @@
 {
   "name": "upmind-automation",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "playgrounds/*"
+  ],
   "version": "0.0.0",
   "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Headless) and Vue.js implementations (Headless-vue), along with playgrounds demonstrating UI integration using",
-  "private": true,
   "keywords": [
     "upmind",
     "billing",
@@ -28,9 +33,10 @@
     "type": "git",
     "url": "git@git.upmind.io:upmind/upmind-monorepo.git"
   },
+  "packageManager": "pnpm@10.3.0",
   "scripts": {
     "preinstall": "npm i -g pnpm",
-    "clean": "rm -rf */**/{node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
+    "clean": "rm -rf */**/{node_modules,dist,bin,lib,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "start": "pnpm -r start",
     "build": "pnpm -r build",
     "type-check": "pnpm -r type-check",
@@ -42,14 +48,23 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
+    "@rushstack/eslint-patch": "^1.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitest/coverage-istanbul": "^3.0.5",
+    "concurrently": "^9.1.2",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
-    "firebase-tools": "^13.30.0",
-    "husky": "9.1.5",
+    "eslint-plugin-vue": "^9.32.0",
+    "firebase-tools": "^13.31.0",
+    "husky": "9.1.7",
     "lint-staged": "^15.4.3",
     "pnpm": "^10.3.0",
     "prettier": "^3.5.0",
-    "typescript": "5.3.3"
+    "typescript": "^5.7.3",
+    "vite": "^5.4.14",
+    "vue-tsc": "^2.2.0"
   }
 }

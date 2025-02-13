@@ -1,55 +1,37 @@
-import { defineConfig, PluginOption } from "vite";
-import dts from "vite-plugin-dts";
-import { resolve } from "path";
-import tsconfigPaths from "vite-tsconfig-paths";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import vue from "@vitejs/plugin-vue";
-import { configDefaults } from "vitest/config";
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-  resolve: {
-    preserveSymlinks: true,
-    alias: {
-      "@": resolve(__dirname, "./src"),
-    },
-  },
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "@upmind-automation/headless-vue",
-    },
-    outDir: "dist",
-    sourcemap: true,
-    rollupOptions: {
-      external: ["vue", "vue-router"],
-      output: {
-        globals: {
-          vue: "Vue", // Provide global name for 'vue'
-          "vue-router": "VueRouter", // Provide global name for 'vue-router'
-        },
-      },
-      plugins: [nodeResolve() as PluginOption], // Essential for monorepo dependencies
-    },
-  },
   plugins: [
-    tsconfigPaths() as PluginOption, // Add this plugin for path mapping
     vue(),
     dts({
       entryRoot: "src",
-      outputDir: "dist/types",
-    }) as PluginOption,
+      outDir: "dist",
+    }),
   ],
-
-  // Vitest config - https://vitest.dev/guide/#configuring-vitest
-  // @ts-ignore
-  test: {
-    environment: "jsdom",
-    exclude: [...configDefaults.exclude, "e2e/*"],
-    root: resolve(__dirname, "./"),
-    // https://vitest.dev/guide/coverage.html
-    coverage: {
-      provider: "istanbul",
-      enabled: true,
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: '@upmind-automation/headless-vue', // Or whatever you named it
+      fileName: 'index', // or 'headless-vue' if you prefer
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: ['vue'],
+      output: {
+        globals: {
+          vue: 'Vue',
+        },
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@upmind-automation/types': resolve(__dirname, '../types/src'),
+      '@upmind-automation/headless': resolve(__dirname, '../headless/src'),
     },
   },
 });

@@ -1,49 +1,42 @@
-import { defineConfig, PluginOption } from "vite";
-import dts from "vite-plugin-dts";
-import { resolve } from "path";
-import tsconfigPaths from "vite-tsconfig-paths"; // Import the plugin
-import nodeResolve from "@rollup/plugin-node-resolve";
-import { configDefaults } from "vitest/config";
+import { defineConfig } from 'vite';
+import {resolve} from 'path';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-  resolve: {
-    preserveSymlinks: true,
-    alias: {
-      "@": resolve(__dirname, "./src"),
-    },
-  },
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "@upmind-automation/headless",
-    },
-    outDir: "dist",
-    sourcemap: true,
-    rollupOptions: {
-      external: [], // Only truly external dependencies here (e.g., React, Vue)
-      plugins: [nodeResolve() as PluginOption], // Essential for monorepo dependencies
-    },
-  },
   plugins: [
-    tsconfigPaths(), // Add this plugin for path mapping
     dts({
       entryRoot: "src",
-      outputDir: "dist/types",
-      // compilerOptions: {
-      //   declarationMap: true,
-      // },
+      outDir: "dist",
     }),
   ],
-  // Vitest config - https://vitest.dev/guide/#configuring-vitest
-  // @ts-ignore
-  test: {
-    environment: "jsdom",
-    exclude: [...configDefaults.exclude, "e2e/*"],
-    root: resolve(__dirname, "./"),
-    // https://vitest.dev/guide/coverage.html
-    coverage: {
-      provider: "istanbul",
-      enabled: true,
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: "@upmind-automation/headless",
+      fileName: 'index',
+      formats: ['es'],
+    },
+    rollupOptions: {
+
+      // Externalize if you have external dependencies
     },
   },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@upmind-automation/types': resolve(__dirname, '../types/src')
+    }
+  },
+ // Vitest config - https://vitest.dev/guide/#configuring-vitest
+  // @ts-ignore
+  // test: {
+  //   environment: "jsdom",
+  //   exclude: [...configDefaults.exclude, "e2e/*"],
+  //   root: resolve(__dirname, "./"),
+  //   // https://vitest.dev/guide/coverage.html
+  //   coverage: {
+  //     provider: "istanbul",
+  //     enabled: true,
+  //   },
+  // },
 });
