@@ -4,7 +4,9 @@
     :data-theme="activeTheme"
     id="vue-app"
   >
-    <slot name="header"></slot>
+    <slot name="header">
+      <Header />
+    </slot>
 
     <main class="w-full flex-1">
       <template v-if="meta.isLoading || meta.isProcessing">
@@ -117,6 +119,7 @@ import { useThemes } from "@upmind-automation/upmind-ui";
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
+import Header from "./components/header/Header.vue";
 import Feedback from "./components/feedback/Feedback.vue";
 import SessionExpired from "./modules/session/components/Expired.vue";
 import BasketLoading from "./modules/basket/components/Loading.vue";

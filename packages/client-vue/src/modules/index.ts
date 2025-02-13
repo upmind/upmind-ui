@@ -17,8 +17,6 @@ export { default as UpmRecommendationsView } from "./recommendations/Recommendat
 export { default as UpmSessionLogin } from "./session/Login.vue";
 export { default as UpmSessionLogout } from "./session/Logout.vue";
 export { default as UpmSessionRegister } from "./session/Register.vue";
-export { default as UpmSessionDetailsDropdown } from "./session/components/DetailsDropdown.vue";
-export { default as UpmSessionLoginPopover } from "./session/components/LoginPopover.vue";
 
 // export { default as UpmSessionForgotPassword } from "./session/ForgotPassword.vue";
 // export { default as UpmSessionResetPassword } from "./session/ResetPassword.vue";
