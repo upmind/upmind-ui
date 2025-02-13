@@ -17,7 +17,7 @@ import { get } from "lodash-es";
 
 let hasSession = false;
 
-const service = interpret(sessionMachine, { devTools: false });
+const service = interpret(sessionMachine, { devTools: true });
 
 // --------------------------------------------------------
 
@@ -97,13 +97,12 @@ export const authSubscription = async (callback: any, onReceive: any) => {
 
     // watch for our child machines to transition to a non-loading state
     // and then send the callback to the subscriber
-    // if (currentMachine) {
-    //   // @ts-ignore
-    //   debugger;
-    //   currentMachine?.onTransition(() => {
-    //     authCallback(callback);
-    //   });
-    // }
+    if (currentMachine) {
+      // @ts-ignore -- this definitely works, despite typescriptm oanind onTrannsition doesnt exist
+      currentMachine?.onTransition(() => {
+        authCallback(callback);
+      });
+    }
 
     // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
     authCallback(callback);
