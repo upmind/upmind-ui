@@ -1,25 +1,20 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": true,
-    "target": "esnext",
-    "lib": ["esnext", "dom"],
-    "baseUrl": ".", // Important for path resolution
-    "module": "esnext",
-    "moduleResolution": "node",
-    "paths": {
-      "@upmind-automation/types": ["../types/dist/types"], // Path to the types package's .d.ts files
-      "@upmind-automation/headless": ["../headless/dist/types"] // Path to the types package's .d.ts files
-    },
-    "allowJs": false,
-    "resolveJsonModule": true,
-    "strict": true,
-    "declaration": true,
+    "rootDir": "src",
     "outDir": "dist",
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "declaration": true,
+    "composite": true,
+    "declarationDir": "dist",
+    "paths": {
+      "@upmind-automation/types": ["../types/src"],
+      "@upmind-automation/headless": ["../headless/src"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
-  "references": [{ "path": "../types" }, { "path": "../headless" }] // Essential for monorepo dependencies
+  "references": [
+    { "path": "../types" }, // Reference the types package
+    { "path": "../headless" } // Reference the headless package
+  ]
 }

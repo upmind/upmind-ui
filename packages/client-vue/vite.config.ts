@@ -1,45 +1,42 @@
-import { defineConfig, PluginOption } from "vite";
-import dts from "vite-plugin-dts";
-import { resolve } from "path";
-import tsconfigPaths from "vite-tsconfig-paths";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import vue from "@vitejs/plugin-vue";
-import { configDefaults } from "vitest/config";
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-  resolve: {
-    preserveSymlinks: true,
-    alias: {
-      "@": resolve(__dirname, "./src"),
-      "@icons": resolve(__dirname, "./src/assets/icons"),
-      "@themes": resolve(__dirname, "./src/assets/themes"),
-    },
-  },
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "@upmind-automation/client-vue",
-    },
-    outDir: "dist",
-    sourcemap: true,
-    rollupOptions: {
-      external: ["vue", "vue-router"],
-      output: {
-        globals: {
-          vue: "Vue", // Provide global name for 'vue'
-          "vue-router": "VueRouter", // Provide global name for 'vue-router'
-        },
-      },
-      plugins: [nodeResolve() as PluginOption], // Essential for monorepo dependencies
-    },
-  },
   plugins: [
-    tsconfigPaths() as PluginOption, // Add this plugin for path mapping
     vue(),
     dts({
       entryRoot: "src",
-      outDir: "dist/types",
-      tsconfigPath: "tsconfig.build.json",
+      outDir: "dist",
     }),
   ],
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: '@upmind-automation/client-vue',
+      fileName: 'index',
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: ['vue'],
+      output: {
+        globals: {
+          vue: 'Vue',
+        },
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@icons': resolve(__dirname, './src/assets/icons'),
+      '@themes': resolve(__dirname, './src/assets/themes'),
+      // ---
+      '@upmind-automation/types': resolve(__dirname, '../types/src'),
+      '@upmind-automation/headless': resolve(__dirname, '../headless/src'),
+      '@upmind-automation/headless-vue': resolve(__dirname, '../headless-vue/src'),
+      '@upmind-automation/upmind-ui': resolve(__dirname, '../ui/src'),
+    },
+  },
 });

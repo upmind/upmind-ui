@@ -7,3 +7,5 @@ dist
 *storybook.log
 **/.firebase/**
 .tsbuildinfo
+bin/pnpm
+bin/pnpx
