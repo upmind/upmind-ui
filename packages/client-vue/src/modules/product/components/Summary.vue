@@ -1,5 +1,5 @@
 <template>
-  <UpmCard class="flex w-full flex-col items-start gap-4" as="aside">
+  <Card class="flex w-full flex-col items-start gap-4" as="aside">
     <header
       class="text-emphasis-medium flex w-full flex-col space-y-6 text-sm font-medium leading-none"
       v-auto-animate
@@ -54,7 +54,7 @@
         </template>
       </Button>
     </div>
-  </UpmCard>
+  </Card>
 
   <ul v-auto-animate class="m-0 flex flex-col gap-y-4 p-6 text-sm">
     <!-- <li
@@ -132,11 +132,12 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { useProductConfig, UpmCard } from "@upmind-automation/client-vue";
+import { useProductConfig } from "@upmind-automation/headless-vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
+import Card from "../../../components/content/Card.vue";
 import {
   NumberField,
   Separator,

@@ -67,7 +67,7 @@
     :is="props.cardComponent"
     :class="[!props.cardComponent && styles.checkout.isFree, props.class]"
   >
-    <UpmPaymentNotRequired />
+    <PaymentNotRequired />
   </component>
 </template>
 
@@ -79,7 +79,6 @@ import {
 } from "@upmind-automation/headless-vue";
 import config from "./config.cva";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import UpmPaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- components
 import {
@@ -92,6 +91,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 import GatewayTrigger from "./gateway/Trigger.vue";
 import GatewayContent from "./gateway/Content.vue";
+import PaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- types
 import type { PaymentDetailsProps } from "./types";

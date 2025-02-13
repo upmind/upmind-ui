@@ -55,7 +55,7 @@
 
 <script lang="ts" setup>
 // --- components
-import { useBasketPaymentDetails } from "@upmind-automation/client-vue";
+import { useBasketPaymentDetails } from "@upmind-automation/headless-vue";
 import Checkout from "./components/Checkout.vue";
 
 // --- utils

@@ -111,7 +111,7 @@
     <slot />
 
     <template v-if="primary && error">
-      <UpmRequiredAlert :id="id" />
+      <RequiredAlert :id="id" />
     </template>
   </div>
 </template>
@@ -119,7 +119,7 @@
 <script lang="ts" setup>
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
-import UpmRequiredAlert from "./components/RequiredAlert.vue";
+import RequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "../../../../components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../../components/pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";

@@ -64,7 +64,7 @@ import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession } from "@upmind-automation/client-vue";
+import { useSession } from "@upmind-automation/headless-vue";
 
 // -- components
 import OrderConfirmation from "./components/Confirmation.vue";

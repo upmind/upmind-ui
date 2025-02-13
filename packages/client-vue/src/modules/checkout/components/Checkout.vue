@@ -1,7 +1,7 @@
 <template>
   <article v-auto-animate>
     <slot v-if="!meta.isCheckout && !meta.isComplete" name="back-button">
-      <UpmBack :class="styles.checkout.backButton" />
+      <Back :class="styles.checkout.backButton" />
     </slot>
 
     <section :class="styles.checkout.section" v-auto-animate>
@@ -14,7 +14,7 @@
               v-if="!meta.hasAccount && !meta.isCheckout"
             >
               <component :is="props.cardComponent">
-                <UpmSession
+                <Session
                   :class="styles.checkout.session"
                   id="account"
                   ref="account"
@@ -22,7 +22,7 @@
                   no-header
                   :aria-disabled="meta.hasAccount"
                 >
-                </UpmSession>
+                </Session>
               </component>
             </component>
           </slot>
@@ -37,7 +37,7 @@
             </template>
             <component :is="props.cardComponent">
               <slot name="billing-details">
-                <UpmBillingDetails
+                <BillingDetails
                   :model-value="billingDetailsModel"
                   @update:modelValue="billingDetailsUpdate"
                   :color="color"
@@ -55,7 +55,7 @@
               <slot name="payment-details-title" />
             </template>
             <slot name="payment-details">
-              <UpmPaymentDetails
+              <PaymentDetails
                 :card-component="props.cardComponent"
                 :class="styles.checkout.paymentDetails"
                 :color="color"
@@ -72,7 +72,7 @@
             >
               <component :is="props.cardComponent">
                 <slot name="summary">
-                  <UpmSummary no-actions />
+                  <Summary no-actions />
                 </slot>
               </component>
             </component>
@@ -82,7 +82,7 @@
     </section>
 
     <!-- Basket procesing -->
-    <UpmBasketProcessing
+    <BasketProcessing
       v-if="meta.isCheckout"
       :open="meta.isCheckout"
       :title="t(processingTitle)"
@@ -103,7 +103,7 @@
           :processing-title-mask="processingTitleMask"
         />
       </template>
-    </UpmBasketProcessing>
+    </BasketProcessing>
   </article>
 </template>
 
@@ -125,14 +125,14 @@ import config from "./config.cva.js";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // -- components
-import UpmSession from "../../session/components/Session.vue";
-import UpmBillingDetails from "./BillingDetails.vue";
-import UpmBasketProcessing from "../../basket/components/Procesing.vue";
-import UpmPaymentDetails from "./PaymentDetails.vue";
-import UpmSummary from "../../basket/components/Summary.vue";
-import UpmCard from "../../../components/content/Card.vue";
-import UpmContentSection from "../../../components/content/ContentSection.vue";
-import UpmBack from "../../../components/navigation/Back.vue";
+import Session from "../../session/components/Session.vue";
+import BillingDetails from "./BillingDetails.vue";
+import BasketProcessing from "../../basket/components/Procesing.vue";
+import PaymentDetails from "./PaymentDetails.vue";
+import Summary from "../../basket/components/Summary.vue";
+import Card from "../../../components/content/Card.vue";
+import ContentSection from "../../../components/content/ContentSection.vue";
+import Back from "../../../components/navigation/Back.vue";
 
 // --- types
 import type { CheckoutProps } from "./types.js";
@@ -148,8 +148,8 @@ const { next } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
-  cardComponent: UpmCard,
-  contentSectionComponent: UpmContentSection,
+  cardComponent: Card,
+  contentSectionComponent: ContentSection,
   color: "secondary",
 });
 

@@ -60,14 +60,10 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, useBasket } from "@upmind-automation/client-vue";
+import { useRoutingEngine, useBasket } from "@upmind-automation/headless-vue";
 
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-
-// --- utils
-
-// --- types
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 

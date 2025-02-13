@@ -1,6 +1,6 @@
 <template>
   <article>
-    <UpmContentSection>
+    <ContentSection>
       <Interstitial
         :title="t('cart.requiresAction.title')"
         :text="t('cart.requiresAction.text')"
@@ -54,7 +54,7 @@
           </ol>
         </template>
       </Interstitial>
-    </UpmContentSection>
+    </ContentSection>
   </article>
 </template>
 
@@ -62,18 +62,16 @@
 // --- external
 import { useI18n } from "vue-i18n";
 
-// --- internal
-
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
+import ContentSection from "../../components/content/ContentSection.vue";
 
 // --- utils
 import {
   useProductsRequiringAction,
   useRoutingEngine,
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless-vue";
 
-// --- types
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 

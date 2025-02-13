@@ -1,6 +1,6 @@
 <template>
   <article>
-    <UpmContentSection class="mx-auto max-w-2xl">
+    <ContentSection class="mx-auto max-w-2xl">
       <Button
         type="reset"
         class="relative -top-4 md:-top-6"
@@ -13,9 +13,9 @@
           <Icon icon="arrow-left" size="2xs" />
         </template>
       </Button>
-    </UpmContentSection>
+    </ContentSection>
 
-    <UpmContentSection class="mx-auto max-w-2xl">
+    <ContentSection class="mx-auto max-w-2xl">
       <template #title>
         <i18n-t
           keypath="session.unauthenticated.register.title"
@@ -29,7 +29,7 @@
         </i18n-t>
       </template>
 
-      <UpmCard class="pb-3 md:pb-3">
+      <Card class="pb-3 md:pb-3">
         <Auth
           class="rounded-box w-full max-w-5xl items-start"
           no-tabs
@@ -39,8 +39,8 @@
           @resolve="doResolve"
         >
         </Auth>
-      </UpmCard>
-    </UpmContentSection>
+      </Card>
+    </ContentSection>
   </article>
 </template>
 
@@ -49,12 +49,14 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/client-vue";
+import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
 
 // --- components
-import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
+import Card from "../../components/content/Card.vue";
+
 // --- types
 import type { AuthProps } from "./components/types";
 

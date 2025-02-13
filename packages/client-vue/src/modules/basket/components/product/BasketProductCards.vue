@@ -1,7 +1,7 @@
 <template>
   <div v-if="!meta.isLoading" class="flex flex-col space-y-4">
     <template v-for="product in products" :key="product.id">
-      <UpmBasketProduct
+      <BasketProduct
         v-bind="product"
         :open="!!open[product.id]"
         :color="color"
@@ -10,7 +10,7 @@
         <template #default="slotProps">
           <slot v-bind="slotProps" />
         </template>
-      </UpmBasketProduct>
+      </BasketProduct>
     </template>
   </div>
 
@@ -19,9 +19,9 @@
       v-for="index in Math.max(1, products.length)"
       :key="`skeleton-cart-item-${index}`"
     >
-      <UpmBasketProductSkeleton>
+      <BasketProductSkeleton>
         <slot name="skeleton" />
-      </UpmBasketProductSkeleton>
+      </BasketProductSkeleton>
     </template>
   </div>
 </template>
@@ -33,11 +33,11 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
-import UpmBasketProduct from "./BasketProduct.vue";
+import BasketProduct from "./BasketProduct.vue";
 
 // --- components
 import { every, reduce, set } from "lodash-es";
-import UpmBasketProductSkeleton from "./BasketProductSkeleton.vue";
+import BasketProductSkeleton from "./BasketProductSkeleton.vue";
 
 // --- types
 import { type BasketProductCardsProps } from "./types";
