@@ -5,23 +5,23 @@
         open
         modal
         skrim="light"
-        :text="t('cart.notFound.text')"
+        :text="t('basket.notFound.text')"
         :action="{
           color: 'primary',
           handler: back,
           prependIcon: 'arrow-left',
-          label: t('cart.notFound.actions.continue'),
+          label: t('basket.notFound.actions.continue'),
         }"
       >
         <template #title>
           <i18n-t
-            keypath="cart.notFound.title"
+            keypath="basket.notFound.title"
             tag="span"
-            for="cart.notFound.title"
+            for="basket.notFound.title"
             class="text-primary font-bold"
           >
             <mask class="bg-promotion text-accent-foreground leading-relaxed">{{
-              t("cart.notFound.product")
+              t("basket.notFound.product")
             }}</mask>
           </i18n-t>
         </template>

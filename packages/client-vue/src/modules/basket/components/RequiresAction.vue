@@ -1,8 +1,8 @@
 <template>
   <Interstitial
     open
-    :title="t('cart.requiresAction.title')"
-    :text="t('cart.requiresAction.text')"
+    :title="t('basket.requiresAction.title')"
+    :text="t('basket.requiresAction.text')"
     :animatedIcon="{
       icon: 'basket',
       delay: 5000,
@@ -16,27 +16,27 @@
         variant: 'ghost',
         handler: back,
         prependIcon: { icon: 'arrow-left', size: '2xs' },
-        label: t('cart.requiresAction.actions.back'),
+        label: t('basket.requiresAction.actions.back'),
       },
       {
         color: 'primary',
         handler: next,
         appendIcon: { icon: 'arrow-right', size: '2xs' },
-        label: t('cart.requiresAction.actions.continue'),
+        label: t('basket.requiresAction.actions.continue'),
       },
     ]"
     modal
   >
     <template #title>
       <i18n-t
-        keypath="cart.requiresAction.title.text"
+        keypath="basket.requiresAction.title.text"
         tag="span"
         class="text-primary font-bold"
         :plural="productsInvalid.length"
       >
         <template v-slot:mask>
           <mask class="bg-promotion leading-relaxed">{{
-            t("cart.requiresAction.title.mask")
+            t("basket.requiresAction.title.mask")
           }}</mask>
         </template>
       </i18n-t>

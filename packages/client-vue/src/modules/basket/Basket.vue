@@ -8,20 +8,20 @@
           <ContentSection>
             <template #title>
               <i18n-t
-                keypath="cart.title"
+                keypath="basket.title"
                 tag="span"
-                for="cart.basket"
+                for="basket.basket"
                 class="text-primary font-bold"
               >
                 <mask class="bg-quarternary leading-relaxed">{{
-                  t("cart.basket")
+                  t("basket.basket")
                 }}</mask>
               </i18n-t>
             </template>
             <template #option>
               <div class="flex items-center gap-6">
                 <Link
-                  :label="t('cart.expand', open ? 0 : 1)"
+                  :label="t('basket.expand', open ? 0 : 1)"
                   :disabled="meta.isLoading || !meta.isAvailable"
                   @click="open = !open"
                   variant="muted"
@@ -79,7 +79,10 @@
         <aside
           class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
         >
-          <ContentSection :title="t('cart.summary.title')" classTitle="py-1.5">
+          <ContentSection
+            :title="t('basket.summary.title')"
+            classTitle="py-1.5"
+          >
             <Card>
               <Summary no-actions />
             </Card>
@@ -99,7 +102,7 @@
                 color="secondary"
                 :loading="meta.isProcessing || meta.isLoading"
                 @click="navigate()"
-                :label="t('cart.summary.proceed')"
+                :label="t('basket.summary.proceed')"
               >
                 <template #prepend>
                   <Icon icon="cart" size="2xs" class="-mt-0.5 mr-2" />
@@ -112,11 +115,11 @@
             v-if="meta.hasInvalidProducts"
             color="error"
             icon="alert-triangle"
-            :description="t('cart.requiresAction.summary.description')"
+            :description="t('basket.requiresAction.summary.description')"
           >
             <template #title>
               <i18n-t
-                keypath="cart.requiresAction.summary.title"
+                keypath="basket.requiresAction.summary.title"
                 tag="span"
                 :plural="productsInvalid.length"
               />
