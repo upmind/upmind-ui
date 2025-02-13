@@ -61,10 +61,10 @@ export interface Domain {
 }
 
 export interface DomainLookup extends DomainProduct {
-  value: string;
-  isOwned: boolean;
-  inBasket: boolean;
-  disabled: boolean;
+  value?: string;
+  isOwned?: boolean;
+  inBasket?: boolean;
+  disabled?: boolean;
 }
 export interface DomainSearch {
   domain: string;

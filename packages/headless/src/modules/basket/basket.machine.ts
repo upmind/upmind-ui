@@ -6,7 +6,7 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 
 import { useFeedback } from "../feedback";
-const { addError, addSuccess, trackEvent } = useFeedback();
+const { addError, trackEvent } = useFeedback();
 
 // --- utils
 import { useTime } from "../../utils";

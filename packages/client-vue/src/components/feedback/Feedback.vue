@@ -57,10 +57,10 @@ const props = defineProps<{
 const styles = useStyles(
   [
     "feedback",
-    "transitions.banner.enter",
-    "transitions.banner.leave",
-    "transitions.toasts.enter",
-    "transitions.toasts.leave",
+    "feedback.transitions.banner.enter",
+    "feedback.transitions.banner.leave",
+    "feedback.transitions.toasts.enter",
+    "feedback.transitions.toasts.leave",
   ],
   props,
   config

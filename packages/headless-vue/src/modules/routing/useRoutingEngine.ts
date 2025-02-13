@@ -164,6 +164,7 @@ export const useRoutingEngine = () => {
             if (state.matches("unavailable")) {
               return Promise.reject("Routing Engine is unavailable");
             }
+            return state;
           });
         })
         .catch(() => {

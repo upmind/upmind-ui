@@ -378,6 +378,7 @@ export default createMachine(
               );
             }
           }
+          return error;
         },
       }),
 

@@ -52,6 +52,7 @@
         :processing="meta.isProcessing"
         @update:selected="onToggleSelected"
         :color="color"
+        :value="props.modelValue ?? ''"
       />
 
       <Button
@@ -96,7 +97,7 @@ import { computed, ref, watch, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn, type ButtonProps } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./config.cva";
 
 // --- components

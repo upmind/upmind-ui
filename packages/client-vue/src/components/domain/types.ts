@@ -1,4 +1,4 @@
-import type { DomainLookup } from "@upmind-automation/headless";
+import type { DomainLookup } from "@upmind-automation/headless-vue";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
 export interface DacProps {

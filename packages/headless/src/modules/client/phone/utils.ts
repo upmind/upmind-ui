@@ -151,5 +151,6 @@ export const spawnItem = (model?: IPhone) => {
     );
   } catch (err) {
     console.error("PhoneListings", "spawnItem", { model });
+    return null;
   }
 };

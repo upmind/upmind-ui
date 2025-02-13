@@ -1,3 +1,4 @@
+import { type BasketProduct } from "@upmind-automation/headless-vue";
 import { type ButtonProps } from "@upmind-automation/upmind-ui";
 import {
   type BasketProductSummaryPrice,
@@ -6,7 +7,7 @@ import {
 } from "@upmind-automation/headless-vue";
 import { type RouteLocationRaw } from "vue-router";
 
-export interface BasketProductProps {
+export interface BasketProductProps extends BasketProduct {
   open?: boolean;
   color?: ButtonProps["color"];
 }

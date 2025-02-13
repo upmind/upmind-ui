@@ -41,6 +41,8 @@ export const useRoutingEngine = () => {
       }).then(state => {
         if (["unavailable"].some(state.matches))
           return Promise.reject("Routing Engine is not available");
+
+        return state;
       }),
 
     //  ---

@@ -17,7 +17,7 @@ import { computed } from "vue";
 
 // --- internal
 import { useBasketCurrency } from "@upmind-automation/headless-vue";
-import rawCurrencies from "./currencies.json";
+import rawCurrencies from "./currencies";
 
 interface Currency {
   code: string;

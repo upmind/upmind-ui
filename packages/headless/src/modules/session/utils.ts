@@ -40,6 +40,8 @@ export function persistTokenToStorage(token: Token) {
     `${type}/auth/token`,
     JSON.stringify(useTokenParser(token))
   );
+
+  return Promise.resolve(token);
 }
 
 export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {

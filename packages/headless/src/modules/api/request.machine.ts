@@ -217,7 +217,7 @@ export default (request: RequestParams) =>
         })),
 
         setError: assign({
-          error: (context, { data }: AnyEventObject) => data,
+          error: (_context, { data }: AnyEventObject) => data,
         }),
 
         // escalateError: escalate(_context, ({ data }: AnyEventObject) => data),
