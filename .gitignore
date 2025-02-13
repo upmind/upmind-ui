@@ -9,3 +9,4 @@ dist
 .tsbuildinfo
 bin/pnpm
 bin/pnpx
+tsconfig.tsbuildinfo
