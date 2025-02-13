@@ -32,7 +32,7 @@
 
               <!-- TODO: add skeleton loader when meta.isLoading -->
               <UpmCard class="!p-0">
-                <UpmProductConfig
+                <ProductConfig
                   v-if="basketProduct"
                   :item="basketProduct"
                   :model-value="basketProduct?.id"
@@ -53,7 +53,7 @@
               :title="t('product.summary.title')"
               classTitle="py-1.5"
             >
-              <VSummary
+              <Summary
                 v-if="basketProduct"
                 :item="basketProduct"
                 @resolve="doResolve"
@@ -89,14 +89,15 @@ import {
   useRoutingEngine,
   useProductsPending,
   useBasketProductConfig,
-  UpmProductConfig,
   UpmCard,
   UpmContentSection,
 } from "@upmind-automation/client-vue";
 
+import ProductConfig from "./components/config/Config.vue";
+
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import VSummary from "./product/Summary.vue";
+import Summary from "./components/Summary.vue";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -142,3 +143,4 @@ const {
       update: next,
     };
 </script>
+>

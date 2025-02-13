@@ -52,7 +52,7 @@
             :title="t('product.summary.title')"
             classTitle="py-1.5"
           >
-            <VSummary :item="item" @resolve="doResolve" />
+            <Summary :item="item" @resolve="doResolve" />
           </UpmContentSection>
         </header>
       </div>
@@ -87,7 +87,7 @@ import {
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import VSummary from "../product/Summary.vue";
+import Summary from "./components/Summary.vue";
 
 // --- utils
 

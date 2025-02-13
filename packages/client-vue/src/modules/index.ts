@@ -4,11 +4,13 @@ export { default as UpmCheckoutView } from "./checkout/Checkout.vue";
 
 export { default as UpmOrderView } from "./order/Order.vue";
 
-export { default as UpmProductAddView } from "./product/Add.vue";
-export { default as UpmProductEditView } from "./product/Edit.vue";
-export { default as UpmProductNotFoundView } from "./product/NotFound.vue";
-export { default as UpmProductRequiresActionView } from "./product/RequiresAction.vue";
-export { default as UpmProductConfig } from "./product/product/Config.vue";
+export { default as UpmProductAddView } from "./product/AddView.vue";
+export { default as UpmProductEditView } from "./product/EditView.vue";
+export { default as UpmProductNotFoundView } from "./product/NotFoundView.vue";
+export { default as UpmProductRequiresActionView } from "./product/RequiresActionView.vue";
+export { default as UpmProductConfigView } from "./product/ConfigView.vue";
+
+export { default as UpmProductConfig } from "./product/components/config/Config.vue";
 
 export { default as UpmRecommendationsView } from "./recommendations/Recommendations.vue";
 

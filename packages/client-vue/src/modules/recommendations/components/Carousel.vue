@@ -89,7 +89,7 @@ import {
   useBasket,
   useRecommendationsEngine,
 } from "@upmind-automation/headless-vue";
-import ProductConfig from "../../product/product/Config.vue";
+import ProductConfig from "../../product/components/config/Config.vue";
 
 // --- components
 import {

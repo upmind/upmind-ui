@@ -53,7 +53,7 @@
               :title="t('product.summary.title')"
               classTitle="py-1.5"
             >
-              <VSummary
+              <Summary
                 v-if="basketItem"
                 :item="basketItem"
                 @resolve="doResolve"
@@ -97,7 +97,7 @@ import {
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import VSummary from "./product/Summary.vue";
+import Summary from "./components/Summary.vue";
 
 // --- utils
 import { isEmpty } from "lodash-es";
