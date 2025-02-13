@@ -48,6 +48,8 @@ export const useBrand = () => {
       ).then(state => {
         if (["error"].some(state.matches))
           return Promise.reject("Brand is not available");
+
+        return state;
       }),
     // ---
     getSnapshot: service.getSnapshot,

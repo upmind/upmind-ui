@@ -6,7 +6,7 @@ const { sendParent } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
@@ -16,7 +16,7 @@ import { set } from "lodash-es";
 // --- types
 import type { BillingDetailsContext } from "./types";
 import { responseCodes } from "../../api";
-import { PaymentDetailsContext } from "src/modules/paymentDetails";
+import { PaymentDetailsContext } from "../../paymentDetails";
 
 // --------------------------------------------------------
 

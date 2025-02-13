@@ -3,7 +3,7 @@
     <UpmCard :class="styles.product.root.card">
       <div :class="styles.product.root.container">
         <UpmBasketProductSummary
-          v-for="(pricing, index) in summary.pricing"
+          v-for="(pricing, index) in props.summary.pricing"
           :key="`${props.id}-${index}`"
           :id="id"
           :product="product"
@@ -63,10 +63,9 @@ import UpmBasketProductActions from "./BasketProductActions.vue";
 // --- types
 import type { ComputedRef } from "vue";
 import { type BasketProductProps } from "./types";
-import { type BasketProduct } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<BasketProduct & BasketProductProps>(), {
+const props = withDefaults(defineProps<BasketProductProps>(), {
   open: false,
 });
 

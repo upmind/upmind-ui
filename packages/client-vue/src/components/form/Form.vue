@@ -11,10 +11,9 @@
 
 <script lang="ts" setup>
 // --- external
-import { useForwardPropsEmits } from "radix-vue";
 
 // --- components
-import { Form } from "@upmind-automation/upmind-ui";
+import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";
 
 // --- local
 import { useFormI18n } from ".";

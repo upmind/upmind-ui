@@ -96,7 +96,7 @@ import {
 
 // --- utils
 import { map } from "lodash-es";
-import { DomainTypes } from "@upmind-automation/headless";
+import { DomainTypes } from "@upmind-automation/headless-vue";
 
 // --- types
 

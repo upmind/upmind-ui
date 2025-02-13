@@ -1,4 +1,4 @@
-import type { Recommendation, Benefit } from "@upmind-automation/headless";
+import type { Recommendation, Benefit } from "@upmind-automation/headless-vue";
 import type { IconProps } from "@upmind-automation/upmind-ui";
 
 export interface RecommendationsProps {

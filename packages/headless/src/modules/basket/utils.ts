@@ -521,6 +521,8 @@ export const parseBasketProvisioningErrors = (error: any, index: any) => {
 
     return parsedError;
   }
+
+  return undefined;
 };
 
 export const forwardBasketProvisioningErrors = (

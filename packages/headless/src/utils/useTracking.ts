@@ -89,6 +89,7 @@ export const useTracking = () => {
           cleanParams();
           return Promise.resolve(tracking);
         }
+        return Promise.reject("No tracking cookie found");
       })
       .catch(() => null);
 

@@ -97,12 +97,13 @@ export const authSubscription = async (callback: any, onReceive: any) => {
 
     // watch for our child machines to transition to a non-loading state
     // and then send the callback to the subscriber
-    debugger;
-    // @ts-ignore
-    currentMachine.onTransition(() => {
-      debugger;
-      authCallback(callback);
-    });
+    // if (currentMachine) {
+    //   // @ts-ignore
+    //   debugger;
+    //   currentMachine?.onTransition(() => {
+    //     authCallback(callback);
+    //   });
+    // }
 
     // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
     authCallback(callback);

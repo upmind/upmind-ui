@@ -217,5 +217,6 @@ export const spawnItem = (model?: ICompany) => {
     );
   } catch (err) {
     console.error("CompanyListings", "spawnItem", { model });
+    return;
   }
 };
