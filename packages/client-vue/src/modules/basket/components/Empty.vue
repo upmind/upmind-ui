@@ -21,7 +21,9 @@
       </slot>
 
       <h3 :class="styles.basket.empty.title">
-        <slot name="title">{{ title }}</slot>
+        <slot name="title">
+          <SmartTitle v-if="title" :title="title" color="accent" />
+        </slot>
       </h3>
 
       <p :class="styles.basket.empty.text">
@@ -70,7 +72,7 @@ import config from "./config.cva";
 
 // --- components
 import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upmind-ui";
-
+import SmartTitle from "../../../components/content/SmartTitle.vue";
 // --- utils
 import { isEmpty, isFunction } from "lodash-es";
 
