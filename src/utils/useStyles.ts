@@ -3,6 +3,8 @@ import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
+
+// @ts-ignore
 import defaultStylesheet from "../assets/main.css?url";
 
 // --- utils
