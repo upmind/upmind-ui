@@ -47,4 +47,5 @@ export {
   useStyleSheet,
   initializeLottie,
   usePointerEvents,
+  useForwardPropsEmits,
 } from "./utils";

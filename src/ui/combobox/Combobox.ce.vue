@@ -65,9 +65,9 @@
           <CommandGroup>
             <CommandItem
               v-for="item in results"
-              :key="(item as Record<string, any>)[props.itemValue]"
-              :value="(item as Record<string, any>)[props.itemValue]"
-              @select="doSelect(item)"
+              :key="(item as Record<string, any>)[itemValue]"
+              :value="(item as Record<string, any>)[itemValue]"
+              @select="doSelect(get(item, itemValue))"
               class="group flex cursor-pointer items-center justify-start gap-4"
               :class="styles.combobox.item"
             >
@@ -81,10 +81,10 @@
 
               <span class="flex w-full items-center justify-between">
                 <span
-                  v-if="(item as Record<string, any>)?.[props.itemLabel]"
+                  v-if="(item as Record<string, any>)?.[itemLabel]"
                   class="leading-none"
                 >
-                  {{ get(item, props.itemLabel) }}
+                  {{ get(item, itemLabel) }}
                 </span>
 
                 <span
@@ -192,24 +192,22 @@ const meta = computed(() => ({
 
 const open = ref(false);
 const processing = ref(false);
-const modelValue: Ref<string | ComboboxItemProps> = ref(
-  find(props.items, [props.itemValue, props.modelValue]) || props.modelValue
+
+const itemValue = computed((): string => props.itemValue || "value");
+const itemLabel = computed((): string => props.itemLabel || "label");
+
+const modelValue = computed(() =>
+  find(props.items, [itemValue.value, props.modelValue])
 );
+
 const searchTerm = ref();
-const avatar = computed(
-  () =>
-    (isObject(modelValue.value) ? modelValue.value.avatar : undefined) ||
-    props.avatar
-);
-const icon = computed(
-  () =>
-    (isObject(modelValue.value) ? modelValue.value.icon : undefined) ||
-    props.icon
-);
+const avatar = computed(() => modelValue.value?.avatar || props.avatar);
+const icon = computed(() => () => modelValue.value?.icon || props.icon);
 const label = computed(() => {
   const selectedLabel = get(modelValue.value, "selectedLabel");
-  const itemLabel = get(modelValue.value, props.itemLabel);
-  return selectedLabel || itemLabel || searchTerm.value;
+  return (
+    selectedLabel || get(modelValue.value, itemLabel.value) || searchTerm.value
+  );
 });
 // ---
 
@@ -231,19 +229,15 @@ async function safeSearch(value: string | number) {
     results.value = await props.search(value.toString());
   } else {
     // --- if no search function is provided, just filter the items
-    results.value = filter(
-      props.items,
-      (item: ComboboxItemProps) =>
+    results.value = filter(props.items ?? [], (item: ComboboxItemProps) => {
+      const v = get(item, itemValue.value)?.toString().toLowerCase();
+      const l = get(item, itemLabel.value)?.toString().toLowerCase();
+      return (
         item.persist ||
-        includes(
-          (item as Record<string, any>)?.[props.itemLabel]?.toLowerCase(),
-          value.toString().toLowerCase()
-        ) ||
-        includes(
-          (item as Record<string, any>)?.[props.itemValue]?.toLowerCase(),
-          value.toString().toLowerCase()
-        )
-    );
+        includes(v, value.toString().toLowerCase()) ||
+        includes(l, value.toString().toLowerCase())
+      );
+    });
   }
 
   const presistedItems = filter(props.items, "persist");
@@ -258,25 +252,25 @@ async function safeSearch(value: string | number) {
 
 const onSearch = debounce(safeSearch, 350);
 
-const results = ref(props.items || []);
+const results = ref(props.items ?? []) as Ref<ComboboxItemProps[]>;
 
 // --- methods
-function doSelect(item: string | ComboboxItemProps) {
-  const selected: ComboboxItemProps = isString(item)
-    ? (find(props.items, [props.itemValue, item]) as ComboboxItemProps)
-    : (item as ComboboxItemProps);
+function doSelect(item: string) {
+  const selected: ComboboxItemProps = find(props.items, [
+    itemValue.value,
+    item,
+  ]) as ComboboxItemProps;
 
-  const value = get(selected, props.itemValue);
-  const oldValue = get(modelValue.value, props.itemValue);
+  const value = get(selected, itemValue.value);
+  const oldValue = get(modelValue.value, itemValue.value);
   const hasChanged = !isEqual(value, oldValue);
   if (hasChanged) {
-    modelValue.value = selected;
     emits("update:modelValue", value); // NB emit only the value
   }
 
   // if we have a search value,  set it to the selected value = seamless ui
   if (searchTerm.value) {
-    searchTerm.value = get(selected, props.itemLabel, searchTerm.value);
+    searchTerm.value = get(selected, itemLabel.value, searchTerm.value);
   }
 
   // finnaly close the popover
@@ -284,11 +278,9 @@ function doSelect(item: string | ComboboxItemProps) {
 }
 
 function isSelected(item: ComboboxItemProps) {
-  return (
-    modelValue.value &&
-    (modelValue.value as Record<string, any>)?.[props.itemValue] ===
-      (item as Record<string, any>)?.[props.itemValue]
-  );
+  const selectedValue = get(modelValue.value, itemValue.value);
+  const value = get(item, itemValue.value);
+  return isEqual(selectedValue, value);
 }
 // --- side effect
 

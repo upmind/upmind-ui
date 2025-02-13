@@ -46,7 +46,7 @@ export interface ComboboxProps
   itemValue?: string;
   // --- state
   items: ComboboxItemProps[];
-  modelValue?: string | ComboboxItemProps;
+  modelValue?: string;
   loading?: boolean;
   disabled?: boolean;
   // --- Search
