@@ -1,5 +1,5 @@
 <template>
-  <UpmCard :class="styles.recommendation.skeleton.root" disabled>
+  <Card :class="styles.recommendation.skeleton.root" disabled>
     <div :class="styles.recommendation.skeleton.container">
       <!-- Image section -->
       <div :class="styles.recommendation.skeleton.image.root">
@@ -88,7 +88,7 @@
         </div>
       </div>
     </div>
-  </UpmCard>
+  </Card>
 </template>
 
 <script lang="ts" setup>
@@ -97,7 +97,7 @@ import config from "./config.cva";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
-import UpmCard from "./Card.vue";
+import Card from "../../../components/content/Card.vue";
 import { Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types

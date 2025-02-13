@@ -1,7 +1,7 @@
 <template>
   <article>
     <UpmContentSection>
-      <UpmProductNotFound
+      <NotFound
         open
         modal
         skrim="light"
@@ -25,7 +25,7 @@
             }}</mask>
           </i18n-t>
         </template>
-      </UpmProductNotFound>
+      </NotFound>
     </UpmContentSection>
   </article>
 </template>
@@ -36,9 +36,9 @@ import { useI18n } from "vue-i18n";
 // -- components
 import {
   UpmContentSection,
-  UpmProductNotFound,
   useRoutingEngine,
 } from "@upmind-automation/client-vue";
+import NotFound from "./product/NotFound.vue";
 
 // -----------------------------------------------------------------------------
 const { back } = useRoutingEngine();
