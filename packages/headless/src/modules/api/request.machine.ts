@@ -101,6 +101,22 @@ export default (request: RequestParams) =>
           initial: "available",
           states: {
             available: {
+              // after: [
+              //   {
+              //     target: "empty",
+              //     cond: "hasNoContent",
+              //   },
+              //   {
+              //     target: "cached",
+              //     cond: "isCachable",
+              //   },
+              //   {
+              //     // @ts-ignore -- delay is causing a type check error on build but it 100% works, not sure why
+              //     delay: "wait",
+              //     target: "#complete",
+              //   },
+              // ],
+
               always: [
                 {
                   target: "empty",
@@ -111,7 +127,7 @@ export default (request: RequestParams) =>
                   cond: "isCachable",
                 },
                 {
-                  target: "#complete",
+                  target: "complete",
                 },
               ],
             },
@@ -132,6 +148,11 @@ export default (request: RequestParams) =>
               on: {
                 REFRESH: { target: "#processing" },
                 CANCEL: { target: "#complete" },
+              },
+            },
+            complete: {
+              after: {
+                maxAge: "#complete", // automatically move to complete after  max age
               },
             },
           },
