@@ -1,5 +1,5 @@
 <template>
-  <UpmContentSection v-auto-animate>
+  <ContentSection v-auto-animate>
     <form v-auto-animate @submit.prevent @reset.prevent>
       <Button
         type="reset"
@@ -16,7 +16,7 @@
         class="relative mx-auto flex w-full flex-wrap items-start justify-between gap-8"
       >
         <section class="flex min-w-0 flex-1 flex-col gap-16">
-          <UpmContentSection>
+          <ContentSection>
             <template #title>
               <i18n-t
                 keypath="product.title"
@@ -30,8 +30,8 @@
             </template>
 
             <!-- TODO: add skeleton loader when meta.isLoading -->
-            <UpmCard class="!p-0">
-              <UpmProductConfig
+            <Card class="!p-0">
+              <ProductConfig
                 v-if="item"
                 :item="props.item"
                 :model-value="props.item?.id"
@@ -41,19 +41,19 @@
                 @resolve="doResolve"
                 @reject="doReject"
               />
-            </UpmCard>
-          </UpmContentSection>
+            </Card>
+          </ContentSection>
         </section>
 
         <header
           class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
         >
-          <UpmContentSection
+          <ContentSection
             :title="t('product.summary.title')"
             classTitle="py-1.5"
           >
             <Summary :item="item" @resolve="doResolve" />
-          </UpmContentSection>
+          </ContentSection>
         </header>
       </div>
 
@@ -70,7 +70,7 @@
         </div>
       </footer>
     </form>
-  </UpmContentSection>
+  </ContentSection>
 </template>
 
 <script lang="ts" setup>
@@ -78,20 +78,12 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
-// --- internal
-import {
-  UpmProductConfig,
-  UpmCard,
-  UpmContentSection,
-} from "@upmind-automation/client-vue";
-
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Summary from "./components/Summary.vue";
-
-// --- utils
-
-// --- types
+import ProductConfig from "./components/config/Config.vue";
+import Card from "../../components/content/Card.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 
 // -----------------------------------------------------------------------------
 

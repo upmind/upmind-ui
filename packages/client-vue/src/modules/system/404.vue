@@ -1,6 +1,6 @@
 <template>
   <article>
-    <UpmContentSection>
+    <ContentSection>
       <section
         class="relative flex w-full flex-col flex-wrap items-center justify-center gap-8 py-16"
       >
@@ -46,7 +46,7 @@
           </a>
         </footer>
       </section>
-    </UpmContentSection>
+    </ContentSection>
   </article>
 </template>
 
@@ -54,7 +54,7 @@
 // ---
 import { useI18n } from "vue-i18n";
 // -- components
-import { UpmContentSection } from "@upmind-automation/client-vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 import { IconAnimated, Button, Icon } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------

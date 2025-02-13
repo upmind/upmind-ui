@@ -1,8 +1,5 @@
 <template>
-  <UpmCard
-    :class="styles.recommendation.root"
-    :disabled="configMeta?.isDisabled"
-  >
+  <Card :class="styles.recommendation.root" :disabled="configMeta?.isDisabled">
     <Badge
       v-if="badge?.label"
       v-bind="badge"
@@ -142,7 +139,7 @@
         </footer>
       </div>
     </article>
-  </UpmCard>
+  </Card>
 </template>
 
 <script lang="ts" setup>
@@ -156,7 +153,7 @@ import config from "./config.cva";
 
 // --- components
 import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upmind-ui";
-import { UpmCard } from "@upmind-automation/client-vue";
+import Card from "../../../components/content/Card.vue";
 import Promotion from "../../basket/components/product/components/Promotion.vue";
 import RecommendationBenefit from "./Benefit.vue";
 

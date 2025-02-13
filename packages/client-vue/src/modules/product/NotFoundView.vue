@@ -1,6 +1,6 @@
 <template>
   <article>
-    <UpmContentSection>
+    <ContentSection>
       <NotFound
         open
         modal
@@ -26,7 +26,7 @@
           </i18n-t>
         </template>
       </NotFound>
-    </UpmContentSection>
+    </ContentSection>
   </article>
 </template>
 
@@ -34,12 +34,9 @@
 // ---
 import { useI18n } from "vue-i18n";
 // -- components
-import {
-  UpmContentSection,
-  useRoutingEngine,
-} from "@upmind-automation/client-vue";
+import { useRoutingEngine } from "@upmind-automation/headless-vue";
 import NotFound from "./components/NotFound.vue";
-
+import ContentSection from "../../components/content/ContentSection.vue";
 // -----------------------------------------------------------------------------
 const { back } = useRoutingEngine();
 const { t } = useI18n();

@@ -1,6 +1,6 @@
 <template>
   <article>
-    <UpmContentSection>
+    <ContentSection>
       <BasketLoading
         class="min-h-screen"
         skrim="light"
@@ -26,7 +26,7 @@
           </i18n-t>
         </template>
       </BasketLoading>
-    </UpmContentSection>
+    </ContentSection>
   </article>
 </template>
 
@@ -36,10 +36,10 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/client-vue";
+import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // -- components
-import { UpmContentSection } from "@upmind-automation/client-vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 import BasketLoading from "../basket/components/Loading.vue";
 
 // ---types

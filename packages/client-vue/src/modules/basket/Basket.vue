@@ -151,7 +151,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket, useBasketFields } from "@upmind-automation/client-vue";
+import { useBasket, useBasketFields } from "@upmind-automation/headless-vue";
 
 // --- components
 import { Button, Icon, Alert, Link } from "@upmind-automation/upmind-ui";

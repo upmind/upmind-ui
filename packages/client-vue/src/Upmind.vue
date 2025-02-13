@@ -114,7 +114,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useThemes } from "@upmind-automation/upmind-ui";
-import { useRoutingEngine } from "@upmind-automation/client-vue";
+import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
 import Feedback from "./components/feedback/Feedback.vue";
