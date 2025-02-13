@@ -162,10 +162,6 @@ import ProductCards from "./components/product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
 import VCustomFieldsSkeleton from "./components/CustomFieldsSkeleton.vue";
 
-// --- utils
-
-// --- types
-
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

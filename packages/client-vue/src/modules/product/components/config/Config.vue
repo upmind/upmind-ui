@@ -101,7 +101,7 @@
         />
 
         <!-- options -->
-        <VSubproductCards
+        <SubproductCards
           v-for="option in options"
           :key="option.id"
           :subproduct="option"
@@ -119,7 +119,7 @@
         />
 
         <!-- attributes -->
-        <VSubproductCards
+        <SubproductCards
           v-for="attribute in attributes"
           :key="attribute.id"
           :subproduct="attribute"
@@ -192,16 +192,17 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { computed } from "vue";
+
 // --- internal
 import { useProductConfig } from "@upmind-automation/headless-vue";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "../config.cva";
 
 // --- components
 import { Markdown, Lineclamp } from "@upmind-automation/upmind-ui";
-import TermsConfigGrid from "./TermsConfigGrid.vue";
-import TermsConfigSelect from "./TermsConfigSelect.vue";
-import VSubproductCards from "./SubproductCards.vue";
+import TermsConfigGrid from "../terms/TermsConfigGrid.vue";
+import TermsConfigSelect from "../terms/TermsConfigSelect.vue";
+import SubproductCards from "../subproduct/SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
 
 // --- custom elements

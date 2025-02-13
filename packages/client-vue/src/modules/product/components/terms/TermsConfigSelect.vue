@@ -1,5 +1,6 @@
 <template>
-  <FormField
+  <component
+    :is="mapComponent(props.as)"
     v-if="hasItems"
     id="terms"
     name="terms"
@@ -11,28 +12,51 @@
     :errors="props.errors"
     :tooltip="props.description"
   >
-    <RadioCards
+    <SelectCards
       id="terms"
       name="terms"
       :required="props.required"
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
       :errors="props.errors"
-      :none-text="t('product.select.none')"
-      :placeholder="t('product.select.placeholder')"
-      :class="styles.product.config.grid.items"
-      layout="grid"
-      ring
       :model-value="props.modelValue?.toString()"
+      content-class="!max-h-[18.5rem]"
       @update:modelValue="doResolve"
-      :width="0"
     >
       <template #item="{ item }">
-        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
-        <CardTerm v-else v-bind="getTerm(item.value)" />
+        <slot name="item" :item="item">
+          <CardTermPerMonth
+            v-if="isMonthly(item)"
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+          <CardTerm
+            v-else
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+        </slot>
       </template>
-    </RadioCards>
-  </FormField>
+      <template #dropdown-item="{ item }">
+        <slot name="dropdown" :item="item">
+          <CardTermPerMonth
+            v-if="isMonthly(item)"
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+          <CardTerm
+            v-else
+            v-bind="getTerm(item.value)"
+            select
+            :class="props.class"
+          />
+        </slot>
+      </template>
+    </SelectCards>
+  </component>
 
   <!-- <pre v-if="errors">{{ errors }}</pre> -->
 </template>
@@ -44,10 +68,10 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "../config.cva";
 
 // --- components
-import { RadioCards, FormField } from "@upmind-automation/upmind-ui";
+import { FormField, SelectCards } from "@upmind-automation/upmind-ui";
 import CardTerm from "./TermCard.vue";
 import CardTermPerMonth from "./TermPerMonthCard.vue";
 
@@ -61,6 +85,7 @@ import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
+    as?: string;
     items: Object[];
     modelValue?: string | number;
     errors?: string;
@@ -74,13 +99,17 @@ const props = withDefaults(
     loading?: boolean;
     processing?: boolean;
     visible?: boolean;
+    // ---
+    class?: string;
   }>(),
   {
+    as: "FormField",
     required: true,
     disabled: false,
     loading: false,
     processing: false,
     visible: true,
+    class: "",
   }
 );
 
@@ -119,4 +148,13 @@ function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));
 }
+
+const mapComponent = (as: string) => {
+  switch (as) {
+    case "FormField" || "formfield":
+      return FormField;
+    default:
+      return as;
+  }
+};
 </script>

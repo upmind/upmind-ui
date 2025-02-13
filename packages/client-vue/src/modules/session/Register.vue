@@ -53,7 +53,7 @@ import { useRoutingEngine, ROUTE } from "@upmind-automation/client-vue";
 
 // --- components
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 // --- types
 import type { AuthProps } from "./components/types";

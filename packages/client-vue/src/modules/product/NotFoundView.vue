@@ -38,7 +38,7 @@ import {
   UpmContentSection,
   useRoutingEngine,
 } from "@upmind-automation/client-vue";
-import NotFound from "./product/NotFound.vue";
+import NotFound from "./components/NotFound.vue";
 
 // -----------------------------------------------------------------------------
 const { back } = useRoutingEngine();
