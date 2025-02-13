@@ -20,24 +20,21 @@
             </template>
             <template #option>
               <div class="flex items-center gap-6">
-                <Button
-                  variant="link"
-                  color="primary"
-                  size="sm"
-                  class="!hover:opacity-100 text-emphasis-medium hover:text-base-foreground -mt-1 hidden pr-3 font-medium md:block"
+                <Link
+                  :label="t('cart.expand', open ? 0 : 1)"
                   :disabled="meta.isLoading || !meta.isAvailable"
                   @click="open = !open"
+                  variant="muted"
+                  size="sm"
                 >
                   <template v-slot:prepend>
-                    <Icon icon="configuration" class="-mt-0.5 mr-2 size-3" />
+                    <Icon icon="configuration" class="size-3" />
                   </template>
-
-                  <span>{{ t("cart.expand", open ? 0 : 1) }}</span>
-                </Button>
+                </Link>
               </div>
             </template>
 
-            <BasketProductCards
+            <ProductCards
               :open="open"
               @update:open="open = $event"
               class="text-primary"
@@ -84,7 +81,7 @@
         >
           <ContentSection :title="t('cart.summary.title')" classTitle="py-1.5">
             <Card>
-              <BasketSummary no-actions />
+              <Summary no-actions />
             </Card>
           </ContentSection>
 
@@ -157,14 +154,12 @@ import { useI18n } from "vue-i18n";
 import { useBasket, useBasketFields } from "@upmind-automation/client-vue";
 
 // --- components
-import BasketSummary from "./components/Summary.vue";
-import BasketProductCards from "./components/product/BasketProductCards.vue";
-
+import { Button, Icon, Alert, Link } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
+import Summary from "./components/Summary.vue";
+import ProductCards from "./components/product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
-
-import { Button, Icon, Alert } from "@upmind-automation/upmind-ui";
 import VCustomFieldsSkeleton from "./components/CustomFieldsSkeleton.vue";
 
 // --- utils
