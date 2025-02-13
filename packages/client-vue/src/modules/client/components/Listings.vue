@@ -118,7 +118,7 @@ import config from "./config.cva";
 
 // --- components
 import Section from "../../../components/content/ContentSection.vue";
-import Auth from "../../session/components/AuthTabs.vue";
+import Auth from "../../../components/session/AuthTabs.vue";
 import Empty from "./Empty.vue";
 import Card from "./Card.vue";
 import Item from "./Item.vue";

@@ -125,7 +125,7 @@ import config from "./config.cva.js";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // -- components
-import Session from "../../session/components/Session.vue";
+import Session from "../../../components/session/Session.vue";
 import BillingDetails from "./BillingDetails.vue";
 import BasketProcessing from "../../basket/components/Procesing.vue";
 import PaymentDetails from "./PaymentDetails.vue";
