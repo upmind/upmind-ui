@@ -39,7 +39,6 @@
     "clean": "rm -rf */**/{node_modules,dist,bin,lib,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "start": "pnpm -r start",
     "build": "pnpm -r build",
-    "type-check": "pnpm -r type-check",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
