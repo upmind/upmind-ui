@@ -1,6 +1,12 @@
 <template>
-  <h3 v-if="meta.isString" :class="styles.title">{{ title }}</h3>
-  <h3 v-if="meta.isKeyword" :class="styles.title" v-html="formattedTitle"></h3>
+  <h3 v-if="meta.isString" :class="cn(styles.title, props.class)">
+    {{ title }}
+  </h3>
+  <h3
+    v-if="meta.isKeyword"
+    :class="cn(styles.title, props.class)"
+    v-html="formattedTitle"
+  />
 </template>
 
 <script setup lang="ts">
@@ -10,7 +16,7 @@ import { computed } from "vue";
 
 // --- internal
 import config from "./config.cva";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { SmartTitleProps } from "./types";
