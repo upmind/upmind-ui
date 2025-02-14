@@ -19,15 +19,7 @@
           <section class="flex min-w-0 flex-1 flex-col gap-16">
             <ContentSection>
               <template #title>
-                <i18n-t
-                  keypath="product.title"
-                  for="product.title"
-                  class="text-primary font-bold"
-                >
-                  <mask class="bg-quarternary leading-relaxed">{{
-                    t("product.configuration")
-                  }}</mask>
-                </i18n-t>
+                <SmartTitle :title="tm('product.title')" size="2xl" />
               </template>
 
               <!-- TODO: add skeleton loader when meta.isLoading -->
@@ -97,6 +89,7 @@ import Summary from "./components/Summary.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- utils
 import { isEmpty } from "lodash-es";

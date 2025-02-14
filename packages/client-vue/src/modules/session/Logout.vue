@@ -20,20 +20,7 @@
           secondaryColor: 'tertiary',
           size: '4xl',
         }"
-      >
-        <template #title>
-          <i18n-t
-            keypath="basket.empty.title"
-            tag="span"
-            for="basket.empty.basket"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-accent leading-relaxed">{{
-              t("basket.empty.basket")
-            }}</mask>
-          </i18n-t>
-        </template>
-      </BasketEmpty>
+      />
     </ContentSection>
   </article>
 </template>
@@ -45,6 +32,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // -- components
 import ContentSection from "../../components/content/ContentSection.vue";
 import BasketEmpty from "../basket/components/Empty.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();

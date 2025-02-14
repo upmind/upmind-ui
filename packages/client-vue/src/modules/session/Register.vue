@@ -17,16 +17,10 @@
 
     <ContentSection class="mx-auto max-w-2xl">
       <template #title>
-        <i18n-t
-          keypath="session.unauthenticated.register.title"
-          tag="span"
-          for="session.unauthenticated.register.account"
-          class="text-primary font-bold"
-        >
-          <mask class="bg-accent leading-relaxed">{{
-            t("session.unauthenticated.register.account")
-          }}</mask>
-        </i18n-t>
+        <SmartTitle
+          :title="tm('session.unauthenticated.register.title')"
+          size="2xl"
+        />
       </template>
 
       <Card class="pb-3 md:pb-3">
@@ -56,13 +50,14 @@ import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- types
 import type { AuthProps } from "./components/types";
 
 // -----------------------------------------------------------------------------
 
-const { t } = useI18n();
+const { t, tm } = useI18n();
 const { next, back, navigate } = useRoutingEngine();
 
 function doLogin(value: AuthProps["modelValue"]) {

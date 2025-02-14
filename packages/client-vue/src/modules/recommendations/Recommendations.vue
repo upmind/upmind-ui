@@ -1,19 +1,10 @@
 <template>
   <aside v-auto-animate>
     <div class="flex flex-col items-center justify-center p-2">
-      <i18n-t
-        keypath="recommendations.header.title"
-        tag="span"
-        for="recommendations.header.toolkit"
-        class="text-primary text-center text-4xl font-bold leading-normal"
-      >
-        <mask class="bg-accent leading-relaxed"
-          >{{ t("recommendations.header.toolkit") }}!</mask
-        >
-      </i18n-t>
+      <SmartTitle :title="tm('recommendations.header.title')" size="3xl" />
 
       <p
-        class="text-emphasis-medium m-0 mb-12 max-w-md text-center text-lg leading-normal"
+        class="text-emphasis-medium m-0 mb-12 mt-4 max-w-md text-center text-lg leading-normal"
       >
         {{ t("recommendations.header.subtitle") }}
       </p>
@@ -60,11 +51,11 @@ import {
 import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Carousel from "./components/Carousel.vue";
 import Card from "../../components/content/Card.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
-// --- utils
 // -----------------------------------------------------------------------------
 
-const { t } = useI18n();
+const { t, tm } = useI18n();
 
 // --- basket setup
 const { next } = useRoutingEngine();

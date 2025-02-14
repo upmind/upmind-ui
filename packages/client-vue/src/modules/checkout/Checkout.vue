@@ -1,15 +1,15 @@
 <template>
   <Checkout>
     <template #billing-details-title>
-      <SmartTitle :title="tm('basket.billing_details.title')" />
+      <SmartTitle :title="tm('basket.billing_details.title')" size="2xl" />
     </template>
 
     <template #payment-details-title>
       <template v-if="paymentDetailsMeta.isFree">
-        <SmartTitle :title="t('basket.payment_details.details')" />
+        <SmartTitle :title="t('basket.payment_details.details')" size="2xl" />
       </template>
       <template v-else>
-        <SmartTitle :title="tm('basket.payment_details.title')" />
+        <SmartTitle :title="tm('basket.payment_details.title')" size="2xl" />
       </template>
     </template>
 
