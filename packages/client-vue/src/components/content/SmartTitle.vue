@@ -1,31 +1,22 @@
 <template>
-  <span :class="styles.title">
-    <h3 v-if="meta.isString">{{ title }}</h3>
+  <h3 v-if="meta.isString" :class="styles.title" class="m-0">{{ title }}</h3>
 
-    <h3
-      v-if="meta.isMask"
-      v-html="
-        template(title.text)({
-          mask: `<mask class='bg-${props.color}'>${title.mask}</mask>`,
-        })
-      "
-    />
-
-    <h3
-      v-if="meta.isBold"
-      v-html="
-        template(title.text)({
-          bold: `<b>${title.bold}</b>`,
-        })
-      "
-    />
-  </span>
+  <h3
+    v-if="meta.isKeyword"
+    :class="styles.title"
+    v-html="
+      template(title.text)({
+        keyword: `<keyword class='${styles.keyword}'>${title.keyword}</keyword>`,
+      })
+    "
+  />
 </template>
 
 <script setup lang="ts">
 // --- external
 import { isString, template } from "lodash-es";
 import { computed } from "vue";
+
 // --- internal
 import config from "./config.cva";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -35,26 +26,22 @@ import type { SmartTitleProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<SmartTitleProps>(), {
-  color: "secondary",
+  align: "left",
 });
 
-const meta = computed(() => {
-  const variant = getVariant();
-  return {
-    variant,
-    isString: variant === "default",
-    isMask: variant === "mask",
-    isBold: variant === "bold",
-  };
-});
+const meta = computed(() => ({
+  isKeyword: !isString(props.title) && props.title?.keyword,
+  isString: isString(props.title),
+  align: props.align,
+}));
 
-const getVariant = () => {
-  if (isString(props.title)) return "default";
-  if (props.title?.mask) return "mask";
-  if (props.title?.bold) return "bold";
-};
-
-const styles = useStyles(["title"], meta, config, {}) as ComputedRef<{
+const styles = useStyles(
+  ["title", "keyword"],
+  meta,
+  config,
+  {}
+) as ComputedRef<{
   title: string;
+  keyword: string;
 }>;
 </script>

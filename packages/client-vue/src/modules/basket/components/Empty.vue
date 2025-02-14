@@ -22,7 +22,7 @@
 
       <h3 :class="styles.basket.empty.title">
         <slot name="title">
-          <SmartTitle v-if="title" :title="title" color="accent" />
+          <SmartTitle v-if="title" :title="title" align="center" />
         </slot>
       </h3>
 
