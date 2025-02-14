@@ -29,18 +29,11 @@
         modal
       >
         <template #title>
-          <i18n-t
-            keypath="basket.requiresAction.title.text"
-            tag="span"
-            class="text-primary font-medium"
+          <SmartTitle
+            i18n-key="basket.requiresAction.title"
             :plural="products.length"
-          >
-            <template v-slot:mask>
-              <span class="font-bold">{{
-                t("basket.requiresAction.title.mask")
-              }}</span>
-            </template>
-          </i18n-t>
+            align="center"
+          />
         </template>
 
         <template #default>
@@ -65,6 +58,7 @@ import { useI18n } from "vue-i18n";
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- utils
 import {
@@ -73,7 +67,7 @@ import {
 } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
-const { t } = useI18n();
+const { t, tm } = useI18n();
 
 const { next, back } = useRoutingEngine();
 const { products } = useProductsRequiringAction();

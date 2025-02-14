@@ -26,7 +26,7 @@
             >
               <template #title>
                 <SmartTitle
-                  :title="tm('basket.loading.title')"
+                  i18n-key="basket.loading.title"
                   size="3xl"
                   align="center"
                 />
@@ -66,7 +66,7 @@
                       >
                         <template #title>
                           <SmartTitle
-                            :title="tm('basket.loading.title')"
+                            i18n-key="basket.loading.title"
                             size="3xl"
                             align="center"
                           />
@@ -142,7 +142,7 @@ const props = withDefaults(
   }
 );
 
-const { t, tm } = useI18n();
+const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
 
 // setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback

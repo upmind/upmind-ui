@@ -15,7 +15,7 @@
       >
         <template #title>
           <SmartTitle
-            :title="tm('basket.loading.title')"
+            i18n-key="basket.loading.title"
             size="3xl"
             align="center"
           />
@@ -28,7 +28,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-const { t, tm } = useI18n();
+const { t } = useI18n();
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
