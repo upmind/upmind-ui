@@ -21,6 +21,7 @@
           :title="tm('errors.404.title')"
           class="mt-4"
           align="center"
+          size="2xl"
         />
 
         <p

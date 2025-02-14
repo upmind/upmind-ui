@@ -5,13 +5,14 @@ import type { VariantProps } from "class-variance-authority";
 import type { title } from "./config.cva";
 type TitleVariantProps = VariantProps<typeof title>;
 
-export interface Mask {
+export interface TitleProperties {
   text: string;
   keywords?: string;
 }
 
 export interface SmartTitleProps {
-  title: string | Mask;
+  i18nKey: string;
+  plural?: number;
   color?: string;
   align?: TitleVariantProps["align"];
   size?: TitleVariantProps["size"];
