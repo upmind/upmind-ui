@@ -1,6 +1,5 @@
 <template>
-  <h3 v-if="meta.isString" :class="styles.title" class="m-0">{{ title }}</h3>
-
+  <h3 v-if="meta.isString" :class="styles.title">{{ title }}</h3>
   <h3 v-if="meta.isKeyword" :class="styles.title" v-html="formattedTitle"></h3>
 </template>
 
@@ -27,20 +26,17 @@ const meta = computed(() => ({
   align: props.align,
 }));
 
-const styles = useStyles(
-  ["title", "keyword"],
-  meta,
-  config,
-  {}
-) as ComputedRef<{
+const styles = useStyles(["title", "keyword"], meta, config, {
+  dynamic: ["keyword"],
+}) as ComputedRef<{
   title: string;
-  keyword: string;
+  keyword: (props: { keyword: string }) => string;
 }>;
 
 const formattedTitle = computed(() => {
   if (meta.value.isKeyword) {
-    return replace(props.title.text, /{(\d+)}/g, (match, index) => {
-      return `<keyword class="${styles.value.keyword}">${props.title.keywords[index]}</keyword>`;
+    return replace(props.title.text, /{(\w+)}/g, (match, key) => {
+      return `<keyword class="${styles.value.keyword({ keyword: key.toLowerCase() })}">${props.title.keywords[key]}</keyword>`;
     });
   }
 
