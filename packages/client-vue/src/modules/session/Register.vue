@@ -18,7 +18,7 @@
     <ContentSection class="mx-auto max-w-2xl">
       <template #title>
         <SmartTitle
-          :title="tm('session.unauthenticated.register.title')"
+          i18n-key="session.unauthenticated.register.title"
           size="2xl"
         />
       </template>
@@ -57,7 +57,7 @@ import type { AuthProps } from "./components/types";
 
 // -----------------------------------------------------------------------------
 
-const { t, tm } = useI18n();
+const { t } = useI18n();
 const { next, back, navigate } = useRoutingEngine();
 
 function doLogin(value: AuthProps["modelValue"]) {

@@ -19,7 +19,7 @@
           <section class="flex min-w-0 flex-1 flex-col gap-16">
             <ContentSection>
               <template #title>
-                <SmartTitle :title="tm('product.title')" size="2xl" />
+                <SmartTitle i18n-key="product.title" size="2xl" />
               </template>
 
               <!-- TODO: add skeleton loader when meta.isLoading -->
