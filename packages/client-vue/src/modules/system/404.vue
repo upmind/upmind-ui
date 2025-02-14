@@ -17,21 +17,14 @@
           />
         </div>
 
-        <h3 class="m-0 mt-4 text-center text-3xl text-inherit">
-          <i18n-t
-            keypath="errors.404.title"
-            tag="span"
-            for="errors.404.title"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-accent leading-relaxed">{{
-              t("errors.404.page")
-            }}</mask>
-          </i18n-t>
-        </h3>
+        <SmartTitle
+          :title="tm('errors.404.title')"
+          class="mt-4"
+          align="center"
+        />
 
         <p
-          class="text-emphasis-medium m-0 text-center text-sm leading-5 tracking-tight"
+          class="text-emphasis-medium m-0 max-w-md text-center text-lg leading-normal"
         >
           {{ t("errors.404.description") }}
         </p>
@@ -51,15 +44,17 @@
 </template>
 
 <script lang="ts" setup>
-// ---
+// --- external
 import { useI18n } from "vue-i18n";
+
 // -- components
 import ContentSection from "../../components/content/ContentSection.vue";
 import { IconAnimated, Button, Icon } from "@upmind-automation/upmind-ui";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 
-const { t } = useI18n();
+const { t, tm } = useI18n();
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const createRepeatSequence = (

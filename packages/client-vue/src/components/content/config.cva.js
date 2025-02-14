@@ -30,15 +30,18 @@ export default {
   content: cva(
     "prose max-w-app z-10 mx-auto w-full flex-wrap items-start justify-start pb-16 pt-10 md:pb-32 md:pt-16"
   ),
-  title: cva("text-3xl md:text-4xl", {
+  title: cva("m-0 text-2xl md:text-3xl", {
     variants: {
-      variant: {
-        bold: "font-medium",
-        mask: "font-bold",
+      align: {
+        inherit: "text-inherit",
+        left: "text-left",
+        center: "text-center",
+        right: "text-right",
+      },
+      defaultVariants: {
+        align: "inherit",
       },
     },
-    defaultVariants: {
-      variant: "bold",
-    },
   }),
+  keyword: cva(""),
 };
