@@ -30,8 +30,17 @@ export default {
   content: cva(
     "prose max-w-app z-10 mx-auto w-full flex-wrap items-start justify-start pb-16 pt-10 md:pb-32 md:pt-16"
   ),
-  title: cva("m-0 text-2xl md:text-3xl", {
+  title: cva("m-0", {
     variants: {
+      size: {
+        inherit: "text-inherit",
+        sm: "text-sm",
+        md: "text-md",
+        lg: "text-lg",
+        xl: "text-xl md:text-2xl",
+        "2xl": "text-2xl md:text-3xl",
+        "3xl": "text-3xl md:text-4xl",
+      },
       align: {
         inherit: "text-inherit",
         left: "text-left",
@@ -40,6 +49,7 @@ export default {
       },
       defaultVariants: {
         align: "inherit",
+        size: "inherit",
       },
     },
   }),

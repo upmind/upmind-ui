@@ -14,16 +14,11 @@
         }"
       >
         <template #title>
-          <i18n-t
-            keypath="basket.loading.title"
-            tag="span"
-            for="basket.loading.exciting"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-accent leading-relaxed">{{
-              t("basket.loading.exciting")
-            }}</mask>
-          </i18n-t>
+          <SmartTitle
+            :title="tm('basket.loading.title')"
+            size="3xl"
+            align="center"
+          />
         </template>
       </BasketLoading>
     </ContentSection>
@@ -33,7 +28,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, tm } = useI18n();
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
@@ -41,6 +36,7 @@ import { useRoutingEngine } from "@upmind-automation/headless-vue";
 // -- components
 import ContentSection from "../../components/content/ContentSection.vue";
 import BasketLoading from "../basket/components/Loading.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // ---types
 // -----------------------------------------------------------------------------

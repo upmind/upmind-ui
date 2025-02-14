@@ -14,4 +14,5 @@ export interface SmartTitleProps {
   title: string | Mask;
   color?: string;
   align?: TitleVariantProps["align"];
+  size?: TitleVariantProps["size"];
 }

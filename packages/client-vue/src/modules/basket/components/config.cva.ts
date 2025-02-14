@@ -151,7 +151,7 @@ export default {
 
     loading: {
       root: cva(
-        "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 py-16 md:px-8"
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-2 px-4 py-16 md:gap-4 md:px-8"
       ),
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
@@ -161,7 +161,7 @@ export default {
 
     processing: {
       root: cva(
-        "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 py-16 md:px-8"
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-2 px-4 py-16 md:px-8"
       ),
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
@@ -173,7 +173,7 @@ export default {
 
     empty: {
       root: cva(
-        "relative flex w-full flex-col flex-wrap items-center justify-center gap-1 px-4 py-16 md:px-8"
+        "relative flex w-full flex-col flex-wrap items-center justify-center gap-2 px-4 py-16 md:px-8"
       ),
       title: cva("m-0 mt-3 text-center text-3xl text-inherit md:text-4xl"),
       text: cva(
