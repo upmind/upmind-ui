@@ -18,7 +18,7 @@
         </div>
 
         <SmartTitle
-          :title="tm('errors.404.title')"
+          i18n-key="errors.404.title"
           class="mt-4"
           align="center"
           size="2xl"
@@ -55,7 +55,7 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 
-const { t, tm } = useI18n();
+const { t } = useI18n();
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const createRepeatSequence = (

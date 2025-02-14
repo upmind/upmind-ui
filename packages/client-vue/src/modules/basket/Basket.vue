@@ -7,16 +7,7 @@
         <div class="flex min-w-0 flex-1 flex-col gap-8">
           <ContentSection>
             <template #title>
-              <i18n-t
-                keypath="basket.title"
-                tag="span"
-                for="basket.basket"
-                class="text-primary font-bold"
-              >
-                <mask class="bg-quarternary leading-relaxed">{{
-                  t("basket.basket")
-                }}</mask>
-              </i18n-t>
+              <SmartTitle i18n-key="basket.title" size="2xl" />
             </template>
             <template #option>
               <div class="flex items-center gap-6">
@@ -44,17 +35,7 @@
           <!-- Custom Fields  -->
           <ContentSection>
             <template #title>
-              <i18n-t
-                keypath="customFields.title.text"
-                tag="span"
-                class="text-primary font-bold"
-              >
-                <template v-slot:mask>
-                  <mask class="bg-accent leading-relaxed">{{
-                    t("customFields.title.mask")
-                  }}</mask>
-                </template>
-              </i18n-t>
+              <SmartTitle i18n-key="customFields.title" size="2xl" />
             </template>
             <Card>
               <Form
@@ -71,7 +52,7 @@
                 autosave
               />
 
-              <VCustomFieldsSkeleton v-else />
+              <CustomFieldsSkeleton v-else />
             </Card>
           </ContentSection>
         </div>
@@ -163,7 +144,8 @@ import Card from "../../components/content/Card.vue";
 import Summary from "./components/Summary.vue";
 import ProductCards from "./components/product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
-import VCustomFieldsSkeleton from "./components/CustomFieldsSkeleton.vue";
+import CustomFieldsSkeleton from "./components/CustomFieldsSkeleton.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 
