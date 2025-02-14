@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 // --- external
-import { isString, replace } from "lodash-es";
+import { isString, split, join, forEach } from "lodash-es";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -44,10 +44,23 @@ const formattedTitle = computed(() => {
   let properties = tm(props.i18nKey) as TitleProperties;
 
   if (properties.keywords) {
-    title = replace(title, /~(\w+)~/g, (match, key) => {
-      return `<keyword class="${styles.value.keyword({ keyword: key.toLowerCase() })}">${properties.keywords[key]}</keyword>`;
-    });
+    title = replaceKeywords(title, properties, styles);
   }
   return title;
 });
+
+const replaceKeywords = (
+  title: string,
+  properties: TitleProperties,
+  styles: ComputedRef<{
+    keyword: (props: { keyword: string }) => string;
+  }>
+) => {
+  forEach(properties.keywords, (value, key) => {
+    let target = `~${key}~`;
+    let replace = `<keyword class="${styles.value.keyword({ keyword: key as unknown as string })}">${value}</keyword>`;
+    title = join(split(title, target), replace);
+  });
+  return title;
+};
 </script>
