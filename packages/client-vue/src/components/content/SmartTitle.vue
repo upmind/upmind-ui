@@ -24,6 +24,7 @@ const meta = computed(() => ({
   isKeyword: !isString(props.title) && !!props.title?.keywords,
   isString: isString(props.title),
   align: props.align,
+  size: props.size,
 }));
 
 const styles = useStyles(["title", "keyword"], meta, config, {

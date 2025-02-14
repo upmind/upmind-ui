@@ -15,7 +15,6 @@
             <BasketLoading
               class="min-h-screen"
               skrim="light"
-              :title="t('basket.loading.title')"
               :text="t('basket.loading.text')"
               :animated-icon="{
                 icon: 'basket',
@@ -25,11 +24,15 @@
                 size: '4xl',
               }"
             >
-              <template #title v-if="$slots['loading-title']">
-                <slot name="loading-title"></slot>
+              <template #title>
+                <SmartTitle
+                  :title="tm('basket.loading.title')"
+                  size="3xl"
+                  align="center"
+                />
               </template>
 
-              <template #background v-if="$slots['loading-background']">
+              <template #background>
                 <slot name="loading-background"></slot>
               </template>
             </BasketLoading>
@@ -52,7 +55,6 @@
                       <BasketLoading
                         class="min-h-screen"
                         skrim="light"
-                        :title="t('basket.loading.title')"
                         :text="t('basket.loading.text')"
                         :animated-icon="{
                           icon: 'basket',
@@ -62,14 +64,14 @@
                           size: '4xl',
                         }"
                       >
-                        <template #title v-if="$slots['loading-title']">
-                          <slot name="loading-title"></slot>
+                        <template #title>
+                          <SmartTitle
+                            :title="tm('basket.loading.title')"
+                            size="3xl"
+                            align="center"
+                          />
                         </template>
-
-                        <template
-                          #background
-                          v-if="$slots['loading-background']"
-                        >
+                        <template #background>
                           <slot name="loading-background"></slot>
                         </template>
                       </BasketLoading>
@@ -124,7 +126,7 @@ import Feedback from "./components/feedback/Feedback.vue";
 import SessionExpired from "./modules/session/components/Expired.vue";
 import BasketLoading from "./modules/basket/components/Loading.vue";
 import Content from "./components/content/Content.vue";
-
+import SmartTitle from "./components/content/SmartTitle.vue";
 // --- types
 
 // -----------------------------------------------------------------------------
@@ -140,7 +142,7 @@ const props = withDefaults(
   }
 );
 
-const { t } = useI18n();
+const { t, tm } = useI18n();
 const { activeTheme } = useThemes(props.theme);
 
 // setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
