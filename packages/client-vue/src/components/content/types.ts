@@ -7,7 +7,7 @@ type TitleVariantProps = VariantProps<typeof title>;
 
 export interface Mask {
   text: string;
-  keyword?: string;
+  keywords?: string;
 }
 
 export interface SmartTitleProps {

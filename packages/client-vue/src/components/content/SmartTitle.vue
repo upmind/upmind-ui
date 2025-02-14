@@ -1,20 +1,12 @@
 <template>
   <h3 v-if="meta.isString" :class="styles.title" class="m-0">{{ title }}</h3>
 
-  <h3
-    v-if="meta.isKeyword"
-    :class="styles.title"
-    v-html="
-      template(title.text)({
-        keyword: `<keyword class='${styles.keyword}'>${title.keyword}</keyword>`,
-      })
-    "
-  />
+  <h3 v-if="meta.isKeyword" :class="styles.title" v-html="formattedTitle"></h3>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { isString, template } from "lodash-es";
+import { isString, replace } from "lodash-es";
 import { computed } from "vue";
 
 // --- internal
@@ -30,7 +22,7 @@ const props = withDefaults(defineProps<SmartTitleProps>(), {
 });
 
 const meta = computed(() => ({
-  isKeyword: !isString(props.title) && props.title?.keyword,
+  isKeyword: !isString(props.title) && !!props.title?.keywords,
   isString: isString(props.title),
   align: props.align,
 }));
@@ -44,4 +36,14 @@ const styles = useStyles(
   title: string;
   keyword: string;
 }>;
+
+const formattedTitle = computed(() => {
+  if (meta.value.isKeyword) {
+    return replace(props.title.text, /{(\d+)}/g, (match, index) => {
+      return `<keyword class="${styles.value.keyword}">${props.title.keywords[index]}</keyword>`;
+    });
+  }
+
+  return props.title;
+});
 </script>
