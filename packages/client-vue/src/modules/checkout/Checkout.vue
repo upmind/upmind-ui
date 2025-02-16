@@ -13,17 +13,8 @@
       </template>
     </template>
 
-    <template #processing-title="{ processingTitle, processingTitleMask }">
-      <i18n-t
-        :keypath="processingTitle"
-        tag="span"
-        :for="processingTitle"
-        class="text-primary font-bold"
-      >
-        <mask class="bg-accent leading-relaxed">{{
-          t(processingTitleMask)
-        }}</mask>
-      </i18n-t>
+    <template #processing-title="{ processingTitle }">
+      <SmartTitle :i18n-key="processingTitle" size="2xl" />
     </template>
   </Checkout>
 </template>
