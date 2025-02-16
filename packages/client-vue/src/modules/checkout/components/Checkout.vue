@@ -97,11 +97,7 @@
       skrim="light"
     >
       <template #title v-if="$slots['processing-title']">
-        <slot
-          name="processing-title"
-          :processing-title="processingTitle"
-          :processing-title-mask="processingTitleMask"
-        />
+        <slot name="processing-title" :processing-title="processingTitle" />
       </template>
     </BasketProcessing>
   </article>
@@ -180,30 +176,6 @@ const processingTitle = computed(() => {
   }
 
   return "basket.processing.invalid.title";
-});
-
-const processingTitleMask = computed(() => {
-  if (meta.value.needsApproval) {
-    return "basket.processing.approval.mask";
-  }
-
-  if (meta.value.isConverting) {
-    return "basket.processing.converting.mask";
-  }
-
-  if (meta.value.isPaying) {
-    return "basket.processing.paying.mask";
-  }
-
-  if (meta.value.isCheckout) {
-    return "basket.processing.default.mask";
-  }
-
-  if (paymentDetailsMeta.value.isFree) {
-    return "basket.processing.noCharge.mask";
-  }
-
-  return "basket.processing.invalid.mask";
 });
 
 const processingText = computed(() => {

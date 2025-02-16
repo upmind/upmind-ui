@@ -14,16 +14,7 @@
         }"
       >
         <template #title>
-          <i18n-t
-            keypath="basket.notFound.title"
-            tag="span"
-            for="basket.notFound.title"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-promotion text-accent-foreground leading-relaxed">{{
-              t("basket.notFound.product")
-            }}</mask>
-          </i18n-t>
+          <SmartTitle i18n-key="basket.notFound.title" size="2xl" />
         </template>
       </NotFound>
     </ContentSection>
@@ -37,6 +28,8 @@ import { useI18n } from "vue-i18n";
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
 import NotFound from "./components/NotFound.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
+
 // -----------------------------------------------------------------------------
 const { back } = useRoutingEngine();
 const { t } = useI18n();

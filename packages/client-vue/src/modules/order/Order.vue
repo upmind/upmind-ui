@@ -18,39 +18,21 @@
         }"
       >
         <template #title>
-          <i18n-t
+          <SmartTitle
             v-if="!meta.isAuthenticated"
-            keypath="order.confirmation.invalid.title"
-            tag="span"
-            for="order.confirmation.invalid.title"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-accent leading-relaxed">{{
-              t("order.confirmation.invalid.session")
-            }}</mask>
-          </i18n-t>
-          <i18n-t
+            i18n-key="order.confirmation.invalid.title"
+            size="2xl"
+          />
+          <SmartTitle
             v-else-if="success"
-            keypath="order.confirmation.success.title"
-            tag="span"
-            for="order.confirmation.success.title"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-accent leading-relaxed">{{
-              t("order.confirmation.success.complete")
-            }}</mask>
-          </i18n-t>
-          <i18n-t
-            v-else
-            keypath="order.confirmation.failed.title"
-            tag="span"
-            for="order.confirmation.failed.title"
-            class="text-primary font-bold"
-          >
-            <mask class="bg-accent leading-relaxed">{{
-              t("order.confirmation.failed.process")
-            }}</mask>
-          </i18n-t>
+            i18n-key="order.confirmation.success.title"
+            size="2xl"
+          />
+          <SmartTitle
+            -else
+            i18n-key="order.confirmation.failed.title"
+            size="2xl"
+          />
         </template>
       </OrderConfirmation>
     </ContentSection>
@@ -69,6 +51,7 @@ import { useSession } from "@upmind-automation/headless-vue";
 // -- components
 import OrderConfirmation from "./components/Confirmation.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
 
