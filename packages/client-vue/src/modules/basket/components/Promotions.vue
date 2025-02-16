@@ -20,7 +20,6 @@
     </header>
 
     <Form
-      v-if="schema"
       v-show="toggle"
       :additional-errors="errors?.data"
       :loading="meta.isLoading"
@@ -33,7 +32,12 @@
       @resolve="doAdd"
       @update:modelValue="input"
       :actions="actions"
-      :ui-config="config.basket.promotions.form"
+      :ui-config="{
+        form: {
+          root: 'flex-row gap-1 items-start space-x-2',
+          actions: 'w-auto items-start',
+        },
+      }"
     />
 
     <footer

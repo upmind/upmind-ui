@@ -49,4 +49,8 @@ export default {
 
     isFree: cva("bg-base shadow-sm"),
   },
+
+  client: {
+    title: cva("flex justify-between"),
+  },
 };
