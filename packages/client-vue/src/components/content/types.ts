@@ -1,9 +1,10 @@
 // --- external
 import type { VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
 
 // --- internal
-import type { title } from "./config.cva";
-type TitleVariantProps = VariantProps<typeof title>;
+import type { titleVariants } from "./content.config";
+type TitleVariantProps = VariantProps<typeof titleVariants>;
 
 export interface SmartTitleProps {
   i18nKey: string;
@@ -11,5 +12,7 @@ export interface SmartTitleProps {
   color?: string;
   align?: TitleVariantProps["align"];
   size?: TitleVariantProps["size"];
-  class?: string;
+  class?: HTMLAttributes["class"];
+  as?: string;
+  tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }

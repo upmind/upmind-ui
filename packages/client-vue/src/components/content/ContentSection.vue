@@ -32,7 +32,7 @@
 <script setup lang="ts">
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./content.config";
 
 // --- types
 import type { HTMLAttributes } from "vue";
