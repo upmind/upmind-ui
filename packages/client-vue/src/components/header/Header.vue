@@ -10,12 +10,12 @@
           <picture class="h-full w-full">
             <img
               class="m-0 hidden h-8 md:block"
-              src="/logo.svg?url"
+              :src="`${baseUrl}/logo.svg`"
               alt="logo"
             />
             <img
               class="m-0 h-8 md:hidden"
-              src="/logo-small.svg?url"
+              :src="`${baseUrl}/logo-small.svg`"
               alt="logo"
             />
             <span class="sr-only">
@@ -46,6 +46,7 @@ import VHeaderButtons from "./HeaderButtons.vue";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
+const baseUrl = import.meta.env.VITE_APP_BASE_URL || "";
 
 const isScrollingDown = ref(false);
 let lastScrollTop = 0;
