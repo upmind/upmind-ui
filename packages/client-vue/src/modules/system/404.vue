@@ -21,7 +21,7 @@
           i18n-key="errors.404.title"
           class="mt-4"
           align="center"
-          size="2xl"
+          size="3xl"
         />
 
         <p

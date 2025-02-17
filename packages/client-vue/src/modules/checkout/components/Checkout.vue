@@ -85,7 +85,7 @@
     <BasketProcessing
       v-if="meta.isCheckout"
       :open="meta.isCheckout"
-      :title="t(processingTitle)"
+      :i18n-title="{ key: processingTitle }"
       :text="processingText"
       :animated-icon="{
         icon: processingIcon,
