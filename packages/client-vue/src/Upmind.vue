@@ -12,30 +12,11 @@
       <template v-if="meta.isLoading || meta.isProcessing">
         <slot name="loading">
           <Content>
-            <BasketLoading
-              class="min-h-screen"
-              skrim="light"
-              :text="t('basket.loading.text')"
-              :animated-icon="{
-                icon: 'basket',
-                delay: 250,
-                primaryColor: props.loadingPrimaryColor,
-                secondaryColor: props.loadingSecondaryColor,
-                size: '4xl',
-              }"
-            >
-              <template #title>
-                <SmartTitle
-                  i18n-key="basket.loading.title"
-                  size="3xl"
-                  align="center"
-                />
-              </template>
-
+            <Loading>
               <template #background>
                 <slot name="loading-background"></slot>
               </template>
-            </BasketLoading>
+            </Loading>
           </Content>
         </slot>
       </template>
@@ -52,29 +33,11 @@
 
                     <!-- fallback / loading state -->
                     <template #fallback>
-                      <BasketLoading
-                        class="min-h-screen"
-                        skrim="light"
-                        :text="t('basket.loading.text')"
-                        :animated-icon="{
-                          icon: 'basket',
-                          delay: 250,
-                          primaryColor: props.loadingPrimaryColor,
-                          secondaryColor: props.loadingSecondaryColor,
-                          size: '4xl',
-                        }"
-                      >
-                        <template #title>
-                          <SmartTitle
-                            i18n-key="basket.loading.title"
-                            size="3xl"
-                            align="center"
-                          />
-                        </template>
+                      <Loading>
                         <template #background>
                           <slot name="loading-background"></slot>
                         </template>
-                      </BasketLoading>
+                      </Loading>
                     </template>
                   </Suspense>
                 </KeepAlive>
@@ -124,23 +87,15 @@ import { useRoutingEngine } from "@upmind-automation/headless-vue";
 import Header from "./components/header/Header.vue";
 import Feedback from "./components/feedback/Feedback.vue";
 import SessionExpired from "./modules/session/components/Expired.vue";
-import BasketLoading from "./modules/basket/components/Loading.vue";
 import Content from "./components/content/Content.vue";
-import SmartTitle from "./components/content/SmartTitle.vue";
-// --- types
+import Loading from "./modules/system/Loading.vue";
 
 // -----------------------------------------------------------------------------
-const props = withDefaults(
-  defineProps<{
-    theme: any;
-    loadingPrimaryColor?: string;
-    loadingSecondaryColor?: string;
-  }>(),
-  {
-    loadingPrimaryColor: "base-foreground",
-    loadingSecondaryColor: "secondary",
-  }
-);
+const props = defineProps<{
+  theme: any;
+  loadingPrimaryColor?: string;
+  loadingSecondaryColor?: string;
+}>();
 
 const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
