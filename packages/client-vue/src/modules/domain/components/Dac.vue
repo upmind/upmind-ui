@@ -97,7 +97,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn, type ButtonProps } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "../config.cva";
 
 // --- components
 import {

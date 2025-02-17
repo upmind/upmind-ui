@@ -95,7 +95,7 @@ import config from "./config.cva";
 // --- components
 import Item from "../../client/components/Item.vue";
 import Card from "../../client/components/Card.vue";
-import Listings from "../../client/components/Listings.vue";
+import Listings from "../../client/Listings.vue";
 import {
   SkeletonList,
   Button,
