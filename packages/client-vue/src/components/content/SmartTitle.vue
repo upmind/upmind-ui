@@ -7,9 +7,9 @@
     :class="cn(styles.title, props.class)"
     :plural="plural"
   >
-    <keyword :class="styles.keyword">{{
+    <span class="keyword" :class="styles.keyword">{{
       t(`${props.i18nKey}.keyword`)
-    }}</keyword>
+    }}</span>
   </i18n-t>
 
   <h3 v-else :class="cn(styles.title, props.class)">
