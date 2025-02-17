@@ -4,5 +4,4 @@ export * from "./feedback";
 export * from "./form";
 // export * from "./header";
 export * from "./navigation";
-export * from "./pricing";
 export * from "./session";

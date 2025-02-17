@@ -120,8 +120,8 @@
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
 import RequiredAlert from "./components/RequiredAlert.vue";
-import CurrentPrice from "../../../../components/pricing/CurrentPrice.vue";
-import ExPrice from "../../../../components/pricing/ExPrice.vue";
+import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
+import ExPrice from "../../../product/components/pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
