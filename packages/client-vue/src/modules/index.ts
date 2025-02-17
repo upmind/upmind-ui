@@ -18,10 +18,6 @@ export { default as UpmSessionLoginView } from "./session/Login.vue";
 export { default as UpmSessionLogoutView } from "./session/Logout.vue";
 export { default as UpmSessionRegisterView } from "./session/Register.vue";
 
-export { default as Upm404View } from "./system/404.vue";
-export { default as UpmEmptyView } from "./system/Empty.vue";
-
-// export { default as UpmErrorView } from "./system/Error.vue";
-export { default as UpmLoadingView } from "./system/Loading.vue";
-
 export { default as UpmCurrency } from "./basket/components/CurrencySwitcher.vue";
+
+export * from "./system";
