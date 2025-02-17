@@ -47,8 +47,8 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import SessionLoginPopover from "../../components/session/LoginPopover.vue";
-import SessionDetailsDropdown from "../../components/session/DetailsDropdown.vue";
+import SessionLoginPopover from "../../../modules/session/components/LoginPopover.vue";
+import SessionDetailsDropdown from "../../../modules/session/components/DetailsDropdown.vue";
 
 import { Avatar } from "@upmind-automation/upmind-ui";
 

@@ -23,7 +23,7 @@ import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "../config.cva";
 
 // --- components
 import { RadioCards } from "@upmind-automation/upmind-ui";

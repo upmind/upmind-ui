@@ -84,8 +84,8 @@ import { useThemes } from "@upmind-automation/upmind-ui";
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
-import Header from "./components/header/Header.vue";
-import Feedback from "./components/feedback/Feedback.vue";
+import Header from "./modules/layout/header/Header.vue";
+import Feedback from "./modules/feedback/Feedback.vue";
 import SessionExpired from "./modules/session/components/Expired.vue";
 import Content from "./components/content/Content.vue";
 import Loading from "./modules/system/Loading.vue";
