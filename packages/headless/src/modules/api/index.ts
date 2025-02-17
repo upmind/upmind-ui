@@ -262,9 +262,6 @@ export const useApi = () => {
     generateHash,
     useTime,
     // ---
-    setLocale: (locale: string) =>
-      service.send({ type: "SET_LOCALE", data: locale }),
-    // ---
     get: getRequest,
     post: postRequest,
     put: putRequest,

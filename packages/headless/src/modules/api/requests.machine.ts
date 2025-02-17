@@ -4,26 +4,25 @@ import { createMachine, assign, spawn } from "xstate";
 // --- internal
 import requestMachine from "./request.machine";
 import services from "./services";
-
-// --- utils
 import { generateHash } from "./utils";
-import { useTime } from "../../utils";
-import { isEmpty, set, get, unset, keys, isFunction } from "lodash-es";
+// --- utils
+import { isEmpty, set, get, unset, keys } from "lodash-es";
 
-// --- types
+// ---types
+import type { ActorRef, AnyEventObject } from "xstate";
 import type { RequestsContext } from "./types";
-import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
+    // tsTypes: {} as import("./requests.machine.typegen").Typegen0,
     id: "requestsManager",
     predictableActionArguments: true,
     initial: "empty",
     context: {
       requests: {},
-    } as RequestsContext,
+    },
     states: {
       // our initial state depends on if the machine has any requests
       // If we have context > requests, we can skip to processing
@@ -32,7 +31,6 @@ export default createMachine(
       empty: {
         always: [{ target: "processing", cond: "hasRequests" }],
       },
-
       processing: {
         always: [{ target: "empty", cond: "hasNoRequests" }],
         on: {
@@ -41,15 +39,11 @@ export default createMachine(
           },
         },
       },
-
       complete: {
         type: "final",
       },
     },
     on: {
-      SET_LOCALE: {
-        actions: ["setLocale"],
-      },
       ADD: {
         actions: ["add"],
       },
@@ -79,13 +73,7 @@ export default createMachine(
           if (!request) {
             // spawn an actor for the new request
             const machine = spawn(
-              requestMachine.withContext({
-                hash,
-                url,
-                init,
-                useCache,
-                maxAge: maxAge ?? useTime().MINUTE,
-              }),
+              requestMachine({ hash, url, init, useCache, maxAge }),
               {
                 name: hash,
                 sync: true,
@@ -122,17 +110,18 @@ export default createMachine(
           { data: { hash } }: AnyEventObject
         ) => {
           // try find any requests with the same hash
-          const request = get(requests, hash);
-
-          if (!request) return requests;
+          const request = get(requests, hash) as ActorRef<any>;
 
           // if it exists, stop the referenced machine
           // and remove it from our list of requests
           if (request) {
             const state = request.getSnapshot();
-            if (state.matches("processing"))
+            if (state.matches("processing")) {
               request.send({ type: "CANCELLED" });
-            else if (!state?.done && isFunction(request?.stop)) request.stop();
+            }
+            if (state?.done && request?.stop) {
+              request.stop();
+            }
           }
 
           unset(requests, hash);
@@ -169,7 +158,6 @@ export default createMachine(
         return isEmpty(requests);
       },
     },
-    // @ts-ignore
-    services,
+    services: services as any,
   }
 );

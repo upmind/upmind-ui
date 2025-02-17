@@ -58,46 +58,21 @@ export interface RequestParams {
 // Context Types
 
 export interface RequestContext {
-  url: URL;
-  init: RequestInit;
-  useCache: boolean;
-  hash: string;
-  maxAge: number;
+  url?: URL;
+  init?: RequestInit;
+  useCache?: boolean;
+  hash?: string;
+  maxAge?: number;
   // ---
-  created?: EpochTimeStamp;
-  completed?: EpochTimeStamp;
-  // ---
-  attempts?: 0;
+  created?: number;
+  completed?: number;
+
   response?: RequestResponse["data"];
+  attempts?: number;
   error?: RequestError;
+  parent?: ActorRef<any>;
 }
 
 export interface RequestsContext {
   requests: Record<string, ActorRef<any>>;
 }
-
-// --------------------------------------------------------
-// Event Types
-
-export interface RequestEvent {
-  type: string;
-  data: {
-    url: URL;
-    init: RequestInit;
-    useCache: boolean;
-    hash: string;
-  };
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}
-
-export type RequestEvents = {
-  type: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "CANCEL" | "RETRY";
-  data: RequestEvent;
-};
-
-export type RequestsEvents = {
-  type: "ADD" | "REMOVE" | "STASH" | "DUMP" | "CANCEL" | "RETRY";
-  data: any;
-};

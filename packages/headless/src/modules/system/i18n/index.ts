@@ -1,5 +1,5 @@
 // --- internal
-import { responseCodes, useApi } from "../../api";
+import { responseCodes } from "../../api";
 import { useBrand } from "../../brand";
 import type { SupportedLocaleCodes } from "./locales";
 
@@ -15,7 +15,6 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 
 export const useI18n = () => {
   const { validateLanguage, getLanguages, isReady } = useBrand();
-  const { setLocale: setAPI } = useApi();
   const { get, set } = useLocalStorage();
 
   async function getLocale(): Promise<string | undefined> {
@@ -108,7 +107,6 @@ export const useI18n = () => {
     return new Promise((resolve, reject) => {
       if (locale?.code) {
         set("i18n/locale", locale.code);
-        setAPI(locale.code);
         return resolve(locale.code);
       }
       return reject({
