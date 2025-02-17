@@ -18,6 +18,11 @@ export interface SmartTitleProps {
   tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
+export interface I18nText {
+  key: string;
+  plural?: number;
+}
+
 export interface InterstitialExtendedProps extends InterstitialProps {
-  i18nTitle?: { key: string; plural?: number };
+  i18nTitle?: I18nText;
 }
