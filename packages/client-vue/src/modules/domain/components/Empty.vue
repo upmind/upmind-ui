@@ -33,7 +33,7 @@ import { ref, computed } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./domain.config";
+import config from "../domain.config";
 
 // --- custom elements
 import { Avatar, Button, Drawer } from "@upmind-automation/upmind-ui";

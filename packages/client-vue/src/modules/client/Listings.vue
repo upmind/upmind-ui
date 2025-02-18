@@ -17,7 +17,7 @@
     </template>
 
     <div v-if="!meta.isAvailable">
-      <Auth no-tabs />
+      <Auth no-tabs model-value="register" />
     </div>
 
     <SkeletonList

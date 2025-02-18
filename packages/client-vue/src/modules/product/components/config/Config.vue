@@ -196,7 +196,7 @@ import { computed } from "vue";
 // --- internal
 import { useProductConfig } from "@upmind-automation/headless-vue";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "../product.config";
+import config from "../../product.config";
 
 // --- components
 import { Markdown, Lineclamp } from "@upmind-automation/upmind-ui";

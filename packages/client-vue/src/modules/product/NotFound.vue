@@ -1,10 +1,11 @@
 <template>
   <article>
     <ContentSection>
-      <NotFound
+      <Interstitial
         open
         modal
         skrim="light"
+        :title="t('basket.notFound.text')"
         :text="t('basket.notFound.text')"
         :action="{
           color: 'primary',
@@ -12,21 +13,31 @@
           prependIcon: 'arrow-left',
           label: t('basket.notFound.actions.continue'),
         }"
+        :animatedIcon="{
+          icon: 'basket',
+          delay: 5000,
+          primaryColor: 'primary',
+          secondaryColor: 'accent',
+          size: '4xl',
+        }"
       >
         <template #title>
           <SmartTitle i18n-key="basket.notFound.title" size="2xl" />
         </template>
-      </NotFound>
+      </Interstitial>
     </ContentSection>
   </article>
 </template>
 
 <script lang="ts" setup>
-// ---
+// --- external
 import { useI18n } from "vue-i18n";
-// -- components
+
+// --- internal
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
-import NotFound from "./components/NotFound.vue";
+
+// -- components
+import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 

@@ -26,7 +26,7 @@ import {
   useStyles,
   type RadioCardsItemProps,
 } from "@upmind-automation/upmind-ui";
-import config from "./domain.config";
+import config from "../domain.config";
 
 // --- components
 import { RadioCards } from "@upmind-automation/upmind-ui";

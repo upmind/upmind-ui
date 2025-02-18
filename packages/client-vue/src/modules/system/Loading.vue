@@ -2,17 +2,19 @@
   <article>
     <ContentSection v-auto-animate>
       <Interstitial
-        skrim="light"
-        :i18n-title="{ key: 'basket.loading.title' }"
+        v-bind="props"
+        :title="t('basket.loading.title')"
         :text="t('basket.loading.text')"
-        :animated-icon="{
-          icon: 'basket',
-          delay: 250,
-          primaryColor: loadingPrimaryColor,
-          secondaryColor: loadingSecondaryColor,
-          size: '4xl',
-        }"
       >
+        <template #title>
+          <SmartTitle
+            i18n-key="basket.loading.title"
+            class="mt-4"
+            align="center"
+            size="3xl"
+          />
+        </template>
+
         <template #background>
           <slot name="loading-background"></slot>
         </template>
@@ -27,21 +29,20 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 // -- components
-import Interstitial from "../../components/content/Interstitial.vue";
+import {
+  Interstitial,
+  type InterstitialProps,
+} from "@upmind-automation/upmind-ui";
 
 // ---types
-import type { InterstitialExtendedProps } from "../../components/content/types";
 
-withDefaults(
-  defineProps<
-    InterstitialExtendedProps & {
-      loadingPrimaryColor?: string;
-      loadingSecondaryColor?: string;
-    }
-  >(),
-  {
-    loadingPrimaryColor: "base-foreground",
-    loadingSecondaryColor: "secondary",
-  }
-);
+const props = withDefaults(defineProps<InterstitialProps>(), {
+  animatedIcon: () => ({
+    icon: "basket",
+    delay: 250,
+    primaryColor: "base-foreground",
+    secondaryColor: "secondary",
+    size: "4xl",
+  }),
+});
 </script>

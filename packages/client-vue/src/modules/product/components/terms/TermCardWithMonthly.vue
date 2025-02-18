@@ -53,7 +53,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../product.config";
+import config from "../../product.config";
 
 // --- components
 import { Badge } from "@upmind-automation/upmind-ui";

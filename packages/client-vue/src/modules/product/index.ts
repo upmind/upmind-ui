@@ -7,19 +7,19 @@ import { defineAsyncComponent } from "vue";
 // to avoid circular dependencies. and to be able to lazy load them.
 
 export const UpmProductAddView = defineAsyncComponent(
-  () => import("./AddView.vue")
+  () => import("./Add.vue")
 );
 export const UpmProductEditView = defineAsyncComponent(
-  () => import("./EditView.vue")
+  () => import("./Edit.vue")
 );
 export const UpmProductNotFoundView = defineAsyncComponent(
-  () => import("./NotFoundView.vue")
+  () => import("./NotFound.vue")
 );
 export const UpmProductRequiresActionView = defineAsyncComponent(
-  () => import("./RequiresActionView.vue")
+  () => import("./RequiresAction.vue")
 );
 export const UpmProductConfigView = defineAsyncComponent(
-  () => import("./ConfigView.vue")
+  () => import("./Config.vue")
 );
 // --- Export Components
 

@@ -29,7 +29,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "../product.config";
+import config from "../../product.config";
 import { formRenderers } from "../../../../components/form";
 
 // --- components

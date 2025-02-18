@@ -23,16 +23,8 @@
         :title="t('basket.empty.title')"
         :text="t('basket.empty.text')"
       >
-        <slot #title>
+        <template #title>
           <SmartTitle i18n-key="basket.empty.title" size="2xl" class="mb-2" />
-        </slot>
-      </Interstitial>
-
-      <Interstitial open modal skrim="light" :text="t('basket.empty.text')">
-        <template #title> </template>
-
-        <template #background>
-          <slot name="loading-background"></slot>
         </template>
       </Interstitial>
     </ContentSection>
