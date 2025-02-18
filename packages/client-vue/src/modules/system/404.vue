@@ -10,7 +10,10 @@
             as: 'a',
             color: 'primary',
             href: storefrontUrl,
-            appendIcon: 'arrow-left',
+            prependIcon: {
+              icon: 'arrow-left',
+              size: '2xs',
+            },
             label: t('errors.404.action'),
           },
         ]"
