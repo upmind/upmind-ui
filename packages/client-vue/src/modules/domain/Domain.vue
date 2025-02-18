@@ -85,8 +85,8 @@ import { useStyles, type ButtonProps } from "@upmind-automation/upmind-ui";
 import config from "./domain.config";
 
 // --- components
-import Dac from "./Dac.vue";
-import DomainBasketCards from "./DomainBasketCards.vue";
+import Dac from "./components/Dac.vue";
+import DomainBasketCards from "./components/DomainBasketCards.vue";
 import {
   RadioCards,
   SkeletonList,

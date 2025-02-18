@@ -93,7 +93,7 @@ import { Spinner, Alert } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 
 // --- types
-import type { PaymentGatewayProps } from "./types";
+import type { PaymentGatewayProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();

@@ -118,14 +118,14 @@ import {
   type ButtonProps,
   type FormActionProps,
 } from "@upmind-automation/upmind-ui";
-import config from "../client.config";
+import config from "./client.config";
 
 // --- components
-import Section from "../../../components/content/ContentSection.vue";
-import Auth from "../../../components/session/AuthTabs.vue";
-import Empty from "./Empty.vue";
-import Card from "./Card.vue";
-import Item from "./Item.vue";
+import Section from "../../components/content/ContentSection.vue";
+import Auth from "../session/components/AuthTabs.vue";
+import Empty from "./components/Empty.vue";
+import Card from "./components/Card.vue";
+import Item from "./components/Item.vue";
 import { Input, SkeletonList } from "@upmind-automation/upmind-ui";
 
 // --- custom elements

@@ -24,5 +24,8 @@ export const useApi = (): object => {
     useTime: api.useTime,
     get: api.get,
     post: api.post,
+    put: api.put,
+    patch: api.patch,
+    del: api.del,
   };
 };

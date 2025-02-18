@@ -8,7 +8,10 @@
     :plural="plural"
   >
     <template v-for="keyword in keywords" :key="keyword">
-      <component :is="getComponent(keyword)" :class="cn(styles.keyword)">
+      <component
+        :is="getComponent(keyword)"
+        :class="t(`${props.i18nKey}.${keyword}`)"
+      >
         {{ t(`${props.i18nKey}.${keyword}`) }}
       </component>
     </template>
@@ -42,14 +45,16 @@ const props = withDefaults(defineProps<SmartTitleProps>(), {
 
 const { t, tm } = useI18n();
 
-const keywords = computed((): string[] => tm(props.i18nKey));
+const keywords = computed(() =>
+  Object.keys(tm(`${props.i18nKey}`) || {}).filter(key => key !== "text")
+);
+
 const meta = computed(() => {
   return {
-    hasKeywords: keywords.value.length > 1,
+    hasKeywords: keywords.value.length > 0,
     align: props.align,
     size: props.size,
   };
-  // keyword: hasKeywords.value ? t(`${props.i18nKey}.keyword`).toLowerCase() : "",
 });
 
 const styles = useStyles(["title", "keyword"], meta, config) as ComputedRef<{

@@ -52,7 +52,12 @@
                 autosave
               />
 
-              <CustomFieldsSkeleton v-else />
+              <template v-else>
+                <Skeleton class="-mt-1 w-24 text-sm leading-normal"
+                  >Title</Skeleton
+                >
+                <Skeleton class="mt-1 h-20 w-full" />
+              </template>
             </Card>
           </ContentSection>
         </div>
@@ -142,9 +147,8 @@ import { Button, Icon, Alert, Link } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
 import Summary from "./components/Summary.vue";
-import ProductCards from "./components/product/BasketProductCards.vue";
+import ProductCards from "../product/BasketProductCards.vue";
 import Form from "../../components/form/Form.vue";
-import CustomFieldsSkeleton from "./components/CustomFieldsSkeleton.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
