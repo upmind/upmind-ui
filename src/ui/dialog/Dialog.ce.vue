@@ -46,7 +46,10 @@
         </div>
       </div>
 
-      <DialogFooter :class="props.classFooter">
+      <DialogFooter
+        v-if="$slots.footer || ($slots.close && dismissable) || $slots.actions"
+        :class="props.classFooter"
+      >
         <slot name="footer" />
 
         <DialogClose @click="forceClose" v-if="$slots.close && dismissable">
