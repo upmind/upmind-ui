@@ -31,7 +31,7 @@ import {
 } from "@jsonforms/vue";
 
 // --- local
-import config from "./config.cva";
+import config from "./layouts.config";
 // --- utils
 import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";

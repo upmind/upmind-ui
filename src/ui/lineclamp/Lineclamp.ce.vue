@@ -33,7 +33,7 @@ import {
 
 // --- internal
 import Button from "../../ui/button/Button.ce.vue";
-import config from "./config.cva";
+import config from "./lineclamp.config";
 
 // --- utils
 import { cn, useStyles } from "../../utils";
