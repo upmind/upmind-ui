@@ -5,15 +5,15 @@
         open
         modal
         skrim="light"
-        :title="t('errors.404.title')"
-        :text="t('errors.404.text')"
+        :title="t('errors.generic.title')"
+        :text="t('errors.generic.text')"
         :actions="[
           {
             as: 'a',
             color: 'primary',
             href: storefrontUrl,
             appendIcon: 'arrow-left',
-            label: t('errors.404.action'),
+            label: t('errors.generic.action'),
           },
         ]"
         :animated-icon="{
@@ -24,24 +24,9 @@
           size: '4xl',
         }"
       >
-        <template #avatar>
-          <div>
-            <IconAnimated
-              v-for="(icon, index) in icons"
-              :key="index"
-              :ref="'icon' + index"
-              :icon="icon.icon"
-              size="3xl"
-              secondary-color="accent"
-              trigger="sequence"
-              :sequence="icon.sequence"
-            />
-          </div>
-        </template>
-
         <template #title>
           <SmartTitle
-            i18n-key="errors.404.title"
+            i18n-key="errors.generic.title"
             class="mt-4"
             align="center"
             size="3xl"

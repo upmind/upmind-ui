@@ -7,6 +7,7 @@ import { defineAsyncComponent } from "vue";
 // to avoid circular dependencies. and to be able to lazy load them.
 
 export const Upm404View = defineAsyncComponent(() => import("./404.vue"));
+export const UpmErrorView = defineAsyncComponent(() => import("./Error.vue"));
 export const UpmEmptyView = defineAsyncComponent(() => import("./Empty.vue"));
 export const UpmLoadingView = defineAsyncComponent(
   () => import("./Loading.vue")
