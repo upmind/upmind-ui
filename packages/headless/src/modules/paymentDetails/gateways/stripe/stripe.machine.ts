@@ -20,8 +20,8 @@ import { isFunction } from "lodash-es";
 
 // --- types
 import type { StripeContext } from "./types";
-import { GatewayCtx, GatewayContext } from "../types";
-import { responseCodes } from "../../../api";
+import { GatewayCtx } from "../types";
+import { responseCodes } from "../../../../utils";
 
 // --------------------------------------------------------
 

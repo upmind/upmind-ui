@@ -4,7 +4,9 @@
     :data-theme="activeTheme"
     id="vue-app"
   >
-    <slot name="header"></slot>
+    <slot name="header">
+      <Header />
+    </slot>
 
     <main class="w-full flex-1">
       <template v-if="meta.isLoading || meta.isProcessing">
@@ -13,7 +15,6 @@
             <BasketLoading
               class="min-h-screen"
               skrim="light"
-              :title="t('basket.loading.title')"
               :text="t('basket.loading.text')"
               :animated-icon="{
                 icon: 'basket',
@@ -23,11 +24,15 @@
                 size: '4xl',
               }"
             >
-              <template #title v-if="$slots['loading-title']">
-                <slot name="loading-title"></slot>
+              <template #title>
+                <SmartTitle
+                  i18n-key="basket.loading.title"
+                  size="3xl"
+                  align="center"
+                />
               </template>
 
-              <template #background v-if="$slots['loading-background']">
+              <template #background>
                 <slot name="loading-background"></slot>
               </template>
             </BasketLoading>
@@ -50,7 +55,6 @@
                       <BasketLoading
                         class="min-h-screen"
                         skrim="light"
-                        :title="t('basket.loading.title')"
                         :text="t('basket.loading.text')"
                         :animated-icon="{
                           icon: 'basket',
@@ -60,14 +64,14 @@
                           size: '4xl',
                         }"
                       >
-                        <template #title v-if="$slots['loading-title']">
-                          <slot name="loading-title"></slot>
+                        <template #title>
+                          <SmartTitle
+                            i18n-key="basket.loading.title"
+                            size="3xl"
+                            align="center"
+                          />
                         </template>
-
-                        <template
-                          #background
-                          v-if="$slots['loading-background']"
-                        >
+                        <template #background>
                           <slot name="loading-background"></slot>
                         </template>
                       </BasketLoading>
@@ -102,7 +106,7 @@
 
 <script lang="ts">
 export default {
-  name: "Upmind",
+  name: "ind",
   inheritAttrs: false,
   customOptions: {},
 };
@@ -113,15 +117,16 @@ export default {
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless-vue";
 import { useThemes } from "@upmind-automation/upmind-ui";
+import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
+import Header from "./components/header/Header.vue";
 import Feedback from "./components/feedback/Feedback.vue";
-import SessionExpired from "./components/session/Expired.vue";
-import BasketLoading from "./components/basket/Loading.vue";
+import SessionExpired from "./modules/session/components/Expired.vue";
+import BasketLoading from "./modules/basket/components/Loading.vue";
 import Content from "./components/content/Content.vue";
-
+import SmartTitle from "./components/content/SmartTitle.vue";
 // --- types
 
 // -----------------------------------------------------------------------------

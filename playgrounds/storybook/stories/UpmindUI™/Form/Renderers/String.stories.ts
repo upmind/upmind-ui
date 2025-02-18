@@ -44,7 +44,7 @@ const meta: Meta<typeof Form> = {
       };
     },
     template: `
-      <upw-form
+      <upm-form
         v-bind="args"
         v-model="model"
         @reject="doReject"

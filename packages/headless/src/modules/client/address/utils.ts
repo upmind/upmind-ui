@@ -22,9 +22,8 @@ import {
 // --- types
 import type { IAddress } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { AddressContext } from "./types";
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 export function useSchema({
   // TODO: country,
@@ -155,13 +154,14 @@ export function useSchema({
   return schema as JsonSchema;
 }
 
-export function useUischema({ addresses }: AddressContext): UISchemaElement {
+export function useUischema({ addresses }: any): UISchemaElement {
   const lookups = {
     addresses: reduce(
       addresses.getItems(),
-      (result: any[], item) => {
+      (result, item) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
+          // @ts-ignore
           result.push({
             value: item.id,
             label: [
@@ -359,16 +359,19 @@ export const useModelParser = (
   return defaultsDeep(model, values) as IAddress;
 };
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 export const spawnItem = (model?: IAddress) => {
   try {
     const name = get(model, "id", uniqueId("item_"));
     return spawn(
       itemMachine
+
         .withConfig({
-          actions: actions as any,
-          services: services as any,
+          // @ts-ignore
+          actions,
+          // @ts-ignore
+          services,
         })
         .withContext({ model }),
       {
@@ -377,7 +380,8 @@ export const spawnItem = (model?: IAddress) => {
       }
     );
   } catch (err) {
-    console.error("AddressListings", "spawnItem", { model });
+    // do nothing
+    // console.error("AddressListings", "spawnItem", { model });
     return null;
   }
 };

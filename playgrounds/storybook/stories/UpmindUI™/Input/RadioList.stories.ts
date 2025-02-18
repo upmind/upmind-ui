@@ -91,7 +91,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-radio-list v-bind="args" @update:modelValue="doUpdate" :value="true" />
+        <upm-radio-list v-bind="args" @update:modelValue="doUpdate" :value="true" />
     `,
   }),
 };

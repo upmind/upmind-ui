@@ -18,7 +18,7 @@ import { get, set, unset, forEach } from "lodash-es";
 
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
-import { responseCodes } from "../api";
+import { responseCodes } from "../../utils";
 
 // --------------------------------------------------------
 

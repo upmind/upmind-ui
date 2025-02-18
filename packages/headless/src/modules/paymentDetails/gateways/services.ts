@@ -1,8 +1,8 @@
 // --- external
 
 // --- internal
-import { useSession, useBrand, BrandConfigKeys } from "../../..";
-
+import { useSession, useBrand } from "../../..";
+import { BrandConfigKeys } from "@upmind-automation/types";
 // --- utils
 import { canBeStored } from "./utils";
 import { useValidation } from "../../../utils";

@@ -1,9 +1,5 @@
 import { type HTMLAttributes } from "vue";
-import type {
-  ButtonProps,
-  DialogProps,
-  AvatarProps,
-} from "@upmind-automation/upmind-ui";
+import type { ButtonProps } from "@upmind-automation/upmind-ui";
 // ---
 // -----------------------------------------------------------------------------
 export interface ActionProps extends ButtonProps {
@@ -17,25 +13,11 @@ export interface AuthProps {
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;
-  // --- varants
+  // --- variants
   color?: ButtonProps["color"];
   blockTabs?: boolean;
   stretchTabs?: boolean;
   // ---
   uiConfig?: { alert: Partial<AuthProps> };
   class?: HTMLAttributes["class"];
-}
-
-export interface SessionExpiredProps {
-  // ---
-  modal?: boolean;
-  open?: DialogProps["open"];
-  // ---
-  title?: DialogProps["title"];
-  text?: DialogProps["description"];
-  avatar?: AvatarProps;
-  action?: ActionProps;
-  // ---
-  size?: DialogProps["size"];
-  skrim?: DialogProps["skrim"];
 }

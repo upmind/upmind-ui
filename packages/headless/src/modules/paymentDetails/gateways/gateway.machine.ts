@@ -13,7 +13,7 @@ import { useSchema, useUischema } from "./utils";
 
 // --- types
 import type { GatewayContext } from "./types";
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 

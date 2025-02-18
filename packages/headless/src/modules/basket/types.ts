@@ -1,14 +1,11 @@
 // --- extrnal
 import type { ActorRef } from "xstate";
-import { IPaymentDetail } from "../paymentDetails";
-import type { responseCodes } from "../api";
+import type { responseCodes } from "../../utils";
 import type { IBasket } from "@upmind-automation/types";
-import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
-// Interfaces
 
 type ISubProductChoices = Record<
   string, // the category id

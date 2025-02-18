@@ -13,7 +13,7 @@ import { get, uniqueId, map } from "lodash-es";
 import type { ICompany } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 // TODO: export const useSchema = ({ addresses, emails, phones, baseModel }) => {
 export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
@@ -198,7 +198,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 export const spawnItem = (model?: ICompany) => {
   try {
@@ -206,8 +206,10 @@ export const spawnItem = (model?: ICompany) => {
     return spawn(
       itemMachine
         .withConfig({
-          actions: actions as any,
-          services: services as any,
+          // @ts-ignore
+          actions,
+          // @ts-ignore
+          services,
         })
         .withContext({ model }),
       {
@@ -216,7 +218,7 @@ export const spawnItem = (model?: ICompany) => {
       }
     );
   } catch (err) {
-    console.error("CompanyListings", "spawnItem", { model });
-    return;
+    // console.error("CompanyListings", "spawnItem", { model });
+    return null;
   }
 };

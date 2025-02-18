@@ -11,8 +11,6 @@ export type FetchResponse = {
   status: number;
   statusText: string;
   headers: Headers;
-  // TODO:
-  // data: T;
   data: any;
 };
 

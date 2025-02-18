@@ -41,11 +41,11 @@ export const withUpmindUITheme = ({
     return {
       components: { story },
       template: `
-      <upw-provider theme="${selected}" locale="${locale}">
+      <upm-provider theme="${selected}" locale="${locale}">
         <div class="content bg-background p-4 sm:p-8 text-foreground prose max-w-full min-h-screen">
             <story />
         </div>
-      </upw-provider>`,
+      </upm-provider>`,
     };
   };
 };

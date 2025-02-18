@@ -9,10 +9,10 @@ import services from "./services";
 // --- utils
 import { find } from "lodash-es";
 
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 
 // --- types
-import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "../types";
 import { parseBasketProduct } from "../utils";
 import { DetailedError } from "../../../utils";
@@ -96,8 +96,8 @@ export const useBasketProductConfig = (
         timeout: Infinity, // infinity = no timeout
       }),
 
-    refresh: (basket: IBasket) => {
-      service.send({ type: "REFRESH", basket });
+    refresh: (rawBasket: IBasket) => {
+      service.send({ type: "REFRESH", rawBasket });
       return waitFor(service, state => state.matches("available"));
     },
 

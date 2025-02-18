@@ -14,7 +14,7 @@ export { useModelParser } from "../../../utils";
 import type { IEmail } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 export const useSchema = () => {
   const schema = {
@@ -82,7 +82,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 export const spawnItem = (model?: IEmail) => {
   try {
@@ -90,8 +90,10 @@ export const spawnItem = (model?: IEmail) => {
     return spawn(
       itemMachine
         .withConfig({
-          actions: actions as any,
-          services: services as any,
+          // @ts-ignore
+          actions,
+          // @ts-ignore
+          services,
         })
         .withContext({ model }),
       {
@@ -100,7 +102,7 @@ export const spawnItem = (model?: IEmail) => {
       }
     );
   } catch (err) {
-    console.error("EmailListings", "spawnItem", { model });
+    // console.error("EmailListings", "spawnItem", { model });
     return null;
   }
 };

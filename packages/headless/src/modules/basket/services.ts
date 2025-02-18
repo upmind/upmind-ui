@@ -13,11 +13,7 @@ import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
 import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
 
 // --- types
-import type {
-  IBasket,
-  InvoiceStatus,
-  SemanticTypes,
-} from "@upmind-automation/types";
+import type { IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 

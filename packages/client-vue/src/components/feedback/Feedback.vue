@@ -39,7 +39,7 @@ import { watch, ref, type ComputedRef } from "vue";
 // --- internal
 import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
 import { useStyles, toast } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./feedback.config";
 
 // --- components
 import { Sonner } from "@upmind-automation/upmind-ui";

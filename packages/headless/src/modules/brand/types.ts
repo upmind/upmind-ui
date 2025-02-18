@@ -1,6 +1,7 @@
 // --- internal
 import type { RequestError } from "..//api/types";
 import type {
+  IBrand,
   BrandConfigKeys,
   OrgFeatureKeys,
   IBrandSettings,
@@ -18,5 +19,8 @@ export interface BrandContext extends IBrandSettings {
   };
   // ---
   modules?: Record<string, any>;
+  config?: BrandConfigKeys;
+  organisation?: OrgFeatureKeys;
+  initialised?: boolean;
   error?: any;
 }

@@ -3,13 +3,11 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 import type {
   IAddress,
-  IBasket,
-  PaymentType,
-  PaymentMethodType,
+  IBrandGateway,
   ICurrency,
   IGateway,
   IWalletBalance,
-  IBrandGateway,
+  PaymentType,
 } from "@upmind-automation/types";
 // --------------------------------------------------------
 

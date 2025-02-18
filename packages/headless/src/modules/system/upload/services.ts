@@ -1,14 +1,18 @@
 // --- internal
 import { useApi } from "../../api";
-import { useBrand, BrandConfigKeys } from "../../brand";
+import { useBrand } from "../../brand";
 
 // --- utils
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
-// import type { AnyEventObject, UploadContext } from "./types";
+// import type { UploadEvent, UploadContext } from "./types";
 import type { UploadContext } from "./types";
-import { ImageObjectTypes, ImageUploadTypes } from "@upmind-automation/types";
+import {
+  ImageObjectTypes,
+  ImageUploadTypes,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
