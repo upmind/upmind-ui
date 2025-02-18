@@ -5,15 +5,17 @@
         open
         modal
         skrim="light"
-        :i18n-title="{ key: 'basket.empty.title' }"
+        :title="t('basket.empty.title')"
         :text="t('basket.empty.text')"
-        :action="{
-          as: 'a',
-          color: 'primary',
-          href: storefrontUrl,
-          appendIcon: 'arrow-right',
-          label: t('basket.empty.actions.continue'),
-        }"
+        :actions="[
+          {
+            as: 'a',
+            color: 'primary',
+            href: storefrontUrl,
+            appendIcon: 'arrow-right',
+            label: t('basket.empty.actions.continue'),
+          },
+        ]"
         :animated-icon="{
           icon: 'basket-empty',
           trigger: 'loop',
@@ -41,6 +43,8 @@ import { useI18n } from "vue-i18n";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
+import SmartTitle from "../../components/content/SmartTitle.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();

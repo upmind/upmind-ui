@@ -6,13 +6,15 @@
         :modal="false"
         skrim="primary"
         size="2xl"
-        :action="{
-          as: 'a',
-          color: 'primary',
-          href: storefrontUrl,
-          appendIcon: 'arrow-right',
-          label: t('basket.empty.actions.continue'),
-        }"
+        :actions="[
+          {
+            as: 'a',
+            color: 'primary',
+            href: storefrontUrl,
+            appendIcon: 'arrow-right',
+            label: t('basket.empty.actions.continue'),
+          },
+        ]"
         :animated-icon="{
           icon: 'basket-empty',
           trigger: 'loop',

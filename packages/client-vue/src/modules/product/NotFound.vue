@@ -7,12 +7,14 @@
         skrim="light"
         :title="t('basket.notFound.text')"
         :text="t('basket.notFound.text')"
-        :action="{
-          color: 'primary',
-          handler: back,
-          prependIcon: 'arrow-left',
-          label: t('basket.notFound.actions.continue'),
-        }"
+        :actions="[
+          {
+            color: 'primary',
+            handler: back,
+            prependIcon: 'arrow-left',
+            label: t('basket.notFound.actions.continue'),
+          },
+        ]"
         :animatedIcon="{
           icon: 'basket',
           delay: 5000,
