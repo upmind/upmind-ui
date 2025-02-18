@@ -109,9 +109,7 @@ function getDomain(value: string): DomainCardProps {
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
-  debugger;
   return map(props.items, item => {
-    debugger;
     return {
       id: item.value ?? "",
       value: item.value ?? "",

@@ -80,7 +80,6 @@ const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
 }>;
 
 const items = computed((): RadioCardsItemProps[] => {
-  debugger;
   return map(props.items, (item, index) => ({
     item,
     index,
