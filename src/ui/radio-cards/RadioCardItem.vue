@@ -10,7 +10,7 @@
           :disabled="props.disabled"
           :class="styles.radioCards.input"
           :tabindex="isSelected || !modelValue ? 0 : -1"
-          :data-state="isSelected ? 'checked' : null"
+          :data-state="isSelected ? 'checked' : ''"
           @blur="onBlur"
         />
       </div>
