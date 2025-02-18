@@ -36,7 +36,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "../config.cva";
 
 // --- components
 import { DropdownMenu } from "@upmind-automation/upmind-ui";
