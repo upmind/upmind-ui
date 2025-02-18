@@ -33,10 +33,7 @@
           >
             <template #title v-if="$slots['billing-details-title']">
               <slot name="billing-details-title">
-                <SmartTitle
-                  i18n-key="checkout.billing_details.title"
-                  size="2xl"
-                />
+                <SmartTitle i18n-key="checkout.billing_details.title" />
               </slot>
             </template>
             <component :is="props.cardComponent">
@@ -58,16 +55,10 @@
             <template #title v-if="$slots['payment-details-title']">
               <slot name="payment-details-title">
                 <template v-if="paymentDetailsMeta.isFree">
-                  <SmartTitle
-                    i18n-key="checkout.payment_details.details"
-                    size="2xl"
-                  />
+                  <SmartTitle i18n-key="checkout.payment_details.details" />
                 </template>
                 <template v-else>
-                  <SmartTitle
-                    i18n-key="checkout.payment_details.title"
-                    size="2xl"
-                  />
+                  <SmartTitle i18n-key="checkout.payment_details.title" />
                 </template>
               </slot>
             </template>
@@ -116,7 +107,7 @@
         :icon="processingIcon"
       >
         <template #title>
-          <SmartTitle :i18n-key="processingTitleKey" size="2xl" class="mb-2" />
+          <SmartTitle :i18n-key="processingTitleKey" />
         </template>
       </Interstitial>
     </slot>

@@ -27,7 +27,7 @@
         }"
       >
         <template #title>
-          <SmartTitle i18n-key="basket.notFound.title" size="2xl" />
+          <SmartTitle i18n-key="basket.notFound.title" />
         </template>
       </Interstitial>
     </ContentSection>

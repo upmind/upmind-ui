@@ -19,12 +19,7 @@
         ]"
       >
         <template #title>
-          <SmartTitle
-            i18n-key="basket.empty.title"
-            class="mt-4"
-            align="center"
-            size="3xl"
-          />
+          <SmartTitle i18n-key="basket.empty.title" />
         </template>
       </Interstitial>
     </ContentSection>
