@@ -249,7 +249,7 @@ const sortedItems = computed(() => {
   );
 });
 const isOpen = computed(() => {
-  return open;
+  return props.open;
 });
 
 function onClose(value: boolean) {
