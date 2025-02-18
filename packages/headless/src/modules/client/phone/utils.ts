@@ -10,15 +10,17 @@ import services from "./services";
 import { map, get, uniqueId } from "lodash-es";
 
 // --- types
-import type { IPhone } from "@upmind-automation/types";
+// TODO:
 import { PhoneTypes } from "./types";
+import type { PhoneContext } from "./types";
+import { IPhone, ICountry } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 // TODO:
 // export const useSchema = ({ country }: PhoneContext) => {
-export const useSchema = ({ country }: any) => {
+export const useSchema = ({ country }: { country: ICountry }) => {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -132,7 +134,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------
 
 export const spawnItem = (model?: IPhone) => {
   try {
@@ -140,8 +142,10 @@ export const spawnItem = (model?: IPhone) => {
     return spawn(
       itemMachine
         .withConfig({
-          actions: actions as any,
-          services: services as any,
+          // @ts-ignore
+          actions,
+          // @ts-ignore
+          services,
         })
         .withContext({ model }),
       {
@@ -150,7 +154,7 @@ export const spawnItem = (model?: IPhone) => {
       }
     );
   } catch (err) {
-    console.error("PhoneListings", "spawnItem", { model });
+    // console.error("PhoneListings", "spawnItem", { model });
     return null;
   }
 };

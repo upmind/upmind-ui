@@ -9,7 +9,7 @@ import { useBrand as useUpmindBrand } from "@upmind-automation/headless";
 import { isArray, isObject, reduce, set } from "lodash-es";
 
 // ---
-import { BrandConfigKeys } from "@upmind-automation/headless";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 import type { IUseBrand, IUseBrandMeta } from "./types";
 

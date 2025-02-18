@@ -4,12 +4,14 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import brandMachine from "./brand.machine";
-import type { BrandConfigKeys } from "./services";
-export { BrandConfigKeys } from "./services";
-import type { IBrand } from "@upmind-automation/types";
+import type {
+  IBrand,
+  BrandConfigKeys,
+  ILanguage,
+} from "@upmind-automation/types";
 
 // --- utils
-import { pick, isArray, find, some, first, isEmpty } from "lodash-es";
+import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
 // --- types
 import { BrandTaxType } from "@upmind-automation/types";
@@ -54,6 +56,7 @@ export const useBrand = () => {
     // ---
     getSnapshot: service.getSnapshot,
     getConfig: async (keys: BrandConfigKeys | BrandConfigKeys[]) => {
+      const state = service.getSnapshot();
       // ensure we have an array of keys
       keys = isArray(keys) ? keys : [keys];
 
@@ -106,6 +109,50 @@ export const useBrand = () => {
     },
 
     getBrandId: (): IBrand["id"] => service.getSnapshot()?.context?.id,
+    getLanguage: (): ILanguage => {
+      const state = service.getSnapshot();
+      const languages = get(state, "context.settings.languages");
+      const language_id = get(state, "context.settings.language_id");
+      return (find(languages, ["id", language_id]) ||
+        first(languages)) as ILanguage;
+    },
+    getLanguages: (): ILanguage[] => {
+      const state = service.getSnapshot();
+      return get(state, "context.languages", []);
+    },
+    validateLanguage: async (model: {
+      id?: string;
+      code?: string;
+    }): Promise<ILanguage | undefined> => {
+      const state = service.getSnapshot();
+      const languages = get(state, "context.languages", []);
+
+      // if we dont have any languages, then just return the given currency
+      if (isEmpty(languages)) return undefined;
+
+      // otherwise we need to validate the given currency
+      // and possibly fallback to the default/first available currency
+      const defaultLanguage =
+        find(languages, ["id", state?.context?.language_id]) ||
+        first(languages);
+
+      // if we dont have a given currency,
+      // OR the given currency is not one of the available languages,
+      // then we return the default currency
+      const found = find(
+        languages,
+        ({ id, code }) =>
+          id === model?.id ||
+          code.toLocaleLowerCase() === model?.code?.toLocaleLowerCase()
+      );
+
+      if (isEmpty(found)) return defaultLanguage;
+
+      // othrwise we clearly have a valid currency and we return it
+      return found;
+    },
+
+    // ---
     getCurrencyId: () => service.getSnapshot()?.context?.currency_id,
     getCurrency: () =>
       find(service.getSnapshot().context.currencies, [

@@ -6,6 +6,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { GatewayTypes as GatewayTypesEnum } from "@upmind-automation/types";
 import type {
   ICurrency,
+  IGateway,
   GatewayAuthType,
   GatewayStoreType,
 } from "@upmind-automation/types";
@@ -32,74 +33,6 @@ export enum GatewayCtx {
 }
 
 // --------------------------------------------------------
-// private
-
-// TODO:
-export interface IGateway {
-  allow_manual_store: boolean;
-  // card_types: ICardType[];
-  card_types: any[];
-  // client?: IClient;
-  client?: any;
-  // countries?: ICountry[];
-  countries?: any[];
-  created_at: string;
-  // currencies: IGatewayCurrency[];
-  currencies: any[];
-  deleted_at: null | string;
-  gateway_provider: IGatewayProvider;
-  gateway_provider_id: IGatewayProvider["id"];
-  // gateway_settings: IGatewaySetting[];
-  gateway_settings: any[];
-  id: string;
-  is_stored: string;
-  name: string;
-  name_translated: string;
-  next_action: { url: string; method: string; fields: { [key: string]: any } };
-  oauth_application_access_token_id: number;
-  // org_id: IOrg["id"];
-  org_id: any["id"];
-  payment_instructions: string;
-  payment_instructions_translated: string;
-  // payment_type: IPaymentType;
-  payment_type: any;
-  provider: string;
-  sca_verified: boolean;
-  store_on_payment: boolean;
-  store_on_payment_force: boolean;
-  store_outside_payment: boolean;
-  // translations: ITranslation[];
-  translations: any[];
-  type: GatewayTypes;
-  updated_at: string;
-  use_frontend_implementation?: boolean;
-}
-
-export interface IGatewayProvider {
-  auth_type: GatewayAuthType;
-  code: string;
-  created_at: string;
-  display_fields: null;
-  external_payment: boolean;
-  external_store: boolean;
-  // fields: IGatewayProviderField[];
-  fields: any[];
-  id: string;
-  instructions: string;
-  // logos?: ILogo[];
-  logos?: any[];
-  name: string;
-  name_translated: null | string;
-  needs_address: boolean;
-  oauth_application_code: string;
-  requires_name: boolean;
-  short_description: null | string;
-  short_description_translated: null | string;
-  store_type: GatewayStoreType;
-  translations: string[];
-  type: GatewayTypes;
-  updated_at: string;
-}
 
 // --------------------------------------------------------
 // Contexts

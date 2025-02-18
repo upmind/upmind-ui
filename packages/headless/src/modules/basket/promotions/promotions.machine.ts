@@ -16,7 +16,7 @@ import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
 
 // --- types
 import type { PromotionsContext } from "./types";
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 

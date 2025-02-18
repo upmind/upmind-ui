@@ -7,7 +7,7 @@ import services from "./services";
 import { basketSubscription } from "../basket/helper";
 
 // --utils
-import { responseCodes } from "../api";
+import { responseCodes } from "../../utils";
 import { useTime, compactDeep, useValidationParser } from "../../utils";
 import {
   parseSubproduct,

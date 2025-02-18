@@ -3,11 +3,12 @@
 // --- internal
 import { useApi } from ".";
 import { useSession } from "../session";
+import { useI18n } from "../system/i18n";
 
 import type { RequestContext } from "./types";
 
 // --- utils
-import { includes, get, set } from "lodash-es";
+import { includes, get, set, isEmpty } from "lodash-es";
 import {
   getTokenfromStorage,
   persistTokenToStorage,
@@ -15,7 +16,7 @@ import {
 } from "../session/utils";
 
 // --- types
-import { GrantTypes } from "../session/types";
+import { GrantTypes } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
@@ -42,8 +43,12 @@ async function doFetch({ url, init }: RequestContext) {
     return Promise.reject(`Invalid method: ${init?.method}`);
   }
 
-  if (!url) {
-    return Promise.reject("Invalid URL");
+  if (!url) return Promise.reject("Invalid URL");
+
+  if (!url.searchParams.has("lang")) {
+    const { getLocale } = useI18n();
+    const locale = await getLocale();
+    if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
   }
 
   // do the fetch

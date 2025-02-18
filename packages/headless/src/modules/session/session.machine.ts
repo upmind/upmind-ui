@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
@@ -81,12 +82,13 @@ export default createMachine(
   {
     actions: {
       setError: assign({
-        error: (_context, { data }: any) => data,
+        error: (_context: SessionContext, { data }: AnyEventObject) => data,
       }),
     },
 
     guards: {
-      isClientToken: (_context, { data }: any) => data?.actor_type === "client",
+      isClientToken: (_context: SessionContext, { data }: AnyEventObject) =>
+        data?.actor_type === "client",
     },
 
     delays: {

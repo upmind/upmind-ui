@@ -15,7 +15,7 @@ import { set } from "lodash-es";
 
 // --- types
 import type { BillingDetailsContext } from "./types";
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 import { PaymentDetailsContext } from "../../paymentDetails";
 
 // --------------------------------------------------------

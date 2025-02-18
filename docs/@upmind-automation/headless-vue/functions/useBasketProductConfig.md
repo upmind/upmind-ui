@@ -3,7 +3,7 @@
 # useBasketProductConfig()
 
 ```ts
-function useBasketProductConfig(id): object
+function useBasketProductConfig(id): object;
 ```
 
 ## Parameters
@@ -61,7 +61,7 @@ fields: ComputedRef<any>;
 ### getProvisioningField()
 
 ```ts
-getProvisioningField: (field) => any;
+getProvisioningField: field => any;
 ```
 
 #### Parameters
@@ -107,7 +107,21 @@ incrementQuantity: () => Promise<any>;
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<unknown, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
+isReady: () =>
+  Promise<
+    State<
+      unknown,
+      AnyEventObject,
+      any,
+      object,
+      ResolveTypegenMeta<
+        TypegenDisabled,
+        AnyEventObject,
+        BaseActionObject,
+        ServiceMap
+      >
+    >
+  >;
 ```
 
 #### Returns
@@ -149,7 +163,7 @@ isSelectedOption: (optionId, value) => boolean;
 ### isSelectedTerm()
 
 ```ts
-isSelectedTerm: (term) => boolean;
+isSelectedTerm: term => boolean;
 ```
 
 #### Parameters
@@ -285,7 +299,7 @@ isUnavailable: any;
 ### model
 
 ```ts
-model: Ref<any, any>;
+model: ActorRef<any>;
 ```
 
 ### options
@@ -303,7 +317,7 @@ product: ComputedRef<any>;
 ### productImage()
 
 ```ts
-productImage: (size) => null | string;
+productImage: size => null | string;
 ```
 
 #### Parameters
@@ -337,7 +351,18 @@ reset: () => void;
 ### service
 
 ```ts
-service: Interpreter<unknown, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<
+  unknown,
+  any,
+  AnyEventObject,
+  object,
+  ResolveTypegenMeta<
+    TypegenDisabled,
+    AnyEventObject,
+    BaseActionObject,
+    ServiceMap
+  >
+>;
 ```
 
 ### setAttributes()
@@ -389,13 +414,25 @@ setProvisioningFields: (value) => void;
 ### state
 
 ```ts
-state: Ref<any, any>;
+state: ActorRef<any>;
 ```
 
 ### stop()
 
 ```ts
-stop: () => Interpreter<unknown, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+stop: () =>
+  Interpreter<
+    unknown,
+    any,
+    AnyEventObject,
+    object,
+    ResolveTypegenMeta<
+      TypegenDisabled,
+      AnyEventObject,
+      BaseActionObject,
+      ServiceMap
+    >
+  >;
 ```
 
 #### Returns
@@ -417,7 +454,7 @@ terms: ComputedRef<any>;
 ### update()
 
 ```ts
-update: () => Promise<ActorRef<any, any>>;
+update: () => Promise<ActorRef<any>>;
 ```
 
 #### Returns

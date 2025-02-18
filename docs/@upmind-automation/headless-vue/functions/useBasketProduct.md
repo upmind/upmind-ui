@@ -3,7 +3,7 @@
 # useBasketProduct()
 
 ```ts
-function useBasketProduct(id): object
+function useBasketProduct(id): object;
 ```
 
 ## Parameters
@@ -17,7 +17,7 @@ function useBasketProduct(id): object
 ### decrementQuantity()
 
 ```ts
-decrementQuantity: () => Promise<undefined | ActorRef<any, any>>;
+decrementQuantity: () => Promise<undefined | ActorRef<any>>;
 ```
 
 #### Returns
@@ -39,7 +39,7 @@ id: string;
 ### incrementQuantity()
 
 ```ts
-incrementQuantity: () => Promise<undefined | ActorRef<any, any>>;
+incrementQuantity: () => Promise<undefined | ActorRef<any>>;
 ```
 
 #### Returns
@@ -141,7 +141,21 @@ product: ComputedRef<BasketProductDetails>;
 ### remove()
 
 ```ts
-remove: () => Promise<State<BasketContext, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
+remove: () =>
+  Promise<
+    State<
+      BasketContext,
+      AnyEventObject,
+      any,
+      object,
+      ResolveTypegenMeta<
+        TypegenDisabled,
+        AnyEventObject,
+        BaseActionObject,
+        ServiceMap
+      >
+    >
+  >;
 ```
 
 #### Returns
@@ -185,5 +199,5 @@ pricing: BasketProductSummaryPrice[];
 ### updateQuantity
 
 ```ts
-updateQuantity: DebouncedFunc<(value) => Promise<ActorRef<any, any>>>;
+updateQuantity: DebouncedFunc<(value) => Promise<ActorRef<any>>>;
 ```

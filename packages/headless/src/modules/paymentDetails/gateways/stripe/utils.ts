@@ -11,7 +11,7 @@ import {
 import { reduce, includes, find } from "lodash-es";
 
 // --- types
-import type { IGateway } from "../types";
+import type { IGateway } from "@upmind-automation/types";
 import type { StripeContext } from "./types";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
 import type { UISchemaElement } from "@jsonforms/core";

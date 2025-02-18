@@ -15,7 +15,7 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { PaymentContext } from "./types";
-import { responseCodes } from "../api";
+import { responseCodes } from "../../utils";
 
 // --------------------------------------------------------
 

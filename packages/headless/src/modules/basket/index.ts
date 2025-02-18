@@ -20,7 +20,7 @@ import {
   isEmpty,
   filter,
 } from "lodash-es";
-import { responseCodes } from "../api";
+import { responseCodes } from "../../utils";
 
 // --- types
 import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
@@ -281,11 +281,6 @@ export const useBasket = () => {
     //   data: { promodcode: coupon },
     // });
   }
-
-  // TODO
-  // setLocale: async (lang: any) => {
-  //   return service.send({ type: "UPDATE_LOCALE", data: lang });
-  // },
 
   // --- item functions
 

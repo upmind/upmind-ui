@@ -1,6 +1,11 @@
 // --- internal
-import type { RequestError } from "../../api/types";
-import { ImageObjectTypes, ImageUploadTypes } from "@upmind-automation/types";
+// import type { RequestError } from "../../api/types";
+import type {
+  ImageObjectTypes,
+  ImageUploadTypes,
+} from "@upmind-automation/types";
+// --------------------------------------------------------
+// ENUMS
 
 // --------------------------------------------------------
 // private
@@ -9,10 +14,6 @@ import { ImageObjectTypes, ImageUploadTypes } from "@upmind-automation/types";
 //   width: number;
 //   height: number;
 // }
-
-export interface ImageHashEvent {
-  hash: string;
-}
 
 // --------------------------------------------------------
 // Contexts

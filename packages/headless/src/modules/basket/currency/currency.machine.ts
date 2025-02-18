@@ -16,7 +16,7 @@ import { get } from "lodash-es";
 
 // --- types
 import type { CurrencyContext } from "./types";
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 

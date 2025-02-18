@@ -15,7 +15,7 @@ import { parseBasketFieldsModel } from "../utils";
 
 // --- types
 import type { FieldsContext } from "./types";
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 

@@ -3,8 +3,8 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 
 // --- types
-import type { ICurrency } from "@upmind-automation/types";
-import type { IGateway, GatewayTypes } from "../types";
+import type { ICurrency, IGateway, IAddress } from "@upmind-automation/types";
+import type { GatewayTypes } from "../types";
 import type { GatewayCtx, GatewayContext } from "../types";
 
 // --------------------------------------------------------
@@ -22,7 +22,7 @@ export interface StripeContext extends GatewayContext {
   // ---
   basket_id?: string;
   currency?: ICurrency;
-  address?: any; // IAdress
+  address?: IAddress;
   amount?: number;
   gateway?: IGateway;
   renderless?: boolean;

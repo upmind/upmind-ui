@@ -10,7 +10,6 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types";
 
 import { useSession } from "../session";
-export { responseCodes } from "../../utils";
 
 // --- utils
 import { useUrl } from "../../utils";
@@ -47,9 +46,6 @@ export const useApi = () => {
     maxAge = undefined,
     refresh = false,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -100,12 +96,12 @@ export const useApi = () => {
             }
           })
           .catch(error => {
-            console.error(
-              "api request",
-              "timeout",
-              { hash, url, init, useCache, maxAge },
-              error
-            );
+            // console.error(
+            //   "api request",
+            //   "timeout",
+            //   { hash, url, init, useCache, maxAge },
+            //   error
+            // );
             // throw error;
             reject(error);
           });
@@ -133,9 +129,6 @@ export const useApi = () => {
     maxAge = undefined,
     refresh = false,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -246,9 +239,6 @@ export const useApi = () => {
     useCache = true,
     maxAge = undefined,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -258,6 +248,7 @@ export const useApi = () => {
 
     return request({ url, init, withAccessToken, useCache, maxAge });
   }
+
   // --------------------------------------------------------
 
   return {

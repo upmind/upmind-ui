@@ -13,10 +13,10 @@ actors: object;
 #### gateway?
 
 ```ts
-optional gateway: ActorRef<any, any>;
+optional gateway: ActorRef<any>;
 ```
 
-***
+---
 
 ### address?
 
@@ -24,7 +24,7 @@ optional gateway: ActorRef<any, any>;
 optional address: any;
 ```
 
-***
+---
 
 ### autoupdate?
 
@@ -32,7 +32,7 @@ optional address: any;
 optional autoupdate: boolean;
 ```
 
-***
+---
 
 ### balance?
 
@@ -40,7 +40,7 @@ optional autoupdate: boolean;
 optional balance: any;
 ```
 
-***
+---
 
 ### basketId?
 
@@ -48,7 +48,7 @@ optional balance: any;
 optional basketId: string;
 ```
 
-***
+---
 
 ### clientId?
 
@@ -56,7 +56,7 @@ optional basketId: string;
 optional clientId: string;
 ```
 
-***
+---
 
 ### currency?
 
@@ -64,7 +64,7 @@ optional clientId: string;
 optional currency: any;
 ```
 
-***
+---
 
 ### dirty?
 
@@ -72,7 +72,7 @@ optional currency: any;
 optional dirty: boolean;
 ```
 
-***
+---
 
 ### error?
 
@@ -80,7 +80,7 @@ optional dirty: boolean;
 optional error: any;
 ```
 
-***
+---
 
 ### fields?
 
@@ -88,7 +88,7 @@ optional error: any;
 optional fields: any;
 ```
 
-***
+---
 
 ### gateway?
 
@@ -96,7 +96,7 @@ optional fields: any;
 optional gateway: any;
 ```
 
-***
+---
 
 ### gateways?
 
@@ -104,7 +104,7 @@ optional gateway: any;
 optional gateways: any[];
 ```
 
-***
+---
 
 ### model?
 
@@ -112,7 +112,7 @@ optional gateways: any[];
 optional model: IPaymentDetail;
 ```
 
-***
+---
 
 ### mount?
 
@@ -120,15 +120,15 @@ optional model: IPaymentDetail;
 optional mount: HTMLElement;
 ```
 
-***
+---
 
-### payment\_types?
+### payment_types?
 
 ```ts
 optional payment_types: PaymentTypes;
 ```
 
-***
+---
 
 ### paymentDetails?
 
@@ -136,7 +136,7 @@ optional payment_types: PaymentTypes;
 optional paymentDetails: object;
 ```
 
-***
+---
 
 ### schema?
 
@@ -144,15 +144,15 @@ optional paymentDetails: object;
 optional schema: JsonSchema;
 ```
 
-***
+---
 
-### stored\_payment\_methods?
+### stored_payment_methods?
 
 ```ts
 optional stored_payment_methods: IPaymentDetail[];
 ```
 
-***
+---
 
 ### uischema?
 

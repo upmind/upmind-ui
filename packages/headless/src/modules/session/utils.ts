@@ -12,7 +12,8 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { Token } from "./types";
+import type { Token, User } from "./types";
+import type { IUser } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ export function useInitialsParser(user: any, chars: number = 1) {
     ?.join("");
 }
 
-export async function useUserParser(data: any) {
+export function useUserParser(data: IUser): User {
   const user: any = pick(data, [
     "id",
     "email",
@@ -86,15 +87,15 @@ export async function useUserParser(data: any) {
     "fullname",
     "firstname",
     "lastname",
-    "image_url",
   ]);
 
   user.display = data?.firstname || data?.public_name || data?.email;
   user.avatar = {
     caption: useInitialsParser(user),
-    src: user.image_url, //await useAvatarParser(user.image_url),
+    src: user.image_url,
     forceCaption: includes(user?.image_url, "gravatar"),
   };
+  user.locale = data?.interface_language_code;
 
   return user;
 }

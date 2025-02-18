@@ -37,10 +37,8 @@ import {
 // --- types
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { BasketContext } from "./types";
-import { responseCodes } from "../api";
-import { PaymentType } from "@upmind-automation/types";
-import { GatewayTypes } from "../paymentDetails/gateways/types";
-
+import { responseCodes } from "../../utils";
+import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 // --------------------------------------------------------
 
 export default createMachine(

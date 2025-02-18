@@ -10,15 +10,15 @@
 baseModel: ProductModel;
 ```
 
-***
+---
 
 ### basketHelper?
 
 ```ts
-optional basketHelper: ActorRef<any, any>;
+optional basketHelper: ActorRef<any>;
 ```
 
-***
+---
 
 ### basketId?
 
@@ -26,7 +26,7 @@ optional basketHelper: ActorRef<any, any>;
 optional basketId: string;
 ```
 
-***
+---
 
 ### basketItemMapper()?
 
@@ -42,7 +42,7 @@ optional basketItemMapper: (item) => Partial<BasketProduct>;
 
 `Partial`\<[`BasketProduct`](BasketProduct.md)\>
 
-***
+---
 
 ### basketProduct?
 
@@ -50,15 +50,15 @@ optional basketItemMapper: (item) => Partial<BasketProduct>;
 optional basketProduct: BasketProduct;
 ```
 
-***
+---
 
 ### calculateCallback?
 
 ```ts
-optional calculateCallback: ActorRef<any, any>;
+optional calculateCallback: ActorRef<any>;
 ```
 
-***
+---
 
 ### clientId
 
@@ -66,7 +66,7 @@ optional calculateCallback: ActorRef<any, any>;
 clientId: string;
 ```
 
-***
+---
 
 ### coupons?
 
@@ -74,7 +74,7 @@ clientId: string;
 optional coupons: string[];
 ```
 
-***
+---
 
 ### currencyId
 
@@ -82,7 +82,7 @@ optional coupons: string[];
 currencyId: string;
 ```
 
-***
+---
 
 ### error?
 
@@ -90,7 +90,7 @@ currencyId: string;
 optional error: any;
 ```
 
-***
+---
 
 ### errorExternal
 
@@ -98,7 +98,7 @@ optional error: any;
 errorExternal: any;
 ```
 
-***
+---
 
 ### id
 
@@ -106,7 +106,7 @@ errorExternal: any;
 id: string;
 ```
 
-***
+---
 
 ### itemBuilder()?
 
@@ -122,7 +122,7 @@ optional itemBuilder: (item) => ProductModel;
 
 [`ProductModel`](ProductModel.md)
 
-***
+---
 
 ### lookups
 
@@ -154,7 +154,7 @@ optional product: any;
 optional terms: any[];
 ```
 
-***
+---
 
 ### model
 
@@ -162,7 +162,7 @@ optional terms: any[];
 model: ProductModel;
 ```
 
-***
+---
 
 ### prices?
 
@@ -188,7 +188,7 @@ optional options: number[];
 optional term: number[];
 ```
 
-***
+---
 
 ### promotions?
 
@@ -196,7 +196,7 @@ optional term: number[];
 optional promotions: string[];
 ```
 
-***
+---
 
 ### rawProduct?
 
@@ -204,7 +204,7 @@ optional promotions: string[];
 optional rawProduct: any;
 ```
 
-***
+---
 
 ### summary?
 

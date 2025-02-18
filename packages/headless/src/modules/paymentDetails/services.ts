@@ -1,7 +1,8 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
+import { useApi, useSession, useBrand } from "..";
+
 // --- utils
 import { useValidation } from "../../utils";
 import {
@@ -19,7 +20,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import { PaymentType } from "@upmind-automation/types";
+import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
 import { GatewayTypes } from "./gateways/types";
 import type { PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";

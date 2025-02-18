@@ -94,7 +94,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-checkbox-list v-bind="args" @update:modelValue="doUpdate" :value="true" />
+        <upm-checkbox-list v-bind="args" @update:modelValue="doUpdate" :value="true" />
     `,
   }),
 };

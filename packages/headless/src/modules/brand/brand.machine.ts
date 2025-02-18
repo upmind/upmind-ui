@@ -3,13 +3,17 @@ import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import services, { BrandConfigKeys, OrgFeatureKeys } from "./services";
+import services from "./services";
+import { useApi } from "../api";
+import { useI18n } from "../system/i18n";
+
 import type { BrandContext } from "./types";
 
 // --- utils
+import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 import { useTime } from "../../utils";
-import { set } from "lodash-es";
+import { find, get, set, unset } from "lodash-es";
 
 // --------------------------------------------------------
 
@@ -20,6 +24,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "processing",
     context: {
+      initialised: false,
       modules: undefined,
       keys: {
         // start with these defaults
@@ -54,7 +59,7 @@ export default createMachine(
           BrandConfigKeys.SUPPORT_PIN_ENABLED,
           BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
-          BrandConfigKeys.UI_CLIENT_APP_PAYMENT_TERM_DESCRIPTIONS,
+          BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
           BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
         ],
@@ -199,6 +204,7 @@ export default createMachine(
       },
       error: { id: "error" },
       complete: {
+        entry: ["setDefaultLocale", "setInitialised"],
         // type: "final",
         on: {
           "CONFIG.GET": {
@@ -232,10 +238,20 @@ export default createMachine(
         useBrandParser(data)
       ),
 
+      setDefaultLocale: (
+        { initialised }: BrandContext,
+        _event: AnyEventObject
+      ) => {
+        if (!initialised) useI18n().setDefaultLocale();
+      },
+
       setModules: assign({
         modules: (_context: BrandContext, { data }: AnyEventObject) => data,
       }),
 
+      setInitialised: assign({
+        initialised: true,
+      }),
       // ---
     },
     guards: {},

@@ -4,7 +4,7 @@ import { createMachine, assign, actions } from "xstate";
 const { sendParent, forwardTo } = actions;
 
 // --- internal
-import machineServices, { FetchMethods } from "./services";
+import services, { FetchMethods } from "./services";
 import { useTime } from "../../utils";
 
 // --utils
@@ -101,22 +101,6 @@ export default (request: RequestParams) =>
           initial: "available",
           states: {
             available: {
-              // after: [
-              //   {
-              //     target: "empty",
-              //     cond: "hasNoContent",
-              //   },
-              //   {
-              //     target: "cached",
-              //     cond: "isCachable",
-              //   },
-              //   {
-              //     // @ts-ignore -- delay is causing a type check error on build but it 100% works, not sure why
-              //     delay: "wait",
-              //     target: "#complete",
-              //   },
-              // ],
-
               always: [
                 {
                   target: "empty",
@@ -232,7 +216,7 @@ export default (request: RequestParams) =>
 
         clearResponse: assign({ response: undefined, completed: undefined }),
 
-        sendClearRequest: sendParent(({ hash }) => ({
+        sendClearRequest: sendParent(({ hash }: RequestContext) => ({
           type: "REMOVE",
           data: { hash },
         })),
@@ -258,7 +242,7 @@ export default (request: RequestParams) =>
         }),
       },
 
-      services: machineServices,
+      services: services as any,
       guards: {
         hasRequest: ({ hash, url, init }) => !!hash && !!url && !!init,
         hasRetried: ({ attempts }) => toNumber(attempts) > 1,

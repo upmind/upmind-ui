@@ -7,10 +7,10 @@
 ### basketHelper?
 
 ```ts
-optional basketHelper: ActorRef<any, any>;
+optional basketHelper: ActorRef<any>;
 ```
 
-***
+---
 
 ### basketId?
 
@@ -18,15 +18,15 @@ optional basketHelper: ActorRef<any, any>;
 optional basketId: string;
 ```
 
-***
+---
 
 ### basketItem?
 
 ```ts
-optional basketItem: ActorRef<any, any>;
+optional basketItem: ActorRef<any>;
 ```
 
-***
+---
 
 ### basketItemBuilder()?
 
@@ -42,7 +42,7 @@ optional basketItemBuilder: (model) => BasketProduct;
 
 [`BasketProduct`](BasketProduct.md)
 
-***
+---
 
 ### basketItemMapper()?
 
@@ -58,7 +58,7 @@ optional basketItemMapper: (item) => Partial<BasketProduct>;
 
 `Partial`\<[`BasketProduct`](BasketProduct.md)\>
 
-***
+---
 
 ### currencyId?
 
@@ -66,7 +66,7 @@ optional basketItemMapper: (item) => Partial<BasketProduct>;
 optional currencyId: string;
 ```
 
-***
+---
 
 ### error?
 
@@ -74,7 +74,7 @@ optional currencyId: string;
 optional error: any;
 ```
 
-***
+---
 
 ### itemBuilder()?
 
@@ -90,7 +90,7 @@ optional itemBuilder: (item) => ProductModel;
 
 [`ProductModel`](ProductModel.md)
 
-***
+---
 
 ### promotions?
 
@@ -98,7 +98,7 @@ optional itemBuilder: (item) => ProductModel;
 optional promotions: string[];
 ```
 
-***
+---
 
 ### raw
 
@@ -136,7 +136,7 @@ relationships: Record<string, string[]>;
 seen: string[];
 ```
 
-***
+---
 
 ### recommendations
 
