@@ -96,7 +96,7 @@ import {
 
 // --- internal
 import { useBasketPromotions } from "@upmind-automation/headless-vue";
-import config from "./basket.config";
+import config from "../basket.config";
 
 // --- types
 import type { FormActionProps, FormProps } from "@upmind-automation/upmind-ui";

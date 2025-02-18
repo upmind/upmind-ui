@@ -72,7 +72,7 @@ import { ref, computed, type ComputedRef } from "vue";
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./basket.config";
+import config from "../basket.config";
 
 // --- components
 import { Dialog, Button, Avatar, Icon } from "@upmind-automation/upmind-ui";

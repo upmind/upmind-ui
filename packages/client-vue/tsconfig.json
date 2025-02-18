@@ -1,24 +1,16 @@
 {
   "extends": "../../tsconfig.json", // Extend the root config (recommended)
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
-    "declarationDir": "dist",
     "composite": true,
+    "declarationDir": "dist",
     "paths": {
-      "@upmind-automation/types": ["../types/src"],
-      "@upmind-automation/headless": ["../headless/src"],
-      "@upmind-automation/headless-vue": ["../headless-vue/src"],
-      "@upmind-automation/upmind-ui": ["../ui/src"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
-  "references": [
-    { "path": "../types" },
-    { "path": "../headless" },
-    { "path": "../headless-vue" },
-    { "path": "../ui" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
 }

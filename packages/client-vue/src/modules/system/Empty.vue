@@ -36,5 +36,6 @@ import BasketEmpty from "../basket/components/Empty.vue";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
+// @ts-ignore
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 </script>

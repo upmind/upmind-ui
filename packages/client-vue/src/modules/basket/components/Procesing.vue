@@ -54,7 +54,7 @@ import { ref, computed } from "vue";
 // --- internal
 import { useBasket } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./basket.config";
+import config from "../basket.config";
 
 // --- components
 import { Avatar, Dialog, Button, Icon } from "@upmind-automation/upmind-ui";

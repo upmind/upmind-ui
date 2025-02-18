@@ -113,8 +113,8 @@ const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
   return map(props.items, item => {
     debugger;
     return {
-      id: item.value,
-      value: item.value,
+      id: item.value ?? "",
+      value: item.value ?? "",
       label: item.domain,
     };
   });

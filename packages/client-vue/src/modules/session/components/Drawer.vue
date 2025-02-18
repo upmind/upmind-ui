@@ -1,11 +1,11 @@
 <template>
   <Drawer size="xl" to="#vue-app">
     <template name="trigger"><slot></slot></template>
-    <Session no-header block-tabs stretch-tabs model-value="login" />
+    <Auth no-header block-tabs stretch-tabs model-value="login" />
   </Drawer>
 </template>
 
 <script lang="ts" setup>
 import { Drawer } from "@upmind-automation/upmind-ui";
-import Session from "./Session.vue";
+import Auth from "./Auth.vue";
 </script>

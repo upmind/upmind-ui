@@ -153,7 +153,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./recommendation.config";
+import config from "../recommendations.config";
 
 // --- components
 import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upmind-ui";

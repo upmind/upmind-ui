@@ -116,7 +116,7 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
 } from "@upmind-automation/headless-vue";
-import config from "./checkout.config";
+import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // -- components

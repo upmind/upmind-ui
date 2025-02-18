@@ -73,7 +73,7 @@ import {
   useClientUnifiedAddresses,
 } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./checkout.config";
+import config from "../checkout.config";
 
 // --- components
 import Item from "../../client/components/Item.vue";
@@ -90,6 +90,7 @@ import { get, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
+import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 import type { BillingDetailsProps } from "./types";
 
 // -----------------------------------------------------------------------------

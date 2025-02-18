@@ -9,6 +9,7 @@ export default defineConfig({
     dts({
       entryRoot: "src",
       outDir: "dist",
+      logLevel: "info"
     }),
   ],
   build: {
@@ -19,10 +20,11 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['vue', "vue-router"],
       output: {
         globals: {
           vue: 'Vue',
+          "vue-router": "VueRouter",
         },
       },
     },
