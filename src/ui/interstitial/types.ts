@@ -9,6 +9,7 @@ import type { ButtonProps } from "../button/types";
 import type { IconProps } from "../icon/types";
 import type { AnimatedIconProps } from "../icon-animated";
 
+import config from "./interstitial.config";
 import type { interstitialVariants } from "./interstitial.config";
 type InterstitialVariantProps = VariantProps<typeof interstitialVariants>;
 
@@ -38,6 +39,6 @@ export interface InterstitialProps {
   skrim?: DialogProps["skrim"];
   fit?: DialogProps["fit"];
   // ---
-  uiConfig?: { interstitial: CxOptions };
+  uiConfig?:typeof config;
   class?: HTMLAttributes["class"];
 }
