@@ -29,11 +29,13 @@
           <component
             v-if="meta.hasAccount && !meta.isCheckout"
             :is="props.contentSectionComponent"
-            :title="t('checkout.billing_details.title')"
           >
-            <template #title v-if="$slots['billing-details-title']">
+            <template #title>
               <slot name="billing-details-title">
-                <SmartTitle i18n-key="checkout.billing_details.title" />
+                <SmartTitle
+                  i18n-key="checkout.billing_details.title"
+                  size="2xl"
+                />
               </slot>
             </template>
             <component :is="props.cardComponent">
@@ -50,15 +52,20 @@
           <component
             :is="props.contentSectionComponent"
             v-show="meta.hasAccount && !meta.isCheckout"
-            :title="t('checkout.payment_details.title')"
           >
-            <template #title v-if="$slots['payment-details-title']">
+            <template #title>
               <slot name="payment-details-title">
                 <template v-if="paymentDetailsMeta.isFree">
-                  <SmartTitle i18n-key="checkout.payment_details.details" />
+                  <SmartTitle
+                    i18n-key="checkout.payment_details.details"
+                    size="2xl"
+                  />
                 </template>
                 <template v-else>
-                  <SmartTitle i18n-key="checkout.payment_details.title" />
+                  <SmartTitle
+                    i18n-key="checkout.payment_details.title"
+                    size="2xl"
+                  />
                 </template>
               </slot>
             </template>
@@ -140,6 +147,7 @@ import Summary from "../basket/components/Summary.vue";
 import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Back from "../../components/navigation/Back.vue";
+import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- types
 import type { CheckoutProps } from "./types";
