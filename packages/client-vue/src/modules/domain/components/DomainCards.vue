@@ -43,7 +43,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./domain.config";
+import config from "../domain.config";
 
 // --- components
 import CardDomain from "./DomainCard.vue";
@@ -55,7 +55,7 @@ import { get, includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { DomainCardProps, DomainCardsProps } from "./types";
+import type { DomainCardProps, DomainCardsProps } from "../types";
 
 // -----------------------------------------------------------------------------
 // const emit = defineEmits(["update:modelValue", "update:selected"]);

@@ -49,11 +49,11 @@ import { computed } from "vue";
 // --- internal
 import { useBasketProduct } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../basketProduct.config";
+import config from "./basketProduct.config";
 
 // --- components
 import { Loading } from "@upmind-automation/upmind-ui";
-import Card from "../../../../components/content/Card.vue";
+import Card from "../../../components/content/Card.vue";
 import BasketConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductSummary from "./BasketProductSummary.vue";
 import BasketProductActions from "./BasketProductActions.vue";

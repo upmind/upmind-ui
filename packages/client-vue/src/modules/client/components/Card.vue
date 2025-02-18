@@ -1,12 +1,12 @@
 <template>
-  <article :class="styles.clientCard.root">
+  <div :class="styles.clientCard.root">
     <div :class="styles.clientCard.content" @click="onSelect">
       <header :class="styles.clientCard.header">
         <h4 :class="styles.clientCard.title">
           {{ title }}
 
           <template v-for="(badge, index) in badges" :key="`badge-${index}`">
-            <Badge v-bind="badge" v-if="!badge.hidden" />
+            <Badge v-bind="badge" />
           </template>
         </h4>
       </header>
@@ -26,17 +26,17 @@
     <footer :class="styles.clientCard.actions">
       <DropdownMenu v-if="!noActions" :items="actions" size="sm" />
     </footer>
-  </article>
+  </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 // --- external
-import { defineComponent, inject, toRefs } from "vue";
+import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../config.cva";
+import config from "../client.config";
 
 // --- components
 import { DropdownMenu } from "@upmind-automation/upmind-ui";
@@ -47,129 +47,131 @@ import { Badge } from "@upmind-automation/upmind-ui";
 // --- utils
 import { useClipboard } from "@vueuse/core";
 
+// ---types
+import type { ClientComposables } from "@upmind-automation/headless-vue";
+import type {
+  BadgeProps,
+  DropdownMenuItemProps,
+} from "@upmind-automation/upmind-ui";
+import type { ComputedRef } from "vue";
+import type { ActorRef } from "xstate";
+
 // -----------------------------------------------------------------------------
+const emit = defineEmits<{
+  (e: "update:modelValue", payload: any): void;
+  (e: "click:action", payload: any): void;
+}>();
 
-export default defineComponent({
-  name: "ClientCard",
-  components: { Badge, DropdownMenu },
-  emits: ["update:modelValue", "click:action"],
-  props: {
-    modelValue: {
-      type: Object, // xstate actor
-      required: true,
-    },
-    i18nKey: { type: String, required: true },
-    // ---
-    selected: { type: Boolean },
-    loading: { type: Boolean },
-    hidden: { type: Boolean },
-    disabled: { type: Boolean },
-    noActions: { type: Boolean, default: false },
-    selectable: { type: Boolean, default: true },
-  },
-  setup(props) {
-    const { t } = useI18n();
+const props = withDefaults(
+  defineProps<{
+    modelValue: ActorRef<any>;
+    i18nKey: string;
+    selected?: boolean;
+    loading?: boolean;
+    hidden?: boolean;
+    disabled?: boolean;
+    noActions?: boolean;
+    selectable?: boolean;
+  }>(),
+  {
+    i18nKey: "",
+    selected: false,
+    loading: false,
+    hidden: false,
+    disabled: false,
+    noActions: false,
+    selectable: true,
+  }
+);
 
-    const useClient = inject("client");
+const { t } = useI18n();
 
-    const { selected, loading, hidden, disabled, selectable } = toRefs(props);
+const useClient = inject("client") as ClientComposables["useClientItem"];
 
-    const clientCard = useClient(props.modelValue, {
-      selected,
-      loading,
-      hidden,
-      disabled,
-      selectable,
+const { errors, select, meta, setDefault, edit, remove, title, description } =
+  useClient(props.modelValue, props);
+
+const styles = useStyles(["clientCard"], meta, config) as ComputedRef<{
+  clientCard: {
+    root: string;
+    header: string;
+    content: string;
+    title: string;
+    text: string;
+    errors: string;
+    actions: string;
+  };
+}>;
+
+// ------------------------------------------------
+
+const { isSupported, copy, copied } = useClipboard();
+// ------------------------------------------------
+
+const badges = computed((): BadgeProps[] => {
+  const badges: BadgeProps[] = [];
+  if (meta.value.type)
+    badges.push({
+      label: t(`client.${props.i18nKey}.badges.${meta.value.type}`),
+      variant: "tonal",
+      color: "base",
     });
 
-    const styles = useStyles(["clientCard"], clientCard.meta, config);
+  if (meta.value.isDefault)
+    badges.push({
+      label: t(`client.${props.i18nKey}.badges.default`),
+      variant: "tonal",
+      color: "base",
+    });
 
-    // ------------------------------------------------
-
-    const { isSupported, copy, copied } = useClipboard();
-
-    // ------------------------------------------------
-
-    return {
-      t,
-      config,
-      styles,
-      ...clientCard,
-      // ---
-      isSupported,
-      copy,
-      copied,
-      //  ---
-    };
-  },
-  computed: {
-    badges() {
-      return [
-        {
-          label: this.t(`client.${this.i18nKey}.badges.${this.meta?.type}`),
-          variant: "tonal",
-          color: "base",
-          hidden: !this.meta?.type,
-        },
-        {
-          label: this.t(`client.${this.i18nKey}.badges.default`),
-          variant: "tonal",
-          color: "base",
-          hidden: !this.meta.isDefault,
-        },
-      ];
-    },
-    actions() {
-      return [
-        {
-          label: this.t(`client.${this.i18nKey}.actions.select`),
-          hidden: this.meta.isDefault, //|| !this.meta.isVerified,
-          icon: "check-square",
-          handler: () => {
-            this.open = false;
-            this.setDefault();
-          },
-        },
-        {
-          icon: "edit",
-          label: this.t(`client.${this.i18nKey}.actions.edit`),
-          handler: () => {
-            this.open = false;
-            this.edit();
-          },
-        },
-        {
-          icon: "remove",
-          label: this.t(`client.${this.i18nKey}.actions.delete`),
-          hidden: !this.meta.canRemove,
-          class:
-            "text-destructive data-[highlighted]:bg-destructive-muted data-[highlighted]:text-destructive",
-
-          handler: () => {
-            this.open = false;
-            this.remove();
-          },
-        },
-        {
-          icon: "copy",
-          label: this.t(
-            `client.${this.i18nKey}.actions.copy`,
-            this.copied ? 0 : 1
-          ),
-          hidden: !this.isSupported,
-          handler: () => {
-            this.open = false;
-            this.copy(this.description);
-          },
-        },
-      ];
-    },
-  },
-  methods: {
-    onSelect() {
-      this.$emit("update:modelValue", this.modelValue);
-      this.select();
-    },
-  },
+  return badges;
 });
+
+const actions = computed((): DropdownMenuItemProps[] => {
+  return [
+    {
+      label: t(`client.${props.i18nKey}.actions.select`),
+      value: "select",
+      hidden: meta.value.isDefault, //|| !meta.isVerified,
+      icon: "check-square",
+      handler: () => {
+        setDefault();
+      },
+    },
+    {
+      icon: "edit",
+      label: t(`client.${props.i18nKey}.actions.edit`),
+      value: "edit",
+      handler: () => {
+        edit();
+      },
+    },
+    {
+      icon: "remove",
+      label: t(`client.${props.i18nKey}.actions.delete`),
+      value: "delete",
+      hidden: !meta.value.canRemove,
+      class:
+        "text-destructive data-[highlighted]:bg-destructive-muted data-[highlighted]:text-destructive",
+
+      handler: () => {
+        remove();
+      },
+    },
+    {
+      icon: "copy",
+      label: t(`client.${props.i18nKey}.actions.copy`, copied ? 0 : 1),
+      value: "copy",
+      hidden: !isSupported,
+      handler: () => {
+        copy(description.value);
+      },
+    },
+  ];
+});
+
+function onSelect() {
+  emit("update:modelValue", props.modelValue);
+  select();
+}
 </script>

@@ -20,7 +20,7 @@ import DetailsGroup from "./components/DetailsGroup.vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../basketProduct.config";
+import config from "./basketProduct.config";
 
 // --- types
 import { type BasketProductConfigDetailsProps } from "./types";

@@ -226,7 +226,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./domain.config";
+import config from "../domain.config";
 
 // --- components
 import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
@@ -235,7 +235,7 @@ import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { DomainCardProps } from "./types";
+import type { DomainCardProps } from "../types";
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
   (e: "update:selected", domain: string): void;

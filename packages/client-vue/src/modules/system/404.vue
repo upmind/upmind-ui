@@ -1,10 +1,28 @@
 <template>
   <article>
     <ContentSection>
-      <section
-        class="relative flex w-full flex-col flex-wrap items-center justify-center gap-8 py-16"
+      <Interstitial
+        open
+        modal
+        skrim="light"
+        :title="t('errors.404.title')"
+        :text="t('errors.404.text')"
+        :action="{
+          as: 'a',
+          color: 'primary',
+          href: storefrontUrl,
+          appendIcon: 'arrow-left',
+          label: t('errors.404.action'),
+        }"
+        :animated-icon="{
+          icon: 'basket-empty',
+          trigger: 'loop',
+          primaryColor: 'base-foreground',
+          secondaryColor: 'tertiary',
+          size: '4xl',
+        }"
       >
-        <div>
+        <template #avatar>
           <IconAnimated
             v-for="(icon, index) in icons"
             :key="index"
@@ -15,31 +33,17 @@
             trigger="sequence"
             :sequence="icon.sequence"
           />
-        </div>
+        </template>
 
-        <SmartTitle
-          i18n-key="errors.404.title"
-          class="mt-4"
-          align="center"
-          size="3xl"
-        />
-
-        <p
-          class="text-emphasis-medium m-0 max-w-md text-center text-lg leading-normal"
-        >
-          {{ t("errors.404.description") }}
-        </p>
-
-        <footer class="flex w-full justify-center">
-          <a :href="storefrontUrl">
-            <Button :label="t('errors.404.action')" color="primary">
-              <template #prepend>
-                <Icon icon="arrow-left" size="2xs" />
-              </template>
-            </Button>
-          </a>
-        </footer>
-      </section>
+        <template #title>
+          <SmartTitle
+            i18n-key="errors.404.title"
+            class="mt-4"
+            align="center"
+            size="3xl"
+          />
+        </template>
+      </Interstitial>
     </ContentSection>
   </article>
 </template>
@@ -50,7 +54,7 @@ import { useI18n } from "vue-i18n";
 
 // -- components
 import ContentSection from "../../components/content/ContentSection.vue";
-import { IconAnimated, Button, Icon } from "@upmind-automation/upmind-ui";
+import { IconAnimated } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------

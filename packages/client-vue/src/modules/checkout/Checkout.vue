@@ -115,9 +115,9 @@
         :text="t(processingTextKey)"
         :icon="processingIcon"
       >
-        <slot #title>
+        <template #title>
           <SmartTitle :i18n-key="processingTitleKey" size="2xl" class="mb-2" />
-        </slot>
+        </template>
       </Interstitial>
     </slot>
   </article>

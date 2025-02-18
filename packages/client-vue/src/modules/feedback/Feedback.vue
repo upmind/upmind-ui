@@ -43,8 +43,8 @@ import config from "./feedback.config";
 
 // --- components
 import { Sonner } from "@upmind-automation/upmind-ui";
-import Message from "./Message.vue";
-import TrackEvent from "./TrackEvent.vue";
+import Message from "./components/Message.vue";
+import TrackEvent from "./components/TrackEvent.vue";
 
 // --- utils
 import { forEach, some } from "lodash-es";
