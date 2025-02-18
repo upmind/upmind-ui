@@ -10,10 +10,14 @@
             as: 'a',
             color: 'primary',
             href: storefrontUrl,
-            appendIcon: 'arrow-left',
+            prependIcon: {
+              icon: 'arrow-left',
+              size: '2xs',
+            },
             label: t('errors.generic.action'),
           },
         ]"
+        size="3xl"
       >
         <template #title>
           <SmartTitle

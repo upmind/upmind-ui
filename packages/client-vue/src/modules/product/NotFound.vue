@@ -11,7 +11,10 @@
           {
             color: 'primary',
             handler: back,
-            prependIcon: 'arrow-left',
+            prependIcon: {
+              icon: 'arrow-left',
+              size: '2xs',
+            },
             label: t('basket.notFound.actions.continue'),
           },
         ]"

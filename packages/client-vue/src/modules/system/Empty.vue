@@ -10,7 +10,10 @@
             as: 'a',
             color: 'primary',
             href: storefrontUrl,
-            appendIcon: 'arrow-right',
+            appendIcon: {
+              icon: 'arrow-right',
+              size: '2xs',
+            },
             label: t('basket.empty.actions.continue'),
           },
         ]"
