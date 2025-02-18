@@ -21,10 +21,9 @@
           secondaryColor: 'tertiary',
           size: '4xl',
         }"
-        :uiConfig="config.order"
       >
         <template #title>
-          <SmartTitle :i18n-key="title" size="2xl" />
+          <SmartTitle :i18n-key="title" />
         </template>
 
         <template #actions>
@@ -59,7 +58,7 @@ import { useSession, utils } from "@upmind-automation/headless-vue";
 import config from "./order.config";
 
 // -- components
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 

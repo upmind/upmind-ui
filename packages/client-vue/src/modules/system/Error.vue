@@ -17,15 +17,9 @@
             label: t('errors.generic.action'),
           },
         ]"
-        size="3xl"
       >
         <template #title>
-          <SmartTitle
-            i18n-key="errors.generic.title"
-            class="mt-4"
-            align="center"
-            size="3xl"
-          />
+          <SmartTitle i18n-key="errors.generic.title" align="center" />
         </template>
       </Interstitial>
     </ContentSection>

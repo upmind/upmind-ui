@@ -34,12 +34,7 @@
         </template>
 
         <template #title>
-          <SmartTitle
-            i18n-key="errors.404.title"
-            class="mt-4"
-            align="center"
-            size="3xl"
-          />
+          <SmartTitle i18n-key="errors.404.title" class="mt-6" />
         </template>
       </Interstitial>
     </ContentSection>
