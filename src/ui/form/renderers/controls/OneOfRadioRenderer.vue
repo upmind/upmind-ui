@@ -35,7 +35,7 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 const items = computed(() => {
   return map(control.value.options, (option, index) => {
     return {
-      item: option,
+      ...option,
       index,
       modelValue: control.value.data,
     };
