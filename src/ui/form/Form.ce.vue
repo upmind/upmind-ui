@@ -43,7 +43,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, watch, computed, useTemplateRef, onMounted } from "vue";
+import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- components
