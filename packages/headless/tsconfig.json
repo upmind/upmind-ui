@@ -8,12 +8,9 @@
     "composite": true,
     "declarationDir": "dist",
     "paths": {
-      "@upmind-automation/types": ["../types/src"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
-  "references": [
-    { "path": "../types" } // Reference the types package
-  ]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
 }

@@ -24,6 +24,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      // ---
       '@upmind-automation/types': resolve(__dirname, '../types/src')
     }
   },

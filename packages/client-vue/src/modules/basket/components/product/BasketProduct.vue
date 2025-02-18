@@ -2,7 +2,7 @@
   <Loading :active="meta.isLoading || meta.isProcessing">
     <Card :class="styles.product.root.card" v-auto-animate>
       <div :class="styles.product.root.container">
-        <UpmBasketProductSummary
+        <BasketProductSummary
           v-for="(pricing, index) in props.summary.pricing"
           :key="`${props.id}-${index}`"
           :id="id"
@@ -17,7 +17,7 @@
           :taxes="meta.hasTaxIncluded"
           @update:quantity="updateQuantity"
         >
-          <slot :product="product" :pricing="pricing" :summary="summary" />
+          <slot :product="product" :pricing="pricing" :summary="summary"></slot>
         </BasketProductSummary>
       </div>
 

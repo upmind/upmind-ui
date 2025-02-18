@@ -3,7 +3,6 @@ import { ref, computed } from "vue";
 
 // --- internal
 import {
-  responseCodes,
   useBasket,
   useBasketProductConfig as useUpmindBasketProductConfig,
   useBasketProduct as useUpmindBasketProduct,
@@ -34,7 +33,7 @@ import type { ActorRef, State } from "xstate";
 
 import type { ComputedRef } from "vue";
 import { utils } from "@upmind-automation/headless";
-const { DetailedError } = utils;
+const { DetailedError, responseCodes } = utils;
 
 export const useBasketProduct = (
   id: string

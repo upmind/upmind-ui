@@ -14,15 +14,16 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: '@upmind-automation/headless-vue', // Or whatever you named it
-      fileName: 'index', // or 'headless-vue' if you prefer
+      name: '@upmind-automation/headless-vue',
+      fileName: 'index',
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['vue', "vue-router"],
       output: {
         globals: {
           vue: 'Vue',
+          "vue-router": "VueRouter",
         },
       },
     },
@@ -30,6 +31,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      // ---
       '@upmind-automation/types': resolve(__dirname, '../types/src'),
       '@upmind-automation/headless': resolve(__dirname, '../headless/src'),
     },

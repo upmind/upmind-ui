@@ -6,7 +6,7 @@ import type {
   AnimatedIconProps,
 } from "@upmind-automation/upmind-ui";
 
-import type { Mask } from "../../../components/content/types";
+import type { SmartTitleProps } from "../../../components/content/types";
 // ---
 export interface ActionProps extends ButtonProps {
   type?: HTMLButtonElement["type"];
@@ -22,7 +22,7 @@ export interface BasketModalProps {
   modal?: boolean;
   open?: DialogProps["open"];
   // ---
-  title?: DialogProps["title"] | Mask;
+  title?: DialogProps["title"] | SmartTitleProps;
   text?: DialogProps["description"];
   avatar?: AvatarProps;
   animatedIcon?: AnimatedIconProps;

@@ -56,6 +56,7 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+// @ts-ignore
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const createRepeatSequence = (

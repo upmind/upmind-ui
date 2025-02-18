@@ -118,7 +118,7 @@ import {
   type ButtonProps,
   type FormActionProps,
 } from "@upmind-automation/upmind-ui";
-import config from "../client/client.config";
+import config from "../client.config";
 
 // --- components
 import Section from "../../../components/content/ContentSection.vue";

@@ -4,8 +4,7 @@
   >
     <a class="relative z-20 md:hidden" href="/">
       <picture class="h-full w-full">
-        <img class="m-0 hidden h-5 md:block" src="/logo.svg?url" alt="logo" />
-        <img class="m-0 h-8 md:hidden" src="/logo-small.svg?url" alt="logo" />
+        <slot name="logo"></slot>
         <span class="sr-only">
           {{ t("header.title") }}
         </span>
