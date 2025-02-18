@@ -39,6 +39,6 @@ export interface InterstitialProps {
   skrim?: DialogProps["skrim"];
   fit?: DialogProps["fit"];
   // ---
-  uiConfig?:typeof config;
+  uiConfig?: typeof config;
   class?: HTMLAttributes["class"];
 }
