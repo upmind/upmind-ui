@@ -8,16 +8,18 @@
       >
         <a class="relative z-20" :href="storefrontUrl">
           <picture class="h-full w-full">
-            <img
-              class="m-0 hidden h-8 md:block"
-              :src="`${baseUrl}/logo.svg`"
-              alt="logo"
-            />
-            <img
-              class="m-0 h-8 md:hidden"
-              :src="`${baseUrl}/logo-small.svg`"
-              alt="logo"
-            />
+            <slot name="logo">
+              <img
+                class="m-0 hidden h-8 md:block"
+                :src="`${baseUrl}/logo.svg`"
+                alt="logo"
+              />
+              <img
+                class="m-0 h-8 md:hidden"
+                :src="`${baseUrl}/logo-small.svg`"
+                alt="logo"
+              />
+            </slot>
             <span class="sr-only">
               {{ t("header.title") }}
             </span>

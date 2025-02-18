@@ -1,12 +1,10 @@
 <template>
   <article>
-    <ContentSection>
+    <ContentSection v-auto-animate>
       <Interstitial
-        open
-        modal
-        skrim="light"
-        :title="t('errors.404.title')"
-        :text="t('errors.404.text')"
+        v-bind="props"
+        :title="t('basket.empty.title')"
+        :text="t('basket.empty.text')"
         :actions="[
           {
             as: 'a',
@@ -16,13 +14,6 @@
             label: t('errors.404.action'),
           },
         ]"
-        :animated-icon="{
-          icon: 'basket-empty',
-          trigger: 'loop',
-          primaryColor: 'base-foreground',
-          secondaryColor: 'tertiary',
-          size: '4xl',
-        }"
       >
         <template #avatar>
           <div>
@@ -57,15 +48,22 @@
 import { useI18n } from "vue-i18n";
 
 // -- components
-import ContentSection from "../../components/content/ContentSection.vue";
-import { IconAnimated, Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 
+// -- types
+import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
-
 const { t } = useI18n();
 // @ts-ignore
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
+
+const props = withDefaults(defineProps<InterstitialProps>(), {
+  open: true,
+  modal: true,
+  skrim: "light",
+});
 
 const createRepeatSequence = (
   sequence: string,
