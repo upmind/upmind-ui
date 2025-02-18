@@ -32,7 +32,7 @@ import config from "./content.config";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { includes } from "lodash-es";
+import { includes, isString, keys, omit, isEmpty } from "lodash-es";
 
 // --- types
 import type { SmartTitleProps } from "./types";
@@ -45,13 +45,14 @@ const props = withDefaults(defineProps<SmartTitleProps>(), {
 
 const { t, tm } = useI18n();
 
-const keywords = computed(() =>
-  Object.keys(tm(`${props.i18nKey}`) || {}).filter(key => key !== "text")
-);
+const keywords = computed(() => {
+  const value = tm(`${props.i18nKey}`) || {};
+  return isString(value) ? undefined : keys(omit(value, "text"));
+});
 
 const meta = computed(() => {
   return {
-    hasKeywords: keywords.value.length > 0,
+    hasKeywords: !isEmpty(keywords.value),
     align: props.align,
     size: props.size,
   };

@@ -1,3 +1,3 @@
 {
-  "./**/*.{js,ts,html,json,vue}": "pnpm run format"
+  "./**/*.{js,ts,html,json,vue}": "prettier --write"
 }
