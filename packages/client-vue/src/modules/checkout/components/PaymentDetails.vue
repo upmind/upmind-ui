@@ -94,7 +94,7 @@ import GatewayContent from "./gateway/Content.vue";
 import PaymentNotRequired from "./PaymentNotRequired.vue";
 
 // --- types
-import type { PaymentDetailsProps } from "./types";
+import type { PaymentDetailsProps } from "../types";
 import type { ComputedRef } from "vue";
 
 // --- utils

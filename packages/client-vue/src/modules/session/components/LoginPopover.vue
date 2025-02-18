@@ -20,7 +20,7 @@
 // --- external
 
 // --- components
-import Session from "./Session.vue";
+import Session from "../Session.vue";
 
 import {
   Popover,

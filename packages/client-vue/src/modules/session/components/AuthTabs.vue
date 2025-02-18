@@ -48,7 +48,7 @@ import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
-import Form from "../form/Form.vue";
+import Form from "../../../components/form/Form.vue";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./session.config";
 

@@ -29,7 +29,7 @@
             size="2xl"
           />
           <SmartTitle
-            -else
+            v-else
             i18n-key="order.confirmation.failed.title"
             size="2xl"
           />

@@ -1,11 +1,11 @@
 <template>
   <article>
     <ContentSection v-auto-animate>
-      <BasketEmpty
+      <Interstitial
         open
-        modal
-        skrim="light"
-        :text="t('basket.empty.text')"
+        :modal="false"
+        skrim="primary"
+        size="2xl"
         :action="{
           as: 'a',
           color: 'primary',
@@ -20,7 +20,21 @@
           secondaryColor: 'tertiary',
           size: '4xl',
         }"
-      />
+        :title="t('basket.empty.title')"
+        :text="t('basket.empty.text')"
+      >
+        <slot #title>
+          <SmartTitle i18n-key="basket.empty.title" size="2xl" class="mb-2" />
+        </slot>
+      </Interstitial>
+
+      <Interstitial open modal skrim="light" :text="t('basket.empty.text')">
+        <template #title> </template>
+
+        <template #background>
+          <slot name="loading-background"></slot>
+        </template>
+      </Interstitial>
     </ContentSection>
   </article>
 </template>
@@ -29,9 +43,10 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
+
 // -- components
+import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
-import BasketEmpty from "../basket/components/Empty.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------

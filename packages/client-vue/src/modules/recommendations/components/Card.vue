@@ -158,7 +158,7 @@ import config from "../recommendations.config";
 // --- components
 import { Button, Lineclamp, Icon, Badge } from "@upmind-automation/upmind-ui";
 import Card from "../../../components/content/Card.vue";
-import Promotion from "../../basket/components/product/components/Promotion.vue";
+import Promotion from "../../basket/components/basketProduct/components/Promotion.vue";
 import RecommendationBenefit from "./Benefit.vue";
 
 // --- types
