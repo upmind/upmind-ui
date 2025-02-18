@@ -7,13 +7,15 @@
         skrim="light"
         :title="t('errors.404.title')"
         :text="t('errors.404.text')"
-        :action="{
-          as: 'a',
-          color: 'primary',
-          href: storefrontUrl,
-          appendIcon: 'arrow-left',
-          label: t('errors.404.action'),
-        }"
+        :actions="[
+          {
+            as: 'a',
+            color: 'primary',
+            href: storefrontUrl,
+            appendIcon: 'arrow-left',
+            label: t('errors.404.action'),
+          },
+        ]"
         :animated-icon="{
           icon: 'basket-empty',
           trigger: 'loop',
