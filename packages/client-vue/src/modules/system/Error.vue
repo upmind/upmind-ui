@@ -2,9 +2,7 @@
   <article>
     <ContentSection>
       <Interstitial
-        open
-        modal
-        skrim="light"
+        v-bind="props"
         :title="t('errors.generic.title')"
         :text="t('errors.generic.text')"
         :actions="[
@@ -16,13 +14,6 @@
             label: t('errors.generic.action'),
           },
         ]"
-        :animated-icon="{
-          icon: 'basket-empty',
-          trigger: 'loop',
-          primaryColor: 'base-foreground',
-          secondaryColor: 'tertiary',
-          size: '4xl',
-        }"
       >
         <template #title>
           <SmartTitle
@@ -42,44 +33,29 @@
 import { useI18n } from "vue-i18n";
 
 // -- components
-import ContentSection from "../../components/content/ContentSection.vue";
-import { IconAnimated, Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 
+// -- types
+import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
-
 const { t } = useI18n();
+
 // @ts-ignore
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
-const createRepeatSequence = (
-  sequence: string,
-  repetitions: number = 1
-): string => {
-  return Array(repetitions).fill(sequence).join(",play,");
-};
+const props = withDefaults(defineProps<InterstitialProps>(), {
+  open: true,
+  modal: true,
+  skrim: "light",
 
-const icons = [
-  {
-    icon: "four",
-    sequence: createRepeatSequence(
-      "delay:0,state:in-reveal,play,delay:2000,state:out-reveal,play,delay:0",
-      50
-    ),
-  },
-  {
-    icon: "zero",
-    sequence: createRepeatSequence(
-      "delay:300,state:in-reveal,play,delay:1700,state:out-reveal,play,delay:0",
-      50
-    ),
-  },
-  {
-    icon: "four",
-    sequence: createRepeatSequence(
-      "delay:600,state:in-reveal,play,delay:1400,state:out-reveal,play,delay:0",
-      50
-    ),
-  },
-];
+  animatedIcon: () => ({
+    icon: "basket-empty",
+    trigger: "loop",
+    primaryColor: "base-foreground",
+    secondaryColor: "tertiary",
+    size: "4xl",
+  }),
+});
 </script>

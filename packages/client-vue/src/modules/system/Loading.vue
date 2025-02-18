@@ -26,17 +26,21 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
 
 // -- components
-import {
-  Interstitial,
-  type InterstitialProps,
-} from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind-automation/upmind-ui";
+import SmartTitle from "../../components/content/SmartTitle.vue";
+import ContentSection from "../../components/content/ContentSection.vue";
 
-// ---types
+// -- types
+import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+// -----------------------------------------------------------------------------
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
+  open: true,
+  modal: false,
+  skrim: "light",
   animatedIcon: () => ({
     icon: "basket",
     delay: 250,
