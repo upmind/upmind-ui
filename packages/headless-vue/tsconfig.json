@@ -1,16 +1,13 @@
 {
-  "extends": "../../tsconfig.json", // Extend the root config (recommended)
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": "src",
-    "outDir": "dist",
-    "declaration": true,
     "composite": true,
+    "declaration": true,
     "declarationDir": "dist",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
+  "references": [{ "path": "../headless" }, { "path": "../types" }]
 }

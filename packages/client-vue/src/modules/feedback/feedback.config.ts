@@ -6,7 +6,7 @@ export default {
     root: cva("w-full bg-transparent"),
     banners: cva("flex flex-col"),
     toasts: cva(
-      "fixed z-[999] flex max-h-screen w-full flex-col items-start justify-start overflow-auto [&>.alert]:shadow-md ",
+      "fixed z-[999] flex max-h-screen w-full flex-col items-start justify-start overflow-auto [&>.alert]:shadow-md",
       {
         variants: {
           position: {

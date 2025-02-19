@@ -41,10 +41,10 @@ export default {
         },
       }),
       header: cva(
-        "flex flex-1 flex-col items-start justify-center gap-2 text-left "
+        "flex flex-1 flex-col items-start justify-center gap-2 text-left"
       ),
       content: cva(
-        " order-last flex w-full flex-none flex-wrap gap-6 border-t pt-4 empty:hidden "
+        "order-last flex w-full flex-none flex-wrap gap-6 border-t pt-4 empty:hidden"
       ),
       collapsible: cva(
         "max-h-0 overflow-hidden opacity-0 transition aria-expanded:max-h-fit aria-expanded:opacity-100 aria-hidden:hidden"
@@ -91,11 +91,11 @@ export default {
       // ---
       details: {
         root: cva("m-0 grid w-full list-none grid-cols-4 gap-6 px-0 py-4"),
-        item: cva("m-0 flex flex-wrap gap-0 p-0 "),
+        item: cva("m-0 flex flex-wrap gap-0 p-0"),
         title: cva(
-          "text-emphasis-medium m-0 w-full p-0 text-sm font-normal tracking-wide "
+          "text-emphasis-medium m-0 w-full p-0 text-sm font-normal tracking-wide"
         ),
-        text: cva("m-0 p-0 text-sm tracking-wide "),
+        text: cva("m-0 p-0 text-sm tracking-wide"),
         invalid: cva("text-error"),
       },
     },
@@ -159,11 +159,11 @@ export default {
       }),
 
       fields: cva(
-        "flex w-full flex-none flex-wrap items-start gap-x-6 gap-y-8 empty:hidden "
+        "flex w-full flex-none flex-wrap items-start gap-x-6 gap-y-8 empty:hidden"
       ),
 
       footer: cva(
-        " mt-6 flex w-full items-center justify-between gap-x-10 border-t px-6 py-4"
+        "mt-6 flex w-full items-center justify-between gap-x-10 border-t px-6 py-4"
       ),
       // ---
       loading: cva("size-7"),
@@ -217,7 +217,7 @@ export default {
 
       // ---
       grid: {
-        root: cva("w-full p-0 ", {
+        root: cva("w-full p-0", {
           variants: {
             disabled: {
               true: "cursor-wait",
@@ -273,12 +273,12 @@ export default {
       },
       // ---
       list: {
-        root: cva("w-full p-0 "),
+        root: cva("w-full p-0"),
         item: {
           header: cva(
             "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
           ),
-          footer: cva("flex-shrink-1 flex items-center justify-end  gap-4"),
+          footer: cva("flex-shrink-1 flex items-center justify-end gap-4"),
           title: cva("text-md m-0 font-normal"),
           badges: cva("flex items-center justify-end gap-4 px-4"),
           price: cva("min-w-20 text-right"),
@@ -286,7 +286,7 @@ export default {
             "text-md block text-right font-medium leading-snug tracking-wide"
           ),
           discount: cva(
-            "text-emphasis-medium block text-right text-sm font-normal leading-snug  tracking-wide line-through"
+            "text-emphasis-medium block text-right text-sm font-normal leading-snug tracking-wide line-through"
           ),
         },
       },
