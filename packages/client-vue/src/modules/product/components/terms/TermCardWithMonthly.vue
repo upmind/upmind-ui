@@ -10,15 +10,12 @@
       </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Badge color="promotion" variant="tonal" size="sm">
-          {{
-            promotion.mixed || !promotion.amount
-              ? t("product.promotion")
-              : t("product.promotion_save", {
-                  value: promotion.amountFormatted,
-                })
-          }}
-        </Badge>
+        <Promotion
+          :discounted="promotion.amount"
+          :currentSaving="promotion.amountFormatted"
+          :currentSavingAmount="promotion.amount"
+          :mixed="promotion.mixed"
+        />
       </template>
 
       <span
@@ -56,8 +53,8 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import { Badge } from "@upmind-automation/upmind-ui";
 import Pricing from "../pricing/Pricing.vue";
+import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
 
