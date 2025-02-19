@@ -26,7 +26,7 @@
       <template #item="{ item }: any">
         <slot name="item" :item="item">
           <CardTermPerMonth
-            v-if="isMonthly(item)"
+            v-if="isMonthly(item.value)"
             v-bind="getTerm(item.value)"
             select
             :class="props.class"
@@ -42,7 +42,7 @@
       <template #dropdown-item="{ item }: any">
         <slot name="dropdown" :item="item">
           <CardTermPerMonth
-            v-if="isMonthly(item)"
+            v-if="isMonthly(item.value)"
             v-bind="getTerm(item.value)"
             select
             :class="props.class"
@@ -151,8 +151,10 @@ function getTerm(value: string) {
 }
 
 function isMonthly(item: any) {
-  return props.monthly && item.monthlyFromRegularPrice && item.cycle > 1;
+  const term = getTerm(item);
+  return props.monthly && term.monthlyFromRegularPrice && term.cycle > 1;
 }
+
 function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));
