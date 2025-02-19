@@ -154,19 +154,16 @@ export const useChildActor = (
   state: any,
   prop?: string | string[],
   fallback?: any
-): ComputedRef<ActorRef<any>> =>
-  computed(() => childActor(state, prop, fallback));
+): ComputedRef<any> => computed(() => childActor(state, prop, fallback));
 
 export const useContextActor = (
   state: any,
   prop?: string | string[],
   fallback?: any
-): ComputedRef<ActorRef<any>> =>
-  computed(() => contextActor(state, prop, fallback));
+): ComputedRef<any> => computed(() => contextActor(state, prop, fallback));
 
 export const useContextActors = (
   state: any,
   prop?: string | string[],
   fallback?: any
-): ComputedRef<ActorRef<any>[]> =>
-  computed(() => contextActor(state, prop, fallback));
+): ComputedRef<any[]> => computed(() => contextActor(state, prop, fallback));
