@@ -7,17 +7,18 @@
     :class="cn(styles.radioCards.root, props.class)"
     @update:model-value="onChange"
   >
-    <template v-for="(item, index) in items" :key="item.id || index">
+    <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
-        :item="item"
+        :item="option.item"
         :index="overrideIndex || index"
         :name="props.name"
-        :label="item?.label"
+        :label="option?.label"
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
         :width="props.width"
-        @keydown.enter="onChange(item.value)"
+        :value="option.value"
+        @keydown.enter="onChange(option.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
