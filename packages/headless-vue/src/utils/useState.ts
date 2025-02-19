@@ -16,7 +16,6 @@ import {
   isEmpty,
   isNil,
 } from "lodash-es";
-import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // These are some helper to reduce the repetition of the same code when using xstate/vue

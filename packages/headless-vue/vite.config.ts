@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import { resolve } from 'path';
-import dts from 'vite-plugin-dts';
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
   plugins: [
@@ -13,16 +13,16 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: '@upmind-automation/headless-vue',
-      fileName: 'index',
-      formats: ['es'],
+      entry: resolve(__dirname, "src/index.ts"),
+      name: "@upmind-automation/headless-vue",
+      fileName: "index",
+      formats: ["es"],
     },
     rollupOptions: {
-      external: ['vue', "vue-router"],
+      external: ["vue", "vue-router"],
       output: {
         globals: {
-          vue: 'Vue',
+          vue: "Vue",
           "vue-router": "VueRouter",
         },
       },
@@ -30,10 +30,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      "@": resolve(__dirname, "./src"),
       // ---
-      '@upmind-automation/types': resolve(__dirname, '../types/src'),
-      '@upmind-automation/headless': resolve(__dirname, '../headless/src'),
+      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
+      "@upmind-automation/headless": resolve(
+        __dirname,
+        "../headless/src/index.ts"
+      ),
     },
   },
 });

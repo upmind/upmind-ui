@@ -98,11 +98,11 @@ export default {
     content: cva("text-base-700 flex flex-1 flex-col gap-1 text-sm"),
     header: cva("flex items-center justify-start gap-4"),
     icon: cva("size-4"),
-    avatar: cva("size-6 overflow-hidden rounded-full border "),
+    avatar: cva("size-6 overflow-hidden rounded-full border"),
     title: cva(
       "text-md text-base-foreground m-0 inline-flex gap-1 font-normal leading-none"
     ),
-    text: cva("leading-tight "),
+    text: cva("leading-tight"),
     verified: cva("", {
       variants: {
         isVerified: {
