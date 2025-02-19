@@ -1,10 +1,10 @@
 <template>
   <Form v-bind="forwarded" :i18n="i18n">
-    <template #footer="formFooterProps">
-      <slot name="footer" v-bind="formFooterProps"></slot>
+    <template #footer="{ meta }">
+      <slot name="footer" v-bind="{ meta }"></slot>
     </template>
-    <template #actions="formActionsProps">
-      <slot name="actions" v-bind="formActionsProps"></slot>
+    <template #actions="{ meta, doResolve, doReject }">
+      <slot name="actions" v-bind="{ meta, doResolve, doReject }"></slot>
     </template>
   </Form>
 </template>
@@ -41,11 +41,11 @@ const emits = defineEmits<{
 }>();
 
 const slots = defineSlots<{
-  footer(props: FormFooterProps): void;
-  actions(props: FormActionsProps): void;
+  footer: FormFooterProps;
+  actions: FormActionsProps;
 }>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const forwarded: any = useForwardPropsEmits(props, emits);
 
 const i18n = useFormI18n();
 // --- state
