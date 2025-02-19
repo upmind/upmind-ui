@@ -20,7 +20,7 @@
 
         <div
           v-if="props.price && !props.price.meta.free"
-          class="my-1 text-xs md:hidden"
+          class="my-1 flex items-center gap-x-1 text-xs md:hidden"
         >
           <SubproductCardPricing
             :regularAmount="props.price.regularAmount"
