@@ -26,6 +26,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";

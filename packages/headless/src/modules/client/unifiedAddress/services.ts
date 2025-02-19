@@ -10,7 +10,7 @@ import { useClientEmails } from "../email";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { parseAddress } from "./utils";
+import { parseAddress, parseCompany } from "./utils";
 import {
   some,
   first,
@@ -77,10 +77,12 @@ async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }: any) => parseAddress(data));
+  }).then(({ data }: any) => parseCompany(data));
 
   return Promise.all([addresses, companies]).then(
-    ([addresses, companies]) => [...companies, ...addresses] // we prioritise/return the companies first so they are at the top of the list
+    ([addresses, companies]) => {
+      return [...companies, ...addresses];
+    } // we prioritise/return the companies first so they are at the top of the list
   );
 }
 
