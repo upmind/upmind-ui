@@ -18,7 +18,7 @@ export type ClientListingDefinition = {
     canFilter: boolean;
   }>;
   items: ComputedRef<ActorRef<any>[]>;
-  selected: ComputedRef<ActorRef<any>>;
+  selected: ComputedRef<any>;
   initial: ComputedRef<string | undefined>;
   isReady: () => Promise<any>;
   getSelected: () => Promise<any>;

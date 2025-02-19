@@ -18,7 +18,9 @@ export const useFormI18n = () => {
     const createTranslator =
       (_locale: string) => (key: string, defaultMessage: string, data: any) => {
         // well try get the translation as an object for when the i18n key is nested
-        let value = isFunction(tm) ? tm(key) : undefined;
+        let value: string | Record<string, any> | undefined = isFunction(tm)
+          ? tm(key)
+          : undefined;
         // then we fall back to a regular translation
         if (isEmpty(value) && isFunction(t)) value = t(key, data);
         // finally we fall back to the default message if no translation is found or the key is the same as the value
