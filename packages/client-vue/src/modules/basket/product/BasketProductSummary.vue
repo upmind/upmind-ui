@@ -30,6 +30,7 @@
                 :discounted="pricing.meta?.discounted"
                 :disabled="error"
                 class="-mt-3 hidden md:block"
+                size="xs"
               />
             </div>
             <div class="flex items-end justify-between">

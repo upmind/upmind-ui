@@ -74,7 +74,6 @@
                   :discounted="meta?.discounted"
                   :currentSaving="promotion.amountFormatted"
                   :currentSavingAmount="promotion.amount"
-                  size="sm"
                 />
               </template>
             </small>
