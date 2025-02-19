@@ -11,7 +11,7 @@ export default {
     root: cva("flex w-full gap-y-6", {
       variants: {
         isHorizontal: {
-          true: "flex-row flex-wrap gap-x-4 ",
+          true: "flex-row flex-wrap gap-x-4",
           false: "flex-col",
         },
       },
