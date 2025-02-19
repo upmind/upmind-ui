@@ -47,7 +47,7 @@ const props = withDefaults(
   defineProps<{
     i18nKey?: string;
     modelValue?: string;
-    items: string[];
+    items: any[];
     loading?: boolean;
     processing?: boolean;
     disabled?: boolean;
@@ -84,8 +84,8 @@ const items = computed((): RadioCardsItemProps[] => {
     item,
     index,
     modelValue: modelValue.value,
-    value: item,
-    label: item,
+    value: item.value,
+    label: item.label,
   }));
 });
 </script>

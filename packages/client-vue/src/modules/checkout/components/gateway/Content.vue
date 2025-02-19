@@ -17,7 +17,7 @@
     />
 
     <div
-      v-if="!getGatewayi18n('footer.title').includes('basket')"
+      v-if="!getGatewayi18n('footer.title').includes('checkout')"
       :class="styles.checkout.additional"
     >
       <Icon :icon="getGatewayi18n('footer.icon')" class="size-3" />
@@ -67,12 +67,12 @@ const getGatewayi18n = (property: string) => {
   const type = props.item.gateway.type;
   const code = props.item.gateway.gateway_provider?.code;
   if (type === 1) {
-    const codeKey = `basket.${code}.${property}`;
+    const codeKey = `checkout.${code}.${property}`;
     if (te(codeKey)) return t(codeKey);
-    return t(`basket.${type}.${property}`);
+    return t(`checkout.${type}.${property}`);
   }
 
-  return t(`basket.${type}.${property}`);
+  return t(`checkout.${type}.${property}`);
 };
 
 const handleCheckout = () => {
