@@ -111,8 +111,8 @@ const emits = defineEmits<{
 }>();
 
 const slots = defineSlots<{
-  footer(props: FormFooterProps): void;
-  actions(props: FormActionsProps): void;
+  footer: FormFooterProps;
+  actions: FormActionsProps;
 }>();
 
 // --- state
