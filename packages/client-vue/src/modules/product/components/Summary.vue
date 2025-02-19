@@ -56,6 +56,15 @@
     </div>
   </Card>
 
+  <Alert
+    v-if="hasErrors"
+    :title="t('product.incomplete.title')"
+    :description="t('product.incomplete.description')"
+    icon="alert"
+    color="error"
+    class="mt-4"
+  />
+
   <ul v-auto-animate class="m-0 flex flex-col gap-y-4 p-6 text-sm">
     <!-- <li
       v-if="categorySummary"
@@ -131,7 +140,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useProductConfig } from "@upmind-automation/headless-vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
@@ -143,10 +152,11 @@ import {
   Separator,
   Icon,
   Button,
+  Alert,
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { omitBy, find, isEmpty, map } from "lodash-es";
+import { omitBy, find, isEmpty } from "lodash-es";
 
 // --- types
 // import type { ComputedRef } from "vue";
@@ -161,6 +171,8 @@ const emits = defineEmits(["resolve"]);
 
 // ---
 const { t, te } = useI18n();
+
+const showErrors = ref(false);
 
 const { product, summary, meta, lookups, model, updateQuantity } =
   useProductConfig(props.item);
@@ -178,15 +190,22 @@ const summaryItems = computed(() => {
     ["term", "category"].includes(detail.key)
   );
 });
-const terms = computed(() =>
-  map(lookups.value?.terms, term => ({
-    value: term.cyle,
-    textValue: term.name,
-  }))
-);
+
+const hasErrors = computed(() => {
+  return meta.value.hasErrors && showErrors.value;
+});
+
+watch(hasErrors, () => {
+  if (hasErrors.value) {
+    console.log("autoscroll");
+  } else {
+    showErrors.value = false;
+  }
+});
 
 // ---
 const doResolve = async () => {
   emits("resolve", model.value);
+  showErrors.value = true;
 };
 </script>
