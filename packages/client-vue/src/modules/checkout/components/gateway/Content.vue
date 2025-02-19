@@ -17,7 +17,7 @@
     />
 
     <div
-      v-if="!getGatewayi18n('footer.title').includes('basket')"
+      v-if="!getGatewayi18n('footer.title').includes('checkout')"
       :class="styles.checkout.additional"
     >
       <Icon :icon="getGatewayi18n('footer.icon')" class="size-3" />
