@@ -9,15 +9,12 @@
             v-for="promotion in props.price?.promotions"
             :key="promotion.id"
           >
-            <Badge color="promotion" variant="tonal" size="sm">
-              {{
-                promotion.mixed || !promotion.amount
-                  ? t("product.promotion")
-                  : t("product.promotion_save", {
-                      value: promotion.amountFormatted,
-                    })
-              }}
-            </Badge>
+            <Promotion
+              :discounted="promotion.amount"
+              :currentSaving="promotion.amountFormatted"
+              :currentSavingAmount="promotion.amount"
+              :mixed="promotion.mixed"
+            />
           </template>
         </div>
 
@@ -81,8 +78,9 @@ import { useI18n } from "vue-i18n";
 // --- internal
 
 // --- components
-import { Badge, NumberField } from "@upmind-automation/upmind-ui";
+import { NumberField } from "@upmind-automation/upmind-ui";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
+import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- types
 
