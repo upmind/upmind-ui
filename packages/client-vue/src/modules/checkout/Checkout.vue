@@ -100,8 +100,7 @@
     <slot name="processing" v-if="meta.isCheckout">
       <Interstitial
         open
-        :modal="false"
-        skrim="primary"
+        modal
         size="2xl"
         :animatedIcon="{
           icon: 'tapping-card',

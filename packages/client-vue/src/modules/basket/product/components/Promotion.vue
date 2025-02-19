@@ -20,6 +20,7 @@ withDefaults(
     currentSavingAmount?: number;
     disabled?: boolean;
     size?: "xs" | "sm" | "md";
+    mixed?: boolean;
   }>(),
   {
     size: "xs",

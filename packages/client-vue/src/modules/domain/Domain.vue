@@ -171,10 +171,10 @@ const styles = useStyles(["domain"], meta, config) as ComputedRef<{
 const i18nChoices = computed(() => {
   return map(choices.value, choice => {
     const translations: { label: string } = tm(
-      `domain.choices.${choice.value}`
+      `domain.choices.${choice.label}`
     );
     return {
-      ...choice,
+      value: choice.label,
       label: rt(translations?.label) || choice.label,
     };
   });
