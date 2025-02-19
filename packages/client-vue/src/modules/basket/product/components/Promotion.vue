@@ -23,7 +23,7 @@ withDefaults(
     mixed?: boolean;
   }>(),
   {
-    size: "xs",
+    size: "sm",
   }
 );
 
