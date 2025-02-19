@@ -174,7 +174,7 @@ const i18nChoices = computed(() => {
       `domain.choices.${choice.label}`
     );
     return {
-      ...choice,
+      value: choice.label,
       label: rt(translations?.label) || choice.label,
     };
   });
