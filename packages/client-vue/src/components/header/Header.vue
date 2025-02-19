@@ -39,7 +39,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
@@ -51,26 +50,4 @@ const { t } = useI18n();
 const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
 // @ts-ignore
 const baseUrl = import.meta.env.VITE_APP_BASE_URL || "";
-
-const isScrollingDown = ref(false);
-let lastScrollTop = 0;
-const scrollThreshold = 50;
-
-const handleScroll = () => {
-  const currentScrollTop = Math.max(window.scrollY, 0);
-  const scrollDifference = currentScrollTop - lastScrollTop;
-
-  if (Math.abs(scrollDifference) > scrollThreshold) {
-    isScrollingDown.value = scrollDifference > 0;
-    lastScrollTop = currentScrollTop;
-  }
-};
-
-onMounted(() => {
-  // window.addEventListener("scroll", handleScroll);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll);
-});
 </script>
