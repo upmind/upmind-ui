@@ -4,7 +4,7 @@
       <div :class="styles.radioCards.radio">
         <RadioGroupItem
           :id="`${props.name}-${index}`"
-          :value="item.value"
+          :value="value"
           :name="props.name"
           :required="props.required"
           :disabled="props.disabled"
@@ -17,7 +17,7 @@
       <slot
         name="item"
         v-bind="{
-          item: props.item,
+          item: { ...props.item, value },
         }"
       >
         <span v-if="props.label">{{ props.label }}</span>
@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
 const emits = defineEmits(["focus"]);
 
 const isSelected = computed(() => {
-  return props.modelValue === props.item.value;
+  return props.modelValue === props.value;
 });
 
 const meta = computed(() => ({

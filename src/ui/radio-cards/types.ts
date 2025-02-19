@@ -18,6 +18,7 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   disabled?: boolean;
   modelValue: any;
   selected?: boolean;
+  value: string;
   // ---
   width?: RadioCardsItemVariantProps["width"] | string;
   uiConfig?: { radioCards: CxOptions };
