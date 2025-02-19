@@ -89,7 +89,7 @@ import { useI18n } from "vue-i18n";
 import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
 
 // --- components
-import { Spinner, Alert } from "@upmind-automation/upmind-ui";
+import { Spinner, Alert, Markdown } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 
 // --- types

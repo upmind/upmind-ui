@@ -93,8 +93,6 @@ import Loading from "./modules/system/Loading.vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   theme: any;
-  loadingPrimaryColor?: string;
-  loadingSecondaryColor?: string;
 }>();
 
 const { t } = useI18n();

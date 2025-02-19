@@ -137,7 +137,7 @@ import {
 } from "@upmind-automation/headless-vue";
 
 import config from "./checkout.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Interstitial } from "@upmind-automation/upmind-ui";
 
 // -- components
 import Session from "../session/Session.vue";
