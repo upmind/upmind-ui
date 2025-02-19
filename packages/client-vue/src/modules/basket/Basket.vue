@@ -143,7 +143,13 @@ import { useI18n } from "vue-i18n";
 import { useBasket, useBasketFields } from "@upmind-automation/headless-vue";
 
 // --- components
-import { Button, Icon, Alert, Link } from "@upmind-automation/upmind-ui";
+import {
+  Button,
+  Icon,
+  Alert,
+  Link,
+  Skeleton,
+} from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
 import Summary from "./components/Summary.vue";

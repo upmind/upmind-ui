@@ -11,7 +11,9 @@
             as: 'a',
             color: 'primary',
             href: storefrontUrl,
-            appendIcon: 'arrow-right',
+            appendIcon: {
+              icon: 'arrow-right',
+            },
             label: t('basket.empty.actions.continue'),
           },
         ]"

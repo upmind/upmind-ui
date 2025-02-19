@@ -52,6 +52,7 @@
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useSession, utils } from "@upmind-automation/headless-vue";

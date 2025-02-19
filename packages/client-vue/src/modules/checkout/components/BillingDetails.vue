@@ -8,7 +8,7 @@
     <!-- If we dont have any default or selected :- render a form for a new address -->
     <Item
       v-else-if="(meta.isAdding || meta.isEditing) && !open"
-      :model-value="selected as unknown as ActorRef<any>"
+      :model-value="selected"
       :modal="meta.isEditing"
       :key="selected?.id"
       :color="color"
@@ -145,7 +145,10 @@ const actions = computed((): DropdownMenuItemProps[] => {
       label: t("client.actions.convert"),
       value: "convert",
       handler: () => onEdit(true),
-      hidden: selected.value?.getSnapshot()?.context?.model?.companyDetails,
+      hidden: !!get(
+        selected.value?.state?.value,
+        "context.model.companyDetails"
+      ),
     },
     {
       label: t("client.actions.change"),
@@ -170,7 +173,7 @@ function onClose(value: boolean) {
   open.value = value;
 }
 
-watch(props.modelValue, (model, oldModel) => {
+watch(props, ({ modelValue: model }, { modelValue: oldModel }) => {
   const id = model?.companyId || model?.addressId;
   const oldId = oldModel?.companyId || oldModel?.addressId;
 
@@ -179,8 +182,7 @@ watch(props.modelValue, (model, oldModel) => {
 
 watch(selected, (value, oldValue) => {
   if (value?.id === oldValue?.id) return;
-
-  const model = get(value?.getSnapshot()?.value, "context.model", {});
+  const model = get(value?.state?.value, "context.model", {});
   if (isEmpty(model)) return;
 
   emit("update:modelValue", model);

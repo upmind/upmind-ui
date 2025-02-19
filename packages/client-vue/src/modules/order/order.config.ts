@@ -1,4 +1,3 @@
-import { Interstitial } from "@upmind-automation/upmind-ui";
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
