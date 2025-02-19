@@ -47,7 +47,7 @@ export const anchorVariants = cva(
 );
 
 export const contentVariants = cva(
-  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border border-control bg-base will-change-[opacity,transform]  empty:hidden",
+  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border border-control bg-base will-change-[opacity,transform] empty:hidden",
   {
     variants: {
       popoverWidth: {
