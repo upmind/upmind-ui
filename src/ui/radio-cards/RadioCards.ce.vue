@@ -12,7 +12,7 @@
         :item="option.item"
         :index="overrideIndex || index"
         :name="props.name"
-        :label="option?.item.label"
+        :label="option?.label"
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"

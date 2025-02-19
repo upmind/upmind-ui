@@ -39,6 +39,7 @@ const items = computed(() => {
     return {
       item: option,
       value: option.value,
+      label: option.label,
       index,
       modelValue: control.value.data,
     };
