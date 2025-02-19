@@ -10,13 +10,13 @@ export default {
     summary: {
       root: cva("flex w-full flex-col gap-8 text-left"),
       header: cva("w-full"),
-      title: cva("m-0  text-xl font-normal tracking-tight"),
+      title: cva("m-0 text-xl font-normal tracking-tight"),
       content: cva(
-        " bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6 shadow-md"
+        "bg-base text-base-foreground grid w-full space-y-4 rounded-lg border p-6 shadow-md"
       ),
-      form: cva(" m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
+      form: cva("m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
-        " m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
+        "m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
       ),
       heading: cva("group m-0 flex flex-1 items-center gap-2 font-light"),
       text: cva(
@@ -25,12 +25,12 @@ export default {
       bold: cva("text-base-foreground font-medium"),
       discount: cva("text-base-500 block text-xs font-light line-through"),
       value: cva(
-        "flex-0 text-base-foreground m-0 block text-right font-medium "
+        "flex-0 text-base-foreground m-0 block text-right font-medium"
       ),
-      total: cva("font-medium "),
+      total: cva("font-medium"),
       icon: cva("flex-0 size-5 leading-normal"),
       tooltipIcon: cva("flex-0 size-4 leading-6"),
-      tooltip: cva("m-0 hidden text-xs leading-tight group-hover:block "),
+      tooltip: cva("m-0 hidden text-xs leading-tight group-hover:block"),
 
       footer: cva(
         "flex w-full flex-wrap justify-center gap-4 text-center font-light"
@@ -53,7 +53,7 @@ export default {
     },
 
     details: {
-      root: cva("!gap-16 ", {
+      root: cva("!gap-16", {
         variants: {
           isDisabled: {
             true: "pointer-events-none",
@@ -73,7 +73,7 @@ export default {
           },
         ],
       }),
-      header: cva("flex w-full flex-col gap-2 "),
+      header: cva("flex w-full flex-col gap-2"),
       title: cva(
         "m-0 flex items-center justify-between gap-4 text-5xl font-light leading-tight text-inherit"
       ),
@@ -83,7 +83,7 @@ export default {
     },
 
     items: {
-      root: cva("!gap-16 ", {
+      root: cva("!gap-16", {
         variants: {
           isDisabled: {
             true: "pointer-events-none",
@@ -110,11 +110,11 @@ export default {
     },
 
     paymentGateway: {
-      root: cva("flex flex-col gap-6 py-6 "),
+      root: cva("flex flex-col gap-6 py-6"),
       wrapper: cva("flex flex-col items-center justify-center gap-6", {
         variants: {
           variant: {
-            outline: "rounded-lg border p-6 ",
+            outline: "rounded-lg border p-6",
             flat: "",
           },
           hasErrors: {

@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   session: {
     root: cva(""),
-    header: cva("flex w-full flex-col gap-2 "),
+    header: cva("flex w-full flex-col gap-2"),
     title: cva(
       "start-between m-0 flex w-full items-center gap-4 text-5xl font-light leading-tight text-inherit"
     ),
