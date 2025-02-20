@@ -96,7 +96,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed, provide, ref, type ComputedRef } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
