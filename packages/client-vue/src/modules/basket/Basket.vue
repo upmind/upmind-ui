@@ -7,7 +7,10 @@
         <div class="flex min-w-0 flex-1 flex-col gap-8">
           <ContentSection>
             <template #title>
-              <SmartTitle i18n-key="basket.title" size="2xl" />
+              <SmartTitle
+                i18n-key="basket.title"
+                class="text-3xl leading-relaxed"
+              />
             </template>
             <template #option>
               <div class="flex items-center gap-6">
