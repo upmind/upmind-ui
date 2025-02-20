@@ -158,10 +158,9 @@ export function useUischema({ addresses }: any): UISchemaElement {
   const lookups = {
     addresses: reduce(
       addresses.getItems(),
-      (result, item) => {
+      (result: { value: any; label: string }[], item) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
-          // @ts-ignore
           result.push({
             value: item.id,
             label: [
@@ -368,10 +367,8 @@ export const spawnItem = (model?: IAddress) => {
       itemMachine
 
         .withConfig({
-          // @ts-ignore
-          actions,
-          // @ts-ignore
-          services,
+          actions: actions as any,
+          services: services as any,
         })
         .withContext({ model }),
       {

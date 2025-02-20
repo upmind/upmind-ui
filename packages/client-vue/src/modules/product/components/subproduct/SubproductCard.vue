@@ -10,7 +10,7 @@
             :key="promotion.id"
           >
             <Promotion
-              :discounted="promotion.amount"
+              :discounted="!!promotion.amount"
               :currentSaving="promotion.amountFormatted"
               :currentSavingAmount="promotion.amount"
               :mixed="promotion.mixed"

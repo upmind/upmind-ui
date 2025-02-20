@@ -10,7 +10,6 @@ import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
 // --- types
-// @ts-ignore
 const base = import.meta.env.VITE_API_URL;
 
 // --------------------------------------------------------

@@ -46,8 +46,6 @@ import VHeaderButtons from "./HeaderButtons.vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-// @ts-ignore
 const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
-// @ts-ignore
 const baseUrl = import.meta.env.VITE_APP_BASE_URL || "";
 </script>
