@@ -3,23 +3,17 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "composite": true,
-    "declaration": true,
+    "composite": false,
+    "declaration": false,
     "declarationMap": false,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "emitDeclarationOnly": true,
     "jsx": "preserve",
     "lib": ["esnext", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
-    "noEmit": false,
     "outDir": "dist",
-    "paths": {
-      "@/*": ["src/*"],
-      "@upmind-automation/headless-vue": ["../headless-vue/src/index.ts"],
-      "@upmind-automation/upmind-ui": ["../ui/src/index.ts"]
-    },
+    "paths": { "@/*": ["src/*"] },
     "resolveJsonModule": true,
     "rootDir": "src",
     "skipLibCheck": true,
@@ -30,10 +24,5 @@
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
-  "references": [
-    { "path": "../types" },
-    { "path": "../headless" },
-    { "path": "../headless-vue" },
-    { "path": "../ui" }
-  ]
+  "references": [{ "path": "../headless-vue" }]
 }

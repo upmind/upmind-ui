@@ -142,10 +142,8 @@ export const spawnItem = (model?: IPhone) => {
     return spawn(
       itemMachine
         .withConfig({
-          // @ts-ignore
-          actions,
-          // @ts-ignore
-          services,
+          actions: actions as any,
+          services: services as any,
         })
         .withContext({ model }),
       {

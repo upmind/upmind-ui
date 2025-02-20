@@ -6,7 +6,6 @@ import { inspect } from "@xstate/inspect";
 // --------------------------------------------------------
 
 const queryParams = new URLSearchParams(window.location.search);
-// @ts-ignore
 const debugging = import.meta.env.DEV || queryParams.has("debug");
 
 // --------------------------------------------------------

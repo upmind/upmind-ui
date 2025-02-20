@@ -28,9 +28,9 @@ import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // ENUMS
-const whitelistGatewayProviders =
-  // @ts-ignore
-  (import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || "").split(",");
+const whitelistGatewayProviders = (
+  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || ""
+).split(",");
 
 // --------------------------------------------------------
 // SERVICE METHODS
