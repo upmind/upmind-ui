@@ -59,7 +59,6 @@ const styles = useStyles(
   props.uiConfig ?? {}
 ) as ComputedRef<{ icon: string }>;
 
-// @ts-ignore
 const icons = import.meta.glob("@icons/**/*.svg", {
   query: "?raw",
   eager: false,
