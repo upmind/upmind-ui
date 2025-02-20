@@ -1,5 +1,6 @@
 <template>
   <Slot
+    ref="slotElement"
     :id="props.formItemId"
     :aria-describedby="
       !props.invalid
@@ -9,20 +10,17 @@
     :aria-invalid="!!props.invalid"
     class="w-full"
     v-bind="attributesToRemove"
-    v-intersection-observer="maybeFocus"
   >
     <slot />
   </Slot>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { vIntersectionObserver } from "@vueuse/components";
-
+import { ref, computed } from "vue";
+import { useIntersectionObserver, watchOnce } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
 import { Slot } from "radix-vue";
-// import { isFunction } from "lodash-es";
 
-// -----------------------------------------------------------------------------
+import type { ComponentPublicInstance } from "vue";
 
 const props = defineProps<{
   formItemId: string;
@@ -49,7 +47,7 @@ const meta = computed(() => ({
   shouldFocus: !!props.autoFocus,
 }));
 
-// --- methods
+const slotElement = ref<ComponentPublicInstance | null>(null);
 
 function maybeFocus(entries: IntersectionObserverEntry[]) {
   const section = entries[0];
@@ -93,4 +91,20 @@ function maybeFocus(entries: IntersectionObserverEntry[]) {
     }
   }
 }
+
+if (meta.value.shouldFocus) {
+  watchOnce(
+    () => slotElement.value,
+    async el => {
+      if (isSelectable(el?.$el?.tagName)) {
+        useIntersectionObserver(el, entries => maybeFocus(entries));
+      }
+    }
+  );
+}
+
+const isSelectable = (tag: string) => {
+  const selectableTypes = new Set(["INPUT"]);
+  return selectableTypes.has(tag);
+};
 </script>
