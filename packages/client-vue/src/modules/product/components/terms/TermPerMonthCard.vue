@@ -60,7 +60,6 @@ import type { ComputedRef } from "vue";
 
 const props = defineProps<{
   name: string;
-  price: number;
   cycle: number;
   // ---
   mixedPromotions?: boolean;
