@@ -76,7 +76,6 @@ import { DrawerTrigger, DrawerClose } from "vaul-vue";
 // --- types
 import type { ComputedRef } from "vue";
 import type { DrawerProps } from "./types";
-import type { DrawerRootEmits } from "vaul-vue";
 
 // --- utils
 import { pick } from "lodash-es";
@@ -112,7 +111,11 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   classFooter: "",
 });
 
-const emits = defineEmits<DrawerRootEmits>();
+const emits = defineEmits<{
+  (e: "close"): void;
+  (e: "update:open", open: boolean): void;
+  (e: "update:activeSnapPoint", val: string | number): void;
+}>();
 
 const forwardedDrawer = useForwardPropsEmits(
   pick(props, [
