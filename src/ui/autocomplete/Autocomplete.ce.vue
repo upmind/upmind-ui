@@ -243,10 +243,17 @@ async function doSearch(value: string) {
 
 // --- methods
 
-function doSelect(item: AutocompleteItemProps) {
+function doSelect(item: AutocompleteItemProps | string) {
   if (!item) {
     // modelValue.value = undefined;
     emits("update:modelValue", {});
+    return;
+  }
+
+  // if we use a search function it will always return a string when one of the results is selected
+  // so we know it's a string and we can emit it directly
+  if (isString(item)) {
+    emits("update:modelValue", item);
     return;
   }
 
