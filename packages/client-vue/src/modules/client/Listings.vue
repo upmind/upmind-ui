@@ -9,7 +9,6 @@
     :skrim="skrim"
     :class="styles.clientListings.root"
     :class-footer="styles.clientListings.footer"
-    v-auto-animate
     size="2xl"
   >
     <template #header>
