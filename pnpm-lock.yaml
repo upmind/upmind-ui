@@ -934,6 +934,9 @@ importers:
       '@sentry/vue':
         specifier: ^9.1.0
         version: 9.1.0(vue@3.5.13(typescript@5.7.3))
+      '@tailwindcss/typography':
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@3.4.17)
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
@@ -961,6 +964,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      tailwindcss-aria-attributes:
+        specifier: ^2.0.1
+        version: 2.0.1(tailwindcss@3.4.17)
       tailwindcss-themer:
         specifier: ^4.1.1
         version: 4.1.1(tailwindcss@3.4.17)

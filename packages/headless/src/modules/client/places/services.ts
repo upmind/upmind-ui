@@ -20,7 +20,6 @@ import type { ClientListingsContext } from "../types";
 
 function load(_context: ClientListingsContext, _event: AnyEventObject) {
   const loader = new Loader({
-    // @ts-ignore
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
     version: "weekly",
   });

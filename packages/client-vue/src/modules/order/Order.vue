@@ -127,7 +127,6 @@ const processing = ref(false);
 function doAction() {
   if (!meta.value.isAuthenticated) {
     processing.value = false;
-    // @ts-ignore
     const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
     window.location.href = storefrontUrl;
     return;
