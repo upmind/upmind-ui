@@ -9,7 +9,7 @@ export default defineConfig({
     dts({
       entryRoot: "src",
       outDir: "dist",
-      logLevel: "info",
+      tsconfigPath: "tsconfig.build.json",
     }),
   ],
   build: {
