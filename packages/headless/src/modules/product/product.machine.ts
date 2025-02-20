@@ -709,7 +709,7 @@ export default createMachine(
           lookups ??= {};
           lookups.options = parseSubproduct(
             rawProduct?.products_options,
-            // @ts-ignore -- this is added
+            // @ts-ignore this is added by the setLookups action
             rawProduct?.promotionDisplayType,
             model?.term
           );

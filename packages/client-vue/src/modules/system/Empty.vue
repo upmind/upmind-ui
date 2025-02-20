@@ -41,7 +41,6 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-// @ts-ignore
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {

@@ -169,13 +169,16 @@ const styles = useStyles(["domain"], meta, config) as ComputedRef<{
 // ---
 
 const i18nChoices = computed(() => {
-  return map(choices.value, choice => {
+  return map(choices.value, (choice, index) => {
     const translations: { label: string } = tm(
       `domain.choices.${choice.label}`
     );
     return {
       value: choice.label,
       label: rt(translations?.label) || choice.label,
+      item: choice,
+      index,
+      modelValue: choice.value,
     };
   });
 });

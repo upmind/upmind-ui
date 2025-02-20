@@ -9,15 +9,22 @@ import type { RecaptchaContext } from "./types";
 // --------------------------------------------------------
 // HELPERS
 
-// @ts-ignore
 const siteKey = import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY;
 
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-interface Window {
-  grecaptcha: any;
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      execute: (
+        siteKey: string,
+        options: { action?: string }
+      ) => Promise<string>;
+    };
+  }
 }
 
 async function load(_context: RecaptchaContext, _event: AnyEventObject) {
@@ -36,9 +43,7 @@ async function load(_context: RecaptchaContext, _event: AnyEventObject) {
     });
 
     script.addEventListener("load", async () => {
-      // @ts-ignore
       window["grecaptcha"].ready(() => {
-        // @ts-ignore
         const grecaptcha = window["grecaptcha"];
         return resolve(grecaptcha);
       });

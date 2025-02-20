@@ -15,7 +15,8 @@
     "outDir": "dist",
     "paths": {
       "@/*": ["src/*"],
-      "@upmind-automation/upmind-ui": ["packages/upmind-ui/src/index.ts"] // Adjust path if needed
+      "@upmind-automation/headless-vue": ["../headless-vue/src/index.ts"]
+      // "@upmind-automation/upmind-ui": ["../ui/src/index.ts"]
     },
     "resolveJsonModule": true,
     "rootDir": "src",
@@ -23,13 +24,14 @@
     "sourceMap": true,
     "strict": true,
     "target": "esnext",
-    "types": ["node", "jsdom"]
+    "types": ["node", "jsdom", "vite/client"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
   "references": [
     { "path": "../types" },
     { "path": "../headless" },
-    { "path": "../headless-vue" }
+    { "path": "../headless-vue" },
+    { "path": "../ui/tsconfig.dev.json" }
   ]
 }
