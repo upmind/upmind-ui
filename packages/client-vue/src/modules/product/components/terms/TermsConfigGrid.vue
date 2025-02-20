@@ -28,7 +28,10 @@
       :width="0"
     >
       <template #item="{ item }">
-        <CardTermPerMonth v-if="isMonthly(item)" v-bind="getTerm(item.value)" />
+        <CardTermPerMonth
+          v-if="isMonthly(item.value)"
+          v-bind="getTerm(item.value)"
+        />
         <CardTerm v-else v-bind="getTerm(item.value)" />
       </template>
     </RadioCards>
@@ -123,8 +126,10 @@ function getTerm(value: string) {
 }
 
 function isMonthly(item: any) {
-  return props.monthly && item.monthlyFromRegularPrice && item.cycle > 1;
+  const term = getTerm(item);
+  return props.monthly && term.monthlyFromRegularPrice && term.cycle > 1;
 }
+
 function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));
