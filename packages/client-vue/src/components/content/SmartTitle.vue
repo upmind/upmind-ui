@@ -10,7 +10,7 @@
     <template v-for="keyword in keywords" :key="keyword">
       <component
         :is="getComponent(keyword)"
-        :data-content="t(`${props.i18nKey}.${keyword}`)"
+        :data-content="t(`${props.i18nKey}.${keyword}`)?.toLowerCase()"
       >
         {{ t(`${props.i18nKey}.${keyword}`) }}
       </component>
