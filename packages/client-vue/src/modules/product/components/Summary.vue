@@ -2,33 +2,43 @@
   <Card class="flex w-full flex-col items-start gap-4" as="aside">
     <header
       class="text-emphasis-medium flex w-full flex-col space-y-6 text-sm font-medium leading-none"
-      v-auto-animate
     >
-      <div
-        class="text-primary flex items-end justify-between text-lg font-medium leading-none"
-        v-for="(item, index) in summary?.pricing"
-        :key="`pricing-${index}`"
-      >
-        <span>{{ t("product.total") }}</span>
-        <span>
-          <span
-            v-if="item.meta?.discounted"
-            class="text-emphasis-medium mb-1 mt-1 block text-right text-xs line-through"
+      <template v-if="!meta.isLoading">
+        <div v-auto-animate>
+          <div
+            class="text-primary flex items-end justify-between text-lg font-medium leading-none"
+            v-for="(item, index) in summary?.pricing"
+            :key="`pricing-${index}`"
           >
+            <span>{{ t("product.total") }}</span>
             <span>
-              {{ item.regularPrice }}
+              <span
+                v-if="item.meta?.discounted"
+                class="text-emphasis-medium mb-1 mt-1 block text-right text-xs line-through"
+              >
+                <span>
+                  {{ item.regularPrice }}
+                </span>
+              </span>
+              <span
+                class="text-lg font-medium"
+                :class="{
+                  'opacity-0': meta.isLoading || meta.isCalculating,
+                }"
+              >
+                {{ item.meta?.free ? t("product.free") : item.currentPrice }}
+              </span>
             </span>
-          </span>
-          <span
-            class="text-lg font-medium"
-            :class="{
-              'opacity-0': meta.isLoading || meta.isCalculating,
-            }"
-          >
-            {{ item.meta?.free ? t("product.free") : item.currentPrice }}
-          </span>
-        </span>
-      </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="-mb-1.5 flex justify-between">
+          <Skeleton class="h-6 w-36" />
+          <Skeleton class="h-6 w-24" />
+        </div>
+      </template>
     </header>
 
     <Separator class="mb-4 mt-6" />
@@ -153,6 +163,7 @@ import {
   Icon,
   Button,
   Alert,
+  Skeleton,
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
