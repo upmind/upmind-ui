@@ -1,5 +1,5 @@
 <template>
-  <div :class="cn(styles.product.config.root, $props.class)">
+  <div :class="cn(styles.product.config.root)">
     <div :class="styles.product.config.content">
       <div :class="styles.product.config.wrapper">
         <!-- heading -->
