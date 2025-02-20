@@ -14,11 +14,6 @@
                 :src="`${baseUrl}/logo.svg`"
                 alt="logo"
               />
-              <img
-                class="m-0 h-8 md:hidden"
-                :src="`${baseUrl}/logo-small.svg`"
-                alt="logo"
-              />
             </slot>
             <span class="sr-only">
               {{ t("header.title") }}

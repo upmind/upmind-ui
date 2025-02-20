@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 export default {
   checkout: {
     root: cva(""),
-    backButton: cva("relative -top-4"),
+    backButton: cva("relative -top-4 mt-6 md:mt-0"),
     section: cva(
       "relative mx-auto flex w-full flex-wrap items-start justify-start gap-6"
     ),

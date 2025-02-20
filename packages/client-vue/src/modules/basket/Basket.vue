@@ -9,7 +9,8 @@
             <template #title>
               <SmartTitle
                 i18n-key="basket.title"
-                class="text-3xl leading-relaxed"
+                class="leading-relaxed"
+                size="2xl"
               />
             </template>
             <template #option>
@@ -38,7 +39,11 @@
           <!-- Custom Fields  -->
           <ContentSection>
             <template #title>
-              <SmartTitle i18n-key="customFields.title" size="2xl" />
+              <SmartTitle
+                i18n-key="customFields.title"
+                class="leading-relaxed"
+                size="2xl"
+              />
             </template>
             <Card>
               <Form

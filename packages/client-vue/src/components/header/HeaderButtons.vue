@@ -4,7 +4,13 @@
   >
     <a class="relative z-20 md:hidden" href="/">
       <picture class="h-full w-full">
-        <slot name="logo"></slot>
+        <slot name="logo">
+          <img
+            class="m-0 h-8 md:hidden"
+            :src="`${baseUrl}/logo-small.svg`"
+            alt="logo"
+          />
+        </slot>
         <span class="sr-only">
           {{ t("header.title") }}
         </span>
@@ -55,4 +61,6 @@ import { Avatar } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();
 const { meta, user } = useSession();
+
+const baseUrl = import.meta.env.VITE_APP_BASE_URL || "";
 </script>
