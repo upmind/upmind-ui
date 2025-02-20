@@ -3,7 +3,7 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "composite": false,
+    "composite": true,
     "declaration": false,
     "declarationMap": false,
     "esModuleInterop": true,
@@ -12,6 +12,7 @@
     "lib": ["esnext", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
+    "noEmit": false,
     "outDir": "dist",
     "paths": { "@/*": ["src/*"] },
     "resolveJsonModule": true,

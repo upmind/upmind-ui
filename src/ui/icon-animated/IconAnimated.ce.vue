@@ -46,7 +46,6 @@ const styles = useStyles(
 // ---
 
 const iconSrc = computed(() => {
-  // @ts-ignore
   return new URL(`../../assets/animations/${props.icon}.json`, import.meta.url);
 });
 
