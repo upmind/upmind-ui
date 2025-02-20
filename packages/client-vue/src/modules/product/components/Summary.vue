@@ -208,7 +208,7 @@ const hasErrors = computed(() => {
 
 watch(hasErrors, () => {
   if (hasErrors.value) {
-    console.log("autoscroll");
+    // Auto-scroll to the first error
   } else {
     showErrors.value = false;
   }

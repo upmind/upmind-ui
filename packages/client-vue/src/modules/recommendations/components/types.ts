@@ -12,5 +12,5 @@ export interface RecommendationItemProps extends Recommendation {
 
 export interface RecommendationBenefitProps extends Benefit {
   label: string;
-  icon?: IconProps;
+  icon?: IconProps | string;
 }
