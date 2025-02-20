@@ -40,7 +40,9 @@ export default {
   ),
   section: {
     root: cva("w-full"),
-    header: cva("mb-4 ml-[1px] mt-6 flex items-end justify-between md:mb-6"),
+    header: cva(
+      "mb-4 ml-[1px] mt-6 flex-row items-end justify-between space-y-4 md:mb-6 md:flex"
+    ),
     title: cva(
       "text-base-foreground m-0 !text-3xl leading-tight [&:has(mask)]:leading-normal"
     ),
