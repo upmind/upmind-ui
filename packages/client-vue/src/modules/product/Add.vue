@@ -19,13 +19,16 @@
           <section class="flex min-w-0 flex-1 flex-col gap-16">
             <ContentSection>
               <template #title>
-                <SmartTitle i18n-key="product.title" size="2xl" />
+                <SmartTitle
+                  i18n-key="product.title"
+                  class="text-3xl leading-relaxed"
+                />
               </template>
 
               <!-- TODO: add skeleton loader when meta.isLoading -->
               <Card class="!p-0">
                 <ProductConfig
-                  v-if="basketItem"
+                  v-if="basketItem && !meta?.isLoading"
                   :item="basketItem"
                   :model-value="basketItem?.id"
                   :processing="meta?.isProcessing"
@@ -34,6 +37,8 @@
                   @resolve="doResolve"
                   @reject="doReject"
                 />
+
+                <ConfigSkeleton v-else />
               </Card>
             </ContentSection>
           </section>
@@ -91,7 +96,7 @@ import Card from "../../components/content/Card.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Summary from "./components/Summary.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-
+import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 // --- utils
 import { isEmpty } from "lodash-es";
 

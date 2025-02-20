@@ -18,7 +18,11 @@
         <section class="flex min-w-0 flex-1 flex-col gap-16">
           <ContentSection>
             <template #title>
-              <SmartTitle i18n-key="product.title" size="2xl" />
+              <SmartTitle
+                i18n-key="product.title"
+                size="2xl"
+                class="py-0.5 !text-3xl leading-tight [&:has(mask)]:leading-normal"
+              />
             </template>
 
             <!-- TODO: add skeleton loader when meta.isLoading -->
