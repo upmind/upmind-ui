@@ -21,7 +21,8 @@
               <template #title>
                 <SmartTitle
                   i18n-key="product.title"
-                  class="text-3xl leading-relaxed"
+                  class="leading-relaxed"
+                  size="2xl"
                 />
               </template>
 
