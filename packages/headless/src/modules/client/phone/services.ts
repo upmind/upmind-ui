@@ -93,9 +93,9 @@ async function add({ model }: PhoneContext) {
     url: useUrl(`clients/${clientId}/phones`),
     data: {
       phone: model.phone.nationalNumber, // without the country code
-      phoneCode: `+${model.phone.countryCallingCode}`,
-      phoneCountryCode: model.phone.country,
-      type: model.type,
+      phone_code: `+${model.phone.countryCallingCode}`,
+      phone_country_code: model.phone.country,
+      type: 4,
     },
     withAccessToken: true,
   }).then(({ data }: any) => data);
