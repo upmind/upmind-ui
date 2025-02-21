@@ -163,7 +163,7 @@ function onChange() {
 }
 
 function onEdit(companyDetails = false) {
-  const client = useClientUnifiedAddress(selected);
+  const client = useClientUnifiedAddress(selected.value);
   const model = client.model.value;
   client.edit();
   // force the company details to be shown
