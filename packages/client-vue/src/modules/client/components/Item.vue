@@ -8,7 +8,6 @@
     :class="styles.clientForm.root"
     :class-footer="styles.clientForm.footer"
     fit="cover"
-    v-auto-animate
     @reject="onClose"
     @update:open="onClose"
     size="2xl"
@@ -46,7 +45,6 @@
 <script lang="ts" setup>
 // --- external
 import { inject, computed, nextTick } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
