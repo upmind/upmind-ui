@@ -52,9 +52,12 @@ import { useStyles, type FormActionProps } from "@upmind-automation/upmind-ui";
 import config from "../client.config";
 
 // --- components
-import { Button, Drawer, SkeletonList } from "@upmind-automation/upmind-ui";
-
-import Form from "../../../components/form/Form.vue";
+import {
+  Button,
+  Drawer,
+  SkeletonList,
+  Form,
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isEmpty, omit, isFunction } from "lodash-es";
