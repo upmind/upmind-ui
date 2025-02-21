@@ -166,7 +166,6 @@ export const useSchema = ({
         title: "Email",
         format: "email",
         default: baseModel.email,
-        lookup: emails?.search,
       },
 
       phone: {
