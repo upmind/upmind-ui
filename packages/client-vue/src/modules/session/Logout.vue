@@ -1,5 +1,5 @@
 <template>
-  <Empty />
+  <Logout />
 </template>
 
 <script lang="ts" setup>
@@ -7,7 +7,7 @@
 import { useI18n } from "vue-i18n";
 
 // -- components
-import Empty from "../system/Empty.vue";
+import Logout from "../system/Logout.vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
