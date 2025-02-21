@@ -41,7 +41,7 @@ export default {
   section: {
     root: cva("w-full"),
     header: cva(
-      "mb-4 ml-[1px] flex-row items-end justify-between space-y-4 md:mb-6 md:mt-6 md:flex"
+      "mb-4 ml-[1px] flex flex-wrap items-end justify-between space-y-4 md:mb-6 md:mt-6"
     ),
     title: cva(
       "text-base-foreground m-0 !text-3xl leading-tight [&:has(mask)]:leading-normal"
