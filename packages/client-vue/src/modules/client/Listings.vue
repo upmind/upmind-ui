@@ -232,7 +232,7 @@ const actions = computed((): Record<string, FormActionProps> => {
       color: props.color,
       block: true,
       handler: () => {
-        onClose(true);
+        onClose(false);
       },
     },
   };
