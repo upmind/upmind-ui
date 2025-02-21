@@ -93,8 +93,8 @@ async function add({ model }: PhoneContext) {
     url: useUrl(`clients/${clientId}/phones`),
     data: {
       phone: model.phone.nationalNumber, // without the country code
-      phoneCode: `+${model.phone.countryCallingCode}`,
-      phoneCountryCode: model.phone.country,
+      phone_code: `+${model.phone.countryCallingCode}`,
+      phone_country_code: model.phone.country,
       type: model.type,
     },
     withAccessToken: true,
@@ -111,8 +111,8 @@ async function update({ model }: PhoneContext) {
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: {
       phone: model.phone.nationalNumber, // without the country code
-      phoneCode: `+${model.phone.countryCallingCode}`,
-      phoneCountryCode: model.phone.country,
+      phone_code: `+${model.phone.countryCallingCode}`,
+      phone_country_code: model.phone.country,
       type: model.type,
     },
     withAccessToken: true,
