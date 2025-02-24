@@ -136,16 +136,16 @@ export const useRoutingEngine = () => {
 
   // ---
   // set up automatic refresh when the user logs in or out or if the basket is emptied
-  watch(meta, ({ hasProducts }, { hasProducts: hadProducts }) => {
-    if (!hasProducts && hadProducts) {
-      navigate(ROUTE.EMPTY);
-    }
-  });
   watch(
-    sessionMeta,
-    ({ isAuthenticated }, { isAuthenticated: wasAuthenticated }) => {
+    [meta, sessionMeta],
+    (
+      [{ hasProducts }, { isAuthenticated }],
+      [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
+    ) => {
       if (!isAuthenticated && wasAuthenticated) {
         navigate(ROUTE.SESSION_END);
+      } else if (!hasProducts && hadProducts) {
+        navigate(ROUTE.EMPTY);
       }
     }
   );
