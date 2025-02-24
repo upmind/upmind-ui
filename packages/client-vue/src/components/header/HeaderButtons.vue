@@ -15,7 +15,7 @@
 
     <div v-if="meta.isAuthenticated && user" class="flex items-center">
       <SessionDetailsDropdown>
-        <Avatars size="xs" color="primary" class="cursor-pointer" focusable />
+        <Avatar size="xs" color="primary" class="cursor-pointer" focusable />
       </SessionDetailsDropdown>
     </div>
   </nav>
