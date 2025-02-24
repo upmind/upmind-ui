@@ -359,7 +359,9 @@ async function ensureDependencies({
           }),
   ];
 
-  return Promise.all(dependencies);
+  return Promise.all(dependencies).then((...dependencies) => {
+    return dependencies;
+  });
 }
 
 async function loadLookups(
