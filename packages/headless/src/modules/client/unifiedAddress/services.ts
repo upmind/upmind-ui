@@ -28,7 +28,7 @@ import {
 // --- types
 import { AddressTypes } from "../address/types";
 import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
-import type { AnyEventObject } from "xstate";
+import type { AnyEventObject, ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 // ENUMS
@@ -335,9 +335,15 @@ async function ensureDependencies({
       .find(address)
       .then((item: any) => item?.state?.context?.model)
       .catch(() => {
-        return addresses.add({
-          model: { ...address, name: model.name },
-        });
+        return addresses
+          .add({
+            model: { ...address, name: model.name },
+          })
+          .then((item: ActorRef<any>) => {
+            // NB: Remember to refresh our machines so we have the new data
+            addresses.refresh();
+            return item;
+          });
       }),
 
     !model?.email
@@ -346,7 +352,13 @@ async function ensureDependencies({
           .find(model.email)
           .then((item: any) => item?.state?.context?.model)
           .catch(() => {
-            return emails.add({ model: { email: model.email } });
+            return emails
+              .add({ model: { email: model.email } })
+              .then((item: ActorRef<any>) => {
+                // NB: Remember to refresh our machines so we have the new data
+                emails.refresh();
+                return item;
+              });
           }),
 
     !model?.phone
@@ -355,7 +367,13 @@ async function ensureDependencies({
           .find(model.phone)
           .then((item: any) => item?.state?.context?.model)
           .catch(() => {
-            return phones.add({ model: { phone: model.phone } });
+            return phones
+              .add({ model: { phone: model.phone } })
+              .then((item: ActorRef<any>) => {
+                // NB: Remember to refresh our machines so we have the new data
+                phones.refresh();
+                return item;
+              });
           }),
   ];
 
