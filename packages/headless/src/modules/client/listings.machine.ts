@@ -142,7 +142,7 @@ export default createMachine(
         },
         on: {
           REFRESH: {
-            target: "available",
+            target: "refreshing",
             actions: ["setInitial"],
           },
 
@@ -160,6 +160,23 @@ export default createMachine(
         },
       },
 
+      refreshing: {
+        entry: ["clearError", "clearItems"],
+        invoke: {
+          src: "load",
+          onDone: [
+            {
+              target: "available.idle",
+              actions: ["setItems", "resetFiltered"],
+            },
+          ],
+          onError: {
+            target: "#error",
+            actions: ["setError", "clearSelected"],
+          },
+        },
+      },
+
       error: { id: "error" },
       complete: {
         type: "final",
@@ -173,6 +190,10 @@ export default createMachine(
       UNAUTHENTICATED: {
         target: "subscribing",
         actions: ["clearError", "clearItems"],
+      },
+
+      REFRESH: {
+        target: "checking",
       },
     },
   },

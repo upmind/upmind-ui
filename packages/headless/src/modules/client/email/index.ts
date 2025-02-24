@@ -95,5 +95,6 @@ export const useClientEmails = () => {
         data,
       } as AnyEventObject),
     add: (data: any) => services.add(data),
+    refresh: () => service.send("REFRESH"),
   };
 };
