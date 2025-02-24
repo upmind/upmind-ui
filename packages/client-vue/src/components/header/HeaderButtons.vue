@@ -37,6 +37,4 @@ import { Avatar } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();
 const { meta, user } = useSession();
-
-const baseUrl = import.meta.env.VITE_APP_BASE_URL || "";
 </script>
