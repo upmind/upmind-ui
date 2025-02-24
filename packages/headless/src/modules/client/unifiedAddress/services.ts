@@ -336,7 +336,7 @@ async function ensureDependencies({
       .then((item: any) => item?.state?.context?.model)
       .catch(() => {
         return addresses.add({
-          model: { ...address, type: 4, name: model.name },
+          model: { ...address, name: model.name },
         });
       }),
 
@@ -346,7 +346,7 @@ async function ensureDependencies({
           .find(model.email)
           .then((item: any) => item?.state?.context?.model)
           .catch(() => {
-            return emails.add({ model: { email: model.email, type: 4 } });
+            return emails.add({ model: { email: model.email } });
           }),
 
     !model?.phone
@@ -355,7 +355,7 @@ async function ensureDependencies({
           .find(model.phone)
           .then((item: any) => item?.state?.context?.model)
           .catch(() => {
-            return phones.add({ model: { phone: model.phone, type: 4 } });
+            return phones.add({ model: { phone: model.phone } });
           }),
   ];
 

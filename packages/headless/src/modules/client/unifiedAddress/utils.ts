@@ -38,7 +38,7 @@ export const useSchema = ({
 }: UnifiedAddressContext) => {
   const schema = {
     type: "object",
-    title: "Address Fields",
+    title: "Unified Address Fields",
     required: ["address1", "city", "countryId", "postcode", "type"],
     // --- conditionally required fields
     if: {
@@ -166,6 +166,7 @@ export const useSchema = ({
         title: "Email",
         format: "email",
         default: baseModel.email,
+        // lookup: emails?.search,
       },
 
       phone: {
