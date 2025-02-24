@@ -87,5 +87,7 @@ export const useClientCompanies = () => {
         return state.context.items;
       });
     },
+
+    refresh: () => service.send("REFRESH"),
   };
 };
