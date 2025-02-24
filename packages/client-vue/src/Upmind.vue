@@ -5,7 +5,9 @@
     id="vue-app"
   >
     <slot name="header">
-      <Header />
+      <Header>
+        <template #logo><slot name="logo"></slot></template>
+      </Header>
     </slot>
 
     <main class="w-full flex-1">
