@@ -1,8 +1,5 @@
 <template>
-  <nav
-    class="flex items-center justify-end space-x-6 md:space-x-8"
-    v-if="meta.isAvailable"
-  >
+  <nav v-if="meta.isAvailable">
     <SessionLoginPopover v-if="!meta.isAuthenticated">
       <span class="flex items-center space-x-2 text-sm">
         <span class="hidden pr-1 leading-none sm:block">
@@ -13,11 +10,15 @@
       </span>
     </SessionLoginPopover>
 
-    <div v-if="meta.isAuthenticated && user" class="flex items-center">
-      <SessionDetailsDropdown>
-        <Avatar size="xs" color="primary" class="cursor-pointer" focusable />
-      </SessionDetailsDropdown>
-    </div>
+    <SessionDetailsDropdown v-if="meta.isAuthenticated && user">
+      <Avatar
+        v-bind="user.avatar"
+        size="xs"
+        color="primary"
+        class="cursor-pointer"
+        focusable
+      />
+    </SessionDetailsDropdown>
   </nav>
 </template>
 
@@ -36,6 +37,4 @@ import { Avatar } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();
 const { meta, user } = useSession();
-
-const baseUrl = import.meta.env.VITE_APP_BASE_URL || "";
 </script>
