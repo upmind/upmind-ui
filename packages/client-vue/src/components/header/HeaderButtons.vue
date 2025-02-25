@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="meta.isAvailable">
+  <nav v-if="meta.isAvailable" class="inline-flex">
     <SessionLoginPopover v-if="!meta.isAuthenticated">
       <span class="flex items-center space-x-2 text-sm">
         <span class="hidden pr-1 leading-none sm:block">
