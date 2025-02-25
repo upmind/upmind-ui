@@ -19,11 +19,7 @@
           <section class="flex min-w-0 flex-1 flex-col gap-16">
             <ContentSection>
               <template #title>
-                <SmartTitle
-                  i18n-key="product.title"
-                  class="leading-relaxed"
-                  size="2xl"
-                />
+                <SmartTitle i18n-key="product.title" size="2xl" />
               </template>
 
               <!-- TODO: add skeleton loader when meta.isLoading -->
@@ -47,10 +43,7 @@
           <header
             class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
           >
-            <ContentSection
-              :title="t('product.summary.title')"
-              classTitle="py-1.5"
-            >
+            <ContentSection :title="t('product.summary.title')">
               <Summary
                 v-if="basketItem"
                 :item="basketItem"

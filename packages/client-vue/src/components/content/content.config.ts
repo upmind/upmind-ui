@@ -43,10 +43,8 @@ export default {
     header: cva(
       "mb-4 ml-[1px] flex flex-wrap items-end justify-between gap-4 md:mb-6 md:mt-6"
     ),
-    title: cva(
-      "text-base-foreground m-0 !text-3xl leading-tight [&:has(mask)]:leading-normal"
-    ),
-    tagline: cva("text-base-700 text-sm leading-tight"),
+    title: cva("text-base-foreground m-0 !text-3xl"),
+    tagline: cva("text-base-700 text-sm"),
     content: cva("w-full"),
     footer: cva(
       "text-base-700 mt-6 flex flex-col space-y-2 text-xs md:space-y-0"

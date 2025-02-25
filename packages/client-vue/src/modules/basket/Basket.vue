@@ -7,11 +7,7 @@
         <div class="flex min-w-0 flex-1 flex-col gap-8">
           <ContentSection>
             <template #title>
-              <SmartTitle
-                i18n-key="basket.title"
-                class="leading-relaxed"
-                size="2xl"
-              />
+              <SmartTitle i18n-key="basket.title" size="2xl" />
             </template>
             <template #option>
               <div class="flex items-center gap-6">
@@ -39,11 +35,7 @@
           <!-- Custom Fields  -->
           <ContentSection>
             <template #title>
-              <SmartTitle
-                i18n-key="customFields.title"
-                class="leading-relaxed"
-                size="2xl"
-              />
+              <SmartTitle i18n-key="customFields.title" size="2xl" />
             </template>
             <Card>
               <Form
@@ -73,10 +65,7 @@
         <aside
           class="flex w-full flex-col items-start gap-4 sm:sticky sm:top-1 xl:max-w-md"
         >
-          <ContentSection
-            :title="t('basket.summary.title')"
-            classTitle="py-1.5"
-          >
+          <ContentSection :title="t('basket.summary.title')">
             <Card>
               <Summary no-actions />
             </Card>
