@@ -47,6 +47,7 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
+    "@tsconfig/node22": "^22.0.0",
     "@types/jsdom": "^21.1.7",
     "@rushstack/eslint-patch": "^1.10.5",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
