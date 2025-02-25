@@ -110,13 +110,14 @@ const { t, tm } = useI18n();
 // --- basket setup
 const { back, next } = useRoutingEngine();
 const { updateItem } = useBasket();
-const { getPendingProduct } = useProductsPending();
+const { getPendingProduct, resolvePendingProduct } = useProductsPending();
 
 // ---
 
 async function doResolve() {
   if (!basketItem?.id) return;
   updateItem(basketItem.id).then(() => {
+    resolvePendingProduct(basketItem);
     next(basketItem);
   });
 }

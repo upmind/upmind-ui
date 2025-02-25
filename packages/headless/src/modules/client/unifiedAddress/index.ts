@@ -99,5 +99,6 @@ export const useClientUnifiedAddresses = () => {
         data,
       } as AnyEventObject),
     add: (data: any) => services.add(data),
+    reset: () => service.send({ type: "REFRESH" }),
   };
 };

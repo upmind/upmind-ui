@@ -37,6 +37,7 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { ProductModel } from "../product";
 import { REQUIRES_ACTION, type Route } from "./types";
 import { responseCodes } from "../../utils";
+import { isString } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -290,6 +291,18 @@ export const useRoutePendingProducts = (route: Route) => {
     sub?.unsubscribe();
   }
 
+  function resolvePendingProduct(basketItem?: string | ActorRef<any>) {
+    let target = basketItem;
+
+    if (isString(basketItem)) {
+      const products = getPendingProducts();
+      target = find(products, ["id", basketItem]) as ActorRef<any> | undefined;
+    }
+
+    const pid = get(target, "state.context.model.productId");
+    if (pid) unsetPendingProduct(pid);
+  }
+
   function syncPendingProducts(): Promise<ActorRef<any>>[] {
     // get any productIds from the url query params and store them in our pending basket items
     forEach(productConfigs, (product: ProductModel) => {
@@ -328,6 +341,7 @@ export const useRoutePendingProducts = (route: Route) => {
     getPendingProduct,
     setPendingProduct,
     unsetPendingProduct,
+    resolvePendingProduct,
     // ---
     syncPendingProducts,
     clearPendingProducts,

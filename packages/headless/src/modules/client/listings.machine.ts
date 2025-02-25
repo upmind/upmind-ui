@@ -210,7 +210,7 @@ export default createMachine(
         },
         items: [],
         filters: undefined,
-        // selected: undefined,
+        selected: undefined,
       }),
 
       setInitial: assign({
@@ -220,16 +220,14 @@ export default createMachine(
         ) => {
           if (isString(data) && !isEmpty(data)) return data; // if weve explicitly been given an id, use it. eg when we add a new item and its not yet in the raw list
           // otherwise use our existing initial value or the default
-          return initial || find(raw, "state.context.model.default")?.id;
+          return initial ?? find(raw, "state.context.model.default")?.id;
         },
         selected: (
           { raw, initial }: ClientListingsContext,
           { data }: AnyEventObject
         ) => {
-          if (data) {
-            const item = find(raw, ["id", data]);
-            if (item) return item as ActorRef<any>;
-          }
+          // mimic above as we may have a new initial value
+          if (isString(data) && !isEmpty(data)) initial = data;
 
           const id = initial ?? find(raw, "state.context.model.default")?.id;
           const selectedItem = find(raw, ["id", id]);
