@@ -26,6 +26,7 @@ import {
   every,
   forEach,
   get,
+  has,
   includes,
   isEmpty,
   isEqual,
@@ -461,7 +462,7 @@ export default createMachine(
           set(error, "provisioningErrors", get(data, "provisioningErrors"));
           return error;
         },
-        products: (_context: BasketContext, { data }: AnyEventObject) => {
+        products: (context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
           const provisioningErrors = get(data, "provisioningErrors");
@@ -602,17 +603,15 @@ export default createMachine(
       refreshItems: assign({
         items: ({ basket, items }: BasketContext) => {
           const newItems: ActorRef<any>[] = [];
-
           forEach(items, actor => {
             if (!actor?.getSnapshot()?.done) {
               newItems.push(actor);
-
               actor.send({
                 type: "REFRESH",
-
                 data: {
                   id: basket?.id,
-                  currencyId: basket?.currency_id,
+                  client_id: basket?.client_id,
+                  currency_id: basket?.currency_id,
                   promotions: map(basket?.promotions, "promotion.code"),
                 },
               });

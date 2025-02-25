@@ -584,9 +584,8 @@ export default createMachine(
       // ---
 
       setLookups: assign({
-        currencyId: (_context, { data }: AnyEventObject) => {
-          return data?.currency?.id;
-        },
+        currencyId: (_context, { data }: AnyEventObject) =>
+          data?.currency?.id || data?.currency_id,
 
         rawProduct: (_context, { data }: AnyEventObject) => data.product,
 
