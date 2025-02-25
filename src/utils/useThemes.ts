@@ -1,12 +1,13 @@
 import { ref, provide } from "vue";
 import {
+  compact,
   find,
+  first,
+  isArray,
+  lowerCase,
   reduce,
   set,
-  lowerCase,
-  isArray,
-  first,
-  compact,
+  values,
 } from "lodash-es";
 import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
@@ -65,10 +66,10 @@ export const useThemes = (
     if (theme == activeTheme.value) return;
 
     activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
-    if (themes) {
-      const themeConfig = find(themes, ["id", activeTheme.value]) as
-        | Theme
-        | undefined;
+    if (safeThemes) {
+      const themeConfig =
+        find(safeThemes, ["id", activeTheme.value]) ||
+        (first(values(safeThemes)) as Theme);
       if (themeConfig) config.value = themeConfig.uiConfig || {};
     }
   }

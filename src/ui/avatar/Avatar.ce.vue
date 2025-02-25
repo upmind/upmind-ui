@@ -72,7 +72,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   variant: "flat",
 
   // --- styles
-  uiConfig: () => ({ avatar: {} }),
+  uiConfig: () => ({ avatar: [] }),
   class: "",
 });
 

@@ -20,7 +20,7 @@ export const indicatorVariants = cva(
         warning: "bg-warning text-warning-foreground",
       },
       size: {
-        full: "size-4 ",
+        full: "size-4",
         dot: "h-1 w-1",
       },
       shape: {

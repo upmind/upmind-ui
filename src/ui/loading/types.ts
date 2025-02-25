@@ -5,6 +5,6 @@ export type SpinnerVariantProps = VariantProps<typeof spinnerVariants>;
 
 export interface LoadingProps {
   active?: boolean;
-  size?: SpinnerVariantProps["size"];
+  size?: SpinnerVariantProps["size"] | string;
   class?: HTMLAttributes["class"];
 }

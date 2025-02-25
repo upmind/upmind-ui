@@ -4,9 +4,7 @@ import { type HTMLAttributes } from "vue";
 // --- types
 import type { ButtonProps } from "../button";
 import type { ListboxRootProps, ListboxItemProps } from "radix-vue";
-import type { VariantProps } from "class-variance-authority";
-import type { rootVariants } from "./checkboxCards.config";
-type CheckboxCardsVariantProps = VariantProps<typeof rootVariants>;
+import type { CxOptions } from "class-variance-authority";
 
 export interface CheckboxCardsItemProps extends ListboxItemProps {
   label: string;
@@ -28,10 +26,9 @@ export interface CheckboxCardsProps extends ListboxRootProps {
   loading?: boolean;
   noInput?: boolean;
   // ---
-  color?: ButtonProps["color"];
-  variant?: ButtonProps["variant"];
-  layout?: string; //CheckboxCardsVariantProps["layout"];
+  color?: ButtonProps["color"] | string;
+  variant?: ButtonProps["variant"] | string;
   // ---
-  uiConfig?: { tooltip: Partial<CheckboxCardsProps> };
+  uiConfig?: { tooltip: CxOptions };
   class?: HTMLAttributes["class"];
 }

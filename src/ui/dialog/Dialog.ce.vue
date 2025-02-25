@@ -1,11 +1,11 @@
 <template>
-  <DialogRoot v-bind="forwarded" :open="value" @update:open="onOpen">
+  <Dialog v-bind="forwardedRoot" :open="value" @update:open="onOpen">
     <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>
 
     <DialogContent
-      v-bind="forwarded"
+      v-bind="forwardedContent"
       :class="cn(styles.dialog.content, props.class)"
       :classOverlay="styles.dialog.overlay"
       @update:open="onOpen"
@@ -24,7 +24,6 @@
         <slot name="header">
           <DialogTitle
             v-if="title || $slots.title"
-            v-bind="forwarded"
             class="text-lg font-semibold leading-none tracking-tight"
           >
             <slot name="title">{{ title }}</slot>
@@ -32,7 +31,6 @@
 
           <DialogDescription
             v-if="description || $slots.description"
-            v-bind="forwarded"
             class="mt-2 text-sm text-muted-foreground"
           >
             <slot name="description">{{ description }}</slot>
@@ -46,7 +44,10 @@
         </div>
       </div>
 
-      <DialogFooter :class="props.classFooter">
+      <DialogFooter
+        v-if="$slots.footer || ($slots.close && dismissable) || $slots.actions"
+        :class="props.classFooter"
+      >
         <slot name="footer" />
 
         <DialogClose @click="forceClose" v-if="$slots.close && dismissable">
@@ -56,13 +57,13 @@
         <slot name="actions" />
       </DialogFooter>
     </DialogContent>
-  </DialogRoot>
+  </Dialog>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { computed, nextTick } from "vue";
-import { useForwardPropsEmits } from "radix-vue";
+import { useForwardPropsEmits, useForwardProps } from "radix-vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
@@ -70,7 +71,7 @@ import { useStyles, cn } from "../../utils";
 import config from "./dialog.config";
 
 // --- components
-import { DialogRoot } from "radix-vue";
+import Dialog from "./Dialog.vue";
 import DialogContent from "./DialogContent.vue";
 import DialogHeader from "./DialogHeader.vue";
 import DialogFooter from "./DialogFooter.vue";
@@ -85,7 +86,10 @@ import type { DialogProps } from "./types";
 import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
 
 // --- utils
+import { pick } from "lodash-es";
 import { usePointerEvents } from "../../utils/usePointerEvents";
+
+// -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
@@ -102,8 +106,8 @@ const props = withDefaults(defineProps<DialogProps>(), {
   // --- styles
   uiConfig: () => ({
     dialog: {
-      overlay: {},
-      content: {},
+      overlay: [],
+      content: [],
       header: [],
       footer: [],
     },
@@ -115,7 +119,24 @@ const props = withDefaults(defineProps<DialogProps>(), {
 });
 
 const emits = defineEmits<DialogRootEmits & DialogContentEmits>();
-const forwarded = useForwardPropsEmits(props, emits);
+
+const forwardedRoot = useForwardPropsEmits(
+  pick(props, ["open", "defaultOpen", "modal"]),
+  emits
+);
+
+const forwardedContent = useForwardPropsEmits(
+  pick(props, [
+    "forceMount",
+    "trapFocus",
+    "disableOutsidePointerEvents",
+    "asChild",
+    "as",
+  ]),
+  emits
+);
+
+// ---
 
 const meta = computed(() => ({
   size: props.size,

@@ -58,8 +58,8 @@ const props = withDefaults(defineProps<TabsProps>(), {
   // --- styles
   uiConfig: () => ({
     tabs: {
-      list: {},
-      trigger: {},
+      list: [],
+      trigger: [],
     },
   }),
   class: "",

@@ -4,7 +4,7 @@ import { type HTMLAttributes } from "vue";
 // --- types
 import type { ButtonProps } from "../button";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { itemVariants } from "./radioCards.config";
 type RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
@@ -18,9 +18,10 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   disabled?: boolean;
   modelValue: any;
   selected?: boolean;
+  value: string;
   // ---
-  width?: RadioCardsItemVariantProps["width"];
-  uiConfig?: { radioCards: Partial<RadioCardsItemVariantProps> };
+  width?: RadioCardsItemVariantProps["width"] | string;
+  uiConfig?: { radioCards: CxOptions };
 }
 
 export interface RadioCardsProps extends RadioGroupRootProps {
@@ -34,9 +35,9 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   items: RadioCardsItemProps[];
   loading?: boolean;
   // ---
-  width?: RadioCardsItemVariantProps["width"];
+  width?: RadioCardsItemVariantProps["width"] | string;
   // ---
-  uiConfig?: { radioCards: Partial<RadioCardsProps> };
+  uiConfig?: { radioCards: CxOptions };
   class?: HTMLAttributes["class"];
   radioClass?: HTMLAttributes["class"];
 }

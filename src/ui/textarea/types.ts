@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { textareaVariants } from "./textarea.config";
@@ -26,8 +26,8 @@ export interface TextareaProps {
   maxlength?: number;
   minlength?: number;
   // --- variants
-  size?: TextareaVariantProps["size"];
+  size?: TextareaVariantProps["size"] | string;
   // ---
-  uiConfig?: { textarea: Partial<TextareaVariantProps> };
+  uiConfig?: { textarea: CxOptions };
   class?: HTMLAttributes["class"];
 }

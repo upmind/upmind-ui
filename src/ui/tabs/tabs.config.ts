@@ -108,7 +108,7 @@ export const tabsListVariants = cva(
       {
         variant: "outline",
         color: "error",
-        class: " border-error text-error",
+        class: "border-error text-error",
       },
       {
         variant: "outline",

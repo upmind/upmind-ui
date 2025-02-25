@@ -26,7 +26,9 @@ import { useSlots, computed } from "vue";
 import Spinner from "../spinner/Spinner.ce.vue";
 import type { LoadingProps } from "./types";
 
-const slots = useSlots();
+const slots = defineSlots<{
+  default(): void;
+}>();
 const hasSlotContent = computed(() => !!slots.default);
 
 const props = withDefaults(defineProps<LoadingProps>(), {

@@ -48,7 +48,7 @@ const props = withDefaults(defineProps<IndicatorProps>(), {
   shape: "circle",
   size: "full",
   // --- styles
-  uiConfig: () => ({ indicator: {} }),
+  uiConfig: () => ({ indicator: [] }),
   class: "",
 });
 

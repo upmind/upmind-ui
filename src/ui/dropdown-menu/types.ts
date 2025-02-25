@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   DropdownMenuRootProps,
   DropdownMenuContentProps,
@@ -41,12 +41,12 @@ export interface DropdownMenuProps
   items: DropdownMenuItemProps[];
   loading?: boolean;
   // --- variants
-  color?: ItemVariantProps["color"];
+  color?: ItemVariantProps["color"] | string;
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
-  width?: ContentVariantProps["width"];
+  width?: ContentVariantProps["width"] | string;
   // --- styles
-  uiConfig?: { dropdownMenu: Partial<DropdownMenuProps> };
+  uiConfig?: { dropdownMenu: CxOptions };
   class?: HTMLAttributes["class"];
   popoverClass?: HTMLAttributes["class"];
   itemClass?: HTMLAttributes["class"];

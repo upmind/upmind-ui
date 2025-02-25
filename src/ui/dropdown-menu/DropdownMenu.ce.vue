@@ -137,7 +137,7 @@ const props = withDefaults(defineProps<DropdownMenuProps>(), {
   icon: "navigation-menu-vertical",
 
   // --- styles
-  uiConfig: () => ({ dropdownMenu: {} }),
+  uiConfig: () => ({ dropdownMenu: [] }),
   class: "",
   popoverClass: "",
   itemClass: "",
@@ -160,7 +160,7 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  dropdownMenu: { trigger: string; content: string; item: string };
+  dropdownMenu: { trigger?: string; content?: string; item?: string };
 }>;
 // ---
 

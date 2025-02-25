@@ -5,7 +5,7 @@
       cn(
         'focus-visible:ring-ring aspect-square h-4 w-4 rounded-full border border-control text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
 
-        'data-[state=checked]:text-control-active-foreground shrink-0 bg-control text-control-foreground  data-[state=checked]:bg-control-active',
+        'data-[state=checked]:text-control-active-foreground shrink-0 bg-control text-control-foreground data-[state=checked]:bg-control-active',
         props.class,
         props.noInput ? 'sr-only' : ''
       )

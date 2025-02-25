@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<BadgeProps>(), {
   color: "base",
   size: "md",
   // --- styles
-  uiConfig: () => ({ badge: {} }),
+  uiConfig: () => ({ badge: [] }),
   class: "",
 });
 
