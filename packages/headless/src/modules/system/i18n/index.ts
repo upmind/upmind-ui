@@ -101,6 +101,7 @@ export const useI18n = () => {
   }
 
   async function setLocale(code: string): Promise<string> {
+    await isReady();
     const locale = await validateLanguage({ code });
 
     // Switch i18n locale
