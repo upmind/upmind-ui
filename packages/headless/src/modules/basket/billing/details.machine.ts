@@ -145,10 +145,7 @@ export default createMachine(
 
           processed: {
             id: "processed",
-            entry: sendParent((_context, { data }: AnyEventObject) => ({
-              type: "REFRESH",
-              data,
-            })),
+            entry: sendParent({ type: "REFRESH" }),
             after: {
               wait: {
                 target: "#complete",

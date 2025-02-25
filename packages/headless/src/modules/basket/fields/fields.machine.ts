@@ -121,11 +121,6 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        // DEPRECATED: No need to refresh parent basket
-        // entry: sendParent((_context, { data }: any) => ({
-        //   type: "REFRESH",
-        //   data,
-        // })),
         after: {
           wait: {
             target: "complete",

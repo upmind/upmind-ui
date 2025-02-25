@@ -200,6 +200,7 @@ export default createMachine(
         }
       ),
 
+      // NB: send the data (basket) to the parent so theres no lag in showing/removing the tags
       refreshBasket: sendParent((_context, { data }: any) => {
         return {
           type: "REFRESH",
