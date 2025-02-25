@@ -87,6 +87,7 @@ export function useUserParser(data: IUser): User {
     "fullname",
     "firstname",
     "lastname",
+    "image_url",
   ]);
 
   user.display = data?.firstname || data?.public_name || data?.email;
