@@ -1,7 +1,11 @@
 <template>
   <aside v-auto-animate>
     <div class="flex flex-col items-center justify-center p-2">
-      <SmartTitle i18n-key="recommendations.header.title" size="3xl" />
+      <SmartTitle
+        i18n-key="recommendations.header.title"
+        size="3xl"
+        align="center"
+      />
 
       <p
         class="text-emphasis-medium m-0 mb-12 mt-4 max-w-md text-center text-lg leading-normal"
