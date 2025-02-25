@@ -113,7 +113,7 @@
         :icon="processingIcon"
       >
         <template #title>
-          <SmartTitle :i18n-key="processingTitleKey" />
+          <SmartTitle :i18n-key="processingTitleKey" align="center" />
         </template>
       </Interstitial>
     </slot>
