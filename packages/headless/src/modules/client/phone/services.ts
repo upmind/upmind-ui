@@ -161,7 +161,6 @@ async function loadLookups(
 // TODO: async function parse({ model, country }: PhoneContext, ) {
 async function parse({ model, country }: any) {
   // ---
-
   if (!model?.phone) return Promise.resolve({ model, country });
 
   const phonenumber = isString(model.phone)
@@ -169,7 +168,7 @@ async function parse({ model, country }: any) {
     : model?.phone?.number || model?.phone?.nationalNumber || "";
 
   const countryCode =
-    model?.phone?.country || model?.phoneCountryCode || country?.code;
+    model?.phone_country_code || model?.phone?.country || country?.code;
   const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
 
   // now map the phone number to the model in the correct format with fallbacks

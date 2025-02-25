@@ -209,8 +209,8 @@ export default createMachine(
           return [];
         },
         items: [],
-        selected: undefined,
         filters: undefined,
+        // selected: undefined,
       }),
 
       setInitial: assign({
@@ -224,8 +224,13 @@ export default createMachine(
         },
         selected: (
           { raw, initial }: ClientListingsContext,
-          _event: AnyEventObject
+          { data }: AnyEventObject
         ) => {
+          if (data) {
+            const item = find(raw, ["id", data]);
+            if (item) return item as ActorRef<any>;
+          }
+
           const id = initial ?? find(raw, "state.context.model.default")?.id;
           const selectedItem = find(raw, ["id", id]);
           return selectedItem ? (selectedItem as ActorRef<any>) : undefined;
