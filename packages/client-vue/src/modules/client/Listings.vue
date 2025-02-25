@@ -15,13 +15,9 @@
       <slot name="header" v-bind="{ meta }"></slot>
     </template>
 
-    <div v-if="!meta.isAvailable">
-      <Auth no-tabs model-value="register" />
-    </div>
-
     <SkeletonList
       :class="styles.clientListings.loading"
-      v-else-if="meta.isLoading"
+      v-if="!meta.isAvailable || meta.isLoading"
     />
 
     <template v-else>
