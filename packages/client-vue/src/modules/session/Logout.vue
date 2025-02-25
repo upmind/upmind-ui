@@ -19,7 +19,7 @@
         ]"
       >
         <template #title>
-          <SmartTitle i18n-key="session.logged_out.title" />
+          <SmartTitle i18n-key="session.logged_out.title" align="center" />
         </template>
       </Interstitial>
     </ContentSection>

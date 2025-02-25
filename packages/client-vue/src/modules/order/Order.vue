@@ -23,7 +23,7 @@
         }"
       >
         <template #title>
-          <SmartTitle :i18n-key="title" />
+          <SmartTitle :i18n-key="title" align="center" />
         </template>
 
         <template #actions>
