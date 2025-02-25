@@ -12,7 +12,6 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
-import type { IEmail } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the system machine
