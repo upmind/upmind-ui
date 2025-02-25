@@ -139,7 +139,7 @@ export const useRoutingEngine = () => {
   watch(
     [meta, sessionMeta],
     (
-      [{ hasProducts }, { isAuthenticated }],
+      [{ hasProducts, isProcessing }, { isAuthenticated }],
       [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
     ) => {
       if (!isAuthenticated && wasAuthenticated) {
