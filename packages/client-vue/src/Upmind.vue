@@ -5,8 +5,8 @@
     id="vue-app"
   >
     <slot name="header">
-      <Header>
-        <template #logo><slot name="logo"></slot></template>
+      <Header :logo="logo">
+        <template #logo><slot name="logo" :logo="logo"></slot></template>
       </Header>
     </slot>
 
@@ -95,6 +95,7 @@ import Loading from "./modules/system/Loading.vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   theme: any;
+  logo?: string;
 }>();
 
 const { t } = useI18n();
