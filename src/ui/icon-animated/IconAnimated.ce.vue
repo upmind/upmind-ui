@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
   // ---
   size: "md",
   // ---
-  uiConfig: () => ({ iconAnimated: {} }),
+  uiConfig: () => ({ iconAnimated: [] }),
   class: "",
 });
 
@@ -46,7 +46,6 @@ const styles = useStyles(
 // ---
 
 const iconSrc = computed(() => {
-  // @ts-ignore
   return new URL(`../../assets/animations/${props.icon}.json`, import.meta.url);
 });
 

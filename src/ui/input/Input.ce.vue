@@ -30,7 +30,7 @@ import type { InputProps } from "./types";
 const props = withDefaults(defineProps<InputProps>(), {
   width: "full",
   // ---
-  uiConfig: () => ({ input: {} }),
+  uiConfig: () => ({ input: [] }),
   class: "",
 });
 

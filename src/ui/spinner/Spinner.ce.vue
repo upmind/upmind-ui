@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
   //  --- styles
   size: "auto",
   // --- styles
-  uiConfig: () => ({ spinner: {} }),
+  uiConfig: () => ({ spinner: [] }),
   class: "",
 });
 

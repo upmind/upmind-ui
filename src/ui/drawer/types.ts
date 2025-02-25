@@ -32,17 +32,17 @@ export interface DrawerProps extends DrawerPortalProps {
   description?: string;
   // --- variants
   size?: ButtonProps["size"];
-  width?: DrawerContainerVariantProps["width"];
-  overflow?: DrawerInnerVariantProps["overflow"];
-  fit?: DrawerInnerVariantProps["fit"];
-  skrim?: DrawerOverlayVariantProps["skrim"];
+  width?: DrawerContainerVariantProps["width"] | string;
+  overflow?: DrawerInnerVariantProps["overflow"] | string;
+  fit?: DrawerInnerVariantProps["fit"] | string;
+  skrim?: DrawerOverlayVariantProps["skrim"] | string;
   // --- styles
   uiConfig?: {
     drawer: {
-      overlay: Partial<DrawerOverlayVariantProps>;
+      overlay: CxOptions;
       content: CxOptions;
-      container: Partial<DrawerContainerVariantProps>;
-      inner: Partial<DrawerInnerVariantProps>;
+      container: CxOptions;
+      inner: CxOptions;
       header: CxOptions;
       footer: CxOptions;
     };

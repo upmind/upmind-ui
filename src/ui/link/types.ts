@@ -1,5 +1,5 @@
 // --- external
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { rootVariants } from "./link.config";
@@ -19,10 +19,10 @@ export interface LinkProps {
   disabled?: boolean;
   loading?: boolean;
   // ---
-  size?: LinkVariantProps["size"];
-  variant?: LinkVariantProps["variant"];
-  offset?: LinkVariantProps["offset"];
-  color?: LinkVariantProps["color"];
+  size?: LinkVariantProps["size"] | string;
+  variant?: LinkVariantProps["variant"] | string;
+  offset?: LinkVariantProps["offset"] | string;
+  color?: LinkVariantProps["color"] | string;
   // ---
-  uiConfig?: { link: Partial<LinkProps> };
+  uiConfig?: { link: CxOptions };
 }

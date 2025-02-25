@@ -30,20 +30,22 @@
       </div>
 
       <footer :class="styles.interstitial.actions">
-        <Button
-          v-for="(action, index) in actions"
-          :key="`action-${index}`"
-          v-bind="action"
-          :loading="meta.isProcessing"
-          @click.stop="doAction(action?.handler)"
-        >
-          <template #prepend>
-            <Icon v-if="action?.prependIcon" v-bind="action.prependIcon" />
-          </template>
-          <template #append>
-            <Icon v-if="action?.appendIcon" v-bind="action.appendIcon" />
-          </template>
-        </Button>
+        <slot name="actions">
+          <Button
+            v-for="(action, index) in actions"
+            :key="`action-${index}`"
+            v-bind="action"
+            :loading="meta.isProcessing"
+            @click.stop="doAction(action?.handler)"
+          >
+            <template #prepend>
+              <Icon v-if="action?.prependIcon" v-bind="action.prependIcon" />
+            </template>
+            <template #append>
+              <Icon v-if="action?.appendIcon" v-bind="action.appendIcon" />
+            </template>
+          </Button>
+        </slot>
       </footer>
     </section>
   </component>

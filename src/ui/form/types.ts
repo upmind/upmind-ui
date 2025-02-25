@@ -34,7 +34,7 @@ export interface FormProps {
   additionalErrors?: ErrorObject<string, Record<string, any>, unknown>[];
   middleware?: Middleware;
   // ---  props
-  modelValue: object;
+  modelValue?: any;
   additionalRenderers?: any[];
   // ---
   actions?: Record<string, FormActionProps>;
@@ -42,7 +42,7 @@ export interface FormProps {
   autosave?: boolean;
   readonly?: boolean;
   // ---
-  size?: FormVariantProps["size"];
+  size?: FormVariantProps["size"] | string;
   color?: ButtonProps["color"];
 
   // ---
@@ -51,7 +51,7 @@ export interface FormProps {
   disabled?: boolean;
   // ---
   // --- Provide a way to add custom variants for a specific instance of the component
-  uiConfig?: { form: Partial<FormProps> };
+  uiConfig?: { form: CxOptions };
   class?: HTMLAttributes["class"];
 }
 
@@ -104,7 +104,7 @@ export interface FormControlProps extends InputProps {
 
   // --- styles
   uiConfig?: {
-    input?: Partial<InputVariantProps>;
+    input?: CxOptions;
     form?: {
       root: CxOptions;
       loading: CxOptions;

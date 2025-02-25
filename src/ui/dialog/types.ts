@@ -31,16 +31,16 @@ export interface DialogProps
   open?: boolean;
   dismissable?: boolean;
   // --- variants
-  size?: DialogContentVariantProps["size"];
-  overflow?: DialogContentVariantProps["overflow"];
-  fit?: DialogContentVariantProps["fit"];
-  skrim?: DialogOverlayVariantProps["skrim"];
+  size?: DialogContentVariantProps["size"] | string;
+  overflow?: DialogContentVariantProps["overflow"] | string;
+  fit?: DialogContentVariantProps["fit"] | string;
+  skrim?: DialogOverlayVariantProps["skrim"] | string;
 
   // ---
   uiConfig?: {
     dialog: {
-      overlay: Partial<DialogContentVariantProps>;
-      content: Partial<DialogOverlayVariantProps>;
+      overlay: CxOptions;
+      content: CxOptions;
       header: CxOptions;
       footer: CxOptions;
     };

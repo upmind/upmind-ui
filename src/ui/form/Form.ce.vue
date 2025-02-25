@@ -43,7 +43,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, watch, computed, useTemplateRef, onMounted } from "vue";
+import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- components
@@ -96,7 +96,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   additionalRenderers: () => [],
   additionalErrors: () => [],
   // --- Provide a way to add custom styles for a specific instance of the component
-  uiConfig: () => ({ form: {} }),
+  uiConfig: () => ({ form: [] }),
   class: "",
 });
 
@@ -111,8 +111,8 @@ const emits = defineEmits<{
 }>();
 
 const slots = defineSlots<{
-  footer(props: FormFooterProps): void;
-  actions(props: FormActionsProps): void;
+  footer: FormFooterProps;
+  actions: FormActionsProps;
 }>();
 
 // --- state

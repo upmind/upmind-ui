@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   block: false,
   focusable: true,
   // --- styles
-  uiConfig: () => ({ button: {} }),
+  uiConfig: () => ({ button: [] }),
   class: "",
   contentClass: "",
 });

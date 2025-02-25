@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import { type PrimitiveProps } from "radix-vue";
 
 // --- internal
@@ -9,8 +9,8 @@ export type SpinnerVariantProps = VariantProps<typeof spinnerVariants>;
 
 export interface SpinnerProps extends PrimitiveProps {
   // ---
-  size?: SpinnerVariantProps["size"];
+  size?: SpinnerVariantProps["size"] | string;
   // ---
-  uiConfig?: { spinner: Partial<SpinnerProps> };
+  uiConfig?: { spinner: CxOptions };
   class?: HTMLAttributes["class"];
 }

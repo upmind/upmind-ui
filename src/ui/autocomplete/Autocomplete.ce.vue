@@ -1,7 +1,7 @@
 <template>
   <ComboboxRoot
-    :itemLabel="props.itemLabel"
-    :itemValue="props.itemValue"
+    :itemLabel="itemLabel"
+    :itemValue="itemValue"
     :items="props.items"
     :search="props.search"
     :placeholder="props.placeholder"
@@ -56,8 +56,8 @@
 
         <ComboboxItem
           v-for="item in results"
-          :key="(item as Record<string, any>)[props.itemValue]"
-          :value="(item as Record<string, any>)[props.itemValue]"
+          :key="get(item, itemValue)"
+          :value="get(item, itemValue)"
           :class="styles.autocomplete.item"
         >
           <span class="flex w-full items-center gap-2">
@@ -81,11 +81,8 @@
             />
 
             <span class="flex w-full items-center justify-between">
-              <span
-                v-if="(item as Record<string, any>)?.[props.itemLabel]"
-                class="leading-none"
-              >
-                {{ get(item, props.itemLabel) }}
+              <span v-if="get(item, itemLabel)" class="leading-none">
+                {{ get(item, itemLabel) }}
               </span>
 
               <span class="text-nowrap leading-none opacity-50">{{
@@ -140,9 +137,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Ref } from "vue";
 import type { AutocompleteProps, AutocompleteItemProps } from "./types";
 import type { ComboboxContentEmits, ComboboxRootEmits } from "radix-vue";
+
+// -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<AutocompleteProps>(), {
   // --- props
@@ -158,7 +157,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   side: "bottom",
   // --- styles
   iconSize: "2xs",
-  uiConfig: () => ({ autocomplete: {} }),
+  uiConfig: () => ({ autocomplete: [] }),
 });
 
 const emits = defineEmits<ComboboxContentEmits & ComboboxRootEmits>();
@@ -171,9 +170,13 @@ const meta = computed(() => ({
 
 const open = ref(false);
 const processing = ref(false);
-const modelValue = ref<AutocompleteItemProps | undefined>(
-  find(props.items, [props.itemValue, props.modelValue as string])
+
+const itemValue = computed((): string => props.itemValue || "value");
+const itemLabel = computed((): string => props.itemLabel || "label");
+const modelValue = computed((): AutocompleteItemProps | undefined =>
+  find(props.items, [itemValue.value, props.modelValue])
 );
+
 const searchTerm = ref();
 
 // ---
@@ -198,7 +201,7 @@ const styles = useStyles(
 
 // -----------------------------------------------------------------------------
 const onSearch = debounce(doSearch, 350);
-const results = ref(props.items || []);
+const results = ref(props.items ?? []) as Ref<AutocompleteItemProps[]>;
 
 function noFilter(items: any, _term: string) {
   return items;
@@ -212,22 +215,18 @@ async function doSearch(value: string) {
   if (!value) {
     results.value = reject(props.items, "persist");
   } else if (isFunction(props.search)) {
-    results.value = await props.search(value);
+    results.value = await props.search(value.toString());
   } else {
     // --- if no search function is provided, just filter the items
-    results.value = filter(
-      props.items,
-      (item: AutocompleteItemProps) =>
+    results.value = filter(props.items ?? [], (item: AutocompleteItemProps) => {
+      const v = get(item, itemValue.value)?.toString().toLowerCase();
+      const l = get(item, itemLabel.value)?.toString().toLowerCase();
+      return (
         item.persist ||
-        includes(
-          (item as Record<string, any>)?.[props.itemLabel]?.toLowerCase(),
-          value.toString().toLowerCase()
-        ) ||
-        includes(
-          (item as Record<string, any>)?.[props.itemValue]?.toLowerCase(),
-          value.toString().toLowerCase()
-        )
-    );
+        includes(v, value.toString().toLowerCase()) ||
+        includes(l, value.toString().toLowerCase())
+      );
+    });
   }
 
   const presistedItems = filter(props.items, "persist");
@@ -244,22 +243,25 @@ async function doSearch(value: string) {
 
 // --- methods
 
-function doSelect(item: string | AutocompleteItemProps) {
-  const selected: AutocompleteItemProps | undefined = isString(item)
-    ? (find(results.value, [props.itemValue, item]) as AutocompleteItemProps)
-    : (item as AutocompleteItemProps);
-
-  if (!selected) {
-    modelValue.value = undefined;
+function doSelect(item: AutocompleteItemProps | string) {
+  if (!item) {
+    // modelValue.value = undefined;
+    emits("update:modelValue", {});
     return;
   }
 
-  const value = get(selected, props.itemValue);
-  const oldValue = get(modelValue.value, props.itemValue);
+  // if we use a search function it will always return a string when one of the results is selected
+  // so we know it's a string and we can emit it directly
+  if (isString(item)) {
+    emits("update:modelValue", item);
+    return;
+  }
+
+  const value = get(item, itemValue.value);
+  const oldValue = get(modelValue.value, itemValue.value);
   const hasChanged = !isEqual(value, oldValue);
 
   if (hasChanged) {
-    modelValue.value = selected;
     emits("update:modelValue", value); // NB emit only the value
   }
   // finnaly close the popover
@@ -269,21 +271,19 @@ function doSelect(item: string | AutocompleteItemProps) {
 function isSelected(item: AutocompleteItemProps) {
   return (
     modelValue.value &&
-    (modelValue.value as Record<string, any>)?.[props.itemValue] ===
-      (item as Record<string, any>)?.[props.itemValue]
+    (modelValue.value as Record<string, any>)?.[itemValue.value] ===
+      (item as Record<string, any>)?.[itemValue.value]
   );
 }
 
 function displayValue(value: AutocompleteItemProps) {
   let label;
-  const selected = isObject(value)
-    ? value
-    : find(results.value, [props.itemValue, value]);
+  const selected = find(results.value, [itemValue.value, value]);
 
   if (isFunction(props.displayValue)) {
     label = props.displayValue(selected || value);
   } else {
-    label = get(selected, props.itemLabel, searchTerm.value || value);
+    label = get(selected, itemLabel.value, searchTerm.value || value);
   }
   return label;
 }
@@ -295,10 +295,18 @@ watch(
     // we always keep the results unique so we can have valid modalValues on dynamic searches
     results.value = uniqBy(
       [...results.value, ...newProps.items],
-      props.itemValue
-    );
+      itemValue
+    ) as AutocompleteItemProps[];
     // results.value.push(...newProps.items);
-    if (newProps.modelValue) doSelect(newProps.modelValue.toString());
+
+    if (newProps.modelValue) {
+      const selected = find(results.value, [
+        itemValue,
+        newProps.modelValue,
+      ]) as AutocompleteItemProps;
+
+      if (selected) doSelect(selected);
+    }
   },
   { deep: true }
 );

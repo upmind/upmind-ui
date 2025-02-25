@@ -53,7 +53,7 @@ import { Label } from "../label";
 import { find } from "lodash-es";
 
 // --- types
-import type { CheckboxCardsProps } from "./types";
+import type { CheckboxCardsProps, CheckboxCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   // -- styles
   color: "base",
   variant: "control",
-  layout: "list",
+  // layout: "list",
   // --- styles
   class: "",
 });
@@ -78,7 +78,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({
   color: props.color,
-  layout: props.layout,
+  // layout: props.layout,
   noInput: props.noInput,
 }));
 
@@ -96,8 +96,6 @@ const styles = useStyles(
     label: string;
   };
 }>;
-
-const selected = computed(() => find(props.items, { value: modelValue.value }));
 
 // allow for toggle of selected item
 function onChange(value: any) {

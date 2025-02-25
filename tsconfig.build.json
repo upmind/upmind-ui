@@ -2,33 +2,26 @@
   // This tsconfig is for development. Allowing *.story.vue, and __test__/*.vue to have types support
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
-    "target": "esnext",
+    "baseUrl": ".",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
     "jsx": "preserve",
     "lib": ["esnext", "dom"],
-    "baseUrl": ".",
     "module": "esnext",
     "moduleResolution": "node",
-    "paths": {
-      "@/*": ["src/*"],
-      "@iconify/vue": ["../../.histoire/node_modules/@iconify/vue"],
-      "@vue/shared": ["node_modules/@vue/shared"]
-    },
-    "resolveJsonModule": true,
-    "strict": true,
-    "declaration": false,
     "outDir": "dist",
+    "paths": { "@/*": ["src/*"] },
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "skipLibCheck": true,
     "sourceMap": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "strict": true,
+    "target": "esnext",
+    "types": ["node", "jsdom", "vite/client"]
   },
-  "include": [
-    "env.d.ts",
-    "src/**/*",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue"
-  ],
-  "exclude": [
-    "src/**/*.test.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
 }

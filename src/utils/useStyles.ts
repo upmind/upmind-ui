@@ -3,6 +3,7 @@ import { unref, toRaw, computed } from "vue";
 import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import theme from "./useThemes";
+
 import defaultStylesheet from "../assets/main.css?url";
 
 // --- utils
@@ -118,7 +119,6 @@ export function cn(...styles: ClassNameValue[]) {
 }
 
 export const stylesheet = computed((): string => {
-  // @ts-ignore
   const isDev = import.meta.env.DEV;
   return isDev || isEmpty(customStyleSheet)
     ? defaultStylesheet

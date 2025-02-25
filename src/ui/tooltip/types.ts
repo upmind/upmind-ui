@@ -1,6 +1,6 @@
 // --- external
 import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   TooltipContentProps,
   TooltipProviderProps,
@@ -19,8 +19,8 @@ export interface TooltipProps
     TooltipTriggerProps {
   label?: string;
   // ---
-  color?: TooltipVariantProps["color"];
+  color?: TooltipVariantProps["color"] | string;
   // ---
-  uiConfig?: { tooltip: Partial<TooltipProps> };
+  uiConfig?: { tooltip: CxOptions };
   class?: HTMLAttributes["class"];
 }

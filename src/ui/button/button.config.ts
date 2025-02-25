@@ -238,12 +238,12 @@ export const buttonVariants = cva(
       {
         color: "promotion",
         variant: "ghost",
-        class: "hover:bg-promotion-muted text-promotion ",
+        class: "hover:bg-promotion-muted text-promotion",
       },
       {
         color: "destructive",
         variant: "ghost",
-        class: "hover:bg-destructive-muted text-destructive ",
+        class: "hover:bg-destructive-muted text-destructive",
       },
 
       {
@@ -259,7 +259,7 @@ export const buttonVariants = cva(
       {
         color: "error",
         variant: "ghost",
-        class: "hover:bg-error-muted text-error ",
+        class: "hover:bg-error-muted text-error",
       },
       {
         color: "warning",

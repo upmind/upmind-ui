@@ -1,6 +1,6 @@
 // --- external
 import type { HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { CheckboxRootProps } from "radix-vue";
 // --- internal
 import type { checkboxVariants } from "./checkbox.config";
@@ -12,9 +12,9 @@ export interface CheckboxProps extends CheckboxRootProps {
   autoFocus?: boolean;
   readonly?: boolean;
   // --- variants
-  size?: CheckboxVariantProps["size"];
-  width?: CheckboxVariantProps["width"];
+  size?: CheckboxVariantProps["size"] | string;
+  width?: CheckboxVariantProps["width"] | string;
   // ---
-  uiConfig?: { checkbox: Partial<CheckboxVariantProps> };
+  uiConfig?: { checkbox: CxOptions };
   class?: HTMLAttributes["class"];
 }
