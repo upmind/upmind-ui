@@ -32,6 +32,7 @@
           <SmartTitle
             i18n-key="basket.requiresAction.title"
             :plural="products.length"
+            align="center"
           />
         </template>
 

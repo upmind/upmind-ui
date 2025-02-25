@@ -19,7 +19,7 @@
         ]"
       >
         <template #title>
-          <SmartTitle i18n-key="basket.empty.title" />
+          <SmartTitle i18n-key="basket.empty.title" align="center" />
         </template>
       </Interstitial>
     </ContentSection>
