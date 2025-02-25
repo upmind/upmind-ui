@@ -5,8 +5,8 @@
     <div class="max-w-app mx-auto flex w-full items-center justify-between">
       <a id="logo" class="relative z-20" :href="storefrontUrl">
         <picture class="h-full w-full">
-          <slot name="logo">
-            <img src="@/assets/logo.svg" class="h-8" alt="logo" />
+          <slot name="logo" :logo="logo">
+            <img v-if="logo" :src="logo" class="h-8" alt="logo" />
           </slot>
           <span class="sr-only">
             {{ t("header.title") }}
@@ -29,4 +29,10 @@ import VHeaderButtons from "./HeaderButtons.vue";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const storefrontUrl: string = import.meta.env.VITE_APP_STOREFRONT;
+
+const props = defineProps({
+  logo: {
+    type: String,
+  },
+});
 </script>
