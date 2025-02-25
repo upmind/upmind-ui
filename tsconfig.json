@@ -22,7 +22,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "esnext",
-    "types": ["node", "jsdom", "vite/client"]
+    "types": ["jsdom", "vite/client"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
