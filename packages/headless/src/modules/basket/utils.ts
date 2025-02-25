@@ -181,9 +181,12 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       // ---
       quantifiable:
         raw?.product?.order_type == ProductOrderTypes.QUANTITY_BASED, //!!raw?.can_change_quantity,
-      step: raw?.unit_quantity || 1,
-      min: raw?.min_order_quantity | raw?.unit_quantity,
-      max: raw?.max_order_quantity > 0 ? raw?.max_order_quantity : Infinity,
+      step: raw?.product?.unit_quantity || 1,
+      min: raw?.product?.min_order_quantity || raw?.product?.unit_quantity || 1,
+      max:
+        raw?.product?.max_order_quantity > 0
+          ? raw?.product?.max_order_quantity
+          : Infinity,
     },
 
     // --- summary details
