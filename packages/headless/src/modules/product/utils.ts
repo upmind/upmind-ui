@@ -91,9 +91,13 @@ export const parseProduct = (
     // images: merged.images,
     // ---
     quantifiable: merged.order_type == 2,
-    step: merged.unit_quantity || 1,
-    min: merged.min_order_quantity || merged.unit_quantity,
-    max: merged.max_order_quantity > 0 ? merged.max_order_quantity : Infinity,
+    step: merged.product?.unit_quantity || 1,
+    min:
+      merged.product?.min_order_quantity || merged.product?.unit_quantity || 1,
+    max:
+      merged.product?.max_order_quantity > 0
+        ? merged.product?.max_order_quantity
+        : Infinity,
     defaultPaymentPeriod: merged?.default_payment_period,
     meta: merged?.meta,
     categoryMeta: merged?.category?.meta,
@@ -220,7 +224,8 @@ export const parseSubproduct = (
         // ---
         quantifiable: rawSubproduct.order_type == 2,
         step: rawSubproduct.unit_quantity || 1,
-        min: rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity,
+        min:
+          rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity || 1,
         max:
           rawSubproduct.max_order_quantity > 0
             ? rawSubproduct.max_order_quantity

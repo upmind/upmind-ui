@@ -46,7 +46,11 @@
     <div class="flex w-full flex-col items-center gap-4 gap-y-6 md:flex-row">
       <NumberField
         v-if="product?.quantifiable"
+        :min="product?.min"
+        :max="product?.max"
+        :step="product?.step"
         :model-value="model.quantity"
+        :default-value="model.quantity || product?.step"
         @update:modelValue="updateQuantity"
       />
 

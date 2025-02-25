@@ -48,6 +48,9 @@
                   :id="id"
                   :quantity="pricing.quantity"
                   :quantifiable="product.quantifiable"
+                  :min="product?.min"
+                  :max="product?.max"
+                  :step="product?.step"
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
@@ -88,6 +91,9 @@
             :id="id"
             :quantity="pricing.quantity"
             :quantifiable="product.quantifiable"
+            :min="product?.min"
+            :max="product?.max"
+            :step="product?.step"
             @update:quantity="doUpdateQuantity"
           />
         </div>
