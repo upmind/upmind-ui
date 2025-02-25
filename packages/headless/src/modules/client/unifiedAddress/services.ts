@@ -335,9 +335,18 @@ async function ensureDependencies({
       .find(address)
       .then((item: any) => item?.state?.context?.model)
       .catch(() => {
+        const data = {
+          address_1: model.address1,
+          address_2: model.address2,
+          city: model.city,
+          postcode: model.postcode,
+          region_id: model.regionId,
+          country_id: model.countryId,
+        };
+
         return addresses
           .add({
-            model: { ...address, name: model.name },
+            model: { ...data, name: model.name },
           })
           .then((item: ActorRef<any>) => {
             // NB: Remember to refresh our machines so we have the new data
