@@ -57,7 +57,7 @@
               <slot name="payment-details-title">
                 <template v-if="paymentDetailsMeta.isFree">
                   <SmartTitle
-                    i18n-key="checkout.payment_details.details"
+                    i18n-key="checkout.payment_details.title"
                     size="2xl"
                   />
                 </template>
