@@ -24,7 +24,7 @@ variables:
     paths:
       - docs/dist
   script:
-    - npm --workspace docs run docs:build
+    - pnpm --filter docs docs:build
 
 (docs) deploy preview:
   stage: deploy
