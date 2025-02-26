@@ -56,15 +56,14 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useSession, utils } from "@upmind-automation/headless-vue";
-import config from "./order.config";
+import Confetti from "../../assets/animations/confetti.json?url";
+import Basket from "../../assets/animations/basket.json?url";
+import Error from "../../assets/animations/error.json?url";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-
-// --- utils
-import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -111,13 +110,13 @@ const action = computed(() => {
 
 const icon = computed(() => {
   if (success.value) {
-    return "confetti";
+    return Confetti;
   }
 
   if (!success.value) {
-    return "error";
+    return Error;
   }
-  return "basket";
+  return Basket;
 });
 
 // -----------------------------------------------------------------------------

@@ -5,7 +5,7 @@
         :title="t('basket.requiresAction.title')"
         :text="t('basket.requiresAction.text')"
         :animatedIcon="{
-          icon: 'basket',
+          icon: Basket,
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'promotion',
@@ -54,6 +54,9 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+
+// --- internal
+import Basket from "../../assets/animations/basket.json?url";
 
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
