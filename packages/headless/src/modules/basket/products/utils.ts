@@ -9,7 +9,7 @@ import { mapValues, reduce, values, map, isObject } from "lodash-es";
 // --- types
 import type { BasketProductConfig } from "../types";
 import type { ProductModel } from "../../product/types";
-import type { IBasketPromotion, IPromotion } from "@upmind-automation/types";
+import type { IBasketPromotion } from "@upmind-automation/types";
 // ------------------§-----------------------------------------------------------------
 
 export function parseBasketProductConfig(
@@ -23,7 +23,7 @@ export function parseBasketProductConfig(
     // ---
     attributes: reduce(
       model?.attributes,
-      (result, attribute) => {
+      (result: any[], attribute) => {
         if (attribute) {
           const selected = values(
             mapValues(attribute, choice => ({
@@ -32,7 +32,6 @@ export function parseBasketProductConfig(
               billing_cycle_months: choice?.cycle,
             }))
           );
-          // @ts-ignore
           result.push(...selected);
         }
         return result;
@@ -42,7 +41,7 @@ export function parseBasketProductConfig(
     // ---
     options: reduce(
       model?.options,
-      (result, option) => {
+      (result: any[], option) => {
         if (option) {
           const selected = values(
             mapValues(option, choice => ({
@@ -51,7 +50,6 @@ export function parseBasketProductConfig(
               billing_cycle_months: choice?.cycle,
             }))
           );
-          // @ts-ignore
           result.push(...selected);
         }
         return result;

@@ -1,14 +1,19 @@
 // --- internal
 import { useApi } from "../../api";
-import { useBrand, BrandConfigKeys } from "../../brand";
+import { useBrand } from "../../brand";
 
 // --- utils
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
 // import type { UploadEvent, UploadContext } from "./types";
-import type { UploadEvent } from "./types";
-import { ImageObjectTypes, ImageUploadTypes } from "./types";
+import type { UploadContext } from "./types";
+import {
+  ImageObjectTypes,
+  ImageUploadTypes,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
+import { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // HELPERS
@@ -55,8 +60,7 @@ const fieldPath = (field: any) => {
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// TODO: async function getImage({ field }: UploadContext, { data }: UploadEvent) {
-async function getImage({ field }: any, { data }: UploadEvent) {
+async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   // if we have a hash, we can skip the request
   if (data?.hash) {
     return Promise.resolve({ ...field, value: data.hash });
@@ -78,7 +82,7 @@ async function getImage({ field }: any, { data }: UploadEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function check(_context: any, { data }: any) {
+async function check(_context: UploadContext, { data }: AnyEventObject) {
   let isValid = true;
   let error: any = null;
 
@@ -127,7 +131,10 @@ async function check(_context: any, { data }: any) {
   });
 }
 
-async function upload({ field, request }: any, _event: any) {
+async function upload(
+  { field, request }: UploadContext,
+  _event: AnyEventObject
+) {
   const { post, useUrl } = useApi();
   const path = fieldPath(field);
   return post({

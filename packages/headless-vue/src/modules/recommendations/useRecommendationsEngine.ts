@@ -15,9 +15,6 @@ import { useContext } from "../../utils";
 // a composable that provides a simple interface to the recommendations engine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useRecommendationsEngine = () => {
   const {
     service,

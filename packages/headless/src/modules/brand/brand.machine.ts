@@ -1,25 +1,31 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import services, { BrandConfigKeys, OrgFeatureKeys } from "./services";
-import type { BrandContext, BrandEvent } from "./types";
+import services from "./services";
+import { useApi } from "../api";
+import { useI18n } from "../system/i18n";
+
+import type { BrandContext } from "./types";
 
 // --- utils
+import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 import { useTime } from "../../utils";
-import { set, unset } from "lodash-es";
+import { find, get, set, unset } from "lodash-es";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./brand.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
     initial: "processing",
     context: {
-      modules: null,
+      initialised: false,
+      modules: undefined,
       keys: {
         // start with these defaults
         organisation: [
@@ -53,16 +59,12 @@ export default createMachine(
           BrandConfigKeys.SUPPORT_PIN_ENABLED,
           BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
-          BrandConfigKeys.UI_CLIENT_APP_PAYMENT_TERM_DESCRIPTIONS,
+          BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
           BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
         ],
       },
-      // ---
-      //  we dont have a set type for this yet as its 100% dynamic from the API
-      //  on fetch we will inject the data into the context
-      // ---
-      error: {},
+      error: undefined,
     } as BrandContext,
 
     states: {
@@ -84,7 +86,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "organisation", data);
                         return error;
@@ -114,7 +116,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "config", data);
                         return error;
@@ -146,7 +148,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "settings", data);
                         return error;
@@ -179,7 +181,7 @@ export default createMachine(
                     actions: assign({
                       error: (
                         { error }: BrandContext,
-                        { data }: BrandEvent
+                        { data }: AnyEventObject
                       ) => {
                         set(error, "modules", data);
                         return error;
@@ -202,6 +204,7 @@ export default createMachine(
       },
       error: { id: "error" },
       complete: {
+        entry: ["setDefaultLocale", "setInitialised"],
         // type: "final",
         on: {
           "CONFIG.GET": {
@@ -214,31 +217,41 @@ export default createMachine(
   },
   {
     actions: {
-      setOrganisation: assign((_context: BrandContext, { data }: BrandEvent) =>
-        useBrandParser(data)
+      setOrganisation: assign(
+        (_context: BrandContext, { data }: AnyEventObject) =>
+          useBrandParser(data)
       ),
       // ---
-      setConfig: assign((_context: BrandContext, { data }: BrandEvent) =>
+      setConfig: assign((_context: BrandContext, { data }: AnyEventObject) =>
         useBrandParser(data)
       ),
 
       setConfigKeys: assign({
-        keys: ({ keys }: any, { data }: { data: BrandConfigKeys[] }) => {
+        keys: ({ keys }: BrandContext, { data }: AnyEventObject) => {
           keys.config.push(...data);
           return keys;
         },
       }),
 
       // ---
-      setSettings: assign((_context: BrandContext, { data }: BrandEvent) =>
+      setSettings: assign((_context: BrandContext, { data }: AnyEventObject) =>
         useBrandParser(data)
       ),
 
+      setDefaultLocale: (
+        { initialised }: BrandContext,
+        _event: AnyEventObject
+      ) => {
+        if (!initialised) useI18n().setDefaultLocale();
+      },
+
       setModules: assign({
-        // @ts-ignore
-        modules: (_context: BrandContext, { data }: BrandEvent) => data,
+        modules: (_context: BrandContext, { data }: AnyEventObject) => data,
       }),
 
+      setInitialised: assign({
+        initialised: true,
+      }),
       // ---
     },
     guards: {},
@@ -246,7 +259,6 @@ export default createMachine(
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
     services,
   }
 );

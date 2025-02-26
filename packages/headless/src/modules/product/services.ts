@@ -2,7 +2,7 @@
 
 // --- internal
 import { useApi } from "../api";
-import { useBrand, BrandConfigKeys } from "../brand";
+import { useBrand } from "../brand";
 
 // --- utils
 import { useTime, useValidation } from "../../utils";
@@ -30,6 +30,7 @@ import {
 } from "lodash-es";
 
 // --- types
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { ProductConfigContext } from "./types";
 // -----------------------------------------------------------------------------
 // ENUMS
@@ -39,12 +40,6 @@ export enum DefaultPaymentPeriod {
   LOWEST_PRICE = 1,
   LOWEST_MONTHLY_PRICE = 2,
   HIGHEST_PRICE = 3,
-}
-
-export enum TrialEndActionTypes {
-  CONTINUE = 0,
-  MIGRATE = 1,
-  CANCEL = 2,
 }
 
 export enum PromotionDisplayTypes {
@@ -68,7 +63,7 @@ async function load(
   }: ProductConfigContext,
   _event: any
 ) {
-  const { productId } = model;
+  const productId = get(model, "productId");
   if (!productId) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
@@ -77,7 +72,7 @@ async function load(
   const { get: getRequest, useUrl } = useApi();
 
   const params = {
-    currency_id: currency.id,
+    currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
     with_staged_imports: true,
     with: [
@@ -139,7 +134,7 @@ async function checkQuantity(
   { lookups, model }: ProductConfigContext,
   { data }: any
 ) {
-  const { product } = lookups;
+  const product = get(lookups, "product");
   const value = data?.quantity || model?.quantity;
   const quantity = parseQuantity(value, product);
   // ---
@@ -186,7 +181,7 @@ async function checkTerm(
   // ---
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
-  times(model.quantity, () => {
+  times(model?.quantity ?? 0, () => {
     price.push(term?.currentAmount);
   });
 
@@ -209,7 +204,6 @@ async function checkAttributes(
 ) {
   const value = model?.attributes;
   return checkSubproducts(
-    // @ts-ignore
     { error, lookups, model },
     { data: value, type: "attributes", subproductIds: model?.subproducts }
   );
@@ -221,7 +215,6 @@ async function checkOptions(
 ) {
   const value = model?.options;
   return checkSubproducts(
-    // @ts-ignore
     { error, lookups, model },
     { data: value, type: "options", subproductIds: model?.subproducts }
   );
@@ -382,7 +375,7 @@ const calculateSummary = (
   // NB: remove the term price if we have any price overrides
   const values = reject(
     concat(
-      checkPriceOverride(model.options, lookups.options)
+      checkPriceOverride(model?.options, lookups?.options)
         ? []
         : prices?.term || [],
       prices?.attributes,
@@ -408,7 +401,7 @@ const calculateSummary = (
 };
 
 const calculateBillingTerm = async (
-  period: DefaultPaymentPeriod,
+  period: DefaultPaymentPeriod | undefined,
   availableTerms: any
 ): Promise<any> => {
   // because we have multiple options, we need to select one base don the following strategy:
@@ -428,15 +421,13 @@ const calculateBillingTerm = async (
       term = minBy(availableTerms, "monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = await getConfig(
-        BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-      ).then(async config => {
-        const period = get(
-          config,
-          BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-        );
-        return await calculateBillingTerm(period, availableTerms);
-      });
+      term = await getConfig(BrandConfigKeys.DEFAULT_PAYMENT_PERIOD).then(
+        async config => {
+          const period =
+            get(config, BrandConfigKeys.DEFAULT_PAYMENT_PERIOD) || 0;
+          return await calculateBillingTerm(period, availableTerms);
+        }
+      );
 
       break;
 
@@ -498,7 +489,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   load,
   refresh: load, // alias
   // ---

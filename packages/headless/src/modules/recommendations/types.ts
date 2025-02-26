@@ -18,23 +18,10 @@ export interface Badge {
   class?: string;
 }
 
-interface Icon {
-  icon:
-    | string
-    | {
-        name: string;
-        path: string;
-      };
-  fallback?:
-    | string
-    | {
-        name: string;
-        path: string;
-      };
-  size?: "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
-  class?: string;
+export interface Benefit {
+  label: string;
+  icon?: string | any;
 }
-
 interface Promotion {
   id: string;
   amount: number;
@@ -115,14 +102,14 @@ export interface RecommendationsEngineContext {
   };
   // ---
   error?: any;
-  basketItem?: ActorRef<any, any>;
+  basketItem?: ActorRef<any>;
   // ---
   currencyId?: string;
   promotions?: string[];
   basketId?: string;
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
-  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemMapper?: (item: BasketProduct) => Partial<ProductModel>;
   basketItemBuilder?: (model: ProductModel) => BasketProduct;
   // ---
 }
@@ -148,17 +135,4 @@ export interface IProductConfig {
     [key: string]: string | number;
   };
   coupons?: string[];
-}
-// --------------------------------------------------------
-// Events
-
-export interface RecommendationsEngineEvents {
-  type: "CHECK" | "REFRESH";
-  data?: any;
-  error?: any;
-}
-
-export interface Benefit {
-  label: string;
-  icon?: Icon;
 }

@@ -10,7 +10,7 @@ import services from "./services";
 import { get, uniqueId, map } from "lodash-es";
 
 // --- types
-import type { ICompany } from "./types";
+import type { ICompany } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -206,10 +206,8 @@ export const spawnItem = (model?: ICompany) => {
     return spawn(
       itemMachine
         .withConfig({
-          // @ts-ignore
-          actions,
-          // @ts-ignore
-          services,
+          actions: actions as any,
+          services: services as any,
         })
         .withContext({ model }),
       {
@@ -218,6 +216,7 @@ export const spawnItem = (model?: ICompany) => {
       }
     );
   } catch (err) {
-    console.error("CompanyListings", "spawnItem", { model });
+    // console.error("CompanyListings", "spawnItem", { model });
+    return null;
   }
 };

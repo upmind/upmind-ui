@@ -1,16 +1,20 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { sendParent, forwardTo } = actions;
 
 // --- internal
-import machineServices, { FetchMethods } from "./services";
-import { responseCodes, type RequestParams } from "./types";
+import services, { FetchMethods } from "./services";
 import { useTime } from "../../utils";
 
 // --utils
 import { toNumber, set, includes } from "lodash-es";
 import { getTokenfromStorage } from "../session/utils";
 // TODO: import { stateValuesEqual } from "xstate/lib/State";
+
+// ---types
+import { responseCodes } from "../../utils";
+import type { RequestContext, RequestParams } from "./types";
 // --------------------------------------------------------
 
 // as this is a sub machine, we need to be initialised with a request
@@ -29,13 +33,13 @@ export default (request: RequestParams) =>
         hash: request?.hash,
         maxAge: request?.maxAge || useTime().MINUTE, // 1 minute
         // ---
-        created: null,
-        completed: null,
-        response: null,
-        error: null,
+        created: undefined,
+        completed: undefined,
+        response: undefined,
+        error: undefined,
         // ---
         attempts: 0,
-      },
+      } as RequestContext,
       states: {
         // our initial state depends on how the machine was invoked
         // If we have context > url + init, we can skip to generating
@@ -97,20 +101,17 @@ export default (request: RequestParams) =>
           initial: "available",
           states: {
             available: {
-              after: [
+              always: [
                 {
-                  delay: 0,
                   target: "empty",
                   cond: "hasNoContent",
                 },
                 {
-                  delay: 0,
                   target: "cached",
                   cond: "isCachable",
                 },
                 {
-                  delay: "wait",
-                  target: "#complete",
+                  target: "complete",
                 },
               ],
             },
@@ -131,6 +132,11 @@ export default (request: RequestParams) =>
               on: {
                 REFRESH: { target: "#processing" },
                 CANCEL: { target: "#complete" },
+              },
+            },
+            complete: {
+              after: {
+                maxAge: "#complete", // automatically move to complete after  max age
               },
             },
           },
@@ -204,27 +210,24 @@ export default (request: RequestParams) =>
     {
       actions: {
         setResponse: assign({
-          // @ts-ignore
-          response: (context, { data }) => data,
-          // @ts-ignore
+          response: (_context, { data }: AnyEventObject) => data,
           completed: () => Date.now(),
         }),
 
-        clearResponse: assign({ response: null, completed: null }),
+        clearResponse: assign({ response: undefined, completed: undefined }),
 
-        sendClearRequest: sendParent(({ hash }) => ({
+        sendClearRequest: sendParent(({ hash }: RequestContext) => ({
           type: "REMOVE",
           data: { hash },
         })),
 
         setError: assign({
-          // @ts-ignore
-          error: (context, { data }) => data,
+          error: (_context, { data }: AnyEventObject) => data,
         }),
 
-        // escalateError: escalate(_context, ({ data }) => data),
+        // escalateError: escalate(_context, ({ data }: AnyEventObject) => data),
 
-        clearError: assign({ error: null }),
+        clearError: assign({ error: undefined }),
 
         incrementAttempts: assign({
           attempts: ({ attempts }) => toNumber(attempts) + 1,
@@ -238,18 +241,17 @@ export default (request: RequestParams) =>
           },
         }),
       },
-      // @ts-ignore
-      services: machineServices,
+
+      services: services as any,
       guards: {
         hasRequest: ({ hash, url, init }) => !!hash && !!url && !!init,
         hasRetried: ({ attempts }) => toNumber(attempts) > 1,
         // ---
         // NB: we cannot authorise oauth requests and we can only try once
-        canAuthorize: (context, { data }: any) => {
-          const isAuth = includes(context.url.pathname, "oauth");
+        canAuthorize: ({ url, attempts }, { data }: any) => {
+          const isAuth = includes(url?.pathname, "oauth");
           const isUnauthorized = data?.status === responseCodes.Unauthorized;
-          const value =
-            !isAuth && isUnauthorized && toNumber(context?.attempts) <= 1;
+          const value = !isAuth && isUnauthorized && toNumber(attempts) <= 1;
 
           // console.debug("request", "canAuthorize", {
           //   isAuth,
@@ -260,28 +262,30 @@ export default (request: RequestParams) =>
           return value;
         },
         // ---
-        isUnauthorized: (context: any) =>
-          context?.error?.status === responseCodes.Unauthorized,
-        isForbidden: context =>
-          context?.error?.status === responseCodes.Forbidden,
-        isNotFound: context =>
-          context?.error?.status === responseCodes.Not_Found,
-        hasConflict: context =>
-          context?.error?.status === responseCodes.Conflict,
-        hasTooManyRequests: context =>
-          context?.error?.status === responseCodes.Too_Many_Requests,
-        // ---
-        // @ts-ignore
-        hasNoContent: ({ response }) =>
+
+        isUnauthorized: ({ error }: RequestContext) =>
+          error?.status === responseCodes.Unauthorized,
+
+        isForbidden: ({ error }: RequestContext) =>
+          error?.status === responseCodes.Forbidden,
+
+        isNotFound: ({ error }: RequestContext) =>
+          error?.status === responseCodes.Not_Found,
+
+        hasConflict: ({ error }: RequestContext) =>
+          error?.status === responseCodes.Conflict,
+
+        hasTooManyRequests: ({ error }: RequestContext) =>
+          error?.status === responseCodes.Too_Many_Requests,
+
+        hasNoContent: ({ response }: RequestContext) =>
           response?.status === responseCodes.No_Content,
-        // ---
-        isCachable: ({ init, useCache }) =>
+
+        isCachable: ({ init, useCache }: RequestContext) =>
           init?.method === FetchMethods.GET && !!useCache,
       },
       delays: {
-        // @ts-ignore
-        maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
-        error: () => useTime().ERROR,
+        maxAge: ({ maxAge }) => maxAge ?? useTime().MINUTE, // this allows us to override the max age in the context
         wait: () => useTime().WAIT,
       },
     }

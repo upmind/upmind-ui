@@ -27,13 +27,12 @@ import type { IProduct } from "@upmind-automation/types";
 async function load(context: any, basket: any) {
   const products = reduce(
     basket.getProducts(),
-    (result, product) => {
+    (result: ActorRef<any>[], product) => {
       // check all our mapping values are set, if not then its not a valid mapping and we can skip it
       const mapping = context.basketItemMapper(product);
       const isValid = isEmpty(pickBy(mapping, isEmpty));
       if (isValid) {
         const data = context.itemBuilder(product);
-        // @ts-ignore
         result.push(data);
       }
 
@@ -139,13 +138,13 @@ async function fetchSelected(
  * @param model
  * @param context
  * @param basket
- * @returns {ActorRef<any, any>} XState Actor representing the new item
+ * @returns {ActorRef<any>} XState Actor representing the new item
  */
 async function add(
   model: any,
   context: any,
   basket: any
-): Promise<ActorRef<any, any> | null> {
+): Promise<ActorRef<any> | null> {
   if (isEmpty(model)) return Promise.resolve(null);
 
   const mapping = context.basketItemMapper(model);
@@ -186,7 +185,7 @@ async function sync(models: any, context: any, basket: any) {
     ? [Promise.resolve([])]
     : map(models, model => {
         return add(model, context, basket).then(
-          async (actor: ActorRef<any, any> | null) => {
+          async (actor: ActorRef<any> | null) => {
             if (!actor) {
               // console.error("sync basket helper", "ADD", "failed", model);
               return Promise.resolve(actor);
@@ -225,7 +224,7 @@ export function basketSubscription(callback: any, onReceive: any) {
   let isRefreshing = false;
 
   // lets let our subscriber know when the basket has been refreshed
-  basket.service.onTransition(state => {
+  basket.service.onTransition((state: any) => {
     if (state.matches("shopping.refreshing.processing")) {
       isRefreshing = true;
     }
@@ -298,7 +297,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
       case "ADD":
         add(event.target, event.context, basket)
-          .then((actor: ActorRef<any, any> | null) =>
+          .then((actor: ActorRef<any> | null) =>
             callback({
               type: "ADDED",
               data: {
@@ -320,7 +319,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
       case "ADD_UPDATE":
         add(event.target, event.context, basket)
-          .then((actor: ActorRef<any, any> | null) => {
+          .then((actor: ActorRef<any> | null) => {
             if (!actor) return Promise.reject("Failed to add item to basket");
 
             // wait for the actor to be ready to update
@@ -337,7 +336,7 @@ export function basketSubscription(callback: any, onReceive: any) {
                 return Promise.reject(actor);
               });
           })
-          .then((actor: ActorRef<any, any>) => {
+          .then((actor: ActorRef<any>) => {
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });

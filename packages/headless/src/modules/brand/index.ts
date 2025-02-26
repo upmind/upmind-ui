@@ -4,12 +4,14 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import brandMachine from "./brand.machine";
-import type { BrandConfigKeys } from "./services";
-export { BrandConfigKeys } from "./services";
-import type { IBrand } from "@upmind-automation/types";
+import type {
+  IBrand,
+  BrandConfigKeys,
+  ILanguage,
+} from "@upmind-automation/types";
 
 // --- utils
-import { pick, isArray, find, some, first, isEmpty } from "lodash-es";
+import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
 // --- types
 import { BrandTaxType } from "@upmind-automation/types";
@@ -20,27 +22,21 @@ import { BrandTaxType } from "@upmind-automation/types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state: any = null;
-
-// @ts-ignore
-const service = interpret(brandMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service = interpret(brandMachine, { devTools: false });
 // --------------------------------------------------------
 
 export const useBrand = () => {
   // --------------------------------------------------------
   // methods
-  const hasModuleEnabled = (code: any) =>
-    some(state?.context?.modules, ["code", code]);
+  const hasModuleEnabled = (code: string) =>
+    some(service.getSnapshot()?.context?.modules, ["code", code]);
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
 
-    isModuleReady: async (module: any) =>
-      // @ts-ignore
+    isModuleReady: async (module: string) =>
       waitFor(service, state => state.matches(`processing.${module}.complete`)),
     isReady: async () =>
       waitFor(
@@ -54,10 +50,13 @@ export const useBrand = () => {
       ).then(state => {
         if (["error"].some(state.matches))
           return Promise.reject("Brand is not available");
+
+        return state;
       }),
     // ---
-    getSnapshot: () => state,
+    getSnapshot: service.getSnapshot,
     getConfig: async (keys: BrandConfigKeys | BrandConfigKeys[]) => {
+      const state = service.getSnapshot();
       // ensure we have an array of keys
       keys = isArray(keys) ? keys : [keys];
 
@@ -75,11 +74,12 @@ export const useBrand = () => {
       });
 
       // finally return the requested keys from the config
-      return pick(state.context, keys);
+      return pick(service.getSnapshot().context, keys);
     },
     // ---
     hasModuleEnabled,
     validateCurrency: async (model: { id?: string; code?: string }) => {
+      const state = service.getSnapshot();
       // lets wait for the brand to be ready
       await waitFor(service, state => state.matches("complete"));
 
@@ -108,15 +108,62 @@ export const useBrand = () => {
       return model;
     },
 
-    getBrandId: (): IBrand["id"] => state?.context?.id,
-    getCurrencyId: () => state?.context?.currency_id,
-    getCurrency: () =>
-      find(state.context.currencies, ["id", state?.context?.currency_id]),
-    getCurrencies: () => state?.context?.currencies,
-    getCountry: () => state?.context?.country_id,
+    getBrandId: (): IBrand["id"] => service.getSnapshot()?.context?.id,
+    getLanguage: (): ILanguage => {
+      const state = service.getSnapshot();
+      const languages = get(state, "context.settings.languages");
+      const language_id = get(state, "context.settings.language_id");
+      return (find(languages, ["id", language_id]) ||
+        first(languages)) as ILanguage;
+    },
+    getLanguages: (): ILanguage[] => {
+      const state = service.getSnapshot();
+      return get(state, "context.languages", []);
+    },
+    validateLanguage: async (model: {
+      id?: string;
+      code?: string;
+    }): Promise<ILanguage | undefined> => {
+      const state = service.getSnapshot();
+      const languages = get(state, "context.languages", []);
+
+      // if we dont have any languages, then just return the given currency
+      if (isEmpty(languages)) return undefined;
+
+      // otherwise we need to validate the given currency
+      // and possibly fallback to the default/first available currency
+      const defaultLanguage =
+        find(languages, ["id", state?.context?.language_id]) ||
+        first(languages);
+
+      // if we dont have a given currency,
+      // OR the given currency is not one of the available languages,
+      // then we return the default currency
+      const found = find(
+        languages,
+        ({ id, code }) =>
+          id === model?.id ||
+          code.toLocaleLowerCase() === model?.code?.toLocaleLowerCase()
+      );
+
+      if (isEmpty(found)) return defaultLanguage;
+
+      // othrwise we clearly have a valid currency and we return it
+      return found;
+    },
+
     // ---
-    getTaxType: () => state?.context?.tax_type,
+    getCurrencyId: () => service.getSnapshot()?.context?.currency_id,
+    getCurrency: () =>
+      find(service.getSnapshot().context.currencies, [
+        "id",
+        service.getSnapshot()?.context?.currency_id,
+      ]),
+    getCurrencies: () => service.getSnapshot()?.context?.currencies,
+    getCountry: () => service.getSnapshot()?.context?.country_id,
+    // ---
+    getTaxType: () => service.getSnapshot()?.context?.tax_type,
     checkIncludesTax: () =>
-      state?.context?.tax_type != BrandTaxType.EXCLUDE_TAX,
+      service.getSnapshot()?.context?.tax_type != BrandTaxType.EXCLUDE_TAX,
   };
 };

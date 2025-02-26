@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, sendParent, actions } from "xstate";
 const { escalate } = actions;
 
@@ -13,14 +14,14 @@ import { useTime, useValidationParser } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { PaymentContext, PaymentEvent } from "./types";
-import { responseCodes } from "../api";
+import type { PaymentContext } from "./types";
+import { responseCodes } from "../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./payment.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./payment.machine.typegen").Typegen0,
     id: "paymentManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -37,7 +38,7 @@ export default createMachine(
           },
           onError: {
             target: "#error",
-            actions: ["setError", "setFeedbackError"],
+            actions: ["setError"],
           },
         },
       },
@@ -89,7 +90,7 @@ export default createMachine(
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"],
+            actions: ["setError"],
           },
         },
       },
@@ -122,7 +123,7 @@ export default createMachine(
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -139,15 +140,13 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: ({ payment }: PaymentContext, _event: PaymentEvent) => payment,
+        data: ({ payment }: PaymentContext, _event: AnyEventObject) => payment,
       },
 
       error: {
-        entry: escalate(({ error }, _event) => ({
-          data: error,
-        })),
+        entry: escalate(({ error }, _event) => error),
         id: "error",
-        type: "final",
+        // type: "final",
       },
     },
   },
@@ -155,11 +154,11 @@ export default createMachine(
     actions: {
       setContext: assign(
         // (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
-        (_context: any, { data }: any) => data
+        (_context, { data }: AnyEventObject) => data
       ),
 
       setPayment: assign({
-        payment: (_context, { data }) => data,
+        payment: (_context, { data }: AnyEventObject) => data,
       }),
 
       setApproval: assign({
@@ -172,32 +171,36 @@ export default createMachine(
       })),
 
       // ---
-      // @ts-ignore
-      setFeedbackSuccess: (_context: PaymentContext, _event: PaymentEvent) => {
+      setFeedbackSuccess: (
+        _context: PaymentContext,
+        _event: AnyEventObject
+      ) => {
         addSuccess("Successfully made payment");
       },
 
-      // @ts-ignore
-      setFeedbackError: ({ error }: PaymentContext, _event: PaymentEvent) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
-        addError({
-          title:
-            error?.title || "We experienced an error processing your payment",
-          copy: error?.message,
-          data: error?.data,
-        });
-      },
+      // setFeedbackError: ({ error }: PaymentContext, _event: AnyEventObject) => {
+      //   if (
+      //     !error?.message ||
+      //     error?.code == responseCodes.Unprocessable_Entity
+      //   )
+      //     return;
+      //   addError({
+      //     title: error?.title ?? error?.message,
+      //     copy: error?.title ? error?.message : null,
+      //     data: error?.data,
+      //   });
+      // },
 
       setError: assign({
-        error: (_context, { data }: any) => {
-          let error = data?.error;
+        error: (_context, { data }: AnyEventObject) => {
+          let error = data?.error?.data ?? data?.error ?? data;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
 
-          return error || data;
+          return error;
         },
       }),
 
@@ -205,20 +208,17 @@ export default createMachine(
     },
 
     guards: {
-      // @ts-ignore
       hasPaymentDetails: (
         { paymentDetails }: PaymentContext,
-        _event: PaymentEvent
+        _event: AnyEventObject
       ) => !isEmpty(paymentDetails),
 
-      // @ts-ignore
-      needsApproval: ({ payment }: PaymentContext, _event: PaymentEvent) =>
+      needsApproval: ({ payment }: PaymentContext, _event: AnyEventObject) =>
         !!payment.approval_url,
 
-      // @ts-ignore
       hasNoOutstandingBalance: (
         _context: PaymentContext,
-        _event: PaymentEvent
+        _event: AnyEventObject
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
@@ -226,12 +226,10 @@ export default createMachine(
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

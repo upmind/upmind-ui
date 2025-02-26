@@ -24,7 +24,7 @@ import type { ActorRef } from "xstate";
 // a composable that provides a simple interface to the api requests machinewith some state helpers
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
-export const useBasketFields = (service?: ActorRef<any, any>) => {
+export const useBasketFields = (service?: ActorRef<any>) => {
   const { service: basket } = useBasket();
   const customFields = ref();
 
@@ -66,7 +66,6 @@ export const useBasketFields = (service?: ActorRef<any, any>) => {
     // ---
     clear: () => customFields.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
-      // @ts-ignore
       customFields.value?.send({ type: "SET", data: model }),
 
     // debounce as we tend  to update on input as opposed to submitting
@@ -80,7 +79,7 @@ export const useBasketFields = (service?: ActorRef<any, any>) => {
       // if it has not then bail
       if (!isEqual(selected, model)) {
         // if it has then send the new model to the machine
-        // @ts-ignore
+
         customFields.value?.send({ type: "SET", data: model, update: true });
       }
     }, 500),

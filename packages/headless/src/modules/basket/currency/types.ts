@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { RequestError } from "../..//api/types";
-export type { ICurrency } from "../../system/types";
+import type { ICurrency } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -14,11 +14,11 @@ export type { ICurrency } from "../../system/types";
 // Contexts
 
 export interface CurrencyContext {
-  basketId?: String;
+  basketId?: string;
   // ---
   // TODO:
   // currencies?: ICurrency[];
-  currencies?: any[];
+  currencies?: ICurrency[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
   // TODO:
@@ -26,21 +26,9 @@ export interface CurrencyContext {
   // baseModel?: ICurrency;
   model?: any;
   baseModel?: any;
+  autoupdate?: boolean;
   // ---
-  dirty?: Boolean;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface CurrencyEvent {
-  type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  // TODO:
-  // data?: ICurrency;
-  data?: any;
+  dirty?: boolean;
   // TODO:
   // error?: RequestError;
   error?: any;

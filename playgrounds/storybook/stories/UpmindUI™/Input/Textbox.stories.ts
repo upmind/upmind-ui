@@ -67,7 +67,7 @@ export const Base: Story = {
       },
     },
     template: `
-        <upw-textbox v-bind="args" @update:modelValue="doUpdate" />
+        <upm-textbox v-bind="args" @update:modelValue="doUpdate" />
     `,
   }),
 };

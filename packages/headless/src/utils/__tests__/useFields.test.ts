@@ -3,7 +3,7 @@ import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
   useFieldsModelParser,
-} from "@/utils/useFields";
+} from "../../utils/useFields";
 // import { useTranslateField } from '@/utils/useTranslation';
 // import { forEach, get, set } from 'lodash-es';
 
@@ -49,7 +49,15 @@ const mockFields = [
   // not to end up with the original code...
 ];
 
-let expectedSchema = {
+interface Schema {
+  type: string;
+  title: string;
+  i18n: string;
+  required: string[];
+  properties: Record<string, any>;
+}
+
+let expectedSchema: Schema = {
   type: "object",
   title: "Fields",
   i18n: "fields",
@@ -126,7 +134,7 @@ describe("useFields.ts", () => {
 
     it("should exclude hidden or no show_on_order_form fields", () => {
       const schema = useFieldsSchemaParser(mockFields);
-      expect(schema.properties.testField3).toBeUndefined();
+      expect(schema.properties).not.toHaveProperty("testField3");
     });
   });
 

@@ -1,7 +1,9 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
+import { useI18n } from "../../system/i18n";
 import services from "./services";
 import type { ClientContext } from "./types";
 import { useFeedback } from "../../feedback";
@@ -9,24 +11,23 @@ const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../../utils";
-import { dumpTokenFromStorage } from "../utils";
 
 // --- types
-import { responseCodes } from "../../api/types";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./client.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./client.machine.typegen").Typegen0,
     id: "sessionClient",
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      user: null,
-      transfer: null,
+      user: undefined,
+      transfer: undefined,
       // ---
-      error: null,
+      error: undefined,
     } as ClientContext,
     states: {
       loading: {
@@ -34,7 +35,7 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "load",
-          onDone: { target: "idle", actions: "setUser" },
+          onDone: { target: "idle", actions: ["setUser", "setLocale"] },
           onError: { target: "complete", actions: ["setError"] },
         },
       },
@@ -105,13 +106,20 @@ export default createMachine(
         return {};
       }),
       // ---
-      setUser: assign({ user: (_context, { data }) => data }),
-      // @ts-ignore
-      setTransfer: assign({ transfer: (_context, { data }) => data }),
+      setUser: assign({ user: (_context, { data }: AnyEventObject) => data }),
+      setLocale: ({ user }) => {
+        if (!user) return;
+        const locale = user.locale;
+        useI18n().setLocale(locale);
+      },
+
+      setTransfer: assign({
+        transfer: (_context, { data }: AnyEventObject) => data,
+      }),
       clearTransfer: assign({ transfer: null }),
       // ---
       setError: assign({
-        error: (context, { data }) => data,
+        error: (context, { data }: AnyEventObject) => data,
       }),
 
       setFeedbackError: ({ error }, _event) => {
@@ -132,11 +140,9 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
-      // @ts-ignore
       wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5,
     },
-    // @ts-ignore
     services,
   }
 );

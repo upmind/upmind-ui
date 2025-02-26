@@ -1,33 +1,18 @@
 import type { RequestError } from "../api/types";
-
+import type {
+  GrantTypes,
+  IUser,
+  TwofaProviders,
+} from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
-
-export enum GrantTypes {
-  ADMIN = "admin",
-  ADMIN_PASSWORD_RESET = "admin_password_reset",
-  COMPLETE_ORG_REGISTRATION = "complete_org_registration",
-  COMPLETE_USER_REGISTRATION = "complete_user_registration",
-  COMPLETE_REGISTRATION = "complete_registration",
-  GUEST = "guest",
-  GUEST_CUSTOMER = "guest_customer",
-  PASSWORD = "password",
-  PASSWORD_RESET = "password_reset",
-  REFRESH_TOKEN = "refresh_token",
-  TWOFA_ADMIN = "twofa-admin",
-  TWOFA = "twofa",
-}
-
-export enum TwofaProviders {
-  GOOGLE = "google",
-}
 
 // --------------------------------------------------------
 // Contexts
 
 export interface SessionContext {
-  // TODO:
-  // error?: RequestError | null;
+  history?: string[];
+
   error?: any | null;
 }
 
@@ -46,12 +31,19 @@ export interface Token {
   guest_token?: string | null;
 }
 
-export interface User {}
-
-// --------------------------------------------------------
-// Events
-
-export interface SessionEvents {
-  type: "CHECK" | "REFRESH";
-  payload?: any;
+export interface User {
+  id: IUser["id"];
+  email: IUser["email"];
+  name: IUser["name"];
+  username: IUser["username"];
+  fullname: IUser["fullname"];
+  firstname: IUser["firstname"];
+  lastname: IUser["lastname"];
+  display: string;
+  avatar: {
+    caption: string;
+    src: IUser["image_url"];
+    forceCaption: boolean;
+  };
+  locale: IUser["interface_language_code"];
 }

@@ -1,15 +1,16 @@
 // --- external
 
 // --- internal
-import { useApi, useSession } from "../..";
+import { useApi } from "../..";
 
 // --- utils
 import { usePaymentParser } from "./utils";
-import { isEmpty, get, forEach, isNil, merge, omitBy } from "lodash-es";
+import { isEmpty, get } from "lodash-es";
 
 // --- types
-import type { PaymentEvent, PaymentContext } from "./types";
+import type { PaymentContext } from "./types";
 import { FetchMethods } from "../api/services";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // Enums
@@ -73,7 +74,7 @@ function submitViaForm({
 
 async function load(
   { order, paymentDetails }: PaymentContext,
-  { data }: PaymentEvent
+  { data }: AnyEventObject
 ) {
   const { get, useUrl } = useApi();
 
@@ -105,12 +106,11 @@ async function load(
 
 async function update(
   { order, paymentDetails }: PaymentContext,
-  _event: PaymentEvent
+  _event: AnyEventObject
 ) {
   const { post, useUrl } = useApi();
 
   // build the payload with ALL the data we need for the payment details AND the order
-  // @ts-ignore
   const data = usePaymentParser({ paymentDetails, order });
   return post({
     url: useUrl(`/payments`),
@@ -127,15 +127,13 @@ async function update(
  */
 async function redirect(
   { payment, paymentDetails }: PaymentContext,
-  _event: PaymentEvent
+  _event: AnyEventObject
 ) {
   /**
    * Inject aborted state for cases when user click back from the browser
    * We have no router to handle this, so we need to handle it manually
    */
-  // @ts-ignore
   if (paymentDetails?.cancel_url) {
-    // @ts-ignore
     window.history.replaceState("", "", paymentDetails.cancel_url);
   }
 
@@ -147,7 +145,7 @@ async function redirect(
 
 async function validate(
   { paymentDetails }: PaymentContext,
-  _event: PaymentEvent
+  _event: AnyEventObject
 ) {
   return new Promise((resolve, reject) => {
     if (isEmpty(paymentDetails)) {

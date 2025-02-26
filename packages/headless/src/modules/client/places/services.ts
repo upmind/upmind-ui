@@ -8,18 +8,18 @@ import { useSession } from "../..";
 import { usePlaceParser, usePredictionsParser } from "./utils";
 
 // --- types
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { AnyEventObject } from "xstate";
+import type { ClientListingsContext } from "../types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 //  ENUMS
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-function load(_context: ClientListingsContext, _event: ClientListingsEvents) {
+function load(_context: ClientListingsContext, _event: AnyEventObject) {
   const loader = new Loader({
-    // @ts-ignore
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
     version: "weekly",
   });
@@ -38,7 +38,7 @@ function load(_context: ClientListingsContext, _event: ClientListingsEvents) {
 async function filterItems(
   // TODO: { service, sessionToken, statuses }: ClientListingsContext,
   { service, sessionToken, statuses }: any,
-  { data }: ClientListingsEvents
+  { data }: AnyEventObject
 ) {
   return new Promise((resolve, reject) => {
     if (!service) return reject("Autocomplete service not configured");
@@ -74,7 +74,7 @@ async function parse(
     service,
     // TODO: }: ClientListingsContext,
   }: any,
-  { data }: ClientListingsEvents
+  { data }: AnyEventObject
 ) {
   return new Promise((resolve, reject) => {
     if (!service) reject("Autocomplete service not configured");
@@ -108,7 +108,7 @@ async function parse(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

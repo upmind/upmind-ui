@@ -35,20 +35,20 @@ import {
 } from "lodash-es";
 
 // --- types
-import { TaxTagTypes, ProductOrderTypes } from "./types";
-// @ts-ignore
+import type { IBasket } from "@upmind-automation/types";
+import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
 import type {
-  Basket,
   BasketProduct,
   BasketProductSummaryDetail,
   BasketProductSummaryPrice,
 } from "./types";
+import { PaymentDetailsContext } from "../paymentDetails";
 
 // --------------------------------------------------------
 // SPAWN ACTORS
 export function spawnProductConfiguration(
   data: any,
-  basket: Basket,
+  basket?: IBasket,
   errorExternal?: any
 ) {
   const id = data?.id || uniqueId("product-");
@@ -86,21 +86,21 @@ export function spawnProductConfiguration(
   return item;
 }
 
-export function spawnBillingDetails(basket: Basket) {
+export function spawnBillingDetails(basket?: IBasket) {
   return spawn(
     billingDetailsMachine.withContext({
       basketId: basket?.id,
       clientId: basket?.client_id,
       model: {
-        addressId: basket?.address_id,
-        companyId: basket?.company_id,
+        addressId: basket?.address_id || undefined,
+        companyId: basket?.company_id || undefined,
       },
     }),
     { name: "billingDetails", sync: true }
   );
 }
 
-export function spawnCurrency(basket: Basket) {
+export function spawnCurrency(basket?: IBasket) {
   return spawn(
     currencyMachine.withContext({
       basketId: basket?.id,
@@ -110,7 +110,7 @@ export function spawnCurrency(basket: Basket) {
   );
 }
 
-export function spawnCustomFields(basket: Basket) {
+export function spawnCustomFields(basket?: IBasket) {
   return spawn(
     customFieldsMachine.withContext({
       basketId: basket?.id,
@@ -120,22 +120,21 @@ export function spawnCustomFields(basket: Basket) {
   );
 }
 
-export function spawnPaymentDetails(basket: Basket) {
+export function spawnPaymentDetails(basket?: IBasket) {
   return spawn(
-    // @ts-ignore
     paymentDetailsMachine.withContext({
       basketId: basket?.id,
       currency: basket?.currency,
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
       },
-      address: basket?.address,
-    }),
+      address: get(basket, "address"),
+    } as PaymentDetailsContext),
     { name: "paymentDetails", sync: true }
   );
 }
 
-export function spawnPromotions(basket: Basket) {
+export function spawnPromotions(basket?: IBasket) {
   return spawn(
     promotionsMachine.withContext({
       basketId: basket?.id,
@@ -182,9 +181,12 @@ export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
       // ---
       quantifiable:
         raw?.product?.order_type == ProductOrderTypes.QUANTITY_BASED, //!!raw?.can_change_quantity,
-      step: raw?.unit_quantity || 1,
-      min: raw?.min_order_quantity | raw?.unit_quantity,
-      max: raw?.max_order_quantity > 0 ? raw?.max_order_quantity : Infinity,
+      step: raw?.product?.unit_quantity || 1,
+      min: raw?.product?.min_order_quantity || raw?.product?.unit_quantity || 1,
+      max:
+        raw?.product?.max_order_quantity > 0
+          ? raw?.product?.max_order_quantity
+          : Infinity,
     },
 
     // --- summary details
@@ -522,6 +524,8 @@ export const parseBasketProvisioningErrors = (error: any, index: any) => {
 
     return parsedError;
   }
+
+  return undefined;
 };
 
 export const forwardBasketProvisioningErrors = (

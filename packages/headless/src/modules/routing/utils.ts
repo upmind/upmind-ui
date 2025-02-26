@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useBasket } from "../basket";
 
 // --- utils
+import { useSafeParse, useSessionStorage } from "../../utils";
 import {
   compact,
   concat,
@@ -35,18 +36,12 @@ import type { ActorRef, State, Subscription } from "xstate";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { ProductModel } from "../product";
 import { REQUIRES_ACTION, type Route } from "./types";
-import { responseCodes } from "../api";
+import { responseCodes } from "../../utils";
+import { isString } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
-function safeParse(value: any) {
-  try {
-    return JSON.parse(value);
-  } catch (e) {
-    return value;
-  }
-}
 
-export async function awaitResolved(service: ActorRef<any, any>) {
+export async function awaitResolved(service: ActorRef<any>) {
   return waitFor(service, state => ["resolved"].some(state.matches), {
     timeout: 60_000,
   }).then(state => get(state, "context.currentRoute"));
@@ -130,10 +125,10 @@ export const useRouteQueryParams = (route: Route) => {
   }
 
   return {
-    parse: safeParse,
+    parse: useSafeParse,
     getParams,
     getParam,
-    express: safeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
+    express: useSafeParse(getParam("express", false)) == true, // make sure we only return true if the value is actually true
     productId: getParam(QUERY_PARAMS.PRODUCT_ID),
     products: getParams(QUERY_PARAMS.PRODUCT_ID),
     productConfigs: getProductConfigs(),
@@ -148,28 +143,6 @@ export const useRouteQueryParams = (route: Route) => {
 };
 
 // -----------------------------------------------------------------------------
-
-export const useSessionStorage = () => {
-  return {
-    get(key: string, fallback: any) {
-      const value = sessionStorage.getItem(key) || fallback || null;
-      return safeParse(value);
-    },
-    set(key: string, value: any) {
-      sessionStorage.setItem(key, JSON.stringify(value));
-      return value;
-    },
-    remove(key: string) {
-      sessionStorage.removeItem(key);
-      return null;
-    },
-
-    clear() {
-      sessionStorage.clear();
-      return null;
-    },
-  };
-};
 
 export const useRoutePendingProducts = (route: Route) => {
   const { productConfigs, basketProductId, productId } =
@@ -187,7 +160,7 @@ export const useRoutePendingProducts = (route: Route) => {
   async function ensureBasketItem(
     productId: string,
     model: any
-  ): Promise<ActorRef<any, any>> {
+  ): Promise<ActorRef<any>> {
     if (productId) {
       const productsPending = getPendingProducts();
       const basketItem = find(productsPending, [
@@ -233,11 +206,11 @@ export const useRoutePendingProducts = (route: Route) => {
 
   // ---
 
-  async function getBasketProduct(bpid?: string): Promise<ActorRef<any, any>> {
+  async function getBasketProduct(bpid?: string): Promise<ActorRef<any>> {
     const target = bpid || basketProductId;
     const products = getProducts();
     const basketItem = find(products, ["id", target]) as
-      | ActorRef<any, any>
+      | ActorRef<any>
       | undefined;
 
     return new Promise((resolve, reject) => {
@@ -255,7 +228,7 @@ export const useRoutePendingProducts = (route: Route) => {
   async function getPendingProduct(
     pid?: string,
     sync?: boolean
-  ): Promise<ActorRef<any, any>> {
+  ): Promise<ActorRef<any>> {
     const target = pid || productId || first(keys(pendingProducts));
     const model = get(pendingProducts, target, { productId: target });
     const basketItem = await ensureBasketItem(target, model).catch(() => {
@@ -266,7 +239,7 @@ export const useRoutePendingProducts = (route: Route) => {
     });
     if (basketItem && sync) {
       const subscription: Subscription = basketItem.subscribe(
-        (state: State<any, any>) => {
+        (state: State<any>) => {
           if (state.matches("error")) {
             unsetPendingProduct(target);
             removeItem(basketItem?.id);
@@ -294,7 +267,7 @@ export const useRoutePendingProducts = (route: Route) => {
 
   function setPendingProduct(
     productId: string,
-    value?: ProductModel | State<any, any>
+    value?: ProductModel | State<any>
   ) {
     // defensive
     if (!productId) return;
@@ -318,7 +291,19 @@ export const useRoutePendingProducts = (route: Route) => {
     sub?.unsubscribe();
   }
 
-  function syncPendingProducts(): Promise<ActorRef<any, any>>[] {
+  function resolvePendingProduct(basketItem?: string | ActorRef<any>) {
+    let target = basketItem;
+
+    if (isString(basketItem)) {
+      const products = getPendingProducts();
+      target = find(products, ["id", basketItem]) as ActorRef<any> | undefined;
+    }
+
+    const pid = get(target, "state.context.model.productId");
+    if (pid) unsetPendingProduct(pid);
+  }
+
+  function syncPendingProducts(): Promise<ActorRef<any>>[] {
     // get any productIds from the url query params and store them in our pending basket items
     forEach(productConfigs, (product: ProductModel) => {
       // theres a chance we alrady have this product in our pending basket items
@@ -329,7 +314,7 @@ export const useRoutePendingProducts = (route: Route) => {
 
     const promises = map(pendingProducts, (model, productId) => {
       return ensureBasketItem(productId, model).then(
-        (basketItem: ActorRef<any, any>) => {
+        (basketItem: ActorRef<any>) => {
           setPendingProduct(productId, basketItem?.getSnapshot()); // update our pending basket items with the new value
           return basketItem;
         }
@@ -356,6 +341,7 @@ export const useRoutePendingProducts = (route: Route) => {
     getPendingProduct,
     setPendingProduct,
     unsetPendingProduct,
+    resolvePendingProduct,
     // ---
     syncPendingProducts,
     clearPendingProducts,
@@ -365,22 +351,20 @@ export const useRoutePendingProducts = (route: Route) => {
 export const useRouteRequiresAction = () => {
   const { getPendingProducts, getProducts, getInvalidProducts } = useBasket();
 
-  function getNextPending(current?: ActorRef<any, any>) {
+  function getNextPending(current?: ActorRef<any>) {
     const productsPending = reject(getPendingProducts(), ["id", current?.id]);
-    const pendingProduct = first(productsPending) as ActorRef<any, any>;
+    const pendingProduct = first(productsPending) as ActorRef<any>;
     return pendingProduct;
   }
 
-  function getNextInvalid(current?: ActorRef<any, any>) {
+  function getNextInvalid(current?: ActorRef<any>) {
     const pid = get(current, "state.context.model.productId", {});
     const products = reject(getInvalidProducts(), ["productId", pid]);
     const basketProduct = first(products);
     return basketProduct;
   }
 
-  function getNextRelated(
-    current: ActorRef<any, any>
-  ): undefined | ActorRef<any, any> {
+  function getNextRelated(current: ActorRef<any>): undefined | ActorRef<any> {
     // Related items ar when the current items provision fields
     // contain the service identifier of another basket item
     const provisionFields = get(
@@ -403,7 +387,7 @@ export const useRouteRequiresAction = () => {
   }
 
   function getNext(
-    currentBasketItem?: ActorRef<any, any>,
+    currentBasketItem?: ActorRef<any>,
     types: REQUIRES_ACTION[] = [
       REQUIRES_ACTION.PENDING,
       REQUIRES_ACTION.INVALID,

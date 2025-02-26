@@ -3,38 +3,23 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-import type { SystemContext, SystemEvent } from "./types";
+import type { SystemContext } from "./types";
 
 // --- utils
 import { useTime } from "../../utils";
 import { set, unset, keys, includes, every } from "lodash-es";
 
+// --- types
+import type { AnyEventObject } from "xstate";
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./system.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./system.machine.typegen").Typegen0,
     id: "systemManager",
     predictableActionArguments: true,
     initial: "processing",
-    context: {
-      currencies: null,
-      billingCycles: null,
-      countries: null,
-      regions: null,
-      languages: null,
-      statuses: null,
-      departments: null,
-
-      // --- admin only endpoints
-
-      // systemIPAddresses: null,
-      // taxBusinessTypes: null,
-
-      // ---
-      error: {},
-    } as SystemContext,
-
+    context: {} as SystemContext,
     type: "parallel",
     states: {
       // --- obligatory: we need these to be loaded before we can do anything else
@@ -52,7 +37,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "currencies", data);
                     return error;
                   },
@@ -98,7 +86,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "billingCycles", data);
                     return error;
                   },
@@ -148,7 +139,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "countries", data);
                     return error;
                   },
@@ -196,7 +190,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "regions", data);
                     return error;
                   },
@@ -247,7 +244,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "languages", data);
                     return error;
                   },
@@ -295,7 +295,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "statuses", data);
                     return error;
                   },
@@ -343,7 +346,10 @@ export default createMachine(
               onError: {
                 target: "error",
                 actions: assign({
-                  error: ({ error }: SystemContext, { data }: SystemEvent) => {
+                  error: (
+                    { error }: SystemContext,
+                    { data }: AnyEventObject
+                  ) => {
                     set(error, "departments", data);
                     return error;
                   },
@@ -393,7 +399,7 @@ export default createMachine(
       //         onError: {
       //           target: "error",
       //           actions: assign({
-      //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
+      //             error: ({ error }: SystemContext, { data }: AnyEventObject) => {
       //               set(error, "systemIPAddresses", data);
       //               return error;
       //             }
@@ -441,7 +447,7 @@ export default createMachine(
       //         onError: {
       //           target: "error",
       //           actions: assign({
-      //             error: ({ error }: SystemContext, { data }: SystemEvent) => {
+      //             error: ({ error }: SystemContext, { data }: AnyEventObject) => {
       //               set(error, "taxBusinesstypes", data);
       //               return error;
       //             }
@@ -475,49 +481,50 @@ export default createMachine(
   {
     actions: {
       setCurrencies: assign({
-        currencies: (_context: SystemContext, { data }: SystemEvent) => data,
+        currencies: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setBillingCycles: assign({
-        billingCycles: (_context: SystemContext, { data }: SystemEvent) => data,
+        billingCycles: (_context: SystemContext, { data }: AnyEventObject) =>
+          data,
       }),
       setCountries: assign({
-        countries: (_context: SystemContext, { data }: SystemEvent) => data,
+        countries: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setRegions: assign({
-        regions: ({ regions }: SystemContext, { data }: SystemEvent) => {
+        regions: ({ regions }: SystemContext, { data }: AnyEventObject) => {
           regions ??= {}; // ensure we have a regions object
           set(regions, data.key, data.values);
           return regions;
         },
       }),
       setLanguages: assign({
-        languages: (_context: SystemContext, { data }: SystemEvent) => data,
+        languages: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setStatuses: assign({
-        statuses: (_context: SystemContext, { data }: SystemEvent) => data,
+        statuses: (_context: SystemContext, { data }: AnyEventObject) => data,
       }),
       setDepartments: assign({
-        departments: (_context: SystemContext, { data }: SystemEvent) => data,
+        departments: (_context: SystemContext, { data }: AnyEventObject) =>
+          data,
       }),
 
       // --- admin only endpoints
 
       // setSystemIPAddresses: assign({
-      //   systemIPAddresses: (_context: SystemContext, { data }: SystemEvent) =>
+      //   systemIPAddresses: (_context: SystemContext, { data }: AnyEventObject) =>
       //     data
       // }),
       // setTaxBusinessTypes: assign({
-      //   taxBusinessTypes: (_context: SystemContext, { data }: SystemEvent) =>
+      //   taxBusinessTypes: (_context: SystemContext, { data }: AnyEventObject) =>
       //     data
       // })
 
       // ---
     },
     guards: {
-      // @ts-ignore
       allRegionsLoaded: (
         { countries, regions }: SystemContext,
-        _event: SystemEvent
+        _event: AnyEventObject
       ) => {
         const existing = keys(regions);
         return (
@@ -527,11 +534,9 @@ export default createMachine(
       },
     },
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
     services,
   }
 );

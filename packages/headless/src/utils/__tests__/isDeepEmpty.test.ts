@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isDeepEmpty } from "@/utils/isDeepEmpty";
+import { isDeepEmpty } from "../../utils/isDeepEmpty";
 
 describe("isDeepEmpty.ts", () => {
   it("should return true for an empty object", () => {

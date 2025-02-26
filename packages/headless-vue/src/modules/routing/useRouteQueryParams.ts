@@ -12,7 +12,9 @@ import type { Route } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-export const useQueryParams = (route?: Route) => {
+import type { RouteQueryParams } from "@upmind-automation/headless";
+
+export const useQueryParams = (route?: Route): RouteQueryParams => {
   const safeRoute = defaultsDeep(route || useRoute(), {
     name: undefined,
     path: undefined,
@@ -20,29 +22,7 @@ export const useQueryParams = (route?: Route) => {
     params: undefined,
   });
 
-  const { useQueryParams } = useRoutingEngine();
-
-  const {
-    parse,
-    getParam,
-    getParams,
-    productConfigs,
-    productId,
-    products,
-    basketProductId,
-    currency,
-    coupon,
-  } = useQueryParams(safeRoute);
-
-  return {
-    parse,
-    getParam,
-    getParams,
-    productId,
-    products,
-    productConfigs,
-    basketProductId,
-    currency,
-    coupon,
-  };
+  return useRoutingEngine().useQueryParams(
+    safeRoute
+  ) as unknown as RouteQueryParams;
 };

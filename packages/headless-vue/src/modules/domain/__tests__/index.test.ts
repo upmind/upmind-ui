@@ -37,7 +37,6 @@ describe("useDomain", () => {
     };
     sendMock = vi.fn();
 
-    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send: sendMock });
 
     // Reset mocks before each test

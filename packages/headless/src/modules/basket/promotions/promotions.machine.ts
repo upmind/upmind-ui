@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { sendParent } = actions;
 
@@ -14,14 +15,14 @@ import { useSchema, useUischema } from "./utils";
 import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
 
 // --- types
-import type { PromotionsContext, PromotionsEvent } from "./types";
-import { responseCodes } from "../../api";
+import type { PromotionsContext } from "./types";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./promotions.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./promotions.machine.typegen").Typegen0,
     id: "basketPromotionsManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -191,16 +192,15 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: PromotionsContext, { data: basket }: PromotionsEvent) => {
+        (_context: PromotionsContext, { data: basket }: AnyEventObject) => {
           return {
-            // @ts-ignore
             basketId: basket?.id,
-            // @ts-ignore
             promotions: basket?.promotions,
           };
         }
       ),
 
+      // NB: send the data (basket) to the parent so theres no lag in showing/removing the tags
       refreshBasket: sendParent((_context, { data }: any) => {
         return {
           type: "REFRESH",
@@ -208,10 +208,8 @@ export default createMachine(
         };
       }),
 
-      // @ts-ignore
       setContext: assign(
-        // @ts-ignore
-        (_context: PromotionsContext, { data }: PromotionsEvent) => data
+        (_context: PromotionsContext, { data }: AnyEventObject) => data
       ),
 
       setSchemas: assign({
@@ -226,7 +224,7 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
+        model: ({ schema, model }, { data }: AnyEventObject) =>
           useModelParser(schema, data || model),
       }),
 
@@ -235,7 +233,7 @@ export default createMachine(
       }),
 
       removePromo: assign({
-        promotions: ({ promotions }, { data }) => {
+        promotions: ({ promotions }, { data }: AnyEventObject) => {
           const id = get(data, "id", data);
           if (promotions?.length && id) {
             remove(promotions, ["id", id]);
@@ -253,11 +251,9 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        // @ts-ignore
-        autoupdate: (_context, { update }) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
@@ -316,7 +312,6 @@ export default createMachine(
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

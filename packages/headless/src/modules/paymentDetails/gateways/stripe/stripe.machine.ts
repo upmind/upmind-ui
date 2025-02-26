@@ -1,6 +1,7 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions, spawn } from "xstate";
-const { pure, sendParent, escalate } = actions;
+const { sendParent, escalate } = actions;
 import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
@@ -18,15 +19,15 @@ import { useSchema, useUischema } from "./utils";
 import { isFunction } from "lodash-es";
 
 // --- types
-import type { StripeContext, StripeEvent } from "./types";
+import type { StripeContext } from "./types";
 import { GatewayCtx } from "../types";
-import { responseCodes } from "../../../api";
+import { responseCodes } from "../../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
     id: "stripePaymentManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -195,7 +196,7 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: ({ paymentDetails }: StripeContext, _event: StripeEvent) =>
+        data: ({ paymentDetails }: StripeContext, _event: AnyEventObject) =>
           paymentDetails,
       },
 
@@ -230,20 +231,19 @@ export default createMachine(
   {
     actions: {
       setElements: assign({
-        elements: (_context: StripeContext, { data }: StripeEvent) =>
+        elements: (_context: StripeContext, { data }: AnyEventObject) =>
           data?.elements,
-        element: (_context: StripeContext, { data }: StripeEvent) =>
+        element: (_context: StripeContext, { data }: AnyEventObject) =>
           data?.element,
-        renderer: (_context: StripeContext, { data }: StripeEvent) => {
+        renderer: (_context: StripeContext, { data }: AnyEventObject) => {
           function renderer(container: HTMLElement) {
             data?.element?.mount(container);
           }
           return renderer;
         },
-        // @ts-ignore
         validationObserver: (
           _context: StripeContext,
-          { data }: StripeEvent
+          { data }: AnyEventObject
         ) => {
           const stripeChangeEvent = (callback: any) => {
             data.element.on("change", (event: any) =>
@@ -258,23 +258,21 @@ export default createMachine(
       }),
 
       setElementStatus: assign({
-        // @ts-ignore
-        elementStatus: (_context: StripeContext, { data }: StripeEvent) => data,
+        elementStatus: (_context: StripeContext, { data }: AnyEventObject) =>
+          data,
       }),
 
       setClientDetails: assign({
-        // @ts-ignore
         clientPaymentDetailsId: (
           _context: StripeContext,
-          { data }: StripeEvent
+          { data }: AnyEventObject
         ) => data?.clientPaymentDetailsId,
-        clientSecret: (_context: StripeContext, { data }: StripeEvent) =>
+        clientSecret: (_context: StripeContext, { data }: AnyEventObject) =>
           data?.clientSecret,
       }),
 
-      // @ts-ignore
       setContext: assign(
-        (_context: StripeContext, { data }: StripeEvent) => data
+        (_context: StripeContext, { data }: AnyEventObject) => data
       ),
 
       // ---
@@ -289,7 +287,7 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
+        model: ({ schema, model }: StripeContext, { data }: AnyEventObject) =>
           useModelParser(schema, data || model),
       }),
 
@@ -300,7 +298,7 @@ export default createMachine(
 
       updateStripe: (
         { elements, element }: StripeContext,
-        { data }: StripeEvent
+        { data }: AnyEventObject
       ) => {
         if (!isFunction(elements?.update)) return; // in case we receive an update before stripe has loaded
 
@@ -328,7 +326,7 @@ export default createMachine(
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: ({ gateway }, { data }: any) => {
+        paymentDetails: ({ gateway }: StripeContext, { data }: any) => {
           return { gateway, ...data };
         },
       }),
@@ -338,18 +336,16 @@ export default createMachine(
         data: paymentDetails,
       })),
 
-      // @ts-ignore
-      escalateError: pure((_context, { data }) => {
+      escalateError: (_context, { data }: AnyEventObject) => {
         escalate({ data });
-      }),
+      },
 
       cancelPaymentDetails: sendParent(() => ({
         type: "CANCEL",
       })),
 
       // ---
-      // @ts-ignore
-      setFeedbackError: ({ error }: StripeContext, _event: StripeEvent) => {
+      setFeedbackError: ({ error }: StripeContext, _event: AnyEventObject) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
@@ -362,9 +358,8 @@ export default createMachine(
         // escalate({ data: error });
       },
 
-      // @ts-ignore
       setError: assign({
-        error: (_context: StripeContext, { data }: StripeEvent) => {
+        error: (_context: StripeContext, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -383,6 +378,7 @@ export default createMachine(
               );
             }
           }
+          return error;
         },
       }),
 
@@ -390,10 +386,9 @@ export default createMachine(
     },
 
     guards: {
-      // @ts-ignore
       hasChanged: (
         { basket_id, currency, amount, address }: StripeContext,
-        { data }: StripeEvent
+        { data }: AnyEventObject
       ) => {
         const value =
           basket_id !== data.basket_id ||
@@ -403,38 +398,30 @@ export default createMachine(
         return value;
       },
 
-      // @ts-ignore
-      hasNoElements: ({ elements }: StripeContext, _event: StripeEvent) =>
+      hasNoElements: ({ elements }: StripeContext, _event: AnyEventObject) =>
         !elements,
 
-      // @ts-ignore
       hasNoOutstandingBalance: (
         _context: StripeContext,
-        _event: StripeEvent
+        _event: AnyEventObject
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
       },
 
-      // @ts-ignore
-      isAdding: ({ ctx }: StripeContext, _event: StripeEvent) => {
-        // @ts-ignore
-        return ctx === GatewayCtx.ADD;
+      isAdding: ({ ctx }: StripeContext, _event: AnyEventObject) => {
+        return ctx !== undefined && ctx == GatewayCtx.ADD;
       },
-      // @ts-ignore
-      isPaying: ({ ctx }: StripeContext, _event: StripeEvent) => {
-        // @ts-ignore
-        return ctx === GatewayCtx.PAY;
+      isPaying: ({ ctx }: StripeContext, _event: AnyEventObject) => {
+        return ctx !== undefined && ctx == GatewayCtx.PAY;
       },
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

@@ -6,18 +6,20 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientPhones as useUpmindClientPhones } from "@upmind-automation/headless";
 
 // --- utils
+import { machineMatches, useContextActor, useContextActors } from "../../utils";
 import { get, map, debounce, isEmpty } from "lodash-es";
+
+import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 
 // --------------------------------------------------------
 
-/**
- * @ignore
- */
-export const useClientPhone = (item: any, context?: any) => {
+export const useClientPhone = (
+  item: any, // Actor
+  context?: Record<string, any>
+): ClientItemDefinition => {
   const { service } = useUpmindClientPhones();
   // this will change to be a manager of ALL phones, for now its a single instance (add/update)
   const { state, send } = item;
-
   // --------------------------------------------------------
 
   return {
@@ -37,7 +39,7 @@ export const useClientPhone = (item: any, context?: any) => {
       isProcessing: ["processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
-      canRemove: state.value?.context?.model?.canDelete,
+      canRemove: !!state.value?.context?.model?.canDelete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
       isComplete:
@@ -58,7 +60,6 @@ export const useClientPhone = (item: any, context?: any) => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
         waitFor(service, newState =>
-          // @ts-ignore
           newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
@@ -73,25 +74,18 @@ export const useClientPhone = (item: any, context?: any) => {
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
     cancel: () => service.send({ type: "REFRESH" }),
-  };
+  } as ClientItemDefinition;
 };
 
-/**
- * @ignore
- */
-export const useClientPhones = () => {
+export const useClientPhones = (): ClientListingDefinition => {
   // this will change to be a manager of ALL phones, for now its a single instance (add/update)
 
   const { service, isReady, getSelected } = useUpmindClientPhones();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
-  const items = computed(() =>
-    map(state.value.context.items, (item: any) => ({
-      id: item.id,
-      ...useActor(item),
-    }))
-  );
+  const items = useContextActors(state, "items", []);
+  const selected = useContextActor(state, "selected");
 
   // --------------------------------------------------------
 
@@ -103,9 +97,11 @@ export const useClientPhones = () => {
     // ---
     meta: computed(() => ({
       isAvailable: ["available"].some(state.value.matches),
-      isLoading: ["subscribing", "checking", "available.loading"].some(
-        state.value.matches
-      ),
+      isLoading:
+        ["subscribing", "checking", "available.loading"].some(
+          state.value.matches
+        ) || machineMatches(selected, ["loading"]),
+
       isProcessing: ["available.filtering", "available.processing"].some(
         state.value.matches
       ),
@@ -119,37 +115,28 @@ export const useClientPhones = () => {
         !["available.editing", "available.adding", "available.loading"].some(
           state.value.matches
         ) &&
-        state.value.context?.raw?.length > 1,
+        (state.value.context?.raw?.length ?? 0) > 1,
     })),
     // ---
     items,
-    selected: computed(() =>
-      state.value.context?.selected
-        ? {
-            // @ts-ignore
-            id: state.value.context.selected?.id,
-            ...useActor(state.value.context.selected),
-          }
-        : null
-    ),
-    // @ts-ignore
+    selected,
     initial: computed(() => state.value.context?.initial),
 
     // ---
     isReady,
     getSelected,
+    filter: debounce(data => send({ type: "FILTER", data }), 300),
     select: async (id: any) => {
-      if (state.value.matches("available.loading")) {
-        await waitFor(
-          service,
-          newstate => !newstate.matches("available.loading")
-        );
-      }
-
+      await isReady();
       send({ type: "SELECT", data: id });
     },
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
-    edit: (id: any) => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" }),
-  };
+    edit: async (id: any) => {
+      await isReady();
+      send({ type: "EDIT", data: id });
+    },
+    add: async () => {
+      await isReady();
+      send({ type: "ADD" });
+    },
+  } as ClientListingDefinition;
 };

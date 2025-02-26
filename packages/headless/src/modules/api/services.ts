@@ -3,11 +3,12 @@
 // --- internal
 import { useApi } from ".";
 import { useSession } from "../session";
+import { useI18n } from "../system/i18n";
 
 import type { RequestContext } from "./types";
 
 // --- utils
-import { includes, get, set } from "lodash-es";
+import { includes, get, set, isEmpty } from "lodash-es";
 import {
   getTokenfromStorage,
   persistTokenToStorage,
@@ -15,7 +16,8 @@ import {
 } from "../session/utils";
 
 // --- types
-import { GrantTypes } from "../session/types";
+import { GrantTypes } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // ENUMS
@@ -34,11 +36,19 @@ export enum FetchMethods {
 
 // this will process the request and return a promise, this WONT allow the request to be cancelled
 // TODO: async function doFetch({ url, init }: RequestContext) {
-async function doFetch({ url, init }: any) {
+async function doFetch({ url, init }: RequestContext) {
   // safety check, not sure we need this as our machine implementation is pretty strict
 
   if (!includes(FetchMethods, init?.method)) {
     return Promise.reject(`Invalid method: ${init?.method}`);
+  }
+
+  if (!url) return Promise.reject("Invalid URL");
+
+  if (!url.searchParams.has("lang")) {
+    const { getLocale } = useI18n();
+    const locale = await getLocale();
+    if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
   }
 
   // do the fetch
@@ -83,7 +93,7 @@ async function doFetch({ url, init }: any) {
   });
 }
 
-async function refreshToken(_context: RequestContext, _event: any) {
+async function refreshToken(_context: RequestContext, _event: AnyEventObject) {
   const { post, useUrl } = useApi();
   const { reauth } = useSession();
 
@@ -119,7 +129,7 @@ async function refreshToken(_context: RequestContext, _event: any) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   doFetch,
   refreshToken,
 };

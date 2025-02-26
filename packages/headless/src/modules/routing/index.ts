@@ -25,12 +25,12 @@ import { isEmpty, get, some } from "lodash-es";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-// @ts-ignore
 const service = interpret(routingEngine, {
   devTools: true,
 });
 
 // --------------------------------------------------------
+export type RouteQueryParams = typeof useRouteQueryParams;
 
 export const useRoutingEngine = () => {
   return {
@@ -42,6 +42,8 @@ export const useRoutingEngine = () => {
       }).then(state => {
         if (["unavailable"].some(state.matches))
           return Promise.reject("Routing Engine is not available");
+
+        return state;
       }),
 
     //  ---
@@ -87,7 +89,7 @@ export const useRoutingEngine = () => {
     // ---
     usePendingProducts: useRoutePendingProducts,
     useRequiresAction: useRouteRequiresAction,
-    useQueryParams: useRouteQueryParams,
+    useQueryParams: useRouteQueryParams as RouteQueryParams,
     // ---
     destroy: () => service.stop(),
   };

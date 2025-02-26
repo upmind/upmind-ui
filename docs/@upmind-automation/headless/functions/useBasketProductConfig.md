@@ -3,10 +3,7 @@
 # useBasketProductConfig()
 
 ```ts
-function useBasketProductConfig(
-   id, 
-   rawBasket, 
-   errorExternal?): object
+function useBasketProductConfig(id, rawBasket, errorExternal?): object;
 ```
 
 ## Parameters
@@ -24,7 +21,19 @@ function useBasketProductConfig(
 ### getSnapshot()
 
 ```ts
-getSnapshot: () => State<unknown, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+getSnapshot: () =>
+  State<
+    unknown,
+    AnyEventObject,
+    any,
+    object,
+    ResolveTypegenMeta<
+      TypegenDisabled,
+      AnyEventObject,
+      BaseActionObject,
+      ServiceMap
+    >
+  >;
 ```
 
 #### Returns
@@ -34,7 +43,21 @@ getSnapshot: () => State<unknown, AnyEventObject, any, object, ResolveTypegenMet
 ### isReady()
 
 ```ts
-isReady: () => Promise<State<unknown, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
+isReady: () =>
+  Promise<
+    State<
+      unknown,
+      AnyEventObject,
+      any,
+      object,
+      ResolveTypegenMeta<
+        TypegenDisabled,
+        AnyEventObject,
+        BaseActionObject,
+        ServiceMap
+      >
+    >
+  >;
 ```
 
 #### Returns
@@ -44,7 +67,21 @@ isReady: () => Promise<State<unknown, AnyEventObject, any, object, ResolveTypege
 ### refresh()
 
 ```ts
-refresh: (basket) => Promise<State<unknown, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>>;
+refresh: basket =>
+  Promise<
+    State<
+      unknown,
+      AnyEventObject,
+      any,
+      object,
+      ResolveTypegenMeta<
+        TypegenDisabled,
+        AnyEventObject,
+        BaseActionObject,
+        ServiceMap
+      >
+    >
+  >;
 ```
 
 #### Parameters
@@ -68,13 +105,36 @@ remove: () => Promise<any>;
 ### service
 
 ```ts
-service: Interpreter<unknown, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+service: Interpreter<
+  unknown,
+  any,
+  AnyEventObject,
+  object,
+  ResolveTypegenMeta<
+    TypegenDisabled,
+    AnyEventObject,
+    BaseActionObject,
+    ServiceMap
+  >
+>;
 ```
 
 ### stop()
 
 ```ts
-stop: () => Interpreter<unknown, any, AnyEventObject, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+stop: () =>
+  Interpreter<
+    unknown,
+    any,
+    AnyEventObject,
+    object,
+    ResolveTypegenMeta<
+      TypegenDisabled,
+      AnyEventObject,
+      BaseActionObject,
+      ServiceMap
+    >
+  >;
 ```
 
 #### Returns
@@ -84,7 +144,7 @@ stop: () => Interpreter<unknown, any, AnyEventObject, object, ResolveTypegenMeta
 ### update()
 
 ```ts
-update: () => Promise<ActorRef<any, any>>;
+update: () => Promise<ActorRef<any>>;
 ```
 
 #### Returns

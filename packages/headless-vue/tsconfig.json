@@ -1,15 +1,13 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "allowJs": false,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "declaration": true,
+    "declarationDir": "dist",
     "outDir": "dist",
-    "noImplicitThis": true,
-    "skipLibCheck": true,
-    "strict": true
-  }
+    "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
+  "references": [{ "path": "../headless" }, { "path": "../types" }]
 }

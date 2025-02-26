@@ -7,16 +7,18 @@ import { useClientCompanies as useUpmindClientCompanies } from "@upmind-automati
 
 // --- utils
 import { get, map, debounce, isEmpty } from "lodash-es";
+import { machineMatches, useContextActor, useContextActors } from "../../utils";
+import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 
 // --------------------------------------------------------
 
-/**
- * @ignore
- */
-export const useClientCompany = (item: any, context?: any) => {
+export const useClientCompany = (
+  item: any, // Actor
+  context?: Record<string, any>
+): ClientItemDefinition => {
   const { service } = useUpmindClientCompanies();
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
-  const { state, send }: any = item;
+  const { state, send } = item;
 
   // --------------------------------------------------------
 
@@ -58,7 +60,6 @@ export const useClientCompany = (item: any, context?: any) => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
         waitFor(service, newState =>
-          // @ts-ignore
           newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
@@ -73,25 +74,18 @@ export const useClientCompany = (item: any, context?: any) => {
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
     cancel: () => service.send({ type: "REFRESH" }),
-  };
+  } as ClientItemDefinition;
 };
 
-/**
- * @ignore
- */
-export const useClientCompanies = () => {
+export const useClientCompanies = (): ClientListingDefinition => {
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
 
   const { service, isReady, getSelected } = useUpmindClientCompanies();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
-  const items = computed(() =>
-    map(state.value.context.items, (item: any) => ({
-      id: item.id,
-      ...useActor(item),
-    }))
-  );
+  const items = useContextActors(state, "items", []);
+  const selected = useContextActor(state, "selected");
 
   // --------------------------------------------------------
 
@@ -103,9 +97,11 @@ export const useClientCompanies = () => {
     // ---
     meta: computed(() => ({
       isAvailable: ["available"].some(state.value.matches),
-      isLoading: ["subscribing", "checking", "available.loading"].some(
-        state.value.matches
-      ),
+      isLoading:
+        ["subscribing", "checking", "available.loading"].some(
+          state.value.matches
+        ) || machineMatches(selected, ["loading"]),
+
       isProcessing: ["available.filtering", "available.processing"].some(
         state.value.matches
       ),
@@ -119,37 +115,28 @@ export const useClientCompanies = () => {
         !["available.editing", "available.adding", "available.loading"].some(
           state.value.matches
         ) &&
-        state.value.context?.raw?.length > 1,
+        (state.value.context?.raw?.length ?? 0) > 1,
     })),
     // ---
     items,
-    selected: computed(() =>
-      state.value.context?.selected
-        ? {
-            // @ts-ignore
-            id: state.value.context.selected?.id,
-            ...useActor(state.value.context.selected),
-          }
-        : null
-    ),
-    // @ts-ignore
+    selected,
     initial: computed(() => state.value.context?.initial),
 
     // ---
     isReady,
     getSelected,
+    filter: debounce(data => send({ type: "FILTER", data }), 300),
     select: async (id: any) => {
-      if (state.value.matches("available.loading")) {
-        await waitFor(
-          service,
-          newstate => !newstate.matches("available.loading")
-        );
-      }
-
+      await isReady();
       send({ type: "SELECT", data: id });
     },
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
-    edit: (id: any) => send({ type: "EDIT", data: id }),
-    add: () => send({ type: "ADD" }),
-  };
+    edit: async (id: any) => {
+      await isReady();
+      send({ type: "EDIT", data: id });
+    },
+    add: async () => {
+      await isReady();
+      send({ type: "ADD" });
+    },
+  } as ClientListingDefinition;
 };

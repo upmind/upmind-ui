@@ -5,11 +5,13 @@
       v-if="title || tagline || $slots.header || $slots.title"
     >
       <slot name="header">
-        <h3 :class="cn(styles.section.title, props.classTitle)">
-          <slot name="title">{{ title }}</slot>
-        </h3>
+        <slot name="title">
+          <h3 :class="cn(styles.section.title, props.classTitle)">
+            {{ title }}
+          </h3>
+        </slot>
         <slot name="option">
-          <div :class="styles.section.tagline">
+          <div v-if="tagline" :class="styles.section.tagline">
             {{ tagline }}
           </div>
         </slot>
@@ -32,10 +34,10 @@
 <script setup lang="ts">
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./config.cva";
+import config from "./content.config";
 
 // --- types
-import type { HTMLAttributes } from "vue";
+import type { HTMLAttributes, ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -48,5 +50,14 @@ const props = defineProps<{
   classFooter?: HTMLAttributes["class"];
 }>();
 
-const styles = useStyles(["section"], {}, config);
+const styles = useStyles(["section"], {}, config) as ComputedRef<{
+  section: {
+    root: string;
+    header: string;
+    title: string;
+    tagline: string;
+    content: string;
+    footer: string;
+  };
+}>;
 </script>

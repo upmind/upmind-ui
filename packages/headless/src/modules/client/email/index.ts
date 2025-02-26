@@ -1,4 +1,5 @@
 // --- external
+import type { ActorRef, AnyEventObject } from "xstate";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -11,26 +12,25 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
-import type { IEmail } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // create a global instance of the system machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let state: any = null;
+const service = interpret(
+  listingsMachine.withConfig({
+    actions: actions as any,
+    services: services as any,
+  }),
+  {
+    devTools: false,
+  }
+);
 
-// @ts-ignore
-const service = interpret(listingsMachine.withConfig({ actions, services }), {
-  devTools: false,
-}).onTransition(newState => (state = newState));
+// -----------------------------------------------------------------------------
 
-// --------------------------------------------------------
-
-/**
- * @ignore
- */
 export const useClientEmails = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
@@ -41,25 +41,31 @@ export const useClientEmails = () => {
         state =>
           state.matches("available") && !state.matches("available.loading")
       ),
-    getSnapshot: () => state,
-    getItemsSnapshot: () => state?.context?.items,
-    getItems: () => compact(map(state?.context?.items, "state.context.model")),
-    getItemSnapshot: (id: any) => find(state?.context?.items, ["id", id]),
+    getSnapshot: service.getSnapshot,
+    getItemsSnapshot: () => service.getSnapshot()?.context?.items,
+    getItems: () =>
+      compact(
+        map(service.getSnapshot()?.context?.items, "state.context.model")
+      ),
+    getItemSnapshot: (id: any) =>
+      find(service.getSnapshot()?.context?.items, ["id", id]),
     getItem: (id: any) =>
-      find(state?.context?.items, ["id", id])?.state?.context?.model,
+      find(service.getSnapshot()?.context?.items, ["id", id])?.getSnapshot()
+        ?.context?.model,
     getSelected: () => {
       return waitFor(
         service,
         state =>
           state.matches("available") && !state.matches("available.loading")
-      ).then(() => {
+      ).then(state => {
         // first try to get the selected address from the context
         if (state?.context?.selected) return state.context.selected;
 
         // if no selected address, try to get the default address
-        const defaultAddress = find(state?.context?.items, item => {
-          return item.state?.context?.model?.default;
-        });
+        const defaultAddress = find(
+          state?.context?.items,
+          "state.context.model.default"
+        );
 
         // if we have a default address, select it
         if (defaultAddress) {
@@ -69,18 +75,25 @@ export const useClientEmails = () => {
       });
     },
     getDefault: () =>
-      find(state?.context?.items, "state.context.model.default"),
+      find(
+        service.getSnapshot()?.context?.items,
+        "state.context.model.default"
+      )?.getSnapshot()?.context?.model,
 
     search: async (data: any) => {
       service.send({ type: "FILTER", data });
       return waitFor(service, state =>
         state.matches("available.filtered")
-      ).then(() => {
+      ).then(state => {
         return state.context.items;
       });
     },
-    find: (data: string) => services.find(state.context, { data }),
-    // @ts-ignore
-    add: (data: IEmail) => services.add(data),
+    find: (data: string) =>
+      services.find(service.getSnapshot().context, {
+        type: "FIND",
+        data,
+      } as AnyEventObject),
+    add: (data: any) => services.add(data),
+    refresh: () => service.send("REFRESH"),
   };
 };

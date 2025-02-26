@@ -1,15 +1,16 @@
 // --- external
 
 // --- internal
-import { useSession, useBrand, BrandConfigKeys } from "../../..";
-
+import { useSession, useBrand } from "../../..";
+import { BrandConfigKeys } from "@upmind-automation/types";
 // --- utils
 import { canBeStored } from "./utils";
 import { useValidation } from "../../../utils";
 import { isNil, get } from "lodash-es";
 
 // --- types
-import type { GatewayEvent, GatewayContext } from "./types";
+import type { GatewayContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 //  ENUMS
@@ -18,7 +19,7 @@ import type { GatewayEvent, GatewayContext } from "./types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
+async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
   const { isAuthenticated } = useSession();
 
   await isAuthenticated().catch(error => Promise.reject(error));
@@ -35,7 +36,6 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
   ]).then(data => {
     return {
-      // @ts-ignore
       can_store: canBeStored(gateway),
       must_store: get(
         data,
@@ -55,7 +55,7 @@ async function load({ gateway }: GatewayContext, _event: GatewayEvent) {
 
 async function parse(
   { model, can_store, must_store, must_auto_pay }: GatewayContext,
-  _event: GatewayEvent
+  _event: AnyEventObject
 ) {
   model ??= {}; // safeguard
 
@@ -78,7 +78,7 @@ async function parse(
 
 async function validate(
   { schema, model }: GatewayContext,
-  _event: GatewayEvent
+  _event: AnyEventObject
 ) {
   // ---
 

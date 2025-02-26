@@ -22,7 +22,7 @@ export function getMaxAge(seconds = 60) {
   return maxAge;
 }
 
-export function addMeta(obj: Object, prop: PropertyKey, value: any) {
+export function addMeta(obj: object, prop: PropertyKey, value: any) {
   Object.defineProperty(obj, prop, {
     value,
     enumerable: false,

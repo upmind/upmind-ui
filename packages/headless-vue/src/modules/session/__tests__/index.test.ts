@@ -39,7 +39,6 @@ describe("useSession", () => {
     };
     send = vi.fn();
 
-    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send });
 
     // Reset mocks before each test
