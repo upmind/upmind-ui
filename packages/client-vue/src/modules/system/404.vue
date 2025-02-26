@@ -51,6 +51,10 @@ import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 
+// -- internal
+import Four from "../../assets/animations/four.json?url";
+import Zero from "../../assets/animations/zero.json?url";
+
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
@@ -72,21 +76,21 @@ const createRepeatSequence = (
 
 const icons = [
   {
-    icon: "four",
+    icon: Four,
     sequence: createRepeatSequence(
       "delay:0,state:in-reveal,play,delay:2000,state:out-reveal,play,delay:0",
       50
     ),
   },
   {
-    icon: "zero",
+    icon: Zero,
     sequence: createRepeatSequence(
       "delay:300,state:in-reveal,play,delay:1700,state:out-reveal,play,delay:0",
       50
     ),
   },
   {
-    icon: "four",
+    icon: Four,
     sequence: createRepeatSequence(
       "delay:600,state:in-reveal,play,delay:1400,state:out-reveal,play,delay:0",
       50

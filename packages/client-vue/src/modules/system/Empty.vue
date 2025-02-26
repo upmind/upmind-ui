@@ -3,7 +3,6 @@
     <ContentSection v-auto-animate>
       <Interstitial
         v-bind="props"
-        :title="t('basket.empty.title')"
         :text="t('basket.empty.text')"
         :actions="[
           {
@@ -31,6 +30,9 @@
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
+// --- internal
+import BasketEmpty from "../../assets/animations/basket-empty.json?url";
+
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
@@ -49,7 +51,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   skrim: "light",
 
   animatedIcon: () => ({
-    icon: "basket-empty",
+    icon: BasketEmpty,
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",

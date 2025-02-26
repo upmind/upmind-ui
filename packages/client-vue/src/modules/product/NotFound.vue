@@ -19,7 +19,7 @@
           },
         ]"
         :animatedIcon="{
-          icon: 'basket',
+          icon: Basket,
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'accent',
@@ -40,6 +40,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
+import Basket from "../../assets/animations/basket.json?url";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";

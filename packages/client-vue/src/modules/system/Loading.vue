@@ -28,6 +28,9 @@
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
+// --- internal
+import Basket from "../../assets/animations/basket.json?url";
+
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
@@ -43,7 +46,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   modal: false,
   skrim: "light",
   animatedIcon: () => ({
-    icon: "basket",
+    icon: Basket,
     delay: 250,
     primaryColor: "base-foreground",
     secondaryColor: "secondary",

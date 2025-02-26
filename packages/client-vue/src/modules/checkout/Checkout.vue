@@ -103,7 +103,7 @@
         modal
         size="2xl"
         :animatedIcon="{
-          icon: 'tapping-card',
+          icon: TappingCard,
           primaryColor: 'primary',
           secondaryColor: 'secondary',
           size: '4xl',
@@ -134,6 +134,9 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
 } from "@upmind-automation/headless-vue";
+import TappingCard from "../../assets/animations/tapping-card.json?url";
+import Receipt from "../../assets/animations/receipt.json?url";
+import Basket from "../../assets/animations/basket.json?url";
 
 import config from "./checkout.config";
 import { useStyles, Interstitial } from "@upmind-automation/upmind-ui";
@@ -233,26 +236,26 @@ const processingTextKey = computed(() => {
 
 const processingIcon = computed(() => {
   if (meta.value.needsApproval) {
-    return "basket";
+    return Basket;
   }
 
   if (meta.value.isConverting) {
-    return "receipt";
+    return Receipt;
   }
 
   if (meta.value.isPaying) {
-    return "tapping-card";
+    return TappingCard;
   }
 
   if (meta.value.isCheckout) {
-    return "tapping-card";
+    return TappingCard;
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return "basket";
+    return Basket;
   }
 
-  return "basket";
+  return Basket;
 });
 // --- side effects
 watch(meta, (value, oldValue) => {
