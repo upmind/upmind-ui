@@ -46,11 +46,16 @@ dependencies:
   stage: dependencies
   image: ${NODE_IMAGE}
 
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+    - pnpm --version
+
   cache:
     - key:
         files:
           - package.json
-          - package-lock.json
+          - pnpm-lock.yaml
       paths:
         - node_modules
         - playgrounds/storybook/node_modules
@@ -73,7 +78,7 @@ dependencies:
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
   script:
-    - npm clean-install
+    - pnpm clean
 
 .check version:
   stage: build
