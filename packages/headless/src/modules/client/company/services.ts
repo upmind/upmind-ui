@@ -12,14 +12,14 @@ import { useValidation } from "../../../utils";
 import { includes, filter } from "lodash-es";
 
 // --- types
-import type { CompanyEvent, CompanyContext } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { AnyEventObject } from "xstate";
+import type { CompanyContext, CompaniesContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// async function getEnums({ field }: CompanyContext, _event: CompanyEvent) {
+// async function getEnums({ field }: CompanyContext, ) {
 //   const { getConfig } = useBrand();
 
 //   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
@@ -29,10 +29,7 @@ import type { ClientListingsEvents, ClientListingsContext } from "../types";
 //   );
 // }
 
-async function load(
-  _context: ClientListingsContext,
-  _event: ClientListingsEvents
-) {
+async function load(_context: CompaniesContext) {
   const { get, useUrl } = useApi();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -48,7 +45,7 @@ async function load(
   }).then(({ data }: any) => data);
 }
 
-async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
+async function loadLookups({ model }: CompanyContext) {
   // lets start up/use our dependencies
   const addresses = useClientAddresses();
   const phones = useClientPhones();
@@ -59,19 +56,22 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
     phones.isReady(),
     emails.isReady(),
   ]).then(() => {
+    const defaultAddress = addresses.getDefault();
+    const defaultPhone = phones.getDefault();
+    const defaultEmail = emails.getDefault();
     return {
       emails,
       addresses,
       phones,
       baseModel: {
         ...model,
-        addressId: addresses.getDefault()?.id,
-        email: emails.getDefault()?.email,
+        addressId: defaultAddress?.id,
+        email: defaultEmail?.email,
         phone: {
-          number: phones.getDefault()?.phone?.number,
-          nationalNumber: phones.getDefault()?.phone?.national_number,
-          countryCallingCode: phones.getDefault()?.phone?.country_calling_code,
-          country: phones.getDefault()?.phone?.country,
+          number: defaultEmail?.phone?.number,
+          nationalNumber: defaultEmail?.phone?.national_number,
+          countryCallingCode: defaultEmail?.phone?.country_calling_code,
+          country: defaultEmail?.phone?.country,
         },
       },
     };
@@ -79,8 +79,8 @@ async function loadLookups({ model }: CompanyContext, _event: CompanyEvent) {
 }
 
 async function filterItems(
-  { raw }: ClientListingsContext,
-  { data }: ClientListingsEvents
+  { raw }: CompaniesContext,
+  { data }: AnyEventObject
 ) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
@@ -88,9 +88,12 @@ async function filterItems(
   const filteredItems = filter(
     raw,
     item =>
-      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
       includes(
-        item.state.context?.description?.toLowerCase(),
+        item.getSnapshot().context?.title?.toLowerCase(),
+        data?.toLowerCase()
+      ) ||
+      includes(
+        item.getSnapshot().context?.description?.toLowerCase(),
         data?.toLowerCase()
       )
   );
@@ -98,9 +101,9 @@ async function filterItems(
   return Promise.resolve(filteredItems);
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-async function add({ model }: CompanyContext, _event: CompanyEvent) {
+async function add({ model }: CompanyContext) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -121,7 +124,7 @@ async function add({ model }: CompanyContext, _event: CompanyEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function update({ model }: CompanyContext, _event: CompanyEvent) {
+async function update({ model }: CompanyContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -142,7 +145,7 @@ async function update({ model }: CompanyContext, _event: CompanyEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function setDefault({ model }: CompanyContext, _event: CompanyEvent) {
+async function setDefault({ model }: CompanyContext) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -155,7 +158,7 @@ async function setDefault({ model }: CompanyContext, _event: CompanyEvent) {
   }).then(({ data }: any) => data);
 }
 
-async function remove({ model }: CompanyContext, _event: CompanyEvent) {
+async function remove({ model }: CompanyContext) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
 
@@ -167,7 +170,7 @@ async function remove({ model }: CompanyContext, _event: CompanyEvent) {
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // TODO: async function parse({ model }: PhoneContext, _event: PhoneEvent) {
 async function parse({ model }: any, _event: any) {
@@ -175,10 +178,7 @@ async function parse({ model }: any, _event: any) {
   return Promise.resolve({ model });
 }
 
-async function validate(
-  { schema, model }: CompanyContext,
-  _event: CompanyEvent
-) {
+async function validate({ schema, model }: CompanyContext) {
   // ---
 
   // Now validate the model as per normal
@@ -194,7 +194,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

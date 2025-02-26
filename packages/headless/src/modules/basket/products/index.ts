@@ -9,11 +9,13 @@ import services from "./services";
 // --- utils
 import { find } from "lodash-es";
 
-import { responseCodes } from "../../api";
+import { responseCodes } from "../../../utils";
 
 // --- types
-import type { Basket, BasketProduct } from "../types";
+import type { IBasket } from "@upmind-automation/types";
+import type { BasketProduct } from "../types";
 import { parseBasketProduct } from "../utils";
+import { DetailedError } from "../../../utils";
 
 // --------------------------------------------------------
 // create a global instance of the basket machine
@@ -21,21 +23,18 @@ import { parseBasketProduct } from "../utils";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-/**
- * @ignore
- */
 export const useBasketProduct = (
   id: string,
-  rawBasket: Basket,
+  rawBasket: IBasket,
   errorExternal?: any
 ) => {
-  function getBasketProduct(basket: Basket) {
+  function getBasketProduct(basket: IBasket) {
     const value = find(basket?.products, { id });
     if (!value) {
-      const error = new Error("Product not found in basket");
-      //@ts-ignore
-      error.code = responseCodes.Not_Found;
-      throw error;
+      throw new DetailedError(
+        "Product not found in basket",
+        responseCodes.Not_Found
+      );
     }
 
     return value;
@@ -45,10 +44,10 @@ export const useBasketProduct = (
 
   return {
     basketProduct: parseBasketProduct(basketProduct, errorExternal),
-    refresh: async (newBasket: Basket) => {
+    refresh: async (newBasket: IBasket) => {
       basketProduct = getBasketProduct(newBasket);
     },
-    update: async (data: BasketProduct): Promise<ActorRef<any, any>> => {
+    update: async (data: BasketProduct): Promise<ActorRef<any>> => {
       return services.update({ basketId: rawBasket.id }, { data });
     },
 
@@ -60,15 +59,16 @@ export const useBasketProduct = (
 
 export const useBasketProductConfig = (
   id: string,
-  rawBasket: Basket,
+  rawBasket: IBasket,
   errorExternal?: any
 ) => {
   const basketProduct = find(rawBasket?.products, { id });
+
   if (!basketProduct) {
-    const error = new Error("Product not found in basket");
-    //@ts-ignore
-    error.code = responseCodes.Not_Found;
-    throw error;
+    throw new DetailedError(
+      "Product not found in basket",
+      responseCodes.Not_Found
+    );
   }
 
   const service = interpret(
@@ -78,6 +78,7 @@ export const useBasketProductConfig = (
       basketProduct,
       currencyId: rawBasket.currency_id,
       promotions: rawBasket.promotions,
+      clientId: rawBasket.client_id,
       errorExternal,
     }),
     {
@@ -95,20 +96,19 @@ export const useBasketProductConfig = (
         timeout: Infinity, // infinity = no timeout
       }),
 
-    refresh: (basket: Basket) => {
-      service.send({ type: "REFRESH", basket });
+    refresh: (rawBasket: IBasket) => {
+      service.send({ type: "REFRESH", rawBasket });
       return waitFor(service, state => state.matches("available"));
     },
 
     stop: () => service.stop(),
 
-    update: async (): Promise<ActorRef<any, any>> => {
+    update: async (): Promise<ActorRef<any>> => {
       service.send({ type: "UPDATE" });
 
       return waitFor(service, state => !state.matches("processing")).then(
         state => {
           if (["error", "available.error"].some(state.matches)) {
-            // @ts-ignore
             return Promise.reject(state?.context?.error);
           }
           return Promise.resolve(service);

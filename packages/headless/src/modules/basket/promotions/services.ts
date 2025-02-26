@@ -8,7 +8,8 @@ import { useValidation } from "../../../utils";
 import { get, isEmpty, some } from "lodash-es";
 
 // --- types
-import type { PromotionsEvent, PromotionsContext } from "./types";
+import type { PromotionsContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 
@@ -16,7 +17,7 @@ import type { PromotionsEvent, PromotionsContext } from "./types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(_context: PromotionsContext, _event: PromotionsEvent) {
+async function load(_context: PromotionsContext, _event: AnyEventObject) {
   // Promotions dont have any initial state to load, so we can pass through an empty object
   return Promise.resolve({});
 }
@@ -25,7 +26,7 @@ async function load(_context: PromotionsContext, _event: PromotionsEvent) {
 
 async function add(
   { basketId, model, promotions }: PromotionsContext,
-  _event: PromotionsEvent
+  _event: AnyEventObject
 ) {
   const { post, useUrl } = useApi();
 
@@ -36,7 +37,6 @@ async function add(
 
   return post({
     url: useUrl(`/orders/${basketId}/promotions`),
-    // @ts-ignore
     data: { promocode: model?.promocode },
     withAccessToken: true,
   }).then(({ data }: any) => data);
@@ -44,7 +44,7 @@ async function add(
 
 async function remove(
   { basketId }: PromotionsContext,
-  { data }: PromotionsEvent
+  { data }: AnyEventObject
 ) {
   const id = get(data, "id", data);
 
@@ -61,7 +61,7 @@ async function remove(
 
 // --------------------------------------------------------
 
-async function parse({ model }: PromotionsContext, _event: PromotionsEvent) {
+async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
@@ -69,7 +69,7 @@ async function parse({ model }: PromotionsContext, _event: PromotionsEvent) {
 
 async function validate(
   { schema, model }: PromotionsContext,
-  _event: PromotionsEvent
+  _event: AnyEventObject
 ) {
   // ---
 

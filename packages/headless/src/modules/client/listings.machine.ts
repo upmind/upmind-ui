@@ -7,13 +7,14 @@ import { createMachine, assign } from "xstate";
 import { find, forEach, isEmpty, every, isString } from "lodash-es";
 
 // - --types
-import type { ClientListingsContext, ClientListingsEvents } from "./types";
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { ClientListingsContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./listings.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./listings.machine.typegen").Typegen0,
     id: "clientListingsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -24,7 +25,7 @@ export default createMachine(
       selected: undefined,
       // ---
       error: undefined,
-    },
+    } as ClientListingsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
@@ -141,7 +142,7 @@ export default createMachine(
         },
         on: {
           REFRESH: {
-            target: "available",
+            target: "available.loading",
             actions: ["setInitial"],
           },
 
@@ -191,12 +192,11 @@ export default createMachine(
       }),
 
       setFiltered: assign({
-        // @ts-ignore
-        items: (_context, { data }) => data,
+        items: (_context, { data }: AnyEventObject) => data,
       }),
 
       setFilters: assign({
-        filters: (_context, { data }: any) => data,
+        filters: (_context, { data }: AnyEventObject) => data,
       }),
       // --------------------------------------------
 
@@ -209,44 +209,47 @@ export default createMachine(
           return [];
         },
         items: [],
-        selected: undefined,
         filters: undefined,
+        selected: undefined,
       }),
 
-      // @ts-ignore
       setInitial: assign({
         initial: (
           { raw, initial }: ClientListingsContext,
-          { data }: ClientListingsEvents
+          { data }: AnyEventObject
         ) => {
           if (isString(data) && !isEmpty(data)) return data; // if weve explicitly been given an id, use it. eg when we add a new item and its not yet in the raw list
           // otherwise use our existing initial value or the default
-          return initial || find(raw, "state.context.model.default")?.id;
+          return initial ?? find(raw, "state.context.model.default")?.id;
         },
         selected: (
           { raw, initial }: ClientListingsContext,
-          _event: ClientListingsEvents
+          { data }: AnyEventObject
         ) => {
-          initial ??= find(raw, "state.context.model.default")?.id;
-          return find(raw, ["id", initial]); //|| find(raw, "state.context.model.default")
+          // mimic above as we may have a new initial value
+          if (isString(data) && !isEmpty(data)) initial = data;
+
+          const id = initial ?? find(raw, "state.context.model.default")?.id;
+          const selectedItem = find(raw, ["id", id]);
+          return selectedItem ? (selectedItem as ActorRef<any>) : undefined;
         },
       }),
 
-      // @ts-ignore
       setSelected: assign({
-        initial: ({ selected, initial }) => selected?.id || initial,
+        initial: ({ selected, initial }: ClientListingsContext) =>
+          selected?.id || initial,
         // filters: undefined,
         // items: ({ raw }, _event) => raw,
         selected: (
           { raw }: ClientListingsContext,
-          { data }: ClientListingsEvents
+          { data }: AnyEventObject
         ) => {
-          return find(raw, ["id", data]); // || find(raw, "state.context.model.default")
+          const id = data as string;
+          return find(raw, ["id", id]) || undefined; // || find(raw, "state.context.model.default")
         },
       }),
 
       clearSelected: assign({
-        // @ts-ignore
         initial: undefined,
         filters: undefined,
         items: ({ raw }, _event) => raw,
@@ -261,12 +264,14 @@ export default createMachine(
         },
       }),
 
-      // @ts-ignore
       clearError: assign({ error: null }),
     },
     guards: {
       isNotProcessing: ({ raw }) => {
-        return every(raw, (item: any) => !item?.state?.matches("loading"));
+        return every(
+          raw,
+          (item: ActorRef<any>) => !item?.getSnapshot().matches("loading")
+        );
       },
       hasItems: ({ raw }) => !isEmpty(raw),
       hasNoItems: ({ raw }) => isEmpty(raw),

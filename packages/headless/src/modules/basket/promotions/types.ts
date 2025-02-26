@@ -3,14 +3,14 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 // import type { RequestError } from "../..//api/types";
-
+import type { IBasketPromotion } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
 // --------------------------------------------------------
 // private
 
-export interface IPromotion {
+export interface Promotion {
   promocode: string;
 }
 
@@ -20,23 +20,12 @@ export interface IPromotion {
 export interface PromotionsContext {
   basketId?: string;
   // ---
-  promotions?: IPromotion[];
+  promotions?: IBasketPromotion[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IPromotion;
+  model?: Promotion;
   // ---
   dirty?: Boolean;
   autoupdate?: Boolean;
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface PromotionsEvent {
-  type: "ADD" | "REMOVE" | "CLEAR" | "SET" | "RETRY";
-  data?: IPromotion;
-  // TODO:
-  // error?: RequestError;
   error?: any;
 }

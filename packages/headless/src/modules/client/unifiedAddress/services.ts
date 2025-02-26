@@ -10,7 +10,7 @@ import { useClientEmails } from "../email";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { parseAddress } from "./utils";
+import { parseAddress, parseCompany } from "./utils";
 import {
   some,
   first,
@@ -26,23 +26,18 @@ import {
 } from "lodash-es";
 
 // --- types
-import type {
-  UnifiedAddressEvent,
-  UnifiedAddressContext,
-  UnifiedAddressesEvents,
-  UnifiedAddressesContext,
-} from "./types";
-import type { IAddressData } from "../address/types";
-import { AddressTypes } from "../address/services";
+import { AddressTypes } from "../address/types";
+import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
+import type { AnyEventObject, ActorRef } from "xstate";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ENUMS
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// async function getEnums({ field }: UnifiedAddressContext, _event: UnifiedAddressEvent) {
+// async function getEnums({ field }: UnifiedAddressContext, _event: AnyEventObject) {
 //   const { getConfig } = useBrand();
 
 //   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
@@ -52,10 +47,7 @@ import { AddressTypes } from "../address/services";
 //   );
 // }
 
-async function load(
-  _context: UnifiedAddressesContext,
-  _event: UnifiedAddressesEvents
-) {
+async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
   const { get, useUrl } = useApi();
 
   const { isAuthenticated } = useSession();
@@ -85,18 +77,18 @@ async function load(
     withAccessToken: true,
     useCache: true,
     refresh: true,
-  }).then(({ data }: any) => parseAddress(data));
+  }).then(({ data }: any) => parseCompany(data));
 
   return Promise.all([addresses, companies]).then(
-    ([addresses, companies]) => [...companies, ...addresses] // we prioritise/return the companies first so they are at the top of the list
+    ([addresses, companies]) => {
+      return [...companies, ...addresses];
+    } // we prioritise/return the companies first so they are at the top of the list
   );
 }
 
 async function filterItems(
-  // TODO: { raw }: ClientListingsContext,
-  // TODO: { data }: ClientListingsEvents
-  { raw }: any,
-  { data }: any
+  { raw }: UnifiedAddressesContext,
+  { data }: AnyEventObject
 ) {
   if (!data?.length)
     return Promise.reject({ error: "No data provided for filtering" });
@@ -104,9 +96,12 @@ async function filterItems(
   const filteredItems = filter(
     raw,
     item =>
-      includes(item.state.context?.title?.toLowerCase(), data?.toLowerCase()) ||
       includes(
-        item.state.context?.description?.toLowerCase(),
+        item.getSnapshot().context?.title?.toLowerCase(),
+        data?.toLowerCase()
+      ) ||
+      includes(
+        item.getSnapshot().context?.description?.toLowerCase(),
         data?.toLowerCase()
       )
   );
@@ -115,9 +110,8 @@ async function filterItems(
 }
 
 async function findItem(
-  // TODO: { raw }: ClientListingsContext,
-  { raw }: any,
-  { data }: { data: IAddressData }
+  { raw }: UnifiedAddressesContext,
+  { data }: AnyEventObject
 ) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
@@ -132,7 +126,7 @@ async function findItem(
 
   const found = find(raw, item =>
     isEqual(
-      pick(item.state.context.model, [
+      pick(item.getSnapshot().context.model, [
         "address1",
         "address2",
         "city",
@@ -150,12 +144,11 @@ async function findItem(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 async function add(
-  // TODO: { model, addresses, phones, emails }: UnifiedAddressContext,
-  { model, addresses, phones, emails }: any,
-  _event?: UnifiedAddressEvent
+  { model, addresses, phones, emails }: UnifiedAddressContext,
+  _event?: AnyEventObject
 ) {
   const { post, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -187,7 +180,6 @@ async function add(
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // thhen create the address, email and phone as necessary and use the ids to create the company
-    // @ts-ignore
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
@@ -214,8 +206,8 @@ async function add(
 }
 
 async function update(
-  { model, addresses, phones, emails }: any,
-  _event: UnifiedAddressEvent
+  { model, addresses, phones, emails }: UnifiedAddressContext,
+  _event: AnyEventObject
 ) {
   const { post, put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -237,7 +229,6 @@ async function update(
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // thhen create the address, email and phone as necessary and use the ids to the company
-    // @ts-ignore
     const [address, email, phone] = await ensureDependencies({
       model,
       addresses,
@@ -282,9 +273,8 @@ async function update(
 }
 
 async function remove(
-  // TODO: { model }: UnifiedAddressContext,
-  { model }: any,
-  _event: UnifiedAddressEvent
+  { model }: UnifiedAddressContext,
+  _event: AnyEventObject
 ) {
   const { del, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -305,9 +295,8 @@ async function remove(
 }
 
 async function setDefault(
-  // TODO: { model }: UnifiedAddressContext,
-  { model }: any,
-  _event: UnifiedAddressEvent
+  { model }: UnifiedAddressContext,
+  _event: AnyEventObject
 ) {
   const { put, useUrl } = useApi();
   const { getUserId } = useSession();
@@ -320,15 +309,14 @@ async function setDefault(
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 async function ensureDependencies({
   model,
   addresses,
   emails,
   phones,
-  // TODO: }: UnifiedAddressContext) {
-}: any) {
+}: Partial<UnifiedAddressContext>): Promise<any> {
   const address = pick(model, [
     "address1",
     "address2",
@@ -347,9 +335,24 @@ async function ensureDependencies({
       .find(address)
       .then((item: any) => item?.state?.context?.model)
       .catch(() => {
-        return addresses.add({
-          model: { ...address, type: 4, name: model.name },
-        });
+        const data = {
+          address_1: model.address1,
+          address_2: model.address2,
+          city: model.city,
+          postcode: model.postcode,
+          region_id: model.regionId,
+          country_id: model.countryId,
+        };
+
+        return addresses
+          .add({
+            model: { ...data, name: model.name },
+          })
+          .then((item: ActorRef<any>) => {
+            // NB: Remember to refresh our machines so we have the new data
+            addresses.refresh();
+            return item;
+          });
       }),
 
     !model?.email
@@ -358,7 +361,13 @@ async function ensureDependencies({
           .find(model.email)
           .then((item: any) => item?.state?.context?.model)
           .catch(() => {
-            return emails.add({ model: { email: model.email, type: 4 } });
+            return emails
+              .add({ model: { email: model.email } })
+              .then((item: ActorRef<any>) => {
+                // NB: Remember to refresh our machines so we have the new data
+                emails.refresh();
+                return item;
+              });
           }),
 
     !model?.phone
@@ -367,7 +376,13 @@ async function ensureDependencies({
           .find(model.phone)
           .then((item: any) => item?.state?.context?.model)
           .catch(() => {
-            return phones.add({ model: { phone: model.phone, type: 4 } });
+            return phones
+              .add({ model: { phone: model.phone } })
+              .then((item: ActorRef<any>) => {
+                // NB: Remember to refresh our machines so we have the new data
+                phones.refresh();
+                return item;
+              });
           }),
   ];
 
@@ -376,7 +391,7 @@ async function ensureDependencies({
 
 async function loadLookups(
   { model }: UnifiedAddressContext,
-  _event: UnifiedAddressEvent
+  _event: AnyEventObject
 ) {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -407,9 +422,9 @@ async function loadLookups(
     .then(() => {
       places.reset();
 
-      const address = addresses.getDefault()?.state?.context?.model;
-      const email = emails.getDefault()?.state?.context?.model;
-      const phone = phones.getDefault()?.state?.context?.model;
+      const address = addresses.getDefault();
+      const email = emails.getDefault();
+      const phone = phones.getDefault();
       return {
         countries,
         regions,
@@ -437,9 +452,8 @@ async function loadLookups(
 }
 
 async function parse(
-  // TODO: { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
-  { addresses, schema, model, regions, country, places }: any,
-  event: UnifiedAddressEvent
+  { addresses, schema, model, regions, country, places }: UnifiedAddressContext,
+  event: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -506,7 +520,6 @@ async function parse(
     }
 
     // finally lets force a manual place if we are invalid:
-    // @ts-ignore
     const isValid = await validate({ schema, model }, event)
       .then(() => true)
       .catch(() => false);
@@ -543,8 +556,8 @@ async function parse(
 }
 
 async function validate(
-  { schema, model }: UnifiedAddressContext,
-  _event: UnifiedAddressEvent
+  { schema, model }: Partial<UnifiedAddressContext>,
+  _event: AnyEventObject
 ) {
   // ---
 
@@ -561,7 +574,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // EXPORTS
 
 export default {

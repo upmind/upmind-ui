@@ -11,7 +11,7 @@ import { get, uniqueId } from "lodash-es";
 export { useModelParser } from "../../../utils";
 
 // --- types
-import type { IEmail } from "./types";
+import type { IEmail } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
@@ -90,10 +90,8 @@ export const spawnItem = (model?: IEmail) => {
     return spawn(
       itemMachine
         .withConfig({
-          // @ts-ignore
-          actions,
-          // @ts-ignore
-          services,
+          actions: actions as any,
+          services: services as any,
         })
         .withContext({ model }),
       {
@@ -102,6 +100,7 @@ export const spawnItem = (model?: IEmail) => {
       }
     );
   } catch (err) {
-    console.error("EmailListings", "spawnItem", { model });
+    // console.error("EmailListings", "spawnItem", { model });
+    return null;
   }
 };

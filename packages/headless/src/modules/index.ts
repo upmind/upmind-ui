@@ -10,4 +10,3 @@ export * from "./client";
 export * from "./paymentDetails";
 export * from "./recommendations";
 export * from "./routing";
-// export * from "./locale";

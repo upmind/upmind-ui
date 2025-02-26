@@ -1,37 +1,33 @@
 // --- extrnal
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { ActorRef } from "xstate";
 
 // --- types
-import type { IGateway } from "../../../../modules/paymentDetails/gateways/types";
-import type { ICurrency } from "../../../../modules/system/types";
-import type {
-  GatewayContext,
-  GatewayTypes,
-} from "../../../../modules/paymentDetails/gateways/types";
-
-// --------------------------------------------------------
-// ENUMS
-
-// --------------------------------------------------------
-// private
+import type { ICurrency, IGateway, IAddress } from "@upmind-automation/types";
+import type { GatewayTypes } from "../types";
+import type { GatewayCtx, GatewayContext } from "../types";
 
 // --------------------------------------------------------
 // Contexts
 
-export interface StripeContext {
+export interface StripeContext extends GatewayContext {
   stripe?: any;
   elements?: any;
   element?: any;
-  renderer?: Function;
+  elementStatus?: any;
+  renderer?: (status: any) => void;
+  validationObserver: ActorRef<any>;
+  clientPaymentDetailsId?: string;
+  clientSecret?: string;
   // ---
   basket_id?: string;
   currency?: ICurrency;
-  address?: any; // IAdress
+  address?: IAddress;
   amount?: number;
   gateway?: IGateway;
   renderless?: boolean;
   // ---
-  ctx?: GatewayContext;
+  ctx?: GatewayCtx;
   type?: GatewayTypes;
 
   // --- UI
@@ -43,17 +39,6 @@ export interface StripeContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Stripe, as wel las any model data
   // ---
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface StripeEvent {
-  type: "CHECKOUT";
-  data?: any;
   // TODO:
   // error?: RequestError;
   error?: any;

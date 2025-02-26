@@ -6,3 +6,7 @@ dist
 .DS_Store
 *storybook.log
 **/.firebase/**
+.tsbuildinfo
+bin/pnpm
+bin/pnpx
+tsconfig.tsbuildinfo

@@ -6,6 +6,7 @@ import {
   useFieldsModelParser,
 } from "../../../utils";
 
+import type { AuthModel } from "./types";
 // -----------------------------------------------------------------------------
 
 export const useRegisterSchemaParser = (data: any) => {
@@ -91,8 +92,8 @@ export const useRegisterUischemaParser = (data: any) => {
   return schema;
 };
 
-export const useRegisterModelParser = (data: any) => {
-  const model = {
+export const useRegisterModelParser = (data: any): AuthModel => {
+  const model: AuthModel = {
     firstname: undefined,
     lastname: undefined,
     username: undefined,

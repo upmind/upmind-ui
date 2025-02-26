@@ -7,3 +7,5 @@ export * from "./useValidation";
 export * from "./isDeepEmpty";
 export * from "./useCookies";
 export * from "./useTracking";
+export * from "./useError";
+export * from "./useStorage";

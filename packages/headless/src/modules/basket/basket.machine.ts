@@ -6,7 +6,7 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 
 import { useFeedback } from "../feedback";
-const { addError, addSuccess, trackEvent } = useFeedback();
+const { addError, trackEvent } = useFeedback();
 
 // --- utils
 import { useTime } from "../../utils";
@@ -26,6 +26,7 @@ import {
   every,
   forEach,
   get,
+  has,
   includes,
   isEmpty,
   isEqual,
@@ -35,18 +36,15 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
-import type { BasketContext, BasketEvent } from "./types";
-import { responseCodes } from "../api";
-import { PaymentTypes } from "../paymentDetails/types";
-import { GatewayTypes } from "../paymentDetails/gateways/types";
-
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { BasketContext } from "./types";
+import { responseCodes } from "../../utils";
+import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QCMCGsDWYAuBZVAdqjAE4B0sArsrAMYkCWyDBUAxAMoCiHHAkgHkAcgG0ADAF1EoAA4B7WA2wM5BaSAAeiAEwB2XQGYyATgMGxYgGwBGAKy6ALGIO6ANCACeic9qPGxABxi1rrWDuZixpYAvtHuaJg4+ESkZAA2cqgQLOwQqmBkLABuclhkCVh4hMRg5BlZOQjFcrSoyqriEp3q8ortakiaiLba7l4IBtYG2mTONsbaDgFRAXax8eiVyTV1mdmsbLUkcuQyaW0AZicAtuWbSdWp9ftQTQQlrf2d3YO9SioDUBaCZTBwmIJRFy2Bz2fRjHTGfxkSwjMJmawWALrEAVB4pWpkWjnBjXHJsPIEArNMq4qr48hE1AkxrNT4A76SHoKf6qdTAxYOMGWSzaazGAIGEXhMLwhDaSwBMgBXSRYy2AKWMy2WwGWzY2nbVKM5kHI4nMhnS43O6JOk7QnE0msN4fNrsyQ-WTc-p8nS6cVkPQ6jEhUJ2WW+CWzCWC+xS9W6fX3O2pGCUkhug4UqnvUoFA2PAlp2qZ16st0dD2c37egG+hAjWWrMjTbQLTULXTzAxJ22GotgdOlw4kY6nc7YK4kW4F+lkYsZ5TO8tfKtSGt9OuDfkBeyB4UGDVTbTaWzGWXWAJg8K2ZyIqx6BxhXtbQvkWAACzkMhkZOzFGwNp82Tft3y-H8ck9EA-h9bcdBhIURTFCUpUmBwIxFWwyAxK9tACPQpmMQwXzxe1P2-X8DgAVSEABBKiABUAAkuCEBi+AAYVohiuAAESgmCtyBeDoWRJDxUlRY0IjXddDIEYDFMJ8dXlPU4hxEC3wocDKKgQpsDAa5YDYWjeP46svU3Xk4LlQVENFCTUJlTxEBCIwz01MRbDsFFlWMEiUwJciINYfTDOM0z+OsddLJ5QEhgQaw7D8XRfEMVsDCfAIL2sU9ZlS+VRVPZxrBidTZzInScjCoy2AAJS4XABAANS4ATa2s4TEoWCMpjk1L-TbQxHBRHtys0udgt0mrjKogAFXjuLaizoI6+LgTFUYXMSyxwnksVxTVfCwlMALQO0ijqqUcK2HmxaeJEaKuSs9bXJ67aTzMWYxEKsQ7N8bQzq0qaroM2qOIAGS4Wi6val7602iM8JmfDVmhJx5X0IHJqq0Lrtqu6lrIABFKjaLYvgGIATThuKEbsLCVUcaYr3FJ9LAvH7jDIf1dHsMJL3lBxscqy68bB2aFqJni6twWnYK6pLHBbPRtFVHVFOCWUlPkk8AiCMMHCiMqNj7YHcb0-HJfurgyAEOb2OEDh5aEhKkpsFtdqiVUg0yjDUv2pZVlKtU1RF1IQfFm7CZ4shuIYuq+AAIUYngXc6t2wkVXCxUUyY+ZhCNYUDJwxT+kV8OI8azZxsXLYl26pdjua6pavh+GEPghAAcXT17ErCMQTG89VVbRfCIyWawTBRI2iNsSwrHDoKLZmshDJkbAPDYPuEacOTVklTUrwcNXsu20rJmRPDc7++VLC7ZewLrteN63neno3OmbKG2YUTEf08xdzGHCBePC3NhREV0MdEq6on4XRCvXcKhJVAXAYFASgjADi7xsoPA+UwDwnzPheEYWFDpEVzoVMaptXy10QWvWgqD0GYLJI9GKq14a4OWFhJ8XZDyhBcGqCMACUa6lyl5TKmUl7V1oaLehVsLTHFoHARQoUwBFFqB4bAH4-z5EKLmGkE05HTQUTIJRKjqrqM0dolkuY2SVi6CtQSGcNr7yVAQ4+gpiEX39FhFC0D-CLy8sqeBkckFGUUS0CxaiNEkC0To00o5zSWknNaCqEdV6mPMbAVRekrFxJscuOxFYCAcnYc4-uGJTCBkjPhGwu5UYXiIkYUuSVMoKkiAqUJmSJaROUTk6qlAZAQGHP+akwEa7GNBsgsxUSBmhSGSMpcZZimrkceUta9YzzXifLskBikojoR8ZqEw0w+YohsC4Z8MjSIZJflkuZuSyCLNGXo8ZNpZF3Pkb02Z-SnkvOWS6FoJTvif1igrN2bjD6EK8YEC8D9LAmCWB5BegjAY3MCs-b5Mzsn-OGcOM044rTTg+bcle9yfm4sGfiwFK53TrOet-RWkQjCfX1vKS8o9z7jEvM2XKfDJT+B+vYbpFKcWPOqiQQycgii6MpPokohjJlfJMZSiVoUpXXBlbY10aycFdTPDMCw-9oRhF2hzD6d8eb2EmCA7yhF0U0LJVi1V4q-mSulbKrMbyDETM+eS7FETfnRL0pq7VRTdX0rYYyiFriAHuKPoeWF3K3oe2hPrTsCYH6isDbAPpIayBhq9ewQlFoJxThnEYlV0yg1Uo1Z6nVwK9VOM2bgllNTDx1M5Y0y1KJkSODPNMBwNgukYvOmEtewb5l6QAI6UDAPOneLbOEGoWN9E1uzzUXnZUqNWOpUrmHRDm11tb1WzvnYu6NX9Y3DDXca28prh3DqaXhbCTgQEAO8jCEYx6a15qnU8udC6wA720BsldCVDXrofZu59H1SrT12tqJKIDHBWETGO82YrT3utCkBy9BhwNMshSEBNMLT5wstUEMg4QVS7lPLeMwGGnWYoQSe-9da8lJJIGwDQsBAIGTIKgC4BkSAAApCUAEo2DpIDex-N0717cf1ZC+N0LPEUZTd1MIPNFgLyIm2YIV5f1RwiYwggaCMFSogEuojN6JjxqsLeQByFtkGAvFCtsypnNmpASZ8JebzOWcwZAD+dnXYbW4TRkIx8BG+OEXoQOoQVTHlKibDSyq5PVVmVq-oEUzJkBbgIJqjtRDLuIxtPQsoB3RYM8sFwP0QmYbodNHLcg8v1Uai1W2RWSuCDK+FlxrkqvbQXkPZUeEVSKW8ra-zkTcsAjzW-beKngQgMVG0hwqUjbQK224Ub+sanKjDCqWM6XZMuuy8cBbqg81ZBeOSH1iq-XOrY1duQN2CB3YgC8IF9jSlrhjRF4YyweaZUFGqd9D9bBNh+iXD9LLMoMbm21vLQmftklLSkitpLWMTtR4t9Hv26UONWyD7mhg7KQ86XzarkQTB8wWElbUuph0o+u+1wnRa5U5me7j8dq8Ce3cLQ2iNTao3lfs+qCn4OjbQhpzD0beVT6BI5ZlWE7OPuc+F9zxJY4y3EsrZly7oUhdfZF1q4tf2QWA+vcDhsoPKcQ-l1EWn20bD9WFafRSdg8JYma1M03HO0eoFoMoDRtmgdDYQOt7CoJttESvHCUbp8TCBC26eJYhgfpzaJAwQc2ATKMRYhTLiPFzKDf7gKeyyFJLSiOeMRYpHLCmFCCrtv52q1ZdCnngvhIPxgFoBgHnCq8z86w-Q3vBBsD98H8PsX-2ylR-7rqLCbZT67TVvyxE7mPq7iwh2fw6aXD31z2kfP0-Z9D8x9xg3qSSUXbez38-ffaAD+vwvm3DK7fR9X4GEBQsW+egO+EYxgdgLYXYSUXMiw8Cb+c+cglAhe-4-GQE4+c4cBQ+CB2AZOcoBcNGwofCKED6RcAcywMIyoGaUosB7+GAWBt0dExerE7EZefEOBQY14BBx8koxBH0o0swxsLeGIDksQ6kBAcgEAcA6gF2y+9YAAtCELKLIYihYCoaoSoQdKEtQHQIwMwKwDIT-HZGJA5ChFJM5OMBEEPMKNvreMKEbMLAHk8HsDkPoV1G2MKDRkRP4L4GqH9GYQiIdiKK3g0rqGYLAY6M4T-lXpqGCLCCMA-L4LqLuBGIeNPFYH9HzLlCeBrg4QOEOMsi4QlJjEPNqE+IeA-E+PKCQhAsqLtDeOqDYHoP5gUcCJMLKLqEPNApMH9AsPRmpCxgLthvAJEXvA3sNnDu0mqHhPnIiHNgosts0W9FtDyt5IqNqBXAqHPMsJ3sbk-gFighZswlglAAsYlHzEYOkYiBKJlMdsIiKGJP4GIvrAqMxhlv6ibnsQBhEeCvbk+BApeHtr5CMIKCQmeLMDCAsEjm4VjDke8ZOpxuvLEvEl8RwhVogP4IqHtqYEENqKiFpiEN5MiH5B2MOoev5DCbsXCWes8jSsiRUvWH5NGGYF5DqMApqPCsOp7NwltnYFMMZuSROg8rhqGqLsccMTZAyYEEySzqybvo3gAgfKEAeD7lPPYf0RPvJp8XhhemACccOnJPUgCeqECaMd1K+pELySiDycfLMWqkKUpmOCcblFGOYEeJlGKDCKeE0lMC2AsMEGeGEL4M4DacgkFocZACcaKLeLptcQ+oKgvMInuHRqYGAXhEsLqJrp9kMd8dHv6LKOEBtmkZMNME6aEBmdrubvMWKV1AbLMKiDCJMFvtqLKNCFhPYBvl5MNPoNYGWSHhjnoVWQlJJDzKfIsJCA-JfCaQVNhKlIiFMMagqI6q8a9vjsHlziKScZlBAmqGYNDmEBjM2S4NfJckGMdtcmqS1u9pmfaScCcTWV5KKPWeIgzLKOai2BvhqKOczi8Y-iuVriHmHgwBoo6aCP-peD9KVP6Cys2cqD6YYByo1hKGfhftgCcbmR9HzP1NwqEDUZKKVEha-jQbSa2orCNo3leFhElN4alOmtAn0UuXjqvFPjPpQEQIgQPtPgwJ8OGQOcCGNkqOOYYNCJAtMKATpn9KvrtPoA0fhZfqgGxQXpxUBBACcXxRqMlqzsJUsToLuOcYvLEWKOqBqNQfAYgRGdqJYWYFtoEOlPoIro3sOoqIIksDeEjtQvRedBgbQYgeUAwGkOfv2dmVEblMOUENZeZX7LwTpptD5BiC4NccZZgd5Z+AwIghGYvKyuKMlJMEIf7DMAuRYIsHzCMOKAlV5TPjIKgB4NcAXmlXDp0Q0kzC6SaQxozD9OYM0rnERKVVgUTnFKgGkGZQGJqJlHRjZW7o3oYNPCEP8frFttMHRY-oShucATRgAkRB0v-A-JPH9DRnzELE4KsNArAR9mcDgDqTxdpQqDRoeHMCNTCNYCQUPJMKQoiJnhqGNLEEAA */
-    // tsTypes: {} as import("./basket.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./basket.machine.typegen").Typegen0,
     id: "basketManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -456,16 +454,15 @@ export default createMachine(
   },
   {
     actions: {
-      // @ts-ignore
       updateBasket: assign({
-        basket: (_context: BasketContext, { data }: BasketEvent) =>
+        basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
-        error: ({ error }: BasketContext, { data }: BasketEvent) => {
+        error: ({ error }: BasketContext, { data }: AnyEventObject) => {
           error ??= {}; // safety check
           set(error, "provisioningErrors", get(data, "provisioningErrors"));
           return error;
         },
-        products: (_context: BasketContext, { data }: BasketEvent) => {
+        products: (context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
           const provisioningErrors = get(data, "provisioningErrors");
@@ -473,7 +470,7 @@ export default createMachine(
             parseBasketProduct(product, provisioningErrors)
           );
         },
-        summary: (_context: BasketContext, { data }: BasketEvent) => {
+        summary: (_context: BasketContext, { data }: AnyEventObject) => {
           const provisioningErrors = get(data, "provisioningErrors");
           return parseSummary(parseBasket(data), provisioningErrors);
         },
@@ -490,17 +487,16 @@ export default createMachine(
       }),
 
       setPaymentDetails: assign({
-        paymentDetails: (_context: BasketContext, { data }: BasketEvent) =>
+        paymentDetails: (_context: BasketContext, { data }: AnyEventObject) =>
           data,
       }),
 
-      // @ts-ignore
       setInvoice: assign({
-        invoice: (_context: BasketContext, { data }: BasketEvent) => data,
+        invoice: (_context: BasketContext, { data }: AnyEventObject) => data,
         basket: undefined,
         summary: undefined,
         items: ({ items }: BasketContext, _event) => {
-          forEach(items, (actor: ActorRef<any, any>) => {
+          forEach(items, (actor: ActorRef<any>) => {
             if (!actor.getSnapshot()?.done && actor?.stop) actor.stop();
           });
           return [];
@@ -520,9 +516,8 @@ export default createMachine(
         // error: undefined,
       }),
 
-      // @ts-ignore
       setPayment: assign({
-        payment: (_context: BasketContext, { data }: BasketEvent) => data,
+        payment: (_context: BasketContext, { data }: AnyEventObject) => data,
       }),
 
       trackPayment: ({ invoice }: any, { data }: any) => {
@@ -550,7 +545,7 @@ export default createMachine(
 
       // --- Spawned Actors Actions
       spawnActors: assign({
-        actors: ({ actors, basket }) => {
+        actors: ({ actors, basket }: BasketContext) => {
           // only spawn if we have not already spawned
           actors.billingDetails ??= spawnBillingDetails(basket);
           actors.currency ??= spawnCurrency(basket);
@@ -562,14 +557,13 @@ export default createMachine(
         },
       }),
 
-      // @ts-ignore
-      refreshActors: pure(({ basket, actors }) => {
-        forEach(actors, (actor: ActorRef<any, any>) => {
+      refreshActors: ({ basket, actors }: BasketContext) => {
+        forEach(actors, actor => {
           if (actor?.send && !actor.getSnapshot()?.done) {
             actor.send({ type: "REFRESH", data: basket });
           }
         });
-      }),
+      },
 
       clearActors: assign({
         actors: ({ actors }: any) => {
@@ -597,29 +591,27 @@ export default createMachine(
       // --- Configuring Items Actions
 
       addItem: assign({
-        items: ({ items, basket }, { data }) => {
+        items: ({ items, basket }: BasketContext, { data }: AnyEventObject) => {
           const machine = spawnProductConfiguration(data, basket);
 
+          items ??= [];
           items.push(machine);
           return items;
         },
       }),
 
-      // @ts-ignore
       refreshItems: assign({
-        items: ({ basket, items }: any) => {
-          const newItems: ActorRef<any, any>[] = [];
-
+        items: ({ basket, items }: BasketContext) => {
+          const newItems: ActorRef<any>[] = [];
           forEach(items, actor => {
-            if (!actor?.state?.done) {
+            if (!actor?.getSnapshot()?.done) {
               newItems.push(actor);
-
               actor.send({
                 type: "REFRESH",
-
                 data: {
                   id: basket?.id,
-                  currencyId: basket?.currency_id,
+                  client_id: basket?.client_id,
+                  currency_id: basket?.currency_id,
                   promotions: map(basket?.promotions, "promotion.code"),
                 },
               });
@@ -633,9 +625,9 @@ export default createMachine(
       }),
 
       clearItems: assign({
-        items: ({ items }, _event) => {
+        items: ({ items }: BasketContext, _event) => {
           forEach(items, item => {
-            if (item?.send && !item?.state?.done) {
+            if (item?.send && !item?.getSnapshot()?.done) {
               item.send({ type: "REMOVE" });
             }
           });
@@ -646,7 +638,7 @@ export default createMachine(
       // ---
 
       abortController: assign({
-        controller: ({ controller }) => {
+        controller: ({ controller }: BasketContext) => {
           if (controller?.signal && !controller.signal?.aborted) {
             controller?.abort();
           }
@@ -655,114 +647,124 @@ export default createMachine(
       }),
 
       // ---
-      setFeedbackSuccess: (_context: BasketContext, _event: BasketEvent) => {
-        addSuccess("Successfully updated the basket");
-      },
+      // setFeedbackSuccess: (_context: BasketContext, _event: AnyEventObject) => {
+      //   addSuccess("Successfully updated the basket");
+      // },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
         if (
           !error ||
           error?.code == responseCodes.Unprocessable_Entity ||
           error?.code == responseCodes.Unauthorized
-        )
+        ) {
           return;
+        }
 
         addError({
-          title: error?.title || "We experienced an error updating the basket",
-          copy: error?.message,
-          data: error?.data,
+          title:
+            error?.title ??
+            error?.message ??
+            "We experienced an error with the basket",
+          copy: error?.title ? error?.message : undefined,
+          data: error,
         });
       },
 
-      // @ts-ignore
       setError: assign({
-        error: (context, { data }: BasketEvent) =>
-          data?.error || data || undefined,
+        error: (_context: BasketContext, { data }: AnyEventObject) => {
+          return data?.error ?? data;
+        },
       }),
 
       clearError: assign({ error: undefined }),
     },
 
     guards: {
-      hasNoBasket: ({ basket }) => isEmpty(basket),
+      hasNoBasket: ({ basket }: BasketContext) => isEmpty(basket),
 
-      hasNewBasket: ({ basket }, { data }) =>
+      hasNewBasket: ({ basket }: BasketContext, { data }: AnyEventObject) =>
         !isEmpty(data) && !isEqual(basket, data),
 
       // --- Actor Guards
-      currencyComplete: ({ actors }) => {
-        return actors.currency?.state?.matches("complete");
+      currencyComplete: ({ actors }: BasketContext) => {
+        return actors.currency?.getSnapshot()?.matches("complete");
       },
 
-      currencyConfiguring: ({ actors }) => {
-        return !actors.currency?.state?.matches("complete");
+      currencyConfiguring: ({ actors }: BasketContext) => {
+        return !actors.currency?.getSnapshot()?.matches("complete");
       },
 
-      promotionsComplete: ({ actors }) => {
+      promotionsComplete: ({ actors }: BasketContext) => {
         // promotions should not hold up the process of checking out
         // unless it is in the process of being updated or loading
         return !["processing", "loading"].some(
-          actors.promotions?.state?.matches
+          actors.promotions?.getSnapshot()?.matches
         );
       },
 
-      promotionsConfiguring: ({ actors }) => {
+      promotionsConfiguring: ({ actors }: BasketContext) => {
         return ["processing", "loading"].some(
-          actors.promotions?.state?.matches
+          actors.promotions?.getSnapshot()?.matches
         );
       },
 
-      customFieldsComplete: ({ actors }) => {
-        return actors.customFields?.state?.matches("complete");
+      customFieldsComplete: ({ actors }: BasketContext) => {
+        return actors.customFields?.getSnapshot()?.matches("complete");
       },
 
-      customFieldsConfiguring: ({ actors }) => {
-        return !actors.customFields?.state?.matches("complete");
+      customFieldsConfiguring: ({ actors }: BasketContext) => {
+        return !actors.customFields?.getSnapshot()?.matches("complete");
       },
 
-      billingComplete: ({ actors }) => {
-        return actors.billingDetails?.state?.matches("complete");
+      billingComplete: ({ actors }: BasketContext) => {
+        return actors.billingDetails?.getSnapshot()?.matches("complete");
       },
 
-      billingConfiguring: ({ actors }) => {
-        return !actors.billingDetails?.state?.matches("complete");
+      billingConfiguring: ({ actors }: BasketContext) => {
+        return !actors.billingDetails?.getSnapshot()?.matches("complete");
       },
 
-      paymentDetailsValid: ({ actors }) => {
+      paymentDetailsValid: ({ actors }: BasketContext) => {
         return (
-          actors.paymentDetails?.state?.done ||
-          actors.paymentDetails?.state?.matches("available.valid")
+          actors.paymentDetails?.getSnapshot()?.done ||
+          actors.paymentDetails?.getSnapshot()?.matches("available.valid")
         );
       },
 
-      paymentDetailsComplete: ({ actors }, { data }) => {
+      paymentDetailsComplete: (
+        { actors }: BasketContext,
+        { data }: AnyEventObject
+      ) => {
         const value =
-          (actors.paymentDetails?.state?.done ||
-            actors.paymentDetails?.state?.matches("complete")) &&
+          (actors.paymentDetails?.getSnapshot()?.done ||
+            actors.paymentDetails?.getSnapshot()?.matches("complete")) &&
           !isEmpty(data);
 
         return value;
       },
 
-      hasPaymentDetails: ({ paymentDetails }) => {
+      hasPaymentDetails: ({ paymentDetails }: BasketContext) => {
         const value = !isNil(paymentDetails) && !isEmpty(paymentDetails);
 
         return value;
       },
 
-      paymentDetailsConfiguring: ({ actors, paymentDetails }) => {
+      paymentDetailsConfiguring: ({
+        actors,
+        paymentDetails,
+      }: BasketContext) => {
         return (
           isEmpty(paymentDetails) &&
           ["available.invalid", "available.checking", "available.loading"].some(
-            actors.paymentDetails?.state?.matches
+            actors.paymentDetails?.getSnapshot()?.matches
           )
         );
       },
 
-      paymentNeeded: ({ paymentDetails }) => {
-        const hasOustandingBalance = paymentDetails?.amount > 0;
+      paymentNeeded: ({ paymentDetails }: BasketContext) => {
+        const hasOustandingBalance = paymentDetails?.amount ?? 0 > 0;
 
-        const payingNow = paymentDetails?.type != PaymentTypes.PAY_LATER;
+        const payingNow = paymentDetails?.type != PaymentType.PAY_LATER;
 
         const manualPayment = includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
@@ -786,7 +788,8 @@ export default createMachine(
       isNotLoading: ({ items }) => {
         return every(
           items,
-          actor => !["subscribing", "loading"].some(actor?.state.matches)
+          actor =>
+            !["subscribing", "loading"].some(actor?.getSnapshot().matches)
         );
       },
 
@@ -795,12 +798,9 @@ export default createMachine(
     },
 
     delays: {
-      error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
-      poll: () => useTime().POLL,
     },
 
-    // @ts-ignore
     services,
   }
 );

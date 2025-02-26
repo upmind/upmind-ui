@@ -221,7 +221,7 @@ export const DialogForm: Story = {
           <Button @click="toggleOpen" size="md">Open Dialog</Button>
         </template>
 
-        <upw-form
+        <upm-form
           :schema="schema"
           v-model="model"
           @resolve="open = false"
@@ -254,7 +254,7 @@ export const ScrollableDialog: Story = {
           <Button @click="toggleOpen" size="md">Open Dialog</Button>
         </template>
 
-        <upw-form
+        <upm-form
           v-model="model"
           :schema="combinedSchema"
           noActions

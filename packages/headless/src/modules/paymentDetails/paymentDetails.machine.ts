@@ -12,18 +12,19 @@ import { spawnGateway, parsePaymentDetails } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
-import { set, unset, forEach } from "lodash-es";
+import { get, set, unset, forEach } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
-import type { PaymentDetailsContext, RefreshEvent } from "./types";
-import { responseCodes } from "../api";
+
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { PaymentDetailsContext } from "./types";
+import { responseCodes } from "../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -220,12 +221,12 @@ export default createMachine(
   {
     actions: {
       setParsed: assign({
-        model: (_context, { data }: any) => data.model,
-        gateway: (_context, { data }: any) => data.gateway,
+        model: (_context, { data }: AnyEventObject) => data.model,
+        gateway: (_context, { data }: AnyEventObject) => data.gateway,
       }),
 
       setLookups: assign({
-        stored_payment_methods: (_context, { data }: any) =>
+        stored_payment_methods: (_context, { data }: AnyEventObject) =>
           data.stored_payment_methods,
         gateways: (_context, { data }) => data.gateways,
         payment_types: (_context, { data }) => data.payment_types,
@@ -233,11 +234,10 @@ export default createMachine(
       }),
 
       setSchemas: assign({
-        // @ts-ignore
-        schema: context => useSchema(context),
-        // @ts-ignore
-        uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model),
+        schema: (context: PaymentDetailsContext) => useSchema(context),
+        uischema: _context => useUischema(),
+        model: ({ schema, model }: PaymentDetailsContext) =>
+          useModelParser(schema, model),
       }),
 
       clearSchemas: assign({
@@ -245,10 +245,11 @@ export default createMachine(
         uischema: undefined,
       }),
 
-      // @ts-ignore
       setModel: assign({
-        model: ({ schema, model }: any, { data }: any) =>
-          useModelParser(schema, data || model),
+        model: (
+          { schema, model }: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => useModelParser(schema, data || model),
       }),
 
       clearModel: assign({
@@ -256,7 +257,6 @@ export default createMachine(
       }),
 
       setDirty: assign({
-        // @ts-ignore
         dirty: true,
       }),
 
@@ -265,16 +265,14 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context: any, { update }: any) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
       setGateway: assign({
         // NB: SPAWN HAS TO BE DONE IN AN ASSIGN!
-        // @ts-ignore
         actors: (
           {
             address,
@@ -290,12 +288,10 @@ export default createMachine(
           actors ??= {}; //sanity check
 
           // stop any existing gateways if they are different and not done/complete
-          // @ts-ignore
           if (actors?.gateway?.id != gateway?.id) {
-            // @ts-ignore
-            if (actors?.gateway && !actors.gateway?.state?.done)
-              // @ts-ignore
+            if (!actors.gateway?.getSnapshot()?.done && actors.gateway?.stop)
               actors.gateway?.stop();
+
             unset(actors, "gateway");
           }
 
@@ -317,20 +313,21 @@ export default createMachine(
       }),
 
       refreshBasket: assign({
-        basketId: (_context, { data: basket }: RefreshEvent) => basket?.id,
-        clientId: (_context, { data: basket }: RefreshEvent) =>
+        basketId: (_context, { data: basket }: AnyEventObject) => basket?.id,
+        clientId: (_context, { data: basket }: AnyEventObject) =>
           basket?.client_id,
-        currency: (_context, { data: basket }: RefreshEvent) =>
+        currency: (_context, { data: basket }: AnyEventObject) =>
           basket?.currency,
-        model: ({ model }, { data: basket }: RefreshEvent) => {
+        model: ({ model }, { data: basket }: AnyEventObject) => {
           return {
             ...model,
             amount: basket?.unpaid_amount_converted || 0.0,
           };
         },
-        address: (_context, { data: basket }: RefreshEvent) => basket?.address,
+        address: (_context, { data: basket }: AnyEventObject) =>
+          get(basket, "address"),
         actors: ({ actors }, { data: basket }: any) => {
-          forEach(actors, (actor: ActorRef<any, any>) => {
+          forEach(actors, actor => {
             if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({
                 type: "REFRESH",
@@ -338,7 +335,7 @@ export default createMachine(
                   basketId: basket?.id,
                   currency: basket?.currency,
                   amount: basket?.unpaid_amount_converted || 0.0,
-                  address: basket?.address,
+                  address: get(basket, "address"),
                 },
               });
             }
@@ -351,10 +348,10 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, basketId, currency, address },
-          { data }: any
+          { model, basketId, currency, address }: PaymentDetailsContext,
+          { data }: AnyEventObject
         ) => {
-          const amount = model.amount;
+          const amount = model?.amount || 0;
           return parsePaymentDetails({
             ...model,
             ...data,
@@ -376,20 +373,19 @@ export default createMachine(
         type: "CANCEL",
       })),
 
-      trackPaymentDetails: (_context: any, _event: any) => {
+      trackPaymentDetails: (_context, _event) => {
         trackEvent({ ecommerce: null });
         trackEvent({ event: "add_payment_info" });
       },
       // ---
 
-      // @ts-ignore
-      forwardCheckout: pure(({ actors }: PaymentDetailsContext) => {
-        forEach(actors, (actor: ActorRef<any, any> | undefined) => {
+      forwardCheckout: ({ actors }: PaymentDetailsContext) => {
+        forEach(actors, (actor: ActorRef<any> | undefined) => {
           if (actor?.send) {
             actor.send({ type: "CHECKOUT" });
           }
         });
-      }),
+      },
 
       // ---
 
@@ -412,7 +408,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -428,7 +424,6 @@ export default createMachine(
     },
 
     guards: {
-      // @ts-ignore
       isDirty: ({ dirty }: any, _event: any) => !!dirty,
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasLookups: (
@@ -440,14 +435,14 @@ export default createMachine(
         !!autoupdate && !!basketId && model?.amount !== 0,
 
       hasChanged: (
-        { basketId, currency, clientId, model, address },
-        { data }: any
+        { basketId, currency, clientId, model, address }: PaymentDetailsContext,
+        { data }: AnyEventObject
       ) => {
         const basketChanged = basketId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged =
-          model.amount == (data?.unpaid_amount_converted || 0.0);
+          model?.amount == (data?.unpaid_amount_converted || 0.0);
         const addressChanged = address?.id != data?.address?.id;
 
         return (
@@ -465,7 +460,6 @@ export default createMachine(
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

@@ -1,20 +1,19 @@
 <template>
   <Form v-bind="forwarded" :i18n="i18n">
-    <template #footer="formFooterProps">
-      <slot name="footer" v-bind="formFooterProps"></slot>
+    <template #footer="{ meta }">
+      <slot name="footer" v-bind="{ meta }"></slot>
     </template>
-    <template #actions="formActionsProps">
-      <slot name="actions" v-bind="formActionsProps"></slot>
+    <template #actions="{ meta, doResolve, doReject }">
+      <slot name="actions" v-bind="{ meta, doResolve, doReject }"></slot>
     </template>
   </Form>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { useForwardPropsEmits } from "radix-vue";
 
 // --- components
-import { Form } from "@upmind-automation/upmind-ui";
+import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";
 
 // --- local
 import { useFormI18n } from ".";
@@ -37,16 +36,16 @@ const emits = defineEmits<{
   "update:modelValue": [Object];
   "update:uischema": [Object];
   valid: [boolean];
-  click: [{ model: Object; meta: Object }];
-  action: [{ name: string; model: Object; meta: Object }];
+  click: [{ model: object; meta: object }];
+  action: [{ name: string; model: object; meta: object }];
 }>();
 
 const slots = defineSlots<{
-  footer(props: FormFooterProps): void;
-  actions(props: FormActionsProps): void;
+  footer: FormFooterProps;
+  actions: FormActionsProps;
 }>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const forwarded: any = useForwardPropsEmits(props, emits);
 
 const i18n = useFormI18n();
 // --- state

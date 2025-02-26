@@ -22,9 +22,6 @@ import { ROUTE } from "@upmind-automation/headless";
 // a composable that provides a simple interface to the flows engine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useRoutingEngine = () => {
   const { meta } = useBasket();
   const { meta: sessionMeta } = useSession();
@@ -139,16 +136,16 @@ export const useRoutingEngine = () => {
 
   // ---
   // set up automatic refresh when the user logs in or out or if the basket is emptied
-  watch(meta, ({ hasProducts }, { hasProducts: hadProducts }) => {
-    if (!hasProducts && hadProducts) {
-      navigate(ROUTE.EMPTY);
-    }
-  });
   watch(
-    sessionMeta,
-    ({ isAuthenticated }, { isAuthenticated: wasAuthenticated }) => {
+    [meta, sessionMeta],
+    (
+      [{ hasProducts, isProcessing }, { isAuthenticated }],
+      [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
+    ) => {
       if (!isAuthenticated && wasAuthenticated) {
         navigate(ROUTE.SESSION_END);
+      } else if (!hasProducts && hadProducts) {
+        navigate(ROUTE.EMPTY);
       }
     }
   );
@@ -167,6 +164,7 @@ export const useRoutingEngine = () => {
             if (state.matches("unavailable")) {
               return Promise.reject("Routing Engine is unavailable");
             }
+            return state;
           });
         })
         .catch(() => {

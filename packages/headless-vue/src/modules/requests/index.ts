@@ -3,9 +3,6 @@ import { useActor } from "@xstate/vue";
 import { useApi as useUpmindApi } from "@upmind-automation/headless";
 import { keys } from "lodash-es";
 
-/**
- * @ignore
- */
 export const useApi = (): object => {
   const api = useUpmindApi();
   const { state, send }: any = useActor(api.service);
@@ -27,5 +24,8 @@ export const useApi = (): object => {
     useTime: api.useTime,
     get: api.get,
     post: api.post,
+    put: api.put,
+    patch: api.patch,
+    del: api.del,
   };
 };

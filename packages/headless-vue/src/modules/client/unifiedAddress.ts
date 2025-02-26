@@ -6,15 +6,17 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientUnifiedAddresses as useUpmindClientUnifiedAddresses } from "@upmind-automation/headless";
 
 // --- utils
-import { machineMatches, useContextActor } from "../../utils";
+import { machineMatches, useContextActor, useContextActors } from "../../utils";
 import { get, debounce, isEmpty } from "lodash-es";
 
+// --- types
+import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 // --------------------------------------------------------
 
-/**
- * @ignore
- */
-export const useClientUnifiedAddress = (item: any, context?: any) => {
+export const useClientUnifiedAddress = (
+  item: any, // Actor
+  context?: Record<string, any>
+): ClientItemDefinition => {
   const { service } = useUpmindClientUnifiedAddresses();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
@@ -60,7 +62,6 @@ export const useClientUnifiedAddress = (item: any, context?: any) => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
         waitFor(service, newState =>
-          // @ts-ignore
           newState.context?.selected?.state?.matches("valid")
         ).then(() => {
           send({ type: "UPDATE" });
@@ -75,20 +76,16 @@ export const useClientUnifiedAddress = (item: any, context?: any) => {
     select: () => service.send({ type: "SELECT", data: item.id }),
     edit: () => service.send({ type: "EDIT", data: item.id }),
     cancel: () => service.send({ type: "REFRESH" }),
-  };
+  } as ClientItemDefinition;
 };
-
-/**
- * @ignore
- */
-export const useClientUnifiedAddresses = () => {
+export const useClientUnifiedAddresses = (): ClientListingDefinition => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
   const { service, isReady, getSelected } = useUpmindClientUnifiedAddresses();
   const { state, send } = useActor(service);
 
   // --------------------------------------------------------
-  const items = useContextActor(state, "items", []);
+  const items = useContextActors(state, "items", []);
   const selected = useContextActor(state, "selected");
 
   // --------------------------------------------------------
@@ -119,20 +116,11 @@ export const useClientUnifiedAddresses = () => {
         !["available.editing", "available.adding", "available.loading"].some(
           state.value.matches
         ) &&
-        state.value.context?.raw?.length > 1,
+        (state.value.context?.raw?.length ?? 0) > 1,
     })),
     // ---
     items,
-    selected: computed(() =>
-      state.value.context?.selected
-        ? {
-            // @ts-ignore
-            id: state.value.context.selected?.id,
-            ...useActor(state.value.context.selected),
-          }
-        : null
-    ),
-    // @ts-ignore
+    selected,
     initial: computed(() => state.value.context?.initial),
 
     // ---
@@ -151,5 +139,5 @@ export const useClientUnifiedAddresses = () => {
       await isReady();
       send({ type: "ADD" });
     },
-  };
+  } as ClientListingDefinition;
 };

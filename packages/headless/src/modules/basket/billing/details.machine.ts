@@ -1,11 +1,12 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { sendParent } = actions;
 
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
@@ -13,8 +14,9 @@ import { useSchema, useUischema } from "./utils";
 import { set } from "lodash-es";
 
 // --- types
-import type { BillingDetailsContext, BillingDetailsEvent } from "./types";
-import { responseCodes } from "../../api";
+import type { BillingDetailsContext } from "./types";
+import { responseCodes } from "../../../utils";
+import { PaymentDetailsContext } from "../../paymentDetails";
 
 // --------------------------------------------------------
 
@@ -143,10 +145,7 @@ export default createMachine(
 
           processed: {
             id: "processed",
-            entry: sendParent((_context, { data }: any) => ({
-              type: "REFRESH",
-              data,
-            })),
+            entry: sendParent({ type: "REFRESH" }),
             after: {
               wait: {
                 target: "#complete",
@@ -182,7 +181,7 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: BillingDetailsContext, { data }: any) => {
+        (_context: BillingDetailsContext, { data }: AnyEventObject) => {
           return {
             basketId: data?.id,
             clientId: data?.client_id,
@@ -191,22 +190,25 @@ export default createMachine(
       ),
 
       setParsed: assign({
-        model: (_context, { data }: any) => data.model,
+        model: (_context, { data }: AnyEventObject) => data.model,
       }),
 
       setLookups: assign({
-        addresses: (_context, { data }: any) => data.addresses,
+        addresses: (_context, { data }: AnyEventObject) => data.addresses,
       }),
 
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model),
+        model: ({ schema, model }: BillingDetailsContext) =>
+          useModelParser(schema, model),
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
-          useModelParser(schema, data || model),
+        model: (
+          { schema, model }: BillingDetailsContext,
+          { data }: AnyEventObject
+        ) => useModelParser(schema, data || model),
       }),
 
       clearModel: assign({
@@ -222,21 +224,19 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context: any, { update }: any) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
 
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      // @ts-ignore
-      setFeedbackSuccess: (_context: any, _event: any) => {
-        addSuccess("Successfully updated billing details");
-      },
+      // setFeedbackSuccess: (_context, _event: any) => {
+      //   addSuccess("Successfully updated billing details");
+      // },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: BillingDetailsContext, _event) => {
         // dont show any unauthorized errors
         if (
           !error ||
@@ -254,7 +254,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -273,7 +273,7 @@ export default createMachine(
       isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
-      hasChanged: ({ clientId, basketId }, { data }: any) => {
+      hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {
         // NB data is raw basket data so use snake_case for comparison
         return basketId !== data?.id || clientId !== data?.client_id;
       },
@@ -283,12 +283,10 @@ export default createMachine(
     },
 
     delays: {
-      // @ts-ignore
-      error: () => useTime().ERROR,
+      // error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
-    services,
+    services: services as any,
   }
 );

@@ -5,10 +5,10 @@
 // --- utils
 
 // --- types
-import { QUERY_PARAMS } from "./types";
-import { GatewayStoreType } from "./types";
-import type { GatewayContext, IGateway } from "./types";
-import type { UISchemaElement } from "@jsonforms/core";
+import type { IGateway } from "@upmind-automation/types";
+import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
+import type { GatewayContext } from "./types";
+import type { Layout, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
@@ -54,8 +54,12 @@ export function generateResponseUrls(
     )
   );
 
-  // @ts-ignore
-  cancelUrl.searchParams.append(QUERY_PARAMS.PAYMENT_METHOD_TYPE, type);
+  if (type) {
+    cancelUrl.searchParams.append(
+      QUERY_PARAMS.PAYMENT_METHOD_TYPE,
+      type.toString()
+    );
+  }
 
   // --------------------------------------------------------
   return {
@@ -80,8 +84,7 @@ export const useSchema = (context: GatewayContext) => {
       gateway_id: {
         type: "string",
         title: "Gateway ID",
-        // @ts-ignore
-        const: context.gateway.id,
+        const: context?.gateway?.id,
         readOnly: true,
       },
       // a helper for the ui to not show the checkboxes if the gateway does not support storing
@@ -187,12 +190,12 @@ export const useUischema = () => {
     ],
   };
 
-  return uischema as UISchemaElement;
+  return uischema as Layout;
 };
 
 // --------------------------------------------------------
 
-export function canBeStored(gateway: IGateway) {
+export function canBeStored(gateway?: IGateway) {
   if (!gateway) return false;
 
   const {

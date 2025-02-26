@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 // const { sendParent } = actions; DEPRECATED
 
@@ -13,15 +14,14 @@ import { useSchema, useUischema } from "./utils";
 import { parseBasketFieldsModel } from "../utils";
 
 // --- types
-import type { FieldsContext, FieldsEvent } from "./types";
-import { responseCodes } from "../../api";
+import type { FieldsContext } from "./types";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // @ts-ignore
-    // tsTypes: {} as import("./fields.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./fields.machine.typegen").Typegen0,
     id: "basketFieldsManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -121,11 +121,6 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        // DEPRECATED: No need to refresh parent basket
-        // entry: sendParent((_context, { data }: any) => ({
-        //   type: "REFRESH",
-        //   data,
-        // })),
         after: {
           wait: {
             target: "complete",
@@ -171,19 +166,16 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: FieldsContext, { data }: FieldsEvent) => {
+        (_context: FieldsContext, { data }: AnyEventObject) => {
           return {
-            // @ts-ignore
             basketId: data?.id,
             model: parseBasketFieldsModel(data),
           };
         }
       ),
 
-      // @ts-ignore
       setContext: assign(
-        // @ts-ignore
-        (_context: FieldsContext, { data }: FieldsEvent) => data
+        (_context: FieldsContext, { data }: AnyEventObject) => data
       ),
 
       setSchemas: assign({
@@ -197,7 +189,7 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
+        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) =>
           useModelParser(schema, data || model),
       }),
 
@@ -214,20 +206,18 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        // @ts-ignore
-        autoupdate: (_context, { update }) => !!update,
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
       clearAutoUpdate: assign({
-        // @ts-ignore
         autoupdate: false,
       }),
 
       // ---
-      setFeedbackSuccess: (_context: any, _event: any) => {
-        addSuccess("Successfully updated the basket fields");
-      },
+      // setFeedbackSuccess: (_context: any, _event: any) => {
+      //   addSuccess("Successfully updated the basket fields");
+      // },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: FieldsContext, _event) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
 
         addError({
@@ -256,25 +246,25 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ dirty }, _event) => !!dirty,
-      hasBasket: ({ basketId }, _event) => !!basketId,
-      // @ts-ignore
-      hasChanged: ({ model, basketId }, { data }: any) =>
+      isDirty: ({ dirty }: FieldsContext) => !!dirty,
+      hasBasket: ({ basketId }: FieldsContext) => !!basketId,
+      hasChanged: (
+        { model, basketId }: FieldsContext,
+        { data }: AnyEventObject
+      ) =>
         model?.notes !== data?.notes ||
         model?.customFields !== data?.customFields ||
         basketId !== data?.id,
 
-      shouldUpdate: ({ autoupdate, basketId }, _event) =>
+      shouldUpdate: ({ autoupdate, basketId }: FieldsContext) =>
         !!autoupdate && !!basketId,
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

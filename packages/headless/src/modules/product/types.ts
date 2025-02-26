@@ -2,6 +2,13 @@
 import type { ActorRef } from "xstate";
 
 import type { BasketProduct } from "../basket/types";
+import type {
+  IBasketProduct,
+  IProduct,
+  IClient,
+  ICurrency,
+  IBasketPromotion,
+} from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -10,15 +17,15 @@ import type { BasketProduct } from "../basket/types";
 
 export interface ProductConfigContext {
   id: string;
-  clientId: string; //IClient["id"];
-  currencyId: string; //IProductPrice["currency_id"];
-  promotions?: string[]; //IProductPromotion[];
+  clientId?: IClient["id"];
+  currencyId?: ICurrency["id"];
+  promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
-  baseModel: ProductModel;
-  model: ProductModel;
+  baseModel?: ProductModel;
+  model?: ProductModel;
   // ---
-  rawProduct?: any;
-  lookups: {
+  rawProduct?: IProduct;
+  lookups?: {
     product?: any;
     terms?: any[];
     options?: any[];
@@ -32,15 +39,15 @@ export interface ProductConfigContext {
     options?: number[];
   };
   // ---
-  calculateCallback?: ActorRef<any, any>;
+  calculateCallback?: ActorRef<any>;
   error?: any;
-  errorExternal: any;
+  errorExternal?: any;
   // ---
   basketId?: string;
-  basketProduct?: BasketProduct;
+  basketProduct?: IBasketProduct;
   basketHelper?: ActorRef<any>;
   itemBuilder?: (item: ProductModel) => ProductModel;
-  basketItemMapper?: (item: BasketProduct) => Partial<BasketProduct>;
+  basketItemMapper?: (item: BasketProduct) => Partial<ProductModel>;
 }
 
 export interface ProductModel {
@@ -66,14 +73,5 @@ export interface ProductModel {
 }
 
 export interface IProductPromotion {
-  promocode: string;
-}
-
-// --------------------------------------------------------
-// Events
-
-export interface ProductConfigEvent {
-  type: "CHECK" | "REFRESH";
-  data?: any;
-  error?: any;
+  code: string;
 }

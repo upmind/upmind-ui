@@ -1,29 +1,50 @@
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+import dts from "vite-plugin-dts";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => tag.startsWith('uw-')
-        }
-      }
+    vue(),
+    dts({
+      entryRoot: "src",
+      outDir: "dist",
+      tsconfigPath: "tsconfig.build.json",
     }),
   ],
+  build: {
+    lib: {
+      entry: resolve(__dirname, "src/index.ts"),
+      name: "@upmind-automation/client-vue",
+      fileName: "index",
+      formats: ["es"],
+    },
+    rollupOptions: {
+      external: ["vue", "vue-router"],
+      output: {
+        globals: {
+          vue: "Vue",
+          "vue-router": "VueRouter",
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      "@": resolve(__dirname, "./src"),
+      "@icons": resolve(__dirname, "./src/assets/icons"),
+      "@themes": resolve(__dirname, "./src/assets/themes"),
+      // ---
+      "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
+      "@upmind-automation/headless": resolve(
+        __dirname,
+        "../headless/src/index.ts"
+      ),
+      "@upmind-automation/headless-vue": resolve(
+        __dirname,
+        "../headless-vue/src/index.ts"
+      ),
+      "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts"),
+    },
   },
-    build: {
-    lib: {
-      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      name: "upmind-client",
-      fileName: "upmind-client"
-    }
-  },
-})
+});

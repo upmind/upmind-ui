@@ -41,8 +41,7 @@ async function load(_context: ClientContext, _event: any) {
 // --------------------------------------------------------
 // EXPORTS
 
-export default <Object>{
+export default {
   load,
-  // @ts-ignore
   transfer: services.transfer,
 };

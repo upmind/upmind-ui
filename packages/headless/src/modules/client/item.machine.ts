@@ -1,6 +1,6 @@
 // --- external
 import { createMachine, assign, actions } from "xstate";
-const { sendParent, pure } = actions;
+const { sendParent } = actions;
 
 // --- internal
 import { useFeedback } from "../feedback";
@@ -11,14 +11,15 @@ import { isString } from "lodash-es";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
-import type { ClientItemContext, ClientItemEvent } from "./types";
-import { responseCodes } from "../api";
+import type { AnyEventObject } from "xstate";
+import type { ClientItemContext } from "./types";
+import { responseCodes } from "../../utils";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./item.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./item.machine.typegen").Typegen0,
     id: "clientItemManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -117,10 +118,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully added ${context.title}`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -136,10 +136,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully updated ${context.title}`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -155,10 +154,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "clearModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully deleted ${context.title}`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -174,10 +172,9 @@ export default createMachine(
                 target: "#processed",
                 actions: [
                   "setModel",
-                  // @ts-ignore
-                  pure((context, _event) => {
+                  (context, _event) => {
                     addSuccess(`Successfully set ${context.title} as default`);
-                  }),
+                  },
                 ],
               },
               onError: {
@@ -201,7 +198,7 @@ export default createMachine(
       complete: {
         entry: [
           sendParent(
-            ({ model }: ClientItemContext, _event: ClientItemEvent) => ({
+            ({ model }: ClientItemContext, _event: AnyEventObject) => ({
               type: "REFRESH",
               data: model?.id,
             })
@@ -238,9 +235,8 @@ export default createMachine(
   },
   {
     actions: {
-      // @ts-ignore
       setContext: assign(
-        (_context: ClientItemContext, { data }: ClientItemEvent) => data
+        (_context: ClientItemContext, { data }: AnyEventObject) => data
       ),
 
       setSchemas: assign({
@@ -261,7 +257,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -275,7 +271,10 @@ export default createMachine(
 
       clearError: assign({ error: null }),
 
-      setFeedbackError: ({ error }, _event, _state) => {
+      setFeedbackError: (
+        { error }: ClientItemContext,
+        _event: AnyEventObject
+      ) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title: isString(error)
@@ -287,20 +286,16 @@ export default createMachine(
       },
     },
     guards: {
-      // @ts-ignore
-      isNew: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
+      isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>
         !model?.id,
 
-      // @ts-ignore
-      isNotDefault: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
+      isNotDefault: ({ model }: ClientItemContext, _event: AnyEventObject) =>
         !!model?.id && !model?.default,
 
-      // @ts-ignore
-      canRemove: ({ model }: ClientItemContext, _event: ClientItemEvent) =>
+      canRemove: ({ model }: ClientItemContext, _event: AnyEventObject) =>
         !!model?.id && !!model?.canDelete,
     },
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },

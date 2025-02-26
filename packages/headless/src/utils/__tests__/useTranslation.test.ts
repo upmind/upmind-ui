@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { useTranslateField } from "@/utils/useTranslation";
+import { useTranslateField } from "../../utils/useTranslation";
 
 describe("useTranslation.ts", () => {
   describe("useTranslateField", () => {
@@ -18,6 +18,7 @@ describe("useTranslation.ts", () => {
       expect(useTranslateField(null, "name")).toBeUndefined();
       // @ts-ignore
       expect(useTranslateField(undefined, "name")).toBeUndefined();
+      // @ts-ignore
       expect(useTranslateField(123, "name")).toBeUndefined();
     });
 

@@ -3,7 +3,7 @@
 # useProductConfig()
 
 ```ts
-function useProductConfig(service): object
+function useProductConfig(service): object;
 ```
 
 ## Parameters
@@ -61,7 +61,7 @@ fields: ComputedRef<any>;
 ### getProvisioningField()
 
 ```ts
-getProvisioningField: (field) => any;
+getProvisioningField: field => any;
 ```
 
 #### Parameters
@@ -139,7 +139,7 @@ isSelectedOption: (optionId, value) => boolean;
 ### isSelectedTerm()
 
 ```ts
-isSelectedTerm: (term) => boolean;
+isSelectedTerm: term => boolean;
 ```
 
 #### Parameters
@@ -275,7 +275,7 @@ isUnavailable: any;
 ### model
 
 ```ts
-model: Ref<any, any>;
+model: ActorRef<any>;
 ```
 
 ### options
@@ -293,7 +293,7 @@ product: ComputedRef<any>;
 ### productImage()
 
 ```ts
-productImage: (size) => null | string;
+productImage: size => null | string;
 ```
 
 #### Parameters
@@ -363,7 +363,7 @@ setProvisioningFields: (value) => void;
 ### state
 
 ```ts
-state: Ref<any, any>;
+state: ActorRef<any>;
 ```
 
 ### summary

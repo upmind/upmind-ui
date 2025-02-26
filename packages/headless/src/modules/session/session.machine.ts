@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
@@ -13,7 +14,7 @@ import { useTime } from "../../utils";
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./session.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./session.machine.typegen").Typegen0,
     id: "sessionManager",
     predictableActionArguments: true,
     initial: "checking",
@@ -81,19 +82,19 @@ export default createMachine(
   {
     actions: {
       setError: assign({
-        error: (_context, { data }: any) => data,
+        error: (_context: SessionContext, { data }: AnyEventObject) => data,
       }),
     },
 
     guards: {
-      isClientToken: (_context, { data }: any) => data?.actor_type === "client",
+      isClientToken: (_context: SessionContext, { data }: AnyEventObject) =>
+        data?.actor_type === "client",
     },
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
     services,
   }
 );

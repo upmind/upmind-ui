@@ -1,27 +1,31 @@
 {
-  "files": [],
+  // This tsconfig is for development. Allowing *.story.vue, and __test__/*.vue to have types support
   "compilerOptions": {
-    "incremental": true,
-    "outDir": "./dist",
     "baseUrl": ".",
-    "moduleResolution": "Node10",
-    "module": "esnext",
-    "target": "ES2018",
-    "sourceMap": true,
-    "lib": ["esnext"],
+    "composite": false,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "declarationMap": false,
     "esModuleInterop": true,
-    "alwaysStrict": true,
-    "strictNullChecks": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["esnext", "dom"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "paths": {
+      "@upmind-automation/types": ["packages/types/src/index.ts"], // Adjust paths as needed
+      "@upmind-automation/headless": ["packages/headless/src/index.ts"],
+      "@upmind-automation/headless-vue": ["packages/headless-vue/src/index.ts"],
+      "@upmind-automation/upmind-ui": ["packages/ui/src/index.ts"],
+      "@upmind-automation/client-vue": ["packages/client-vue/src/index.ts"]
+    },
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "resolveJsonModule": true
+    "sourceMap": true,
+    "strict": true,
+    "target": "esnext",
+    "types": ["jsdom", "vite/client"]
   },
-  "references": [
-    { "path": "packages/headless/tsconfig.build.json" },
-    { "path": "packages/headless-vue/tsconfig.build.json" }
-  ],
-  "exclude": ["node_modules", "coverage", "dist", "*.d.ts"]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"]
 }

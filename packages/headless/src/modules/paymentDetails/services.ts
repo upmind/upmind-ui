@@ -1,7 +1,8 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand, BrandConfigKeys } from "..";
+import { useApi, useSession, useBrand } from "..";
+
 // --- utils
 import { useValidation } from "../../utils";
 import {
@@ -19,23 +20,24 @@ import {
 } from "lodash-es";
 
 // --- types
+import { BrandConfigKeys, PaymentType } from "@upmind-automation/types";
 import { GatewayTypes } from "./gateways/types";
-import { PaymentTypes } from "./types";
-import type { PaymentDetailsEvent, PaymentDetailsContext } from "./types";
+import type { PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";
+import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
 // ENUMS
-const whitelistGatewayProviders =
-  // @ts-ignore
-  (import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || "").split(",");
+const whitelistGatewayProviders = (
+  import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || ""
+).split(",");
 
 // --------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 async function load(
   { currency, address }: PaymentDetailsContext,
-  _event: PaymentDetailsEvent
+  _event: AnyEventObject
 ) {
   const { isAuthenticated, getUserId } = useSession();
 
@@ -60,10 +62,10 @@ async function load(
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
   ]).then(data => {
     if (!get(data, BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED))
-      unset(PaymentTypes, "PARTIAL_PAYMENT");
+      unset(PaymentType, "PARTIAL_PAYMENT");
 
     if (!get(data, BrandConfigKeys.PAY_LATER_ENABLED))
-      unset(PaymentTypes, "PAY_LATER");
+      unset(PaymentType, "PAY_LATER");
   });
 
   // ---
@@ -131,7 +133,7 @@ async function load(
       return {
         stored_payment_methods,
         gateways,
-        payment_types: PaymentTypes,
+        payment_types: PaymentType,
         address,
       };
     }
@@ -145,7 +147,7 @@ async function load(
 
 async function parse(
   { model, gateways }: PaymentDetailsContext,
-  { data }: PaymentDetailsEvent
+  { data }: AnyEventObject
 ) {
   // ---
   let gateway = null;
@@ -159,7 +161,7 @@ async function parse(
 
   // ---
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
-  safeModel.type ??= PaymentTypes.PAY_IN_FULL;
+  safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
   // Gateway vs Stored Payment Methods Logic...
 
@@ -179,7 +181,7 @@ async function parse(
   }
 
   // 3) Safety Check...if the payment type is pay later or Free, clear the gateway_id
-  if (safeModel?.type == PaymentTypes.PAY_LATER || safeModel?.amount <= 0) {
+  if (safeModel?.type == PaymentType.PAY_LATER || safeModel?.amount <= 0) {
     unset(safeModel, "gateway_id");
     gateway = null;
   }
@@ -189,7 +191,7 @@ async function parse(
 
 async function validate(
   { schema, model, actors }: PaymentDetailsContext,
-  _event: PaymentDetailsEvent
+  _event: AnyEventObject
 ) {
   // ---
 
@@ -201,13 +203,13 @@ async function validate(
 
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed
-  const promises = map(actors, actor =>
-    waitFor(
-      // @ts-ignore
+  const promises = map(actors, actor => {
+    if (!actor) return;
+    return waitFor(
       actor,
       state => !["loading", "checking", "error"].some(state.matches)
-    )
-  );
+    );
+  });
 
   await Promise.all(promises)
     .then(responses => {

@@ -7,10 +7,10 @@ import { useSystem } from "../..";
 import { some, get, find, includes, map, compact } from "lodash-es";
 
 // --- types
-import type { IAddress } from "../address/types";
-import type { ICountry } from "../../system/types";
+import type { ICountry } from "@upmind-automation/types";
+import { IAddressData } from "../address/types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 function parseCountry(addressComponents: any) {
   const { getCountry } = useSystem();
@@ -25,7 +25,7 @@ function parseCountry(addressComponents: any) {
 async function parseRegion(
   regionLevel1: string,
   regionLevel2: string,
-  country: ICountry
+  country: string
 ) {
   const { fetchRegions, getRegion } = useSystem();
   await fetchRegions(country);
@@ -40,7 +40,7 @@ function parseValue(addressComponents: any[], fields: string[]) {
   return get(value, "long_name");
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 export async function usePredictionsParser(results: any) {
   return map(results, result => {
     const value = {
@@ -56,7 +56,7 @@ export async function usePredictionsParser(results: any) {
   });
 }
 
-export async function usePlaceParser(result: any): Promise<IAddress> {
+export async function usePlaceParser(result: any): Promise<IAddressData> {
   const name = get(result, "name");
   const address = get(result, "address_components", []);
 
@@ -82,10 +82,10 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
   const region = await parseRegion(
     parseValue(address, ["administrative_area_level_1"]),
     parseValue(address, ["administrative_area_level_2"]),
-    country
+    country?.code ?? ""
   );
 
-  const value = {
+  return {
     name,
     address1: address_1.length ? address_1.join(" ") : undefined,
     address2: address_2.length ? address_2.join(" ") : undefined,
@@ -93,6 +93,5 @@ export async function usePlaceParser(result: any): Promise<IAddress> {
     city,
     countryId: get(country, "id"),
     regionId: get(region, "id"),
-  };
-  return value as IAddress;
+  } as IAddressData;
 }

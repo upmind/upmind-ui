@@ -1,13 +1,14 @@
 // --- external
 
 // --- internal
+import type { AnyEventObject } from "xstate";
 import { useApi, useBrand } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
 
 // --- types
-import type { CurrencyEvent, CurrencyContext } from "./types";
+import type { CurrencyContext } from "./types";
 
 // --------------------------------------------------------
 
@@ -15,7 +16,7 @@ import type { CurrencyEvent, CurrencyContext } from "./types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(_context: CurrencyContext, _event: CurrencyEvent) {
+async function load(_context: CurrencyContext, _event: AnyEventObject) {
   const { getCurrencies, getCurrency, isReady } = useBrand();
 
   await isReady().catch(error => Promise.reject(error));
@@ -33,7 +34,7 @@ async function load(_context: CurrencyContext, _event: CurrencyEvent) {
 
 async function update(
   { basketId, model }: CurrencyContext,
-  _event: CurrencyEvent
+  _event: AnyEventObject
 ) {
   const { put, useUrl } = useApi();
 
@@ -49,7 +50,7 @@ async function update(
 
 // --------------------------------------------------------
 
-async function parse({ model }: CurrencyContext, _event: CurrencyEvent) {
+async function parse({ model }: CurrencyContext, _event: AnyEventObject) {
   // ---
   // if we have a valid currency, lets hydrate it base don the code.
   const { validateCurrency } = useBrand();
@@ -59,7 +60,7 @@ async function parse({ model }: CurrencyContext, _event: CurrencyEvent) {
 
 async function validate(
   { schema, model }: CurrencyContext,
-  _event: CurrencyEvent
+  _event: AnyEventObject
 ) {
   // ---
 

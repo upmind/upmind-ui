@@ -10,7 +10,6 @@ import { useTime } from "../../utils";
 import type { RequestParams } from "./types";
 
 import { useSession } from "../session";
-export { responseCodes } from "./types";
 
 // --- utils
 import { useUrl } from "../../utils";
@@ -21,15 +20,12 @@ import { set, get, unset, keys, isString } from "lodash-es";
 // create a global instance of the requests machine
 // and a global object to store state
 
-let state: any = null;
-const service = interpret(requestsMachine, { devTools: false }).onTransition(
-  newState => (state = newState)
-);
+const service: any = interpret(requestsMachine, {
+  devTools: false,
+});
+
 // --------------------------------------------------------
 
-/**
- * @ignore
- */
 export const useApi = () => {
   // --------------------------------------------------------
   // methods
@@ -47,12 +43,9 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = false,
-    maxAge = null,
+    maxAge = undefined,
     refresh = false,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -76,6 +69,7 @@ export const useApi = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
+    const state = service.getSnapshot();
     const queue = keys(state?.context?.requests);
     const hash = generateHash(url, init, useCache, queue);
 
@@ -102,12 +96,12 @@ export const useApi = () => {
             }
           })
           .catch(error => {
-            console.error(
-              "api request",
-              "timeout",
-              { hash, url, init, useCache, maxAge },
-              error
-            );
+            // console.error(
+            //   "api request",
+            //   "timeout",
+            //   { hash, url, init, useCache, maxAge },
+            //   error
+            // );
             // throw error;
             reject(error);
           });
@@ -132,12 +126,9 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null,
+    maxAge = undefined,
     refresh = false,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -246,11 +237,8 @@ export const useApi = () => {
     init,
     withAccessToken,
     useCache = true,
-    maxAge = null,
+    maxAge = undefined,
   }: RequestParams) {
-    // re-enable once we have locales
-    // url?.searchParams?.set("lang", activeLocale.value);
-
     // safe guard
     init ??= {};
 
@@ -260,12 +248,13 @@ export const useApi = () => {
 
     return request({ url, init, withAccessToken, useCache, maxAge });
   }
+
   // --------------------------------------------------------
 
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
-    getSnapshot: () => state,
+    getSnapshot: service.getSnapshot,
     useUrl,
     generateHash,
     useTime,

@@ -12,19 +12,14 @@ import { useTranslateName } from "../../utils";
 import { omit, map } from "lodash-es";
 
 // --- types
-import { PaymentTypes } from "./types";
-import {
-  GatewayCtx,
-  GatewayTypes,
-  GatewayProviderCodes,
-} from "./gateways/types";
-
+import { GatewayCtx, GatewayTypes } from "./gateways/types";
+import { GatewayProviderCodes, PaymentType } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "./types";
-import type { UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
-export const parsePaymentDetails = (raw: any) => {
+export const parsePaymentDetails = (raw: any): Record<string, any> => {
   // TODO: map the actual allowed params fr the endpoint
   return omit(raw, ["can_store"]);
 };
@@ -33,7 +28,7 @@ export const parsePaymentDetails = (raw: any) => {
 export const useSchema = ({
   payment_types,
   gateways,
-}: PaymentDetailsContext) => {
+}: PaymentDetailsContext): JsonSchema => {
   const schema = {
     type: "object",
     title: "Payment details",
@@ -49,7 +44,7 @@ export const useSchema = ({
       type: {
         type: "string",
         title: "Payment type",
-        const: PaymentTypes.PAY_IN_FULL,
+        const: PaymentType.PAY_IN_FULL,
         oneOf: !payment_types
           ? undefined
           : map(payment_types, (value, key) => ({
@@ -71,7 +66,7 @@ export const useSchema = ({
 
     if: {
       properties: {
-        type: { const: PaymentTypes.PAY_IN_FULL },
+        type: { const: PaymentType.PAY_IN_FULL },
       },
     },
     then: {
@@ -82,7 +77,7 @@ export const useSchema = ({
     },
   };
 
-  return schema;
+  return schema as JsonSchema;
 };
 
 // --------------------------------------------------------
@@ -174,7 +169,7 @@ export function spawnGateway({
     });
   }
   if (isStripe(gateway))
-    return spawnStripe({ basketId, gateway, amount, currency, address });
+    return spawnStripe({ basketId, gateway, amount, currency, address } as any);
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
       basketId,
@@ -240,8 +235,7 @@ export function spawnStored({
   stored_payment_methods,
 }: any) {
   return spawn(
-    // @ts-ignore
-    gatewayMachine.withConfig(storedConfig).withContext({
+    gatewayMachine.withConfig(storedConfig as any).withContext({
       stored_payment_methods,
       basketId,
       amount,
@@ -254,8 +248,7 @@ export function spawnStored({
 
 export function spawnCard({ basketId, gateway, amount, currency }: any) {
   return spawn(
-    // @ts-ignore
-    gatewayMachine.withConfig(cardConfig).withContext({
+    gatewayMachine.withConfig(cardConfig as any).withContext({
       basketId,
       gateway,
       amount,
@@ -273,20 +266,19 @@ export function spawnStripe({
   amount,
   currency,
   address,
-}: any) {
+}: PaymentDetailsContext) {
   return spawn(
     stripeMachine.withContext({
       basketId,
       gateway,
-      // @ts-ignore
       ctx: GatewayCtx.PAY,
       amount,
       currency,
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider.code,
       address,
-    }),
-    { name: gateway.id, sync: true }
+    } as any),
+    { name: gateway?.id, sync: true }
   );
 }
 

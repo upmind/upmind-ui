@@ -12,13 +12,11 @@ import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 
 // --- types
+export { DomainTypes, type DomainLookup } from "@upmind-automation/headless";
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useDomain = (
   {
     model,

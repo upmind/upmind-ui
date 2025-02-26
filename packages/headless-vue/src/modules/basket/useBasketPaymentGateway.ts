@@ -90,10 +90,9 @@ export const useBasketPaymentGateway = () => {
 
       // then wait for the paymentGateway actor to be valid
       // then send the update event to the paymentGateway actor
-      // @ts-ignore
-      waitFor(service.state.context.actors.paymentGateway, newstate =>
-        newstate.matches("valid")
-      ).then(() => paymentGateway.value?.send({ type: "UPDATE" }));
+      waitFor(paymentGateway.value, newstate => newstate.matches("valid")).then(
+        () => paymentGateway.value?.send({ type: "UPDATE" })
+      );
     },
 
     async render(container: HTMLElement | null = null) {

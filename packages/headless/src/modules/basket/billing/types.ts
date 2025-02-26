@@ -35,14 +35,3 @@ export interface BillingDetailsContext {
   // error?: RequestError;
   error?: any;
 }
-
-// --------------------------------------------------------
-// Events
-
-export interface BillingDetailsEvent {
-  type: "UPDATE" | "CLEAR" | "SET" | "RETRY";
-  data?: IBillingDetail;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
-}

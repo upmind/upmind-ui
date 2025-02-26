@@ -1,56 +1,27 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, AnyEventObject } from "xstate";
 
 // --- internal
 import services from "./services";
-// @ts-ignore
-import type { UploadContext, UploadEvent } from "../types";
+import type { UploadContext } from "./types";
 
 // --- utils
-import { useTime, useValidationParser } from "../../../utils";
+import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
 // --- types
-// @ts-ignore
 const base = import.meta.env.VITE_API_URL;
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // @ts-ignore
-    // tsTypes: {} as import("./upload.machine.typegen").Typegen0,
+    // @
+    //tsTypes: {} as import("./upload.machine.typegen").Typegen0,
     id: "uploadManager",
     predictableActionArguments: true,
     initial: "idle",
-    context: {
-      field: Object,
-
-      // ---
-      fileTypes: [],
-      // maxFileSize: 0,
-      // minFileSize: 0,
-      // minDimensions: {
-      //   width: 0,
-      //   height: 0
-      // },
-      // maxDimensions: {
-      //   width: 0,
-      //   height: 0
-      // },
-
-      // ---
-      progress: 0,
-      request: null,
-      response: null,
-      // ---
-      file: null,
-      name: null,
-      src: null,
-
-      // ---
-      error: null,
-    } as UploadContext,
+    context: {} as UploadContext,
     states: {
       idle: {
         on: {
@@ -149,33 +120,33 @@ export default createMachine(
       }),
 
       setRequest: assign({
-        request: (_context: UploadContext, { data }: UploadEvent) =>
+        request: (_context: UploadContext, { data }: AnyEventObject) =>
           useFileParser(data),
-        name: (_context: UploadContext, { data }: UploadEvent) => data?.name,
-        src: (_context: UploadContext, { data }: UploadEvent) =>
+        name: (_context: UploadContext, { data }: AnyEventObject) => data?.name,
+        src: (_context: UploadContext, { data }: AnyEventObject) =>
           useFileSrcParser(data),
       }),
 
       setResponse: assign({
-        response: ({ _context }: UploadContext, { data }: UploadEvent) => data,
-        file: (_context: UploadContext, { data }: UploadEvent) => data.value,
-        name: ({ name }: UploadContext, { data }: UploadEvent) =>
+        response: (_context: UploadContext, { data }: AnyEventObject) => data,
+        file: (_context: UploadContext, { data }: AnyEventObject) => data.value,
+        name: ({ name }: UploadContext, { data }: AnyEventObject) =>
           data?.name || name,
-        src: (_context: UploadContext, { data }: UploadEvent) =>
+        src: (_context: UploadContext, { data }: AnyEventObject) =>
           `${base}/api/images/${data.value}/download`,
       }),
 
       setProgress: assign({
-        progress: (_context: UploadContext, { data }: UploadEvent) => data,
+        progress: (_context: UploadContext, { data }: AnyEventObject) => data,
       }),
 
       // ---
       setError: assign({
         error: (_context, { data }: any) => {
-          // @ts-ignore
+          // @
           let error = data?.error;
-          // @ts-ignore
-          if (errore.code == responseCodes.Unprocessable_Entity) {
+          // @
+          if (error.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -189,11 +160,11 @@ export default createMachine(
     },
     guards: {},
     delays: {
-      // @ts-ignore
+      // @
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
-    // @ts-ignore
+    // @
     services,
   }
 );

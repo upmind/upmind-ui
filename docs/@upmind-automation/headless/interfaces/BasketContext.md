@@ -13,34 +13,34 @@ actors: object;
 #### billingDetails?
 
 ```ts
-optional billingDetails: ActorRef<any, any>;
+optional billingDetails: ActorRef<any>;
 ```
 
 #### currency?
 
 ```ts
-optional currency: ActorRef<any, any>;
+optional currency: ActorRef<any>;
 ```
 
 #### customFields?
 
 ```ts
-optional customFields: ActorRef<any, any>;
+optional customFields: ActorRef<any>;
 ```
 
 #### paymentDetails?
 
 ```ts
-optional paymentDetails: ActorRef<any, any>;
+optional paymentDetails: ActorRef<any>;
 ```
 
 #### promotions?
 
 ```ts
-optional promotions: ActorRef<any, any>;
+optional promotions: ActorRef<any>;
 ```
 
-***
+---
 
 ### basket?
 
@@ -48,7 +48,7 @@ optional promotions: ActorRef<any, any>;
 optional basket: Basket;
 ```
 
-***
+---
 
 ### controller?
 
@@ -56,7 +56,7 @@ optional basket: Basket;
 optional controller: AbortController;
 ```
 
-***
+---
 
 ### error?
 
@@ -70,7 +70,7 @@ optional error: object;
 optional provisioningErrors: Record<string, any>;
 ```
 
-***
+---
 
 ### invoice?
 
@@ -78,31 +78,31 @@ optional provisioningErrors: Record<string, any>;
 optional invoice: any;
 ```
 
-***
+---
 
 ### items?
 
 ```ts
-optional items: ActorRef<any, any>[];
+optional items: ActorRef<any>[];
 ```
 
-***
+---
 
 ### payment?
 
 ```ts
-optional payment: ActorRef<any, any>;
+optional payment: ActorRef<any>;
 ```
 
-***
+---
 
 ### paymentDetails?
 
 ```ts
-optional paymentDetails: ActorRef<any, any>;
+optional paymentDetails: ActorRef<any>;
 ```
 
-***
+---
 
 ### products
 
@@ -110,7 +110,7 @@ optional paymentDetails: ActorRef<any, any>;
 products: BasketProduct[];
 ```
 
-***
+---
 
 ### summary?
 

@@ -1,10 +1,9 @@
-import type { StateMachine } from "xstate";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // ENUMS
 export enum messageDisplays {
-  // @ts-ignore
-  SILENT = null,
+  SILENT = "",
   TOAST = "toast",
   NOTIFICATION = "notification",
   SNACKBAR = "snackbar",
@@ -46,21 +45,5 @@ export interface MessageError {
 // Context
 
 export interface MessagesContext {
-  // TODO:
-  // messages: Array[StateMachine];
-  messages: any[];
+  messages: ActorRef<any>[] | any;
 }
-
-// --------------------------------------------------------
-// Event Types
-
-export interface MessageEvent {
-  display: string;
-  data: Message;
-  error?: MessageError;
-}
-
-export type MessagesEvents = {
-  display: "ADD" | "REMOVE";
-  data: Message;
-};

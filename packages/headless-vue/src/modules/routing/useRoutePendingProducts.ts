@@ -37,6 +37,7 @@ export const useProductsPending = (route?: Route) => {
     getPendingProduct,
     setPendingProduct,
     unsetPendingProduct,
+    resolvePendingProduct,
     syncPendingProducts,
   } = usePendingProducts(parsedRoute);
 
@@ -48,6 +49,7 @@ export const useProductsPending = (route?: Route) => {
     getPendingProduct,
     setPendingProduct,
     unsetPendingProduct,
+    resolvePendingProduct,
     syncPendingProducts,
   };
 };

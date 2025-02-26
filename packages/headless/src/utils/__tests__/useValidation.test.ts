@@ -3,7 +3,7 @@ import {
   useValidation,
   useValidationParser,
   useModelParser,
-} from "@/utils/useValidation";
+} from "../../utils/useValidation";
 import { createAjv } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
 

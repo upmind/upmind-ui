@@ -1,4 +1,5 @@
 // --- external
+import type { AnyEventObject } from "xstate";
 import { createMachine, assign, actions } from "xstate";
 const { pure, sendParent, escalate } = actions;
 // --- internal
@@ -11,14 +12,14 @@ import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 
 // --- types
-import type { GatewayContext, GatewayEvent } from "./types";
-import { responseCodes } from "../../api";
+import type { GatewayContext } from "./types";
+import { responseCodes } from "../../../utils";
 
 // --------------------------------------------------------
 
 export default createMachine(
   {
-    // tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
+    //tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
     id: "gatewayPaymentManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -117,7 +118,7 @@ export default createMachine(
       complete: {
         id: "complete",
         type: "final",
-        data: ({ paymentDetails }: GatewayContext, _event: GatewayEvent) =>
+        data: ({ paymentDetails }: GatewayContext, _event: AnyEventObject) =>
           paymentDetails,
       },
 
@@ -153,7 +154,7 @@ export default createMachine(
     actions: {
       setContext: assign(
         // TODO: (_context: CurrencyContext, { data }: CurrencyEvent) => data
-        (_context: any, { data }: any) => data
+        (_context: any, { data }: AnyEventObject) => data
       ),
 
       // ---
@@ -169,7 +170,7 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }) =>
+        model: ({ schema, model }: GatewayContext, { data }: AnyEventObject) =>
           useModelParser(schema, data || model),
       }),
 
@@ -179,7 +180,10 @@ export default createMachine(
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: ({ gateway }, { data }: any) => {
+        paymentDetails: (
+          { gateway }: GatewayContext,
+          { data }: AnyEventObject
+        ) => {
           return { gateway, ...data };
         },
       }),
@@ -193,14 +197,13 @@ export default createMachine(
         type: "CANCEL",
       })),
 
-      escalateError: pure((_context, { data }): any => {
+      escalateError: (_context, { data }: AnyEventObject) => {
         escalate({ data });
-      }),
+      },
 
       // ---
 
-      // @ts-ignore
-      setFeedbackError: ({ error }: GatewayContext, _event: GatewayEvent) => {
+      setFeedbackError: ({ error }: GatewayContext, _event: AnyEventObject) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
         addError({
           title:
@@ -210,9 +213,8 @@ export default createMachine(
         });
       },
 
-      // @ts-ignore
       setError: assign({
-        error: (_context: GatewayContext, { data }: GatewayEvent) => {
+        error: (_context: GatewayContext, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -228,10 +230,9 @@ export default createMachine(
     },
 
     guards: {
-      // @ts-ignore
       hasNoOutstandingBalance: (
         _context: GatewayContext,
-        _event: GatewayEvent
+        _event: AnyEventObject
       ) => {
         // TODO: check if there is an outstanding balance
         return true;
@@ -239,12 +240,10 @@ export default createMachine(
     },
 
     delays: {
-      // @ts-ignore
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
-    // @ts-ignore
     services,
   }
 );

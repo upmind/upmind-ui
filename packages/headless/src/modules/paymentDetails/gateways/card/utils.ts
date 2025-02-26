@@ -10,13 +10,19 @@ import {
 import { get } from "lodash-es";
 
 // --- types
+import type { IGatewayProvider } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --------------------------------------------------------
 
 export const useSchema = (context: GatewayContext) => {
-  const gateway_provider = get(context.gateway, "gateway_provider", {});
+  const gateway_provider = get(
+    context.gateway,
+    "gateway_provider",
+    {}
+  ) as IGatewayProvider;
+
   const defaultSchema = useDefaultSchema(context);
 
   const schema = {
@@ -57,7 +63,6 @@ export const useSchema = (context: GatewayContext) => {
   };
 
   // conditionally add the cardholder_name to the required fields
-  // @ts-ignore
   if (gateway_provider?.requires_name) {
     schema.required.push("cardholder_name");
   }
@@ -123,7 +128,6 @@ export const useUischema = () => {
           },
         ],
       },
-      // @ts-ignore
       ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
     ],
   };

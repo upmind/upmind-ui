@@ -7,42 +7,40 @@ import { useSchema, useUischema, useModelParser, spawnItem } from "./utils";
 import { find, map, get, compact } from "lodash-es";
 
 // --- types
-import type { UnifiedAddressContext, UnifiedAddressEvent } from "./types";
-import type { ClientListingsEvents, ClientListingsContext } from "../types";
+import type { ActorRef, AnyEventObject } from "xstate";
+import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const ListingActions = {
   add: assign({
-    initial: ({ selected, initial }) => selected?.id || initial,
-    selected: (
-      _context: ClientListingsContext,
-      { data }: ClientListingsEvents
-    ) => {
+    initial: ({ selected, initial }: UnifiedAddressesContext) =>
+      selected?.id || initial,
+    selected: (_context: UnifiedAddressesContext, { data }: AnyEventObject) => {
       const item = spawnItem(data); // spawn an actor for the new raw
       return item;
     },
   }),
   setItems: assign({
-    raw: ({ raw }: ClientListingsContext, { data }: ClientListingsEvents) =>
+    raw: ({ raw }: UnifiedAddressesContext, { data }: AnyEventObject) =>
       map(data, item => {
         const found = find(raw, ["id", item.id]);
         if (!found) return spawnItem(item);
         return found;
-      }),
+      }) as ActorRef<any>[],
     error: null,
   }),
 };
 
 export const ItemActions = {
   setMeta: assign({
-    // TODO: title: ({ model }: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
-    title: ({ model }: any, _event: UnifiedAddressEvent) =>
+    title: ({ model }: any) =>
       model?.companyName || model?.name || "New Address",
+
     description: (
       // TODO: { model, countries, regions }: UnifiedAddressContext,
-      { model }: any,
-      _event: UnifiedAddressEvent
+      { model }: UnifiedAddressContext,
+      _event: AnyEventObject
     ) => {
       // BUG: think this is where  our timout error is coming from
       // const country = find(countries, ["id", get(model, "countryId")]);
@@ -68,14 +66,12 @@ export const ItemActions = {
   }),
 
   setSchemas: assign({
-    schema: (context: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
-      useSchema(context),
-    uischema: (context: UnifiedAddressContext, _event: UnifiedAddressEvent) =>
-      useUischema(context),
+    schema: (context: UnifiedAddressContext) => useSchema(context),
+    uischema: (context: UnifiedAddressContext) => useUischema(context),
   }),
 
   setModel: assign({
-    model: ({ schema, baseModel }: any, { data }: UnifiedAddressEvent) =>
+    model: ({ schema, baseModel }: any, { data }: AnyEventObject) =>
       useModelParser(schema, data, baseModel),
   }),
 };

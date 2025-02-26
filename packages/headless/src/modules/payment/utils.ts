@@ -10,7 +10,10 @@ import type { PaymentContext } from "./types";
 
 // --------------------------------------------------------
 
-export const usePaymentParser = ({ paymentDetails, order }: PaymentContext) => {
+export const usePaymentParser: any = ({
+  paymentDetails,
+  order,
+}: PaymentContext) => {
   // TODO pick only the fields that are allowed by the endpoint
   const safeValues = omit(paymentDetails, ["type", "gateway"]);
 

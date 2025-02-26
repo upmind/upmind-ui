@@ -1,4 +1,5 @@
 //  --- external
+import type { ActorRef } from "xstate";
 import { spawn } from "xstate";
 
 // --- internal
@@ -19,11 +20,11 @@ import {
 } from "lodash-es";
 
 // --- types
-// @ts-ignore
-import type { IAddress, AddressContext } from "./types";
+import type { IAddress, ICompany } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { UnifiedAddressContext } from "./types";
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const useSchema = ({
   country,
@@ -34,10 +35,10 @@ export const useSchema = ({
   // ---
   places,
   emails,
-}: AddressContext) => {
+}: UnifiedAddressContext) => {
   const schema = {
     type: "object",
-    title: "Address Fields",
+    title: "Unified Address Fields",
     required: ["address1", "city", "countryId", "postcode", "type"],
     // --- conditionally required fields
     if: {
@@ -165,7 +166,7 @@ export const useSchema = ({
         title: "Email",
         format: "email",
         default: baseModel.email,
-        lookup: emails?.search,
+        // lookup: emails?.search,
       },
 
       phone: {
@@ -248,10 +249,9 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
   const lookups = {
     addresses: reduce(
       addresses.getItems(),
-      (result, item) => {
+      (result: any[], item) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
-          // @ts-ignore
           result.push({
             value: item.id,
             label: [
@@ -591,7 +591,7 @@ export const useModelParser = (
   return defaultsDeep(model, values) as IAddress;
 };
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 export const spawnItem = (model?: IAddress) => {
   try {
@@ -599,10 +599,8 @@ export const spawnItem = (model?: IAddress) => {
     return spawn(
       itemMachine
         .withConfig({
-          // @ts-ignore
-          actions,
-          // @ts-ignore
-          services,
+          actions: actions as any,
+          services: services as any,
         })
         .withContext({ model }),
       {
@@ -611,77 +609,81 @@ export const spawnItem = (model?: IAddress) => {
       }
     );
   } catch (err) {
-    console.error("AddressListings", "spawnItem", { model });
+    // console.error("AddressListings", "spawnItem", { model });
+    return null;
   }
 };
 
-export const parseAddress = (raw: IAddress | Array<IAddress>) => {
+export const parseCompany = (raw: ICompany | ICompany[]) => {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
   // this is to allow for a 'unfied' way of handling addresses
   const rawListings = isArray(raw) ? raw : [raw];
 
-  return map(rawListings, rawItem => {
-    // 1 check if we have  companyDetails or just an address
-    if (rawItem?.address) {
-      const mappedItem = {
-        id: rawItem?.id,
-        clientId: rawItem?.client_id,
-        addressId: rawItem?.address.id, // add the address id as the unified id representing the actual address
-        companyId: rawItem?.id, // add the company id as the unified id representing the actual address
-        companyDetails: true, // our flag to show company details
-        companyName: rawItem?.name,
-        // ---
-        name: rawItem?.address?.name,
-        address1: rawItem?.address?.address_1,
-        address2: rawItem?.address?.address_2,
-        city: rawItem?.address?.city,
-        postcode: rawItem?.address?.postcode,
-        regionId: rawItem?.address?.region_id,
-        countryId: rawItem?.address?.country_id,
-        // ---
-        email: rawItem?.email?.email,
-        phone: {
-          number: rawItem?.phone?.number,
-          nationalNumber: rawItem?.phone?.national_number,
-          countryCallingCode: rawItem?.phone?.country_calling_code,
-          country: rawItem?.phone?.country,
-        },
-        regNumber: rawItem?.reg_number,
-        vatNumber: rawItem?.vat_number,
-        // ---
-        type: rawItem?.type || 4, // default to 4 = company
-        default: rawItem?.default,
-        canDelete: rawItem?.can_delete,
-        verified: rawItem?.verified,
+  return map(rawListings, (rawItem: ICompany) => {
+    return {
+      id: rawItem?.id,
+      clientId: rawItem?.client_id,
+      addressId: rawItem?.address.id, // add the address id as the unified id representing the actual address
+      companyId: rawItem?.id, // add the company id as the unified id representing the actual address
+      companyDetails: true, // our flag to show company details
+      companyName: rawItem?.name,
+      // ---
+      name: rawItem?.address?.name,
+      address1: rawItem?.address?.address_1,
+      address2: rawItem?.address?.address_2,
+      city: rawItem?.address?.city,
+      postcode: rawItem?.address?.postcode,
+      regionId: rawItem?.address?.region_id,
+      countryId: rawItem?.address?.country_id,
+      // ---
+      email: rawItem?.email?.email,
+      phone: {
+        number: rawItem?.phone?.phone,
+        nationalNumber: rawItem?.phone?.full_phone,
+        countryCallingCode: rawItem?.phone?.phone_code,
+        country: rawItem?.phone?.phone_country_code,
+      },
+      regNumber: rawItem?.reg_number,
+      vatNumber: rawItem?.vat_number,
+      // ---
+      type: 4, // default to 4 = company
+      default: rawItem?.default,
+      canDelete: rawItem?.can_delete,
+      verified: rawItem?.verified,
 
-        // vatPercent: item?.vatPercent,
-      };
-      return mappedItem;
-    } else {
-      const mappedItem: any = {
-        id: rawItem.id,
-        clientId: rawItem.client_id,
-        addressId: rawItem.id,
-        companyId: null,
-        companyDetails: false,
-        companyName: null,
-        // ---
-        name: rawItem.name,
-        address1: rawItem.address_1,
-        address2: rawItem.address_2,
-        city: rawItem.city,
-        postcode: rawItem.postcode,
-        regionId: rawItem.region_id,
-        countryId: rawItem.country_id,
-        // ---
-        default: rawItem.default,
-        type: rawItem.type,
-        canDelete: rawItem.can_delete,
-        verified: rawItem.verified,
-      };
-      // mappedItem.place = null;
-      return mappedItem;
-    }
+      // vatPercent: item?.vatPercent,
+    };
+  });
+};
+
+export const parseAddress = (raw: IAddress | IAddress[]) => {
+  // we could get a plain address OR a company with and address
+  // so we normalize the data to always be an array of addresses
+  // this is to allow for a 'unfied' way of handling addresses
+  const rawListings = isArray(raw) ? raw : [raw];
+
+  return map(rawListings, (rawItem: IAddress) => {
+    return {
+      id: rawItem.id,
+      clientId: rawItem.client_id,
+      addressId: rawItem.id,
+      companyId: null,
+      companyDetails: false,
+      companyName: null,
+      // ---
+      name: rawItem.name,
+      address1: rawItem.address_1,
+      address2: rawItem.address_2,
+      city: rawItem.city,
+      postcode: rawItem.postcode,
+      regionId: rawItem.region_id,
+      countryId: rawItem.country_id,
+      // ---
+      default: rawItem.default,
+      type: rawItem.type,
+      canDelete: rawItem.can_delete,
+      verified: rawItem.verified,
+    };
   });
 };

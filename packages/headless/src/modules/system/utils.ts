@@ -1,6 +1,6 @@
 import { reduce, set } from "lodash-es";
 
-export const useSystemParser = (data: Object) =>
+export const useSystemParser = (data: object) =>
   reduce(
     data,
     (result, value, key) => {

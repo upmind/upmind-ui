@@ -11,7 +11,7 @@ import {
 import { reduce, includes, find } from "lodash-es";
 
 // --- types
-import type { IGateway } from "../types";
+import type { IGateway } from "@upmind-automation/types";
 import type { StripeContext } from "./types";
 import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
 import type { UISchemaElement } from "@jsonforms/core";
@@ -19,7 +19,7 @@ import type { UISchemaElement } from "@jsonforms/core";
 // --------------------------------------------------------
 
 export const useSchema = (context: StripeContext) => {
-  const defaultSchema = useDefaultSchema(context);
+  const defaultSchema = useDefaultSchema(context as any);
 
   const schema = {
     type: "object",
@@ -38,14 +38,12 @@ export const useSchema = (context: StripeContext) => {
 
 // --------------------------------------------------------
 
-export const useUischema = (context: StripeContext) => {
-  // @ts-ignore
-  const defaultUischema = useDefaultUischema(context);
+export const useUischema = (_context: StripeContext) => {
+  const defaultUischema = useDefaultUischema();
 
   const uischema = {
     type: "VerticalLayout",
     elements: [
-      // @ts-ignore
       ...(defaultUischema?.elements || []), // NB Always append the default uischema elements
     ],
   };
@@ -55,7 +53,9 @@ export const useUischema = (context: StripeContext) => {
 
 // --------------------------------------------------------
 
-export function getSupportedPaymentMethods(gateway: IGateway) {
+export function getSupportedPaymentMethods(gateway?: IGateway) {
+  if (!gateway) return [];
+
   return reduce(
     gateway.gateway_settings,
     (result: STRIPE_PAYMENT_METHOD_TYPES[], setting) => {
@@ -84,7 +84,7 @@ export function getSupportedPaymentMethods(gateway: IGateway) {
  * @name stripe_publicKey
  * @desc Here we get the Stripe publicKey from the gateway settings.
  */
-export function getPublicKey(gateway: IGateway) {
+export function getPublicKey(gateway?: IGateway) {
   const setting = find(gateway?.gateway_settings || [], ["field", "publicKey"]);
   return setting?.value;
 }

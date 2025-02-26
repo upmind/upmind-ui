@@ -10,14 +10,12 @@ import {
 
 // --- utils
 import { map, reduce, isEmpty, sortBy } from "lodash-es";
+import type { ActorRef } from "xstate";
 
 // --------------------------------------------------------
 // a composable that provides a simple interface to the api requests machine
 //  with some state helpers
 
-/**
- * @ignore
- */
 export const useFeedback = (): any => {
   const { service, dismiss, add, addError, addSuccess, trackEvent } =
     useUpmindFeedback();
@@ -26,7 +24,7 @@ export const useFeedback = (): any => {
   // --------------------------------------------------------
 
   const messages = computed(() =>
-    map(state.value.context.messages, (item: any) => ({
+    map(state.value.context.messages, (item: ActorRef<any>) => ({
       id: item.id,
       ...useActor(item),
     }))
@@ -36,9 +34,8 @@ export const useFeedback = (): any => {
     sortBy(
       reduce(
         state.value.context.messages,
-        (result, item: any) => {
-          if (item.state.context.display === "notification") {
-            // @ts-ignore
+        (result: any[], item: ActorRef<any>) => {
+          if (item.getSnapshot().context.display === "notification") {
             result.push({
               id: item.id,
               ...useActor(item),
@@ -56,9 +53,8 @@ export const useFeedback = (): any => {
     sortBy(
       reduce(
         state.value.context.messages,
-        (result, item: any) => {
-          if (item.state.context.display === "toast") {
-            // @ts-ignore
+        (result: any[], item: ActorRef<any>) => {
+          if (item.getSnapshot().context.display === "toast") {
             result.push({
               id: item.id,
               ...useActor(item),
@@ -76,9 +72,8 @@ export const useFeedback = (): any => {
     sortBy(
       reduce(
         state.value.context.messages,
-        (result, item: any) => {
-          if (item.state.context.type === "event") {
-            // @ts-ignore
+        (result: any[], item: ActorRef<any>) => {
+          if (item.getSnapshot().context.type === "event") {
             result.push({
               id: item.id,
               ...useActor(item),
@@ -122,9 +117,6 @@ export const useFeedback = (): any => {
   };
 };
 
-/**
- * @ignore
- */
 export const useMessage = (item: any) => {
   const { state, send } = item;
 
