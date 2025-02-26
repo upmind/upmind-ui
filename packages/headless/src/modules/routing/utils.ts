@@ -71,7 +71,9 @@ export const useRouteQueryParams = (route: Route) => {
     //  and is used to configure a product with multiple options, attributrs, etc.
     // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
     // so for that we get the following query params.
-    const productId = getParam(QUERY_PARAMS.PRODUCT_ID);
+
+    // NB: include LEGACY fallback for 'product' query param
+    const productId = getParam(QUERY_PARAMS.PRODUCT_ID, getParam("product"));
 
     // if we dont have a product id, then we dont have a product config
     if (!productId) return [];
