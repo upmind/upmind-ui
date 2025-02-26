@@ -11,7 +11,7 @@
       </div>
       <Button
         class="mt-4"
-        :label="t('basket.summary.actions.submitNoPayment')"
+        :label="t('payment.noPayment.action')"
         color="secondary"
         @click="checkout"
       />
