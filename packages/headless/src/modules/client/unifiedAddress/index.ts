@@ -27,7 +27,7 @@ const service = interpret(
     services: services as any,
   }),
   {
-    devTools: true,
+    devTools: false,
   }
 );
 
