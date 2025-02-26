@@ -38,7 +38,7 @@ export default createMachine(
           },
           onError: {
             target: "#error",
-            actions: ["setError", "setFeedbackError"],
+            actions: ["setError"],
           },
         },
       },
@@ -90,7 +90,7 @@ export default createMachine(
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"],
+            actions: ["setError"],
           },
         },
       },
@@ -123,7 +123,7 @@ export default createMachine(
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -144,11 +144,9 @@ export default createMachine(
       },
 
       error: {
-        entry: escalate(({ error }, _event) => ({
-          data: error,
-        })),
+        entry: escalate(({ error }, _event) => error),
         id: "error",
-        type: "final",
+        // type: "final",
       },
     },
   },
@@ -180,26 +178,29 @@ export default createMachine(
         addSuccess("Successfully made payment");
       },
 
-      setFeedbackError: ({ error }: PaymentContext, _event: AnyEventObject) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
-        addError({
-          title:
-            error?.title || "We experienced an error processing your payment",
-          copy: error?.message,
-          data: error?.data,
-        });
-      },
+      // setFeedbackError: ({ error }: PaymentContext, _event: AnyEventObject) => {
+      //   if (
+      //     !error?.message ||
+      //     error?.code == responseCodes.Unprocessable_Entity
+      //   )
+      //     return;
+      //   addError({
+      //     title: error?.title ?? error?.message,
+      //     copy: error?.title ? error?.message : null,
+      //     data: error?.data,
+      //   });
+      // },
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          let error = data?.error;
+          let error = data?.error?.data ?? data?.error ?? data;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
           }
 
-          return error || data;
+          return error;
         },
       }),
 

@@ -656,19 +656,24 @@ export default createMachine(
           !error ||
           error?.code == responseCodes.Unprocessable_Entity ||
           error?.code == responseCodes.Unauthorized
-        )
+        ) {
           return;
+        }
 
         addError({
-          title: error?.title || "We experienced an error updating the basket",
-          copy: error?.message,
-          data: error?.data,
+          title:
+            error?.title ??
+            error?.message ??
+            "We experienced an error with the basket",
+          copy: error?.title ? error?.message : undefined,
+          data: error,
         });
       },
 
       setError: assign({
-        error: (_context: BasketContext, { data }: AnyEventObject) =>
-          data?.error || data || undefined,
+        error: (_context: BasketContext, { data }: AnyEventObject) => {
+          return data?.error ?? data;
+        },
       }),
 
       clearError: assign({ error: undefined }),
