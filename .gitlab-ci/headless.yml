@@ -8,7 +8,7 @@
     - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
     - if: $CI_FORCE_HEADLESS == "true"
   script:
-    - npm --workspace packages/headless test
+    - pnpm --filter headless test
 
 (headless) check version:
   extends: .check version
@@ -35,7 +35,7 @@
     paths:
       - packages/headless/dist/
   script:
-    - npm --workspace packages/headless run build
+    - pnpm --filter headless build
 
 (headless) publish internal:
   stage: publish internal
@@ -51,7 +51,7 @@
     - (headless) build
   script:
     - echo "${INTERNAL_NPMRC}" > .npmrc
-    - npm --workspace packages/headless publish
+    - pnpm --filter headless publish
 
 (headless) publish to npm:
   stage: publish external
@@ -67,4 +67,4 @@
     - dependencies
     - (headless) build
   script:
-    - npm --workspace packages/headless publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
+    - pnpm --filter headless publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}

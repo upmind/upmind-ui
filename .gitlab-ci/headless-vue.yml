@@ -8,7 +8,7 @@
     - if: $CI_COMMIT_TAG =~ /^headless-vue-v\d+(\.\d+)*$/
     - if: $CI_FORCE_HEADLESS_VUE == "true"
   script:
-    - npm --workspace packages/headless-vue test
+    - pnpm --filter headless-vue test
 
 (headless-vue) check version:
   extends: .check version
@@ -35,7 +35,7 @@
     paths:
       - packages/headless-vue/dist/
   script:
-    - npm --workspace packages/headless-vue run build
+    - pnpm --filter headless-vue build
 
 (headless-vue) publish internal:
   stage: publish internal
@@ -51,7 +51,7 @@
     - (headless-vue) build
   script:
     - echo "${INTERNAL_NPMRC}" > .npmrc
-    - npm --workspace packages/headless-vue publish
+    - pnpm --filter headless-vue publish
 
 (headless-vue) publish to npm:
   stage: publish external
@@ -67,4 +67,4 @@
     - dependencies
     - (headless-vue) build
   script:
-    - npm --workspace packages/headless-vue publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
+    - pnpm --filter headless-vue publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
