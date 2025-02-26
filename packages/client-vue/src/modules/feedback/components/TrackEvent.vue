@@ -16,6 +16,7 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
+import { isFunction } from "xstate/lib/utils";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -28,7 +29,7 @@ const gtm = inject("gtm") as any;
 
 watch(state, state => {
   if (!state.matches("active")) return;
-  if (!gtm) {
+  if (!gtm && !isFunction(gtm?.trackEvent)) {
     dismiss();
   } else {
     if (!isEmpty(message.value?.data)) gtm.trackEvent(message.value?.data);
