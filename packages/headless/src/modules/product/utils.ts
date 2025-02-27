@@ -99,7 +99,7 @@ export const parseProduct = (
         ? merged.product?.max_order_quantity
         : Infinity,
     defaultPaymentPeriod: merged?.default_payment_period,
-    meta: merged?.meta,
+    meta: parseMeta(merged?.meta, merged?.category),
     categoryMeta: merged?.category?.meta,
     // ---
     // displayAmount: merged.selling_price,
@@ -115,6 +115,16 @@ export const parseProduct = (
     //     [TrialEndActionTypes.CANCEL].includes(merged.trial_end_action),
     // },
   };
+};
+
+export const parseMeta = (meta: any, category: any) => {
+  const collectedMeta = collectMeta(category);
+  return merge({}, ...collectedMeta, meta);
+};
+
+const collectMeta = (category: any): any[] => {
+  if (!category) return [];
+  return [...collectMeta(category.top_category), category.meta];
 };
 
 export const parseTerms = (
