@@ -88,8 +88,6 @@ dependencies:
       echo "${UPMIND_UI_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-ui
 
       cat <<EOF > ~/.ssh/config
-      IdentititesOnly yes
-
       Host *
         StrictHostKeyChecking no
 
