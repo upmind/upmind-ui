@@ -84,17 +84,39 @@ dependencies:
     - |
       mkdir ~/.ssh || true
 
-      echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id_rsa
+      echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-types
+      echo "${UPMIND_UI_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-ui
 
       cat <<EOF > ~/.ssh/config
+      IdentititesOnly yes
+
       Host *
-      StrictHostKeyChecking no
+        StrictHostKeyChecking no
+
+      Host github-upmind-types
+        User git
+        Hostname github.com
+        Identityfile ~/.ssh/id.upmind-types
+
+      Host github-upmind-ui
+        User git
+        Hostname github.com
+        Identityfile ~/.ssh/id.upmind-ui
+      EOF
+
+      cat <<EOF > ~/.gitconfig
+      [url "github-upmind-ui"]
+        insteadOf = git@github.com:upmind/upmind-ui
+
+      [url "github-upmind-types"]
+        insteadOf = git@github.com:upmind/types
       EOF
 
       chmod 700 ~/.ssh
-      chmod 600 ~/.ssh/id_rsa
+      chmod 600 ~/.ssh/id*
 
     - git config --global --add safe.directory '*'
+    - git submodule set-url -- packages/types
     - git submodule update --init --recursive
     - npm clean-install
 
