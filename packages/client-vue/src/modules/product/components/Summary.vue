@@ -150,6 +150,8 @@
       </ul>
     </li>
   </ul>
+
+  <UIMeta :meta="product?.meta" path="config.summary.append" />
 </template>
 
 <script setup lang="ts">
@@ -160,6 +162,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
+import UIMeta from "../../../components/content/UIMeta.vue";
 import Card from "../../../components/content/Card.vue";
 import {
   NumberField,
