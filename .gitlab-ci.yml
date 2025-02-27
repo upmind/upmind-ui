@@ -3,7 +3,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
   # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth
-  GIT_SUBMODULE_PATHS: ":(exclude)packages/types"
+  GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)packages/ui"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
