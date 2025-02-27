@@ -114,7 +114,8 @@ dependencies:
       chmod 600 ~/.ssh/id*
 
     - git config --global --add safe.directory '*'
-    - git submodule update --init --recursive --remote
+    - git submodule update packages/types --init --recursive --remote
+    - git submodule update packages/upmind-ui --init --recursive --remote
     - npm clean-install
 
 .check version:
