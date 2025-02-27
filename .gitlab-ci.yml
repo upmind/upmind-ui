@@ -105,10 +105,10 @@ dependencies:
       EOF
 
       cat <<EOF > ~/.gitconfig
-      [url "github-upmind-ui"]
+      [url "github-upmind-ui:"]
         insteadOf = git@github.com:upmind/upmind-ui
 
-      [url "github-upmind-types"]
+      [url "github-upmind-types:"]
         insteadOf = git@github.com:upmind/types
       EOF
 
