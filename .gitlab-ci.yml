@@ -68,6 +68,7 @@ dependencies:
         - packages/headless/node_modules
         - packages/headless-vue/node_modules
         - packages/client-vue/node_modules
+        - docs/node_modules
 
   artifacts:
     when: on_success
@@ -81,6 +82,7 @@ dependencies:
       - packages/headless/node_modules
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
+      - docs/node_modules
   script:
     - apk --no-cache add git openssh-client
     - |
