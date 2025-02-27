@@ -18,6 +18,13 @@ stages:
   - publish internal
   - publish external
 
+.pnpm:
+  image: ${NODE_IMAGE}
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+    - pnpm --version
+
 include:
   - local: .gitlab-ci/storybook.yml
     rules:
@@ -45,13 +52,11 @@ workflow:
 #------------------------------------------------------------------------------
 
 dependencies:
+  extends: .pnpm
   stage: dependencies
-  image: ${NODE_IMAGE}
 
   before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
-    - pnpm --version
+    - !reference [.setup-pnpm, before_script]
 
   cache:
     - key:
@@ -116,7 +121,7 @@ dependencies:
     - git config --global --add safe.directory '*'
     - git submodule update --init --recursive --remote packages/types
     - git submodule update --init --recursive --remote packages/ui
-    - npm clean-install
+    - pnpm clean
 
 .check version:
   stage: build
