@@ -55,9 +55,6 @@ dependencies:
   extends: .pnpm
   stage: dependencies
 
-  before_script:
-    - !reference [.setup-pnpm, before_script]
-
   cache:
     - key:
         files:
