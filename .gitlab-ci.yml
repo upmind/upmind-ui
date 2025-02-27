@@ -52,7 +52,7 @@ workflow:
 #------------------------------------------------------------------------------
 
 dependencies:
-  image: ${NODE_IMAGE}
+  extends: .pnpm
   stage: dependencies
 
   cache:
