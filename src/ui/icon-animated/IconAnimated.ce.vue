@@ -1,6 +1,6 @@
 <template>
   <lord-icon
-    :src="iconSrc"
+    :src="icon"
     :trigger="trigger"
     :delay="delay"
     :sequence="sequence"
@@ -44,10 +44,6 @@ const styles = useStyles(
 ) as ComputedRef<{ iconAnimated: string }>;
 
 // ---
-
-const iconSrc = computed(() => {
-  return new URL(`../../assets/animations/${props.icon}.json`, import.meta.url);
-});
 
 const primaryHex = computed(() => getComputedColor("icon-primary"));
 const secondaryHex = computed(() => getComputedColor("icon-secondary"));
