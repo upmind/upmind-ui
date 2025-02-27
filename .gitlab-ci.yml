@@ -83,6 +83,8 @@ dependencies:
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
       - docs/node_modules
+      - packages/types
+      - packages/ui
   script:
     - apk --no-cache add git openssh-client
     - |
