@@ -1,6 +1,6 @@
 (headless-vue) test:
+  extends: .pnpm
   stage: test
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
   rules:
@@ -19,8 +19,8 @@
     - if: $CI_FORCE_HEADLESS_VUE == "true"
 
 (headless-vue) build:
+  extends: .pnpm
   stage: build
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
     - (headless-vue) test
@@ -38,8 +38,8 @@
     - pnpm --filter headless-vue build
 
 (headless-vue) publish internal:
+  extends: .pnpm
   stage: publish internal
-  image: ${NODE_IMAGE}
   rules:
     - if: $CI_COMMIT_TAG =~ /^headless-vue-v\d+(\.\d+)*$/
   needs:
@@ -54,8 +54,8 @@
     - pnpm --filter headless-vue publish
 
 (headless-vue) publish to npm:
+  extends: .pnpm
   stage: publish external
-  image: ${NODE_IMAGE}
   rules:
     - if: $CI_COMMIT_TAG =~ /^headless-vue-v\d+(\.\d+)*$/
       when: manual
