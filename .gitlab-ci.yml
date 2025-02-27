@@ -116,7 +116,6 @@ dependencies:
       chmod 600 ~/.ssh/id*
 
     - git config --global --add safe.directory '*'
-    - git submodule set-url -- packages/types
     - git submodule update --init --recursive
     - npm clean-install
 
