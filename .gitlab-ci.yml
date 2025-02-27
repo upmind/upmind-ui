@@ -2,6 +2,8 @@ variables:
   NODE_IMAGE: node:20.11.0-alpine3.19
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
+  # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth
+  GIT_SUBMODULE_PATHS: ":(exclude)packages/types"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
@@ -78,7 +80,23 @@ dependencies:
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
   script:
-    - pnpm clean
+    - apk --no-cache add git openssh-client
+    - |
+      mkdir ~/.ssh || true
+
+      echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id_rsa
+
+      cat <<EOF > ~/.ssh/config
+      Host *
+      StrictHostKeyChecking no
+      EOF
+
+      chmod 700 ~/.ssh
+      chmod 600 ~/.ssh/id_rsa
+
+    - git config --global --add safe.directory '*'
+    - git submodule update --init --recursive
+    - npm clean-install
 
 .check version:
   stage: build
