@@ -24,6 +24,7 @@
   needs:
     - dependencies
     - (headless-vue) test
+    - (headless) build
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^headless-vue-v\d+(\.\d+)*$/
