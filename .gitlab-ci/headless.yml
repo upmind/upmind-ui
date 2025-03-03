@@ -1,6 +1,7 @@
 (headless) test:
   extends: .pnpm
   stage: test
+  interruptible: true
   needs:
     - dependencies
   rules:
@@ -21,6 +22,7 @@
 (headless) build:
   extends: .pnpm
   stage: build
+  interruptible: true
   needs:
     - dependencies
     - (headless) test
@@ -40,6 +42,7 @@
 (headless) publish internal:
   extends: .pnpm
   stage: publish internal
+  interruptible: true
   rules:
     - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
   needs:
