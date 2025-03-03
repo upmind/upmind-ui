@@ -9,7 +9,15 @@ export default {
   checkboxCards: {
     root: cva(`w-full`),
     item: cva(
-      `hover:bg-control-active-muted group flex items-start space-x-2 rounded-md border border-control bg-control text-control-foreground shadow-sm transition-all duration-300 ${ringClasses} ${invalidRingClasses}`
+      `group flex items-start space-x-2 text-control-foreground transition-all duration-300`,
+      {
+        variants: {
+          isList: {
+            true: "border-b last:border-b-0",
+            false: `hover:bg-control-active-muted rounded-md border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`,
+          },
+        },
+      }
     ),
     label: cva(
       "m-0 h-full w-full cursor-pointer rounded-md py-3 pr-6 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
