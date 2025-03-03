@@ -79,6 +79,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const meta = computed(() => ({
   color: props.color,
   // layout: props.layout,
+  isList: props.list,
   noInput: props.noInput,
 }));
 
