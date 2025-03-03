@@ -18,7 +18,7 @@ variables:
   script:
     - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - pnpm --filter storybook build-storybook
-    - pnpm --filter storybook firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
+    - pnpm --filter storybook exec firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
 
 (storybook) deploy production:
   extends: .pnpm
@@ -32,13 +32,13 @@ variables:
   script:
     - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - pnpm --filter storybook build-storybook
-    - pnpm --filter storybook firebase deploy
+    - pnpm --filter storybook exec firebase deploy
 
 (storybook) stop preview:
-  extends: .dependencies
+  extends: .pnpm
   stage: stop
   script:
-    - pnpm --filter storybook firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
+    - pnpm --filter storybook exec firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
   environment:
     name: storybook/preview/${CI_COMMIT_REF_SLUG}
     action: stop
