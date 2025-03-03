@@ -1,6 +1,7 @@
 (headless-vue) test:
   extends: .pnpm
   stage: test
+  interruptible: true
   needs:
     - dependencies
   rules:
@@ -21,6 +22,7 @@
 (headless-vue) build:
   extends: .pnpm
   stage: build
+  interruptible: true
   needs:
     - dependencies
     - (headless-vue) test
@@ -41,6 +43,7 @@
 (headless-vue) publish internal:
   extends: .pnpm
   stage: publish internal
+  interruptible: true
   rules:
     - if: $CI_COMMIT_TAG =~ /^headless-vue-v\d+(\.\d+)*$/
   needs:
