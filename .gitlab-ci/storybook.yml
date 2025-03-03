@@ -4,12 +4,15 @@ variables:
 (storybook) deploy preview:
   extends: .pnpm
   stage: deploy
+  interruptible: true
+  needs:
+    - dependencies
   environment:
     name: storybook/preview/${CI_COMMIT_REF_SLUG}
     action: start
     auto_stop_in: 7 days
     # NOTE: Automatically triggered when an MR pipeline is merged
-    on_stop: stop preview
+    on_stop: (storybook) stop preview
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
   script:
@@ -31,7 +34,7 @@ variables:
     - pnpm --filter storybook build-storybook
     - pnpm --filter storybook firebase deploy
 
-stop preview:
+(storybook) stop preview:
   extends: .dependencies
   stage: stop
   script:

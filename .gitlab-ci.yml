@@ -39,6 +39,9 @@ include:
   - local: .gitlab-ci/headless-vue.yml
 
 workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+
   rules:
     # Prefer MR pipelines; fall back to branch pipelines; but no duplicates!
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

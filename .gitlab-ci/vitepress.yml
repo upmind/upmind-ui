@@ -4,6 +4,7 @@ variables:
 (docs) build:
   extends: .pnpm
   stage: build
+  interruptible: true
   needs:
     - dependencies
   rules:
@@ -29,6 +30,7 @@ variables:
 (docs) deploy preview:
   extends: .pnpm
   stage: deploy
+  interruptible: true
   needs:
     - dependencies
     - (docs) build
@@ -46,9 +48,9 @@ variables:
   script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-    - pnpm --filter docs firebase-tools --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
+    - pnpm --filter docs exec firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
   after_script:
-    - url=$(pnpm --filter docs firebase-tools hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
+    - url=$(pnpm --filter docs exec firebase hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
     - echo "FIREBASE_PREVIEW_URL=${url}" > "${CI_PROJECT_DIR}/deploy.env"
 
 (docs) stop preview:
@@ -65,7 +67,7 @@ variables:
   script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-    - pnpm --filter docs firebase-tools hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
+    - pnpm --filter docs exec firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
 
 (docs) deploy production:
   extends: .pnpm
@@ -83,4 +85,4 @@ variables:
   script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-    - pnpm --filter docs firebase-tools deploy
+    - pnpm --filter docs exec firebase deploy
