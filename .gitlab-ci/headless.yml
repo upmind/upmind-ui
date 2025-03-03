@@ -1,6 +1,6 @@
 (headless) test:
+  extends: .pnpm
   stage: test
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
   rules:
@@ -19,8 +19,8 @@
     - if: $CI_FORCE_HEADLESS == "true"
 
 (headless) build:
+  extends: .pnpm
   stage: build
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
     - (headless) test
@@ -38,8 +38,8 @@
     - pnpm --filter headless build
 
 (headless) publish internal:
+  extends: .pnpm
   stage: publish internal
-  image: ${NODE_IMAGE}
   rules:
     - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
   needs:
@@ -54,8 +54,8 @@
     - pnpm --filter headless publish
 
 (headless) publish to npm:
+  extends: .pnpm
   stage: publish external
-  image: ${NODE_IMAGE}
   rules:
     - if: $CI_COMMIT_TAG =~ /^headless-v\d+(\.\d+)*$/
       when: manual

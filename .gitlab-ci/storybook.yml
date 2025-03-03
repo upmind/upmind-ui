@@ -1,26 +1,8 @@
 variables:
   GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
 
-.dependencies:
-  stage: dependencies
-  image: ${NODE_IMAGE}
-
-  cache:
-    - key:
-        files:
-          - package.json
-          - package-lock.json
-      paths:
-        - node_modules
-
-  before_script:
-    - npm install --include dev
-    - cd ./playgrounds/storybook
-    - npx firebase --version
-    - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-
-deploy preview:
-  extends: .dependencies
+(storybook) deploy preview:
+  extends: .pnpm
   stage: deploy
   environment:
     name: storybook/preview/${CI_COMMIT_REF_SLUG}
@@ -28,16 +10,15 @@ deploy preview:
     auto_stop_in: 7 days
     # NOTE: Automatically triggered when an MR pipeline is merged
     on_stop: stop preview
-    # NOTE: We can't provide a url at the moment as firebase suffixes the URL
-    #       with a random hash :(
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
   script:
-    - npm run build-storybook
-    - npx firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
+    - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - pnpm --filter storybook build-storybook
+    - pnpm --filter storybook firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
 
-deploy production:
-  extends: .dependencies
+(storybook) deploy production:
+  extends: .pnpm
   stage: deploy
   environment:
     name: storybook/production
@@ -46,14 +27,15 @@ deploy production:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
-    - npm run build-storybook
-    - npx firebase deploy
+    - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - pnpm --filter storybook build-storybook
+    - pnpm --filter storybook firebase deploy
 
 stop preview:
   extends: .dependencies
   stage: stop
   script:
-    - npx firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
+    - pnpm --filter storybook firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
   environment:
     name: storybook/preview/${CI_COMMIT_REF_SLUG}
     action: stop

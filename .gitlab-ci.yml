@@ -2,6 +2,8 @@ variables:
   NODE_IMAGE: node:20.11.0-alpine3.19
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_FORCE_HTTPS: true
+  # NOTE: Stop Gitlab-CI automatically fetching GitHub repos as we need extra auth
+  GIT_SUBMODULE_PATHS: ":(exclude)packages/types :(exclude)packages/ui"
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
@@ -15,6 +17,13 @@ stages:
   - stop
   - publish internal
   - publish external
+
+.pnpm:
+  image: ${NODE_IMAGE}
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+    - pnpm --version
 
 include:
   - local: .gitlab-ci/storybook.yml
@@ -43,13 +52,8 @@ workflow:
 #------------------------------------------------------------------------------
 
 dependencies:
+  extends: .pnpm
   stage: dependencies
-  image: ${NODE_IMAGE}
-
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
-    - pnpm --version
 
   cache:
     - key:
@@ -64,6 +68,7 @@ dependencies:
         - packages/headless/node_modules
         - packages/headless-vue/node_modules
         - packages/client-vue/node_modules
+        - docs/node_modules
 
   artifacts:
     when: on_success
@@ -77,8 +82,51 @@ dependencies:
       - packages/headless/node_modules
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
+      - docs/node_modules
+      - packages/types
+      - packages/ui
   script:
+    - apk --no-cache add git openssh-client
+    - |
+      mkdir ~/.ssh || true
+
+      echo "${UPMIND_TYPES_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-types
+      echo "${UPMIND_UI_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.upmind-ui
+
+      cat <<EOF > ~/.ssh/config
+      Host *
+        StrictHostKeyChecking no
+
+      Host github-upmind-types
+        User git
+        Hostname github.com
+        Identityfile ~/.ssh/id.upmind-types
+
+      Host github-upmind-ui
+        User git
+        Hostname github.com
+        Identityfile ~/.ssh/id.upmind-ui
+      EOF
+
+      cat <<EOF > ~/.gitconfig
+      [url "github-upmind-ui:upmind/upmind-ui"]
+        insteadOf = git@github.com:upmind/upmind-ui
+
+      [url "github-upmind-types:upmind/types"]
+        insteadOf = git@github.com:upmind/types
+      EOF
+
+      chmod 700 ~/.ssh
+      chmod 600 ~/.ssh/id*
+
+    - git config --global --add safe.directory '*'
+    - git submodule update --init --recursive --remote packages/types
+    - git submodule update --init --recursive --remote packages/ui
     - pnpm clean
+    - cd packages/types
+    - pnpm install
+    - pnpm build
+    - cd ../..
 
 .check version:
   stage: build

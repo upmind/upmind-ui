@@ -2,8 +2,8 @@ variables:
   GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
 
 (docs) build:
+  extends: .pnpm
   stage: build
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
   rules:
@@ -27,8 +27,8 @@ variables:
     - pnpm --filter docs docs:build
 
 (docs) deploy preview:
+  extends: .pnpm
   stage: deploy
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
     - (docs) build
@@ -43,18 +43,17 @@ variables:
   artifacts:
     reports:
       dotenv: "deploy.env"
-  before_script:
+  script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-  script:
-    - npx --workspace docs firebase-tools --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
+    - pnpm --filter docs firebase-tools --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
   after_script:
-    - url=$(npx --workspace docs firebase-tools hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
+    - url=$(pnpm --filter docs firebase-tools hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
     - echo "FIREBASE_PREVIEW_URL=${url}" > "${CI_PROJECT_DIR}/deploy.env"
 
 (docs) stop preview:
+  extends: .pnpm
   stage: stop
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
   environment:
@@ -63,15 +62,14 @@ variables:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
       when: manual
-  before_script:
+  script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-  script:
-    - npx --workspace docs firebase-tools hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
+    - pnpm --filter docs firebase-tools hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
 
 (docs) deploy production:
+  extends: .pnpm
   stage: deploy
-  image: ${NODE_IMAGE}
   needs:
     - dependencies
     - (docs) build
@@ -82,8 +80,7 @@ variables:
   rules:
     - if: $CI_COMMIT_TAG =~ /^docs-v\d+(\.\d+)*$/
     - if: $CI_FORCE_DOCS == "true"
-  before_script:
+  script:
     - apk add jq
     - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-  script:
-    - npx --workspace docs firebase-tools deploy
+    - pnpm --filter docs firebase-tools deploy
