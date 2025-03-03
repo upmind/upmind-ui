@@ -1,5 +1,5 @@
 <template>
-  <Markdown :model-value="UIMeta" />
+  <Markdown v-if="UIMeta" :model-value="UIMeta" />
 </template>
 
 <script setup lang="ts">

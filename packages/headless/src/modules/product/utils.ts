@@ -99,7 +99,7 @@ export const parseProduct = (
         ? merged.product?.max_order_quantity
         : Infinity,
     defaultPaymentPeriod: merged?.default_payment_period,
-    meta: parseMeta(merged?.meta, merged?.category),
+    meta: parseMeta(merged?.meta ?? {}, merged?.category),
     categoryMeta: merged?.category?.meta,
     // ---
     // displayAmount: merged.selling_price,
@@ -117,14 +117,31 @@ export const parseProduct = (
   };
 };
 
-export const parseMeta = (meta: any, category: any) => {
-  const collectedMeta = collectMeta(category);
-  return merge({}, ...collectedMeta, meta);
+export const parseMeta = (meta: any, category?: any) => {
+  return iterateParents(category, "meta", "top_category", meta);
 };
 
-const collectMeta = (category: any): any[] => {
-  if (!category) return [];
-  return [...collectMeta(category.top_category), category.meta];
+/**
+ * Recursively merges values from a property in a nested object hierarchy
+ * @param item The current object in the hierarchy
+ * @param valueKey The key to extract values from at each level
+ * @param parentKey The key to navigate to the parent object
+ * @param initialValue Optional initial value to merge with collected values
+ * @returns Merged values from all levels of the hierarchy, with lower levels and then initial value taking priority
+ */
+const iterateParents = (
+  item: any,
+  valueKey: string,
+  parentKey: string,
+  initialValue?: any
+): any => {
+  if (!item) return initialValue;
+
+  return merge(
+    iterateParents(get(item, parentKey), valueKey, parentKey),
+    get(item, valueKey),
+    initialValue
+  );
 };
 
 export const parseTerms = (
