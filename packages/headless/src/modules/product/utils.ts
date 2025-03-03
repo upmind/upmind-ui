@@ -26,8 +26,7 @@ import {
 
 // --- types
 import { PromotionDisplayTypes } from "./services";
-import type { ProductModel, ProductConfigContext } from "./types";
-
+import type { ProductModel, ProductConfigContext, UIMeta } from "./types";
 // --- types
 
 // --------------------------------------------------------
@@ -117,7 +116,7 @@ export const parseProduct = (
   };
 };
 
-export const parseMeta = (meta: any, category?: any) => {
+export const parseMeta = (meta: UIMeta, category?: any) => {
   return iterateParents(category, "meta", "top_category", meta);
 };
 
