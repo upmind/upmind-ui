@@ -162,7 +162,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import UIMeta from "../../../components/content/UIMeta.vue";
 import Card from "../../../components/content/Card.vue";
 import {
   NumberField,

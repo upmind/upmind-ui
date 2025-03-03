@@ -8,6 +8,7 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
+  IProductCategory,
 } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
@@ -125,3 +126,5 @@ export interface IUISchema {
     control?: string;
   };
 }
+
+export type { IProductCategory };
