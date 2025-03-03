@@ -126,10 +126,8 @@ dependencies:
     - git submodule update --init --recursive --remote packages/types
     - git submodule update --init --recursive --remote packages/ui
     - pnpm clean
-    - cd packages/types
-    - pnpm install
-    - pnpm build
-    - cd ../..
+    - pnpm --filter types install
+    - pnpm --filter types build
 
 .check version:
   stage: build
