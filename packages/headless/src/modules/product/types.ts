@@ -38,6 +38,7 @@ export interface ProductConfigContext {
     attributes?: number[];
     options?: number[];
   };
+  meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
   error?: any;
@@ -74,4 +75,53 @@ export interface ProductModel {
 
 export interface IProductPromotion {
   code: string;
+}
+
+export interface UIMeta {
+  ui?: IUIConfig;
+  uischema?: IUISchema;
+  related?: IRelatedProduct[];
+}
+
+export interface IUIConfig {
+  summary?: {
+    append?: string;
+  };
+}
+
+export interface IBenefit {
+  icon: string | { icon: string };
+  label: string;
+}
+
+export interface IBadge {
+  label: string;
+}
+
+export interface IRelatedProduct {
+  object_id: string;
+  object_type: string;
+  active: boolean;
+  label: string;
+  name: string;
+  description: string;
+  short_description?: string | null;
+  image_url?: string | null;
+  config: IRelatedProductConfig | any[];
+  badge?: string | IBadge;
+  benefits?: IBenefit[];
+}
+
+export interface IRelatedProductConfig {
+  qty?: number;
+  bcm?: number;
+  sub_pids?: string[];
+  pfields?: any[];
+  coupons?: string[];
+}
+
+export interface IUISchema {
+  billing?: {
+    control?: string;
+  };
 }
