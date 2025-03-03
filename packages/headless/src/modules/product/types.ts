@@ -10,6 +10,7 @@ import type {
   IBasketPromotion,
   IProductCategory,
 } from "@upmind-automation/types";
+import type { Recommendation } from "../recommendations/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -81,44 +82,13 @@ export interface IProductPromotion {
 export interface UIMeta {
   ui?: IUIConfig;
   uischema?: IUISchema;
-  related?: IRelatedProduct[];
+  related?: Recommendation[];
 }
 
 export interface IUIConfig {
   summary?: {
     append?: string;
   };
-}
-
-export interface IBenefit {
-  icon: string | { icon: string };
-  label: string;
-}
-
-export interface IBadge {
-  label: string;
-}
-
-export interface IRelatedProduct {
-  object_id: string;
-  object_type: string;
-  active: boolean;
-  label: string;
-  name: string;
-  description: string;
-  short_description?: string | null;
-  image_url?: string | null;
-  config: IRelatedProductConfig | any[];
-  badge?: string | IBadge;
-  benefits?: IBenefit[];
-}
-
-export interface IRelatedProductConfig {
-  qty?: number;
-  bcm?: number;
-  sub_pids?: string[];
-  pfields?: any[];
-  coupons?: string[];
 }
 
 export interface IUISchema {
