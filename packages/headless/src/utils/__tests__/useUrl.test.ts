@@ -6,17 +6,21 @@ import { useUrl, useUrlParams, usePOP } from "../../utils";
 vi.stubEnv("VITE_API_URL", "https://test.com");
 
 // set our POP for these tests
-usePOP({
+const { isReady, getApiUrl } = usePOP({
   name: "test",
   apiUrl: "https://test.com",
   region: "test",
 });
+
+await isReady();
 
 const mockParams = { foo: "bar" };
 
 describe("useUrl.ts", () => {
   describe("useUrl", () => {
     it("should create URL correctly", () => {
+      console.log("getApiUrl", getApiUrl());
+
       const url = useUrl("/test", mockParams);
       expect(url.toString()).toBe("https://test.com/api/test?foo=bar");
     });
