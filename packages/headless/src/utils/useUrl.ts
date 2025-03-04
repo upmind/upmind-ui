@@ -1,3 +1,5 @@
+import { usePOP } from "./usePOP";
+
 // --- utils
 import { defaultsDeep, forIn, trimStart, isArray } from "lodash-es";
 
@@ -14,9 +16,11 @@ export function useUrl(
   params: object = {},
   instance?: { base?: string; context?: string }
 ) {
+  const { getApiUrl } = usePOP();
+
   // ensure our instance has the correct defaults
   instance = defaultsDeep(instance, {
-    base: import.meta.env.VITE_API_URL,
+    base: getApiUrl(),
     context: "api",
   });
 

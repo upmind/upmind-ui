@@ -3,6 +3,8 @@ export * as utils from "./utils";
 
 import { inspect } from "@xstate/inspect";
 
+import { usePOP, type IApiPop } from "./utils/usePOP";
+
 // --------------------------------------------------------
 
 const queryParams = new URLSearchParams(window.location.search);
@@ -10,10 +12,10 @@ const debugging = import.meta.env.DEV || queryParams.has("debug");
 
 // --------------------------------------------------------
 
-export function test() {
-  return "Upmind Headless";
-}
-
+export const useUpmind = (pop?: IApiPop) => {
+  const { isReady } = usePOP(pop);
+  return isReady();
+};
 // --------------------------------------------------------
 
 if (debugging)
