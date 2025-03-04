@@ -1,18 +1,22 @@
 // --- utils
 import { useValidation } from "./useValidation";
-import { isEmpty, get, defaultsDeep } from "lodash-es";
+import { isEmpty, get, defaultsDeep, omitBy, isNil } from "lodash-es";
 
 // --- types
 
 export interface IApiPop {
-  name: string;
   apiUrl: string;
+  name?: string;
   region?: string;
 }
 
 // --------------------------------------------------------
 
-let POP = {};
+let POP: IApiPop = {
+  apiUrl: "",
+  name: "",
+  region: "",
+};
 
 const defaults = {
   name: import.meta.env.VITE_API_NAME ?? "upmind-production",
@@ -52,10 +56,10 @@ const schema = {
 export const usePOP = (value?: IApiPop) => {
   const { validate } = useValidation();
 
-  async function getPop(value?: IApiPop) {
+  function getPop(value?: IApiPop): Promise<IApiPop> {
     if (value) return Promise.resolve(value);
-    if (!isEmpty(POP)) return Promise.resolve(POP);
-    return defaults;
+    if (!isEmpty(omitBy(POP, isNil))) return Promise.resolve(POP);
+    return Promise.resolve(defaults);
     // todo when @james has the endpoint // return fetch(`/__pop`).then(resp => resp.json());
   }
 
