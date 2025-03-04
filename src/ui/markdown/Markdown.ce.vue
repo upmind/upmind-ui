@@ -14,14 +14,14 @@ import Sanitized from "../sanitized/Sanitized.vue";
 import { first } from "lodash-es";
 
 // --- types
-import type { ComputedRef, VNode } from "vue";
+import type { VNode } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const emits = defineEmits(["mounted"]);
 
 const props = defineProps<{
-  modelValue: string;
+  modelValue?: string;
 }>();
 
 const slots = useSlots() as { default?: () => VNode[] };
@@ -31,7 +31,7 @@ marked.use({ async: false, breaks: true });
 const compiledMarkdown = computed((): string => {
   const slotContent = slots?.default ? slots.default() : [];
   const modelValue =
-    first(slotContent)?.children?.toString() || props.modelValue;
+    first(slotContent)?.children?.toString() || props.modelValue || "";
   return marked.parse(modelValue) as string;
 });
 
