@@ -26,9 +26,12 @@ import {
 
 // --- types
 import { PromotionDisplayTypes } from "./services";
-import type { ProductModel, ProductConfigContext } from "./types";
-
-// --- types
+import type {
+  ProductModel,
+  ProductConfigContext,
+  UIMeta,
+  IProductCategory,
+} from "./types";
 
 // --------------------------------------------------------
 // Parsing Models for an Item/Product that is being configured for the basket
@@ -99,7 +102,7 @@ export const parseProduct = (
         ? merged.product?.max_order_quantity
         : Infinity,
     defaultPaymentPeriod: merged?.default_payment_period,
-    meta: merged?.meta,
+    meta: parseMeta(merged?.meta ?? {}, merged?.category),
     categoryMeta: merged?.category?.meta,
     // ---
     // displayAmount: merged.selling_price,
@@ -115,6 +118,33 @@ export const parseProduct = (
     //     [TrialEndActionTypes.CANCEL].includes(merged.trial_end_action),
     // },
   };
+};
+
+export const parseMeta = (meta: UIMeta, category?: IProductCategory) => {
+  return iterateParents(category, "meta", "top_category", meta);
+};
+
+/**
+ * Recursively merges values from a property in a nested object hierarchy
+ * @param item The current object in the hierarchy
+ * @param valueKey The key to extract values from at each level
+ * @param parentKey The key to navigate to the parent object
+ * @param initialValue Optional initial value to merge with collected values
+ * @returns Merged values from all levels of the hierarchy, with lower levels and then initial value taking priority
+ */
+const iterateParents = (
+  item: any,
+  valueKey: string,
+  parentKey: string,
+  initialValue?: any
+): any => {
+  if (!item) return initialValue;
+
+  return merge(
+    iterateParents(get(item, parentKey), valueKey, parentKey),
+    get(item, valueKey),
+    initialValue
+  );
 };
 
 export const parseTerms = (
