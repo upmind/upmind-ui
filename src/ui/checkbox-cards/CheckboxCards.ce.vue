@@ -22,6 +22,7 @@
         :disabled="props.disabled"
         :no-input="props.noInput"
         :class="styles.checkboxCards.input"
+        :padding="props.padding"
       >
         <Label
           :for="`${props.name}-${index}`"
@@ -65,6 +66,8 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   // -- styles
   color: "base",
   variant: "control",
+  padding: true,
+  cursor: "pointer",
   // layout: "list",
   // --- styles
   class: "",
@@ -81,6 +84,7 @@ const meta = computed(() => ({
   // layout: props.layout,
   isList: props.list,
   noInput: props.noInput,
+  cursor: props.cursor,
 }));
 
 const styles = useStyles(

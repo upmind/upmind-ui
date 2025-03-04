@@ -6,7 +6,8 @@
     :class="
       cn(
         'group relative !m-0 flex w-full select-none items-start rounded-sm pl-10 text-start leading-none outline-none',
-        props.noInput ? 'pl-6' : ''
+        props.noInput && props.padding ? 'pl-6' : '',
+        !props.padding ? '!pl-0' : ''
       )
     "
   >
@@ -40,9 +41,18 @@ import {
 
 import { computed, type HTMLAttributes } from "vue";
 
-const props = defineProps<
-  ListboxItemProps & { class?: HTMLAttributes["class"]; noInput?: boolean }
->();
+const props = withDefaults(
+  defineProps<
+    ListboxItemProps & {
+      class?: HTMLAttributes["class"];
+      noInput?: boolean;
+      padding?: boolean;
+    }
+  >(),
+  {
+    padding: true,
+  }
+);
 
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
