@@ -54,6 +54,7 @@ export const usePOP = (value?: IApiPop) => {
 
   async function getPop(value?: IApiPop) {
     if (value) return Promise.resolve(value);
+    if (!isEmpty(POP)) return POP;
     return defaults;
     // todo when @james has the endpoint // return fetch(`/__pop`).then(resp => resp.json());
   }
