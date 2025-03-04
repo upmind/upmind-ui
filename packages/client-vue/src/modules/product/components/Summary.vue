@@ -150,6 +150,8 @@
       </ul>
     </li>
   </ul>
+
+  <Markdown :model-value="product?.meta?.ui?.config?.summary?.append" />
 </template>
 
 <script setup lang="ts">
@@ -168,6 +170,7 @@ import {
   Button,
   Alert,
   Skeleton,
+  Markdown,
 } from "@upmind-automation/upmind-ui";
 
 // --- utils

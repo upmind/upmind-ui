@@ -8,7 +8,9 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
+  IProductCategory,
 } from "@upmind-automation/types";
+import type { Recommendation } from "../recommendations/types";
 // --------------------------------------------------------
 // ENUMS
 
@@ -38,6 +40,7 @@ export interface ProductConfigContext {
     attributes?: number[];
     options?: number[];
   };
+  meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
   error?: any;
@@ -75,3 +78,23 @@ export interface ProductModel {
 export interface IProductPromotion {
   code: string;
 }
+
+export interface UIMeta {
+  ui?: IUIConfig;
+  uischema?: IUISchema;
+  related?: Recommendation[];
+}
+
+export interface IUIConfig {
+  summary?: {
+    append?: string;
+  };
+}
+
+export interface IUISchema {
+  billing?: {
+    control?: string;
+  };
+}
+
+export type { IProductCategory };
