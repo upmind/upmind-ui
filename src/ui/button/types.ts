@@ -19,6 +19,7 @@ export interface ButtonProps {
   // ---
   focusable?: boolean;
   block?: boolean;
+  truncate?: boolean;
   variant?: ButtonVariantProps["variant"] | string;
   color?: ButtonVariantProps["color"] | string;
   size?: ButtonVariantProps["size"] | string;
