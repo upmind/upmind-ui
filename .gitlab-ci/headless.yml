@@ -72,4 +72,9 @@
     - dependencies
     - (headless) build
   script:
+    - |
+      cat <<EOF > ~/.npmrc
+      //registry.npmjs.org/:_authToken=${NPM_TOKEN}
+      @upmind-automation:registry=https://registry.npmjs.org/
+      EOF
     - pnpm --filter headless publish --access public ${NPM_PUBLISH_NPM_EXTRA_ARGS}
