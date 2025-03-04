@@ -9,9 +9,6 @@ import type { UploadContext } from "./types";
 import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
-// --- types
-const base = import.meta.env.VITE_API_URL;
-
 // --------------------------------------------------------
 
 export default createMachine(
@@ -133,7 +130,7 @@ export default createMachine(
         name: ({ name }: UploadContext, { data }: AnyEventObject) =>
           data?.name || name,
         src: (_context: UploadContext, { data }: AnyEventObject) =>
-          `${base}/api/images/${data.value}/download`,
+          `/api/images/${data.value}/download`,
       }),
 
       setProgress: assign({
