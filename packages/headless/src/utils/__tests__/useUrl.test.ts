@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { useUrl, useUrlParams } from "../../utils/useUrl";
+import { useUrl, useUrlParams, usePOP } from "../../utils";
 
 // TODO: Perhaps we can move env variables to a constants file?
 // We would then only have to mock the constants file as the dependency
 vi.stubEnv("VITE_API_URL", "https://test.com");
+
+// set our POP for these tests
+usePOP({
+  name: "test",
+  apiUrl: "https://test.com",
+  region: "test",
+});
 
 const mockParams = { foo: "bar" };
 
