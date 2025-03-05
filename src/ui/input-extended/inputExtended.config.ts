@@ -16,15 +16,15 @@ export const inputContainerVariants = cva(
         auto: "w-auto min-w-[3.75rem]",
         full: "w-full",
       },
-      size: {
-        sm: "",
-        md: "",
+      inputSize: {
+        sm: "px-3 py-2",
+        md: "px-3 py-2",
         lg: "px-4 py-3",
-        xl: "px-4 py-3",
+        xl: "px-5 py-4",
       },
     },
     defaultVariants: {
-      size: "md",
+      inputSize: "md",
       width: "full",
     },
   }
@@ -32,23 +32,15 @@ export const inputContainerVariants = cva(
 
 export const inputExtendedVariants = cva("", {
   variants: {
-    height: {
-      sm: "h-8",
-      md: "h-10",
-      lg: "h-12",
-      xl: "h-14",
-      "2xl": "h-16",
-    },
-    text: {
+    inputSize: {
       sm: "text-sm",
-      md: "text-md",
-      lg: "text-lg",
-      xl: "text-xl",
+      md: "text-md md:text-lg",
+      lg: "text-md md:text-xl",
+      xl: "text-xl md:text-xl",
     },
   },
   defaultVariants: {
-    height: "md",
-    text: "md",
+    inputSize: "md",
   },
 });
 
