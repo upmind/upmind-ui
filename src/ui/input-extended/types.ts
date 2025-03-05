@@ -37,9 +37,8 @@ export interface InputExtendedProps {
   min?: number | string;
   step?: number;
   // --- variants
-  height?: InputExtendedVariantProps["height"] | string;
-  text?: InputExtendedVariantProps["text"] | string;
-  width?: InputContainerVariantProps["width"] | string;
+  inputSize?: InputExtendedVariantProps["inputSize"];
+  width?: InputContainerVariantProps["width"];
   // ---
   uiConfig?: { input?: CxOptions };
   class?: HTMLAttributes["class"];

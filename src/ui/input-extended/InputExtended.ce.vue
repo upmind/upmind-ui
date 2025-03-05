@@ -48,7 +48,7 @@ const emits = defineEmits<{
 }>();
 
 const delegatedProps = computed(() =>
-  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
+  omit(props, ["class", "uiConfig", "defaultValue", "modelValue", "inputSize"])
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {
@@ -57,8 +57,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  height: props.height,
-  text: props.text,
+  inputSize: props.inputSize,
   width: props.width,
 }));
 
