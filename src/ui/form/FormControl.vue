@@ -53,13 +53,24 @@ function maybeFocus(entries: IntersectionObserverEntry[]) {
   const section = entries[0];
   if (meta.value.shouldFocus && section.isIntersecting) {
     let el = section.target as HTMLInputElement;
+
+    // First check if the element itself is a focusable element
     if (
       !["input", "textarea", "select", "button"].includes(
         el.tagName.toLowerCase()
       )
     ) {
-      el = el.querySelector("input") as HTMLInputElement;
+      // If not, try to find any focusable element inside
+      const focusableElements = el.querySelectorAll(
+        "input, textarea, select, button"
+      );
+
+      // Use the first focusable element found
+      if (focusableElements.length > 0) {
+        el = focusableElements[0] as HTMLInputElement;
+      }
     }
+
     if (el?.getAttribute("tabindex")) {
       el.setAttribute("tabindex", "-1");
     }
@@ -96,15 +107,22 @@ if (meta.value.shouldFocus) {
   watchOnce(
     () => slotElement.value,
     async el => {
-      if (isSelectable(el?.$el?.tagName)) {
+      if (el?.$el && isSelectable(el.$el)) {
         useIntersectionObserver(el, entries => maybeFocus(entries));
       }
     }
   );
 }
 
-const isSelectable = (tag: string) => {
-  const selectableTypes = new Set(["INPUT"]);
-  return selectableTypes.has(tag);
+const isSelectable = (element: HTMLElement) => {
+  const selectableTypes = new Set(["INPUT", "TEXTAREA", "SELECT", "BUTTON"]);
+
+  const tag = element.tagName.toUpperCase();
+  const isFocusableTag = selectableTypes.has(tag);
+
+  const hasFocusableChildren =
+    element.querySelector("input, textarea, select, button") !== null;
+
+  return isFocusableTag || hasFocusableChildren;
 };
 </script>
