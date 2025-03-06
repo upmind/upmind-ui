@@ -8,7 +8,6 @@
       v-bind="forwardedDrawerContent"
       :class="cn(styles.drawer.content, props.class)"
       :classOverlay="styles.drawer.overlay"
-      @close="() => emits('update:open', false)"
     >
       <DrawerHeader
         v-if="
@@ -93,7 +92,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   skrim: "dark",
   to: "body",
   // --- state
-  dismissible: false,
+  dismissible: true,
   // --- styles
   uiConfig: () => ({
     drawer: {
@@ -138,6 +137,8 @@ const forwardedDrawerContent = useForwardPropsEmits(
   emits
 );
 
+const value = useVModel(props, "open", emits);
+
 const meta = computed(() => ({
   width: props.width,
   overflow: props.overflow,
@@ -160,17 +161,4 @@ const styles = useStyles(
     footer: string;
   };
 }>;
-
-// --- state
-const value = useVModel(props, "open", emits);
-
-// By default, Drawer will set the Body element to pointer-events: none;
-// This prevents the whole body from being clickable
-// As this is a result of an external library that we can't override, we need to handle this manually
-// With handlePointerEvents, pointer-events: none; is moved to props.to
-const { handlePointerEvents } = usePointerEvents(value, props.to);
-
-watch(value, newValue => {
-  handlePointerEvents(newValue === true);
-});
 </script>
