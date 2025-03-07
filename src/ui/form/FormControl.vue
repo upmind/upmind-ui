@@ -117,11 +117,11 @@ if (meta.value.shouldFocus) {
 const isSelectable = (element: HTMLElement) => {
   const selectableTypes = new Set(["INPUT", "TEXTAREA", "SELECT", "BUTTON"]);
 
-  const tag = element.tagName.toUpperCase();
+  const tag = element?.tagName?.toUpperCase();
   const isFocusableTag = selectableTypes.has(tag);
 
   const hasFocusableChildren =
-    element.querySelector("input, textarea, select, button") !== null;
+    element?.querySelector("input, textarea, select, button") !== null;
 
   return isFocusableTag || hasFocusableChildren;
 };
