@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  `h-auto min-h-10 w-full min-w-0 items-center justify-start rounded-md border-control px-4 py-3 text-left font-medium !text-primary`,
+  `h-auto min-h-10 w-full min-w-0 items-center justify-start rounded-lg border-control px-4 py-3 text-left font-medium !text-primary`,
   {
     variants: {
       width: {
@@ -22,11 +22,11 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-md border border-control shadow-sm`
+  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-lg border border-control shadow-sm`
 );
 
 const groupVariants = cva(
-  `${ringClasses} ${invalidRingClasses} w-full rounded-md transition-all duration-200`
+  `${ringClasses} ${invalidRingClasses} w-full rounded-lg transition-all duration-200`
 );
 
 export default {

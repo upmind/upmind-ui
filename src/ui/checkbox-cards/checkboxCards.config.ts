@@ -6,7 +6,7 @@ import {
 } from "../../assets/styles";
 
 export const checkboxLabelVariants = cva(
-  "m-0 h-full w-full rounded-md py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+  "m-0 h-full w-full rounded-lg py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       isList: {
@@ -30,14 +30,14 @@ export default {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `hover:bg-control-active-muted rounded-md border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`,
+            false: `hover:bg-control-active-muted rounded-lg border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`,
           },
         },
       }
     ),
     label: checkboxLabelVariants,
     input: cva(
-      `${groupRingClasses} my-3 ml-3 mr-1 mt-[0.9rem] rounded-md border-control leading-normal text-control-active`,
+      `${groupRingClasses} my-3 ml-3 mr-1 mt-[0.9rem] rounded-lg border-control leading-normal text-control-active`,
       {
         variants: {
           isList: {
