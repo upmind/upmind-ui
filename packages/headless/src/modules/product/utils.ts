@@ -592,7 +592,7 @@ const parseSummaryTerm = (term: any, terms: any, error?: any) => {
 const parseSummarySubproduct = (
   key: string,
   data: any,
-  lookup: Array<any>,
+  lookup: any[],
   error?: any
 ) => {
   return reduce(

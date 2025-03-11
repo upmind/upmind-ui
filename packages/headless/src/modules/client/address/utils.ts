@@ -383,7 +383,7 @@ export const spawnItem = (model?: IAddress) => {
   }
 };
 
-export const parseAddress = (raw: IAddress | Array<IAddress>) => {
+export const parseAddress = (raw: IAddress | IAddress[]) => {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
   // this is to allow for a 'unfied' way of handling addresses

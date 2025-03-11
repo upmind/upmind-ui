@@ -24,7 +24,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      id: undefined,
+      orderId: undefined,
       currency: undefined,
       gateway: undefined,
       amount: undefined,

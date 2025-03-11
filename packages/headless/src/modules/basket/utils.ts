@@ -123,12 +123,15 @@ export function spawnCustomFields(basket?: IBasket) {
 export function spawnPaymentDetails(basket?: IBasket) {
   return spawn(
     paymentDetailsMachine.withContext({
-      id: basket?.id,
+      orderId: basket?.id,
       currency: basket?.currency,
+      // @ts-ignore address is available with relationship
+      address: basket?.address,
+      clientId: basket?.client_id,
+      amount: basket?.unpaid_amount_converted || 0.0,
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
       },
-      address: get(basket, "address"),
     } as PaymentDetailsContext),
     { name: "paymentDetails", sync: true }
   );

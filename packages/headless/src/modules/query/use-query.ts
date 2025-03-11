@@ -7,10 +7,11 @@ import { doFetch, refreshToken } from "./services";
 // --- utils
 import { useUrl, responseCodes } from "../../utils";
 import { parseData, getQueryClient } from "./utils";
-import { get, set, unset, isString } from "lodash-es";
+import { get, set, unset, isString, method } from "lodash-es";
 
 // --- types
 import { QueryParams, RequestError, RequestParams } from "./types";
+import { Methods } from "@upmind-automation/types";
 
 const queryClient = getQueryClient();
 
@@ -44,7 +45,7 @@ export const useQuery = () => {
     const { getToken } = useSession();
 
     // Enforce Method (default to GET)
-    set(init, "method", get(init, "method", "GET"));
+    set(init, "method", get(init, "method", Methods.GET));
 
     // Enforce Content Type header
     if (init.body instanceof FormData) {
@@ -131,7 +132,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", "POST");
+    set(init, "method", Methods.POST);
     set(init, "body", parseData(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -163,7 +164,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", "PUT");
+    set(init, "method", Methods.PUT);
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -195,7 +196,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", "PATCH");
+    set(init, "method", Methods.PATCH);
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -227,7 +228,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", "DELETE");
+    set(init, "method", Methods.DELETE);
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -258,7 +259,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method & header
-    set(init, "method", "GET");
+    set(init, "method", Methods.GET);
     set(init, "mode", "no-cors");
 
     return request<T>({ url, init, withAccessToken });

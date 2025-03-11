@@ -15,8 +15,8 @@ import { get, set, isEmpty, includes } from "lodash-es";
 
 // --- types
 import type { Token } from "../session/types";
-import { GrantTypes } from "@upmind-automation/types";
-import { FetchMethods, RequestParams } from "./types";
+import { GrantTypes, Methods } from "@upmind-automation/types";
+import { RequestParams } from "./types";
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -26,7 +26,8 @@ async function doFetch<T extends object = object>({
   url,
   init,
 }: RequestParams): Promise<T> {
-  if (!includes(FetchMethods, init?.method)) {
+  if (!includes(Methods, init?.method)) {
+    debugger;
     return Promise.reject(`Invalid method: ${init?.method}`);
   }
 

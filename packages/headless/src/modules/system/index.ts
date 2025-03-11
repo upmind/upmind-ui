@@ -141,10 +141,7 @@ export const useSystem = () => {
     ) as Record<string, IRegion[]>;
   };
 
-  const getRegion = (
-    values: string | Array<string>,
-    country: string | ICountry
-  ) => {
+  const getRegion = (values: string | string[], country: string | ICountry) => {
     let found;
 
     const regions = getRegions(country);

@@ -28,29 +28,7 @@ export default createMachine(
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      id: undefined,
-      clientId: undefined,
-      currency: undefined,
-      address: undefined,
-      // ---
-      fields: undefined,
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      stored_payment_methods: undefined,
-      gateways: undefined,
-      payment_types: undefined,
-      // ---
-      actors: {
-        gateway: undefined,
-      },
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as PaymentDetailsContext,
+    context: {} as PaymentDetailsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
@@ -270,7 +248,7 @@ export default createMachine(
         actors: (
           {
             address,
-            id,
+            orderId,
             currency,
             model,
             gateway,
@@ -292,7 +270,7 @@ export default createMachine(
           // if we are provided a gateway AND dont have one spawned yet,
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
-              id,
+              orderId,
               currency,
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
@@ -307,7 +285,7 @@ export default createMachine(
       }),
 
       refresh: assign({
-        id: (_context, { data }: AnyEventObject) => data?.id,
+        orderId: (_context, { data }: AnyEventObject) => data?.id,
         clientId: (_context, { data }: AnyEventObject) => data?.client_id,
         currency: (_context, { data }: AnyEventObject) => data?.currency,
         address: (_context, { data }: AnyEventObject) => data?.address,
@@ -323,7 +301,7 @@ export default createMachine(
               actor.send({
                 type: "REFRESH",
                 data: {
-                  id: data?.id,
+                  orderId: data?.id,
                   currency: data?.currency,
                   amount: data?.unpaid_amount_converted || 0.0,
                   address: data?.address,
@@ -339,7 +317,7 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, id, currency, address }: PaymentDetailsContext,
+          { model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
           const amount = model?.amount || 0;
@@ -347,7 +325,7 @@ export default createMachine(
             ...model,
             ...data,
             // ensure OUR values are used
-            id,
+            orderId,
             currency,
             amount,
             address,
@@ -416,20 +394,20 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }: any, _event: any) => !!dirty,
-      hasBasket: ({ id }, _event) => !!id,
+      hasBasket: ({ orderId }, _event) => !!orderId,
       hasLookups: (
         { stored_payment_methods, gateways, payment_types },
         _event
       ) => !!stored_payment_methods && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
-      shouldUpdate: ({ autoupdate, id, model }, _event) =>
-        !!autoupdate && !!id && model?.amount !== 0,
+      shouldUpdate: ({ autoupdate, orderId, model }, _event) =>
+        !!autoupdate && !!orderId && model?.amount !== 0,
 
       hasChanged: (
-        { id, currency, clientId, model, address }: PaymentDetailsContext,
+        { orderId, currency, clientId, model, address }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
-        const idChanged = id != data?.id;
+        const orderChanged = orderId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged =
@@ -437,7 +415,7 @@ export default createMachine(
         const addressChanged = address?.id != data?.address?.id;
 
         return (
-          idChanged ||
+          orderChanged ||
           currencyChanged ||
           clientChanged ||
           amountChanged ||
