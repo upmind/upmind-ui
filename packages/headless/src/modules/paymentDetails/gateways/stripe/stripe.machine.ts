@@ -32,7 +32,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      id: undefined,
       currency: undefined,
       gateway: undefined,
       amount: undefined,
@@ -387,11 +387,11 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { basket_id, currency, amount, address }: StripeContext,
+        { id, currency, amount, address }: StripeContext,
         { data }: AnyEventObject
       ) => {
         const value =
-          basket_id !== data.basket_id ||
+          id !== data.id ||
           currency !== data.currency ||
           amount !== data.amount ||
           address?.id !== data.address?.id;
