@@ -1,10 +1,10 @@
 // --- internal
-import { useApi } from "../../api";
 import services from "../services";
+import { useQuery } from "../..";
 
 // --- utils
 import { isEmpty } from "lodash-es";
-import { getTokenfromStorage, useUserParser } from "../utils";
+import { getTokenFromStorage, useUserParser } from "../utils";
 
 // ---types
 import type { ClientContext } from "./types";
@@ -17,10 +17,10 @@ async function load(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
   // and we need to check the token/get the user
 
-  const token = getTokenfromStorage("client");
+  const token = getTokenFromStorage("client");
   if (isEmpty(token)) return Promise.reject("No token found");
 
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("self", {
@@ -34,6 +34,7 @@ async function load(_context: ClientContext, _event: any) {
         // "enabled_modules"
       ].join(),
     }),
+    queryKey: ["session", "self"],
     withAccessToken: true,
   }).then(({ data }: any) => useUserParser(data?.actor));
 }

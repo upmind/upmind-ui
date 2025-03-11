@@ -9,14 +9,12 @@ import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { set } from "lodash-es";
+import { useTime, useValidationParser, useModelParser } from "../../../utils";
 
 // --- types
 import type { BillingDetailsContext } from "./types";
 import { responseCodes } from "../../../utils";
-import { PaymentDetailsContext } from "../../paymentDetails";
 
 // --------------------------------------------------------
 

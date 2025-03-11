@@ -2,7 +2,7 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useApi, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession } from "../..";
 import { usePlaces } from "../places";
 import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
@@ -48,7 +48,7 @@ import type { AnyEventObject, ActorRef } from "xstate";
 // }
 
 async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
 
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -58,9 +58,17 @@ async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
       limit: 0,
       with: ["region", "country"].join(),
     }),
+    queryKey: [
+      "clients",
+      client.id,
+      "addresses",
+      {
+        limit: 0,
+        with: ["region", "country"].join(),
+      },
+    ],
     withAccessToken: true,
-    useCache: true,
-    refresh: true,
+    revalidateIfStale: true,
   }).then(({ data }: any) => parseAddress(data));
 
   const companies = get({
@@ -74,9 +82,9 @@ async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
         "phone",
       ].join(),
     }),
+    queryKey: ["clients", client.id, "companies"],
     withAccessToken: true,
-    useCache: true,
-    refresh: true,
+    revalidateIfStale: true,
   }).then(({ data }: any) => parseCompany(data));
 
   return Promise.all([addresses, companies]).then(
@@ -150,7 +158,7 @@ async function add(
   { model, addresses, phones, emails }: UnifiedAddressContext,
   _event?: AnyEventObject
 ) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -209,7 +217,7 @@ async function update(
   { model, addresses, phones, emails }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
-  const { post, put, useUrl } = useApi();
+  const { post, put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -276,7 +284,7 @@ async function remove(
   { model }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
-  const { del, useUrl } = useApi();
+  const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -298,7 +306,7 @@ async function setDefault(
   { model }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();

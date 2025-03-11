@@ -7,6 +7,5 @@ export * from "./lookup";
 export * from "./product";
 export * from "./recommendations";
 export * from "./routing";
-export * from "./requests";
 export * from "./session";
 export * from "./system";

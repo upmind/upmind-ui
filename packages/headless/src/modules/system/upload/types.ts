@@ -1,9 +1,6 @@
 // --- internal
-// import type { RequestError } from "../../api/types";
-import type {
-  ImageObjectTypes,
-  ImageUploadTypes,
-} from "@upmind-automation/types";
+import type { ImageObjectTypes } from "@upmind-automation/types";
+
 // --------------------------------------------------------
 // ENUMS
 
