@@ -2,7 +2,7 @@
 import { loadStripe } from "@stripe/stripe-js";
 
 // --- internal
-import { useApi, useSession } from "../../..";
+import { useQuery, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
@@ -203,7 +203,7 @@ async function createAddElement(
   { stripe, gateway, address }: StripeContext,
   _event: AnyEventObject
 ) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
   const client_id = await getUserId();
 

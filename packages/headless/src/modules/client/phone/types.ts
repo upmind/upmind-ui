@@ -1,10 +1,8 @@
-// --- extrnal
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+// --- external
 
 // --- internal
-import type { RequestError } from "../..//api/types";
+import type { ICountry } from "@upmind-automation/types";
 import type { ClientItemContext, ClientListingsContext } from "../types";
-import { ICountry } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export const PhoneTypes: any[] = [

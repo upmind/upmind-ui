@@ -1,15 +1,15 @@
 // --- external
 
 // --- internal
-import { useApi } from "../..";
+import { useQuery } from "../..";
 
 // --- utils
 import { usePaymentParser } from "./utils";
 import { isEmpty, get } from "lodash-es";
 
 // --- types
+import { FetchMethods } from "../query/types";
 import type { PaymentContext } from "./types";
-import { FetchMethods } from "../api/services";
 import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
@@ -76,7 +76,7 @@ async function load(
   { order, paymentDetails }: PaymentContext,
   { data }: AnyEventObject
 ) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
 
   const urls = {
     return: undefined,
@@ -99,6 +99,7 @@ async function load(
 
   return get({
     url: useUrl(`order/${data.id}`),
+    queryKey: ["order", { id: data.id }],
   }).then(({ data }: any) => ({ fields: data, urls }));
 }
 
@@ -108,7 +109,7 @@ async function update(
   { order, paymentDetails }: PaymentContext,
   _event: AnyEventObject
 ) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
 
   // build the payload with ALL the data we need for the payment details AND the order
   const data = usePaymentParser({ paymentDetails, order });

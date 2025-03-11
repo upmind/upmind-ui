@@ -1,19 +1,24 @@
 // --- external
 
 // --- internal
-import { useApi } from "../api";
+import { useQuery, usePaginatedQuery } from "../..";
 
 // --- utils
-import { parseDomain, parseAvailable, parseSld } from "./utils";
-import { isEmpty, omitBy, map } from "lodash-es";
+import { isEmpty, map, omitBy } from "lodash-es";
+import { parseAvailable, parseDomain, parseSld } from "./utils";
 
 // --- types
-import type { DomainContext } from "./types";
+import type { DomainContext, DomainProduct } from "./types";
 
 // --------------------------------------------------------
 
-function search({ promotions, currency, controller, search }: DomainContext) {
-  const { get, useUrl } = useApi();
+async function search({
+  search,
+  currency,
+  controller,
+  promotions,
+}: DomainContext) {
+  const { get, useUrl } = usePaginatedQuery();
 
   if (!search?.query?.length) return Promise.reject("No query provided");
 
@@ -24,8 +29,6 @@ function search({ promotions, currency, controller, search }: DomainContext) {
     {
       sld,
       with: ["prices", "options", "options.prices", "attributes"].join(),
-      limit: search?.limit?.toString(),
-      offset: search.offset?.toString(),
       currency_code: currency,
       // tld,
       promotions: promotions?.join(),
@@ -33,25 +36,31 @@ function search({ promotions, currency, controller, search }: DomainContext) {
     isEmpty
   );
 
-  return get({
+  return get<DomainProduct[]>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
-    useCache: true,
-  }).then(({ data, total }: any) => {
-    return {
-      available: parseAvailable(sld, data),
-      total: total || 0,
-    };
-  });
+    queryKey: [
+      "domain",
+      "search",
+      { sld, params, limit: search?.limit, offset: search.offset },
+    ],
+    pagination: {
+      limit: search?.limit,
+      offset: search.offset,
+    },
+  }).then(({ data, pageTotal }) => ({
+    total: pageTotal || 0,
+    available: parseAvailable(sld, data),
+  }));
 }
 
 function getClientDomains({ controller }: DomainContext) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("modules/web_hosting/domains/client_domains"),
     init: { signal: controller?.signal },
-    useCache: true,
+    queryKey: ["domain", "client-domains"],
     withAccessToken: true,
   }).then(({ data }: any) =>
     map(data, ({ domain_name }) => parseDomain(domain_name))

@@ -1,10 +1,11 @@
 // --- external
 
 // --- internal
-import { useApi } from "../../..";
+import { useQuery } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { invalidateBasket } from "../services";
 import { get, isEmpty, some } from "lodash-es";
 
 // --- types
@@ -28,7 +29,7 @@ async function add(
   { basketId, model, promotions }: PromotionsContext,
   _event: AnyEventObject
 ) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
 
   if (!model?.promocode)
     return Promise.reject("No Promocode provided to add to basketId");
@@ -39,7 +40,9 @@ async function add(
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: model?.promocode },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 async function remove(
@@ -51,7 +54,7 @@ async function remove(
   if (!id)
     return Promise.reject("No Promotion provided to remove from basketId");
 
-  const { del, useUrl } = useApi();
+  const { del, useUrl } = useQuery();
 
   return del({
     url: useUrl(`/orders/${basketId}/promotions/${id}`),

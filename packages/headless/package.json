@@ -26,6 +26,7 @@
     "@googlemaps/js-api-loader": "^1.16.8",
     "@jsonforms/core": "^3.5.1",
     "@stripe/stripe-js": "^3.5.0",
+    "@tanstack/query-core": "^5.66.4",
     "@upmind-automation/types": "workspace:*",
     "@xstate/inspect": "^0.8.0",
     "ajv": "^8.17.1",

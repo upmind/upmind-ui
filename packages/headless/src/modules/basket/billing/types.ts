@@ -1,8 +1,7 @@
-// --- extrnal
+// --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { RequestError } from "../..//api/types";
 
 // --------------------------------------------------------
 // ENUMS

@@ -235,6 +235,9 @@ importers:
       '@stripe/stripe-js':
         specifier: ^3.5.0
         version: 3.5.0
+      '@tanstack/query-core':
+        specifier: ^5.66.4
+        version: 5.67.2
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../types

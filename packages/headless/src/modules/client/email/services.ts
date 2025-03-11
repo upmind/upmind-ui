@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useApi, useSession } from "../..";
+import { useQuery, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -16,7 +16,7 @@ import type { EmailContext, EmailsContext } from "./types";
 // Invoked by machines, providing context and event data
 
 async function load(_context: EmailsContext) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
@@ -24,9 +24,9 @@ async function load(_context: EmailsContext) {
     url: useUrl(`clients/${client.id}/emails`, {
       limit: 0,
     }),
+    queryKey: ["clients", client.id, "emails", { limit: 0 }],
     withAccessToken: true,
-    useCache: true,
-    refresh: true,
+    revalidateIfStale: true,
   }).then(({ data }: any) => data);
 }
 
@@ -80,7 +80,7 @@ async function findItem({ raw }: EmailsContext, { data }: AnyEventObject) {
 // -----------------------------------------------------------------------------
 
 async function add({ model }: EmailContext) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -96,7 +96,7 @@ async function add({ model }: EmailContext) {
 }
 
 async function update({ model }: EmailContext) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -112,7 +112,7 @@ async function update({ model }: EmailContext) {
 }
 
 async function remove({ model }: EmailContext) {
-  const { del, useUrl } = useApi();
+  const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -124,7 +124,7 @@ async function remove({ model }: EmailContext) {
 }
 
 async function setDefault({ model }: EmailContext) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
