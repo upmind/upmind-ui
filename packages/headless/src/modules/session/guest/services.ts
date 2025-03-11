@@ -1,11 +1,11 @@
 // --- internal
-import { useApi } from "../../api";
-import { useSystemRecaptcha } from "../../system/recaptcha";
+import { useQuery } from "../..";
+import { useSystemRecaptcha } from "../../system";
 import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
 // --- utils
 import { useCookies, useTracking } from "../../../utils";
-import { getTokenfromStorage, persistTokenToStorage } from "../utils";
+import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 import { isEmpty } from "lodash-es";
 
 // ---types
@@ -21,10 +21,10 @@ import type { GuestContext } from "./types";
 
 async function load(_context: GuestContext, _event: any) {
   // if we DONT have a token, we need to generate one, otherwise we are authenticated already
-  const token = getTokenfromStorage("guest");
+  const token = getTokenFromStorage("guest");
   if (!isEmpty(token)) return Promise.resolve(token);
 
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
 
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
@@ -38,7 +38,7 @@ async function load(_context: GuestContext, _event: any) {
 // --- LOGIN
 
 async function authenticate({ model }: GuestContext) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: {
@@ -47,14 +47,14 @@ async function authenticate({ model }: GuestContext) {
       grant_type: GrantTypes.PASSWORD,
     },
   }).then((data: any) => {
-    // we record the history of the token to be able to referejce the originating guest token
+    // we record the history of the token to be able to reference the originating guest token
     if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
     return data;
   });
 }
 
 async function verify2fa({ token }: GuestContext, { data }: any) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
     withAccessToken: token.access_token,
@@ -72,10 +72,12 @@ async function verify2fa({ token }: GuestContext, { data }: any) {
 // --- REGISTER
 
 async function getCustomFields(_context: GuestContext, _event: any) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
+
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
+    queryKey: ["session", "guest", "custom-fields"],
   }).then(({ data }: any) => data);
 }
 
@@ -90,7 +92,7 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
 }
 
 async function register({ model }: GuestContext) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const recaptcha = useSystemRecaptcha();
   const { getCookie } = useCookies();
   const { getTracking } = useTracking();

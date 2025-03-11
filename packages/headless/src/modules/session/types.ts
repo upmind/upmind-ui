@@ -1,9 +1,4 @@
-import type { RequestError } from "../api/types";
-import type {
-  GrantTypes,
-  IUser,
-  TwofaProviders,
-} from "@upmind-automation/types";
+import type { IUser } from "@upmind-automation/types";
 // --------------------------------------------------------
 // ENUMS
 

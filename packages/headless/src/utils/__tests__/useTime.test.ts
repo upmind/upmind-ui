@@ -7,7 +7,7 @@ describe("useTime.ts", () => {
     const time = useTime();
 
     it("should have correct IMMIDIATE value", () => {
-      expect(time.IMMIDIATE).toBe(0);
+      expect(time.IMMEDIATE).toBe(0);
     });
     it("should have correct WAIT value", () => {
       expect(time.WAIT).toBe(10);

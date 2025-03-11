@@ -1,11 +1,12 @@
 // --- external
 
 // --- internal
-import { useApi } from "../../..";
+import { useQuery } from "../../..";
 
 // --- utils
-import { useValidation, useFieldsModelParser } from "../../../utils";
 import { get } from "lodash-es";
+import { useValidation } from "../../../utils";
+import { invalidateBasket } from "../services";
 
 // --- types
 import type { FieldsContext } from "./types";
@@ -18,10 +19,11 @@ import type { AnyEventObject } from "xstate";
 // Invoked by machines, providing context and event data
 
 async function load(_context: FieldsContext, _event: AnyEventObject) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("basket_fields"),
+    queryKey: ["basket", "fields"],
   }).then(({ data }: any) => ({ fields: data }));
 }
 
@@ -31,8 +33,8 @@ async function update(
   { basketId, model }: FieldsContext,
   _event: AnyEventObject
 ) {
-  const { put, useUrl } = useApi();
-  // rebuild the model with ALL custo mfields present, including nullish values
+  const { put, useUrl } = useQuery();
+  // rebuild the model with ALL custom fields present, including nullish values
   const data = {
     notes: model?.notes,
     custom_fields: get(model, "customFields"),
@@ -42,7 +44,9 @@ async function update(
     url: useUrl(`/orders/${basketId}`),
     data,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------
