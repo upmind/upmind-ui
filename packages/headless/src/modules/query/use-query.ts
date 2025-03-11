@@ -45,8 +45,7 @@ export const useQuery = () => {
     const { getToken } = useSession();
 
     // Enforce Method (default to GET)
-    set(init, "method", get(init, "method", Methods.GET));
-
+    set(init, "method", get(init, "method", Methods.GET).toUpperCase());
     // Enforce Content Type header
     if (init.body instanceof FormData) {
       // do not set header content type
@@ -132,7 +131,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", Methods.POST);
+    set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -164,7 +163,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", Methods.PUT);
+    set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -196,9 +195,8 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", Methods.PATCH);
+    set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", JSON.stringify(data));
-
     return request<T>({ url, init, withAccessToken });
   }
 
@@ -228,7 +226,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method, header, parse body
-    set(init, "method", Methods.DELETE);
+    set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken });
@@ -259,7 +257,7 @@ export const useQuery = () => {
     init ??= {};
 
     // Enforce method & header
-    set(init, "method", Methods.GET);
+    set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
     return request<T>({ url, init, withAccessToken });

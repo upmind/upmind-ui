@@ -9,7 +9,6 @@ import type {
 
 // --------------------------------------------------------
 // Contexts
-
 export interface BrandContext extends IBrandSettings {
   keys: {
     organisation: OrgFeatureKeys[];
@@ -21,4 +20,5 @@ export interface BrandContext extends IBrandSettings {
   organisation?: OrgFeatureKeys;
   initialised?: boolean;
   error?: any;
+  observable?: any; //TODO set the cotrect observable ype
 }
