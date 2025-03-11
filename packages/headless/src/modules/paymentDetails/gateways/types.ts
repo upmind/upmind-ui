@@ -9,6 +9,8 @@ import type {
   IGateway,
   GatewayAuthType,
   GatewayStoreType,
+  IPayment,
+  IPaymentDetail,
 } from "@upmind-automation/types";
 
 // --------------------------------------------------------
@@ -44,7 +46,7 @@ export interface GatewayContext {
   element?: any;
   renderer?: Function;
   // ---
-  basketId?: string;
+  id?: IPaymentDetail["id"];
   currency?: ICurrency;
   amount?: number;
   gateway?: IGateway;

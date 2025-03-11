@@ -123,7 +123,7 @@ export function spawnCustomFields(basket?: IBasket) {
 export function spawnPaymentDetails(basket?: IBasket) {
   return spawn(
     paymentDetailsMachine.withContext({
-      basketId: basket?.id,
+      id: basket?.id,
       currency: basket?.currency,
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
