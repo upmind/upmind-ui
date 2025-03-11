@@ -1,14 +1,13 @@
 // --- external
 
 // --- internal
-import { useApi } from "../api";
 import { useBrand } from "../brand";
-
+import { useQuery } from "../..";
 import { useSession } from "../session";
 
 // --- utils
 import { useCookies, useTracking } from "../../utils";
-import { getTokenfromStorage, dumpTokenFromStorage } from "../session/utils";
+import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 
 import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
 
@@ -18,7 +17,14 @@ import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // --------------------------------------------------------
-// ENUMS
+// UTILS
+
+export async function invalidateBasket(context: object) {
+  const { queryClient } = useQuery();
+  return queryClient
+    .invalidateQueries({ queryKey: ["basket", "current"] })
+    .then(() => context);
+}
 
 // --------------------------------------------------------
 // SERVICE METHODS
@@ -26,12 +32,12 @@ import type { AnyEventObject } from "xstate";
 // this will process the request and return a promise
 
 async function load({ controller }: BasketContext, _event: AnyEventObject) {
-  const { get, patch, useUrl } = useApi();
+  const { get, patch, useUrl } = useQuery();
 
   // check if we are logged in as a client
   // then try get any previous guest token a
-  const client_token = getTokenfromStorage("client");
-  const guest_token = getTokenfromStorage("guest");
+  const client_token = getTokenFromStorage("client");
+  const guest_token = getTokenFromStorage("guest");
 
   // if we are a client AND we have a guest token, we need to claim the basket
   if (client_token && guest_token) {
@@ -41,11 +47,13 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
       data: {
         guest_token: guest_token.access_token,
       },
-    }).then(() => {
-      // because we have successfully claimed the basket, we can dump the guest token
-      // we only do it here, as we may need to claim the basket again if something went wrong
-      dumpTokenFromStorage("guest");
-    });
+    })
+      .then(invalidateBasket)
+      .then(() => {
+        // because we have successfully claimed the basket, we can dump the guest token
+        // we only do it here, as we may need to claim the basket again if something went wrong
+        dumpTokenFromStorage("guest");
+      });
   }
 
   // We depend on the brand being ready, so we need to wait for it
@@ -86,8 +94,9 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
       ].join(),
     }),
     init: { signal: controller?.signal },
+    queryKey: ["basket", "current"],
     withAccessToken: true,
-    useCache: false,
+    revalidateIfStale: true,
   })
     .then(({ data }: any) => data)
     .then(getProvisioningFieldsValues);
@@ -101,8 +110,8 @@ async function generate(
   // safety check, if we have a basket, we dont need to generate one
   if (!isEmpty(basket)) return Promise.resolve(basket);
 
-  const { post, useUrl } = useApi();
   const { getTracking } = useTracking();
+  const { post, useUrl } = useQuery();
 
   const data: any = {
     category_slug: "new_contract",
@@ -132,9 +141,9 @@ async function generate(
 }
 
 async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
-  const { patch, useUrl } = useApi();
   const { getCookie } = useCookies();
   const { getTracking } = useTracking();
+  const { patch, useUrl } = useQuery();
   // ---
   // Conditional data
 
@@ -156,11 +165,13 @@ async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
     data,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 async function getProvisioningFieldsValues(basket: IBasket) {
-  const { get, patch, useUrl } = useApi();
+  const { get, patch, useUrl } = useQuery();
 
   // bail if we have no basket, or if we have a basket with products
   if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
@@ -170,9 +181,9 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
-    useCache: false,
     withAccessToken: true,
   })
+    .then(invalidateBasket)
     .then(({ data }: any) => data)
     .catch(({ error }) => error);
 
@@ -188,7 +199,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       map(concat(rawProduct.options, rawProduct.attributes), "product_id")
     );
 
-    // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+    // we dont cache provisioning fields, as they can change with different options/attributes being selected
     const promise = get({
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
@@ -196,7 +207,14 @@ async function getProvisioningFieldsValues(basket: IBasket) {
           sub_product_ids: subProducts,
         }
       ),
-      useCache: false,
+      queryKey: [
+        "basket",
+        basket.id,
+        "products",
+        id,
+        "provision_fields",
+        "values",
+      ],
       withAccessToken: true,
     }).then(({ data }: any) => {
       // update the product with the provisioning fields

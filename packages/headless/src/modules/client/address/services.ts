@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useApi, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession } from "../..";
 import { usePlaces } from "../places";
 import { useClientAddresses } from ".";
 
@@ -41,7 +41,7 @@ import type { AddressContext, AddressesContext, IAddressData } from "./types";
 // }
 
 async function load(_context: AddressesContext) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
@@ -50,9 +50,17 @@ async function load(_context: AddressesContext) {
       limit: 0,
       with: ["region", "country"].join(),
     }),
+    queryKey: [
+      "clients",
+      client.id,
+      "addresses",
+      {
+        limit: 0,
+        with: ["region", "country"].join(),
+      },
+    ],
     withAccessToken: true,
-    useCache: true,
-    refresh: true,
+    revalidateIfStale: true,
   }).then(({ data }: any) => parseAddress(data));
 }
 
@@ -117,7 +125,7 @@ async function findItem({ raw }: AddressesContext, { data }: AnyEventObject) {
 // -----------------------------------------------------------------------------
 
 async function add({ model }: AddressContext) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -130,7 +138,7 @@ async function add({ model }: AddressContext) {
 }
 
 async function update({ model }: AddressContext) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -143,7 +151,7 @@ async function update({ model }: AddressContext) {
 }
 
 async function remove({ model }: AddressContext) {
-  const { del, useUrl } = useApi();
+  const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -155,7 +163,7 @@ async function remove({ model }: AddressContext) {
 }
 
 async function setDefault({ model }: AddressContext) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -220,9 +228,9 @@ async function parse(
   const { fetchRegions, getCountry } = useSystem();
 
   if (!isEmpty(model)) {
-    // let scheck to see if weve been given a place to lookup
+    // let's check to see if we've been given a place to lookup
     // if we have:
-    //  1: get the place from our existing addressess by placeId
+    //  1: get the place from our existing addresses by placeId
     //  2: get the place details from google
     //  4: update the model with the place details
     if (model?.place) {

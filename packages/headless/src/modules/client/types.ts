@@ -1,15 +1,8 @@
-// --- extrnal
+// --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { RequestError } from "..//api/types";
 import type { ActorRef } from "xstate";
-import type {
-  IAddress,
-  ICompany,
-  IEmail,
-  IPhone,
-} from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 // Contexts
 

@@ -7,7 +7,7 @@ import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
 
 // --- utils
-import { getTokenfromStorage } from "./utils";
+import { getTokenFromStorage } from "./utils";
 import { get } from "lodash-es";
 // --------------------------------------------------------
 // create a global instance of the session machine
@@ -227,7 +227,7 @@ export const useSession = () => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: () => service.getSnapshot(),
-    getToken: () => getTokenfromStorage()?.access_token,
+    getToken: () => getTokenFromStorage()?.access_token,
     getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,

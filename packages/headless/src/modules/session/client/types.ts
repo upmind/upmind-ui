@@ -1,7 +1,5 @@
 // --- internal
-import type { IUser } from "@upmind-automation/types";
 import type { User } from "../types";
-// import type { RequestError } from "../../api/types";
 
 // ---
 // Contexts

@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useApi } from "../api";
+import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
@@ -69,7 +69,7 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useApi();
+  const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -90,8 +90,15 @@ async function load(
   if (basketProduct?.id) set(params, "basket_product_id", basketProduct.id);
   const productPromise = getRequest({
     url: useUrl(`basket/products/${productId}`, params),
-    useCache: true,
-    maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
+    queryKey: [
+      "product",
+      productId,
+      {
+        currency_id: currency?.id,
+        promotions: (promotions ?? []).join(","),
+      },
+    ],
+    staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
   }).then(({ data }: any) => data);
 
@@ -119,12 +126,12 @@ async function load(
 }
 
 async function loadProvisioningFields(productId: any) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
   if (!productId) return Promise.reject("No Product ID provided");
   // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
-    useCache: false,
+    queryKey: ["product", productId, "provision-fields"],
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
@@ -355,7 +362,7 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
 
 // --------------------------------------------------------
 // This is a relatively expensive operation,
-// ineffect we are calculating the price of the item based on its configuration
+// in effect we are calculating the price of the item based on its configuration
 // We use the values that have been selected alongside the lookups data
 // and based on the combination of those values, we calculate the price
 // The really tricky bit is the fact that options can have price overrides,
@@ -370,7 +377,7 @@ const calculateSummary = (
   { currencyId, prices, model, lookups }: ProductConfigContext,
   controller: AbortController
 ) => {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
 
   // clean the prices object, removing any nil values. we dont use compact because that also removes 0 values
   // NB: remove the term price if we have any price overrides

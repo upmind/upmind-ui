@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useApi, useSession, useBrand } from "..";
+import { useQuery, useSession, useBrand } from "..";
 
 // --- utils
 import { useValidation } from "../../utils";
@@ -44,7 +44,7 @@ async function load(
   await isAuthenticated().catch(error => Promise.reject(error));
 
   const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
-  const { get: getRequest, useUrl } = useApi();
+  const { get: getRequest, useUrl } = useQuery();
 
   await isReady().catch(error => Promise.reject(error));
 
@@ -82,8 +82,8 @@ async function load(
       with: ["gateway", "client"].join(),
       // with_staged_imports: 1
     }),
+    queryKey: ["payment-details", { clientId, brandId, currencyId }],
     withAccessToken: true,
-    useCache: true,
   }).then(({ data }: any) => data);
 
   // ---
@@ -97,8 +97,12 @@ async function load(
       "filter[active]": 1,
       with: ["gateway.gateway_provider", "gateway.card_types"].join(),
     }),
+    queryKey: [
+      "payment-details",
+      "gateways",
+      { brandId, clientId, currencyId },
+    ],
     withAccessToken: true,
-    useCache: true,
   }).then(({ data }: any) => {
     // Whitelist payment gateways if provided
     if (whitelistGatewayProviders.length) {

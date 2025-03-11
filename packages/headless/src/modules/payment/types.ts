@@ -1,4 +1,4 @@
-// --- extrnal
+// --- external
 
 // --- internal
 import type { IBasket } from "@upmind-automation/types";
