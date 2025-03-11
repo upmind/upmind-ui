@@ -6,7 +6,6 @@ import { useQuery, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { invalidateBasket } from "../services";
 
 // --- types
 import type { BillingDetailsContext } from "./types";
@@ -45,9 +44,7 @@ async function update(
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------

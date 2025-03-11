@@ -109,7 +109,7 @@ async function redirect(
    * Inject aborted state for cases when user click back from the browser
    * We have no router to handle this, so we need to handle it manually
    */
-  debugger;
+  debugger; //TODO check urls
   if (cancel) window.history.replaceState("", "", cancel?.url);
 
   if (approval) return submitViaForm(approval);

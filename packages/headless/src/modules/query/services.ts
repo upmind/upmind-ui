@@ -11,7 +11,15 @@ import {
   persistTokenToStorage,
   dumpTokenFromStorage,
 } from "../session/utils";
-import { get, set, isEmpty, includes } from "lodash-es";
+import {
+  get,
+  set,
+  isEmpty,
+  includes,
+  lowerCase,
+  map,
+  upperCase,
+} from "lodash-es";
 
 // --- types
 import type { Token } from "../session/types";
@@ -26,8 +34,7 @@ async function doFetch<T extends object = object>({
   url,
   init,
 }: RequestParams): Promise<T> {
-  if (!includes(Methods, init?.method)) {
-    debugger;
+  if (!includes(map(Methods, upperCase), init?.method)) {
     return Promise.reject(`Invalid method: ${init?.method}`);
   }
 

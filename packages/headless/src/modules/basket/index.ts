@@ -100,7 +100,7 @@ export const useBasket = () => {
 
   function hasProducts() {
     const state = service.getSnapshot();
-    return !isEmpty(state?.context?.products);
+    return !isEmpty(state?.context?.basket?.products);
   }
 
   function hasInvalidProducts() {

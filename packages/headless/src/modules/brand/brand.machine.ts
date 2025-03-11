@@ -1,19 +1,22 @@
 // --- external
-import type { AnyEventObject } from "xstate";
-import { createMachine, assign } from "xstate";
+import { useQuery } from "../query";
+
+import { createMachine, assign, actions } from "xstate";
+const { raise } = actions;
 
 // --- internal
 import services from "./services";
 import { useI18n } from "../system/i18n";
 
-import type { BrandContext } from "./types";
-
 // --- utils
-import { set } from "lodash-es";
+import { set, get } from "lodash-es";
 import { useTime } from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 
+// --- types
+import type { BrandContext } from "./types";
+import type { AnyEventObject } from "xstate";
 // --------------------------------------------------------
 
 export default createMachine(
@@ -203,7 +206,7 @@ export default createMachine(
       },
       error: { id: "error" },
       complete: {
-        entry: ["setDefaultLocale", "setInitialised"],
+        entry: ["setDefaultLocale", "setInitialised", "setObservable"],
         // type: "final",
         on: {
           "CONFIG.GET": {
@@ -213,12 +216,28 @@ export default createMachine(
         },
       },
     },
+    on: {
+      "REFRESH.ORGANISATION": {
+        actions: ["setOrganisation"],
+      },
+      "REFRESH.CONFIG": {
+        actions: ["setConfig"],
+      },
+      "REFRESH.SETTINGS": {
+        actions: ["setSettings"],
+      },
+      "REFRESH.MODULES": {
+        actions: ["setModules"],
+      },
+    },
   },
   {
     actions: {
       setOrganisation: assign(
-        (_context: BrandContext, { data }: AnyEventObject) =>
-          useBrandParser(data)
+        (_context: BrandContext, { data }: AnyEventObject) => {
+          debugger;
+          return useBrandParser(data);
+        }
       ),
       // ---
       setConfig: assign((_context: BrandContext, { data }: AnyEventObject) =>
@@ -250,6 +269,79 @@ export default createMachine(
 
       setInitialised: assign({
         initialised: true,
+      }),
+
+      setObservable: assign({
+        observable: ({ observable }: BrandContext, _event: AnyEventObject) => {
+          if (observable) return observable;
+
+          const { queryClient } = useQuery();
+
+          observable = queryClient.getQueryCache().subscribe(event => {
+            const isOrganisationEvent =
+              event.query.queryKey.toString() ===
+              ["brand", "organisation", "config"].toString();
+
+            const isSuccess = event?.action?.type === "success";
+
+            if (isOrganisationEvent && isSuccess) {
+              console.log("observable", "refresh", {
+                isOrganisationEvent,
+                isSuccess,
+                data: event?.action?.data,
+              });
+              debugger;
+              raise({
+                type: "REFRESH.ORGANISATION",
+                data: event?.action?.data?.data,
+              });
+            }
+
+            //  {
+            //    queryKey: ["brand", "organisation", "config"];
+            //  }
+          });
+
+          // observable.subscribe((result: any) => {
+          //   // send({ type: "REFRESH", data: result });
+          //   // const [organisation, settings, config, modules] = result;
+
+          //   console.log("observable", "refresh", {
+          //     result,
+          //   });
+
+          //   if (result.isSuccess) {
+          //     debugger;
+          //     send({
+          //       type: "REFRESH.ORGANISATION",
+          //       data: result.data.data,
+          //     });
+          //   }
+
+          //   // if (settings.isSuccess) {
+          //   //   send({
+          //   //     type: "REFRESH.SETTINGS",
+          //   //     data: settings.data.data,
+          //   //   });
+          //   // }
+
+          //   // if (config.isSuccess) {
+          //   //   send({
+          //   //     type: "REFRESH.CONFIG",
+          //   //     data: config.data.data,
+          //   //   });
+          //   // }
+
+          //   // if (modules.isSuccess) {
+          //   //   send({
+          //   //     type: "REFRESH.MODULES",
+          //   //     data: modules.data.data,
+          //   //   });
+          //   // }
+          // });
+
+          return observable;
+        },
       }),
       // ---
     },

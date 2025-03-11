@@ -6,7 +6,6 @@ import { useQuery } from "../../..";
 // --- utils
 import { get } from "lodash-es";
 import { useValidation } from "../../../utils";
-import { invalidateBasket } from "../services";
 
 // --- types
 import type { FieldsContext } from "./types";
@@ -44,9 +43,7 @@ async function update(
     url: useUrl(`/orders/${basketId}`),
     data,
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------

@@ -5,7 +5,6 @@ import { useQuery } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { invalidateBasket } from "../services";
 import { get, isEmpty, some } from "lodash-es";
 
 // --- types
@@ -40,9 +39,7 @@ async function add(
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: model?.promocode },
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function remove(
