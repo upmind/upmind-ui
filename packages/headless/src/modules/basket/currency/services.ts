@@ -2,10 +2,11 @@
 
 // --- internal
 import type { AnyEventObject } from "xstate";
-import { useApi, useBrand } from "../../..";
+import { useQuery, useBrand } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { invalidateBasket } from "../services";
 
 // --- types
 import type { CurrencyContext } from "./types";
@@ -36,7 +37,7 @@ async function update(
   { basketId, model }: CurrencyContext,
   _event: AnyEventObject
 ) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
@@ -45,7 +46,9 @@ async function update(
       currency_code: model?.code,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------

@@ -3,7 +3,7 @@ export * as utils from "./utils";
 
 import { inspect } from "@xstate/inspect";
 
-import { usePOP, type IApiPop } from "./utils/usePOP";
+import { usePOP, type IApiPop } from "./utils";
 
 // --------------------------------------------------------
 

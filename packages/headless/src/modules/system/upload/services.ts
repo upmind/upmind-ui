@@ -1,12 +1,12 @@
 // --- internal
-import { useApi } from "../../api";
+import { useQuery } from "../..";
 import { useBrand } from "../../brand";
 
 // --- utils
+import { useTime } from "../../../utils";
 import { compact, includes, isEmpty, get } from "lodash-es";
 
 // --- types
-// import type { UploadEvent, UploadContext } from "./types";
 import type { UploadContext } from "./types";
 import {
   ImageObjectTypes,
@@ -69,16 +69,16 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   if (!field?.field_type && !data.hash)
     return Promise.reject("No field type or hash provided");
 
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   // const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
   const path = `images/${data.hash}`;
 
   return get({
     url: useUrl(path),
+    queryKey: ["images", data.hash],
+    staleTime: useTime()?.DAY,
     withAccessToken: true,
-    useCache: true,
-    maxAge: useTime()?.DAY,
   }).then(({ data }: any) => data);
 }
 
@@ -135,7 +135,7 @@ async function upload(
   { field, request }: UploadContext,
   _event: AnyEventObject
 ) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const path = fieldPath(field);
   return post({
     url: useUrl(path),
