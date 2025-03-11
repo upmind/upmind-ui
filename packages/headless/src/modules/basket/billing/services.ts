@@ -2,10 +2,12 @@
 
 // --- internal
 import { find, isEmpty } from "lodash-es";
-import { useApi, useClientUnifiedAddresses, useSession } from "../../..";
+import { useQuery, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { invalidateBasket } from "../services";
+
 // --- types
 import type { BillingDetailsContext } from "./types";
 import type { AnyEventObject } from "xstate";
@@ -33,7 +35,7 @@ async function update(
   { basketId, model }: BillingDetailsContext,
   _event: AnyEventObject
 ) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
 
   // get returns a promise so we can pass it directly back to the machine
   return put({
@@ -43,7 +45,9 @@ async function update(
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 // --------------------------------------------------------
@@ -54,7 +58,7 @@ async function parse(
 ) {
   const defaultAddress = find(addresses, "default");
 
-  // We should ALWAYs have an address set  ( if we have addresses )
+  // We should ALWAYS have an address set  ( if we have addresses )
   // if model is not set, set it to the default address
   if (!model?.addressId && !isEmpty(defaultAddress)) {
     model = {

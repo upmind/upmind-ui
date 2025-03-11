@@ -1,5 +1,5 @@
 // --- internal
-import { useApi } from "../api";
+import { useQuery } from "../..";
 
 // --- utils
 
@@ -16,6 +16,7 @@ import type {
 
 import type { SystemContext } from "./types";
 import { AnyEventObject } from "xstate";
+import { useTime } from "../../utils";
 // --------------------------------------------------------
 // ENUMS
 
@@ -30,12 +31,12 @@ async function fetchCurrencies(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("currencies", { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "currencies"],
+    staleTime: useTime()?.DAY,
   }).then(({ data }: any) => data as ICurrency[]);
 }
 
@@ -43,22 +44,22 @@ async function fetchBillingCycles(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("billing_cycles", { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "billing-cycles"],
+    staleTime: useTime()?.DAY,
   }).then(({ data }: any) => data as IBillingCycle[]);
 }
 
 async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("countries", { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "countries"],
+    staleTime: useTime()?.DAY,
   }).then(({ data }: any) => data as ICountry[]);
 }
 
@@ -66,37 +67,37 @@ async function fetchRegions(
   _context: SystemContext,
   { data: { code, id } }: any
 ) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   if (!code || !id) return Promise.reject("No code or id provided");
 
   return get({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "regions", code],
+    staleTime: useTime()?.DAY,
   }).then(
     ({ data }: any) => ({ key: code, values: data }) as Record<string, IRegion>
   );
 }
 
 async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("languages", { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "languages"],
+    staleTime: useTime()?.DAY,
     withAccessToken: true,
   }).then(({ data }: any) => data as ILanguage[]);
 }
 
 async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("statuses", { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "statuses"],
+    staleTime: useTime()?.DAY,
   }).then(({ data }: any) => data as IStatus);
 }
 
@@ -104,12 +105,12 @@ async function fetchDepartments(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { get, useUrl, useTime } = useApi();
+  const { get, useUrl } = useQuery();
 
   return get({
     url: useUrl("tickets/departments", { limit: 0 }),
-    useCache: true,
-    maxAge: useTime()?.DAY,
+    queryKey: ["system", "departments"],
+    staleTime: useTime()?.DAY,
   }).then(({ data }: any) => data as ITicketDepartment[]);
 }
 

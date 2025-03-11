@@ -1,8 +1,8 @@
 // --- internal
-import { useApi } from "../api";
+import { useQuery } from "../..";
 
 // --- utils
-import { getTokenfromStorage } from "./utils";
+import { getTokenFromStorage } from "./utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
@@ -17,7 +17,7 @@ import type { SessionContext } from "./types";
 // this will process the request and return a promise
 
 async function check(_context: SessionContext, _event: any) {
-  const token = getTokenfromStorage();
+  const token = getTokenFromStorage();
   return new Promise((resolve, reject) => {
     if (!isEmpty(token)) {
       resolve(token);
@@ -28,7 +28,7 @@ async function check(_context: SessionContext, _event: any) {
 }
 
 async function transfer(_context: SessionContext, _event: any) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
 
   return post({
     url: useUrl("auth_code"),

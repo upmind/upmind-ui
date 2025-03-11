@@ -9,7 +9,6 @@ import { useFeedback } from "../feedback";
 const { addError, trackEvent } = useFeedback();
 
 // --- utils
-import { useTime } from "../../utils";
 import {
   parseBasket,
   parseBasketProduct,
@@ -21,6 +20,7 @@ import {
   spawnProductConfiguration,
   spawnPromotions,
 } from "./utils";
+import { responseCodes, useTime } from "../../utils";
 
 import {
   every,
@@ -38,7 +38,6 @@ import {
 // --- types
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { BasketContext } from "./types";
-import { responseCodes } from "../../utils";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 // --------------------------------------------------------
 

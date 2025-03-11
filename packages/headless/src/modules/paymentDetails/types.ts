@@ -1,4 +1,4 @@
-// --- extrnal
+// --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 import type {

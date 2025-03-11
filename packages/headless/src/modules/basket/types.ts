@@ -1,4 +1,4 @@
-// --- extrnal
+// --- external
 import type { ActorRef } from "xstate";
 import type { responseCodes } from "../../utils";
 import type { IBasket } from "@upmind-automation/types";

@@ -17,7 +17,7 @@ import type { IUser } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-export function getTokenfromStorage(actor_type?: Token["actor_type"]) {
+export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   let token: string = "";
   if (actor_type === "client") {
     token = localStorage.getItem(`client/auth/token`) || "";

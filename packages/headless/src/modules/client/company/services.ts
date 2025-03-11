@@ -5,7 +5,7 @@ import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 
-import { useApi, useSession } from "../..";
+import { useQuery, useSession } from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
@@ -30,7 +30,7 @@ import type { CompanyContext, CompaniesContext } from "./types";
 // }
 
 async function load(_context: CompaniesContext) {
-  const { get, useUrl } = useApi();
+  const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
@@ -39,9 +39,17 @@ async function load(_context: CompaniesContext) {
       // with: [].join(),
       limit: 0,
     }),
+    queryKey: [
+      "clients",
+      client.id,
+      "companies",
+      {
+        // with: [].join(),
+        limit: 0,
+      },
+    ],
     withAccessToken: true,
-    useCache: true,
-    refresh: true,
+    revalidateIfStale: true,
   }).then(({ data }: any) => data);
 }
 
@@ -104,7 +112,7 @@ async function filterItems(
 // -----------------------------------------------------------------------------
 
 async function add({ model }: CompanyContext) {
-  const { post, useUrl } = useApi();
+  const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -125,7 +133,7 @@ async function add({ model }: CompanyContext) {
 }
 
 async function update({ model }: CompanyContext) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -146,7 +154,7 @@ async function update({ model }: CompanyContext) {
 }
 
 async function setDefault({ model }: CompanyContext) {
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
@@ -159,7 +167,7 @@ async function setDefault({ model }: CompanyContext) {
 }
 
 async function remove({ model }: CompanyContext) {
-  const { del, useUrl } = useApi();
+  const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();

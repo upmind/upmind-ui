@@ -1,7 +1,5 @@
 // --- internal
-import type { RequestError } from "..//api/types";
 import type {
-  IBrand,
   BrandConfigKeys,
   OrgFeatureKeys,
   IBrandSettings,

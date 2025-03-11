@@ -2,11 +2,12 @@
 
 // --- internal
 import type { ProductModel } from "../../..";
-import { useApi } from "../../..";
+import { useQuery } from "../../..";
 import { useBrand } from "../../brand";
 
 // --- utils
 import { useTime } from "../../../utils";
+import { invalidateBasket } from "../services";
 import { parseBasketProductConfig } from "./utils";
 
 import {
@@ -62,7 +63,7 @@ async function fetch(
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useApi();
+  const { get: getRequest, useUrl } = useQuery();
   const params = {
     currency_id: currency?.id,
     promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
@@ -81,8 +82,17 @@ async function fetch(
 
   return getRequest({
     url: useUrl(`basket/products/${productId}`, params),
-    useCache: true,
-    maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
+    queryKey: [
+      "basket",
+      "products",
+      "fetch",
+      productId,
+      {
+        currency: currency?.id,
+        promotions: (promotions ?? []).join(","),
+      },
+    ],
+    staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
@@ -114,10 +124,10 @@ async function fetchSelected(
 ) {
   if (isEmpty(productIds)) return Promise.reject("No Product ID provided");
 
-  // lets ensure we have a valid currency > fallback to default
+  // let's ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useApi();
+  const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -138,7 +148,16 @@ async function fetchSelected(
 
   return getRequest({
     url: useUrl(`basket/products/`, params),
-    useCache: true,
+    queryKey: [
+      "basket",
+      "products",
+      "fetch-selected",
+      productIds,
+      {
+        currency: currency?.id,
+        promotions: (promotions ?? []).join(","),
+      },
+    ],
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
@@ -183,7 +202,7 @@ async function fetchRelated(
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useApi();
+  const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -207,8 +226,19 @@ async function fetchRelated(
 
   return getRequest({
     url: useUrl(`basket/products/${productId}/related`, params),
-    useCache: true,
-    maxAge: useTime()?.DAY, // product data is not updated often, so we can cache for a day
+    queryKey: [
+      "basket",
+      "products",
+      "fetch-related",
+      productId,
+      {
+        limit,
+        offset,
+        currency: currency?.id,
+        promotions: (promotions ?? []).join(","),
+      },
+    ],
+    staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
@@ -237,7 +267,7 @@ async function update(
   },
   { data }: { data: ProductModel }
 ) {
-  const { put, post, useUrl } = useApi();
+  const { put, post, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
@@ -264,8 +294,14 @@ async function update(
  * @returns {Promise<any>} A promise that resolves with the response data if the product is successfully removed,
  * or rejects with an error message if no basket ID is provided.
  */
-async function remove({ basketId, bpid }: { basketId: string; bpid: string }) {
-  const { del, useUrl } = useApi();
+async function remove({
+  basketId,
+  bpid,
+}: {
+  basketId: string;
+  bpid: string;
+}): Promise<any> {
+  const { del, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (!bpid) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
   // ---
@@ -292,7 +328,7 @@ async function remove({ basketId, bpid }: { basketId: string; bpid: string }) {
 async function sync(
   { basketId, basketProducts, promotions }: any,
   { data }: any
-) {
+): Promise<any> {
   if (!basketId) return Promise.reject("No basket provided/available");
 
   // When updating the basket we need to provide :
@@ -345,12 +381,13 @@ async function sync(
   );
 
   // ---
-  const { put, useUrl } = useApi();
+  const { put, useUrl } = useQuery();
   return put({
     url: useUrl(`/orders/${basketId}`),
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   })
+    .then(invalidateBasket)
     .then(({ data }: any) => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
       return data;
