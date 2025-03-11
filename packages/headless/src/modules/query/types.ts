@@ -65,14 +65,6 @@ export interface PaginatedData<T extends unknown> {
 // --------------------------------------------------------
 // ENUMS
 
-export enum FetchMethods {
-  GET = "GET",
-  PUT = "PUT",
-  POST = "POST",
-  PATCH = "PATCH",
-  DELETE = "DELETE",
-}
-
 export enum ApiSortDirection {
   ASC = "",
   DESC = "-",

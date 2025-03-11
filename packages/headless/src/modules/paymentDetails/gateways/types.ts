@@ -7,6 +7,7 @@ import { GatewayTypes as GatewayTypesEnum } from "@upmind-automation/types";
 import type {
   ICurrency,
   IGateway,
+  IOrder,
   GatewayAuthType,
   GatewayStoreType,
   IPayment,
@@ -46,14 +47,14 @@ export interface GatewayContext {
   element?: any;
   renderer?: Function;
   // ---
-  id?: IPaymentDetail["id"];
+  orderId?: IOrder["id"];
   currency?: ICurrency;
   amount?: number;
   gateway?: IGateway;
   // ---
   type?: GatewayTypes;
   ctx?: GatewayCtx;
-  stored_payment_methods?: Array<any>;
+  stored_payment_methods?: any[];
   code?: string;
 
   // ---

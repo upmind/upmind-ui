@@ -76,13 +76,13 @@ export interface DomainSearch {
 export interface DomainContext {
   choices: DomainTypes[];
   type?: DomainTypes;
-  model?: Array<DomainProduct>;
-  baseModel?: Array<DomainProduct>;
+  model?: DomainProduct[];
+  baseModel?: DomainProduct[];
   lookups?: {
-    searched: Array<DomainLookup>;
-    history: Array<DomainProduct>;
-    owned: Array<DomainProduct>;
-    basket: Array<DomainProduct>;
+    searched: DomainLookup[];
+    history: DomainProduct[];
+    owned: DomainProduct[];
+    basket: DomainProduct[];
   };
   total?: number;
   // ---
@@ -93,9 +93,9 @@ export interface DomainContext {
     query: string;
   };
   currency?: string;
-  promotions?: Array<string>;
+  promotions?: string[];
   controller?: AbortController;
-  tlds?: Array<string>;
+  tlds?: string[];
   // ---
   error?: any;
   // ---

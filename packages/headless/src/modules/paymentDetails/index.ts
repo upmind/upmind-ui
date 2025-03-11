@@ -5,64 +5,53 @@ import { interpret } from "xstate";
 import paymentDetailsMachine from "./paymentDetails.machine";
 
 // --- utils
-import { get, isEqual } from "lodash-es";
 
 // --- types
 export * from "./types";
 export * from "./gateways/types";
-import { PaymentDetailsContext } from "./types";
-import {
-  IAddress,
-  IClient,
-  ICurrency,
-  IInvoice,
-} from "@upmind-automation/types";
+import { PaymentDetailsArgs, PaymentDetailModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const usePaymentDetails = ({
-  invoiceId,
-  currency,
-  address,
-  clientId,
-  amount,
-}: {
-  invoiceId: IInvoice["id"];
-  clientId: IClient["id"];
-  currency: ICurrency;
-  amount: number;
-  address?: IAddress;
-}) => {
-  const service = interpret(
-    paymentDetailsMachine.withContext({
-      id: invoiceId,
-      currency,
-      clientId,
-      model: {
-        amount,
-      },
-      address,
-    } as PaymentDetailsContext),
-    { devTools: true }
-  );
+export const usePaymentDetails = (context: PaymentDetailsArgs) => {
+  const service = interpret(paymentDetailsMachine.withContext(context), {
+    devTools: true,
+  });
 
   return {
     service: service.start(),
     getSnapshot: () => service.getSnapshot(),
     // ---
     clear: () => service?.send({ type: "CLEAR" }),
+    /**
+     * Make changes to the payment details model, such as gateway type, etc
+     * This DOES NOT trigger the machine to update the payment details, and needs to be called separately
+     * @param model  -  The new model to update
+     * @returns void
+     */
     input: (model: any) => service?.send({ type: "SET", data: model }),
-    update(model: any) {
-      if (!model) return;
-
-      // first check if our paymentDetails has change, ie: model.code has changed
-      const selected = get(service.getSnapshot(), "context.model");
-
-      // if it has not then bail
-      if (!isEqual(selected, model)) {
-        // if it has then send the new model to the machine
-        service?.send({ type: "SET", data: model, update: true });
-      }
+    /**
+     * Update to the payment details model, such as gateway type, etc
+     * This automatically triggers the machine to update the payment details
+     * @param model  -  The new model to update
+     * @returns void
+     */
+    update(model: PaymentDetailModel) {
+      if (!model) return; // maybe throw an error here
+      service?.send({ type: "SET", data: model, update: true });
     },
+    /**
+     *  The checkout event triggers the machine to start the payment process and store it throughthe API
+     * @returns
+     */
+    checkout: () => service?.send({ type: "CHECKOUT" }),
+    /**
+     * PaymentDetails machine has a REFRESH event that allows us to update information fro mthe basket/invoice
+     * such as currency, address or amount to be paid, etc
+     * @param data  - The updated context
+     * @returns void
+     */
+    refresh: (context: PaymentDetailsArgs) =>
+      service?.send({ type: "REFRESH", data: context }),
   };
 };

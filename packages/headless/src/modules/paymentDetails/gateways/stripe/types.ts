@@ -9,6 +9,7 @@ import type {
   IAddress,
   IPayment,
   IPaymentDetail,
+  IOrder,
 } from "@upmind-automation/types";
 import type { GatewayTypes } from "../types";
 import type { GatewayCtx, GatewayContext } from "../types";
@@ -26,7 +27,7 @@ export interface StripeContext extends GatewayContext {
   clientPaymentDetailsId?: string;
   clientSecret?: string;
   // ---
-  id?: IPaymentDetail["id"];
+  orderId?: IOrder["id"];
   currency?: ICurrency;
   address?: IAddress;
   amount?: number;

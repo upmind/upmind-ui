@@ -32,7 +32,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      id: undefined,
+      orderId: undefined,
       currency: undefined,
       gateway: undefined,
       amount: undefined,
@@ -387,11 +387,12 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { id, currency, amount, address }: StripeContext,
+        { orderId, currency, amount, address }: StripeContext,
         { data }: AnyEventObject
       ) => {
+        debugger;
         const value =
-          id !== data.id ||
+          orderId !== data.orderId || //TODO check if its .id or orderId
           currency !== data.currency ||
           amount !== data.amount ||
           address?.id !== data.address?.id;

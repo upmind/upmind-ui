@@ -6,7 +6,7 @@ import type {
   IBasket,
   IBrandGateway,
   IClient,
-  IInvoice,
+  IOrder,
   ICurrency,
   IGateway,
   IWalletBalance,
@@ -17,7 +17,7 @@ import type {
 // --------------------------------------------------------
 // private
 
-export interface IPaymentDetail {
+export interface PaymentDetailModel {
   amount: number;
   type?: PaymentType;
   gateway_id?: IGateway["id"];
@@ -26,25 +26,27 @@ export interface IPaymentDetail {
 // --------------------------------------------------------
 // Contexts
 
-export interface PaymentDetailsContext {
-  // ---
-  id?: IBasket["id"] | IInvoice["id"];
-  clientId?: IClient["id"];
-  currency?: ICurrency;
-  address?: IAddress;
-  amount?: number;
+export interface PaymentDetailsArgs {
+  orderId: IOrder["id"];
+  clientId: IClient["id"];
+  currency: ICurrency;
+  address: IAddress;
+  amount: number;
+}
+
+export interface PaymentDetailsContext extends PaymentDetailsArgs {
   // ---
   gateways?: IBrandGateway[];
   payment_types?: PaymentType;
   // ---
-  stored_payment_methods?: Array<IPaymentDetail>;
+  stored_payment_methods?: PaymentDetailModel[];
   balance?: IWalletBalance;
   gateway?: IGateway;
   // ---
   fields?: any;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IPaymentDetail;
+  model?: PaymentDetailModel;
   // ---
   mount?: HTMLElement;
   paymentDetails?: any; // This is the response from the actual payment gateway

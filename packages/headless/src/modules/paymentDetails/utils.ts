@@ -228,7 +228,7 @@ export function spawnGateway({
 // Individual Gateway Machine Spawners
 
 export function spawnStored({
-  id,
+  orderId,
   amount,
   currency,
   stored_payment_methods,
@@ -236,7 +236,7 @@ export function spawnStored({
   return spawn(
     gatewayMachine.withConfig(storedConfig as any).withContext({
       stored_payment_methods,
-      id,
+      orderId,
       amount,
       currency,
       type: GatewayTypes.STORED,
@@ -245,10 +245,10 @@ export function spawnStored({
   );
 }
 
-export function spawnCard({ id, gateway, amount, currency }: any) {
+export function spawnCard({ orderId, gateway, amount, currency }: any) {
   return spawn(
     gatewayMachine.withConfig(cardConfig as any).withContext({
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -260,7 +260,7 @@ export function spawnCard({ id, gateway, amount, currency }: any) {
 }
 
 export function spawnStripe({
-  id,
+  orderId,
   gateway,
   amount,
   currency,
@@ -268,7 +268,7 @@ export function spawnStripe({
 }: PaymentDetailsContext) {
   return spawn(
     stripeMachine.withContext({
-      id,
+      orderId,
       gateway,
       ctx: GatewayCtx.PAY,
       amount,
@@ -284,11 +284,11 @@ export function spawnStripe({
 // Our generic gateway machine
 export function spawnGenericGateway(
   type: any,
-  { id, gateway, amount, currency, renderless = false }: any
+  { orderId, gateway, amount, currency, renderless = false }: any
 ) {
   return spawn(
     gatewayMachine.withContext({
-      id,
+      orderId,
       gateway,
       amount: amount || 0,
       currency,
@@ -300,10 +300,10 @@ export function spawnGenericGateway(
   );
 }
 
-export function spawnExternal({ id, gateway, amount, currency }: any) {
+export function spawnExternal({ orderId, gateway, amount, currency }: any) {
   return spawn(
     gatewayMachine.withContext({
-      id,
+      orderId,
       gateway,
       amount,
       currency,
