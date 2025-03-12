@@ -18,7 +18,6 @@ export function generateResponseUrls(
   // TODO: implemet operations machine
   // if (operation_id)
   //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
-
   // ---
   const successUrl = new URL(`order/${orderId}`, url);
   // successUrl.searchParams.append("orderId", orderId);
