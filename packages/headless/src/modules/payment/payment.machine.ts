@@ -212,10 +212,8 @@ export default createMachine(
         _event: AnyEventObject
       ) => !isEmpty(paymentDetail),
 
-      needsApproval: ({ approval }: PaymentContext, _event: AnyEventObject) => {
-        debugger;
-        return !isEmpty(approval);
-      },
+      needsApproval: ({ payment }: PaymentContext, _event: AnyEventObject) =>
+        !isEmpty(payment?.approval_url),
     },
 
     delays: {

@@ -40,9 +40,7 @@ async function update(
     url: useUrl(`/orders/${basketId}`),
     data,
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
 // ---

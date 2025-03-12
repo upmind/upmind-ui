@@ -36,13 +36,13 @@ export function querySubscription(callback: any, onReceive: any) {
     // We only want to listen to  events if we have a filter otherwise we will listen to all events which is not ideal
     const matches = isFunction(filter) ? filter(event) : false;
 
-    console.debug("querySubscription", "event", {
-      type: typeof event,
-      queryKey: event?.query?.queryKey,
-      matches,
-      isFiltered: isFunction(filter),
-      event,
-    });
+    // console.debug("querySubscription", "event", {
+    //   type: typeof event,
+    //   queryKey: event?.query?.queryKey,
+    //   matches,
+    //   isFiltered: isFunction(filter),
+    //   event,
+    // });
 
     if (event?.action?.type && matches) {
       // send the query event to the machine as the event type

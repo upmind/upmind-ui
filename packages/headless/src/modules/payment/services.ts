@@ -72,11 +72,9 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
 
   if (!data?.id) return Promise.reject({ title: "Invalid order", code: 400 });
 
-  debugger; //TODO check data id vs orderId
-
   return get({
-    url: useUrl(`order/${orderId}`),
-    queryKey: ["order", { id: orderId }],
+    url: useUrl(`order/${data.id}`),
+    queryKey: ["order", { id: data.id }],
   }).then(({ data }: any) => ({ fields: data }));
 }
 
@@ -107,7 +105,6 @@ async function redirect(
    * Inject aborted state for cases when user click back from the browser
    * We have no router to handle this, so we need to handle it manually
    */
-  debugger; //TODO check urls
   if (cancel) window.history.replaceState("", "", cancel?.url);
 
   if (approval) return submitViaForm(approval);

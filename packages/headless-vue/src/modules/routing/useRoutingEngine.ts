@@ -100,7 +100,7 @@ export const useRoutingEngine = () => {
     if (isProcessing) return;
 
     if (!route?.name) {
-      console.debug("UseRouteingEngine", "No route name", route);
+      // console.debug("UseRouteingEngine", "No route name", route);
       return Promise.reject("No route name");
     }
 

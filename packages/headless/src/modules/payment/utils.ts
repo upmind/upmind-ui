@@ -33,7 +33,6 @@ export const useApprovalParser = (payment: PaymentContext["payment"]) => {
   // into a "form" friendly format:- so we map any query params into fields
   // that will in turn be converted to hidden inputs in the form
   // Remember we may have  been given fields already, so we need to append them
-
   if (!payment?.approval_url) return undefined;
 
   const approval_url = payment.approval_url;
