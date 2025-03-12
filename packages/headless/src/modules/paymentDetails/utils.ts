@@ -138,7 +138,7 @@ export const useUischema = () => {
 // ---  Gateway Machine Spawner (Factory)
 
 export function spawnGateway({
-  id,
+  orderId,
   gateway,
   amount,
   currency,
@@ -149,7 +149,7 @@ export function spawnGateway({
   // the order her eis important and matches the original order in the legacy app
   if (!amount || !gateway) {
     return spawnGenericGateway(GatewayTypes.FREE, {
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -158,17 +158,17 @@ export function spawnGateway({
   }
   if (isStored(gateway)) {
     return spawnStored({
-      id,
+      orderId,
       amount,
       currency,
       stored_payment_methods,
     });
   }
   if (isStripe(gateway))
-    return spawnStripe({ id, gateway, amount, currency, address } as any);
+    return spawnStripe({ orderId, gateway, amount, currency, address } as any);
   if (isBankTransfer(gateway))
     return spawnGenericGateway(GatewayTypes.BANK_TRANSFER, {
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -176,7 +176,7 @@ export function spawnGateway({
     });
   if (isDirectDebit(gateway))
     return spawnGenericGateway(GatewayTypes.DIRECT_DEBIT, {
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -184,7 +184,7 @@ export function spawnGateway({
     });
   if (isSEPA(gateway))
     return spawnGenericGateway(GatewayTypes.SEPA, {
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -193,7 +193,7 @@ export function spawnGateway({
     });
   if (isMobile(gateway))
     return spawnGenericGateway(GatewayTypes.MOBILE, {
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -202,7 +202,7 @@ export function spawnGateway({
     });
   if (isOffline(gateway))
     return spawnGenericGateway(GatewayTypes.OFFLINE, {
-      id,
+      orderId,
       gateway,
       amount,
       currency,
@@ -210,12 +210,12 @@ export function spawnGateway({
     });
   if (isExternal(gateway))
     return spawnExternal({
-      id,
+      orderId,
       gateway,
       amount,
       currency,
     });
-  if (isCard(gateway)) return spawnCard({ id, gateway, amount, currency });
+  if (isCard(gateway)) return spawnCard({ orderId, gateway, amount, currency });
 
   return null;
 }
@@ -250,7 +250,7 @@ export function spawnCard({ orderId, gateway, amount, currency }: any) {
       type: GatewayTypes.CARD,
       code: gateway?.gateway_provider.code,
     }),
-    { name: gateway.id, sync: true }
+    { name: gateway?.id, sync: true }
   );
 }
 
@@ -306,7 +306,7 @@ export function spawnExternal({ orderId, gateway, amount, currency }: any) {
       code: gateway?.gateway_provider.code,
       // external: gateway?.gateway_provider.external_payment,
     }),
-    { name: gateway.id, sync: true }
+    { name: gateway?.id, sync: true }
   );
 }
 

@@ -299,7 +299,7 @@ export default createMachine(
 
             queryHelper.send({
               type: "FILTER",
-              data: queryFilter,
+              filter: queryFilter,
             });
           }
           return queryHelper;
