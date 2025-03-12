@@ -1,8 +1,7 @@
 // --- types
 import type { ActorRef } from "xstate";
 
-// --------------------------------------------------------
-//
+// ---
 
 export enum ROUTE {
   LOADING = "loading",
@@ -68,8 +67,7 @@ export interface Flow {
   };
 }
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface RoutingEngineContext {
   flows: Flow[];

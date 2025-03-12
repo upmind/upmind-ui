@@ -12,18 +12,15 @@ import { get, isString } from "lodash-es";
 import { messageTypes } from "./types";
 import { messageDisplays, type Message } from "./types";
 
-// --------------------------------------------------------
-// create a global instance of the feedback machine
+// ---  create a global instance of the feedback machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(feedbackMachine, { devTools: false });
-// --------------------------------------------------------
-
+// ---
 export const useFeedback = () => {
-  // --------------------------------------------------------
-  // methods
+  // ---  // methods
 
   function add(message: Message) {
     service.send({ type: "ADD", data: message });
@@ -98,8 +95,7 @@ export const useFeedback = () => {
   //   return add(message);
   // }
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

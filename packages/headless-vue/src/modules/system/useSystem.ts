@@ -30,8 +30,7 @@ export const useSystem = (): IUseSystem => {
   const system = useUpmindSystem();
   const { state, send } = useActor(system.service);
 
-  // --------------------------------------------------------
-
+  // ---
   const getRandomCountry = (unique?: boolean) => {
     const regions = get(state.value.context, "regions", {});
     if (isEmpty(regions)) return; // lets se eif our fallback works
@@ -53,8 +52,7 @@ export const useSystem = (): IUseSystem => {
     return country;
   };
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     send,
     state: computed(() => state.value.value),

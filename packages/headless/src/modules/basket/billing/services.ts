@@ -6,14 +6,13 @@ import { useQuery, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { invalidateBasket } from "../services";
 
 // --- types
 import type { BillingDetailsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// -----------------------------------------------------------------------------
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
@@ -30,7 +29,7 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   });
 }
 
-// --------------------------------------------------------
+// ---
 async function update(
   { basketId, model }: BillingDetailsContext,
   _event: AnyEventObject
@@ -45,13 +44,10 @@ async function update(
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-
+// ---
 async function parse(
   { model, addresses }: BillingDetailsContext,
   _event: AnyEventObject
@@ -90,8 +86,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

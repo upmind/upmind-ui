@@ -44,8 +44,7 @@ import type {
 } from "./types";
 import { PaymentDetailsContext } from "../paymentDetails";
 
-// --------------------------------------------------------
-// SPAWN ACTORS
+// ---  SPAWN ACTORS
 export function spawnProductConfiguration(
   data: any,
   basket?: IBasket,
@@ -123,12 +122,15 @@ export function spawnCustomFields(basket?: IBasket) {
 export function spawnPaymentDetails(basket?: IBasket) {
   return spawn(
     paymentDetailsMachine.withContext({
-      basketId: basket?.id,
+      orderId: basket?.id,
       currency: basket?.currency,
+      // @ts-ignore address is available with relationship
+      address: basket?.address,
+      clientId: basket?.client_id,
+      amount: basket?.unpaid_amount_converted || 0.0,
       model: {
         amount: basket?.unpaid_amount_converted || 0.0,
       },
-      address: get(basket, "address"),
     } as PaymentDetailsContext),
     { name: "paymentDetails", sync: true }
   );
@@ -144,8 +146,7 @@ export function spawnPromotions(basket?: IBasket) {
   );
 }
 
-// --------------------------------------------------------
-// --- PARSERS
+// ---  --- PARSERS
 
 export const parseBasket = (data: any) => {
   const basket = get(data, "basket", data);
@@ -423,8 +424,7 @@ export function parseProvisionField(
   };
 }
 
-// --------------------------------------------------------
-// --- SUMMARY
+// ---  --- SUMMARY
 
 export const parseSummary = (data?: any, provisioningErrors?: any) => {
   const summary = {
@@ -441,8 +441,7 @@ export const parseSummary = (data?: any, provisioningErrors?: any) => {
   return summary;
 };
 
-// --------------------------------------------------------
-//--- TAXES
+// --- --- TAXES
 
 export const parseTaxes = (taxes: any) => {
   // we may have multiple taxes, and each tax may have multiple tags
@@ -484,8 +483,7 @@ export const parseTaxTagName = (tag: any) => {
   ]).join(" ");
 };
 
-// --------------------------------------------------------
-// Fields
+// ---  Fields
 
 export const parseBasketFieldsModel = (basket: any, data = {}) => {
   const notes = get(basket, "notes", get(data, "notes"));

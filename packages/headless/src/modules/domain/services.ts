@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, usePaginatedQuery } from "../..";
+import { useQuery, useQueryPaginated } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -10,15 +10,14 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 // --- types
 import type { DomainContext, DomainProduct } from "./types";
 
-// --------------------------------------------------------
-
+// -----------------------------------------------------------------------------
 async function search({
   search,
   currency,
   controller,
   promotions,
 }: DomainContext) {
-  const { get, useUrl } = usePaginatedQuery();
+  const { get, useUrl } = useQueryPaginated();
 
   if (!search?.query?.length) return Promise.reject("No query provided");
 
@@ -66,8 +65,7 @@ function getClientDomains({ controller }: DomainContext) {
     map(data, ({ domain_name }) => parseDomain(domain_name))
   );
 }
-// --------------------------------------------------------
-
+// ---
 // async function parse(_context, _event) {
 //   // TODO: Implement the parse function
 //   // ---
@@ -87,8 +85,7 @@ function getClientDomains({ controller }: DomainContext) {
 //   });
 // }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   search,

@@ -130,7 +130,7 @@ export const useTracking = () => {
     });
   }
 
-  // ---
+  // ---------------------------------------------------------------------------
   return {
     getTracking,
     deleteCookie: () => deleteCookie(UPM_TRACK_COOKIE),

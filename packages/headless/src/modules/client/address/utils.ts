@@ -23,8 +23,7 @@ import {
 import type { IAddress } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export function useSchema({
   // TODO: country,
   countries,
@@ -358,8 +357,7 @@ export const useModelParser = (
   return defaultsDeep(model, values) as IAddress;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const spawnItem = (model?: IAddress) => {
   try {
     const name = get(model, "id", uniqueId("item_"));
@@ -383,7 +381,7 @@ export const spawnItem = (model?: IAddress) => {
   }
 };
 
-export const parseAddress = (raw: IAddress | Array<IAddress>) => {
+export const parseAddress = (raw: IAddress | IAddress[]) => {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
   // this is to allow for a 'unfied' way of handling addresses

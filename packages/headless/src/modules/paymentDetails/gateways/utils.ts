@@ -10,30 +10,29 @@ import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
 import type { Layout, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export function generateResponseUrls(
   url: string,
-  { gateway, basketId, type, model }: GatewayContext
+  { gateway, orderId, type, model }: GatewayContext
 ) {
   // TODO: implemet operations machine
   // if (operation_id)
   //   url.searchParams.append(QUERY_PARAMS.OPERATION_ID, operation_id || "");
 
   // ---
-  const successUrl = new URL(`order/${basketId}`, url);
-  // successUrl.searchParams.append("invoiceId", basketId);
+  const successUrl = new URL(`order/${orderId}`, url);
+  // successUrl.searchParams.append("orderId", orderId);
   successUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "true");
 
   // ---
-  const failUrl = new URL(`order/${basketId}`, url);
-  // failUrl.searchParams.append("invoiceId", basketId);
+  const failUrl = new URL(`order/${orderId}`, url);
+  // failUrl.searchParams.append("orderId", orderId);
   failUrl.searchParams.append(QUERY_PARAMS.PAYMENT_SUCCESS, "false");
 
   // ---
-  const cancelUrl = new URL(`order/${basketId}`, url);
-  // cancelUrl.searchParams.append("invoiceId", basketId);
-  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, basketId);
+  const cancelUrl = new URL(`order/${orderId}`, url);
+  // cancelUrl.searchParams.append("orderId", orderId);
+  // cancelUrl.searchParams.append(QUERY_PARAMS.ORDER_ID, orderId);
   cancelUrl.searchParams.append(
     QUERY_PARAMS.AUTO_PAY,
     encodeURIComponent(
@@ -46,9 +45,7 @@ export function generateResponseUrls(
     encodeURIComponent(
       btoa(
         JSON.stringify(
-          gateway?.gateway_provider?.external_payment
-            ? { invoiceId: basketId }
-            : undefined
+          gateway?.gateway_provider?.external_payment ? { orderId } : undefined
         )
       )
     )
@@ -61,7 +58,6 @@ export function generateResponseUrls(
     );
   }
 
-  // --------------------------------------------------------
   return {
     cancel: cancelUrl.toString(),
     success: successUrl.toString(),
@@ -69,8 +65,7 @@ export function generateResponseUrls(
   };
 }
 
-// --------------------------------------------------------
-
+// ---
 export const useSchema = (context: GatewayContext) => {
   const { cancel, success, fail } = generateResponseUrls(
     window.location.origin,
@@ -137,8 +132,7 @@ export const useSchema = (context: GatewayContext) => {
   return schema;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
@@ -193,8 +187,7 @@ export const useUischema = () => {
   return uischema as Layout;
 };
 
-// --------------------------------------------------------
-
+// ---
 export function canBeStored(gateway?: IGateway) {
   if (!gateway) return false;
 

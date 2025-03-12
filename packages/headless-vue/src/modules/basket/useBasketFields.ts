@@ -20,8 +20,7 @@ import { isEqual, debounce } from "lodash-es";
 // --- types
 import type { ActorRef } from "xstate";
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machinewith some state helpers
+// -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketFields = (service?: ActorRef<any>) => {
@@ -40,8 +39,7 @@ export const useBasketFields = (service?: ActorRef<any>) => {
     customFields.value = useActor(service);
   }
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => stateValue(customFields, "value")),
     context: computed(() => stateValue(customFields, "context")),

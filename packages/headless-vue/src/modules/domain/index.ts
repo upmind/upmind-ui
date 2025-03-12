@@ -1,5 +1,4 @@
-// --------------------------------------------------------
-
+// ---
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
@@ -13,9 +12,8 @@ import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 
 // --- types
 export { DomainTypes, type DomainLookup } from "@upmind-automation/headless";
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
-//  with some state helpers
+
+// -----------------------------------------------------------------------------
 
 export const useDomain = (
   {
@@ -38,8 +36,7 @@ export const useDomain = (
   const domain = useUpmindDomain({ model, sync, type, parentId });
   const { state, send }: any = useActor(domain.service);
 
-  // --------------------------------------------------------
-
+  // ---
   const choose = (value: string) =>
     send({
       type: "CHOOSE",
@@ -105,8 +102,7 @@ export const useDomain = (
     });
   };
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     // ---

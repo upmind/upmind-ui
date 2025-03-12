@@ -13,8 +13,7 @@ import { get, uniqueId, map } from "lodash-es";
 import type { ICompany } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 // TODO: export const useSchema = ({ addresses, emails, phones, baseModel }) => {
 export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
   const choices = {
@@ -198,8 +197,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const spawnItem = (model?: ICompany) => {
   try {
     const name = get(model, "id", uniqueId("item_"));

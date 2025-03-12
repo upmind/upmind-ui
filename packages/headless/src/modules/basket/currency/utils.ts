@@ -9,8 +9,7 @@ import { map } from "lodash-es";
 import type { CurrencyContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export const useSchema = ({ currencies, baseModel }: CurrencyContext) => {
   const schema = {
     type: "object",

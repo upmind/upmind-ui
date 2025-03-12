@@ -15,8 +15,7 @@ import { useSchema, useUischema } from "./utils";
 import type { GatewayContext } from "./types";
 import { responseCodes } from "../../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./gateway.machine.typegen").Typegen0,
@@ -24,7 +23,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basketId: undefined,
+      orderId: undefined,
       currency: undefined,
       gateway: undefined,
       amount: undefined,

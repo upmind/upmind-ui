@@ -11,11 +11,9 @@ import { isEmpty } from "lodash-es";
 // ---types
 import type { GuestContext } from "./types";
 
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
@@ -136,8 +134,7 @@ async function register({ model }: GuestContext) {
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

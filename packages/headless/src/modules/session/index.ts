@@ -9,8 +9,7 @@ import { useFeedback } from "../feedback";
 // --- utils
 import { getTokenFromStorage } from "./utils";
 import { get } from "lodash-es";
-// --------------------------------------------------------
-// create a global instance of the session machine
+// ---  create a global instance of the session machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
@@ -19,8 +18,7 @@ let hasSession = false;
 
 const service = interpret(sessionMachine, { devTools: true });
 
-// --------------------------------------------------------
-
+// ---
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
 const authCallback = (callback: any) => {
@@ -75,8 +73,7 @@ const authCallback = (callback: any) => {
   };
 };
 
-// --------------------------------------------------------
-// Subscriptions - these are used by the other machines to listen for changes/messages from this machine
+// ---  Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
 export const authSubscription = async (callback: any, onReceive: any) => {
   // firstly, send service's current state upon subscription
@@ -119,8 +116,7 @@ export const authSubscription = async (callback: any, onReceive: any) => {
 export const useSession = () => {
   // only create the service once
 
-  // --------------------------------------------------------
-  // methods
+  // ---  // methods
 
   async function getUser() {
     const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
@@ -133,8 +129,7 @@ export const useSession = () => {
     return user?.id;
   }
 
-  // --------------------------------------------------------
-
+  // ---
   function showLogin(): Promise<any> {
     service.send({
       type: "LOGIN",
@@ -221,8 +216,7 @@ export const useSession = () => {
     ).then(newState => newState.context.transfer);
   }
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

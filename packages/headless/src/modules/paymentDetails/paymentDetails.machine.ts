@@ -20,37 +20,14 @@ import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
     id: "paymentDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      basketId: undefined,
-      clientId: undefined,
-      currency: undefined,
-      // ---
-      fields: undefined,
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      address: undefined,
-      // ---
-      stored_payment_methods: undefined,
-      gateways: undefined,
-      payment_types: undefined,
-      // ---
-      actors: {
-        gateway: undefined,
-      },
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as PaymentDetailsContext,
+    context: {} as PaymentDetailsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
@@ -61,7 +38,7 @@ export default createMachine(
         },
         on: {
           AUTHENTICATED: { target: "checking" },
-          REFRESH: { actions: "refreshBasket" },
+          REFRESH: { actions: "refresh" },
         },
       },
 
@@ -169,12 +146,16 @@ export default createMachine(
             on: {
               CANCEL: {
                 target: "#invalid", // no need to set the error, it will be set by the gateway
-                actions: "cancelPaymentDetails",
+                actions: ["cancelPaymentDetails", "clearAutoUpdate"],
               },
               // ths is the response from the gateway
               PAYMENT_DETAILS: {
                 target: "#complete",
-                actions: ["setPaymentDetails", "trackPaymentDetails"],
+                actions: [
+                  "setPaymentDetails",
+                  "trackPaymentDetails",
+                  "clearAutoUpdate",
+                ],
               },
             },
           },
@@ -191,12 +172,12 @@ export default createMachine(
           REFRESH: [
             {
               target: "available.loading",
-              actions: "refreshBasket",
+              actions: "refresh",
               cond: "hasChanged",
             },
             {
               target: "available.checking",
-              actions: "refreshBasket",
+              actions: "refresh",
             },
           ],
         },
@@ -245,13 +226,6 @@ export default createMachine(
         uischema: undefined,
       }),
 
-      setModel: assign({
-        model: (
-          { schema, model }: PaymentDetailsContext,
-          { data }: AnyEventObject
-        ) => useModelParser(schema, data || model),
-      }),
-
       clearModel: assign({
         model: undefined,
       }),
@@ -260,13 +234,10 @@ export default createMachine(
         dirty: true,
       }),
 
-      clearDirty: assign({
-        dirty: false,
-      }),
-
       setAutoUpdate: assign({
         autoupdate: (_context, { update }: AnyEventObject) => !!update,
       }),
+
       clearAutoUpdate: assign({
         autoupdate: false,
       }),
@@ -276,7 +247,7 @@ export default createMachine(
         actors: (
           {
             address,
-            basketId,
+            orderId,
             currency,
             model,
             gateway,
@@ -298,7 +269,7 @@ export default createMachine(
           // if we are provided a gateway AND dont have one spawned yet,
           if (!actors?.gateway && gateway) {
             const actor = spawnGateway({
-              basketId,
+              orderId,
               currency,
               amount: model?.amount,
               gateway: model?.amount ? gateway : null, // use the free gateway if amount is 0
@@ -312,30 +283,27 @@ export default createMachine(
         },
       }),
 
-      refreshBasket: assign({
-        basketId: (_context, { data: basket }: AnyEventObject) => basket?.id,
-        clientId: (_context, { data: basket }: AnyEventObject) =>
-          basket?.client_id,
-        currency: (_context, { data: basket }: AnyEventObject) =>
-          basket?.currency,
-        model: ({ model }, { data: basket }: AnyEventObject) => {
+      refresh: assign({
+        orderId: (_context, { data }: AnyEventObject) => data?.id,
+        clientId: (_context, { data }: AnyEventObject) => data?.client_id,
+        currency: (_context, { data }: AnyEventObject) => data?.currency,
+        address: (_context, { data }: AnyEventObject) => data?.address,
+        model: ({ model }, { data }: AnyEventObject) => {
           return {
             ...model,
-            amount: basket?.unpaid_amount_converted || 0.0,
+            amount: data?.unpaid_amount_converted || 0.0, // NB: we always force use the outstanding amount
           };
         },
-        address: (_context, { data: basket }: AnyEventObject) =>
-          get(basket, "address"),
-        actors: ({ actors }, { data: basket }: any) => {
+        actors: ({ actors }, { data }: any) => {
           forEach(actors, actor => {
             if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({
                 type: "REFRESH",
                 data: {
-                  basketId: basket?.id,
-                  currency: basket?.currency,
-                  amount: basket?.unpaid_amount_converted || 0.0,
-                  address: get(basket, "address"),
+                  orderId: data?.id,
+                  currency: data?.currency,
+                  amount: data?.unpaid_amount_converted || 0.0,
+                  address: data?.address,
                 },
               });
             }
@@ -348,7 +316,7 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetails: (
-          { model, basketId, currency, address }: PaymentDetailsContext,
+          { model, orderId, currency, address }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
           const amount = model?.amount || 0;
@@ -356,7 +324,7 @@ export default createMachine(
             ...model,
             ...data,
             // ensure OUR values are used
-            basketId,
+            orderId,
             currency,
             amount,
             address,
@@ -425,20 +393,20 @@ export default createMachine(
 
     guards: {
       isDirty: ({ dirty }: any, _event: any) => !!dirty,
-      hasBasket: ({ basketId }, _event) => !!basketId,
+      hasBasket: ({ orderId }, _event) => !!orderId,
       hasLookups: (
         { stored_payment_methods, gateways, payment_types },
         _event
       ) => !!stored_payment_methods && !!gateways && !!payment_types,
       isFree: ({ model }, _event) => !model?.amount,
-      shouldUpdate: ({ autoupdate, basketId, model }, _event) =>
-        !!autoupdate && !!basketId && model?.amount !== 0,
+      shouldUpdate: ({ autoupdate, orderId, model }, _event) =>
+        !!autoupdate && !!orderId && model?.amount !== 0,
 
       hasChanged: (
-        { basketId, currency, clientId, model, address }: PaymentDetailsContext,
+        { orderId, currency, clientId, model, address }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
-        const basketChanged = basketId != data?.id;
+        const orderChanged = orderId != data?.id;
         const currencyChanged = currency?.id != data?.currency_id;
         const clientChanged = clientId != data?.client_id;
         const amountChanged =
@@ -446,7 +414,7 @@ export default createMachine(
         const addressChanged = address?.id != data?.address?.id;
 
         return (
-          basketChanged ||
+          orderChanged ||
           currencyChanged ||
           clientChanged ||
           amountChanged ||

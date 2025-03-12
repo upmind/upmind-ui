@@ -12,17 +12,14 @@ import {
 import { map, reduce, isEmpty, sortBy } from "lodash-es";
 import type { ActorRef } from "xstate";
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
-//  with some state helpers
+// -----------------------------------------------------------------------------
 
 export const useFeedback = (): any => {
   const { service, dismiss, add, addError, addSuccess, trackEvent } =
     useUpmindFeedback();
   const { state } = useActor(service);
 
-  // --------------------------------------------------------
-
+  // ---
   const messages = computed(() =>
     map(state.value.context.messages, (item: ActorRef<any>) => ({
       id: item.id,
@@ -96,8 +93,7 @@ export const useFeedback = (): any => {
     hasEvents: !isEmpty(events.value),
   }));
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     messages,
@@ -127,8 +123,7 @@ export const useMessage = (item: any) => {
     isScheduled: state.value.matches("pending"),
   }));
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state,
     message,

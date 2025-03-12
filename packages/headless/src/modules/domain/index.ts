@@ -11,15 +11,14 @@ import { useBasket } from "..";
 import { has, map, isArray } from "lodash-es";
 import { parseDomain } from "./utils";
 
-// --------------------------------------------------------
-
+// ---
 export const useDomain = (
   {
     model,
     sync,
     type,
   }: {
-    model?: Array<string> | string;
+    model?: string | string[];
     sync?: boolean;
     type?: DomainTypes;
     parentId?: string; // id of basket item machine representing the parent context
@@ -30,8 +29,7 @@ export const useDomain = (
     parentId: undefined,
   }
 ) => {
-  // --------------------------------------------------------
-  // create a new instance of the  domain machine
+  // ---  // create a new instance of the  domain machine
 
   // safetycheck to ensure forcedType is valid
   const safeType = type && has(DomainTypes, type) ? type : null;
@@ -49,8 +47,7 @@ export const useDomain = (
     devTools: true,
   }).start();
 
-  // --------------------------------------------------------
-  // Get the basket machine and watch for changes, ie basket is updated/refreshed
+  // ---  // Get the basket machine and watch for changes, ie basket is updated/refreshed
   // and get the currency and promotions to update our domain prices
   const { service: basket } = useBasket();
 
@@ -84,8 +81,7 @@ export const useDomain = (
     }
   });
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     service, // allow for interpreting the machine + inspecting it
     // ---

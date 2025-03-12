@@ -6,16 +6,13 @@ import { useQuery } from "../../..";
 // --- utils
 import { get } from "lodash-es";
 import { useValidation } from "../../../utils";
-import { invalidateBasket } from "../services";
 
 // --- types
 import type { FieldsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// SERVICE METHODS
+// -----------------------------------------------------------------------------
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function load(_context: FieldsContext, _event: AnyEventObject) {
@@ -27,8 +24,7 @@ async function load(_context: FieldsContext, _event: AnyEventObject) {
   }).then(({ data }: any) => ({ fields: data }));
 }
 
-// --------------------------------------------------------
-
+// ---
 async function update(
   { basketId, model }: FieldsContext,
   _event: AnyEventObject
@@ -44,13 +40,10 @@ async function update(
     url: useUrl(`/orders/${basketId}`),
     data,
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-
+// ---
 async function parse({ model }: FieldsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
@@ -76,8 +69,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

@@ -14,8 +14,7 @@ import { reject, set } from "lodash-es";
 import type { StripeContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-//  ENUMS
+// ---   ENUMS
 
 export enum STRIPE_QUERY_PARAMS {
   STRIPE_REDIRECT_STATUS = "redirect_status",
@@ -56,8 +55,7 @@ export enum STRIPE_PAYMENT_METHOD_TYPES {
   WECHAT_PAY = "wechat_pay", // NYS
 }
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   const options = await sharedServices.load({ gateway }, _event);
@@ -75,8 +73,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
     }
   });
 }
-// --------------------------------------------------------
-
+// ---
 async function validate(
   { schema, model, element, elementStatus }: StripeContext,
   { data }: AnyEventObject
@@ -108,8 +105,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// PAYMENT METHODS
+// ---  PAYMENT METHODS
 
 async function createPaymentElement(
   { amount, currency, gateway, stripe, address }: StripeContext,
@@ -191,8 +187,7 @@ async function update({ elements, stripe, model }: StripeContext) {
   });
 }
 
-// --------------------------------------------------------
-// ADD ASYNC PAYMENT METHODS
+// ---  ADD ASYNC PAYMENT METHODS
 
 /**
  * @name beginSetup
@@ -261,8 +256,7 @@ async function confirmSetup() {}
  */
 async function endSetup() {}
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 export default {
   load,
   parse: sharedServices.parse,

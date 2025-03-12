@@ -22,8 +22,7 @@ export const useBrand = (): IUseBrand => {
   const brand = useUpmindBrand();
   const { state, send } = useActor(brand.service);
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     send,
     state: computed(() => state.value.value),
