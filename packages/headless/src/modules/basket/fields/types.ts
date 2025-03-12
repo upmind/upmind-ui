@@ -3,19 +3,16 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 // import type { RequestError } from "../api/types";
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// private
+// ---  private
 
 export interface IField {
   notes: string;
   customFields: Record<string, any>;
 }
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface FieldsContext {
   basketId?: string;

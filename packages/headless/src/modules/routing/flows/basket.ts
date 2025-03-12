@@ -21,8 +21,7 @@ export const useBasketFlows = () => {
     {
       name: ROUTE.LOADING,
       guard: async (route: Route) => {
-        // --------------------------------------------------------
-        // some query params that we ALWAYS look out for and resolve for the UI:
+        // ---        // some query params that we ALWAYS look out for and resolve for the UI:
         // currency,coupons, lang
         const { currency, coupon } = useRouteQueryParams(route);
         if (currency) setCurrency(currency);

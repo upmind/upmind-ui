@@ -17,8 +17,7 @@ import {
   isNil,
 } from "lodash-es";
 
-// --------------------------------------------------------
-// These are some helper to reduce the repetition of the same code when using xstate/vue
+// ---  These are some helper to reduce the repetition of the same code when using xstate/vue
 
 // safe state allows us to pass reactive objects and get the state object
 // as well as objects that could contain the state object, eg an actor/machine

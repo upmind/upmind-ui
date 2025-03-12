@@ -8,8 +8,7 @@ import { defaultsDeep, omit, unset, omitBy, isEmpty } from "lodash-es";
 import type { Message } from "./types";
 import { messageDisplays, messageTypes } from "./types";
 
-// --------------------------------------------------------
-
+// ---
 export function generateHash(message: Message) {
   const cleaned = omitBy(
     omit(message, ["hash", "created", "scheduled"]),

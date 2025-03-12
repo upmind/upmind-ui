@@ -8,8 +8,7 @@ import type {
 import type { BasketProduct } from "../basket/types";
 import type { ProductModel } from "../product/types";
 
-// --------------------------------------------------------
-
+// ---
 export interface Badge {
   label?: string;
   color?: string;
@@ -88,8 +87,7 @@ export interface Recommendation {
     loading?: boolean;
   };
 }
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface RecommendationsEngineContext {
   recommendations: Recommendation[];

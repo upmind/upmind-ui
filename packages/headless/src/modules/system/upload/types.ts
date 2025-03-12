@@ -1,19 +1,16 @@
 // --- internal
 import type { ImageObjectTypes } from "@upmind-automation/types";
 
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// private
+// ---  private
 
 // interface Dimensions {
 //   width: number;
 //   height: number;
 // }
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface UploadContext {
   field: {

@@ -16,8 +16,7 @@ import { Methods } from "@upmind-automation/types";
 const queryClient = getQueryClient();
 
 export const useQuery = () => {
-  // --------------------------------------------------------
-  // methods
+  // ---  // methods
 
   /**
    * Sends a request  with the given URL and options.

@@ -18,8 +18,7 @@ import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
 import type { PromotionsContext } from "./types";
 import { responseCodes } from "../../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./promotions.machine.typegen").Typegen0,

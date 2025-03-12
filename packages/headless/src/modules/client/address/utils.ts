@@ -23,8 +23,7 @@ import {
 import type { IAddress } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export function useSchema({
   // TODO: country,
   countries,
@@ -358,8 +357,7 @@ export const useModelParser = (
   return defaultsDeep(model, values) as IAddress;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const spawnItem = (model?: IAddress) => {
   try {
     const name = get(model, "id", uniqueId("item_"));

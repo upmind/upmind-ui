@@ -26,8 +26,7 @@ import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
 import { RequestParams } from "./types";
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 
 // this will process the request and return a promise
 async function doFetch<T extends object = object>({
@@ -103,7 +102,6 @@ async function refreshToken() {
     });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export { doFetch, refreshToken };

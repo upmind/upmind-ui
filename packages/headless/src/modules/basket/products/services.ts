@@ -22,14 +22,11 @@ import {
 
 // --- types
 
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// --------------------------------------------------------
-
+// ---
 /**
  * Fetches a single product with details .
  *
@@ -396,8 +393,7 @@ async function sync(
     });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   fetch,

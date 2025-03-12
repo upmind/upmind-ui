@@ -1,8 +1,7 @@
 // --- types
 import type { EnsureQueryDataOptions } from "@tanstack/query-core";
 
-// --------------------------------------------------------
-// Request Types
+// ---  Request Types
 
 export interface RequestError {
   status?: number;
@@ -62,16 +61,14 @@ export interface PaginatedData<T extends unknown> {
   prevPage: () => Promise<PaginatedData<T>>;
 }
 
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
 export enum ApiSortDirection {
   ASC = "",
   DESC = "-",
 }
 
-// --------------------------------------------------------
-// API Interfaces
+// ---  API Interfaces
 
 export interface IApiFilter {
   (url: URL): URL;

@@ -1,10 +1,8 @@
 // --- internal
 
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface RecaptchaContext {
   grecaptcha?: any;

@@ -10,8 +10,7 @@ export interface IApiPop {
   region?: string;
 }
 
-// --------------------------------------------------------
-
+// ---
 let POP: IApiPop = {};
 
 const defaults = {
@@ -47,8 +46,7 @@ const schema = {
   },
 };
 
-// --------------------------------------------------------
-
+// ---
 export const usePOP = (value?: IApiPop) => {
   const { validate } = useValidation();
 

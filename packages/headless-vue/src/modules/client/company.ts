@@ -10,8 +10,7 @@ import { get, map, debounce, isEmpty } from "lodash-es";
 import { machineMatches, useContextActor, useContextActors } from "../../utils";
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 
-// --------------------------------------------------------
-
+// ---
 export const useClientCompany = (
   item: any, // Actor
   context?: Record<string, any>
@@ -20,8 +19,7 @@ export const useClientCompany = (
   // this will change to be a manager of ALL companies, for now its a single instance (add/update)
   const { state, send } = item;
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
@@ -83,12 +81,11 @@ export const useClientCompanies = (): ClientListingDefinition => {
   const { service, isReady, getSelected } = useUpmindClientCompanies();
   const { state, send } = useActor(service);
 
-  // --------------------------------------------------------
+  // ---
   const items = useContextActors(state, "items", []);
   const selected = useContextActor(state, "selected");
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),

@@ -1,5 +1,4 @@
-// --------------------------------------------------------
-
+// ---
 // --- external
 import { computed, watch } from "vue";
 import { useActor } from "@xstate/vue";
@@ -18,9 +17,7 @@ import { isEmpty } from "lodash-es";
 // --- types
 import type { Route } from "@upmind-automation/headless";
 import { ROUTE } from "@upmind-automation/headless";
-// --------------------------------------------------------
-// a composable that provides a simple interface to the flows engine
-//  with some state helpers
+// -----------------------------------------------------------------------------
 
 export const useRoutingEngine = () => {
   const { meta } = useBasket();
@@ -150,8 +147,7 @@ export const useRoutingEngine = () => {
     }
   );
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     isReady: async () =>
       isReady()

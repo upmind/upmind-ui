@@ -14,8 +14,7 @@ export { useModelParser } from "../../../utils";
 import type { IEmail } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export const useSchema = () => {
   const schema = {
     type: "object",
@@ -82,8 +81,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const spawnItem = (model?: IEmail) => {
   try {
     const name = get(model, "id", uniqueId("item_"));

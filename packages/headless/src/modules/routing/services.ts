@@ -61,8 +61,7 @@ function mapTargets(targets: Target[], flows: Flow[]): Flow[] {
   );
 }
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 // ---
@@ -184,8 +183,7 @@ async function resolveRoute(
     : Promise.resolve({ name: flow.name, meta: flow?.meta });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   calculateNextRoute,

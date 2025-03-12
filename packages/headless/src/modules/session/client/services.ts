@@ -8,8 +8,7 @@ import { getTokenFromStorage, useUserParser } from "../utils";
 
 // ---types
 import type { ClientContext } from "./types";
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
@@ -39,8 +38,7 @@ async function load(_context: ClientContext, _event: any) {
   }).then(({ data }: any) => useUserParser(data?.actor));
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

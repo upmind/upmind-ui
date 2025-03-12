@@ -11,8 +11,7 @@ import { useValidation } from "../../../utils";
 import type { BillingDetailsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
@@ -29,7 +28,7 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   });
 }
 
-// --------------------------------------------------------
+// ---
 async function update(
   { basketId, model }: BillingDetailsContext,
   _event: AnyEventObject
@@ -47,8 +46,7 @@ async function update(
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-
+// ---
 async function parse(
   { model, addresses }: BillingDetailsContext,
   _event: AnyEventObject
@@ -87,8 +85,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

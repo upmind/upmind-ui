@@ -10,8 +10,7 @@ import { generateToken } from "./services";
 
 // --- types
 
-// --------------------------------------------------------
-// create a global instance of the recaptcha machine
+// ---  create a global instance of the recaptcha machine
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
@@ -31,8 +30,7 @@ async function generate(action?: string) {
 function clear() {
   service.send({ type: "CLEAR" });
 }
-// --------------------------------------------------------
-
+// ---
 export const useSystemRecaptcha = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it

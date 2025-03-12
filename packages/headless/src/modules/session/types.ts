@@ -1,9 +1,7 @@
 import type { IUser } from "@upmind-automation/types";
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface SessionContext {
   history?: string[];

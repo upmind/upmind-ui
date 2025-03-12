@@ -2,11 +2,9 @@
 import type { ActorRef } from "xstate";
 import type { responseCodes } from "../../utils";
 import type { IBasket } from "@upmind-automation/types";
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-
+// ---
 type ISubProductChoices = Record<
   string, // the category id
   Record<
@@ -112,8 +110,7 @@ export interface BasketProductConfig {
   promotions?: any[]; //IProductPromotion[];
 }
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface BasketContext {
   basket?: IBasket;

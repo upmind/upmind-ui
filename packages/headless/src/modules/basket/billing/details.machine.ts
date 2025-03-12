@@ -16,8 +16,7 @@ import { useTime, useValidationParser, useModelParser } from "../../../utils";
 import type { BillingDetailsContext } from "./types";
 import { responseCodes } from "../../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     // tsTypes: {} as import("./details.machine.typegen").Typegen0,

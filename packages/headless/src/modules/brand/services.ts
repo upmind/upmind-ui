@@ -5,8 +5,7 @@ import { useQuery } from "../..";
 import { filter, has, reduce, defaultsDeep } from "lodash-es";
 import { useTime } from "../../utils";
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 // this will process the request and return a promise
@@ -75,8 +74,7 @@ async function fetchModules(_context: any, _event: any) {
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   fetchOrganisationConfig,
