@@ -11,11 +11,9 @@ import type {
   ICurrency,
   IAddress,
 } from "@upmind-automation/types";
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// interfaces
+// ---  interfaces
 export interface PaymentArgs {
   orderId: IOrder["id"];
   clientId: IClient["id"];
@@ -23,8 +21,7 @@ export interface PaymentArgs {
   address: IAddress;
   paymentDetail: IPaymentDetail;
 }
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface PaymentContext extends PaymentArgs {
   cancel?: {

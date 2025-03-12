@@ -12,11 +12,9 @@ import { isNil, get } from "lodash-es";
 import type { GatewayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-//  ENUMS
+// ---   ENUMS
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
@@ -51,8 +49,7 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
   });
 }
 
-// --------------------------------------------------------
-
+// ---
 async function parse(
   { model, can_store, must_store, must_auto_pay }: GatewayContext,
   _event: AnyEventObject
@@ -96,8 +93,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// PAYMENT METHODS
+// ---  PAYMENT METHODS
 
 /**
  * @name getPaymentData
@@ -114,8 +110,7 @@ async function update({ model }: GatewayContext) {
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

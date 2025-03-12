@@ -25,7 +25,7 @@ export const usePayment = (context: PaymentArgs) => {
      *  The PAY event triggers the machine to process the payment, this may result in an offsite redirect
      * @returns void
      */
-    PAY: () => service?.send({ type: "PAY" }),
+    pay: () => service?.send({ type: "PAY" }),
     /**
      * Payment machine has a REFRESH event that allows us to update information fro mthe basket/invoice
      * such as currency, address or amount to be paid, etc

@@ -23,8 +23,7 @@ import type { StripeContext } from "./types";
 import { GatewayCtx } from "../types";
 import { responseCodes } from "../../../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./stripe.machine.typegen").Typegen0,

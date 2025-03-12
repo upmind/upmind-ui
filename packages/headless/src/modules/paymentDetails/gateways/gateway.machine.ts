@@ -15,8 +15,7 @@ import { useSchema, useUischema } from "./utils";
 import type { GatewayContext } from "./types";
 import { responseCodes } from "../../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./gateway.machine.typegen").Typegen0,

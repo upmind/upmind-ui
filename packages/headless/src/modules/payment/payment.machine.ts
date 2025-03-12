@@ -17,8 +17,7 @@ import { isEmpty } from "lodash-es";
 import type { PaymentContext } from "./types";
 import { responseCodes } from "../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./payment.machine.typegen").Typegen0,

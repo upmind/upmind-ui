@@ -10,8 +10,7 @@ import { GatewayStoreType, QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
 import type { Layout, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export function generateResponseUrls(
   url: string,
   { gateway, orderId, type, model }: GatewayContext
@@ -59,7 +58,6 @@ export function generateResponseUrls(
     );
   }
 
-  // --------------------------------------------------------
   return {
     cancel: cancelUrl.toString(),
     success: successUrl.toString(),
@@ -67,8 +65,7 @@ export function generateResponseUrls(
   };
 }
 
-// --------------------------------------------------------
-
+// ---
 export const useSchema = (context: GatewayContext) => {
   const { cancel, success, fail } = generateResponseUrls(
     window.location.origin,
@@ -135,8 +132,7 @@ export const useSchema = (context: GatewayContext) => {
   return schema;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
@@ -191,8 +187,7 @@ export const useUischema = () => {
   return uischema as Layout;
 };
 
-// --------------------------------------------------------
-
+// ---
 export function canBeStored(gateway?: IGateway) {
   if (!gateway) return false;
 
