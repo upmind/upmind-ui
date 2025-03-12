@@ -12,8 +12,7 @@ import { get, debounce, isEmpty } from "lodash-es";
 // --- types
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 
-// --------------------------------------------------------
-
+// -----------------------------------------------------------------------------
 export const useClientAddress = (
   item: any, // Actor
   context?: Record<string, any>
@@ -21,8 +20,7 @@ export const useClientAddress = (
   const { service } = useUpmindClientAddresses();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
@@ -84,12 +82,11 @@ export const useClientAddresses = (): ClientListingDefinition => {
   const { service, isReady, getSelected } = useUpmindClientAddresses();
   const { state, send } = useActor(service);
 
-  // --------------------------------------------------------
+  // ---
   const items = useContextActors(state, "items", []);
   const selected = useContextActor(state, "selected");
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),

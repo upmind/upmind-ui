@@ -1,12 +1,10 @@
 // --- external
-import type { AnyEventObject } from "xstate";
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, spawn, sendTo } from "xstate";
 
 // --- internal
 import services from "./services";
 import { useI18n } from "../system/i18n";
-
-import type { BrandContext } from "./types";
+import { querySubscription } from "../query";
 
 // --- utils
 import { set } from "lodash-es";
@@ -14,14 +12,18 @@ import { useTime } from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 
-// --------------------------------------------------------
+// --- types
+import type { AnyEventObject } from "xstate";
+import type { BrandContext } from "./types";
+import type { QueryCacheNotifyEvent, QuerySubscriptionFilter } from "../query";
 
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
-    initial: "processing",
+    initial: "subscribing",
     context: {
       initialised: false,
       modules: undefined,
@@ -67,6 +69,10 @@ export default createMachine(
     } as BrandContext,
 
     states: {
+      subscribing: {
+        entry: ["setQueryHelper"],
+        always: "processing",
+      },
       processing: {
         type: "parallel",
         states: {
@@ -213,9 +219,36 @@ export default createMachine(
         },
       },
     },
+    on: {
+      "QUERY.SUCCESS": {
+        actions: ["refreshContext"],
+      },
+    },
   },
   {
     actions: {
+      refreshContext: assign(
+        ({ initialised }: BrandContext, { data, queryKey }: AnyEventObject) => {
+          if (!initialised) return;
+          switch (queryKey) {
+            case "brand,organisation,config":
+              return useBrandParser(data);
+
+            case "brand,config":
+              return useBrandParser(data);
+
+            case "brand,settings":
+              return useBrandParser(data);
+
+            case "brand,modules":
+              return data;
+
+            default:
+              return; // do nothing
+          }
+        }
+      ),
+
       setOrganisation: assign(
         (_context: BrandContext, { data }: AnyEventObject) =>
           useBrandParser(data)
@@ -251,6 +284,28 @@ export default createMachine(
       setInitialised: assign({
         initialised: true,
       }),
+
+      setQueryHelper: assign({
+        queryHelper: (
+          { queryHelper }: BrandContext,
+          _event: AnyEventObject
+        ) => {
+          // spawn a new query helper and set up the filter to only listen to brand events
+          if (!queryHelper) {
+            queryHelper = spawn(querySubscription);
+            const queryFilter: QuerySubscriptionFilter = (
+              event: QueryCacheNotifyEvent
+            ) => event.query.queryKey.includes("brand");
+
+            queryHelper.send({
+              type: "FILTER",
+              data: queryFilter,
+            });
+          }
+          return queryHelper;
+        },
+      }),
+
       // ---
     },
     guards: {},

@@ -8,15 +8,12 @@ import sharedServices from "../services";
 // --- types
 import type { GatewayContext } from "../types";
 
-// --------------------------------------------------------
-//  ENUMS
+// ---   ENUMS
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// --------------------------------------------------------
-// PAYMENT METHODS
+// ---  PAYMENT METHODS
 
 /**
  * @name getPaymentData
@@ -33,8 +30,7 @@ async function update({ model }: GatewayContext) {
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   ...sharedServices,

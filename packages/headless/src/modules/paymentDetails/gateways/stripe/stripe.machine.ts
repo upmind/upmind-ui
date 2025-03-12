@@ -23,8 +23,7 @@ import type { StripeContext } from "./types";
 import { GatewayCtx } from "../types";
 import { responseCodes } from "../../../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./stripe.machine.typegen").Typegen0,
@@ -32,7 +31,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      basket_id: undefined,
+      orderId: undefined,
       currency: undefined,
       gateway: undefined,
       amount: undefined,
@@ -387,11 +386,11 @@ export default createMachine(
 
     guards: {
       hasChanged: (
-        { basket_id, currency, amount, address }: StripeContext,
+        { orderId, currency, amount, address }: StripeContext,
         { data }: AnyEventObject
       ) => {
         const value =
-          basket_id !== data.basket_id ||
+          orderId !== data.orderId ||
           currency !== data.currency ||
           amount !== data.amount ||
           address?.id !== data.address?.id;

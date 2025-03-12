@@ -33,10 +33,9 @@ import type {
   IProductCategory,
 } from "./types";
 
-// --------------------------------------------------------
-// Parsing Models for an Item/Product that is being configured for the basket
+// ---  Parsing Models for an Item/Product that is being configured for the basket
 
-// --------------------------------------------------------
+// ---
 export const checkPriceOverride = (values: any, lookups: any) => {
   return some(values, (value, key) => {
     const item = find(lookups, ["id", key]);
@@ -86,7 +85,7 @@ export const parseProduct = (
     cycle: merged.billing_cycle_months,
     // TODO check: cycle: merged.display_price_billing_cycle_months ?? merged.billing_cycle_months,
     quantity: merged.quantity,
-    // //
+    //
     description: useTranslateField(merged, "description"),
     excerpt: useTranslateField(merged, "short_description"),
     imgUrl: merged?.product_image_url ?? merged?.image?.full_url,
@@ -181,8 +180,7 @@ export const parseTerms = (
       },
     };
 
-    // --------------------------------------------------------
-    // Ensure the name is set
+    // ---    // Ensure the name is set
 
     const cycle = getBillingCycle(rawTerm.billing_cycle_months);
     term.name = cycle ? useTranslateName(cycle) : null;
@@ -546,7 +544,7 @@ export const parseSummary = (raw: any, { model, lookups, error }: any) => {
   );
   if (!isEmpty(provisionFields)) details.push(...provisionFields);
 
-  // ---
+  // ---------------------------------------------------------------------------
   return {
     pricing: [summaryPricing],
     details,
@@ -592,7 +590,7 @@ const parseSummaryTerm = (term: any, terms: any, error?: any) => {
 const parseSummarySubproduct = (
   key: string,
   data: any,
-  lookup: Array<any>,
+  lookup: any[],
   error?: any
 ) => {
   return reduce(
@@ -674,8 +672,7 @@ const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
   );
 };
 
-// --------------------------------------------------------
-//  Setting Model for an Item that is configuring,
+// ---   Setting Model for an Item that is configuring,
 //  this may be a new item, or an existing item that has been added to the basket
 
 export const parseModel = (raw: any): ProductModel => {

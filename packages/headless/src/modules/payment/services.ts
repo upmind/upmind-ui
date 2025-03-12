@@ -8,22 +8,15 @@ import { usePaymentParser } from "./utils";
 import { isEmpty, get } from "lodash-es";
 
 // --- types
-import { FetchMethods } from "../query/types";
-import type { PaymentContext } from "./types";
+import { Methods, Targets } from "@upmind-automation/types";
+import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// Enums
+// ---  Enums
 
-export enum Targets {
-  BLANK = "_blank",
-  SELF = "_self",
-  PARENT = "_parent",
-  TOP = "_top",
-}
+// -----------------------------------------------------------------------------
 
-// --------------------------------------------------------
-// PRIVATE FUNCTIONS
+// ---  PRIVATE FUNCTIONS
 
 /**
  * @name submitViaForm
@@ -33,12 +26,12 @@ export enum Targets {
 
 function submitViaForm({
   fields,
-  method = FetchMethods.GET,
+  method = Methods.GET,
   target = Targets.SELF,
   url,
 }: {
   fields?: Record<string, any>;
-  method?: FetchMethods;
+  method?: Methods;
   target?: Targets;
   url: string;
 }) {
@@ -68,51 +61,29 @@ function submitViaForm({
   });
 }
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(
-  { order, paymentDetails }: PaymentContext,
-  { data }: AnyEventObject
-) {
+async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   const { get, useUrl } = useQuery();
 
-  const urls = {
-    return: undefined,
-    cancel: undefined,
-  };
-  // TODO
-  // generate urls for the payment gateway,  most will require a return and cancel url
-  // const urls: PaymentContext["urls"] = {
-  //   return: buildReturnUrl({
-  //     externalAuthReturnLocation,
-  //     paymentDetails
-  //   }),
-  //   cancel: undefined
-  // };
-
   // if we already have the order, we don't need to load it again and we can return an empty object
-  if (!isEmpty(order)) return Promise.resolve({ urls });
+  if (!isEmpty(orderId)) return Promise.resolve({ fields: [] });
 
   if (!data?.id) return Promise.reject({ title: "Invalid order", code: 400 });
 
   return get({
     url: useUrl(`order/${data.id}`),
     queryKey: ["order", { id: data.id }],
-  }).then(({ data }: any) => ({ fields: data, urls }));
+  }).then(({ data }: any) => ({ fields: data }));
 }
 
-// --------------------------------------------------------
-
-async function update(
-  { order, paymentDetails }: PaymentContext,
-  _event: AnyEventObject
-) {
+// ---
+async function update(context: PaymentContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
 
   // build the payload with ALL the data we need for the payment details AND the order
-  const data = usePaymentParser({ paymentDetails, order });
+  const data = usePaymentParser(context);
   return post({
     url: useUrl(`/payments`),
     data,
@@ -127,29 +98,25 @@ async function update(
  * remains unchanged whilst the page offloads
  */
 async function redirect(
-  { payment, paymentDetails }: PaymentContext,
+  { payment, paymentDetail, cancel, approval }: PaymentContext,
   _event: AnyEventObject
 ) {
   /**
    * Inject aborted state for cases when user click back from the browser
    * We have no router to handle this, so we need to handle it manually
    */
-  if (paymentDetails?.cancel_url) {
-    window.history.replaceState("", "", paymentDetails.cancel_url);
-  }
+  if (cancel) window.history.replaceState("", "", cancel?.url);
 
-  // Now submit the form generated from the approval_url
-  return submitViaForm(payment.approval_form);
+  if (approval) return submitViaForm(approval);
 }
 
-// --------------------------------------------------------
-
+// ---
 async function validate(
-  { paymentDetails }: PaymentContext,
+  { paymentDetail }: PaymentContext,
   _event: AnyEventObject
 ) {
   return new Promise((resolve, reject) => {
-    if (isEmpty(paymentDetails)) {
+    if (isEmpty(paymentDetail)) {
       reject({ title: "Invalid payment details", code: 400 });
     } else {
       resolve({});
@@ -157,8 +124,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

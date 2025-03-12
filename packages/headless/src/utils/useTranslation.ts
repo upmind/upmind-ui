@@ -1,8 +1,7 @@
 //--- utils
 import { get } from "lodash-es";
 
-// --------------------------------------------------------
-
+// ---
 export const useTranslateField = (item: object, field: string) =>
   get(item, `${field}_translated`, get(item, field));
 
