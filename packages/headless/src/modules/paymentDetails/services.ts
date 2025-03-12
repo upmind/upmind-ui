@@ -85,7 +85,6 @@ async function load(
   }).then(({ data }: any) => data);
 
   // ---
-
   const gateways = getRequest({
     url: useUrl(`brands/${brandId}/gateways`, {
       limit: 0,

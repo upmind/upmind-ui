@@ -293,13 +293,14 @@ export default createMachine(
           // spawn a new query helper and set up the filter to only listen to brand events
           if (!queryHelper) {
             queryHelper = spawn(querySubscription);
+
             const queryFilter: QuerySubscriptionFilter = (
               event: QueryCacheNotifyEvent
             ) => event.query.queryKey.includes("brand");
 
             queryHelper.send({
               type: "FILTER",
-              data: queryFilter,
+              filter: queryFilter,
             });
           }
           return queryHelper;
