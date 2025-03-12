@@ -1,5 +1,4 @@
-// --------------------------------------------------------
-
+// ---
 // --- external
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
@@ -7,13 +6,14 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useRecommendationsEngine as useUpmindRecommendationsEngine } from "@upmind-automation/headless";
+
 // --- utils
 import { isEmpty, some } from "lodash-es";
 import { useContext } from "../../utils";
+
 // --- types
-// --------------------------------------------------------
-// a composable that provides a simple interface to the recommendations engine
-//  with some state helpers
+
+// -----------------------------------------------------------------------------
 
 export const useRecommendationsEngine = () => {
   const {
@@ -30,8 +30,7 @@ export const useRecommendationsEngine = () => {
 
   const { state } = useActor(service);
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     isReady: async () => {
       return isReady().then(() =>

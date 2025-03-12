@@ -15,15 +15,13 @@ import {
 
 import { every, isEqual, isFunction } from "lodash-es";
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machinewith some state helpers
+// -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketPaymentGateway = () => {
   const paymentDetails = useBasketPaymentDetails();
   const paymentGateway = paymentDetails.gateway; // payment details provides a computed gateway we can use
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => stateValue(paymentGateway, "value")),
     context: computed(() => stateValue(paymentGateway, "context")),

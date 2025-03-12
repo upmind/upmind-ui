@@ -18,8 +18,7 @@ import {
 // --- types
 import type { ActorRef } from "xstate";
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine with some state helpers
+// -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
@@ -40,8 +39,7 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
     actor.value = useActor(actorRef);
   }
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => stateValue(actor, "value")),
     context: computed(() => stateValue(actor, "context")),

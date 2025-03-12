@@ -15,8 +15,7 @@ import {
 } from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// HELPERS
+// ---  HELPERS
 
 const fieldPath = (field: any) => {
   let path;
@@ -56,8 +55,7 @@ const fieldPath = (field: any) => {
   return compact([path, append]).join("/");
 };
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
@@ -144,8 +142,7 @@ async function upload(
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   getImage,

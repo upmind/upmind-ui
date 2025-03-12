@@ -23,7 +23,7 @@ import {
 import type { ActorRef } from "xstate";
 import type { IProduct } from "@upmind-automation/types";
 
-// --------------------------------------------------------
+// ---
 async function load(context: any, basket: any) {
   const products = reduce(
     basket.getProducts(),
@@ -216,8 +216,7 @@ async function sync(models: any, context: any, basket: any) {
   });
 }
 
-// --------------------------------------------------------
-
+// ---
 export function basketSubscription(callback: any, onReceive: any) {
   const basket = useBasket();
 
@@ -444,4 +443,4 @@ export function basketSubscription(callback: any, onReceive: any) {
   };
 }
 
-// --------------------------------------------------------
+// ---

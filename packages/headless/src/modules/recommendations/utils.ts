@@ -253,7 +253,7 @@ export function parseRecommendation(
   set(metaInfo, "seen", meta?.seen ?? false);
   set(metaInfo, "processing", meta?.processing ?? false);
   set(metaInfo, "loading", meta?.loading ?? false);
-  // ---
+  // ---------------------------------------------------------------------------
   return {
     productId: raw.object_id,
     ...product,

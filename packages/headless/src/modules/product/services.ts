@@ -48,8 +48,7 @@ export enum PromotionDisplayTypes {
   PERCENTAGE = "percentage",
 }
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
@@ -360,7 +359,7 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
   });
 }
 
-// --------------------------------------------------------
+// -----------------------------------------------------------------------------
 // This is a relatively expensive operation,
 // in effect we are calculating the price of the item based on its configuration
 // We use the values that have been selected alongside the lookups data
@@ -446,8 +445,7 @@ const calculateBillingTerm = async (
 
   return term;
 };
-// --------------------------------------------------------
-// Subscriptions - these are used by the other machines to listen for changes/messages from this machine
+// ---  Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
 export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
@@ -494,8 +492,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
   };
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

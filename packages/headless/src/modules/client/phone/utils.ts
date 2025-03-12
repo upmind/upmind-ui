@@ -16,8 +16,7 @@ import type { PhoneContext } from "./types";
 import { IPhone, ICountry } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 // TODO:
 // export const useSchema = ({ country }: PhoneContext) => {
 export const useSchema = ({ country }: { country: ICountry }) => {
@@ -134,8 +133,7 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// --------------------------------------------------------
-
+// ---
 export const spawnItem = (model?: IPhone) => {
   try {
     const name = get(model, "id", uniqueId("item_"));

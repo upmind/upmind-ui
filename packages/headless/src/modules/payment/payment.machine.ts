@@ -17,8 +17,7 @@ import { isEmpty } from "lodash-es";
 import type { PaymentContext } from "./types";
 import { responseCodes } from "../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./payment.machine.typegen").Typegen0,
@@ -162,7 +161,7 @@ export default createMachine(
       }),
 
       setApproval: assign({
-        payment: context => useApprovalParser(context),
+        approval: ({ payment }: PaymentContext) => useApprovalParser(payment),
       }),
 
       providePayment: sendParent(({ payment }) => ({
@@ -209,20 +208,12 @@ export default createMachine(
 
     guards: {
       hasPaymentDetails: (
-        { paymentDetails }: PaymentContext,
+        { paymentDetail }: PaymentContext,
         _event: AnyEventObject
-      ) => !isEmpty(paymentDetails),
+      ) => !isEmpty(paymentDetail),
 
       needsApproval: ({ payment }: PaymentContext, _event: AnyEventObject) =>
-        !!payment.approval_url,
-
-      hasNoOutstandingBalance: (
-        _context: PaymentContext,
-        _event: AnyEventObject
-      ) => {
-        // TODO: check if there is an outstanding balance
-        return true;
-      },
+        !isEmpty(payment?.approval_url),
     },
 
     delays: {

@@ -7,8 +7,7 @@ import { useTime } from "../../utils";
 
 // --utils
 
-// --------------------------------------------------------
-
+// ---
 // as this is a sub machine, we need to be initialised with a message
 // instead of using an event
 export default createMachine(

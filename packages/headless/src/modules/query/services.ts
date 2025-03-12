@@ -11,22 +11,29 @@ import {
   persistTokenToStorage,
   dumpTokenFromStorage,
 } from "../session/utils";
-import { get, set, isEmpty, includes } from "lodash-es";
+import {
+  get,
+  set,
+  isEmpty,
+  includes,
+  lowerCase,
+  map,
+  upperCase,
+} from "lodash-es";
 
 // --- types
 import type { Token } from "../session/types";
-import { GrantTypes } from "@upmind-automation/types";
-import { FetchMethods, RequestParams } from "./types";
+import { GrantTypes, Methods } from "@upmind-automation/types";
+import { RequestParams } from "./types";
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 
 // this will process the request and return a promise
 async function doFetch<T extends object = object>({
   url,
   init,
 }: RequestParams): Promise<T> {
-  if (!includes(FetchMethods, init?.method)) {
+  if (!includes(map(Methods, upperCase), init?.method)) {
     return Promise.reject(`Invalid method: ${init?.method}`);
   }
 
@@ -95,7 +102,6 @@ async function refreshToken() {
     });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// -----------------------------------------------------------------------------
 
 export { doFetch, refreshToken };

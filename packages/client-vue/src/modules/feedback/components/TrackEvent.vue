@@ -29,7 +29,8 @@ const gtm = inject("gtm") as any;
 
 watch(state, state => {
   if (!state.matches("active")) return;
-  if (!gtm && !isFunction(gtm?.trackEvent)) {
+
+  if (!gtm || !isFunction(gtm?.trackEvent)) {
     dismiss();
   } else {
     if (!isEmpty(message.value?.data)) gtm.trackEvent(message.value?.data);

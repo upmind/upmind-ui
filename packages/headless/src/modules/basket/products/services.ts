@@ -7,7 +7,6 @@ import { useBrand } from "../../brand";
 
 // --- utils
 import { useTime } from "../../../utils";
-import { invalidateBasket } from "../services";
 import { parseBasketProductConfig } from "./utils";
 
 import {
@@ -23,14 +22,11 @@ import {
 
 // --- types
 
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-// --------------------------------------------------------
-
+// ---
 /**
  * Fetches a single product with details .
  *
@@ -387,7 +383,6 @@ async function sync(
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   })
-    .then(invalidateBasket)
     .then(({ data }: any) => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
       return data;
@@ -398,8 +393,7 @@ async function sync(
     });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   fetch,

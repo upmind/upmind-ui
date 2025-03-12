@@ -11,11 +11,9 @@ import type {
   IProductCategory,
 } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations/types";
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface ProductConfigContext {
   id: string;
