@@ -1,5 +1,4 @@
-// --------------------------------------------------------
-
+// ---
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
@@ -13,14 +12,12 @@ import { map, get, pick, debounce } from "lodash-es";
 
 const maybeActor = (item: any) =>
   item?.state ? { id: item.id, ...item.state.context } : item;
-// --------------------------------------------------------
-
+// ---
 export function useLookup(lookup: Function) {
   const { service } = lookup();
   const { state, send }: any = useActor(service);
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
@@ -85,8 +82,7 @@ export function useLookupItem({ item }: any, { emit }: any) {
 
   const { state, send } = item;
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),

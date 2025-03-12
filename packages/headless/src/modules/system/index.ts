@@ -16,15 +16,13 @@ import type { ICountry, IRegion } from "@upmind-automation/types";
 
 // --- types
 
-// --------------------------------------------------------
-// create a global instance of the system machine
+// ---  create a global instance of the system machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(systemMachine, { devTools: false });
-// --------------------------------------------------------
-
+// ---
 export const useSystem = () => {
   const {
     isReady,
@@ -175,8 +173,7 @@ export const useSystem = () => {
   const getDepartments = () => service.getSnapshot().context.departments;
   const getDepartment = (value: any) =>
     find(service.getSnapshot().context.departments, ["code", value]);
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---

@@ -8,8 +8,7 @@ import type {
   ITicketDepartment,
   ITaxBusinessType,
 } from "@upmind-automation/types";
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface SystemContext {
   currencies?: ICurrency[];

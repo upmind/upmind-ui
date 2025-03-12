@@ -40,8 +40,7 @@ import type { ActorRef, AnyEventObject } from "xstate";
 import type { BasketContext } from "./types";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 import { PaymentContext } from "../payment";
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./basket.machine.typegen").Typegen0,

@@ -14,8 +14,7 @@ import { get, map } from "lodash-es";
 import type { IField, FieldsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export const useSchema = ({ fields }: FieldsContext) => {
   const schema = {
     type: "object",

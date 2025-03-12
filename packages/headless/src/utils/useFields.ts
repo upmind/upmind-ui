@@ -13,8 +13,7 @@ import {
   reduce,
 } from "lodash-es";
 
-// --------------------------------------------------------
-
+// ---
 export const useFieldsSchemaParser = (data: any, i18nPrefix?: string) => {
   i18nPrefix = i18nPrefix ? `${i18nPrefix}.fields` : "fields";
   const schema = {

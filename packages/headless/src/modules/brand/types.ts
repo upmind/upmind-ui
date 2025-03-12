@@ -4,11 +4,9 @@ import type {
   OrgFeatureKeys,
   IBrandSettings,
 } from "@upmind-automation/types";
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 export interface BrandContext extends IBrandSettings {
   keys: {
     organisation: OrgFeatureKeys[];

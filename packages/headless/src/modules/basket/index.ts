@@ -27,8 +27,7 @@ import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
 import type { ProductModel } from "../product/types";
 import type { BasketProduct } from "./types";
 export * from "./types";
-// --------------------------------------------------------
-// create a global instance of the basket machine
+// ---  create a global instance of the basket machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
@@ -37,9 +36,7 @@ const service: any = interpret(basketMachine, {
   devTools: true,
 });
 
-// --------------------------------------------------------
-// methods
-// --------------------------------------------------------
+// ---  methods
 function exists(items: ActorRef<any>[] = [], mapping: any, context: any) {
   context = context ? `${context}.` : "";
   return some(items, item =>

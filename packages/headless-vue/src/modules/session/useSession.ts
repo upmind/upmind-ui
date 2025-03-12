@@ -47,8 +47,7 @@ export const useSession = (inspector?: Function): IUseSession => {
     return guestState.value;
   });
 
-  // --------------------------------------------------------
-
+  // ---
   const context = computed(() => state.value.context);
   //const messages= computed(() => state.value.context?.messages);
   // ---
@@ -102,8 +101,7 @@ export const useSession = (inspector?: Function): IUseSession => {
   const uischema = computed(() => guest.value?.context?.uischema);
   const errors = computed(() => guest.value?.context?.error);
 
-  // --------------------------------------------------------
-
+  // ---
   // ---
 
   function resolve(model: any): Promise<any> {
@@ -121,8 +119,7 @@ export const useSession = (inspector?: Function): IUseSession => {
     const guestMachine = state.value?.children?.guestMachine;
     return waitFor(guestMachine, state => ["available"].some(state.matches));
   }
-  // --------------------------------------------------------
-
+  // ---
   if (isFunction(inspector)) {
     // send a message to indicate we are
     inspector({
@@ -150,8 +147,7 @@ export const useSession = (inspector?: Function): IUseSession => {
       })
     );
   }
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context,

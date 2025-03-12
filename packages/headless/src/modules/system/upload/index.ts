@@ -8,8 +8,7 @@ import uploadMachine from "./upload.machine";
 
 // --- types
 
-// --------------------------------------------------------
-
+// ---
 // system uploads is NOT a global insance, and is always instantiated as a new machine
 // this is because we need to be able to have multiple uploads happening at once
 // and we need to be able to start and stop them individually

@@ -16,11 +16,9 @@ import type { IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// UTILS
+// ---  UTILS
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
@@ -246,8 +244,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     };
   });
 }
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

@@ -10,8 +10,7 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 // --- types
 import type { DomainContext, DomainProduct } from "./types";
 
-// --------------------------------------------------------
-
+// ---
 async function search({
   search,
   currency,
@@ -66,8 +65,7 @@ function getClientDomains({ controller }: DomainContext) {
     map(data, ({ domain_name }) => parseDomain(domain_name))
   );
 }
-// --------------------------------------------------------
-
+// ---
 // async function parse(_context, _event) {
 //   // TODO: Implement the parse function
 //   // ---
@@ -87,8 +85,7 @@ function getClientDomains({ controller }: DomainContext) {
 //   });
 // }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   search,

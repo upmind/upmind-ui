@@ -12,16 +12,13 @@ import { get, isEmpty } from "lodash-es";
 
 // --- types
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the uploads machine
-//  with some state helpers
+// -----------------------------------------------------------------------------
 
 export const useUpload = (field: any) => {
   const upload = useSystemUpload(field);
   const { state, send } = useActor(upload.service);
 
-  // --------------------------------------------------------
-
+  // ---
   const add = async (value: string) => {
     send({
       type: "ADD",
@@ -68,8 +65,7 @@ export const useUpload = (field: any) => {
     send({ type: "LOAD", data: { hash } });
   };
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     // ---

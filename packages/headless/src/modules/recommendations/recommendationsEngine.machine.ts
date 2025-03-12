@@ -45,8 +45,7 @@ import type { BasketProduct } from "../basket";
 import type { RecommendationsEngineContext, Recommendation } from "./types";
 import { mapValues } from "xstate/lib/utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     id: "recommendationsEngine",

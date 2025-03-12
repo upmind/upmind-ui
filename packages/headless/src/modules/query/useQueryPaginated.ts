@@ -15,8 +15,7 @@ import {
 const queryClient = getQueryClient();
 
 export const useQueryPaginated = () => {
-  // --------------------------------------------------------
-  // methods
+  // ---  // methods
 
   /**
    * Sends a paginated request to the server with the given URL and options.

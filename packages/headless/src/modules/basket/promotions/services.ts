@@ -11,10 +11,8 @@ import { get, isEmpty, some } from "lodash-es";
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function load(_context: PromotionsContext, _event: AnyEventObject) {
@@ -22,8 +20,7 @@ async function load(_context: PromotionsContext, _event: AnyEventObject) {
   return Promise.resolve({});
 }
 
-// --------------------------------------------------------
-
+// ---
 async function add(
   { basketId, model, promotions }: PromotionsContext,
   _event: AnyEventObject
@@ -59,8 +56,7 @@ async function remove(
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-
+// ---
 async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
@@ -88,8 +84,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,
