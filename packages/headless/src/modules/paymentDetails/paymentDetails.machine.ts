@@ -20,8 +20,7 @@ import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,

@@ -12,10 +12,8 @@ import type {
   IWalletBalance,
   PaymentType,
 } from "@upmind-automation/types";
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// private
+// ---
+// ---  private
 
 export interface PaymentDetailModel {
   amount: number;
@@ -23,8 +21,7 @@ export interface PaymentDetailModel {
   gateway_id?: IGateway["id"];
 }
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface PaymentDetailsArgs {
   orderId: IOrder["id"];

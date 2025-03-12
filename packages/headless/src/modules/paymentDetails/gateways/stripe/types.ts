@@ -14,8 +14,7 @@ import type {
 import type { GatewayTypes } from "../types";
 import type { GatewayCtx, GatewayContext } from "../types";
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
 export interface StripeContext extends GatewayContext {
   stripe?: any;
