@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, usePaginatedQuery } from "../..";
+import { useQuery, useQueryPaginated } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -18,7 +18,7 @@ async function search({
   controller,
   promotions,
 }: DomainContext) {
-  const { get, useUrl } = usePaginatedQuery();
+  const { get, useUrl } = useQueryPaginated();
 
   if (!search?.query?.length) return Promise.reject("No query provided");
 

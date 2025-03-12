@@ -1,12 +1,10 @@
 // --- external
-import { useQuery } from "../query";
-
-import { createMachine, assign, actions } from "xstate";
-const { raise } = actions;
+import { createMachine, assign, spawn, sendTo } from "xstate";
 
 // --- internal
 import services from "./services";
 import { useI18n } from "../system/i18n";
+import { querySubscription } from "../query";
 
 // --- utils
 import { set, get } from "lodash-es";
@@ -15,8 +13,10 @@ import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
 
 // --- types
-import type { BrandContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import type { BrandContext } from "./types";
+import type { QueryCacheNotifyEvent, QuerySubscriptionFilter } from "../query";
+
 // --------------------------------------------------------
 
 export default createMachine(
@@ -24,7 +24,7 @@ export default createMachine(
     //tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
-    initial: "processing",
+    initial: "subscribing",
     context: {
       initialised: false,
       modules: undefined,
@@ -70,6 +70,10 @@ export default createMachine(
     } as BrandContext,
 
     states: {
+      subscribing: {
+        entry: ["setQueryHelper"],
+        always: "processing",
+      },
       processing: {
         type: "parallel",
         states: {
@@ -206,7 +210,7 @@ export default createMachine(
       },
       error: { id: "error" },
       complete: {
-        entry: ["setDefaultLocale", "setInitialised", "setObservable"],
+        entry: ["setDefaultLocale", "setInitialised"],
         // type: "final",
         on: {
           "CONFIG.GET": {
@@ -217,27 +221,38 @@ export default createMachine(
       },
     },
     on: {
-      "REFRESH.ORGANISATION": {
-        actions: ["setOrganisation"],
-      },
-      "REFRESH.CONFIG": {
-        actions: ["setConfig"],
-      },
-      "REFRESH.SETTINGS": {
-        actions: ["setSettings"],
-      },
-      "REFRESH.MODULES": {
-        actions: ["setModules"],
+      "QUERY.SUCCESS": {
+        actions: ["refreshContext"],
       },
     },
   },
   {
     actions: {
-      setOrganisation: assign(
-        (_context: BrandContext, { data }: AnyEventObject) => {
-          debugger;
-          return useBrandParser(data);
+      refreshContext: assign(
+        ({ initialised }: BrandContext, { data, queryKey }: AnyEventObject) => {
+          if (!initialised) return;
+          switch (queryKey) {
+            case "brand,organisation,config":
+              return useBrandParser(data);
+
+            case "brand,config":
+              return useBrandParser(data);
+
+            case "brand,settings":
+              return useBrandParser(data);
+
+            case "brand,modules":
+              return data;
+
+            default:
+              return; // do nothing
+          }
         }
+      ),
+
+      setOrganisation: assign(
+        (_context: BrandContext, { data }: AnyEventObject) =>
+          useBrandParser(data)
       ),
       // ---
       setConfig: assign((_context: BrandContext, { data }: AnyEventObject) =>
@@ -271,78 +286,27 @@ export default createMachine(
         initialised: true,
       }),
 
-      setObservable: assign({
-        observable: ({ observable }: BrandContext, _event: AnyEventObject) => {
-          if (observable) return observable;
+      setQueryHelper: assign({
+        queryHelper: (
+          { queryHelper }: BrandContext,
+          _event: AnyEventObject
+        ) => {
+          // spawn a new query helper and set up the filter to only listen to brand events
+          if (!queryHelper) {
+            queryHelper = spawn(querySubscription);
+            const queryFilter: QuerySubscriptionFilter = (
+              event: QueryCacheNotifyEvent
+            ) => event.query.queryKey.includes("brand");
 
-          const { queryClient } = useQuery();
-
-          observable = queryClient.getQueryCache().subscribe(event => {
-            const isOrganisationEvent =
-              event.query.queryKey.toString() ===
-              ["brand", "organisation", "config"].toString();
-
-            const isSuccess = event?.action?.type === "success";
-
-            if (isOrganisationEvent && isSuccess) {
-              console.log("observable", "refresh", {
-                isOrganisationEvent,
-                isSuccess,
-                data: event?.action?.data,
-              });
-              debugger;
-              raise({
-                type: "REFRESH.ORGANISATION",
-                data: event?.action?.data?.data,
-              });
-            }
-
-            //  {
-            //    queryKey: ["brand", "organisation", "config"];
-            //  }
-          });
-
-          // observable.subscribe((result: any) => {
-          //   // send({ type: "REFRESH", data: result });
-          //   // const [organisation, settings, config, modules] = result;
-
-          //   console.log("observable", "refresh", {
-          //     result,
-          //   });
-
-          //   if (result.isSuccess) {
-          //     debugger;
-          //     send({
-          //       type: "REFRESH.ORGANISATION",
-          //       data: result.data.data,
-          //     });
-          //   }
-
-          //   // if (settings.isSuccess) {
-          //   //   send({
-          //   //     type: "REFRESH.SETTINGS",
-          //   //     data: settings.data.data,
-          //   //   });
-          //   // }
-
-          //   // if (config.isSuccess) {
-          //   //   send({
-          //   //     type: "REFRESH.CONFIG",
-          //   //     data: config.data.data,
-          //   //   });
-          //   // }
-
-          //   // if (modules.isSuccess) {
-          //   //   send({
-          //   //     type: "REFRESH.MODULES",
-          //   //     data: modules.data.data,
-          //   //   });
-          //   // }
-          // });
-
-          return observable;
+            queryHelper.send({
+              type: "FILTER",
+              data: queryFilter,
+            });
+          }
+          return queryHelper;
         },
       }),
+
       // ---
     },
     guards: {},

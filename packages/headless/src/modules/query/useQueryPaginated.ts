@@ -1,7 +1,7 @@
 // --- utils
 import { get } from "lodash-es";
 import { useUrl } from "../../utils";
-import { useQuery } from "./use-query";
+import { useQuery } from "./useQuery";
 import { getQueryClient, PAGINATION } from "./utils";
 
 // --- types
@@ -14,7 +14,7 @@ import {
 
 const queryClient = getQueryClient();
 
-export const usePaginatedQuery = () => {
+export const useQueryPaginated = () => {
   // --------------------------------------------------------
   // methods
 
