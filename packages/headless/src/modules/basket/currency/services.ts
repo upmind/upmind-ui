@@ -6,6 +6,7 @@ import { useQuery, useBrand } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
+import { invalidateBasket } from "../services";
 
 // --- types
 import type { CurrencyContext } from "./types";
@@ -42,7 +43,9 @@ async function update(
       currency_code: model?.code,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 // ---
