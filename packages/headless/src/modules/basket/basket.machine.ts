@@ -39,8 +39,8 @@ import {
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { BasketContext } from "./types";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
-// --------------------------------------------------------
-
+import { PaymentContext } from "../payment";
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./basket.machine.typegen").Typegen0,
@@ -384,10 +384,14 @@ export default createMachine(
         invoke: {
           id: "payment",
           src: paymentMachine,
-          data: ({ invoice, paymentDetails }: BasketContext) => ({
-            order: invoice,
-            paymentDetails,
-          }),
+          data: ({ invoice, paymentDetails }: BasketContext) =>
+            ({
+              orderId: invoice.id,
+              address: invoice.address,
+              clientId: invoice.client_id,
+              currency: invoice.currency,
+              paymentDetail: paymentDetails,
+            }) as PaymentContext,
           onDone: {
             target: "#complete",
             actions: ["setPayment", "trackPayment"],

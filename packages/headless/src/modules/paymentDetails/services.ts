@@ -26,14 +26,12 @@ import type { PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 const whitelistGatewayProviders = (
   import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || ""
 ).split(",");
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 async function load(
   { currency, address }: PaymentDetailsContext,
@@ -144,11 +142,9 @@ async function load(
   );
 }
 
-// --------------------------------------------------------
-// PAYMENT METHODS
+// ---  PAYMENT METHODS
 
-// --------------------------------------------------------
-
+// ---
 async function parse(
   { model, gateways }: PaymentDetailsContext,
   { data }: AnyEventObject
@@ -167,7 +163,7 @@ async function parse(
   // HACK: TEMP: FORCE payment type to PAY_IN_FULL
   safeModel.type ??= PaymentType.PAY_IN_FULL;
   // ---
-  // Gateway vs Stored Payment Methods Logic...
+  // Gateway vs Stored Payment Logic...
 
   // 1) Make sure if a gateway is selected that we use that
   if (safeModel?.gateway_id) {
@@ -236,8 +232,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

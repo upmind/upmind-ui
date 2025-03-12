@@ -4,6 +4,8 @@ export * from "./client";
 export * from "./domain";
 export * from "./feedback";
 export * from "./lookup";
+export * from "./payment";
+export * from "./paymentDetails";
 export * from "./product";
 export * from "./recommendations";
 export * from "./routing";

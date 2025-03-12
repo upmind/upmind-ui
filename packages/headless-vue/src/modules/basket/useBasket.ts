@@ -24,11 +24,7 @@ import {
 import { some, filter, isEmpty } from "lodash-es";
 
 // --- types
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
-//  with some state helpers
+// -----------------------------------------------------------------------------
 
 export const useBasket = (): any => {
   const { checkIncludesTax } = useBrand();
@@ -44,12 +40,10 @@ export const useBasket = (): any => {
   } = useUpmindBasket();
 
   const { meta: sessionMeta } = useSession();
-  // --------------------------------------------------------
-  // we need this for reactive state
+  // ---  // we need this for reactive state
   const { state } = useActor(service);
 
-  // --------------------------------------------------------
-  // Actors
+  // ---  // Actors
   // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
   const actors = computed(() => ({
@@ -62,8 +56,7 @@ export const useBasket = (): any => {
 
   const payment = useChildActor(state, "payment");
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     // ---
     state: useState(state, "value"),

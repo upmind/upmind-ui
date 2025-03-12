@@ -9,8 +9,7 @@ import type { UploadContext } from "./types";
 import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     // @

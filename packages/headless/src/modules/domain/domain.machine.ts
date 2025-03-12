@@ -50,8 +50,7 @@ import type {
 } from "./types";
 import type { ProductModel } from "../product";
 
-// --------------------------------------------------------
-
+// ---
 export default createMachine(
   {
     //tsTypes: {} as import("./domain.machine.typegen").Typegen0,

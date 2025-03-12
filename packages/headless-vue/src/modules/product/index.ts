@@ -25,9 +25,7 @@ import {
 // --- types
 import type { ActorRef } from "xstate";
 
-// --------------------------------------------------------
-// a composable that provides a simple interface to the api requests machine
-//  with some state helpers
+// -----------------------------------------------------------------------------
 
 export const useProductConfig = (service: ActorRef<any>) => {
   const { checkIncludesTax } = useBrand();
@@ -102,8 +100,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     }
   });
 
-  // --------------------------------------------------------
-
+  // ---
   // --- QUANTITY
   const updateQuantity = async (value?: number) => {
     touched.value = true;
@@ -271,8 +268,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     });
   };
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     id,
     state,

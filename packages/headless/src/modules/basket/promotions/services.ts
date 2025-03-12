@@ -5,17 +5,14 @@ import { useQuery } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { invalidateBasket } from "../services";
 import { get, isEmpty, some } from "lodash-es";
 
 // --- types
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 async function load(_context: PromotionsContext, _event: AnyEventObject) {
@@ -23,8 +20,7 @@ async function load(_context: PromotionsContext, _event: AnyEventObject) {
   return Promise.resolve({});
 }
 
-// --------------------------------------------------------
-
+// ---
 async function add(
   { basketId, model, promotions }: PromotionsContext,
   _event: AnyEventObject
@@ -40,9 +36,7 @@ async function add(
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: model?.promocode },
     withAccessToken: true,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function remove(
@@ -62,8 +56,7 @@ async function remove(
   }).then(({ data }: any) => data);
 }
 
-// --------------------------------------------------------
-
+// ---
 async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
@@ -91,8 +84,7 @@ async function validate(
   });
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

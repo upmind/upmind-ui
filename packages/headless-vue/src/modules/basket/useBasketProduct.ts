@@ -27,8 +27,7 @@ import {
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { ActorRef, State } from "xstate";
-// --------------------------------------------------------
-// a composable that provides a simple interface to the  basket machine and then spawns a  product configuration machine
+// -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 import type { ComputedRef } from "vue";
@@ -141,8 +140,7 @@ export const useBasketProduct = (
     return updateQuantity(subtract(qty, basketProduct.product?.step || 1));
   }
 
-  // --------------------------------------------------------
-
+  // ---
   //Finally return the basket product composable as well as our additional functions to update/remove
   return {
     id,
@@ -272,8 +270,7 @@ export const useBasketProductConfig = (id: string) => {
     reset,
   } = useProductConfig(service);
 
-  // --------------------------------------------------------
-
+  // ---
   //Finally return the basket product composable as well as our additional functions to update/remove
   return {
     id,

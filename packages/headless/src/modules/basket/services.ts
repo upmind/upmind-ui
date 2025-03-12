@@ -16,18 +16,9 @@ import type { IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// --------------------------------------------------------
-// UTILS
+// ---  UTILS
 
-export async function invalidateBasket(context: object) {
-  const { queryClient } = useQuery();
-  return queryClient
-    .invalidateQueries({ queryKey: ["basket", "current"] })
-    .then(() => context);
-}
-
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 // this will process the request and return a promise
 
@@ -47,13 +38,11 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
       data: {
         guest_token: guest_token.access_token,
       },
-    })
-      .then(invalidateBasket)
-      .then(() => {
-        // because we have successfully claimed the basket, we can dump the guest token
-        // we only do it here, as we may need to claim the basket again if something went wrong
-        dumpTokenFromStorage("guest");
-      });
+    }).then(() => {
+      // because we have successfully claimed the basket, we can dump the guest token
+      // we only do it here, as we may need to claim the basket again if something went wrong
+      dumpTokenFromStorage("guest");
+    });
   }
 
   // We depend on the brand being ready, so we need to wait for it
@@ -61,6 +50,8 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
   await isReady().catch(error => Promise.reject(error));
 
   // finally return a the basket with all the relevant data, include the provisioning fields
+  // NB  we DONT cache the current basket as it can change frequently and it is the source of truth
+  // for the current state of the basket
   return get({
     url: useUrl("orders/current", {
       with: [
@@ -95,6 +86,8 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
     }),
     init: { signal: controller?.signal },
     queryKey: ["basket", "current"],
+    staleTime: 0, // disable cache, this may stil lreturn stale data while the request is in flight
+    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true,
     revalidateIfStale: true,
   })
@@ -165,9 +158,7 @@ async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
     data,
-  })
-    .then(invalidateBasket)
-    .then(({ data }: any) => data);
+  }).then(({ data }: any) => data);
 }
 
 async function getProvisioningFieldsValues(basket: IBasket) {
@@ -183,7 +174,6 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     withAccessToken: true,
   })
-    .then(invalidateBasket)
     .then(({ data }: any) => data)
     .catch(({ error }) => error);
 
@@ -254,8 +244,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     };
   });
 }
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   load,

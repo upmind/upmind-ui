@@ -17,11 +17,11 @@ import type {
 import type { SystemContext } from "./types";
 import { AnyEventObject } from "xstate";
 import { useTime } from "../../utils";
-// --------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 // ENUMS
 
-// --------------------------------------------------------
-// SERVICE METHODS
+// ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
 // TODO: session type contextual/guest/client/admin endpoint logic
@@ -114,8 +114,7 @@ async function fetchDepartments(
   }).then(({ data }: any) => data as ITicketDepartment[]);
 }
 
-// --------------------------------------------------------
-// EXPORTS
+// ---  EXPORTS
 
 export default {
   fetchCurrencies,

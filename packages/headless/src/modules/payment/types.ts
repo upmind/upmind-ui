@@ -1,24 +1,39 @@
 // --- external
 
 // --- internal
-import type { IBasket } from "@upmind-automation/types";
-// --------------------------------------------------------
-// ENUMS
+import type {
+  IBasket,
+  IOrder,
+  IPaymentDetail,
+  IPaymentAttempt,
+  Methods,
+  IClient,
+  ICurrency,
+  IAddress,
+} from "@upmind-automation/types";
+// ---  ENUMS
 
-// --------------------------------------------------------
-// interfaces
+// ---  interfaces
+export interface PaymentArgs {
+  orderId: IOrder["id"];
+  clientId: IClient["id"];
+  currency: ICurrency;
+  address: IAddress;
+  paymentDetail: IPaymentDetail;
+}
+// ---  Contexts
 
-// --------------------------------------------------------
-// Contexts
-
-export interface PaymentContext {
-  id?: string;
-  order?: IBasket;
-  paymentDetails?: any;
-  payment?: any; //IPayment
-  urls?: {
-    return?: URL;
-    cancel?: URL;
+export interface PaymentContext extends PaymentArgs {
+  cancel?: {
+    fields: Record<string, string>;
+    method: Methods;
+    url: URL["href"];
   };
+  approval?: {
+    fields: Record<string, string>;
+    method: Methods;
+    url: URL["href"];
+  };
+  payment?: IPaymentAttempt & {};
   error?: any;
 }

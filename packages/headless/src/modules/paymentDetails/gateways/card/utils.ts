@@ -14,8 +14,7 @@ import type { IGatewayProvider } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// --------------------------------------------------------
-
+// ---
 export const useSchema = (context: GatewayContext) => {
   const gateway_provider = get(
     context.gateway,
@@ -70,8 +69,7 @@ export const useSchema = (context: GatewayContext) => {
   return schema as JsonSchema;
 };
 
-// --------------------------------------------------------
-
+// ---
 // TODO: export const useUischema = (context: GatewayContext) => {
 // TODO: const defaultUischema = useDefaultUischema(context);
 export const useUischema = () => {

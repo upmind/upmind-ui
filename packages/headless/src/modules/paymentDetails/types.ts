@@ -3,45 +3,47 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ActorRef } from "xstate";
 import type {
   IAddress,
+  IBasket,
   IBrandGateway,
+  IClient,
+  IOrder,
   ICurrency,
   IGateway,
   IWalletBalance,
   PaymentType,
 } from "@upmind-automation/types";
-// --------------------------------------------------------
+// ---
+// ---  private
 
-// --------------------------------------------------------
-// private
-
-export interface IPaymentDetail {
+export interface PaymentDetailModel {
   amount: number;
   type?: PaymentType;
-  gateway_id?: string;
+  gateway_id?: IGateway["id"];
 }
 
-// --------------------------------------------------------
-// Contexts
+// ---  Contexts
 
-export interface PaymentDetailsContext {
-  // ---
-  basketId?: string;
-  clientId?: string;
-  currency?: ICurrency;
-  address?: IAddress;
-  amount?: number;
+export interface PaymentDetailsArgs {
+  orderId: IOrder["id"];
+  clientId: IClient["id"];
+  currency: ICurrency;
+  address: IAddress;
+  amount: number;
+}
+
+export interface PaymentDetailsContext extends PaymentDetailsArgs {
   // ---
   gateways?: IBrandGateway[];
   payment_types?: PaymentType;
   // ---
-  stored_payment_methods?: Array<IPaymentDetail>;
+  stored_payment_methods?: PaymentDetailModel[];
   balance?: IWalletBalance;
   gateway?: IGateway;
   // ---
   fields?: any;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IPaymentDetail;
+  model?: PaymentDetailModel;
   // ---
   mount?: HTMLElement;
   paymentDetails?: any; // This is the response from the actual payment gateway

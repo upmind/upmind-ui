@@ -47,8 +47,7 @@ import { calculateSubscription } from "./services";
 import type { AnyEventObject } from "xstate";
 import type { BasketProduct, Price } from "../basket";
 import type { ProductConfigContext, ProductModel } from "./types";
-// --------------------------------------------------------
-// as this is a sub machine, we need to be initialised with a product
+// ---  as this is a sub machine, we need to be initialised with a product
 export default createMachine(
   {
     //tsTypes: {} as import("./product.machine.typegen").Typegen0,

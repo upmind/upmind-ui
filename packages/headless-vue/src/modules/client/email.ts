@@ -9,8 +9,7 @@ import { useClientEmails as useUpmindClientEmails } from "@upmind-automation/hea
 import { get, map, debounce, isEmpty } from "lodash-es";
 import { machineMatches, useContextActor, useContextActors } from "../../utils";
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
-// --------------------------------------------------------
-
+// ---
 export const useClientEmail = (
   item: any, // Actor
   context?: Record<string, any>
@@ -18,8 +17,7 @@ export const useClientEmail = (
   const { service } = useUpmindClientEmails();
   // this will change to be a manager of ALL emails, for now its a single instance (add/update)
   const { state, send } = item;
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
@@ -81,12 +79,11 @@ export const useClientEmails = (): ClientListingDefinition => {
   const { service, isReady, getSelected } = useUpmindClientEmails();
   const { state, send } = useActor(service);
 
-  // --------------------------------------------------------
+  // ---
   const items = useContextActors(state, "items", []);
   const selected = useContextActor(state, "selected");
 
-  // --------------------------------------------------------
-
+  // ---------------------------------------------------------------------------
   return {
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),

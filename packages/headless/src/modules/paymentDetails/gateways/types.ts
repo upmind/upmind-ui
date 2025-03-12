@@ -7,12 +7,14 @@ import { GatewayTypes as GatewayTypesEnum } from "@upmind-automation/types";
 import type {
   ICurrency,
   IGateway,
+  IOrder,
   GatewayAuthType,
   GatewayStoreType,
+  IPayment,
+  IPaymentDetail,
 } from "@upmind-automation/types";
 
-// --------------------------------------------------------
-// ENUMS
+// ---  ENUMS
 
 export enum GatewayTypes {
   FREE = -1,
@@ -32,10 +34,8 @@ export enum GatewayCtx {
   ADD = "add", // ADD = Gateways are shown in the context of adding a stored payment detail
 }
 
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// Contexts
+// ---
+// ---  Contexts
 
 // TODO:
 export interface GatewayContext {
@@ -44,14 +44,14 @@ export interface GatewayContext {
   element?: any;
   renderer?: Function;
   // ---
-  basketId?: string;
+  orderId?: IOrder["id"];
   currency?: ICurrency;
   amount?: number;
   gateway?: IGateway;
   // ---
   type?: GatewayTypes;
   ctx?: GatewayCtx;
-  stored_payment_methods?: Array<any>;
+  stored_payment_methods?: any[];
   code?: string;
 
   // ---
