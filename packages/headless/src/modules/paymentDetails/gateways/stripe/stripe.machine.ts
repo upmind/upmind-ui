@@ -389,7 +389,6 @@ export default createMachine(
         { orderId, currency, amount, address }: StripeContext,
         { data }: AnyEventObject
       ) => {
-        debugger; //TODO check if its .id or orderId
         const value =
           orderId !== data.orderId ||
           currency !== data.currency ||
