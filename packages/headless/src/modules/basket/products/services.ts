@@ -7,6 +7,7 @@ import { useBrand } from "../../brand";
 
 // --- utils
 import { useTime } from "../../../utils";
+import { invalidateBasket } from "../services";
 import { parseBasketProductConfig } from "./utils";
 
 import {
@@ -383,6 +384,7 @@ async function sync(
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   })
+    .then(invalidateBasket)
     .then(({ data }: any) => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
       return data;

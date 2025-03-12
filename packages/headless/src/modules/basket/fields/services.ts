@@ -11,7 +11,7 @@ import { useValidation } from "../../../utils";
 import type { FieldsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// ---
+// -----------------------------------------------------------------------------
 // ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -40,7 +40,9 @@ async function update(
     url: useUrl(`/orders/${basketId}`),
     data,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 // ---

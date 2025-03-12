@@ -7,7 +7,7 @@ import { useI18n } from "../system/i18n";
 import { querySubscription } from "../query";
 
 // --- utils
-import { set, get } from "lodash-es";
+import { set } from "lodash-es";
 import { useTime } from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
@@ -17,7 +17,7 @@ import type { AnyEventObject } from "xstate";
 import type { BrandContext } from "./types";
 import type { QueryCacheNotifyEvent, QuerySubscriptionFilter } from "../query";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./brand.machine.typegen").Typegen0,

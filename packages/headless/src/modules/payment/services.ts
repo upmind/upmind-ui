@@ -14,6 +14,8 @@ import type { AnyEventObject } from "xstate";
 
 // ---  Enums
 
+// -----------------------------------------------------------------------------
+
 // ---  PRIVATE FUNCTIONS
 
 /**

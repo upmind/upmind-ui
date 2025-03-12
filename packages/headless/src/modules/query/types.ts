@@ -1,7 +1,8 @@
 // --- types
 import type { EnsureQueryDataOptions } from "@tanstack/query-core";
 
-// ---  Request Types
+// -----------------------------------------------------------------------------
+// Request Types
 
 export interface RequestError {
   status?: number;

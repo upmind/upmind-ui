@@ -359,7 +359,8 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
   });
 }
 
-// ---  This is a relatively expensive operation,
+// -----------------------------------------------------------------------------
+// This is a relatively expensive operation,
 // in effect we are calculating the price of the item based on its configuration
 // We use the values that have been selected alongside the lookups data
 // and based on the combination of those values, we calculate the price

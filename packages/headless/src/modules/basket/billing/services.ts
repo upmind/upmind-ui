@@ -11,6 +11,7 @@ import { useValidation } from "../../../utils";
 import type { BillingDetailsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
+// -----------------------------------------------------------------------------
 // ---  SERVICE METHODS
 // Invoked by machines, providing context and event data
 
@@ -43,7 +44,9 @@ async function update(
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 // ---

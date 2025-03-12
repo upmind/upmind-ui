@@ -10,7 +10,7 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 // --- types
 import type { DomainContext, DomainProduct } from "./types";
 
-// ---
+// -----------------------------------------------------------------------------
 async function search({
   search,
   currency,
