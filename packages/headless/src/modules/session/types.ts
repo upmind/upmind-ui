@@ -1,4 +1,6 @@
 import type { IUser } from "@upmind-automation/types";
+
+// -----------------------------------------------------------------------------
 // ---  ENUMS
 
 // ---  Contexts

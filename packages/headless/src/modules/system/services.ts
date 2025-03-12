@@ -17,7 +17,9 @@ import type {
 import type { SystemContext } from "./types";
 import { AnyEventObject } from "xstate";
 import { useTime } from "../../utils";
-// ---  ENUMS
+
+// -----------------------------------------------------------------------------
+// ENUMS
 
 // ---  SERVICE METHODS
 // Invoked by machines, providing context and event data

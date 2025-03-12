@@ -102,6 +102,6 @@ async function refreshToken() {
     });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export { doFetch, refreshToken };

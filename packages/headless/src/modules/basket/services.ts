@@ -38,11 +38,13 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
       data: {
         guest_token: guest_token.access_token,
       },
-    }).then(() => {
-      // because we have successfully claimed the basket, we can dump the guest token
-      // we only do it here, as we may need to claim the basket again if something went wrong
-      dumpTokenFromStorage("guest");
-    });
+    })
+      .then(invalidateBasket)
+      .then(() => {
+        // because we have successfully claimed the basket, we can dump the guest token
+        // we only do it here, as we may need to claim the basket again if something went wrong
+        dumpTokenFromStorage("guest");
+      });
   }
 
   // We depend on the brand being ready, so we need to wait for it
@@ -158,7 +160,9 @@ async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
     data,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateBasket)
+    .then(({ data }: any) => data);
 }
 
 async function getProvisioningFieldsValues(basket: IBasket) {
@@ -174,6 +178,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     withAccessToken: true,
   })
+    .then(invalidateBasket)
     .then(({ data }: any) => data)
     .catch(({ error }) => error);
 
