@@ -34,8 +34,8 @@ export interface CheckboxCardsProps extends ListboxRootProps {
   variant?: ButtonProps["variant"] | string;
   cursor?: CheckboxLabelVariantProps["cursor"];
   list?: boolean;
-  padding?: boolean;
   // ---
   uiConfig?: { tooltip: CxOptions };
   class?: HTMLAttributes["class"];
+  itemClass?: HTMLAttributes["class"];
 }
