@@ -60,7 +60,7 @@ export default createMachine(
             id: "loading",
             entry: ["clearError", "clearItems"],
             invoke: {
-              src: "load",
+              src: "getAll",
               onDone: [
                 {
                   target: "processing",

@@ -5,9 +5,9 @@ import type { EnsureQueryDataOptions } from "@tanstack/query-core";
 // Request Types
 
 export interface RequestError {
+  data?: unknown;
   status?: number;
   message?: string;
-  data?: unknown;
 }
 
 export interface PaginatedError {
@@ -35,17 +35,19 @@ export interface PaginatedParams {
   pagination?: IAPIPagination;
 }
 
-export interface PaginatedResponse<T extends unknown> {
-  data: T;
-  total: number;
-  status: "ok" | "error"; // TODO: check if this is correct
-  errors: PaginatedError;
+// Response Types
+
+export interface QueryResponse<T extends unknown = unknown> {
+  data: T | null;
+  total: number | null;
+  status: ResponseStatus; // TODO: check if "ok" and "error" are the only possible values
+  errors: RequestError | null;
   messages: string | string[];
 }
 
 export interface PaginatedData<T extends unknown> {
   // response related
-  data: T | undefined;
+  data: T | null | undefined;
   // item related
   itemTo: number;
   itemFrom: number;
@@ -63,6 +65,11 @@ export interface PaginatedData<T extends unknown> {
 }
 
 // ---  ENUMS
+
+export enum ResponseStatus {
+  OK = "ok",
+  ERROR = "error",
+}
 
 export enum ApiSortDirection {
   ASC = "",

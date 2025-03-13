@@ -1,9 +1,9 @@
 // --- external
 
 // --- internal
-import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
+import { useClientAddresses } from "../address";
 
 import { useQuery, useSession } from "../..";
 
@@ -54,7 +54,7 @@ async function load(_context: CompaniesContext) {
 }
 
 async function loadLookups({ model }: CompanyContext) {
-  // lets start up/use our dependencies
+  // let's start up/use our dependencies
   const addresses = useClientAddresses();
   const phones = useClientPhones();
   const emails = useClientEmails();
@@ -63,8 +63,9 @@ async function loadLookups({ model }: CompanyContext) {
     addresses.isReady(),
     phones.isReady(),
     emails.isReady(),
-  ]).then(() => {
-    const defaultAddress = addresses.getDefault();
+  ]).then(async () => {
+    const defaultAddress = await addresses.getDefault();
+    // TODO: `defaultPhone` is not used.
     const defaultPhone = phones.getDefault();
     const defaultEmail = emails.getDefault();
     return {

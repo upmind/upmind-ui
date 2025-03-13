@@ -364,7 +364,7 @@ async function ensureDependencies({
       }),
 
     !model?.email
-      ? Promise.resolve(null)
+      ? null
       : emails
           .find(model.email)
           .then((item: any) => item?.state?.context?.model)
@@ -379,7 +379,7 @@ async function ensureDependencies({
           }),
 
     !model?.phone
-      ? Promise.resolve(null)
+      ? null
       : phones
           .find(model.phone)
           .then((item: any) => item?.state?.context?.model)
@@ -427,10 +427,10 @@ async function loadLookups(
     emails.isReady(),
     places.isReady(),
   ])
-    .then(() => {
+    .then(async () => {
       places.reset();
 
-      const address = addresses.getDefault();
+      const address = await addresses.getDefault();
       const email = emails.getDefault();
       const phone = phones.getDefault();
       return {
@@ -467,9 +467,9 @@ async function parse(
   const { fetchRegions, getCountry } = useSystem();
 
   if (!isEmpty(model)) {
-    // let scheck to see if weve been given a place to lookup
+    // let's check to see if weve been given a place to lookup
     // if we have:
-    //  1: get the place from our existing addressess by placeId
+    //  1: get the place from our existing addresses by placeId
     //  2: get the place details from google
     //  4: update the model with the place details
     if (model?.place) {

@@ -1,11 +1,11 @@
 // --- external
+import { isServer, QueryKey, QueryClient } from "@tanstack/query-core";
 
 // --- utils
-import { isServer, QueryClient } from "@tanstack/query-core";
+import { useQuery } from "./useQuery";
 import { map, set, reduce, isArray, isObject, camelCase } from "lodash-es";
 
-// --- Constants
-
+// --- constants
 export const PAGINATION = {
   offset: 0,
   pageSize: 10,
@@ -86,3 +86,19 @@ export function parseData(data: any) {
 
   return data;
 }
+
+/**
+ * Invalidate a query by its key.
+ * Perfect for invalidating a query after a mutation on a thenable
+ * @param queryKey The key of the query to invalidate
+ * @returns A function that takes the data and returns it after invalidating the query
+ * @example
+ *    put({ url: "/clients/address/1", data: { name: "New Name" } })
+ *       .then(invalidateQueryByKey(["clients", client.id, "addresses"]))
+ */
+export const invalidateQueryByKey =
+  (queryKey: QueryKey) =>
+  async <T>(data: T) => {
+    const { queryClient } = useQuery();
+    return queryClient.invalidateQueries({ queryKey }).then(() => data);
+  };
