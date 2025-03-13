@@ -121,6 +121,8 @@ const isSelectable = (element: HTMLElement) => {
   const isFocusableTag = selectableTypes.has(tag);
 
   const hasFocusableChildren =
+    element &&
+    typeof element?.querySelector === "function" &&
     element?.querySelector("input, textarea, select, button") !== null;
 
   return isFocusableTag || hasFocusableChildren;
