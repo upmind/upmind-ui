@@ -21,8 +21,7 @@
         :required="props.required"
         :disabled="props.disabled"
         :no-input="props.noInput"
-        :class="styles.checkboxCards.input"
-        :padding="props.padding"
+        :class="cn(styles.checkboxCards.input, props.itemClass)"
       >
         <Label
           :for="`${props.name}-${index}`"
