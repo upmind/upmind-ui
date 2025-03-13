@@ -9,19 +9,19 @@ import services from "./services";
 // --- utils
 import {
   get,
-  set,
   map,
+  set,
   reduce,
-  defaultsDeep,
-  uniqueId,
-  compact,
-  // pick,
   isArray,
+  compact,
+  uniqueId,
+  defaultsDeep,
 } from "lodash-es";
 
 // --- types
 import type { IAddress } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { ParsedAddress } from "./types";
 
 // ---
 export function useSchema({
@@ -381,19 +381,30 @@ export const spawnItem = (model?: IAddress) => {
   }
 };
 
-export const parseAddress = (raw: IAddress | IAddress[]) => {
+export const parseAddress = (raw: IAddress | IAddress[]): ParsedAddress[] => {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
-  // this is to allow for a 'unfied' way of handling addresses
+  // this is to allow for a 'unified' way of handling addresses
   const rawListings = isArray(raw) ? raw : [raw];
   return map(rawListings, rawItem => {
-    const mappedItem: any = {
+    // mappedItem.place = null;
+    return {
       id: rawItem.id,
       clientId: rawItem.client_id,
       addressId: rawItem.id,
       companyId: null,
       companyDetails: false,
       companyName: null,
+      title: rawItem.name || "New Address",
+      description: compact([
+        get(rawItem, "address1"),
+        get(rawItem, "address2"),
+        get(rawItem, "street"),
+        get(rawItem, "city"),
+        get(rawItem, "postcode"),
+        get(rawItem, "region.name"),
+        get(rawItem, "country.name"),
+      ]).join(", "),
       // ---
       name: rawItem.name,
       address1: rawItem.address_1,
@@ -408,7 +419,5 @@ export const parseAddress = (raw: IAddress | IAddress[]) => {
       canDelete: rawItem.can_delete,
       verified: rawItem.verified,
     };
-    // mappedItem.place = null;
-    return mappedItem;
   });
 };

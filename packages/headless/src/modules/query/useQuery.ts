@@ -7,10 +7,15 @@ import { doFetch, refreshToken } from "./services";
 // --- utils
 import { useUrl, responseCodes } from "../../utils";
 import { parseData, getQueryClient } from "./utils";
-import { get, set, unset, isString, method } from "lodash-es";
+import { get, set, unset, isString } from "lodash-es";
 
 // --- types
-import { QueryParams, RequestError, RequestParams } from "./types";
+import type {
+  QueryParams,
+  RequestError,
+  QueryResponse,
+  RequestParams,
+} from "./types";
 import { Methods } from "@upmind-automation/types";
 
 const queryClient = getQueryClient();
@@ -60,7 +65,7 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    return await doFetch<T>({ url, init }).catch(async error => {
+    return doFetch<T>({ url, init }).catch(async error => {
       const requestError = error as RequestError;
 
       if (requestError.status === responseCodes.Unauthorized) {
@@ -93,13 +98,13 @@ export const useQuery = () => {
     init,
     withAccessToken,
     ...options
-  }: QueryParams<T>): Promise<T> {
+  }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
     /**
      * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
      * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
      */
-    return await queryClient.ensureQueryData<T>({
-      queryFn: () => request<T>({ url, init, withAccessToken }),
+    return queryClient.ensureQueryData({
+      queryFn: () => request<QueryResponse<T>>({ url, init, withAccessToken }),
       ...options,
     });
   }
@@ -125,7 +130,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<T> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
@@ -133,7 +138,7 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
 
   /**
@@ -157,7 +162,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<T> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
@@ -165,7 +170,7 @@ export const useQuery = () => {
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
 
   /**
@@ -189,14 +194,14 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<T> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", JSON.stringify(data));
-    return request<T>({ url, init, withAccessToken });
+    return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
 
   /**
@@ -220,7 +225,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<T> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
@@ -228,7 +233,7 @@ export const useQuery = () => {
     set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
 
   /**
@@ -251,7 +256,7 @@ export const useQuery = () => {
     url,
     init,
     withAccessToken,
-  }: RequestParams): Promise<T> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
@@ -259,7 +264,7 @@ export const useQuery = () => {
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
-    return request<T>({ url, init, withAccessToken });
+    return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
 
   return {

@@ -1,179 +1,128 @@
 // --- external
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
+import {
+  useQuery,
+  useSystem,
+  useSession,
+  PaginatedParams,
+  useQueryPaginated,
+} from "../..";
 import { usePlaces } from "../places";
 import { useClientAddresses } from ".";
 
 // --- utils
-import { useValidation } from "../../../utils";
 import { parseAddress } from "./utils";
-import {
-  some,
-  first,
-  isEmpty,
-  find,
-  get,
-  includes,
-  filter,
-  defaultsDeep,
-  pick,
-  isEqual,
-} from "lodash-es";
+import { useValidation } from "../../../utils";
+import { get, some, find, first, isEmpty, defaultsDeep } from "lodash-es";
 
 // --- types
-import type { AnyEventObject } from "xstate";
-import { AddressTypes } from "./types";
-import type { AddressContext, AddressesContext, IAddressData } from "./types";
+import { IAddress } from "@upmind-automation/types";
+import type { AddressContext } from "./types";
+import { invalidateQueryByKey } from "../../query/utils";
+import { AddressTypes, IAddressData } from "./types";
 
 // -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
+// Queries
 
-// async function getEnums({ field }: AddressContext,) {
-//   const { getConfig } = useBrand();
-
-//   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
-//     BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-//   ).then(response =>
-//     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
-//   );
-// }
-
-async function load(_context: AddressesContext) {
+async function loadAll() {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get({
+  return get<IAddress[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
-      limit: 0,
       with: ["region", "country"].join(),
+      limit: 0,
     }),
-    queryKey: [
-      "clients",
-      client.id,
-      "addresses",
-      {
-        limit: 0,
-        with: ["region", "country"].join(),
-      },
-    ],
+    queryKey: ["clients", client.id, "addresses"],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => parseAddress(data));
+  }).then(({ data }) => parseAddress(data ?? []));
 }
 
-async function filterItems(
-  { raw }: AddressesContext,
-  { data }: AnyEventObject
-) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { get, useUrl } = useQueryPaginated();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  const filteredItems = filter(
-    raw,
-    item =>
-      includes(
-        item.getSnapshot().context?.title?.toLowerCase(),
-        data?.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.description?.toLowerCase(),
-        data?.toLowerCase()
-      )
-  );
-
-  return Promise.resolve(filteredItems);
-}
-
-async function findItem({ raw }: AddressesContext, { data }: AnyEventObject) {
-  if (isEmpty(data))
-    return Promise.reject({ error: "No data provided for filtering" });
-  const value = pick(data, [
-    "address1",
-    "address2",
-    "city",
-    "postcode",
-    "regionId",
-    "countryId",
-  ]);
-  // same here
-  const found = find(
-    raw,
-    item =>
-      isEqual(item.getSnapshot().context.model.id, data) ||
-      isEqual(
-        pick(item.getSnapshot().context.model, [
-          "address1",
-          "address2",
-          "city",
-          "postcode",
-          "regionId",
-          "countryId",
-        ]),
-        value
-      )
-  );
-
-  return new Promise((resolve, reject) => {
-    if (!found) reject();
-    resolve(found);
-  });
+  return get<IAddress[]>({
+    url: useUrl(`clients/${client.id}/addresses`, {
+      with: ["region", "country"].join(),
+    }),
+    queryKey: ["clients", client.id, "addresses"],
+    withAccessToken: true,
+    revalidateIfStale: true,
+    ...paginationParams,
+  }).then(({ data }) => parseAddress(data ?? []));
 }
 
 // -----------------------------------------------------------------------------
+// Mutations
 
-async function add({ model }: AddressContext) {
+async function add(address: IAddressData): Promise<IAddressData | null> {
   const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return post({
+  return post<IAddressData>({
     url: useUrl(`clients/${clientId}/addresses`),
-    data: model,
+    data: address,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
+    .then(({ data }) => data);
 }
 
-async function update({ model }: AddressContext) {
-  const { put, useUrl } = useQuery();
+async function update(address: IAddressData): Promise<IAddressData | null> {
   const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
-    data: model,
+  return put<IAddressData>({
+    url: useUrl(`clients/${clientId}/addresses/${address?.id}`),
+    data: address,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
+    .then(({ data }) => data);
 }
 
-async function remove({ model }: AddressContext) {
+async function remove(
+  addressId: IAddressData["id"]
+): Promise<IAddressData | null> {
   const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return del({
-    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
+  return del<IAddressData>({
+    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
+    .then(({ data }) => data);
 }
 
-async function setDefault({ model }: AddressContext) {
+async function setDefault(
+  addressId: IAddressData["id"]
+): Promise<IAddressData | null> {
   const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
+  return put<IAddressData>({
+    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
+    .then(({ data }) => data);
 }
+
 // -----------------------------------------------------------------------------
 
 async function loadLookups({ model }: AddressContext) {
@@ -192,8 +141,8 @@ async function loadLookups({ model }: AddressContext) {
 
   // ---
   // lets start up/use our dependencies
-  const addresses: any = useClientAddresses();
   const places = usePlaces();
+  const addresses = useClientAddresses();
 
   return Promise.all([addresses.isReady(), places.isReady()])
     .then(() => {
@@ -307,16 +256,19 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 // EXPORTS
 
 export default {
-  find: findItem,
-  load,
+  //--- queries
+  loadAll,
+  loadPaged,
   loadLookups,
-  validate,
-  parse,
-  setDefault,
+  //--- mutations
   add,
   update,
   remove,
-  filter: filterItems,
+  setDefault,
+  //--- utils
+  parse,
+  validate,
+  //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
