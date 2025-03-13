@@ -2,7 +2,12 @@
   <p
     :id="props.formMessageId"
     :name="toValue(props.name)"
-    class="flex w-full flex-col gap-1 text-sm font-medium text-control-error"
+    :class="
+      cn(
+        'flex w-full flex-col gap-1 text-sm font-medium text-control-error',
+        props.class
+      )
+    "
   >
     <span v-for="(error, index) in safeErrors" :key="`error-${index}`">
       {{ error }}
@@ -14,6 +19,7 @@
 import type { HTMLAttributes } from "vue";
 import { toValue, computed } from "vue";
 import { isArray } from "lodash-es";
+import { cn } from "../../utils";
 
 const props = defineProps<{
   formMessageId: string;
