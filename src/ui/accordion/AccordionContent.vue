@@ -4,7 +4,10 @@ import { AccordionContent, type AccordionContentProps } from "radix-vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
-  AccordionContentProps & { class?: HTMLAttributes["class"] }
+  AccordionContentProps & {
+    class?: HTMLAttributes["class"];
+    contentClass?: HTMLAttributes["class"];
+  }
 >();
 
 const delegatedProps = computed(() => {
@@ -17,7 +20,12 @@ const delegatedProps = computed(() => {
 <template>
   <AccordionContent
     v-bind="delegatedProps"
-    class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all"
+    :class="
+      cn(
+        'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all',
+        props.contentClass
+      )
+    "
   >
     <div :class="cn('pb-4 pt-0', props.class)">
       <slot />
