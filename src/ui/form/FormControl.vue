@@ -28,6 +28,7 @@ const props = defineProps<{
   formMessageId?: string;
   invalid?: boolean;
   autoFocus?: boolean;
+  animationDelay?: number;
 }>();
 
 // NB its important to remove some attributes that we use, but that ALSO have HTML attributes that dont correspond
@@ -108,6 +109,12 @@ if (meta.value.shouldFocus) {
     () => slotElement.value,
     async el => {
       if (el?.$el && isSelectable(el.$el)) {
+        if (props.animationDelay) {
+          await new Promise(resolve =>
+            setTimeout(resolve, props.animationDelay! + 10)
+          );
+        }
+
         useIntersectionObserver(el, entries => maybeFocus(entries));
       }
     }
