@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { type HTMLAttributes, computed } from "vue";
+import { vResizeObserver } from "@vueuse/components";
+import { type HTMLAttributes, computed, ref } from "vue";
 import { AccordionContent, type AccordionContentProps } from "radix-vue";
 import { cn } from "../../utils";
 
@@ -15,10 +16,24 @@ const delegatedProps = computed(() => {
 
   return delegated;
 });
+
+const contentRef = ref<InstanceType<typeof AccordionContent>>();
+
+// Create our own --accordion-content-height CSS variable as --radix-collapsible-content-height is unreliable
+const updateContentHeight = (entries: readonly ResizeObserverEntry[]) => {
+  if (entries.length === 0 || !contentRef.value?.$el) return;
+
+  const entry = entries[0];
+  const height = entry.target.clientHeight;
+
+  const cssVarName = "--accordion-content-height";
+  contentRef.value.$el.style.setProperty(cssVarName, `${height}px`);
+};
 </script>
 
 <template>
   <AccordionContent
+    ref="contentRef"
     v-bind="delegatedProps"
     :class="
       cn(
@@ -27,7 +42,10 @@ const delegatedProps = computed(() => {
       )
     "
   >
-    <div :class="cn('pb-4 pt-0', props.class)">
+    <div
+      v-resize-observer="updateContentHeight"
+      :class="cn('pb-4 pt-0', props.class)"
+    >
       <slot />
     </div>
   </AccordionContent>
