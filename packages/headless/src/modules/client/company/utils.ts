@@ -1,16 +1,18 @@
 // --- external
-import { spawn } from "xstate";
 
 // --- internal
-import itemMachine from "../item.machine";
-import { ItemActions as actions } from "./actions";
-import services from "./services";
 
 // --- utils
-import { get, uniqueId, map } from "lodash-es";
+import { get, map, isArray, compact } from "lodash-es";
 
 // --- types
-import type { ICompany } from "@upmind-automation/types";
+import type {
+  IRegion,
+  IAddress,
+  ICompany,
+  ICountry,
+} from "@upmind-automation/types";
+import { Company } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // ---
@@ -183,7 +185,7 @@ export const useUischema = () => {
         },
       },
       // ---
-      // We dont ever show this field as it is set by an action
+      // We don't ever show this field as it is set by an action
       // {
       //   type: "Control",
       //   scope: "#/properties/default",
@@ -198,23 +200,34 @@ export const useUischema = () => {
 };
 
 // ---
-export const spawnItem = (model?: ICompany) => {
-  try {
-    const name = get(model, "id", uniqueId("item_"));
-    return spawn(
-      itemMachine
-        .withConfig({
-          actions: actions as any,
-          services: services as any,
-        })
-        .withContext({ model }),
-      {
-        name,
-        sync: true,
-      }
-    );
-  } catch (err) {
-    // console.error("CompanyListings", "spawnItem", { model });
-    return null;
-  }
+export interface CompanyWithRelations extends ICompany {
+  address: IAddress & { country: ICountry; region: IRegion };
+}
+
+export const parseCompany = (
+  raw: CompanyWithRelations | CompanyWithRelations[]
+): Company[] => {
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, (rawItem: ICompany) => {
+    return {
+      id: rawItem.id,
+      emailId: rawItem.email_id,
+      phoneId: rawItem.phone_id,
+      addressId: rawItem.address_id,
+      title: rawItem.name,
+      description: compact([
+        get(rawItem, "address.address1"),
+        get(rawItem, "address.address2"),
+        get(rawItem, "address.street"),
+        get(rawItem, "address.city"),
+        get(rawItem, "address.postcode"),
+        get(rawItem, "address.region.name"),
+        get(rawItem, "address.country.name"),
+      ]).join(", "),
+      name: rawItem.name,
+      regNumber: rawItem.reg_number,
+      vatNumber: rawItem.vat_percent,
+      vatPercent: rawItem.vat_percent,
+    };
+  });
 };
