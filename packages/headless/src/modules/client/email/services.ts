@@ -1,156 +1,125 @@
 // --- external
 
 // --- internal
-import { useQuery, useSession } from "../..";
+import {
+  PaginatedParams,
+  useQuery,
+  useQueryPaginated,
+  useSession,
+} from "../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { includes, reduce, get, isEmpty, isEqual, find } from "lodash-es";
 
 // --- types
-import type { AnyEventObject } from "xstate";
-import type { EmailContext, EmailsContext } from "./types";
+import type { EmailContext } from "./types";
+import type { IEmail } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-async function load(_context: EmailsContext) {
+async function loadAll() {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get({
+  // TODO: check if we get `IEmail` from this request
+  return get<IEmail[]>({
     url: useUrl(`clients/${client.id}/emails`, {
       limit: 0,
     }),
     queryKey: ["clients", client.id, "emails", { limit: 0 }],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
-async function filterItems({ raw }: EmailsContext, { data }: AnyEventObject) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { get, useUrl } = useQueryPaginated();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  const filteredItems = reduce(
-    raw,
-    (result: any[], item) => {
-      const matches =
-        includes(
-          item.getSnapshot().context?.title?.toLowerCase(),
-          data?.toLowerCase()
-        ) ||
-        includes(
-          item.getSnapshot().context?.description?.toLowerCase(),
-          data?.toLowerCase()
-        );
-
-      if (matches) {
-        const model = get(item.getSnapshot, "context.model");
-        result.push(model);
-      }
-
-      return result;
-    },
-    []
-  );
-
-  return Promise.resolve(filteredItems);
-}
-
-async function findItem({ raw }: EmailsContext, { data }: AnyEventObject) {
-  if (isEmpty(data))
-    return Promise.reject({ error: "No data provided for filtering" });
-
-  const found = find(
-    raw,
-    item =>
-      isEqual(item.getSnapshot().context.model.id, data) ||
-      isEqual(item.getSnapshot().context.model.email, data)
-  );
-
-  return new Promise((resolve, reject) => {
-    if (!found) reject();
-    resolve(found);
-  });
-}
-
-// -----------------------------------------------------------------------------
-
-async function add({ model }: EmailContext) {
-  const { post, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return post({
-    url: useUrl(`clients/${clientId}/emails`),
-    data: {
-      email: model.email,
-      type: model.type,
-    },
+  return get<IEmail[]>({
+    url: useUrl(`clients/${client.id}/emails`),
+    queryKey: ["clients", client.id, "emails", { limit: 0 }],
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+    revalidateIfStale: true,
+    ...paginationParams,
+  }).then(({ data }) => data);
 }
-
-async function update({ model }: EmailContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    data: {
-      email: model.email,
-      type: model.type,
-    },
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
-}
-
-async function remove({ model }: EmailContext) {
-  const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
-}
-
-async function setDefault({ model }: EmailContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    data: { default: true },
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
-}
-
-// -----------------------------------------------------------------------------
 
 async function loadLookups(_context: EmailContext) {
   // we dont have any lookups for emails, so just return null
   return Promise.resolve(null);
 }
 
+// -----------------------------------------------------------------------------
+
+async function add(model: IEmail) {
+  const { post, useUrl } = useQuery();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return post<IEmail>({
+    url: useUrl(`clients/${clientId}/emails`),
+    data: {
+      type: model.type,
+      email: model.email,
+    },
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
+async function update(model: IEmail) {
+  const { put, useUrl } = useQuery();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return put<IEmail>({
+    url: useUrl(`clients/${clientId}/emails/${model.id}`),
+    data: {
+      type: model.type,
+      email: model.email,
+    },
+    withAccessToken: true,
+  }).then(({ data }: any) => data);
+}
+
+async function remove(emailId: IEmail["id"]) {
+  const { del, useUrl } = useQuery();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return del<IEmail>({
+    url: useUrl(`clients/${clientId}/emails/${emailId}`),
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
+async function setDefault(emailId: IEmail["id"]) {
+  const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
+
+  const clientId = await getUserId();
+
+  return put<IEmail>({
+    url: useUrl(`clients/${clientId}/emails/${emailId}`),
+    data: { default: true },
+    withAccessToken: true,
+  }).then(({ data }) => data);
+}
+
+// -----------------------------------------------------------------------------
+
 async function parse({ model }: EmailContext) {
-  // ---
   return Promise.resolve({ model });
 }
 
 async function validate({ schema, model }: EmailContext) {
-  // ---
-
   // Now validate the model as per normal
   const { validate } = useValidation();
 
@@ -168,16 +137,18 @@ async function validate({ schema, model }: EmailContext) {
 // EXPORTS
 
 export default {
-  find: findItem,
-  load,
+  //--- queries
+  loadAll,
   loadLookups,
-  parse,
-  validate,
-  setDefault,
+  //--- mutations
   add,
   update,
   remove,
-  filter: filterItems,
+  setDefault,
+  //--- utils
+  parse,
+  validate,
+  //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),

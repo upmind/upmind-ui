@@ -4,7 +4,7 @@
 import { useQuery, useQueryPaginated } from "../..";
 
 // --- utils
-import { isEmpty, map, omitBy } from "lodash-es";
+import { isEmpty, isNil, map, omitBy } from "lodash-es";
 import { parseAvailable, parseDomain, parseSld } from "./utils";
 
 // --- types
@@ -47,10 +47,14 @@ async function search({
       limit: search?.limit,
       offset: search.offset,
     },
-  }).then(({ data, pageTotal }) => ({
-    total: pageTotal || 0,
-    available: parseAvailable(sld, data),
-  }));
+  }).then(({ data, pageTotal }) => {
+    if (!isNil(data)) {
+      return {
+        total: pageTotal || 0,
+        available: parseAvailable(sld, data),
+      };
+    }
+  });
 }
 
 function getClientDomains({ controller }: DomainContext) {

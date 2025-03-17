@@ -2,33 +2,33 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
 import { usePlaces } from "../places";
-import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
+import { useClientAddresses } from "../address";
+import { useQuery, useSystem, useSession } from "../..";
 
 // --- utils
+import {
+  get,
+  some,
+  find,
+  pick,
+  first,
+  filter,
+  isEmpty,
+  isEqual,
+  includes,
+  isString,
+  defaultsDeep,
+} from "lodash-es";
 import { useValidation } from "../../../utils";
 import { parseAddress, parseCompany } from "./utils";
-import {
-  some,
-  first,
-  isEmpty,
-  find,
-  get,
-  includes,
-  filter,
-  defaultsDeep,
-  isString,
-  pick,
-  isEqual,
-} from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../address/types";
-import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
-import type { AnyEventObject, ActorRef } from "xstate";
+import { AnyEventObject, ActorRef } from "xstate";
+import { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // ENUMS
@@ -416,10 +416,10 @@ async function loadLookups(
 
   // ---
   // lets start up/use our dependencies
-  const addresses = useClientAddresses();
+  const places = usePlaces();
   const phones = useClientPhones();
   const emails = useClientEmails();
-  const places = usePlaces();
+  const addresses = useClientAddresses();
 
   return Promise.all([
     addresses.isReady(),
@@ -430,8 +430,11 @@ async function loadLookups(
     .then(async () => {
       places.reset();
 
-      const address = await addresses.getDefault();
-      const email = emails.getDefault();
+      const [email, address] = await Promise.all([
+        emails.getDefault(),
+        addresses.getDefault(),
+      ]);
+
       const phone = phones.getDefault();
       return {
         countries,
