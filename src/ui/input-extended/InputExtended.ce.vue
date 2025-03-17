@@ -3,7 +3,6 @@
     v-model="modelValue"
     v-bind="delegatedProps"
     :class="cn(styles.container, props.class)"
-    :input-class="styles.input"
   >
     <template #prepend>
       <slot name="prepend" />
@@ -68,6 +67,5 @@ const styles = useStyles(
   props.uiConfig ?? {}
 ) as ComputedRef<{
   container: string;
-  input: string;
 }>;
 </script>
