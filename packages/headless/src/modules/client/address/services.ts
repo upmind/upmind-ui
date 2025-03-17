@@ -18,9 +18,9 @@ import { get, some, find, first, isEmpty, defaultsDeep } from "lodash-es";
 
 // --- types
 import { IAddress } from "@upmind-automation/types";
-import type { AddressContext } from "./types";
+import { Address, AddressContext } from "./types";
 import { invalidateQueryByKey } from "../../query/utils";
-import { AddressTypes, IAddressData } from "./types";
+import { AddressTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -50,7 +50,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
-    queryKey: ["clients", client.id, "addresses"],
+    queryKey: ["clients", client.id, "addresses", { ...paginationParams }],
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
@@ -104,67 +104,55 @@ async function loadLookups({ model }: AddressContext) {
 // -----------------------------------------------------------------------------
 // Mutations
 
-async function add(address: IAddressData): Promise<IAddressData | null> {
-  const { post, useUrl } = useQuery();
+async function add(address: Address) {
   const { getUserId } = useSession();
+  const { post, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return post<IAddressData>({
+  post<IAddress>({
     url: useUrl(`clients/${clientId}/addresses`),
     data: address,
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
-    .then(({ data }) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
 }
 
-async function update(address: IAddressData): Promise<IAddressData | null> {
+async function update(address: Address) {
   const { getUserId } = useSession();
   const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return put<IAddressData>({
+  put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${address?.id}`),
     data: address,
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
-    .then(({ data }) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
 }
 
-async function remove(
-  addressId: IAddressData["id"]
-): Promise<IAddressData | null> {
+async function remove(addressId: Address["id"]) {
   const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return del<IAddressData>({
+  del<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
-    .then(({ data }) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
 }
 
-async function setDefault(
-  addressId: IAddressData["id"]
-): Promise<IAddressData | null> {
+async function setDefault(addressId: Address["id"]) {
   const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return put<IAddressData>({
+  put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(["clients", clientId, "addresses"]))
-    .then(({ data }) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
 }
 
 // -----------------------------------------------------------------------------

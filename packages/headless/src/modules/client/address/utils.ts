@@ -1,10 +1,6 @@
 //  --- external
-import { spawn } from "xstate";
 
 // --- internal
-import itemMachine from "../item.machine";
-import { ItemActions as actions } from "./actions";
-import services from "./services";
 
 // --- utils
 import {
@@ -14,14 +10,13 @@ import {
   reduce,
   isArray,
   compact,
-  uniqueId,
   defaultsDeep,
 } from "lodash-es";
 
 // --- types
+import type { Address } from "./types";
 import type { IAddress } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { ParsedAddress } from "./types";
 
 // ---
 export function useSchema({
@@ -95,7 +90,7 @@ export function useSchema({
             }),
       },
 
-      // not sure this is ever used, but it is in the type definition
+      // not sure if this is ever used, but it is in the type definition
       state: {
         type: ["string", "null"],
         title: "State",
@@ -215,7 +210,7 @@ export function useUischema({ addresses }: any): UISchemaElement {
           items: compact([
             lookups.addresses?.length
               ? {
-                  label: "Your saved addreses",
+                  label: "Your saved addresses",
                   i18n: "client.unified.form.fields.saved",
                   as: "separator",
                 }
@@ -324,7 +319,7 @@ export function useUischema({ addresses }: any): UISchemaElement {
       },
 
       // ---
-      // We dont ever show this field as it is set by an action
+      // We don't ever show this field as it is set by an action
       // {
       //   type: "Control",
       //   scope: "#/properties/default",
@@ -358,30 +353,7 @@ export const useModelParser = (
 };
 
 // ---
-export const spawnItem = (model?: IAddress) => {
-  try {
-    const name = get(model, "id", uniqueId("item_"));
-    return spawn(
-      itemMachine
-
-        .withConfig({
-          actions: actions as any,
-          services: services as any,
-        })
-        .withContext({ model }),
-      {
-        name,
-        sync: true,
-      }
-    );
-  } catch (err) {
-    // do nothing
-    // console.error("AddressListings", "spawnItem", { model });
-    return null;
-  }
-};
-
-export const parseAddress = (raw: IAddress | IAddress[]): ParsedAddress[] => {
+export const parseAddress = (raw: IAddress | IAddress[]): Address[] => {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
   // this is to allow for a 'unified' way of handling addresses
