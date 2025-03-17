@@ -3,6 +3,7 @@ module.exports = {
   root: true,
   extends: ["eslint:recommended"],
   parserOptions: {
+    sourceType: "module",
     ecmaVersion: "latest",
   },
   // custom rules here

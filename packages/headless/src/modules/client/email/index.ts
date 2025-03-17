@@ -1,99 +1,106 @@
 // --- external
-import type { ActorRef, AnyEventObject } from "xstate";
-import { interpret } from "xstate";
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import listingsMachine from "../listings.machine";
-import services from "./services";
-import { ListingActions as actions } from "./actions";
+import emails from "./services";
+import { useSession } from "../../session";
 
 // --- utils
-import { find, map, compact } from "lodash-es";
+import { QueryObserver } from "../../query";
+import { find, filter, isEqual } from "lodash-es";
 
 // --- types
+import { IEmail } from "@upmind-automation/types";
+import { UseClientEmails } from "./types";
+import { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
-// create a global instance of the system machine
-// and a global object to store state
-// NB dont automatically start the machine as in order for the inspector to work
-// it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(
-  listingsMachine.withConfig({
-    actions: actions as any,
-    services: services as any,
-  }),
-  {
-    devTools: false,
+let emailObserver: QueryObserver | undefined;
+
+/**
+ * Subscribe to the client address query that are present in the cache.
+ * This will trigger the callback function when the query is ready/updated.
+ * @param clientId The client id to which the addresses belong.
+ * @param callback The callback function to be called when the query is ready/updated.
+ * @returns The unsubscribe function
+ */
+const subscribeToClientEmail = ({
+  clientId,
+  callback,
+}: {
+  clientId: string;
+  callback: (data: QueryCacheNotifyEvent) => void;
+}) => {
+  if (!emailObserver) {
+    emailObserver = new QueryObserver({
+      queryKey: ["clients", clientId, "emails"],
+    });
   }
-);
+
+  return emailObserver.subscribe(data => {
+    if (
+      data.query.state.fetchStatus === "idle" &&
+      data.query.state.status === "success"
+    ) {
+      callback(data);
+    }
+  });
+};
 
 // -----------------------------------------------------------------------------
 
-export const useClientEmails = () => {
+export const useClientEmails = (): UseClientEmails => {
+  async function isReady() {
+    return new Promise<boolean>(async (resolve, reject) => {
+      const { isAuthenticated } = useSession();
+      const client = await isAuthenticated().catch(error => reject(error));
+
+      subscribeToClientEmail({
+        clientId: client.id as string,
+        callback: () => resolve(true),
+      });
+    });
+  }
+
+  async function getAllEmails() {
+    return emails.loadAll();
+  }
+
+  async function getOneEmail(id: IEmail["id"]) {
+    return getAllEmails().then(items => find(items, ["id", id]));
+  }
+
+  async function findOneEmail(param: string) {
+    return getAllEmails().then(items =>
+      find(items, item => isEqual(item.id, param) || isEqual(item.email, param))
+    );
+  }
+
+  async function filterEmails(param: string) {
+    return getAllEmails().then(items =>
+      filter(
+        items,
+        item => isEqual(item.id, param) || isEqual(item.email, param)
+      )
+    );
+  }
+
+  async function getDefaultEmail() {
+    return getAllEmails().then(items => find(items, "default"));
+  }
+
   return {
-    service: service.start(), // allow for interpreting the machine + inspecting it
-    // ---
-    isReady: async () =>
-      waitFor(
-        service,
-        state =>
-          state.matches("available") && !state.matches("available.loading")
-      ),
-    getSnapshot: service.getSnapshot,
-    getItemsSnapshot: () => service.getSnapshot()?.context?.items,
-    getItems: () =>
-      compact(
-        map(service.getSnapshot()?.context?.items, "state.context.model")
-      ),
-    getItemSnapshot: (id: any) =>
-      find(service.getSnapshot()?.context?.items, ["id", id]),
-    getItem: (id: any) =>
-      find(service.getSnapshot()?.context?.items, ["id", id])?.getSnapshot()
-        ?.context?.model,
-    getSelected: () => {
-      return waitFor(
-        service,
-        state =>
-          state.matches("available") && !state.matches("available.loading")
-      ).then(state => {
-        // first try to get the selected address from the context
-        if (state?.context?.selected) return state.context.selected;
-
-        // if no selected address, try to get the default address
-        const defaultAddress = find(
-          state?.context?.items,
-          "state.context.model.default"
-        );
-
-        // if we have a default address, select it
-        if (defaultAddress) {
-          service.send({ type: "SELECT", data: defaultAddress.id });
-          return defaultAddress;
-        }
-      });
-    },
-    getDefault: () =>
-      find(
-        service.getSnapshot()?.context?.items,
-        "state.context.model.default"
-      )?.getSnapshot()?.context?.model,
-
-    search: async (data: any) => {
-      service.send({ type: "FILTER", data });
-      return waitFor(service, state =>
-        state.matches("available.filtered")
-      ).then(state => {
-        return state.context.items;
-      });
-    },
-    find: (data: string) =>
-      services.find(service.getSnapshot().context, {
-        type: "FIND",
-        data,
-      } as AnyEventObject),
-    add: (data: any) => services.add(data),
-    refresh: () => service.send("REFRESH"),
+    isReady,
+    // --- getters
+    getOne: getOneEmail,
+    getAll: getAllEmails,
+    filter: filterEmails,
+    findOne: findOneEmail,
+    getDefault: getDefaultEmail,
+    // --- actions
+    add: emails.add,
+    update: emails.update,
+    remove: emails.remove,
+    setDefault: emails.setDefault,
   };
 };

@@ -74,7 +74,7 @@ export interface ParsedAddress {
   canDelete: IAddress["can_delete"];
 }
 
-export type UseClientAddresses = {
+export interface UseClientAddresses {
   /**
    * Check if the client addresses are loaded and ready.
    * @returns A promise that resolves to true when the addresses are ready.
@@ -84,14 +84,14 @@ export type UseClientAddresses = {
   /**
    * Get all the addresses for the current client.
    * @returns An array of parsed addresses if found, otherwise an empty array.
-   * @example getAll() // returns all addresses for the current client
+   * @example getAll().then((addresses) => console.log(addresses))
    */
   getAll: () => Promise<ParsedAddress[]>;
   /**
-   * Get a single address by its id.
+   * Get a single address by id.
    * @param id The id of the address to get.
    * @returns The address object if found, otherwise undefined.
-   * @example getOne("123") // returns the address with the id "123"
+   * @example getOne("123").then((address) => console.log(address))
    */
   getOne: (id: IAddress["id"]) => Promise<ParsedAddress | undefined>;
   /**
@@ -104,53 +104,53 @@ export type UseClientAddresses = {
   /**
    * Get the default address for the current client.
    * @returns The default address if found, otherwise undefined.
-   * @example getDefault() // returns the address marked as default
+   * @example getDefault().then((address) => console.log(address))
    */
   getDefault: () => Promise<ParsedAddress | undefined>;
   /**
-   * Filters the addresses based on the given filter.
+   * Filters the addresses by name or description.
    * @param param The filter string to filter the addresses with.
    * @returns An array of addresses that match the filter.
-   * @example filter("home") // returns all addresses with "home" in the title or description
+   * @example filter("home").then((addresses) => console.log(addresses))
    */
   filter: (param: string) => Promise<ParsedAddress[]>;
   /**
    * Find a single address based on the given param. The param is matched against the title and description.
    * @param param The filter to match against the address title and description.
    * @returns The address object if found, otherwise undefined.
-   * @example findOne("home") // returns an address with the title "Home Address"
+   * @example findOne("home").then((address) => console.log(address))
    */
   findOne: (param: string) => Promise<ParsedAddress | undefined>;
   /**
    * Add a new address to the client.
    * @param address The address data to add.
    * @returns The newly added address object.
-   * @example add({ title: "Home Address", description: "My home address" }) // adds a new address
-   * @see {IAddressData} for the address data structure.
+   * @example add({ title: "Home Address", description: "My home address" }).then((address) => console.log(address))
+   * @see {@link IAddressData} for the address data structure.
    */
   add: (address: IAddressData) => Promise<IAddressData | null>;
   /**
    * Remove an address from the client.
    * @param address The address data to remove.
    * @returns The removed address object.
-   * @example remove({ id: "123" }) // removes the address with the id "123"
-   * @see {IAddressData} for the address data structure.
+   * @example remove({ id: "123" }).then((address) => console.log(address)) // removes the address with the id "123"
+   * @see {@link IAddressData} for the address data structure.
    */
   remove: (id: IAddressData["id"]) => Promise<IAddressData | null>;
   /**
    * Update an existing address.
    * @param address The address data to update.
    * @returns The updated address object.
-   * @example update({ id: "123", title: "Home Address", description: "My home address" }) // updates the address with the id "123"
-   * @see {IAddressData} for the address data structure.
+   * @example update({ id: "123", title: "Home Address", description: "My home address" }).then((address) => console.log(address)) // updates the address with the id "123"
+   * @see {@link IAddressData} for the address data structure.
    */
   update: (address: IAddressData) => Promise<IAddressData | null>;
   /**
    * Mark an address as the default address for the client.
    * @param address The address data to set as default.
    * @returns The updated address object.
-   * @example setDefault({ id: "123" }) // sets the address with the id "123" as default
-   * @see {IAddressData} for the address data structure.
+   * @example setDefault({ id: "123" }).then((address) => console.log(address)) // sets the address with the id "123" as default
+   * @see {@link IAddressData} for the address data structure.
    */
   setDefault: (id: IAddressData["id"]) => Promise<IAddressData | null>;
-};
+}

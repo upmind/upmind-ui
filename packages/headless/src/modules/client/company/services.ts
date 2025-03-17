@@ -4,7 +4,6 @@
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
-
 import { useQuery, useSession } from "../..";
 
 // --- utils
@@ -12,8 +11,8 @@ import { useValidation } from "../../../utils";
 import { includes, filter } from "lodash-es";
 
 // --- types
-import type { AnyEventObject } from "xstate";
-import type { CompanyContext, CompaniesContext } from "./types";
+import { AnyEventObject } from "xstate";
+import { CompanyContext, CompaniesContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // SERVICE METHODS
@@ -55,19 +54,21 @@ async function load(_context: CompaniesContext) {
 
 async function loadLookups({ model }: CompanyContext) {
   // let's start up/use our dependencies
-  const addresses = useClientAddresses();
   const phones = useClientPhones();
   const emails = useClientEmails();
+  const addresses = useClientAddresses();
 
   return Promise.all([
     addresses.isReady(),
     phones.isReady(),
     emails.isReady(),
   ]).then(async () => {
-    const defaultAddress = await addresses.getDefault();
-    // TODO: `defaultPhone` is not used.
+    const [defaultEmail, defaultAddress] = await Promise.all([
+      emails.getDefault(),
+      addresses.getDefault(),
+    ]);
     const defaultPhone = phones.getDefault();
-    const defaultEmail = emails.getDefault();
+
     return {
       emails,
       addresses,
@@ -77,10 +78,10 @@ async function loadLookups({ model }: CompanyContext) {
         addressId: defaultAddress?.id,
         email: defaultEmail?.email,
         phone: {
-          number: defaultEmail?.phone?.number,
-          nationalNumber: defaultEmail?.phone?.national_number,
-          countryCallingCode: defaultEmail?.phone?.country_calling_code,
-          country: defaultEmail?.phone?.country,
+          number: defaultPhone?.number,
+          nationalNumber: defaultPhone?.national_number,
+          countryCallingCode: defaultPhone?.country_calling_code,
+          country: defaultPhone?.country,
         },
       },
     };

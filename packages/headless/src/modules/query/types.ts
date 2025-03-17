@@ -38,7 +38,7 @@ export interface PaginatedParams {
 // Response Types
 
 export interface QueryResponse<T extends unknown = unknown> {
-  data: T | null;
+  data: T;
   total: number | null;
   status: ResponseStatus; // TODO: check if "ok" and "error" are the only possible values
   errors: RequestError | null;

@@ -9,13 +9,13 @@ import { QueryObserver } from "../../query";
 import { find, filter, includes } from "lodash-es";
 
 // --- types
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-import { UseClientAddresses } from "./types";
 import { IAddress } from "@upmind-automation/types";
+import { UseClientAddresses } from "./types";
+import { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
 
-let clientObserver: QueryObserver | undefined;
+let addressObserver: QueryObserver | undefined;
 
 /**
  * Subscribe to the client address query that are present in the cache.
@@ -31,13 +31,13 @@ const subscribeToClientAddress = ({
   clientId: string;
   callback: (data: QueryCacheNotifyEvent) => void;
 }) => {
-  if (!clientObserver) {
-    clientObserver = new QueryObserver({
-      queryKey: ["client", clientId, "addresses"],
+  if (!addressObserver) {
+    addressObserver = new QueryObserver({
+      queryKey: ["clients", clientId, "addresses"],
     });
   }
 
-  return clientObserver.subscribe(data => {
+  return addressObserver.subscribe(data => {
     if (
       data.query.state.fetchStatus === "idle" &&
       data.query.state.status === "success"
@@ -62,52 +62,53 @@ export const useClientAddresses = (): UseClientAddresses => {
     });
   }
 
-  async function getOneAddress(id: IAddress["id"]) {
-    return addresses.loadAll().then(items => find(items, ["id", id]));
+  async function getAllAddresses() {
+    return addresses.loadAll();
   }
 
-  async function filterAddresses(param: string) {
-    return addresses
-      .loadAll()
-      .then(items =>
-        filter(
-          items,
-          item =>
-            includes(item.title.toLowerCase(), param.toLowerCase()) ||
-            includes(item.description.toLowerCase(), param.toLowerCase())
-        )
-      );
+  async function getOneAddress(id: IAddress["id"]) {
+    return getAllAddresses().then(items => find(items, ["id", id]));
   }
 
   async function findOneAddress(param: string) {
-    return addresses
-      .loadAll()
-      .then(items =>
-        find(
-          items,
-          item =>
-            includes(item.title.toLowerCase(), param.toLowerCase()) ||
-            includes(item.description.toLowerCase(), param.toLowerCase())
-        )
-      );
+    return getAllAddresses().then(items =>
+      find(
+        items,
+        item =>
+          includes(item.title.toLowerCase(), param.toLowerCase()) ||
+          includes(item.description.toLowerCase(), param.toLowerCase())
+      )
+    );
+  }
+
+  async function filterAddresses(param: string) {
+    return getAllAddresses().then(items =>
+      filter(
+        items,
+        item =>
+          includes(item.title.toLowerCase(), param.toLowerCase()) ||
+          includes(item.description.toLowerCase(), param.toLowerCase())
+      )
+    );
   }
 
   async function getDefaultAddress() {
-    return addresses.loadAll().then(items => find(items, "default"));
+    return getAllAddresses().then(items => find(items, "default"));
   }
 
   return {
     isReady,
+    //--- getters
     getOne: getOneAddress,
+    getAll: getAllAddresses,
     filter: filterAddresses,
     findOne: findOneAddress,
+    getPaged: addresses.loadPaged,
     getDefault: getDefaultAddress,
-    //---
+    //--- actions
     add: addresses.add,
-    getAll: addresses.loadAll,
     update: addresses.update,
     remove: addresses.remove,
-    getPaged: addresses.loadPaged,
     setDefault: addresses.setDefault,
   };
 };

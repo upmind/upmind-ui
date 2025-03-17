@@ -57,6 +57,50 @@ async function loadPaged(paginationParams: PaginatedParams) {
   }).then(({ data }) => parseAddress(data ?? []));
 }
 
+async function loadLookups({ model }: AddressContext) {
+  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
+
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so theres no worry about performance
+  await isReady().catch(error => Promise.reject(error));
+  const countries = await fetchCountries();
+  const country = getCountry(model?.countryId);
+  const regions = await fetchRegions(model?.countryId || country?.id);
+
+  if (!countries || !regions) {
+    return Promise.reject("Failed to load countries and regions");
+  }
+
+  // ---
+  // lets start up/use our dependencies
+  const places = usePlaces();
+  const addresses = useClientAddresses();
+
+  return Promise.all([addresses.isReady(), places.isReady()])
+    .then(() => {
+      places.reset();
+
+      return {
+        countries,
+        regions,
+        types: AddressTypes,
+        places,
+        country,
+        // ---
+        addresses,
+        // ---
+        baseModel: {
+          ...model,
+          manualPlace: !!model?.id,
+          type: first(AddressTypes)?.key,
+          place: null,
+          countryId: country?.id,
+        },
+      };
+    })
+    .catch(() => Promise.reject("Failed to load lookups"));
+}
+
 // -----------------------------------------------------------------------------
 // Mutations
 
@@ -124,50 +168,6 @@ async function setDefault(
 }
 
 // -----------------------------------------------------------------------------
-
-async function loadLookups({ model }: AddressContext) {
-  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
-
-  // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
-  await isReady().catch(error => Promise.reject(error));
-  const countries = await fetchCountries();
-  const country = getCountry(model?.countryId);
-  const regions = await fetchRegions(model?.countryId || country?.id);
-
-  if (!countries || !regions) {
-    return Promise.reject("Failed to load countries and regions");
-  }
-
-  // ---
-  // lets start up/use our dependencies
-  const places = usePlaces();
-  const addresses = useClientAddresses();
-
-  return Promise.all([addresses.isReady(), places.isReady()])
-    .then(() => {
-      places.reset();
-
-      return {
-        countries,
-        regions,
-        types: AddressTypes,
-        places,
-        country,
-        // ---
-        addresses,
-        // ---
-        baseModel: {
-          ...model,
-          manualPlace: !!model?.id,
-          type: first(AddressTypes)?.key,
-          place: null,
-          countryId: country?.id,
-        },
-      };
-    })
-    .catch(() => Promise.reject("Failed to load lookups"));
-}
 
 async function parse(
   // { addresses, schema, model, regions, country, places }: AddressContext,
