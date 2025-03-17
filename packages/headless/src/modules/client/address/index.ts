@@ -9,8 +9,7 @@ import { QueryObserver } from "../../query";
 import { find, filter, includes } from "lodash-es";
 
 // --- types
-import { IAddress } from "@upmind-automation/types";
-import { UseClientAddresses } from "./types";
+import { Address, UseClientAddresses } from "./types";
 import { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
@@ -24,7 +23,7 @@ let addressObserver: QueryObserver | undefined;
  * @param callback The callback function to be called when the query is ready/updated.
  * @returns The unsubscribe function
  */
-const subscribeToClientAddress = ({
+const subscribeToClientAddresses = ({
   clientId,
   callback,
 }: {
@@ -55,7 +54,7 @@ export const useClientAddresses = (): UseClientAddresses => {
       const { isAuthenticated } = useSession();
       const client = await isAuthenticated().catch(error => reject(error));
 
-      subscribeToClientAddress({
+      subscribeToClientAddresses({
         clientId: client.id as string,
         callback: () => resolve(true),
       });
@@ -66,7 +65,7 @@ export const useClientAddresses = (): UseClientAddresses => {
     return addresses.loadAll();
   }
 
-  async function getOneAddress(id: IAddress["id"]) {
+  async function getOneAddress(id: Address["id"]) {
     return getAllAddresses().then(items => find(items, ["id", id]));
   }
 
