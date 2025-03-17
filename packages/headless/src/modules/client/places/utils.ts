@@ -7,8 +7,7 @@ import { useSystem } from "../..";
 import { some, get, find, includes, map, compact } from "lodash-es";
 
 // --- types
-import type { ICountry } from "@upmind-automation/types";
-import { IAddressData } from "../address/types";
+import { Address } from "../address/types";
 
 // -----------------------------------------------------------------------------
 
@@ -56,7 +55,7 @@ export async function usePredictionsParser(results: any) {
   });
 }
 
-export async function usePlaceParser(result: any): Promise<IAddressData> {
+export async function usePlaceParser(result: any): Promise<Address> {
   const name = get(result, "name");
   const address = get(result, "address_components", []);
 
@@ -93,5 +92,5 @@ export async function usePlaceParser(result: any): Promise<IAddressData> {
     city,
     countryId: get(country, "id"),
     regionId: get(region, "id"),
-  } as IAddressData;
+  } as Address;
 }
