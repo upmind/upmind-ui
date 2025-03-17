@@ -1,55 +1,60 @@
 // --- external
 
 // --- internal
+import {
+  useQuery,
+  useSession,
+  PaginatedParams,
+  useQueryPaginated,
+} from "../..";
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
-import { useQuery, useSession } from "../..";
+import { invalidateQueryByKey } from "../../query/utils";
 
 // --- utils
+import { CompanyWithRelations, parseCompany } from "./utils";
 import { useValidation } from "../../../utils";
 import { includes, filter } from "lodash-es";
 
 // --- types
+import { ICompany } from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
-import { CompanyContext, CompaniesContext } from "./types";
+import { CompanyContext, CompaniesContext, Company } from "./types";
 
 // -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
+// Queries
 
-// async function getEnums({ field }: CompanyContext, ) {
-//   const { getConfig } = useBrand();
-
-//   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
-//     BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-//   ).then(response =>
-//     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
-//   );
-// }
-
-async function load(_context: CompaniesContext) {
+async function loadAll() {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get({
+  return get<CompanyWithRelations[]>({
     url: useUrl(`clients/${client.id}/companies`, {
-      // with: [].join(),
+      with: ["address", "address.country", "address.region"].join(),
       limit: 0,
     }),
-    queryKey: [
-      "clients",
-      client.id,
-      "companies",
-      {
-        // with: [].join(),
-        limit: 0,
-      },
-    ],
+    queryKey: ["clients", client.id, "companies"],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => parseCompany(data ?? []));
+}
+
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { get, useUrl } = useQueryPaginated();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
+
+  return get<CompanyWithRelations[]>({
+    url: useUrl(`clients/${client.id}/companies`, {
+      with: ["address", "address.country", "address.region"].join(),
+    }),
+    queryKey: ["clients", client.id, "companies", { ...paginationParams }],
+    withAccessToken: true,
+    revalidateIfStale: true,
+    ...paginationParams,
+  }).then(({ data }) => parseCompany(data ?? []));
 }
 
 async function loadLookups({ model }: CompanyContext) {
@@ -88,96 +93,72 @@ async function loadLookups({ model }: CompanyContext) {
   });
 }
 
-async function filterItems(
-  { raw }: CompaniesContext,
-  { data }: AnyEventObject
-) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
-
-  const filteredItems = filter(
-    raw,
-    item =>
-      includes(
-        item.getSnapshot().context?.title?.toLowerCase(),
-        data?.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.description?.toLowerCase(),
-        data?.toLowerCase()
-      )
-  );
-
-  return Promise.resolve(filteredItems);
-}
-
 // -----------------------------------------------------------------------------
+// Mutations
 
-async function add({ model }: CompanyContext) {
+async function add(company: Company) {
   const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return post({
+  post<ICompany>({
     url: useUrl(`clients/${clientId}/companies`),
     data: {
-      name: model.name,
-      address_id: model.addressId,
-      email_id: model.emailId,
-      phone_id: model.phoneId,
-      reg_number: model.regNumber,
-      vat_number: model.vatNumber,
-      // vat_percent: model.vatPercent,
+      name: company.name,
+      email_id: company.emailId,
+      phone_id: company.phoneId,
+      address_id: company.addressId,
+      reg_number: company.regNumber,
+      vat_number: company.vatNumber,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
 }
 
-async function update({ model }: CompanyContext) {
-  const { put, useUrl } = useQuery();
+async function update(company: Company) {
   const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/companies/${model.id}`),
+  put<ICompany>({
+    url: useUrl(`clients/${clientId}/companies/${company.id}`),
     data: {
-      name: model.name,
-      address_id: model.addressId,
-      email_id: model.emailId,
-      phone_id: model.phoneId,
-      reg_number: model.regNumber,
-      vat_number: model.vatNumber,
-      // vat_percent: model.vatPercent,
+      name: company.name,
+      email_id: company.emailId,
+      phone_id: company.phoneId,
+      address_id: company.addressId,
+      reg_number: company.regNumber,
+      vat_number: company.vatNumber,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
 }
 
-async function setDefault({ model }: CompanyContext) {
-  const { put, useUrl } = useQuery();
+async function remove(companyId: Company["id"]) {
   const { getUserId } = useSession();
+  const { del, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/companies/${model.id}`),
+  del<ICompany>({
+    url: useUrl(`clients/${clientId}/companies/${companyId}`),
+    withAccessToken: true,
+  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
+}
+
+async function setDefault(companyId: Company["id"]) {
+  const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
+
+  const clientId = await getUserId();
+
+  put<ICompany>({
+    url: useUrl(`clients/${clientId}/companies/${companyId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
-}
-
-async function remove({ model }: CompanyContext) {
-  const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/companies/${model.id}`),
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
 }
 
 // -----------------------------------------------------------------------------
@@ -208,15 +189,19 @@ async function validate({ schema, model }: CompanyContext) {
 // EXPORTS
 
 export default {
-  load,
+  //--- queries
+  loadAll,
+  loadPaged,
   loadLookups,
-  parse,
-  validate,
-  setDefault,
+  //--- mutations
   add,
   update,
   remove,
-  filter: filterItems,
+  setDefault,
+  //-- utils
+  parse,
+  validate,
+  //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
