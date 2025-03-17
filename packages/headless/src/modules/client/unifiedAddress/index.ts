@@ -12,8 +12,7 @@ import { ListingActions as actions } from "./actions";
 import { find, map, compact } from "lodash-es";
 
 // --- types
-import type { IAddressData } from "../address/types";
-import type { UnifiedAddressContext } from "./types";
+import type { Address } from "../address/types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the system machine
@@ -93,7 +92,7 @@ export const useClientUnifiedAddresses = () => {
         return state.context.items;
       });
     },
-    find: (data: IAddressData) =>
+    find: (data: Address) =>
       services.find(service.getSnapshot().context, {
         type: "FIND",
         data,

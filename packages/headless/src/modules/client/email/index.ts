@@ -96,6 +96,7 @@ export const useClientEmails = (): UseClientEmails => {
     getAll: getAllEmails,
     filter: filterEmails,
     findOne: findOneEmail,
+    getPaged: emails.loadPaged,
     getDefault: getDefaultEmail,
     // --- actions
     add: emails.add,

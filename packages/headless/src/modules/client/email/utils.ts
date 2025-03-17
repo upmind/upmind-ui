@@ -1,16 +1,13 @@
 // --- external
-import { spawn } from "xstate";
 
 // --- internal
-import itemMachine from "../item.machine";
-import { ItemActions as actions } from "./actions";
-import services from "./services";
 
 // --- utils
-import { get, uniqueId } from "lodash-es";
+import { map, isArray } from "lodash-es";
 export { useModelParser } from "../../../utils";
 
 // --- types
+import type { Email } from "./types";
 import type { IEmail } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
@@ -82,23 +79,15 @@ export const useUischema = () => {
 };
 
 // ---
-export const spawnItem = (model?: IEmail) => {
-  try {
-    const name = get(model, "id", uniqueId("item_"));
-    return spawn(
-      itemMachine
-        .withConfig({
-          actions: actions as any,
-          services: services as any,
-        })
-        .withContext({ model }),
-      {
-        name,
-        sync: true,
-      }
-    );
-  } catch (err) {
-    // console.error("EmailListings", "spawnItem", { model });
-    return null;
-  }
+export const parseEmail = (raw: IEmail | IEmail[]): Email[] => {
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, rawItem => {
+    return {
+      id: rawItem.id,
+      type: rawItem.type,
+      email: rawItem.email,
+      title: rawItem.email,
+      description: rawItem.verified ? "Verified" : "Unverified",
+    };
+  });
 };
