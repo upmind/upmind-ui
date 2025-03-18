@@ -3,13 +3,12 @@
 // --- internal
 import type { ICompany } from "@upmind-automation/types";
 import type { PaginatedParams } from "../../query";
-import type { ClientItemContext, ClientListingsContext } from "../types";
+import type { ClientItemContext } from "../types";
 // -----------------------------------------------------------------------------
 
 export interface CompanyContext extends ClientItemContext {
   addresses?: any;
 }
-export interface CompaniesContext extends ClientListingsContext {}
 
 export interface Company {
   //--- identifiers
@@ -22,6 +21,7 @@ export interface Company {
   description: string;
   //--- company details
   name: ICompany["name"];
+  default: ICompany["default"];
   regNumber: ICompany["reg_number"];
   vatNumber: ICompany["vat_number"];
   vatPercent: ICompany["vat_percent"];

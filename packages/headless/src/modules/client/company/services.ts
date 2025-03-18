@@ -1,26 +1,21 @@
 // --- external
 
 // --- internal
-import {
-  useQuery,
-  useSession,
-  PaginatedParams,
-  useQueryPaginated,
-} from "../..";
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
 import { invalidateQueryByKey } from "../../query/utils";
+import { useQuery, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { CompanyWithRelations, parseCompany } from "./utils";
+import { parseCompany } from "./utils";
 import { useValidation } from "../../../utils";
-import { includes, filter } from "lodash-es";
 
 // --- types
-import { ICompany } from "@upmind-automation/types";
-import { AnyEventObject } from "xstate";
-import { CompanyContext, CompaniesContext, Company } from "./types";
+import type { ICompany } from "@upmind-automation/types";
+import type { PaginatedParams } from "../..";
+import type { CompanyWithRelations } from "./utils";
+import type { CompanyContext, Company } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -68,11 +63,11 @@ async function loadLookups({ model }: CompanyContext) {
     phones.isReady(),
     emails.isReady(),
   ]).then(async () => {
-    const [defaultEmail, defaultAddress] = await Promise.all([
+    const [defaultEmail, defaultPhone, defaultAddress] = await Promise.all([
       emails.getDefault(),
+      phones.getDefault(),
       addresses.getDefault(),
     ]);
-    const defaultPhone = phones.getDefault();
 
     return {
       emails,
@@ -84,9 +79,9 @@ async function loadLookups({ model }: CompanyContext) {
         email: defaultEmail?.email,
         phone: {
           number: defaultPhone?.number,
-          nationalNumber: defaultPhone?.national_number,
-          countryCallingCode: defaultPhone?.country_calling_code,
           country: defaultPhone?.country,
+          nationalNumber: defaultPhone?.nationalNumber,
+          countryCallingCode: defaultPhone?.countryCallingCode,
         },
       },
     };
