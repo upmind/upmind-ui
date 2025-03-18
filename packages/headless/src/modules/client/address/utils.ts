@@ -386,8 +386,8 @@ export const parseAddress = (raw: IAddress | IAddress[]): Address[] => {
       regionId: rawItem.region_id,
       countryId: rawItem.country_id,
       // ---
-      default: rawItem.default,
       type: rawItem.type,
+      default: rawItem.default,
       canDelete: rawItem.can_delete,
       verified: rawItem.verified,
     };

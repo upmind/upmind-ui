@@ -33,8 +33,6 @@ export interface AddressContext extends ClientItemContext {
   model?: Address;
 }
 
-export interface AddressesContext extends ClientListingsContext {}
-
 export interface Address {
   // --- identifiers
   id: IAddress["id"];
