@@ -1,100 +1,109 @@
 // --- external
-import type { ActorRef, AnyEventObject } from "xstate";
-import { interpret } from "xstate";
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import listingsMachine from "../listings.machine";
-import services from "./services";
-import { ListingActions as actions } from "./actions";
+import phones from "./services";
+import { useSession } from "../../session";
+import { QueryObserver } from "../../query";
 
 // --- utils
-import { find, map, compact } from "lodash-es";
+import { find, filter, includes } from "lodash-es";
 
 // --- types
-import type { IPhoneData } from "./types";
+import type { Phone } from "./types";
+import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
-// create a global instance of the system machine
-// and a global object to store state
-// NB dont automatically start the machine as in order for the inspector to work
-// it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(
-  listingsMachine.withConfig({
-    actions: actions as any,
-    services: services as any,
-  }),
-  {
-    devTools: false,
+let phonesObserver: QueryObserver | undefined;
+
+const subscribeToClientPhones = ({
+  clientId,
+  callback,
+}: {
+  clientId: string;
+  callback: (data: QueryCacheNotifyEvent) => void;
+}) => {
+  if (!phonesObserver) {
+    phonesObserver = new QueryObserver({
+      queryKey: ["clients", clientId, "phones"],
+    });
   }
-);
+
+  return phonesObserver.subscribe(data => {
+    if (
+      data.query.state.fetchStatus === "idle" &&
+      data.query.state.status === "success"
+    ) {
+      callback(data);
+    }
+  });
+};
 
 // -----------------------------------------------------------------------------
 
 export const useClientPhones = () => {
-  return {
-    service: service.start(), // allow for interpreting the machine + inspecting it
-    // ---
-    isReady: async () =>
-      waitFor(
-        service,
-        state =>
-          state.matches("available") && !state.matches("available.loading")
-      ),
-    getSnapshot: service.getSnapshot,
-    getItemsSnapshot: () => service.getSnapshot()?.context?.items,
-    getItems: () =>
-      compact(
-        map(service.getSnapshot()?.context?.items, "state.context.model")
-      ),
-    getItemSnapshot: (id: any) =>
-      find(service.getSnapshot()?.context?.items, ["id", id]),
-    getItem: (id: any) =>
-      find(service.getSnapshot()?.context?.items, ["id", id])?.getSnapshot()
-        ?.context?.model,
-    getSelected: () => {
-      return waitFor(
-        service,
-        state =>
-          state.matches("available") && !state.matches("available.loading")
-      ).then(state => {
-        // first try to get the selected address from the context
-        if (state?.context?.selected) return state.context.selected;
+  function isReady() {
+    return new Promise<boolean>(async (resolve, reject) => {
+      const { isAuthenticated } = useSession();
+      const client = await isAuthenticated().catch(error => reject(error));
 
-        // if no selected address, try to get the default address
-        const defaultAddress = find(
-          state?.context?.items,
-          "state.context.model.default"
-        );
-
-        // if we have a default address, select it
-        if (defaultAddress) {
-          service.send({ type: "SELECT", data: defaultAddress.id });
-          return defaultAddress;
-        }
+      subscribeToClientPhones({
+        clientId: client.id as string,
+        callback: () => resolve(true),
       });
-    },
-    getDefault: () =>
+    });
+  }
+
+  async function getAllPhones() {
+    return phones.loadAll();
+  }
+
+  async function getOnePhone(id: Phone["id"]) {
+    return getAllPhones().then(phones => find(phones, ["id", id]));
+  }
+
+  async function findOnePhone(param: string) {
+    return getAllPhones().then(items =>
       find(
-        service.getSnapshot()?.context?.items,
-        "state.context.model.default"
-      )?.getSnapshot()?.context?.model,
+        items,
+        item =>
+          includes(item.title.toLowerCase(), param.toLowerCase()) ||
+          (item.description &&
+            includes(item?.description.toLowerCase(), param.toLowerCase()))
+      )
+    );
+  }
 
-    search: async (data: any) => {
-      service.send({ type: "FILTER", data });
-      return waitFor(service, state =>
-        state.matches("available.filtered")
-      ).then(state => {
-        return state.context.items;
-      });
-    },
-    find: (data: IPhoneData) =>
-      services.find(service.getSnapshot().context, {
-        type: "FIND",
-        data,
-      } as AnyEventObject),
-    add: (data: any) => services.add(data),
-    refresh: () => service.send("REFRESH"),
+  async function filterPhones(param: string) {
+    return getAllPhones().then(items =>
+      filter(
+        items,
+        item =>
+          includes(item.title.toLowerCase(), param.toLowerCase()) ||
+          (item.description &&
+            includes(item?.description.toLowerCase(), param.toLowerCase())) ||
+          includes(item.country.toUpperCase(), param.toUpperCase())
+      )
+    );
+  }
+
+  async function getDefaultPhone() {
+    return getAllPhones().then(items => find(items, "default"));
+  }
+
+  return {
+    isReady,
+    //--- getters
+    getOne: getOnePhone,
+    getAll: getAllPhones,
+    filter: filterPhones,
+    findOne: findOnePhone,
+    getPaged: phones.loadPaged,
+    getDefault: getDefaultPhone,
+    //--- actions
+    add: phones.add,
+    update: phones.update,
+    remove: phones.remove,
+    setDefault: phones.setDefault,
   };
 };
