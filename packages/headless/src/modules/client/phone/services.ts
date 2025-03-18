@@ -2,153 +2,113 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
+import { parsePhone } from "./utils";
 import { useValidation } from "../../../utils";
-import {
-  includes,
-  isString,
-  keyBy,
-  filter,
-  find,
-  isEmpty,
-  isEqual,
-} from "lodash-es";
+import { keyBy, isString } from "lodash-es";
+import { invalidateQueryByKey } from "../../query/utils";
 
 // --- types
-import type { AnyEventObject } from "xstate";
 import { PhoneTypes } from "./types";
-import type { PhoneContext, IPhoneData, PhonesContext } from "./types";
+import type { Phone } from "./types";
+import type { IPhone } from "@upmind-automation/types";
+import type { PhoneContext } from "./types";
+import type { PaginatedParams } from "../..";
 
 // -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
 
-async function load(_context: PhonesContext) {
+async function loadAll() {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get({
+  return get<IPhone>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
-    queryKey: [
-      "clients",
-      client.id,
-      "phones",
-      {
-        limit: 0,
-      },
-    ],
+    queryKey: ["clients", client.id, "phones"],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => parsePhone(data ?? []));
 }
 
-async function filterItems({ raw }: PhonesContext, { data }: AnyEventObject) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { get, useUrl } = useQueryPaginated();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  const filteredItems = filter(
-    raw,
-    item =>
-      includes(
-        item.getSnapshot().context?.title?.toLowerCase(),
-        data.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.description?.toLowerCase(),
-        data.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.country?.code.toUpperCase(),
-        data.toUpperCase()
-      )
-  );
-
-  return Promise.resolve(filteredItems);
-}
-
-async function findItem({ raw }: PhonesContext, { data }: AnyEventObject) {
-  if (isEmpty(data))
-    return Promise.reject({ error: "No data provided for filtering" });
-
-  const found = find(
-    raw,
-    item =>
-      isEqual(item.getSnapshot().context.model.id, data) ||
-      isEqual(item.getSnapshot().context.model.phone, data)
-  );
-
-  return new Promise((resolve, reject) => {
-    if (!found) reject();
-    resolve(found);
-  });
+  return get<IPhone>({
+    url: useUrl(`clients/${client.id}/phones`),
+    queryKey: ["clients", client.id, "phones", { ...paginationParams }],
+    withAccessToken: true,
+    revalidateIfStale: true,
+    ...paginationParams,
+  }).then(({ data }) => parsePhone(data ?? []));
 }
 
 // -----------------------------------------------------------------------------
 
-async function add({ model }: PhoneContext) {
+async function add(phone: Phone) {
   const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return post({
+  await post({
     url: useUrl(`clients/${clientId}/phones`),
     data: {
-      phone: model.phone.nationalNumber, // without the country code
-      phone_code: `+${model.phone.countryCallingCode}`,
-      phone_country_code: model.phone.country,
-      type: model.type,
+      type: phone.type,
+      phone: phone.nationalNumber, // without the country code
+      phone_code: `+${phone.countryCallingCode}`,
+      phone_country_code: phone.country,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
 }
 
-async function update({ model }: PhoneContext) {
-  const { put, useUrl } = useQuery();
+async function update(phone: Phone) {
   const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
+  await put({
+    url: useUrl(`clients/${clientId}/phones/${phone.id}`),
     data: {
-      phone: model.phone.nationalNumber, // without the country code
-      phone_code: `+${model.phone.countryCallingCode}`,
-      phone_country_code: model.phone.country,
-      type: model.type,
+      type: phone.type,
+      phone: phone.nationalNumber, // without the country code
+      phone_code: `+${phone.countryCallingCode}`,
+      phone_country_code: phone.country,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
 }
 
-async function remove({ model }: PhoneContext) {
+async function remove(phoneId: Phone["id"]) {
+  const { getUserId } = useSession();
   const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  return del({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
+  await del({
+    url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
 }
 
-async function setDefault({ model }: PhoneContext) {
-  const { put, useUrl } = useQuery();
+async function setDefault(phoneId: Phone["id"]) {
   const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  return put({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
+  await put({
+    url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
 }
 
 // -----------------------------------------------------------------------------
@@ -216,16 +176,19 @@ async function validate({ schema, model }: PhoneContext) {
 // EXPORTS
 
 export default {
-  find: findItem,
-  load,
+  //--- queries
+  loadAll,
+  loadPaged,
   loadLookups,
-  parse,
-  validate,
-  setDefault,
+  //--- mutations
   add,
   update,
   remove,
-  filter: filterItems,
+  setDefault,
+  //--- utils
+  parse,
+  validate,
+  //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),

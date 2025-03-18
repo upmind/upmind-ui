@@ -1,24 +1,16 @@
 // --- external
-import { spawn } from "xstate";
 
 // --- internal
-import itemMachine from "../item.machine";
-import { ItemActions as actions } from "./actions";
-import services from "./services";
 
 // --- utils
-import { map, get, uniqueId } from "lodash-es";
+import { map, get, isArray, compact } from "lodash-es";
 
 // --- types
-// TODO:
 import { PhoneTypes } from "./types";
-import type { PhoneContext } from "./types";
-import { IPhone, ICountry } from "@upmind-automation/types";
+import type { Phone } from "./types";
+import type { IPhone, ICountry } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
-// TODO:
-// export const useSchema = ({ country }: PhoneContext) => {
 export const useSchema = ({ country }: { country: ICountry }) => {
   const schema = {
     type: "object",
@@ -133,24 +125,23 @@ export const useUischema = () => {
   return schema as UISchemaElement;
 };
 
-// ---
-export const spawnItem = (model?: IPhone) => {
-  try {
-    const name = get(model, "id", uniqueId("item_"));
-    return spawn(
-      itemMachine
-        .withConfig({
-          actions: actions as any,
-          services: services as any,
-        })
-        .withContext({ model }),
-      {
-        name,
-        sync: true,
-      }
-    );
-  } catch (err) {
-    // console.error("PhoneListings", "spawnItem", { model });
-    return null;
-  }
+export const parsePhone = (raw: IPhone | IPhone[]): Phone[] => {
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, rawItem => {
+    let rawType = get(rawItem, "type");
+    const type = rawType ? get(PhoneTypes, rawType) : undefined;
+
+    return {
+      id: rawItem.id,
+      type: rawItem.type,
+      default: rawItem.default,
+      country: rawItem.phone_country_code,
+      nationalNumber: rawItem.phone,
+      countryCallingCode: rawItem.phone_code,
+      title: get(rawItem, "international_phone"),
+      description: compact([get(rawItem, "phone_country_code"), type]).join(
+        " | "
+      ),
+    };
+  });
 };
