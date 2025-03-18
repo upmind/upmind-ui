@@ -3,19 +3,21 @@
 // --- internal
 import type { IEmail } from "@upmind-automation/types";
 import type { PaginatedParams } from "../../query";
-import type { ClientItemContext, ClientListingsContext } from "../types";
+import type { ClientItemContext } from "../types";
 // -----------------------------------------------------------------------------
 
 export interface EmailContext extends ClientItemContext {}
 
-export interface EmailsContext extends ClientListingsContext {}
-
 export interface Email {
+  //--- identifier
   id: IEmail["id"];
-  type: IEmail["type"];
-  email: IEmail["email"];
+  //--- computed details
   title: string;
   description: string;
+  //--- email details
+  type: IEmail["type"];
+  email: IEmail["email"];
+  default: IEmail["default"];
 }
 
 export interface UseClientEmails {
