@@ -87,6 +87,7 @@ export const parseEmail = (raw: IEmail | IEmail[]): Email[] => {
       type: rawItem.type,
       email: rawItem.email,
       title: rawItem.email,
+      default: rawItem.default,
       description: rawItem.verified ? "Verified" : "Unverified",
     };
   });
