@@ -225,6 +225,7 @@ export const parseCompany = (
         get(rawItem, "address.country.name"),
       ]).join(", "),
       name: rawItem.name,
+      default: rawItem.default,
       regNumber: rawItem.reg_number,
       vatNumber: rawItem.vat_percent,
       vatPercent: rawItem.vat_percent,
