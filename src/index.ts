@@ -19,6 +19,7 @@ export * from "./ui/icon";
 export * from "./ui/icon-animated";
 export * from "./ui/indicator";
 export * from "./ui/input";
+export * from "./ui/input-extended";
 export * from "./ui/interstitial";
 export * from "./ui/label";
 export * from "./ui/lineclamp";

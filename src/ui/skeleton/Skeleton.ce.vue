@@ -8,7 +8,7 @@ const props = defineProps<SkeletonProps>();
 <template>
   <div
     :class="
-      cn('bg-base-muted muted w-auto animate-pulse rounded-md', props.class)
+      cn('bg-base-muted muted w-auto animate-pulse rounded-lg', props.class)
     "
   >
     <div class="w-auto select-none opacity-0"><slot>Skeleton</slot></div>
