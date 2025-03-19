@@ -1,7 +1,7 @@
 <template>
   <Button
     :loading="loading"
-    :class="cn(variants.select.trigger)"
+    :class="cn(variants.select.trigger, props.class)"
     :size="size"
     :aria-expanded="open"
     variant="control"
@@ -44,7 +44,7 @@ import { Icon } from "../../icon";
 import type { ComputedRef } from "vue";
 import type { SelectCardsTriggerProps } from "../types";
 
-defineProps<SelectCardsTriggerProps>();
+const props = defineProps<SelectCardsTriggerProps>();
 
 const variants = useStyles(["select"], {}, config, {}) as ComputedRef<{
   select: {
