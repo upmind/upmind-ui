@@ -14,7 +14,7 @@
       <span
         v-if="label"
         class="truncate"
-        :class="{ 'sr-only': props.iconOnly }"
+        :class="{ 'sr-only': props.iconOnly, truncate: truncate }"
         >{{ label }}</span
       >
     </slot>
@@ -59,6 +59,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   variant: "flat",
   block: false,
   focusable: true,
+  truncate: true,
   // --- styles
   uiConfig: () => ({ button: [] }),
   class: "",

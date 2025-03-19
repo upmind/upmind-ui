@@ -4,7 +4,7 @@ import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 // ---
 
-export const rootVariants = cva("relative rounded-md", {
+export const rootVariants = cva("relative rounded-lg", {
   variants: {
     width: {
       full: "w-full",
@@ -18,7 +18,7 @@ export const rootVariants = cva("relative rounded-md", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} flex w-dropdown-2xs items-center justify-between rounded-md border border-control pr-3 leading-none outline-none`,
+  `${ringClasses} ${invalidRingClasses} flex w-dropdown-2xs items-center justify-between rounded-lg border border-control pr-3 leading-none outline-none`,
   {
     variants: {
       size: {
@@ -82,7 +82,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled data-[highlighted]:bg-base-muted relative flex !cursor-pointer select-none items-center justify-between rounded-md px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:outline-none"
+      "data-[disabled]:text-control-disabled data-[highlighted]:bg-base-muted relative flex !cursor-pointer select-none items-center justify-between rounded-lg px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:outline-none"
     ),
     indicator: cva("pr-2"),
   },

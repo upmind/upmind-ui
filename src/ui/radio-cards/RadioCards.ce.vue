@@ -18,6 +18,8 @@
         :model-value="modelValue"
         :width="props.width"
         :value="option.value"
+        :class="props.radioClass"
+        :uiConfig="props.uiConfig"
         @keydown.enter="onChange(option.value)"
       >
         <template #item="slotProps">
