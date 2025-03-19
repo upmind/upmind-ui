@@ -3,13 +3,7 @@ import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
-import type {
-  inputExtendedVariants,
-  inputContainerVariants,
-} from "./inputExtended.config";
-export type InputExtendedVariantProps = VariantProps<
-  typeof inputExtendedVariants
->;
+import type { inputContainerVariants } from "./inputExtended.config";
 
 export type InputContainerVariantProps = VariantProps<
   typeof inputContainerVariants
@@ -37,7 +31,7 @@ export interface InputExtendedProps {
   min?: number | string;
   step?: number;
   // --- variants
-  inputSize?: InputExtendedVariantProps["inputSize"];
+  inputSize?: InputContainerVariantProps["inputSize"];
   width?: InputContainerVariantProps["width"];
   // ---
   uiConfig?: { input?: CxOptions };
