@@ -23,9 +23,9 @@
 
     <span
       v-if="props.loading && props.spinner"
-      class="spinner absolute bottom-1 left-1 right-1 top-1 m-auto"
+      class="spinner absolute inset-0 flex items-center justify-center"
     >
-      <Spinner />
+      <Spinner size="sm" />
     </span>
   </ButtonRoot>
 </template>
