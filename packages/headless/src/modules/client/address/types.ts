@@ -5,6 +5,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { PaginatedParams } from "../../query";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 import type { ClientItemContext, ClientListingsContext } from "../types";
+import { usePlaces } from "../places";
 // -----------------------------------------------------------------------------
 
 export const AddressTypes = [
@@ -16,6 +17,8 @@ export const AddressTypes = [
 
 export interface AddressContext extends ClientItemContext {
   country?: ICountry;
+  countries: ICountry[];
+  places: ReturnType<typeof usePlaces>;
   regions?: IRegion[];
   addresses: any; // Composable to the address context
   types?: typeof AddressTypes;
@@ -36,6 +39,8 @@ export interface AddressContext extends ClientItemContext {
 export interface Address {
   // --- identifiers
   id: IAddress["id"];
+  place?: string;
+  manualPlace?: boolean;
   clientId: IAddress["client_id"];
   regionId: IAddress["region_id"];
   addressId: IAddress["id"];
@@ -51,6 +56,7 @@ export interface Address {
   name: IAddress["name"];
   city: IAddress["city"];
   type: IAddress["type"];
+  state: IAddress["state"];
   default: IAddress["default"];
   address1: IAddress["address_1"];
   address2: IAddress["address_2"];
@@ -106,36 +112,6 @@ export interface UseClientAddresses {
    * @example findOne("home").then((address) => console.log(address))
    */
   findOne: (param: string) => Promise<Address | undefined>;
-  /**
-   * Add a new address to the client.
-   * @param address The address data to add.
-   * @returns Does not return anything.
-   * @example add({ title: "Home Address", description: "My home address" }).catch((error) => console.error(error))
-   * @see {@link Address} for the address data structure.
-   */
-  add: (address: Address) => Promise<void>;
-  /**
-   * Remove an address from the client.
-   * @param address The address data to remove.
-   * @returns Does not return anything.
-   * @example remove("123").catch((error) => console.error(error)) // removes the address with the id "123"
-   * @see {@link Address} for the address data structure.
-   */
-  remove: (id: Address["id"]) => Promise<void>;
-  /**
-   * Update an existing address.
-   * @param address The address data to update.
-   * @returns Does not return anything.
-   * @example update({ id: "123", title: "Home Address", description: "My home address" }).catch((error) => console.error(error))
-   * @see {@link Address} for the address data structure.
-   */
-  update: (address: Address) => Promise<void>;
-  /**
-   * Mark an address as the default address for the client.
-   * @param address The address data to set as default.
-   * @returns Does not return anything.
-   * @example setDefault("123").catch((error) => console.error(error)) // sets the address with the id "123" as default
-   * @see {@link Address} for the address data structure.
-   */
-  setDefault: (id: Address["id"]) => Promise<void>;
 }
+
+export interface UseClientAddress {}

@@ -1,0 +1,53 @@
+//  --- external
+
+// --- internal
+
+// --- utils
+import { get, map, isArray, compact } from "lodash-es";
+
+// --- types
+import type { Address } from "./types";
+import type { IAddress } from "@upmind-automation/types";
+
+// ---
+export const mapAddress = (raw: IAddress | IAddress[]): Address[] => {
+  // we could get a plain address OR a company with and address
+  // so we normalize the data to always be an array of addresses
+  // this is to allow for a 'unified' way of handling addresses
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, rawItem => {
+    // mappedItem.place = null;
+    return {
+      id: rawItem.id,
+      clientId: rawItem.client_id,
+      addressId: rawItem.id,
+      companyId: null,
+      companyDetails: false,
+      companyName: null,
+      title: rawItem.name || "New Address",
+      description: compact([
+        get(rawItem, "address1"),
+        get(rawItem, "address2"),
+        get(rawItem, "street"),
+        get(rawItem, "city"),
+        get(rawItem, "postcode"),
+        get(rawItem, "region.name"),
+        get(rawItem, "country.name"),
+      ]).join(", "),
+      // ---
+      name: rawItem.name,
+      address1: rawItem.address_1,
+      address2: rawItem.address_2,
+      city: rawItem.city,
+      state: rawItem.state,
+      postcode: rawItem.postcode,
+      regionId: rawItem.region_id,
+      countryId: rawItem.country_id,
+      // ---
+      type: rawItem.type,
+      default: rawItem.default,
+      canDelete: rawItem.can_delete,
+      verified: rawItem.verified,
+    };
+  });
+};

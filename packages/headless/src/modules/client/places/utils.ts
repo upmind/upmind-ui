@@ -4,10 +4,11 @@
 import { useSystem } from "../..";
 
 // --- utils
-import { some, get, find, includes, map, compact } from "lodash-es";
+import { some, get, find, includes, map, compact, isArray } from "lodash-es";
 
 // --- types
 import { Address } from "../address/types";
+import { Places } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -59,8 +60,6 @@ export async function usePlaceParser(result: any): Promise<Address> {
   const name = get(result, "name");
   const address = get(result, "address_components", []);
 
-  // console.debug("usePlaceParser", result);
-
   const address_1 = compact([
     parseValue(address, ["street_number"]),
     parseValue(address, ["route"]),
@@ -93,4 +92,14 @@ export async function usePlaceParser(result: any): Promise<Address> {
     countryId: get(country, "id"),
     regionId: get(region, "id"),
   } as Address;
+}
+
+export function parsePlaces(api: google.maps.PlacesLibrary): Places {
+  return {
+    places: new api.PlacesService(document.createElement("div")),
+    service: new api.AutocompleteService(),
+    statuses: api.PlacesServiceStatus,
+    sessionToken: new api.AutocompleteSessionToken(),
+    AutocompleteSessionToken: api.AutocompleteSessionToken,
+  };
 }
