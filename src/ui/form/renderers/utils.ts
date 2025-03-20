@@ -33,8 +33,12 @@ export const useUpmindUIRenderer = <
     }
   );
 
-  const onInput = (value: any, options: { touched?: boolean } = {}) => {
-    touched.value = options?.touched ?? true;
+  const onInput = (value: any) => {
+    touched.value = true;
+    input.handleChange(input.control.value.path, adaptTarget(value));
+  };
+
+  const onDefault = (value: any) => {
     input.handleChange(input.control.value.path, adaptTarget(value));
   };
 
@@ -71,6 +75,7 @@ export const useUpmindUIRenderer = <
     appliedOptions,
     formFieldProps,
     onInput,
+    onDefault,
   };
 };
 
