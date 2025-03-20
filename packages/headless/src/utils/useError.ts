@@ -22,7 +22,7 @@ export class CacheIsStaleError extends Error {
   code: number;
   constructor() {
     super("The data is stale. Please make sure that you refresh the data.");
-    this.code = responseCodes.Unprocessable_Entity;
+    this.code = responseCodes.Conflict;
   }
 }
 
@@ -33,5 +33,15 @@ export class CacheIsNotAvailableError extends Error {
       "The data is not ready yet. Please make sure that you requested data first."
     );
     this.code = responseCodes.Unprocessable_Entity;
+  }
+}
+
+export class UserIsNotAuthenticatedError extends Error {
+  code: number;
+  constructor() {
+    super(
+      "The user is not authenticated. Please make sure that you are logged in."
+    );
+    this.code = responseCodes.Unauthorized;
   }
 }

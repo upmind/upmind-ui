@@ -1,30 +1,14 @@
-// --- external
-
 // --- internal
 import { usePlaces } from "../places";
 import { useClientAddress } from "./useClientAddress";
 
 // --- types
-import type {
-  ServiceMap,
-  AnyEventObject,
-  TypegenDisabled,
-  BaseActionObject,
-  ResolveTypegenMeta,
-} from "xstate";
 import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
-
-type Typegen = ResolveTypegenMeta<
-  TypegenDisabled,
-  AnyEventObject,
-  BaseActionObject,
-  ServiceMap
->;
 
 export const AddressTypes = [
   { key: 1, value: "Home" },
@@ -111,6 +95,13 @@ export interface UseClientAddresses {
    * @example findOne("home").then((address) => console.log(address))
    */
   findOne: (param: string) => Promise<Address | undefined>;
+  /**
+   * Get all the addresses from the cache.
+   * @returns An array of parsed addresses if found, otherwise an empty array.
+   * @example getAllFromCache().then((addresses) => console.log(addresses))
+   * @throws {@link CacheIsStaleError} when the cache is stale
+   */
+  getAllFromCache: () => Address[];
 }
 
 export interface AddressContext extends ClientItemContext {

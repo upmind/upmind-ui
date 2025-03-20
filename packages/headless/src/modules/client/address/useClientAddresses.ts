@@ -1,9 +1,14 @@
-import type { Address, UseClientAddresses } from "./types";
-import { useSession } from "../../session";
+// --- internal
 import services from "./services";
-import { filter, find, includes } from "lodash-es";
+import { useSession } from "../../session";
 import { QueryObserver } from "../../query";
+
+// --- utils
+import { filter, find, includes } from "lodash-es";
+
+// --- types
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
+import type { Address, UseClientAddresses } from "./types";
 
 let addressObserver: QueryObserver | undefined;
 
@@ -15,15 +20,13 @@ let addressObserver: QueryObserver | undefined;
  * @returns The unsubscribe function
  */
 const subscribeToClientAddresses = ({
-  clientId,
   callback,
 }: {
-  clientId: string;
   callback: (data: QueryCacheNotifyEvent) => void;
 }) => {
   if (!addressObserver) {
     addressObserver = new QueryObserver({
-      queryKey: ["clients", clientId, "addresses"],
+      queryKey: services.queryKey,
     });
   }
 
@@ -41,17 +44,23 @@ export const useClientAddresses = (): UseClientAddresses => {
   function isReady() {
     return new Promise<boolean>(async (resolve, reject) => {
       const { isAuthenticated } = useSession();
-      const client = await isAuthenticated().catch(error => reject(error));
 
-      subscribeToClientAddresses({
-        clientId: client.id as string,
-        callback: () => resolve(true),
-      });
+      isAuthenticated()
+        .then(() =>
+          subscribeToClientAddresses({
+            callback: () => resolve(true),
+          })
+        )
+        .catch(error => reject(error));
     });
   }
 
   async function getAllAddresses() {
     return services.loadAll();
+  }
+
+  function getAllAddressesFromCache() {
+    return services.loadAllFromCache();
   }
 
   async function getOneAddress(id: Address["id"]) {
@@ -93,5 +102,6 @@ export const useClientAddresses = (): UseClientAddresses => {
     findOne: findOneAddress,
     getPaged: services.loadPaged,
     getDefault: getDefaultAddress,
+    getAllFromCache: getAllAddressesFromCache,
   };
 };
