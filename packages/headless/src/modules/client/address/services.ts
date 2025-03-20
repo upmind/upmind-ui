@@ -12,10 +12,18 @@ import { usePlaces } from "../places";
 import { useClientAddresses } from "./useClientAddresses";
 
 // --- utils
+import {
+  get,
+  some,
+  find,
+  first,
+  isNil,
+  isEmpty,
+  defaultsDeep,
+} from "lodash-es";
 import { mapAddress } from "./mappers";
-import { useValidation } from "../../../utils";
+import { CacheIsStaleError, useValidation } from "../../../utils";
 import { invalidateQueryByKey } from "../../query/utils";
-import { get, some, find, first, isEmpty, defaultsDeep } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "./types";
@@ -24,6 +32,8 @@ import type { Address, AddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
+
+const queryKey = ["client", "addresses"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -35,7 +45,7 @@ async function loadAll() {
       with: ["region", "country"].join(),
       limit: 0,
     }),
-    queryKey: ["clients", client.id, "addresses"],
+    queryKey,
     withAccessToken: true,
     revalidateIfStale: true,
   }).then(({ data }) => mapAddress(data ?? []));
@@ -50,7 +60,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
-    queryKey: ["clients", client.id, "addresses", { ...paginationParams }],
+    queryKey: [...queryKey, { ...paginationParams }],
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
@@ -99,6 +109,13 @@ async function loadLookups({ model }: AddressContext) {
       };
     })
     .catch(() => Promise.reject("Failed to load lookups"));
+}
+
+function loadAllFromCache() {
+  const { queryClient } = useQuery();
+  const cachedAddresses = queryClient.getQueryData<IAddress>(queryKey);
+  if (isNil(cachedAddresses)) throw new CacheIsStaleError();
+  return mapAddress(cachedAddresses ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -244,10 +261,12 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 // EXPORTS
 
 export default {
+  queryKey,
   //--- queries
   loadAll,
   loadPaged,
   loadLookups,
+  loadAllFromCache,
   //--- mutations
   add,
   update,
