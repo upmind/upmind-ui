@@ -1,5 +1,3 @@
-// --- external
-
 // --- internal
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
@@ -8,17 +6,19 @@ import { invalidateQueryByKey } from "../../query/utils";
 import { useQuery, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { parseCompany } from "./utils";
-import { useValidation } from "../../../utils";
+import { isNil } from "lodash-es";
+import { mapCompany } from "./mappers";
+import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
 import type { PaginatedParams } from "../..";
-import type { CompanyWithRelations } from "./utils";
-import type { CompanyContext, Company } from "./types";
+import type { CompanyWithRelations, CompanyContext, Company } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
+
+const queryKey = ["client", "companies"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -30,10 +30,10 @@ async function loadAll() {
       with: ["address", "address.country", "address.region"].join(),
       limit: 0,
     }),
-    queryKey: ["clients", client.id, "companies"],
+    queryKey,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => parseCompany(data ?? []));
+  }).then(({ data }) => mapCompany(data ?? []));
 }
 
 async function loadPaged(paginationParams: PaginatedParams) {
@@ -45,11 +45,11 @@ async function loadPaged(paginationParams: PaginatedParams) {
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
     }),
-    queryKey: ["clients", client.id, "companies", { ...paginationParams }],
+    queryKey: [...queryKey, { ...paginationParams }],
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => parseCompany(data ?? []));
+  }).then(({ data }) => mapCompany(data ?? []));
 }
 
 async function loadLookups({ model }: CompanyContext) {
@@ -78,7 +78,7 @@ async function loadLookups({ model }: CompanyContext) {
         addressId: defaultAddress?.id,
         email: defaultEmail?.email,
         phone: {
-          number: defaultPhone?.number,
+          number: defaultPhone?.nationalNumber,
           country: defaultPhone?.country,
           nationalNumber: defaultPhone?.nationalNumber,
           countryCallingCode: defaultPhone?.countryCallingCode,
@@ -86,6 +86,14 @@ async function loadLookups({ model }: CompanyContext) {
       },
     };
   });
+}
+
+function loadAllFromCache() {
+  const { queryClient } = useQuery();
+  const cachedCompanies =
+    queryClient.getQueryData<CompanyWithRelations>(queryKey);
+  if (isNil(cachedCompanies)) throw new CacheIsStaleError();
+  return mapCompany(cachedCompanies ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -184,10 +192,12 @@ async function validate({ schema, model }: CompanyContext) {
 // EXPORTS
 
 export default {
+  queryKey,
   //--- queries
   loadAll,
   loadPaged,
   loadLookups,
+  loadAllFromCache,
   //--- mutations
   add,
   update,

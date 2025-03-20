@@ -6,9 +6,9 @@ import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
 import { parsePhone } from "./utils";
-import { useValidation } from "../../../utils";
-import { keyBy, isString } from "lodash-es";
 import { invalidateQueryByKey } from "../../query/utils";
+import { keyBy, isString, isNil } from "lodash-es";
+import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
 import { PhoneTypes } from "./types";
@@ -19,6 +19,8 @@ import type { PaginatedParams } from "../..";
 
 // -----------------------------------------------------------------------------
 
+export const queryKey = ["clients", "phones"];
+
 async function loadAll() {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
@@ -28,7 +30,7 @@ async function loadAll() {
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
-    queryKey: ["clients", client.id, "phones"],
+    queryKey,
     withAccessToken: true,
     revalidateIfStale: true,
   }).then(({ data }) => parsePhone(data ?? []));
@@ -41,11 +43,18 @@ async function loadPaged(paginationParams: PaginatedParams) {
 
   return get<IPhone>({
     url: useUrl(`clients/${client.id}/phones`),
-    queryKey: ["clients", client.id, "phones", { ...paginationParams }],
+    queryKey: [...queryKey, { ...paginationParams }],
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
   }).then(({ data }) => parsePhone(data ?? []));
+}
+
+function loadFromCache() {
+  const { queryClient } = useQuery();
+  const cachedPhones = queryClient.getQueryData<IPhone>(queryKey);
+  if (isNil(cachedPhones)) throw new CacheIsStaleError();
+  return parsePhone(cachedPhones ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -180,6 +189,7 @@ export default {
   loadAll,
   loadPaged,
   loadLookups,
+  loadFromCache,
   //--- mutations
   add,
   update,
