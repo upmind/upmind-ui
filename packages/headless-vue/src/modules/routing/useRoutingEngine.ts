@@ -94,7 +94,7 @@ export const useRoutingEngine = () => {
       });
   }
 
-  async function navigate(target: ROUTE, data?: any): Promise<void> {
+  async function navigate(target: ROUTE | string, data?: any): Promise<void> {
     // bail out if we are already processing
     const isProcessing = ["calculating", "resolving"].some(state.value.matches);
     if (isProcessing) return;
