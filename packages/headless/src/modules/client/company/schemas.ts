@@ -1,27 +1,20 @@
-// --- external
-
-// --- internal
-
 // --- utils
-import { get, map, isArray, compact } from "lodash-es";
+import { map } from "lodash-es";
 
 // --- types
-import type {
-  IRegion,
-  IAddress,
-  ICompany,
-  ICountry,
-} from "@upmind-automation/types";
-import { Company } from "./types";
+import type { CompanyContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
-// TODO: export const useSchema = ({ addresses, emails, phones, baseModel }) => {
-export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
+export const useSchema = ({
+  emails,
+  phones,
+  addresses,
+  baseModel,
+}: CompanyContext) => {
   const choices = {
-    addresses: addresses.getItems(),
-    emails: emails.getItems(),
-    phones: phones.getItems(),
+    emails: emails?.getAllFromCache(),
+    phones: phones?.getAllFromCache(),
+    addresses: addresses?.getAllFromCache(),
   };
 
   const schema = {
@@ -48,13 +41,11 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         default: baseModel.addressId,
         oneOf: !choices?.addresses?.length
           ? undefined
-          : map(choices.addresses, item => {
-              return {
-                const: item.id,
-                title: item.name,
-              };
-            }),
-        lookup: addresses.search,
+          : map(choices.addresses, item => ({
+              const: item.id,
+              title: item.name,
+            })),
+        lookup: addresses?.filter,
       },
 
       emailId: {
@@ -63,13 +54,11 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         default: baseModel.emailId,
         oneOf: !choices?.emails?.length
           ? undefined
-          : map(choices.emails, item => {
-              return {
-                const: item.id,
-                title: item.email,
-              };
-            }),
-        lookup: emails.search,
+          : map(choices.emails, item => ({
+              const: item.id,
+              title: item.email,
+            })),
+        lookup: emails?.filter,
       },
 
       phoneId: {
@@ -78,18 +67,16 @@ export const useSchema = ({ addresses, emails, phones, baseModel }: any) => {
         default: baseModel.phoneId,
         oneOf: !choices?.phones?.length
           ? undefined
-          : map(choices.phones, item => {
-              return {
-                const: item.id,
-                title: item.full_phone,
-              };
-            }),
-        lookup: phones.search,
+          : map(choices.phones, item => ({
+              const: item.id,
+              title: item.nationalNumber,
+            })),
+        lookup: phones?.filter,
       },
 
       regNumber: {
         type: ["string", "null"],
-        title: "Registrration number",
+        title: "Registration number",
       },
       vatNumber: {
         type: ["string", "null"],
@@ -197,38 +184,4 @@ export const useUischema = () => {
   };
 
   return schema as UISchemaElement;
-};
-
-// ---
-export interface CompanyWithRelations extends ICompany {
-  address: IAddress & { country: ICountry; region: IRegion };
-}
-
-export const parseCompany = (
-  raw: CompanyWithRelations | CompanyWithRelations[]
-): Company[] => {
-  const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, (rawItem: ICompany) => {
-    return {
-      id: rawItem.id,
-      emailId: rawItem.email_id,
-      phoneId: rawItem.phone_id,
-      addressId: rawItem.address_id,
-      title: rawItem.name,
-      description: compact([
-        get(rawItem, "address.address1"),
-        get(rawItem, "address.address2"),
-        get(rawItem, "address.street"),
-        get(rawItem, "address.city"),
-        get(rawItem, "address.postcode"),
-        get(rawItem, "address.region.name"),
-        get(rawItem, "address.country.name"),
-      ]).join(", "),
-      name: rawItem.name,
-      default: rawItem.default,
-      regNumber: rawItem.reg_number,
-      vatNumber: rawItem.vat_percent,
-      vatPercent: rawItem.vat_percent,
-    };
-  });
 };

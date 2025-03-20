@@ -28,7 +28,8 @@ function createQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid re-fetching immediately on the client
-        staleTime: 60 * 1000, // 60 seconds
+        gcTime: 60 * 10000, // 10 minutes
+        staleTime: 60 * 10000, // 10 minutes
       },
     },
   });

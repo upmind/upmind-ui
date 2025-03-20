@@ -1,14 +1,16 @@
-// --- external
-
 // --- internal
-import type { ICompany } from "@upmind-automation/types";
+import type {
+  IRegion,
+  IAddress,
+  ICompany,
+  ICountry,
+} from "@upmind-automation/types";
+import type { UseClientEmails } from "../email/types";
+import type { UseClientPhones } from "../phone/types";
 import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
+import type { UseClientAddresses } from "../address";
 // -----------------------------------------------------------------------------
-
-export interface CompanyContext extends ClientItemContext {
-  addresses?: any;
-}
 
 export interface Company {
   //--- identifiers
@@ -75,35 +77,20 @@ export interface UseClientCompany {
    */
   findOne: (param: string) => Promise<Company | undefined>;
   /**
-   * Add a new company to the client.
-   * @param company The company data to add.
-   * @returns Does not return anything.
-   * @example add({ name: "My Company", emailId: "123", phoneId: "456", addressId: "789" }).catch(error => console.error(error))
-   * @see {@link Company} for the company data structure.
+   * Get all the companies for the current client from the cache.
+   * @returns An array of companies
+   * @example getAllFromCache().then(companies => console.log(companies))
+   * @throws {@link CacheIsStaleError} when the cache is stale
    */
-  add: (company: Company) => Promise<void>;
-  /**
-   * Remove a company from the client.
-   * @param id The id of the company to remove.
-   * @returns Does not return anything.
-   * @example remove("123").catch(error => console.error(error))
-   * @see {@link Company} for the company data structure.
-   */
-  remove: (id: Company["id"]) => Promise<void>;
-  /**
-   * Update a company for the client.
-   * @param company The company data to update.
-   * @returns Does not return anything.
-   * @example update({ id: "123", name: "My Company", emailId: "123", phoneId: "456", addressId: "789" }).catch(error => console.error(error))
-   * @see {@link Company} for the company data structure.
-   */
-  update: (company: Company) => Promise<void>;
-  /**
-   * Set a company as the default company for the client.
-   * @param id The id of the company to set as default.
-   * @returns Does not return anything.
-   * @example setDefault("123").catch(error => console.error(error))
-   * @see {@link Company} for the company data structure.
-   */
-  setDefault: (id: Company["id"]) => Promise<void>;
+  getAllFromCache: () => Company[];
+}
+
+export interface CompanyWithRelations extends ICompany {
+  address: IAddress & { country: ICountry; region: IRegion };
+}
+
+export interface CompanyContext extends ClientItemContext {
+  emails?: UseClientEmails;
+  phones?: UseClientPhones;
+  addresses?: UseClientAddresses;
 }

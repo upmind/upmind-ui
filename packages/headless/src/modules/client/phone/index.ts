@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import phones from "./services";
+import service from "./services";
 import { useSession } from "../../session";
 import { QueryObserver } from "../../query";
 
@@ -9,7 +9,7 @@ import { QueryObserver } from "../../query";
 import { find, filter, includes } from "lodash-es";
 
 // --- types
-import type { Phone } from "./types";
+import type { Phone, UseClientPhones } from "./types";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ const subscribeToClientPhones = ({
 
 // -----------------------------------------------------------------------------
 
-export const useClientPhones = () => {
+export const useClientPhones = (): UseClientPhones => {
   function isReady() {
     return new Promise<boolean>(async (resolve, reject) => {
       const { isAuthenticated } = useSession();
@@ -55,7 +55,11 @@ export const useClientPhones = () => {
   }
 
   async function getAllPhones() {
-    return phones.loadAll();
+    return service.loadAll();
+  }
+
+  function getAllPhonesFromCache() {
+    return service.loadFromCache();
   }
 
   async function getOnePhone(id: Phone["id"]) {
@@ -68,8 +72,7 @@ export const useClientPhones = () => {
         items,
         item =>
           includes(item.title.toLowerCase(), param.toLowerCase()) ||
-          (item.description &&
-            includes(item?.description.toLowerCase(), param.toLowerCase()))
+          includes(item.description?.toLowerCase(), param.toLowerCase())
       )
     );
   }
@@ -98,12 +101,13 @@ export const useClientPhones = () => {
     getAll: getAllPhones,
     filter: filterPhones,
     findOne: findOnePhone,
-    getPaged: phones.loadPaged,
+    getPaged: service.loadPaged,
     getDefault: getDefaultPhone,
+    getAllFromCache: getAllPhonesFromCache,
     //--- actions
-    add: phones.add,
-    update: phones.update,
-    remove: phones.remove,
-    setDefault: phones.setDefault,
+    // add: service.add,
+    // update: service.update,
+    // remove: service.remove,
+    // setDefault: service.setDefault,
   };
 };
