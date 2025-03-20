@@ -33,8 +33,8 @@ export const useUpmindUIRenderer = <
     }
   );
 
-  const onInput = (value: any) => {
-    touched.value = true;
+  const onInput = (value: any, options: { touched?: boolean } = {}) => {
+    touched.value = options?.touched ?? true;
     input.handleChange(input.control.value.path, adaptTarget(value));
   };
 
