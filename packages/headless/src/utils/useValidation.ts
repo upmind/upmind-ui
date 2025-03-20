@@ -1,6 +1,6 @@
 // --- external
 
-import { createAjv } from "@jsonforms/core";
+import { createAjv, type JsonSchema } from "@jsonforms/core";
 import {
   isValidPhoneNumber,
   type CountryCode,
@@ -88,15 +88,21 @@ export const useValidationParser = (error: any) => {
   return error;
 };
 
-export const useModelParser = (schema: any, values: any) => {
+export const useModelParser = <T extends object = object>(
+  schema: JsonSchema,
+  values: T,
+  baseModel?: T
+) => {
   const model = reduce(
-    schema?.properties,
+    schema.properties,
     (result, field, key) => {
-      const value = field?.const || get(values, key, field?.default);
+      const value =
+        field?.const || get(values, key, field?.default || get(baseModel, key));
       set(result, key, value);
       return result;
     },
     {}
   );
-  return defaultsDeep(model, values);
+
+  return defaultsDeep(model, values) as T;
 };

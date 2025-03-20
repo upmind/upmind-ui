@@ -27,65 +27,43 @@ import { parseAddress, parseCompany } from "./utils";
 
 // --- types
 import { AddressTypes } from "../address/types";
-import { AnyEventObject, ActorRef } from "xstate";
-import { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
+import type { IAddress, ICompany } from "@upmind-automation/types";
+import type { AnyEventObject, ActorRef } from "xstate";
+import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
 
 // -----------------------------------------------------------------------------
-// ENUMS
 
-// -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
-
-// async function getEnums({ field }: UnifiedAddressContext, _event: AnyEventObject) {
-//   const { getConfig } = useBrand();
-
-//   const brandPaymentPeriod: DefaultPaymentPeriod | any = await getConfig(
-//     BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD
-//   ).then(response =>
-//     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
-//   );
-// }
-
-async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
+async function load() {
   const { get, useUrl } = useQuery();
 
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  const addresses = get({
+  const addresses = get<IAddress>({
     url: useUrl(`clients/${client.id}/addresses`, {
       limit: 0,
       with: ["region", "country"].join(),
     }),
-    queryKey: [
-      "clients",
-      client.id,
-      "addresses",
-      {
-        limit: 0,
-        with: ["region", "country"].join(),
-      },
-    ],
+    queryKey: ["clients", client.id, "addresses"],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => parseAddress(data));
+  }).then(({ data }) => parseAddress(data ?? []));
 
-  const companies = get({
+  const companies = get<ICompany>({
     url: useUrl(`clients/${client.id}/companies`, {
       limit: 0,
       with: [
+        "email",
+        "phone",
         "address",
         "address.region",
         "address.country",
-        "email",
-        "phone",
       ].join(),
     }),
     queryKey: ["clients", client.id, "companies"],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => parseCompany(data));
+  }).then(({ data }) => parseCompany(data ?? []));
 
   return Promise.all([addresses, companies]).then(
     ([addresses, companies]) => {

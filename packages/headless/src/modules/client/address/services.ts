@@ -9,10 +9,9 @@ import {
   useQueryPaginated,
 } from "../..";
 import { usePlaces } from "../places";
-import { useClientAddresses } from ".";
 
 // --- utils
-import { parseAddress } from "./utils";
+import { mapAddress } from "./mappers";
 import { useValidation } from "../../../utils";
 import { get, some, find, first, isEmpty, defaultsDeep } from "lodash-es";
 
@@ -21,6 +20,7 @@ import { IAddress } from "@upmind-automation/types";
 import { Address, AddressContext } from "./types";
 import { invalidateQueryByKey } from "../../query/utils";
 import { AddressTypes } from "./types";
+import { useClientAddresses } from "./useClientAddresses";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -38,7 +38,7 @@ async function loadAll() {
     queryKey: ["clients", client.id, "addresses"],
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => parseAddress(data ?? []));
+  }).then(({ data }) => mapAddress(data ?? []));
 }
 
 async function loadPaged(paginationParams: PaginatedParams) {
@@ -54,7 +54,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => parseAddress(data ?? []));
+  }).then(({ data }) => mapAddress(data ?? []));
 }
 
 async function loadLookups({ model }: AddressContext) {
@@ -159,7 +159,7 @@ async function setDefault(addressId: Address["id"]) {
 
 async function parse(
   // { addresses, schema, model, regions, country, places }: AddressContext,
-  { addresses, schema, model, regions, country, places }: any
+  { addresses, schema, model, regions, country, places }: AddressContext
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
@@ -192,17 +192,17 @@ async function parse(
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country fro mthe address
     // this will in turn update the phone schema to match the country
-    if (!some(regions, ["countryId", model.countryId])) {
-      regions = await fetchRegions(model.countryId);
+    if (!some(regions, ["countryId", model!.countryId])) {
+      regions = await fetchRegions(model!.countryId);
 
-      country = getCountry(model.countryId);
+      country = getCountry(model!.countryId);
     }
 
     // now lets check our regions list to see if we have a match
     // if so, then we need to update the model with the new region id
     // otherwise the regionId is reset to null
-    const region = find(regions, ["id", model?.regionId]);
-    model.regionId = get(region, "id");
+    const region = find(regions, ["id", model!.regionId]);
+    model!.regionId = get(region, "id");
 
     // finally lets force a manual place if we are invalid:
     const isValid = await validate({ schema, model })
@@ -213,11 +213,11 @@ async function parse(
     // OR editing an existing address
     // OR the place value is our reserved word 'manual'
     if (
-      (!!model.place?.length && !isValid) ||
+      (!!model!.place?.length && !isValid) ||
       !!model?.id ||
-      model.place == "manual"
+      model!.place == "manual"
     ) {
-      model.manualPlace = true;
+      model!.manualPlace = true;
     }
   }
 

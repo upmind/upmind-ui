@@ -1,34 +1,17 @@
-//  --- external
+import { compact, map, reduce } from "lodash-es";
 
-// --- internal
-
-// --- utils
-import {
-  get,
-  map,
-  set,
-  reduce,
-  isArray,
-  compact,
-  defaultsDeep,
-} from "lodash-es";
-
-// --- types
-import type { Address } from "./types";
-import type { IAddress } from "@upmind-automation/types";
+import type { Address, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
 export function useSchema({
   // TODO: country,
-  countries,
-  regions,
   types,
+  regions,
   baseModel,
+  countries,
   // ---
   places,
-  // }: AddressContext) => {
-}: any): JsonSchema {
+}: AddressContext): JsonSchema {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -82,12 +65,10 @@ export function useSchema({
         title: "Region",
         oneOf: !regions?.length
           ? undefined
-          : map(regions, item => {
-              return {
-                const: item.id,
-                title: item.name,
-              };
-            }),
+          : map(regions, item => ({
+              const: item.id,
+              title: item.name,
+            })),
       },
 
       // not sure if this is ever used, but it is in the type definition
@@ -102,12 +83,10 @@ export function useSchema({
         default: baseModel?.countryId,
         oneOf: !countries?.length
           ? undefined
-          : map(countries, item => {
-              return {
-                const: item.id,
-                title: item.name,
-              };
-            }),
+          : map(countries, item => ({
+              const: item.id,
+              title: item.name,
+            })),
       },
 
       // ---
@@ -130,12 +109,10 @@ export function useSchema({
         default: baseModel?.type,
         oneOf: !types?.length
           ? undefined
-          : map(types, item => {
-              return {
-                const: item.key,
-                title: item.value,
-              };
-            }),
+          : map(types, item => ({
+              const: item.key,
+              title: item.value,
+            })),
       },
     },
   };
@@ -151,8 +128,8 @@ export function useSchema({
 export function useUischema({ addresses }: any): UISchemaElement {
   const lookups = {
     addresses: reduce(
-      addresses.getItems(),
-      (result: { value: any; label: string }[], item) => {
+      addresses,
+      (result: { value: string; label: string }[], item: Address) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
           result.push({
@@ -332,64 +309,3 @@ export function useUischema({ addresses }: any): UISchemaElement {
 
   return schema as UISchemaElement;
 }
-
-export const useModelParser = (
-  schema: JsonSchema,
-  values: IAddress,
-  baseModel?: IAddress
-) => {
-  const model = reduce(
-    schema.properties,
-    (result, field, key) => {
-      const value =
-        field?.const || get(values, key, field?.default || get(baseModel, key));
-      set(result, key, value);
-      return result;
-    },
-    {}
-  );
-
-  return defaultsDeep(model, values) as IAddress;
-};
-
-// ---
-export const parseAddress = (raw: IAddress | IAddress[]): Address[] => {
-  // we could get a plain address OR a company with and address
-  // so we normalize the data to always be an array of addresses
-  // this is to allow for a 'unified' way of handling addresses
-  const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, rawItem => {
-    // mappedItem.place = null;
-    return {
-      id: rawItem.id,
-      clientId: rawItem.client_id,
-      addressId: rawItem.id,
-      companyId: null,
-      companyDetails: false,
-      companyName: null,
-      title: rawItem.name || "New Address",
-      description: compact([
-        get(rawItem, "address1"),
-        get(rawItem, "address2"),
-        get(rawItem, "street"),
-        get(rawItem, "city"),
-        get(rawItem, "postcode"),
-        get(rawItem, "region.name"),
-        get(rawItem, "country.name"),
-      ]).join(", "),
-      // ---
-      name: rawItem.name,
-      address1: rawItem.address_1,
-      address2: rawItem.address_2,
-      city: rawItem.city,
-      postcode: rawItem.postcode,
-      regionId: rawItem.region_id,
-      countryId: rawItem.country_id,
-      // ---
-      type: rawItem.type,
-      default: rawItem.default,
-      canDelete: rawItem.can_delete,
-      verified: rawItem.verified,
-    };
-  });
-};

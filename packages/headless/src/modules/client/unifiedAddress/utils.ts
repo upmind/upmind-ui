@@ -617,7 +617,7 @@ export const spawnItem = (model?: IAddress) => {
 export const parseCompany = (raw: ICompany | ICompany[]) => {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
-  // this is to allow for a 'unfied' way of handling addresses
+  // this is to allow for a 'unified' way of handling addresses
   const rawListings = isArray(raw) ? raw : [raw];
 
   return map(rawListings, (rawItem: ICompany) => {

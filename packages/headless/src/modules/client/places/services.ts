@@ -5,7 +5,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { useSession } from "../..";
 
 // --- utils
-import { usePlaceParser, usePredictionsParser } from "./utils";
+import { parsePlaces, usePlaceParser, usePredictionsParser } from "./utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -18,21 +18,13 @@ import type { ClientListingsContext } from "../types";
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
 
-function load(_context: ClientListingsContext, _event: AnyEventObject) {
+async function load() {
   const loader = new Loader({
     apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
     version: "weekly",
   });
 
-  return loader.importLibrary("places").then(api => {
-    return {
-      places: new api.PlacesService(document.createElement("div")),
-      service: new api.AutocompleteService(),
-      AutocompleteSessionToken: api.AutocompleteSessionToken,
-      sessionToken: new api.AutocompleteSessionToken(),
-      statuses: api.PlacesServiceStatus,
-    };
-  });
+  return loader.importLibrary("places").then(parsePlaces);
 }
 
 async function filterItems(
