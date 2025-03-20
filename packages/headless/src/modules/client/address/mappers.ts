@@ -1,7 +1,3 @@
-//  --- external
-
-// --- internal
-
 // --- utils
 import { get, map, isArray, compact } from "lodash-es";
 

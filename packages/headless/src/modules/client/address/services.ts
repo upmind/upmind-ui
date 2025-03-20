@@ -9,18 +9,18 @@ import {
   useQueryPaginated,
 } from "../..";
 import { usePlaces } from "../places";
+import { useClientAddresses } from "./useClientAddresses";
 
 // --- utils
 import { mapAddress } from "./mappers";
 import { useValidation } from "../../../utils";
+import { invalidateQueryByKey } from "../../query/utils";
 import { get, some, find, first, isEmpty, defaultsDeep } from "lodash-es";
 
 // --- types
-import { IAddress } from "@upmind-automation/types";
-import { Address, AddressContext } from "./types";
-import { invalidateQueryByKey } from "../../query/utils";
 import { AddressTypes } from "./types";
-import { useClientAddresses } from "./useClientAddresses";
+import type { IAddress } from "@upmind-automation/types";
+import type { Address, AddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -171,7 +171,7 @@ async function parse(
     //  2: get the place details from google
     //  4: update the model with the place details
     if (model?.place) {
-      const existing = addresses.getItem(model.place);
+      const existing = await addresses.getOne(model?.place);
       if (existing) {
         model.name ??= existing.name; // only update it if weve not already got a value
         model.address1 = existing.address1;

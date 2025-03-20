@@ -4,7 +4,6 @@ import type { Address, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export function useSchema({
-  // TODO: country,
   types,
   regions,
   baseModel,
