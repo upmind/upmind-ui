@@ -1,12 +1,30 @@
 // --- external
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-import type { PaginatedParams } from "../../query";
-import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
-import type { ClientItemContext, ClientListingsContext } from "../types";
 import { usePlaces } from "../places";
+import { useClientAddress } from "./useClientAddress";
+
+// --- types
+import type {
+  ServiceMap,
+  AnyEventObject,
+  TypegenDisabled,
+  BaseActionObject,
+  ResolveTypegenMeta,
+} from "xstate";
+import type { PaginatedParams } from "../../query";
+import type { ClientItemContext } from "../types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
+
 // -----------------------------------------------------------------------------
+
+type Typegen = ResolveTypegenMeta<
+  TypegenDisabled,
+  AnyEventObject,
+  BaseActionObject,
+  ServiceMap
+>;
 
 export const AddressTypes = [
   { key: 1, value: "Home" },
@@ -14,27 +32,6 @@ export const AddressTypes = [
   { key: 3, value: "Holiday" },
   { key: 4, value: "Company" },
 ];
-
-export interface AddressContext extends ClientItemContext {
-  country?: ICountry;
-  countries: ICountry[];
-  places: ReturnType<typeof usePlaces>;
-  regions?: IRegion[];
-  addresses: any; // Composable to the address context
-  types?: typeof AddressTypes;
-  baseModel?: Address;
-
-  autocomplete?: {
-    schema?: JsonSchema;
-    uischema?: UISchemaElement;
-    model?: {
-      search?: string;
-      address?: string;
-    };
-    results?: any[]; //AddressAutocompleteResult[];
-  };
-  model?: Address;
-}
 
 export interface Address {
   // --- identifiers
@@ -64,6 +61,8 @@ export interface Address {
   verified: IAddress["verified"];
   canDelete: IAddress["can_delete"];
 }
+
+export type UseClientAddress = ReturnType<typeof useClientAddress>;
 
 export interface UseClientAddresses {
   /**
@@ -114,4 +113,23 @@ export interface UseClientAddresses {
   findOne: (param: string) => Promise<Address | undefined>;
 }
 
-export interface UseClientAddress {}
+export interface AddressContext extends ClientItemContext {
+  types?: typeof AddressTypes;
+  model?: Address;
+  places: ReturnType<typeof usePlaces>;
+  country?: ICountry;
+  countries: ICountry[];
+  regions?: IRegion[];
+  addresses: UseClientAddresses; // Composable to the address context
+  baseModel?: Address;
+
+  autocomplete?: {
+    schema?: JsonSchema;
+    uischema?: UISchemaElement;
+    model?: {
+      search?: string;
+      address?: string;
+    };
+    results?: any[]; //AddressAutocompleteResult[];
+  };
+}

@@ -1,11 +1,18 @@
-import { actions, interpret } from "xstate";
-import listingsMachine from "../listings.machine";
-import services from "./services";
+// --- external
 import { waitFor } from "xstate/lib/waitFor";
-import { UseClientAddress } from "./types";
+import { actions, interpret } from "xstate";
+
+// --- internal
+import services from "./services";
+import listingsMachine from "../listings.machine";
+
+// --- utils
 import { debounce } from "lodash-es";
 
-export const useClientAddress = (apid?: string): UseClientAddress => {
+// --- types
+import type { Address } from "./types";
+
+export const useClientAddress = (apid?: Address["id"]) => {
   // create a global instance of the system machine
   // and a global object to store state
   // NB dont automatically start the machine as in order for the inspector to work
