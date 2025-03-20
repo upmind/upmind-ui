@@ -1,0 +1,12 @@
+{
+  "basket": {
+    "loading": {
+      "title": {
+        "text": "Hold tight, were getting {0} ready for lift off!",
+        "mask": "Labs"
+      },
+      "text": "Almost there! Getting things ready for you.",
+      "actions": {}
+    }
+  }
+}
