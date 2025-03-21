@@ -1,23 +1,24 @@
-// --- external
-
 // --- internal
 import {
-  PaginatedParams,
   useQuery,
-  useQueryPaginated,
   useSession,
+  PaginatedParams,
+  useQueryPaginated,
 } from "../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
+import { isNil } from "lodash-es";
+import { mapEmail } from "./mapper";
+import { invalidateQueryByKey } from "../../query/utils";
+import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
 import type { Email, EmailContext } from "./types";
 import type { IEmail } from "@upmind-automation/types";
-import { invalidateQueryByKey } from "../../query/utils";
-import { parseEmail } from "./utils";
 
 // -----------------------------------------------------------------------------
+
+const queryKey = ["client", "emails"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -28,10 +29,10 @@ async function loadAll() {
     url: useUrl(`clients/${client.id}/emails`, {
       limit: 0,
     }),
-    queryKey: ["clients", client.id, "emails"],
+    queryKey,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => parseEmail(data ?? []));
+  }).then(({ data }) => mapEmail(data ?? []));
 }
 
 async function loadPaged(paginationParams: PaginatedParams) {
@@ -41,16 +42,26 @@ async function loadPaged(paginationParams: PaginatedParams) {
 
   return get<IEmail[]>({
     url: useUrl(`clients/${client.id}/emails`),
-    queryKey: ["clients", client.id, "emails", { ...paginationParams }],
+    queryKey: [...queryKey, { ...paginationParams }],
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => parseEmail(data ?? []));
+  }).then(({ data }) => mapEmail(data ?? []));
 }
 
 async function loadLookups(_context: EmailContext) {
   // we dont have any lookups for emails, so just return null
   return Promise.resolve(null);
+}
+
+function loadAllFromCache() {
+  const { queryClient } = useQuery();
+
+  const cachedEmails = queryClient.getQueryData<IEmail>(queryKey);
+
+  if (isNil(cachedEmails)) throw new CacheIsStaleError();
+
+  return mapEmail(cachedEmails ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -136,10 +147,12 @@ async function validate({ schema, model }: EmailContext) {
 // EXPORTS
 
 export default {
+  queryKey,
   //--- queries
   loadAll,
   loadPaged,
   loadLookups,
+  loadAllFromCache,
   //--- mutations
   add,
   update,

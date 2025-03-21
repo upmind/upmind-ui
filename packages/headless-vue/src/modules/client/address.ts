@@ -3,7 +3,10 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientAddresses as useUpmindClientAddresses } from "@upmind-automation/headless";
+import {
+  useClientAddress as useUpmindClientAddress,
+  useClientAddresses as useUpmindClientAddresses,
+} from "@upmind-automation/headless";
 
 // --- utils
 import { machineMatches, useContextActor, useContextActors } from "../../utils";
@@ -17,7 +20,7 @@ export const useClientAddress = (
   item: any, // Actor
   context?: Record<string, any>
 ): ClientItemDefinition => {
-  const { service } = useUpmindClientAddresses();
+  const { service } = useUpmindClientAddress();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
   // ---------------------------------------------------------------------------
@@ -79,7 +82,7 @@ export const useClientAddress = (
 export const useClientAddresses = (): ClientListingDefinition => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const { service, isReady, getSelected } = useUpmindClientAddresses();
+  const { service, isReady, getSelected } = useUpmindClientAddr();
   const { state, send } = useActor(service);
 
   // ---
