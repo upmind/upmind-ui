@@ -8,10 +8,16 @@ import { filter, find, includes } from "lodash-es";
 
 // --- types
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-import type { Company, UseClientCompany } from "./types";
+import type { Company, UseClientCompanies } from "./types";
 
 let companyObserver: QueryObserver | undefined;
 
+/**
+ * Subscribe to the client companies query that are present in the cache.
+ * This will trigger the callback function when the query is ready/updated.
+ * @param callback The callback function to be called when the query is ready/updated.
+ * @returns The unsubscribe function
+ */
 const subscribeToClientCompanies = ({
   callback,
 }: {
@@ -33,7 +39,7 @@ const subscribeToClientCompanies = ({
   });
 };
 
-export const useClientCompanies = (): UseClientCompany => {
+export const useClientCompanies = (): UseClientCompanies => {
   function isReady() {
     return new Promise<boolean>(async (resolve, reject) => {
       const { isAuthenticated } = useSession();
