@@ -1,15 +1,19 @@
 // --- internal
+import { useClientCompany } from "./useClientCompany";
+
+// --- types
 import type {
   IRegion,
   IAddress,
   ICompany,
   ICountry,
 } from "@upmind-automation/types";
-import type { UseClientEmails } from "../email/types";
+import type { UseClientEmails } from "../email";
 import type { UseClientPhones } from "../phone/types";
 import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
 import type { UseClientAddresses } from "../address";
+
 // -----------------------------------------------------------------------------
 
 export interface Company {
@@ -29,7 +33,9 @@ export interface Company {
   vatPercent: ICompany["vat_percent"];
 }
 
-export interface UseClientCompany {
+export type UseClientCompany = ReturnType<typeof useClientCompany>;
+
+export interface UseClientCompanies {
   /**
    * Check if the client companies are loaded and ready
    * @returns A promise that resolves to a true when the companies are ready

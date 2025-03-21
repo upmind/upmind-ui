@@ -1,12 +1,11 @@
-// --- external
-
 // --- internal
+import { useClientEmail } from "./useClientEmail";
+
+// --- types
 import type { IEmail } from "@upmind-automation/types";
 import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
 // -----------------------------------------------------------------------------
-
-export interface EmailContext extends ClientItemContext {}
 
 export interface Email {
   //--- identifier
@@ -19,6 +18,8 @@ export interface Email {
   email: IEmail["email"];
   default: IEmail["default"];
 }
+
+export type UseClientEmail = ReturnType<typeof useClientEmail>;
 
 export interface UseClientEmails {
   /**
@@ -69,35 +70,13 @@ export interface UseClientEmails {
    */
   findOne: (param: string) => Promise<Email | undefined>;
   /**
-   * Add a new email to the client.
-   * @param email The email object to add.
-   * @returns A promise that resolves to the added email.
-   * @example add({ email: "test@upmind.com" }).then((email) => console.log(email))
-   * @see {@link Email} for the email object structure.
+   * Get all the emails for the client from the cache.
+   * @returns A promise that resolves to an array of emails.
+   * @example getAllFromCache().then((emails) => console.log(emails))
+   * @see {@link Email} for the email details.
+   * @throws {@link CacheIsStaleError} when the cache is stale.
    */
-  add: (email: Email) => Promise<void>;
-  /**
-   * Remove an email from the client.
-   * @param id The id of the email to remove.
-   * @returns A promise that resolves when the email is removed.
-   * @example remove("123").then(() => console.log("Email removed!"))
-   * @see {@link Email} for the email object structure.
-   */
-  remove: (id: Email["id"]) => Promise<void>;
-  /**
-   * Update an email for the client.
-   * @param email The email object to update.
-   * @returns A promise that resolves to the updated email.
-   * @example update({ id: "123", email: "info@upmind.com" }).then((email) => console.log(email))
-   * @see {@link Email} for the email object structure.
-   */
-  update: (email: Email) => Promise<void>;
-  /**
-   * Set the default email for the client.
-   * @param email The email object to set as default.
-   * @returns A promise that resolves when the default email is set.
-   * @example setDefault("123").then(() => console.log("Default email set!"))
-   * @see {@link Email} for the email object structure.
-   */
-  setDefault: (id: Email["id"]) => Promise<void>;
+  getAllFromCache: () => Email[];
 }
+
+export interface EmailContext extends ClientItemContext {}

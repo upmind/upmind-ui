@@ -1,17 +1,6 @@
-// --- external
-
-// --- internal
-
-// --- utils
-import { map, isArray } from "lodash-es";
-export { useModelParser } from "../../../utils";
-
 // --- types
-import type { Email } from "./types";
-import type { IEmail } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
 export const useSchema = () => {
   const schema = {
     type: "object",
@@ -76,19 +65,4 @@ export const useUischema = () => {
   };
 
   return schema as UISchemaElement;
-};
-
-// ---
-export const parseEmail = (raw: IEmail | IEmail[]): Email[] => {
-  const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, rawItem => {
-    return {
-      id: rawItem.id,
-      type: rawItem.type,
-      email: rawItem.email,
-      title: rawItem.email,
-      default: rawItem.default,
-      description: rawItem.verified ? "Verified" : "Unverified",
-    };
-  });
 };

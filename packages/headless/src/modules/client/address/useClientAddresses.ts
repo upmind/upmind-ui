@@ -24,9 +24,7 @@ const subscribeToClientAddresses = ({
   callback: (data: QueryCacheNotifyEvent) => void;
 }) => {
   if (!addressObserver) {
-    addressObserver = new QueryObserver({
-      queryKey: services.queryKey,
-    });
+    addressObserver = new QueryObserver({ queryKey: services.queryKey });
   }
 
   return addressObserver.subscribe(data => {

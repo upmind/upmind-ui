@@ -24,9 +24,7 @@ const subscribeToClientCompanies = ({
   callback: (data: QueryCacheNotifyEvent) => void;
 }) => {
   if (!companyObserver) {
-    companyObserver = new QueryObserver({
-      queryKey: service.queryKey,
-    });
+    companyObserver = new QueryObserver({ queryKey: service.queryKey });
   }
 
   return companyObserver.subscribe(data => {
