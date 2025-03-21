@@ -10,3 +10,4 @@ export * from "./useTracking";
 export * from "./useTranslation";
 export * from "./useUrl";
 export * from "./useValidation";
+export * from "./tryCatch";
