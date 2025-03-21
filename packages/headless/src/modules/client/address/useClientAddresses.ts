@@ -15,7 +15,6 @@ let addressObserver: QueryObserver | undefined;
 /**
  * Subscribe to the client address query that are present in the cache.
  * This will trigger the callback function when the query is ready/updated.
- * @param clientId The client id to which the services belong.
  * @param callback The callback function to be called when the query is ready/updated.
  * @returns The unsubscribe function
  */
