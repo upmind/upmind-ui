@@ -1,4 +1,7 @@
 // --- internal
+import { useClientPhone } from "./useClientPhone";
+
+// --- types
 import type { PaginatedParams } from "../../query";
 import type { IPhone, ICountry } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
@@ -10,11 +13,6 @@ export const PhoneTypes = [
   { key: 3, value: "Office" },
   { key: 4, value: "Company" },
 ];
-
-export interface PhoneContext extends ClientItemContext {
-  country: ICountry;
-  types: typeof PhoneTypes;
-}
 
 export interface Phone {
   //--- identifier
@@ -29,6 +27,8 @@ export interface Phone {
   nationalNumber: IPhone["phone"];
   countryCallingCode: IPhone["phone_code"];
 }
+
+export type UseClientPhone = ReturnType<typeof useClientPhone>;
 
 export interface UseClientPhones {
   /**
@@ -85,4 +85,9 @@ export interface UseClientPhones {
    * @throws {@link CacheIsStaleError} when the cache is stale
    */
   getAllFromCache: () => Phone[];
+}
+
+export interface PhoneContext extends ClientItemContext {
+  country: ICountry;
+  types: typeof PhoneTypes;
 }
