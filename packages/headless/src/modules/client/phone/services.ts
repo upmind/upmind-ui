@@ -5,7 +5,7 @@ import parsePhoneNumber from "libphonenumber-js";
 import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { parsePhone } from "./utils";
+import { mapPhone } from "./mapper";
 import { invalidateQueryByKey } from "../../query/utils";
 import { keyBy, isString, isNil } from "lodash-es";
 import { CacheIsStaleError, useValidation } from "../../../utils";
@@ -19,7 +19,7 @@ import type { PaginatedParams } from "../..";
 
 // -----------------------------------------------------------------------------
 
-export const queryKey = ["clients", "phones"];
+const queryKey = ["client", "phones"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -33,7 +33,7 @@ async function loadAll() {
     queryKey,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => parsePhone(data ?? []));
+  }).then(({ data }) => mapPhone(data ?? []));
 }
 
 async function loadPaged(paginationParams: PaginatedParams) {
@@ -47,14 +47,14 @@ async function loadPaged(paginationParams: PaginatedParams) {
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => parsePhone(data ?? []));
+  }).then(({ data }) => mapPhone(data ?? []));
 }
 
-function loadFromCache() {
+function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedPhones = queryClient.getQueryData<IPhone>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
-  return parsePhone(cachedPhones ?? []);
+  return mapPhone(cachedPhones ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -185,11 +185,12 @@ async function validate({ schema, model }: PhoneContext) {
 // EXPORTS
 
 export default {
+  queryKey,
   //--- queries
   loadAll,
   loadPaged,
   loadLookups,
-  loadFromCache,
+  loadAllFromCache,
   //--- mutations
   add,
   update,

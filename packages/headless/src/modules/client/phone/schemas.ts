@@ -1,14 +1,9 @@
-// --- external
-
-// --- internal
-
 // --- utils
-import { map, get, isArray, compact } from "lodash-es";
+import { map } from "lodash-es";
 
 // --- types
 import { PhoneTypes } from "./types";
-import type { Phone } from "./types";
-import type { IPhone, ICountry } from "@upmind-automation/types";
+import type { ICountry } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export const useSchema = ({ country }: { country: ICountry }) => {
@@ -123,25 +118,4 @@ export const useUischema = () => {
   };
 
   return schema as UISchemaElement;
-};
-
-export const parsePhone = (raw: IPhone | IPhone[]): Phone[] => {
-  const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, rawItem => {
-    let rawType = get(rawItem, "type");
-    const type = rawType ? get(PhoneTypes, rawType) : undefined;
-
-    return {
-      id: rawItem.id,
-      type: rawItem.type,
-      default: rawItem.default,
-      country: rawItem.phone_country_code,
-      nationalNumber: rawItem.phone,
-      countryCallingCode: rawItem.phone_code,
-      title: get(rawItem, "international_phone"),
-      description: compact([get(rawItem, "phone_country_code"), type]).join(
-        " | "
-      ),
-    };
-  });
 };
