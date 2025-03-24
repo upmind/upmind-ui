@@ -7,6 +7,7 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
     :type="props.type || 'button'"
+    :tabindex="props.focusable ? '0' : '-1'"
   >
     <slot name="prepend"></slot>
 
