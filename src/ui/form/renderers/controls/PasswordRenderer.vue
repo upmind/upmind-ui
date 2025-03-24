@@ -24,6 +24,7 @@
         variant="link"
         size="sm"
         @click.prevent="unmask = !unmask"
+        :focusable="false"
       >
         <Icon v-if="unmask" icon="view" size="2xs" />
         <Icon v-else icon="view-off" size="2xs" />
