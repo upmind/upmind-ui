@@ -40,7 +40,7 @@ export interface UseClientEmails {
    * @returns A promise that resolves to an email or undefined.
    * @example getOne("123").then((email) => console.log(email))
    */
-  getOne: (id: Email["id"]) => Promise<Email | undefined>;
+  getOne: (id: Email["id"]) => Email | undefined;
   /**
    * Get all the emails for the client in a paginated format.
    * @param params The pagination parameters to use.
@@ -61,14 +61,14 @@ export interface UseClientEmails {
    * @returns A promise that resolves to an array of emails.
    * @example filter("123").then((emails) => console.log(emails))
    */
-  filter: (param: string) => Promise<Email[]>;
+  filter: (param: string) => Email[];
   /**
    * Find a single email based on the given param. The param is matched against the id and email.
    * @param param The filter to match against the email id and email.
    * @returns A promise that resolves to an email or undefined.
    * @example findOne("123").then((email) => console.log(email))
    */
-  findOne: (param: string) => Promise<Email | undefined>;
+  findOne: (param: string) => Email | undefined;
   /**
    * Get all the emails for the client from the cache.
    * @returns A promise that resolves to an array of emails.

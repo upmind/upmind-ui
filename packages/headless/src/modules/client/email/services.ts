@@ -4,6 +4,7 @@ import {
   useSession,
   PaginatedParams,
   useQueryPaginated,
+  QueryResponse,
 } from "../..";
 
 // --- utils
@@ -15,10 +16,11 @@ import { CacheIsStaleError, useValidation } from "../../../utils";
 // --- types
 import type { Email, EmailContext } from "./types";
 import type { IEmail } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
 
-const queryKey = ["client", "emails"];
+const queryKey: QueryKey = ["client", "emails"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -50,18 +52,19 @@ async function loadPaged(paginationParams: PaginatedParams) {
 }
 
 async function loadLookups(_context: EmailContext) {
-  // we dont have any lookups for emails, so just return null
+  // we don't have any lookups for emails, so just return null
   return Promise.resolve(null);
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
 
-  const cachedEmails = queryClient.getQueryData<IEmail>(queryKey);
+  const cachedEmails =
+    queryClient.getQueryData<QueryResponse<IEmail>>(queryKey);
 
   if (isNil(cachedEmails)) throw new CacheIsStaleError();
 
-  return mapEmail(cachedEmails ?? []);
+  return mapEmail(cachedEmails.data ?? []);
 }
 
 // -----------------------------------------------------------------------------

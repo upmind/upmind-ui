@@ -1,10 +1,10 @@
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { QueryObserver } from "../../query";
+import { QueryObserver, useQuery } from "../../query";
 
 // --- utils
-import { find, filter, isEqual } from "lodash-es";
+import { find, filter, isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { IEmail } from "@upmind-automation/types";
@@ -41,58 +41,70 @@ const subscribeToClientEmail = ({
 export const useClientEmails = (): UseClientEmails => {
   async function isReady() {
     return new Promise<boolean>(async (resolve, reject) => {
+      const { queryClient } = useQuery();
       const { isAuthenticated } = useSession();
 
+      const cache = queryClient.getQueryCache().find({
+        queryKey: service.queryKey,
+      });
+
+      if (!isNil(cache)) resolve(true);
+
       isAuthenticated()
-        .then(() =>
-          subscribeToClientEmail({
-            callback: () => resolve(true),
-          })
-        )
+        .then(() => {
+          const unsubscribe = subscribeToClientEmail({
+            callback: () => {
+              unsubscribe();
+              resolve(true);
+            },
+          });
+        })
         .catch(error => reject(error));
     });
   }
 
-  async function getAllEmails() {
+  async function getAll() {
     return service.loadAll();
   }
 
-  function getAllEmailFromCache() {
+  function getAllFromCache() {
     return service.loadAllFromCache();
   }
 
-  async function getOneEmail(id: IEmail["id"]) {
-    return getAllEmails().then(items => find(items, ["id", id]));
+  function getOne(id: IEmail["id"]) {
+    const emails = getAllFromCache();
+    return find(emails, ["id", id]);
   }
 
-  async function findOneEmail(param: string) {
-    return getAllEmails().then(items =>
-      find(items, item => isEqual(item.id, param) || isEqual(item.email, param))
+  function findOne(param: string) {
+    const emails = getAllFromCache();
+    return find(
+      emails,
+      item => isEqual(item.id, param) || isEqual(item.email, param)
     );
   }
 
-  async function filterEmails(param: string) {
-    return getAllEmails().then(items =>
-      filter(
-        items,
-        item => isEqual(item.id, param) || isEqual(item.email, param)
-      )
+  function filterEmails(param: string) {
+    const emails = getAllFromCache();
+    return filter(
+      emails,
+      item => isEqual(item.id, param) || isEqual(item.email, param)
     );
   }
 
-  async function getDefaultEmail() {
-    return getAllEmails().then(items => find(items, "default"));
+  async function getDefault() {
+    return getAll().then(items => find(items, "default"));
   }
 
   return {
     isReady,
     // --- getters
-    getOne: getOneEmail,
-    getAll: getAllEmails,
+    getOne,
+    getAll,
     filter: filterEmails,
-    findOne: findOneEmail,
+    findOne,
     getPaged: service.loadPaged,
-    getDefault: getDefaultEmail,
-    getAllFromCache: getAllEmailFromCache,
+    getDefault,
+    getAllFromCache,
   };
 };
