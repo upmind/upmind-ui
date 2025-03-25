@@ -7,6 +7,7 @@ import {
   useSession,
   PaginatedParams,
   useQueryPaginated,
+  AddressWithRelations,
 } from "../..";
 import { usePlaces } from "../places";
 import { useClientAddresses } from "./useClientAddresses";
@@ -40,7 +41,7 @@ async function loadAll() {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddress[]>({
+  return get<AddressWithRelations[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
@@ -56,7 +57,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddress[]>({
+  return get<AddressWithRelations[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
@@ -113,7 +114,8 @@ async function loadLookups({ model }: AddressContext) {
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedAddresses = queryClient.getQueryData<IAddress>(queryKey);
+  const cachedAddresses =
+    queryClient.getQueryData<AddressWithRelations>(queryKey);
   if (isNil(cachedAddresses)) throw new CacheIsStaleError();
   return mapAddress(cachedAddresses ?? []);
 }
