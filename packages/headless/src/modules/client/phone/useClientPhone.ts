@@ -48,6 +48,7 @@ export const useClientPhone = (ppid?: Phone["id"]) => {
       300
     ),
     //--- actions
+    add: (data: any) => services.add(data),
     update: async () => {
       return waitFor(service, state => state.matches("available.valid")).then(
         async () => {
