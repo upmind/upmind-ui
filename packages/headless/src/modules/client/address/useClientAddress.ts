@@ -4,7 +4,8 @@ import { actions, interpret } from "xstate";
 
 // --- internal
 import services from "./services";
-import listingsMachine from "../listings.machine";
+import itemMachine from "../item.machine";
+import { useClientAddresses } from "./useClientAddresses";
 
 // --- utils
 import { debounce } from "lodash-es";
@@ -21,10 +22,18 @@ export const useClientAddress = (apid?: Address["id"]) => {
   const safeId = apid || "new-address";
 
   const service = interpret(
-    listingsMachine.withConfig({
-      actions: actions as any,
-      services: services as any,
-    }),
+    itemMachine
+      .withConfig({
+        actions: actions as any,
+        services: services as any,
+      })
+      .withContext(() => {
+        if (!apid) return { model: undefined };
+
+        const { getOne } = useClientAddresses();
+        const safeModel = getOne(apid);
+        return { model: safeModel };
+      }),
     {
       id: safeId,
       devTools: false,
@@ -34,6 +43,7 @@ export const useClientAddress = (apid?: Address["id"]) => {
   return {
     id: safeId,
     service,
+    getModel: () => service?.getSnapshot().context.model,
     getSnapshot: () => service?.getSnapshot(),
     stop: () => service.stop(),
     // ---
@@ -48,7 +58,6 @@ export const useClientAddress = (apid?: Address["id"]) => {
       300
     ),
     //--- actions
-    add: (data: any) => services.add(data),
     update: async () => {
       return waitFor(service, state => state.matches("available.valid")).then(
         async () => {

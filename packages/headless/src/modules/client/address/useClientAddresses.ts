@@ -1,10 +1,10 @@
 // --- internal
 import services from "./services";
 import { useSession } from "../../session";
-import { QueryObserver } from "../../query";
+import { useQuery, QueryObserver } from "../../query";
 
 // --- utils
-import { filter, find, includes } from "lodash-es";
+import { find, isNil, filter, includes } from "lodash-es";
 
 // --- types
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
@@ -40,65 +40,74 @@ const subscribeToClientAddresses = ({
 export const useClientAddresses = (): UseClientAddresses => {
   function isReady() {
     return new Promise<boolean>(async (resolve, reject) => {
+      const { queryClient } = useQuery();
       const { isAuthenticated } = useSession();
 
+      const cache = queryClient.getQueryCache().find({
+        queryKey: services.queryKey,
+      });
+
+      if (!isNil(cache)) resolve(true);
+
       isAuthenticated()
-        .then(() =>
-          subscribeToClientAddresses({
-            callback: () => resolve(true),
-          })
-        )
+        .then(() => {
+          const unsubscribe = subscribeToClientAddresses({
+            callback: () => {
+              unsubscribe();
+              resolve(true);
+            },
+          });
+        })
         .catch(error => reject(error));
     });
   }
 
-  async function getAllAddresses() {
+  async function getAll() {
     return services.loadAll();
   }
 
-  function getAllAddressesFromCache() {
+  function getAllFromCache() {
     return services.loadAllFromCache();
   }
 
-  async function getOneAddress(id: Address["id"]) {
-    return getAllAddresses().then(items => find(items, ["id", id]));
+  function getOne(id: Address["id"]) {
+    const addresses = getAllFromCache();
+    return find(addresses, ["id", id]);
   }
 
-  async function findOneAddress(param: string) {
-    return getAllAddresses().then(items =>
-      find(
-        items,
-        item =>
-          includes(item.title.toLowerCase(), param.toLowerCase()) ||
-          includes(item.description.toLowerCase(), param.toLowerCase())
-      )
+  function findOne(param: string) {
+    const addresses = getAllFromCache();
+    return find(
+      addresses,
+      item =>
+        includes(item.title.toLowerCase(), param.toLowerCase()) ||
+        includes(item.description.toLowerCase(), param.toLowerCase())
     );
   }
 
-  async function filterAddresses(param: string) {
-    return getAllAddresses().then(items =>
-      filter(
-        items,
-        item =>
-          includes(item.title.toLowerCase(), param.toLowerCase()) ||
-          includes(item.description.toLowerCase(), param.toLowerCase())
-      )
+  function filterAddresses(param: string) {
+    const addresses = getAllFromCache();
+    return filter(
+      addresses,
+      item =>
+        includes(item.title.toLowerCase(), param.toLowerCase()) ||
+        includes(item.description.toLowerCase(), param.toLowerCase())
     );
   }
 
-  async function getDefaultAddress() {
-    return getAllAddresses().then(items => find(items, "default"));
+  async function getDefault() {
+    return getAll().then(items => find(items, "default"));
   }
 
   return {
     isReady,
     //--- getters
-    getOne: getOneAddress,
-    getAll: getAllAddresses,
+    getOne,
+    getAll,
     filter: filterAddresses,
-    findOne: findOneAddress,
+    findOne,
     getPaged: services.loadPaged,
-    getDefault: getDefaultAddress,
-    getAllFromCache: getAllAddressesFromCache,
+    getDefault,
+    getAllFromCache,
   };
 };

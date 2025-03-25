@@ -72,7 +72,7 @@ export interface UseClientAddresses {
    * @returns The address object if found, otherwise undefined.
    * @example getOne("123").then((address) => console.log(address))
    */
-  getOne: (id: Address["id"]) => Promise<Address | undefined>;
+  getOne: (id: Address["id"]) => Address | undefined;
   /**
    * Get addresses in a paged format.
    * @param paginationParams The pagination parameters to use.
@@ -92,14 +92,14 @@ export interface UseClientAddresses {
    * @returns An array of addresses that match the filter.
    * @example filter("home").then((addresses) => console.log(addresses))
    */
-  filter: (param: string) => Promise<Address[]>;
+  filter: (param: string) => Address[];
   /**
    * Find a single address based on the given param. The param is matched against the title and description.
    * @param param The filter to match against the address title and description.
    * @returns The address object if found, otherwise undefined.
    * @example findOne("home").then((address) => console.log(address))
    */
-  findOne: (param: string) => Promise<Address | undefined>;
+  findOne: (param: string) => Address | undefined;
   /**
    * Get all the addresses from the cache.
    * @returns An array of parsed addresses if found, otherwise an empty array.
@@ -114,8 +114,8 @@ export interface AddressContext extends ClientItemContext {
   model?: Address;
   places: ReturnType<typeof usePlaces>;
   country?: ICountry;
-  countries: ICountry[];
   regions?: IRegion[];
+  countries: ICountry[];
   addresses: UseClientAddresses; // Composable to the address context
   baseModel?: Address;
 
