@@ -49,7 +49,7 @@ export interface UseClientPhones {
    * @returns The phone if found or undefined.
    * @example getOne("123").then(phone => console.log(phone))
    */
-  getOne: (id: Phone["id"]) => Promise<Phone | undefined>;
+  getOne: (id: Phone["id"]) => Phone | undefined;
   /**
    * Get phones in a paged format.
    * @param params The pagination parameters to use.
@@ -69,14 +69,14 @@ export interface UseClientPhones {
    * @returns The phone if found or undefined.
    * @example findOne("123").then(phone => console.log(phone))
    */
-  findOne: (param: string) => Promise<Phone | undefined>;
+  findOne: (param: string) => Phone | undefined;
   /**
    * Filter phones by a search parameter
    * @param param The search parameter to use
    * @returns An array of phones that match the search parameter
    * @example filter("123").then(phones => console.log(phones))
    */
-  filter: (param: string) => Promise<Phone[]>;
+  filter: (param: string) => Phone[];
   /**
    * Get all phones for the current client from the cache
    * @returns An array of phones

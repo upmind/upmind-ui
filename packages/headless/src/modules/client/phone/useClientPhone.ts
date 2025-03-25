@@ -11,20 +11,28 @@ import itemMachine from "../item.machine";
 
 // --- types
 import type { Phone } from "./types";
+import { useClientAddresses } from "../address";
 
 export const useClientPhone = (ppid?: Phone["id"]) => {
   // create a global instance of the system machine
   // and a global object to store state
-  // NB dont automatically start the machine as in order for the inspector to work
+  // NB don't automatically start the machine as in order for the inspector to work
   // it needs to be started after the inspect service is created, so we only start it when we need it
 
   const safeId = ppid || "new-phone";
 
   const service = interpret(
-    itemMachine.withConfig({
-      actions: actions as any,
-      services: services as any,
-    }),
+    itemMachine
+      .withConfig({
+        actions: actions as any,
+        services: services as any,
+      })
+      .withContext(() => {
+        if (!ppid) return { model: undefined };
+
+        const { getOne } = useClientAddresses();
+        return { model: getOne(ppid) };
+      }),
     {
       id: safeId,
       devTools: false,
