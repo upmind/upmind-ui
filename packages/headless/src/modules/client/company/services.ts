@@ -3,7 +3,7 @@ import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
 import { invalidateQueryByKey } from "../../query/utils";
-import { useQuery, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSession, useQueryPaginated, QueryResponse } from "../..";
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -55,8 +55,8 @@ async function loadPaged(paginationParams: PaginatedParams) {
 
 async function loadLookups({ model }: CompanyContext) {
   // let's start up/use our dependencies
-  const phones = useClientPhones();
   const emails = useClientEmails();
+  const phones = useClientPhones();
   const addresses = useClientAddresses();
 
   return Promise.all([
@@ -92,9 +92,9 @@ async function loadLookups({ model }: CompanyContext) {
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedCompanies =
-    queryClient.getQueryData<CompanyWithRelations>(queryKey);
+    queryClient.getQueryData<QueryResponse<CompanyWithRelations>>(queryKey);
   if (isNil(cachedCompanies)) throw new CacheIsStaleError();
-  return mapCompany(cachedCompanies ?? []);
+  return mapCompany(cachedCompanies.data ?? []);
 }
 
 // -----------------------------------------------------------------------------

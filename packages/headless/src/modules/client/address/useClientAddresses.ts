@@ -1,5 +1,5 @@
 // --- internal
-import services from "./services";
+import service from "./services";
 import { useSession } from "../../session";
 import { useQuery, QueryObserver } from "../../query";
 
@@ -24,7 +24,7 @@ const subscribeToClientAddresses = ({
   callback: (data: QueryCacheNotifyEvent) => void;
 }) => {
   if (!addressObserver) {
-    addressObserver = new QueryObserver({ queryKey: services.queryKey });
+    addressObserver = new QueryObserver({ queryKey: service.queryKey });
   }
 
   return addressObserver.subscribe(data => {
@@ -44,7 +44,7 @@ export const useClientAddresses = (): UseClientAddresses => {
       const { isAuthenticated } = useSession();
 
       const cache = queryClient.getQueryCache().find({
-        queryKey: services.queryKey,
+        queryKey: service.queryKey,
       });
 
       if (!isNil(cache)) resolve(true);
@@ -53,8 +53,8 @@ export const useClientAddresses = (): UseClientAddresses => {
         .then(() => {
           const unsubscribe = subscribeToClientAddresses({
             callback: () => {
-              unsubscribe();
               resolve(true);
+              unsubscribe();
             },
           });
         })
@@ -63,11 +63,11 @@ export const useClientAddresses = (): UseClientAddresses => {
   }
 
   async function getAll() {
-    return services.loadAll();
+    return service.loadAll();
   }
 
   function getAllFromCache() {
-    return services.loadAllFromCache();
+    return service.loadAllFromCache();
   }
 
   function getOne(id: Address["id"]) {
@@ -106,7 +106,7 @@ export const useClientAddresses = (): UseClientAddresses => {
     getAll,
     filter: filterAddresses,
     findOne,
-    getPaged: services.loadPaged,
+    getPaged: service.loadPaged,
     getDefault,
     getAllFromCache,
   };

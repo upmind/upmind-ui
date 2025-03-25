@@ -1,12 +1,11 @@
 // --- external
-import type { ActorRef, AnyEventObject } from "xstate";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import listingsMachine from "../listings.machine";
 import services from "./services";
 import { actions } from "./actions";
+import itemMachine from "../item.machine";
 
 // --- utils
 import { find, map, compact } from "lodash-es";
@@ -20,7 +19,7 @@ import { find, map, compact } from "lodash-es";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(
-  listingsMachine.withConfig({
+  itemMachine.withConfig({
     actions: actions as any,
     services: services as any,
   }),

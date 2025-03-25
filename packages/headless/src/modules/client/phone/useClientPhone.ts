@@ -4,10 +4,10 @@ import { actions, interpret } from "xstate";
 
 // --- internal
 import services from "../address/services";
-import listingsMachine from "../listings.machine";
+import { debounce } from "lodash-es";
 
 // --- utils
-import { debounce } from "lodash-es";
+import itemMachine from "../item.machine";
 
 // --- types
 import type { Phone } from "./types";
@@ -21,7 +21,7 @@ export const useClientPhone = (ppid?: Phone["id"]) => {
   const safeId = ppid || "new-phone";
 
   const service = interpret(
-    listingsMachine.withConfig({
+    itemMachine.withConfig({
       actions: actions as any,
       services: services as any,
     }),
@@ -34,6 +34,7 @@ export const useClientPhone = (ppid?: Phone["id"]) => {
   return {
     id: safeId,
     service,
+    getModel: () => service?.getSnapshot().context.model,
     getSnapshot: () => service?.getSnapshot(),
     stop: () => service.stop(),
     // ---
@@ -48,7 +49,6 @@ export const useClientPhone = (ppid?: Phone["id"]) => {
       300
     ),
     //--- actions
-    add: (data: any) => services.add(data),
     update: async () => {
       return waitFor(service, state => state.matches("available.valid")).then(
         async () => {

@@ -31,8 +31,7 @@ export const useClientAddress = (apid?: Address["id"]) => {
         if (!apid) return { model: undefined };
 
         const { getOne } = useClientAddresses();
-        const safeModel = getOne(apid);
-        return { model: safeModel };
+        return { model: getOne(apid) };
       }),
     {
       id: safeId,
