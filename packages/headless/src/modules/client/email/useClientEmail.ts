@@ -9,6 +9,7 @@ import { debounce } from "lodash-es";
 
 // --- types
 import type { Company } from "../company";
+import { useClientAddresses } from "../address";
 
 export const useClientEmail = (cpid?: Company["id"]) => {
   // create a global instance of the system machine
@@ -19,10 +20,17 @@ export const useClientEmail = (cpid?: Company["id"]) => {
   const safeId = cpid || "new-email";
 
   const service = interpret(
-    itemMachine.withConfig({
-      actions: actions as any,
-      services: services as any,
-    }),
+    itemMachine
+      .withConfig({
+        actions: actions as any,
+        services: services as any,
+      })
+      .withContext(() => {
+        if (!cpid) return { model: undefined };
+
+        const { getOne } = useClientAddresses();
+        return { model: getOne(cpid) };
+      }),
     {
       id: safeId,
       devTools: false,
