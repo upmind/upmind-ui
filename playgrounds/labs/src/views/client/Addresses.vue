@@ -63,7 +63,7 @@
       <div v-if="isLoadingAddresses">Loading...</div>
       <div v-else>
         <div v-for="address in addresses" :key="address.id">
-          <div>{{ address.name }}</div>
+          <div>{{ address.address1 }}</div>
           <div>{{ address.address2 }}</div>
           <div>{{ address.city }}</div>
           <div>{{ address.state }}</div>
@@ -102,7 +102,7 @@ import {
   useClientAddresses,
 } from "@upmind-automation/headless";
 
-const { getAll, isReady } = useClientAddresses();
+const { getAll } = useClientAddresses();
 const { queryClient } = useQuery();
 
 // --- types
@@ -111,14 +111,11 @@ const { queryClient } = useQuery();
 
 const router = useRouter();
 
-isReady().then(() => console.log("Ready"));
-
 const addresses = ref<Address[]>([]);
 const isLoadingAddresses = ref<boolean>(false);
 
 function clearAddresses() {
   addresses.value = [];
-  isReady().then(() => console.log("addresses are ready"));
 }
 
 function fetchAddresses() {
@@ -136,14 +133,10 @@ function invalidateAddresses() {
 }
 
 function doEdit(id: string) {
-  const { input, update, getModel } = useClientAddress(id);
-
-  debugger;
-  input({
-    ...getModel(),
-    name: `My Address ${new Date().toLocaleString()}`,
-  });
+  const { update } = useClientAddress(id);
 
   update();
+
+  // router.push({ params: { id } });
 }
 </script>
