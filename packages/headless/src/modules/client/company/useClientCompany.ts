@@ -4,8 +4,8 @@ import { actions, interpret } from "xstate";
 
 // --- internal
 import services from "../address/services";
+import itemMachine from "../item.machine";
 import { debounce } from "lodash-es";
-import listingsMachine from "../listings.machine";
 
 // --- types
 import type { Company } from "./types";
@@ -19,7 +19,7 @@ export const useClientCompany = (cpid?: Company["id"]) => {
   const safeId = cpid || "new-company";
 
   const service = interpret(
-    listingsMachine.withConfig({
+    itemMachine.withConfig({
       actions: actions as any,
       services: services as any,
     }),
