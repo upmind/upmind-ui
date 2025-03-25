@@ -12,13 +12,14 @@ import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/query-core";
 import type { PaginatedParams } from "../..";
 import type { CompanyWithRelations, CompanyContext, Company } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
 
-const queryKey = ["client", "companies"];
+const queryKey: QueryKey = ["client", "companies"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
