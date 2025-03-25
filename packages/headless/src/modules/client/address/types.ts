@@ -46,6 +46,11 @@ export interface Address {
   canDelete: IAddress["can_delete"];
 }
 
+export interface AddressWithRelations extends IAddress {
+  region: IRegion;
+  country: ICountry;
+}
+
 export type UseClientAddress = ReturnType<typeof useClientAddress>;
 
 export interface UseClientAddresses {
