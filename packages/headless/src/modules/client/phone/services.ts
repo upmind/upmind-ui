@@ -2,7 +2,13 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
+import {
+  useQuery,
+  useSystem,
+  useSession,
+  useQueryPaginated,
+  QueryResponse,
+} from "../..";
 
 // --- utils
 import { mapPhone } from "./mapper";
@@ -14,12 +20,13 @@ import { CacheIsStaleError, useValidation } from "../../../utils";
 import { PhoneTypes } from "./types";
 import type { Phone } from "./types";
 import type { IPhone } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/query-core";
 import type { PhoneContext } from "./types";
 import type { PaginatedParams } from "../..";
 
 // -----------------------------------------------------------------------------
 
-const queryKey = ["client", "phones"];
+const queryKey: QueryKey = ["client", "phones"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -52,9 +59,10 @@ async function loadPaged(paginationParams: PaginatedParams) {
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedPhones = queryClient.getQueryData<IPhone>(queryKey);
+  const cachedPhones =
+    queryClient.getQueryData<QueryResponse<IPhone>>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
-  return mapPhone(cachedPhones ?? []);
+  return mapPhone(cachedPhones.data ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -125,7 +133,7 @@ async function setDefault(phoneId: Phone["id"]) {
 async function loadLookups(
   _context: PhoneContext
 ): Promise<{ types: Record<string, any>; country: any }> {
-  // we dont have any lookups for emails, so just return null
+  // we don't have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
   await fetchCountries();
   return Promise.resolve({
