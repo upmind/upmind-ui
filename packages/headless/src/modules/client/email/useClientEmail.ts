@@ -4,8 +4,8 @@ import { actions, interpret } from "xstate";
 
 // --- internal
 import services from "../address/services";
+import itemMachine from "../item.machine";
 import { debounce } from "lodash-es";
-import listingsMachine from "../listings.machine";
 
 // --- types
 import type { Company } from "../company";
@@ -19,7 +19,7 @@ export const useClientEmail = (cpid?: Company["id"]) => {
   const safeId = cpid || "new-email";
 
   const service = interpret(
-    listingsMachine.withConfig({
+    itemMachine.withConfig({
       actions: actions as any,
       services: services as any,
     }),
@@ -32,6 +32,7 @@ export const useClientEmail = (cpid?: Company["id"]) => {
   return {
     id: safeId,
     service,
+    getModel: () => service?.getSnapshot().context.model,
     getSnapshot: () => service?.getSnapshot(),
     stop: () => service.stop(),
     // ---
@@ -46,7 +47,6 @@ export const useClientEmail = (cpid?: Company["id"]) => {
       300
     ),
     //--- actions
-    add: (data: any) => services.add(data),
     update: async () => {
       return waitFor(service, state => state.matches("available.valid")).then(
         async () => {

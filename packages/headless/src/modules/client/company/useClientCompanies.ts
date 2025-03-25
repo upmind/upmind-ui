@@ -1,10 +1,10 @@
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { QueryObserver } from "../../query";
+import { QueryObserver, useQuery } from "../../query";
 
 // --- utils
-import { filter, find, includes } from "lodash-es";
+import { filter, find, includes, isNil } from "lodash-es";
 
 // --- types
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
@@ -40,65 +40,74 @@ const subscribeToClientCompanies = ({
 export const useClientCompanies = (): UseClientCompanies => {
   function isReady() {
     return new Promise<boolean>(async (resolve, reject) => {
+      const { queryClient } = useQuery();
       const { isAuthenticated } = useSession();
 
+      const cache = queryClient.getQueryCache().find({
+        queryKey: service.queryKey,
+      });
+
+      if (!isNil(cache)) resolve(true);
+
       isAuthenticated()
-        .then(() =>
-          subscribeToClientCompanies({
-            callback: () => resolve(true),
-          })
-        )
+        .then(() => {
+          const unsubscribe = subscribeToClientCompanies({
+            callback: () => {
+              resolve(true);
+              unsubscribe();
+            },
+          });
+        })
         .catch(error => reject(error));
     });
   }
 
-  async function getAllCompanies() {
+  async function getAll() {
     return service.loadAll();
   }
 
-  function getAllCompaniesFromCache() {
+  function getAllFromCache() {
     return service.loadAllFromCache();
   }
 
-  async function getOneCompany(id: Company["id"]) {
-    return getAllCompanies().then(item => find(item, ["id", id]));
+  function getOne(id: Company["id"]) {
+    const companies = getAllFromCache();
+    return find(companies, ["id", id]);
   }
 
-  async function findOneCompany(param: string) {
-    return getAllCompanies().then(items =>
-      find(
-        items,
-        item =>
-          includes(item.name.toLowerCase(), param.toLowerCase()) ||
-          includes(item.description.toLowerCase(), param.toLowerCase())
-      )
+  function findOne(param: string) {
+    const companies = getAllFromCache();
+    return find(
+      companies,
+      item =>
+        includes(item.name.toLowerCase(), param.toLowerCase()) ||
+        includes(item.description.toLowerCase(), param.toLowerCase())
     );
   }
 
-  async function filterCompanies(param: string) {
-    return getAllCompanies().then(items =>
-      filter(
-        items,
-        item =>
-          includes(item.name.toLowerCase(), param.toLowerCase()) ||
-          includes(item.description.toLowerCase(), param.toLowerCase())
-      )
+  function filterCompanies(param: string) {
+    const companies = getAllFromCache();
+    return filter(
+      companies,
+      item =>
+        includes(item.name.toLowerCase(), param.toLowerCase()) ||
+        includes(item.description.toLowerCase(), param.toLowerCase())
     );
   }
 
-  async function getDefaultCompany() {
-    return getAllCompanies().then(items => find(items, "default"));
+  async function getDefault() {
+    return getAll().then(items => find(items, "default"));
   }
 
   return {
     isReady,
     //--- getters
-    getOne: getOneCompany,
-    getAll: getAllCompanies,
+    getOne,
+    getAll,
     filter: filterCompanies,
-    findOne: findOneCompany,
+    findOne,
     getPaged: service.loadPaged,
-    getDefault: getDefaultCompany,
-    getAllFromCache: getAllCompaniesFromCache,
+    getDefault,
+    getAllFromCache,
   };
 };

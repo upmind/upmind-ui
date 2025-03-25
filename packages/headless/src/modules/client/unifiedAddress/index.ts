@@ -4,8 +4,8 @@ import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import listingsMachine from "../listings.machine";
 import services from "./services";
+import itemMachine from "../item.machine";
 import { ListingActions as actions } from "./actions";
 
 // --- utils
@@ -21,7 +21,7 @@ import type { Address } from "../address/types";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(
-  listingsMachine.withConfig({
+  itemMachine.withConfig({
     actions: actions as any,
     services: services as any,
   }),

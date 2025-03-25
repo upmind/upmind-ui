@@ -54,7 +54,7 @@ export interface UseClientCompanies {
    * @returns The company if found or undefined.
    * @example getOne("123").then(company => console.log(company))
    */
-  getOne: (id: Company["id"]) => Promise<Company | undefined>;
+  getOne: (id: Company["id"]) => Company | undefined;
   /**
    * Get companies in a paged format.
    * @param params The pagination parameters to use.
@@ -74,14 +74,14 @@ export interface UseClientCompanies {
    * @returns The company if found or undefined.
    * @example findOne("home").then(companies => console.log(companies))
    */
-  filter: (param: string) => Promise<Company[]>;
+  filter: (param: string) => Company[];
   /**
    * Find a single company by a search parameter. The search is case-insensitive and is matched against the company title and description.
    * @param param The search parameter to match against the company title and description.
    * @returns The company if found or undefined.
    * @example findOne("home").then(company => console.log(company))
    */
-  findOne: (param: string) => Promise<Company | undefined>;
+  findOne: (param: string) => Company | undefined;
   /**
    * Get all the companies for the current client from the cache.
    * @returns An array of companies
