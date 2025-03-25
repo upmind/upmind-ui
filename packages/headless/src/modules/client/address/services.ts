@@ -5,6 +5,7 @@ import {
   useQuery,
   useSystem,
   useSession,
+  QueryResponse,
   PaginatedParams,
   useQueryPaginated,
   AddressWithRelations,
@@ -23,18 +24,19 @@ import {
   defaultsDeep,
 } from "lodash-es";
 import { mapAddress } from "./mappers";
-import { CacheIsStaleError, useValidation } from "../../../utils";
 import { invalidateQueryByKey } from "../../query/utils";
+import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
 import { AddressTypes } from "./types";
+import type { QueryKey } from "@tanstack/query-core";
 import type { IAddress } from "@upmind-automation/types";
 import type { Address, AddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
 
-const queryKey = ["client", "addresses"];
+const queryKey: QueryKey = ["client", "addresses"];
 
 async function loadAll() {
   const { get, useUrl } = useQuery();
@@ -72,7 +74,7 @@ async function loadLookups({ model }: AddressContext) {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
-  // these could/should be cached in the system machine, so theres no worry about performance
+  // these could/should be cached in the system machine, so there's no worry about performance
   await isReady().catch(error => Promise.reject(error));
   const countries = await fetchCountries();
   const country = getCountry(model?.countryId);
@@ -87,37 +89,34 @@ async function loadLookups({ model }: AddressContext) {
   const places = usePlaces();
   const addresses = useClientAddresses();
 
-  return Promise.all([addresses.isReady(), places.isReady()])
-    .then(() => {
-      places.reset();
-
-      return {
-        countries,
-        regions,
-        types: AddressTypes,
-        places,
-        country,
-        // ---
-        addresses,
-        // ---
-        baseModel: {
-          ...model,
-          manualPlace: !!model?.id,
-          type: first(AddressTypes)?.key,
-          place: null,
-          countryId: country?.id,
-        },
-      };
-    })
+  return addresses
+    .isReady()
+    .then(() => ({
+      types: AddressTypes,
+      places,
+      regions,
+      country,
+      countries,
+      // ---
+      addresses,
+      // ---
+      baseModel: {
+        ...model,
+        manualPlace: !!model?.id,
+        type: first(AddressTypes)?.key,
+        place: null,
+        countryId: country?.id,
+      },
+    }))
     .catch(() => Promise.reject("Failed to load lookups"));
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedAddresses =
-    queryClient.getQueryData<AddressWithRelations>(queryKey);
+    queryClient.getQueryData<QueryResponse<AddressWithRelations[]>>(queryKey);
   if (isNil(cachedAddresses)) throw new CacheIsStaleError();
-  return mapAddress(cachedAddresses ?? []);
+  return mapAddress(cachedAddresses.data ?? []);
 }
 
 // -----------------------------------------------------------------------------
@@ -190,9 +189,9 @@ async function parse(
     //  2: get the place details from google
     //  4: update the model with the place details
     if (model?.place) {
-      const existing = await addresses.getOne(model?.place);
+      const existing = addresses.getOne(model?.place);
       if (existing) {
-        model.name ??= existing.name; // only update it if weve not already got a value
+        model.name ??= existing.name; // only update it if we've not already got a value
         model.address1 = existing.address1;
         model.address2 = existing.address2;
         model.city = existing.city;
@@ -207,9 +206,9 @@ async function parse(
       }
     }
 
-    // lets check if the country has changed, ie: the regions dont match
+    // let's check if the country has changed, ie: the regions don't match
     // if so, then we need to fetch the regions for the new country
-    // AND update our 'default' country to match the country fro mthe address
+    // AND update our 'default' country to match the country from the address
     // this will in turn update the phone schema to match the country
     if (!some(regions, ["countryId", model!.countryId])) {
       regions = await fetchRegions(model!.countryId);
@@ -228,7 +227,7 @@ async function parse(
       .then(() => true)
       .catch(() => false);
 
-    // force the manual place if we are have a place && are invalid
+    // force the manual place if we are a place && are invalid
     // OR editing an existing address
     // OR the place value is our reserved word 'manual'
     if (
