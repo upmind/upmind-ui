@@ -101,7 +101,6 @@ export const useClientAddresses = (): UseClientAddresses => {
 
   return {
     isReady,
-    //--- getters
     getOne,
     getAll,
     filter: filterAddresses,
