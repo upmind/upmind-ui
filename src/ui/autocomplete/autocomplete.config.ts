@@ -18,7 +18,7 @@ export const rootVariants = cva("relative rounded-lg", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} flex w-dropdown-2xs items-center justify-between rounded-lg border border-control pr-3 leading-none outline-none`,
+  `${ringClasses} ${invalidRingClasses} hover:border-control-strong flex w-dropdown-2xs items-center justify-between rounded-lg border border-control pr-3 leading-none outline-none transition-all duration-200`,
   {
     variants: {
       size: {
