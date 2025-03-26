@@ -101,7 +101,6 @@ export const useClientPhones = (): UseClientPhones => {
 
   return {
     isReady,
-    //--- getters
     getOne,
     getAll,
     filter: filterPhones,
