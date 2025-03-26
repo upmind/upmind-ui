@@ -13,7 +13,7 @@
   >
     <slot name="prepend"></slot>
     <slot
-      ><strong>{{ label }}</strong></slot
+      ><component :is="as">{{ label }}</component></slot
     >
     <slot name="append"></slot>
   </component>
@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<LinkProps>(), {
   size: "inherit",
   color: "base",
   variant: "flat",
+  as: "strong",
   // --- styles
   uiConfig: () => ({ link: [] }),
 });

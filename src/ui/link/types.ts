@@ -10,11 +10,11 @@ import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric,
 } from "vue-router";
-
 export interface LinkProps {
   label?: string;
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
+  as?: keyof HTMLElementTagNameMap;
   // ---
   disabled?: boolean;
   loading?: boolean;
