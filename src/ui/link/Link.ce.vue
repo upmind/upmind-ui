@@ -5,7 +5,7 @@
     :to="to"
     :href="href"
     tabindex="0"
-    :class="styles.link.root"
+    :class="cn(styles.link.root, props.class)"
     :aria-disabled="disabled"
     :data-disabled="disabled"
     @click="handleClick"
@@ -25,7 +25,7 @@ import { computed } from "vue";
 
 // --- internal
 import config from "./link.config";
-import { useStyles } from "../../utils";
+import { useStyles, cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";

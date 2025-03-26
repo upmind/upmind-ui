@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const rootVariants = cva(
-  `inline-flex cursor-pointer items-center underline-offset-4 outline-none transition-all duration-200 focus:outline-none`,
+  `inline-flex cursor-pointer items-center space-x-0.5 underline-offset-4 outline-none transition-all duration-200 focus:outline-none`,
   {
     variants: {
       variant: {

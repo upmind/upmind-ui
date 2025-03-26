@@ -6,6 +6,8 @@ import type { rootVariants } from "./link.config";
 type LinkVariantProps = VariantProps<typeof rootVariants>;
 
 // --- types
+import type { HTMLAttributes } from "vue";
+
 import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric,
@@ -14,7 +16,8 @@ export interface LinkProps {
   label?: string;
   to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
   href?: string;
-  as?: keyof HTMLElementTagNameMap;
+  as?: HTMLAttributes["class"];
+  class?: HTMLAttributes["class"];
   // ---
   disabled?: boolean;
   loading?: boolean;
