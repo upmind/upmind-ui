@@ -98,7 +98,6 @@ export const useClientEmails = (): UseClientEmails => {
 
   return {
     isReady,
-    // --- getters
     getOne,
     getAll,
     filter: filterEmails,
