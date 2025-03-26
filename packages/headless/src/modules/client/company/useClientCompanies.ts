@@ -101,7 +101,6 @@ export const useClientCompanies = (): UseClientCompanies => {
 
   return {
     isReady,
-    //--- getters
     getOne,
     getAll,
     filter: filterCompanies,
