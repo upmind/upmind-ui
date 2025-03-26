@@ -43,14 +43,14 @@ import TabsTrigger from "./TabsTrigger.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { TabsProps, TabItems } from ".";
+import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TabsProps>(), {
   // --- props
-  tabs: (): TabItems[] => [],
+  tabs: (): TabItem[] => [],
   defaultValue: "",
   // -- styles
   color: "base",
