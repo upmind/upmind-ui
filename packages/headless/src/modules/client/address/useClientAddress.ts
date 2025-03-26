@@ -35,7 +35,7 @@ export const useClientAddress = (apid?: Address["id"]) => {
       }),
     {
       id: safeId,
-      devTools: false,
+      devTools: true,
     }
   ).start();
 

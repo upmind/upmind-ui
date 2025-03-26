@@ -91,23 +91,25 @@ async function loadLookups({ model }: AddressContext) {
 
   return addresses
     .isReady()
-    .then(() => ({
-      types: AddressTypes,
-      places,
-      regions,
-      country,
-      countries,
-      // ---
-      addresses,
-      // ---
-      baseModel: {
-        ...model,
-        manualPlace: !!model?.id,
-        type: first(AddressTypes)?.key,
-        place: null,
-        countryId: country?.id,
-      },
-    }))
+    .then(() => {
+      return {
+        types: AddressTypes,
+        places,
+        regions,
+        country,
+        countries,
+        // ---
+        addresses,
+        // ---
+        baseModel: {
+          ...model,
+          manualPlace: !!model?.id,
+          type: first(AddressTypes)?.key,
+          place: null,
+          countryId: country?.id,
+        },
+      };
+    })
     .catch(() => Promise.reject("Failed to load lookups"));
 }
 
