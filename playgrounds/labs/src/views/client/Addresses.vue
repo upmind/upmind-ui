@@ -96,11 +96,7 @@ import {
   UpmContentSection,
 } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
-import {
-  Address,
-  useClientAddress,
-  useClientAddresses,
-} from "@upmind-automation/headless";
+import { Address, useClientAddresses } from "@upmind-automation/headless";
 
 const { getAll } = useClientAddresses();
 const { queryClient } = useQuery();
@@ -133,10 +129,6 @@ function invalidateAddresses() {
 }
 
 function doEdit(id: string) {
-  const { update } = useClientAddress(id);
-
-  update();
-
-  // router.push({ params: { id } });
+  router.push({ params: { id: id }, name: "client.addresses.edit" });
 }
 </script>

@@ -15,5 +15,10 @@ export default {
       name: "client.emails",
       component: () => import("./Emails.vue"),
     },
+    {
+      path: "/client/addresses/:id",
+      name: "client.addresses.edit",
+      component: () => import("./address/Edit.vue"),
+    },
   ],
 };
