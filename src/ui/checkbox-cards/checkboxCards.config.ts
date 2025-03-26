@@ -25,12 +25,12 @@ export default {
   checkboxCards: {
     root: cva(`w-full`),
     item: cva(
-      `group flex items-start space-x-2 text-control-foreground transition-all duration-300`,
+      `group flex items-start space-x-2 text-control-foreground transition-all duration-200`,
       {
         variants: {
           isList: {
             true: "border-b last:border-b-0",
-            false: `hover:bg-control-active-muted rounded-md border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`,
+            false: `hover:border-control-strong rounded-md border border-control bg-control shadow-sm ${ringClasses} ${invalidRingClasses}`,
           },
         },
       }

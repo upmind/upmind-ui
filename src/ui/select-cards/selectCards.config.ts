@@ -18,7 +18,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "hover:bg-control-active-muted focus:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded-none border-b border-b-control px-4 py-3 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
+  "focus:bg-control-active-focus m-0 flex h-full w-full cursor-pointer items-start space-x-2 rounded-none border-b border-b-control px-4 py-3 text-md font-medium leading-none first:rounded-t-md last:rounded-b-md last:border-b-0 focus:outline-none"
 );
 
 export const contentVariants = cva(
