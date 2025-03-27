@@ -5,14 +5,15 @@ import { interpret } from "xstate";
 // --- internal
 import itemMachine from "../item.machine";
 import { useClientAddresses } from "./useClientAddresses";
-import { useClientAddressServices } from "./services";
 import { useClientAddressActions } from "./actions";
+import { useClientAddressServices } from "./services";
 
 // --- utils
 import { debounce, get } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
+import { useQuery } from "../../query";
 
 export const useClientAddress = (id?: Address["id"]) => {
   // create a global instance of the system machine
@@ -62,14 +63,26 @@ export const useClientAddress = (id?: Address["id"]) => {
       return waitFor(service, state => state.matches("available.valid")).then(
         async () => {
           service.send({ type: "UPDATE" });
-          return waitFor(service, state => !state.matches("processing"), {
-            timeout: Infinity,
-          }).then(state => {
-            if (["error", "available.error"].some(state.matches)) {
-              return Promise.reject(state.context.error);
+          return waitFor(
+            service,
+            state => ["processed", "available.error"].some(state.matches),
+            {
+              timeout: Infinity,
             }
-            return Promise.resolve();
-          });
+          )
+            .then(state => {
+              if (["error", "available.error"].some(state.matches)) {
+                return Promise.reject(state.context.error);
+              }
+              return Promise.resolve();
+            })
+            .then(() => {
+              const cache = useQuery()
+                .queryClient.getQueryCache()
+                .find({ queryKey: ["client", "addresses"] });
+              debugger;
+              return useClientAddressServices().refresh();
+            });
         }
       );
     },

@@ -27,7 +27,9 @@ export interface RequestParams {
 
 export interface QueryParams<T extends unknown>
   extends RequestParams,
-    Omit<EnsureQueryDataOptions<T>, "queryFn"> {}
+    Omit<EnsureQueryDataOptions<T>, "queryFn"> {
+  allowStale?: boolean;
+}
 
 export interface PaginatedParams {
   sort?: [direction: ApiSortDirection, property: string];
