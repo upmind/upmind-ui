@@ -2,9 +2,13 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  `h-auto min-h-10 w-full min-w-0 items-center justify-start rounded-lg border-control px-4 py-3 text-left font-medium !text-primary`,
+  "min-w-0 items-center justify-start text-left font-medium !text-primary",
   {
     variants: {
+      variant: {
+        inline: "m-0 !h-auto gap-0 border-none !p-0 shadow-none",
+        block: "h-auto min-h-10 w-full rounded-lg border-control px-4 py-3",
+      },
       width: {
         full: "w-full",
         auto: "w-auto",
@@ -13,6 +17,7 @@ export const triggerVariants = cva(
     },
     defaultVariants: {
       width: "full",
+      variant: "block",
     },
   }
 );
