@@ -4,7 +4,7 @@
       <TriggerButton
         :open="open"
         :selected="selected"
-        :class="props.class"
+        :class="cn(styles.select.trigger, props.class)"
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
@@ -78,7 +78,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
-const meta = computed(() => ({}));
+const meta = computed(() => ({
+  isInline: props.inline,
+}));
 
 const styles = useStyles(
   ["select"],
@@ -90,6 +92,7 @@ const styles = useStyles(
     item: string;
     content: string;
     group: string;
+    trigger: string;
   };
 }>;
 
