@@ -12,10 +12,7 @@ import { isNil, get } from "lodash-es";
 import type { GatewayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// ---   ENUMS
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
+// -----------------------------------------------------------------------------
 
 async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
   const { isAuthenticated } = useSession();
@@ -49,7 +46,6 @@ async function load({ gateway }: GatewayContext, _event: AnyEventObject) {
   });
 }
 
-// ---
 async function parse(
   { model, can_store, must_store, must_auto_pay }: GatewayContext,
   _event: AnyEventObject
@@ -93,8 +89,6 @@ async function validate(
   });
 }
 
-// ---  PAYMENT METHODS
-
 /**
  * @name getPaymentData
  * @desc Here we create a new payment detail via the Card SDK, and return
@@ -110,7 +104,7 @@ async function update({ model }: GatewayContext) {
   });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,

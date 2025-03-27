@@ -1,11 +1,11 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { pure, sendParent } = actions;
+import { createMachine, assign, actions, spawn, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
+import { authSubscription } from "../session";
 import { useFeedback } from "../feedback";
-const { addError, trackEvent } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 import { spawnGateway, parsePaymentDetails } from "./utils";
@@ -15,12 +15,11 @@ import { useSchema, useUischema } from "./utils";
 import { get, set, unset, forEach } from "lodash-es";
 
 // --- types
-
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./paymentDetails.machine.typegen").Typegen0,
@@ -32,10 +31,7 @@ export default createMachine(
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
       subscribing: {
-        invoke: {
-          id: "authCallback",
-          src: "authSubscription",
-        },
+        entry: ["setAuthHelper"],
         on: {
           AUTHENTICATED: { target: "checking" },
           REFRESH: { actions: "refresh" },
@@ -121,7 +117,7 @@ export default createMachine(
               CHECKOUT: [
                 {
                   target: "#complete",
-                  actions: ["setPaymentDetails", "trackPaymentDetails"],
+                  actions: ["setPaymentDetails"],
                   cond: "isFree",
                 },
                 { target: "processing", cond: "hasBasket" },
@@ -151,11 +147,7 @@ export default createMachine(
               // ths is the response from the gateway
               PAYMENT_DETAILS: {
                 target: "#complete",
-                actions: [
-                  "setPaymentDetails",
-                  "trackPaymentDetails",
-                  "clearAutoUpdate",
-                ],
+                actions: ["setPaymentDetails", "clearAutoUpdate"],
               },
             },
           },
@@ -201,6 +193,13 @@ export default createMachine(
   },
   {
     actions: {
+      setAuthHelper: assign({
+        authHelper: (
+          { authHelper }: PaymentDetailsContext,
+          _event: AnyEventObject
+        ) => authHelper ?? spawn(authSubscription),
+      }),
+
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
         gateway: (_context, { data }: AnyEventObject) => data.gateway,
@@ -341,10 +340,6 @@ export default createMachine(
         type: "CANCEL",
       })),
 
-      trackPaymentDetails: (_context, _event) => {
-        trackEvent({ ecommerce: null });
-        trackEvent({ event: "add_payment_info" });
-      },
       // ---
 
       forwardCheckout: ({ actors }: PaymentDetailsContext) => {

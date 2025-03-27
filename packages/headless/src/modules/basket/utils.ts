@@ -3,8 +3,6 @@ import { spawn } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBrand } from "../brand";
-import productMachine from "../product/product.machine";
 import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
@@ -12,11 +10,8 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import {
-  useValidationParser,
-  useTranslateName,
-  useTranslateField,
-} from "../../utils";
+import { useValidationParser } from "../../utils";
+import { parseBasketProduct } from "../basketProduct/utils";
 
 import {
   compact,
@@ -36,54 +31,13 @@ import {
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
-import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
-import type {
-  BasketProduct,
-  BasketProductSummaryDetail,
-  BasketProductSummaryPrice,
-} from "./types";
+import { TaxTagTypes } from "@upmind-automation/types";
+
 import { PaymentDetailsContext } from "../paymentDetails";
 
-// ---  SPAWN ACTORS
-export function spawnProductConfiguration(
-  data: any,
-  basket?: IBasket,
-  errorExternal?: any
-) {
-  const id = data?.id || uniqueId("product-");
-  const isBasketProduct = data?.id ? true : false;
+// -----------------------------------------------------------------------------
 
-  // lets merge the promotions from the basket and the product
-  const promotions = map(basket?.promotions, "promotion.code");
-  const coupons = data?.coupons || [];
-
-  const model = defaults(data, {
-    quantity: 1,
-    productId: null,
-    term: null,
-    options: [],
-    attributes: [],
-    provisionFields: {},
-  });
-
-  const item = spawn(
-    productMachine.withContext({
-      id,
-      basketId: basket?.id,
-      [isBasketProduct ? "basketProduct" : "model"]: model,
-      currencyId: basket?.currency_id,
-      promotions,
-      coupons,
-      errorExternal,
-    }),
-    {
-      name: id,
-      sync: true,
-    }
-  );
-
-  return item;
-}
+// --- SPAWN ACTORS
 
 export function spawnBillingDetails(basket?: IBasket) {
   return spawn(
@@ -146,7 +100,7 @@ export function spawnPromotions(basket?: IBasket) {
   );
 }
 
-// ---  --- PARSERS
+// --- PARSERS
 
 export const parseBasket = (data: any) => {
   const basket = get(data, "basket", data);
@@ -156,275 +110,7 @@ export const parseBasket = (data: any) => {
   return basket;
 };
 
-export const parseBasketProduct = (raw: any, provisioningErrors?: any) => {
-  // Get price object matching `display_price_billing_cycle_months`
-  const product: BasketProduct = {
-    id: raw?.id,
-
-    // --- model
-    quantity: raw.quantity,
-    productId: raw.product_id,
-    term: raw.billing_cycle_months,
-    options: parseSubproductChoices(raw.options),
-    attributes: parseSubproductChoices(raw.attributes),
-    provisionFields: raw.provision_fields,
-
-    // --- product details
-    product: {
-      name: useTranslateName(raw?.product),
-      serviceIdentifier: raw?.service_identifier,
-      category: useTranslateName(raw?.product?.category),
-      description: useTranslateField(raw, "product.description"),
-      excerpt: useTranslateField(raw, "product.short_description"),
-      id: raw?.product_id,
-      imgUrl: raw?.product?.image?.full_url,
-      // meta: raw?.product?.meta,// TODO get/use product meta from API
-      // ---
-      quantifiable:
-        raw?.product?.order_type == ProductOrderTypes.QUANTITY_BASED, //!!raw?.can_change_quantity,
-      step: raw?.product?.unit_quantity || 1,
-      min: raw?.product?.min_order_quantity || raw?.product?.unit_quantity || 1,
-      max:
-        raw?.product?.max_order_quantity > 0
-          ? raw?.product?.max_order_quantity
-          : Infinity,
-    },
-
-    // --- summary details
-    summary: {
-      pricing: [parsPriceSummary(raw)],
-      details: [],
-    },
-    // --- errors
-    error: get(provisioningErrors, [raw?.id]),
-  };
-
-  // --- Now build up our details
-  const term = parseTerm(raw);
-  if (term) {
-    product.summary.details.push(term);
-  }
-  // ---
-  forEach(raw?.options, option => {
-    const subproduct = parsPriceSummary(option);
-    if (subproduct) {
-      if (option.product.order_type === ProductOrderTypes.SINGLE_OPTION)
-        product.summary.pricing.push(subproduct);
-      subproduct.key = "option";
-      product.summary.details.push(subproduct as BasketProductSummaryDetail);
-    }
-  });
-
-  // ---
-  forEach(raw?.attributes, attribute => {
-    const subproduct = parseSubproduct(attribute);
-    if (subproduct) {
-      subproduct.key = "attribute";
-      product.summary.details.push(subproduct as BasketProductSummaryDetail);
-    }
-  });
-
-  // ---
-  forEach(raw?.provision_fields, (value, key) => {
-    const hasError = get(provisioningErrors, [raw?.id, key]);
-    const field = parseProvisionField(key, value, hasError);
-    if (field) product.summary.details.push(field);
-  });
-
-  // ---
-
-  return product;
-};
-
-const parseSubproductChoices = (values: any) => {
-  return reduce(
-    values,
-    (result, value) => {
-      set(result, [value.product.category_id, value.product_id], {
-        productId: value.product_id,
-        quantity: parseQuantity(value.unit_quantity, value.product),
-        cycle: value.billing_cycle_months,
-      });
-      return result;
-    },
-    {}
-  );
-};
-
-const parseQuantity = (quantity: number, raw: any) => {
-  quantity = toNumber(quantity) || 1; // ensure we have a number;
-  // Check the raw is available
-  // Check the quantity is valid,
-  //  - min Quantity matches the raw min
-  //  - max Quantity matches the raw max
-  //  - quantity is a multiple of the raw step
-  // ensure the quantity is at least the min, or 1
-  if (quantity < Math.max(raw?.min_order_quantity, 1)) {
-    quantity = Math.max(raw?.min_order_quantity, 1);
-  }
-
-  // ensure the quantity is at most the max (if set)
-  if (raw?.max_order_quantity && quantity > raw?.max_order_quantity) {
-    quantity = raw?.max_order_quantity;
-  }
-
-  // ensure the quantity is a multiple of the step (if set)
-  if (raw?.unit_quantity && quantity % raw?.unit_quantity !== 0) {
-    quantity = Math.ceil(quantity / raw.unit_quantity) * raw.unit_quantity;
-  }
-
-  return quantity;
-};
-
-export function parseTerm(raw: any): BasketProductSummaryDetail | null {
-  const summary: BasketProductSummaryPrice = parseSubproduct(
-    raw
-  ) as BasketProductSummaryPrice;
-
-  summary.key = "term";
-
-  summary.meta = {
-    oneoff: raw.billing_cycle_months > 0,
-    discounted: raw?.net_global_discount_amount > 0,
-    free: raw.net_unit_selling_price_formatted == 0,
-  };
-
-  summary.regularAmount = raw.selling_price_converted;
-  summary.regularPrice = raw.selling_price_formatted;
-  summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
-  summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
-
-  // add any saving information (if available)
-  if (
-    summary.meta.discounted &&
-    !isNil(summary?.regularAmount) &&
-    !isNil(summary?.currentAmount)
-  ) {
-    summary.currentSavingAmount = summary.meta.discounted
-      ? ((summary.regularAmount - summary.currentAmount) /
-          summary.regularAmount) *
-        100
-      : 0;
-
-    summary.currentSaving = summary.meta.discounted
-      ? `${Math.round(summary.currentSavingAmount)}%`
-      : "";
-  }
-
-  // retained in case we wan tto show the term name as opposed to the actual product name/category
-  // const { getBillingCycle } = useSystem();
-  // const cycle = getBillingCycle(raw.billing_cycle_months);
-  // const name = cycle ? useTranslateName(cycle) : null;
-  // term.category = "Billing Cycle";
-  // term.name = name;
-  return summary;
-}
-
-export function parseSubproduct(
-  subproduct: any
-): Partial<BasketProductSummaryDetail> | null {
-  // NB: only show term pricing if recurring!
-  return {
-    name: useTranslateName(subproduct.product),
-    category: useTranslateName(subproduct.product.category),
-    serviceIdentifier: subproduct.service_identifier,
-    cycle: subproduct.billing_cycle_months,
-    quantity: subproduct.quantity,
-  };
-}
-
-export function parsPriceSummary(raw: any) {
-  const { checkIncludesTax } = useBrand();
-
-  const summary: BasketProductSummaryPrice = parseSubproduct(
-    raw
-  ) as BasketProductSummaryPrice;
-
-  summary.meta = {
-    oneoff: raw.billing_cycle_months > 0,
-    discounted: raw.configuration_net_amount_discount_converted > 0,
-    free: raw.configuration_net_amount_discounted_converted == 0,
-    overrides: raw?.product?.category?.price_override,
-  };
-
-  summary.regularAmount = checkIncludesTax()
-    ? raw.configuration_total_amount_converted
-    : raw.configuration_net_amount_converted;
-  summary.regularPrice = checkIncludesTax()
-    ? raw.configuration_total_amount_formatted
-    : raw.configuration_net_amount_formatted;
-  summary.currentAmount = checkIncludesTax()
-    ? raw.configuration_total_discounted_amount_converted
-    : raw.configuration_net_amount_discounted_converted;
-  summary.currentPrice = checkIncludesTax()
-    ? raw.configuration_total_discounted_amount_formatted
-    : raw.configuration_net_amount_discounted_formatted;
-
-  // add any saving information (if available)
-  if (
-    summary.meta.discounted &&
-    !isNil(summary?.regularAmount) &&
-    !isNil(summary?.currentAmount)
-  ) {
-    summary.currentSavingAmount = summary.meta.discounted
-      ? ((summary.regularAmount - summary.currentAmount) /
-          summary.regularAmount) *
-        100
-      : 0;
-
-    summary.currentSaving = summary.meta.discounted
-      ? `${Math.round(summary.currentSavingAmount)}%`
-      : "";
-  }
-
-  // if we have a quantity greater than 1, lets include the pricing for a single unit
-  if (raw.quantity > 1) {
-    summary.selling = {
-      regularAmount: raw.selling_amount_converted,
-      regularPrice: raw.selling_amount_formatted,
-      currentAmount: raw.selling_amount_discounted_converted,
-      currentPrice: raw.selling_amount_discounted_formatted,
-    };
-
-    // add any saving information (if available)
-    if (
-      summary.meta.discounted &&
-      summary?.selling?.regularAmount &&
-      summary?.selling?.currentAmount
-    ) {
-      summary.selling.currentSavingAmount = summary.meta.discounted
-        ? ((summary.selling.regularAmount - summary.selling.currentAmount) /
-            summary.selling.regularAmount) *
-          100
-        : 0;
-
-      summary.selling.currentSaving = summary.meta.discounted
-        ? `${Math.round(summary.selling.currentSavingAmount)}%`
-        : "";
-    }
-  }
-
-  return summary;
-}
-
-export function parseProvisionField(
-  key: string,
-  data: any,
-  hasError?: any
-): BasketProductSummaryDetail | null {
-  const name = get(data, key, data); // just in case its an object > unti lwe have types
-
-  return {
-    key: `provision_field.${key}`,
-    category: key,
-    name,
-    meta: {
-      invalid: hasError,
-    },
-  };
-}
-
-// ---  --- SUMMARY
+// --- SUMMARY
 
 export const parseSummary = (data?: any, provisioningErrors?: any) => {
   const summary = {
@@ -441,7 +127,7 @@ export const parseSummary = (data?: any, provisioningErrors?: any) => {
   return summary;
 };
 
-// --- --- TAXES
+// --- TAXES
 
 export const parseTaxes = (taxes: any) => {
   // we may have multiple taxes, and each tax may have multiple tags
@@ -461,7 +147,7 @@ export const parseTaxes = (taxes: any) => {
   );
 };
 
-// HACK: This is ported directly from the old codebase!
+// --- HACK: This is ported directly from the old codebase!
 //       This is a bit of wizardry that takes a tax tag and
 //       returns a human readable string and is used in the basket summary.
 //       ---
@@ -483,7 +169,7 @@ export const parseTaxTagName = (tag: any) => {
   ]).join(" ");
 };
 
-// ---  Fields
+// --- FIELDS
 
 export const parseBasketFieldsModel = (basket: any, data = {}) => {
   const notes = get(basket, "notes", get(data, "notes"));

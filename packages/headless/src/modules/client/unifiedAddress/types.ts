@@ -29,6 +29,7 @@ export interface UnifiedAddressContext extends ClientItemContext {
   types?: typeof AddressTypes;
   countries: ICountry[];
   places: any;
+  companies: any; // Cpmposable to the address context
   addresses: any; // Cpmposable to the address context
   phones: any; // Composable to the phone context
   emails: any; // Composable to the email context

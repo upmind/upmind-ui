@@ -12,8 +12,6 @@ import type { BillingDetailsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   const { isAuthenticated } = useSession();
@@ -29,7 +27,6 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   });
 }
 
-// ---
 async function update(
   { basketId, model }: BillingDetailsContext,
   _event: AnyEventObject
@@ -47,7 +44,6 @@ async function update(
   }).then(({ data }: any) => data);
 }
 
-// ---
 async function parse(
   { model, addresses }: BillingDetailsContext,
   _event: AnyEventObject
@@ -86,7 +82,7 @@ async function validate(
   });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,

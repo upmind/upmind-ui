@@ -1,34 +1,65 @@
+// ---  external
+import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
+import { set } from "lodash-es";
+
+// --- types
+declare interface CookieOptions {
+  domain?: string;
+  path?: string;
+  expires?: Date | string | number;
+  "max-age"?: number;
+  secure?: boolean;
+  samesite?: string;
+  partitioned?: boolean;
+}
+
+declare type Encoder<T> = (value: T) => string;
+
+// --------------------------------------------------------
+
 export function useCookies() {
-  function getCookie(name: string) {
-    return new Promise((resolve, reject) => {
-      const nameEQ = `${name}=`;
-      const ca = document.cookie.split(";");
-      for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == " ") c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) == 0) {
-          const value = c.substring(nameEQ.length, c.length);
-          if (value) return resolve(value);
-        }
-      }
-      reject("Cookie not found");
-    });
+  const topLevelDomain = getTopLevelDomain(window.location.href);
+
+  function getTopLevelDomain(url: string) {
+    const urlParts = new URL(url).hostname.split(".");
+
+    return urlParts
+      .slice(0)
+      .slice(-(urlParts.length === 4 ? 3 : 2))
+      .join(".");
   }
 
-  function setCookie(name: string, value: any, maxAge: number) {
-    if (!name || !value) return;
-    let expires = "";
-    if (maxAge) expires = "; max-age=" + `${maxAge}`;
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
-  }
-
-  function deleteCookie(name: string) {
-    document.cookie = `${name}=; expires=${new Date()}; path=/`;
-  }
+  // NB by default we always use JSON parse/strigify and base64 encoding to encode/decode the cookie value
+  const defaultEncoder = (value: any) => btoa(JSON.stringify(value));
+  const defaultDencoder = (value: string) => JSON.parse(atob(value));
 
   return {
-    getCookie,
-    setCookie,
-    deleteCookie,
+    get: (
+      key: string,
+      encoder: Encoder<any> = defaultDencoder
+    ): string | Record<string, any> | null => getCookie(key, encoder),
+    set: (
+      key: string,
+      value: any,
+      options?: CookieOptions,
+      encoder: Encoder<any> = defaultEncoder
+    ) => setCookie(key, value, encoder, options),
+    setTopLevel: (
+      key: string,
+      value: any,
+      options?: CookieOptions,
+      encoder: Encoder<any> = defaultEncoder
+    ) => {
+      options ??= {};
+      set(options, "domain", topLevelDomain);
+      setCookie(key, value, encoder, options);
+    },
+    remove: removeCookie,
+    removeTopLevel: (key: string, options?: CookieOptions) => {
+      options ??= {};
+      set(options, "domain", topLevelDomain);
+      removeCookie(key, options);
+    },
+    isEnabled,
   };
 }

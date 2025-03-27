@@ -25,6 +25,7 @@ import {
 import type { AnyEventObject } from "xstate";
 import { AddressTypes } from "./types";
 import type { AddressContext, AddressesContext, IAddressData } from "./types";
+import { isString } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 // SERVICE METHODS
@@ -40,6 +41,14 @@ import type { AddressContext, AddressesContext, IAddressData } from "./types";
 //   );
 // }
 
+export async function invalidateAddresses(context: object) {
+  const { queryClient } = useQuery();
+
+  return queryClient
+    .resetQueries({ queryKey: ["clients", "addresses"], exact: false }) // companies needs to invalidate ALL client libs
+    .then(() => context);
+}
+
 async function load(_context: AddressesContext) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
@@ -52,7 +61,6 @@ async function load(_context: AddressesContext) {
     }),
     queryKey: [
       "clients",
-      client.id,
       "addresses",
       {
         limit: 0,
@@ -90,6 +98,7 @@ async function filterItems(
 async function findItem({ raw }: AddressesContext, { data }: AnyEventObject) {
   if (isEmpty(data))
     return Promise.reject({ error: "No data provided for filtering" });
+
   const value = pick(data, [
     "address1",
     "address2",
@@ -99,22 +108,21 @@ async function findItem({ raw }: AddressesContext, { data }: AnyEventObject) {
     "countryId",
   ]);
   // same here
-  const found = find(
-    raw,
-    item =>
-      isEqual(item.getSnapshot().context.model.id, data) ||
-      isEqual(
-        pick(item.getSnapshot().context.model, [
-          "address1",
-          "address2",
-          "city",
-          "postcode",
-          "regionId",
-          "countryId",
-        ]),
-        value
-      )
-  );
+  const found = find(raw, item => {
+    const id = item.getSnapshot().context.model.id;
+    const model = pick(item.getSnapshot().context.model, [
+      "address1",
+      "address2",
+      "city",
+      "postcode",
+      "regionId",
+      "countryId",
+    ]);
+
+    const matchId = isEqual(id, isString(data) ? data : data.id);
+    const matchModel = isEqual(model, value);
+    return matchId || matchModel;
+  });
 
   return new Promise((resolve, reject) => {
     if (!found) reject();
@@ -134,7 +142,9 @@ async function add({ model }: AddressContext) {
     url: useUrl(`clients/${clientId}/addresses`),
     data: model,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateAddresses)
+    .then(({ data }: any) => data);
 }
 
 async function update({ model }: AddressContext) {
@@ -147,7 +157,9 @@ async function update({ model }: AddressContext) {
     url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
     data: model,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateAddresses)
+    .then(({ data }: any) => data);
 }
 
 async function remove({ model }: AddressContext) {
@@ -159,7 +171,9 @@ async function remove({ model }: AddressContext) {
   return del({
     url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateAddresses)
+    .then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: AddressContext) {
@@ -172,7 +186,9 @@ async function setDefault({ model }: AddressContext) {
     url: useUrl(`clients/${clientId}/addresses/${model?.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateAddresses)
+    .then(({ data }: any) => data);
 }
 // -----------------------------------------------------------------------------
 
@@ -317,7 +333,6 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
+  isAuthenticated: () =>
+    useSession().isAuthenticated().then(invalidateAddresses),
 };

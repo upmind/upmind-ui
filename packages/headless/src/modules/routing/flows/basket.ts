@@ -3,9 +3,12 @@
 // --- internal
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
+import { useDataLayer } from "../../system";
+const { dataLayer } = useDataLayer();
 
 // --- utils
-import { useRoutePendingProducts, useRouteQueryParams } from "../utils";
+import { useRouteQueryParams } from "../utils";
+import { useBasketProductsPending } from "../../basketProduct";
 import { uniqBy } from "lodash-es";
 
 // --- types
@@ -13,23 +16,24 @@ import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
+
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, setCurrency, addPromotion } = useBasket();
+  const { hasProducts, setCurrency, addPromotion, isReady } = useBasket();
+  const { sync } = useBasketProductsPending();
 
   let flows: Flow[] = [
     {
       name: ROUTE.LOADING,
       guard: async (route: Route) => {
-        // ---        // some query params that we ALWAYS look out for and resolve for the UI:
+        // some query params that we ALWAYS look out for and resolve for the UI:
         // currency,coupons, lang
-        const { currency, coupon } = useRouteQueryParams(route);
+        const { currency, coupon, productConfigs } = useRouteQueryParams(route);
         if (currency) setCurrency(currency);
         if (coupon) addPromotion(coupon);
 
-        //  then we can try to sync the pending products, if any
-        const { syncPendingProducts } = useRoutePendingProducts(route);
-        await Promise.allSettled(syncPendingProducts());
+        // then we sync the product(s) from our Query Params if we have any
+        if (productConfigs) await sync(productConfigs);
 
         return false; //NB ALWAYS return false as we dont want the currentFlow to be Loading, but rather its fallback
       },
@@ -47,7 +51,7 @@ export const useBasketFlows = () => {
     },
     {
       name: ROUTE.EMPTY,
-      guard: async (_route: Route) => !hasProducts(),
+      guard: async (_route: Route) => isReady().then(() => !hasProducts()),
       targets: {
         next: [],
         back: [],
@@ -56,9 +60,11 @@ export const useBasketFlows = () => {
     },
     {
       name: ROUTE.BASKET,
-      guard: async (_route: Route) => {
-        const valid = hasProducts();
-        return valid;
+      guard: async (_route: Route) => isReady().then(() => hasProducts()),
+      resolve: async (_route: Route) => {
+        // When a user enters the basket, we want to add this to our dataLayer
+        dataLayer({ event: "view__cart" }).withEcommerce().push();
+        return { name: ROUTE.BASKET };
       },
       //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.
       // eg: ** OPTIONALLY ** if we have an alias for basket that is cart, then the router would force the redirec tto basket

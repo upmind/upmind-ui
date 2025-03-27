@@ -15,8 +15,7 @@ import type { ActorRef } from "xstate";
 // -----------------------------------------------------------------------------
 
 export const useFeedback = (): any => {
-  const { service, dismiss, add, addError, addSuccess, trackEvent } =
-    useUpmindFeedback();
+  const { service, dismiss, add, addError, addSuccess } = useUpmindFeedback();
   const { state } = useActor(service);
 
   // ---
@@ -106,7 +105,6 @@ export const useFeedback = (): any => {
     add: (data: any) => add(unref(data)),
     addError,
     addSuccess,
-    trackEvent,
     dismiss,
     // ---
     useTime: utils.useTime,

@@ -5,7 +5,12 @@
         v-bind="product"
         :open="!!open[product.id]"
         :color="color"
+        :disabled="meta.isProcessing()"
+        :processing="meta.isProcessing(product.id)"
+        :loading="meta.isLoading"
         @update:open="trackOpen(product.id, $event)"
+        @remove="remove(product.id)"
+        @update:quantity="updateQuantity(product.id, $event)"
       >
         <template #default="slotProps">
           <slot v-bind="slotProps" />
@@ -32,7 +37,7 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless-vue";
+import { useBasketProducts } from "@upmind-automation/headless-vue";
 import BasketProduct from "./BasketProduct.vue";
 
 // --- components
@@ -48,7 +53,7 @@ const props = withDefaults(defineProps<BasketProductCardsProps>(), {
 
 const emits = defineEmits(["update:open"]);
 
-const { meta, products } = useBasket();
+const { meta, products, updateQuantity, remove } = useBasketProducts();
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 

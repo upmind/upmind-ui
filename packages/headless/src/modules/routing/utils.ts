@@ -3,6 +3,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBasket } from "../basket";
+import { useBasketProductsPending } from "../basketProduct";
 
 // --- utils
 import { useSafeParse, useSessionStorage } from "../../utils";
@@ -32,12 +33,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ActorRef, State, Subscription } from "xstate";
+import type { ActorRef } from "xstate";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { ProductModel } from "../product";
+import type { BasketProduct } from "../basketProduct";
 import { REQUIRES_ACTION, type Route } from "./types";
-import { responseCodes } from "../../utils";
-import { isString } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -48,7 +48,6 @@ export async function awaitResolved(service: ActorRef<any>) {
 }
 
 // vanilla js function to parse the current route, similar to vue-router
-
 export const useRouteQueryParams = (route: Route) => {
   const { query, params } = route;
 
@@ -144,219 +143,13 @@ export const useRouteQueryParams = (route: Route) => {
   };
 };
 
-// -----------------------------------------------------------------------------
-
-export const useRoutePendingProducts = (route: Route) => {
-  const { productConfigs, basketProductId, productId } =
-    useRouteQueryParams(route);
-  const { addItem, getPendingProducts, getProducts, removeItem } = useBasket();
-  const storage = useSessionStorage();
-  let pendingProducts = storage.get("pendingProducts", {});
-  // this is used to store subscriptions to changes on the product and update the local storage
-  let subscriptions: Record<string, Subscription> = {};
-
-  // setup our localstorage driver
-
-  // --- utils
-
-  async function ensureBasketItem(
-    productId: string,
-    model: any
-  ): Promise<ActorRef<any>> {
-    if (productId) {
-      const productsPending = getPendingProducts();
-      const basketItem = find(productsPending, [
-        "state.context.model.productId",
-        productId,
-      ]);
-      if (!isEmpty(basketItem)) {
-        if (!basketItem.getSnapshot().matches("error")) {
-          return Promise.resolve(basketItem);
-        } else {
-          unsetPendingProduct(productId);
-          return Promise.reject({
-            message: "Error adding item to basket",
-            code: responseCodes.Unprocessable_Entity,
-          });
-        }
-      } else {
-        return addItem(model)
-          .then(async actor => {
-            return waitFor(
-              actor,
-              state =>
-                !["loading", "subscribing", "processing", "refreshing"].some(
-                  state.matches
-                ),
-              { timeout: Infinity }
-            ).then(state => {
-              return !state.matches("error") ? actor : Promise.reject();
-            });
-          })
-          .catch(() => {
-            unsetPendingProduct(productId);
-            return Promise.reject({
-              message: "Error adding item to basket",
-              code: responseCodes.Unprocessable_Entity,
-            });
-          });
-      }
-    } else {
-      return Promise.reject("No product id found");
-    }
-  }
-
-  // ---
-
-  async function getBasketProduct(bpid?: string): Promise<ActorRef<any>> {
-    const target = bpid || basketProductId;
-    const products = getProducts();
-    const basketItem = find(products, ["id", target]) as
-      | ActorRef<any>
-      | undefined;
-
-    return new Promise((resolve, reject) => {
-      if (basketItem) {
-        resolve(basketItem);
-      } else {
-        reject({
-          message: "Basket item not found",
-          code: responseCodes.Not_Found,
-        });
-      }
-    });
-  }
-
-  async function getPendingProduct(
-    pid?: string,
-    sync?: boolean
-  ): Promise<ActorRef<any>> {
-    const target = pid || productId || first(keys(pendingProducts));
-    const model = get(pendingProducts, target, { productId: target });
-    const basketItem = await ensureBasketItem(target, model).catch(() => {
-      return Promise.reject({
-        message: "Error ensuring pending product",
-        code: responseCodes.Unprocessable_Entity,
-      });
-    });
-    if (basketItem && sync) {
-      const subscription: Subscription = basketItem.subscribe(
-        (state: State<any>) => {
-          if (state.matches("error")) {
-            unsetPendingProduct(target);
-            removeItem(basketItem?.id);
-          } else if (state.matches("available")) {
-            setPendingProduct(target, state);
-          }
-        }
-      );
-
-      set(subscriptions, target, subscription);
-    }
-
-    return new Promise((resolve, reject) => {
-      if (basketItem) {
-        resolve(basketItem);
-      } else {
-        // if we get here, then we dont have any pending products
-        reject({
-          message: "No pending product found",
-          code: responseCodes.Not_Found,
-        });
-      }
-    });
-  }
-
-  function setPendingProduct(
-    productId: string,
-    value?: ProductModel | State<any>
-  ) {
-    // defensive
-    if (!productId) return;
-
-    const model = value
-      ? has(value, "productId")
-        ? value
-        : omit(get(value, "context.model"), "id")
-      : { productId };
-
-    set(pendingProducts, productId, model);
-    storage.set("pendingProducts", pendingProducts);
-  }
-
-  function unsetPendingProduct(productId: string) {
-    unset(pendingProducts, productId);
-    storage.set("pendingProducts", pendingProducts);
-
-    // ensure we unsubscribe from the item if it exists
-    const sub = get(subscriptions, productId);
-    sub?.unsubscribe();
-  }
-
-  function resolvePendingProduct(basketItem?: string | ActorRef<any>) {
-    let target = basketItem;
-
-    if (isString(basketItem)) {
-      const products = getPendingProducts();
-      target = find(products, ["id", basketItem]) as ActorRef<any> | undefined;
-    }
-
-    const pid = get(target, "state.context.model.productId");
-    if (pid) unsetPendingProduct(pid);
-  }
-
-  function syncPendingProducts(): Promise<ActorRef<any>>[] {
-    // get any productIds from the url query params and store them in our pending basket items
-    forEach(productConfigs, (product: ProductModel) => {
-      // theres a chance we alrady have this product in our pending basket items
-      // so we merge the existing product with the new product so we dont lose any data
-      const existingProduct = get(pendingProducts, product.productId);
-      setPendingProduct(product.productId, merge(existingProduct, product));
-    });
-
-    const promises = map(pendingProducts, (model, productId) => {
-      return ensureBasketItem(productId, model).then(
-        (basketItem: ActorRef<any>) => {
-          setPendingProduct(productId, basketItem?.getSnapshot()); // update our pending basket items with the new value
-          return basketItem;
-        }
-      );
-    });
-
-    return promises;
-  }
-
-  function clearPendingProducts() {
-    pendingProducts = {};
-    storage.clear();
-
-    // ensure we unsubscribe from the item if it exists
-    map(subscriptions, sub => sub?.unsubscribe());
-    subscriptions = {};
-  }
-
-  // ---
-
-  return {
-    getBasketProduct,
-    hasPendingProducts: () => !isEmpty(pendingProducts),
-    getPendingProduct,
-    setPendingProduct,
-    unsetPendingProduct,
-    resolvePendingProduct,
-    // ---
-    syncPendingProducts,
-    clearPendingProducts,
-  };
-};
-
 export const useRouteRequiresAction = () => {
-  const { getPendingProducts, getProducts, getInvalidProducts } = useBasket();
+  const { getProducts, getInvalidProducts, isReady } = useBasket();
+  const { get: getPendingProducts } = useBasketProductsPending();
 
   function getNextPending(current?: ActorRef<any>) {
     const productsPending = reject(getPendingProducts(), ["id", current?.id]);
-    const pendingProduct = first(productsPending) as ActorRef<any>;
-    return pendingProduct;
+    return first(productsPending);
   }
 
   function getNextInvalid(current?: ActorRef<any>) {
@@ -366,7 +159,7 @@ export const useRouteRequiresAction = () => {
     return basketProduct;
   }
 
-  function getNextRelated(current: ActorRef<any>): undefined | ActorRef<any> {
+  function getNextRelated(current: ActorRef<any>): undefined | BasketProduct {
     // Related items ar when the current items provision fields
     // contain the service identifier of another basket item
     const provisionFields = get(
@@ -378,7 +171,7 @@ export const useRouteRequiresAction = () => {
     if (isEmpty(provisionFields)) return;
 
     const basketProduct = find(getProducts(), basketProduct => {
-      const serviceIdentifier = get(basketProduct, "product.serviceIdentifier");
+      const serviceIdentifier = get(basketProduct, "serviceIdentifier");
       if (!serviceIdentifier) return false;
       const value = includes(values(provisionFields), serviceIdentifier);
       const hasError = !!get(basketProduct, "error");
@@ -412,6 +205,7 @@ export const useRouteRequiresAction = () => {
   }
 
   return {
+    isReady,
     getNext,
     getNextPending,
     getNextInvalid,

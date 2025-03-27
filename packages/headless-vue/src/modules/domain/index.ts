@@ -11,96 +11,23 @@ import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 import { map, some, find, isArray, get, first, debounce } from "lodash-es";
 
 // --- types
-export { DomainTypes, type DomainLookup } from "@upmind-automation/headless";
+export {
+  DomainTypes,
+  type DomainLookup,
+  type Domain,
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-export const useDomain = (
-  {
-    model,
-    sync,
-    type,
-    parentId,
-  }: {
-    model?: string;
-    sync?: boolean;
-    type?: DomainTypes;
-    parentId?: string; // id of basket item machine representing the parent context
-  } = {
-    model: undefined,
-    sync: false,
-    type: undefined,
-    parentId: undefined,
-  }
-): any => {
-  const domain = useUpmindDomain({ model, sync, type, parentId });
-  const { state, send }: any = useActor(domain.service);
-
-  // ---
-  const choose = (value: string) =>
-    send({
-      type: "CHOOSE",
-      data: value,
-    });
-
-  const search = (query: string) => {
-    send({ type: "SEARCH", data: query });
-  };
-
-  const searchMore = () => {
-    send({ type: "SEARCH.OFFSET" });
-  };
-
-  const toggle = (value: string) => {
-    const type = some(state.value.context.model, ["domain", value])
-      ? "REMOVE"
-      : "ADD";
-    send({
-      type,
-      data: value,
-    });
-  };
-
-  const update = (model: string | Array<string>) => {
-    // NB: nsure we have an array of strings
-    send({
-      type: "UPDATE",
-      data: isArray(model) ? model : [model],
-    });
-  };
-
-  const reset = () => {
-    send({
-      type: "RESET",
-    });
-  };
-
-  const add = (value: string) => {
-    send({
-      type: "ADD",
-      data: value,
-    });
-  };
-
-  const remove = (value: string) => {
-    send({
-      type: "REMOVE",
-      data: value,
-    });
-  };
-
-  const setPrimaryDomain = (value: string) => {
-    send({
-      type: "SELECT",
-      data: value,
-    });
-  };
-
-  const syncBasket = () => {
-    send({
-      type: "SYNC",
-    });
-  };
+export const useDomain = ({
+  model,
+  type,
+}: {
+  model?: string;
+  type?: DomainTypes;
+}) => {
+  const domain = useUpmindDomain({ model, type });
+  const { state }: any = useActor(domain.service);
 
   // ---------------------------------------------------------------------------
   return {
@@ -126,7 +53,7 @@ export const useDomain = (
     errors: computed(() => state.value.context?.error),
     selected: computed(() => {
       const selected =
-        find(state.value.context?.model, "isPrimary") ||
+        find(state.value.context?.model, "selected") ||
         first(state.value.context?.model);
       return get(selected, "domain");
     }),
@@ -136,7 +63,9 @@ export const useDomain = (
     meta: computed(() => ({
       isLoading: ["subscribing", "loading"].some(state.value.matches),
 
-      isSyncing: ["dac.syncing", "basket.processing"].some(state.value.matches),
+      isSyncing: ["dac.processingBasket", "basket.processing"].some(
+        state.value.matches
+      ),
 
       isSearching: [
         "dac.loading",
@@ -170,24 +99,24 @@ export const useDomain = (
         ["dac.valid", "existing.valid", "basket.valid"].some(
           state.value.matches
         ) && !!state.value.context?.model?.length,
-      showPrimaryDomain:
+      showSelected:
         ["dac.complete", "existing.complete", "basket.complete"].some(
           state.value.matches
         ) && !!state.value.context?.model?.length,
     })),
     // ---
-    choose,
-    search: debounce(search, 500),
-    searchMore,
+    choose: domain.choose,
+    search: debounce(domain.search, 500),
+    searchMore: domain.searchMore,
     searchOffset: computed(() => state.value.context?.search?.offset),
-    add,
-    remove,
-    toggle,
-    update,
-    reset,
-    setPrimaryDomain,
-    syncBasket,
-    isSelected: (value: string) => state.value.matches(value),
+    add: domain.add,
+    remove: domain.remove,
+    toggle: domain.toggle,
+    update: domain.update,
+    reset: domain.reset,
+    select: domain.select,
+    addToBasket: domain.addToBasket,
+    isSelected: domain.isSelected,
     destroy: domain.destroy,
   };
 };

@@ -28,16 +28,7 @@ import { some, filter, isEmpty } from "lodash-es";
 
 export const useBasket = (): any => {
   const { checkIncludesTax } = useBrand();
-  const {
-    service,
-    isReady,
-    clear,
-    checkout,
-    // ---
-    addItem,
-    updateItem,
-    removeItem,
-  } = useUpmindBasket();
+  const { service, isReady, clear, checkout, getProduct } = useUpmindBasket();
 
   const { meta: sessionMeta } = useSession();
   // ---  // we need this for reactive state
@@ -68,11 +59,7 @@ export const useBasket = (): any => {
         isLoading: stateMatches(state, ["subscribing", "loading"]), //
 
         isProcessing:
-          stateMatches(state, [
-            "generating",
-            "claiming",
-            "shopping.refreshing.processing",
-          ]) ||
+          stateMatches(state, ["shopping.refreshing.processing"]) ||
           some(contextValue(state, "items"), item =>
             machineMatches(item, ["processing"])
           ) ||
@@ -91,12 +78,8 @@ export const useBasket = (): any => {
           machineMatches(actors.value.promotions, ["valid"]),
 
         // ---
-        isEmpty: !contextMatches(state, ["products", "items"]),
-
         isAvailable:
           stateMatches(state, [
-            "claiming",
-            "generating",
             "shopping",
             "checkout.configuring",
             "checkout.available",
@@ -130,11 +113,9 @@ export const useBasket = (): any => {
         hasFields: machineMatches(actors.value.customFields, ["complete"]),
 
         hasAccount: stateMatches(state, [
-          "shopping.account.claiming",
           "shopping.account.complete",
           "checkout",
         ]),
-        isClaiming: stateMatches(state, ["shopping.account.claiming"]),
         hasTaxIncluded: checkIncludesTax(),
 
         // ---
@@ -172,11 +153,6 @@ export const useBasket = (): any => {
     basket: useContext(state, "basket"),
     summary: useContext(state, "summary"),
     products: useContext(state, "products", []),
-    productsPending: computed(() => {
-      const items = contextValue(state, "items", []);
-      const active = filter(items, item => !item?.state?.done);
-      return active;
-    }),
     productsInvalid: computed(() =>
       filter(
         contextValue(state, "products", []),
@@ -185,20 +161,15 @@ export const useBasket = (): any => {
     ),
     promotions: useContext(state, "basket.promotions", []),
     taxes: useContext(state, "basket.taxes", []),
-    currency: useContext(state, "basket.currency", []),
+    currency: useContext(state, "basket.currency"),
     payment: useContext(state, "payment"),
     invoice: useContext(state, "invoice"),
     // ---
     actors,
     // ---
-    // Basket Methods
     isReady,
     clear,
     checkout,
-    // ---
-    // Item Methods
-    addItem,
-    updateItem,
-    removeItem,
+    getProduct,
   };
 };

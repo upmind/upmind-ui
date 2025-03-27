@@ -6,8 +6,15 @@ const { escalate } = actions;
 // --- internal
 import services from "./services";
 import type { GuestContext } from "./types";
+
+import { useDataLayer } from "../../system";
+const { dataLayer } = useDataLayer();
+
+import { useCookies } from "../../../utils";
+const { setTopLevel: setCookie } = useCookies();
+
 import { useFeedback } from "../../feedback";
-const { trackEvent, addError } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 import {
@@ -26,7 +33,7 @@ import {
 // --- types
 import { responseCodes } from "../../../utils";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./guest.machine.typegen").Typegen0,
@@ -43,7 +50,7 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "load",
-          onDone: { target: "idle" },
+          onDone: { target: "available" },
           onError: {
             target: "error",
             actions: escalate(
@@ -56,180 +63,185 @@ export default createMachine(
       processed: {
         id: "processed",
         after: {
-          wait: "idle",
+          wait: "available",
         },
       },
 
-      idle: {
+      available: {
+        initial: "idle",
+        states: {
+          idle: {},
+          // --- Start the login flow
+          // in essence show a login form and await an event to authenticate
+          login: {
+            id: "login",
+            initial: "loading",
+            states: {
+              loading: {
+                always: {
+                  target: "available",
+                  actions: ["clearError", "setLoginSchemas"],
+                },
+                // after: {
+                //   wait: {
+                //     target: "available",
+                //     actions: ["clearError", "setLoginSchemas"]
+                //   }
+                // }
+              },
+              // loading: {} // loading state not required?
+              available: {
+                on: {
+                  REGISTER: { target: "#register" },
+                  AUTHENTICATE: {
+                    target: "authenticating",
+                    actions: ["setModel"],
+                  },
+                },
+              },
+              authenticating: {
+                invoke: {
+                  src: "authenticate",
+                  onDone: [
+                    {
+                      target: "challenging",
+                      actions: ["set2faToken", "set2faSchemas"],
+                      cond: "requires2fa",
+                    },
+                    {
+                      target: "#complete",
+                      actions: ["setActor", "pushLogin"],
+                    },
+                  ],
+                  onError: {
+                    target: "available",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+              challenging: {
+                on: {
+                  VERIFY: { target: "verifying" },
+                  CANCEL: { target: "available" },
+                },
+              },
+              verifying: {
+                invoke: {
+                  src: "verify2fa",
+                  onDone: {
+                    target: "#complete",
+                    actions: ["setActor", "pushLogin"],
+                  },
+                  onError: {
+                    target: "challenging",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+            },
+          },
+
+          // --- Start the create flow
+          // in essence show a register form, possibly with custom fields, and await an event to register
+          register: {
+            id: "register",
+            initial: "loading",
+            states: {
+              loading: {
+                invoke: {
+                  src: "getCustomFields",
+                  onDone: {
+                    target: "available",
+                    actions: ["setCustomFields", "setRegisterSchemas"],
+                  },
+                  onError: {
+                    target: "#error",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+              available: {
+                on: {
+                  REGISTER: { target: "checking", actions: ["setModel"] },
+                  LOGIN: { target: "#login" },
+                },
+              },
+              checking: {
+                invoke: {
+                  src: "checkForReCaptcha",
+                  onDone: [
+                    { target: "challenging", cond: "requiresReCaptcha" },
+                    { target: "registering" },
+                  ],
+                  onError: {
+                    target: "available",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+              challenging: {
+                on: {
+                  VERIFY: { target: "verifying" },
+                },
+              },
+              verifying: {
+                invoke: {
+                  src: "verifyReCaptcha",
+                  onDone: {
+                    target: "registering",
+                    actions: [],
+                  },
+                  onError: {
+                    target: "challenging",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+              registering: {
+                invoke: {
+                  src: "register",
+                  onDone: {
+                    target: "authenticating",
+                  },
+                  onError: {
+                    target: "available",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+              authenticating: {
+                invoke: {
+                  src: "authenticate",
+                  onDone: {
+                    target: "#complete",
+                    actions: ["setActor", "pushRegister"],
+                  },
+                  onError: {
+                    target: "available",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+            },
+          },
+
+          // --- potential alternate/future form flows
+          // social: {}, // when we require user to login with a social provider
+          // ---
+          // confirm: {}, // when we require user to confirm their email
+          // recover: {},  // when we require user to recover their password
+          // reset: {}, // when we user is in the process of reset their password
+        },
         on: {
-          LOGIN: { target: "login" },
-          REGISTER: { target: "register" },
+          LOGIN: { target: ".login" },
+          REGISTER: { target: ".register" },
         },
       },
-      // --- Start the login flow
-      // in essence show a login form and await an event to authenticate
-      login: {
-        id: "login",
-        initial: "loading",
-        states: {
-          loading: {
-            always: {
-              target: "available",
-              actions: ["clearError", "setLoginSchemas"],
-            },
-            // after: {
-            //   wait: {
-            //     target: "idle",
-            //     actions: ["clearError", "setLoginSchemas"]
-            //   }
-            // }
-          },
-          // loading: {} // loading state not required?
-          available: {
-            on: {
-              REGISTER: { target: "#register" },
-              AUTHENTICATE: {
-                target: "authenticating",
-                actions: ["setModel"],
-              },
-            },
-          },
-          authenticating: {
-            invoke: {
-              src: "authenticate",
-              onDone: [
-                {
-                  target: "challenging",
-                  actions: ["set2faToken", "set2faSchemas"],
-                  cond: "requires2fa",
-                },
-                {
-                  target: "#complete",
-                  actions: ["trackLogin"],
-                },
-              ],
-              onError: {
-                target: "available",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          challenging: {
-            on: {
-              VERIFY: { target: "verifying" },
-              CANCEL: { target: "available" },
-            },
-          },
-          verifying: {
-            invoke: {
-              src: "verify2fa",
-              onDone: {
-                target: "#complete",
-                actions: ["trackLogin"],
-              },
-              onError: {
-                target: "challenging",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-        },
-      },
-
-      // --- Start the create flow
-      // in essence show a register form, possibly with custom fields, and await an event to register
-      register: {
-        id: "register",
-        initial: "loading",
-        states: {
-          loading: {
-            invoke: {
-              src: "getCustomFields",
-              onDone: {
-                target: "available",
-                actions: ["setCustomFields", "setRegisterSchemas"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          available: {
-            on: {
-              REGISTER: { target: "checking", actions: ["setModel"] },
-              LOGIN: { target: "#login" },
-            },
-          },
-          checking: {
-            invoke: {
-              src: "checkForReCaptcha",
-              onDone: [
-                { target: "challenging", cond: "requiresReCaptcha" },
-                { target: "registering" },
-              ],
-              onError: {
-                target: "available",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          challenging: {
-            on: {
-              VERIFY: { target: "verifying" },
-            },
-          },
-          verifying: {
-            invoke: {
-              src: "verifyReCaptcha",
-              onDone: {
-                target: "registering",
-                actions: [],
-              },
-              onError: {
-                target: "challenging",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          registering: {
-            invoke: {
-              src: "register",
-              onDone: {
-                target: "authenticating",
-                actions: ["trackRegister"],
-              },
-              onError: {
-                target: "available",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          authenticating: {
-            invoke: {
-              src: "authenticate",
-              onDone: {
-                target: "#complete",
-              },
-              onError: {
-                target: "available",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-        },
-      },
-
-      // --- potential alternate/future form flows
-      // social: {}, // when we require user to login with a social provider
-      // ---
-      // confirm: {}, // when we require user to confirm their email
-      // recover: {},  // when we require user to recover their password
-      // reset: {}, // when we user is in the process of reset their password
 
       // Handle errors
       error: {
         id: "error",
+        type: "final",
       },
 
       // Handle completion, stop the machine and prevent further requests
@@ -285,22 +297,19 @@ export default createMachine(
         });
       },
 
-      trackRegister: (_context, { data }: any) => {
-        trackEvent({
-          event: "sign_up",
-          upmind: {
-            user_id: data?.actor_id,
-          },
+      pushRegister: (_context, { data }: any) => {
+        dataLayer({ event: "sign_up" }).withUser().push();
+      },
+      pushLogin: (_context, { data }: any) => {
+        dataLayer({ event: "login" }).withUser().push();
+      },
+
+      setActor: (_context, { data }: AnyEventObject) => {
+        setCookie("upm_actor", data?.analytics, {
+          expires: "8h",
         });
       },
-      trackLogin: (_context, { data }: any) => {
-        trackEvent({
-          event: "login",
-          upmind: {
-            user_id: data?.actor_id,
-          },
-        });
-      },
+
       // ---
 
       setError: assign({

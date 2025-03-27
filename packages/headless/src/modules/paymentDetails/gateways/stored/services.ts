@@ -9,12 +9,7 @@ import { unset, find, first } from "lodash-es";
 // --- types
 import type { GatewayContext } from "../types";
 
-// ---   ENUMS
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-
-// ---  PAYMENT METHODS
+// -----------------------------------------------------------------------------
 
 /**
  * @name getPaymentData
@@ -49,7 +44,7 @@ async function parse(
   return Promise.resolve(model);
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   ...sharedServices,

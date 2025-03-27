@@ -10,15 +10,16 @@ import { useCheckoutFlows } from "./checkout";
 import { useOrderFlows } from "./order";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { Flow } from "../types";
+export * from "../types";
 
 // -----------------------------------------------------------------------------
 
 export const useRoutingFlows = () => {
   const routing = useRoutingEngine();
-
   const basketFlows = useBasketFlows();
   const productFlows = useProductFlows();
   const recommendationsFlows = useRecommendationsFlows();
@@ -34,7 +35,7 @@ export const useRoutingFlows = () => {
     checkout: checkoutFlows,
     order: orderFlows,
     // ---
-    register: (data?: Flow[]) => {
+    register: (flows?: Flow[]) => {
       // register our default flows
       basketFlows.register();
       productFlows.register();
@@ -43,7 +44,7 @@ export const useRoutingFlows = () => {
       checkoutFlows.register();
       orderFlows.register();
       // ---
-      if (data) routing.register(data);
+      routing.register(flows ?? []);
     },
   };
 };

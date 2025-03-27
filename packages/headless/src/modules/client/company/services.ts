@@ -28,6 +28,13 @@ import type { CompanyContext, CompaniesContext } from "./types";
 //     get(response, BrandConfigKeys.PRICE_TAX_PRICE_DEFAULT_PAYMENT_PERIOD)
 //   );
 // }
+export async function invalidateCompanies(context: object) {
+  const { queryClient } = useQuery();
+
+  return queryClient
+    .resetQueries({ queryKey: ["clients", "companies"], exact: false }) // companies needs to invalidate ALL client libs
+    .then(() => context);
+}
 
 async function load(_context: CompaniesContext) {
   const { get, useUrl } = useQuery();
@@ -41,10 +48,15 @@ async function load(_context: CompaniesContext) {
     }),
     queryKey: [
       "clients",
-      client.id,
       "companies",
       {
-        // with: [].join(),
+        with: [
+          "address",
+          "address.region",
+          "address.country",
+          "email",
+          "phone",
+        ].join(),
         limit: 0,
       },
     ],
@@ -129,7 +141,9 @@ async function add({ model }: CompanyContext) {
       // vat_percent: model.vatPercent,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateCompanies)
+    .then(({ data }: any) => data);
 }
 
 async function update({ model }: CompanyContext) {
@@ -150,7 +164,9 @@ async function update({ model }: CompanyContext) {
       // vat_percent: model.vatPercent,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateCompanies)
+    .then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: CompanyContext) {
@@ -163,7 +179,9 @@ async function setDefault({ model }: CompanyContext) {
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateCompanies)
+    .then(({ data }: any) => data);
 }
 
 async function remove({ model }: CompanyContext) {
@@ -175,7 +193,9 @@ async function remove({ model }: CompanyContext) {
   return del({
     url: useUrl(`clients/${clientId}/companies/${model.id}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateCompanies)
+    .then(({ data }: any) => data);
 }
 
 // -----------------------------------------------------------------------------
@@ -215,7 +235,5 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

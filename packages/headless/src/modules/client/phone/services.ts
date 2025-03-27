@@ -24,6 +24,13 @@ import type { PhoneContext, IPhoneData, PhonesContext } from "./types";
 // -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
+export async function invalidatePhones(context: object) {
+  const { queryClient } = useQuery();
+
+  return queryClient
+    .resetQueries({ queryKey: ["clients", "phones"], exact: false }) // companies needs to invalidate ALL client libs
+    .then(() => context);
+}
 
 async function load(_context: PhonesContext) {
   const { get, useUrl } = useQuery();
@@ -34,14 +41,7 @@ async function load(_context: PhonesContext) {
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
-    queryKey: [
-      "clients",
-      client.id,
-      "phones",
-      {
-        limit: 0,
-      },
-    ],
+    queryKey: ["clients", "phones", { limit: 0 }],
     withAccessToken: true,
     revalidateIfStale: true,
   }).then(({ data }: any) => data);
@@ -105,7 +105,9 @@ async function add({ model }: PhoneContext) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidatePhones)
+    .then(({ data }: any) => data);
 }
 
 async function update({ model }: PhoneContext) {
@@ -123,7 +125,9 @@ async function update({ model }: PhoneContext) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidatePhones)
+    .then(({ data }: any) => data);
 }
 
 async function remove({ model }: PhoneContext) {
@@ -135,7 +139,9 @@ async function remove({ model }: PhoneContext) {
   return del({
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidatePhones)
+    .then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: PhoneContext) {
@@ -148,7 +154,9 @@ async function setDefault({ model }: PhoneContext) {
     url: useUrl(`clients/${clientId}/phones/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidatePhones)
+    .then(({ data }: any) => data);
 }
 
 // -----------------------------------------------------------------------------
@@ -226,7 +234,5 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

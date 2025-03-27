@@ -8,7 +8,8 @@
 import type { BillingDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const useSchema = (_context: BillingDetailsContext) => {
   const schema = {
     type: "object",
