@@ -9,7 +9,7 @@ export const invalidRingClasses =
   "aria-invalid:!ring-invalid aria-invalid:!ring-2 aria-invalid:!ring-offset-2";
 
 export const inputContainerVariants = cva(
-  `flex items-center ${ringClasses} ${invalidRingClasses} bg-control-background rounded-lg border border-control text-control-foreground transition-[background-color,border-color,opacity,box-shadow] duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50`,
+  `flex items-center ${ringClasses} ${invalidRingClasses} bg-control-background hover:border-control-strong rounded-lg border border-control text-control-foreground transition-[background-color,border-color,opacity,box-shadow] duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50`,
   {
     variants: {
       width: {
