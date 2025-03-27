@@ -25,6 +25,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.6.0",
     "@formkit/auto-animate": "^0.8.2",
     "@gtm-support/vue-gtm": "^3.1.0",
     "@sentry/vue": "^9.1.0",
