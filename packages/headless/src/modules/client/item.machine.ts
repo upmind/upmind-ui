@@ -20,19 +20,10 @@ import { responseCodes } from "../../utils";
 export default createMachine(
   {
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
-    id: "clientItemManager",
+    id: "clientManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      title: undefined,
-      description: undefined,
-      // ---
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      error: undefined,
-    } as ClientItemContext,
+    context: {} as ClientItemContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -40,75 +31,90 @@ export default createMachine(
         invoke: {
           src: "loadLookups",
           onDone: {
-            target: "checking",
+            target: "available",
             actions: ["setContext", "setSchemas", "setMeta"],
           },
           onError: {
-            target: "error",
+            target: "unavailable",
             actions: ["setError", "setFeedbackError"],
           },
         },
       },
-      // ---
 
-      checking: {
-        entry: ["clearError"],
-        initial: "parsing",
+      available: {
+        id: "available",
+        initial: "checking",
         states: {
-          parsing: {
-            invoke: {
-              src: "parse",
-              onDone: {
-                target: "validating",
-                actions: ["setContext", "setSchemas", "setMeta"],
+          checking: {
+            entry: ["clearError"],
+            initial: "parsing",
+            states: {
+              parsing: {
+                invoke: {
+                  src: "parse",
+                  onDone: {
+                    target: "validating",
+                    actions: ["setContext", "setSchemas", "setMeta"],
+                  },
+                },
+              },
+              validating: {
+                invoke: {
+                  src: "validate",
+                  onDone: {
+                    target: "#valid",
+                  },
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"],
+                  },
+                },
               },
             },
           },
-          validating: {
-            invoke: {
-              src: "validate",
-              onDone: {
-                target: "#valid",
+          valid: {
+            id: "valid",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setModel"],
               },
-              onError: {
-                target: "#invalid",
-                actions: ["setError"],
+              UPDATE: [
+                {
+                  target: "#processing.adding",
+                  cond: "isNew",
+                },
+                {
+                  target: "#processing.updating",
+                },
+              ],
+            },
+          },
+          invalid: {
+            id: "invalid",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setModel"],
+              },
+            },
+          },
+          error: {
+            id: "error",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setModel"],
               },
             },
           },
         },
       },
 
-      valid: {
-        id: "valid",
-        on: {
-          SET: {
-            target: "checking",
-            actions: ["setModel"],
-          },
-          UPDATE: [
-            {
-              target: "processing.adding",
-              cond: "isNew",
-            },
-            {
-              target: "processing.updating",
-            },
-          ],
-        },
-      },
-
-      invalid: {
-        id: "invalid",
-        on: {
-          SET: {
-            target: "checking",
-            actions: ["setModel"],
-          },
-        },
-      },
+      unavailable: {},
 
       processing: {
+        id: "processing",
         entry: ["clearError"],
         states: {
           adding: {
@@ -147,42 +153,6 @@ export default createMachine(
               },
             },
           },
-          removing: {
-            invoke: {
-              src: "remove",
-              onDone: {
-                target: "#processed",
-                actions: [
-                  "clearModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully deleted ${context.title}`);
-                  },
-                ],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
-          setting: {
-            invoke: {
-              src: "setDefault",
-              onDone: {
-                target: "#processed",
-                actions: [
-                  "setModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully set ${context.title} as default`);
-                  },
-                ],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
-          },
         },
       },
 
@@ -206,31 +176,14 @@ export default createMachine(
         ],
         type: "final",
       },
-
-      error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
-      },
     },
     on: {
       CLEAR: {
-        target: "checking",
+        target: "available.checking",
         actions: ["clearModel"],
       },
 
       // ---
-      REMOVE: {
-        target: "processing.removing",
-        cond: "canRemove",
-      },
-      DEFAULT: {
-        target: "processing.setting",
-        cond: "isNotDefault",
-      },
     },
   },
   {
