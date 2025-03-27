@@ -1,6 +1,6 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
-    <UpmCard class="flex gap-2 pb-3 md:pb-3">
+    <div class="flex gap-2 pb-6">
       <Button
         @click="fetchAddresses"
         size="sm"
@@ -26,7 +26,7 @@
       >
         Clear addresses
       </Button>
-    </UpmCard>
+    </div>
 
     <section
       class="pb-3 md:pb-3"
