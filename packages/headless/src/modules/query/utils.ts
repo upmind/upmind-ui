@@ -101,7 +101,6 @@ export const invalidateQueryByKey =
   (queryKey: QueryKey) =>
   async <T>(data: T) => {
     const { queryClient } = useQuery();
-    debugger;
     return queryClient.invalidateQueries({ queryKey }).then(() => data);
   };
 

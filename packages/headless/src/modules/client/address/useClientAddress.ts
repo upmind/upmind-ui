@@ -76,13 +76,7 @@ export const useClientAddress = (id?: Address["id"]) => {
               }
               return Promise.resolve();
             })
-            .then(() => {
-              const cache = useQuery()
-                .queryClient.getQueryCache()
-                .find({ queryKey: ["client", "addresses"] });
-              debugger;
-              return useClientAddressServices().refresh();
-            });
+            .then(() => useClientAddressServices().refresh());
         }
       );
     },

@@ -136,7 +136,7 @@ async function remove(addressId: Address["id"]) {
 
   const clientId = await getUserId();
 
-  del<IAddress>({
+  return del<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
@@ -148,7 +148,7 @@ async function setDefault(addressId: Address["id"]) {
 
   const clientId = await getUserId();
 
-  put<IAddress>({
+  return put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
     withAccessToken: true,
@@ -161,7 +161,7 @@ async function add(address: Address) {
 
   const clientId = await getUserId();
 
-  post<IAddress>({
+  return post<IAddress>({
     url: useUrl(`clients/${clientId}/addresses`),
     data: address,
     withAccessToken: true,
@@ -174,7 +174,7 @@ async function update(address: Address) {
 
   const clientId = await getUserId();
 
-  put<IAddress>({
+  return put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${address?.id}`),
     data: address,
     withAccessToken: true,
@@ -291,16 +291,16 @@ export default {
 export const useClientAddressServices = () => {
   return {
     loadLookups,
-    add: (context: AddressContext) => {
+    add: async (context: AddressContext) => {
       if (!context.model?.id) return Promise.reject("No address model");
       return add(context.model);
     },
-    update: (context: AddressContext) => {
+    update: async (context: AddressContext) => {
       if (!context.model?.id) return Promise.reject("No address model");
       return update(context.model);
     },
     parse,
     validate,
-    refresh: () => loadAll({ allowStale: false }),
+    refresh: async () => loadAll({ allowStale: false }),
   };
 };

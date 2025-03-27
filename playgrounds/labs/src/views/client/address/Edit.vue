@@ -56,7 +56,6 @@ function doInput() {
 function doUpdate() {
   // TODO: checkthe actual update service
   update().then(res => {
-    console.log("Updated", res);
     model.value = getModel();
   });
 }
