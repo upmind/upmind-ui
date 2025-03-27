@@ -45,7 +45,7 @@
 // --- external
 import { first, find } from "lodash-es";
 import { useVModel } from "@vueuse/core";
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
 
 // --- internal
@@ -79,7 +79,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
 const meta = computed(() => ({
-  isInline: props.inline,
+  isMinimal: props.minimal,
 }));
 
 const styles = useStyles(

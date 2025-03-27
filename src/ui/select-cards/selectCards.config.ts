@@ -5,7 +5,7 @@ export const triggerVariants = cva(
   "min-w-0 items-center justify-start text-left font-medium !text-primary",
   {
     variants: {
-      isInline: {
+      isMinimal: {
         true: "m-0 !h-auto gap-0 border-none !p-0 shadow-none",
         false: "h-auto min-h-10 w-full rounded-lg border-control px-4 py-3",
       },
@@ -17,7 +17,7 @@ export const triggerVariants = cva(
     },
     defaultVariants: {
       width: "full",
-      isInline: false,
+      isMinimal: false,
     },
   }
 );
