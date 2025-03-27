@@ -68,7 +68,7 @@
         >
           <ContentSection :title="t('basket.summary.title')">
             <Card>
-              <Summary no-actions />
+              <Summary />
             </Card>
           </ContentSection>
 
