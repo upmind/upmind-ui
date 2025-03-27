@@ -4,7 +4,7 @@ const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
-import { basketSubscription } from "../basket/helper";
+import { basketSubscription } from "../basketProduct/helper";
 
 // --- utils
 import { useTime } from "../../utils";
@@ -14,7 +14,7 @@ import { defaultsDeep, find, get, isEmpty, uniqBy } from "lodash-es";
 import type { AnyEventObject } from "xstate";
 import type { RoutingEngineContext } from "./types";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     id: "routingEngine",
@@ -182,7 +182,7 @@ export default createMachine(
 
       setFlows: assign({
         flows: ({ flows }, { data }: AnyEventObject) => {
-          return uniqBy([...(data || []), ...flows], "name");
+          return uniqBy([...(data ?? []), ...flows], "name");
         },
       }),
 

@@ -21,11 +21,16 @@ import type { IPhoneData } from "./types";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(
-  listingsMachine.withConfig({
-    actions: actions as any,
-    services: services as any,
-  }),
+  listingsMachine
+    .withConfig({
+      actions: actions as any,
+      services: services as any,
+    })
+    .withContext({
+      queryKeys: ["phones"],
+    }),
   {
+    id: "clientPhones",
     devTools: false,
   }
 );

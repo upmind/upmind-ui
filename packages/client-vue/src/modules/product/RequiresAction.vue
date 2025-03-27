@@ -39,10 +39,7 @@
         <template #default>
           <ol class="mt-4 list-disc text-left font-semibold">
             <li v-for="basketItem in products" :key="basketItem.id">
-              <span>{{ basketItem?.product?.name }}</span>
-              <span v-if="basketItem?.product?.serviceIdentifier">
-                ({{ basketItem?.product?.serviceIdentifier }})
-              </span>
+              <span>{{ basketItem?.product?.title }}</span>
             </li>
           </ol>
         </template>
@@ -73,7 +70,7 @@ import {
 const { t, tm } = useI18n();
 
 const { next, back } = useRoutingEngine();
-const { products } = useProductsRequiringAction();
+const { products, isReady } = useProductsRequiringAction();
 
-// ---
+await isReady();
 </script>

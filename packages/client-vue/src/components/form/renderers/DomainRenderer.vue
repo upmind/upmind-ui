@@ -1,6 +1,12 @@
 <template>
-  <FormField v-bind="formFieldProps">
-    <Domain :model-value="control.data" @update:modelValue="onInput" />
+  <FormField v-bind="formFieldProps" noErrors>
+    <Domain
+      :model-value="control.data"
+      :errors="formFieldProps.errors"
+      :touched="formFieldProps.touched"
+      @update:modelValue="onInput"
+      @update:type="resetInput"
+    />
   </FormField>
 </template>
 
@@ -26,11 +32,15 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
+
+const resetInput = (value: string) => {
+  onInput(value, false);
+};
 </script>
 
 <script lang="ts">
 import { uiTypeIs, formatIs, and } from "@jsonforms/core";
-import { isEmpty } from "lodash-es";
+
 export const tester = {
   rank: 3,
   controlType: and(uiTypeIs("Control"), formatIs("domain_name")),

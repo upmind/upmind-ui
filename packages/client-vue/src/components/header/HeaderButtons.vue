@@ -6,7 +6,7 @@
           {{ t("header.title") }}
           <strong>{{ t("header.login") }}</strong>
         </span>
-        <Avatar icon="account" size="xs" />
+        <Avatar icon="account" size="xs" :class="styles.header.avatar.login" />
       </span>
     </SessionLoginPopover>
 
@@ -14,9 +14,9 @@
       <Avatar
         v-bind="user.avatar"
         size="xs"
-        color="primary"
         class="cursor-pointer"
         focusable
+        :class="styles.header.avatar.session"
       />
     </SessionDetailsDropdown>
   </nav>
@@ -28,13 +28,28 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless-vue";
+import { cn, useStyles } from "@upmind-automation/upmind-ui";
+import config from "./header.config";
+
+// --- components
+import { Avatar } from "@upmind-automation/upmind-ui";
 import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
 import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
 
-import { Avatar } from "@upmind-automation/upmind-ui";
+// --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { meta, user } = useSession();
+
+const styles = useStyles(["header.avatar"], {}, config) as ComputedRef<{
+  header: {
+    avatar: {
+      login: string;
+      session: string;
+    };
+  };
+}>;
 </script>

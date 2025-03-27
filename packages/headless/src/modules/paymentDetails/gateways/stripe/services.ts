@@ -14,49 +14,8 @@ import { reject, set } from "lodash-es";
 import type { StripeContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// ---   ENUMS
+// -----------------------------------------------------------------------------
 
-export enum STRIPE_QUERY_PARAMS {
-  STRIPE_REDIRECT_STATUS = "redirect_status",
-  STRIPE_SETUP_INTENT = "setup_intent",
-  STRIPE_SETUP_INTENT_CLIENT_SECRET = "setup_intent_client_secret",
-}
-
-// NYS = "Not Yet Supported"
-
-export enum STRIPE_PAYMENT_METHOD_TYPES {
-  ACSS_DEBIT = "acss_debit", // NYS
-  AFFIRM = "affirm", // NYS
-  AFTERPAY_CLEARPAY = "afterpay_clearpay", // NYS
-  ALIPAY = "alipay", // NYS
-  AU_BECS_DEBIT = "au_becs_debit", // NYS
-  BACS_DEBIT = "bacs_debit", // NYS
-  BANCONTACT = "bancontact", // NYS
-  BLIK = "blik", // NYS
-  BOLETO = "boleto", // NYS
-  CARD = "card",
-  CASHAPP = "cashapp", // NYS
-  EPS = "eps", // NYS
-  FPX = "fpx", // NYS
-  GIROPAY = "giropay", // NYS
-  GRABPAY = "grabpay", // NYS
-  IDEAL = "ideal", // NYS
-  KLARNA = "klarna", // NYS
-  KONBINI = "konbini", // NYS
-  OXXO = "oxxo", // NYS
-  P24 = "p24", // NYS
-  PAYNOW = "paynow", // NYS
-  PAYPAL = "paypal",
-  PIX = "pix", // NYS
-  PROMPTPAY = "promptpay", // NYS
-  SEPA_DEBIT = "sepa_debit", // NYS
-  SOFORT = "sofort", // NYS
-  US_BANK_ACCOUNT = "us_bank_account", // NYS
-  WECHAT_PAY = "wechat_pay", // NYS
-}
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   const options = await sharedServices.load({ gateway }, _event);
 
@@ -73,7 +32,7 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
     }
   });
 }
-// ---
+
 async function validate(
   { schema, model, element, elementStatus }: StripeContext,
   { data }: AnyEventObject
@@ -104,8 +63,6 @@ async function validate(
     }
   });
 }
-
-// ---  PAYMENT METHODS
 
 async function createPaymentElement(
   { amount, currency, gateway, stripe, address }: StripeContext,
@@ -187,8 +144,6 @@ async function update({ elements, stripe, model }: StripeContext) {
   });
 }
 
-// ---  ADD ASYNC PAYMENT METHODS
-
 /**
  * @name beginSetup
  * @desc Here we obtain a client secret via the API, before creating a
@@ -256,7 +211,8 @@ async function confirmSetup() {}
  */
 async function endSetup() {}
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
+
 export default {
   load,
   parse: sharedServices.parse,

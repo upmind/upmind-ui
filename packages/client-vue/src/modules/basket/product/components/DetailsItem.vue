@@ -2,7 +2,7 @@
   <div class="flex justify-between">
     <!-- Padding and minues margin avoids text from being cut off from overflow and keeps position -->
     <p class="-my-1 py-1 leading-4">
-      {{ name }}
+      {{ title }}
 
       <template v-if="quantity && quantity > 1">
         ({{ t("product.configurationQuantity") }}{{ quantity }})
@@ -46,7 +46,7 @@ import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
 const props = defineProps<{
   id: string;
-  name: string;
+  title: string;
   quantity?: number;
   currentPrice?: string;
   currentAmount?: number;

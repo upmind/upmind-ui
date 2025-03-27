@@ -19,7 +19,7 @@ import type { AnyEventObject } from "xstate";
 import type { ROUTE } from "./types";
 import type { Route, Target, Flow, RoutingEngineContext } from "./types";
 
-// --- Helper functios/utils
+// -----------------------------------------------------------------------------
 
 async function matchTargets(
   targets: Flow[],
@@ -60,11 +60,6 @@ function mapTargets(targets: Target[], flows: Flow[]): Flow[] {
     })
   );
 }
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-// this will process the request and return a promise
-// ---
 
 async function calculateNextRoute(
   { flows }: RoutingEngineContext,
@@ -183,10 +178,10 @@ async function resolveRoute(
     : Promise.resolve({ name: flow.name, meta: flow?.meta });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   calculateNextRoute,
   calculateBackRoute,
   resolve,
-} as any;
+};

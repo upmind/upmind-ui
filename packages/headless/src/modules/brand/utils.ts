@@ -1,4 +1,7 @@
+// --- utils
 import { reduce, set } from "lodash-es";
+
+// -----------------------------------------------------------------------------
 
 export const useBrandParser = (data: object) =>
   reduce(

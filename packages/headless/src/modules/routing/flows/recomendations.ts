@@ -12,18 +12,17 @@ import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
+
 export const useRecommendationsFlows = () => {
   const routing = useRoutingEngine();
   const { hasProducts } = useBasket();
-  const { hasRecommendations } = useRecommendationsEngine();
+  const { hasRecommendations, isReady } = useRecommendationsEngine();
 
   let flows: Flow[] = [
     {
       name: ROUTE.RECOMMENDATIONS,
-      guard: async (_route: Route) => {
-        const valid = hasProducts() && hasRecommendations();
-        return valid;
-      },
+      guard: async (_route: Route) =>
+        isReady().then(() => hasProducts() && hasRecommendations()),
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],

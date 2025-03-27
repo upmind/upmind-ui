@@ -4,11 +4,14 @@ import type {
   IRelatedObject,
   IProduct,
   IBasketProduct,
+  ICurrency,
+  IPromotion,
 } from "@upmind-automation/types";
-import type { BasketProduct } from "../basket/types";
-import type { ProductModel } from "../product/types";
+import type { BasketProduct } from "../basketProduct";
+import type { ProductModel } from "../product";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export interface Badge {
   label?: string;
   color?: string;
@@ -21,19 +24,18 @@ export interface Benefit {
   label: string;
   icon?: string | any;
 }
+
 interface Promotion {
   id: string;
   amount: number;
   amountFormatted: string;
 }
 
-// ---
-
 export interface Recommendation {
   id: string;
   productId: string;
   // ---
-  name?: any;
+  title?: any;
   label?: any;
   description?: any;
   excerpt?: any;
@@ -64,16 +66,7 @@ export interface Recommendation {
   // ---
   promotions?: Promotion[];
   // ---
-  config?: {
-    productId: string;
-    quantity?: number;
-    term?: number;
-    subproducts?: string[];
-    provisionFields?: {
-      [key: string]: string | number;
-    };
-    coupons?: string[];
-  };
+  config?: ProductModel;
   meta?: {
     discounted?: boolean;
     free?: boolean;
@@ -87,7 +80,6 @@ export interface Recommendation {
     loading?: boolean;
   };
 }
-// ---  Contexts
 
 export interface RecommendationsEngineContext {
   recommendations: Recommendation[];
@@ -102,13 +94,13 @@ export interface RecommendationsEngineContext {
   error?: any;
   basketItem?: ActorRef<any>;
   // ---
-  currencyId?: string;
-  promotions?: string[];
+  currency?: ICurrency;
+  promotions?: IPromotion[];
   basketId?: string;
   basketHelper?: ActorRef<any>;
-  itemBuilder?: (item: ProductModel) => ProductModel;
-  basketItemMapper?: (item: BasketProduct) => Partial<ProductModel>;
-  basketItemBuilder?: (model: ProductModel) => BasketProduct;
+  parseBasketProduct?: (item: ProductModel) => ProductModel;
+  parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
+  parseProductModel?: (model: ProductModel) => BasketProduct;
   // ---
 }
 
@@ -117,7 +109,7 @@ export interface RelatedProduct extends IRelatedObject {
   image_url?: string;
   short_description?: string;
   // --- augmented fields
-  product?: IProduct;
+  product: IProduct;
   // --- config to be used in adding the recommendation
   config?: IProductConfig;
   badge?: Badge;

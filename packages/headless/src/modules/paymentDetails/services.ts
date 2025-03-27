@@ -26,13 +26,12 @@ import type { PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";
 import type { AnyEventObject } from "xstate";
 
-// ---  ENUMS
+// -----------------------------------------------------------------------------
+
 const whitelistGatewayProviders = (
   import.meta.env.VITE_APP_WHITELIST_GATEWAY_PROVIDERS || ""
 ).split(",");
 
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 async function load(
   { currency, address }: PaymentDetailsContext,
   _event: AnyEventObject
@@ -141,9 +140,6 @@ async function load(
   );
 }
 
-// ---  PAYMENT METHODS
-
-// ---
 async function parse(
   { model, gateways }: PaymentDetailsContext,
   { data }: AnyEventObject
@@ -231,14 +227,12 @@ async function validate(
   });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,
   parse,
   validate,
   // ---
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

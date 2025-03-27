@@ -1,10 +1,10 @@
 // --- external
+import { sha1 } from "object-hash";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import basketMachine from "./basket.machine";
-export { useBasketProductConfig, useBasketProduct } from "./products";
 
 // --- utils
 import {
@@ -13,21 +13,20 @@ import {
   findLast,
   get,
   some,
-  omitBy,
-  isNil,
-  isEqual,
-  last,
   isEmpty,
   filter,
+  map,
 } from "lodash-es";
 import { responseCodes } from "../../utils";
 
 // --- types
 import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
-import type { ProductModel } from "../product/types";
-import type { BasketProduct } from "./types";
+import type { ProductModel } from "../product";
+import type { BasketProduct } from "../basketProduct";
 export * from "./types";
-// ---  create a global instance of the basket machine
+
+// -----------------------------------------------------------------------------
+// create a global instance of the basket machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
@@ -36,31 +35,7 @@ const service: any = interpret(basketMachine, {
   devTools: true,
 });
 
-// ---  methods
-function exists(items: ActorRef<any>[] = [], mapping: any, context: any) {
-  context = context ? `${context}.` : "";
-  return some(items, item =>
-    every(mapping, (value, key) => {
-      const itemValue = get(item, `${context}${key}`, get(item, key));
-      const matches = itemValue == value;
-      return matches;
-    })
-  );
-}
-
-async function sendToItem(itemId: any, type: any, data: any) {
-  const item = find(service.getSnapshot()?.context?.items, ["id", itemId]);
-
-  if (item) {
-    item.send({ type, data });
-    return Promise.resolve(item);
-  } else {
-    return Promise.reject({
-      message: "Item not found",
-      code: responseCodes.Not_Found,
-    });
-  }
-}
+// -----------------------------------------------------------------------------
 
 export const useBasket = () => {
   // --- meta functions
@@ -85,13 +60,9 @@ export const useBasket = () => {
   function isAvailable() {
     const state = service.getSnapshot();
     return (
-      [
-        "claiming",
-        "generating",
-        "shopping",
-        "checkout.configuring",
-        "checkout.available",
-      ].some(state.matches) && !isEmpty(state?.context?.products)
+      ["shopping", "checkout.configuring", "checkout.available"].some(
+        state.matches
+      ) && !isEmpty(state?.context?.products)
     );
   }
 
@@ -179,20 +150,28 @@ export const useBasket = () => {
     );
   }
 
+  function getBasket() {
+    const state = service.getSnapshot();
+    return state.context?.basket;
+  }
+
   function hasOrder() {
     const state = service.getSnapshot();
     return ["complete", "failed"].some(state.matches);
     // hasPaid: stateMatches(state, ["complete"]),
     // hasFailed: stateMatches(state, ["failed"]),
   }
+
   function getInvoice() {
     const state = service.getSnapshot();
     return state.context?.invoice;
   }
+
   function isOrderPaid() {
     const state = service.getSnapshot();
     return state.matches("complete");
   }
+
   function isOrderFailed() {
     const state = service.getSnapshot();
     return state.matches("failed");
@@ -211,7 +190,7 @@ export const useBasket = () => {
     service.send({ type: "REFRESH", data });
     return waitFor(service, state =>
       state.matches("shopping.refreshing.processed")
-    ).then(() => service.getSnapshot());
+    ).then(() => get(service.getSnapshot(), "context.basket"));
   }
 
   async function setCurrency(currency: any) {
@@ -281,18 +260,8 @@ export const useBasket = () => {
 
   // --- item functions
 
-  function getProducts(): ActorRef<any>[] {
-    return get(service.getSnapshot(), "context.products", []) as ActorRef<
-      any,
-      any
-    >[];
-  }
-
-  function getPendingProducts(): ActorRef<any>[] {
-    return get(service.getSnapshot(), "context.items", []) as ActorRef<
-      any,
-      any
-    >[];
+  function getProducts(): BasketProduct[] {
+    return get(service.getSnapshot(), "context.products", []);
   }
 
   function getInvalidProducts(): BasketProduct[] {
@@ -301,11 +270,8 @@ export const useBasket = () => {
     return filter(products, product => !isEmpty(product?.error));
   }
 
-  function findProduct(
-    mapping: any,
-    pending?: boolean
-  ): ActorRef<any> | undefined {
-    const products = pending ? getPendingProducts() : getProducts();
+  function findProduct(mapping: any): BasketProduct | undefined {
+    const products = getProducts();
     return findLast(products, (basketItem: any) =>
       every(mapping, (value, key) => {
         if (key == "id") {
@@ -319,121 +285,29 @@ export const useBasket = () => {
   }
 
   function productExists(mapping: any, pending?: boolean) {
-    const products = pending ? getPendingProducts() : getProducts();
-    return exists(products, mapping, "state.context.model");
-  }
+    const products = getProducts();
 
-  async function addItem({
-    // id,
-    productId,
-    quantity,
-    term,
-    attributes,
-    options,
-    provisionFields,
-    coupons,
-    subproducts,
-  }: ProductModel): Promise<ActorRef<any>> {
-    // lets wait for our basket  to be ready for shopping
-    return waitFor(service, state => state.matches("shopping"), {
-      timeout: 60_000,
-    }).then(async () => {
-      // lets add the new product base don the provided config to the basket
-      const config = {
-        productId,
-        quantity,
-        term,
-        attributes,
-        options,
-        provisionFields,
-        subproducts,
-        coupons,
-      };
-
-      const mapping = omitBy(
-        {
-          productId,
-          quantity,
-          term,
-          attributes,
-          options,
-          provisionFields,
-          subproducts,
-        },
-        isNil
-      );
-
-      service.send({
-        type: "ADD",
-        data: config,
-      });
-
-      // then we check if we are still generating the basket ( happens when adding the first item )
-      if (service.getSnapshot().matches("generating")) {
-        await waitFor(service, state => state.matches("shopping"), {
-          timeout: Infinity,
-        });
-      }
-
-      // then wait/check for the new product actor to be configured
-      // then send the update event to the basket
-      const items = service.getSnapshot()?.context?.items;
-      const actor = (find(items, (basketItem: any) => {
-        const found = every(mapping, (value, key) => {
-          const origin = get(basketItem, `state.context.model.${key}`);
-          const matches = isEqual(origin, value);
-          return matches;
-        });
-        return found;
-      }) || last(items)) as ActorRef<any>;
-
-      return actor;
-    });
-  }
-
-  async function updateItem(itemId: string): Promise<ActorRef<any>> {
-    const basketItem = find(service.getSnapshot()?.context?.items, [
-      "id",
-      itemId,
-    ]);
-
-    if (!basketItem) {
-      return Promise.reject({
-        message: `Basket item ${itemId} not found`,
-        code: responseCodes.Not_Found,
-      });
-    }
-    return waitFor(basketItem, state => {
-      return state.matches("available.valid");
-    }).then(() =>
-      sendToItem(itemId, "UPDATE", { itemId }).then(item => {
-        return waitFor(item, state => !state.matches("processing"), {
-          timeout: Infinity,
-        }).then(state => {
-          if (["error", "available.error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve(item);
-        });
-        // .finally(() => service.send({ type: "REFRESH" }));
+    return some(products, product =>
+      every(mapping, (value, key) => {
+        const itemValue = get(product, key);
+        const matches = itemValue == value;
+        return matches;
       })
     );
-  }
-
-  async function removeItem(itemId: any): Promise<any> {
-    return sendToItem(itemId, "REMOVE", { itemId }).then(item =>
-      waitFor(item, state => ["complete"].some(state.matches), {
-        timeout: Infinity,
-      })
-    );
-    // .finally(() => service.send({ type: "REFRESH" }));
   }
 
   // ---------------------------------------------------------------------------
   return {
     service: service.start(),
+    // --- getters
     getSnapshot: () => service.getSnapshot(),
     getBasketId: () => service.getSnapshot()?.context?.basket?.id,
+    getCurrency: () => service.getSnapshot()?.context?.basket?.currency,
+    getPromotions: () => service.getSnapshot()?.context?.basket?.promotions,
+    getPromotionCodes: () =>
+      map(service.getSnapshot()?.context?.basket?.promotions, "promotion.code"),
+    getTaxes: () => service.getSnapshot()?.context?.basket?.taxes ?? [],
+    getErrors: () => service.getSnapshot()?.context?.errors,
     // --- meta functions
     isReady,
     isAvailable,
@@ -447,25 +321,43 @@ export const useBasket = () => {
     isReadyForCheckout,
     isCheckingOut,
     hasOrder,
+    getBasket,
     getInvoice,
     isOrderPaid,
     isOrderFailed,
+
     // --- basket functions
     clear,
     checkout,
     refresh,
     setCurrency,
     addPromotion,
+
     // --- item functions
     getProducts,
-    getPendingProducts,
     getInvalidProducts,
     findProduct,
     productExists,
-    findItem: (mapping: any) => findProduct(mapping, true),
-    itemExists: (mapping: any) => productExists(mapping, true),
-    addItem,
-    updateItem,
-    removeItem,
+
+    // -- Product functions
+    getProduct: async (bpid: string): Promise<ActorRef<any>> => {
+      await isReady();
+      const target = bpid;
+      const products = getProducts();
+      const basketItem = find(products, ["id", target]) as
+        | ActorRef<any>
+        | undefined;
+
+      return new Promise((resolve, reject) => {
+        if (basketItem) {
+          resolve(basketItem);
+        } else {
+          reject({
+            message: "Basket item not found",
+            code: responseCodes.Not_Found,
+          });
+        }
+      });
+    },
   };
 };

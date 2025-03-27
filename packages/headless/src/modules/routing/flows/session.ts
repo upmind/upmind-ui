@@ -2,7 +2,8 @@
 
 // --- internal
 import { useSession } from "../../session";
-import { useRoutingEngine, useRoutePendingProducts } from "..";
+import { useRoutingEngine } from "..";
+import { useBasketProductsPending } from "../../basketProduct";
 
 // --- utils
 import { uniqBy } from "lodash-es";
@@ -12,9 +13,11 @@ import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
+
 export const useSessionFlows = () => {
   const routing = useRoutingEngine();
   const { isAuthenticated } = useSession();
+  const { clear: clearPendingProducts } = useBasketProductsPending();
 
   let flows: Flow[] = [
     {
@@ -66,10 +69,8 @@ export const useSessionFlows = () => {
           .then(() => false)
           .catch(() => true);
 
-        if (valid) {
-          const { clearPendingProducts } = useRoutePendingProducts(route);
-          clearPendingProducts();
-        }
+        if (valid) clearPendingProducts();
+
         return valid;
       },
     },

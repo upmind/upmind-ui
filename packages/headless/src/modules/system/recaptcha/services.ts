@@ -6,12 +6,9 @@
 import { AnyEventObject } from "xstate";
 import type { RecaptchaContext } from "./types";
 
-// ---  HELPERS
+// -----------------------------------------------------------------------------
 
 const siteKey = import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY;
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 
 declare global {
   interface Window {
@@ -56,7 +53,7 @@ export async function generateToken(grecaptcha: any, action?: string) {
   return grecaptcha.execute(siteKey, { action });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,

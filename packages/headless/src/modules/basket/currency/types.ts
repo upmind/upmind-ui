@@ -3,11 +3,8 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { ICurrency } from "@upmind-automation/types";
-// ---  ENUMS
 
-// ---  private
-
-// ---  Contexts
+// -----------------------------------------------------------------------------
 
 export interface CurrencyContext {
   basketId?: string;

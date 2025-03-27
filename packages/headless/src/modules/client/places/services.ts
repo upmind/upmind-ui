@@ -115,7 +115,5 @@ export default {
   load,
   parse,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => Promise.resolve(), // we dont need authentication for this service
 };

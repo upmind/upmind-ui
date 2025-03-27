@@ -49,8 +49,6 @@ export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
   localStorage.removeItem(`${actor_type}/auth/token`);
 }
 
-// ---
-
 export function useTokenParser(data: any) {
   if (isEmpty(data)) return null;
 
@@ -79,7 +77,7 @@ export function useInitialsParser(user: any, chars: number = 1) {
     ?.join("");
 }
 
-export function useUserParser(data: IUser): User {
+export function useUserParser(data: IUser): User | undefined {
   const user: any = pick(data, [
     "id",
     "email",
