@@ -9,11 +9,10 @@ import { useClientAddressActions } from "./actions";
 import { useClientAddressServices } from "./services";
 
 // --- utils
-import { debounce, get } from "lodash-es";
+import { get } from "lodash-es";
 
 // --- types
-import type { Address } from "./types";
-import { useQuery } from "../../query";
+import { Address, AddressModel } from "./types";
 
 export const useClientAddress = (id?: Address["id"]) => {
   // create a global instance of the system machine
@@ -50,7 +49,7 @@ export const useClientAddress = (id?: Address["id"]) => {
       });
     },
     clear: () => service.send({ type: "CLEAR" }),
-    input: async (model: Address): Promise<Address> => {
+    input: async (model: AddressModel): Promise<Address> => {
       service.send({ type: "SET", data: model });
       return waitFor(service, state => state.matches("available")).then(
         state => {

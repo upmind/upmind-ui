@@ -25,7 +25,6 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.6.0",
     "@formkit/auto-animate": "^0.8.2",
     "@gtm-support/vue-gtm": "^3.1.0",
     "@sentry/vue": "^9.1.0",
@@ -47,6 +46,7 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.6.0",
     "@localazy/cli": "^1.7.15",
     "@playwright/test": "^1.50.1",
     "@sentry/vite-plugin": "^3.2.0",

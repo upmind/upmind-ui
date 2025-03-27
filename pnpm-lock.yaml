@@ -1057,9 +1057,6 @@ importers:
 
   playgrounds/labs:
     dependencies:
-      '@faker-js/faker':
-        specifier: ^9.6.0
-        version: 9.6.0
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
@@ -1118,6 +1115,9 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(vue@3.5.13(typescript@5.7.3))
     devDependencies:
+      '@faker-js/faker':
+        specifier: ^9.6.0
+        version: 9.6.0
       '@localazy/cli':
         specifier: ^1.7.15
         version: 1.7.15(encoding@0.1.13)
