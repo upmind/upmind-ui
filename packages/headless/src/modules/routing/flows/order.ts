@@ -14,9 +14,10 @@ import { ROUTE } from "../types";
 // import { useSession } from "../../session";
 
 // -----------------------------------------------------------------------------
+
 export const useOrderFlows = () => {
   const routing = useRoutingEngine();
-  const { hasOrder, hasProducts } = useBasket();
+  const { hasOrder, isReady, hasProducts } = useBasket();
   // const { isAuthenticated, hasExpired } = useSession();
 
   let flows: Flow[] = [
@@ -44,15 +45,7 @@ export const useOrderFlows = () => {
       targets: {
         next: [],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
-        fallback: [
-          {
-            name: ROUTE.EMPTY,
-            guard: async (_route: Route) => {
-              return !hasProducts();
-            },
-          },
-          { name: ROUTE.BASKET },
-        ],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
   ];

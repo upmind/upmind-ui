@@ -17,7 +17,7 @@ export const useI18n = () => {
   const { validateLanguage, getLanguages, isReady } = useBrand();
   const { get, set } = useLocalStorage();
 
-  async function getLocale(): Promise<string | undefined> {
+  function getLocale(): string | undefined {
     //  if we don't have a brand languages, we can't get the locale
     const languages = getLanguages();
     if (isEmpty(languages)) return get("i18n/locale");
@@ -74,12 +74,12 @@ export const useI18n = () => {
      * @desc Here we get the final localeCode, fully checking for Upmind level
      * support (including principal subdivisions) */
 
-    return Promise.resolve(first(localeIntersection));
+    return first(localeIntersection);
   }
 
   async function setDefaultLocale(): Promise<string> {
     await isReady();
-    const locale = await getLocale();
+    const locale = getLocale();
     // /**
     //  * @desc Here we silently clean 'locale' and 'lang' params from the URL
     //  * in case any were passed from an external source. */
@@ -103,7 +103,6 @@ export const useI18n = () => {
   async function setLocale(code: string): Promise<string> {
     await isReady();
     const locale = await validateLanguage({ code });
-
     // Switch i18n locale
     return new Promise((resolve, reject) => {
       if (locale?.code) {

@@ -1,3 +1,5 @@
+// -----------------------------------------------------------------------------
+
 export function useMoney() {
   /**
    * Here we remove trailing zeroes from price

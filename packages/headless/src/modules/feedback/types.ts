@@ -1,6 +1,8 @@
+//  --- external
 import type { ActorRef } from "xstate";
 
-// ---  ENUMS
+// -----------------------------------------------------------------------------
+
 export enum messageDisplays {
   SILENT = "",
   TOAST = "toast",
@@ -40,7 +42,6 @@ export interface MessageError {
   message?: string;
   data?: Record<string, any>;
 }
-// ---  Context
 
 export interface MessagesContext {
   messages: ActorRef<any>[] | any;

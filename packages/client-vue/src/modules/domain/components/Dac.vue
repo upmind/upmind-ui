@@ -1,9 +1,9 @@
 <template>
   <FormControl
-    v-if="!meta.showDialog"
     :invalid="false"
     autoFocus
     :formItemId="id"
+    :animation-delay="300"
   >
     <Input
       :class="styles.domain.search"
@@ -16,7 +16,9 @@
   </FormControl>
 
   <Drawer
-    v-else
+    v-model:open="open"
+    dismissible
+    class="bg-white"
     to="#vue-app"
     fit="cover"
     skrim="primary"
@@ -24,21 +26,19 @@
     :class-header="styles.domain.drawer.header"
     :class-content="styles.domain.drawer.content"
     :class-footer="styles.domain.drawer.footer"
-    v-model:open="open"
     :dismissable="false"
     :title="t('domain.dac.title')"
     :description="t('domain.dac.description')"
-    @close="onReject"
+    :overflow="meta.isLoading ? 'hidden' : 'auto'"
   >
     <template #header>
       <FormControl autoFocus :formItemId="id">
-        <Input
-          :class="styles.domain.search"
-          @update:modelValue="onSearch"
-          :prependIcon="meta.showComplete ? null : 'search'"
-          :placeholder="t('domain.dac.search')"
-          autocomplete="url"
+        <DomainSearch
           v-model="queryValue"
+          :showComplete="meta.showComplete"
+          :isLoading="meta.isLoading"
+          :type="type"
+          @search="onSearch"
         />
       </FormControl>
     </template>
@@ -53,6 +53,7 @@
         @update:selected="onToggleSelected"
         :color="color"
         :value="props.modelValue ?? ''"
+        @remove="onRemove"
       />
 
       <Button
@@ -102,12 +103,13 @@ import config from "../domain.config";
 
 // --- components
 import {
-  Input,
   Button,
   Drawer,
   FormControl,
+  Input,
 } from "@upmind-automation/upmind-ui";
 import DomainCards from "./DomainCards.vue";
+import DomainSearch from "./DomainSearch.vue";
 import type { DacProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -117,7 +119,9 @@ const emit = defineEmits<{
   (e: "resolve"): void;
   (e: "search", query: string): void;
   (e: "search:more", offset: number): void;
-  (e: "update:selected", value?: string): void;
+  (e: "update:selected", value: string): void;
+  (e: "remove", value: string): void;
+  (e: "reset"): void;
 }>();
 
 const props = withDefaults(defineProps<DacProps>(), {
@@ -134,6 +138,12 @@ const { t } = useI18n();
 const open = ref(false);
 watch(props, ({ complete, items, loading, processing }) => {
   open.value = !complete && (loading || processing || !!items?.length);
+});
+
+watch(open, value => {
+  if (!value) {
+    emit("reset");
+  }
 });
 
 const meta = computed(() => ({
@@ -184,8 +194,11 @@ function onSearch(value: string | number) {
 function onSearchOffset(value: number) {
   emit("search:more", value);
 }
-function onToggleSelected(value?: string) {
+function onToggleSelected(value: string) {
   if (meta.value.isProcessing) return;
   emit("update:selected", value);
+}
+function onRemove(value: string) {
+  emit("remove", value);
 }
 </script>

@@ -3,8 +3,11 @@ import { AnyEventObject, interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- exports
-export * from "./upload";
-export * from "./recaptcha";
+export * from "./upload/useSystemUpload";
+export * from "./recaptcha/useSystemRecaptcha";
+export * from "./i18n/useI18n";
+export * from "./analytics/useDataLayer";
+export * from "./analytics/useTracking";
 
 // --- internal
 import systemMachine from "./system.machine";
@@ -129,15 +132,11 @@ export const useSystem = () => {
     return fetch("regions", getRegions, country);
   };
 
-  const getRegions = (value: string | ICountry) => {
-    const countryCode = isString(value) ? value : value.code;
-    const emptyRegions: Record<string, IRegion[]> = { countryCode: [] };
-    return get(
-      service.getSnapshot().context.regions,
-      countryCode,
-      emptyRegions
-    ) as Record<string, IRegion[]>;
-  };
+  const getRegions = (value: string | ICountry) =>
+    get(
+      service.getSnapshot()?.context?.regions,
+      isString(value) ? value : value.code
+    );
 
   const getRegion = (values: string | string[], country: string | ICountry) => {
     let found;

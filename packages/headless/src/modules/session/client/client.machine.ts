@@ -3,19 +3,26 @@ import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import { useI18n } from "../../system/i18n";
+import { useI18n } from "../../system/i18n/useI18n";
 import services from "./services";
+
 import type { ClientContext } from "./types";
+
+import { useDataLayer } from "../../system";
+const { dataLayer } = useDataLayer();
+
 import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
-import { useTime } from "../../../utils";
+import { useTime, useCookies } from "../../../utils";
+const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
+import { useUserParser } from "../utils";
 
 // --- types
 import { responseCodes } from "../../../utils";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./client.machine.typegen").Typegen0,
@@ -34,7 +41,10 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "load",
-          onDone: { target: "idle", actions: ["setUser", "setLocale"] },
+          onDone: {
+            target: "available",
+            actions: ["setActor", "setUser", "setLocale"],
+          },
           onError: { target: "complete", actions: ["setError"] },
         },
       },
@@ -42,12 +52,12 @@ export default createMachine(
       processed: {
         id: "processed",
         after: {
-          wait: "idle",
+          wait: "available",
         },
       },
 
-      idle: {
-        id: "idle",
+      available: {
+        id: "available",
         on: {
           LOGOUT: {
             target: "complete",
@@ -86,7 +96,7 @@ export default createMachine(
           },
 
           unavailable: {
-            after: { error: "#idle" },
+            after: { error: "#available" },
           },
         },
       },
@@ -101,11 +111,23 @@ export default createMachine(
   {
     actions: {
       clear: assign((_context, _event) => {
+        // clear all session data, including cookies and local storage
+        //  also update the data layer to indicate the user has logged out
         localStorage.clear();
+        removeCookie("upm_actor");
+        dataLayer().withPage().withUser().push();
         return {};
       }),
       // ---
-      setUser: assign({ user: (_context, { data }: AnyEventObject) => data }),
+      setActor: (_context, { data }: AnyEventObject) => {
+        setCookie("upm_actor", data?.analytics, {
+          expires: "8h",
+        });
+      },
+
+      setUser: assign({
+        user: (_context, { data }: AnyEventObject) => useUserParser(data.actor),
+      }),
       setLocale: ({ user }) => {
         if (!user) return;
         const locale = user.locale;

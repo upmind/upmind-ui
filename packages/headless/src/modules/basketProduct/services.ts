@@ -1,13 +1,14 @@
 // --- external
 
 // --- internal
-import type { ProductModel } from "../../..";
-import { useQuery } from "../../..";
-import { useBrand } from "../../brand";
+import type { BasketProduct, ProductDetails, ProductModel } from "../..";
+import { useQuery } from "../..";
+import { useBrand } from "../brand";
 
 // --- utils
-import { useTime } from "../../../utils";
+import { useTime } from "../../utils";
 import { parseBasketProductConfig } from "./utils";
+import { parseQuantity } from "../product/utils";
 
 import {
   concat,
@@ -19,14 +20,12 @@ import {
   reduce,
   set,
 } from "lodash-es";
+import { ActorRef } from "xstate";
 
 // --- types
 
-// ---
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
+// -----------------------------------------------------------------------------
 
-// ---
 /**
  * Fetches a single product with details .
  *
@@ -76,6 +75,9 @@ async function fetch(
   if (basketId) set(params, "basket_id", basketId);
   if (bpid) set(params, "basket_product_id", bpid);
 
+  // lets ensure we parse our promotions correctly
+  const promocodes = map(promotions, "promotion.code").join();
+
   return getRequest({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
@@ -85,7 +87,7 @@ async function fetch(
       productId,
       {
         currency: currency?.id,
-        promotions: (promotions ?? []).join(","),
+        promotions: promocodes,
       },
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
@@ -142,6 +144,9 @@ async function fetchSelected(
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
 
+  // lets ensure we parse our promotions correctly
+  const promocodes = map(promotions, "promotion.code").join();
+
   return getRequest({
     url: useUrl(`basket/products/`, params),
     queryKey: [
@@ -151,7 +156,7 @@ async function fetchSelected(
       productIds,
       {
         currency: currency?.id,
-        promotions: (promotions ?? []).join(","),
+        promotions: promocodes,
       },
     ],
     withAccessToken: true,
@@ -220,6 +225,9 @@ async function fetchRelated(
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
 
+  // lets ensure we parse our promotions correctly
+  const promocodes = map(promotions, "promotion.code").join();
+
   return getRequest({
     url: useUrl(`basket/products/${productId}/related`, params),
     queryKey: [
@@ -231,10 +239,39 @@ async function fetchRelated(
         limit,
         offset,
         currency: currency?.id,
-        promotions: (promotions ?? []).join(","),
+        promotions: promocodes,
       },
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
+    withAccessToken: true,
+  }).then(({ data }: any) => data);
+}
+
+async function updateQuantity(
+  {
+    basketId,
+    basketProduct,
+  }: {
+    basketId: string;
+    basketProduct: BasketProduct;
+  },
+  { data }: { data: number }
+): Promise<void> {
+  // sanity check
+  if (!basketId) return Promise.reject("No basket provided/available");
+  if (!basketProduct.product) return Promise.reject("Product not found");
+  if (!basketProduct.product?.quantifiable)
+    return Promise.reject("Product not quantifiable");
+  // ---
+  const { put, useUrl } = useQuery();
+  basketProduct.quantity = parseQuantity(
+    data,
+    basketProduct.product as ProductDetails
+  );
+  const product = parseBasketProductConfig(basketProduct);
+  return put({
+    url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
+    data: product,
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
@@ -262,7 +299,7 @@ async function update(
     promotions?: string[];
   },
   { data }: { data: ProductModel }
-) {
+): Promise<void> {
   const { put, post, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
@@ -282,33 +319,7 @@ async function update(
 }
 
 /**
- * Removes a product from the basket.
- *
- * @param {Object} context - The parameters for the remove function.
- * @param {string} context.basketId - The ID of the basket.
- * @param {string} context.bpid - The ID of the product in the basket.
- * @returns {Promise<any>} A promise that resolves with the response data if the product is successfully removed,
- * or rejects with an error message if no basket ID is provided.
- */
-async function remove({
-  basketId,
-  bpid,
-}: {
-  basketId: string;
-  bpid: string;
-}): Promise<any> {
-  const { del, useUrl } = useQuery();
-  if (!basketId) return Promise.reject("No basket provided/available");
-  if (!bpid) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
-  // ---
-  return del({
-    url: useUrl(`/orders/${basketId}/products/${bpid}`),
-    withAccessToken: true,
-  }).then(({ data }: any) => data);
-}
-
-/**
- * Synchronizes the basket by updating it with valid products and existing products.
+ * Add/Update Many basket withnew valid products and existing products.
  *
  * @param {Object} context - The parameters for the sync function.
  * @param {string} context.basketId - The ID of the basket to be updated.
@@ -321,10 +332,10 @@ async function remove({
  *
  * @throws {Error} - Throws an error if no basket ID is provided or if a model is not found for a product.
  */
-async function sync(
+async function updateMany(
   { basketId, basketProducts, promotions }: any,
-  { data }: any
-): Promise<any> {
+  { data }: { data: ActorRef<any>[] }
+): Promise<void> {
   if (!basketId) return Promise.reject("No basket provided/available");
 
   // When updating the basket we need to provide :
@@ -333,8 +344,8 @@ async function sync(
   // otherwise the existing products will be removed from the basket
 
   const validItems = filter(data, item =>
-    item.state?.matches("available.valid")
-  );
+    item.getSnapshot().matches("available.valid")
+  ) as ActorRef<any>[];
 
   // --- then build the basket config for the validItems products
   const products = map(validItems, item => {
@@ -393,13 +404,39 @@ async function sync(
     });
 }
 
-// ---  EXPORTS
+/**
+ * Removes a product from the basket.
+ *
+ * @param {Object} context - The parameters for the remove function.
+ * @param {string} context.basketId - The ID of the basket.
+ * @param {string} context.bpid - The ID of the product in the basket.
+ * @returns {Promise<any>} A promise that resolves with the response data if the product is successfully removed,
+ * or rejects with an error message if no basket ID is provided.
+ */
+async function remove({
+  basketId,
+  bpid,
+}: {
+  basketId: string;
+  bpid: string;
+}): Promise<void> {
+  const { del, useUrl } = useQuery();
+  if (!basketId) return Promise.reject("No basket provided/available");
+  if (!bpid) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
+  // ---
+  return del({
+    url: useUrl(`/orders/${basketId}/products/${bpid}`),
+    withAccessToken: true,
+  }).then(({ data }: any) => data);
+}
+// -----------------------------------------------------------------------------
 
 export default {
   fetch,
   fetchSelected,
   fetchRelated,
+  updateQuantity,
   update,
+  updateMany,
   remove,
-  sync,
 };

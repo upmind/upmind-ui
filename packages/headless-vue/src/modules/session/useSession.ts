@@ -19,6 +19,8 @@ import type { IUseSession, IUseSessionMeta } from "./types";
  */
 export const useSession = (inspector?: Function): IUseSession => {
   const {
+    isAuthenticated,
+    isReady,
     service,
     showRegister,
     showLogin,
@@ -56,9 +58,11 @@ export const useSession = (inspector?: Function): IUseSession => {
       isLoading:
         state.value.matches("checking") ||
         (guest.value?.matches &&
-          ["loading", "login.loading", "register.loading"].some(
-            guest.value.matches
-          )) ||
+          [
+            "loading",
+            "available.login.loading",
+            "available.register.loading",
+          ].some(guest.value.matches)) ||
         client.value?.matches("loading") ||
         false,
 
@@ -67,12 +71,12 @@ export const useSession = (inspector?: Function): IUseSession => {
       isProcessing:
         (guest.value?.matches &&
           [
-            "login.authenticating",
-            "login.verifying",
-            "register.checking",
-            "register.verifying",
-            "register.registering",
-            "register.authenticating",
+            "available.login.authenticating",
+            "available.login.verifying",
+            "available.register.checking",
+            "available.register.verifying",
+            "available.register.registering",
+            "available.register.authenticating",
           ].some(guest.value.matches)) ||
         client.value?.matches("processing"),
 
@@ -82,14 +86,16 @@ export const useSession = (inspector?: Function): IUseSession => {
       hasExpired: state.value.matches("expired"),
 
       // ---
-      showReCaptcha: guest.value?.matches("register.challenging"),
-      showLoginForm: guest.value?.matches("login"),
+      showReCaptcha: guest.value?.matches("available.register.challenging"),
+      showLoginForm: guest.value?.matches("available.login"),
       show2fa:
         guest.value?.matches &&
-        ["login.challenging", "login.verifying"].some(guest.value.matches),
+        ["available.login.challenging", "available.login.verifying"].some(
+          guest.value.matches
+        ),
 
-      showRegisterForm: guest.value?.matches("register"),
-      canShowForms: guest.value?.matches("idle"),
+      showRegisterForm: guest.value?.matches("available.register"),
+      canShowForms: guest.value?.matches("available.idle"),
     })
   );
 
@@ -149,6 +155,8 @@ export const useSession = (inspector?: Function): IUseSession => {
   }
   // ---------------------------------------------------------------------------
   return {
+    isReady,
+    isAuthenticated,
     state: computed(() => state.value.value),
     context,
     errors,

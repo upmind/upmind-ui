@@ -54,4 +54,5 @@ export default {
     "prose max-w-app z-10 mx-auto w-full flex-wrap items-start justify-start pb-16 pt-10 md:pb-32 md:pt-16"
   ),
   title: titleVariants,
+  description: cva("text-emphasis-medium my-0 text-sm italic leading-5"),
 };

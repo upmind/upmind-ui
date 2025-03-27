@@ -1,220 +1,66 @@
 <template>
   <article :class="styles.domain.card.root">
     <header :class="styles.domain.card.header">
-      <div :class="styles.domain.card.badges">
-        <span :class="styles.domain.card.text" v-if="props.isOwned">
-          <span :class="styles.domain.card.owned.icon">
-            <Icon icon="lock" />
-          </span>
-          {{ t("domain.card.owned.label") }}
-        </span>
+      <Icon
+        :icon="getContent.icon"
+        size="xs"
+        :class="styles.domain.card.icon"
+      />
 
-        <span :class="styles.domain.card.text" v-else-if="props.inBasket">
-          <span :class="styles.domain.card.basket.icon">
-            <Icon icon="basket" />
-          </span>
-          {{ t("domain.card.basket.label") }}
-        </span>
+      <div :class="styles.domain.card.content">
+        <h6 :class="styles.domain.card.label">
+          {{ getContent.label }}
+        </h6>
 
-        <span
-          v-else-if="props?.summary?.isAvailable"
-          :class="styles.domain.card.text"
-        >
-          <span :class="styles.domain.card.available.icon">
-            <Icon icon="check" />
-          </span>
-          {{ t("domain.card.available.label") }}
-        </span>
+        <section :class="styles.domain.card.container">
+          <div :class="styles.domain.card.title">
+            <h2 :class="styles.domain.card.sld">
+              {{ props.sld
+              }}<strong :class="styles.domain.card.tld">
+                {{ props.tld }}
+              </strong>
+            </h2>
+          </div>
 
-        <span :class="styles.domain.card.text" v-else>
-          <span :class="styles.domain.card.transfer.icon">
-            <Icon icon="transfer" />
-          </span>
+          <Promotion
+            v-if="meta.isAvailable"
+            :class="styles.domain.card.promotion"
+            :discounted="!!summary?.meta.discounted"
+            :currentSaving="summary?.currentSaving"
+            :currentSavingAmount="summary?.currentSavingAmount"
+            :mixed="summary?.meta?.mixed"
+            size="md"
+          />
+        </section>
 
-          {{ t("domain.card.transfer.label") }}
-        </span>
-
-        <Badge
-          v-if="props?.summary?.meta.discounted"
-          color="promotion"
-          :label="t('domain.card.promotion')"
-          variant="tonal"
+        <DomainDescription
+          v-if="meta.isAvailable"
+          :domain="domain"
+          :summary="summary"
+          :isOwned="isOwned"
+          :inBasket="inBasket"
+          :tld="tld"
+          @update="onUpdate"
         />
       </div>
-
-      <h5 :class="styles.domain.card.title">
-        {{ props.sld }}
-        <strong :class="styles.domain.card.underline">{{ props.tld }}</strong>
-      </h5>
     </header>
 
-    <footer :class="styles.domain.card.footer">
-      <i18n-t
-        v-if="props.isOwned"
-        :class="styles.domain.card.owned.root"
-        keypath="domain.card.owned.instruction"
-        tag="p"
-      >
-        <template #[`newline`]><br /></template>
+    <footer :class="styles.domain.card.footer.root">
+      <DomainPrices v-if="meta.isAvailable" :summary="summary" />
 
-        <template #[`ownership`]>
-          <strong :class="styles.domain.card.owned.ownership">{{
-            t("domain.card.owned.ownership")
-          }}</strong>
-        </template>
-
-        <template #[`price`]>
-          <em :class="styles.domain.card.owned.price">{{
-            props?.summary?.regularPrice
-          }}</em>
-        </template>
-
-        <template #[`tld`]>
-          <em :class="styles.domain.card.owned.tld">{{ props.tld }}</em>
-        </template>
-      </i18n-t>
-
-      <i18n-t
-        v-else-if="props.inBasket"
-        :class="styles.domain.card.basket.root"
-        keypath="domain.card.basket.instruction"
-        tag="p"
-      >
-        <template #[`newline`]><br /></template>
-
-        <template #[`ownership`]>
-          <strong :class="styles.domain.card.basket.ownership">{{
-            t("domain.card.basket.ownership")
-          }}</strong>
-        </template>
-
-        <template #[`price`]>
-          <em :class="styles.domain.card.basket.price">{{
-            props?.summary?.regularPrice
-          }}</em>
-        </template>
-
-        <template #[`tld`]>
-          <em :class="styles.domain.card.basket.tld">{{ props.tld }}</em>
-        </template>
-      </i18n-t>
-
-      <i18n-t
-        v-else-if="props?.summary?.isAvailable"
-        :class="styles.domain.card.available.root"
-        keypath="domain.card.available.instruction"
-        tag="p"
-      >
-        <template #[`newline`]><br /></template>
-
-        <template #[`ownership`]>
-          <strong :class="styles.domain.card.available.ownership">{{
-            t("domain.card.available.ownership")
-          }}</strong>
-        </template>
-
-        <template #[`price`]>
-          <span :class="styles.domain.card.available.prices">
-            <span
-              :class="styles.domain.card.available.discount"
-              v-if="props?.summary?.meta.discounted"
-            >
-              {{ props?.summary?.regularPrice }}
-            </span>
-            <em :class="styles.domain.card.available.price">
-              {{
-                props?.summary?.meta.free
-                  ? t("product.free")
-                  : props?.summary?.currentPrice
-              }}
-            </em>
-          </span>
-        </template>
-
-        <template #[`tld`]>
-          <em :class="styles.domain.card.available.tld">{{ props.tld }}</em>
-        </template>
-      </i18n-t>
-
-      <i18n-t
-        v-else
-        :class="styles.domain.card.transfer.root"
-        keypath="domain.card.transfer.instruction"
-        tag="p"
-      >
-        <template #[`newline`]><br /></template>
-
-        <template #[`ownership`]>
-          <span :class="styles.domain.card.transfer.ownership">{{
-            t("domain.card.transfer.ownership")
-          }}</span>
-        </template>
-
-        <template #[`action`]>
-          <Link
-            :class="styles.domain.card.transfer.action"
-            :disabled="meta.isDisabled || props.selected"
-            :label="t('domain.card.transfer.action')"
-            :color="props.color"
-            @click="onUpdate(props.domain)"
-            size="sm"
-          />
-        </template>
-
-        <template #[`price`]>
-          <span :class="styles.domain.card.transfer.prices">
-            <span
-              :class="styles.domain.card.transfer.discount"
-              v-if="props?.summary?.meta.discounted"
-            >
-              {{ props?.summary?.regularPrice }}
-            </span>
-            <em :class="styles.domain.card.transfer.price">
-              {{
-                props?.summary?.meta.free
-                  ? t("product.free")
-                  : props?.summary?.currentPrice
-              }}
-            </em>
-          </span>
-        </template>
-
-        <template #[`tld`]>
-          <em :class="styles.domain.card.transfer.tld">{{ props.tld }}</em>
-        </template>
-      </i18n-t>
-
-      <div :class="styles.domain.card.actions">
-        <template v-if="!props.isOwned && !props.inBasket">
-          <Button
-            v-if="props?.summary?.isAvailable"
-            :class="styles.domain.card.available.action"
-            :disabled="meta.isDisabled"
-            :label="t('domain.card.available.action', props.selected ? 0 : 1)"
-            :loading="meta.isProcessing && props.selected"
-            :prepend-icon="props.selected ? 'check' : 'plus'"
-            :variant="props.selected ? 'flat' : 'outline'"
-            :color="props.color"
-            @click="onUpdate(props.domain)"
-            block
-            size="sm"
-          />
-
-          <Button
-            v-else-if="props.selected"
-            :class="styles.domain.card.transfer.action"
-            :disabled="meta.isDisabled"
-            :label="t('domain.card.transfer.action', props.selected ? 0 : 1)"
-            :loading="meta.isProcessing && props.selected"
-            :prepend-icon="props.selected ? 'check' : 'transfer'"
-            :variant="props.selected ? 'flat' : 'outline'"
-            :color="props.color"
-            @click="onUpdate(props.domain)"
-            block
-            size="sm"
-          />
-        </template>
-      </div>
+      <DomainActions
+        :domain="domain"
+        :isOwned="isOwned"
+        :inBasket="inBasket"
+        :selected="selected"
+        :summary="summary"
+        :type="type"
+        :disabled="meta.isDisabled"
+        :processing="meta.isProcessing"
+        :tld="tld"
+        @update="onUpdate"
+        @remove="onRemove"
+      />
     </footer>
   </article>
 </template>
@@ -227,11 +73,14 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
+import { useBasketProduct } from "@upmind-automation/headless-vue";
 
 // --- components
 import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import Promotion from "../../basket/product/components/Promotion.vue";
+import DomainActions from "./DomainActions.vue";
+import DomainDescription from "./DomainDescription.vue";
+import DomainPrices from "./DomainPrices.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -239,6 +88,7 @@ import type { DomainCardProps } from "../types";
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
   (e: "update:selected", domain: string): void;
+  (e: "remove", domain: string): void;
 }>();
 
 const props = withDefaults(defineProps<DomainCardProps>(), {
@@ -252,16 +102,11 @@ const { t } = useI18n();
 const meta = computed(() => ({
   isDisabled: props.disabled,
   isProcessing: props.processing,
+  isAvailable: props.summary.meta.available,
 }));
 
 const styles = useStyles(
-  [
-    "domain.card",
-    "domain.card.owned",
-    "domain.card.basket",
-    "domain.card.available",
-    "domain.card.transfer",
-  ],
+  ["domain.card", "domain.card.footer"],
   meta,
   config
 ) as ComputedRef<{
@@ -269,53 +114,52 @@ const styles = useStyles(
     card: {
       root: string;
       header: string;
-      badges: string;
-      text: string;
+      icon: string;
+      content: string;
+      container: string;
+      label: string;
       title: string;
-      underline: string;
-      footer: string;
-      actions: string;
-      // ---
-      owned: {
+      sld: string;
+      tld: string;
+      promotion: string;
+      footer: {
         root: string;
-        icon: string;
-        ownership: string;
-        price: string;
-        tld: string;
-      };
-      basket: {
-        root: string;
-        icon: string;
-        ownership: string;
-        price: string;
-        tld: string;
-      };
-      available: {
-        root: string;
-        icon: string;
-        ownership: string;
-        prices: string;
-        discount: string;
-        price: string;
-        tld: string;
-        action: string;
-      };
-      transfer: {
-        root: string;
-        icon: string;
-        ownership: string;
-        action: string;
-        prices: string;
-        discount: string;
-        price: string;
-        tld: string;
       };
     };
   };
 }>;
 
+const getContent = computed(() => {
+  if (props.isOwned) {
+    return {
+      icon: "lock",
+      label: t("domain.card.owned.label"),
+    };
+  } else if (props.inBasket) {
+    return {
+      icon: "check-circle-solid",
+      label: t("domain.card.basket.label"),
+    };
+  } else if (props?.summary?.meta?.available) {
+    return {
+      icon: "check-circle",
+      label: t("domain.card.available.label"),
+    };
+  } else {
+    return {
+      icon: "transfer",
+      label: t("domain.card.transfer.label"),
+    };
+  }
+});
+
 function onUpdate(value: string): void {
   if (meta.value.isDisabled || meta.value.isProcessing) return;
   emit("update:selected", value);
+}
+
+function onRemove(value: string): void {
+  if (meta.value.isDisabled || meta.value.isProcessing) return;
+  emit("remove", value);
 }
 </script>

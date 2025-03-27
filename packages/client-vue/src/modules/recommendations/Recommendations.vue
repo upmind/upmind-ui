@@ -17,7 +17,7 @@
     <Carousel @resolve="doClose" />
 
     <Card
-      class="md:bg-base-background mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
+      class="md:bg-base mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
     >
       <div
         class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"

@@ -4,7 +4,7 @@
 import { isServer, QueryClient } from "@tanstack/query-core";
 import { map, set, reduce, isArray, isObject, camelCase } from "lodash-es";
 
-// --- Constants
+// -----------------------------------------------------------------------------
 
 export const PAGINATION = {
   offset: 0,

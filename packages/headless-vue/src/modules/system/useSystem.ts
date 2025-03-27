@@ -8,6 +8,7 @@ export * from "./recaptcha";
 
 // --- internal
 import { useSystem as useUpmindSystem } from "@upmind-automation/headless";
+export { useDataLayer, useTracking } from "@upmind-automation/headless";
 
 // --- utils
 import { omit, sample, get, isEmpty, filter, has } from "lodash-es";

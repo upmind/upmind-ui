@@ -20,14 +20,18 @@ import type { IAddress } from "@upmind-automation/types";
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
-
 const service = interpret(
-  listingsMachine.withConfig({
-    actions: actions as any,
-    services: services as any,
-  }),
+  listingsMachine
+    .withConfig({
+      actions: actions as any,
+      services: services as any,
+    })
+    .withContext({
+      queryKeys: ["addresses"],
+    }),
   {
-    devTools: false,
+    id: "clientAddresses",
+    devTools: true,
   }
 );
 

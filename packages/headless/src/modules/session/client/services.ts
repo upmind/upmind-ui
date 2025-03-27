@@ -4,13 +4,12 @@ import { useQuery } from "../..";
 
 // --- utils
 import { isEmpty } from "lodash-es";
-import { getTokenFromStorage, useUserParser } from "../utils";
+import { getTokenFromStorage } from "../utils";
 
 // ---types
 import type { ClientContext } from "./types";
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-// this will process the request and return a promise
+
+// -----------------------------------------------------------------------------
 
 async function load(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
@@ -35,10 +34,10 @@ async function load(_context: ClientContext, _event: any) {
     }),
     queryKey: ["session", "self"],
     withAccessToken: true,
-  }).then(({ data }: any) => useUserParser(data?.actor));
+  }).then(({ data }: any) => data);
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,

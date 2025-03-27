@@ -6,7 +6,9 @@ import {
   useFieldsModelParser,
 } from "../../../utils";
 
+// --- types
 import type { AuthModel } from "./types";
+
 // -----------------------------------------------------------------------------
 
 export const useRegisterSchemaParser = (data: any) => {
@@ -103,7 +105,6 @@ export const useRegisterModelParser = (data: any): AuthModel => {
 
   return model;
 };
-// ---
 
 export const useLoginSchemaParser = () => {
   return {
@@ -158,7 +159,6 @@ export const useLoginModelParser = () => {
     password: undefined,
   };
 };
-// ---
 
 export const use2faSchemaParser = () => {
   return {

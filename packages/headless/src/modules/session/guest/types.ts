@@ -3,8 +3,7 @@ import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 
-// ---
-// Contexts
+// -----------------------------------------------------------------------------
 
 export interface GuestContext {
   // TODO:

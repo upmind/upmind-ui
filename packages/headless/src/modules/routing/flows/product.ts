@@ -2,11 +2,11 @@
 
 // --- internal
 import {
-  useRoutePendingProducts,
   useRoutingEngine,
   useRouteQueryParams,
   useRouteRequiresAction,
 } from "..";
+import { useBasketProductsPending } from "../../basketProduct";
 
 import { useBasket } from "../../basket";
 import { useRecommendationsEngine } from "../../recommendations";
@@ -19,15 +19,22 @@ import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 
 // -----------------------------------------------------------------------------
+
 export const useProductFlows = () => {
   const routing = useRoutingEngine();
-  const { updateItem, findProduct, productExists } = useBasket();
+  const {
+    findProduct,
+    productExists,
+    getProduct,
+    isReady: isBasketReady,
+  } = useBasket();
+  const { get: getPendingProduct, remove: removePendingProduct } =
+    useBasketProductsPending();
 
   let flows: Flow[] = [
     {
       name: ROUTE.EXPRESS_PRODUCT_ADD,
       guard: async (route: Route) => {
-        const { getPendingProduct } = useRoutePendingProducts(route);
         const { productId, express } = useRouteQueryParams(route);
         const valid =
           express &&
@@ -41,20 +48,19 @@ export const useProductFlows = () => {
       },
       resolve: async (route: Route) => {
         const { productId } = useRouteQueryParams(route);
-        const { getPendingProduct, unsetPendingProduct } =
-          useRoutePendingProducts(route);
-
-        const basketItem = await getPendingProduct(productId, true).catch(
+        const product = await getPendingProduct(productId, true).catch(
           () => undefined
         );
-        if (!isEmpty(basketItem)) {
-          return updateItem(basketItem.id)
+        if (!isEmpty(product)) {
+          //  updatePendingProduct(product.id);
+          return product
+            .update()
             .then(async () => {
-              unsetPendingProduct(productId);
+              removePendingProduct(productId);
               route.name ??= ROUTE.EXPRESS_PRODUCT_ADD; // ensure we have a name for the current route
-              return routing.next(route, basketItem);
+              return routing.next(route, product);
             })
-            .catch(err => {
+            .catch(() => {
               return {
                 name: ROUTE.PRODUCT_ADD,
                 params: { pid: productId },
@@ -91,8 +97,6 @@ export const useProductFlows = () => {
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
-        const { getPendingProduct } = useRoutePendingProducts(route);
-
         const { productId } = useRouteQueryParams(route);
         const valid = await getPendingProduct(productId, true)
           .then(
@@ -103,7 +107,6 @@ export const useProductFlows = () => {
         return valid;
       },
       resolve: async (route: Route) => {
-        const { getPendingProduct } = useRoutePendingProducts(route);
         const { productId } = useRouteQueryParams(route);
         const pendingProduct = await getPendingProduct(productId, true);
         const pid = get(
@@ -166,11 +169,9 @@ export const useProductFlows = () => {
       name: ROUTE.PRODUCT_EDIT,
       guard: async (route: Route) => {
         const { basketProductId } = useRouteQueryParams(route);
-        const { getBasketProduct } = useRoutePendingProducts(route);
-        const valid = await getBasketProduct(basketProductId)
+        return getProduct(basketProductId)
           .then(() => true)
           .catch(() => false);
-        return valid;
       },
       targets: {
         next: [
@@ -195,11 +196,13 @@ export const useProductFlows = () => {
     },
     {
       name: ROUTE.PRODUCT_REQUIRES_ACTION,
-      guard: async (_route: Route) => {
-        const { hasProducts } = useRouteRequiresAction();
-        const valid = hasProducts();
-        return valid;
-      },
+      guard: async (_route: Route) =>
+        isBasketReady().then(() => {
+          const { hasProducts } = useRouteRequiresAction();
+          const valid = hasProducts();
+          return valid;
+        }),
+
       resolve: async (_route: Route, context?: any) => {
         const { getNextRelated } = useRouteRequiresAction();
         const basketProduct = getNextRelated(context);
@@ -218,11 +221,12 @@ export const useProductFlows = () => {
         next: [
           {
             name: ROUTE.PRODUCT_EDIT,
-            guard: async (_route: Route, context: any) => {
-              const { getNextInvalid } = useRouteRequiresAction();
-              const valid = !!getNextInvalid(context);
-              return valid;
-            },
+            guard: async (_route: Route, context: any) =>
+              isBasketReady().then(() => {
+                const { getNextInvalid } = useRouteRequiresAction();
+                const valid = !!getNextInvalid(context);
+                return valid;
+              }),
             resolve: async (route: Route, context: any) => {
               const { getNextInvalid } = useRouteRequiresAction();
               const basketProduct = getNextInvalid(context);

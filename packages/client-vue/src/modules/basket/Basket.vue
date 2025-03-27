@@ -17,6 +17,7 @@
                   @click="open = !open"
                   variant="muted"
                   size="sm"
+                  class="space-x-2"
                 >
                   <template v-slot:prepend>
                     <Icon icon="configuration" class="size-3" />
@@ -105,10 +106,15 @@
                 keypath="basket.requiresAction.summary.title"
                 tag="span"
                 :plural="productsInvalid.length"
+                scope="global"
               />
             </template>
             <ol class="list-disc text-left">
-              <li v-for="basketItem in productsInvalid" :key="basketItem.id">
+              <li
+                v-for="basketItem in productsInvalid"
+                :key="basketItem.id"
+                class="marker:text-inherit"
+              >
                 <router-link
                   class="text-inherit"
                   :to="{
@@ -116,10 +122,7 @@
                     params: { bpid: basketItem.id },
                   }"
                 >
-                  <span>{{ basketItem?.product?.name }}</span>
-                  <span v-if="basketItem?.product?.serviceIdentifier">
-                    ({{ basketItem?.product?.serviceIdentifier }})
-                  </span>
+                  <span>{{ basketItem?.product?.title }}</span>
                 </router-link>
               </li>
             </ol>
@@ -157,7 +160,7 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, productsInvalid } = useBasket();
+const { meta, productsInvalid, isReady } = useBasket();
 
 const {
   errors: fieldsErrors,
@@ -170,4 +173,6 @@ const {
 } = useBasketFields();
 
 const open = ref(false);
+
+await isReady();
 </script>

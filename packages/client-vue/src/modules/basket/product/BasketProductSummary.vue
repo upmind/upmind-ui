@@ -35,10 +35,7 @@
             <div class="flex items-end justify-between">
               <Link :to="editLink" offset="2">
                 <strong class="text-xl font-semibold leading-7 underline">
-                  {{ pricing.name }}
-                  <template v-if="pricing.serviceIdentifier">
-                    ({{ pricing.serviceIdentifier }})
-                  </template>
+                  {{ pricing.title }}
                 </strong>
               </Link>
 
@@ -71,7 +68,7 @@
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
           :one-off="pricing.meta?.oneoff"
-          :taxes="taxes"
+          :taxes="pricing.meta?.includesTax"
         />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
@@ -105,7 +102,7 @@
           :discounted="pricing.meta?.discounted"
           :free="pricing.meta?.free"
           :one-off="pricing.meta?.oneoff"
-          :taxes="taxes"
+          :taxes="pricing.meta?.includesTax"
         />
         <ExPrice
           v-bind="pricing"

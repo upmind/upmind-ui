@@ -1,7 +1,7 @@
 // --- types
 import type { ActorRef } from "xstate";
 
-// ---
+// -----------------------------------------------------------------------------
 
 export enum ROUTE {
   LOADING = "loading",
@@ -29,6 +29,11 @@ export enum REQUIRES_ACTION {
   PENDING = "pending",
   INVALID = "invalid",
   RELATED = "related",
+}
+
+export interface PageRoute {
+  to?: string;
+  from?: string;
 }
 
 export type Route = {
@@ -66,8 +71,6 @@ export interface Flow {
     fallback?: Target[];
   };
 }
-
-// ---  Contexts
 
 export interface RoutingEngineContext {
   flows: Flow[];

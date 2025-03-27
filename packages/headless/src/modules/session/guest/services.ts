@@ -1,21 +1,17 @@
 // --- internal
 import { useQuery } from "../..";
-import { useSystemRecaptcha } from "../../system";
+import { useSystemRecaptcha, useTracking, useDataLayer } from "../../system/";
 import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
 // --- utils
-import { useCookies, useTracking } from "../../../utils";
+import { useCookies } from "../../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 import { isEmpty } from "lodash-es";
 
 // ---types
 import type { GuestContext } from "./types";
 
-// ---  ENUMS
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-// this will process the request and return a promise
+// -----------------------------------------------------------------------------
 
 async function load(_context: GuestContext, _event: any) {
   // if we DONT have a token, we need to generate one, otherwise we are authenticated already
@@ -33,7 +29,29 @@ async function load(_context: GuestContext, _event: any) {
   });
 }
 
-// --- LOGIN
+async function loadUser() {
+  const { get, useUrl } = useQuery();
+
+  return get({
+    url: useUrl("self", {
+      with: [
+        "actor",
+        "accounts",
+        // client specific only
+        // "actor.account", // Relation required for determining `topup_enabled` value
+        // "actor.brand", // Relation required for determining `topup_enabled` value
+        // "delegated_ids",
+        // "enabled_modules"
+      ].join(),
+    }),
+    queryKey: ["session", "self"],
+    withAccessToken: true,
+    staleTime: 0,
+    gcTime: 0,
+  }).then(({ data }: any) => {
+    return data;
+  });
+}
 
 async function authenticate({ model }: GuestContext) {
   const { post, useUrl } = useQuery();
@@ -44,11 +62,13 @@ async function authenticate({ model }: GuestContext) {
       password: model.password,
       grant_type: GrantTypes.PASSWORD,
     },
-  }).then((data: any) => {
-    // we record the history of the token to be able to reference the originating guest token
-    if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
-    return data;
-  });
+  })
+    .then((data: any) => {
+      // we record the history of the token to be able to referejce the originating guest token
+      if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
+      return data;
+    })
+    .then(loadUser);
 }
 
 async function verify2fa({ token }: GuestContext, { data }: any) {
@@ -61,13 +81,13 @@ async function verify2fa({ token }: GuestContext, { data }: any) {
       twofa_provider: TwofaProviders.GOOGLE,
       twofa_code: data,
     },
-  }).then((data: any) => {
-    persistTokenToStorage(data);
-    return data;
-  });
+  })
+    .then((data: any) => {
+      persistTokenToStorage(data);
+      return data;
+    })
+    .then(loadUser);
 }
-
-// --- REGISTER
 
 async function getCustomFields(_context: GuestContext, _event: any) {
   const { get, useUrl } = useQuery();
@@ -92,8 +112,8 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
 async function register({ model }: GuestContext) {
   const { post, useUrl } = useQuery();
   const recaptcha = useSystemRecaptcha();
-  const { getCookie } = useCookies();
-  const { getTracking } = useTracking();
+  const { get: getCookie } = useCookies();
+  const { get: getTracking } = useTracking();
 
   const data: any = {
     custom_fields: model?.customFields,
@@ -117,9 +137,8 @@ async function register({ model }: GuestContext) {
     .catch(() => null);
 
   // add referral cookie if available
-  await getCookie("upm_aff")
-    .then(value => (data.referral_cookie = value))
-    .catch(() => null);
+  const referralCookie = getCookie("upm_aff");
+  if (referralCookie) data.referral_cookie = referralCookie;
 
   // add tracking if available
   await getTracking()
@@ -131,10 +150,12 @@ async function register({ model }: GuestContext) {
   return post({
     url: useUrl("clients/register"),
     data,
-  }).then(({ data }: any) => data);
+  })
+    .then(({ data }: any) => data)
+    .then(loadUser);
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,
