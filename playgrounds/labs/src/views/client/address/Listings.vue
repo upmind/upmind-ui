@@ -53,7 +53,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 // --- internal
@@ -100,4 +100,8 @@ function invalidateAddresses() {
 function doEdit(id: string) {
   router.push({ params: { id: id }, name: "client.addresses.edit" });
 }
+
+onMounted(() => {
+  fetchAddresses();
+});
 </script>
