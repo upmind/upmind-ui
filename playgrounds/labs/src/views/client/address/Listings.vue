@@ -32,6 +32,7 @@
       <div v-if="isLoadingAddresses">Loading...</div>
       <div v-else>
         <div v-for="address in addresses" :key="address.id">
+          <div>{{ address.name }}</div>
           <div>{{ address.address1 }}</div>
           <div>{{ address.address2 }}</div>
           <div>{{ address.city }}</div>

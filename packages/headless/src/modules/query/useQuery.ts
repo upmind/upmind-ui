@@ -88,6 +88,7 @@ export const useQuery = () => {
    *
    * @param url The URL to send the request to.
    * @param init The request options.
+   * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
    * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
@@ -96,14 +97,25 @@ export const useQuery = () => {
   async function getRequest<T extends object = object>({
     url,
     init,
+    allowStale = true,
     withAccessToken,
     ...options
   }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
+    if (allowStale) {
+      /**
+       * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
+       * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
+       */
+      return queryClient.ensureQueryData({
+        queryFn: () =>
+          request<QueryResponse<T>>({ url, init, withAccessToken }),
+        ...options,
+      });
+    }
     /**
-     * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
-     * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
+     * fetchQuery is an asynchronous function that can be used to fetch data from the server.
      */
-    return queryClient.ensureQueryData({
+    return queryClient.fetchQuery({
       queryFn: () => request<QueryResponse<T>>({ url, init, withAccessToken }),
       ...options,
     });

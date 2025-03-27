@@ -29,14 +29,14 @@
     </Button>
   </UpmContentSection>
 
-  <RouterView v-slot="routerViewProps" :key="$route.fullPath">
-    <template v-if="routerViewProps.Component">
+  <RouterView v-slot="{ Component }" :key="$route.fullPath">
+    <template v-if="Component">
       <Content>
         <Transition mode="out-in">
           <KeepAlive>
             <Suspense>
               <!-- main content -->
-              <component :is="routerViewProps.Component" />
+              <component :is="Component" view-prop="value" />
 
               <!-- fallback / loading state -->
               <template #fallback>
@@ -61,8 +61,8 @@ import { useRouter } from "vue-router";
 // --- internal
 
 // --- components
-import { UpmContentSection } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
+import { UpmContentSection } from "@upmind-automation/client-vue";
 
 // --- types
 

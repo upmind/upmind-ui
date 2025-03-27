@@ -38,7 +38,7 @@ import type { Address, AddressContext } from "./types";
 
 const queryKey: QueryKey = ["client", "addresses"];
 
-async function loadAll() {
+async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -49,6 +49,7 @@ async function loadAll() {
       limit: 0,
     }),
     queryKey,
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
   }).then(({ data }) => mapAddress(data ?? []));
@@ -138,7 +139,7 @@ async function remove(addressId: Address["id"]) {
   del<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function setDefault(addressId: Address["id"]) {
@@ -151,7 +152,7 @@ async function setDefault(addressId: Address["id"]) {
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function add(address: Address) {
@@ -164,7 +165,7 @@ async function add(address: Address) {
     url: useUrl(`clients/${clientId}/addresses`),
     data: address,
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function update(address: Address) {
@@ -177,7 +178,7 @@ async function update(address: Address) {
     url: useUrl(`clients/${clientId}/addresses/${address?.id}`),
     data: address,
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "addresses"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 // -----------------------------------------------------------------------------
@@ -300,5 +301,6 @@ export const useClientAddressServices = () => {
     },
     parse,
     validate,
+    refresh: () => loadAll({ allowStale: false }),
   };
 };
