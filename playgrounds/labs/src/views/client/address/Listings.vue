@@ -1,6 +1,6 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
-    <UpmCard class="flex gap-2 pb-3 md:pb-3">
+    <div class="flex gap-2 pb-6">
       <Button
         @click="fetchAddresses"
         size="sm"
@@ -26,29 +26,29 @@
       >
         Clear addresses
       </Button>
-    </UpmCard>
+    </div>
 
-    <UpmCard class="pb-3 md:pb-3">
+    <section
+      class="pb-3 md:pb-3"
+      v-for="address in addresses"
+      :key="address.id"
+    >
       <div v-if="isLoadingAddresses">Loading...</div>
-      <div v-else>
-        <div v-for="address in addresses" :key="address.id">
-          <div>{{ address.name }}</div>
-          <div>{{ address.address1 }}</div>
-          <div>{{ address.address2 }}</div>
-          <div>{{ address.city }}</div>
-          <div>{{ address.state }}</div>
-          <Button
-            @click="doEdit(address.id)"
-            class="mt-2"
-            size="sm"
-            variant="tonal"
-            label="Edit"
-          >
-            Edit
-          </Button>
-        </div>
-      </div>
-    </UpmCard>
+      <UpmCard v-else>
+        <h3 class="mt-0">{{ address.title }}</h3>
+        <p>{{ address.description }}</p>
+
+        <Button
+          @click="doEdit(address.id)"
+          class="mt-2"
+          size="sm"
+          variant="tonal"
+          label="Edit"
+        >
+          Edit
+        </Button>
+      </UpmCard>
+    </section>
   </UpmContentSection>
 </template>
 
