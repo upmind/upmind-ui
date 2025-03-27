@@ -2,4 +2,6 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export default {};
+export default {
+  button: cva("rounded-full"),
+};
