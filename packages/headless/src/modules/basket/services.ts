@@ -4,12 +4,25 @@
 import { useBrand } from "../brand";
 import { useQuery } from "../..";
 import { useSession } from "../session";
+import { useTracking } from "../system";
 
 // --- utils
-import { useCookies, useTracking } from "../../utils";
+import { useCookies } from "../../utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 
-import { compact, concat, forEach, isEmpty, map, reduce, set } from "lodash-es";
+import {
+  cloneDeep,
+  compact,
+  concat,
+  forEach,
+  isEmpty,
+  isNil,
+  map,
+  omit,
+  omitBy,
+  reduce,
+  set,
+} from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
@@ -18,11 +31,9 @@ import type { AnyEventObject } from "xstate";
 
 // ---  UTILS
 
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-// this will process the request and return a promise
+// -----------------------------------------------------------------------------
 
-async function load({ controller }: BasketContext, _event: AnyEventObject) {
+async function load(context: BasketContext, _event: AnyEventObject) {
   const { get, patch, useUrl } = useQuery();
 
   // check if we are logged in as a client
@@ -84,27 +95,25 @@ async function load({ controller }: BasketContext, _event: AnyEventObject) {
         // `products.product.category${".top_category".repeat(4)}`,
       ].join(),
     }),
-    init: { signal: controller?.signal },
+    init: { signal: context.controller?.signal },
     queryKey: ["basket", "current"],
     staleTime: 0, // disable cache, this may stil lreturn stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true,
     revalidateIfStale: true,
   })
-    .then(({ data }: any) => data)
+    .then(({ data }: any) => {
+      // generate a new basket if we dont have one;
+      if (isEmpty(data)) return generate(context, { type: "GENERATE" });
+      return data;
+    })
     .then(getProvisioningFieldsValues);
 }
 
 // this generates an empty basket!
-async function generate(
-  { basket, actors }: BasketContext,
-  _event: AnyEventObject
-) {
-  // safety check, if we have a basket, we dont need to generate one
-  if (!isEmpty(basket)) return Promise.resolve(basket);
-
-  const { getTracking } = useTracking();
+async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
+  const { get: getTracking } = useTracking();
 
   const data: any = {
     category_slug: "new_contract",
@@ -133,22 +142,25 @@ async function generate(
   }).then(({ data }: any) => data);
 }
 
-async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
-  const { getCookie } = useCookies();
-  const { getTracking } = useTracking();
+async function convert(
+  { basket, paymentDetails }: BasketContext,
+  _event: AnyEventObject
+) {
   const { patch, useUrl } = useQuery();
-  // ---
-  // Conditional data
+  const { get: getCookie } = useCookies();
+  const { get: getTracking } = useTracking();
+
+  if (!basket?.id) return Promise.reject("No basket to convert");
+  if (!paymentDetails) return Promise.reject("No data to convert");
+
+  const data = paymentDetails;
 
   // add referral cookie if available
-  await getCookie("upm_aff")
-    .then(value => (data.referral_cookie = value))
-    .catch(() => null);
+  const referralCookie = getCookie("upm_aff");
+  if (referralCookie) data.referral_cookie = referralCookie;
 
   // add tracking if available
-  await getTracking()
-    .then(values => (data.tracking = values))
-    .catch(() => null);
+  data.tracking = await getTracking().catch(() => undefined);
 
   // ---
   // this will return an array of the users baskets, ordered by most recent
@@ -157,7 +169,7 @@ async function convert({ basket }: BasketContext, { data }: AnyEventObject) {
   return patch({
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
-    data,
+    data: omitBy(data, isNil), // NB we need to remove any null values
   }).then(({ data }: any) => data);
 }
 
@@ -206,6 +218,8 @@ async function getProvisioningFieldsValues(basket: IBasket) {
         "values",
       ],
       withAccessToken: true,
+      staleTime: 0, // disable cache, this may stil lreturn stale data while the request is in flight
+      gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     }).then(({ data }: any) => {
       // update the product with the provisioning fields
       set(rawProduct, "provision_fields", data);
@@ -244,15 +258,11 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     };
   });
 }
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,
-  generate,
   refresh: load,
   convert,
-  // ---
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

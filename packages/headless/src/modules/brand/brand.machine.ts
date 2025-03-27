@@ -1,9 +1,9 @@
 // --- external
-import { createMachine, assign, spawn, sendTo } from "xstate";
+import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { useI18n } from "../system/i18n";
+import { useI18n } from "../system";
 import { querySubscription } from "../query";
 
 // --- utils

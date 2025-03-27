@@ -15,7 +15,7 @@
           v-if="imgUrl"
           :class="styles.recommendation.image.image"
           :src="imgUrl"
-          :alt="`${name} item image`"
+          :alt="`${title} item image`"
         />
         <span v-else :class="styles.recommendation.image.placeholder" />
       </figure>
@@ -26,7 +26,7 @@
           <!-- Title and description -->
           <section :class="styles.recommendation.content.details.root">
             <h3 :class="styles.recommendation.content.details.title">
-              {{ name }}
+              {{ title }}
             </h3>
 
             <Lineclamp

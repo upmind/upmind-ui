@@ -3,6 +3,7 @@ export * from "./system";
 export * from "./brand";
 export * from "./session";
 export * from "./basket";
+export * from "./basketProduct";
 export * from "./product";
 export * from "./domain";
 export * from "./feedback";

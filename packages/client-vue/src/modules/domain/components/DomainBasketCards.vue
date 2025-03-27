@@ -1,18 +1,26 @@
 <template>
-  <section :class="styles.domain.listings.root">
+  <section>
     <slot name="empty" v-bind="{ meta }" v-if="meta.isEmpty"></slot>
 
-    <RadioCards
+    <SelectCards
       v-else
       id="dac-basket"
       name="dac-basket"
-      :class="styles.domain.listings.items"
+      :class="styles.domain.form.items"
       :items="items"
+      :disabled="meta.isDisabled"
       required
       v-model="modelValue"
+      content-class="z-50"
     >
-      <template #item="{ item }"> {{ item.sld }}{{ item.tld }} </template>
-    </RadioCards>
+      <template #item>
+        {{ getItem(modelValue)?.sld }}{{ getItem(modelValue)?.tld }}
+      </template>
+      <template #dropdown-item="{ item }">
+        {{ getItem(item.value as string)?.sld
+        }}{{ getItem(item.value as string)?.tld }}
+      </template>
+    </SelectCards>
   </section>
 </template>
 
@@ -22,20 +30,18 @@ import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 
 // --- internal
-import {
-  useStyles,
-  type RadioCardsItemProps,
-} from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import { RadioCards } from "@upmind-automation/upmind-ui";
+import { SelectCards } from "@upmind-automation/upmind-ui";
 
 // --- utils
+import { find, map } from "lodash-es";
 
 // --- types
 import { type ComputedRef } from "vue";
-import { map } from "lodash-es";
+import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -70,18 +76,22 @@ const meta = computed(() => ({
   isProcessing: props.processing,
 }));
 
-const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
+const styles = useStyles(["domain.form"], meta, config) as ComputedRef<{
   domain: {
-    listings: {
-      root: string;
+    form: {
       items: string;
     };
   };
 }>;
 
-const items = computed((): RadioCardsItemProps[] => {
+const getItem = (value: string) => {
+  const found = find(props.items, { value });
+  return found;
+};
+
+const items = computed((): SelectCardsItemProps[] => {
   return map(props.items, (item, index) => ({
-    item,
+    ...item,
     index,
     modelValue: modelValue.value,
     value: item.value,

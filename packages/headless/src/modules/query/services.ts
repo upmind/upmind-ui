@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useI18n } from "../system/i18n";
+import { useI18n } from "../system";
 import { useQuery } from ".";
 import { useSession } from "../session";
 
@@ -26,9 +26,8 @@ import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
 import { RequestParams } from "./types";
 
-// ---  SERVICE METHODS
+// -----------------------------------------------------------------------------
 
-// this will process the request and return a promise
 async function doFetch<T extends object = object>({
   url,
   init,

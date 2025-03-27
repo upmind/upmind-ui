@@ -1,14 +1,25 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
+import { authSubscription } from "../session";
+import { querySubscription } from "../query/useQuerySubscription";
 
 // --- utils
-import { find, forEach, isEmpty, every, isString } from "lodash-es";
+import {
+  every,
+  find,
+  forEach,
+  isEmpty,
+  isEqual,
+  isString,
+  some,
+} from "lodash-es";
 
 // - --types
 import type { ActorRef, AnyEventObject } from "xstate";
 import type { ClientListingsContext } from "./types";
+import type { QueryCacheNotifyEvent, QuerySubscriptionFilter } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -25,15 +36,13 @@ export default createMachine(
       selected: undefined,
       // ---
       error: undefined,
+      queryKeys: ["phones", "emails", "addresses", "companies"],
     } as ClientListingsContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
       subscribing: {
-        invoke: {
-          id: "authCallback",
-          src: "authSubscription",
-        },
+        entry: ["setAuthHelper"],
         on: {
           SESSION: { target: "checking" },
         },
@@ -42,8 +51,11 @@ export default createMachine(
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: { target: "available" },
-          onError: { target: "unavailable" },
+          onDone: {
+            target: "available",
+            actions: ["setClient", "setQueryHelper"],
+          },
+          onError: { target: "unavailable", actions: ["clearClient"] },
         },
       },
 
@@ -58,7 +70,7 @@ export default createMachine(
         states: {
           loading: {
             id: "loading",
-            entry: ["clearError", "clearItems"],
+            entry: ["clearError", "clearItems", "resetFiltered"],
             invoke: {
               src: "load",
               onDone: [
@@ -171,13 +183,61 @@ export default createMachine(
       },
 
       UNAUTHENTICATED: {
-        target: "subscribing",
+        target: "unavailable",
         actions: ["clearError", "clearItems"],
+      },
+
+      AUTHENTICATED: {
+        target: "checking",
+        actions: ["clearError", "clearItems"],
+      },
+
+      "QUERY.SUCCESS": {
+        target: "available.loading",
       },
     },
   },
   {
     actions: {
+      setAuthHelper: assign({
+        authHelper: (
+          { authHelper }: ClientListingsContext,
+          _event: AnyEventObject
+        ) => authHelper ?? spawn(authSubscription),
+      }),
+
+      setQueryHelper: assign({
+        queryHelper: (
+          { queryHelper, queryKeys, client }: ClientListingsContext,
+          _event: AnyEventObject
+        ) => {
+          // spawn a new query helper and set up the filter to only listen to brand events
+          if (!queryHelper) {
+            queryHelper = spawn(querySubscription);
+
+            const queryFilter: QuerySubscriptionFilter = (
+              event: QueryCacheNotifyEvent
+            ) =>
+              some(queryKeys, (queryKey: string) =>
+                isEqual(event.query.queryKey, ["clients", queryKey])
+              );
+            queryHelper.send({
+              type: "FILTER",
+              filter: queryFilter,
+            });
+          }
+          return queryHelper;
+        },
+      }),
+
+      setClient: assign({
+        client: (_context, { data }: AnyEventObject) => data,
+      }),
+
+      clearClient: assign({
+        client: undefined,
+      }),
+
       add: assign({
         //  should be provided withConfig
       }),

@@ -19,6 +19,7 @@ import {
   isNumber,
   isObject,
   keys,
+  map,
   maxBy,
   minBy,
   pick,
@@ -30,27 +31,14 @@ import {
 } from "lodash-es";
 
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  PromotionDisplayTypes,
+  DefaultPaymentPeriod,
+} from "@upmind-automation/types";
 import type { ProductConfigContext } from "./types";
+
 // -----------------------------------------------------------------------------
-// ENUMS
-
-export enum DefaultPaymentPeriod {
-  INHERIT_FROM_BRAND = 0,
-  LOWEST_PRICE = 1,
-  LOWEST_MONTHLY_PRICE = 2,
-  HIGHEST_PRICE = 3,
-}
-
-export enum PromotionDisplayTypes {
-  NAME = "name",
-  LABEL = "label",
-  PERCENTAGE = "percentage",
-}
-
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-// this will process the request and return a promise
 
 async function load(
   {
@@ -67,12 +55,15 @@ async function load(
 
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
+
+  // lets ensure we parse our promotions correctly
+  const promocodes = map(promotions, "promotion.code").join();
   // ---
   const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
-    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
+    promotions: promocodes,
     with_staged_imports: true,
     with: [
       "image",
@@ -87,6 +78,7 @@ async function load(
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
   if (basketProduct?.id) set(params, "basket_product_id", basketProduct.id);
+
   const productPromise = getRequest({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
@@ -94,7 +86,7 @@ async function load(
       productId,
       {
         currency_id: currency?.id,
-        promotions: (promotions ?? []).join(","),
+        promotions: promocodes,
       },
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
@@ -115,13 +107,11 @@ async function load(
       )
   );
 
-  return Promise.all([productPromise, provisioningPromise, configPromise])
-    .then(([product, provisioning, promotionDisplayType]) => {
+  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
+    ([product, provisioning, promotionDisplayType]) => {
       return { product, provisioning, promotionDisplayType, currency };
-    })
-    .catch(errors => {
-      return Promise.reject(errors);
-    });
+    }
+  );
 }
 
 async function loadProvisioningFields(productId: any) {
@@ -134,8 +124,6 @@ async function loadProvisioningFields(productId: any) {
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }
-
-// ---
 
 async function checkQuantity(
   { lookups, model }: ProductConfigContext,
@@ -445,7 +433,9 @@ const calculateBillingTerm = async (
 
   return term;
 };
-// ---  Subscriptions - these are used by the other machines to listen for changes/messages from this machine
+
+// ---  SUBSCRIPTIONS
+// These are used by the other machines to listen for changes/messages from this machine
 
 export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
@@ -492,7 +482,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
   };
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,
@@ -503,5 +493,4 @@ export default {
   checkAttributes,
   checkOptions,
   checkProvisioning,
-  // ---
 };

@@ -8,7 +8,7 @@
         :order-id="orderId"
         :success="success"
         :title="t(title)"
-        :text="t(text)"
+        :text="text"
         size="2xl"
         shape="circle"
         color="primary"
@@ -55,7 +55,7 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useSession, utils } from "@upmind-automation/headless-vue";
+import { useSession, useBasket, utils } from "@upmind-automation/headless-vue";
 import Confetti from "../../assets/animations/confetti.json?url";
 import Basket from "../../assets/animations/basket.json?url";
 import Error from "../../assets/animations/error.json?url";
@@ -64,14 +64,13 @@ import Error from "../../assets/animations/error.json?url";
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
-
-// --- types
-import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+
+const { errors } = useBasket();
 
 const { transfer: transferSession, meta } = useSession();
 
@@ -90,12 +89,20 @@ const title = computed(() => {
 
 const text = computed(() => {
   if (!meta.value.isAuthenticated) {
-    return "order.confirmation.invalid.text";
+    return t("order.confirmation.invalid.text");
   } else if (success.value) {
-    return "order.confirmation.success.text";
+    return t("order.confirmation.success.text");
   }
 
-  return "order.confirmation.failed.text";
+  // Payment failed
+  if (errors?.value?.message) {
+    const message = errors.value.message;
+    return `${message}${message.endsWith(".") ? "" : "."} ${t(
+      "order.confirmation.failed.textRetry"
+    )}`;
+  }
+
+  return `${t("order.confirmation.failed.text")} ${t("order.confirmation.failed.textRetry")}`;
 });
 
 const action = computed(() => {

@@ -1,3 +1,4 @@
+import type { User } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
 /**
@@ -68,6 +69,19 @@ export interface IUseSessionMeta {
  * registration, 2FA, and ReCaptcha verification.
  */
 export interface IUseSession {
+  /**
+   * Promise that resolves when the session is ready to be used.
+   * Typically used to wait for initialization and loading of session data.
+   */
+  isReady: () => Promise<void>;
+
+  /**
+   * Promise that resolves when the session is fully initialized and authenticated.
+   * Typically used to wait for guarding routes or other authenticated-dependent operations.
+   * @returns {Promise<User>} A promise that resolves with the current user when the session is ready.
+   */
+  isAuthenticated: () => Promise<User>;
+
   /**
    * Current state of the session machine.
    * Can include authentication, registration, and other session-related states.

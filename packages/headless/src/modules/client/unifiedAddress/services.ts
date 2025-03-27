@@ -4,6 +4,7 @@ import parsePhoneNumber from "libphonenumber-js";
 // --- internal
 import { useQuery, useSystem, useSession } from "../..";
 import { usePlaces } from "../places";
+import { useClientCompanies } from "../company";
 import { useClientAddresses } from "../address";
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
@@ -47,6 +48,22 @@ import type { AnyEventObject, ActorRef } from "xstate";
 //   );
 // }
 
+export async function invalidateAddresses(context: object) {
+  const { queryClient } = useQuery();
+
+  await queryClient.resetQueries({
+    queryKey: ["clients", "addresses"],
+    exact: false,
+  }); // companies needs to invalidate ALL client libs
+
+  await queryClient.resetQueries({
+    queryKey: ["clients", "companies"],
+    exact: false,
+  }); // companies needs to invalidate ALL client libs
+
+  return context;
+}
+
 async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
 
@@ -60,7 +77,6 @@ async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
     }),
     queryKey: [
       "clients",
-      client.id,
       "addresses",
       {
         limit: 0,
@@ -82,7 +98,7 @@ async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
         "phone",
       ].join(),
     }),
-    queryKey: ["clients", client.id, "companies"],
+    queryKey: ["clients", "companies"],
     withAccessToken: true,
     revalidateIfStale: true,
   }).then(({ data }: any) => parseCompany(data));
@@ -155,7 +171,7 @@ async function findItem(
 // -----------------------------------------------------------------------------
 
 async function add(
-  { model, addresses, phones, emails }: UnifiedAddressContext,
+  { model, companies, addresses, phones, emails }: UnifiedAddressContext,
   _event?: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();
@@ -181,7 +197,12 @@ async function add(
         country_id: model.countryId,
       },
       withAccessToken: true,
-    }).then(({ data }: any) => data);
+    })
+      .then(invalidateAddresses)
+      .then(({ data }: any) => {
+        addresses.refresh(); // make sure addresses get told to ge the new data
+        return data;
+      });
   } else {
     // if we do then we need to :
     // check if the address provided already exists in our addresses or if we need to create a new one
@@ -209,12 +230,17 @@ async function add(
         // vat_percent: model.vatPercent,
       },
       withAccessToken: true,
-    }).then(({ data }: any) => data);
+    })
+      .then(invalidateAddresses)
+      .then(({ data }: any) => {
+        companies.refresh(); // make sure addresses get told to ge the new data
+        return data;
+      });
   }
 }
 
 async function update(
-  { model, addresses, phones, emails }: UnifiedAddressContext,
+  { model, companies, addresses, phones, emails }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
   const { post, put, useUrl } = useQuery();
@@ -230,7 +256,12 @@ async function update(
       url: useUrl(`clients/${clientId}/addresses/${model.id}`),
       data: model,
       withAccessToken: true,
-    }).then(({ data }: any) => data);
+    })
+      .then(invalidateAddresses)
+      .then(({ data }: any) => {
+        addresses.refresh(); // make sure addresses get told to ge the new data
+        return data;
+      });
   } else {
     // if we do then we need to :
     // check if the address provided already exists in our addresses or if we need to create a new one
@@ -260,7 +291,12 @@ async function update(
           // vat_percent: model.vatPercent,
         },
         withAccessToken: true,
-      }).then(({ data }: any) => data);
+      })
+        .then(invalidateAddresses)
+        .then(({ data }: any) => {
+          companies.refresh(); // make sure addresses get told to ge the new data
+          return data;
+        });
     } else {
       // if we dont have a company_id then we are creating a new company with the ensureDependencies
       return post({
@@ -275,13 +311,18 @@ async function update(
           // vat_percent: model.vatPercent,
         },
         withAccessToken: true,
-      }).then(({ data }: any) => data);
+      })
+        .then(invalidateAddresses)
+        .then(({ data }: any) => {
+          companies.refresh(); // make sure addresses get told to ge the new data
+          return data;
+        });
     }
   }
 }
 
 async function remove(
-  { model }: UnifiedAddressContext,
+  { model, addresses, companies }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
   const { del, useUrl } = useQuery();
@@ -293,17 +334,27 @@ async function remove(
     return del({
       url: useUrl(`clients/${clientId}/addresses/${model.id}`),
       withAccessToken: true,
-    }).then(({ data }: any) => data);
+    })
+      .then(invalidateAddresses)
+      .then(({ data }: any) => {
+        addresses.refresh(); // make sure addresses get told to ge the new data
+        return data;
+      });
   } else {
     return del({
       url: useUrl(`clients/${clientId}/companies/${model.id}`),
       withAccessToken: true,
-    }).then(({ data }: any) => data);
+    })
+      .then(invalidateAddresses)
+      .then(({ data }: any) => {
+        companies.refresh(); // make sure addresses get told to ge the new data
+        return data;
+      });
   }
 }
 
 async function setDefault(
-  { model }: UnifiedAddressContext,
+  { model, addresses }: UnifiedAddressContext,
   _event: AnyEventObject
 ) {
   const { put, useUrl } = useQuery();
@@ -315,7 +366,12 @@ async function setDefault(
     url: useUrl(`clients/${clientId}/addresses/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateAddresses)
+    .then(({ data }: any) => {
+      addresses.refresh(); // make sure addresses get told to ge the new data
+      return data;
+    });
 }
 // -----------------------------------------------------------------------------
 
@@ -325,22 +381,13 @@ async function ensureDependencies({
   emails,
   phones,
 }: Partial<UnifiedAddressContext>): Promise<any> {
-  const address = pick(model, [
-    "address1",
-    "address2",
-    "city",
-    "postcode",
-    "regionId",
-    "countryId",
-  ]);
-
   // for our dependencies we need to check if the they already exists by finding them in their respective stores
   // if they do then we can just return the id
   // if they dont then we return a promise of the add method
   // NB: for each new dependency we force type to be 4 = company
   const dependencies = [
     addresses
-      .find(address)
+      .find(model)
       .then((item: any) => item?.state?.context?.model)
       .catch(() => {
         const data = {
@@ -416,6 +463,7 @@ async function loadLookups(
 
   // ---
   // lets start up/use our dependencies
+  const companies = useClientCompanies();
   const addresses = useClientAddresses();
   const phones = useClientPhones();
   const emails = useClientEmails();
@@ -423,6 +471,7 @@ async function loadLookups(
 
   return Promise.all([
     addresses.isReady(),
+    companies.isReady(),
     phones.isReady(),
     emails.isReady(),
     places.isReady(),
@@ -430,6 +479,7 @@ async function loadLookups(
     .then(() => {
       places.reset();
 
+      const company = companies.getDefault();
       const address = addresses.getDefault();
       const email = emails.getDefault();
       const phone = phones.getDefault();
@@ -442,6 +492,7 @@ async function loadLookups(
         // ---
         emails,
         addresses,
+        companies,
         phones,
         // ---
         baseModel: {
@@ -494,8 +545,9 @@ async function parse(
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country fro mthe address
     // this will in turn update the phone schema to match the country
-    if (!some(regions, ["countryId", model.countryId]))
+    if (!some(regions, ["countryId", model.countryId])) {
       regions = await fetchRegions(model.countryId);
+    }
 
     // now lets check our regions list to see if we have a match
     // if so, then we need to update the model with the new region id
@@ -596,7 +648,5 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

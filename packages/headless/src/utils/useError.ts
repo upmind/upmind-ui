@@ -10,10 +10,30 @@ export enum responseCodes {
   "Unprocessable_Entity" = 422,
 }
 
+// -----------------------------------------------------------------------------
+
 export class DetailedError extends Error {
   code: number;
   constructor(message: string, code: number) {
     super(message);
     this.code = code;
+  }
+}
+
+export class CacheIsStaleError extends Error {
+  code: number;
+  constructor() {
+    super("The data is stale. Please make sure that you refresh the data.");
+    this.code = responseCodes.Unprocessable_Entity;
+  }
+}
+
+export class CacheIsNotAvailableError extends Error {
+  code: number;
+  constructor() {
+    super(
+      "The data is not ready yet. Please make sure that you requested data first."
+    );
+    this.code = responseCodes.Unprocessable_Entity;
   }
 }

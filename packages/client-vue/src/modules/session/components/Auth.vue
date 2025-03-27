@@ -2,7 +2,7 @@
   <div
     class="auth"
     :class="cn(styles.session.auth.root, $props.class)"
-    v-if="!meta.isAuthenticated"
+    v-if="!meta.isAuthenticated && !meta.isLoading"
   >
     <Form
       :key="modelValue"
@@ -20,12 +20,12 @@
     />
   </div>
 
-  <div :class="styles.session.auth.actions">
-    <slot name="toggle">
-      <div
-        v-if="meta.showRegisterForm || meta.showLoginForm"
-        @click="toggleForm(meta.showRegisterForm ? 'login' : 'register')"
-      >
+  <div
+    v-if="!meta.isAuthenticated && !meta.isLoading"
+    :class="styles.session.auth.actions"
+  >
+    <slot name="toggle" v-if="meta.showRegisterForm || meta.showLoginForm">
+      <div @click="toggleForm(meta.showRegisterForm ? 'login' : 'register')">
         <Link>
           <span class="font-normal">
             {{ buttonText }}
@@ -50,7 +50,6 @@ import { useStyles, cn, Link } from "@upmind-automation/upmind-ui";
 import config from "../sesssion.config";
 
 // --- custom elements
-import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -66,6 +65,7 @@ const props = withDefaults(defineProps<AuthProps>(), {
 const { t } = useI18n();
 
 const {
+  isReady,
   meta,
   errors,
   showLogin,
@@ -77,6 +77,8 @@ const {
   resolve,
   reject,
 } = useSession();
+
+await isReady();
 
 const styles = useStyles(["session.auth"], meta, config) as ComputedRef<{
   session: {
@@ -119,14 +121,19 @@ const authActions = computed(() => {
 });
 
 function toggleForm(type: AuthProps["modelValue"]) {
+  // if (meta.value.isAuthenticated) return;
+
   switch (type) {
     case "login":
-      if (!meta.value.showLoginForm)
+      if (!meta.value.showLoginForm) {
         showLogin().then(() => (modelValue.value = type));
+      }
       break;
     case "register":
-      if (!meta.value.showRegisterForm)
+      if (!meta.value.showRegisterForm) {
         showRegister().then(() => (modelValue.value = type));
+      }
+
       break;
     // case "forgot":
     //   if (!meta.value.showForgotForm)

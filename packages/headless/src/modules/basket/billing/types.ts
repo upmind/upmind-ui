@@ -3,16 +3,12 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 
-// ---  ENUMS
-
-// ---  private
+// -----------------------------------------------------------------------------
 
 export interface IBillingDetail {
   addressId?: string;
   companyId?: string;
 }
-
-// ---  Contexts
 
 export interface BillingDetailsContext {
   basketId?: string;

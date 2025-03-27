@@ -4,7 +4,10 @@ const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
-import { basketSubscription } from "../basket/helper";
+import { basketSubscription } from "../basketProduct/helper";
+
+import { useDataLayer } from "../system";
+const { dataLayer } = useDataLayer();
 
 // --- utils
 import { useTime } from "../../utils";
@@ -13,6 +16,7 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
+  parseDataLayerItem,
   checkInBasket,
 } from "./utils";
 import {
@@ -23,27 +27,27 @@ import {
   findLast,
   first,
   get,
+  has,
   includes,
   isEmpty,
   isObject,
-  has,
   map,
+  mapValues,
   reduce,
+  reject,
   set,
   some,
   uniq,
   uniqBy,
-  xorBy,
   unset,
-  reject,
+  xorBy,
 } from "lodash-es";
 
 // --- types
-import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
-import type { BasketProduct } from "../basket";
+import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+import type { BasketProduct } from "../basketProduct";
 import type { RecommendationsEngineContext, Recommendation } from "./types";
-import { mapValues } from "xstate/lib/utils";
 
 // ---
 export default createMachine(
@@ -188,12 +192,12 @@ export default createMachine(
           error: undefined,
           // ---
           basketId: undefined,
-          currencyId: undefined,
+          currency: undefined,
           promotions: [],
           // ---
           basketHelper: undefined,
-          itemBuilder: undefined,
-          basketItemMapper: undefined,
+          parseBasketProduct: undefined,
+          parseBasketProductComparison: undefined,
         })
       ),
 
@@ -202,9 +206,9 @@ export default createMachine(
           const basket = get(data, "basket", data);
           return basket.id;
         },
-        currencyId: (_context, { data }: AnyEventObject) => {
+        currency: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
-          return basket?.currency_id;
+          return basket?.currency;
         },
         promotions: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
@@ -216,11 +220,11 @@ export default createMachine(
       setBasketHelper: assign(({ basketHelper, raw }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: function (item: BasketProduct) {
+          parseBasketProduct: function (item: BasketProduct) {
             return parseBasketItem(item);
           },
 
-          basketItemBuilder: (
+          parseProductModel: (
             recommendation: Recommendation,
             products: IBasketProduct
           ) => {
@@ -248,7 +252,7 @@ export default createMachine(
             return recommendation.config;
           },
 
-          basketItemMapper: (item: BasketProduct) => ({
+          parseBasketProductComparison: (item: BasketProduct) => ({
             productId: item.productId,
           }),
         };
@@ -267,8 +271,16 @@ export default createMachine(
         ({ recommendations }, { data }: AnyEventObject) => {
           const context = find(recommendations, ["id", data]);
 
-          // ensure we add our configured coupons to the recommendation and remove the config as it's not needed
-          set(context, "promotions", context?.config?.coupons);
+          // ensure we add our configured coupons to the recommendation ( in the format of IBasketPromotion)
+          set(
+            context,
+            "promotions",
+            map(context?.config?.coupons, coupon => ({
+              promotion: { code: coupon },
+            }))
+          );
+
+          // and remove the config as it's not needed
           unset(context, "config");
 
           return {
@@ -296,7 +308,6 @@ export default createMachine(
         ({ basketHelper }: any, _event) => basketHelper,
         (context, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
-
           const relationships = get(
             context.raw.relationships,
             recommendation.id,
@@ -307,10 +318,11 @@ export default createMachine(
             return includes(relationships, product.id);
           });
 
-          const model = context.basketItemBuilder(
+          const model = context.parseProductModel(
             recommendation,
             relatedProducts
           );
+
           return {
             type: "ADD_UPDATE",
             target: model,
@@ -370,7 +382,6 @@ export default createMachine(
           const related = parseRelatedProducts(basket as IBasket);
           const relationships = parseRelationships(basket as IBasket);
           const added = products; //parseAddedProducts(related, products);
-
           return {
             products: raw?.products ?? [],
             related,
@@ -499,6 +510,25 @@ export default createMachine(
         },
       }),
 
+      // --- Datalayer
+      // when a new product is added for configuration, but has not been saved/added to the basket
+      pushViewRecommendations: (
+        { raw, currency }: RecommendationsEngineContext,
+        { data }: AnyEventObject
+      ) => {
+        debugger;
+        const product = data; //TODO: check / parse the data is a basket item
+        dataLayer({
+          event: "view_item_list",
+          currency: currency?.code,
+          item_list_id: "recommendations",
+          // item_list_name: "Recommendations",
+          items: map(raw.related, parseDataLayerItem),
+        }).push();
+      },
+
+      // ---
+
       setError: assign({
         error: (
           { recommendations }: RecommendationsEngineContext,
@@ -558,12 +588,12 @@ export default createMachine(
       ) => isEmpty(raw.related),
 
       hasBasketChanged: (
-        { basketId, currencyId, promotions, raw }: RecommendationsEngineContext,
+        { basketId, currency, promotions, raw }: RecommendationsEngineContext,
         { data }: AnyEventObject
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
         const basketChanged = basketId !== data?.id;
-        const currencyChanged = currencyId !== data?.currency_id;
+        const currencyChanged = currency?.id !== data?.currency_id;
         const promotionsChanged = !isEmpty(
           xorBy(promotions, data?.promotions, "promotion_id")
         );

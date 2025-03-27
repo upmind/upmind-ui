@@ -14,6 +14,13 @@ import type { EmailContext, EmailsContext } from "./types";
 // -----------------------------------------------------------------------------
 // SERVICE METHODS
 // Invoked by machines, providing context and event data
+export async function invalidateEmails(context: object) {
+  const { queryClient } = useQuery();
+
+  return queryClient
+    .resetQueries({ queryKey: ["clients", "emails"], exact: false }) // companies needs to invalidate ALL client libs
+    .then(() => context);
+}
 
 async function load(_context: EmailsContext) {
   const { get, useUrl } = useQuery();
@@ -24,7 +31,7 @@ async function load(_context: EmailsContext) {
     url: useUrl(`clients/${client.id}/emails`, {
       limit: 0,
     }),
-    queryKey: ["clients", client.id, "emails", { limit: 0 }],
+    queryKey: ["clients", "emails", { limit: 0 }],
     withAccessToken: true,
     revalidateIfStale: true,
   }).then(({ data }: any) => data);
@@ -92,7 +99,9 @@ async function add({ model }: EmailContext) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateEmails)
+    .then(({ data }: any) => data);
 }
 
 async function update({ model }: EmailContext) {
@@ -108,7 +117,9 @@ async function update({ model }: EmailContext) {
       type: model.type,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateEmails)
+    .then(({ data }: any) => data);
 }
 
 async function remove({ model }: EmailContext) {
@@ -120,7 +131,9 @@ async function remove({ model }: EmailContext) {
   return del({
     url: useUrl(`clients/${clientId}/emails/${model.id}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateEmails)
+    .then(({ data }: any) => data);
 }
 
 async function setDefault({ model }: EmailContext) {
@@ -133,7 +146,9 @@ async function setDefault({ model }: EmailContext) {
     url: useUrl(`clients/${clientId}/emails/${model.id}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(invalidateEmails)
+    .then(({ data }: any) => data);
 }
 
 // -----------------------------------------------------------------------------
@@ -178,7 +193,5 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
 };

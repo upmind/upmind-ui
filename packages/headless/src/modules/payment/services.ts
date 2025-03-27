@@ -12,11 +12,7 @@ import { Methods, Targets } from "@upmind-automation/types";
 import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// ---  Enums
-
 // -----------------------------------------------------------------------------
-
-// ---  PRIVATE FUNCTIONS
 
 /**
  * @name submitViaForm
@@ -61,9 +57,6 @@ function submitViaForm({
   });
 }
 
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
-
 async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   const { get, useUrl } = useQuery();
 
@@ -78,7 +71,6 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   }).then(({ data }: any) => ({ fields: data }));
 }
 
-// ---
 async function update(context: PaymentContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
 
@@ -110,7 +102,6 @@ async function redirect(
   if (approval) return submitViaForm(approval);
 }
 
-// ---
 async function validate(
   { paymentDetail }: PaymentContext,
   _event: AnyEventObject
@@ -124,7 +115,7 @@ async function validate(
   });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,

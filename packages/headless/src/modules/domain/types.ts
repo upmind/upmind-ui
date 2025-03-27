@@ -1,9 +1,16 @@
-// --- internal
-import type { BasketProduct } from "../basket/types";
-import type { ProductModel } from "../product/types";
+//  --- external
 import type { ActorRef } from "xstate";
 
-// --- enums
+// --- internal
+import { IBasketPromotion } from "@upmind-automation/types";
+import type {
+  BasketProduct,
+  BasketHelperContext,
+  Price,
+  BasketProductSummaryMeta,
+} from "../basketProduct";
+
+// -----------------------------------------------------------------------------
 
 // export enum DomainTypes {
 //   register = "Register a new domain",
@@ -19,45 +26,20 @@ export enum DomainTypes {
   basket = "basket",
 }
 
-// --- Interfaces
-
-export interface DomainProduct {
-  type?: DomainTypes;
-  domain: string;
-  sld?: string;
-  tld?: string;
-  // --- Options for New/Internal domains
-  productId?: string;
-  quantity?: number;
-  cycle?: number;
-  options?: Object;
-  attributes?: Object;
-
-  summary?: {
-    isAvailable?: boolean;
-    isFree?: boolean;
-    currentAmount?: number;
-    currentPrice?: string;
-    regularAmount?: number;
-    regularPrice?: string;
-    meta: {
-      discounted?: boolean;
-      free?: boolean;
-      oneoff?: boolean;
-    };
+export interface DomainProduct
+  extends Domain,
+    Omit<BasketProduct, "id" | "product" | "product_id" | "summary"> {
+  summary: Price & {
+    meta: BasketProductSummaryMeta;
   };
-
-  // ---
-  isPrimary?: boolean;
 }
 
 export interface Domain {
-  type: DomainTypes;
   domain: string;
-  // --- Should these not rather be computed?
-  sld: string;
   tld: string;
-  isPrimary: boolean;
+  sld: string;
+  type?: DomainTypes;
+  selected?: boolean;
 }
 
 export interface DomainLookup extends DomainProduct {
@@ -66,23 +48,22 @@ export interface DomainLookup extends DomainProduct {
   inBasket?: boolean;
   disabled?: boolean;
 }
+
 export interface DomainSearch {
   domain: string;
   offset: number;
 }
 
-// --- Contexts
-
-export interface DomainContext {
+export interface DomainContext extends BasketHelperContext<DomainProduct> {
   choices: DomainTypes[];
   type?: DomainTypes;
-  model?: DomainProduct[];
-  baseModel?: DomainProduct[];
-  lookups?: {
+  model?: Domain[];
+  baseModel?: Domain[];
+  lookups: {
     searched: DomainLookup[];
     history: DomainProduct[];
     owned: DomainProduct[];
-    basket: DomainProduct[];
+    basket: DomainLookup[];
   };
   total?: number;
   // ---
@@ -93,17 +74,12 @@ export interface DomainContext {
     query: string;
   };
   currency?: string;
-  promotions?: string[];
+  promotions?: IBasketPromotion[];
   controller?: AbortController;
   tlds?: string[];
   // ---
   error?: any;
   // ---
-  authHelper: ActorRef<any>;
-  basketHelper: ActorRef<any>;
-  itemBuilder?: (item: any) => DomainProduct;
-  basketItemBuilder?: (model: DomainProduct) => ProductModel | undefined;
-  basketItemMapper?: (item: BasketProduct) => Partial<ProductModel>;
-  basketProducts?: DomainProduct[];
-  //
+  authHelper?: ActorRef<any>;
+  basketHelper?: ActorRef<any>;
 }

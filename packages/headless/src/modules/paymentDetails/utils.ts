@@ -17,12 +17,13 @@ import { GatewayProviderCodes, PaymentType } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const parsePaymentDetails = (raw: any): Record<string, any> => {
   // TODO: map the actual allowed params fr the endpoint
   return omit(raw, ["can_store"]);
 };
-// ---
+
 export const useSchema = ({
   payment_types,
   gateways,
@@ -78,7 +79,6 @@ export const useSchema = ({
   return schema as JsonSchema;
 };
 
-// ---
 export const useUischema = () => {
   const uischema = {
     type: "VerticalLayout",
@@ -134,8 +134,6 @@ export const useUischema = () => {
 
   return uischema as UISchemaElement;
 };
-
-// ---  Gateway Machine Spawner (Factory)
 
 export function spawnGateway({
   orderId,
@@ -220,8 +218,6 @@ export function spawnGateway({
   return null;
 }
 
-// ---  Individual Gateway Machine Spawners
-
 export function spawnStored({
   orderId,
   amount,
@@ -276,7 +272,6 @@ export function spawnStripe({
   );
 }
 
-// Our generic gateway machine
 export function spawnGenericGateway(
   type: any,
   { orderId, gateway, amount, currency, renderless = false }: any
@@ -310,7 +305,7 @@ export function spawnExternal({ orderId, gateway, amount, currency }: any) {
   );
 }
 
-// ---  Gateway Type Checks
+// -----------------------------------------------------------------------------
 
 const isStored = (gateway: any) => gateway.type === GatewayTypes.STORED;
 

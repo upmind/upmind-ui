@@ -15,9 +15,9 @@ import { Methods } from "@upmind-automation/types";
 
 const queryClient = getQueryClient();
 
-export const useQuery = () => {
-  // ---  // methods
+// -----------------------------------------------------------------------------
 
+export const useQuery = () => {
   /**
    * Sends a request  with the given URL and options.
    * @see {@link RequestParams}
@@ -65,7 +65,8 @@ export const useQuery = () => {
 
       if (requestError.status === responseCodes.Unauthorized) {
         const { access_token } = await refreshToken();
-        return request({ url, init, withAccessToken: access_token });
+        set(init, `headers.Authorization`, `Bearer ${access_token}`);
+        return await doFetch<T>({ url, init });
       }
 
       return Promise.reject(requestError);

@@ -8,9 +8,11 @@ import { isEmpty, map, omitBy } from "lodash-es";
 import { parseAvailable, parseDomain, parseSld } from "./utils";
 
 // --- types
+import type { IProduct } from "@upmind-automation/types";
 import type { DomainContext, DomainProduct } from "./types";
 
 // -----------------------------------------------------------------------------
+
 async function search({
   search,
   currency,
@@ -18,10 +20,11 @@ async function search({
   promotions,
 }: DomainContext) {
   const { get, useUrl } = useQueryPaginated();
-
   if (!search?.query?.length) return Promise.reject("No query provided");
-
   const sld = parseSld(search.query);
+
+  // lets ensure we parse our promotions correctly
+  const promocodes = map(promotions, "promotion.code").join();
 
   // --- Build the request, and Fetch the search results
   const params = omitBy(
@@ -30,12 +33,12 @@ async function search({
       with: ["prices", "options", "options.prices", "attributes"].join(),
       currency_code: currency,
       // tld,
-      promotions: promotions?.join(),
+      promotions: promocodes,
     },
     isEmpty
   );
 
-  return get<DomainProduct[]>({
+  return get<IProduct[]>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
     queryKey: [
@@ -47,9 +50,11 @@ async function search({
       limit: search?.limit,
       offset: search.offset,
     },
+    staleTime: 0,
+    gcTime: 0,
   }).then(({ data, pageTotal }) => ({
     total: pageTotal || 0,
-    available: parseAvailable(sld, data),
+    available: parseAvailable(sld, data ?? []),
   }));
 }
 
@@ -61,6 +66,8 @@ function getClientDomains({ controller }: DomainContext) {
     init: { signal: controller?.signal },
     queryKey: ["domain", "client-domains"],
     withAccessToken: true,
+    staleTime: 0,
+    gcTime: 0,
   }).then(({ data }: any) =>
     map(data, ({ domain_name }) => parseDomain(domain_name))
   );
@@ -85,7 +92,7 @@ function getClientDomains({ controller }: DomainContext) {
 //   });
 // }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   search,

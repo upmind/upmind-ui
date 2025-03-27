@@ -8,7 +8,6 @@
 
     <CheckboxCards
       v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
-      :class="styles.domain.listings.items"
       no-input
       id="dac"
       name="dac"
@@ -17,41 +16,70 @@
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
       :model-value="safeValue"
+      item-class="p-0"
+      cursor="default"
+      class="gap-0"
+      list
     >
       <template #item="{ item: { value } }">
-        <CardDomain
+        <DomainCard
           v-bind="getDomain(value as string)"
           @update:selected="onToggleSelected"
+          @remove="onRemove"
         />
       </template>
     </CheckboxCards>
 
-    <SkeletonList
-      v-if="meta.isLoading"
-      :class="styles.domain.listings.loading"
-      :rows="6"
-      key="more"
-    />
+    <template v-if="meta.isLoading">
+      <section v-if="!results" :class="styles.domain.listings.loading">
+        <Interstitial
+          v-bind="props"
+          :text="t('domain.dac.loading.text')"
+          :modal="false"
+          open
+        >
+          <template #avatar>
+            <IconAnimated
+              :icon="Internet"
+              size="4xl"
+              secondary-color="accent"
+            />
+          </template>
+          <template #title>
+            <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
+          </template>
+        </Interstitial>
+      </section>
+      <template v-else>
+        <DomainCardSkeleton v-for="i in results" :key="i" />
+      </template>
+    </template>
   </section>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed, type ComputedRef, ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
+import Internet from "../../../assets/animations/internet.json?url";
 
 // --- components
-import CardDomain from "./DomainCard.vue";
+import DomainCard from "./DomainCard.vue";
 import Empty from "./Empty.vue";
-import { SkeletonList, CheckboxCards } from "@upmind-automation/upmind-ui";
-
+import {
+  IconAnimated,
+  CheckboxCards,
+  Interstitial,
+} from "@upmind-automation/upmind-ui";
+import SmartTitle from "../../../components/content/SmartTitle.vue";
+import DomainCardSkeleton from "./DomainCardSkeleton.vue";
 // --- utils
-import { get, includes, isArray, isNil, find, map } from "lodash-es";
+import { includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
@@ -62,6 +90,7 @@ import type { DomainCardProps, DomainCardsProps } from "../types";
 const emit = defineEmits<{
   (e: "update:modelValue", model: DomainCardsProps["modelValue"]): void;
   (e: "update:selected", domain: string): void;
+  (e: "remove", domain: string): void;
 }>();
 
 const props = withDefaults(defineProps<DomainCardsProps>(), {
@@ -74,10 +103,15 @@ const props = withDefaults(defineProps<DomainCardsProps>(), {
 
 const { t } = useI18n();
 
+const results = ref(0);
+const minLoadingTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const isMinLoadingActive = ref(false);
+
 const meta = computed(() => ({
   isOpen: props.modelValue || !props.items?.length,
-  isLoading: props.loading,
-  isLoadingMore: props.loading && props.offset > 0,
+  isLoading: props.loading || isMinLoadingActive.value,
+  isLoadingMore:
+    (props.loading || isMinLoadingActive.value) && props.offset > 0,
   isEmpty: !props.items?.length,
   isDisabled: props.disabled,
   isProcessing: props.processing,
@@ -118,8 +152,32 @@ const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
   });
 });
 
+watch(parsedValues, items => {
+  results.value = items?.length;
+});
+
+watch(
+  () => props.loading,
+  isLoading => {
+    if (isLoading && results.value) {
+      isMinLoadingActive.value = true;
+      if (minLoadingTimer.value) {
+        clearTimeout(minLoadingTimer.value);
+      }
+      minLoadingTimer.value = setTimeout(() => {
+        isMinLoadingActive.value = false;
+      }, 750);
+    }
+  },
+  { immediate: true }
+);
+
 function onToggleSelected(domain: string) {
   if (meta.value.isProcessing) return;
   emit("update:selected", domain);
+}
+
+function onRemove(domain: string) {
+  emit("remove", domain);
 }
 </script>

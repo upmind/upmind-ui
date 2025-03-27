@@ -11,18 +11,6 @@
     </slot>
 
     <main class="w-full flex-1">
-      <template v-if="meta.isLoading || meta.isProcessing">
-        <slot name="loading">
-          <Content>
-            <Loading>
-              <template #background>
-                <slot name="loading-background"></slot>
-              </template>
-            </Loading>
-          </Content>
-        </slot>
-      </template>
-
       <RouterView v-slot="routerViewProps" :key="$route.fullPath">
         <slot v-bind="routerViewProps">
           <template v-if="routerViewProps.Component">

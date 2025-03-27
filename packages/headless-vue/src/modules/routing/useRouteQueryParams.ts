@@ -1,6 +1,6 @@
 // --- external
 import { useRoute } from "vue-router";
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useRouteQueryParams as useUpmindRouteQueryParams } from "@upmind-automation/headless";
 
 // --- internal
 
@@ -12,9 +12,7 @@ import type { Route } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-import type { RouteQueryParams } from "@upmind-automation/headless";
-
-export const useQueryParams = (route?: Route): RouteQueryParams => {
+export const useQueryParams = (route?: Route) => {
   const safeRoute = defaultsDeep(route || useRoute(), {
     name: undefined,
     path: undefined,
@@ -22,7 +20,5 @@ export const useQueryParams = (route?: Route): RouteQueryParams => {
     params: undefined,
   });
 
-  return useRoutingEngine().useQueryParams(
-    safeRoute
-  ) as unknown as RouteQueryParams;
+  return useUpmindRouteQueryParams(safeRoute);
 };

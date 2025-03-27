@@ -13,7 +13,6 @@ import { find, map, compact } from "lodash-es";
 
 // --- types
 import type { IAddressData } from "../address/types";
-import type { UnifiedAddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the system machine
@@ -22,11 +21,16 @@ import type { UnifiedAddressContext } from "./types";
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(
-  listingsMachine.withConfig({
-    actions: actions as any,
-    services: services as any,
-  }),
+  listingsMachine
+    .withConfig({
+      actions: actions as any,
+      services: services as any,
+    })
+    .withContext({
+      queryKeys: ["addresses", "companies", "phones", "emails"],
+    }),
   {
+    id: "clientUnifiedAddresses",
     devTools: false,
   }
 );

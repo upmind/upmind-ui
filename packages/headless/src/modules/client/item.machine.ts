@@ -2,12 +2,7 @@
 import { createMachine, assign, actions } from "xstate";
 const { sendParent } = actions;
 
-// --- internal
-import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
-
 // --- utils
-import { isString } from "lodash-es";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
@@ -45,7 +40,7 @@ export default createMachine(
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"],
+            actions: ["setError"],
           },
         },
       },
@@ -116,16 +111,11 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "setModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully added ${context.title}`);
-                  },
-                ],
+                actions: ["setModel"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -134,16 +124,11 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "setModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully updated ${context.title}`);
-                  },
-                ],
+                actions: ["setModel"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -152,16 +137,11 @@ export default createMachine(
               src: "remove",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "clearModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully deleted ${context.title}`);
-                  },
-                ],
+                actions: ["clearModel"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -170,16 +150,11 @@ export default createMachine(
               src: "setDefault",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "setModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully set ${context.title} as default`);
-                  },
-                ],
+                actions: ["setModel"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -270,20 +245,6 @@ export default createMachine(
       }),
 
       clearError: assign({ error: null }),
-
-      setFeedbackError: (
-        { error }: ClientItemContext,
-        _event: AnyEventObject
-      ) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
-        addError({
-          title: isString(error)
-            ? error
-            : error?.title || "We experienced an error with this item",
-          copy: error?.message,
-          data: error?.data,
-        });
-      },
     },
     guards: {
       isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>

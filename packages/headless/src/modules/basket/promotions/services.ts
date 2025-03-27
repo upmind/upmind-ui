@@ -11,16 +11,13 @@ import { get, isEmpty, some } from "lodash-es";
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
-// ---
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
+// -----------------------------------------------------------------------------
 
 async function load(_context: PromotionsContext, _event: AnyEventObject) {
   // Promotions dont have any initial state to load, so we can pass through an empty object
   return Promise.resolve({});
 }
 
-// ---
 async function add(
   { basketId, model, promotions }: PromotionsContext,
   _event: AnyEventObject
@@ -56,7 +53,6 @@ async function remove(
   }).then(({ data }: any) => data);
 }
 
-// ---
 async function parse({ model }: PromotionsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
@@ -67,7 +63,7 @@ async function validate(
   { schema, model }: PromotionsContext,
   _event: AnyEventObject
 ) {
-  // ---
+  //---
 
   // Now validate the model as per normal
   const { validate } = useValidation();
@@ -84,7 +80,7 @@ async function validate(
   });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,

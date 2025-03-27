@@ -12,8 +12,6 @@ import type { FieldsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
-// ---  SERVICE METHODS
-// Invoked by machines, providing context and event data
 
 async function load(_context: FieldsContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
@@ -24,7 +22,6 @@ async function load(_context: FieldsContext, _event: AnyEventObject) {
   }).then(({ data }: any) => ({ fields: data }));
 }
 
-// ---
 async function update(
   { basketId, model }: FieldsContext,
   _event: AnyEventObject
@@ -43,7 +40,6 @@ async function update(
   }).then(({ data }: any) => data);
 }
 
-// ---
 async function parse({ model }: FieldsContext, _event: AnyEventObject) {
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
@@ -69,7 +65,7 @@ async function validate(
   });
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   load,
