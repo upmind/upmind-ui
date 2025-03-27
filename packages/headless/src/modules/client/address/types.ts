@@ -24,12 +24,12 @@ export interface Address {
   manualPlace?: boolean;
   clientId: IAddress["client_id"];
   regionId: IAddress["region_id"];
-  addressId: IAddress["id"];
+  addressId?: IAddress["id"];
   countryId: IAddress["country_id"];
-  companyId: null;
   // --- company details
-  companyName: null;
-  companyDetails: false;
+  companyId?: string;
+  companyName?: string;
+  companyDetails?: boolean;
   // --- computed details
   title: string; // computed from name. Defaults to "New Address"
   description: string;
@@ -46,9 +46,21 @@ export interface Address {
   canDelete: IAddress["can_delete"];
 }
 
+export interface AddressModel {
+  address1: IAddress["address_1"];
+  address2?: IAddress["address_2"];
+  city: IAddress["city"];
+  countryId: IAddress["country_id"];
+  name?: IAddress["name"];
+  postcode: IAddress["postcode"];
+  regionId?: IAddress["region_id"];
+  state?: IAddress["state"];
+  type: IAddress["type"];
+}
+
 export interface AddressWithRelations extends IAddress {
-  region: IRegion;
   country: ICountry;
+  region: IRegion;
 }
 
 export type UseClientAddress = ReturnType<typeof useClientAddress>;
@@ -112,7 +124,6 @@ export interface UseClientAddresses {
 export interface AddressContext extends ClientItemContext {
   types?: typeof AddressTypes;
   model?: Address;
-  places: ReturnType<typeof usePlaces>;
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];

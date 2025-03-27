@@ -106,6 +106,7 @@ async function loadLookups({ model }: AddressContext) {
   return addresses
     .getAll()
     .then(() => {
+      debugger;
       return {
         types: AddressTypes,
         places,
@@ -115,13 +116,13 @@ async function loadLookups({ model }: AddressContext) {
         // ---
         addresses,
         // ---
-        baseModel: {
-          ...model,
+        model: model ?? {},
+        baseModel: defaultsDeep(model ?? {}, {
           manualPlace: !!model?.id,
           type: first(AddressTypes)?.key,
           place: undefined,
           countryId: country?.id,
-        },
+        }),
       } as AddressContext;
     })
     .catch(() => Promise.reject("Failed to load lookups"));
@@ -188,6 +189,7 @@ async function parse(
   // { addresses, schema, model, regions, country, places }: AddressContext,
   { addresses, schema, model, regions, country, places }: AddressContext
 ) {
+  debugger;
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
 
@@ -248,6 +250,7 @@ async function parse(
     }
   }
 
+  debugger;
   return Promise.resolve({ model, regions, country });
 }
 
