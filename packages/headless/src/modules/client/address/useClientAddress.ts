@@ -1,46 +1,43 @@
 // --- external
 import { waitFor } from "xstate/lib/waitFor";
-import { actions, interpret } from "xstate";
+import { interpret } from "xstate";
 
 // --- internal
-import services from "./services";
 import itemMachine from "../item.machine";
 import { useClientAddresses } from "./useClientAddresses";
+import { useClientAddressServices } from "./services";
+import { useClientAddressActions } from "./actions";
 
 // --- utils
-import { debounce } from "lodash-es";
+import { debounce, get } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
 
-export const useClientAddress = (apid?: Address["id"]) => {
+export const useClientAddress = (id?: Address["id"]) => {
   // create a global instance of the system machine
   // and a global object to store state
   // NB dont automatically start the machine as in order for the inspector to work
   // it needs to be started after the inspect service is created, so we only start it when we need it
-
-  const safeId = apid || "new-address";
-
   const service = interpret(
     itemMachine
       .withConfig({
-        actions: actions as any,
-        services: services as any,
+        actions: useClientAddressActions() as any,
+        services: useClientAddressServices() as any,
       })
       .withContext(() => {
-        if (!apid) return { model: undefined };
-
+        if (!id) return { model: undefined };
         const { getOne } = useClientAddresses();
-        return { model: getOne(apid) };
+        return { model: getOne(id) };
       }),
     {
-      id: safeId,
+      id: id ?? "new-address",
       devTools: true,
     }
   ).start();
 
   return {
-    id: safeId,
+    id,
     service,
     getModel: () => service?.getSnapshot().context.model,
     getSnapshot: () => service?.getSnapshot(),
@@ -52,10 +49,14 @@ export const useClientAddress = (apid?: Address["id"]) => {
       });
     },
     clear: () => service.send({ type: "CLEAR" }),
-    input: debounce(
-      (model: any) => service.send({ type: "SET", data: model }),
-      300
-    ),
+    input: async (model: Address): Promise<Address> => {
+      service.send({ type: "SET", data: model });
+      return waitFor(service, state => state.matches("available")).then(
+        state => {
+          return Promise.resolve(get(state, "context.model", {}) as Address);
+        }
+      );
+    },
     //--- actions
     update: async () => {
       return waitFor(service, state => state.matches("available.valid")).then(
