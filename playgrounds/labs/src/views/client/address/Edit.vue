@@ -1,20 +1,30 @@
 <template>
-  <h1>{{ model.name }}</h1>
-  <pre>
-    {{ model }}
-  </pre>
-  <div class="actions flex gap-2">
-    <Button @click="doInput" variant="outline" color="primary"
-      >Change to random name</Button
-    >
-    <Button @click="doUpdate" color="primary">Update</Button>
-  </div>
+  <UpmContentSection
+    class="mx-auto max-w-app"
+    class-content="gap-2 flex"
+    :title="model.title"
+    :description="model.description"
+  >
+    <UpmCard class="flex w-full flex-wrap gap-2 pb-3 md:pb-3">
+      <pre> {{ model }}</pre>
+
+      <div class="actions flex w-full basis-full gap-2">
+        <Button @click="doInput" variant="outline" color="primary"
+          >Change to random name</Button
+        >
+        <Button @click="doUpdate" color="primary">Update</Button>
+      </div>
+    </UpmCard>
+
+    <template #footer> </template>
+  </UpmContentSection>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { Button } from "@upmind-automation/upmind-ui";
+import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 import {
   useClientAddress,
   useClientAddresses,
@@ -44,7 +54,6 @@ function doInput() {
 }
 
 function doUpdate() {
-  debugger;
   // TODO: checkthe actual update service
   update().then(res => {
     console.log("Updated", res);
