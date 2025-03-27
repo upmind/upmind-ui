@@ -63,9 +63,10 @@ const { t } = useI18n();
 
 // --- basket setup
 const { next } = useRoutingEngine();
-const { seen } = useRecommendationsEngine();
+const { seen, isReady } = useRecommendationsEngine();
 const { products } = useBasket();
 
+await isReady();
 // ---
 
 function doClose() {
