@@ -13,7 +13,7 @@ import type { tabsListVariants, tabsTriggerVariants } from "./tabs.config";
 type TabsTriggerVariantProps = VariantProps<typeof tabsTriggerVariants>;
 type TabsListVariantProps = VariantProps<typeof tabsListVariants>;
 
-export interface TabItems {
+export interface TabItem {
   label: string;
   value: string;
 }
@@ -23,7 +23,7 @@ export interface TabsProps
     TabsContentProps,
     TabsTriggerProps,
     TabsListProps {
-  tabs: TabItems[];
+  tabs: TabItem[];
   defaultValue?: string;
   // ---
   variant?:

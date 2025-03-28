@@ -5,7 +5,7 @@
     :to="to"
     :href="href"
     tabindex="0"
-    :class="styles.link.root"
+    :class="cn(styles.link.root, props.class)"
     :aria-disabled="disabled"
     :data-disabled="disabled"
     @click="handleClick"
@@ -13,7 +13,7 @@
   >
     <slot name="prepend"></slot>
     <slot
-      ><strong>{{ label }}</strong></slot
+      ><component :is="as">{{ label }}</component></slot
     >
     <slot name="append"></slot>
   </component>
@@ -25,7 +25,7 @@ import { computed } from "vue";
 
 // --- internal
 import config from "./link.config";
-import { useStyles } from "../../utils";
+import { useStyles, cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<LinkProps>(), {
   size: "inherit",
   color: "base",
   variant: "flat",
+  as: "strong",
   // --- styles
   uiConfig: () => ({ link: [] }),
 });

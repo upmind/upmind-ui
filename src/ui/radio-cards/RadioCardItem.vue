@@ -11,6 +11,7 @@
           :class="styles.radioCards.input"
           :tabindex="isSelected || !modelValue ? 0 : -1"
           :data-state="isSelected ? 'checked' : ''"
+          :uiConfig="uiConfig"
           @blur="onBlur"
         />
       </div>

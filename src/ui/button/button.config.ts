@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap rounded-md border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
+  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
   {
     variants: {
       variant: {
@@ -223,48 +223,48 @@ export const buttonVariants = cva(
       {
         color: "primary",
         variant: "ghost",
-        class: "hover:bg-primary-muted text-primary",
+        class: "hover:bg-primary-muted text-primary-foreground",
       },
       {
         color: "secondary",
         variant: "ghost",
-        class: "hover:bg-secondary-muted text-secondary",
+        class: "hover:bg-secondary-muted text-secondary-foreground",
       },
       {
         color: "accent",
         variant: "ghost",
-        class: "hover:bg-accent-muted text-accent",
+        class: "hover:bg-accent-muted text-accent-foreground",
       },
       {
         color: "promotion",
         variant: "ghost",
-        class: "hover:bg-promotion-muted text-promotion",
+        class: "hover:bg-promotion-muted text-promotion-foreground",
       },
       {
         color: "destructive",
         variant: "ghost",
-        class: "hover:bg-destructive-muted text-destructive",
+        class: "hover:bg-destructive-muted text-destructive-foreground",
       },
 
       {
         color: "success",
         variant: "ghost",
-        class: "hover:bg-success-muted text-success",
+        class: "hover:bg-success-muted text-success-foreground",
       },
       {
         color: "info",
         variant: "ghost",
-        class: "hover:bg-info-muted text-info",
+        class: "hover:bg-info-muted text-info-foreground",
       },
       {
         color: "error",
         variant: "ghost",
-        class: "hover:bg-error-muted text-error",
+        class: "hover:bg-error-muted text-error-foreground",
       },
       {
         color: "warning",
         variant: "ghost",
-        class: "hover:bg-warning-muted text-warning",
+        class: "hover:bg-warning-muted text-warning-foreground",
       },
 
       // --- link

@@ -95,6 +95,7 @@ export interface FormControlProps extends InputProps {
   errors?: string | string[];
   // --- variants
   noLabel?: boolean;
+  noErrors?: boolean;
 
   // ---state
   visible?: boolean;
