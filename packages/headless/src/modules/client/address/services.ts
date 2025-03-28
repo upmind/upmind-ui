@@ -8,7 +8,7 @@ import {
   QueryResponse,
   PaginatedParams,
   useQueryPaginated,
-  AddressWithRelations,
+  IAddressWithRelations,
 } from "../..";
 
 // --- utils
@@ -22,7 +22,7 @@ import {
   defaultsDeep,
   map,
 } from "lodash-es";
-import { mapAddress, mapIAddress } from "./mappers";
+import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query/utils";
 import {
   CacheIsStaleError,
@@ -47,7 +47,7 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<AddressWithRelations[]>({
+  return get<IAddressWithRelations[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
@@ -56,7 +56,7 @@ async function loadAll({ allowStale = true } = {}) {
     allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapAddress(data ?? []));
+  }).then(({ data }) => mapAddresses(data ?? []));
 }
 
 async function loadPaged(paginationParams: PaginatedParams) {
@@ -64,7 +64,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<AddressWithRelations[]>({
+  return get<IAddressWithRelations[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
@@ -72,15 +72,15 @@ async function loadPaged(paginationParams: PaginatedParams) {
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapAddress(data ?? []));
+  }).then(({ data }) => mapAddresses(data ?? []));
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedAddresses =
-    queryClient.getQueryData<QueryResponse<AddressWithRelations[]>>(queryKey);
+    queryClient.getQueryData<QueryResponse<IAddressWithRelations[]>>(queryKey);
   if (isNil(cachedAddresses)) throw new CacheIsStaleError();
-  return mapAddress(cachedAddresses.data ?? []);
+  return mapAddresses(cachedAddresses.data ?? []);
 }
 
 /**
@@ -141,7 +141,9 @@ async function setDefault(addressId: Address["id"]) {
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapAddress(data));
 }
 
 async function add(data: AddressModel) {
@@ -154,7 +156,9 @@ async function add(data: AddressModel) {
     url: useUrl(`clients/${clientId}/addresses`),
     data: mapIAddress(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapAddress(data));
 }
 
 async function update(id: Address["id"], data: AddressModel) {
@@ -167,7 +171,9 @@ async function update(id: Address["id"], data: AddressModel) {
     url: useUrl(`clients/${clientId}/addresses/${id}`),
     data: mapIAddress(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapAddress(data));
 }
 
 // -----------------------------------------------------------------------------

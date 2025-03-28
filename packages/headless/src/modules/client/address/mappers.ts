@@ -3,52 +3,52 @@ import { get, map, isArray, compact } from "lodash-es";
 
 // --- types
 import type { IAddress } from "@upmind-automation/types";
-import type { Address, AddressWithRelations, AddressModel } from "./types";
+import type { Address, IAddressWithRelations, AddressModel } from "./types";
 
 // ---
-export function mapAddress(
-  raw: AddressWithRelations | AddressWithRelations[]
+export function mapAddresses(
+  raw: IAddressWithRelations | IAddressWithRelations[]
 ): Address[] {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
   // this is to allow for a 'unified' way of handling addresses
   const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, rawItem => {
-    // mappedItem.place = null;
-    return {
-      id: rawItem.id,
-      clientId: rawItem.client_id,
-      // ---
-      title: rawItem.name || "New Address",
-      description: compact([
-        get(rawItem, "address1"),
-        get(rawItem, "address2"),
-        get(rawItem, "street"),
-        get(rawItem, "city"),
-        get(rawItem, "postcode"),
-        get(rawItem, "region.name"),
-        get(rawItem, "country.name"),
-      ]).join(", "),
-      // ---
-      name: rawItem.name,
-      address1: rawItem.address_1,
-      address2: rawItem.address_2,
-      city: rawItem.city,
-      state: rawItem.state,
-      postcode: rawItem.postcode,
-      regionId: rawItem.region_id,
-      countryId: rawItem.country_id,
-      type: rawItem.type,
-      // ---
-      meta: {
-        isDefault: rawItem.default,
-        isVerified: rawItem.verified,
-        canDelete: rawItem.can_delete,
-      },
-    };
-  });
+  return map(rawListings, mapAddress);
 }
 
+export function mapAddress(raw: IAddress): Address {
+  return {
+    id: raw.id,
+    clientId: raw.client_id,
+    // ---
+    title: raw.name || "New Address",
+    description: compact([
+      get(raw, "address1"),
+      get(raw, "address2"),
+      get(raw, "street"),
+      get(raw, "city"),
+      get(raw, "postcode"),
+      get(raw, "region.name"),
+      get(raw, "country.name"),
+    ]).join(", "),
+    // ---
+    name: raw.name,
+    address1: raw.address_1,
+    address2: raw.address_2,
+    city: raw.city,
+    state: raw.state,
+    postcode: raw.postcode,
+    regionId: raw.region_id,
+    countryId: raw.country_id,
+    type: raw.type,
+    // ---
+    meta: {
+      isDefault: raw.default,
+      isVerified: raw.verified,
+      canDelete: raw.can_delete,
+    },
+  };
+}
 export function mapIAddress(data: AddressModel): IAddress {
   return {
     name: data.name,
