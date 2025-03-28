@@ -6,6 +6,23 @@ export default {
       component: () => import("./Phones.vue"),
     },
     {
+      path: "/client/companies",
+      name: "client.companies",
+      component: () => import("./Companies.vue"),
+      children: [
+        {
+          path: "",
+          name: "client.companies.listings",
+          component: () => import("./company/Listings.vue"),
+        },
+        {
+          path: "new",
+          name: "client.companies.add",
+          component: () => import("./company/Add.vue"),
+        },
+      ],
+    },
+    {
       path: "/client/addresses",
       name: "client.addresses",
       component: () => import("./Addresses.vue"),

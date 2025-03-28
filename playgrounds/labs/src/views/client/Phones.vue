@@ -29,6 +29,15 @@
         disabled
       >
       </Button>
+      <Button
+        type="reset"
+        class="relative -top-4 md:-top-6"
+        size="sm"
+        variant="tonal"
+        label="Companies"
+        @click.prevent="router.push({ name: 'client.companies' })"
+      >
+      </Button>
     </UpmContentSection>
 
     <UpmContentSection class="mx-auto max-w-app" title="Phones">
