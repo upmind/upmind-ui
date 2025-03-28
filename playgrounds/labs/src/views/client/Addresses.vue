@@ -28,6 +28,15 @@
         @click.prevent="router.push({ name: 'client.phones' })"
       >
       </Button>
+      <Button
+        type="reset"
+        class="relative -top-4 md:-top-6"
+        size="sm"
+        variant="tonal"
+        label="Companies"
+        @click.prevent="router.push({ name: 'client.companies' })"
+      >
+      </Button>
     </UpmContentSection>
 
     <RouterView v-slot="{ Component }" :key="$route.fullPath">
@@ -63,12 +72,12 @@ import { useRouter } from "vue-router";
 // --- internal
 
 // --- components
-import { Button } from "@upmind-automation/upmind-ui";
 import {
-  UpmContentSection,
   UpmLoading,
   UpmContent,
+  UpmContentSection,
 } from "@upmind-automation/client-vue";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 
