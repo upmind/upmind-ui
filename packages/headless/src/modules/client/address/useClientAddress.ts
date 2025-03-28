@@ -6,7 +6,7 @@ import { interpret } from "xstate";
 import itemMachine from "../item.machine";
 import { useClientAddresses } from "./useClientAddresses";
 import { useClientAddressActions } from "./actions";
-import { useClientAddressServices } from "./services";
+import services, { useClientAddressServices } from "./services";
 
 // --- utils
 import { DetailedError, responseCodes } from "../../../utils";
@@ -60,9 +60,9 @@ export const useClientAddress = (id?: Address["id"]) => {
       return waitFor(service, state =>
         ["available.valid", "available.invalid"].some(state.matches)
       )
-        .then(() => {
+        .then(async () => {
           service.send({ type: "SET", data: model });
-          // then we wait until the modila has been checked and is valid/invalid
+          // then we wait until the module has been checked and is valid/invalid
           return waitFor(service, state =>
             ["available.valid", "available.invalid"].some(state.matches)
           ).then(state => get(state, "context.model") as AddressModel);
@@ -102,12 +102,6 @@ export const useClientAddress = (id?: Address["id"]) => {
             )
           );
         });
-    },
-    remove: async () => {
-      service.send({ type: "REMOVE" });
-      await waitFor(service, state => ["complete"].some(state.matches), {
-        timeout: Infinity,
-      });
     },
   };
 };

@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, actions, log } from "xstate";
+import { createMachine, assign, log } from "xstate";
 
 // --- internal
 import { useFeedback } from "../feedback";
