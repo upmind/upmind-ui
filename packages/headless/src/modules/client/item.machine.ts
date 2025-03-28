@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, actions, log } from "xstate";
 
 // --- internal
 import { useFeedback } from "../feedback";
@@ -77,7 +76,7 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setModel"],
+                actions: log((_context, { data }: AnyEventObject) => data),
               },
               UPDATE: [
                 {
@@ -95,7 +94,7 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setModel"],
+                actions: log((_context, { data }: AnyEventObject) => data),
               },
             },
           },
@@ -104,7 +103,6 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: ["setModel"],
               },
             },
           },
@@ -166,14 +164,6 @@ export default createMachine(
       },
 
       complete: {
-        entry: [
-          sendParent(
-            ({ model }: ClientItemContext, _event: AnyEventObject) => ({
-              type: "REFRESH",
-              data: model?.id,
-            })
-          ),
-        ],
         type: "final",
       },
     },
@@ -239,14 +229,7 @@ export default createMachine(
       },
     },
     guards: {
-      isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !model?.id,
-
-      isNotDefault: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !!model?.id && !model?.default,
-
-      canRemove: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !!model?.id && !!model?.canDelete,
+      isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
     },
     delays: {
       error: () => useTime().ERROR,

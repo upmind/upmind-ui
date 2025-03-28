@@ -6,7 +6,7 @@
         size="sm"
         variant="tonal"
         label="Load addresses"
-        :disabled="isLoadingAddresses || addresses.length > 0"
+        :disabled="processing || addresses.length > 0"
       >
         Load addresses
       </Button>
@@ -15,6 +15,7 @@
         size="sm"
         variant="tonal"
         label="Invalidate addresses"
+        :disabled="processing"
       >
         Invalidate addresses
       </Button>
@@ -23,19 +24,24 @@
         size="sm"
         variant="tonal"
         label="Clear addresses"
+        :disabled="processing"
       >
         Clear addresses
       </Button>
-      <Button @click="generateNewAddress">New Address</Button>
+
+      <Button @click="generateNewAddress" :loading="processing"
+        >New Address</Button
+      >
     </div>
+
+    <div v-if="processing">Loading...</div>
 
     <section
       class="pb-3 md:pb-3"
       v-for="address in addresses"
       :key="address.id"
     >
-      <div v-if="isLoadingAddresses">Loading...</div>
-      <UpmCard v-else>
+      <UpmCard>
         <h3 class="mt-0">{{ address.title }}</h3>
         <p>{{ address.description }}</p>
 
@@ -86,7 +92,7 @@ const { queryClient } = useQuery();
 const router = useRouter();
 
 const addresses = ref<Address[]>([]);
-const isLoadingAddresses = ref<boolean>(false);
+const processing = ref<boolean>(false);
 
 function clearAddresses() {
   addresses.value = [];
@@ -94,10 +100,10 @@ function clearAddresses() {
 
 function fetchAddresses() {
   addresses.value = [];
-  isLoadingAddresses.value = true;
+  processing.value = true;
   getAll()
     .then(res => (addresses.value = res))
-    .finally(() => (isLoadingAddresses.value = false));
+    .finally(() => (processing.value = false));
 }
 
 function invalidateAddresses() {
@@ -111,13 +117,14 @@ function doEdit(id: string) {
 }
 
 function generateNewAddress() {
+  processing.value = true;
   const address = useClientAddress();
 
   const model = {
     address1: faker.location.streetAddress({ useFullAddress: true }),
     address2: faker.location.buildingNumber(),
     city: faker.location.city(),
-    countryId: "US",
+    countryId: faker.location.countryCode(),
     name: faker.location.street(),
     postcode: faker.location.zipCode(),
     state: faker.location.state(),
@@ -128,7 +135,12 @@ function generateNewAddress() {
 
   address
     .isReady()
-    .then(() => address.input(model).then(() => address.update()));
+    .then(() => address.input(model))
+    .then(() => address.update())
+    .catch(err => {
+      console.error("error adding", { model, err });
+    })
+    .finally(fetchAddresses);
 }
 
 onMounted(() => {

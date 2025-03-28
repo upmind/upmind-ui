@@ -9,10 +9,13 @@ import { useClientAddressActions } from "./actions";
 import { useClientAddressServices } from "./services";
 
 // --- utils
+import { DetailedError, responseCodes } from "../../../utils";
 import { get } from "lodash-es";
 
 // --- types
 import { Address, AddressModel } from "./types";
+
+// -----------------------------------------------------------------------------
 
 export const useClientAddress = (id?: Address["id"]) => {
   // create a global instance of the system machine
@@ -28,7 +31,10 @@ export const useClientAddress = (id?: Address["id"]) => {
       .withContext(() => {
         if (!id) return { model: undefined };
         const { getOne } = useClientAddresses();
-        return { model: getOne(id) };
+        return {
+          id,
+          model: getOne(id),
+        };
       }),
     {
       id: id ?? "new-address",
@@ -49,18 +55,29 @@ export const useClientAddress = (id?: Address["id"]) => {
       });
     },
     clear: () => service.send({ type: "CLEAR" }),
-    input: async (model: AddressModel): Promise<Address> => {
-      service.send({ type: "SET", data: model });
-      return waitFor(service, state => state.matches("available")).then(
-        state => {
-          return Promise.resolve(get(state, "context.model", {}) as Address);
-        }
-      );
+    input: async (model: AddressModel): Promise<AddressModel> => {
+      // we have to ensure we are able to input data
+      return waitFor(service, state =>
+        ["available.valid", "available.invalid"].some(state.matches)
+      )
+        .then(() => {
+          service.send({ type: "SET", data: model });
+          // then we wait until the modila has been checked and is valid/invalid
+          return waitFor(service, state =>
+            ["available.valid", "available.invalid"].some(state.matches)
+          ).then(state => get(state, "context.model") as AddressModel);
+        })
+        .catch(() => {
+          return Promise.reject(
+            new DetailedError("Input not available", responseCodes.Forbidden)
+          );
+        });
     },
     //--- actions
     update: async () => {
-      return waitFor(service, state => state.matches("available.valid")).then(
-        async () => {
+      // we have to ensure we are able to update the address, ie it's available and valid
+      return waitFor(service, state => state.matches("available.valid"))
+        .then(async () => {
           service.send({ type: "UPDATE" });
           return waitFor(
             service,
@@ -76,8 +93,15 @@ export const useClientAddress = (id?: Address["id"]) => {
               return Promise.resolve();
             })
             .then(() => useClientAddressServices().refresh());
-        }
-      );
+        })
+        .catch(() => {
+          return Promise.reject(
+            new DetailedError(
+              "Update only available if model is valid",
+              responseCodes.Forbidden
+            )
+          );
+        });
     },
     remove: async () => {
       service.send({ type: "REMOVE" });

@@ -42,6 +42,12 @@ export function useSchema({
         title: "Postcode",
       },
 
+      // not sure if this is ever used, but it is in the type definition and is a valid field
+      state: {
+        type: ["string", "null"],
+        title: "State",
+      },
+
       regionId: {
         type: ["string", "null"],
         title: "Region",
@@ -51,12 +57,6 @@ export function useSchema({
               const: item.id,
               title: item.name,
             })),
-      },
-
-      // not sure if this is ever used, but it is in the type definition
-      state: {
-        type: ["string", "null"],
-        title: "State",
       },
 
       countryId: {
@@ -77,12 +77,6 @@ export function useSchema({
         type: ["string", "null"],
         title: "Name",
         default: baseModel?.name,
-      },
-      // ---
-
-      default: {
-        type: ["boolean", "null"],
-        title: "Make this the default address?",
       },
 
       type: {

@@ -10,8 +10,6 @@ import {
   useQueryPaginated,
   AddressWithRelations,
 } from "../..";
-import { usePlaces } from "../places";
-import { useClientAddresses } from "./useClientAddresses";
 
 // --- utils
 import {
@@ -22,16 +20,22 @@ import {
   isNil,
   isEmpty,
   defaultsDeep,
+  map,
 } from "lodash-es";
-import { mapAddress } from "./mappers";
+import { mapAddress, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query/utils";
-import { CacheIsStaleError, useValidation } from "../../../utils";
+import {
+  CacheIsStaleError,
+  useValidation,
+  useModelParser,
+} from "../../../utils";
 
 // --- types
 import { AddressTypes } from "./types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { IAddress } from "@upmind-automation/types";
-import type { Address, AddressContext } from "./types";
+import type { Address, AddressContext, AddressModel } from "./types";
+import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -84,7 +88,7 @@ function loadAllFromCache() {
  * @param {AddressContext} context
  * @returns {Promise<AddressContext>}
  */
-async function loadLookups({ model }: AddressContext) {
+async function loadLookups({ model }: AddressContext): Promise<AddressContext> {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
@@ -98,34 +102,18 @@ async function loadLookups({ model }: AddressContext) {
     return Promise.reject("Failed to load countries and regions");
   }
 
-  // ---
-  // lets start up/use our dependencies
-  const places = usePlaces();
-  const addresses = useClientAddresses();
-
-  return addresses
-    .getAll()
-    .then(() => {
-      debugger;
-      return {
-        types: AddressTypes,
-        places,
-        regions,
-        country,
-        countries,
-        // ---
-        addresses,
-        // ---
-        model: model ?? {},
-        baseModel: defaultsDeep(model ?? {}, {
-          manualPlace: !!model?.id,
-          type: first(AddressTypes)?.key,
-          place: undefined,
-          countryId: country?.id,
-        }),
-      } as AddressContext;
-    })
-    .catch(() => Promise.reject("Failed to load lookups"));
+  return Promise.resolve({
+    types: AddressTypes,
+    regions,
+    country,
+    countries,
+    // ---
+    model: model ?? {},
+    baseModel: defaultsDeep(model ?? {}, {
+      type: first(AddressTypes)?.key,
+      countryId: country?.id,
+    }),
+  } as AddressContext);
 }
 
 // -----------------------------------------------------------------------------
@@ -156,7 +144,7 @@ async function setDefault(addressId: Address["id"]) {
   }).then(invalidateQueryByKey(queryKey));
 }
 
-async function add(address: Address) {
+async function add(data: AddressModel) {
   const { getUserId } = useSession();
   const { post, useUrl } = useQuery();
 
@@ -164,20 +152,20 @@ async function add(address: Address) {
 
   return post<IAddress>({
     url: useUrl(`clients/${clientId}/addresses`),
-    data: address,
+    data: mapIAddress(data),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
 }
 
-async function update(address: Address) {
+async function update(id: Address["id"], data: AddressModel) {
   const { getUserId } = useSession();
   const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
   return put<IAddress>({
-    url: useUrl(`clients/${clientId}/addresses/${address?.id}`),
-    data: address,
+    url: useUrl(`clients/${clientId}/addresses/${id}`),
+    data: mapIAddress(data),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
 }
@@ -187,71 +175,44 @@ async function update(address: Address) {
 
 async function parse(
   // { addresses, schema, model, regions, country, places }: AddressContext,
-  { addresses, schema, model, regions, country, places }: AddressContext
+  { regions, country, baseModel, schema }: AddressContext,
+  { data }: AnyEventObject & { data: AddressModel }
 ) {
-  debugger;
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
 
-  if (!isEmpty(model)) {
-    // let's check to see if we've been given a place to lookup
-    // if we have:
-    //  1: get the place from our existing addresses by placeId
-    //  2: get the place details from google
-    //  4: update the model with the place details
-    if (model?.place) {
-      const existing = addresses.getOne(model?.place);
-      if (existing) {
-        model.name ??= existing.name; // only update it if we've not already got a value
-        model.address1 = existing.address1;
-        model.address2 = existing.address2;
-        model.city = existing.city;
-        model.postcode = existing.postcode;
-        model.regionId = existing.regionId;
-        model.state = existing.state;
-        model.countryId = existing.countryId;
-      } else {
-        const { getPlaceDetails } = places;
-        const place = await getPlaceDetails(model.place);
-        model = defaultsDeep(place, model);
-      }
-    }
+  // sometimes the machine can return the ful lcontext as data, so we check to see if we have a model
+  // if not, then we assume the data is the model
+  const safeModel: AddressModel = useModelParser(
+    schema,
+    get(data, "model", data),
+    baseModel,
+    { allowExtraProps: false }
+  );
 
-    // let's check if the country has changed, ie: the regions don't match
-    // if so, then we need to fetch the regions for the new country
-    // AND update our 'default' country to match the country from the address
-    // this will in turn update the phone schema to match the country
-    if (!some(regions, ["countryId", model!.countryId])) {
-      regions = await fetchRegions(model!.countryId);
+  // ---
 
-      country = getCountry(model!.countryId);
-    }
+  // first lets check we have a valid country,
+  // fallback to the default country if not set or invalid
+  country = getCountry(safeModel?.countryId ?? baseModel?.countryId);
+  safeModel.countryId = country.id;
 
-    // now lets check our regions list to see if we have a match
-    // if so, then we need to update the model with the new region id
-    // otherwise the regionId is reset to null
-    const region = find(regions, ["id", model!.regionId]);
-    model!.regionId = get(region, "id");
-
-    // finally lets force a manual place if we are invalid:
-    const isValid = await validate({ schema, model })
-      .then(() => true)
-      .catch(() => false);
-
-    // force the manual place if we are a place && are invalid
-    // OR editing an existing address
-    // OR the place value is our reserved word 'manual'
-    if (
-      (!!model!.place?.length && !isValid) ||
-      !!model?.id ||
-      model!.place == "manual"
-    ) {
-      model!.manualPlace = true;
-    }
+  // let's check if the country has changed, ie: the regions don't match
+  // if so, then we need to fetch the regions for the new country
+  // AND update our 'default' country to match the country from the address
+  // this will in turn update the phone schema to match the country
+  if (!some(regions, ["countryId", safeModel?.countryId])) {
+    regions = await fetchRegions(safeModel.countryId);
+    country = getCountry(safeModel.countryId);
   }
 
-  debugger;
-  return Promise.resolve({ model, regions, country });
+  // now lets check our regions list to see if we have a match
+  // if so, then we need to update the safeModel with the new region id
+  // otherwise the regionId is reset to null
+  const region = find(regions, ["id", safeModel?.regionId]);
+  safeModel.regionId = get(region, "id");
+
+  return Promise.resolve({ model: safeModel, regions, country });
 }
 
 async function validate({ schema, model }: Partial<AddressContext>) {
@@ -295,12 +256,16 @@ export const useClientAddressServices = () => {
   return {
     loadLookups,
     add: async (context: AddressContext) => {
-      if (!context.model?.id) return Promise.reject("No address model");
+      if (isEmpty(context.model))
+        return Promise.reject("No address model provided");
       return add(context.model);
     },
     update: async (context: AddressContext) => {
-      if (!context.model?.id) return Promise.reject("No address model");
-      return update(context.model);
+      if (!context.id) return Promise.reject("No address id provided");
+      if (isEmpty(context.model))
+        return Promise.reject("No address model provided");
+
+      return update(context.id, context.model);
     },
     parse,
     validate,
