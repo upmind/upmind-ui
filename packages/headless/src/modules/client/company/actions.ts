@@ -30,7 +30,7 @@ export const useClientCompanyActions = () => {
 
     setSchemas: assign({
       schema: context => useSchema(context),
-      uischema: context => useUischema(),
+      uischema: () => useUischema(),
     }),
 
     setModel: assign({
