@@ -1,34 +1,48 @@
 // --- utils
-import { compact, get, isArray, map } from "lodash-es";
+import { get, map, compact, isArray } from "lodash-es";
 
 // --- types
-import type { Company, CompanyWithRelations } from "./types";
+import type { ICompany } from "@upmind-automation/types";
+import type { Company, CompanyModel, CompanyWithRelations } from "./types";
 
-export const mapCompany = (
-  raw: CompanyWithRelations | CompanyWithRelations[]
-): Company[] => {
+export function mapCompanies(
+  raw: CompanyWithRelations | CompanyWithRelations[] | ICompany | ICompany[]
+): Company[] {
   const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, rawItem => {
-    return {
-      id: rawItem.id,
-      emailId: rawItem.email_id,
-      phoneId: rawItem.phone_id,
-      addressId: rawItem.address_id,
-      title: rawItem.name,
-      description: compact([
-        get(rawItem, "address.address1"),
-        get(rawItem, "address.address2"),
-        get(rawItem, "address.street"),
-        get(rawItem, "address.city"),
-        get(rawItem, "address.postcode"),
-        get(rawItem, "address.region.name"),
-        get(rawItem, "address.country.name"),
-      ]).join(", "),
-      name: rawItem.name,
-      default: rawItem.default,
-      regNumber: rawItem.reg_number,
-      vatNumber: rawItem.vat_percent,
-      vatPercent: rawItem.vat_percent,
-    };
-  });
-};
+  return map(rawListings, mapCompany);
+}
+
+export function mapCompany(raw: ICompany): Company {
+  return {
+    id: raw.id,
+    emailId: raw.email_id,
+    phoneId: raw.phone_id,
+    addressId: raw.address_id,
+    title: raw.name,
+    description: compact([
+      get(raw, "address.address1"),
+      get(raw, "address.address2"),
+      get(raw, "address.street"),
+      get(raw, "address.city"),
+      get(raw, "address.postcode"),
+      get(raw, "address.region.name"),
+      get(raw, "address.country.name"),
+    ]).join(", "),
+    name: raw.name,
+    default: raw.default,
+    regNumber: raw.reg_number,
+    vatNumber: raw.vat_percent,
+    vatPercent: raw.vat_percent,
+  };
+}
+
+export function mapICompany(data: CompanyModel): ICompany {
+  return {
+    name: data.name,
+    address_id: data.addressId,
+    phone_id: data.phoneId,
+    email_id: data.emailId,
+    reg_number: data.regNumber,
+    vat_number: data.vatNumber,
+  } as ICompany;
+}

@@ -3,25 +3,36 @@ import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
 import { invalidateQueryByKey } from "../../query/utils";
-import { useQuery, useSession, useQueryPaginated, QueryResponse } from "../..";
+import {
+  useQuery,
+  useSession,
+  useQueryPaginated,
+  QueryResponse,
+  CompanyModel,
+} from "../..";
 
 // --- utils
-import { isNil } from "lodash-es";
-import { mapCompany } from "./mappers";
-import { CacheIsStaleError, useValidation } from "../../../utils";
+import { get, isEmpty, isNil } from "lodash-es";
+import { mapCompanies, mapCompany, mapICompany } from "./mappers";
+import {
+  CacheIsStaleError,
+  useModelParser,
+  useValidation,
+} from "../../../utils";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { PaginatedParams } from "../..";
 import type { CompanyWithRelations, CompanyContext, Company } from "./types";
+import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 // Queries
 
 const queryKey: QueryKey = ["client", "companies"];
 
-async function loadAll() {
+async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -32,12 +43,16 @@ async function loadAll() {
       limit: 0,
     }),
     queryKey,
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapCompany(data ?? []));
+  }).then(({ data }) => mapCompanies(data ?? []));
 }
 
-async function loadPaged(paginationParams: PaginatedParams) {
+async function loadPaged(
+  paginationParams: PaginatedParams,
+  { allowStale = true } = {}
+) {
   const { get, useUrl } = useQueryPaginated();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -47,10 +62,11 @@ async function loadPaged(paginationParams: PaginatedParams) {
       with: ["address", "address.country", "address.region"].join(),
     }),
     queryKey: [...queryKey, { ...paginationParams }],
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapCompany(data ?? []));
+  }).then(({ data }) => mapCompanies(data ?? []));
 }
 
 async function loadLookups({ model }: CompanyContext) {
@@ -94,50 +110,40 @@ function loadAllFromCache() {
   const cachedCompanies =
     queryClient.getQueryData<QueryResponse<CompanyWithRelations>>(queryKey);
   if (isNil(cachedCompanies)) throw new CacheIsStaleError();
-  return mapCompany(cachedCompanies.data ?? []);
+  return mapCompanies(cachedCompanies.data ?? []);
 }
 
 // -----------------------------------------------------------------------------
 // Mutations
 
-async function add(company: Company) {
+async function add(data: CompanyModel) {
   const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
 
   const clientId = await getUserId();
 
-  post<ICompany>({
+  return post<ICompany>({
     url: useUrl(`clients/${clientId}/companies`),
-    data: {
-      name: company.name,
-      email_id: company.emailId,
-      phone_id: company.phoneId,
-      address_id: company.addressId,
-      reg_number: company.regNumber,
-      vat_number: company.vatNumber,
-    },
+    data: mapICompany(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapCompany(data));
 }
 
-async function update(company: Company) {
+async function update(id: Company["id"], data: CompanyModel) {
   const { getUserId } = useSession();
   const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  put<ICompany>({
-    url: useUrl(`clients/${clientId}/companies/${company.id}`),
-    data: {
-      name: company.name,
-      email_id: company.emailId,
-      phone_id: company.phoneId,
-      address_id: company.addressId,
-      reg_number: company.regNumber,
-      vat_number: company.vatNumber,
-    },
+  return put<ICompany>({
+    url: useUrl(`clients/${clientId}/companies/${id}`),
+    data: mapICompany(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapCompany(data ?? []));
 }
 
 async function remove(companyId: Company["id"]) {
@@ -146,10 +152,10 @@ async function remove(companyId: Company["id"]) {
 
   const clientId = await getUserId();
 
-  del<ICompany>({
+  return del<ICompany>({
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function setDefault(companyId: Company["id"]) {
@@ -158,22 +164,35 @@ async function setDefault(companyId: Company["id"]) {
 
   const clientId = await getUserId();
 
-  put<ICompany>({
+  return put<ICompany>({
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "companies"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapCompany(data));
 }
 
 // -----------------------------------------------------------------------------
 
 // TODO: async function parse({ model }: PhoneContext, _event: PhoneEvent) {
-async function parse({ model }: any, _event: any) {
+async function parse(
+  { baseModel, schema }: CompanyContext,
+  { data }: AnyEventObject & { data: CompanyModel }
+) {
+  const safeModel = useModelParser(
+    schema,
+    get(data, "model", data),
+    baseModel,
+    { allowExtraProps: false }
+  );
+
   // ---
-  return Promise.resolve({ model });
+
+  return Promise.resolve({ model: safeModel });
 }
 
-async function validate({ schema, model }: CompanyContext) {
+async function validate({ schema, model }: Partial<CompanyContext>) {
   // ---
 
   // Now validate the model as per normal
@@ -197,18 +216,37 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  loadLookups,
+  refresh: async () => loadAll({ allowStale: false }),
+
   loadAllFromCache,
   //--- mutations
-  add,
-  update,
+
   remove,
   setDefault,
-  //-- utils
-  parse,
-  validate,
+
   //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
+};
+
+export const useClientCompanyServices = () => {
+  return {
+    loadLookups,
+    add: async (context: CompanyContext) => {
+      if (isEmpty(context.model))
+        return Promise.reject("No company model provided");
+      return add(context.model);
+    },
+    update: async (context: CompanyContext) => {
+      if (!context.id) return Promise.reject("No company id provided");
+      if (isEmpty(context.model))
+        return Promise.reject("No company model provided");
+
+      return update(context.id, context.model);
+    },
+    parse,
+    validate,
+    refresh: async () => loadAll({ allowStale: false }),
+  };
 };
