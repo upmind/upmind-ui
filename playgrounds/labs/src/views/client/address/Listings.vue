@@ -29,9 +29,7 @@
         Clear addresses
       </Button>
 
-      <Button @click="generateNewAddress" :loading="processing"
-        >New Address</Button
-      >
+      <Button @click="doAdd" :loading="processing">New Address</Button>
     </div>
 
     <div v-if="processing">Loading...</div>
@@ -61,7 +59,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { faker } from "@faker-js/faker";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 
@@ -116,31 +113,8 @@ function doEdit(id: string) {
   router.push({ params: { id: id }, name: "client.addresses.edit" });
 }
 
-function generateNewAddress() {
-  processing.value = true;
-  const address = useClientAddress();
-
-  const model = {
-    address1: faker.location.streetAddress({ useFullAddress: true }),
-    address2: faker.location.buildingNumber(),
-    city: faker.location.city(),
-    countryId: faker.location.countryCode(),
-    name: faker.location.street(),
-    postcode: faker.location.zipCode(),
-    state: faker.location.state(),
-    type: 1,
-  };
-
-  console.log(model);
-
-  address
-    .isReady()
-    .then(() => address.input(model))
-    .then(() => address.update())
-    .catch(err => {
-      console.error("error adding", { model, err });
-    })
-    .finally(fetchAddresses);
+function doAdd() {
+  router.push({ name: "client.addresses.add" });
 }
 
 onMounted(() => {

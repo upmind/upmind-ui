@@ -16,6 +16,11 @@ export default {
           component: () => import("./address/Listings.vue"),
         },
         {
+          path: "new",
+          name: "client.addresses.add",
+          component: () => import("./address/Add.vue"),
+        },
+        {
           path: ":id",
           name: "client.addresses.edit",
           component: () => import("./address/Edit.vue"),
