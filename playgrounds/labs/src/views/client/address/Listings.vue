@@ -84,6 +84,7 @@ import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 
 // --- internal
+import { Address, useClientAddresses } from "@upmind-automation/headless";
 
 // --- components
 import {
@@ -92,7 +93,6 @@ import {
   UpmContentSection,
 } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
-import { Address, useClientAddresses } from "@upmind-automation/headless";
 
 const { getAll } = useClientAddresses();
 const { queryClient } = useQuery();
