@@ -20,15 +20,14 @@ import {
   isNil,
   isEmpty,
   defaultsDeep,
-  map,
 } from "lodash-es";
-import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
-import { invalidateQueryByKey } from "../../query/utils";
 import {
-  CacheIsStaleError,
   useValidation,
   useModelParser,
+  CacheIsStaleError,
 } from "../../../utils";
+import { invalidateQueryByKey } from "../../query/utils";
+import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 
 // --- types
 import { AddressTypes } from "./types";
@@ -59,7 +58,10 @@ async function loadAll({ allowStale = true } = {}) {
   }).then(({ data }) => mapAddresses(data ?? []));
 }
 
-async function loadPaged(paginationParams: PaginatedParams) {
+async function loadPaged(
+  paginationParams: PaginatedParams,
+  { allowStale = true } = { allowStale: true }
+) {
   const { get, useUrl } = useQueryPaginated();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -69,6 +71,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
       with: ["region", "country"].join(),
     }),
     queryKey: [...queryKey, { ...paginationParams }],
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
@@ -245,6 +248,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
+  refresh: async () => loadAll({ allowStale: false }),
 
   loadAllFromCache,
   //--- mutations
