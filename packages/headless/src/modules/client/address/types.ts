@@ -17,35 +17,6 @@ export const AddressTypes = [
   { key: 4, value: "Company" },
 ];
 
-export interface Address {
-  // --- identifiers
-  id: IAddress["id"];
-  place?: string;
-  manualPlace?: boolean;
-  clientId: IAddress["client_id"];
-  regionId: IAddress["region_id"];
-  addressId?: IAddress["id"];
-  countryId: IAddress["country_id"];
-  // --- company details
-  companyId?: string;
-  companyName?: string;
-  companyDetails?: boolean;
-  // --- computed details
-  title: string; // computed from name. Defaults to "New Address"
-  description: string;
-  // --- address details
-  name: IAddress["name"];
-  city: IAddress["city"];
-  type: IAddress["type"];
-  state: IAddress["state"];
-  default: IAddress["default"];
-  address1: IAddress["address_1"];
-  address2: IAddress["address_2"];
-  postcode: IAddress["postcode"];
-  verified: IAddress["verified"];
-  canDelete: IAddress["can_delete"];
-}
-
 export interface AddressModel {
   address1: IAddress["address_1"];
   address2?: IAddress["address_2"];
@@ -56,6 +27,21 @@ export interface AddressModel {
   regionId?: IAddress["region_id"];
   state?: IAddress["state"];
   type: IAddress["type"];
+}
+
+export interface Address extends AddressModel {
+  // --- identifiers
+  id: IAddress["id"];
+  clientId: IAddress["client_id"];
+  // --- computed
+  title: string;
+  description: string;
+  // --- meta info
+  meta: {
+    canDelete: IAddress["can_delete"];
+    isVerified: IAddress["verified"];
+    isDefault: IAddress["default"];
+  };
 }
 
 export interface AddressWithRelations extends IAddress {
@@ -123,20 +109,10 @@ export interface UseClientAddresses {
 
 export interface AddressContext extends ClientItemContext {
   types?: typeof AddressTypes;
-  model?: Address;
+  model?: AddressModel;
+  id?: Address["id"];
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];
-  addresses: UseClientAddresses; // Composable to the address context
   baseModel?: Address;
-
-  autocomplete?: {
-    schema?: JsonSchema;
-    uischema?: UISchemaElement;
-    model?: {
-      search?: string;
-      address?: string;
-    };
-    results?: any[]; //AddressAutocompleteResult[];
-  };
 }

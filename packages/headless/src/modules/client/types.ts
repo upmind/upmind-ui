@@ -7,6 +7,7 @@ import type { ActorRef } from "xstate";
 // Contexts
 
 export interface ClientItemContext {
+  id?: string;
   title?: string;
   description?: string;
   // ---

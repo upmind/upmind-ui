@@ -92,7 +92,11 @@ export const useModelParser = <T extends object = object>(
   schema: JsonSchema | undefined,
   values: T,
   baseModel?: T,
-  allowExtraProps = true
+  {
+    allowExtraProps,
+  }: {
+    allowExtraProps?: boolean;
+  } = { allowExtraProps: true }
 ) => {
   if (!schema?.properties) return values;
 
@@ -106,8 +110,7 @@ export const useModelParser = <T extends object = object>(
     },
     {}
   );
-
-  if (!allowExtraProps) return model as T;
+  if (!allowExtraProps) model as T;
 
   return defaultsDeep(model, values) as T;
 };
