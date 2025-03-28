@@ -265,7 +265,7 @@ export function parseRecommendation(
     // --- forced overrides
     id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
     label: useTranslateField(raw, "label"),
-    name: useTranslateName(raw) || product?.name,
+    title: useTranslateName(raw) || product?.title,
     description: useTranslateField(raw, "description") || product?.description,
     excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
     imgUrl: raw.image_url || product?.imgUrl,
