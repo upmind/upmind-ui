@@ -76,7 +76,7 @@ export const useClientAddresses = () => {
    * @returns An array of parsed addresses if found, otherwise an empty array.
    * @example getAll().then((addresses) => console.log(addresses))
    */
-  async function getAll({ allowStale = true }: { allowStale?: boolean } = {}) {
+  async function getAll({ allowStale = true } = {}) {
     return service.loadAll({ allowStale });
   }
 
@@ -126,7 +126,7 @@ export const useClientAddresses = () => {
    */
   async function getPaged(
     paginationParams: PaginatedParams,
-    { allowStale = true } = { allowStale: true }
+    { allowStale }: { allowStale?: boolean } = {}
   ) {
     return service.loadPaged(paginationParams, { allowStale });
   }
@@ -166,16 +166,16 @@ export const useClientAddresses = () => {
     return service
       .remove(id)
       .then(() => addSuccess("Successfully removed address"))
-      .then(() => service.refresh())
-      .catch(error => {
+      .then(service.refresh)
+      .catch(error =>
         addError({
           title: isString(error)
             ? error
             : error?.title || "We experienced an error removing this address",
           copy: error?.message,
           data: error?.data,
-        });
-      });
+        })
+      );
   }
 
   /**
@@ -188,7 +188,7 @@ export const useClientAddresses = () => {
     return service
       .setDefault(id)
       .then(() => addSuccess("Successfully set address as default"))
-      .then(() => service.refresh())
+      .then(service.refresh)
       .catch(error => {
         addError({
           title: isString(error)
