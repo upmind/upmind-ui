@@ -229,7 +229,6 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 
   // Now validate the model as per normal
   const { validate } = useValidation();
-
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {

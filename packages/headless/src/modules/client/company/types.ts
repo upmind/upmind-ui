@@ -9,7 +9,7 @@ import type {
   ICountry,
 } from "@upmind-automation/types";
 import type { UseClientEmails } from "../email";
-import type { UseClientPhones } from "../phone/types";
+import type { UseClientPhones } from "../phone";
 import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
 import type { UseClientAddresses } from "../address";
