@@ -7,6 +7,7 @@
     :disabled="props.disabled || props.loading"
     :loading="props.loading"
     :type="props.type || 'button'"
+    :tabindex="props.focusable ? '0' : '-1'"
   >
     <slot name="prepend"></slot>
 
@@ -14,7 +15,7 @@
       <span
         v-if="label"
         class="truncate"
-        :class="{ 'sr-only': props.iconOnly }"
+        :class="{ 'sr-only': props.iconOnly, truncate: truncate }"
         >{{ label }}</span
       >
     </slot>
@@ -23,9 +24,9 @@
 
     <span
       v-if="props.loading && props.spinner"
-      class="spinner absolute bottom-1 left-1 right-1 top-1 m-auto"
+      class="spinner absolute inset-0 flex items-center justify-center"
     >
-      <Spinner />
+      <Spinner size="sm" />
     </span>
   </ButtonRoot>
 </template>
@@ -59,6 +60,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   variant: "flat",
   block: false,
   focusable: true,
+  truncate: true,
   // --- styles
   uiConfig: () => ({ button: [] }),
   class: "",

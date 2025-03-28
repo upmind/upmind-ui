@@ -10,6 +10,7 @@ export * from "./ui/carousel";
 export * from "./ui/checkbox";
 export * from "./ui/checkbox-cards";
 export * from "./ui/combobox";
+export * from "./ui/collapsible";
 export * from "./ui/dialog";
 export * from "./ui/drawer";
 export * from "./ui/dropdown-menu";
@@ -18,7 +19,9 @@ export * from "./ui/icon";
 export * from "./ui/icon-animated";
 export * from "./ui/indicator";
 export * from "./ui/input";
+export * from "./ui/input-extended";
 export * from "./ui/interstitial";
+export * from "./ui/label";
 export * from "./ui/lineclamp";
 export * from "./ui/link";
 export * from "./ui/loading";
@@ -38,6 +41,8 @@ export * from "./ui/tabs";
 export * from "./ui/tabs";
 export * from "./ui/textarea";
 export * from "./ui/tooltip";
+
+export * as plugins from "./plugins";
 
 // --- utils
 export {
