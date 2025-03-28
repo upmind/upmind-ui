@@ -43,15 +43,36 @@
         <h3 class="mt-0">{{ address.title }}</h3>
         <p>{{ address.description }}</p>
 
-        <Button
-          @click="doEdit(address.id)"
-          class="mt-2"
-          size="sm"
-          variant="tonal"
-          label="Edit"
-        >
-          Edit
-        </Button>
+        <div class="flex gap-2">
+          <Button
+            @click="doEdit(address.id)"
+            class="mt-2"
+            size="sm"
+            variant="tonal"
+            label="Edit"
+          >
+            Edit
+          </Button>
+          <Button
+            @click="doDelete(address.id)"
+            class="mt-2"
+            size="sm"
+            variant="tonal"
+            label="Delete"
+            :disabled="!address.meta.canDelete"
+          >
+            Delete
+          </Button>
+          <Button
+            @click="setDefault(address.id)"
+            class="mt-2"
+            size="sm"
+            variant="tonal"
+            label="Set Default"
+            :disabled="address.meta.isDefault"
+            >Set Default</Button
+          >
+        </div>
       </UpmCard>
     </section>
   </UpmContentSection>
@@ -71,13 +92,7 @@ import {
   UpmContentSection,
 } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
-import {
-  Address,
-  AddressTypes,
-  useClientAddress,
-  useClientAddresses,
-  useSession,
-} from "@upmind-automation/headless";
+import { Address, useClientAddresses } from "@upmind-automation/headless";
 
 const { getAll } = useClientAddresses();
 const { queryClient } = useQuery();
@@ -115,6 +130,16 @@ function doEdit(id: string) {
 
 function doAdd() {
   router.push({ name: "client.addresses.add" });
+}
+
+function doDelete(id: string) {
+  const { remove } = useClientAddresses();
+  remove(id).then(() => fetchAddresses());
+}
+
+function setDefault(id: string) {
+  const { setDefault } = useClientAddresses();
+  setDefault(id).then(() => fetchAddresses());
 }
 
 onMounted(() => {
