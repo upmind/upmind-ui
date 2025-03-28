@@ -44,7 +44,7 @@ export interface Address extends AddressModel {
   };
 }
 
-export interface AddressWithRelations extends IAddress {
+export interface IAddressWithRelations extends IAddress {
   country: ICountry;
   region: IRegion;
 }

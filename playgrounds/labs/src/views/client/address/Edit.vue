@@ -8,8 +8,10 @@
       <pre> {{ model }}</pre>
 
       <div class="actions flex w-full basis-full gap-2">
-        <Button @click="doInput" variant="tonal">Change to random name</Button>
-        <Button @click="doUpdate">Update</Button>
+        <Button @click="doInput" variant="tonal" :disabled="processing"
+          >Change to random name</Button
+        >
+        <Button @click="doUpdate" :loading="processing">Update</Button>
       </div>
     </UpmCard>
 
@@ -39,22 +41,38 @@ const { update, input, getModel } = useClientAddress(params.id as string);
 
 const id = ref<string>(params.id as string);
 const model = ref<AddressModel>(getModel() ?? {});
+const processing = ref<boolean>(false);
 
 // --- METHODS
 
 function doInput() {
+  processing.value = true;
   input({
     ...model.value,
     name: `New name ${Math.random()}`,
-  })?.then((data: AddressModel) => {
-    model.value = data;
-  });
+  })
+    .then((data: AddressModel) => {
+      model.value = data;
+    })
+    .catch(err => {
+      console.error("error updating", { model, err });
+    })
+    .finally(() => {
+      processing.value = false;
+    });
 }
 
 function doUpdate() {
-  // TODO: checkthe actual update service
-  update().then(res => {
-    model.value = getModel();
-  });
+  processing.value = true;
+  update()
+    .then(res => {
+      model.value = getModel();
+    })
+    .catch(err => {
+      console.error("error updating", { model, err });
+    })
+    .finally(() => {
+      processing.value = false;
+    });
 }
 </script>
