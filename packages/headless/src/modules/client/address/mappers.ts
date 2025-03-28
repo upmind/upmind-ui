@@ -49,6 +49,7 @@ export function mapAddress(raw: IAddress): Address {
     },
   };
 }
+
 export function mapIAddress(data: AddressModel): IAddress {
   return {
     name: data.name,

@@ -60,7 +60,7 @@ async function loadAll({ allowStale = true } = {}) {
 
 async function loadPaged(
   paginationParams: PaginatedParams,
-  { allowStale = true } = { allowStale: true }
+  { allowStale = true } = {}
 ) {
   const { get, useUrl } = useQueryPaginated();
   const { isAuthenticated } = useSession();
@@ -122,33 +122,6 @@ async function loadLookups({ model }: AddressContext): Promise<AddressContext> {
 // -----------------------------------------------------------------------------
 // MUTATIONS
 
-async function remove(addressId: Address["id"]) {
-  const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del<IAddress>({
-    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
-    withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
-}
-
-async function setDefault(addressId: Address["id"]) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put<IAddress>({
-    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
-    data: { default: true },
-    withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapAddress(data));
-}
-
 async function add(data: AddressModel) {
   const { getUserId } = useSession();
   const { post, useUrl } = useQuery();
@@ -173,6 +146,33 @@ async function update(id: Address["id"], data: AddressModel) {
   return put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${id}`),
     data: mapIAddress(data),
+    withAccessToken: true,
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapAddress(data));
+}
+
+async function remove(addressId: Address["id"]) {
+  const { del, useUrl } = useQuery();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return del<IAddress>({
+    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
+    withAccessToken: true,
+  }).then(invalidateQueryByKey(queryKey));
+}
+
+async function setDefault(addressId: Address["id"]) {
+  const { put, useUrl } = useQuery();
+  const { getUserId } = useSession();
+
+  const clientId = await getUserId();
+
+  return put<IAddress>({
+    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
+    data: { default: true },
     withAccessToken: true,
   })
     .then(invalidateQueryByKey(queryKey))
@@ -229,6 +229,7 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 
   // Now validate the model as per normal
   const { validate } = useValidation();
+
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
     if (errors?.length) {
