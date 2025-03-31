@@ -12,7 +12,7 @@ import { awaitResolved, useRouteQueryParams } from "./utils";
 export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 
 // --- types
-import type { ROUTE, Flow, Route } from "./types";
+import type { ROUTE, Flow, Route, Target } from "./types";
 import { isEmpty, get, some } from "lodash-es";
 export type RouteQueryParams = typeof useRouteQueryParams;
 
