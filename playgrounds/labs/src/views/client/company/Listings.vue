@@ -7,23 +7,74 @@
         variant="tonal"
         label="Load companies"
         :disabled="processing || companies.length > 0"
-      />
+      >
+        Load companies
+      </Button>
       <Button
         @click="invalidateCompanies"
         size="sm"
         variant="tonal"
         label="Invalidate companies"
         :disabled="processing"
-      />
+      >
+        Invalidate companies
+      </Button>
       <Button
         @click="clearCompanies"
         size="sm"
         variant="tonal"
         label="Clear companies"
         :disabled="processing"
-      />
+      >
+        Clear companies
+      </Button>
+
       <Button @click="doAdd" :loading="processing">New Company</Button>
     </div>
+
+    <div v-if="processing">Loading...</div>
+
+    <section
+      class="pb-3 md:pb-3"
+      v-for="company in companies"
+      :key="company.id"
+    >
+      <UpmCard>
+        <h3 class="mt-0">{{ company.title }}</h3>
+        <p>{{ company.description }}</p>
+
+        <div class="flex gap-2">
+          <Button
+            @click="doEdit(company.id)"
+            class="mt-2"
+            size="sm"
+            variant="tonal"
+            label="Edit"
+          >
+            Edit
+          </Button>
+          <Button
+            @click="doDelete(company.id)"
+            class="mt-2"
+            size="sm"
+            variant="tonal"
+            label="Delete"
+            :disabled="!company.meta.canDelete"
+          >
+            Delete
+          </Button>
+          <Button
+            @click="setDefault(company.id)"
+            class="mt-2"
+            size="sm"
+            variant="tonal"
+            label="Set Default"
+            :disabled="company.meta.isDefault"
+            >Set Default</Button
+          >
+        </div>
+      </UpmCard>
+    </section>
   </UpmContentSection>
 </template>
 
@@ -38,7 +89,7 @@ import {
   useClientCompanies,
   useQuery,
 } from "@upmind-automation/headless";
-import { UpmContentSection } from "@upmind-automation/client-vue";
+import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
 const { getAll } = useClientCompanies();
