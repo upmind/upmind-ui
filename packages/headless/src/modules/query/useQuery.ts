@@ -5,9 +5,10 @@ import { useSession } from "../session";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { useUrl, responseCodes } from "../../utils";
-import { parseData, getQueryClient } from "./utils";
-import { get, set, unset, isString, method } from "lodash-es";
+import { useUrl } from "../../utils";
+import { getTokenFromStorage } from "../session/utils";
+import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
+import { get, set, unset, isString } from "lodash-es";
 
 // --- types
 import { QueryParams, RequestError, RequestParams } from "./types";
@@ -40,6 +41,7 @@ export const useQuery = () => {
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+    let attempts = 0;
 
     const { getToken } = useSession();
 
@@ -62,11 +64,17 @@ export const useQuery = () => {
 
     return await doFetch<T>({ url, init }).catch(async error => {
       const requestError = error as RequestError;
+      attempts++;
 
-      if (requestError.status === responseCodes.Unauthorized) {
-        const { access_token } = await refreshToken();
-        set(init, `headers.Authorization`, `Bearer ${access_token}`);
-        return await doFetch<T>({ url, init });
+      // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
+      if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
+        return refreshToken().then(() => {
+          // get the new access token and update the access token in the request
+          const token = getTokenFromStorage();
+          set(init, `headers.Authorization`, `Bearer ${token}`);
+          // finally rety the request
+          return doFetch<T>({ url, init });
+        });
       }
 
       return Promise.reject(requestError);
