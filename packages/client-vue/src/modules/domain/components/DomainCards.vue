@@ -39,11 +39,7 @@
           open
         >
           <template #avatar>
-            <IconAnimated
-              :icon="Internet"
-              size="4xl"
-              secondary-color="accent"
-            />
+            <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
           </template>
           <template #title>
             <SmartTitle i18n-key="domain.dac.loading.title" align="center" />
@@ -66,7 +62,6 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
-import Internet from "../../../assets/animations/internet.json?url";
 
 // --- components
 import DomainCard from "./DomainCard.vue";
