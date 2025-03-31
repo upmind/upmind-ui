@@ -257,7 +257,6 @@ onBeforeUnmount(() => {
 // --- side effects
 
 watch(selected, value => {
-  choose(value);
   emit("update:type", value);
 });
 </script>

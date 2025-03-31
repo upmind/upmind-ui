@@ -25,7 +25,7 @@ export const useDomain = ({
 }: {
   model?: string;
   type?: DomainTypes;
-}) => {
+} = {}) => {
   const domain = useUpmindDomain({ model, type });
   const { state }: any = useActor(domain.service);
 
@@ -106,9 +106,9 @@ export const useDomain = ({
     })),
     // ---
     choose: domain.choose,
-    search: debounce(domain.search, 500),
+    search: debounce(domain.search as (value: string) => void, 500),
     searchMore: domain.searchMore,
-    searchOffset: computed(() => state.value.context?.search?.offset),
+    searchOffset: computed<number>(() => state.value.context?.search?.offset),
     add: domain.add,
     remove: domain.remove,
     toggle: domain.toggle,

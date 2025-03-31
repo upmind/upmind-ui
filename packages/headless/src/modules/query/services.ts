@@ -11,15 +11,7 @@ import {
   persistTokenToStorage,
   dumpTokenFromStorage,
 } from "../session/utils";
-import {
-  get,
-  set,
-  isEmpty,
-  includes,
-  lowerCase,
-  map,
-  upperCase,
-} from "lodash-es";
+import { get, set, isEmpty, includes, map, upperCase } from "lodash-es";
 
 // --- types
 import type { Token } from "../session/types";

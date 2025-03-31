@@ -1,58 +1,60 @@
 <template>
-  <div
-    class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
-    :data-theme="activeTheme"
-    id="vue-app"
-  >
-    <slot name="header">
-      <Header :logo="logo">
-        <template #logo><slot name="logo" :logo="logo"></slot></template>
-      </Header>
-    </slot>
-
-    <main class="w-full flex-1">
-      <RouterView v-slot="routerViewProps" :key="$route.fullPath">
-        <slot v-bind="routerViewProps">
-          <template v-if="routerViewProps.Component">
-            <Content>
-              <Transition mode="out-in">
-                <KeepAlive>
-                  <Suspense>
-                    <!-- main content -->
-                    <component :is="routerViewProps.Component" />
-
-                    <!-- fallback / loading state -->
-                    <template #fallback>
-                      <Loading>
-                        <template #background>
-                          <slot name="loading-background"></slot>
-                        </template>
-                      </Loading>
-                    </template>
-                  </Suspense>
-                </KeepAlive>
-              </Transition>
-            </Content>
-          </template>
-        </slot>
-      </RouterView>
-
-      <slot name="expired">
-        <SessionExpired
-          :title="t('session.expired.title')"
-          :text="t('session.expired.text')"
-          :action="{
-            label: t('session.expired.actions.continue'),
-            color: 'primary',
-            handler: refresh,
-            auto: true,
-          }"
-        />
+  <Suspense>
+    <div
+      class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
+      :data-theme="activeTheme"
+      id="vue-app"
+    >
+      <slot name="header">
+        <Header :logo="logo">
+          <template #logo><slot name="logo" :logo="logo"></slot></template>
+        </Header>
       </slot>
-    </main>
 
-    <slot name="footer"></slot>
-  </div>
+      <main class="w-full flex-1">
+        <RouterView v-slot="routerViewProps" :key="$route.fullPath">
+          <slot v-bind="routerViewProps">
+            <template v-if="routerViewProps.Component">
+              <Content>
+                <Transition mode="out-in">
+                  <KeepAlive>
+                    <Suspense>
+                      <!-- main content -->
+                      <component :is="routerViewProps.Component" />
+
+                      <!-- fallback / loading state -->
+                      <template #fallback>
+                        <Loading>
+                          <template #background>
+                            <slot name="loading-background"></slot>
+                          </template>
+                        </Loading>
+                      </template>
+                    </Suspense>
+                  </KeepAlive>
+                </Transition>
+              </Content>
+            </template>
+          </slot>
+        </RouterView>
+
+        <slot name="expired">
+          <SessionExpired
+            :title="t('session.expired.title')"
+            :text="t('session.expired.text')"
+            :action="{
+              label: t('session.expired.actions.continue'),
+              color: 'primary',
+              handler: refresh,
+              auto: true,
+            }"
+          />
+        </slot>
+      </main>
+
+      <slot name="footer"></slot>
+    </div>
+  </Suspense>
 
   <Feedback />
 </template>
