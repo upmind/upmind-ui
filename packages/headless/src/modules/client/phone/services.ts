@@ -2,105 +2,99 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import {
-  useQuery,
-  useSystem,
-  useSession,
-  useQueryPaginated,
-  QueryResponse,
-} from "../..";
+import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { mapPhone } from "./mapper";
+import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query/utils";
 import { keyBy, isString, isNil } from "lodash-es";
 import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
 import { PhoneTypes } from "./types";
-import type { Phone } from "./types";
 import type { IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
-import type { PhoneContext } from "./types";
-import type { PaginatedParams } from "../..";
+import type { AnyEventObject } from "xstate";
+import type { PaginatedParams, QueryResponse } from "../..";
+import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const queryKey: QueryKey = ["client", "phones"];
 
-async function loadAll() {
+async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IPhone>({
+  return get<IPhone[]>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
     queryKey,
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapPhone(data ?? []));
+  }).then(({ data }) => mapPhones(data ?? []));
 }
 
-async function loadPaged(paginationParams: PaginatedParams) {
+async function loadPaged(
+  paginationParams: PaginatedParams,
+  { allowStale = true } = {}
+) {
   const { get, useUrl } = useQueryPaginated();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IPhone>({
+  return get<IPhone[]>({
     url: useUrl(`clients/${client.id}/phones`),
     queryKey: [...queryKey, { ...paginationParams }],
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapPhone(data ?? []));
+  }).then(({ data }) => mapPhones(data ?? []));
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedPhones =
-    queryClient.getQueryData<QueryResponse<IPhone>>(queryKey);
+    queryClient.getQueryData<QueryResponse<IPhone[]>>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
-  return mapPhone(cachedPhones.data ?? []);
+  return mapPhones(cachedPhones.data ?? []);
 }
 
 // -----------------------------------------------------------------------------
+// MUTATIONS
 
-async function add(phone: Phone) {
-  const { post, useUrl } = useQuery();
+async function add(data: PhoneModel) {
   const { getUserId } = useSession();
+  const { post, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  await post({
+  return post<IPhone>({
     url: useUrl(`clients/${clientId}/phones`),
-    data: {
-      type: phone.type,
-      phone: phone.nationalNumber, // without the country code
-      phone_code: `+${phone.countryCallingCode}`,
-      phone_country_code: phone.country,
-    },
+    data: mapIPhone(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapPhones(data ?? []));
 }
 
-async function update(phone: Phone) {
+async function update(id: Phone["id"], data: PhoneModel) {
   const { getUserId } = useSession();
   const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  await put({
-    url: useUrl(`clients/${clientId}/phones/${phone.id}`),
-    data: {
-      type: phone.type,
-      phone: phone.nationalNumber, // without the country code
-      phone_code: `+${phone.countryCallingCode}`,
-      phone_country_code: phone.country,
-    },
+  return put<IPhone[]>({
+    url: useUrl(`clients/${clientId}/phones/${id}`),
+    data: mapIPhone(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapPhones(data ?? []));
 }
 
 async function remove(phoneId: Phone["id"]) {
@@ -109,10 +103,10 @@ async function remove(phoneId: Phone["id"]) {
 
   const clientId = await getUserId();
 
-  await del({
+  return del<null>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function setDefault(phoneId: Phone["id"]) {
@@ -121,14 +115,17 @@ async function setDefault(phoneId: Phone["id"]) {
 
   const clientId = await getUserId();
 
-  await put({
+  return put<IPhone[]>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "phones"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapPhones(data ?? []));
 }
 
 // -----------------------------------------------------------------------------
+//  SIDE EFFECTS
 
 async function loadLookups(
   _context: PhoneContext
@@ -143,17 +140,20 @@ async function loadLookups(
 }
 
 // TODO: async function parse({ model, country }: PhoneContext, ) {
-async function parse({ model, country }: any) {
+async function parse(
+  { model, country }: PhoneContext,
+  { data }: AnyEventObject & { data: PhoneContext }
+) {
   // ---
   if (!model?.phone) return Promise.resolve({ model, country });
 
-  const phonenumber = isString(model.phone)
+  const phoneNumber = isString(model.phone)
     ? model?.phone
     : model?.phone?.number || model?.phone?.nationalNumber || "";
 
   const countryCode =
     model?.phone_country_code || model?.phone?.country || country?.code;
-  const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
+  const phone = parsePhoneNumber(phoneNumber, countryCode) || model.phone;
 
   // now map the phone number to the model in the correct format with fallbacks
   model.phone = {
@@ -197,18 +197,37 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  loadLookups,
+  refresh: async () => loadAll({ allowStale: false }),
+
   loadAllFromCache,
   //--- mutations
-  add,
-  update,
+
   remove,
   setDefault,
-  //--- utils
-  parse,
-  validate,
+
   //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
+};
+
+export const useClientPhoneServices = () => {
+  return {
+    loadLookups,
+    add: async (context: PhoneContext) => {
+      if (!context.model?.phone)
+        return Promise.reject("No phone model provided");
+      return add(context.model);
+    },
+    update: async (context: PhoneContext) => {
+      if (!context.id) return Promise.reject("No phone id provided");
+      if (!context.model?.phone)
+        return Promise.reject("No phone model provided");
+
+      return update(context.id, context.model);
+    },
+    parse,
+    validate,
+    refresh: async () => loadAll({ allowStale: false }),
+  };
 };

@@ -40,8 +40,8 @@ export interface Address extends AddressModel {
   // --- meta info
   meta: {
     canDelete: IAddress["can_delete"];
-    isVerified: IAddress["verified"];
     isDefault: IAddress["default"];
+    isVerified: IAddress["verified"];
   };
 }
 

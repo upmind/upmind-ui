@@ -1,46 +1,45 @@
 // --- external
 import { waitFor } from "xstate/lib/waitFor";
-import { actions, interpret } from "xstate";
+import { interpret } from "xstate";
 
 // --- internal
-import services from "../address/services";
-import { debounce } from "lodash-es";
+import itemMachine from "../item.machine";
+import { useClientPhones } from "./useClientPhones";
+import { useClientPhoneActions } from "./actions";
+import { useClientPhoneServices } from "./services";
 
 // --- utils
-import itemMachine from "../item.machine";
+import { get } from "lodash-es";
+import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
-import type { Phone } from "./types";
-import { useClientAddresses } from "../address";
+import type { Phone, PhoneModel } from "./types";
 
-export const useClientPhone = (ppid?: Phone["id"]) => {
-  // create a global instance of the system machine
-  // and a global object to store state
-  // NB don't automatically start the machine as in order for the inspector to work
-  // it needs to be started after the inspect service is created, so we only start it when we need it
+// -----------------------------------------------------------------------------
 
-  const safeId = ppid || "new-phone";
-
+export const useClientPhone = (id?: Phone["id"]) => {
   const service = interpret(
     itemMachine
       .withConfig({
-        actions: actions as any,
-        services: services as any,
+        actions: useClientPhoneActions as any,
+        services: useClientPhoneServices as any,
       })
       .withContext(() => {
-        if (!ppid) return { model: undefined };
-
-        const { getOne } = useClientAddresses();
-        return { model: getOne(ppid) };
+        if (!id) return { model: undefined };
+        const { getOne } = useClientPhones();
+        return {
+          id,
+          model: getOne(id),
+        };
       }),
     {
-      id: safeId,
+      id: id ?? "new-phone",
       devTools: false,
     }
   ).start();
 
   return {
-    id: safeId,
+    id,
     service,
     getModel: () => service?.getSnapshot().context.model,
     getSnapshot: () => service?.getSnapshot(),
@@ -52,31 +51,53 @@ export const useClientPhone = (ppid?: Phone["id"]) => {
       });
     },
     clear: () => service.send({ type: "CLEAR" }),
-    input: debounce(
-      (model: any) => service.send({ type: "SET", data: model }),
-      300
-    ),
+    input: async (model: PhoneModel): Promise<PhoneModel> => {
+      // we have to ensure we are able to input data
+      return waitFor(service, state =>
+        ["available.valid", "available.invalid"].some(state.matches)
+      )
+        .then(async () => {
+          service.send({ type: "SET", data: model });
+          // then we wait until the module has been checked and is valid/invalid
+          return waitFor(service, state =>
+            ["available.valid", "available.invalid"].some(state.matches)
+          ).then(state => get(state, "context.model") as PhoneModel);
+        })
+        .catch(() => {
+          return Promise.reject(
+            new DetailedError("Input not available", responseCodes.Forbidden)
+          );
+        });
+    },
     //--- actions
     update: async () => {
-      return waitFor(service, state => state.matches("available.valid")).then(
-        async () => {
+      // we have to ensure we are able to update the address, ie it's available and valid
+      return waitFor(service, state => state.matches("available.valid"))
+        .then(async () => {
           service.send({ type: "UPDATE" });
-          return waitFor(service, state => !state.matches("processing"), {
-            timeout: Infinity,
-          }).then(state => {
-            if (["error", "available.error"].some(state.matches)) {
-              return Promise.reject(state.context.error);
+          return waitFor(
+            service,
+            state => ["processed", "available.error"].some(state.matches),
+            {
+              timeout: Infinity,
             }
-            return Promise.resolve();
-          });
-        }
-      );
-    },
-    remove: async () => {
-      service.send({ type: "REMOVE" });
-      await waitFor(service, state => ["complete"].some(state.matches), {
-        timeout: Infinity,
-      });
+          )
+            .then(state => {
+              if (["error", "available.error"].some(state.matches)) {
+                return Promise.reject(state.context.error);
+              }
+              return Promise.resolve();
+            })
+            .then(() => useClientPhoneServices().refresh());
+        })
+        .catch(() => {
+          return Promise.reject(
+            new DetailedError(
+              "Update only available if model is valid",
+              responseCodes.Forbidden
+            )
+          );
+        });
     },
   };
 };

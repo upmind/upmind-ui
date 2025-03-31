@@ -3,26 +3,41 @@ import { map, get, compact, isArray } from "lodash-es";
 
 // --- types
 import { PhoneTypes } from "./types";
-import type { Phone } from "./types";
 import type { IPhone } from "@upmind-automation/types";
+import type { Phone, PhoneModel } from "./types";
 
-export const mapPhone = (raw: IPhone | IPhone[]): Phone[] => {
+export function mapPhones(raw: IPhone | IPhone[]): Phone[] {
   const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, rawItem => {
-    let rawType = get(rawItem, "type");
-    const type = rawType ? get(PhoneTypes, rawType) : undefined;
+  return map(rawListings, mapPhone);
+}
 
-    return {
-      id: rawItem.id,
-      type: rawItem.type,
-      default: rawItem.default,
-      country: rawItem.phone_country_code,
-      nationalNumber: rawItem.phone,
-      countryCallingCode: rawItem.phone_code,
-      title: get(rawItem, "international_phone"),
-      description: compact([get(rawItem, "phone_country_code"), type]).join(
-        " | "
-      ),
-    };
-  });
-};
+export function mapPhone(raw: IPhone): Phone {
+  let rawType = get(raw, "type");
+  const type = rawType ? get(PhoneTypes, rawType) : undefined;
+
+  return {
+    id: raw.id,
+    type: raw.type,
+    default: raw.default,
+    country: raw.phone_country_code,
+    nationalNumber: raw.phone,
+    countryCallingCode: raw.phone_code,
+    title: get(raw, "international_phone"),
+    description: compact([get(raw, "phone_country_code"), type]).join(" | "),
+    // ---
+    meta: {
+      isDefault: raw.default,
+      canDelete: raw.can_delete,
+      isVerified: raw.verified,
+    },
+  };
+}
+
+export function mapIPhone(data: PhoneModel): IPhone {
+  return {
+    type: data.type,
+    phone: data.nationalNumber, // without the country code
+    phone_code: `+${data.countryCallingCode}`,
+    phone_country_code: data.country,
+  } as IPhone;
+}
