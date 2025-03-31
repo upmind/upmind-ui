@@ -10,7 +10,7 @@ import { useCheckoutFlows } from "./checkout";
 import { useOrderFlows } from "./order";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { uniqBy, concat } from "lodash-es";
 
 // --- types
 import type { Flow } from "../types";
@@ -35,16 +35,22 @@ export const useRoutingFlows = () => {
     checkout: checkoutFlows,
     order: orderFlows,
     // ---
-    register: (flows?: Flow[]) => {
+    register: (customFlows?: Flow[]) => {
       // register our default flows
-      basketFlows.register();
-      productFlows.register();
-      recommendationsFlows.register();
-      sessionFlows.register();
-      checkoutFlows.register();
-      orderFlows.register();
+      const flows = uniqBy(
+        concat(
+          customFlows ?? [],
+          basketFlows.getFlows(),
+          productFlows.getFlows(),
+          recommendationsFlows.getFlows(),
+          sessionFlows.getFlows(),
+          checkoutFlows.getFlows(),
+          orderFlows.getFlows()
+        ),
+        "name"
+      );
       // ---
-      routing.register(flows ?? []);
+      routing.register(flows);
     },
   };
 };

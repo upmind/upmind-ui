@@ -31,7 +31,7 @@ const service = interpret(
     }),
   {
     id: "clientAddresses",
-    devTools: true,
+    devTools: false,
   }
 );
 
