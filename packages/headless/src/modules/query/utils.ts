@@ -1,8 +1,21 @@
 // --- external
+import { isServer, QueryClient } from "@tanstack/query-core";
 
 // --- utils
-import { isServer, QueryClient } from "@tanstack/query-core";
-import { map, set, reduce, isArray, isObject, camelCase } from "lodash-es";
+import { responseCodes } from "../../utils";
+import {
+  map,
+  set,
+  reduce,
+  isArray,
+  isObject,
+  camelCase,
+  includes,
+  toNumber,
+} from "lodash-es";
+
+// ---types
+import { RequestError } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -85,4 +98,30 @@ export function parseData(data: any) {
   if (isObject(data)) return JSON.stringify(data);
 
   return data;
+}
+
+export function canRetryAuthorization(
+  url: URL,
+  error: RequestError,
+  {
+    attempts,
+    max,
+  }: {
+    attempts: number;
+    max: number;
+  }
+): boolean {
+  const isAuth = includes(url?.pathname, "oauth");
+  const isUnauthorized = error?.status === responseCodes.Unauthorized;
+  const value =
+    !isAuth &&
+    isUnauthorized &&
+    Math.max(toNumber(attempts), 1) <= Math.max(toNumber(max), 1);
+  // console.debug("request", "canAuthorize", {
+  //   isAuth,
+  //   isUnauthorized,
+  //   attempts: context?.attempts,
+  //   canAuthorize: value
+  // });
+  return value;
 }

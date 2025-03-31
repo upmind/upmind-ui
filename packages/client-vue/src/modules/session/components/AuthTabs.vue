@@ -32,7 +32,7 @@
   </div>
 
   <div
-    v-if="!meta.isAuthenticated && !meta.isLoading"
+    v-if="meta.isAuthenticated && !meta.isLoading"
     :class="styles.session.auth.actions"
   >
     <slot name="toggle" v-if="meta.showRegisterForm || meta.showLoginForm">
