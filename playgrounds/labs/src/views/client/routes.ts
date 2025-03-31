@@ -44,8 +44,19 @@ export default {
     },
     {
       path: "/client/emails",
-      name: "client.emails",
       component: () => import("./Client.vue"),
+      children: [
+        {
+          path: "",
+          name: "client.emails",
+          component: () => import("./email/Listings.vue"),
+        },
+        {
+          path: "new",
+          name: "client.emails.add",
+          component: () => import("./email/Add.vue"),
+        },
+      ],
     },
   ],
 };

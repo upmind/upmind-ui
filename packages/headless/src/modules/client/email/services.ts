@@ -1,28 +1,28 @@
 // --- internal
-import {
-  useQuery,
-  useSession,
-  PaginatedParams,
-  useQueryPaginated,
-  QueryResponse,
-} from "../..";
+import { useQuery, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { isNil } from "lodash-es";
-import { mapEmail } from "./mapper";
+import {
+  useValidation,
+  useModelParser,
+  CacheIsStaleError,
+} from "../../../utils";
+import { isNil, isEmpty, get } from "lodash-es";
+import { mapEmails, mapIEmail } from "./mappers";
 import { invalidateQueryByKey } from "../../query/utils";
-import { CacheIsStaleError, useValidation } from "../../../utils";
 
 // --- types
-import type { Email, EmailContext } from "./types";
 import type { IEmail } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
+import type { AnyEventObject } from "xstate";
+import type { QueryResponse, PaginatedParams } from "../..";
+import type { Email, EmailModel, EmailContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const queryKey: QueryKey = ["client", "emails"];
 
-async function loadAll() {
+async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -32,12 +32,16 @@ async function loadAll() {
       limit: 0,
     }),
     queryKey,
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapEmail(data ?? []));
+  }).then(({ data }) => mapEmails(data ?? []));
 }
 
-async function loadPaged(paginationParams: PaginatedParams) {
+async function loadPaged(
+  paginationParams: PaginatedParams,
+  { allowStale = true } = {}
+) {
   const { get, useUrl } = useQueryPaginated();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -45,10 +49,11 @@ async function loadPaged(paginationParams: PaginatedParams) {
   return get<IEmail[]>({
     url: useUrl(`clients/${client.id}/emails`),
     queryKey: [...queryKey, { ...paginationParams }],
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapEmail(data ?? []));
+  }).then(({ data }) => mapEmails(data ?? []));
 }
 
 async function loadLookups(_context: EmailContext) {
@@ -64,53 +69,51 @@ function loadAllFromCache() {
 
   if (isNil(cachedEmails)) throw new CacheIsStaleError();
 
-  return mapEmail(cachedEmails.data ?? []);
+  return mapEmails(cachedEmails.data ?? []);
 }
 
 // -----------------------------------------------------------------------------
 
-async function add(model: Email) {
-  const { post, useUrl } = useQuery();
+async function add(data: EmailModel) {
   const { getUserId } = useSession();
+  const { post, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  post<IEmail>({
+  return post<IEmail>({
     url: useUrl(`clients/${clientId}/emails`),
-    data: {
-      type: model.type,
-      email: model.email,
-    },
+    data: mapIEmail(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "emails"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapEmails(data));
 }
 
-async function update(model: Email) {
-  const { put, useUrl } = useQuery();
+async function update(id: Email["id"], data: EmailModel) {
   const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  put<IEmail>({
-    url: useUrl(`clients/${clientId}/emails/${model.id}`),
-    data: {
-      type: model.type,
-      email: model.email,
-    },
+  return put<IEmail>({
+    url: useUrl(`clients/${clientId}/emails/${id}`),
+    data: mapIEmail(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "emails"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapEmails(data));
 }
 
 async function remove(emailId: Email["id"]) {
-  const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
+  const { del, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
-  del<IEmail>({
+  return del<IEmail>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "emails"]));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function setDefault(emailId: Email["id"]) {
@@ -123,13 +126,27 @@ async function setDefault(emailId: Email["id"]) {
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     data: { default: true },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(["clients", clientId, "emails"]));
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(({ data }) => mapEmails(data));
 }
 
 // -----------------------------------------------------------------------------
 
-async function parse({ model }: EmailContext) {
-  return Promise.resolve({ model });
+async function parse(
+  { baseModel, schema }: EmailContext,
+  { data }: AnyEventObject & { data: EmailContext }
+) {
+  const safeModel = useModelParser(
+    schema,
+    get(data, "model", data),
+    baseModel,
+    { allowExtraProps: false }
+  );
+
+  // ---
+
+  return Promise.resolve({ model: safeModel });
 }
 
 async function validate({ schema, model }: EmailContext) {
@@ -154,18 +171,37 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  loadLookups,
+  refresh: async () => loadAll({ allowStale: false }),
+
   loadAllFromCache,
   //--- mutations
-  add,
-  update,
+
   remove,
   setDefault,
-  //--- utils
-  parse,
-  validate,
+
   //--- session
   authSubscription: (context: any, event: any) =>
     useSession().authSubscription(context, event),
   isAuthenticated: () => useSession().isAuthenticated(),
+};
+
+export const useClientEmailServices = () => {
+  return {
+    loadLookups,
+    add: async (context: EmailContext) => {
+      if (isEmpty(context.model))
+        return Promise.reject("No email model provided");
+      return add(context.model);
+    },
+    update: async (context: EmailContext) => {
+      if (!context.id) return Promise.reject("No email id provided");
+      if (isEmpty(context.model))
+        return Promise.reject("No email model provided");
+
+      return update(context.id, context.model);
+    },
+    parse,
+    validate,
+    refresh: async () => loadAll({ allowStale: false }),
+  };
 };

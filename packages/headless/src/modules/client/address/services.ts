@@ -153,8 +153,8 @@ async function update(id: Address["id"], data: AddressModel) {
 }
 
 async function remove(addressId: Address["id"]) {
-  const { del, useUrl } = useQuery();
   const { getUserId } = useSession();
+  const { del, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
@@ -165,8 +165,8 @@ async function remove(addressId: Address["id"]) {
 }
 
 async function setDefault(addressId: Address["id"]) {
-  const { put, useUrl } = useQuery();
   const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
 
   const clientId = await getUserId();
 

@@ -2,24 +2,25 @@
   <UpmContentSection
     class="mx-auto max-w-app"
     class-content="gap-2 flex"
-    title="New Address"
+    title="New Email"
   >
     <UpmCard class="flex w-full flex-wrap gap-2 pb-3 md:pb-3">
       <pre>{{ model }}</pre>
+
       <div class="actions flex w-full basis-full gap-2">
         <Button
           @click="doInput"
           variant="tonal"
           :loading="inputting"
-          :disabled="inputting || updating"
-          >Input Data</Button
-        >
+          :disabled="updating || inputting"
+          label="Input Data"
+        />
         <Button
           @click="doUpdate"
           :loading="updating"
           :disabled="updating || inputting"
-          >Update</Button
-        >
+          label="Update"
+        />
       </div>
     </UpmCard>
 
@@ -32,14 +33,11 @@ import { ref } from "vue";
 import { faker } from "@faker-js/faker";
 import { Button } from "@upmind-automation/upmind-ui";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
-import {
-  useClientAddress,
-  type AddressModel,
-} from "@upmind-automation/headless";
+import { type EmailModel, useClientEmail } from "@upmind-automation/headless";
 
-const { update, input, getModel } = useClientAddress();
+const { update, input, getModel } = useClientEmail();
 
-const model = ref<AddressModel>(getModel() ?? {});
+const model = ref<EmailModel>(getModel() ?? {});
 const updating = ref<boolean>(false);
 const inputting = ref<boolean>(false);
 
@@ -48,16 +46,12 @@ const inputting = ref<boolean>(false);
 function doInput() {
   inputting.value = true;
 
-  const data: AddressModel = {
-    address1: faker.location.streetAddress({ useFullAddress: true }),
-    address2: faker.location.buildingNumber(),
-    city: faker.location.city(),
-    countryId: faker.location.countryCode(),
-    name: faker.location.street(),
-    postcode: faker.location.zipCode(),
-    state: faker.location.state(),
+  const data: EmailModel = {
     type: 1,
+    email: faker.internet.email(),
   };
+
+  console.log(data);
 
   input(data)
     .then(data => {
