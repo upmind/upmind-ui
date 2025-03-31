@@ -121,7 +121,7 @@ export const useClientAddresses = () => {
    * Get addresses in a paged format.
    * @param paginationParams The pagination parameters to use.
    * @param allowStale Whether to allow stale data. Defaults to true.
-   * @returns An object containing the addresses and pagination details.
+   * @returns A promise that resolves to an object containing the addresses and pagination details.
    * @example getPaged({ limit: 10, offset: 0 }) // returns the first 10 addresses if 10 addresses are available
    */
   async function getPaged(

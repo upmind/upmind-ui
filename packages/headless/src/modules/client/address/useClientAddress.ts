@@ -6,14 +6,14 @@ import { interpret } from "xstate";
 import itemMachine from "../item.machine";
 import { useClientAddresses } from "./useClientAddresses";
 import { useClientAddressActions } from "./actions";
-import services, { useClientAddressServices } from "./services";
+import { useClientAddressServices } from "./services";
 
 // --- utils
-import { DetailedError, responseCodes } from "../../../utils";
 import { get } from "lodash-es";
+import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
-import { Address, AddressModel } from "./types";
+import type { Address, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ export const useClientAddress = (id?: Address["id"]) => {
       }),
     {
       id: id ?? "new-address",
-      devTools: true,
+      devTools: false,
     }
   ).start();
 
