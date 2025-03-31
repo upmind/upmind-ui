@@ -94,7 +94,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function getRequest<T extends object = object>({
+  async function getRequest<T = object>({
     url,
     init,
     allowStale = true,
@@ -137,7 +137,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function postRequest<T extends object = object>({
+  async function postRequest<T = object>({
     url,
     init,
     data,
@@ -169,7 +169,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function putRequest<T extends object = object>({
+  async function putRequest<T = object>({
     url,
     init,
     data,
@@ -201,7 +201,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function patchRequest<T extends object = object>({
+  async function patchRequest<T = object>({
     url,
     init,
     data,
@@ -232,7 +232,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function deleteRequest<T extends object = object>({
+  async function deleteRequest<T = object>({
     url,
     init,
     data,
@@ -264,7 +264,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function headRequest<T extends object = object>({
+  async function headRequest<T = object>({
     url,
     init,
     withAccessToken,

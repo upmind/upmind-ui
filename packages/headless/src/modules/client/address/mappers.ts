@@ -44,8 +44,8 @@ export function mapAddress(raw: IAddress): Address {
     // ---
     meta: {
       isDefault: raw.default,
-      isVerified: raw.verified,
       canDelete: raw.can_delete,
+      isVerified: raw.verified,
     },
   };
 }

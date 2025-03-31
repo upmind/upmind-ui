@@ -158,7 +158,7 @@ async function remove(addressId: Address["id"]) {
 
   const clientId = await getUserId();
 
-  return del<IAddress>({
+  return del<null>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
