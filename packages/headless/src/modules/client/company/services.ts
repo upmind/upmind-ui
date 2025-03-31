@@ -80,13 +80,12 @@ async function loadLookups({ model }: CompanyContext) {
     phones.getAll().then(phones.isReady),
     emails.getAll().then(emails.isReady),
   ]).then(async () => {
-    debugger;
     const [defaultEmail, defaultPhone, defaultAddress] = await Promise.all([
       emails.getDefault(),
       phones.getDefault(),
       addresses.getDefault(),
     ]);
-    debugger;
+
     return {
       emails,
       addresses,
