@@ -92,8 +92,8 @@ async function loadLookups({ model }: CompanyContext) {
       phones,
       baseModel: {
         ...model,
+        emailId: defaultEmail?.id,
         addressId: defaultAddress?.id,
-        email: defaultEmail?.email,
         phone: {
           number: defaultPhone?.nationalNumber,
           country: defaultPhone?.country,

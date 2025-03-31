@@ -33,6 +33,12 @@ export function mapCompany(raw: ICompany): Company {
     regNumber: raw.reg_number,
     vatNumber: raw.vat_percent,
     vatPercent: raw.vat_percent,
+    // ---
+    meta: {
+      isDefault: raw.default,
+      isVerified: raw.verified,
+      canDelete: raw.can_delete,
+    },
   };
 }
 
