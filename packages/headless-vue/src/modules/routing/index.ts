@@ -6,4 +6,5 @@ export {
   useRoutingFlows,
   type Route,
   type Flow,
+  type Target,
 } from "@upmind-automation/headless";
