@@ -2,8 +2,24 @@ export default {
   routes: [
     {
       path: "/client/phones",
-      name: "client.phones",
       component: () => import("./Client.vue"),
+      children: [
+        {
+          path: "",
+          name: "client.phones",
+          component: () => import("./phone/Listings.vue"),
+        },
+        {
+          path: "new",
+          name: "client.phones.add",
+          component: () => import("./phone/Add.vue"),
+        },
+        {
+          path: ":id",
+          name: "client.phones.edit",
+          component: () => import("./phone/Edit.vue"),
+        },
+      ],
     },
     {
       path: "/client/companies",
