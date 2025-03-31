@@ -41,6 +41,12 @@ export interface Company {
   regNumber: ICompany["reg_number"];
   vatNumber: ICompany["vat_number"];
   vatPercent: ICompany["vat_percent"];
+  // --- meta info
+  meta: {
+    isDefault: ICompany["default"];
+    canDelete: ICompany["can_delete"];
+    isVerified: ICompany["verified"];
+  };
 }
 
 export type UseClientCompany = ReturnType<typeof useClientCompany>;

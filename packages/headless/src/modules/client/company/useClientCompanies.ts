@@ -152,7 +152,7 @@ export const useClientCompanies = () => {
    * @example getDefault().then(company => console.log(company))
    */
   async function getDefault() {
-    return getAll().then(items => find(items, "default"));
+    return getAll().then(items => find(items, "meta.isDefault"));
   }
 
   async function remove(id: Company["id"]) {
