@@ -25,7 +25,7 @@ export default {
         root: cva(
           "text-base-foreground m-0 flex flex-wrap items-start gap-x-1.5 p-0"
         ),
-        icon: cva("text-secondary mr-1 flex w-8 items-center justify-center"),
+        icon: cva("text-icon mr-1 flex w-8 items-center justify-center"),
         category: cva("text-emphasis-medium basis-full text-xs leading-none"),
         title: cva("text-base-foreground font-medium"),
         quantity: cva("text-emphasis-high text-xs"),
