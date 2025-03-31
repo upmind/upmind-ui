@@ -76,9 +76,9 @@ async function loadLookups({ model }: CompanyContext) {
   const addresses = useClientAddresses();
 
   return Promise.all([
-    addresses.getAll().then(addresses.isReady),
-    phones.getAll().then(phones.isReady),
     emails.getAll().then(emails.isReady),
+    phones.getAll().then(phones.isReady),
+    addresses.getAll().then(addresses.isReady),
   ]).then(async () => {
     const [defaultEmail, defaultPhone, defaultAddress] = await Promise.all([
       emails.getDefault(),
@@ -88,8 +88,8 @@ async function loadLookups({ model }: CompanyContext) {
 
     return {
       emails,
-      addresses,
       phones,
+      addresses,
       baseModel: {
         ...model,
         emailId: defaultEmail?.id,

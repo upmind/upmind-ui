@@ -49,7 +49,7 @@ export const useSchema = ({
       },
 
       emailId: {
-        type: "string",
+        type: ["string"],
         title: "Email",
         default: baseModel.emailId,
         oneOf: !choices?.emails?.length
@@ -62,7 +62,7 @@ export const useSchema = ({
       },
 
       phoneId: {
-        type: "string",
+        type: ["string", "null"],
         title: "Phone",
         default: baseModel.phoneId,
         oneOf: !choices?.phones?.length

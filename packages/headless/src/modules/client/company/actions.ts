@@ -29,7 +29,7 @@ export const useClientCompanyActions = () => {
     }),
 
     setSchemas: assign({
-      schema: context => useSchema(context),
+      schema: (context: CompanyContext) => useSchema(context),
       uischema: () => useUischema(),
     }),
 
