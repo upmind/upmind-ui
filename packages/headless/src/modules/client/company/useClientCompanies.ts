@@ -1,15 +1,16 @@
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { PaginatedParams, QueryObserver, useQuery } from "../../query";
+import { QueryObserver, useQuery } from "../../query";
 
 // --- utils
+import { useFeedback } from "../../feedback";
 import { filter, find, includes, isNil, isString } from "lodash-es";
 
 // --- types
+import type { Company } from "./types";
+import type { PaginatedParams } from "../../query";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-import type { Company, UseClientCompanies } from "./types";
-import { useFeedback } from "../../feedback";
 
 let companyObserver: QueryObserver | undefined;
 
