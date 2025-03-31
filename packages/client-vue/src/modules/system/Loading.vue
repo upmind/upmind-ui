@@ -9,7 +9,6 @@
         <template #title>
           <SmartTitle
             i18n-key="basket.loading.title"
-            class="my-2"
             align="center"
             size="3xl"
           />
