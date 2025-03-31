@@ -5,16 +5,22 @@
     title="New Company"
   >
     <UpmCard class="flex w-full flex-wrap gap-2 pb-3 md:pb-3">
-      <pre> {{ model }}</pre>
+      <pre>{{ model }}</pre>
 
       <div class="actions flex w-full basis-full gap-2">
         <Button
           @click="doInput"
           variant="tonal"
-          :disabled="processing"
+          :loading="inputting"
+          :disabled="updating || inputting"
           label="Input Data"
         />
-        <Button @click="doUpdate" :loading="processing" label="Update" />
+        <Button
+          @click="doUpdate"
+          :loading="updating"
+          :disabled="updating || inputting"
+          label="Update"
+        />
       </div>
     </UpmCard>
 
@@ -35,19 +41,18 @@ import {
 const { update, input, getModel } = useClientCompany();
 
 const model = ref<CompanyModel>(getModel() ?? {});
-const processing = ref<boolean>(false);
+const updating = ref<boolean>(false);
+const inputting = ref<boolean>(false);
 
 // --- METHODS
 
 function doInput() {
-  processing.value = true;
+  inputting.value = true;
 
   const data: CompanyModel = {
     name: faker.company.name(),
     vatNumber: faker.string.numeric(9),
-    addressId: model.value.addressId,
     emailId: model.value.emailId,
-    phoneId: model.value.phoneId,
     regNumber: faker.string.ulid(),
     default: false,
   };
@@ -62,12 +67,12 @@ function doInput() {
       console.error("error inputting", { model, err });
     })
     .finally(() => {
-      processing.value = false;
+      inputting.value = false;
     });
 }
 
 function doUpdate() {
-  processing.value = true;
+  updating.value = true;
   update()
     .then(() => {
       model.value = getModel();
@@ -75,6 +80,6 @@ function doUpdate() {
     .catch(err => {
       console.error("error adding", { model, err });
     })
-    .finally(() => (processing.value = false));
+    .finally(() => (updating.value = false));
 }
 </script>
