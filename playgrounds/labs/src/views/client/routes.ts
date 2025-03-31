@@ -19,6 +19,11 @@ export default {
           name: "client.companies.add",
           component: () => import("./company/Add.vue"),
         },
+        {
+          path: ":id",
+          name: "client.companies.edit",
+          component: () => import("./company/Edit.vue"),
+        },
       ],
     },
     {
