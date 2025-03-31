@@ -17,7 +17,6 @@
         variant="tonal"
         label="Emails"
         @click.prevent="router.push({ name: 'client.emails' })"
-        disabled
       >
       </Button>
       <Button
@@ -40,11 +39,29 @@
       </Button>
     </UpmContentSection>
 
-    <UpmContentSection class="mx-auto max-w-app" title="Emails">
-      <UpmCard class="pb-3 md:pb-3">
-        <!-- custom components go here -->
-      </UpmCard>
-    </UpmContentSection>
+    <RouterView v-slot="{ Component }" :key="$route.fullPath">
+      <template v-if="Component">
+        <UpmContent>
+          <Transition mode="out-in">
+            <KeepAlive>
+              <Suspense>
+                <!-- main content -->
+                <component :is="Component" view-prop="value" />
+
+                <!-- fallback / loading state -->
+                <template #fallback>
+                  <UpmLoading>
+                    <template #background>
+                      <slot name="loading-background"></slot>
+                    </template>
+                  </UpmLoading>
+                </template>
+              </Suspense>
+            </KeepAlive>
+          </Transition>
+        </UpmContent>
+      </template>
+    </RouterView>
   </article>
 </template>
 
@@ -55,18 +72,16 @@ import { useRouter } from "vue-router";
 // --- internal
 
 // --- components
+import {
+  UpmLoading,
+  UpmContent,
+  UpmContentSection,
+} from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 
 // --- types
 
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
-
-function doEdit(id: string) {
-  // code here..... then
-
-  router.push({ params: { id } });
-}
 </script>
