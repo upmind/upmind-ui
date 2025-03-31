@@ -151,7 +151,7 @@ export const useClientEmails = () => {
    * @example getDefault().then((email) => console.log(email))
    */
   async function getDefault() {
-    return getAll().then(items => find(items, "default"));
+    return getAll().then(items => find(items, "meta.isDefault"));
   }
 
   /**

@@ -122,7 +122,7 @@ async function setDefault(emailId: Email["id"]) {
 
   const clientId = await getUserId();
 
-  put<IEmail>({
+  return put<IEmail>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     data: { default: true },
     withAccessToken: true,

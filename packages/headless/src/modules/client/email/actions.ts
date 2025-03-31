@@ -18,7 +18,7 @@ export const useClientEmailActions = () => {
       description: ({ model }: EmailContext) =>
         model?.verified ? "Verified" : "Unverified",
     }),
-    setSchemas: () => ({
+    setSchemas: assign({
       schema: useSchema(),
       uischema: useUischema(),
     }),
