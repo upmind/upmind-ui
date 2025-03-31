@@ -31,8 +31,6 @@
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
-// --- internal
-import Internet from "../../assets/animations/internet.json?url";
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
@@ -51,7 +49,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   skrim: "light",
 
   animatedIcon: () => ({
-    icon: Internet,
+    icon: "internet",
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",

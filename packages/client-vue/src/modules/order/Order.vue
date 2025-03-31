@@ -56,9 +56,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useSession, useBasket, utils } from "@upmind-automation/headless-vue";
-import Confetti from "../../assets/animations/confetti.json?url";
-import Basket from "../../assets/animations/basket.json?url";
-import Error from "../../assets/animations/error.json?url";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
@@ -117,13 +114,13 @@ const action = computed(() => {
 
 const icon = computed(() => {
   if (success.value) {
-    return Confetti;
+    return "confetti";
   }
 
   if (!success.value) {
-    return Error;
+    return "error";
   }
-  return Basket;
+  return "basket";
 });
 
 // -----------------------------------------------------------------------------
