@@ -27,6 +27,7 @@ describe("useBrand", () => {
       },
     };
 
+    // @ts-ignore
     useActor.mockReturnValue({ state: mockState, send });
 
     // Reset mocks before each test

@@ -173,9 +173,6 @@ export default createMachine(
               {
                 target: "invalid",
                 cond: "isInvalid",
-                actions: assign({
-                  error: "Invalid domain",
-                }),
               },
             ],
             on: {
@@ -257,35 +254,22 @@ export default createMachine(
         initial: "invalid",
         entry: ["resetModel"],
         states: {
-          valid: {
-            always: [
-              {
-                target: "invalid",
-                cond: "isInvalid",
-                actions: assign({
-                  error: "Invalid domain",
-                }),
-              },
-            ],
-          },
-          invalid: {
-            always: {
-              target: "valid",
-              cond: "isValid",
-            },
-          },
+          valid: {},
+          invalid: {},
           error: {},
         },
         on: {
-          UPDATE: {
-            target: ".invalid",
-            actions: [
-              "clearError",
-              "setExisting",
-              "ensureSelected",
-              "persistModel",
-            ],
-          },
+          UPDATE: [
+            {
+              target: ".valid",
+              actions: ["clearError", "setExisting", "persistModel"],
+              cond: "isValid",
+            },
+            {
+              target: ".invalid",
+              actions: ["setErrorInvalidDomain", "setExisting", "persistModel"],
+            },
+          ],
         },
         exit: ["clearModel", "persistModel"],
       },
@@ -631,11 +615,11 @@ export default createMachine(
           const parsed = parseDomain(value, true);
           const domain: Domain = {
             type: DomainTypes.existing,
-            domain: parsed?.domain || "",
-            tld: parsed?.tld || "",
-            sld: parsed?.sld || "",
+            domain: value,
+            tld: parsed?.tld ?? "",
+            sld: parsed?.sld ?? "",
+            selected: true,
           };
-
           return [domain];
         },
       }),
@@ -679,9 +663,9 @@ export default createMachine(
         type: (_context, _event) => DomainTypes.basket,
         model: (
           { model, lookups }: DomainContext,
-          { data }: AnyEventObject & { data: IBasket }
+          { data }: AnyEventObject
         ) => {
-          const products = data.products;
+          const products = (data as IBasket).products;
           const values = reduce(
             products,
             (result: Domain[], rawItem: IBasketProduct) => {
@@ -857,6 +841,12 @@ export default createMachine(
         },
       }),
 
+      setErrorInvalidDomain: assign({
+        error: (_context, { data }: AnyEventObject) => {
+          return "Invalid Domain";
+        },
+      }),
+
       clearError: assign({ error: null }),
     },
 
@@ -896,9 +886,8 @@ export default createMachine(
         return valid;
       },
 
-      isInvalid: ({ model }: DomainContext) => {
-        return isEmpty(model) || !every(model, parseDomain);
-      },
+      isInvalid: ({ model }: DomainContext) =>
+        isEmpty(model) || !every(model, parseDomain),
 
       isNotCancelled: (_context, { data }: AnyEventObject) =>
         data?.name !== "AbortError",
