@@ -2,11 +2,11 @@
 import { AnyEventObject, assign } from "xstate";
 
 // --- internal
+import { useSchema, useUischema } from "./schemas";
 
 // --- utils
-import { useSchema, useUischema } from "./schemas";
-import { useModelParser } from "../../../utils";
 import { get, compact } from "lodash-es";
+import { useModelParser } from "../../../utils";
 
 // --- types
 import type { AddressContext } from "./types";
@@ -32,7 +32,7 @@ export const useClientAddressActions = () => {
 
     setSchemas: assign({
       schema: (context: AddressContext) => useSchema(context),
-      uischema: (context: AddressContext) => useUischema(),
+      uischema: () => useUischema(),
     }),
 
     setModel: assign({
