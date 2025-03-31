@@ -19,6 +19,7 @@ export const useClientCompany = (id?: Company["id"]) => {
   // NB dont automatically start the machine as in order for the inspector to work
   // it needs to be started after the inspect service is created, so we only start it when we need it
 
+  debugger;
   const service = interpret(
     itemMachine
       .withConfig({
@@ -35,7 +36,7 @@ export const useClientCompany = (id?: Company["id"]) => {
       }),
     {
       id: id ?? "new-address",
-      devTools: false,
+      devTools: true,
     }
   ).start();
 

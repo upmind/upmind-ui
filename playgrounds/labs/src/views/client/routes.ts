@@ -3,16 +3,15 @@ export default {
     {
       path: "/client/phones",
       name: "client.phones",
-      component: () => import("./Phones.vue"),
+      component: () => import("./Client.vue"),
     },
     {
       path: "/client/companies",
-      name: "client.companies",
-      component: () => import("./Companies.vue"),
+      component: () => import("./Client.vue"),
       children: [
         {
           path: "",
-          name: "client.companies.listings",
+          name: "client.companies",
           component: () => import("./company/Listings.vue"),
         },
         {
@@ -24,12 +23,11 @@ export default {
     },
     {
       path: "/client/addresses",
-      name: "client.addresses",
-      component: () => import("./Addresses.vue"),
+      component: () => import("./Client.vue"),
       children: [
         {
           path: "",
-          name: "client.addresses.listings",
+          name: "client.addresses",
           component: () => import("./address/Listings.vue"),
         },
         {
@@ -47,7 +45,7 @@ export default {
     {
       path: "/client/emails",
       name: "client.emails",
-      component: () => import("./Emails.vue"),
+      component: () => import("./Client.vue"),
     },
   ],
 };

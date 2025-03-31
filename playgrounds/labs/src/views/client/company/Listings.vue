@@ -35,7 +35,6 @@ import { onMounted, ref } from "vue";
 // --- internal
 import {
   Company,
-  useClientAddresses,
   useClientCompanies,
   useQuery,
 } from "@upmind-automation/headless";

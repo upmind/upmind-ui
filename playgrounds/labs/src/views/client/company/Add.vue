@@ -45,9 +45,9 @@ function doInput() {
   const data: CompanyModel = {
     name: faker.company.name(),
     vatNumber: faker.string.numeric(9),
-    addressId: faker.string.uuid(),
-    emailId: faker.string.uuid(),
-    phoneId: faker.string.uuid(),
+    addressId: model.value.addressId,
+    emailId: model.value.emailId,
+    phoneId: model.value.phoneId,
     regNumber: faker.string.ulid(),
     default: false,
   };
