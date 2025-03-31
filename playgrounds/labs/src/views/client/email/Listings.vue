@@ -35,15 +35,6 @@
 
         <div class="flex gap-2">
           <Button
-            @click="doEdit(email.id)"
-            class="mt-2"
-            size="sm"
-            variant="tonal"
-            label="Edit"
-          >
-            Edit
-          </Button>
-          <Button
             @click="doDelete(email.id)"
             class="mt-2"
             size="sm"
@@ -102,10 +93,6 @@ function invalidateEmails() {
   return queryClient.invalidateQueries({
     queryKey: ["client", "emails"],
   });
-}
-
-function doEdit(id: string) {
-  router.push({ params: { id: id }, name: "client.emails.edit" });
 }
 
 function doAdd() {

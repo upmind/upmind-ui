@@ -38,7 +38,7 @@ import {
   type CompanyModel,
 } from "@upmind-automation/headless";
 
-const { update, input, getModel } = useClientCompany();
+const { clear, update, input, getModel } = useClientCompany();
 
 const model = ref<CompanyModel>(getModel() ?? {});
 const updating = ref<boolean>(false);
@@ -49,7 +49,7 @@ const inputting = ref<boolean>(false);
 function doInput() {
   inputting.value = true;
 
-  const data: CompanyModel = {
+  const data = {
     name: faker.company.name(),
     vatNumber: faker.string.numeric(9),
     emailId: model.value.emailId,
@@ -80,6 +80,9 @@ function doUpdate() {
     .catch(err => {
       console.error("error adding", { model, err });
     })
-    .finally(() => (updating.value = false));
+    .finally(() => {
+      clear();
+      updating.value = false;
+    });
 }
 </script>
