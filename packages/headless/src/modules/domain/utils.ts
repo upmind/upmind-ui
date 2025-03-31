@@ -28,27 +28,27 @@ import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, Domain } from "./types";
 
 // ----------------------------------------------------------------------------
+const DOMAIN_PATTERN =
+  /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/i;
 
 export function parseDomain(raw: any, force = false): Domain | undefined {
-  if (isObject(raw)) raw = get(raw, "domain");
+  let domain = (isObject(raw) ? get(raw, "domain") : raw) ?? "";
 
-  const parsed = parse(raw ?? "");
+  if (isEmpty(domain) || !DOMAIN_PATTERN.test(domain)) return undefined;
+
+  const parsed = parse(domain);
   if ("error" in parsed || !parsed?.domain) return undefined;
 
   return {
     tld: `.${parsed.tld}`, // need to ad dthe "." back in
     sld: parsed.sld ?? "",
-    domain: parsed.domain ?? "",
+    domain: parsed.domain,
   };
 }
 
 export function parseSld(raw: string): string {
-  const parsed = parse(raw ?? "");
-  const sld =
-    "error" in parsed || !parsed.sld
-      ? first(parsed.input?.split(".")) || ""
-      : parsed.sld;
-
+  const parsed = parseDomain(raw ?? "");
+  const sld = !parsed?.sld ? first(raw?.split(".")) || "" : parsed.sld;
   return sld?.replace(/[^a-zA-Z0-9-]/g, "");
 }
 
