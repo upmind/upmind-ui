@@ -153,7 +153,7 @@ export const useClientAddresses = () => {
    * @example getDefault().then((address) => console.log(address))
    */
   async function getDefault() {
-    return getAll().then(items => find(items, "default"));
+    return getAll().then(items => find(items, "meta.isDefault"));
   }
 
   /**
