@@ -35,7 +35,7 @@ export const useClientEmail = (id?: Email["id"]) => {
       }),
     {
       id: id ?? "new-email",
-      devTools: true,
+      devTools: false,
     }
   ).start();
 

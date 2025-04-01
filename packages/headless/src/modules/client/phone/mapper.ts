@@ -23,7 +23,9 @@ export function mapPhone(raw: IPhone): Phone {
     nationalNumber: raw.phone,
     countryCallingCode: raw.phone_code,
     title: get(raw, "international_phone"),
-    description: compact([get(raw, "phone_country_code"), type]).join(" | "),
+    description: compact([get(raw, "phone_country_code"), type?.value]).join(
+      " | "
+    ),
     // ---
     meta: {
       isDefault: raw.default,

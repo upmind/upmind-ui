@@ -17,8 +17,8 @@ export const PhoneTypes = [
 
 export interface PhoneModel {
   country: IPhone["phone_country_code"];
-  countryCallingCode: IPhone["phone_code"];
-  nationalNumber: IPhone["phone"];
+  countryCallingCode?: IPhone["phone_code"];
+  nationalNumber?: IPhone["phone"];
   phone: IPhone["phone"];
   type: IPhone["type"];
 }
