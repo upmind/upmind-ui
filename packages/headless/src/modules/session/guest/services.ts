@@ -55,13 +55,24 @@ async function loadUser() {
 
 async function authenticate({ model }: GuestContext) {
   const { post, useUrl } = useQuery();
+  const { getCurrency } = useBasket();
+
+  const data: any = {
+    username: model.username,
+    password: model.password,
+    grant_type: GrantTypes.PASSWORD,
+  };
+
+  // Add.match the basket currency (if available)
+  // so as to persist the currency when client logs in and claims a basket
+  // without it the basket will revert to the default currency
+  const currency = getCurrency();
+  if (currency) data.currency_id = currency.id;
+  debugger;
+
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data: {
-      username: model.username,
-      password: model.password,
-      grant_type: GrantTypes.PASSWORD,
-    },
+    data,
   })
     .then((data: any) => {
       // we record the history of the token to be able to referejce the originating guest token
