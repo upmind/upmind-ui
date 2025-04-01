@@ -28,7 +28,7 @@ export const useSchema = ({ country }: { country: ICountry }) => {
         properties: {
           number: {
             type: ["string", "null"],
-            title: "Phone number ( with dailing code )",
+            title: "Phone number ( with dialing code )",
           },
 
           nationalNumber: {

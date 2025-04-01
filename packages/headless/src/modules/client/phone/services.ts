@@ -7,12 +7,16 @@ import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 // --- utils
 import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query/utils";
-import { keyBy, isString, isNil } from "lodash-es";
-import { CacheIsStaleError, useValidation } from "../../../utils";
+import { keyBy, isString, isNil, get } from "lodash-es";
+import {
+  CacheIsStaleError,
+  useModelParser,
+  useValidation,
+} from "../../../utils";
 
 // --- types
 import { PhoneTypes } from "./types";
-import type { IPhone } from "@upmind-automation/types";
+import type { ICountry, IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { PaginatedParams, QueryResponse } from "../..";
@@ -127,9 +131,10 @@ async function setDefault(phoneId: Phone["id"]) {
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
 
-async function loadLookups(
-  _context: PhoneContext
-): Promise<{ types: Record<string, any>; country: any }> {
+async function loadLookups(_context: PhoneContext): Promise<{
+  types: Record<string, (typeof PhoneTypes)[number]>;
+  country: ICountry;
+}> {
   // we don't have any lookups for emails, so just return null
   const { getCountry, fetchCountries } = useSystem();
   await fetchCountries();
@@ -141,36 +146,46 @@ async function loadLookups(
 
 // TODO: async function parse({ model, country }: PhoneContext, ) {
 async function parse(
-  { model, country }: PhoneContext,
+  { baseModel, schema, country }: PhoneContext,
   { data }: AnyEventObject & { data: PhoneContext }
 ) {
-  // ---
-  if (!model?.phone) return Promise.resolve({ model, country });
+  const safeModel = useModelParser(
+    schema,
+    get(data, "model", data),
+    baseModel,
+    { allowExtraProps: false }
+  );
 
-  const phoneNumber = isString(model.phone)
-    ? model?.phone
-    : model?.phone?.number || model?.phone?.nationalNumber || "";
+  // ---
+  if (!safeModel?.phone) return Promise.resolve({ model: safeModel, country });
+
+  const phoneNumber = isString(safeModel.phone)
+    ? safeModel?.phone
+    : safeModel?.phone?.number || safeModel?.phone?.nationalNumber || "";
 
   const countryCode =
-    model?.phone_country_code || model?.phone?.country || country?.code;
-  const phone = parsePhoneNumber(phoneNumber, countryCode) || model.phone;
+    safeModel?.phone_country_code ||
+    safeModel?.phone?.country ||
+    data?.country ||
+    country.code;
+  const phone = parsePhoneNumber(phoneNumber, countryCode) || safeModel.phone;
 
   // now map the phone number to the model in the correct format with fallbacks
-  model.phone = {
-    number: phone?.number || model.phone?.number,
-    nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
+  safeModel.phone = {
+    number: phone?.number || safeModel.phone?.number,
+    nationalNumber: phone?.nationalNumber || safeModel.phone?.nationalNumber,
     countryCallingCode:
-      phone?.countryCallingCode || model.phone?.countryCallingCode,
-    country: phone?.country || model.phone?.country || country?.code,
+      phone?.countryCallingCode || safeModel.phone?.countryCallingCode,
+    country: phone?.country || safeModel.phone?.country || country?.code,
   };
 
-  if (!!model.phone?.country && model.phone.country !== country.code) {
+  if (!!safeModel.phone?.country && safeModel.phone.country !== country.code) {
     const { getCountry } = useSystem();
     // we have change countries in the form, so we need to get our new country
-    country = getCountry(model.phone.country);
+    country = getCountry(safeModel.phone.country);
   }
 
-  return Promise.resolve({ model, country });
+  return Promise.resolve({ model: safeModel, country });
 }
 
 async function validate({ schema, model }: PhoneContext) {

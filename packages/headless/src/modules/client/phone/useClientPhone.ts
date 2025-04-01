@@ -21,8 +21,8 @@ export const useClientPhone = (id?: Phone["id"]) => {
   const service = interpret(
     itemMachine
       .withConfig({
-        actions: useClientPhoneActions as any,
-        services: useClientPhoneServices as any,
+        actions: useClientPhoneActions() as any,
+        services: useClientPhoneServices() as any,
       })
       .withContext(() => {
         if (!id) return { model: undefined };
@@ -41,7 +41,7 @@ export const useClientPhone = (id?: Phone["id"]) => {
   return {
     id,
     service,
-    getModel: () => service?.getSnapshot().context.model,
+    getModel: () => service?.getSnapshot().context.model as PhoneModel,
     getSnapshot: () => service?.getSnapshot(),
     stop: () => service.stop(),
     // ---

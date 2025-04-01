@@ -35,7 +35,7 @@ export const useClientCompany = (id?: Company["id"]) => {
       }),
     {
       id: id ?? "new-company",
-      devTools: true,
+      devTools: false,
     }
   ).start();
 
