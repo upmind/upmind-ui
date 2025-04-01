@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery } from "../..";
+import { useBasket, useQuery } from "../..";
 import { useSystemRecaptcha, useTracking, useDataLayer } from "../../system/";
 import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
@@ -110,6 +110,7 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
 }
 
 async function register({ model }: GuestContext) {
+  const { getCurrency } = useBasket();
   const { post, useUrl } = useQuery();
   const recaptcha = useSystemRecaptcha();
   const { get: getCookie } = useCookies();
@@ -129,6 +130,12 @@ async function register({ model }: GuestContext) {
 
   // ---
   // Conditional data
+
+  // Add.match the basket currency (if available)
+  // so as to persist the currency when client registers and claims a basket
+  // without it the basket will revert to the default currency
+  const currency = getCurrency();
+  if (currency) data.currency_id = currency.id;
 
   // add recaptcha token if available
   await recaptcha

@@ -23,6 +23,7 @@ import { responseCodes } from "../../utils";
 import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
 import type { ProductModel } from "../product";
 import type { BasketProduct } from "../basketProduct";
+import { ICurrency } from "@upmind-automation/types";
 export * from "./types";
 
 // -----------------------------------------------------------------------------
