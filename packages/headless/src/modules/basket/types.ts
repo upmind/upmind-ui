@@ -21,12 +21,12 @@ export interface BasketContext {
   controller?: AbortController;
   summary?: any; //IBasketSummary;
   // --- SPAWNED ACTORS/MACHINES
-  actors: {
-    billingDetails?: ActorRef<any>;
-    currency?: ActorRef<any>;
-    customFields?: ActorRef<any>;
-    paymentDetails?: ActorRef<any>;
-    promotions?: ActorRef<any>;
+  actors?: {
+    billingDetails: ActorRef<any>;
+    currency: ActorRef<any>;
+    customFields: ActorRef<any>;
+    paymentDetails: ActorRef<any>;
+    promotions: ActorRef<any>;
   };
   authHelper?: ActorRef<any>;
   // --- Payments

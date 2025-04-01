@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -114,6 +114,6 @@ export const useRecommendationsEngine = () => {
       });
     },
     // ---
-    destroy: () => service.stop(),
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
   };
 };

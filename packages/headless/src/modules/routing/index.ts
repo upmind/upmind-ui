@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -86,6 +86,6 @@ export const useRoutingEngine = () => {
     // ---
     useQueryParams: useRouteQueryParams as RouteQueryParams,
     // ---
-    destroy: () => service.stop(),
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
   };
 };

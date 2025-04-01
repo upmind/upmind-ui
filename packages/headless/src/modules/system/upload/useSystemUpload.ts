@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 
 // --- internal
 import uploadMachine from "./upload.machine";
@@ -26,6 +26,6 @@ export const useSystemUpload = (field?: object) => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: service.getSnapshot,
-    destroy: service.stop,
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
   };
 };

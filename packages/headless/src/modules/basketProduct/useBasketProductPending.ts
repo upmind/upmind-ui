@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -156,7 +156,7 @@ export const useBasketProductPending = (model: ProductModel) => {
     id,
     service,
     getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.stop(),
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
     // ---
     isReady,
     // ---

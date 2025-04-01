@@ -178,7 +178,7 @@ const {
   update,
   toggle,
   reset,
-  destroy,
+  stop,
   addToBasket,
   select,
   remove,
@@ -251,7 +251,7 @@ const ownedDomains = computed(() => {
 
 // --- lifecycle
 onBeforeUnmount(() => {
-  destroy();
+  stop();
 });
 
 // --- side effects

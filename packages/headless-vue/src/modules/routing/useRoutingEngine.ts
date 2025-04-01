@@ -31,7 +31,7 @@ export const useRoutingEngine = () => {
   const {
     service,
     exists,
-    destroy,
+    stop,
     isReady,
     next: resolveNext,
     back: resolveBack,
@@ -236,6 +236,6 @@ export const useRoutingEngine = () => {
     },
     navigate,
     resolve,
-    destroy,
+    stop,
   };
 };

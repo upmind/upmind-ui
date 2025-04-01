@@ -44,5 +44,5 @@ export interface MessageError {
 }
 
 export interface MessagesContext {
-  messages: ActorRef<any>[] | any;
+  messages: ActorRef<any>[];
 }

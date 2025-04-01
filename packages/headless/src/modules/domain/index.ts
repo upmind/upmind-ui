@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 
 // --- internal
 import domainMachine from "./domain.machine";
@@ -129,6 +129,6 @@ export const useDomain = (
       const valid = some(state.context.model, { domain: value });
       return valid;
     },
-    destroy: () => service.stop(),
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
   };
 };
