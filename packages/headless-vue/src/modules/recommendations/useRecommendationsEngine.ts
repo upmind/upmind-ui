@@ -24,7 +24,7 @@ export const useRecommendationsEngine = () => {
     fetchRecommendation,
     reset,
     cancel,
-    destroy,
+    stop,
     isReady,
   } = useUpmindRecommendationsEngine();
 
@@ -72,7 +72,7 @@ export const useRecommendationsEngine = () => {
     remove,
     reset,
     cancel,
-    destroy,
+    stop,
     seen,
     fetchRecommendation,
     basketItem: useContext(state, "basketItem"),

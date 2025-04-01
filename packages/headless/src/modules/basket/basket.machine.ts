@@ -1,5 +1,12 @@
 // --- external
-import { createMachine, assign, pure, sendTo, spawn } from "xstate";
+import {
+  createMachine,
+  assign,
+  pure,
+  sendTo,
+  spawn,
+  InterpreterStatus,
+} from "xstate";
 
 // --- internal
 import services from "./services";
@@ -36,7 +43,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { AnyEventObject } from "xstate";
+import type { AnyEventObject, ActorRef } from "xstate";
 import type { BasketContext } from "./types";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 import { PaymentContext } from "../payment";
@@ -47,29 +54,7 @@ export default createMachine(
     id: "basketManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      basket: undefined,
-      invoice: undefined,
-      address: undefined,
-      // ---
-      products: [],
-      // ---
-      actors: {
-        billingDetails: undefined,
-        currency: undefined,
-        customFields: undefined,
-        paymentDetails: undefined,
-        promotions: undefined,
-      },
-
-      // ---
-      // the generated summary of ALL the products,
-      // including the totals formatted for display
-      summary: undefined,
-      // ---
-      controller: undefined,
-      error: undefined,
-    } as BasketContext,
+    context: {} as BasketContext,
     states: {
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
@@ -333,12 +318,12 @@ export default createMachine(
           onDone: [
             {
               target: "#paying",
-              actions: ["setInvoice", "pushPurchase"],
+              actions: ["setInvoice", "clearActors", "pushPurchase"],
               cond: "paymentNeeded",
             },
             {
               target: "#complete",
-              actions: ["setInvoice", "pushPurchase"],
+              actions: ["setInvoice", "clearActors", "pushPurchase"],
             },
           ],
           onError: {
@@ -457,22 +442,13 @@ export default createMachine(
       }),
 
       setInvoice: assign({
-        invoice: (_context: BasketContext, { data }: AnyEventObject) => data,
         basket: undefined,
         summary: undefined,
-        actors: ({ actors }) => {
-          forEach(actors, (actor: any) => {
-            if (!actor?.state?.done && actor?.stop) actor.stop();
-          });
-          return {
-            billingDetails: undefined,
-            currency: undefined,
-            customFields: undefined,
-            paymentDetails: undefined,
-            promotions: undefined,
-          };
-        },
-        // error: undefined,
+        products: undefined,
+        error: undefined,
+        paymentDetails: undefined,
+        payment: undefined,
+        invoice: (_context: BasketContext, { data }: AnyEventObject) => data,
       }),
 
       setPayment: assign({
@@ -484,11 +460,13 @@ export default createMachine(
       spawnActors: assign({
         actors: ({ actors, basket }: BasketContext) => {
           // only spawn if we have not already spawned
-          actors.billingDetails ??= spawnBillingDetails(basket);
-          actors.currency ??= spawnCurrency(basket);
-          actors.customFields ??= spawnCustomFields(basket);
-          actors.paymentDetails ??= spawnPaymentDetails(basket);
-          actors.promotions ??= spawnPromotions(basket);
+          actors ??= {
+            billingDetails: spawnBillingDetails(basket),
+            currency: spawnCurrency(basket),
+            customFields: spawnCustomFields(basket),
+            paymentDetails: spawnPaymentDetails(basket),
+            promotions: spawnPromotions(basket),
+          };
 
           return actors;
         },
@@ -503,27 +481,19 @@ export default createMachine(
       },
 
       clearActors: assign({
-        actors: ({ actors }: any) => {
-          forEach(actors, actor => {
-            if (!actor?.state?.done && actor?.stop) {
-              actor?.stop();
-            }
+        actors: ({ actors }: BasketContext) => {
+          forEach(actors, (actor: ActorRef<any>) => {
+            if (actor.getSnapshot().status == InterpreterStatus.Running)
+              actor?.stop && actor.stop();
           });
-
-          return {
-            billingDetails: undefined,
-            currency: undefined,
-            customFields: undefined,
-            paymentDetails: undefined,
-            promotions: undefined,
-          };
+          return undefined;
         },
       }),
 
-      forwardCheckout: pure(({ actors }): any => {
+      forwardCheckout: ({ actors }: BasketContext) => {
         // for Now  only the payment details is affected by checkout
-        actors?.paymentDetails?.send({ type: "CHECKOUT" });
-      }),
+        actors?.paymentDetails.send({ type: "CHECKOUT" });
+      },
 
       // ---
 
@@ -595,47 +565,47 @@ export default createMachine(
 
       // --- Actor Guards
       currencyComplete: ({ actors }: BasketContext) => {
-        return actors.currency?.getSnapshot()?.matches("complete");
+        return actors?.currency?.getSnapshot()?.matches("complete");
       },
 
       currencyConfiguring: ({ actors }: BasketContext) => {
-        return !actors.currency?.getSnapshot()?.matches("complete");
+        return !actors?.currency?.getSnapshot()?.matches("complete");
       },
 
       promotionsComplete: ({ actors }: BasketContext) => {
         // promotions should not hold up the process of checking out
         // unless it is in the process of being updated or loading
         return !["processing", "loading"].some(
-          actors.promotions?.getSnapshot()?.matches
+          actors?.promotions?.getSnapshot()?.matches
         );
       },
 
       promotionsConfiguring: ({ actors }: BasketContext) => {
         return ["processing", "loading"].some(
-          actors.promotions?.getSnapshot()?.matches
+          actors?.promotions?.getSnapshot()?.matches
         );
       },
 
       customFieldsComplete: ({ actors }: BasketContext) => {
-        return actors.customFields?.getSnapshot()?.matches("complete");
+        return actors?.customFields?.getSnapshot()?.matches("complete");
       },
 
       customFieldsConfiguring: ({ actors }: BasketContext) => {
-        return !actors.customFields?.getSnapshot()?.matches("complete");
+        return !actors?.customFields?.getSnapshot()?.matches("complete");
       },
 
       billingComplete: ({ actors }: BasketContext) => {
-        return actors.billingDetails?.getSnapshot()?.matches("complete");
+        return actors?.billingDetails?.getSnapshot()?.matches("complete");
       },
 
       billingConfiguring: ({ actors }: BasketContext) => {
-        return !actors.billingDetails?.getSnapshot()?.matches("complete");
+        return !actors?.billingDetails?.getSnapshot()?.matches("complete");
       },
 
       paymentDetailsValid: ({ actors }: BasketContext) => {
         return (
-          actors.paymentDetails?.getSnapshot()?.done ||
-          actors.paymentDetails?.getSnapshot()?.matches("available.valid")
+          actors?.paymentDetails?.getSnapshot()?.done ||
+          actors?.paymentDetails?.getSnapshot()?.matches("available.valid")
         );
       },
 
@@ -644,8 +614,8 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const value =
-          (actors.paymentDetails?.getSnapshot()?.done ||
-            actors.paymentDetails?.getSnapshot()?.matches("complete")) &&
+          (actors?.paymentDetails?.getSnapshot()?.done ||
+            actors?.paymentDetails?.getSnapshot()?.matches("complete")) &&
           !isEmpty(data);
         return value;
       },
@@ -663,7 +633,7 @@ export default createMachine(
         const valid =
           isEmpty(paymentDetails) &&
           ["available.invalid", "available.checking", "available.loading"].some(
-            actors.paymentDetails?.getSnapshot()?.matches
+            actors?.paymentDetails?.getSnapshot()?.matches
           );
         return valid;
       },

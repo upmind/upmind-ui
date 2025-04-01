@@ -94,6 +94,6 @@ export const useUpload = (field: any) => {
     remove,
     getImage,
     getImageByHash,
-    destroy: upload.destroy,
+    stop: upload.stop,
   };
 };

@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -42,6 +42,6 @@ export const useSystemRecaptcha = () => {
     getSnapshot: service.getSnapshot,
     generate,
     clear,
-    destroy: service.stop,
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
   };
 };

@@ -90,7 +90,7 @@ export const useBasketProduct = (bpid: string) => {
     id: bpid,
     service,
     getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.stop(),
+    stop: () => service.status == InterpreterStatus.Running && service.stop(),
     // ---
     isReady: async () => {
       return waitFor(service, state => state.matches("available"), {

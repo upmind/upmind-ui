@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 
 // --- internal
 import messageMachine from "./message.machine";
@@ -19,9 +19,7 @@ export default createMachine(
     id: "feedbackManager",
     predictableActionArguments: true,
     initial: "empty",
-    context: {
-      messages: [],
-    },
+    context: {} as MessagesContext,
     states: {
       // our initial state depends on if the machine has any message
       // If we have context > message, we can skip to processing
@@ -74,7 +72,7 @@ export default createMachine(
             messages.push(machine);
           }
 
-          return messages;
+          return messages as ActorRef<any>[];
         },
       }),
 
@@ -85,11 +83,12 @@ export default createMachine(
         ) => {
           messages = messages ?? [];
           // try find any messages with the same id
-          const message = find(messages, ["id", id]);
+          const actor = find(messages, ["id", id]);
 
           // if it exists, stop the referenced machine
-          // and remove it from our list of message
-          if (message?.stop && !message?.getSnapshot()?.done) message.stop();
+          // and remove it from our list of actor
+          if (actor?.getSnapshot().status == InterpreterStatus.Running)
+            actor?.stop && actor.stop();
 
           remove(messages, ["id", id]);
           return messages;

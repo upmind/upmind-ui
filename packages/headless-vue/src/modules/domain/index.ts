@@ -117,6 +117,6 @@ export const useDomain = ({
     select: domain.select,
     addToBasket: domain.addToBasket,
     isSelected: domain.isSelected,
-    destroy: domain.destroy,
+    stop: domain.stop,
   };
 };

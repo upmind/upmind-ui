@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -169,7 +169,7 @@ export const useBasketProductsPending = () => {
     unset(subscriptions, pid);
 
     // stop the product if it exists and remove it from the pending products
-    if (!isEmpty(product) && product?.stop) {
+    if (product?.service?.status == InterpreterStatus.Running) {
       product.stop();
       unset(productsPending, product.id);
     }
