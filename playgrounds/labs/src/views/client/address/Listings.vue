@@ -1,5 +1,7 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
+    <pre>{{ meta }}</pre>
+
     <div class="flex gap-2 pb-6">
       <Button
         @click="getAll"
@@ -23,7 +25,7 @@
 
     <div v-if="meta.isLoading">Loading...</div>
 
-    <section class="pb-3 md:pb-3" v-for="address in items" :key="address.id">
+    <section class="pb-3 md:pb-3" v-for="address in data" :key="address.id">
       <UpmCard>
         <h3 class="mt-0">{{ address.title }}</h3>
         <p>{{ address.description }}</p>
@@ -39,7 +41,7 @@
             Edit
           </Button>
           <Button
-            @click="doDelete(address.id)"
+            @click="remove(address.id)"
             class="mt-2"
             size="sm"
             variant="tonal"
@@ -75,7 +77,8 @@ import { useClientAddresses } from "@upmind-automation/headless-vue";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
-const { getAll, items, meta, invalidate } = useClientAddresses();
+const { getAll, data, meta, error, invalidate, remove, setDefault } =
+  useClientAddresses();
 
 // --- types
 
@@ -93,16 +96,6 @@ function doEdit(id: string) {
 
 function doAdd() {
   router.push({ name: "client.addresses.add" });
-}
-
-function doDelete(id: string) {
-  const { remove } = useClientAddresses();
-  return remove(id);
-}
-
-function setDefault(id: string) {
-  const { setDefault } = useClientAddresses();
-  setDefault(id);
 }
 
 onMounted(() => {
