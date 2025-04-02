@@ -63,7 +63,6 @@ function doUpdate() {
   processing.value = true;
   update()
     .then(res => {
-      debugger;
       model.value = getModel();
     })
     .catch(err => {

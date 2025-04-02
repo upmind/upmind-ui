@@ -10,7 +10,8 @@ import { find, isNil, filter, includes, isString } from "lodash-es";
 // --- types
 import type { Address } from "./types";
 import type { PaginatedParams } from "../../query";
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
+import type { QueryCacheNotifyEvent, QueryOptions } from "@tanstack/query-core";
+import { useTime } from "../../../utils";
 
 let addressObserver: QueryObserver | undefined;
 
@@ -203,7 +204,11 @@ export const useClientAddresses = () => {
   }
 
   return {
-    queryKey: service.queryKey,
+    queryOptions: {
+      queryKey: service.queryKey,
+      queryFn: () => getAll(),
+      staleTime: useTime().DAY,
+    },
     isReady,
     getOne,
     getAll,
