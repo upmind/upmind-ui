@@ -33,8 +33,8 @@ import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 import { AddressTypes } from "./types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { IAddress } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 import type { Address, AddressContext, AddressModel } from "./types";
-import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -255,11 +255,6 @@ export default {
 
   remove,
   setDefault,
-
-  //--- session
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
 };
 
 export const useClientAddressServices = () => {
