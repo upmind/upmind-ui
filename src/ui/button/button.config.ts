@@ -218,53 +218,53 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "ghost",
-        class: "hover:bg-base-muted text-base-foreground",
+        class: "hover:bg-base-muted text-base",
       },
       {
         color: "primary",
         variant: "ghost",
-        class: "hover:bg-primary-muted text-primary-foreground",
+        class: "hover:bg-primary-muted text-primary",
       },
       {
         color: "secondary",
         variant: "ghost",
-        class: "hover:bg-secondary-muted text-secondary-foreground",
+        class: "hover:bg-secondary-muted text-secondary",
       },
       {
         color: "accent",
         variant: "ghost",
-        class: "hover:bg-accent-muted text-accent-foreground",
+        class: "hover:bg-accent-muted text-accent",
       },
       {
         color: "promotion",
         variant: "ghost",
-        class: "hover:bg-promotion-muted text-promotion-foreground",
+        class: "hover:bg-promotion-muted text-promotion",
       },
       {
         color: "destructive",
         variant: "ghost",
-        class: "hover:bg-destructive-muted text-destructive-foreground",
+        class: "hover:bg-destructive-muted text-destructive",
       },
 
       {
         color: "success",
         variant: "ghost",
-        class: "hover:bg-success-muted text-success-foreground",
+        class: "hover:bg-success-muted text-success",
       },
       {
         color: "info",
         variant: "ghost",
-        class: "hover:bg-info-muted text-info-foreground",
+        class: "hover:bg-info-muted text-info",
       },
       {
         color: "error",
         variant: "ghost",
-        class: "hover:bg-error-muted text-error-foreground",
+        class: "hover:bg-error-muted text-error",
       },
       {
         color: "warning",
         variant: "ghost",
-        class: "hover:bg-warning-muted text-warning-foreground",
+        class: "hover:bg-warning-muted text-warning",
       },
 
       // --- link
