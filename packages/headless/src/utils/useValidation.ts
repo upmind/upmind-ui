@@ -89,7 +89,7 @@ export const useValidationParser = (error: any) => {
   return error;
 };
 
-export const useModelParser = <T extends object = object>(
+export const useModelParser = <T = object>(
   schema: JsonSchema | undefined,
   values: T,
   baseModel?: T,

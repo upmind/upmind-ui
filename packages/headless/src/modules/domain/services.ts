@@ -4,7 +4,7 @@
 import { useQuery, useQueryPaginated } from "../..";
 
 // --- utils
-import { isEmpty, isNil, map, omitBy } from "lodash-es";
+import { isEmpty, map, omitBy } from "lodash-es";
 import { parseAvailable, parseDomain, parseSld } from "./utils";
 
 // --- types

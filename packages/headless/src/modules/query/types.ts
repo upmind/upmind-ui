@@ -2,7 +2,6 @@
 import type { EnsureQueryDataOptions } from "@tanstack/query-core";
 
 // -----------------------------------------------------------------------------
-// Request Types
 
 export interface RequestError {
   data?: unknown;
@@ -77,8 +76,6 @@ export enum ApiSortDirection {
   ASC = "",
   DESC = "-",
 }
-
-// ---  API Interfaces
 
 export interface IApiFilter {
   (url: URL): URL;

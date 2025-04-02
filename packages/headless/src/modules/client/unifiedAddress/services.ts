@@ -577,7 +577,6 @@ export default {
   update,
   remove,
   filter: filterItems,
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
+
+  // isAuthenticated: () => useSession().isAuthenticated(),
 };

@@ -10,6 +10,8 @@ export enum responseCodes {
   "Unprocessable_Entity" = 422,
 }
 
+// -----------------------------------------------------------------------------
+
 export class DetailedError extends Error {
   code: number;
   constructor(message: string, code: number) {
