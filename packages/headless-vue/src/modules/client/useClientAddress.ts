@@ -7,10 +7,9 @@ import {
   useClientAddress as useUpmindClientAddress,
   useClientAddresses as useUpmindClientAddresses,
 } from "@upmind-automation/headless";
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
 
 // --- utils
-import { get, debounce, isEmpty } from "lodash-es";
+import { get, debounce } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export const useClientAddress = (
@@ -74,59 +73,4 @@ export const useClientAddress = (
     edit: () => service.send({ type: "EDIT", data: item.id }),
     cancel: () => service.send({ type: "REFRESH" }),
   } as ClientItemDefinition;
-};
-
-export const useClientAddresses = () => {
-  // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
-
-  const {
-    isReady,
-    queryKey,
-    remove,
-    setDefault,
-    getDefault,
-    getAllFromCache,
-    getAll,
-    filter,
-    getOne,
-    findOne,
-    getPaged,
-  } = useUpmindClientAddresses();
-  // const { queryClient: upmindQueryClient } = useUpmindQuery();
-  debugger;
-  // const queryClient = useQueryClient(upmindQueryClient);
-
-  const query = useQuery({ queryKey });
-
-  debugger;
-  // ---
-
-  // ---------------------------------------------------------------------------
-  return {
-    errors: query.error,
-    //messages: computed(() => state.value.context?.messages),
-    // ---
-    meta: computed(() => ({
-      isAvailable: !query.isPending.value && !query.isError.value,
-      isLoading: query.isPending.value,
-
-      hasErrors: query.isError.value,
-      isEmpty: isEmpty(query.data.value),
-    })),
-    // ---
-    items: query.data,
-
-    // ---
-    isReady,
-    remove,
-    setDefault,
-    getDefault,
-    getAllFromCache,
-    getAll,
-    filter,
-    getOne,
-    findOne,
-    getPaged,
-    invalidate: () => {},
-  };
 };
