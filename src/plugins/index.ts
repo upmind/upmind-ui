@@ -1,10 +1,9 @@
-import { initializeLottie } from "../utils/useLottie";
+import lottie from "./lottie";
 
-// --- types
-import type { App, Plugin } from "vue";
-
-export const lottie: Plugin = {
-  install: (app: App): void => {
-    initializeLottie();
+// -----------------------------------------------------------------------------
+export default {
+  lottie: {
+    plugin: lottie,
+    options: {},
   },
 };
