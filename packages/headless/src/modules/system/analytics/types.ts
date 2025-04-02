@@ -1,8 +1,7 @@
 declare global {
-  interface Window extends Record<string, any> {
-    dataLayer: {
-      push: (...args: any) => void;
-    };
+  interface Window {
+    dataLayer: any[];
+    uetq: any[];
   }
 }
 

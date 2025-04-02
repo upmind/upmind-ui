@@ -68,7 +68,6 @@ async function authenticate({ model }: GuestContext) {
   // without it the basket will revert to the default currency
   const currency = getCurrency();
   if (currency) data.currency_id = currency.id;
-  debugger;
 
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),

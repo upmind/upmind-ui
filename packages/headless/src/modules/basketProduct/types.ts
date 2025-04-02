@@ -82,15 +82,50 @@ export interface BasketProductSummaryDetail extends Price {
   meta?: BasketProductSummaryMeta;
 }
 
-export interface Price {
-  currentAmount?: number;
-  currentPrice?: string;
+/**
+ * The price details for any price that is displayed in the UI
+ * @interface PriceDetail
+ * @property {number} currentAmount - The numerical price, after discounts have been applied
+ * @property {string} currentPrice - The formatted price, after discounts have been applied
+ * @property {number} regularAmount - The regular numerical price, before discounts have been applied
+ * @property {string} regularPrice - The regular formatted price, before discounts have been applied
+ * @property {number} savingAmount - The numerical saving price, the difference between the regular and current price which is the discount
+ * @property {string} savingPrice - The formatted saving price, the difference between the regular and current price which is the discount
+ * @property {string} savingPercent - The saving percentage, the difference between the regular and current price which is the discount
+ */
+interface PriceDetail {
+  currentAmount: number;
+  currentPrice: string;
   // ---
-  regularAmount?: number;
-  regularPrice?: string;
+  regularAmount: number;
+  regularPrice: string;
   // ---
-  currentSavingAmount?: number;
-  currentSaving?: string;
+  savingAmount: number;
+  savingPrice: string;
+  savingPercent: string;
+}
+
+/**
+ * The price structure for any price that is displayed in the UI
+ * We will always provide the price details:
+ *    Based on the TOTAL CONFIGURATION which could be GROSS OR NET based on the Brands settings
+ *    This would include quantity modifier, discounts, and any other adjustments
+ *    Effectively this is the price that should be shown to the customer
+ * We also provide all the necessary breakdowns for display and tracking purposes
+ * The Individual unit price, both gross and net:
+ *    Individual unit prices are the base price of the product, before any adjustments or quantity modifiers
+ * The Configuration price, both gross and net:
+ *    Configuration prices are the total price of the product, including any adjustments or quantity modifiers
+ */
+export interface Price extends PriceDetail {
+  unit: {
+    gross: PriceDetail;
+    net: PriceDetail;
+  };
+  configuration: {
+    gross: PriceDetail;
+    net: PriceDetail;
+  };
 }
 
 export interface BasketProductSummaryPrice
@@ -99,13 +134,25 @@ export interface BasketProductSummaryPrice
   selling?: Price;
 }
 
-export interface BasketProductConfig {
-  product_id?: string;
-  quantity?: number;
-  billing_cycle_months?: number;
+export interface IBasketProductModel {
+  product_id: string;
+  quantity: number;
+  billing_cycle_months: number;
+}
+
+export interface IBasketSubProductModel {
+  product_id: string;
+  unit_quantity: number;
+  billing_cycle_months: number;
+}
+
+export interface IBasketProductData extends IBasketProductModel {
+  product_id: string;
+  quantity: number;
+  billing_cycle_months: number;
   // ---
-  attributes?: any[];
-  options?: any[];
-  provision_field_values?: any[];
-  promotions?: any[]; //IProductPromotion[];
+  attributes?: IBasketSubProductModel[];
+  options?: IBasketSubProductModel[];
+  provision_field_values?: Record<string, any>;
+  promotions?: { promocode: string }[];
 }

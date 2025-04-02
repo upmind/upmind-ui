@@ -32,8 +32,16 @@ export enum REQUIRES_ACTION {
 }
 
 export interface PageRoute {
-  to?: string;
-  from?: string;
+  to?: {
+    fullPath: string;
+    name?: string | symbol;
+    params?: Record<string, string | string[]>;
+  };
+  from?: {
+    fullPath: string;
+    name?: string | symbol;
+    params?: Record<string, string | string[]>;
+  };
 }
 
 export type Route = {

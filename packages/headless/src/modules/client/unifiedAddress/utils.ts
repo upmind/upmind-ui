@@ -165,7 +165,7 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Email",
         format: "email",
-        default: baseModel.email,
+        default: baseModel?.email,
         // lookup: emails?.search,
       },
 
@@ -248,7 +248,7 @@ export const useSchema = ({
 export const useUischema = ({ addresses, emails, phones }: any) => {
   const lookups = {
     addresses: reduce(
-      addresses.getItems(),
+      addresses?.getItems(),
       (result: any[], item) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
@@ -269,8 +269,8 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
       []
     ),
 
-    emails: emails.getItems(),
-    phones: phones.getItems(),
+    emails: emails?.getItems(),
+    phones: phones?.getItems(),
   };
 
   const schema = {

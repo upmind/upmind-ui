@@ -80,7 +80,7 @@ export type ProductDetails = {
   uiCategoryMeta?: Record<string, any>;
 };
 
-export type TermDetails = {
+export type TermDetails = Price & {
   cycle: number;
   mixedPromotions: boolean;
   // ---
@@ -89,12 +89,6 @@ export type TermDetails = {
 
   monthlyFromRegularAmount: number;
   monthlyFromRegularPrice: string;
-
-  currentAmount: number;
-  currentPrice: string;
-
-  regularAmount: number;
-  regularPrice: string;
 
   meta: Record<string, any>;
 };
