@@ -1,9 +1,10 @@
 // --- external
-import { isServer, QueryClient } from "@tanstack/query-core";
 import { isServer, QueryKey, QueryClient } from "@tanstack/query-core";
 
+// --- internal
+import { useQuery } from "./useQuery";
+
 // --- utils
-import { responseCodes } from "../../utils";
 import {
   map,
   set,
@@ -14,11 +15,10 @@ import {
   includes,
   toNumber,
 } from "lodash-es";
-import { useQuery } from "./useQuery";
-import { map, set, reduce, isArray, isObject, camelCase } from "lodash-es";
+import { responseCodes } from "../../utils";
 
 // ---types
-import { RequestError } from "./types";
+import type { RequestError } from "./types";
 
 // -----------------------------------------------------------------------------
 
