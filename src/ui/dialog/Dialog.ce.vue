@@ -166,6 +166,7 @@ const { handlePointerEvents } = usePointerEvents(value, props.to);
 const onOpen = (open: boolean, force: boolean = false) => {
   if (!props.dismissable && !open && !force) return;
   value.value = open;
+  emits("update:open", open);
   nextTick(() => handlePointerEvents(open));
 };
 
