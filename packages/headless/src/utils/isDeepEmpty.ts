@@ -8,6 +8,8 @@ import {
   compact,
 } from "lodash-es";
 
+// -----------------------------------------------------------------------------
+
 // a custom isEmpty that can handle deeply nested objects
 export function isDeepEmpty(value: any): boolean {
   if (isEmpty(value)) {

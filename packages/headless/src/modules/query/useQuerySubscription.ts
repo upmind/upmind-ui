@@ -7,9 +7,11 @@ import { type QueryCacheNotifyEvent } from "@tanstack/query-core";
 type QuerySubscriptionFilter = (event: QueryCacheNotifyEvent) => boolean;
 export type { QueryCacheNotifyEvent, QuerySubscriptionFilter };
 
-// ---
+// -----------------------------------------------------------------------------
 
 const queryClient = getQueryClient();
+
+// -----------------------------------------------------------------------------
 
 /**
  * Query Subscription - this is used by the other machines to listen for changes/messages from the query service
@@ -25,7 +27,7 @@ export function querySubscription(callback: any, onReceive: any) {
   onReceive((event: any) => {
     switch (event.type) {
       case "FILTER":
-        filter = event.data;
+        filter = event.filter;
         break;
       default:
         break;
@@ -37,7 +39,7 @@ export function querySubscription(callback: any, onReceive: any) {
     const matches = isFunction(filter) ? filter(event) : false;
 
     // console.debug("querySubscription", "event", {
-    //   type: typeof event,
+    //   type: `QUERY.${event?.action?.type?.toUpperCase()}`,
     //   queryKey: event?.query?.queryKey,
     //   matches,
     //   isFiltered: isFunction(filter),

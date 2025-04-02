@@ -9,8 +9,13 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 
 // --- utils
-import { useTime } from "../../utils";
-// ---
+import { useTime, useCookies } from "../../utils";
+const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
+
+import { useDataLayer } from "../system";
+const { dataLayer } = useDataLayer();
+
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./session.machine.typegen").Typegen0,
@@ -27,11 +32,17 @@ export default createMachine(
           src: "check",
           onDone: [
             {
-              target: "#client",
+              target: "client",
               cond: "isClientToken",
             },
+            // {
+            //   target: "guest",
+            //   cond: "isGuestToken",
+            // },
             {
-              target: "#guest",
+              // if we have  no token, we need to clear any possible  user data
+              target: "guest",
+              actions: "clear",
             },
           ],
           onError: { target: "#guest" },
@@ -83,11 +94,24 @@ export default createMachine(
       setError: assign({
         error: (_context: SessionContext, { data }: AnyEventObject) => data,
       }),
+
+      clear: () => {
+        const actor = getCookie("upm_actor", value => JSON.parse(atob(value)));
+
+        // if there is an actor, we need to clear the user data and update the data layer
+        if (actor) {
+          removeCookie("upm_actor");
+          dataLayer().withPage().withUser().push();
+        }
+      },
     },
 
     guards: {
       isClientToken: (_context: SessionContext, { data }: AnyEventObject) =>
         data?.actor_type === "client",
+
+      isGuestToken: (_context: SessionContext, { data }: AnyEventObject) =>
+        data?.actor_type === "guest",
     },
 
     delays: {

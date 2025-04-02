@@ -11,10 +11,11 @@ import {
 import { get, map } from "lodash-es";
 
 // --- types
-import type { IField, FieldsContext } from "./types";
+import type { Field, FieldsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const useSchema = ({ fields }: FieldsContext) => {
   const schema = {
     type: "object",
@@ -68,11 +69,11 @@ export const useUischema = ({ fields }: FieldsContext) => {
 
 export const useModelParser = (
   fields: FieldsContext["fields"],
-  values: IField
+  values: Field
 ) => {
   const model = {
     notes: values?.notes,
     customFields: useFieldsModelParser(fields, get(values, "customFields", {})),
   };
-  return model as IField;
+  return model as Field;
 };

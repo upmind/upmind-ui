@@ -1,27 +1,25 @@
 // --- external
 
 // --- internal
-import { useI18n } from "../system/i18n";
+import { useI18n } from "../system";
+import { useQuery } from ".";
 import { useSession } from "../session";
 
 // --- utils
 import {
-  dumpTokenFromStorage,
   getTokenFromStorage,
   persistTokenToStorage,
+  dumpTokenFromStorage,
 } from "../session/utils";
-import { get, includes, isEmpty, map, set, upperCase } from "lodash-es";
+import { get, set, isEmpty, includes, map, upperCase } from "lodash-es";
 
 // --- types
-import { useUrl } from "../../utils";
-import { parseData } from "./utils";
 import type { Token } from "../session/types";
-import type { RequestParams } from "./types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
+import { RequestParams } from "./types";
 
-// ---  SERVICE METHODS
+// -----------------------------------------------------------------------------
 
-// this will process the request and return a promise
 async function doFetch<T extends object = object>({
   url,
   init,
@@ -48,12 +46,14 @@ async function doFetch<T extends object = object>({
   // Digest response data (JSON)
   // maybe instead of catching error, we can check if 204 and return null
   // this catchall seems more robust though
-  const data: T = await response
+  const data = (await response
     .json()
     .then(data => data)
-    .catch(() => ({ data: null }));
+    .catch(() => ({ data: null }))) as T;
 
   return new Promise((resolve, reject) => {
+    // Unpack response object
+
     // add status to data object
     set(data, "status", status); // ensure the correct status code
 
@@ -67,19 +67,17 @@ async function doFetch<T extends object = object>({
 
 async function refreshToken() {
   const { reauth } = useSession();
+  const { post, useUrl } = useQuery();
 
   const token = getTokenFromStorage();
   const refresh_token = get(token, "refresh_token", "");
 
-  return doFetch<Token>({
+  return post<Token>({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    init: {
-      method: Methods.POST.toUpperCase(),
-    },
-    data: parseData({
+    data: {
       grant_type: GrantTypes.REFRESH_TOKEN,
       refresh_token,
-    }),
+    },
   })
     .then(data => {
       persistTokenToStorage(data);

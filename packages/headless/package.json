@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/headless",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "",
   "type": "module",
   "keywords": [],
@@ -33,6 +33,8 @@
     "ajv-errors": "^3.0.0",
     "libphonenumber-js": "^1.11.19",
     "lodash-es": "^4.17.21",
+    "psl": "^1.15.0",
+    "tiny-cookie": "^2.5.1",
     "uuid": "^11.0.5",
     "xstate": "^4.38.3"
   },

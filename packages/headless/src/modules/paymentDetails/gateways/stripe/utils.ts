@@ -13,10 +13,11 @@ import { reduce, includes, find } from "lodash-es";
 // --- types
 import type { IGateway } from "@upmind-automation/types";
 import type { StripeContext } from "./types";
-import { STRIPE_PAYMENT_METHOD_TYPES } from "./services";
+import { STRIPE_PAYMENT_METHOD_TYPES } from "./types";
 import type { UISchemaElement } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const useSchema = (context: StripeContext) => {
   const defaultSchema = useDefaultSchema(context as any);
 
@@ -35,7 +36,6 @@ export const useSchema = (context: StripeContext) => {
   return schema;
 };
 
-// ---
 export const useUischema = (_context: StripeContext) => {
   const defaultUischema = useDefaultUischema();
 
@@ -49,7 +49,6 @@ export const useUischema = (_context: StripeContext) => {
   return uischema as UISchemaElement;
 };
 
-// ---
 export function getSupportedPaymentMethods(gateway?: IGateway) {
   if (!gateway) return [];
 

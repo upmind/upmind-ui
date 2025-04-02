@@ -24,7 +24,7 @@
       :none-text="t('product.select.none')"
       :placeholder="t('product.select.placeholder')"
       :multiple="subproduct.multiple"
-      :size="subproduct.meta?.uischema?.options?.size"
+      :size="subproduct.uiMeta?.uischema?.options?.size"
     >
       <template #item="{ item: { value } }">
         <CardSubproduct
@@ -103,7 +103,7 @@ const styles = useStyles(
 }>;
 
 const as = computed(() => {
-  return mapComponent(props.subproduct.meta?.uischema?.control);
+  return mapComponent(props.subproduct.uiMeta?.uischema?.control);
 });
 
 const mapComponent = (name: string) => {
@@ -127,7 +127,7 @@ const parsedValues = computed<any[]>(() => {
     sublabel: subproduct?.name ?? "",
     text: subproduct?.excerpt,
     values: subproduct.values,
-    group: subproduct?.meta?.uischema?.group,
+    group: subproduct?.uiMeta?.uischema?.group,
     item: subproduct,
     index,
     modelValue: modelValue.value,
@@ -139,10 +139,10 @@ function getSubproductValue(value: string) {
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    name: product?.meta?.uischema?.primary
-      ? product?.meta?.uischema?.group
+    name: product?.uiMeta?.uischema?.primary
+      ? product?.uiMeta?.uischema?.group
       : product?.name,
-    icon: product?.meta?.uischema?.icon,
+    icon: product?.uiMeta?.uischema?.icon,
   };
 }
 

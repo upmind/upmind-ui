@@ -12,16 +12,14 @@ import type {
   IWalletBalance,
   PaymentType,
 } from "@upmind-automation/types";
-// ---
-// ---  private
+
+// -----------------------------------------------------------------------------
 
 export interface PaymentDetailModel {
   amount: number;
   type?: PaymentType;
   gateway_id?: IGateway["id"];
 }
-
-// ---  Contexts
 
 export interface PaymentDetailsArgs {
   orderId: IOrder["id"];
@@ -32,7 +30,6 @@ export interface PaymentDetailsArgs {
 }
 
 export interface PaymentDetailsContext extends PaymentDetailsArgs {
-  // ---
   gateways?: IBrandGateway[];
   payment_types?: PaymentType;
   // ---
@@ -51,6 +48,7 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   actors: {
     gateway?: ActorRef<any>;
   };
+  authHelper?: ActorRef<any>;
 
   // ---
   autoupdate?: boolean;

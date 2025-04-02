@@ -70,7 +70,6 @@ async function fetchRegions(
   const { get, useUrl } = useQuery();
 
   if (!code || !id) return Promise.reject("No code or id provided");
-
   return get({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
@@ -114,7 +113,7 @@ async function fetchDepartments(
   }).then(({ data }: any) => data as ITicketDepartment[]);
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   fetchCurrencies,

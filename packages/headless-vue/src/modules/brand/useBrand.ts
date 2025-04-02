@@ -76,16 +76,6 @@ export const useBrand = (): IUseBrand => {
 
     isReady: brand.isReady,
     getConfig: brand.getConfig,
-    getAnayltics: async () =>
-      brand
-        .isReady()
-        .then(() =>
-          brand
-            .getConfig([
-              BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
-              BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
-            ])
-            .then((data: any) => data?.analytics)
-        ),
+    getAnayltics: brand.getAnayltics,
   };
 };

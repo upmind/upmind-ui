@@ -2,7 +2,7 @@
   <div
     class="auth"
     :class="cn(styles.session.auth.root, $props.class)"
-    v-if="!meta.isAuthenticated"
+    v-if="!meta.isAuthenticated && !meta.isLoading"
   >
     <Tabs
       :default-value="modelValue"
@@ -31,8 +31,11 @@
     />
   </div>
 
-  <div v-if="meta.isAuthenticated" :class="styles.session.auth.actions">
-    <slot name="toggle">
+  <div
+    v-if="meta.isAuthenticated && !meta.isLoading"
+    :class="styles.session.auth.actions"
+  >
+    <slot name="toggle" v-if="meta.showRegisterForm || meta.showLoginForm">
       <Button variant="ghost" block type="reset" @click.prevent="logout">
         logout
       </Button>
@@ -50,20 +53,14 @@ import { useVModel } from "@vueuse/core";
 import { useSession } from "@upmind-automation/headless-vue";
 import Form from "../../../components/form/Form.vue";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
-import config from "./session.config";
+import config from "../sesssion.config";
 
 // --- custom elements
 import { Button, Tabs } from "@upmind-automation/upmind-ui";
 
-type TabItem = {
-  value: string;
-  label: string;
-};
-
-type TabItems = TabItem[];
-
 // --- types
-import type { ComputedRef, Ref } from "vue";
+import type { TabItem } from "@upmind-automation/upmind-ui";
+import type { ComputedRef } from "vue";
 import type { AuthProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -76,6 +73,7 @@ const props = withDefaults(defineProps<AuthProps>(), {
 const { t } = useI18n();
 
 const {
+  isReady,
   meta,
   errors,
   showLogin,
@@ -87,6 +85,8 @@ const {
   reject,
   logout,
 } = useSession();
+
+await isReady();
 
 const styles = useStyles(["session.auth"], meta, config) as ComputedRef<{
   session: {
@@ -102,7 +102,7 @@ const modelValue = useVModel(props, "modelValue", emit);
 
 // ---
 
-const tabs = computed((): TabItems => {
+const tabs = computed((): TabItem[] => {
   return [
     {
       value: "register",
@@ -142,6 +142,8 @@ const authActions = computed(() => {
 });
 
 function toggleForm(type: AuthProps["modelValue"]) {
+  if (meta.value.isLoading) return;
+
   switch (type) {
     case "login":
       if (!meta.value.showLoginForm)
@@ -151,6 +153,9 @@ function toggleForm(type: AuthProps["modelValue"]) {
       if (!meta.value.showRegisterForm)
         showRegister().then(() => (modelValue.value = type));
       break;
+    // case "forgot":
+    //   if (!meta.value.showForgotForm)
+    //     showForgot().then(() => (modelValue.value = type));
   }
 }
 

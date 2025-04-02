@@ -5,24 +5,20 @@ import { useSession } from "../session";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { useUrl, responseCodes } from "../../utils";
-import { parseData, getQueryClient } from "./utils";
+import { useUrl } from "../../utils";
+import { getTokenFromStorage } from "../session/utils";
+import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 import { get, set, unset, isString } from "lodash-es";
 
 // --- types
-import type {
-  QueryParams,
-  RequestError,
-  QueryResponse,
-  RequestParams,
-} from "./types";
+import { QueryParams, RequestError, RequestParams } from "./types";
 import { Methods } from "@upmind-automation/types";
 
 const queryClient = getQueryClient();
 
-export const useQuery = () => {
-  // ---  // methods
+// -----------------------------------------------------------------------------
 
+export const useQuery = () => {
   /**
    * Sends a request  with the given URL and options.
    * @see {@link RequestParams}
@@ -45,6 +41,7 @@ export const useQuery = () => {
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
+    let attempts = 0;
 
     const { getToken } = useSession();
 
@@ -65,12 +62,19 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    return doFetch<T>({ url, init }).catch(async error => {
+    return await doFetch<T>({ url, init }).catch(async error => {
       const requestError = error as RequestError;
+      attempts++;
 
-      if (requestError.status === responseCodes.Unauthorized) {
-        const { access_token } = await refreshToken();
-        return request({ url, init, withAccessToken: access_token });
+      // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
+      if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
+        return refreshToken().then(() => {
+          // get the new access token and update the access token in the request
+          const token = getTokenFromStorage();
+          set(init, `headers.Authorization`, `Bearer ${token}`);
+          // finally rety the request
+          return doFetch<T>({ url, init });
+        });
       }
 
       return Promise.reject(requestError);
@@ -88,35 +92,23 @@ export const useQuery = () => {
    *
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
    * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function getRequest<T = object>({
+  async function getRequest<T extends object = object>({
     url,
     init,
-    allowStale = true,
     withAccessToken,
     ...options
-  }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
-    if (allowStale) {
-      /**
-       * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
-       * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
-       */
-      return queryClient.ensureQueryData({
-        queryFn: () =>
-          request<QueryResponse<T>>({ url, init, withAccessToken }),
-        ...options,
-      });
-    }
+  }: QueryParams<T>): Promise<T> {
     /**
-     * fetchQuery is an asynchronous function that can be used to fetch data from the server.
+     * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
+     * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
      */
-    return queryClient.fetchQuery({
-      queryFn: () => request<QueryResponse<T>>({ url, init, withAccessToken }),
+    return await queryClient.ensureQueryData<T>({
+      queryFn: () => request<T>({ url, init, withAccessToken }),
       ...options,
     });
   }
@@ -137,12 +129,12 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function postRequest<T = object>({
+  async function postRequest<T extends object = object>({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -150,7 +142,7 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
@@ -169,12 +161,12 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function putRequest<T = object>({
+  async function putRequest<T extends object = object>({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -182,7 +174,7 @@ export const useQuery = () => {
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
@@ -201,19 +193,19 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function patchRequest<T = object>({
+  async function patchRequest<T extends object = object>({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", JSON.stringify(data));
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
@@ -232,12 +224,12 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function deleteRequest<T = object>({
+  async function deleteRequest<T extends object = object>({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -245,7 +237,7 @@ export const useQuery = () => {
     set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
@@ -264,11 +256,11 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function headRequest<T = object>({
+  async function headRequest<T extends object = object>({
     url,
     init,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -276,7 +268,7 @@ export const useQuery = () => {
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken });
   }
 
   return {

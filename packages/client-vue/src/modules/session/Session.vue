@@ -27,6 +27,7 @@
             :class="styles.session.text"
             keypath="session.authenticated.footer.text"
             tag="p"
+            scope="global"
           >
             <template #[`action`]>
               <Button
@@ -41,6 +42,7 @@
             :class="styles.session.title"
             keypath="session.authenticated.header.title"
             tag="h3"
+            scope="global"
           >
             <template #[`name`]>
               <strong :class="styles.session.name">

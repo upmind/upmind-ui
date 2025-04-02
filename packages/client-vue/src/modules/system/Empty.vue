@@ -3,6 +3,7 @@
     <ContentSection v-auto-animate>
       <Interstitial
         v-bind="props"
+        :modal="meta.useModal"
         :text="t('basket.empty.text')"
         :actions="[
           {
@@ -29,6 +30,8 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { useRoute } from "vue-router";
+import { computed } from "vue";
 
 // --- internal
 import BasketEmpty from "../../assets/animations/basket-empty.json?url";
@@ -42,6 +45,9 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
+
+const route = useRoute();
+const routeMeta = route.meta;
 
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
@@ -58,4 +64,8 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl",
   }),
 });
+
+const meta = computed(() => ({
+  useModal: routeMeta.modal !== false,
+}));
 </script>

@@ -1,15 +1,19 @@
 // --- internal
 import { useSystem } from "../system";
+import { useBrand } from "../brand";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
 import {
+  compact,
   find,
+  first,
   forEach,
   get,
   has,
   includes,
   isEmpty,
+  isFunction,
   isNil,
   isObject,
   isString,
@@ -21,31 +25,153 @@ import {
   set,
   some,
   toNumber,
+  uniq,
   values,
 } from "lodash-es";
 
 // --- types
-import { PromotionDisplayTypes } from "./services";
+import { PromotionDisplayTypes } from "@upmind-automation/types";
+import type {
+  IBasketProduct,
+  IProduct,
+  IProductCategory,
+} from "@upmind-automation/types";
 import type {
   ProductModel,
+  TermDetails,
+  SubproductOption,
+  SubProductOptionValue,
+  SummaryDetails,
   ProductConfigContext,
+  PromotionDetails,
   UIMeta,
-  IProductCategory,
+  ProductDetails,
 } from "./types";
+import type {
+  BasketProductDetails,
+  BasketProductSummaryDetail,
+  BasketProductSummaryPrice,
+} from "../basketProduct";
 
-// ---  Parsing Models for an Item/Product that is being configured for the basket
+// -----------------------------------------------------------------------------
 
-// ---
-export const checkPriceOverride = (values: any, lookups: any) => {
+/**
+ * Computes the title for a product based on a template string derived from the product's UiMeta > uischema
+ * The template string can contain placeholders in the form of {{key}} which will be replaced with the value of the key from the product
+ * Templates may be nested through the product's category hierarchy, with the first template found being used
+ * If no template is found or is empty, the fallback title is used
+ *
+ * @param product The product to compute the title for
+ * @param basketProduct The basket product to use for translations
+ * @param valueKey The key to extract values from at each level
+ * @param fallback The fallback title to use if no template is found
+ * @returns The computed title
+ */
+export function useUischemaTitle(
+  product: IProduct,
+  {
+    basketProduct,
+    valueKey,
+    fallback,
+  }: {
+    basketProduct?: IBasketProduct;
+    valueKey: string;
+    fallback: string;
+  }
+): string {
+  const templates = compact(
+    uniq(
+      iterateParents(product.category, [get(product, valueKey)], {
+        valueKey,
+        parentKey: "top_category",
+      })
+    )
+  ) as string[];
+
+  if (isEmpty(templates)) return fallback;
+  // ---
+  const template = first(templates) ?? "";
+  const result = template.replace(
+    /{{([^{}]+)}}/g,
+    (keyExpr, key) =>
+      useTranslateField(basketProduct, key) ??
+      useTranslateField(product, key) ??
+      ""
+  );
+
+  return isEmpty(result) ? fallback : result;
+}
+
+/**
+ * Computes the name for a product based on the type of product and its translations
+ * This allows us to make assumptions on the most appropriate name to use based on the product type
+ * eg: for a domain product, we would use the service_identifier as the name where possible
+ *
+ * @param product The product to compute the name for
+ * @param basketProduct The basket product to use for translations
+ * @returns The computed name
+ *
+ */
+export function useProductName(
+  product: IProduct,
+  basketProduct?: IBasketProduct
+): string {
+  const name = useTranslateName(product);
+
+  // TODO: check prodct type based on if (product.provision_blueprint?.code == "domain-names" | ProvisionCategoryCodes.DOMAINS) {}
+  // for now...we will just append the service identifier if it exists
+  if (basketProduct?.service_identifier) {
+    return `${name} (${basketProduct.service_identifier})`;
+  }
+
+  return name;
+}
+
+/**
+ * Recursively merges values from a property in a nested object hierarchy
+ * @param item The current object in the hierarchy
+ * @param valueKey The key to extract values from at each level
+ * @param parentKey The key to navigate to the parent object
+ * @param initialValue Optional initial value to merge with collected values
+ * @returns Merged values from all levels of the hierarchy, with lower levels and then initial value taking priority
+ */
+export function iterateParents(
+  item: any,
+  result: any[],
+  {
+    valueKey,
+    parentKey,
+    transform,
+  }: {
+    valueKey: string;
+    parentKey: string;
+    transform?: (value: any) => any;
+  }
+): unknown[] {
+  if (!item) return result;
+  const parsed = isFunction(transform) ? transform(item) : get(item, valueKey);
+  result.push(parsed);
+  return iterateParents(get(item, parentKey), result, {
+    valueKey,
+    parentKey,
+    transform,
+  });
+}
+
+export function checkPriceOverride(values: any, lookups: any) {
   return some(values, (value, key) => {
     const item = find(lookups, ["id", key]);
 
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
     return !isEmpty(value) && !!item?.priceOverride;
   });
-};
+}
+// -----------------------------------------------------------------------------
 
-export const parseQuantity = (quantity: number, product: any) => {
+export function parseQuantity(
+  quantity: number,
+  product?: ProductDetails
+): number {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
   // Check the product data is available
   // Check the quantity is valid,
@@ -54,8 +180,8 @@ export const parseQuantity = (quantity: number, product: any) => {
   //  - quantity is a multiple of the product step
   // ensure the quantity is at least the min, or 1
 
-  if (quantity < Math.max(product?.min, 1)) {
-    quantity = Math.max(product?.min, 1);
+  if (quantity < Math.max(product?.min ?? 1, 1)) {
+    quantity = Math.max(product?.min ?? 1, 1);
   }
 
   // ensure the quantity is at most the max (if set)
@@ -69,88 +195,69 @@ export const parseQuantity = (quantity: number, product: any) => {
   }
 
   return quantity;
-};
+}
 
-export const parseProduct = (
-  rawProduct: any,
-  basketProduct?: ProductConfigContext["basketProduct"]
-) => {
-  const merged = merge({}, rawProduct, basketProduct);
+export const parseProduct = (rawProduct: IProduct): ProductDetails => {
   return {
-    id: merged.id,
-    name: useTranslateName(merged),
-    categoryId: merged.category_id,
-    category: useTranslateName(merged.category),
-    serviceIdentifier: merged.service_identifier,
-    cycle: merged.billing_cycle_months,
-    // TODO check: cycle: merged.display_price_billing_cycle_months ?? merged.billing_cycle_months,
-    quantity: merged.quantity,
-    //
-    description: useTranslateField(merged, "description"),
-    excerpt: useTranslateField(merged, "short_description"),
-    imgUrl: merged?.product_image_url ?? merged?.image?.full_url,
-    // image: merged.image,
-    // images: merged.images,
+    id: rawProduct?.id,
+    title: useUischemaTitle(rawProduct, {
+      valueKey: "meta.uischema.title",
+      fallback: useTranslateName(rawProduct),
+    }),
+    brand: useTranslateName(rawProduct?.brand),
+    categoryId: rawProduct?.category_id,
+    category: useTranslateName(rawProduct?.category),
+    categories: iterateParents(rawProduct.category, [], {
+      valueKey: "name",
+      parentKey: "top_category",
+      transform: useTranslateName,
+    }) as string[],
     // ---
-    quantifiable: merged.order_type == 2,
-    step: merged.product?.unit_quantity || 1,
-    min:
-      merged.product?.min_order_quantity || merged.product?.unit_quantity || 1,
+    cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
+    defaultPaymentPeriod: rawProduct?.default_payment_period,
+    // ---
+    description: useTranslateField(rawProduct, "description"),
+    excerpt: useTranslateField(rawProduct, "short_description"),
+    imgUrl: rawProduct?.image?.full_url,
+    // ---
+    quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
+    quantifiable: rawProduct?.order_type == 2,
+    step: rawProduct?.unit_quantity || 1,
+    min: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     max:
-      merged.product?.max_order_quantity > 0
-        ? merged.product?.max_order_quantity
+      rawProduct?.max_order_quantity > 0
+        ? rawProduct?.max_order_quantity
         : Infinity,
-    defaultPaymentPeriod: merged?.default_payment_period,
-    meta: parseMeta(merged?.meta ?? {}, merged?.category),
-    categoryMeta: merged?.category?.meta,
     // ---
-    // displayAmount: merged.selling_price,
-    // displayPrice: merged.selling_price_formatted,
-    // meta: {
-    //   discounted:
-    //     some(merged.prices, "price_discounted") ||
-    //     some(merged.prices, "mixed_promotions"),
-    //   freeTrial:
-    //     merged.trial_supported &&
-    //     merged.trial_end_action &&
-    //     merged.trial_force &&
-    //     [TrialEndActionTypes.CANCEL].includes(merged.trial_end_action),
-    // },
+    uiMeta: parseMeta(rawProduct?.meta ?? {}, rawProduct?.category),
+    uiCategoryMeta: rawProduct?.category?.meta || undefined,
   };
 };
 
-export const parseMeta = (meta: UIMeta, category?: IProductCategory) => {
-  return iterateParents(category, "meta", "top_category", meta);
-};
+export const parseMeta = (
+  meta: UIMeta,
+  category?: IProductCategory
+): Record<string, any> => {
+  const all = iterateParents(category, [], {
+    valueKey: "meta",
+    parentKey: "top_category",
+  });
 
-/**
- * Recursively merges values from a property in a nested object hierarchy
- * @param item The current object in the hierarchy
- * @param valueKey The key to extract values from at each level
- * @param parentKey The key to navigate to the parent object
- * @param initialValue Optional initial value to merge with collected values
- * @returns Merged values from all levels of the hierarchy, with lower levels and then initial value taking priority
- */
-const iterateParents = (
-  item: any,
-  valueKey: string,
-  parentKey: string,
-  initialValue?: any
-): any => {
-  if (!item) return initialValue;
-
-  return merge(
-    iterateParents(get(item, parentKey), valueKey, parentKey),
-    get(item, valueKey),
-    initialValue
+  return reduce(
+    all,
+    (result, value) => {
+      return merge(result, value);
+    },
+    {}
   );
 };
 
 export const parseTerms = (
   raw: any,
   promotionDisplayType?: PromotionDisplayTypes
-) => {
+): TermDetails[] => {
   const { getBillingCycle } = useSystem();
+  const { checkIncludesTax } = useBrand();
 
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
     // Pick only the properties we need
@@ -176,6 +283,7 @@ export const parseTerms = (
       meta: {
         discounted:
           (rawTerm.price_discounted ?? rawTerm.price) !== rawTerm.price,
+        includesTax: checkIncludesTax(),
         free: (rawTerm.price_discounted ?? rawTerm.price) == 0,
       },
     };
@@ -195,8 +303,9 @@ export const parseSubproduct = (
   data: any,
   promotionDisplayType?: PromotionDisplayTypes,
   cycle?: number
-) => {
+): SubproductOption[] => {
   const { getBillingCycle } = useSystem();
+  const { checkIncludesTax } = useBrand();
 
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
@@ -210,11 +319,11 @@ export const parseSubproduct = (
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
-  const options = reduce(
+  const options: Record<string, SubproductOption> = reduce(
     sorted,
     (result, rawSubproduct) => {
       // create the option based on the category ... if it isnt already set
-      const option = get(result, rawSubproduct.category_id, {
+      const option: SubproductOption = get(result, rawSubproduct.category_id, {
         id: rawSubproduct.category.id,
         name: useTranslateName(rawSubproduct.category),
         description: useTranslateField(rawSubproduct.category, "description"),
@@ -222,7 +331,9 @@ export const parseSubproduct = (
         multiple: rawSubproduct.category.multiple,
         required: rawSubproduct.category.required,
         priceOverride: rawSubproduct.category.price_override,
-        meta: rawSubproduct?.category.meta,
+        uiCategorymeta: rawSubproduct?.category.meta,
+        uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
+        uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
       });
 
       // check EARLY if we have a price for one of the following:
@@ -241,14 +352,47 @@ export const parseSubproduct = (
       // get the prev values...if there are any
       const values: any[] = get(option, "values", []);
 
-      // add this raw option to the values, with limited properties
+      // ---
+      const prices = map(rawSubproduct.prices, rawPrice => {
+        const price: any = {
+          mixedPromotions: rawPrice.mixed_promotions,
+          cycle: rawPrice.billing_cycle_months,
 
-      const value: any = {
+          currentAmount: rawPrice.price_discounted ?? rawPrice.price,
+          currentPrice:
+            rawPrice.price_discounted_formatted ?? rawPrice.price_formatted,
+          regularAmount: rawPrice.price,
+          regularPrice: rawPrice.price_formatted,
+
+          meta: {
+            discounted:
+              rawPrice.price_discounted &&
+              rawPrice.price !== rawPrice.price_discounted,
+            includesTax: checkIncludesTax(),
+            free: (rawPrice.price_discounted ?? rawPrice.price) == 0,
+            overrides: rawSubproduct.category.price_override,
+          },
+        };
+
+        const cycle = getBillingCycle(price.cycle);
+        price.name = cycle ? useTranslateName(cycle) : null;
+
+        price.promotions = parsePromotion(rawPrice, promotionDisplayType);
+
+        return price;
+      });
+
+      const price =
+        find(prices, ["cycle", 0]) || find(prices, ["cycle", cycle]);
+
+      const value: SubProductOptionValue = {
         default: !!rawSubproduct?.pivot?.default,
         id: rawSubproduct.id,
         name: useTranslateName(rawSubproduct),
         description: useTranslateField(rawSubproduct, "description"),
         excerpt: useTranslateField(rawSubproduct, "short_description"),
+        // ---
+        cycle: price?.cycle ?? rawSubproduct.billing_cycle_months,
         // ---
         quantifiable: rawSubproduct.order_type == 2,
         step: rawSubproduct.unit_quantity || 1,
@@ -258,47 +402,24 @@ export const parseSubproduct = (
           rawSubproduct.max_order_quantity > 0
             ? rawSubproduct.max_order_quantity
             : Infinity,
-        prices: map(rawSubproduct.prices, rawPrice => {
-          const price: any = {
-            mixedPromotions: rawPrice.mixed_promotions,
-            cycle: rawPrice.billing_cycle_months,
-
-            currentAmount: rawPrice.price_discounted ?? rawPrice.price,
-            currentPrice:
-              rawPrice.price_discounted_formatted ?? rawPrice.price_formatted,
-            regularAmount: rawPrice.price,
-            regularPrice: rawPrice.price_formatted,
-
-            meta: {
-              discounted:
-                rawPrice.price_discounted &&
-                rawPrice.price !== rawPrice.price_discounted,
-              free: (rawPrice.price_discounted ?? rawPrice.price) == 0,
-              overrides: rawSubproduct.category.price_override,
-            },
-          };
-
-          const cycle = getBillingCycle(price.cycle);
-          price.name = cycle ? useTranslateName(cycle) : null;
-
-          price.promotions = parsePromotion(rawPrice, promotionDisplayType);
-
-          return price;
-        }),
-        meta: rawSubproduct?.meta,
+        prices,
+        price,
+        meta: {
+          // NB: only show term pricing if recurring!
+          oneoff: rawSubproduct.billing_cycle_months == 0,
+          discounted:
+            (rawSubproduct.price_discounted ?? rawSubproduct.price) !==
+            rawSubproduct.price,
+          includesTax: checkIncludesTax(),
+          free: (rawSubproduct.price_discounted ?? rawSubproduct.price) == 0,
+        },
+        uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
+        uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         order: rawSubproduct?.order,
       };
 
-      // First, try get a one off price, othrwise try find the matching term price
-      value.price =
-        find(value.prices, ["cycle", 0]) ||
-        find(value.prices, ["cycle", cycle]);
-
-      // ensure we set the cycle to the price cycle
-      value.cycle = value?.price?.cycle ?? rawSubproduct.billing_cycle_months;
-
+      // ---
       values.push(value);
-
       set(option, "values", orderBy(values, "order"));
 
       // finally  set the updated option
@@ -315,7 +436,7 @@ export const parseSubproduct = (
 export const parsePromotion = (
   data: any,
   promotionDisplayType: PromotionDisplayTypes = PromotionDisplayTypes.PERCENTAGE
-) => {
+): PromotionDetails[] => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
   //  - As a sumamry percentage, eg "Save 20%"
@@ -348,7 +469,6 @@ export const parsePromotion = (
 
     return [
       {
-        name: null,
         amount:
           isNil(data.price_discounted) || data.mixed_promotions ? 0 : saving,
         amountFormatted:
@@ -363,7 +483,7 @@ export const parsePromotion = (
   }
 };
 
-export const parseProvisioningSchema = (data: any) => {
+export const parseProvisioningSchema = (data: any, product: any) => {
   const required: string[] = [];
   const properties = {};
   const errorMessage = {};
@@ -428,6 +548,14 @@ export const parseProvisioningSchema = (data: any) => {
       default:
         type = ["string"];
 
+        // TODO: Implement a proper solution for this where field type is input_sld
+        if (field.name === "sld") {
+          type = ["string"];
+          format = "sld";
+          // TODO: Set the raw TLD rather, not the product name
+          field.description = product?.name;
+        }
+
         // additional format checks
         if (includes(field.validation_rules, "email")) format = "email";
         if (includes(field.validation_rules, "url")) format = "uri";
@@ -472,13 +600,31 @@ export const parseProvisioningSchema = (data: any) => {
   };
 };
 
-// ---
+export const parseSummary = (
+  raw: any,
+  {
+    model,
+    lookups,
+    error,
+    rawProduct,
+    basketProduct,
+  }: Partial<ProductConfigContext>
+): SummaryDetails => {
+  // sanity check
+  if (isEmpty(model) || isEmpty(lookups)) {
+    return {
+      pricing: [],
+      details: [],
+    };
+  }
 
-export const parseSummary = (raw: any, { model, lookups, error }: any) => {
-  const summaryPricing = {
-    name: lookups.product.name,
-    category: lookups.product.category,
-    serviceIdentifier: lookups.product.serviceIdentifier,
+  // ---
+  const { checkIncludesTax } = useBrand();
+
+  const summaryPricing: BasketProductSummaryPrice = {
+    key: "totals",
+    title: lookups.product?.title ?? "",
+    category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
     // ---
@@ -488,8 +634,9 @@ export const parseSummary = (raw: any, { model, lookups, error }: any) => {
     currentPrice: raw?.discounted_formatted || raw.total_formatted,
     // ---
     meta: {
-      oneoff: model.term > 0,
+      oneoff: (model?.term ?? 0) > 0,
       discounted: (raw.discounted ?? raw.total) !== raw.total,
+      includesTax: checkIncludesTax(),
       free: (raw?.discounted ?? raw.total) == 0,
     },
   };
@@ -498,21 +645,33 @@ export const parseSummary = (raw: any, { model, lookups, error }: any) => {
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
   // and allow for easy i18n
-  const details = [];
+  const details: SummaryDetails["details"] = [];
+
+  //  product title
+  if (rawProduct) {
+    details.push({
+      key: "product",
+      title: useUischemaTitle(rawProduct, {
+        basketProduct,
+        valueKey: "meta.uischema.summary.title.name",
+        fallback: useProductName(rawProduct, basketProduct),
+      }),
+      category: useUischemaTitle(rawProduct, {
+        basketProduct,
+        valueKey: "meta.uischema.summary.title.category",
+        fallback: "Product",
+      }),
+    });
+  }
 
   //  product category
-  details.push({
-    key: "category",
-    name: lookups.product.category,
-    category: undefined,
-    cycle: undefined,
-    quantity: undefined,
-    discount: undefined,
-    discount_formatted: undefined,
-    total: undefined,
-    total_formatted: undefined,
-    invalid: false,
-  });
+  if (lookups.product?.category) {
+    details.push({
+      key: "category",
+      title: lookups.product.category,
+      category: lookups.product.category,
+    });
+  }
 
   // term
   const term = parseSummaryTerm(model.term, lookups.terms, error?.term);
@@ -551,48 +710,56 @@ export const parseSummary = (raw: any, { model, lookups, error }: any) => {
   };
 };
 
-export function parsSummaryPrice(data: any) {
-  const summary = {
+export function parsSummaryPrice(data: any): BasketProductSummaryDetail {
+  const { checkIncludesTax } = useBrand();
+
+  return {
     key: "",
-    name: data.name,
+    title: data.title,
     category: data.category,
-    serviceIdentifier: data.serviceIdentifier,
+    // ---
     cycle: data.cycle,
     quantity: data.quantity || 1,
-
+    // ---
     regularAmount: data.regularAmount,
     regularPrice: data.regularPrice,
     currentAmount: data.currentAmount,
     currentPrice: data.currentPrice,
-
+    // ---
     meta: {
       oneoff: data.cycle > 0,
       discounted: data.currentAmount !== data.regularAmount,
+      includesTax: checkIncludesTax(),
       free: data.currentAmount == 0,
     },
   };
-  return summary;
 }
 
-const parseSummaryTerm = (term: any, terms: any, error?: any) => {
+const parseSummaryTerm = (
+  term: any,
+  terms: any,
+  error?: any
+): BasketProductSummaryDetail | undefined => {
   const cycle = find(terms, ["cycle", term]);
   if (cycle) {
-    const term = parsSummaryPrice(cycle);
-    term.key = "term";
-    term.category = "Billing Cycle";
-    term.name = cycle.name;
-    return term;
+    return {
+      ...parsSummaryPrice(cycle),
+      key: "term",
+      category: "Billing Cycle",
+    };
   }
 
-  return null;
+  return undefined;
 };
 
 const parseSummarySubproduct = (
   key: string,
-  data: any,
-  lookup: any[],
+  data: ProductModel["options"],
+  lookup?: SubproductOption[],
   error?: any
-) => {
+): BasketProductSummaryDetail[] => {
+  const { checkIncludesTax } = useBrand();
+
   return reduce(
     data,
     (result, choices) => {
@@ -600,30 +767,25 @@ const parseSummarySubproduct = (
         const selected = reduce(
           choices,
           (result, choice, id) => {
-            const category = find(lookup, { values: [{ id }] });
-            const subproduct = find(category?.values, { id });
-
+            const category = find(lookup, {
+              values: [{ id }],
+            }) as SubproductOption;
+            const subproduct = find(category?.values, {
+              id,
+            }) as SubProductOptionValue;
             if (subproduct) {
               result.push({
                 key,
-                quantity: choice.unit_quantity,
-                category: category.name,
-                name: subproduct.name,
-                cycle: subproduct?.billing_cycle_months,
+                quantity: choice.quantity,
+                category: category?.name,
+                title: subproduct.name,
+                cycle: subproduct.cycle,
                 // ---
-                currentAmount: subproduct.price_discounted ?? subproduct.price,
-                currentPrice:
-                  subproduct.price_discounted_formatted ??
-                  subproduct.price_formatted,
-                regularAmount: subproduct?.price,
-                regularPrice: subproduct.price_formatted,
+                price: subproduct.price,
+                prices: subproduct.prices,
+                // ---
                 meta: {
-                  // NB: only show term pricing if recurring!
-                  oneoff: subproduct.billing_cycle_months == 0,
-                  discounted:
-                    (subproduct.price_discounted ?? subproduct.price) !==
-                    subproduct.price,
-                  free: (subproduct.price_discounted ?? subproduct.price) == 0,
+                  ...subproduct.meta,
                   invalid: has(error, `${key}.${id}`),
                 },
               });
@@ -637,24 +799,26 @@ const parseSummarySubproduct = (
       }
       return result;
     },
-    [] as any[] // Provide initial value as an empty array
+    [] as BasketProductSummaryDetail[] // Provide initial value as an empty array
   );
 };
 
-const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
+const parseSummaryProvisionFields = (
+  data: any,
+  schema: any,
+  error?: any
+): BasketProductSummaryDetail[] => {
   return reduce(
     schema?.properties,
     (result: any[], provisionField, key) => {
-      let name = get(data, key);
-
+      let title = get(data, key);
       if (provisionField.oneOf) {
-        name = find(provisionField.oneOf, ["const", name])?.title;
+        title = find(provisionField.oneOf, ["const", title])?.title;
       }
-
       result.push({
         key: `provision_field.${key}`,
         category: get(provisionField, "title", key),
-        name,
+        title,
         cycle: undefined,
         quantity: undefined,
         currentAmount: undefined,
@@ -665,17 +829,13 @@ const parseSummaryProvisionFields = (data: any, schema: any, error?: any) => {
           invalid: some(error, ["data.schemaPath", key]),
         },
       });
-
       return result;
     },
-    [] as any[]
+    [] as BasketProductSummaryDetail[]
   );
 };
 
-// ---   Setting Model for an Item that is configuring,
-//  this may be a new item, or an existing item that has been added to the basket
-
-export const parseModel = (raw: any): ProductModel => {
+export const parseModel = (raw: ProductModel): ProductModel => {
   // handle  product model
   return {
     quantity: raw?.quantity || 1,
@@ -688,21 +848,20 @@ export const parseModel = (raw: any): ProductModel => {
   };
 };
 
-export const parseBasketProductModel = (raw: any): ProductModel => {
+export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
   // map basket product raw
   return {
     // id: raw.id,
     quantity: raw.quantity,
     productId: raw.product_id,
     term: raw.billing_cycle_months,
-    options: mapSubproductChoices(raw.options),
-    attributes: mapSubproductChoices(raw.attributes),
+    options: parseSubproductChoices(raw.options),
+    attributes: parseSubproductChoices(raw.attributes),
     provisionFields: raw.provision_fields,
   };
 };
 
-// ---
-const mapSubproductChoices = (values: any) => {
+const parseSubproductChoices = (values: IBasketProduct[]) => {
   return reduce(
     values,
     (result, value) => {
@@ -713,7 +872,10 @@ const mapSubproductChoices = (values: any) => {
 
       set(result, [value.product.category_id, value.product_id], {
         productId: value.product_id,
-        quantity: parseQuantity(value.unit_quantity, value.product),
+        quantity: parseQuantity(
+          value.unit_quantity,
+          parseProduct(value.product)
+        ),
         cycle: value.billing_cycle_months,
       });
       return result;

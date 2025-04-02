@@ -3,8 +3,9 @@
     <ContentSection v-auto-animate>
       <form v-auto-animate @submit.prevent @reset.prevent>
         <Button
+          v-if="basketMeta.hasProducts && basketMeta.isAvailable"
           type="reset"
-          class="relative -top-4 md:-top-6"
+          class="relative -top-4 mb-6 md:-top-6 md:mb-0"
           size="sm"
           variant="tonal"
           :label="t('navigation.back')"
@@ -25,9 +26,9 @@
               <!-- TODO: add skeleton loader when meta.isLoading -->
               <Card class="!p-0">
                 <ProductConfig
-                  v-if="basketItem && !meta?.isLoading"
-                  :item="basketItem"
-                  :model-value="basketItem?.id"
+                  v-if="pendingProduct && !meta?.isLoading"
+                  :item="pendingProduct"
+                  :model-value="pendingProduct?.id"
                   :processing="meta?.isProcessing"
                   :no-footer="true"
                   as="div"
@@ -45,8 +46,8 @@
           >
             <ContentSection :title="t('product.summary.title')">
               <Summary
-                v-if="basketItem"
-                :item="basketItem"
+                v-if="pendingProduct"
+                :item="pendingProduct"
                 @resolve="doResolve"
               />
             </ContentSection>
@@ -79,8 +80,8 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useRoutingEngine,
-  useProductsPending,
-  useProductConfig,
+  useBasketProductsPending,
+  useQueryParams,
 } from "@upmind-automation/headless-vue";
 
 // --- components
@@ -88,50 +89,43 @@ import { Button, Icon } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
 import ProductConfig from "./components/config/Config.vue";
-import Summary from "./components/Summary.vue";
+import Summary from "./components/summary/Summary.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+
 // --- utils
-import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-// --- basket setup
 const { back, next } = useRoutingEngine();
-const { updateItem } = useBasket();
-const { getPendingProduct, resolvePendingProduct } = useProductsPending();
+const { meta: basketMeta } = useBasket();
+const { productId } = useQueryParams();
+const { configure, resolve } = useBasketProductsPending();
 
-// ---
+const {
+  meta,
+  stop,
+  update,
+  service: pendingProduct,
+} = await configure(productId);
 
 async function doResolve() {
-  if (!basketItem?.id) return;
-  updateItem(basketItem.id).then(() => {
-    resolvePendingProduct(basketItem);
-    next(basketItem);
+  update().then(() => {
+    resolve(pendingProduct);
+    next(pendingProduct);
   });
 }
 
+/**
+ * NB: DO NOT remove/unset this item from the basket,
+ * This is so that we can keep the item in the basket for later use,
+ * especially if the user hits the back button on the browser
+ */
 function doReject() {
-  // NB: DO NOT remove/unset this item from the basket,
-  // This is so that we can keep the item in the basket for later use,
-  // especially if the user hits the back button on the browser
+  stop();
   back();
 }
-
-// ---
-const basketItem = await getPendingProduct();
-const { meta } = !isEmpty(basketItem)
-  ? useProductConfig(basketItem as ActorRef<any>)
-  : {
-      meta: {
-        isLoading: false,
-        isProcessing: false,
-        isComplete: false,
-        isUnavailable: false,
-      },
-    };
 </script>

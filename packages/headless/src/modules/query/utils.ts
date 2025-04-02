@@ -1,9 +1,26 @@
 // --- external
+import { isServer, QueryClient } from "@tanstack/query-core";
 import { isServer, QueryKey, QueryClient } from "@tanstack/query-core";
 
 // --- utils
+import { responseCodes } from "../../utils";
+import {
+  map,
+  set,
+  reduce,
+  isArray,
+  isObject,
+  camelCase,
+  includes,
+  toNumber,
+} from "lodash-es";
 import { useQuery } from "./useQuery";
 import { map, set, reduce, isArray, isObject, camelCase } from "lodash-es";
+
+// ---types
+import { RequestError } from "./types";
+
+// -----------------------------------------------------------------------------
 
 // --- constants
 export const PAGINATION = {
@@ -28,8 +45,7 @@ function createQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid re-fetching immediately on the client
-        gcTime: 60 * 10000, // 10 minutes
-        staleTime: 60 * 10000, // 10 minutes
+        staleTime: 60 * 1000, // 60 seconds
       },
     },
   });
@@ -111,3 +127,29 @@ export const resetQueryByKey =
     queryClient.removeQueries({ queryKey, exact: false });
     return data;
   };
+
+export function canRetryAuthorization(
+  url: URL,
+  error: RequestError,
+  {
+    attempts,
+    max,
+  }: {
+    attempts: number;
+    max: number;
+  }
+): boolean {
+  const isAuth = includes(url?.pathname, "oauth");
+  const isUnauthorized = error?.status === responseCodes.Unauthorized;
+  const value =
+    !isAuth &&
+    isUnauthorized &&
+    Math.max(toNumber(attempts), 1) <= Math.max(toNumber(max), 1);
+  // console.debug("request", "canAuthorize", {
+  //   isAuth,
+  //   isUnauthorized,
+  //   attempts: context?.attempts,
+  //   canAuthorize: value
+  // });
+  return value;
+}

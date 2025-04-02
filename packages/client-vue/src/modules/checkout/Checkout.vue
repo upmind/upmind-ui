@@ -11,7 +11,7 @@
           <slot name="session">
             <component
               :is="props.contentSectionComponent"
-              v-if="!meta.hasAccount && !meta.isCheckout"
+              v-if="!account.isAuthenticated && !meta.isCheckout"
             >
               <component :is="props.cardComponent">
                 <Session
@@ -103,14 +103,13 @@
         modal
         size="2xl"
         :animatedIcon="{
-          icon: TappingCard,
+          icon: processingIcon,
           primaryColor: 'primary',
           secondaryColor: 'secondary',
           size: '4xl',
         }"
         :title="t(processingTitleKey)"
         :text="t(processingTextKey)"
-        :icon="processingIcon"
       >
         <template #title>
           <SmartTitle :i18n-key="processingTitleKey" align="center" />
@@ -159,9 +158,9 @@ import { isEqual } from "lodash-es";
 const { t } = useI18n();
 // ---
 
-const { meta: account } = useSession();
-const { state, meta } = useBasket();
-const { next } = useRoutingEngine();
+const { meta: account, isAuthenticated } = useSession();
+const { state, meta, isReady } = useBasket();
+const { next, back } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -185,6 +184,10 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
 
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();
+// -----------------------------------------------------------------------------
+await isReady().then(() => isAuthenticated().catch(back));
+
+// -----------------------------------------------------------------------------
 
 const processingTitleKey = computed(() => {
   if (meta.value.needsApproval) {
@@ -257,6 +260,7 @@ const processingIcon = computed(() => {
 
   return Basket;
 });
+
 // --- side effects
 watch(meta, (value, oldValue) => {
   // TEMP: DC added this log to be able to debug production using sentry when we have issues with the checkout not being Ready/Able to actually Check Out

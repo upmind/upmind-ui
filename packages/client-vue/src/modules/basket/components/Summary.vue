@@ -15,42 +15,15 @@
           <div
             class="text-primary group m-0 inline-flex flex-1 items-end gap-2 text-left text-sm font-medium leading-normal"
           >
-            <span>{{ product?.name }}</span>
-            <span v-if="product?.serviceIdentifier">
-              ({{ product?.serviceIdentifier }})
-            </span>
+            <span>{{ product?.title }}</span>
           </div>
 
           <div
             class="text-base-foreground m-0 break-all text-right font-medium leading-normal"
           >
-            <slot name="actions" v-bind="{ ...$props, product }">
-              <strong class="text-primary" v-if="props.noActions">
-                {{ product.summary.currentPrice }}
-              </strong>
-
-              <template v-else>
-                <Button
-                  type="button"
-                  size="sm"
-                  class="!p-0"
-                  icon-only
-                  label="modify product"
-                  prependIcon="edit"
-                  @click="emits('edit', product.id)"
-                  disabled
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  class="!p-0"
-                  icon-only
-                  label="remove product"
-                  prependIcon="remove"
-                  @click="removeItem(product.id)"
-                />
-              </template>
-            </slot>
+            <strong class="text-primary">
+              {{ product.summary.currentPrice }}
+            </strong>
           </div>
         </div>
       </div>
@@ -152,7 +125,6 @@ import { useBasket } from "@upmind-automation/headless-vue";
 
 const props = withDefaults(
   defineProps<{
-    noActions: boolean;
     showProducts?: boolean;
   }>(),
   {

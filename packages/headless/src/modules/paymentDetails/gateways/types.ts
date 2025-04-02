@@ -14,7 +14,7 @@ import type {
   IPaymentDetail,
 } from "@upmind-automation/types";
 
-// ---  ENUMS
+// -----------------------------------------------------------------------------
 
 export enum GatewayTypes {
   FREE = -1,
@@ -33,9 +33,6 @@ export enum GatewayCtx {
   PAY = "pay", // PAY = Gateways are shown in the context of making a payment (invoice, topup etc)
   ADD = "add", // ADD = Gateways are shown in the context of adding a stored payment detail
 }
-
-// ---
-// ---  Contexts
 
 // TODO:
 export interface GatewayContext {

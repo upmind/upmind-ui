@@ -1,12 +1,7 @@
 // --- external
 import { createMachine, assign, log } from "xstate";
 
-// --- internal
-import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
-
 // --- utils
-import { isString } from "lodash-es";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
@@ -120,16 +115,11 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "setModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully added ${context.title}`);
-                  },
-                ],
+                actions: ["setModel"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -138,16 +128,11 @@ export default createMachine(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: [
-                  "setModel",
-                  (context, _event) => {
-                    addSuccess(`Successfully updated ${context.title}`);
-                  },
-                ],
+                actions: ["setModel"],
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -213,20 +198,6 @@ export default createMachine(
       }),
 
       clearError: assign({ error: null }),
-
-      setFeedbackError: (
-        { error }: ClientItemContext,
-        _event: AnyEventObject
-      ) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
-        addError({
-          title: isString(error)
-            ? error
-            : error?.title || "We experienced an error with this item",
-          copy: error?.message,
-          data: error?.data,
-        });
-      },
     },
     guards: {
       isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
