@@ -218,53 +218,53 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "ghost",
-        class: "hover:bg-base-muted text-base",
+        class: "hover:bg-base-muted text-base !ring-base-muted-active",
       },
       {
         color: "primary",
         variant: "ghost",
-        class: "hover:bg-primary-muted text-primary",
+        class: "hover:bg-primary-muted text-primary !ring-primary-muted-active",
       },
       {
         color: "secondary",
         variant: "ghost",
-        class: "hover:bg-secondary-muted text-secondary",
+        class: "hover:bg-secondary-muted text-secondary !ring-secondary-muted-active",
       },
       {
         color: "accent",
         variant: "ghost",
-        class: "hover:bg-accent-muted text-accent",
+        class: "hover:bg-accent-muted text-accent !ring-accent-muted-active",
       },
       {
         color: "promotion",
         variant: "ghost",
-        class: "hover:bg-promotion-muted text-promotion",
+        class: "hover:bg-promotion-muted text-promotion !ring-promotion-muted-active",
       },
       {
         color: "destructive",
         variant: "ghost",
-        class: "hover:bg-destructive-muted text-destructive",
+        class: "hover:bg-destructive-muted text-destructive !ring-destructive-muted-active",
       },
 
       {
         color: "success",
         variant: "ghost",
-        class: "hover:bg-success-muted text-success",
+        class: "hover:bg-success-muted text-success !ring-success-muted-active",
       },
       {
         color: "info",
         variant: "ghost",
-        class: "hover:bg-info-muted text-info",
+        class: "hover:bg-info-muted text-info !ring-info-muted-active",
       },
       {
         color: "error",
         variant: "ghost",
-        class: "hover:bg-error-muted text-error",
+        class: "hover:bg-error-muted text-error !ring-error-muted-active",
       },
       {
         color: "warning",
         variant: "ghost",
-        class: "hover:bg-warning-muted text-warning",
+        class: "hover:bg-warning-muted text-warning !ring-warning-muted-active",
       },
 
       // --- link
