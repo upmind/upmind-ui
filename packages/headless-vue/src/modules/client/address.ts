@@ -1,25 +1,22 @@
 import { computed } from "vue";
-import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import {
+  useQuery as useUpmindQuery,
   useClientAddress as useUpmindClientAddress,
   useClientAddresses as useUpmindClientAddresses,
 } from "@upmind-automation/headless";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 
 // --- utils
-import { machineMatches, useContextActor, useContextActors } from "../../utils";
 import { get, debounce, isEmpty } from "lodash-es";
-
-// --- types
-import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 
 // -----------------------------------------------------------------------------
 export const useClientAddress = (
   item: any, // Actor
   context?: Record<string, any>
-): ClientItemDefinition => {
+) => {
   const { service } = useUpmindClientAddress();
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state, send } = item;
@@ -79,65 +76,57 @@ export const useClientAddress = (
   } as ClientItemDefinition;
 };
 
-export const useClientAddresses = (): ClientListingDefinition => {
+export const useClientAddresses = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
-  const { service, isReady, getSelected } = useUpmindClientAddr();
-  const { state, send } = useActor(service);
+  const {
+    isReady,
+    queryKey,
+    remove,
+    setDefault,
+    getDefault,
+    getAllFromCache,
+    getAll,
+    filter,
+    getOne,
+    findOne,
+    getPaged,
+  } = useUpmindClientAddresses();
+  // const { queryClient: upmindQueryClient } = useUpmindQuery();
+  debugger;
+  // const queryClient = useQueryClient(upmindQueryClient);
 
+  const query = useQuery({ queryKey });
+
+  debugger;
   // ---
-  const items = useContextActors(state, "items", []);
-  const selected = useContextActor(state, "selected");
 
   // ---------------------------------------------------------------------------
   return {
-    state: computed(() => state.value.value),
-    context: computed(() => state.value.context),
-    errors: computed(() => state.value.context?.error),
+    errors: query.error,
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isAvailable: ["available"].some(state.value.matches),
-      isLoading:
-        ["subscribing", "checking", "available.loading"].some(
-          state.value.matches
-        ) || machineMatches(selected, ["loading"]),
+      isAvailable: !query.isPending.value && !query.isError.value,
+      isLoading: query.isPending.value,
 
-      isProcessing: ["available.filtering", "available.processing"].some(
-        state.value.matches
-      ),
-      hasErrors: ["error"].some(state.value.matches),
-      isAdding: state.value.matches("available.adding"),
-      isEditing: state.value.matches("available.editing"),
-      isEmpty:
-        state.value.matches("available") && isEmpty(state.value.context?.items),
-      canFilter:
-        state.value.matches("available") &&
-        !["available.editing", "available.adding", "available.loading"].some(
-          state.value.matches
-        ) &&
-        (state.value.context?.raw?.length ?? 0) > 1,
+      hasErrors: query.isError.value,
+      isEmpty: isEmpty(query.data.value),
     })),
     // ---
-    items,
-    selected,
-    initial: computed(() => state.value.context?.initial),
+    items: query.data,
 
     // ---
     isReady,
-    getSelected,
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
-    select: async (id: any) => {
-      await isReady();
-      send({ type: "SELECT", data: id });
-    },
-    edit: async (id: any) => {
-      await isReady();
-      send({ type: "EDIT", data: id });
-    },
-    add: async () => {
-      await isReady();
-      send({ type: "ADD" });
-    },
-  } as ClientListingDefinition;
+    remove,
+    setDefault,
+    getDefault,
+    getAllFromCache,
+    getAll,
+    filter,
+    getOne,
+    findOne,
+    getPaged,
+    invalidate: () => {},
+  };
 };

@@ -7,12 +7,12 @@ import router from "../router";
 
 import {
   useUpmind,
-  useQuery,
   useBrand,
   useSession,
   useSystem,
   useBasket,
   utils,
+  vueQueryPluginOptions,
 } from "@upmind-automation/client-vue";
 
 import { initializeLottie } from "@upmind-automation/upmind-ui";
@@ -32,12 +32,6 @@ const upmindPlugin: Plugin = {
       region: import.meta.env.VITE_API_REGION,
     }).then(() => {
       // lets initialize our api query client
-      const { queryClient } = useQuery();
-      const vueQueryPluginOptions: VueQueryPluginOptions = {
-        // @ts-ignore
-        queryClient,
-        enableDevtoolsV6Plugin: true,
-      };
       app.use(VueQueryPlugin, vueQueryPluginOptions);
       // lets initialize our system, brand + session machines as they are global
       useSystem();

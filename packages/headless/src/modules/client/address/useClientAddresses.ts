@@ -203,6 +203,7 @@ export const useClientAddresses = () => {
   }
 
   return {
+    queryKey: service.queryKey,
     isReady,
     getOne,
     getAll,
