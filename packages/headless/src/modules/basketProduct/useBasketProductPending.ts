@@ -9,7 +9,7 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { ParseDataLayerEcommerceItem } from "./utils";
+import { parsePendingDataLayerEcommerceItem } from "./utils";
 import { parseQuantity } from "../product/utils";
 import { DetailedError, responseCodes } from "../../utils";
 import { isEmpty, get, add, subtract, find, omitBy, isNil } from "lodash-es";
@@ -141,7 +141,11 @@ export const useBasketProductPending = (model: ProductModel) => {
     Promise.all([product, term])
       .then(([product, term]) => {
         {
-          const payload = ParseDataLayerEcommerceItem(model, product, term);
+          const payload = parsePendingDataLayerEcommerceItem(
+            model,
+            product,
+            term
+          );
           dataLayer({ event: "select_item" }).withItems(payload).push();
         }
       })

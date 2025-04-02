@@ -63,7 +63,7 @@ export const useBasketFlows = () => {
       guard: async (_route: Route) => isReady().then(() => hasProducts()),
       resolve: async (_route: Route) => {
         // When a user enters the basket, we want to add this to our dataLayer
-        dataLayer({ event: "view__cart" }).withEcommerce().push();
+        dataLayer({ event: "view_cart" }).withEcommerce().push();
         return { name: ROUTE.BASKET };
       },
       //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.

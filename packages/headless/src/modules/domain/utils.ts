@@ -101,7 +101,7 @@ export function parseAvailable(
         currentPrice: term?.price_discounted_formatted ?? term?.price_formatted,
         regularAmount: term?.price,
         regularPrice: term?.price_formatted,
-        currentSavingAmount: savingsAmount,
+        currentSavingAmount: Math.round(savingsAmount * 100) / 100,
         currentSaving: discounted ? `${Math.round(savingsAmount)}%` : "",
 
         meta: {

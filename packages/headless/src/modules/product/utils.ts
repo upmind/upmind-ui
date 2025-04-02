@@ -22,6 +22,7 @@ import {
   omitBy,
   orderBy,
   reduce,
+  reverse,
   set,
   some,
   toNumber,
@@ -48,6 +49,7 @@ import type {
   ProductDetails,
 } from "./types";
 import type {
+  Price,
   BasketProductDetails,
   BasketProductSummaryDetail,
   BasketProductSummaryPrice,
@@ -207,11 +209,13 @@ export const parseProduct = (rawProduct: IProduct): ProductDetails => {
     brand: useTranslateName(rawProduct?.brand),
     categoryId: rawProduct?.category_id,
     category: useTranslateName(rawProduct?.category),
-    categories: iterateParents(rawProduct.category, [], {
-      valueKey: "name",
-      parentKey: "top_category",
-      transform: useTranslateName,
-    }) as string[],
+    categories: reverse(
+      iterateParents(rawProduct.category, [], {
+        valueKey: "name",
+        parentKey: "top_category",
+        transform: useTranslateName,
+      })
+    ) as string[],
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
     defaultPaymentPeriod: rawProduct?.default_payment_period,
@@ -277,6 +281,7 @@ export const parseTerms = (
       currentAmount: rawTerm.price_discounted ?? rawTerm.price,
       currentPrice:
         rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
+
       regularAmount: rawTerm.price,
       regularPrice: rawTerm.price_formatted,
 
@@ -287,6 +292,17 @@ export const parseTerms = (
         free: (rawTerm.price_discounted ?? rawTerm.price) == 0,
       },
     };
+    // --- Add the savings calculation if needed
+    const currentSavingAmount = term.meta.discounted
+      ? ((term.regularAmount - term.currentAmount) / term.regularAmount) * 100
+      : 0;
+    term.currentSavingAmount = term.meta.discounted
+      ? ((term.regularAmount - term.currentAmount) / term.regularAmount) * 100
+      : 0;
+
+    term.currentSaving = term.meta.discounted
+      ? `${Math.round(term.currentSavingAmount)}%`
+      : "";
 
     // ---    // Ensure the name is set
 

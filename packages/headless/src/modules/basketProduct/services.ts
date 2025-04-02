@@ -7,7 +7,7 @@ import { useBrand } from "../brand";
 
 // --- utils
 import { useTime } from "../../utils";
-import { parseBasketProductConfig } from "./utils";
+import { parseBasketProductData } from "./utils";
 import { parseQuantity } from "../product/utils";
 
 import {
@@ -21,6 +21,7 @@ import {
   set,
 } from "lodash-es";
 import { ActorRef } from "xstate";
+import { IBasket } from "@upmind-automation/types";
 
 // --- types
 
@@ -256,7 +257,7 @@ async function updateQuantity(
     basketProduct: BasketProduct;
   },
   { data }: { data: number }
-): Promise<void> {
+): Promise<IBasket> {
   // sanity check
   if (!basketId) return Promise.reject("No basket provided/available");
   if (!basketProduct.product) return Promise.reject("Product not found");
@@ -268,7 +269,7 @@ async function updateQuantity(
     data,
     basketProduct.product as ProductDetails
   );
-  const product = parseBasketProductConfig(basketProduct);
+  const product = parseBasketProductData(basketProduct);
   return put({
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
@@ -299,12 +300,12 @@ async function update(
     promotions?: string[];
   },
   { data }: { data: ProductModel }
-): Promise<void> {
+): Promise<IBasket> {
   const { put, post, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
-  const product = parseBasketProductConfig(data, promotions);
+  const product = parseBasketProductData(data, promotions);
   // ---
   const isNew = !data?.id;
 
@@ -335,7 +336,7 @@ async function update(
 async function updateMany(
   { basketId, basketProducts, promotions }: any,
   { data }: { data: ActorRef<any>[] }
-): Promise<void> {
+): Promise<IBasket> {
   if (!basketId) return Promise.reject("No basket provided/available");
 
   // When updating the basket we need to provide :
@@ -356,7 +357,7 @@ async function updateMany(
     const model = get(item, "state.context.model");
     if (!model) return Promise.reject("No model found");
     // ---
-    const product = parseBasketProductConfig(model, promotions);
+    const product = parseBasketProductData(model, promotions);
     // Add a flag to the product to indicate that the field values should NOT be validated.
     //  we want to ge these products in without deep validation
     set(product, "provision_field_values_validate", false);
@@ -374,7 +375,7 @@ async function updateMany(
       const id = get(item, "id");
 
       if (id) {
-        const product = parseBasketProductConfig(item, promotions);
+        const product = parseBasketProductData(item, promotions);
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
@@ -419,10 +420,10 @@ async function remove({
 }: {
   basketId: string;
   bpid: string;
-}): Promise<void> {
+}): Promise<IBasket> {
   const { del, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
-  if (!bpid) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
+  if (!bpid) return Promise.reject("No product provided"); // we dont need to make a request as there is no id, must be a new product
   // ---
   return del({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
