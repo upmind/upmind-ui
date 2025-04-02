@@ -45,6 +45,7 @@ export default {
     }),
     title: cva("m-0 flex-1 text-inherit"),
     text: cva("m-0 flex-1 text-xs"),
+    errors: cva("text-error m-0 text-sm"),
   },
   clientCard: {
     root: cva(

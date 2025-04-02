@@ -3,30 +3,24 @@ import { interpret } from "xstate";
 
 // --- internal
 import domainMachine from "./domain.machine";
-import type { DomainContext } from "./types";
 import { DomainTypes } from "./types";
 export * from "./types";
+
 // --- utils
-import { useBasket } from "..";
-import { has, map, isArray } from "lodash-es";
+import { has, map, isArray, some } from "lodash-es";
 import { parseDomain } from "./utils";
 
-// ---
+// -----------------------------------------------------------------------------
 export const useDomain = (
   {
     model,
-    sync,
     type,
   }: {
     model?: string | string[];
-    sync?: boolean;
     type?: DomainTypes;
-    parentId?: string; // id of basket item machine representing the parent context
   } = {
     model: [],
-    sync: false,
     type: undefined,
-    parentId: undefined,
   }
 ) => {
   // ---  // create a new instance of the  domain machine
@@ -38,54 +32,103 @@ export const useDomain = (
   // ---
   const context = {
     type: safeType,
-    sync,
     choices: safeType ? null : DomainTypes,
     model: safeModel,
   };
 
   const service = interpret(domainMachine.withContext(context as any), {
-    devTools: true,
+    devTools: false,
   }).start();
 
-  // ---  // Get the basket machine and watch for changes, ie basket is updated/refreshed
-  // and get the currency and promotions to update our domain prices
-  const { service: basket } = useBasket();
+  // ---------------------------------------------------------------------------
 
-  basket.onTransition((state: any) => {
-    if (state.matches("shopping.refreshing.processed")) {
-      // ---
-      const currencyActor: any = state.context?.actors?.currency;
-      const basketCurrency = currencyActor?.getSnapshot()?.context?.model?.code;
-      // ---
-      const promotionsActor: any = state.context?.actors?.promotions;
-      const basketPromotions =
-        promotionsActor?.getSnapshot()?.context?.model?.promotions;
+  // ---
+  const choose = (value: string) =>
+    service.send({
+      type: "CHOOSE",
+      data: value,
+    });
 
-      const basketProducts = state.context?.products || [];
-      // ---
-      //  only refresh if the currency or promotions have changed
-      const { currency, promotions } = service.getSnapshot().context;
-      if (
-        (basketCurrency && basketCurrency !== currency) ||
-        (basketPromotions && basketPromotions !== promotions)
-      ) {
-        service.send({
-          type: "REFRESH",
-          data: {
-            currency: basketCurrency,
-            promotions: basketPromotions,
-            products: basketProducts,
-          },
-        });
-      }
-    }
-  });
+  const search = (query: string) => {
+    service.send({ type: "SEARCH", data: query });
+  };
+
+  const searchMore = () => {
+    service.send({ type: "SEARCH.OFFSET" });
+  };
+
+  const toggle = (value: string) => {
+    const state = service.getSnapshot();
+    const type = some(state, [".context.model.domain", value])
+      ? "REMOVE"
+      : "ADD";
+    service.send({
+      type,
+      data: value,
+    });
+  };
+
+  const update = (model: string | Array<string>) => {
+    // NB: nsure we have an array of strings
+    service.send({
+      type: "UPDATE",
+      data: isArray(model) ? model : [model],
+    });
+  };
+
+  const reset = () => {
+    service.send({
+      type: "RESET",
+    });
+  };
+
+  const add = (value: string) => {
+    service.send({
+      type: "ADD",
+      data: value,
+    });
+  };
+
+  const remove = (value: string) => {
+    service.send({
+      type: "REMOVE",
+      data: value,
+    });
+  };
+
+  const select = (value: string) =>
+    service.send({
+      type: "SELECT",
+      data: value,
+    });
+
+  const addToBasket = () => {
+    service.send({
+      type: "ADD_UPDATE_MANY",
+    });
+  };
 
   // ---------------------------------------------------------------------------
   return {
     service, // allow for interpreting the machine + inspecting it
-    // ---
     getSnapshot: service.getSnapshot,
+    // ---
+    choose,
+    search,
+    searchMore,
+    toggle,
+    update,
+    reset,
+    add,
+    remove,
+    select,
+    addToBasket,
+    // ---
+    isSelected: (value: string) => {
+      const state = service.getSnapshot();
+      const valid = some(state.context.model, { domain: value });
+      return valid;
+    },
     destroy: () => service.stop(),
   };
 };

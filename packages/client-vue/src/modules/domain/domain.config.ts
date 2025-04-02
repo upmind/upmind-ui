@@ -4,84 +4,73 @@ import { cva } from "class-variance-authority";
 export default {
   domain: {
     root: cva("flex w-full flex-col gap-6"),
-    choices: cva(""),
     // ---
-    search: cva(""),
 
     listings: {
       root: cva("list-none"),
-      header: cva(""),
-      items: cva(""),
-      loading: cva(""),
+      loading: cva(
+        "flex min-h-[68vh] flex-col items-center justify-center space-y-8 pb-24"
+      ),
     },
-    card: {
-      root: cva("m-0 flex w-full flex-col space-y-6 md:flex-row md:space-y-0"),
-      underline: cva("underline underline-offset-8"),
-      header: cva("m-0 flex w-full flex-col gap-2 pr-4"),
-      badges: cva("flex items-center gap-2"),
-      title: cva("m-0 text-xl font-normal tracking-wide"),
-      text: cva(
-        "text-emphasis-medium m-0 inline-flex items-center gap-2 text-xs font-normal leading-5"
-      ),
 
-      // ---
-      footer: cva(
-        "text-emphasis-medium m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
+    search: {
+      root: cva("px-3 py-2"),
+      icon: cva(
+        "text-emphasis-disabled hidden items-center justify-center pl-1 pr-4 md:flex"
       ),
-      actions: cva("w-full min-w-48 empty:hidden md:w-auto"),
-      owned: {
-        root: cva("m-0 items-end"),
-        ownership: cva("font-semibold"),
-        icon: cva(
-          "bg-accent text-accent-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
+      actions: cva("-mr-1 flex items-center justify-center space-x-4"),
+      action: cva("h-10 rounded-lg px-3 md:h-12 md:px-4"),
+    },
+
+    card: {
+      root: cva(
+        "flex w-full flex-col justify-between gap-y-4 py-1 md:flex-row md:items-center md:gap-x-4 md:gap-y-0"
+      ),
+      header: cva("flex items-center md:gap-x-4"),
+      footer: {
+        root: cva(
+          "flex items-center justify-between gap-4 md:justify-normal md:gap-0"
         ),
-        prices: cva("inline-block"),
-        price: cva("not-italic"),
-        discount: cva(
-          "text-emphasis-medium text-md block font-normal line-through"
-        ),
-        tld: cva("uppercase not-italic"),
-        action: cva(""),
+        action: "",
+        label: cva("sr-only"),
+        icon: cva(""),
       },
-      basket: {
-        root: cva("m-0 items-end"),
-        ownership: cva("font-semibold"),
-        tld: cva("uppercase not-italic"),
-        icon: cva(
-          "bg-accent text-accent-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
-        ),
-        prices: cva("inline-block"),
-        price: cva("not-italic"),
-        discount: cva(
-          "text-emphasis-medium text-md block font-normal line-through"
-        ),
-        action: cva(""),
-      },
-      available: {
-        root: cva("m-0 items-end"),
-        ownership: cva("font-medium"),
-        tld: cva("uppercase not-italic"),
-        icon: cva(
-          "bg-primary text-primary-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
-        ),
-        prices: cva("inline-block"),
-        price: cva("m-0 text-lg font-semibold not-italic tracking-wide"),
-        discount: cva(
-          "text-emphasis-medium block text-xs font-normal line-through"
-        ),
-        action: cva(""),
-      },
-      transfer: {
-        root: cva("m-0 items-end"),
-        ownership: cva("font-normal"),
-        tld: cva("uppercase not-italic"),
-        icon: cva(
-          "bg-secondary text-secondary-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
-        ),
-        prices: cva("inline-block"),
-        price: cva("not-italic"),
-        discount: cva("text-xs font-normal line-through"),
-        action: cva(""),
+      icon: cva("mb-1 hidden md:block", {
+        variants: {
+          isAvailable: {
+            true: "text-secondary",
+            false: "text-emphasis-disabled",
+          },
+        },
+      }),
+      content: cva("flex w-full flex-col gap-y-1"),
+      container: cva("m-0 flex w-full flex-wrap items-center gap-y-2"),
+      label: cva("text-2xs m-0 uppercase", {
+        variants: {
+          isAvailable: {
+            true: "text-secondary",
+            false: "text-emphasis-disabled",
+          },
+        },
+      }),
+      title: cva("text-2xl", {
+        variants: {
+          isAvailable: {
+            false: "text-emphasis-medium",
+          },
+        },
+      }),
+      sld: cva(
+        "overflow-wrap-anywhere m-0 max-w-full break-all text-2xl font-normal"
+      ),
+      tld: cva("text-emphasis-none mr-2 text-2xl font-semibold"),
+      promotion: cva(""),
+
+      prices: {
+        root: cva("flex flex-shrink-0 flex-col space-y-1 pr-6 md:space-y-0"),
+        regular: cva("text-emphasis-disabled mr-2 text-xs"),
+        current: cva("text-2xl font-semibold"),
+        cycle: cva("text-emphasis-disabled text-xs font-normal"),
       },
     },
     empty: {
@@ -97,6 +86,30 @@ export default {
       header: cva(""),
       content: cva(""),
       footer: cva("flex-row items-center justify-between gap-x-4"),
+    },
+
+    form: {
+      root: cva("flex flex-col gap-y-2"),
+      trigger: {
+        root: cva(
+          "outline-control-active py-3 pr-5 outline-offset-4 hover:no-underline"
+        ),
+        label: cva("flex cursor-pointer items-center"),
+        radio: cva("relative flex w-11 justify-center pl-1.5"),
+      },
+      item: cva(
+        "hover:border-control-strong rounded-lg border transition-all duration-200"
+      ),
+      items: cva("h-12"),
+      card: cva("bg-base shadow-sm"),
+      loading: cva("text-secondary"),
+      content: {
+        root: cva("p-4 pt-0 md:pl-11"),
+        container: cva(
+          "data-[state=open]:animate-accordion-transform-down data-[state=closed]:animate-accordion-transform-up overflow-visible transition-all duration-200"
+        ),
+      },
+      error: cva("m-0 mt-1"),
     },
 
     transitions: {

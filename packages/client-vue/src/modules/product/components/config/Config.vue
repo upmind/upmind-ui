@@ -43,7 +43,7 @@
             "
           >
             <h3 :class="styles.product.config.title" v-if="!props.noTitle">
-              {{ product?.name }}
+              {{ title }}
             </h3>
 
             <Badge
@@ -209,7 +209,7 @@ import ConfigForm from "./ConfigForm.vue";
 import { Badge, Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { reduce, get, first, isArray, set, keys } from "lodash-es";
+import { reduce, get, first, isArray, set, keys, find } from "lodash-es";
 
 // -- -types
 import type { ActorRef } from "xstate";
@@ -243,6 +243,7 @@ const props = withDefaults(
 const { t } = useI18n();
 
 const {
+  title,
   product,
   productImage,
   terms,
@@ -294,8 +295,8 @@ function safeValue(subproduct: any, value: any): string | string[] {
 const getTermsComponent = computed(() => {
   // TODO: Can we do this in a lookup?
   const control =
-    product?.value?.meta?.uischema?.billing?.control ||
-    product?.value?.categoryMeta?.uischema?.billing?.control;
+    product?.value?.uiMeta?.uischema?.billing?.control ||
+    product?.value?.uiCategoryMeta?.uischema?.billing?.control;
 
   return control === "TermsConfigSelect" ? TermsConfigSelect : TermsConfigGrid;
 });

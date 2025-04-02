@@ -4,7 +4,7 @@ const { sendTo, raise } = actions;
 
 // --- internal
 import services from "./services";
-import { basketSubscription } from "../basket/helper";
+import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
 import { responseCodes } from "../../utils";
@@ -17,6 +17,8 @@ import {
   parseModel,
   parseBasketProductModel,
   parseSummary,
+  useUischemaTitle,
+  useProductName,
 } from "./utils";
 
 import {
@@ -45,9 +47,14 @@ import { calculateSubscription } from "./services";
 
 // ---types
 import type { AnyEventObject } from "xstate";
-import type { BasketProduct, Price } from "../basket";
+import type {
+  BasketProduct,
+  BasketProductSummaryPrice,
+} from "../basketProduct";
 import type { ProductConfigContext, ProductModel } from "./types";
-// ---  as this is a sub machine, we need to be initialised with a product
+
+// -----------------------------------------------------------------------------
+
 export default createMachine(
   {
     //tsTypes: {} as import("./product.machine.typegen").Typegen0,
@@ -77,7 +84,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups"],
+              actions: ["setLookups", "setTitle"],
             },
           ],
           onError: {
@@ -95,7 +102,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups"],
+              actions: ["setLookups", "setTitle"],
             },
           ],
           onError: {
@@ -298,15 +305,12 @@ export default createMachine(
             },
             onDone: [
               { target: "error", cond: "hasError" },
-              { target: "valid", cond: "isDirty" },
-              { target: "configured" },
+              { target: "valid" },
             ],
           },
           // this is our state where we are all good and can add/update this configuration to the basket
           valid: {},
-          configured: {
-            type: "final",
-          },
+
           error: {},
         },
         on: {
@@ -503,11 +507,15 @@ export default createMachine(
             // ---
             baseModel: !isEmpty(basketProduct)
               ? parseBasketProductModel(basketProduct)
-              : parseModel(model),
+              : model
+                ? parseModel(model)
+                : undefined,
 
             model: !isEmpty(basketProduct)
               ? parseBasketProductModel(basketProduct)
-              : parseModel(model),
+              : model
+                ? parseModel(model)
+                : undefined,
 
             // ---
             calculateCallback: spawn(calculateSubscription),
@@ -535,7 +543,10 @@ export default createMachine(
           } = data;
 
           lookups ??= {};
-          lookups.product = parseProduct(rawProduct, basket_product);
+
+          if (rawProduct) {
+            lookups.product = parseProduct(rawProduct);
+          }
 
           if (basketProduct && basketProduct != basket_product) {
             console.warn(
@@ -575,8 +586,10 @@ export default createMachine(
         ({ basketHelper, promotions }: ProductConfigContext) => {
           return {
             basketHelper: basketHelper || spawn(basketSubscription),
-            itemBuilder: (item: ProductModel) => parseModel(item),
-            basketItemMapper: (item: BasketProduct) => ({ id: item.id }),
+            parseBasketProduct: (item: ProductModel) => parseModel(item),
+            parseBasketProductComparison: (item: BasketProduct) => ({
+              id: item.id,
+            }),
           };
         }
       ),
@@ -587,13 +600,12 @@ export default createMachine(
           data?.currency?.id || data?.currency_id,
 
         rawProduct: (_context, { data }: AnyEventObject) => data.product,
-
         lookups: (
-          { model, basketProduct }: ProductConfigContext,
+          { model }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
           return {
-            product: parseProduct(data.product, basketProduct),
+            product: parseProduct(data.product),
             terms: parseTerms(data.product.prices, data.promotionDisplayType),
             options: parseSubproduct(
               data.product.products_options,
@@ -604,9 +616,23 @@ export default createMachine(
               data.product.products_attributes,
               data?.promotionDisplayType
             ),
-            provisionFields: parseProvisioningSchema(data.provisioning),
+            provisionFields: parseProvisioningSchema(
+              data.provisioning,
+              data.product
+            ),
           };
         },
+      }),
+
+      setTitle: assign({
+        title: ({ rawProduct, basketProduct }: ProductConfigContext, _event) =>
+          rawProduct
+            ? useUischemaTitle(rawProduct, {
+                basketProduct,
+                valueKey: "meta.uischema.title",
+                fallback: useProductName(rawProduct, basketProduct),
+              })
+            : "",
       }),
 
       persistModel: assign({
@@ -631,10 +657,17 @@ export default createMachine(
 
       setSummary: assign({
         summary: (
-          { model, lookups, error, summary }: ProductConfigContext,
+          {
+            model,
+            lookups,
+            error,
+            summary,
+            rawProduct,
+            basketProduct,
+          }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          const fallback: Price = first(summary?.pricing);
+          const fallback = first(summary?.pricing) as BasketProductSummaryPrice;
           const totals = has(data, "total")
             ? data
             : {
@@ -644,22 +677,28 @@ export default createMachine(
                 discounted_formatted: fallback?.currentPrice,
               };
 
-          return parseSummary(totals, {
+          const parsedSummary = parseSummary(totals, {
             model,
             lookups,
             error,
+            rawProduct,
+            basketProduct,
           });
+
+          return parsedSummary;
         },
       }),
 
       setSummaryCalculating: assign({
         summary: ({ summary }: ProductConfigContext, _event) => {
+          summary ??= {};
           set(summary, "isCalculating", true);
           return summary;
         },
       }),
       clearSummaryCalculating: assign({
         summary: ({ summary }: ProductConfigContext, _event) => {
+          summary ??= {};
           set(summary, "isCalculating", false);
           return summary;
         },
@@ -819,29 +858,7 @@ export default createMachine(
       isNew: ({ basketProduct }: ProductConfigContext) =>
         isEmpty(basketProduct),
 
-      isDirty: ({ model, baseModel, basketProduct }: ProductConfigContext) => {
-        const cleanModel = compactDeep(model);
-        const cleanBaseModel = compactDeep(baseModel);
-        const value =
-          isEmpty(basketProduct) || !isEqual(cleanModel, cleanBaseModel);
-
-        return value;
-      },
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
-
-      hasBasketError: (
-        { basketProduct, error, errorExternal }: ProductConfigContext,
-        _event
-      ) => {
-        return !isEmpty(basketProduct) && !isEmpty(errorExternal);
-      },
-
-      hasBasketProduct: (
-        { basketProduct, error, errorExternal }: ProductConfigContext,
-        _event
-      ) => {
-        return !isEmpty(basketProduct) && isEmpty(errorExternal);
-      },
 
       hasChanged: (
         { model }: ProductConfigContext,

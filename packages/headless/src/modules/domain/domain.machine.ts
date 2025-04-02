@@ -5,28 +5,27 @@ const { sendTo } = actions;
 
 // --- internal
 import services from "./services";
-import { useFeedback } from "../feedback";
-import { basketSubscription } from "../basket/helper";
+import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session";
-
-const { addError, addSuccess } = useFeedback();
 
 // --- utils
 import { useTime } from "../../utils";
-import { parseDomain, parseValue, parseBasketItem, parseSld } from "./utils";
+import { parseDomain, parseValue, parseSld } from "./utils";
 import {
-  values,
-  isArray,
+  cloneDeep,
   compact,
   concat,
   defaultsDeep,
+  every,
   filter,
   find,
   first,
   get,
   has,
   includes,
+  isArray,
   isEmpty,
+  isFunction,
   map,
   omit,
   reduce,
@@ -34,13 +33,11 @@ import {
   set,
   some,
   uniqBy,
-  every,
-  cloneDeep,
-  isFunction,
+  values,
 } from "lodash-es";
 
 // --- types
-import type { BasketProduct } from "../basket";
+import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type {
   Domain,
@@ -49,8 +46,9 @@ import type {
   DomainLookup,
 } from "./types";
 import type { ProductModel } from "../product";
+import type { BasketProduct } from "../basketProduct";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./domain.machine.typegen").Typegen0,
@@ -60,13 +58,7 @@ export default createMachine(
     context: {} as DomainContext,
     states: {
       subscribing: {
-        entry: [
-          "setContext",
-          "checkModel",
-          "ensurePrimary",
-          "persistModel",
-          "clearLookups",
-        ],
+        entry: ["setContext", "clearLookups"],
         always: {
           target: "loading",
           actions: ["setBasketHelper", "setAuthHelper"],
@@ -96,14 +88,15 @@ export default createMachine(
             initial: "processing",
             states: {
               processing: {
-                entry: ["loadBasketProducts"],
+                entry: ["loadBasket"],
                 on: {
                   REFRESH: {
-                    // do nothing
-                  },
-                  LOADED: {
                     target: "complete",
-                    actions: ["setBasketProducts"],
+                    actions: [
+                      "setBasketProducts",
+                      "setCurrency",
+                      "setPromotions",
+                    ],
                   },
                   ERROR: {
                     target: "complete",
@@ -115,6 +108,7 @@ export default createMachine(
           },
         },
         onDone: "idle",
+        exit: ["checkModel", "ensureSelected", "persistModel"],
       },
 
       // our initial state depends on if the machine has been forced to a type,
@@ -142,6 +136,7 @@ export default createMachine(
       dac: {
         id: "dac",
         initial: "loading",
+        entry: ["clearModel", "clearSearch"],
         states: {
           loading: {
             entry: ["cancelController", "clearError"],
@@ -178,28 +173,34 @@ export default createMachine(
               {
                 target: "invalid",
                 cond: "isInvalid",
-                actions: assign({
-                  error: "Invalid domain",
-                }),
               },
             ],
             on: {
-              SYNC: {
-                target: "syncing",
-                actions: ["syncBasket"],
+              ADD_UPDATE_MANY: {
+                target: "processingBasket",
+                actions: ["addToBasket"],
               },
             },
           },
           invalid: {
             always: [{ target: "valid", cond: "isValid" }],
           },
-          // ---
-          syncing: {
+          processingBasket: {
             on: {
               REFRESH: {
-                // do nothing
+                // Do nothing > wait for the updated event
+                actions: ["setBasketProducts", "setCurrency", "setPromotions"],
               },
-              SYNCED: { target: "#basket", actions: ["synced"] },
+              UPDATED: {
+                target: "#basket",
+                actions: [
+                  "setModelFromBasket",
+                  "ensureSelected",
+                  "checkChoices",
+                  "persistModel",
+                ],
+              },
+
               ERROR: { actions: ["setError"] },
             },
           },
@@ -210,18 +211,18 @@ export default createMachine(
           ADD: [
             {
               target: ".valid",
-              actions: ["add", "ensurePrimary"],
+              actions: ["add", "ensureSelected"],
               cond: "isValidDomain",
             },
           ],
           REMOVE: {
             target: ".valid",
-            actions: ["remove", "ensurePrimary"],
+            actions: ["remove", "ensureSelected"],
             cond: "isValid",
           },
           UPDATE: {
             target: ".valid",
-            actions: ["setModel", "ensurePrimary"],
+            actions: ["setModel", "ensureSelected"],
           },
           SEARCH: [
             {
@@ -238,71 +239,49 @@ export default createMachine(
             actions: ["setSearchOffset"],
             cond: "validSearchOffset",
           },
-
-          REFRESH: {
-            target: ".loading",
-            actions: ["loadBasketProducts", "setCurrency", "setPromotions"],
-          },
           RESET: {
             target: ".invalid",
             actions: ["resetModel", "resetLookups", "clearSearch"],
           },
+
+          ERROR: { actions: ["setError"] },
         },
-        exit: ["resetModel"],
+        // exit: ["clearModel"],
       },
 
       existing: {
         id: "existing",
         initial: "invalid",
+        entry: ["resetModel"],
         states: {
-          valid: {
-            always: [
-              {
-                target: "invalid",
-                cond: "isInvalid",
-                actions: assign({
-                  error: "Invalid domain",
-                }),
-              },
-            ],
-          },
-          invalid: {
-            always: {
-              target: "valid",
-              cond: "isValid",
-            },
-          },
+          valid: {},
+          invalid: {},
           error: {},
         },
         on: {
-          UPDATE: {
-            target: ".invalid",
-            actions: ["clearError", "setExisting", "ensurePrimary"],
-          },
+          UPDATE: [
+            {
+              target: ".valid",
+              actions: ["clearError", "setExisting", "persistModel"],
+              cond: "isValid",
+            },
+            {
+              target: ".invalid",
+              actions: ["setErrorInvalidDomain", "setExisting", "persistModel"],
+            },
+          ],
         },
-        exit: ["resetModel"],
+        exit: ["clearModel", "persistModel"],
       },
 
       basket: {
         id: "basket",
+        entry: ["resetModel"],
         initial: "loading",
         states: {
           loading: {
-            entry: ["loadBasketProducts"],
-            on: {
-              LOADED: {
-                target: "invalid",
-                actions: [
-                  "setBasketProducts",
-                  "setModel",
-                  "ensurePrimary",
-                  "checkChoices",
-                ],
-              },
-              ERROR: {
-                target: "error",
-                actions: ["setError"],
-              },
+            after: {
+              wait: "invalid",
             },
           },
           processing: {
@@ -315,12 +294,6 @@ export default createMachine(
               target: "invalid",
               cond: "isInvalid",
             },
-            on: {
-              SYNC: {
-                target: "syncing",
-                actions: ["syncBasket"],
-              },
-            },
           },
           invalid: {
             always: {
@@ -328,20 +301,7 @@ export default createMachine(
               cond: "isValid",
             },
           },
-          syncing: {
-            on: {
-              REFRESH: {
-                // do nothing
-              },
-              SYNCED: {
-                target: "complete",
-                actions: ["synced"],
-              },
-              ERROR: {
-                actions: ["setError"],
-              },
-            },
-          },
+
           error: {},
           complete: {},
         },
@@ -349,26 +309,26 @@ export default createMachine(
           SELECT: [
             {
               target: ".processing",
-              actions: ["setPrimary"],
-              cond: "isValid",
+              actions: ["select", "persistModel"],
+              cond: "isSelectable",
             },
           ],
         },
-        exit: ["resetModel"],
+        exit: ["clearModel", "persistModel"],
       },
 
-      // ---
       complete: {
         type: "final",
       },
     },
     on: {
       REFRESH: {
-        actions: ["loadBasketProducts", "setCurrency", "setPromotions"],
-      },
-
-      LOADED: {
-        actions: ["setBasketProducts"],
+        actions: [
+          "setBasketProducts",
+          "setCurrency",
+          "setPromotions",
+          "checkChoices",
+        ],
       },
 
       CHOOSE: [
@@ -436,9 +396,8 @@ export default createMachine(
           // ---
           authHelper: undefined,
           basketHelper: undefined,
-          itemBuilder: undefined,
-          basketItemBuilder: undefined,
-          basketItemMapper: undefined,
+          parseBasketProduct: undefined,
+          parseProductModel: undefined,
         })
       ),
 
@@ -447,39 +406,42 @@ export default createMachine(
       }),
 
       checkModel: assign({
-        model: ({ model }: DomainContext) =>
-          map(compact(model), item => parseDomain(item)) as DomainProduct[],
+        model: ({ model, lookups }: DomainContext) => {
+          const values = map(compact(model), item =>
+            parseDomain(item)
+          ) as DomainProduct[];
+          if (isEmpty(values) && !isEmpty(lookups.basket))
+            return lookups.basket;
+
+          return values;
+        },
       }),
 
-      ensurePrimary: assign({
+      ensureSelected: assign({
         model: ({ model }: DomainContext) => {
-          if (!isEmpty(model) && !some(model, "isPrimary")) {
+          if (!isEmpty(model) && !some(model, "selected")) {
             const primaryDomain = first(model);
-            if (primaryDomain) set(primaryDomain, "isPrimary", true);
+            if (primaryDomain) set(primaryDomain, "selected", true);
           }
           return model;
         },
       }),
 
       checkChoices: assign({
-        choices: ({ basketProducts }: DomainContext) => {
-          if (!basketProducts?.length)
+        choices: ({ lookups }: DomainContext) => {
+          if (isEmpty(lookups.basket))
             return values(omit(DomainTypes, DomainTypes.basket));
-
           return values(DomainTypes);
         },
-        type: ({ type, basketProducts, model }: DomainContext) => {
-          const selected = find(model, "isPrimary") || first(model);
+        type: ({ lookups, model }: DomainContext) => {
+          const selected = find(model, "selected") || first(model);
           const domain = get(selected, "domain");
-
           if (domain) {
-            const inBasket = some(basketProducts, ["domain", domain]);
+            const inBasket = some(lookups.basket, ["domain", domain]);
             if (inBasket) return DomainTypes.basket;
-
             return DomainTypes.existing;
           }
-
-          return type;
+          return undefined;
         },
       }),
 
@@ -490,33 +452,56 @@ export default createMachine(
 
       setCurrency: assign({
         currency: (_context, { data }: AnyEventObject) => {
-          return data?.currency;
+          return get(data, "currency.code");
         },
       }),
 
       setPromotions: assign({
-        promotions: (_context, { data }: AnyEventObject) => {
-          return data?.promotions;
-        },
+        promotions: (_context, { data }: AnyEventObject) =>
+          data?.promotions ?? [],
       }),
-
-      // ---
 
       setAuthHelper: assign(({ authHelper }: DomainContext) => ({
         authHelper: authHelper || spawn(authSubscription),
       })),
 
+      loadBasket: sendTo(
+        ({ basketHelper }: DomainContext, _event) => {
+          if (!basketHelper)
+            throw new Error("No basket helper available to sync");
+          return basketHelper;
+        },
+        { type: "INIT" }
+      ),
+
       setBasketHelper: assign(({ basketHelper }: DomainContext) => {
+        // only do this once, set up the basket helper
         return {
-          basketHelper: basketHelper || spawn(basketSubscription),
-          itemBuilder: (item: any) => parseBasketItem(item) as DomainProduct,
-          basketItemBuilder: (item: DomainProduct) => {
+          basketHelper: basketHelper ?? spawn(basketSubscription),
+
+          parseBasketProduct: (product: IBasketProduct) => {
+            const isDomainProduct = has(product, "provision_fields.sld");
+            if (!isDomainProduct) return undefined;
+            const value = product?.service_identifier;
+            const parsed = value ? parseDomain(value) : undefined;
+
+            if (!parsed) return undefined;
+
+            return {
+              productId: product.product_id,
+              tld: parsed.tld,
+              sld: parsed.sld,
+              domain: parsed.domain,
+            };
+          },
+
+          parseProductModel: (item: DomainProduct) => {
             if (!item?.productId) return undefined;
 
             return {
               productId: item.productId,
               quantity: 1,
-              term: item.cycle,
+              term: item.term, // TODO Check the model if its term or cycle `item.cycle,`
               options: item.options,
               attributes: item.attributes,
               provisionFields: {
@@ -524,36 +509,42 @@ export default createMachine(
               },
             } as ProductModel;
           },
-          basketItemMapper: (item: BasketProduct) => ({
-            productId: item.productId,
-            "provisionFields.sld": item.provisionFields?.sld,
-          }),
         };
       }),
 
       setBasketProducts: assign({
-        basketProducts: (_context: DomainContext, { data }: AnyEventObject) =>
-          data,
-        lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
-          const available = map(data, item => {
-            item.value = item.domain;
-            return item;
-          });
+        lookups: (
+          { lookups, parseBasketProduct, model }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          const primary =
+            find(model, "selected") || first(model) || first(lookups.basket);
 
-          lookups ??= {
-            searched: [],
-            history: [],
-            owned: [],
-            basket: [],
-          };
+          const available = reduce(
+            data.products,
+            (result: DomainProduct[], product: IBasketProduct) => {
+              const parsed = parseBasketProduct(product) as DomainLookup;
+              if (parsed) {
+                parsed.selected = parsed.domain == primary?.domain;
+                parsed.value = parsed.domain;
+                result.push(parsed);
+              }
 
-          set(lookups, "basket", available);
+              return result;
+            },
+            []
+          );
+          set(lookups, "basket", uniqBy(available, "domain"));
           return lookups;
         },
       }),
 
-      syncBasket: sendTo(
-        ({ basketHelper }: DomainContext, _event) => basketHelper,
+      addToBasket: sendTo(
+        ({ basketHelper }: DomainContext, _event) => {
+          if (!basketHelper)
+            throw new Error("No basket helper available to sync");
+          return basketHelper;
+        },
         (context: DomainContext, _event) => {
           // not all values might be products, eg an exiting domain value,
           // so we need to filter out any non product values
@@ -564,8 +555,8 @@ export default createMachine(
             ),
             (result: any[], item: DomainProduct) => {
               if (item?.productId) {
-                const model = isFunction(context?.basketItemBuilder)
-                  ? context.basketItemBuilder(item)
+                const model = isFunction(context?.parseProductModel)
+                  ? context.parseProductModel(item)
                   : undefined;
                 if (model) result.push(model);
               }
@@ -573,28 +564,21 @@ export default createMachine(
             },
             []
           );
-
           return {
-            type: "SYNC",
+            type: "ADD_UPDATE_MANY",
             target: products,
             context,
           };
         }
       ),
 
-      loadBasketProducts: sendTo(
-        ({ basketHelper }: DomainContext, _event) => basketHelper,
-        (context, _event) => ({
-          type: "LOAD",
-          context,
-        })
-      ),
-
-      // ---
-
-      synced: assign({
-        type: (_context, _event) => DomainTypes.basket,
-      }),
+      // loadBasketProducts: sendTo(
+      //   ({ basketHelper }: DomainContext, _event) => basketHelper,
+      //   (context, _event) => ({
+      //     type: "LOAD",
+      //     context,
+      //   })
+      // ),
 
       // ---
 
@@ -603,19 +587,19 @@ export default createMachine(
           { model, lookups, type }: DomainContext,
           { data }: AnyEventObject
         ) => {
-          let available: any[] = [];
+          let available: DomainLookup[] = [];
           switch (type) {
             case DomainTypes.register:
-              available = lookups?.searched || [];
+              available = lookups.searched || [];
               break;
             case DomainTypes.transfer:
-              available = lookups?.searched || [];
+              available = lookups.searched || [];
               break;
-            // case DomainTypes.existing/owned:
-            //   available = lookups?.owned;
+            // case DomainTypes.existing:
+            //   available = lookups.owned;
             //   break;
             case DomainTypes.basket:
-              available = lookups?.basket || [];
+              available = lookups.basket || [];
               break;
           }
           const domain = parseValue(data, model, available);
@@ -630,13 +614,12 @@ export default createMachine(
           const value = isArray(data) ? first(data) : data;
           const parsed = parseDomain(value, true);
           const domain: Domain = {
-            domain: parsed?.domain || "",
-            tld: parsed?.tld || "",
-            sld: parsed?.sld || "",
-            isPrimary: true,
             type: DomainTypes.existing,
+            domain: value,
+            tld: parsed?.tld ?? "",
+            sld: parsed?.sld ?? "",
+            selected: true,
           };
-
           return [domain];
         },
       }),
@@ -646,11 +629,9 @@ export default createMachine(
           reject(model, ["domain", data]),
       }),
 
-      // ---
-
       setModel: assign({
-        model: ({ model, lookups, type }: any, { data }: AnyEventObject) =>
-          reduce(
+        model: ({ model, lookups, type }: any, { data }: AnyEventObject) => {
+          return reduce(
             data,
             (result: Domain[], item) => {
               let available = [];
@@ -668,23 +649,50 @@ export default createMachine(
                   available = lookups?.basket;
                   break;
               }
-
-              const domain: Domain = parseValue(item, model, available);
-
+              const domain: Domain = parseValue(item, data, available);
               if (domain) result.push(domain);
 
               return result;
             },
             []
-          ),
+          );
+        },
       }),
 
-      resetModel: assign({
-        model: ({ baseModel }, _event) => cloneDeep(baseModel),
+      setModelFromBasket: assign({
+        type: (_context, _event) => DomainTypes.basket,
+        model: (
+          { model, lookups }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          const products = (data as IBasket).products;
+          const values = reduce(
+            products,
+            (result: Domain[], rawItem: IBasketProduct) => {
+              if (!rawItem.service_identifier) return result; //safety check
+              // ---
+              const domain: Domain = parseValue(
+                rawItem.service_identifier ?? "",
+                model,
+                lookups?.basket
+              );
+              if (domain) result.push(domain);
+              return result;
+            },
+            []
+          );
+          return !isEmpty(values) ? values : lookups.basket;
+        },
       }),
 
       clearModel: assign({
-        model: [],
+        model: () => [],
+      }),
+
+      resetModel: assign({
+        model: ({ baseModel }, _event) => {
+          return cloneDeep(baseModel);
+        },
       }),
 
       cancelController: assign({
@@ -705,7 +713,7 @@ export default createMachine(
       setSearchQuery: assign({
         search: ({ search }: DomainContext, { data }: AnyEventObject) => {
           return {
-            query: data ?? "",
+            query: data ?? undefined,
             offset: 0,
             limit: search?.limit ?? 10,
             total: 0,
@@ -722,7 +730,7 @@ export default createMachine(
 
       clearSearch: assign({
         search: ({ search }: any, _event) => ({
-          query: "",
+          query: undefined,
           offset: 0,
           limit: search.limit,
           total: 0,
@@ -767,7 +775,7 @@ export default createMachine(
         },
         search: ({ search }: DomainContext, { data }: AnyEventObject) => {
           return {
-            query: search?.query ?? "",
+            query: search?.query ?? undefined,
             offset: search?.offset ?? 0,
             limit: search?.limit ?? 10,
             total: data?.total || 0,
@@ -810,20 +818,16 @@ export default createMachine(
         },
       }),
 
-      setPrimary: assign({
-        model: ({ model }: DomainContext, { data }: any) => {
-          const primary = find(model, ["domain", data]);
-          return map(model, value => {
-            value.isPrimary = value === primary;
+      select: assign({
+        model: ({ lookups }: DomainContext, { data }: any) => {
+          const selected =
+            find(lookups.basket, ["domain", data]) || first(lookups.basket);
+          return map(lookups.basket, value => {
+            value.selected = value === selected;
             return value;
           });
         },
       }),
-
-      // ---
-      setSuccess: (_context, _event) => {
-        // addSuccess("Successfully set Domain");
-      },
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
@@ -834,6 +838,12 @@ export default createMachine(
           // });
 
           return data;
+        },
+      }),
+
+      setErrorInvalidDomain: assign({
+        error: (_context, { data }: AnyEventObject) => {
+          return "Invalid Domain";
         },
       }),
 
@@ -864,17 +874,24 @@ export default createMachine(
       },
 
       isValid: ({ model }: DomainContext) => {
-        return !isEmpty(model) && every(model, parseDomain);
+        const valid = !isEmpty(model) && every(model, parseDomain);
+        return valid;
       },
 
-      isInvalid: ({ model }: DomainContext) => {
-        return isEmpty(model) || !every(model, parseDomain);
+      isSelectable: (
+        { model, lookups }: DomainContext,
+        { data }: AnyEventObject
+      ) => {
+        const valid = some(lookups.basket, ["domain", data]);
+        return valid;
       },
+
+      isInvalid: ({ model }: DomainContext) =>
+        isEmpty(model) || !every(model, parseDomain),
 
       isNotCancelled: (_context, { data }: AnyEventObject) =>
         data?.name !== "AbortError",
 
-      // ---
       isDomainTransfer: (
         { choices }: DomainContext,
         { data }: AnyEventObject

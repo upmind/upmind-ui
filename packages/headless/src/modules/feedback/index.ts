@@ -12,13 +12,16 @@ import { get, isString } from "lodash-es";
 import { messageTypes } from "./types";
 import { messageDisplays, type Message } from "./types";
 
-// ---  create a global instance of the feedback machine
+// -----------------------------------------------------------------------------
+// create a global instance of the feedback machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(feedbackMachine, { devTools: false });
-// ---
+
+// -----------------------------------------------------------------------------
+
 export const useFeedback = () => {
   // ---  // methods
 
@@ -72,15 +75,6 @@ export const useFeedback = () => {
     } as Message);
   }
 
-  function trackEvent(data: object) {
-    const message: Message = {
-      type: messageTypes.EVENT,
-      display: messageDisplays.SILENT,
-      data,
-    };
-
-    return add(message);
-  }
   // maybe?
   // function addDebug(message: string) {
   //   const message: Message = {
@@ -106,7 +100,6 @@ export const useFeedback = () => {
     add,
     addError,
     addSuccess,
-    trackEvent,
     dismiss,
   };
 };

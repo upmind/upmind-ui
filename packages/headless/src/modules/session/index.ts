@@ -9,19 +9,23 @@ import { useFeedback } from "../feedback";
 // --- utils
 import { getTokenFromStorage } from "./utils";
 import { get } from "lodash-es";
-// ---  create a global instance of the session machine
+
+// ---types
+import type { ActorRef } from "xstate";
+export type { User } from "./types";
+// -----------------------------------------------------------------------------
+
+// create a global instance of the session machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let hasSession = false;
+const service = interpret(sessionMachine, { devTools: false });
 
-const service = interpret(sessionMachine, { devTools: true });
-
-// ---
+// -----------------------------------------------------------------------------
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
-const authCallback = (callback: any) => {
+const authCallback = (hasSession: boolean, callback: any) => {
   const state = service.getSnapshot();
 
   // callback({ type: "TRANSITIONED", data: get(service.getSnapshot(), 'state.value }')');
@@ -37,10 +41,10 @@ const authCallback = (callback: any) => {
   if (
     (state.matches("guest") &&
       guestMachine?.state?.matches &&
-      guestMachine?.state?.matches("idle")) ||
+      guestMachine?.state?.matches("available")) ||
     (state.matches("client") &&
       clientMachine?.state?.matches &&
-      clientMachine?.state?.matches("idle"))
+      clientMachine?.state?.matches("available"))
   ) {
     hasSession = true;
     callback({ type: "SESSION" });
@@ -51,7 +55,7 @@ const authCallback = (callback: any) => {
     hasSession &&
     state.matches("client") &&
     clientMachine?.state?.matches &&
-    clientMachine?.state?.matches("idle")
+    clientMachine?.state?.matches("available")
   ) {
     callback({ type: "AUTHENTICATED" });
   }
@@ -66,19 +70,14 @@ const authCallback = (callback: any) => {
     hasSession = false;
     callback({ type: "UNAUTHENTICATED" });
   }
-
-  return () => {
-    // Any code inside here will be called when
-    // you leave this state, or the machine is stopped
-  };
+  return hasSession;
 };
-
-// ---  Subscriptions - these are used by the other machines to listen for changes/messages from this machine
 
 export const authSubscription = async (callback: any, onReceive: any) => {
   // firstly, send service's current state upon subscription
+  let hasSession = false;
 
-  authCallback(callback);
+  // authCallback(callback);
 
   onReceive(() => {
     // do nothing for now
@@ -88,7 +87,7 @@ export const authSubscription = async (callback: any, onReceive: any) => {
   // then listen for any changes to the client service
   // if we get a change to either authenticated or unauthenticated
   // then we need to send the callback to the subscriber
-  service.onTransition(state => {
+  const subcscription = service.subscribe(state => {
     const currentMachine =
       state?.children?.clientMachine || state?.children?.guestMachine;
 
@@ -97,31 +96,61 @@ export const authSubscription = async (callback: any, onReceive: any) => {
     if (currentMachine) {
       // @ts-ignore -- this definitely works, despite typescriptm oanind onTrannsition doesnt exist
       currentMachine?.onTransition(() => {
-        authCallback(callback);
+        hasSession = authCallback(hasSession, callback);
       });
     }
 
     // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
-    authCallback(callback);
+    hasSession = authCallback(hasSession, callback);
   });
 
   return () => {
     // The subscriber has unsubscribed from this service
     // typically when the transitioning out of the state node
-    // we dont need to do anything here as we are consuming a global service
-    // console.debug('clientStore', 'checkClient', 'unsubscribed');
+    subcscription.unsubscribe();
   };
 };
 
+// -----------------------------------------------------------------------------
+
 export const useSession = () => {
   // only create the service once
+
+  async function isReady() {
+    return waitFor(
+      service,
+      state => {
+        const currentmachine: ActorRef<any> | undefined =
+          service.getSnapshot()?.children?.clientMachine ??
+          service.getSnapshot()?.children?.guestMachine;
+
+        const valid =
+          currentmachine?.getSnapshot()?.matches("available") ||
+          state.matches("error");
+
+        return valid;
+      },
+      {
+        timeout: Infinity, // infinity = no timeout
+      }
+    ).then(state => {
+      if (state.matches("error")) {
+        return Promise.reject(state.context.error);
+      }
+    });
+  }
 
   // ---  // methods
 
   async function getUser() {
     const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
-    await waitFor(clientMachine, state => !state.matches("loading"));
-    return clientMachine.state.context.user;
+    return waitFor(clientMachine, state => !state.matches("loading")).then(
+      state => {
+        const user = get(state, "context.user");
+        if (!user) return Promise.reject({ title: "Unauthorized", code: 401 });
+        return user;
+      }
+    );
   }
 
   async function getUserId() {
@@ -135,7 +164,9 @@ export const useSession = () => {
       type: "LOGIN",
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state => ["login"].some(state.matches));
+    return waitFor(guestMachine, state =>
+      ["available.login"].some(state.matches)
+    );
   }
 
   function showRegister(): Promise<any> {
@@ -143,7 +174,9 @@ export const useSession = () => {
       type: "REGISTER",
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state => ["register"].some(state.matches));
+    return waitFor(guestMachine, state =>
+      ["available.register"].some(state.matches)
+    );
   }
 
   // ---
@@ -219,21 +252,26 @@ export const useSession = () => {
   // ---------------------------------------------------------------------------
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
+
+    isReady,
     // ---
     getSnapshot: () => service.getSnapshot(),
     getToken: () => getTokenFromStorage()?.access_token,
     getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,
-    authSubscription: (_context: any, _event: any) => authSubscription,
     isAuthenticated: async () => {
-      const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
-      if (!clientMachine)
-        return Promise.reject({ title: "Unauthorized", code: 401 });
+      return isReady().then(() => {
+        const clientMachine: any =
+          service.getSnapshot()?.children?.clientMachine;
 
-      return waitFor(clientMachine, state => state.matches("idle"))
-        .then(() => clientMachine.state.context.user)
-        .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
+        if (!clientMachine)
+          return Promise.reject({ title: "Unauthorized", code: 401 });
+
+        return waitFor(clientMachine, state => state.matches("available"))
+          .then(() => clientMachine.state.context.user)
+          .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
+      });
     },
 
     hasExpired: () => {

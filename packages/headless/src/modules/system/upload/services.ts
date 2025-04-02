@@ -142,7 +142,7 @@ async function upload(
   }).then(({ data }: any) => data);
 }
 
-// ---  EXPORTS
+// -----------------------------------------------------------------------------
 
 export default {
   getImage,

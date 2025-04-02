@@ -3,8 +3,9 @@
     <ContentSection v-auto-animate>
       <form v-auto-animate @submit.prevent @reset.prevent>
         <Button
+          v-if="basketMeta.hasProducts && basketMeta.isAvailable"
           type="reset"
-          class="relative -top-4 md:-top-6"
+          class="relative -top-4 mb-6 md:-top-6 md:mb-0"
           size="sm"
           variant="tonal"
           :label="t('navigation.back')"
@@ -77,14 +78,16 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
+  useBasket,
   useRoutingEngine,
-  useProductsPending,
-  useBasketProductConfig,
+  useBasketProduct,
+  useBasketProducts,
+  useQueryParams,
 } from "@upmind-automation/headless-vue";
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import Summary from "./components/Summary.vue";
+import Summary from "./components/summary/Summary.vue";
 import ProductConfig from "./components/config/Config.vue";
 import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
@@ -92,20 +95,25 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 
 // --- utils
-import { isEmpty } from "lodash-es";
 
 // --- types
+
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-// --- basket setup
 const { back, next } = useRoutingEngine();
-const { getBasketProduct } = useProductsPending();
+const { meta: basketMeta } = useBasket();
+const { basketProductId } = useQueryParams();
+const { configure } = useBasketProducts();
 
-// ---
+const {
+  meta,
+  stop,
+  update,
+  service: basketProduct,
+} = await configure(basketProductId);
 
 async function doResolve() {
-  if (!basketProduct?.id) return;
   update().then(() => next(basketProduct));
 }
 
@@ -113,26 +121,4 @@ function doReject() {
   stop();
   back();
 }
-
-// ---
-const basketItem = await getBasketProduct();
-const {
-  meta,
-  stop,
-  update,
-  service: basketProduct,
-} = !isEmpty(basketItem)
-  ? useBasketProductConfig(basketItem.id)
-  : {
-      service: undefined,
-      meta: {
-        isLoading: false,
-        isProcessing: false,
-        isComplete: false,
-        isUnavailable: false,
-      },
-      stop: back,
-      update: next,
-    };
 </script>
->

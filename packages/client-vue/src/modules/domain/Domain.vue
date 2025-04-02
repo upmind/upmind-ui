@@ -1,75 +1,112 @@
 <template>
   <div :class="styles.domain.root">
     <!-- loader -->
-
     <SkeletonList v-if="meta.isLoading" :rows="3" />
 
     <template v-else>
       <!-- type -->
-      <RadioCards
-        v-if="meta.showChoices"
-        id="domain-type"
-        name="domain-type"
-        :class="styles.domain.choices"
-        :items="i18nChoices"
-        :model-value="type"
-        @update:modelValue="choose"
-        required
-      />
+      <RadioGroup :modelValue="type">
+        <Accordion type="multiple" collapsible :class="styles.domain.form.root">
+          <AccordionItem
+            v-for="item in i18nChoices"
+            :key="item.value"
+            :value="item.value"
+            :class="styles.domain.form.item"
+            :disabled="isSelected(item.value)"
+            :open="isSelected(item.value)"
+          >
+            <AccordionTrigger
+              :class="styles.domain.form.trigger.root"
+              @click="choose(item.value)"
+            >
+              <label :class="styles.domain.form.trigger.label">
+                <span :class="styles.domain.form.trigger.radio">
+                  <div
+                    class="absolute inset-0 z-10 cursor-pointer"
+                    @click="choose(item.value)" />
+                  <RadioGroupItem
+                    :id="item.value"
+                    :value="item.value"
+                    :checked="isSelected(item.value)"
+                    tabindex="-1"
+                    disabled
+                    class="relative !cursor-pointer !opacity-100" /></span
+                >{{ item.label }}
+              </label>
+              <template #icon><span /></template>
+            </AccordionTrigger>
 
-      <!-- register/transfer -->
-      <template v-if="meta.showDac">
-        <Dac
-          :id="`dac-${type}`"
-          :key="`dac-${type}`"
-          :complete="meta.showPrimaryDomain"
-          :disabled="!meta.isValid"
-          :items="available"
-          :loading="meta.isSearching"
-          :model-value="selected"
-          :more="meta.hasMoreSearchResults"
-          :offset="searchOffset"
-          :processing="meta.isSyncing"
-          :values="model"
-          @search="search"
-          @search:more="searchMore"
-          @update:selected="toggle"
-          @resolve="syncBasket"
-          @reject="reset"
-          :query="meta.showPrimaryDomain ? selected : query"
-          :color="color"
-        />
-      </template>
+            <AccordionContent
+              :class="styles.domain.form.content.root"
+              :content-class="styles.domain.form.content.container"
+            >
+              <!-- register/transfer -->
+              <Dac
+                v-if="meta.showDac"
+                :id="`dac-${type}`"
+                :key="`dac-${type}`"
+                :complete="meta.showSelected"
+                :disabled="!meta.isValid"
+                :items="available"
+                :loading="meta.isSearching"
+                :model-value="selected"
+                :more="meta.hasMoreSearchResults"
+                :offset="searchOffset"
+                :processing="meta.isSyncing"
+                :values="model"
+                @search="search"
+                @search:more="searchMore"
+                @update:selected="toggle"
+                @remove="remove"
+                @resolve="addToBasket"
+                @reject="reset"
+                @reset="reset"
+                :query="meta.showSelected ? selected : query"
+                :color="color"
+                :type="type"
+              />
 
-      <!-- existing -->
+              <!-- existing -->
+              <FormControl
+                v-else-if="meta.showExisting"
+                autoFocus
+                :formItemId="`dac-${type}`"
+                :animation-delay="300"
+              >
+                <Input
+                  :class="styles.domain.existing"
+                  :model-value="selected"
+                  @update:modelValue="update($event.toString())"
+                  autocomplete="url"
+                  :placeholder="t('domain.existing.search')"
+                  width="full"
+                  :list="ownedDomains"
+                />
+              </FormControl>
 
-      <FormControl
-        v-else-if="meta.showExisting"
-        autoFocus
-        :formItemId="`dac-${type}`"
-      >
-        <Input
-          :class="styles.domain.existing"
-          :model-value="selected"
-          @update:modelValue="update"
-          autocomplete="url"
-          :placeholder="t('domain.existing.search')"
-          width="full"
-          :list="ownedDomains"
-        />
-      </FormControl>
-
-      <!-- basket -->
-
-      <DomainBasketCards
-        v-else-if="meta.showBasket"
-        :class="styles.domain.basket"
-        :model-value="selected"
-        :items="basket"
-        :loading="meta.isSearching"
-        :processing="meta.isSyncing"
-        @update:modelValue="setPrimaryDomain"
-      />
+              <!-- basket -->
+              <DomainBasketCards
+                v-else-if="meta.showBasket"
+                :class="styles.domain.basket"
+                :model-value="selected"
+                :items="basket"
+                :loading="meta.isSearching"
+                :processing="meta.isSyncing"
+                @update:modelValue="select"
+              />
+              <div v-auto-animate>
+                <FormMessage
+                  v-if="props.errors && props.touched"
+                  :errors="props.errors"
+                  :class="styles.domain.form.error"
+                  formMessageId="domain-error-message"
+                  name="domain"
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </RadioGroup>
     </template>
   </div>
 </template>
@@ -78,20 +115,26 @@
 // --- external
 import { computed, watch, onBeforeUnmount, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
-
+import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useDomain } from "@upmind-automation/headless-vue";
-import { useStyles, type ButtonProps } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./domain.config";
 
 // --- components
 import Dac from "./components/Dac.vue";
 import DomainBasketCards from "./components/DomainBasketCards.vue";
 import {
-  RadioCards,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
   SkeletonList,
   Input,
   FormControl,
+  FormMessage,
+  RadioGroup,
+  RadioGroupItem,
 } from "@upmind-automation/upmind-ui";
 
 // --- utils
@@ -99,31 +142,19 @@ import { map } from "lodash-es";
 import { DomainTypes } from "@upmind-automation/headless-vue";
 
 // --- types
+import type { DomainProps } from "./types";
 
 // -----------------------------------------------------------------------------
-// const emit = defineEmits(["update:modelValue"]);
 const emit = defineEmits<{
   (e: "update:modelValue", value: string | string[]): void;
+  (e: "update:type", value: string): void;
 }>();
 
-const props = withDefaults(
-  defineProps<{
-    sync?: boolean;
-    type?: DomainTypes;
-    modelValue?: string;
-    multiple?: boolean;
-    parentId?: string;
-    color?: ButtonProps["color"];
-  }>(),
-  {
-    sync: true,
-    type: DomainTypes.register,
-    modelValue: "",
-    multiple: false,
-    parentId: "",
-    color: "secondary",
-  }
-);
+const props = withDefaults(defineProps<DomainProps>(), {
+  type: DomainTypes.register,
+  modelValue: "",
+  color: "secondary",
+});
 const { t, tm, rt } = useI18n();
 
 const {
@@ -148,24 +179,43 @@ const {
   toggle,
   reset,
   destroy,
-  syncBasket,
-  setPrimaryDomain,
+  addToBasket,
+  select,
+  remove,
 } = useDomain({
   model: props.modelValue,
-  sync: props.sync,
   type: props.type,
-  parentId: props.parentId,
 });
 
-const styles = useStyles(["domain"], meta, config) as ComputedRef<{
+const styles = useStyles(
+  ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
+  meta,
+  config
+) as ComputedRef<{
   domain: {
     root: string;
     choices: string;
     existing: string;
     basket: string;
+    form: {
+      root: string;
+      trigger: {
+        root: string;
+        label: string;
+        radio: string;
+      };
+      content: {
+        root: string;
+        container: string;
+      };
+      item: string;
+      error: string;
+    };
+    trigger: {
+      root: string;
+    };
   };
 }>;
-
 // ---
 
 const i18nChoices = computed(() => {
@@ -183,15 +233,19 @@ const i18nChoices = computed(() => {
   });
 });
 
+const isSelected = (value: string) => {
+  return value == type.value;
+};
+
 const ownedDomains = computed(() => {
-  if (!owned?.length) return [];
+  if (!owned.value?.length) return [];
   return [
     {
       as: "separator",
       persist: true,
       domain: t("domain.existing.owned"),
     },
-    ...owned,
+    ...owned.value,
   ];
 });
 
@@ -203,7 +257,6 @@ onBeforeUnmount(() => {
 // --- side effects
 
 watch(selected, value => {
-  choose(value);
-  emit("update:modelValue", value);
+  emit("update:type", value);
 });
 </script>

@@ -8,28 +8,26 @@ export * from "./flows";
 export * from "./types";
 
 // --- utils
-import {
-  awaitResolved,
-  useRoutePendingProducts,
-  useRouteRequiresAction,
-  useRouteQueryParams,
-} from "./utils";
-export * from "./utils";
+import { awaitResolved, useRouteQueryParams } from "./utils";
+export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 
 // --- types
-import type { ROUTE, Flow, Route } from "./types";
+import type { ROUTE, Flow, Route, Target } from "./types";
 import { isEmpty, get, some } from "lodash-es";
-// ---  create a global instance of the basket machine
+export type RouteQueryParams = typeof useRouteQueryParams;
+
+// -----------------------------------------------------------------------------
+
+// create a global instance of the basket machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(routingEngine, {
-  devTools: true,
+  devTools: false,
 });
 
-// ---
-export type RouteQueryParams = typeof useRouteQueryParams;
+// -----------------------------------------------------------------------------
 
 export const useRoutingEngine = () => {
   return {
@@ -86,11 +84,8 @@ export const useRoutingEngine = () => {
       return awaitResolved(service);
     },
     // ---
-    usePendingProducts: useRoutePendingProducts,
-    useRequiresAction: useRouteRequiresAction,
     useQueryParams: useRouteQueryParams as RouteQueryParams,
     // ---
     destroy: () => service.stop(),
   };
 };
-//

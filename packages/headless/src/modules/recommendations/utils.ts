@@ -27,7 +27,7 @@ import { useTranslateField, useTranslateName } from "../../utils";
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { BasketProduct } from "../basket";
+import type { BasketProduct } from "../basketProduct";
 import type {
   Recommendation,
   RelatedProduct,
@@ -35,7 +35,9 @@ import type {
   Badge,
   Benefit,
 } from "./types";
+
 // ---------------------------------------------------------------------------
+
 export function parseBasketItem(data: BasketProduct) {
   // TODO: implement
   // const name = data.product.serviceIdentifier;
@@ -49,7 +51,6 @@ export function parseBasketItem(data: BasketProduct) {
   // return result;
 }
 
-// ---------------------------------------------------------------------------
 /**
  * Parses the given basket and returns a list of recommendations.
  * The recommendations are extracted from the basket products, and only the single products are considered.
@@ -121,13 +122,13 @@ export function parseRelationships(raw: IBasket): Record<string, string[]> {
     raw.products,
     (relationships: Record<string, string[]>, product) => {
       // ---safe check : dont include recommendations for products that are not single products
-      if (product.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
+      if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT)
         return relationships;
 
       const relatedProducts = concat(
-        product.product?.related,
-        product.product?.meta?.related,
-        product.product?.category?.meta?.related
+        product.product.related,
+        product.product.meta?.related,
+        product.product.category?.meta?.related
       );
 
       return reduce(
@@ -216,6 +217,7 @@ export function checkInBasket(
 
   return inBasket;
 }
+
 /*
   Ensure we have a consistent id for the recommendation based on its configuration
   If the recommendation has an id, we use it, otherwise we generate a new one based on the product id and the config
@@ -228,8 +230,6 @@ function ensureId(raw: RelatedProduct) {
   return get(raw, "id", sha1({ productId: raw.object_id, ...raw.config }));
 }
 
-// ---------------------------------------------------------------------------
-
 export function parseRecommendation(
   raw: RelatedProduct,
   meta?: {
@@ -239,7 +239,10 @@ export function parseRecommendation(
     loading?: boolean;
   }
 ): Recommendation {
-  const product = parseProduct(raw.product);
+  const product = !isEmpty(raw.product)
+    ? parseProduct(raw.product)
+    : ({} as any);
+
   const config: IProductConfig = get(raw, "config", {});
   const terms = parseTerms(raw?.product?.prices);
   const term =
@@ -262,7 +265,7 @@ export function parseRecommendation(
     // --- forced overrides
     id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
     label: useTranslateField(raw, "label"),
-    name: useTranslateName(raw) || product?.name,
+    title: useTranslateName(raw) || product?.title,
     description: useTranslateField(raw, "description") || product?.description,
     excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
     imgUrl: raw.image_url || product?.imgUrl,
@@ -282,5 +285,41 @@ export function parseRecommendation(
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
     },
+  };
+}
+
+export function parseDataLayerItem(raw: RelatedProduct, index: number) {
+  const product = raw.product;
+  const config: IProductConfig = get(raw, "config", {});
+  const terms = raw?.product?.prices;
+  const term =
+    find(terms, { billing_cycle_months: config?.bcm }) ??
+    find(terms, { billing_cycle_months: product?.billing_cycle_months }) ??
+    first(terms);
+
+  //   currentAmount: rawTerm.price_discounted ?? rawTerm.price,
+  // currentPrice:
+  //   rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
+  // regularAmount: rawTerm.price,
+  // regularPrice: rawTerm.price_formatted,
+
+  return {
+    item_id: raw.object_id,
+    item_name: raw?.name || product?.name, // For reporting purposes we intentionally pass untranslated product name
+    discount: term?.price_discounted ? term?.price - term?.price_discounted : 0,
+    coupon: compact(config?.coupons?.toString()?.split(",") ?? []).toString(),
+    index,
+    item_brand: product?.brand?.name, // For reporting purposes we intentionally pass untranslated brand name
+    item_category: product?.category.name, // For reporting purposes we intentionally pass untranslated category name
+    // @ts-ignore: TODO see why this is warning when it is in fact valid
+    item_category2: product?.category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
+    // @ts-ignore: TODO see why this is warning when it is in fact valid
+    item_category3: product?.category?.top_category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
+    price: term?.price_discounted ?? term?.price,
+    // net_price: product?.configuration_net_amount_converted, //TODO: check the correct value is used
+    quantity: toSafeInteger(
+      config?.qty || product?.min_order_quantity || product?.unit_quantity || 1
+    ),
+    duration: config?.bcm ?? term?.billing_cycle_months ?? 0,
   };
 }

@@ -14,8 +14,7 @@
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :edit-link="editLink"
-          :taxes="meta.hasTaxIncluded"
-          @update:quantity="updateQuantity"
+          @update:quantity="doUpdateQuantity"
         >
           <slot :product="product" :pricing="pricing" :summary="summary"></slot>
         </BasketProductSummary>
@@ -34,7 +33,7 @@
         :disabled="meta.isProcessing || meta.isLoading"
         :color="color"
         :edit-link="editLink"
-        @remove="remove"
+        @remove="doRemove"
       />
     </Card>
   </Loading>
@@ -47,7 +46,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 
 // --- internal
-import { useBasketProduct } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
@@ -58,26 +56,51 @@ import BasketConfigurationDetails from "./BasketProductConfigurationDetails.vue"
 import BasketProductSummary from "./BasketProductSummary.vue";
 import BasketProductActions from "./BasketProductActions.vue";
 
+// --- utils
+import { isEmpty, some } from "lodash-es";
+
 // --- types
 import type { ComputedRef } from "vue";
 import { type BasketProductProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<BasketProductProps>(), {
-  open: false,
-});
+const props = withDefaults(
+  defineProps<
+    BasketProductProps & {
+      loading?: boolean;
+      processing?: boolean;
+      disabled?: boolean;
+    }
+  >(),
+  {
+    open: false,
+  }
+);
 
-const emits = defineEmits(["update:open"]);
+const emits = defineEmits(["update:open", "update:quantity", "remove"]);
 
 const open = useVModel(props, "open", emits);
 
-const { meta, updateQuantity, remove } = useBasketProduct(props.id);
+const meta = computed(() => ({
+  isDisabled: props.disabled,
+  isLoading: props.loading,
+  isProcessing: props.processing,
+  isUnavailable: isEmpty(props.id),
+  hasErrors: !isEmpty(props.error) || some(props.summary?.details, "invalid"),
 
-const stylesMeta = computed(() => ({
-  hasErrors: !meta.value.isLoading && meta.value.hasErrors,
+  // ---
+  hasProvisioning: !!props?.provisionFields,
+  hasAttributes: !!props?.attributes,
+  hasOptions: !!props?.options,
+  hasTerms: !!props?.term,
 }));
 
-const styles = useStyles(["product.root"], stylesMeta, config) as ComputedRef<{
+// error: computed(() => get(props, "error")),
+//     product: computed(() => get(props, "product")),
+//     model: computed(() => omit(props, ["product", "summary", "error"])),
+//     summary: computed(() => get(props, "summary")),
+
+const styles = useStyles(["product.root"], meta, config) as ComputedRef<{
   product: {
     root: {
       card: string;
@@ -95,4 +118,12 @@ const editLink = computed(() => {
     },
   };
 });
+
+function doUpdateQuantity(value: number) {
+  emits("update:quantity", value);
+}
+
+function doRemove() {
+  emits("remove");
+}
 </script>

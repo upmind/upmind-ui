@@ -3,6 +3,9 @@
 // --- internal
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
+import { useDataLayer } from "../../system";
+const { dataLayer } = useDataLayer();
+
 // --- utils
 import { uniqBy } from "lodash-es";
 
@@ -12,6 +15,7 @@ import { ROUTE } from "../types";
 import { useSession } from "../../session";
 
 // -----------------------------------------------------------------------------
+
 export const useCheckoutFlows = () => {
   const routing = useRoutingEngine();
   const {
@@ -21,6 +25,7 @@ export const useCheckoutFlows = () => {
     hasOrder,
     isOrderPaid,
     getInvoice,
+    isReady,
   } = useBasket();
   const { isAuthenticated } = useSession();
 
@@ -28,6 +33,7 @@ export const useCheckoutFlows = () => {
     {
       name: ROUTE.CHECKOUT,
       guard: async (_route: Route) => {
+        await isReady();
         const validProducts = hasProducts() && !hasInvalidProducts();
         const validFields = await hasFields();
         const validAuth = await isAuthenticated()
@@ -36,14 +42,16 @@ export const useCheckoutFlows = () => {
 
         return validProducts && validFields && validAuth;
       },
+      resolve: async (_route: Route) => {
+        // When a user enters the checkout, we want to add this to our dataLayer
+        dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+        return { name: ROUTE.CHECKOUT };
+      },
       targets: {
         next: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route) => {
-              const valid = hasOrder();
-              return valid;
-            },
+            guard: async (_route: Route) => hasOrder(),
             resolve: async (_route: Route) => {
               const invoice = getInvoice();
               return {
@@ -59,10 +67,7 @@ export const useCheckoutFlows = () => {
         fallback: [
           {
             name: ROUTE.ORDER,
-            guard: async (_route: Route) => {
-              const valid = hasOrder();
-              return valid;
-            },
+            guard: async (_route: Route) => hasOrder(),
             resolve: async (_route: Route) => {
               const invoice = getInvoice();
               return {
@@ -73,13 +78,16 @@ export const useCheckoutFlows = () => {
               };
             },
           },
+
           {
             name: ROUTE.EMPTY,
-            guard: async (_route: Route) => !hasProducts(),
+            guard: async (_route: Route) =>
+              isReady().then(() => !hasProducts()),
           },
           {
             name: ROUTE.BASKET,
-            guard: async (_route: Route) => hasInvalidProducts(),
+            guard: async (_route: Route) =>
+              isReady().then(() => hasInvalidProducts()),
           },
           {
             name: ROUTE.SESSION_REGISTER,

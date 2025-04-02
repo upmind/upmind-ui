@@ -31,13 +31,20 @@
       :no-actions="hideActions"
     />
 
-    <template #actions>
-      <Button
-        v-for="(action, key) in actions"
-        :key="key"
-        v-bind="action"
-        @click="doAction(action)"
-      />
+    <template #footer>
+      <footer class="flex w-full flex-col gap-y-2">
+        <p v-if="meta.hasErrors" :class="styles.clientForm.errors">
+          {{ errors }}
+        </p>
+        <div class="flex justify-between gap-x-2">
+          <Button
+            v-for="(action, key) in actions"
+            :key="key"
+            v-bind="action"
+            @click="doAction(action)"
+          />
+        </div>
+      </footer>
     </template>
   </component>
 </template>
@@ -79,15 +86,15 @@ const props = withDefaults(defineProps<ClientItemProps>(), {
 
 const { t } = useI18n();
 const useClient = inject("client") as any;
-const { meta, model, schema, uischema, input, update, cancel } = useClient(
-  props.modelValue
-);
+const { meta, model, schema, uischema, input, update, cancel, errors } =
+  useClient(props.modelValue);
 const styles = useStyles(["clientForm"], meta, config) as ComputedRef<{
   clientForm: {
     root: string;
     content: string;
     footer: string;
     loading: string;
+    errors: string;
   };
 }>;
 

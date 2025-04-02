@@ -8,7 +8,8 @@ import { pick, omit, unset, set, has } from "lodash-es";
 // --- types
 import type { PaymentContext } from "./types";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const usePaymentParser: any = ({
   paymentDetail,
   orderId,

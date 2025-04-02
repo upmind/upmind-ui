@@ -24,6 +24,7 @@ const service = interpret(
     services: services as any,
   }),
   {
+    id: "places",
     devTools: false,
   }
 );

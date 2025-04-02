@@ -8,7 +8,8 @@
 import type { PromotionsContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const useSchema = (_context: PromotionsContext) => {
   const schema = {
     type: "object",

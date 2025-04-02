@@ -11,7 +11,8 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const useSchema = (context: GatewayContext) => {
   const { cancel, success, fail } = generateResponseUrls(
     window.location.origin,
@@ -51,7 +52,6 @@ export const useSchema = (context: GatewayContext) => {
   return schema as JsonSchema;
 };
 
-// ---
 export const useUischema = ({ stored_payment_methods }: GatewayContext) => {
   const uischema = {
     type: "VerticalLayout",

@@ -1,5 +1,17 @@
-import type { DomainLookup } from "@upmind-automation/headless-vue";
+import type {
+  DomainLookup,
+  DomainTypes,
+} from "@upmind-automation/headless-vue";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
+
+export interface DomainProps {
+  type?: DomainTypes;
+  modelValue?: string;
+  multiple?: boolean;
+  color?: ButtonProps["color"];
+  errors?: any;
+  touched?: boolean;
+}
 
 export interface DacProps {
   id: string;
@@ -15,6 +27,7 @@ export interface DacProps {
   disabled?: boolean;
   complete?: boolean;
   more?: boolean;
+  type?: string;
 }
 
 export interface DomainCardsProps {
@@ -33,6 +46,32 @@ export interface DomainCardsProps {
 export interface DomainCardProps extends DomainLookup {
   selected?: boolean;
   processing?: boolean;
+  basket?: boolean;
   // ---
   color?: ButtonProps["color"];
+}
+
+export interface DomainPricesProps {
+  summary?: {
+    currentPrice?: DomainLookup["summary"]["currentPrice"];
+    regularPrice?: DomainLookup["summary"]["regularPrice"];
+    meta: {
+      discounted?: DomainLookup["summary"]["meta"]["discounted"];
+    };
+  };
+}
+export interface DomainDescriptionProps
+  extends Omit<DomainLookup, "sld" | "productId" | "quantity" | "term"> {}
+
+export interface DomainActionProps extends DomainDescriptionProps {
+  color?: string;
+  processing?: boolean;
+}
+
+export interface DomainSearchProps {
+  modelValue?: string;
+  searchClass?: string;
+  showComplete?: boolean;
+  isLoading?: boolean;
+  type?: string;
 }

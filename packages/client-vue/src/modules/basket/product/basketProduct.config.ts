@@ -8,12 +8,27 @@ export default {
         "relative flex flex-col gap-y-3 p-6 text-inherit md:gap-y-4 md:p-8",
         {
           variants: {
+            isDisabled: {
+              true: "pointer-events-none !cursor-not-allowed",
+              false: "",
+            },
+            isLoading: {
+              true: "",
+              false: "",
+            },
             hasErrors: {
-              true: "ring-error !ring-error-1 ring-1",
+              true: "",
               false:
                 "ring-offset-background focus-within:ring-ring focus-within:outline-none focus-within:ring-1 focus-within:ring-offset-1 group-focus-within:ring-0 group-focus-within:ring-offset-0",
             },
           },
+          compoundVariants: [
+            {
+              isLoading: false,
+              hasErrors: true,
+              class: "ring-error !ring-error-1 ring-1",
+            },
+          ],
         }
       ),
       container: cva("divide-y divide-dashed"),

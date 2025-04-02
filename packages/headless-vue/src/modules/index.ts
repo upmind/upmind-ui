@@ -1,4 +1,5 @@
 export * from "./basket";
+export * from "./basketProduct";
 export * from "./brand";
 export * from "./client";
 export * from "./domain";

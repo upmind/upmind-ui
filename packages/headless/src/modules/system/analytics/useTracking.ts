@@ -1,0 +1,138 @@
+// --- external
+
+// --- internal
+
+// --- utils
+import {
+  defaultsDeep,
+  forEach,
+  isEmpty,
+  isEqual,
+  keyBy,
+  set,
+  reduce,
+  pick,
+  remove,
+} from "lodash-es";
+import { useCookies } from "../../../utils";
+
+// --- Types
+const UPM_TRACK_KEYS = ["source", "medium", "campaign", "content", "term"];
+const UPM_TRACK_COOKIE = "upm_track";
+
+interface IUpmState {
+  track: {
+    source: string;
+    medium: string;
+    campaign: string;
+    content: string;
+    term: string;
+  } | null;
+}
+// -----------------------------------------------------------------------------
+
+export const useTracking = () => {
+  const base = reduce(
+    UPM_TRACK_KEYS,
+    (result, key) => {
+      set(result, key, null);
+      return result;
+    },
+    {}
+  );
+  const { get: getCookie, set: setCookie, remove: remove } = useCookies();
+
+  // ---
+  function cleanParams() {
+    const url = new URL(window.location.toString());
+    const cleanUrl = new URL(window.location.toString());
+
+    // Delete each upm_ track parameter
+    forEach(UPM_TRACK_KEYS, key => {
+      const upmKey = `upm_${key}`;
+      const utmKey = `utm_${key}`;
+
+      cleanUrl.searchParams.delete(upmKey);
+      cleanUrl.searchParams.delete(utmKey);
+    });
+
+    // Update router only if params have changed
+    if (!isEqual(cleanUrl.searchParams, url.searchParams)) {
+      window.history.replaceState("", "", cleanUrl);
+    }
+  }
+
+  // ---
+
+  function getTracking() {
+    return new Promise((resolve, reject) => {
+      const cookie = getCookie(UPM_TRACK_COOKIE);
+      if (!cookie) reject(new Error("No tracking cookie found"));
+
+      const trackAtob = atob(`${cookie}`);
+      const values = Object.freeze(
+        defaultsDeep(
+          pick(JSON.parse(trackAtob), UPM_TRACK_KEYS),
+          keyBy(UPM_TRACK_KEYS, () => null)
+        )
+      );
+      resolve(values);
+    });
+  }
+
+  async function init() {
+    // Get existing track cookie and Abort if exists
+    return (
+      getTracking()
+        .then(tracking => {
+          if (tracking) {
+            cleanParams();
+            return tracking;
+          } else throw new Error("No tracking cookie found");
+        })
+        // Otherwise generate a new tracking cookie from the Current query
+        .catch(
+          () =>
+            new Promise((resolve, reject) => {
+              const query = new URL(window.location.toString()).searchParams;
+
+              // Track object
+              const trackObj = reduce(
+                UPM_TRACK_KEYS,
+                (result, key) => {
+                  const upmKey = `upm_${key}`;
+                  const utmKey = `utm_${key}`;
+                  const val = query.get(upmKey) || query.get(utmKey) || null;
+                  if (val) set(result, key, val);
+                  return result;
+                },
+                {}
+              );
+
+              // Track values if there were any
+              if (!isEmpty(trackObj)) {
+                // Set track cookie
+                setCookie(UPM_TRACK_COOKIE, defaultsDeep(trackObj, base), {
+                  expires: "90d",
+                });
+
+                // clean track query params
+                cleanParams();
+
+                // Return track object
+                resolve(trackObj);
+              } else {
+                resolve(null);
+              }
+            })
+        )
+    );
+  }
+
+  // ---
+  return {
+    init,
+    get: getTracking,
+    remove: () => remove(UPM_TRACK_COOKIE),
+  };
+};

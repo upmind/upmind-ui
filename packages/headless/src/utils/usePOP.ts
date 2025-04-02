@@ -47,13 +47,16 @@ const schema = {
   },
 };
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const usePOP = (value?: IApiPop) => {
   const { validate } = useValidation();
 
   function getPop(value?: IApiPop): Promise<IApiPop> {
     if (value) return Promise.resolve(value);
-    if (!isEmpty(omitBy(POP, isEmpty))) return Promise.resolve(POP);
+    if (!isEmpty(omitBy(POP, isEmpty))) {
+      return Promise.resolve(POP);
+    }
     return Promise.resolve(defaults);
     // todo when @james has the endpoint // return fetch(`/__pop`).then(resp => resp.json());
   }

@@ -6,7 +6,6 @@ const { escalate } = actions;
 // --- internal
 import services from "./services";
 import { useFeedback } from "../feedback";
-const { addError, addSuccess } = useFeedback();
 
 // --- utils
 import { useApprovalParser } from "./utils";
@@ -17,7 +16,7 @@ import { isEmpty } from "lodash-es";
 import type { PaymentContext } from "./types";
 import { responseCodes } from "../../utils";
 
-// ---
+// -----------------------------------------------------------------------------
 export default createMachine(
   {
     //tsTypes: {} as import("./payment.machine.typegen").Typegen0,
@@ -105,7 +104,6 @@ export default createMachine(
             },
             {
               target: "complete",
-              actions: "setFeedbackSuccess",
             },
           ],
         },
@@ -168,27 +166,6 @@ export default createMachine(
         type: "PAYMENT",
         data: payment,
       })),
-
-      // ---
-      setFeedbackSuccess: (
-        _context: PaymentContext,
-        _event: AnyEventObject
-      ) => {
-        addSuccess("Successfully made payment");
-      },
-
-      // setFeedbackError: ({ error }: PaymentContext, _event: AnyEventObject) => {
-      //   if (
-      //     !error?.message ||
-      //     error?.code == responseCodes.Unprocessable_Entity
-      //   )
-      //     return;
-      //   addError({
-      //     title: error?.title ?? error?.message,
-      //     copy: error?.title ? error?.message : null,
-      //     data: error?.data,
-      //   });
-      // },
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {

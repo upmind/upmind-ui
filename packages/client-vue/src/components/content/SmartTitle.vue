@@ -6,6 +6,7 @@
     :for="`${props.i18nKey}.text`"
     :class="cn(styles.title, props.class)"
     :plural="plural"
+    scope="global"
   >
     <template v-for="keyword in keywords" :key="keyword">
       <component
