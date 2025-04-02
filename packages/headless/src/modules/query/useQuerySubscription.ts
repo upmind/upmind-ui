@@ -34,7 +34,28 @@ export function querySubscription(callback: any, onReceive: any) {
     }
   });
 
-  const unsubscribe = queryClient.getQueryCache().subscribe((event: any) => {
+  const unsubscribe = useQuerySubscription(callback, filter);
+
+  return () => {
+    // The subscriber has unsubscribed from this service
+    // typically when the transitioning out of the state node
+    // we dont need to do anything here as we are consuming a global service
+    // console.debug('clientStore', 'checkClient', 'unsubscribed');
+    unsubscribe();
+  };
+}
+
+//  const queryFilter: QuerySubscriptionFilter = (event: QueryCacheNotifyEvent) =>
+//    event.query.queryKey.includes("brand");
+
+export const useQuerySubscription = (
+  callback: (...args: any[]) => void,
+  filter?: QuerySubscriptionFilter
+) => {
+  // We allow machines to provide us with a filter to only listen to specific events
+  // this is useful in preventing unnecessary updates to the machine
+
+  return queryClient.getQueryCache().subscribe((event: any) => {
     // We only want to listen to  events if we have a filter otherwise we will listen to all events which is not ideal
     const matches = isFunction(filter) ? filter(event) : false;
 
@@ -51,16 +72,9 @@ export function querySubscription(callback: any, onReceive: any) {
       callback({
         type: `QUERY.${event?.action?.type?.toUpperCase()}`,
         queryKey: event.query.queryKey.toString(),
-        ...event.action.data,
+        query: event.query,
+        data: event.query.state.data,
       });
     }
   });
-
-  return () => {
-    // The subscriber has unsubscribed from this service
-    // typically when the transitioning out of the state node
-    // we dont need to do anything here as we are consuming a global service
-    // console.debug('clientStore', 'checkClient', 'unsubscribed');
-    unsubscribe();
-  };
-}
+};

@@ -1,15 +1,11 @@
-import { computed } from "vue";
-
 // --- internal
-
+import { useQuery } from "../query";
 import {
   useClientAddress as useUpmindClientAddress,
   useClientAddresses as useUpmindClientAddresses,
 } from "@upmind-automation/headless";
-import { useQuery } from "@tanstack/vue-query";
 
 // --- utils
-import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -30,26 +26,12 @@ export const useClientAddresses = () => {
     getPaged,
   } = useUpmindClientAddresses();
 
-  debugger;
-  const query = useQuery(queryOptions);
-  debugger;
-  // ---
-
+  const { error, meta, data } = useQuery(queryOptions.queryKey);
   // ---------------------------------------------------------------------------
   return {
-    errors: query.error,
-    //messages: computed(() => state.value.context?.messages),
-    // ---
-    meta: computed(() => ({
-      isAvailable: !query.isPending.value && !query.isError.value,
-      isLoading: query.isPending.value,
-
-      hasErrors: query.isError.value,
-      isEmpty: isEmpty(query.data.value),
-    })),
-    // ---
-    items: query.data,
-
+    error,
+    meta,
+    data,
     // ---
     isReady,
     remove,
