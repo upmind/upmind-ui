@@ -2,11 +2,10 @@
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
     <div class="flex gap-2 pb-6">
       <Button
-        @click="fetchAddresses"
+        @click="getAll"
         size="sm"
         variant="tonal"
-        label="Load addresses"
-        :disabled="processing || addresses.length > 0"
+        :disabled="!meta.isLoading"
       >
         Load addresses
       </Button>
@@ -14,31 +13,17 @@
         @click="invalidateAddresses"
         size="sm"
         variant="tonal"
-        label="Invalidate addresses"
-        :disabled="processing"
+        :disabled="!meta.isLoading"
       >
-        Invalidate addresses
-      </Button>
-      <Button
-        @click="clearAddresses"
-        size="sm"
-        variant="tonal"
-        label="Clear addresses"
-        :disabled="processing"
-      >
-        Clear addresses
+        Invalidate
       </Button>
 
-      <Button @click="doAdd" :loading="processing">New Address</Button>
+      <Button @click="doAdd" :loading="meta.isLoading">New Address</Button>
     </div>
 
-    <div v-if="processing">Loading...</div>
+    <div v-if="meta.isLoading">Loading...</div>
 
-    <section
-      class="pb-3 md:pb-3"
-      v-for="address in addresses"
-      :key="address.id"
-    >
+    <section class="pb-3 md:pb-3" v-for="address in items" :key="address.id">
       <UpmCard>
         <h3 class="mt-0">{{ address.title }}</h3>
         <p>{{ address.description }}</p>
@@ -84,18 +69,13 @@ import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 
 // --- internal
-import { Address, useClientAddresses } from "@upmind-automation/headless";
+import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
-import {
-  UpmCard,
-  useQuery,
-  UpmContentSection,
-} from "@upmind-automation/client-vue";
+import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
-const { getAll } = useClientAddresses();
-const { queryClient } = useQuery();
+const { getAll, items, meta, invalidate } = useClientAddresses();
 
 // --- types
 
@@ -103,25 +83,8 @@ const { queryClient } = useQuery();
 
 const router = useRouter();
 
-const addresses = ref<Address[]>([]);
-const processing = ref<boolean>(false);
-
-function clearAddresses() {
-  addresses.value = [];
-}
-
-function fetchAddresses() {
-  addresses.value = [];
-  processing.value = true;
-  getAll()
-    .then(res => (addresses.value = res))
-    .finally(() => (processing.value = false));
-}
-
 function invalidateAddresses() {
-  return queryClient.invalidateQueries({
-    queryKey: ["client", "addresses"],
-  });
+  return invalidate();
 }
 
 function doEdit(id: string) {
@@ -134,15 +97,15 @@ function doAdd() {
 
 function doDelete(id: string) {
   const { remove } = useClientAddresses();
-  remove(id).then(() => fetchAddresses());
+  return remove(id);
 }
 
 function setDefault(id: string) {
   const { setDefault } = useClientAddresses();
-  setDefault(id).then(() => fetchAddresses());
+  setDefault(id);
 }
 
 onMounted(() => {
-  fetchAddresses();
+  getAll();
 });
 </script>
