@@ -223,11 +223,6 @@ export default {
 
   remove,
   setDefault,
-
-  //--- session
-  authSubscription: (context: any, event: any) =>
-    useSession().authSubscription(context, event),
-  isAuthenticated: () => useSession().isAuthenticated(),
 };
 
 export const useClientCompanyServices = () => {

@@ -7,17 +7,17 @@ import { doFetch, refreshToken } from "./services";
 // --- utils
 import { useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { get, set, unset, isString } from "lodash-es";
 import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
+import { get, set, unset, isString } from "lodash-es";
 
 // --- types
 import type {
   QueryParams,
-  QueryResponse,
   RequestError,
+  QueryResponse,
   RequestParams,
 } from "./types";
-import type { Methods } from "@upmind-automation/types";
+import { Methods } from "@upmind-automation/types";
 
 const queryClient = getQueryClient();
 
@@ -67,7 +67,7 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    return await doFetch<T>({ url, init }).catch(async error => {
+    return doFetch<T>({ url, init }).catch(async error => {
       const requestError = error as RequestError;
       attempts++;
 
