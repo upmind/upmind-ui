@@ -1,5 +1,6 @@
 // --- exports
-export * from "./address";
+export * from "./useClientAddresses";
+export * from "./useClientAddress";
 export * from "./company";
 export * from "./email";
 export * from "./phone";
