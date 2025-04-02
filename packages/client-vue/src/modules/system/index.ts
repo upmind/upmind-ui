@@ -10,10 +10,6 @@ export const UpmErrorView = import("./Error.vue");
 export const UpmEmptyView = import("./Empty.vue");
 export const UpmLoadingView = import("./Loading.vue");
 
-export { default as UpmLoading } from "./Loading.vue";
-export { default as UpmError } from "./Error.vue";
-export { default as UpmEmpy } from "./Empty.vue";
-
 // --- Export Components
 export { default as UpmLoading } from "./Loading.vue";
 export { default as UpmError } from "./Error.vue";
