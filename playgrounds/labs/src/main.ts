@@ -6,8 +6,9 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
 
-import Upmind from "@upmind-automation/client-vue";
+import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
+import { forEach } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -15,8 +16,7 @@ const app = createApp(App);
 
 // ---
 
-Upmind.init({
-  app,
+UpmindClient.init({
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
@@ -39,8 +39,12 @@ Upmind.init({
 
 // ---
 
-app.use(router);
-app.use(i18n);
-app.use(uiPlugins.lottie);
+forEach(uiPlugins, ({ plugin, options }) => {
+  app.use(plugin, options);
+});
+
+forEach(UpmindClient.plugins, ({ plugin, options }) => {
+  app.use(plugin, options);
+});
 
 app.mount("#app");

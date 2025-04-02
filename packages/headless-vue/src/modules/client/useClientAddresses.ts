@@ -1,12 +1,12 @@
 import { computed } from "vue";
 
 // --- internal
+
 import {
-  useQuery as useUpmindQuery,
   useClientAddress as useUpmindClientAddress,
   useClientAddresses as useUpmindClientAddresses,
 } from "@upmind-automation/headless";
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import { useQuery } from "@tanstack/vue-query";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -18,7 +18,7 @@ export const useClientAddresses = () => {
 
   const {
     isReady,
-    queryKey,
+    queryOptions,
     remove,
     setDefault,
     getDefault,
@@ -31,9 +31,7 @@ export const useClientAddresses = () => {
   } = useUpmindClientAddresses();
 
   debugger;
-  const queryClient = useQueryClient();
-  debugger;
-  const query = useQuery({ queryKey, queryFn: () => getAll() });
+  const query = useQuery(queryOptions);
   debugger;
   // ---
 
