@@ -21,6 +21,7 @@ export interface CheckboxCardsItemProps extends ListboxItemProps {
 }
 
 export interface CheckboxCardsProps extends ListboxRootProps {
+  modelValue?: string[];
   label?: string;
   placeholder?: string;
   noneText?: string;

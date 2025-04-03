@@ -1,17 +1,14 @@
 <template>
   <CheckboxGroup
-    :model-value="modelValue"
-    :default-value="defaultValue"
+    v-model="modelValue"
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
-    @update:model-value="onChange"
+    multiple
   >
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
-      tabindex="0"
-      @keydown.enter="onChange(item.value)"
       :class="styles.checkboxCards.item"
     >
       <CheckboxGroupItem
@@ -49,11 +46,8 @@ import config from "./checkboxCards.config";
 import { CheckboxGroup, CheckboxGroupItem } from "../checkbox-group";
 import { Label } from "../label";
 
-// --- utils
-import { find } from "lodash-es";
-
 // --- types
-import type { CheckboxCardsProps, CheckboxCardsItemProps } from "./types";
+import type { CheckboxCardsProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -100,13 +94,4 @@ const styles = useStyles(
     label: string;
   };
 }>;
-
-// allow for toggle of selected item
-function onChange(value: any) {
-  if (modelValue.value == value || !value) {
-    modelValue.value = undefined;
-  } else {
-    modelValue.value = value;
-  }
-}
 </script>

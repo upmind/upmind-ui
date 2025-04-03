@@ -25,7 +25,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <ListboxRoot :class="cn('grid gap-2', props.class)" v-bind="forwarded">
-    <slot />
+  <ListboxRoot class="w-full" v-bind="forwarded">
+    <ListboxContent :class="cn('grid gap-2 w-full', props.class)">
+      <slot />
+    </ListboxContent>
   </ListboxRoot>
 </template>
