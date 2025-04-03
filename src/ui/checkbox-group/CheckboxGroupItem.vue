@@ -1,8 +1,7 @@
 <template>
   <ListboxItem
     v-bind="forwardedProps"
-    as="button"
-    type="button"
+    :key="index"
     :class="
       cn(
         'group relative !m-0 flex w-full select-none items-start rounded-sm pl-10 text-start leading-none outline-none',
@@ -43,6 +42,7 @@ import { computed, type HTMLAttributes } from "vue";
 
 const props = defineProps<
   ListboxItemProps & {
+    index?: number;
     class?: HTMLAttributes["class"];
     itemClass?: HTMLAttributes["class"];
     noInput?: boolean;

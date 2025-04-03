@@ -13,6 +13,7 @@
     >
       <CheckboxGroupItem
         :id="`${props.name}-${index}`"
+        :index="index"
         :value="item.value"
         :name="props.name"
         :required="props.required"
@@ -45,7 +46,12 @@ import config from "./checkboxCards.config";
 // --- components
 import { CheckboxGroup, CheckboxGroupItem } from "../checkbox-group";
 import { Label } from "../label";
-
+import {
+  ListboxItem,
+  ListboxItemIndicator,
+  type ListboxItemProps,
+  useForwardProps,
+} from "radix-vue";
 // --- types
 import type { CheckboxCardsProps } from "./types";
 import type { ComputedRef } from "vue";

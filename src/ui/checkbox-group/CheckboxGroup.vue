@@ -3,6 +3,7 @@ import { cn } from "../../utils";
 import {
   ListboxContent,
   ListboxRoot,
+  ListboxGroup,
   type ListboxRootEmits,
   type ListboxRootProps,
   useForwardPropsEmits,
@@ -26,8 +27,10 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
 <template>
   <ListboxRoot class="w-full" v-bind="forwarded">
-    <ListboxContent :class="cn('grid gap-2 w-full', props.class)">
-      <slot />
+    <ListboxContent>
+      <ListboxGroup :class="cn('grid w-full gap-2', props.class)">
+        <slot />
+      </ListboxGroup>
     </ListboxContent>
   </ListboxRoot>
 </template>
