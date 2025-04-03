@@ -1,8 +1,10 @@
 import { computed } from "vue";
+import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import {
+  type Address,
   useQuery as useUpmindQuery,
   useClientAddress as useUpmindClientAddress,
   useClientAddresses as useUpmindClientAddresses,
@@ -11,40 +13,42 @@ import {
 // --- utils
 import { get, debounce } from "lodash-es";
 
+// --- types
+export type { Address, AddressModel } from "@upmind-automation/headless";
+
 // -----------------------------------------------------------------------------
 export const useClientAddress = (
-  item: any, // Actor
-  context?: Record<string, any>
+  id?: Address["id"],
+  options: { allowMultipleEdits?: boolean } = {}
 ) => {
-  const { service } = useUpmindClientAddress();
+  const { service, update, input, clear, isReady } = useUpmindClientAddress(
+    id,
+    options
+  );
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
-  const { state, send } = item;
+  const { state } = useActor(service);
+
   // ---------------------------------------------------------------------------
   return {
+    isReady,
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
     errors: computed(() => state.value.context?.error?.message),
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isDisabled: context?.disabled,
-      isSelected: context?.selected,
-      isHidden: context?.hidden,
-      isSelectable: context?.selectable,
-      // ---
       isLoading: ["loading"].some(state.value.matches),
       hasErrors: ["error"].some(state.value.matches),
       isProcessing: ["processing"].some(state.value.matches),
-      isValid: ["valid"].some(state.value.matches),
+      isValid: ["available.valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
       canRemove: !!state.value?.context?.model?.canDelete,
       isDefault: !!state.value?.context?.model?.default,
       isVerified: !!state.value?.context?.model?.verified,
-      isComplete:
-        state.value.done || ["processed", "complete"].some(state.value.matches),
+      isComplete: state.value.done || ["complete"].some(state.value.matches),
     })),
     // ---
-    filters: computed(() => state.value.context?.filters),
+    // filters: computed(() => state.value.context?.filters),
     title: computed(() => get(state.value.context, "title")),
     description: computed(() => get(state.value.context, "description")),
     // ---
@@ -52,25 +56,8 @@ export const useClientAddress = (
     schema: computed(() => state.value?.context?.schema),
     uischema: computed(() => state.value?.context?.uischema),
     // ---
-    clear: () => send({ type: "CLEAR" }),
-    input: debounce((model: any) => send({ type: "SET", data: model }), 300),
-    update: () => {
-      // avoid race conditions and wait for the selected item to be valid
-      if (!state.value.matches("valid")) {
-        waitFor(service, newState =>
-          newState.context?.selected?.state?.matches("valid")
-        ).then(() => {
-          send({ type: "UPDATE" });
-        });
-      } else {
-        send({ type: "UPDATE" });
-      }
-    },
-    remove: () => send({ type: "REMOVE" }),
-    setDefault: () => send({ type: "DEFAULT" }),
-    // ---
-    select: () => service.send({ type: "SELECT", data: item.id }),
-    edit: () => service.send({ type: "EDIT", data: item.id }),
-    cancel: () => service.send({ type: "REFRESH" }),
-  } as ClientItemDefinition;
+    clear,
+    input, //debounce((model: any) => send({ type: "SET", data: model }), 300),
+    update,
+  };
 };

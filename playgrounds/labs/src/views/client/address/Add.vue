@@ -10,14 +10,14 @@
         <Button
           @click="doInput"
           variant="tonal"
-          :loading="inputting"
-          :disabled="inputting || updating"
+          :loading="meta.isProcessing"
+          :disabled="meta.isLoading"
           >Input Data</Button
         >
         <Button
           @click="doUpdate"
-          :loading="updating"
-          :disabled="updating || inputting"
+          :loading="meta.isProcessing"
+          :disabled="meta.isLoading"
           >Update</Button
         >
       </div>
@@ -28,26 +28,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { faker } from "@faker-js/faker";
 import { Button } from "@upmind-automation/upmind-ui";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 import {
   useClientAddress,
+  useClientAddresses,
   type AddressModel,
-} from "@upmind-automation/headless";
+} from "@upmind-automation/headless-vue";
+// NB: (re)fetch all addresses and wait before rendering the page
+// as useClientAddress depends on the id being in the list
+// TODO: MAYBE do a direct call to the db for the address instead of fetching all
+const { isReady, getAll } = useClientAddresses();
+await isReady().catch(() => router.push({ name: "client.addresses" }));
 
-const { update, input, getModel } = useClientAddress();
-
-const model = ref<AddressModel>(getModel() ?? {});
-const updating = ref<boolean>(false);
-const inputting = ref<boolean>(false);
+const router = useRouter();
+const { update, input, model, meta } = useClientAddress();
 
 // --- METHODS
 
 function doInput() {
-  inputting.value = true;
-
   const data: AddressModel = {
     address1: faker.location.streetAddress({ useFullAddress: true }),
     address2: faker.location.buildingNumber(),
@@ -59,27 +60,14 @@ function doInput() {
     type: 1,
   };
 
-  input(data)
-    .then(data => {
-      model.value = data;
-    })
-    .catch(err => {
-      console.error("error inputting", { model, err });
-    })
-    .finally(() => {
-      inputting.value = false;
-    });
+  input(data);
 }
 
 function doUpdate() {
-  updating.value = true;
-  update()
-    .then(() => {
-      model.value = getModel();
-    })
-    .catch(err => {
-      console.error("error adding", { model, err });
-    })
-    .finally(() => (updating.value = false));
+  update().then(() => {
+    router.push({
+      name: "client.addresses",
+    });
+  });
 }
 </script>

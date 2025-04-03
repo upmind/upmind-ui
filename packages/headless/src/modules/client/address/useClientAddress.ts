@@ -17,7 +17,10 @@ import type { Address, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const useClientAddress = (id?: Address["id"]) => {
+export const useClientAddress = (
+  id?: Address["id"],
+  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+) => {
   const service = interpret(
     itemMachine
       .withConfig({
@@ -30,6 +33,7 @@ export const useClientAddress = (id?: Address["id"]) => {
         return {
           id,
           model: getOne(id),
+          allowMultipleEdits,
         };
       }),
     {
