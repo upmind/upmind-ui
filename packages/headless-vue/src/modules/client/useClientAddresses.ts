@@ -1,4 +1,5 @@
 // --- internal
+import { computed } from "vue";
 import { useQuery } from "../query";
 import {
   useClientAddress as useUpmindClientAddress,

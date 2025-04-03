@@ -1,7 +1,7 @@
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { useQuery, QueryObserver } from "../../query";
+import { useQuery, useQuerySubscription, QueryObserver } from "../../query";
 
 // --- utils
 import { useFeedback } from "../../feedback";
@@ -10,10 +10,11 @@ import { find, isNil, filter, includes, isString } from "lodash-es";
 // --- types
 import type { Address } from "./types";
 import type { PaginatedParams } from "../../query";
-import type { QueryCacheNotifyEvent, QueryOptions } from "@tanstack/query-core";
+import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 import { useTime } from "../../../utils";
+import { get } from "psl";
 
-let addressObserver: QueryObserver | undefined;
+let observer: QueryObserver | undefined;
 
 /**
  * Subscribe to the client address query that are present in the cache.
@@ -21,55 +22,29 @@ let addressObserver: QueryObserver | undefined;
  * @param callback The callback function to be called when the query is ready/updated.
  * @returns The unsubscribe function
  */
-const subscribeToClientAddresses = ({
-  callback,
-}: {
-  callback: (data: QueryCacheNotifyEvent) => void;
-}) => {
-  if (!addressObserver) {
-    addressObserver = new QueryObserver({ queryKey: service.queryKey });
+const subscribe = (
+  callback: (query: QueryCacheNotifyEvent["query"]) => void
+): QueryObserver => {
+  if (!observer) {
+    observer = useQuerySubscription(service.queryKey, callback);
   }
-
-  return addressObserver.subscribe(data => {
-    if (
-      data.query.state.fetchStatus === "idle" &&
-      data.query.state.status === "success"
-    ) {
-      callback(data);
-    }
-  });
+  return observer;
 };
 
 export const useClientAddresses = () => {
   const { addError, addSuccess } = useFeedback();
+  const { isAuthenticated } = useSession();
 
   /**
    * Check if the client addresses are loaded and ready.
-   * @returns A promise that resolves to true when the addresses are ready.
-   * @example isReady().then(() => console.log("Addresses are ready!"))
+   * @returns A promise that resolves to true when the addresses are ready to be fetched.
+   * @example isAvailable().then(getAll).then(() => console.log("Addresses are ready!"))
    */
-  function isReady() {
-    return new Promise<boolean>(async (resolve, reject) => {
-      const { queryClient } = useQuery();
-      const { isAuthenticated } = useSession();
-
-      const cache = queryClient.getQueryCache().find({
-        queryKey: service.queryKey,
-      });
-
-      if (!isNil(cache)) resolve(true);
-
-      isAuthenticated()
-        .then(() => {
-          const unsubscribe = subscribeToClientAddresses({
-            callback: () => {
-              resolve(true);
-              unsubscribe();
-            },
-          });
-        })
-        .catch(error => reject(error));
-    });
+  async function isAvailable(): Promise<void> {
+    return isAuthenticated().then(
+      () => Promise.resolve(),
+      () => Promise.reject()
+    );
   }
 
   /**
@@ -100,6 +75,7 @@ export const useClientAddresses = () => {
    */
   function getOne(id: Address["id"]) {
     const addresses = getAllFromCache();
+    debugger;
     return find(addresses, ["id", id]);
   }
 
@@ -209,7 +185,8 @@ export const useClientAddresses = () => {
       queryFn: () => getAll(),
       staleTime: useTime().DAY,
     },
-    isReady,
+    subscribe,
+    isAvailable,
     getOne,
     getAll,
     filter: filterAddresses,

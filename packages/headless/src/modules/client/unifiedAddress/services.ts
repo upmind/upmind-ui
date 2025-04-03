@@ -403,10 +403,10 @@ async function loadLookups(
     addresses.isReady(),
     phones.isReady(),
     emails.isReady(),
-    places.isReady(),
+    // places.isReady(),
   ])
     .then(async () => {
-      places.reset();
+      // places.reset();
 
       const [email, address] = await Promise.all([
         emails.getDefault(),

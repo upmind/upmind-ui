@@ -2,14 +2,13 @@
 import { isFunction } from "xstate/lib/utils";
 import { getQueryClient } from "./utils";
 
+// --- internal
+import { QueryObserver } from "./queryObserver";
+
 // --- types
-import { type QueryCacheNotifyEvent } from "@tanstack/query-core";
+import { QueryKey, type QueryCacheNotifyEvent } from "@tanstack/query-core";
 type QuerySubscriptionFilter = (event: QueryCacheNotifyEvent) => boolean;
 export type { QueryCacheNotifyEvent, QuerySubscriptionFilter };
-
-// -----------------------------------------------------------------------------
-
-const queryClient = getQueryClient();
 
 // -----------------------------------------------------------------------------
 
@@ -19,62 +18,45 @@ const queryClient = getQueryClient();
  * @param callback
  * @returns
  */
-export function querySubscription(callback: any, onReceive: any) {
+export function useQueryHelper(callback: any, onReceive: any) {
   // We allow machines to provide us with a filter to only listen to specific events
   // this is useful in preventing unnecessary updates to the machine
-  let filter: QuerySubscriptionFilter | undefined = undefined;
+  let queryKey: QueryKey | undefined = undefined;
 
   onReceive((event: any) => {
     switch (event.type) {
-      case "FILTER":
-        filter = event.filter;
+      case "QUERY_KEY":
+        queryKey = event.queryKey;
         break;
       default:
         break;
     }
   });
 
-  const unsubscribe = useQuerySubscription(callback, filter);
+  let observer: QueryObserver | undefined;
+
+  if (queryKey) observer = useQuerySubscription(queryKey, callback);
 
   return () => {
     // The subscriber has unsubscribed from this service
     // typically when the transitioning out of the state node
     // we dont need to do anything here as we are consuming a global service
     // console.debug('clientStore', 'checkClient', 'unsubscribed');
-    unsubscribe();
+    if (observer) observer.unsubscribe();
   };
 }
 
-//  const queryFilter: QuerySubscriptionFilter = (event: QueryCacheNotifyEvent) =>
-//    event.query.queryKey.includes("brand");
-
+/**
+ * Subscribe to the client address query that are present in the cache.
+ * This will trigger the callback function when the query is ready/updated.
+ * @param callback The callback function to be called when the query is ready/updated.
+ * @returns The unsubscribe function
+ */
 export const useQuerySubscription = (
-  callback: (...args: any[]) => void,
-  filter?: QuerySubscriptionFilter
-) => {
-  // We allow machines to provide us with a filter to only listen to specific events
-  // this is useful in preventing unnecessary updates to the machine
-
-  return queryClient.getQueryCache().subscribe((event: any) => {
-    // We only want to listen to  events if we have a filter otherwise we will listen to all events which is not ideal
-    const matches = isFunction(filter) ? filter(event) : false;
-
-    // console.debug("querySubscription", "event", {
-    //   type: `QUERY.${event?.action?.type?.toUpperCase()}`,
-    //   queryKey: event?.query?.queryKey,
-    //   matches,
-    //   isFiltered: isFunction(filter),
-    //   event,
-    // });
-
-    if (event?.action?.type && matches) {
-      // send the query event to the machine as the event type
-      callback({
-        type: `QUERY.${event?.action?.type?.toUpperCase()}`,
-        queryKey: event.query.queryKey.toString(),
-        query: event.query,
-        data: event.query.state.data,
-      });
-    }
-  });
+  queryKey: QueryKey,
+  callback: (query: QueryCacheNotifyEvent["query"]) => void
+): QueryObserver => {
+  const observer = new QueryObserver(queryKey);
+  observer.subscribe(query => callback(query));
+  return observer;
 };
