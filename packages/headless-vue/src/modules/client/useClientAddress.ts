@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -21,20 +21,22 @@ export const useClientAddress = (
   id?: Address["id"],
   options: { allowMultipleEdits?: boolean } = {}
 ) => {
-  const { service, update, input, clear, isReady } = useUpmindClientAddress(
-    id,
-    options
-  );
+  const { service, update, input, clear, isReady, stop } =
+    useUpmindClientAddress(id, options);
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state } = useActor(service);
 
+  // -- housekeeping
+  onUnmounted(() => {
+    stop();
+  });
   // ---------------------------------------------------------------------------
   return {
     isReady,
     state: computed(() => state.value.value),
     context: computed(() => state.value.context),
     errors: computed(() => state.value.context?.error?.message),
-    //messages: computed(() => state.value.context?.messages),
+    //messages: computedf() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
@@ -59,5 +61,6 @@ export const useClientAddress = (
     clear,
     input, //debounce((model: any) => send({ type: "SET", data: model }), 300),
     update,
+    stop,
   };
 };
