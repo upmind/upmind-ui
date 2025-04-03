@@ -27,7 +27,7 @@ export const alertVariants = cva(
       {
         variant: "outline",
         color: "base",
-        class: "border bg-base text-base-foreground",
+        class: "border bg-base-background text-base-foreground",
       },
       {
         variant: "outline",
