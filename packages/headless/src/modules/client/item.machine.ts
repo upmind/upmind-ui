@@ -142,9 +142,15 @@ export default createMachine(
       processed: {
         id: "processed",
         after: {
-          wait: {
-            target: "complete",
-          },
+          wait: [
+            {
+              target: "available",
+              cond: "continueEditing",
+            },
+            {
+              target: "complete",
+            },
+          ],
         },
       },
 
@@ -201,6 +207,7 @@ export default createMachine(
     },
     guards: {
       isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
+      continueEditing: ({ allowMultipleEdits }) => !!allowMultipleEdits,
     },
     delays: {
       error: () => useTime().ERROR,

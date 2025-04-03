@@ -17,6 +17,8 @@ export interface ClientItemContext {
   baseModel?: any;
   model?: any;
   error?: any;
+  // ---
+  allowMultipleEdits?: boolean;
 }
 
 export interface ClientListingsContext {
