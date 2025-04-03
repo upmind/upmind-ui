@@ -57,8 +57,6 @@ function doInput() {
     default: false,
   };
 
-  console.log(data);
-
   input(data)
     .then(data => {
       model.value = data;

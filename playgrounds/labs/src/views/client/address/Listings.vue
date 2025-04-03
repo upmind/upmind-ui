@@ -5,25 +5,35 @@
         @click="getAll"
         size="sm"
         variant="tonal"
-        :disabled="!meta.isLoading"
+        :disabled="meta.isLoading || !meta.isAvailable"
       >
         Load addresses
       </Button>
       <Button
-        @click="invalidateAddresses"
+        @click="invalidate"
         size="sm"
         variant="tonal"
-        :disabled="!meta.isLoading"
+        :disabled="meta.isLoading || !meta.isAvailable"
       >
         Invalidate
       </Button>
 
-      <Button @click="doAdd" :loading="meta.isLoading">New Address</Button>
+      <Button
+        @click="doAdd"
+        :loading="meta.isLoading"
+        :disabled="!meta.isAvailable"
+      >
+        New Address
+      </Button>
     </div>
 
-    <pre>{{ meta }}</pre>
+    <Alert
+      v-if="!meta.isAvailable"
+      color="error"
+      title="Please log in to view addresses"
+    />
 
-    <Alert v-if="meta.isLoading" color="info" title="Loading..." />
+    <Alert v-else-if="meta.isLoading" color="info" title="Loading..." />
 
     <Alert
       v-else-if="meta.isError"
@@ -87,7 +97,6 @@
 <script lang="ts" setup>
 // --- external
 import { useRouter } from "vue-router";
-import { onMounted, ref } from "vue";
 
 // --- internal
 import { useClientAddresses } from "@upmind-automation/headless-vue";
@@ -96,7 +105,7 @@ import { useClientAddresses } from "@upmind-automation/headless-vue";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button, Alert } from "@upmind-automation/upmind-ui";
 
-const { getAll, data, meta, error, invalidate, remove, setDefault } =
+const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
   useClientAddresses();
 
 // --- types
@@ -104,10 +113,6 @@ const { getAll, data, meta, error, invalidate, remove, setDefault } =
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
-
-function invalidateAddresses() {
-  return invalidate();
-}
 
 function doEdit(id: string) {
   router.push({ params: { id: id }, name: "client.addresses.edit" });
@@ -117,7 +122,5 @@ function doAdd() {
   router.push({ name: "client.addresses.add" });
 }
 
-onMounted(() => {
-  getAll();
-});
+await isReady().then(() => getAll());
 </script>

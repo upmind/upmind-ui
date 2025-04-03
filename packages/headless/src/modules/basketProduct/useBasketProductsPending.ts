@@ -119,8 +119,7 @@ export const useBasketProductsPending = () => {
         setProduct(pid, get(state, "context.model"));
       } else {
         // should we resolve on complete?
-        console.info("Product state", state.value);
-
+        // console.info("Product state", state.value);
         // resolve(actor);
       }
     });

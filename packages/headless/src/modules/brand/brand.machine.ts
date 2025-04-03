@@ -295,8 +295,8 @@ export default createMachine(
             queryHelper = spawn(useQueryHelper);
 
             queryHelper.send({
-              type: "QUERY_KEY",
-              queryKey: ["brand"],
+              type: "SET.QUERY_KEY",
+              data: ["brand"],
             });
           }
           return queryHelper;

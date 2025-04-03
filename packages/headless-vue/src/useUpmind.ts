@@ -53,7 +53,7 @@ class Upmind {
 
   // ---
   constructor() {
-    console.debug("Upmind has started");
+    // console.debug("Upmind has started");
   }
 
   init({ pop, analytics }: UpmindProps): Promise<void> {
