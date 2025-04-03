@@ -38,6 +38,10 @@ export default {
       },
     }
   ),
+
+  page: {
+    root: cva("bg-background text-foreground w-full transition-colors"),
+  },
   section: {
     root: cva("w-full"),
     header: cva(

@@ -1,7 +1,5 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
-    <pre>{{ meta }}</pre>
-
     <div class="flex gap-2 pb-6">
       <Button
         @click="getAll"
@@ -23,9 +21,30 @@
       <Button @click="doAdd" :loading="meta.isLoading">New Address</Button>
     </div>
 
-    <div v-if="meta.isLoading">Loading...</div>
+    <pre>{{ meta }}</pre>
 
-    <section class="pb-3 md:pb-3" v-for="address in data" :key="address.id">
+    <Alert v-if="meta.isLoading" color="info" title="Loading..." />
+
+    <Alert
+      v-else-if="meta.isError"
+      color="error"
+      :title="error.title"
+      :message="error.message"
+    />
+
+    <Alert
+      v-else-if="meta.isEmpty"
+      color="info"
+      title="No addresses found"
+      message="Please add an address to get started."
+    />
+
+    <section
+      v-else
+      class="pb-3 md:pb-3"
+      v-for="address in data"
+      :key="address.id"
+    >
       <UpmCard>
         <h3 class="mt-0">{{ address.title }}</h3>
         <p>{{ address.description }}</p>
@@ -75,7 +94,7 @@ import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 const { getAll, data, meta, error, invalidate, remove, setDefault } =
   useClientAddresses();
