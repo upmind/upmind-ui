@@ -1,5 +1,9 @@
 <template>
-  <Suspense>
+  <Suspense
+    @pending="setLoading(true)"
+    @resolve="setLoading(false)"
+    @fallback="setLoading(true)"
+  >
     <div
       class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
       :data-theme="activeTheme"
@@ -11,15 +15,19 @@
         </Header>
       </slot>
 
-      <main class="w-full flex-1">
+      <div class="w-full flex-1">
         <RouterView v-slot="routerViewProps" :key="$route.fullPath">
           <slot v-bind="routerViewProps">
             <template v-if="routerViewProps.Component">
-              <Content>
+              <Page :class="styles.page" :key="$route.fullPath">
                 <Transition mode="out-in">
                   <KeepAlive>
-                    <Suspense>
-                      <!-- main content -->
+                    <Suspense
+                      @pending="setLoading(true)"
+                      @resolve="setLoading(false)"
+                      @fallback="setLoading(true)"
+                    >
+                      <!-- page content -->
                       <component :is="routerViewProps.Component" />
 
                       <!-- fallback / loading state -->
@@ -33,7 +41,7 @@
                     </Suspense>
                   </KeepAlive>
                 </Transition>
-              </Content>
+              </Page>
             </template>
           </slot>
         </RouterView>
@@ -50,7 +58,7 @@
             }"
           />
         </slot>
-      </main>
+      </div>
 
       <slot name="footer"></slot>
     </div>
@@ -69,18 +77,26 @@ export default {
 
 <script setup lang="ts">
 // --- external
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useThemes } from "@upmind-automation/upmind-ui";
+import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
 import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
 import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
 import SessionExpired from "./modules/session/components/Expired.vue";
-import Content from "./components/content/Content.vue";
+import Page from "./components/content/Page.vue";
 import Loading from "./modules/system/Loading.vue";
+
+// --- utils
+import { get } from "lodash-es";
+
+// --- types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -90,7 +106,23 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
-
 // setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
-const { meta, refresh } = useRoutingEngine();
+const { refresh } = useRoutingEngine();
+const currentRoute = useRoute();
+
+const route = computed(() =>
+  get(currentRoute, "name", get(currentRoute, "path", ""))
+);
+const loading = ref(false);
+
+const styles = useStyles(["page"], {
+  route,
+  loading,
+}) as ComputedRef<{
+  page: string;
+}>;
+
+function setLoading(value: boolean) {
+  loading.value = value;
+}
 </script>
