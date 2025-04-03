@@ -34,7 +34,7 @@ export const useClientAddress = (id?: Address["id"]) => {
       }),
     {
       id: id ?? "new-address",
-      devTools: false,
+      devTools: true,
     }
   ).start();
 

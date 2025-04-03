@@ -22,6 +22,7 @@ export interface RequestParams {
   data?: unknown;
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
+  transformResponse?: (response: unknown) => unknown;
 }
 
 export interface QueryParams<T extends unknown>

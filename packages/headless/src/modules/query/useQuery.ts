@@ -18,6 +18,7 @@ import type {
   RequestParams,
 } from "./types";
 import { Methods } from "@upmind-automation/types";
+import { isFunction } from "xstate/lib/utils";
 
 const queryClient = getQueryClient();
 
@@ -43,6 +44,7 @@ export const useQuery = () => {
     url,
     init,
     withAccessToken,
+    transformResponse,
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -67,23 +69,30 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    return doFetch<T>({ url, init }).catch(async error => {
-      const requestError = error as RequestError;
-      attempts++;
+    return doFetch<T>({ url, init })
+      .then(response => {
+        if (isFunction(transformResponse)) {
+          return transformResponse(response) as Promise<T>;
+        }
+        return response;
+      })
+      .catch(async error => {
+        const requestError = error as RequestError;
+        attempts++;
 
-      // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
-      if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
-        return refreshToken().then(() => {
-          // get the new access token and update the access token in the request
-          const token = getTokenFromStorage();
-          set(init, `headers.Authorization`, `Bearer ${token}`);
-          // finally rety the request
-          return doFetch<T>({ url, init });
-        });
-      }
+        // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
+        if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
+          return refreshToken().then(() => {
+            // get the new access token and update the access token in the request
+            const token = getTokenFromStorage();
+            set(init, `headers.Authorization`, `Bearer ${token}`);
+            // finally rety the request
+            return doFetch<T>({ url, init });
+          });
+        }
 
-      return Promise.reject(requestError);
-    });
+        return Promise.reject(requestError);
+      });
   }
 
   /**
@@ -108,6 +117,7 @@ export const useQuery = () => {
     init,
     allowStale = true,
     withAccessToken,
+    transformResponse,
     ...options
   }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
     if (allowStale) {
@@ -117,7 +127,12 @@ export const useQuery = () => {
        */
       return queryClient.ensureQueryData({
         queryFn: () =>
-          request<QueryResponse<T>>({ url, init, withAccessToken }),
+          request<QueryResponse<T>>({
+            url,
+            init,
+            withAccessToken,
+            transformResponse,
+          }),
         ...options,
       });
     }
@@ -125,7 +140,13 @@ export const useQuery = () => {
      * fetchQuery is an asynchronous function that can be used to fetch data from the server.
      */
     return queryClient.fetchQuery({
-      queryFn: () => request<QueryResponse<T>>({ url, init, withAccessToken }),
+      queryFn: () =>
+        request<QueryResponse<T>>({
+          url,
+          init,
+          withAccessToken,
+          transformResponse,
+        }),
       ...options,
     });
   }
@@ -151,6 +172,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
+    transformResponse,
   }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};

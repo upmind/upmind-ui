@@ -137,6 +137,7 @@ export const useSession = () => {
       if (state.matches("error")) {
         return Promise.reject(state.context.error);
       }
+      return Promise.resolve();
     });
   }
 
@@ -262,15 +263,17 @@ export const useSession = () => {
     getUserId,
     isAuthenticated: async () => {
       return isReady().then(() => {
-        const clientMachine: any =
+        const clientMachine: ActorRef<any> | undefined =
           service.getSnapshot()?.children?.clientMachine;
 
-        if (!clientMachine)
+        if (!clientMachine) {
           return Promise.reject({ title: "Unauthorized", code: 401 });
-
+        }
         return waitFor(clientMachine, state => state.matches("available"))
-          .then(() => clientMachine.state.context.user)
-          .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
+          .then(() => clientMachine.getSnapshot().context.user)
+          .catch(() => {
+            return Promise.reject({ title: "Unauthorized", code: 401 });
+          });
       });
     },
 

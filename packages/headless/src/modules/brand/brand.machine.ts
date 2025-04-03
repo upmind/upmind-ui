@@ -4,7 +4,7 @@ import { createMachine, assign, spawn } from "xstate";
 // --- internal
 import services from "./services";
 import { useI18n } from "../system";
-import { querySubscription } from "../query";
+import { useQueryHelper } from "../query";
 
 // --- utils
 import { set } from "lodash-es";
@@ -292,14 +292,11 @@ export default createMachine(
         ) => {
           // spawn a new query helper and set up the filter to only listen to brand events
           if (!queryHelper) {
-            queryHelper = spawn(querySubscription);
-            const queryFilter: QuerySubscriptionFilter = (
-              event: QueryCacheNotifyEvent
-            ) => event.query.queryKey.includes("brand");
+            queryHelper = spawn(useQueryHelper);
 
             queryHelper.send({
-              type: "FILTER",
-              filter: queryFilter,
+              type: "QUERY_KEY",
+              queryKey: ["brand"],
             });
           }
           return queryHelper;

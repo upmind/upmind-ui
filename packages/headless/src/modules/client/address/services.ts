@@ -13,13 +13,14 @@ import {
 
 // --- utils
 import {
-  get,
-  some,
+  defaultsDeep,
   find,
   first,
-  isNil,
+  get,
   isEmpty,
-  defaultsDeep,
+  isNil,
+  set,
+  some,
 } from "lodash-es";
 import {
   useValidation,
@@ -44,8 +45,13 @@ const queryKey: QueryKey = ["client", "addresses"];
 async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
-
+  const client = await isAuthenticated()
+    .then(user => {
+      return user;
+    })
+    .catch(error => {
+      Promise.reject(error);
+    });
   return get<IAddressWithRelations[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
@@ -55,7 +61,9 @@ async function loadAll({ allowStale = true } = {}) {
     allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapAddresses(data ?? []));
+    transformResponse: (response: any) =>
+      set(response, "data", mapAddresses(response?.data ?? [])),
+  }).then(({ data }) => data);
 }
 
 async function loadPaged(
@@ -73,9 +81,11 @@ async function loadPaged(
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
     withAccessToken: true,
+    transformResponse: (response: any) =>
+      set(response, "data", mapAddresses(response?.data ?? [])),
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapAddresses(data ?? []));
+  }).then(({ data }) => data ?? []);
 }
 
 function loadAllFromCache() {
@@ -83,7 +93,7 @@ function loadAllFromCache() {
   const cachedAddresses =
     queryClient.getQueryData<QueryResponse<IAddressWithRelations[]>>(queryKey);
   if (isNil(cachedAddresses)) throw new CacheIsStaleError();
-  return mapAddresses(cachedAddresses.data ?? []);
+  return cachedAddresses.data;
 }
 
 /**
@@ -132,9 +142,7 @@ async function add(data: AddressModel) {
     url: useUrl(`clients/${clientId}/addresses`),
     data: mapIAddress(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapAddress(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function update(id: Address["id"], data: AddressModel) {
@@ -147,9 +155,7 @@ async function update(id: Address["id"], data: AddressModel) {
     url: useUrl(`clients/${clientId}/addresses/${id}`),
     data: mapIAddress(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapAddress(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function remove(addressId: Address["id"]) {
@@ -174,9 +180,7 @@ async function setDefault(addressId: Address["id"]) {
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapAddress(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 // -----------------------------------------------------------------------------
