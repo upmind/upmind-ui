@@ -8,10 +8,12 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { getTokenFromStorage } from "./utils";
-import { get } from "lodash-es";
+import { get, values } from "lodash-es";
 
 // ---types
 import type { ActorRef } from "xstate";
+import { DetailedError, responseCodes } from "../../utils";
+import { IUser } from "@upmind-automation/types";
 export type { User } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -120,25 +122,33 @@ export const useSession = () => {
     return waitFor(
       service,
       state => {
-        const currentmachine: ActorRef<any> | undefined =
-          service.getSnapshot()?.children?.clientMachine ??
-          service.getSnapshot()?.children?.guestMachine;
+        const spawned = service.getSnapshot()?.children;
 
-        const valid =
-          currentmachine?.getSnapshot()?.matches("available") ||
-          state.matches("error");
+        if (state.matches("error"))
+          throw new DetailedError(
+            state.context.error,
+            responseCodes.Unauthorized
+          );
 
-        return valid;
+        return values(spawned).some(machine => {
+          return waitFor(machine, state => state.matches("available"))
+            .then(() => true)
+            .catch(() => false);
+        });
       },
       {
-        timeout: Infinity, // infinity = no timeout
+        timeout: 60_000, // infinity = no timeout
       }
-    ).then(state => {
-      if (state.matches("error")) {
-        return Promise.reject(state.context.error);
-      }
-      return Promise.resolve();
-    });
+    )
+      .then(state => {
+        if (state.matches("error")) {
+          return Promise.reject(state.context.error);
+        }
+        return Promise.resolve();
+      })
+      .catch(error => {
+        throw new DetailedError(error, responseCodes.Unauthorized);
+      });
   }
 
   // ---  // methods

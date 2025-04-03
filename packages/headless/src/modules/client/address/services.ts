@@ -27,7 +27,7 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { invalidateQueryByKey } from "../../query/utils";
+import { invalidateQueryByKey } from "../../query";
 import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
 
 // --- types
@@ -45,13 +45,8 @@ const queryKey: QueryKey = ["client", "addresses"];
 async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
-  const client = await isAuthenticated()
-    .then(user => {
-      return user;
-    })
-    .catch(error => {
-      Promise.reject(error);
-    });
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
+
   return get<IAddressWithRelations[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),

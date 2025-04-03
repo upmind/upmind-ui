@@ -51,8 +51,6 @@ function doInput() {
     email: faker.internet.email(),
   };
 
-  console.log(data);
-
   input(data)
     .then(data => {
       model.value = data;

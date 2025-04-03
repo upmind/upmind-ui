@@ -39,7 +39,7 @@ class UpmindClient {
 
   // ---
   constructor() {
-    console.debug("Upmind Client has started");
+    // console.debug("Upmind Client has started");
   }
 
   init({ pop, router, i18n, analytics }: UpmindClientProps): Promise<void> {

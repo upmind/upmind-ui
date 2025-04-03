@@ -1,7 +1,11 @@
 // --- internal
 import service from "./services";
 import { useSession } from "../../session";
-import { useQuery, useQuerySubscription, QueryObserver } from "../../query";
+import {
+  invalidateQueryByKey,
+  useQuerySubscription,
+  QueryObserver,
+} from "../../query";
 
 // --- utils
 import { useFeedback } from "../../feedback";
@@ -38,13 +42,10 @@ export const useClientAddresses = () => {
   /**
    * Check if the client addresses are loaded and ready.
    * @returns A promise that resolves to true when the addresses are ready to be fetched.
-   * @example isAvailable().then(getAll).then(() => console.log("Addresses are ready!"))
+   * @example isReady().then(getAll).then(() => console.log("Addresses are ready!"))
    */
-  async function isAvailable(): Promise<void> {
-    return isAuthenticated().then(
-      () => Promise.resolve(),
-      () => Promise.reject()
-    );
+  async function isReady(): Promise<void> {
+    return isAuthenticated();
   }
 
   /**
@@ -75,7 +76,6 @@ export const useClientAddresses = () => {
    */
   function getOne(id: Address["id"]) {
     const addresses = getAllFromCache();
-    debugger;
     return find(addresses, ["id", id]);
   }
 
@@ -186,7 +186,7 @@ export const useClientAddresses = () => {
       staleTime: useTime().DAY,
     },
     subscribe,
-    isAvailable,
+    isReady,
     getOne,
     getAll,
     filter: filterAddresses,
@@ -196,5 +196,6 @@ export const useClientAddresses = () => {
     getAllFromCache,
     remove,
     setDefault,
+    invalidate: invalidateQueryByKey(service.queryKey),
   };
 };
