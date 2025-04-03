@@ -2,7 +2,7 @@
   <UpmContentSection
     class="mx-auto max-w-app"
     class-content="gap-2 flex"
-    :title="`Edit Address ${id}`"
+    :title="`Edit Address ${title}`"
   >
     <UpmCard class="flex w-full flex-wrap gap-2 pb-3 md:pb-3">
       <pre> {{ model }}</pre>
@@ -47,7 +47,9 @@ await isReady()
 
 const router = useRouter();
 const { params } = useRoute();
-const { update, input, model, meta } = useClientAddress(params.id as string);
+const { update, input, model, meta, title } = useClientAddress(
+  params.id as string
+);
 
 // --- METHODS
 
