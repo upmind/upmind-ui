@@ -7,7 +7,7 @@
         variant="tonal"
         :disabled="meta.isLoading || !meta.isAvailable"
       >
-        Load addresses
+        Load
       </Button>
       <Button
         @click="invalidate"
@@ -93,8 +93,8 @@ import { useRouter } from "vue-router";
 import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
-import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
+import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
 const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
   useClientAddresses();

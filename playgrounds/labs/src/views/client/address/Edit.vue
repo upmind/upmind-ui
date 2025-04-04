@@ -43,7 +43,7 @@ await isReady()
 
 const router = useRouter();
 const { params } = useRoute();
-const { update, input, model, meta, clear, title, schema, uischema, stop } =
+const { update, input, model, meta, title, schema, uischema, stop } =
   useClientAddress(params.id as string);
 
 // --- METHODS
