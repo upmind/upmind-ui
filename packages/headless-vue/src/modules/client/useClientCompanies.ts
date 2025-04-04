@@ -2,11 +2,11 @@
 import { computed } from "vue";
 import { useQuery } from "../query";
 import { useSession } from "../session";
-import { useClientAddresses as useUpmindClientAddresses } from "@upmind-automation/headless";
+import { useClientCompanies as useUpmindClientCompanies } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-export const useClientAddresses = () => {
+export const useClientCompanies = () => {
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
 
   const { meta: sessionMeta } = useSession();
@@ -24,7 +24,7 @@ export const useClientAddresses = () => {
     getOne,
     findOne,
     getPaged,
-  } = useUpmindClientAddresses();
+  } = useUpmindClientCompanies();
 
   const { error, meta, data } = useQuery(queryOptions.queryKey);
   // ---------------------------------------------------------------------------

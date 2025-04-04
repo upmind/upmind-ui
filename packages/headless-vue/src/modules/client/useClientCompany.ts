@@ -3,23 +3,23 @@ import { computed, onUnmounted } from "vue";
 
 // --- internal
 import {
-  type Address,
-  useClientAddress as useUpmindClientAddress,
+  type Company,
+  useClientCompany as useUpmindClientCompany,
 } from "@upmind-automation/headless";
 
 // --- utils
 import { get } from "lodash-es";
 
 // --- types
-export type { Address, AddressModel } from "@upmind-automation/headless";
+export type { Company, CompanyModel } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
-export const useClientAddress = (
-  id?: Address["id"],
+export const useClientCompany = (
+  id?: Company["id"],
   options: { allowMultipleEdits?: boolean } = {}
 ) => {
   const { service, update, input, clear, isReady, stop } =
-    useUpmindClientAddress(id, options);
+    useUpmindClientCompany(id, options);
   // this will change to be a manager of ALL addresses, for now its a single instance (add/update)
   const { state } = useActor(service);
 
