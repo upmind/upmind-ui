@@ -1,18 +1,15 @@
 // --- external
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 
 // --- internal
 import { useQuerySubscription } from "@upmind-automation/headless";
 
 // --- utils
-import { isEqual, isEmpty } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // ---types
-import type {
-  QueryCacheNotifyEvent,
-  QuerySubscriptionFilter,
-} from "@upmind-automation/headless";
-import { QueryKey } from "@tanstack/vue-query";
+import type { QueryKey } from "@tanstack/vue-query";
+import type { QueryCacheNotifyEvent } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 export const useQuery = (queryKey: QueryKey) => {
@@ -28,7 +25,7 @@ export const useQuery = (queryKey: QueryKey) => {
 
   // --- housekeeping
   onUnmounted(() => {
-    observer.unsubscribe;
+    observer.unsubscribe();
   });
 
   // ---------------------------------------------------------------------------
