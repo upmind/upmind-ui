@@ -1,15 +1,5 @@
-// --- external
-
 // --- internal
-import {
-  useQuery,
-  useSystem,
-  useSession,
-  QueryResponse,
-  PaginatedParams,
-  useQueryPaginated,
-  IAddressWithRelations,
-} from "../..";
+import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
 import {
@@ -28,9 +18,14 @@ import {
   CacheIsStaleError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
-import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
+import { mapAddresses, mapIAddress } from "./mappers";
 
 // --- types
+import type {
+  QueryResponse,
+  PaginatedParams,
+  IAddressWithRelations,
+} from "../..";
 import { AddressTypes } from "./types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { IAddress } from "@upmind-automation/types";
@@ -159,7 +154,7 @@ async function remove(addressId: Address["id"]) {
 
   const clientId = await getUserId();
 
-  return del<null>({
+  return del({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
@@ -182,14 +177,13 @@ async function setDefault(addressId: Address["id"]) {
 //  SIDE EFFECTS
 
 async function parse(
-  // { addresses, schema, model, regions, country, places }: AddressContext,
   { regions, country, baseModel, schema }: AddressContext,
   { data }: AnyEventObject & { data: AddressModel }
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
 
-  // sometimes the machine can return the ful lcontext as data, so we check to see if we have a model
+  // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
   const safeModel: AddressModel = useModelParser(
     schema,
