@@ -3,22 +3,24 @@ import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
 
 // --- internal
-import { get } from "lodash-es";
 import itemMachine from "../item.machine";
 import { useClientCompanies } from "./useClientCompanies";
 import { useClientCompanyActions } from "./actions";
 import { useClientCompanyServices } from "./services";
+
+// --- utils
+import { get } from "lodash-es";
 import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
 import type { Company, CompanyModel } from "./types";
 
-export const useClientCompany = (id?: Company["id"]) => {
-  // create a global instance of the system machine
-  // and a global object to store state
-  // NB dont automatically start the machine as in order for the inspector to work
-  // it needs to be started after the inspect service is created, so we only start it when we need it
+// -----------------------------------------------------------------------------
 
+export const useClientCompany = (
+  id?: Company["id"],
+  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+) => {
   const service = interpret(
     itemMachine
       .withConfig({
@@ -31,6 +33,7 @@ export const useClientCompany = (id?: Company["id"]) => {
         return {
           id: id,
           model: getOne(id),
+          allowMultipleEdits,
         };
       }),
     {

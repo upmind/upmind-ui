@@ -12,6 +12,8 @@ import { useModelParser } from "../../../utils";
 import type { AnyEventObject } from "xstate";
 import type { CompanyContext } from "./types";
 
+// -----------------------------------------------------------------------------
+
 export const useClientCompanyActions = () => {
   return {
     setMeta: assign({
