@@ -770,9 +770,6 @@ importers:
       '@jsonforms/core':
         specifier: ^3.5.1
         version: 3.5.1
-      '@tanstack/query-core':
-        specifier: ^5.66.4
-        version: 5.67.2
       '@tanstack/vue-query':
         specifier: ^5.67.1
         version: 5.67.2(vue@3.5.13(typescript@5.7.3))
