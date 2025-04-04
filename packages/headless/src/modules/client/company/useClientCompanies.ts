@@ -1,18 +1,23 @@
 // --- internal
+import {
+  QueryObserver,
+  invalidateQueryByKey,
+  useQuerySubscription,
+} from "../../query";
 import service from "./services";
+import { useTime } from "../../../utils";
 import { useSession } from "../../session";
-import { QueryObserver, useQuery } from "../../query";
+import { useFeedback } from "../../feedback";
 
 // --- utils
-import { useFeedback } from "../../feedback";
-import { filter, find, includes, isNil, isString } from "lodash-es";
+import { find, filter, includes, isString } from "lodash-es";
 
 // --- types
 import type { Company } from "./types";
 import type { PaginatedParams } from "../../query";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
-let companyObserver: QueryObserver | undefined;
+let observer: QueryObserver | undefined;
 
 /**
  * Subscribe to the client companies query that are present in the cache.
@@ -20,59 +25,33 @@ let companyObserver: QueryObserver | undefined;
  * @param callback The callback function to be called when the query is ready/updated.
  * @returns The unsubscribe function
  */
-const subscribeToClientCompanies = ({
+const subscribe = ({
   callback,
 }: {
-  callback: (data: QueryCacheNotifyEvent) => void;
+  callback: (query: QueryCacheNotifyEvent["query"]) => void;
 }) => {
-  if (!companyObserver) {
-    companyObserver = new QueryObserver({ queryKey: service.queryKey });
+  if (!observer) {
+    observer = useQuerySubscription(service.queryKey, callback);
   }
-
-  return companyObserver.subscribe(data => {
-    if (
-      data.query.state.fetchStatus === "idle" &&
-      data.query.state.status === "success"
-    ) {
-      callback(data);
-    }
-  });
+  return observer;
 };
 
 export const useClientCompanies = () => {
   const { addError, addSuccess } = useFeedback();
+  const { isAuthenticated } = useSession();
 
   /**
-   * Check if the client companies are loaded and ready
-   * @returns A promise that resolves to a true when the companies are ready
-   * @example isReady().then(() => console.log("Companies are ready!"))
+   * Check if the client addresses are loaded and ready.
+   * @returns A promise that resolves to true when the addresses are ready to be fetched.
+   * @example isReady().then(getAll).then(() => console.log("Addresses are ready!"))
    */
-  function isReady() {
-    return new Promise<boolean>(async (resolve, reject) => {
-      const { queryClient } = useQuery();
-      const { isAuthenticated } = useSession();
-
-      const cache = queryClient.getQueryCache().find({
-        queryKey: service.queryKey,
-      });
-
-      if (!isNil(cache)) resolve(true);
-
-      isAuthenticated()
-        .then(() => {
-          const unsubscribe = subscribeToClientCompanies({
-            callback: () => {
-              resolve(true);
-              unsubscribe();
-            },
-          });
-        })
-        .catch(error => reject(error));
-    });
+  async function isReady(): Promise<void> {
+    return isAuthenticated();
   }
 
   /**
    * Get all the companies for the current client.
+   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to an array of companies
    * @example getAll().then(companies => console.log(companies))
    */
@@ -156,6 +135,12 @@ export const useClientCompanies = () => {
     return getAll().then(items => find(items, "meta.isDefault"));
   }
 
+  /**
+   * Remove a company by id.
+   * @param id The id of the company to remove.
+   * @returns A promise that resolves when the company is removed.
+   * @example remove("123").then(() => console.log("Company removed"))
+   */
   async function remove(id: Company["id"]) {
     return service
       .remove(id)
@@ -172,6 +157,12 @@ export const useClientCompanies = () => {
       );
   }
 
+  /**
+   * Set a company as default.
+   * @param id The id of the company to set as default.
+   * @returns A promise that resolves when the company is set as default.
+   * @example setDefault("123").then(() => console.log("Company set as default"))
+   */
   async function setDefault(id: Company["id"]) {
     return service
       .setDefault(id)
@@ -190,6 +181,12 @@ export const useClientCompanies = () => {
   }
 
   return {
+    queryOptions: {
+      queryKey: service.queryKey,
+      queryFn: () => getAll(),
+      staleTime: useTime().DAY,
+    },
+    subscribe,
     isReady,
     getOne,
     getAll,
@@ -200,5 +197,6 @@ export const useClientCompanies = () => {
     getAllFromCache,
     remove,
     setDefault,
+    invalidate: invalidateQueryByKey(service.queryKey),
   };
 };

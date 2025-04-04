@@ -1,22 +1,21 @@
 // --- internal
-import service from "./services";
-import { useSession } from "../../session";
 import {
+  QueryObserver,
   invalidateQueryByKey,
   useQuerySubscription,
-  QueryObserver,
 } from "../../query";
+import service from "./services";
+import { useTime } from "../../../utils";
+import { useSession } from "../../session";
+import { useFeedback } from "../../feedback";
 
 // --- utils
-import { useFeedback } from "../../feedback";
-import { find, isNil, filter, includes, isString } from "lodash-es";
+import { find, filter, includes, isString } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
 import type { PaginatedParams } from "../../query";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-import { useTime } from "../../../utils";
-import { get } from "psl";
 
 let observer: QueryObserver | undefined;
 
@@ -52,7 +51,7 @@ export const useClientAddresses = () => {
    * Get all the addresses for the current client.
    * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns An array of parsed addresses if found, otherwise an empty array.
-   * @example getAll().then((addresses) => console.log(addresses))
+   * @example getAll().then(addresses => console.log(addresses))
    */
   async function getAll({ allowStale = true } = {}) {
     return service.loadAll({ allowStale });
@@ -104,7 +103,7 @@ export const useClientAddresses = () => {
    */
   async function getPaged(
     paginationParams: PaginatedParams,
-    { allowStale }: { allowStale?: boolean } = {}
+    { allowStale = true } = {}
   ) {
     return service.loadPaged(paginationParams, { allowStale });
   }

@@ -1,5 +1,5 @@
 // --- external
-import { AnyEventObject, assign } from "xstate";
+import { assign } from "xstate";
 
 // --- internal
 import { useSchema, useUischema } from "./schemas";
@@ -10,6 +10,7 @@ import { useModelParser } from "../../../utils";
 
 // --- types
 import type { AddressContext } from "./types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
