@@ -2,17 +2,19 @@
   <UpmContentSection
     class="mx-auto max-w-app"
     class-content="gap-2 flex"
-    :title="`Edit Company ${id}`"
+    :title="`Edit Company ${title}`"
   >
     <UpmCard class="flex w-full flex-wrap gap-2 pb-3 md:pb-3">
-      <pre> {{ model }}</pre>
+      <pre> {{ meta }}</pre>
 
-      <div class="actions flex w-full basis-full gap-2">
-        <Button @click="doInput" variant="tonal" :disabled="processing"
-          >Change to random name</Button
-        >
-        <Button @click="doUpdate" :loading="processing">Update</Button>
-      </div>
+      <UpmForm
+        :model-value="model"
+        :schema="schema"
+        :uischema="uischema"
+        @update:modelValue="doInput"
+        @resolve="doUpdate"
+        @reject="doCancel"
+      />
     </UpmCard>
 
     <template #footer> </template>
@@ -20,56 +22,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRoute } from "vue-router";
-import { Button } from "@upmind-automation/upmind-ui";
+import { useRoute, useRouter } from "vue-router";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
+import { debounce } from "lodash-es";
+
 import {
+  UpmForm,
   useClientCompany,
   useClientCompanies,
   type CompanyModel,
-} from "@upmind-automation/headless";
+} from "@upmind-automation/client-vue";
 
 const { isReady, getAll } = useClientCompanies();
-await getAll().then(isReady);
+await isReady()
+  .then(() => getAll())
+  .catch(() => router.push({ name: "client.addresses" }));
 
+const router = useRouter();
 const { params } = useRoute();
-const { update, input, getModel } = useClientCompany(params.id as string);
-
-const id = ref<string>(params.id as string);
-const model = ref<CompanyModel>(getModel() ?? {});
-const processing = ref<boolean>(false);
+const { update, input, model, meta, title, schema, uischema, stop } =
+  useClientCompany(params.id as string);
 
 // --- METHODS
 
-function doInput() {
-  processing.value = true;
-  input({
-    ...model.value,
-    name: `New name ${Math.random()}`,
-  })
-    .then((data: CompanyModel) => {
-      model.value = data;
-    })
-    .catch(err => {
-      console.error("error updating", { model, err });
-    })
-    .finally(() => {
-      processing.value = false;
-    });
-}
+const doInput = debounce((data: CompanyModel) => {
+  input(data);
+}, 500);
 
 function doUpdate() {
-  processing.value = true;
-  update()
-    .then(res => {
-      model.value = getModel();
-    })
-    .catch(err => {
-      console.error("error updating", { model, err });
-    })
-    .finally(() => {
-      processing.value = false;
+  update().then(() => {
+    router.push({
+      name: "client.companies",
     });
+  });
+}
+
+function doCancel() {
+  stop();
+  router.push({
+    name: "client.companies",
+  });
 }
 </script>

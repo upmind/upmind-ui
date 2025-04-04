@@ -2,41 +2,57 @@
   <UpmContentSection class="mx-auto max-w-app" title="Companies">
     <div class="flex gap-2 pb-6">
       <Button
-        @click="fetchCompanies"
+        @click="getAll"
         size="sm"
         variant="tonal"
-        label="Load companies"
-        :disabled="processing || companies.length > 0"
+        :disabled="meta.isLoading || !meta.isAvailable"
       >
-        Load companies
+        Load
       </Button>
       <Button
-        @click="invalidateCompanies"
+        @click="invalidate"
         size="sm"
         variant="tonal"
-        label="Invalidate companies"
-        :disabled="processing"
+        :disabled="meta.isLoading || !meta.isAvailable"
       >
-        Invalidate companies
-      </Button>
-      <Button
-        @click="clearCompanies"
-        size="sm"
-        variant="tonal"
-        label="Clear companies"
-        :disabled="processing"
-      >
-        Clear companies
+        Invalidate
       </Button>
 
-      <Button @click="doAdd" :loading="processing">New Company</Button>
+      <Button
+        @click="doAdd"
+        :loading="meta.isLoading"
+        :disabled="!meta.isAvailable"
+      >
+        New Company
+      </Button>
     </div>
 
-    <div v-if="processing">Loading...</div>
+    <Alert
+      v-if="!meta.isAvailable"
+      color="error"
+      title="Please log in to view companies"
+    />
+
+    <Alert v-else-if="meta.isLoading" color="info" title="Loading..." />
+
+    <Alert
+      v-else-if="meta.isError"
+      color="error"
+      :title="error.title"
+      :message="error.message"
+    />
+
+    <Alert
+      v-else-if="meta.isEmpty"
+      color="info"
+      title="No companies found"
+      message="Please add an company to get started."
+    />
 
     <section
+      v-else
       class="pb-3 md:pb-3"
-      v-for="company in companies"
+      v-for="company in data"
       :key="company.id"
     >
       <UpmCard>
@@ -44,34 +60,25 @@
         <p>{{ company.description }}</p>
 
         <div class="flex gap-2">
-          <Button
-            @click="doEdit(company.id)"
-            class="mt-2"
-            size="sm"
-            variant="tonal"
-            label="Edit"
-          >
-            Edit
+          <Button @click="doEdit(company.id)" size="sm" variant="tonal">
+            <Icon icon="edit" class="size-4" />
           </Button>
           <Button
-            @click="doDelete(company.id)"
-            class="mt-2"
+            @click="remove(company.id)"
             size="sm"
             variant="tonal"
             label="Delete"
             :disabled="!company.meta.canDelete"
           >
-            Delete
+            <Icon icon="remove" class="size-4" />
           </Button>
           <Button
             @click="setDefault(company.id)"
-            class="mt-2"
             size="sm"
             variant="tonal"
             label="Set Default"
             :disabled="company.meta.isDefault"
-            >Set Default</Button
-          >
+          />
         </div>
       </UpmCard>
     </section>
@@ -81,44 +88,22 @@
 <script lang="ts" setup>
 // --- external
 import { useRouter } from "vue-router";
-import { onMounted, ref } from "vue";
 
 // --- internal
-import {
-  Company,
-  useClientCompanies,
-  useQuery,
-} from "@upmind-automation/headless";
-import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
-import { Button } from "@upmind-automation/upmind-ui";
+import { useClientCompanies } from "@upmind-automation/headless-vue";
 
-const { getAll } = useClientCompanies();
-const { queryClient } = useQuery();
+// --- components
+import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
+import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
+
+const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
+  useClientCompanies();
+
+// --- types
 
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
-
-const companies = ref<Company[]>([]);
-const processing = ref<boolean>(false);
-
-function clearCompanies() {
-  companies.value = [];
-}
-
-function fetchCompanies() {
-  companies.value = [];
-  processing.value = true;
-  getAll()
-    .then(res => (companies.value = res))
-    .finally(() => (processing.value = false));
-}
-
-function invalidateCompanies() {
-  return queryClient.invalidateQueries({
-    queryKey: ["client", "companies"],
-  });
-}
 
 function doEdit(id: string) {
   router.push({ params: { id: id }, name: "client.companies.edit" });
@@ -128,17 +113,5 @@ function doAdd() {
   router.push({ name: "client.companies.add" });
 }
 
-function doDelete(id: string) {
-  const { remove } = useClientCompanies();
-  remove(id).then(() => fetchCompanies());
-}
-
-function setDefault(id: string) {
-  const { setDefault } = useClientCompanies();
-  setDefault(id).then(() => fetchCompanies());
-}
-
-onMounted(() => {
-  fetchCompanies();
-});
+await isReady().then(() => getAll());
 </script>
