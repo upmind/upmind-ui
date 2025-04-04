@@ -34,28 +34,11 @@ import {
   type AddressModel,
 } from "@upmind-automation/client-vue";
 
-// NB: (re)fetch all addresses and wait before rendering the page
-// as useClientAddress depends on the id being in the list
-// TODO: MAYBE do a direct call to the db for the address instead of fetching all
-const { isReady, getAll } = useClientAddresses();
-await isReady()
-  // .then(() => {
-  //   const data: AddressModel = {
-  //     address1: faker.location.streetAddress({ useFullAddress: true }),
-  //     address2: faker.location.buildingNumber(),
-  //     city: faker.location.city(),
-  //     countryId: faker.location.countryCode(),
-  //     name: faker.location.street(),
-  //     postcode: faker.location.zipCode(),
-  //     state: faker.location.state(),
-  //     type: 1,
-  //   };
-  //   input(data);
-  // })
-  .catch(() => router.push({ name: "client.addresses" }));
+const { isReady } = useClientAddresses();
+await isReady().catch(() => router.push({ name: "client.addresses" }));
 
 const router = useRouter();
-const { update, input, model, meta, clear, title, schema, uischema, stop } =
+const { update, input, model, meta, schema, uischema, stop } =
   useClientAddress();
 
 // --- METHODS
