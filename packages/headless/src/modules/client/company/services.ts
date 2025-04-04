@@ -2,30 +2,24 @@
 import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
-import { invalidateQueryByKey } from "../../query/utils";
-import {
-  useQuery,
-  useSession,
-  useQueryPaginated,
-  QueryResponse,
-  CompanyModel,
-} from "../..";
+import { invalidateQueryByKey } from "../../query";
+import { useQuery, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { get, isEmpty, isNil } from "lodash-es";
-import { mapCompanies, mapCompany, mapICompany } from "./mappers";
 import {
-  CacheIsStaleError,
-  useModelParser,
   useValidation,
+  useModelParser,
+  CacheIsStaleError,
 } from "../../../utils";
+import { get, set, isEmpty, isNil } from "lodash-es";
+import { mapCompanies, mapICompany } from "./mappers";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
-import type { PaginatedParams } from "../..";
+import type { AnyEventObject } from "xstate";
+import type { PaginatedParams, QueryResponse, CompanyModel } from "../..";
 import type { CompanyWithRelations, CompanyContext, Company } from "./types";
-import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -46,7 +40,9 @@ async function loadAll({ allowStale = true } = {}) {
     allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapCompanies(data ?? []));
+    transformResponse: (response: any) =>
+      set(response, "data", mapCompanies(response?.data ?? [])),
+  }).then(({ data }) => data);
 }
 
 async function loadPaged(
@@ -64,12 +60,27 @@ async function loadPaged(
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
     withAccessToken: true,
+    transformResponse: (response: any) =>
+      set(response, "data", mapCompanies(response?.data ?? [])),
     revalidateIfStale: true,
     ...paginationParams,
   }).then(({ data }) => mapCompanies(data ?? []));
 }
 
-async function loadLookups({ model }: CompanyContext) {
+function loadAllFromCache() {
+  const { queryClient } = useQuery();
+  const cachedCompanies =
+    queryClient.getQueryData<QueryResponse<CompanyWithRelations>>(queryKey);
+  if (isNil(cachedCompanies)) throw new CacheIsStaleError();
+  return cachedCompanies.data;
+}
+
+/**
+ * Load the lookups for the company form
+ * @param {CompanyContext} context
+ * @returns {Promise<CompanyContext>}
+ */
+async function loadLookups({ model }: CompanyContext): Promise<CompanyContext> {
   // let's start up/use our dependencies
   const emails = useClientEmails();
   const phones = useClientPhones();
@@ -105,20 +116,12 @@ async function loadLookups({ model }: CompanyContext) {
   });
 }
 
-function loadAllFromCache() {
-  const { queryClient } = useQuery();
-  const cachedCompanies =
-    queryClient.getQueryData<QueryResponse<CompanyWithRelations>>(queryKey);
-  if (isNil(cachedCompanies)) throw new CacheIsStaleError();
-  return mapCompanies(cachedCompanies.data ?? []);
-}
-
 // -----------------------------------------------------------------------------
-// Mutations
+// MUTATIONS
 
 async function add(data: CompanyModel) {
-  const { post, useUrl } = useQuery();
   const { getUserId } = useSession();
+  const { post, useUrl } = useQuery();
 
   const clientId = await getUserId();
 
@@ -126,9 +129,7 @@ async function add(data: CompanyModel) {
     url: useUrl(`clients/${clientId}/companies`),
     data: mapICompany(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapCompany(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
@@ -141,9 +142,7 @@ async function update(id: Company["id"], data: CompanyModel) {
     url: useUrl(`clients/${clientId}/companies/${id}`),
     data: mapICompany(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapCompany(data ?? []));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function remove(companyId: Company["id"]) {
@@ -152,7 +151,7 @@ async function remove(companyId: Company["id"]) {
 
   const clientId = await getUserId();
 
-  return del<ICompany>({
+  return del({
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
@@ -168,14 +167,12 @@ async function setDefault(companyId: Company["id"]) {
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
     data: { default: true },
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapCompany(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 // -----------------------------------------------------------------------------
+//  SIDE EFFECTS
 
-// TODO: async function parse({ model }: PhoneContext, _event: PhoneEvent) {
 async function parse(
   { baseModel, schema }: CompanyContext,
   { data }: AnyEventObject & { data: CompanyModel }
