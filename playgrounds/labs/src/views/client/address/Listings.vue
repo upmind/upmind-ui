@@ -60,34 +60,25 @@
         <p>{{ address.description }}</p>
 
         <div class="flex gap-2">
-          <Button
-            @click="doEdit(address.id)"
-            class="mt-2"
-            size="sm"
-            variant="tonal"
-            label="Edit"
-          >
-            Edit
+          <Button @click="doEdit(address.id)" size="sm" variant="tonal">
+            <Icon icon="edit" class="size-4" />
           </Button>
           <Button
             @click="remove(address.id)"
-            class="mt-2"
             size="sm"
             variant="tonal"
             label="Delete"
             :disabled="!address.meta.canDelete"
           >
-            Delete
+            <Icon icon="remove" class="size-4" />
           </Button>
           <Button
             @click="setDefault(address.id)"
-            class="mt-2"
             size="sm"
             variant="tonal"
             label="Set Default"
             :disabled="address.meta.isDefault"
-            >Set Default</Button
-          >
+          />
         </div>
       </UpmCard>
     </section>
@@ -103,7 +94,7 @@ import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
-import { Button, Alert } from "@upmind-automation/upmind-ui";
+import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 
 const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
   useClientAddresses();
