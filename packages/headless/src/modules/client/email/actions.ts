@@ -11,6 +11,8 @@ import { useModelParser } from "../../../utils";
 import type { EmailContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
+// -----------------------------------------------------------------------------
+
 export const useClientEmailActions = () => {
   return {
     setMeta: assign({
@@ -18,10 +20,12 @@ export const useClientEmailActions = () => {
       description: ({ model }: EmailContext) =>
         model?.verified ? "Verified" : "Unverified",
     }),
+
     setSchemas: assign({
       schema: useSchema(),
       uischema: useUischema(),
     }),
+
     setModel: assign({
       model: ({ schema, baseModel }: EmailContext, { data }: AnyEventObject) =>
         useModelParser(schema, data, baseModel),

@@ -6,8 +6,8 @@ import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
 import { mapIPhone, mapPhones } from "./mapper";
-import { invalidateQueryByKey } from "../../query/utils";
-import { keyBy, isString, isNil, get } from "lodash-es";
+import { invalidateQueryByKey } from "../../query";
+import { keyBy, isString, isNil, get, set } from "lodash-es";
 import {
   CacheIsStaleError,
   useModelParser,
@@ -38,8 +38,10 @@ async function loadAll({ allowStale = true } = {}) {
     queryKey,
     allowStale,
     withAccessToken: true,
+    transformResponse: (response: any) =>
+      set(response, "data", mapPhones(response?.data ?? [])),
     revalidateIfStale: true,
-  }).then(({ data }) => mapPhones(data ?? []));
+  }).then(({ data }) => data);
 }
 
 async function loadPaged(
@@ -55,9 +57,11 @@ async function loadPaged(
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
     withAccessToken: true,
+    transformResponse: (response: any) =>
+      set(response, "data", mapPhones(response?.data ?? [])),
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapPhones(data ?? []));
+  }).then(({ data }) => data ?? []);
 }
 
 function loadAllFromCache() {
@@ -65,7 +69,28 @@ function loadAllFromCache() {
   const cachedPhones =
     queryClient.getQueryData<QueryResponse<IPhone[]>>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
-  return mapPhones(cachedPhones.data ?? []);
+  return cachedPhones.data;
+}
+
+/**
+ * Load the lookups for the phone form
+ * @param {PhoneContext} _context
+ * @returns {Promise<{
+ *   types: Record<string, (typeof PhoneTypes)[number]>;
+ *   country: ICountry;
+ * }>}
+ */
+async function loadLookups(_context: PhoneContext): Promise<{
+  types: Record<string, (typeof PhoneTypes)[number]>;
+  country: ICountry;
+}> {
+  // we don't have any lookups for emails, so just return null
+  const { getCountry, fetchCountries } = useSystem();
+  await fetchCountries();
+  return Promise.resolve({
+    types: keyBy(PhoneTypes, "key"),
+    country: getCountry(),
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -81,9 +106,7 @@ async function add(data: PhoneModel) {
     url: useUrl(`clients/${clientId}/phones`),
     data: mapIPhone(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapPhones(data ?? []));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function update(id: Phone["id"], data: PhoneModel) {
@@ -92,13 +115,11 @@ async function update(id: Phone["id"], data: PhoneModel) {
 
   const clientId = await getUserId();
 
-  return put<IPhone[]>({
+  return put<IPhone>({
     url: useUrl(`clients/${clientId}/phones/${id}`),
     data: mapIPhone(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapPhones(data ?? []));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function remove(phoneId: Phone["id"]) {
@@ -119,32 +140,16 @@ async function setDefault(phoneId: Phone["id"]) {
 
   const clientId = await getUserId();
 
-  return put<IPhone[]>({
+  return put<IPhone>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     data: { default: true },
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapPhones(data ?? []));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 // -----------------------------------------------------------------------------
 //  SIDE EFFECTS
 
-async function loadLookups(_context: PhoneContext): Promise<{
-  types: Record<string, (typeof PhoneTypes)[number]>;
-  country: ICountry;
-}> {
-  // we don't have any lookups for emails, so just return null
-  const { getCountry, fetchCountries } = useSystem();
-  await fetchCountries();
-  return Promise.resolve({
-    types: keyBy(PhoneTypes, "key"),
-    country: getCountry(),
-  });
-}
-
-// TODO: async function parse({ model, country }: PhoneContext, ) {
 async function parse(
   { baseModel, schema, country }: PhoneContext,
   { data }: AnyEventObject & { data: PhoneContext }

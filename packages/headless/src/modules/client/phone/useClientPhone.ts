@@ -17,7 +17,10 @@ import type { Phone, PhoneModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const useClientPhone = (id?: Phone["id"]) => {
+export const useClientPhone = (
+  id?: Phone["id"],
+  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+) => {
   const service = interpret(
     itemMachine
       .withConfig({
@@ -30,11 +33,12 @@ export const useClientPhone = (id?: Phone["id"]) => {
         return {
           id,
           model: getOne(id),
+          allowMultipleEdits,
         };
       }),
     {
       id: id ?? "new-phone",
-      devTools: false,
+      devTools: true,
     }
   ).start();
 

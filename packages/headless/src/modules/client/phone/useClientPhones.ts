@@ -1,79 +1,60 @@
 // --- internal
+import {
+  QueryObserver,
+  invalidateQueryByKey,
+  useQuerySubscription,
+} from "../../query";
 import service from "./services";
+import { useTime } from "../../../utils";
 import { useSession } from "../../session";
-import { useQuery, QueryObserver } from "../../query";
+import { useFeedback } from "../../feedback";
 
 // --- utils
-import { useFeedback } from "../../feedback";
-import { find, isNil, filter, includes, isString } from "lodash-es";
+import { find, filter, includes, isString } from "lodash-es";
 
 // --- types
 import type { Phone } from "./types";
 import type { PaginatedParams } from "../../query";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
-// -----------------------------------------------------------------------------
+let observer: QueryObserver | undefined;
 
-let phonesObserver: QueryObserver | undefined;
-
-const subscribeToClientPhones = ({
-  callback,
-}: {
-  callback: (data: QueryCacheNotifyEvent) => void;
-}) => {
-  if (!phonesObserver) {
-    phonesObserver = new QueryObserver({ queryKey: service.queryKey });
+/**
+ * Subscribe to the client address query that are present in the cache.
+ * This will trigger the callback function when the query is ready/updated.
+ * @param callback The callback function to be called when the query is ready/updated.
+ * @returns The unsubscribe function
+ */
+const subscribe = (
+  callback: (query: QueryCacheNotifyEvent["query"]) => void
+): QueryObserver => {
+  if (!observer) {
+    observer = useQuerySubscription(service.queryKey, callback);
   }
-
-  return phonesObserver.subscribe(data => {
-    if (
-      data.query.state.fetchStatus === "idle" &&
-      data.query.state.status === "success"
-    ) {
-      callback(data);
-    }
-  });
+  return observer;
 };
 
 export const useClientPhones = () => {
   const { addError, addSuccess } = useFeedback();
+  const { isAuthenticated } = useSession();
 
   /**
-   * Check if the client phones are loaded and ready
-   * @returns A promise that resolves to a true when the phones are ready
-   * @example isReady().then(() => console.log("Phones are ready!"))
+   * Check if the client addresses are loaded and ready.
+   * @returns A promise that resolves to true when the addresses are ready to be fetched.
+   * @example isReady().then(getAll).then(() => console.log("Addresses are ready!"))
    */
-  function isReady() {
-    return new Promise<boolean>(async (resolve, reject) => {
-      const { queryClient } = useQuery();
-      const { isAuthenticated } = useSession();
-
-      const cache = queryClient.getQueryCache().find({
-        queryKey: service.queryKey,
-      });
-
-      if (!isNil(cache)) resolve(true);
-
-      isAuthenticated()
-        .then(() => {
-          const unsubscribe = subscribeToClientPhones({
-            callback: () => {
-              unsubscribe();
-              resolve(true);
-            },
-          });
-        })
-        .catch(error => reject(error));
-    });
+  async function isReady(): Promise<void> {
+    return isAuthenticated();
   }
 
   /**
    * Get all the phones for the current client.
+   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to an array of phones
    * @example getAll().then(phones => console.log(phones))
    */
-  async function getAll() {
-    return service.loadAll();
+  async function getAll({ allowStale = true } = {}) {
+    return service.loadAll({ allowStale });
   }
 
   /**
@@ -123,7 +104,7 @@ export const useClientPhones = () => {
    */
   async function getPaged(
     paginationParams: PaginatedParams,
-    { allowStale }: { allowStale?: boolean } = {}
+    { allowStale = true } = {}
   ) {
     return service.loadPaged(paginationParams, { allowStale });
   }
@@ -201,6 +182,12 @@ export const useClientPhones = () => {
   }
 
   return {
+    queryOptions: {
+      queryKey: service.queryKey,
+      queryFn: () => getAll(),
+      staleTime: useTime().DAY,
+    },
+    subscribe,
     isReady,
     getOne,
     getAll,
@@ -211,5 +198,6 @@ export const useClientPhones = () => {
     getAllFromCache,
     remove,
     setDefault,
+    invalidate: invalidateQueryByKey(service.queryKey),
   };
 };

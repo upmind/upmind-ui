@@ -38,8 +38,8 @@ export function mapPhone(raw: IPhone): Phone {
 export function mapIPhone(data: PhoneModel): IPhone {
   return {
     type: data.type,
-    phone: data.nationalNumber, // without the country code
-    phone_code: `+${data.countryCallingCode}`,
-    phone_country_code: data.country,
+    phone: data.phone.nationalNumber, // without the country code
+    phone_code: `+${data.phone.countryCallingCode}`,
+    phone_country_code: data.country.phone_code,
   } as IPhone;
 }

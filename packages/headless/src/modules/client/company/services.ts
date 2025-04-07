@@ -151,7 +151,7 @@ async function remove(companyId: Company["id"]) {
 
   const clientId = await getUserId();
 
-  return del({
+  return del<null>({
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
