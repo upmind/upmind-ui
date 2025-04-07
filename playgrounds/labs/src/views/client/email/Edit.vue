@@ -2,7 +2,7 @@
   <UpmContentSection
     class="mx-auto max-w-app"
     class-content="gap-2 flex"
-    title="New Email"
+    :title="`Edit Email ${title}`"
   >
     <UpmCard class="flex w-full flex-wrap gap-2 pb-3 md:pb-3">
       <pre> {{ meta }}</pre>
@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 import { debounce } from "lodash-es";
+import { useRoute, useRouter } from "vue-router";
+import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 
 import {
   UpmForm,
@@ -33,11 +33,15 @@ import {
   type EmailModel,
 } from "@upmind-automation/client-vue";
 
-const { isReady } = useClientEmails();
-await isReady().catch(() => router.push({ name: "client.emails" }));
+const { isReady, getAll } = useClientEmails();
+await isReady()
+  .then(() => getAll())
+  .catch(() => router.push({ name: "client.emails" }));
 
 const router = useRouter();
-const { update, input, model, meta, schema, uischema, stop } = useClientEmail();
+const { params } = useRoute();
+const { update, input, model, meta, title, schema, uischema, stop } =
+  useClientEmail(params.id as string);
 
 // --- METHODS
 

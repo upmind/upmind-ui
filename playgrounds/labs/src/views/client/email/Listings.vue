@@ -2,55 +2,78 @@
   <UpmContentSection class="mx-auto max-w-app" title="Emails">
     <div class="flex gap-2 pb-6">
       <Button
-        @click="fetchEmails"
+        @click="getAll"
         size="sm"
         variant="tonal"
-        label="Load emails"
-        :disabled="processing || emails.length > 0"
-      />
+        :disabled="meta.isLoading || !meta.isAvailable"
+      >
+        Load
+      </Button>
       <Button
-        @click="invalidateEmails"
+        @click="invalidate"
         size="sm"
         variant="tonal"
-        label="Invalidate emails"
-        :disabled="processing"
-      />
-      <Button
-        @click="clearEmails"
-        size="sm"
-        variant="tonal"
-        label="Clear emails"
-        :disabled="processing"
-      />
+        :disabled="meta.isLoading || !meta.isAvailable"
+      >
+        Invalidate
+      </Button>
 
-      <Button @click="doAdd" :loading="processing">New Email</Button>
+      <Button
+        @click="doAdd"
+        :loading="meta.isLoading"
+        :disabled="!meta.isAvailable"
+      >
+        New Email
+      </Button>
     </div>
 
-    <div v-if="processing">Loading...</div>
+    <Alert
+      v-if="!meta.isAvailable"
+      color="error"
+      title="Please log in to view emails"
+    />
 
-    <section class="pb-3 md:pb-3" v-for="email in emails" :key="email.id">
+    <Alert v-else-if="meta.isLoading" color="info" title="Loading..." />
+
+    <Alert
+      v-else-if="meta.isError"
+      color="error"
+      :title="error.title"
+      :message="error.message"
+    />
+
+    <Alert
+      v-else-if="meta.isEmpty"
+      color="info"
+      title="No emails found"
+      message="Please add an email to get started."
+    />
+
+    <section v-else class="pb-3 md:pb-3" v-for="email in data" :key="email.id">
       <UpmCard>
         <h3 class="mt-0">{{ email.title }}</h3>
         <p>{{ email.description }}</p>
 
         <div class="flex gap-2">
+          <Button @click="doEdit(email.id)" size="sm" variant="tonal">
+            <Icon icon="edit" class="size-4" />
+          </Button>
           <Button
-            @click="doDelete(email.id)"
-            class="mt-2"
+            @click="remove(email.id)"
             size="sm"
             variant="tonal"
             label="Delete"
+            :disabled="!email.meta.canDelete"
           >
-            Delete
+            <Icon icon="remove" class="size-4" />
           </Button>
           <Button
-            @click="setEmailAsDefault(email.id)"
-            class="mt-2"
+            @click="setDefault(email.id)"
             size="sm"
             variant="tonal"
             label="Set Default"
-            >Set Default</Button
-          >
+            :disabled="email.meta.isDefault"
+          />
         </div>
       </UpmCard>
     </section>
@@ -60,54 +83,30 @@
 <script lang="ts" setup>
 // --- external
 import { useRouter } from "vue-router";
-import { onMounted, ref } from "vue";
 
 // --- internal
-import { Button } from "@upmind-automation/upmind-ui";
-import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
-import { Email, useQuery, useClientEmails } from "@upmind-automation/headless";
+import { useClientEmails } from "@upmind-automation/headless-vue";
 
-const { queryClient } = useQuery();
-const { getAll, remove, setDefault } = useClientEmails();
+// --- components
+import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
+import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
+
+const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
+  useClientEmails();
+
+// --- types
 
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
 
-const emails = ref<Email[]>([]);
-const processing = ref<boolean>(false);
-
-function clearEmails() {
-  emails.value = [];
-}
-
-function fetchEmails() {
-  emails.value = [];
-  processing.value = true;
-  getAll()
-    .then(res => (emails.value = res))
-    .finally(() => (processing.value = false));
-}
-
-function invalidateEmails() {
-  return queryClient.invalidateQueries({
-    queryKey: ["client", "emails"],
-  });
+function doEdit(id: string) {
+  router.push({ params: { id: id }, name: "client.emails.edit" });
 }
 
 function doAdd() {
   router.push({ name: "client.emails.add" });
 }
 
-function doDelete(id: string) {
-  remove(id).then(() => fetchEmails());
-}
-
-function setEmailAsDefault(id: string) {
-  setDefault(id).then(() => fetchEmails());
-}
-
-onMounted(() => {
-  fetchEmails();
-});
+await isReady().then(() => getAll());
 </script>
