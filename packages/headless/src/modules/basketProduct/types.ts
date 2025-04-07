@@ -2,14 +2,14 @@ import type {
   IBasketProduct,
   IBasketPromotion,
 } from "@upmind-automation/types";
-import type { ProductModel, ProductDetails } from "../product";
+import type { ProductModel, Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export type SubProductChoices = Record<
   string, // the category id
   Record<
     string, // the subproduct id
-    ProductDetails
+    Product
   >
 >;
 
@@ -55,10 +55,7 @@ export interface BasketProduct {
   };
 }
 
-export type BasketProductDetails = Omit<
-  ProductDetails,
-  "cycle" | "quantity"
-> & {};
+export type BasketProductDetails = Omit<Product, "cycle" | "quantity"> & {};
 
 export interface BasketProductSummaryMeta {
   oneoff?: boolean;
@@ -73,9 +70,9 @@ export interface BasketProductSummaryMeta {
   includesTax?: boolean;
 }
 
-export interface BasketProductSummaryDetail extends Price {
-  key: string;
-  category: string;
+export interface BasketProductSummaryDetail {
+  key?: string;
+  category?: string;
   title: string;
   cycle?: number;
   quantity?: number;
@@ -93,7 +90,7 @@ export interface BasketProductSummaryDetail extends Price {
  * @property {string} savingPrice - The formatted saving price, the difference between the regular and current price which is the discount
  * @property {string} savingPercent - The saving percentage, the difference between the regular and current price which is the discount
  */
-interface PriceDetail {
+export interface PriceDetail {
   currentAmount: number;
   currentPrice: string;
   // ---
@@ -118,11 +115,11 @@ interface PriceDetail {
  *    Configuration prices are the total price of the product, including any adjustments or quantity modifiers
  */
 export interface Price extends PriceDetail {
-  unit: {
+  unit?: {
     gross: PriceDetail;
     net: PriceDetail;
   };
-  configuration: {
+  configuration?: {
     gross: PriceDetail;
     net: PriceDetail;
   };
@@ -130,9 +127,7 @@ export interface Price extends PriceDetail {
 
 export interface BasketProductSummaryPrice
   extends BasketProductSummaryDetail,
-    Price {
-  selling?: Price;
-}
+    Price {}
 
 export interface IBasketProductModel {
   product_id: string;

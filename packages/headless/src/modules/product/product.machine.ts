@@ -49,6 +49,7 @@ import { calculateSubscription } from "./services";
 import type { AnyEventObject } from "xstate";
 import type {
   BasketProduct,
+  BasketProductSummaryDetail,
   BasketProductSummaryPrice,
 } from "../basketProduct";
 import type { ProductConfigContext, ProductModel } from "./types";
