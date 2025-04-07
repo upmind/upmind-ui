@@ -23,7 +23,6 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { faker } from "@faker-js/faker";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 import { debounce } from "lodash-es";
 
