@@ -165,39 +165,110 @@ export function parseTermSummary(
 
   const summary = parseProductSummary(raw) as BasketProductSummaryDetail;
 
+  summary.key = "term";
+
   summary.meta = {
     oneoff: raw.billing_cycle_months > 0,
     discounted: raw?.net_global_discount_amount > 0,
     free: isEmpty(raw.net_unit_selling_price_formatted),
     includesTax: checkIncludesTax(),
   };
-  // ---
-  summary.regularAmount = checkIncludesTax()
-    ? raw.selling_price_converted
-    : raw.net_selling_price;
-  summary.regularPrice = checkIncludesTax()
-    ? raw.selling_price_formatted
-    : raw.net_selling_price_formatted;
-  // ---
-  summary.currentAmount = checkIncludesTax()
-    ? raw.net_amount
-    : raw.configuration_net_amount_discounted_converted;
-  summary.currentPrice = checkIncludesTax()
-    ? raw.net_unit_selling_price_formatted
-    : raw.configuration_net_amount_discounted_formatted;
-  // ---
-  summary.savingAmount = checkIncludesTax()
-    ? raw.configuration_selling_price_discount_converted
-    : raw.configuration_net_selling_price_discount_converted;
-  summary.savingPrice = checkIncludesTax()
-    ? raw.configuration_selling_price_discount_formatted
-    : raw.configuration_net_selling_price_discount_formatted;
-  summary.savingPercent = summary.meta.discounted
-    ? `${Math.round((summary.savingAmount / summary.regularAmount) * 100)}%`
-    : "";
 
+  summary.regularAmount = raw.selling_price_converted;
+  summary.regularPrice = raw.selling_price_formatted;
+  summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
+  summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
+
+  // add any saving information (if available)
+  if (
+    summary.meta.discounted &&
+    !isNil(summary?.regularAmount) &&
+    !isNil(summary?.currentAmount)
+  ) {
+    summary.savingAmount = summary.meta.discounted
+      ? ((summary.regularAmount - summary.currentAmount) /
+          summary.regularAmount) *
+        100
+      : 0;
+
+    summary.savingPercent = summary.meta.discounted
+      ? `${Math.round(summary.savingAmount)}%`
+      : "";
+  }
+
+  // retained in case we wan tto show the term name as opposed to the actual product name/category
+  // const { getBillingCycle } = useSystem();
+  // const cycle = getBillingCycle(raw.billing_cycle_months);
+  // const name = cycle ? useTranslateName(cycle) : null;
+  // term.category = "Billing Cycle";
+  // term.name = name;
   return summary;
 }
+// export function parseTermSummary(
+//   raw: IBasketProduct
+// ): BasketProductSummaryDetail {
+//   const { checkIncludesTax } = useBrand();
+
+//   const summary = parseProductSummary(raw) as BasketProductSummaryDetail;
+
+//   summary.key = "term";
+
+//   summary.meta = {
+//     oneoff: raw.billing_cycle_months > 0,
+//     discounted: raw?.net_global_discount_amount > 0,
+//     free: isEmpty(raw.net_unit_selling_price_formatted),
+//     includesTax: checkIncludesTax(),
+//   };
+
+//   summary.regularAmount = raw.selling_price_converted;
+//   summary.regularPrice = raw.selling_price_formatted;
+//   summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
+//   summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
+
+//   // add any saving information (if available)
+//   if (
+//     summary.meta.discounted &&
+//     !isNil(summary?.regularAmount) &&
+//     !isNil(summary?.currentAmount)
+//   ) {
+//     summary.savingAmount = summary.meta.discounted
+//       ? ((summary.regularAmount - summary.currentAmount) /
+//           summary.regularAmount) *
+//         100
+//       : 0;
+
+//     summary.savingPercent = summary.meta.discounted
+//       ? `${Math.round(summary.savingAmount)}%`
+//       : "";
+//   }
+
+//   // // ---
+//   // summary.regularAmount = checkIncludesTax()
+//   //   ? raw.selling_price_converted
+//   //   : raw.selling_price_converted; //raw.net_selling_price;
+//   // summary.regularPrice = checkIncludesTax()
+//   //   ? raw.selling_price_formatted
+//   //   : raw.selling_price_formatted; //raw.net_selling_price_formatted;
+//   // // ---
+//   // summary.currentAmount = checkIncludesTax() ? raw.net_amount : raw.net_amount; //raw.configuration_net_amount_discounted_converted;
+//   // summary.currentPrice = checkIncludesTax()
+//   //   ? raw.net_unit_selling_price_formatted
+//   //   : raw.net_unit_selling_price_formatted; //raw.configuration_net_amount_discounted_formatted;
+//   // // ---
+//   // summary.savingAmountNew = checkIncludesTax()
+//   //   ? raw.total_discount_amount
+//   //   : raw.net_global_discount_amount;
+//   // summary.savingPriceNew = checkIncludesTax()
+//   //   ? raw.total_discount_amount_formatted
+//   //   : raw.net_global_discount_amount_formatted;
+//   // summary.savingPercentNew = summary.meta.discounted
+//   //   ? `${Math.round((summary.savingAmount / summary.regularAmount) * 100)}%`
+//   //   : "";
+
+//   // add any saving information (if available)
+
+//   return summary;
+// }
 
 export function parseProductSummary(
   subproduct: IBasketProduct
@@ -280,7 +351,7 @@ export function parsPriceSummary(raw: IBasketProduct) {
           100
         : 0;
 
-      summary.selling.saving = summary.meta.discounted
+      summary.selling.savingPercent = summary.meta.discounted
         ? `${Math.round(summary.selling.savingAmount)}%`
         : "";
     }
@@ -288,6 +359,91 @@ export function parsPriceSummary(raw: IBasketProduct) {
 
   return summary;
 }
+
+// export function parsPriceSummary(raw: IBasketProduct) {
+//   const { checkIncludesTax } = useBrand();
+
+//   const summary = parseProductSummary(raw);
+
+//   summary.meta = {
+//     oneoff: raw.billing_cycle_months > 0,
+//     discounted: raw.configuration_net_amount_discount_converted > 0,
+//     free: raw.configuration_net_amount_discounted_converted == 0,
+//     overrides: raw?.product?.category?.price_override,
+//     mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
+//     includesTax: checkIncludesTax(),
+//   };
+
+//   summary.regularAmount = checkIncludesTax()
+//     ? raw.configuration_total_amount_converted
+//     : raw.configuration_net_amount_converted;
+//   summary.regularPrice = checkIncludesTax()
+//     ? raw.configuration_total_amount_formatted
+//     : raw.configuration_net_amount_formatted;
+//   summary.currentAmount = checkIncludesTax()
+//     ? raw.configuration_total_discounted_amount_converted
+//     : raw.configuration_net_amount_discounted_converted;
+//   summary.currentPrice = checkIncludesTax()
+//     ? raw.configuration_total_discounted_amount_formatted
+//     : raw.configuration_net_amount_discounted_formatted;
+
+//   // ---
+//   summary.savingAmount = checkIncludesTax()
+//     ? raw.configuration_selling_price_discount_converted
+//     : raw.configuration_net_selling_price_discount_converted;
+//   summary.savingPrice = checkIncludesTax()
+//     ? raw.configuration_selling_price_discount_formatted
+//     : raw.configuration_net_selling_price_discount_formatted;
+//   summary.savingPercent = summary.meta.discounted
+//     ? `${Math.round((summary.savingAmount / summary.regularAmount) * 100)}%`
+//     : "";
+
+//   // // add any saving information (if available)
+//   // if (
+//   //   summary.meta.discounted &&
+//   //   !isNil(summary?.regularAmount) &&
+//   //   !isNil(summary?.currentAmount)
+//   // ) {
+//   //   summary.savingAmount = summary.meta.discounted
+//   //     ? ((summary.regularAmount - summary.currentAmount) /
+//   //         summary.regularAmount) *
+//   //       100
+//   //     : 0;
+
+//   //   summary.savingPercent = summary.meta.discounted
+//   //     ? `${Math.round(summary.savingAmount)}%`
+//   //     : "";
+//   // }
+
+//   // if we have a quantity greater than 1, lets include the pricing for a single unit
+//   if (raw.quantity > 1) {
+//     summary.selling = {
+//       regularAmount: raw.selling_amount_converted,
+//       regularPrice: raw.selling_amount_formatted,
+//       currentAmount: raw.selling_amount_discounted_converted,
+//       currentPrice: raw.selling_amount_discounted_formatted,
+//     };
+
+//     // add any saving information (if available)
+//     if (
+//       summary.meta.discounted &&
+//       summary?.selling?.regularAmount &&
+//       summary?.selling?.currentAmount
+//     ) {
+//       summary.selling.savingAmount = summary.meta.discounted
+//         ? ((summary.selling.regularAmount - summary.selling.currentAmount) /
+//             summary.selling.regularAmount) *
+//           100
+//         : 0;
+
+//       summary.selling.saving = summary.meta.discounted
+//         ? `${Math.round(summary.selling.savingAmount)}%`
+//         : "";
+//     }
+//   }
+
+//   return summary;
+// }
 
 export function parseProvisionFieldSummary(
   key: string,
