@@ -1,19 +1,23 @@
 // --- internal
+import {
+  QueryObserver,
+  invalidateQueryByKey,
+  useQuerySubscription,
+} from "../../query";
 import service from "./services";
+import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
-import { useQuery, QueryObserver } from "../../query";
 
 // --- utils
-import { find, filter, isEqual, isNil, isString } from "lodash-es";
+import { find, filter, isEqual, isString } from "lodash-es";
 
 // --- types
 import type { Email } from "./types";
-import type { IEmail } from "@upmind-automation/types";
 import type { PaginatedParams } from "../../query";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
-let emailObserver: QueryObserver | undefined;
+let observer: QueryObserver | undefined;
 
 /**
  * Subscribe to the client email query that are present in the cache.
@@ -21,64 +25,36 @@ let emailObserver: QueryObserver | undefined;
  * @param callback The callback function to be called when the query is ready/updated.
  * @returns The unsubscribe function
  */
-const subscribeToClientEmail = ({
-  callback,
-}: {
-  callback: (data: QueryCacheNotifyEvent) => void;
-}) => {
-  if (!emailObserver) {
-    emailObserver = new QueryObserver({ queryKey: service.queryKey });
+const subscribe = (
+  callback: (query: QueryCacheNotifyEvent["query"]) => void
+): QueryObserver => {
+  if (!observer) {
+    observer = useQuerySubscription(service.queryKey, callback);
   }
-
-  return emailObserver.subscribe(data => {
-    if (
-      data.query.state.fetchStatus === "idle" &&
-      data.query.state.status === "success"
-    ) {
-      callback(data);
-    }
-  });
+  return observer;
 };
 
 export const useClientEmails = () => {
   const { addError, addSuccess } = useFeedback();
+  const { isAuthenticated } = useSession();
 
   /**
-   * Check if the client emails query is ready.
-   * @returns A promise that resolves to a boolean.
-   * @example isReady().then((ready) => console.log("Emails are ready!", ready))
+   * Check if the client addresses are loaded and ready.
+   * @returns A promise that resolves to true when the addresses are ready to be fetched.
+   * @example isReady().then(getAll).then(() => console.log("Addresses are ready!"))
    */
-  async function isReady() {
-    return new Promise<boolean>(async (resolve, reject) => {
-      const { queryClient } = useQuery();
-      const { isAuthenticated } = useSession();
-
-      const cache = queryClient.getQueryCache().find({
-        queryKey: service.queryKey,
-      });
-
-      if (!isNil(cache)) resolve(true);
-
-      isAuthenticated()
-        .then(() => {
-          const unsubscribe = subscribeToClientEmail({
-            callback: () => {
-              unsubscribe();
-              resolve(true);
-            },
-          });
-        })
-        .catch(error => reject(error));
-    });
+  async function isReady(): Promise<void> {
+    return isAuthenticated();
   }
 
   /**
-   * Get all the emails for the client.
+   * Get all the emails for the current client.
+   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to an array of emails.
    * @example getAll().then((emails) => console.log(emails))
    */
-  async function getAll() {
-    return service.loadAll();
+  async function getAll({ allowStale = true } = {}) {
+    return service.loadAll({ allowStale });
   }
 
   /**
@@ -98,7 +74,7 @@ export const useClientEmails = () => {
    * @returns A promise that resolves to an email or undefined.
    * @example getOne("123").then((email) => console.log(email))
    */
-  function getOne(id: IEmail["id"]) {
+  function getOne(id: Email["id"]) {
     const emails = getAllFromCache();
     return find(emails, ["id", id]);
   }
@@ -126,7 +102,7 @@ export const useClientEmails = () => {
    */
   async function getPaged(
     paginationParams: PaginatedParams,
-    { allowStale }: { allowStale?: boolean } = {}
+    { allowStale = true } = {}
   ) {
     return service.loadPaged(paginationParams, { allowStale });
   }
@@ -200,6 +176,12 @@ export const useClientEmails = () => {
   }
 
   return {
+    queryOptions: {
+      queryKey: service.queryKey,
+      queryFn: () => getAll(),
+      staleTime: useTime().DAY,
+    },
+    subscribe,
     isReady,
     getOne,
     getAll,
@@ -210,5 +192,6 @@ export const useClientEmails = () => {
     getAllFromCache,
     remove,
     setDefault,
+    invalidate: invalidateQueryByKey(service.queryKey),
   };
 };

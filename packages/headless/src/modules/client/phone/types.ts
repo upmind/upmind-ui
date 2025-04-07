@@ -1,11 +1,10 @@
 // --- internal
 import { useClientPhone } from "./useClientPhone";
+import { useClientPhones } from "./useClientPhones";
 
 // --- types
-import type { PaginatedParams } from "../../query";
 import type { IPhone, ICountry } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
-import { useClientPhones } from "./useClientPhones";
 
 // -----------------------------------------------------------------------------
 export const PhoneTypes = [
@@ -16,11 +15,26 @@ export const PhoneTypes = [
 ];
 
 export interface PhoneModel {
-  country: IPhone["phone_country_code"];
-  countryCallingCode?: IPhone["phone_code"];
-  nationalNumber?: IPhone["phone"];
-  phone: IPhone["phone"];
-  type: IPhone["type"];
+  phone: {
+    number: string;
+    nationalNumber: string;
+    countryCallingCode: string;
+    country: string;
+  };
+  type: number;
+  types: typeof PhoneTypes;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+    code3: string;
+    created_at: string;
+    updated_at: string;
+    vat: string;
+    eea: number;
+    phone_code: string;
+    post_code_regex: string;
+  };
 }
 
 export interface Phone {

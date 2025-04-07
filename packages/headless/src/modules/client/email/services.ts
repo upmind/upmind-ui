@@ -7,9 +7,9 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { isNil, isEmpty, get } from "lodash-es";
 import { mapEmails, mapIEmail } from "./mappers";
-import { invalidateQueryByKey } from "../../query/utils";
+import { invalidateQueryByKey } from "../../query";
+import { isNil, isEmpty, get, set } from "lodash-es";
 
 // --- types
 import type { IEmail } from "@upmind-automation/types";
@@ -35,7 +35,9 @@ async function loadAll({ allowStale = true } = {}) {
     allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }) => mapEmails(data ?? []));
+    transformResponse: (response: any) =>
+      set(response, "data", mapEmails(response?.data ?? [])),
+  }).then(({ data }) => data);
 }
 
 async function loadPaged(
@@ -51,28 +53,33 @@ async function loadPaged(
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
     withAccessToken: true,
+    transformResponse: (response: any) =>
+      set(response, "data", mapEmails(response?.data ?? [])),
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapEmails(data ?? []));
-}
-
-async function loadLookups(_context: EmailContext) {
-  // we don't have any lookups for emails, so just return null
-  return Promise.resolve(null);
+  }).then(({ data }) => data ?? []);
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-
   const cachedEmails =
-    queryClient.getQueryData<QueryResponse<IEmail>>(queryKey);
-
+    queryClient.getQueryData<QueryResponse<IEmail[]>>(queryKey);
   if (isNil(cachedEmails)) throw new CacheIsStaleError();
-
   return mapEmails(cachedEmails.data ?? []);
 }
 
+/**
+ * Load the lookups for the email form
+ * @param {EmailContext} _context
+ * @returns {Promise<null>}
+ */
+async function loadLookups(_context: EmailContext): Promise<null> {
+  // we don't have any lookups for emails, so just return null
+  return Promise.resolve(null);
+}
+
 // -----------------------------------------------------------------------------
+// MUTATIONS
 
 async function add(data: EmailModel) {
   const { getUserId } = useSession();
@@ -84,9 +91,7 @@ async function add(data: EmailModel) {
     url: useUrl(`clients/${clientId}/emails`),
     data: mapIEmail(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapEmails(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function update(id: Email["id"], data: EmailModel) {
@@ -99,9 +104,7 @@ async function update(id: Email["id"], data: EmailModel) {
     url: useUrl(`clients/${clientId}/emails/${id}`),
     data: mapIEmail(data),
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapEmails(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 async function remove(emailId: Email["id"]) {
@@ -110,7 +113,7 @@ async function remove(emailId: Email["id"]) {
 
   const clientId = await getUserId();
 
-  return del<IEmail>({
+  return del<null>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     withAccessToken: true,
   }).then(invalidateQueryByKey(queryKey));
@@ -126,12 +129,11 @@ async function setDefault(emailId: Email["id"]) {
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     data: { default: true },
     withAccessToken: true,
-  })
-    .then(invalidateQueryByKey(queryKey))
-    .then(({ data }) => mapEmails(data));
+  }).then(invalidateQueryByKey(queryKey));
 }
 
 // -----------------------------------------------------------------------------
+//  SIDE EFFECTS
 
 async function parse(
   { baseModel, schema }: EmailContext,

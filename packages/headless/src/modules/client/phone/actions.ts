@@ -22,10 +22,7 @@ export const useClientPhoneActions = () => {
         if (isObject(phone)) return get(model, "phone.number");
         return get(model, "international_phone");
       },
-      description: (
-        // TODO: { model, country, types }: PhoneContext,
-        { model, country, types }: PhoneContext
-      ) => {
+      description: ({ model, country, types }: PhoneContext) => {
         let type = get(model, "type");
         type = get(types, type);
         return compact([get(country, "name"), type?.value]).join(" | ");

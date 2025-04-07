@@ -3,22 +3,24 @@ import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
 
 // --- internal
-import { get } from "lodash-es";
 import itemMachine from "../item.machine";
 import { useClientEmails } from "./useClientEmails";
 import { useClientEmailActions } from "./actions";
 import { useClientEmailServices } from "./services";
+
+// --- utils
+import { get } from "lodash-es";
 import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
 import type { Email, EmailModel } from "./types";
 
-export const useClientEmail = (id?: Email["id"]) => {
-  // create a global instance of the system machine
-  // and a global object to store state
-  // NB dont automatically start the machine as in order for the inspector to work
-  // it needs to be started after the inspect service is created, so we only start it when we need it
+// -----------------------------------------------------------------------------
 
+export const useClientEmail = (
+  id?: Email["id"],
+  { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
+) => {
   const service = interpret(
     itemMachine
       .withConfig({
@@ -29,8 +31,9 @@ export const useClientEmail = (id?: Email["id"]) => {
         if (!id) return { model: undefined };
         const { getOne } = useClientEmails();
         return {
-          id: id,
+          id,
           model: getOne(id),
+          allowMultipleEdits,
         };
       }),
     {

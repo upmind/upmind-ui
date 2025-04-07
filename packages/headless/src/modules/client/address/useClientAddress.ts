@@ -45,7 +45,7 @@ export const useClientAddress = (
   return {
     id,
     service,
-    getModel: () => service?.getSnapshot().context.model,
+    getModel: () => service?.getSnapshot().context.model as AddressModel,
     getSnapshot: () => service?.getSnapshot(),
     stop: () => service.stop(),
     // ---
