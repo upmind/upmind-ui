@@ -6,7 +6,7 @@ import { IBasketPromotion } from "@upmind-automation/types";
 import type {
   BasketProduct,
   BasketHelperContext,
-  Price,
+  PriceDetail,
   BasketProductSummaryMeta,
 } from "../basketProduct";
 
@@ -29,7 +29,7 @@ export enum DomainTypes {
 export interface DomainProduct
   extends Domain,
     Omit<BasketProduct, "id" | "product" | "product_id" | "summary"> {
-  summary: Price & {
+  summary: PriceDetail & {
     meta: BasketProductSummaryMeta;
   };
 }

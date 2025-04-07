@@ -16,12 +16,7 @@ import { isEmpty, get, add, subtract, find, omitBy, isNil } from "lodash-es";
 
 // --- types
 
-import type {
-  ProductModel,
-  ProductDetails,
-  SummaryDetails,
-  TermDetails,
-} from "../product";
+import type { ProductModel, Product, SummaryDetails, Term } from "../product";
 import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
@@ -71,10 +66,10 @@ export const useBasketProductPending = (model: ProductModel) => {
   //   return waitFor(service, state => state.matches("available"));
   // },
 
-  async function getProduct(): Promise<ProductDetails> {
-    return new Promise<ProductDetails>((resolve, reject) => {
+  async function getProduct(): Promise<Product> {
+    return new Promise<Product>((resolve, reject) => {
       const product = get(service.getSnapshot(), "context.lookups.product") as
-        | ProductDetails
+        | Product
         | undefined;
       // sanity check
       if (!product) return reject("Product not found");
@@ -83,13 +78,13 @@ export const useBasketProductPending = (model: ProductModel) => {
     });
   }
 
-  async function getTerm(): Promise<TermDetails> {
-    return new Promise<TermDetails>((resolve, reject) => {
+  async function getTerm(): Promise<Term> {
+    return new Promise<Term>((resolve, reject) => {
       const terms = get(service.getSnapshot(), "context.lookups.terms") as
-        | TermDetails[]
+        | Term[]
         | undefined;
 
-      const term = find(terms, ["cycle", model.term]) as TermDetails;
+      const term = find(terms, ["cycle", model.term]) as Term;
       // sanity check
       if (!term) return reject("Product Term not found");
       // ---

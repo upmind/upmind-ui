@@ -13,7 +13,7 @@ import { DetailedError, responseCodes } from "../../utils";
 import { isEmpty, get, add, subtract } from "lodash-es";
 
 // --- types
-import type { ProductDetails } from "../product";
+import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export const useBasketProduct = (bpid: string) => {
@@ -50,10 +50,10 @@ export const useBasketProduct = (bpid: string) => {
   //   return waitFor(service, state => state.matches("available"));
   // },
 
-  async function getProductDetails(): Promise<ProductDetails> {
-    return new Promise<ProductDetails>((resolve, reject) => {
+  async function getProductDetails(): Promise<Product> {
+    return new Promise<Product>((resolve, reject) => {
       const product = get(service.getSnapshot(), "context.lookup.product") as
-        | ProductDetails
+        | Product
         | undefined;
       // sanity check
       if (!product) return reject("Product not found");

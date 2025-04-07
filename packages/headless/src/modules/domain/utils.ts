@@ -14,6 +14,7 @@ import {
   has,
   isEmpty,
   isNil,
+  subtract,
   isObject,
   map,
   orderBy,
@@ -73,13 +74,13 @@ export function parseAvailable(
     // also we may need to calculate the correct term and not just use the first one
     const term = first(orderBy(raw.prices, "billing_cycle_months", "asc"));
     const discounted = (term?.price_discounted ?? term?.price) != term?.price;
-    const savingsAmount =
-      discounted && term?.price
-        ? ((term.price - (term?.price_discounted ?? term.price)) / term.price) *
+    const savingAmount =
+      Math.round(
+        subtract(term?.price ?? 0, term?.price_discounted ?? term?.price ?? 0) *
           100
-        : 0;
+      ) / 100;
 
-    const result: DomainProduct = {
+    return {
       productId: raw.id, //raw.product_id,
       quantity: 1,
       term: raw?.billing_cycle_months ?? term?.billing_cycle_months ?? 0,
@@ -97,12 +98,18 @@ export function parseAvailable(
       tld: parsedDomain?.tld ?? "",
       // ---
       summary: {
-        currentAmount: term?.price_discounted ?? term?.price,
-        currentPrice: term?.price_discounted_formatted ?? term?.price_formatted,
-        regularAmount: term?.price,
-        regularPrice: term?.price_formatted,
-        currentSavingAmount: Math.round(savingsAmount * 100) / 100,
-        currentSaving: discounted ? `${Math.round(savingsAmount)}%` : "",
+        regularAmount: term?.price ?? 0,
+        regularPrice: term?.price_formatted ?? "",
+        currentAmount: term?.price_discounted ?? term?.price ?? 0,
+        currentPrice:
+          term?.price_discounted_formatted ?? term?.price_formatted ?? "",
+
+        savingAmount, //TODO: Missing _discount_ value from API
+        savingPrice: `${savingAmount}`, //TODO: Missing _discount_formatted value from API
+        savingPercent:
+          discounted && term?.price
+            ? `${Math.round((savingAmount / term.price) * 100)}%`
+            : "",
 
         meta: {
           // @ts-ignore - NB this does actually exist on the raw product
@@ -113,9 +120,7 @@ export function parseAvailable(
           oneoff: term?.billing_cycle_months == 0,
         },
       },
-    };
-
-    return result;
+    } as DomainProduct;
   });
 
   // and ensure we don't have any duplicates or falsy

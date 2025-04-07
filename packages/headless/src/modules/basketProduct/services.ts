@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import type { BasketProduct, ProductDetails, ProductModel } from "../..";
+import type { BasketProduct, Product, ProductModel } from "../..";
 import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
@@ -267,7 +267,7 @@ async function updateQuantity(
   const { put, useUrl } = useQuery();
   basketProduct.quantity = parseQuantity(
     data,
-    basketProduct.product as ProductDetails
+    basketProduct.product as Product
   );
   const product = parseBasketProductData(basketProduct);
   return put({

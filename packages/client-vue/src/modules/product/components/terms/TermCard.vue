@@ -5,17 +5,12 @@
         {{
           te(`product.terms.cycle.${props.cycle}`)
             ? t(`product.terms.cycle.${props.cycle}`)
-            : props.name
+            : props.title
         }}
       </strong>
 
       <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Promotion
-          :discounted="!!promotion.amount"
-          :currentSaving="promotion.amountFormatted"
-          :currentSavingAmount="promotion.amount"
-          :mixed="promotion.mixed"
-        />
+        <Promotion v-bind="promotion" />
       </template>
     </div>
 
@@ -42,7 +37,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import { type BadgeProps } from "@upmind-automation/upmind-ui";
 import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
@@ -50,39 +44,17 @@ import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { type BadgeProps } from "@upmind-automation/upmind-ui";
+import type { Term } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
-  defineProps<{
-    name: string;
-    price?: number;
-    cycle?: number;
-    // ---
-    mixedPromotions?: boolean;
-    monthlyFromCurrentAmount?: number;
-    monthlyFromCurrentPrice?: string;
-    monthlyFromRegularAmount?: number;
-    monthlyFromRegularPrice?: string;
-    regularAmount?: number;
-    regularPrice?: string;
-    currentPrice?: string;
-    currentAmount?: number;
-    meta: {
-      discounted?: boolean;
-      free?: boolean;
-    };
-    promotions?: {
-      name?: string;
-      amount?: number;
-      amountFormatted?: string;
-      code: string[];
-      display?: string;
-      mixed?: boolean;
-    }[];
-    // ---
-    select?: boolean;
-    badge?: BadgeProps;
-  }>(),
+  defineProps<
+    Term & {
+      select?: boolean;
+      badge?: BadgeProps;
+    }
+  >(),
   {
     badge: () => ({
       color: "promotion",
@@ -97,8 +69,8 @@ const props = withDefaults(
 const { t, te } = useI18n();
 
 const meta = computed(() => ({
-  hasPromotions: !!props.promotions?.length || props.mixedPromotions,
-  select: props.select,
+  hasPromotions: !!props.promotions?.length || props.meta?.mixed,
+  isSelected: !!props.select,
 }));
 
 const styles = useStyles(
