@@ -43,19 +43,15 @@ export interface Company {
   vatPercent: ICompany["vat_percent"];
   // --- meta info
   meta: {
-    isDefault: ICompany["default"];
-    canDelete: ICompany["can_delete"];
-    isVerified: ICompany["verified"];
+    isDefault: boolean;
+    canDelete: boolean;
+    isVerified: boolean;
   };
 }
 
 export type UseClientCompany = ReturnType<typeof useClientCompany>;
 
 export type UseClientCompanies = ReturnType<typeof useClientCompanies>;
-
-export interface CompanyWithRelations extends ICompany {
-  address: IAddress & { country: ICountry; region: IRegion };
-}
 
 export interface CompanyContext extends ClientItemContext {
   emails?: UseClientEmails;

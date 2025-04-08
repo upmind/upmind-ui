@@ -44,9 +44,9 @@ export interface Phone {
   description?: string;
   id: IPhone["id"];
   meta: {
-    canDelete: IPhone["can_delete"];
-    isDefault: IPhone["default"];
-    isVerified: IPhone["verified"];
+    canDelete: boolean;
+    isDefault: boolean;
+    isVerified: boolean;
   };
   nationalNumber: IPhone["phone"];
   title: string;

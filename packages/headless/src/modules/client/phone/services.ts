@@ -31,7 +31,7 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Phone>({
+  return get<Phone[]>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
@@ -52,7 +52,7 @@ async function loadPaged(
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Phone>({
+  return get<Phone[]>({
     url: useUrl(`clients/${client.id}/phones`),
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
@@ -90,6 +90,7 @@ async function loadLookups(_context: PhoneContext): Promise<{
   return Promise.resolve({
     types: keyBy(PhoneTypes, "key"),
     country: getCountry(),
+    baseModel: {},
   });
 }
 
@@ -102,7 +103,7 @@ async function add(data: PhoneModel) {
 
   const clientId = await getUserId();
 
-  return post<IPhone>({
+  return post<Phone>({
     url: useUrl(`clients/${clientId}/phones`),
     data: mapIPhone(data),
     withAccessToken: true,
@@ -154,6 +155,7 @@ async function parse(
   { baseModel, schema, country }: PhoneContext,
   { data }: AnyEventObject & { data: PhoneContext }
 ) {
+  debugger;
   const safeModel = useModelParser(
     schema,
     get(data, "model", data),

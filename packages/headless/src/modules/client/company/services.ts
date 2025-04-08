@@ -18,8 +18,8 @@ import { mapCompanies, mapICompany } from "./mappers";
 import type { ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
+import type { CompanyContext, Company } from "./types";
 import type { PaginatedParams, QueryResponse, CompanyModel } from "../..";
-import type { CompanyWithRelations, CompanyContext, Company } from "./types";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -31,7 +31,7 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<CompanyWithRelations[]>({
+  return get<Company[]>({
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
       limit: 0,
@@ -53,7 +53,7 @@ async function loadPaged(
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<CompanyWithRelations[]>({
+  return get<Company[]>({
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
     }),
@@ -70,7 +70,7 @@ async function loadPaged(
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedCompanies =
-    queryClient.getQueryData<QueryResponse<CompanyWithRelations>>(queryKey);
+    queryClient.getQueryData<QueryResponse<Company[]>>(queryKey);
   if (isNil(cachedCompanies)) throw new CacheIsStaleError();
   return cachedCompanies.data;
 }

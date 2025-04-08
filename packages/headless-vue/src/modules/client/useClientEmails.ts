@@ -2,7 +2,10 @@
 import { computed } from "vue";
 import { useQuery } from "../query";
 import { useSession } from "../session";
-import { useClientEmails as useUpmindClientEmails } from "@upmind-automation/headless";
+import {
+  Email,
+  useClientEmails as useUpmindClientEmails,
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -26,7 +29,7 @@ export const useClientEmails = () => {
     getPaged,
   } = useUpmindClientEmails();
 
-  const { error, meta, data } = useQuery(queryOptions.queryKey);
+  const { error, meta, data } = useQuery<Email[]>(queryOptions.queryKey);
   // ---------------------------------------------------------------------------
   return {
     error,
