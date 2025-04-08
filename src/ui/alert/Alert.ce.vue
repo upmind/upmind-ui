@@ -3,7 +3,7 @@
 
   <Alert :class="cn(styles.alert, props.class)">
     <div class="flex items-center justify-start gap-2">
-      <Icon v-if="icon" :icon="icon" size="xs" />
+      <Icon v-if="icon" :icon="icon" size="2xs" />
       <div class="flex w-full items-center justify-between gap-2">
         <AlertTitle
           class="font-medium leading-none tracking-tight"
