@@ -8,7 +8,11 @@ import { getQueryClient } from "./utils";
 import { every, includes, some } from "lodash-es";
 
 // --- types
-import { QueryKey, type QueryCacheNotifyEvent } from "@tanstack/query-core";
+import {
+  QueryKey,
+  type QueryCacheNotifyEvent,
+  type QueryFilters,
+} from "@tanstack/query-core";
 type QuerySubscriptionFilter = (event: QueryCacheNotifyEvent) => boolean;
 export type { QueryCacheNotifyEvent, QuerySubscriptionFilter };
 
@@ -16,13 +20,14 @@ export type { QueryCacheNotifyEvent, QuerySubscriptionFilter };
 
 export class QueryObserver {
   queryKey: QueryKey;
-  options?: {
-    exact?: boolean;
-  };
+  options?: Omit<QueryFilters, "queryKey">;
   queryClient = getQueryClient();
   private subscription: (() => void) | undefined;
 
-  constructor(queryKey: QueryKey, options?: { exact: boolean }) {
+  constructor(
+    queryKey: QueryKey,
+    options: Omit<QueryFilters, "queryKey"> = { exact: true }
+  ) {
     this.queryKey = queryKey;
     this.options = options ?? {};
   }
@@ -31,8 +36,14 @@ export class QueryObserver {
     const queryCache = this.queryClient.getQueryCache();
 
     // set up the query cache
-    const query = queryCache.find({ queryKey: this.queryKey });
-    if (query) callback(query);
+    const query = queryCache.find({
+      queryKey: this.queryKey,
+      exact: this.options?.exact,
+    });
+    if (query) {
+      debugger;
+      callback(query);
+    }
 
     // set up the subscription to watch for changes to the query cache
     this.subscription = queryCache.subscribe((event: QueryCacheNotifyEvent) => {
@@ -40,6 +51,7 @@ export class QueryObserver {
 
       const fn = this.options?.exact ? every : some;
       if (fn(this.queryKey, key => includes(event.query.queryKey, key))) {
+        debugger;
         callback(event.query);
       }
     });
