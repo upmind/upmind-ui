@@ -58,13 +58,17 @@ export const useClientPhone = (
     input: async (model: PhoneModel): Promise<PhoneModel> => {
       // we have to ensure we are able to input data
       return waitFor(service, state =>
-        ["available.valid", "available.invalid"].some(state.matches)
+        ["available.valid", "available.invalid", "available.error"].some(
+          state.matches
+        )
       )
         .then(async () => {
           service.send({ type: "SET", data: model });
           // then we wait until the module has been checked and is valid/invalid
           return waitFor(service, state =>
-            ["available.valid", "available.invalid"].some(state.matches)
+            ["available.valid", "available.invalid", "available.error"].some(
+              state.matches
+            )
           ).then(state => get(state, "context.model") as PhoneModel);
         })
         .catch(() => {
@@ -88,16 +92,18 @@ export const useClientPhone = (
           )
             .then(state => {
               if (["error", "available.error"].some(state.matches)) {
+                debugger;
                 return Promise.reject(state.context.error);
               }
               return Promise.resolve();
             })
             .then(() => useClientPhoneServices().refresh());
         })
-        .catch(() => {
+        .catch(error => {
+          debugger;
           return Promise.reject(
             new DetailedError(
-              "Update only available if model is valid",
+              error ?? "Update only available if model is valid",
               responseCodes.Forbidden
             )
           );

@@ -17,15 +17,17 @@ export function mapPhone(raw: IPhone): Phone {
 
   return {
     id: raw.id,
-    type: raw.type,
-    default: raw.default,
-    country: raw.phone_country_code,
-    nationalNumber: raw.phone,
-    countryCallingCode: raw.phone_code,
     title: get(raw, "international_phone"),
     description: compact([get(raw, "phone_country_code"), type?.value]).join(
       " | "
     ),
+    phone: {
+      number: raw.phone,
+      nationalNumber: raw.phone,
+      countryCallingCode: raw.phone_code,
+      country: raw.phone_country_code,
+    },
+    type: raw.type,
     // ---
     meta: {
       isDefault: !!raw.default,
@@ -36,10 +38,11 @@ export function mapPhone(raw: IPhone): Phone {
 }
 
 export function mapIPhone(data: PhoneModel): IPhone {
+  debugger;
   return {
     type: data.type,
     phone: data.phone.nationalNumber, // without the country code
     phone_code: `+${data.phone.countryCallingCode}`,
-    phone_country_code: data.country.phone_code,
+    phone_country_code: data.phone.country,
   } as IPhone;
 }

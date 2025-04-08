@@ -17,11 +17,11 @@ import type { UseClientAddresses } from "../address";
 // -----------------------------------------------------------------------------
 
 export interface CompanyModel {
-  addressId: ICompany["address_id"];
+  addressId?: ICompany["address_id"];
   default: ICompany["default"];
-  emailId: ICompany["email_id"];
+  emailId?: ICompany["email_id"];
   name: ICompany["name"];
-  phoneId: ICompany["phone_id"];
+  phoneId?: ICompany["phone_id"];
   regNumber: ICompany["reg_number"];
   vatNumber: ICompany["vat_number"];
 }

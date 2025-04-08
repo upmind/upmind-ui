@@ -22,35 +22,24 @@ export interface PhoneModel {
     country: string;
   };
   type: number;
-  types: typeof PhoneTypes;
-  country: {
-    id: string;
-    name: string;
-    code: string;
-    code3: string;
-    created_at: string;
-    updated_at: string;
-    vat: string;
-    eea: number;
-    phone_code: string;
-    post_code_regex: string;
-  };
 }
 
 export interface Phone {
-  country: IPhone["phone_country_code"];
-  countryCallingCode: IPhone["phone_code"];
-  default: IPhone["default"];
-  description?: string;
   id: IPhone["id"];
+  title: string;
+  description?: string;
+  phone: {
+    number: IPhone["phone"];
+    nationalNumber: IPhone["phone"];
+    countryCallingCode: IPhone["phone_code"];
+    country: IPhone["phone_country_code"];
+  };
+  type: IPhone["type"];
   meta: {
     canDelete: boolean;
-    isDefault: boolean;
     isVerified: boolean;
+    isDefault: boolean;
   };
-  nationalNumber: IPhone["phone"];
-  title: string;
-  type: IPhone["type"];
 }
 
 export type UseClientPhone = ReturnType<typeof useClientPhone>;

@@ -36,7 +36,7 @@ export const useClientCompany = (
     // ---
     meta: computed(() => ({
       isLoading: ["loading"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
+      hasErrors: ["available.error"].some(state.value.matches),
       isProcessing: ["processing"].some(state.value.matches),
       isValid: ["available.valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,

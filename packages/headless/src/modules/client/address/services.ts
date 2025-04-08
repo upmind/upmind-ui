@@ -2,6 +2,8 @@
 import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
+import { mapAddresses, mapIAddress } from "./mappers";
+import { invalidateQueryByKey } from "../../query";
 import {
   defaultsDeep,
   find,
@@ -17,16 +19,14 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { invalidateQueryByKey } from "../../query";
-import { mapAddresses, mapIAddress } from "./mappers";
 
 // --- types
-import { AddressTypes } from "./types";
-import type { QueryKey } from "@tanstack/query-core";
 import type { IAddress } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
+import { AddressTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -87,7 +87,10 @@ function loadAllFromCache() {
  * @param {AddressContext} context
  * @returns {Promise<AddressContext>}
  */
-async function loadLookups({ model }: AddressContext): Promise<AddressContext> {
+async function loadLookups({
+  model,
+  schema,
+}: AddressContext): Promise<AddressContext> {
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
@@ -101,17 +104,26 @@ async function loadLookups({ model }: AddressContext): Promise<AddressContext> {
     return Promise.reject("Failed to load countries and regions");
   }
 
+  const baseModel: AddressModel = {
+    type: first(AddressTypes)?.key || 1,
+    countryId: country?.id,
+    address1: "",
+    city: "",
+    postcode: "",
+  };
+
+  const safeModel = useModelParser<AddressModel>(schema, model, baseModel, {
+    allowExtraProps: false,
+  });
+
   return Promise.resolve({
     types: AddressTypes,
     regions,
     country,
     countries,
     // ---
-    model: model ?? {},
-    baseModel: defaultsDeep(model ?? {}, {
-      type: first(AddressTypes)?.key,
-      countryId: country?.id,
-    }),
+    model: safeModel,
+    baseModel: safeModel,
   } as AddressContext);
 }
 

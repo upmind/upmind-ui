@@ -33,7 +33,7 @@ export const useClientUnifiedAddress = (
       isSelectable: context?.selectable,
       // ---
       isLoading: ["loading"].some(state.value.matches),
-      hasErrors: ["error"].some(state.value.matches),
+      hasErrors: ["available.error"].some(state.value.matches),
       isProcessing: ["processing"].some(state.value.matches),
       isValid: ["valid"].some(state.value.matches),
       isNew: !state.value.context?.model?.id,
@@ -103,7 +103,7 @@ export const useClientUnifiedAddresses = (): ClientListingDefinition => {
       isProcessing: ["available.filtering", "available.processing"].some(
         state.value.matches
       ),
-      hasErrors: ["error"].some(state.value.matches),
+      hasErrors: ["available.error"].some(state.value.matches),
       isAdding: state.value.matches("available.adding"),
       isEditing: state.value.matches("available.editing"),
       isEmpty:

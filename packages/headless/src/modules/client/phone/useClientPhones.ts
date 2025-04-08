@@ -123,7 +123,7 @@ export const useClientPhones = () => {
         includes(item.title.toLowerCase(), param.toLowerCase()) ||
         (item.description &&
           includes(item?.description.toLowerCase(), param.toLowerCase())) ||
-        includes(item.country.toUpperCase(), param.toUpperCase())
+        includes(item.phone.country.toUpperCase(), param.toUpperCase())
     );
   }
 

@@ -77,6 +77,11 @@ export default {
           name: "client.emails.add",
           component: () => import("./email/Add.vue"),
         },
+        {
+          path: ":id",
+          name: "client.emails.edit",
+          component: () => import("./email/Edit.vue"),
+        },
       ],
     },
   ],

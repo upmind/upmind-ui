@@ -11,7 +11,7 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { get, set, isEmpty, isNil } from "lodash-es";
+import { get, set, isEmpty, isNil, defaultsDeep } from "lodash-es";
 import { mapCompanies, mapICompany } from "./mappers";
 
 // --- types
@@ -80,7 +80,10 @@ function loadAllFromCache() {
  * @param {CompanyContext} context
  * @returns {Promise<CompanyContext>}
  */
-async function loadLookups({ model }: CompanyContext): Promise<CompanyContext> {
+async function loadLookups({
+  model,
+  schema,
+}: CompanyContext): Promise<CompanyContext> {
   // let's start up/use our dependencies
   const emails = useClientEmails();
   const phones = useClientPhones();
@@ -97,22 +100,28 @@ async function loadLookups({ model }: CompanyContext): Promise<CompanyContext> {
       addresses.getDefault(),
     ]);
 
+    const baseModel: CompanyModel = {
+      emailId: defaultEmail?.id,
+      addressId: defaultAddress?.id,
+      phoneId: defaultPhone?.id,
+      default: false, // Provide a default value
+      name: "", // Provide a default value
+      regNumber: "", // Provide a default value
+      vatNumber: "", // Provide a default value
+    };
+
+    const safeModel = useModelParser<CompanyModel>(schema, model, baseModel, {
+      allowExtraProps: false,
+    });
+
     return {
       emails,
       phones,
       addresses,
-      baseModel: {
-        ...model,
-        emailId: defaultEmail?.id,
-        addressId: defaultAddress?.id,
-        phone: {
-          number: defaultPhone?.nationalNumber,
-          country: defaultPhone?.country,
-          nationalNumber: defaultPhone?.nationalNumber,
-          countryCallingCode: defaultPhone?.countryCallingCode,
-        },
-      },
-    };
+      // ---
+      model: safeModel,
+      baseModel: safeModel,
+    } as CompanyContext;
   });
 }
 
