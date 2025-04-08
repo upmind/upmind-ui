@@ -159,7 +159,7 @@ export const useClientPhones = () => {
   }
 
   /**
-   * Set an phone as default.
+   * Set a phone as default.
    * @param id The id of the phone to set as default.
    * @returns A promise that resolves when the phone is set as default.
    * @example setDefault("123").then(() => console.log("Phone set as default"))

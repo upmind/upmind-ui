@@ -31,7 +31,7 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IPhone[]>({
+  return get<Phone>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
@@ -52,7 +52,7 @@ async function loadPaged(
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IPhone[]>({
+  return get<Phone>({
     url: useUrl(`clients/${client.id}/phones`),
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
@@ -67,7 +67,7 @@ async function loadPaged(
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedPhones =
-    queryClient.getQueryData<QueryResponse<IPhone[]>>(queryKey);
+    queryClient.getQueryData<QueryResponse<Phone[]>>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
   return cachedPhones.data;
 }
