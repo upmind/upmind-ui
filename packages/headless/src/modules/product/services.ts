@@ -395,7 +395,7 @@ const calculateSummary = (
   }).then(({ data }: any) => pick(data, ["total", "total_formatted"]));
 };
 
-const calculateBillingTerm = async (
+export const calculateBillingTerm = async (
   period: DefaultPaymentPeriod | undefined,
   availableTerms: any
 ): Promise<any> => {

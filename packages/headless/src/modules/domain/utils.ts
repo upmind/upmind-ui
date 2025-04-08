@@ -3,9 +3,10 @@ import { parse, type ParsedDomain } from "psl";
 
 // --- internals
 import { useBrand } from "../brand";
+import { calculateBillingTerm } from "../product/services";
 
 // --- utils
-import { parseQuantity } from "../product/utils";
+import { parsePrice, parseQuantity, parseTerms } from "../product/utils";
 import {
   compact,
   find,
@@ -24,7 +25,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import { IBasketProduct, IProduct } from "@upmind-automation/types";
+import {
+  IBasketProduct,
+  IProduct,
+  IProductPrice,
+} from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, Domain } from "./types";
 
@@ -53,77 +58,46 @@ export function parseSld(raw: string): string {
   return sld?.replace(/[^a-zA-Z0-9-]/g, "");
 }
 
-export function parseAvailable(
+export async function parseAvailable(
   sld: string,
-  results: IProduct[] = []
-): DomainProduct[] {
-  const { checkIncludesTax } = useBrand();
-  const available = map(results, raw => {
-    // This is where we map our domain search result raw to a format that we can use in our basket
-    // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
-    // The CRITICAL part is actually the  subproduct choices:
-    // We only include the sub_product_id given to us by the API, and we only include the choices that match that sub_product_id
-    // This is how the TRANSFER domain works, we have a sub_product_id for the domain transfer option.
-    // To be 100% safe we check for the sub_product_id in our OPTIONS and ATTRIBUTES, and only include the choices that match that sub_product_id
-    // ---
-
-    const domain = `${sld}${raw.tld}`;
-    const parsedDomain = parseDomain(domain);
-
-    // TODO: Not This! we should use a util from the product module for consistency
-    // also we may need to calculate the correct term and not just use the first one
-    const term = first(orderBy(raw.prices, "billing_cycle_months", "asc"));
-    const discounted = (term?.price_discounted ?? term?.price) != term?.price;
-    const savingAmount =
-      Math.round(
-        subtract(term?.price ?? 0, term?.price_discounted ?? term?.price ?? 0) *
-          100
-      ) / 100;
-
-    return {
-      productId: raw.id, //raw.product_id,
-      quantity: 1,
-      term: raw?.billing_cycle_months ?? term?.billing_cycle_months ?? 0,
-      options: parseSubproductChoices(
-        raw?.products_options,
-        raw?.sub_product_id
-      ),
-      attributes: parseSubproductChoices(
-        raw?.products_attributes,
-        raw?.sub_product_id
-      ),
+  results: IProduct[] = [],
+  preferredCycle?: number // If we have chosen a term then we need to try use that term
+): Promise<DomainProduct[]> {
+  const available = await Promise.all(
+    map(results, (raw: IProduct) => {
+      // This is where we map our domain search result raw to a format that we can use in our basket
+      // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
+      // The CRITICAL part is actually the  subproduct choices:
+      // We only include the sub_product_id given to us by the API, and we only include the choices that match that sub_product_id
+      // This is how the TRANSFER domain works, we have a sub_product_id for the domain transfer option.
+      // To be 100% safe we check for the sub_product_id in our OPTIONS and ATTRIBUTES, and only include the choices that match that sub_product_id
       // ---
-      domain: parsedDomain?.domain ?? "",
-      sld: parsedDomain?.sld ?? "",
-      tld: parsedDomain?.tld ?? "",
-      // ---
-      summary: {
-        regularAmount: term?.price ?? 0,
-        regularPrice: term?.price_formatted ?? "",
-        currentAmount: term?.price_discounted ?? term?.price ?? 0,
-        currentPrice:
-          term?.price_discounted_formatted ?? term?.price_formatted ?? "",
 
-        savingAmount, //TODO: Missing _discount_ value from API
-        savingPrice: `${savingAmount}`, //TODO: Missing _discount_formatted value from API
-        savingPercent:
-          discounted && term?.price
-            ? `${Math.round((savingAmount / term.price) * 100)}%`
-            : "",
-
-        meta: {
-          // @ts-ignore - NB this does actually exist on the raw product
-          available: raw?.domain_available,
-          discounted,
-          includesTax: checkIncludesTax(),
-          free: (term?.price_discounted ?? term?.price) == 0,
-          oneoff: term?.billing_cycle_months == 0,
-        },
-      },
-    } as DomainProduct;
-  });
+      const domain = `${sld}${raw.tld}`;
+      const parsedDomain = parseDomain(domain);
+      return calculateBillingTerm(
+        preferredCycle || raw.default_payment_period,
+        parseTerms(raw.prices)
+      ).then(term => {
+        return {
+          ...term,
+          // ---
+          productId: raw.id, //raw.product_id,
+          quantity: raw.unit_quantity ?? 1,
+          // ---
+          title: domain,
+          domain: parsedDomain?.domain ?? domain,
+          sld: parsedDomain?.sld ?? sld,
+          tld: parsedDomain?.tld ?? raw.tld,
+          // ---
+          summary: term?.summary,
+        } as DomainProduct;
+      });
+    })
+  );
 
   // and ensure we don't have any duplicates or falsy
+  debugger;
   return compact(uniqBy(available, "domain"));
 }
 
