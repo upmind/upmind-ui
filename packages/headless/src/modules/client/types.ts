@@ -4,6 +4,7 @@ import { IClient } from "@upmind-automation/types";
 
 // --- internal
 import type { ActorRef } from "xstate";
+import type { QueryKey } from "@tanstack/query-core";
 // -----------------------------------------------------------------------------
 // Contexts
 
@@ -29,7 +30,7 @@ export interface ClientListingsContext {
   items?: ActorRef<any | any>[]; //IAddress[] | ICompany[] | IEmail[] | IPhone[];
   raw?: ActorRef<any | any>[]; //IAddress[] | ICompany[] | IEmail[] | IPhone[];
   queryHelper?: ActorRef<any | any>;
-  queryKeys: string[];
+  queryKeys: QueryKey;
   client?: IClient;
   authHelper?: ActorRef<any>;
 }

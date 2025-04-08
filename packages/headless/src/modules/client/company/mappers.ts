@@ -12,7 +12,7 @@ export function mapCompanies(
   return map(rawListings, mapCompany);
 }
 
-export function mapCompany(raw: ICompany): Company {
+export function mapCompany(raw: ICompany | CompanyWithRelations): Company {
   return {
     id: raw.id,
     emailId: raw.email_id,
