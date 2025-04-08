@@ -172,7 +172,6 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-    transformResponse,
   }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};

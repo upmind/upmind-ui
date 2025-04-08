@@ -12,7 +12,7 @@ import type { QueryKey } from "@tanstack/vue-query";
 import type { QueryCacheNotifyEvent } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
-export const useQuery = (queryKey: QueryKey) => {
+export const useQuery = <T = unknown>(queryKey: QueryKey) => {
   const query = ref<QueryCacheNotifyEvent["query"]["state"]>();
 
   const observer = useQuerySubscription(
@@ -41,7 +41,9 @@ export const useQuery = (queryKey: QueryKey) => {
       // isSuccess: query.value?.status === "success",
       // isIdle: query.value?.fetchStatus === "idle",
     })),
-    data: computed(() => query.value?.data?.data ?? []),
-    error: computed(() => query.value?.error),
+    data: computed<T>(() => query.value?.data?.data ?? []),
+    error: computed<QueryCacheNotifyEvent["query"]["state"]["error"]>(
+      () => query.value?.error
+    ),
   };
 };

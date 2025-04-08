@@ -28,9 +28,9 @@ export function mapPhone(raw: IPhone): Phone {
     ),
     // ---
     meta: {
-      isDefault: raw.default,
+      isDefault: !!raw.default,
       canDelete: raw.can_delete,
-      isVerified: raw.verified,
+      isVerified: !!raw.verified,
     },
   };
 }

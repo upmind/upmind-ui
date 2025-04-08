@@ -3,12 +3,10 @@ import { get, map, isArray, compact } from "lodash-es";
 
 // --- types
 import type { IAddress } from "@upmind-automation/types";
-import type { Address, IAddressWithRelations, AddressModel } from "./types";
+import type { Address, AddressModel } from "./types";
 
 // ---
-export function mapAddresses(
-  raw: IAddressWithRelations | IAddressWithRelations[]
-): Address[] {
+export function mapAddresses(raw: IAddress | IAddress[]): Address[] {
   // we could get a plain address OR a company with and address
   // so we normalize the data to always be an array of addresses
   // this is to allow for a 'unified' way of handling addresses

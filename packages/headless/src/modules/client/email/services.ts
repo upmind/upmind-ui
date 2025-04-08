@@ -27,7 +27,7 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IEmail[]>({
+  return get<Email[]>({
     url: useUrl(`clients/${client.id}/emails`, {
       limit: 0,
     }),
@@ -48,7 +48,7 @@ async function loadPaged(
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IEmail[]>({
+  return get<Email[]>({
     url: useUrl(`clients/${client.id}/emails`),
     queryKey: [...queryKey, { ...paginationParams }],
     allowStale,
@@ -63,9 +63,9 @@ async function loadPaged(
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedEmails =
-    queryClient.getQueryData<QueryResponse<IEmail[]>>(queryKey);
+    queryClient.getQueryData<QueryResponse<Email[]>>(queryKey);
   if (isNil(cachedEmails)) throw new CacheIsStaleError();
-  return mapEmails(cachedEmails.data ?? []);
+  return cachedEmails.data;
 }
 
 /**

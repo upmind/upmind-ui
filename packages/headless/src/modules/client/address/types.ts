@@ -39,15 +39,10 @@ export interface Address extends AddressModel {
   description: string;
   // --- meta info
   meta: {
-    canDelete: IAddress["can_delete"];
-    isDefault: IAddress["default"];
-    isVerified: IAddress["verified"];
+    canDelete: boolean;
+    isDefault: boolean;
+    isVerified: boolean;
   };
-}
-
-export interface IAddressWithRelations extends Address {
-  country: ICountry;
-  region: IRegion;
 }
 
 export type UseClientAddress = ReturnType<typeof useClientAddress>;

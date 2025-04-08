@@ -21,15 +21,11 @@ import { invalidateQueryByKey } from "../../query";
 import { mapAddresses, mapIAddress } from "./mappers";
 
 // --- types
-import type {
-  QueryResponse,
-  PaginatedParams,
-  IAddressWithRelations,
-} from "../..";
 import { AddressTypes } from "./types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { IAddress } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
+import type { QueryResponse, PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -42,7 +38,7 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddressWithRelations[]>({
+  return get<Address[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
@@ -64,7 +60,7 @@ async function loadPaged(
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddressWithRelations[]>({
+  return get<Address[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
@@ -81,7 +77,7 @@ async function loadPaged(
 function loadAllFromCache() {
   const { queryClient } = useQuery();
   const cachedAddresses =
-    queryClient.getQueryData<QueryResponse<IAddressWithRelations[]>>(queryKey);
+    queryClient.getQueryData<QueryResponse<Address[]>>(queryKey);
   if (isNil(cachedAddresses)) throw new CacheIsStaleError();
   return cachedAddresses.data;
 }
