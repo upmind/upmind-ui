@@ -69,14 +69,12 @@
                 </template>
               </p>
 
-              <template v-for="promotion in promotions" :key="promotion.id">
-                <Promotion
-                  :discounted="meta?.discounted"
-                  :currentSaving="promotion.amountFormatted"
-                  :currentSavingAmount="promotion.amount"
-                  size="sm"
-                />
-              </template>
+              <Promotion
+                v-for="promotion in promotions"
+                :key="promotion.code?.toString()"
+                v-bind="promotion"
+                size="sm"
+              />
             </small>
 
             <div :class="styles.recommendation.content.price.current.root">

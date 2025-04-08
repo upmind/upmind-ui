@@ -49,9 +49,7 @@ export type Route = {
   name?: string;
   params?: Record<string, string | string[]>;
   query?: Record<string, any>;
-  meta?: {
-    [key: string]: any; // allow for any meta data to help enhance the route/navigation
-  };
+  meta?: Record<string, any>;
 };
 
 export type Target =
@@ -60,18 +58,15 @@ export type Target =
       name: ROUTE;
       guard?: (route: Route, data?: any) => Promise<boolean>;
       resolve?: (route: Route, data?: any) => Promise<Route>;
-      meta?: {
-        [key: string]: any; // allow for any  meta data
-      };
+      meta?: Record<string, any>;
     };
 
 export interface Flow {
   name: ROUTE;
   guard?: (route: Route, data?: any) => Promise<boolean>;
   resolve?: (route: Route, data?: any) => Promise<Route>;
-  meta?: {
+  meta?: Record<string, any> & {
     replace?: boolean; // this is so we know to replace the current route instead of redirecting
-    [key: string]: any; // allow for any other meta data
   };
   targets?: {
     next?: Target[];

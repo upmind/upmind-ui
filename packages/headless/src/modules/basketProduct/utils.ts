@@ -40,13 +40,13 @@ import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
 
 import type {
   BasketProduct,
-  BasketProductSummaryDetail,
   BasketProductSummaryPrice,
   IBasketProductData,
   BasketProductDetails,
   SubProductChoices,
   IBasketProductModel,
   IBasketSubProductModel,
+  BasketProductSummaryDetail,
 } from "./types";
 
 import type {
@@ -108,9 +108,9 @@ export const parseBasketProduct = (
     if (subproduct) {
       if (option.product.order_type === ProductOrderTypes.SINGLE_OPTION)
         basketProduct.summary.pricing.push(subproduct);
-      subproduct.key = "option";
+      subproduct.name = "option";
       basketProduct.summary.details.push(
-        subproduct as BasketProductSummaryDetail
+        subproduct as BasketProductSummaryPrice
       );
     }
   });
@@ -119,9 +119,9 @@ export const parseBasketProduct = (
   forEach(raw?.attributes, attribute => {
     const subproduct = parseProductSummary(attribute);
     if (subproduct) {
-      subproduct.key = "attribute";
+      subproduct.name = "attribute";
       basketProduct.summary.details.push(
-        subproduct as BasketProductSummaryDetail
+        subproduct as BasketProductSummaryPrice
       );
     }
   });
@@ -161,12 +161,12 @@ const parseSubproductChoices = (rawSubproducts: IBasketProduct[]) => {
  */
 // export function parseTermSummary(
 //   raw: IBasketProduct
-// ): BasketProductSummaryDetail {
+// ): BasketProductSummaryPrice {
 //   const { checkIncludesTax } = useBrand();
 
-//   const summary = parseProductSummary(raw) as BasketProductSummaryDetail;
+//   const summary = parseProductSummary(raw) as BasketProductSummaryPrice;
 
-//   summary.key = "term";
+//   summary.name = "term";
 
 //   summary.meta = {
 //     oneoff: raw.billing_cycle_months > 0,
@@ -313,13 +313,21 @@ export function parsPriceSummary(
 
 export function parseTermSummary(
   raw: IBasketProduct
-): BasketProductSummaryDetail {
+): BasketProductSummaryPrice {
   const { checkIncludesTax } = useBrand();
 
-  const summary = parsPriceSummary(raw) as BasketProductSummaryDetail;
+  const summary = parsPriceSummary(raw) as BasketProductSummaryPrice;
 
-  summary.key = "term";
-  set(summary, "meta.free", raw.net_amount == 0); //  Allow for "price-overrrides"
+  summary.name = "term";
+  //  Allow for "price-overrrides"
+  set(summary, "meta.free", raw.net_amount == 0);
+  set(summary, "meta.overriden", raw.net_amount == 0);
+  set(
+    summary,
+    "currentAmount",
+    raw.net_amount == 0 ? raw.net_amount : summary.currentAmount
+  );
+  set(summary, "currentPrice", raw.net_amount == 0 ? "" : summary.currentPrice);
 
   return summary;
 }
@@ -332,7 +340,7 @@ export function parseProvisionFieldSummary(
   const title = get(data, key, data); // just in case its an object > unti lwe have types
 
   return {
-    key: `provision_field.${key}`,
+    name: `provision_field.${key}`,
     category: key,
     title,
     meta: {

@@ -8,7 +8,7 @@
     :visible="props.visible"
     :dirty="blurred"
     :errors="props.errors"
-    :label="subproduct.name"
+    :label="subproduct.title"
     :tooltip="subproduct?.description"
     @blur="blurred = true"
   >
@@ -60,13 +60,22 @@ import { find, map, get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type {
+  SelectCardsItemProps,
+  RadioCardsItemProps,
+  CheckboxCardsItemProps,
+} from "@upmind-automation/upmind-ui";
+import type {
+  SubproductOption,
+  SubProductOptionValue,
+} from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["update:modelValue", "update:quantity"]);
 
 const props = defineProps<{
-  subproduct: any;
+  subproduct: SubproductOption;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
   errors?: string;
@@ -120,29 +129,37 @@ const mapComponent = (name: string) => {
   }
 };
 
-const parsedValues = computed<any[]>(() => {
-  return map(props.subproduct?.values, (subproduct, index) => ({
-    id: subproduct.id,
-    value: subproduct.id,
-    sublabel: subproduct?.name ?? "",
-    text: subproduct?.excerpt,
-    values: subproduct.values,
-    group: subproduct?.uiMeta?.uischema?.group,
-    item: subproduct,
-    index,
-    modelValue: modelValue.value,
-  }));
+const parsedValues = computed(() => {
+  const values = map(props.subproduct?.values, (subproduct, index) => {
+    return {
+      id: subproduct.id,
+      value: subproduct.id.toString(), // Ensure value is a string
+      label: subproduct?.title ?? "", // Add the required label property
+      sublabel: subproduct?.title ?? "",
+      text: subproduct?.excerpt,
+      group: subproduct?.uiMeta?.uischema?.group,
+      item: subproduct,
+      index,
+      modelValue: modelValue.value,
+    };
+  });
+
+  return values;
 });
 
-function getSubproductValue(value: string) {
-  const product = find(props.subproduct?.values, ["id", value]);
+function getSubproductValue(value: string): SubProductOptionValue {
+  const product = find(props.subproduct?.values, [
+    "id",
+    value,
+  ]) as SubProductOptionValue;
+
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    name: product?.uiMeta?.uischema?.primary
+    title: product?.uiMeta?.uischema?.primary
       ? product?.uiMeta?.uischema?.group
-      : product?.name,
-    icon: product?.uiMeta?.uischema?.icon,
+      : product?.title,
+    // icon: product?.uiMeta?.uischema?.icon, //Is this used?
   };
 }
 

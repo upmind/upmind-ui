@@ -7,8 +7,8 @@ import type {
   ICurrency,
   IPromotion,
 } from "@upmind-automation/types";
-import type { BasketProduct } from "../basketProduct";
-import type { ProductModel } from "../product";
+import type { BasketProduct, Price } from "../basketProduct";
+import type { ProductModel, ProductSummaryPrice, Product } from "../product";
 
 // -----------------------------------------------------------------------------
 
@@ -31,49 +31,19 @@ interface Promotion {
   amountFormatted: string;
 }
 
-export interface Recommendation {
+export interface Recommendation
+  extends Product,
+    Omit<ProductSummaryPrice, "category" | "cycle" | "quantity"> {
   id: string;
   productId: string;
   // ---
-  title?: any;
-  label?: any;
-  description?: any;
-  excerpt?: any;
-  categoryId?: string;
-  category?: string;
+  label?: string;
   serviceIdentifier?: string;
-  imgUrl?: string;
   badge?: Badge;
   benefits?: Benefit[];
   // ---
-  cycle?: number;
-  quantity?: number;
-  quantifiable?: boolean;
-  step?: number;
-  min?: number;
-  max?: number;
-  // ---
-  defaultPaymentPeriod?: number;
-  mixedPromotions?: boolean;
-  monthlyFromCurrentAmount?: number;
-  monthlyFromCurrentPrice?: string;
-  monthlyFromRegularAmount?: number;
-  monthlyFromRegularPrice?: string;
-  currentAmount?: number;
-  currentPrice?: string;
-  regularAmount?: number;
-  regularPrice?: string;
-  // ---
-  promotions?: Promotion[];
-  // ---
   config?: ProductModel;
-  meta?: {
-    discounted?: boolean;
-    free?: boolean;
-    // overrides?: boolean;
-    // invalid?: boolean;
-    // includes?: boolean;
-    // oneoff?: boolean;
+  meta?: ProductSummaryPrice["meta"] & {
     seen?: boolean;
     added?: boolean;
     processing?: boolean;
@@ -121,8 +91,6 @@ export interface IProductConfig {
   qty?: number;
   bcm?: number;
   sub_pids?: string[];
-  pfields?: {
-    [key: string]: string | number;
-  };
+  pfields?: Record<string, any>;
   coupons?: string[];
 }
