@@ -3,12 +3,8 @@ import type { ActorRef } from "xstate";
 
 // --- internal
 import { IBasketPromotion } from "@upmind-automation/types";
-import type {
-  BasketProduct,
-  BasketHelperContext,
-  Price,
-  BasketProductSummaryMeta,
-} from "../basketProduct";
+import type { ProductSummaryDetail } from "../product";
+import type { BasketHelperContext } from "../basketProduct";
 
 // -----------------------------------------------------------------------------
 
@@ -26,13 +22,7 @@ export enum DomainTypes {
   basket = "basket",
 }
 
-export interface DomainProduct
-  extends Domain,
-    Omit<BasketProduct, "id" | "product" | "product_id" | "summary"> {
-  summary: Price & {
-    meta: BasketProductSummaryMeta;
-  };
-}
+export type DomainProduct = Domain & ProductSummaryDetail;
 
 export interface Domain {
   domain: string;
@@ -66,6 +56,7 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
     basket: DomainLookup[];
   };
   total?: number;
+  preferredCycle?: number;
   // ---
   search?: {
     limit: number;
