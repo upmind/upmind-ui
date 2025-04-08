@@ -7,6 +7,7 @@ import type { IEmail } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
 
 // -----------------------------------------------------------------------------
+export const EmailTypes = [{ key: 1, value: "Account" }];
 
 export interface EmailModel {
   type: IEmail["type"];

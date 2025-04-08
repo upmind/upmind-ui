@@ -4,11 +4,12 @@ import { computed, onUnmounted } from "vue";
 // --- internal
 import {
   type Phone,
+  PhoneModel,
   useClientPhone as useUpmindClientPhone,
 } from "@upmind-automation/headless";
 
 // --- utils
-import { get } from "lodash-es";
+import { get, debounce } from "lodash-es";
 
 // --- types
 export type { Phone, PhoneModel } from "@upmind-automation/headless";
@@ -57,7 +58,7 @@ export const useClientPhone = (
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear,
-    input,
+    input: debounce((model: PhoneModel) => input(model), 300),
     update,
     stop,
   };

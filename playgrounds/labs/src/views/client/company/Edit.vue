@@ -11,7 +11,7 @@
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
-        @update:modelValue="doInput"
+        @update:modelValue="data => input(data as CompanyModel)"
         @resolve="doUpdate"
         @reject="doCancel"
       />

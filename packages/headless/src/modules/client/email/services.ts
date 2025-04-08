@@ -12,11 +12,12 @@ import { invalidateQueryByKey } from "../../query";
 import { isNil, isEmpty, get, set, defaultsDeep, first } from "lodash-es";
 
 // --- types
-import { EmailTypes, type IEmail } from "@upmind-automation/types";
+import type { IEmail } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Email, EmailModel, EmailContext } from "./types";
+import { EmailTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -73,11 +74,13 @@ function loadAllFromCache() {
  * @param {EmailContext} _context
  * @returns {Promise<null>}
  */
-async function loadLookups({ model }: EmailContext): Promise<EmailContext> {
+async function loadLookups({
+  model,
+  schema,
+}: EmailContext): Promise<EmailContext> {
   // we don't have any lookups for emails, so just return null
   const baseModel: EmailModel = {
     email: "",
-
     type: first(EmailTypes)?.key || 1,
   };
 
