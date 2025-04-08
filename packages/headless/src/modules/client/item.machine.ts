@@ -98,6 +98,7 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
+                actions: log((_context, { data }: AnyEventObject) => data),
               },
             },
           },
