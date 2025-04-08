@@ -51,7 +51,7 @@ const styles = useStyles("summary.list", {}, config) as ComputedRef<{
 }>;
 
 const termSummary = computed(() => {
-  return find(props.summary?.details, detail => detail.key === "term");
+  return find(props.summary?.details, detail => detail.name === "term");
 });
 
 const hasSummaryDetails = computed(() => {
@@ -60,7 +60,7 @@ const hasSummaryDetails = computed(() => {
 
 const summaryItems = computed(() => {
   return omitBy(props.summary?.details, detail =>
-    ["term", "category", "provision_field.sld"].includes(detail.key)
+    ["term", "category", "provision_field.sld"].includes(detail.name)
   );
 });
 </script>

@@ -41,7 +41,7 @@ export interface BasketProduct {
 
   // ---
   summary: {
-    details: BasketProductSummaryDetail[];
+    details: (BasketProductSummaryDetail | BasketProductSummaryPrice)[];
     // ---
     pricing: BasketProductSummaryPrice[];
   };
@@ -71,7 +71,7 @@ export interface BasketProductSummaryMeta {
 }
 
 export interface BasketProductSummaryDetail {
-  key?: string;
+  name?: string;
   category?: string;
   title: string;
   cycle?: number;
@@ -90,7 +90,7 @@ export interface BasketProductSummaryDetail {
  * @property {string} savingPrice - The formatted saving price, the difference between the regular and current price which is the discount
  * @property {string} savingPercent - The saving percentage, the difference between the regular and current price which is the discount
  */
-export interface PriceDetail {
+interface PriceDetail {
   currentAmount: number;
   currentPrice: string;
   // ---

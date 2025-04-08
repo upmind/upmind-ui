@@ -331,9 +331,13 @@ export const parseSubproduct = (
         title: useTranslateName(rawSubproduct),
         description: useTranslateField(rawSubproduct, "description"),
         excerpt: useTranslateField(rawSubproduct, "short_description"),
+        brand: useTranslateName(rawSubproduct?.brand),
+        categoryId: rawSubproduct?.category_id,
+        category: useTranslateName(rawSubproduct?.category),
         // ---
         cycle: price?.cycle ?? rawSubproduct.billing_cycle_months,
         // ---
+        quantity: rawSubproduct?.unit_quantity || 1,
         quantifiable: rawSubproduct.order_type == 2,
         step: rawSubproduct.unit_quantity || 1,
         min:
@@ -445,9 +449,11 @@ export const parsePromotion = (
         title: useTranslateName(rawPromo),
         description: useTranslateField(rawPromo, "description"),
         excerpt: useTranslateField(rawPromo, "short_description"),
-        display: promotionDisplayType,
-        mixed: !!raw.mixed_promotions,
-        discounted: !isEmpty(rawPromo.amount),
+        meta: {
+          display: promotionDisplayType,
+          mixed: !!raw.mixed_promotions,
+          discounted: !isEmpty(rawPromo.amount),
+        },
       };
     });
   } else {
@@ -465,9 +471,11 @@ export const parsePromotion = (
             ? ""
             : saving_formatted,
         code: map(raw.promotions, "code"),
-        display: promotionDisplayType,
-        mixed: !!raw.mixed_promotions,
-        discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions,
+        meta: {
+          display: promotionDisplayType,
+          mixed: !!raw.mixed_promotions,
+          discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions,
+        },
       },
     ];
   }
@@ -612,7 +620,7 @@ export const parseSummary = (
   const { checkIncludesTax } = useBrand();
 
   const summaryPricing: ProductSummaryPrice = {
-    key: "totals",
+    name: "totals",
     title: lookups.product?.title ?? "",
     category: lookups.product?.category ?? "",
     cycle: model.term,
@@ -647,7 +655,7 @@ export const parseSummary = (
   //  product title
   if (rawProduct) {
     details.push({
-      key: "product",
+      name: "product",
       title: useUischemaTitle(rawProduct, {
         basketProduct,
         valueKey: "meta.uischema.summary.title.name",
@@ -664,7 +672,7 @@ export const parseSummary = (
   //  product category
   if (lookups.product?.category) {
     details.push({
-      key: "category",
+      name: "category",
       title: lookups.product.category,
       category: lookups.product.category,
     });
@@ -718,7 +726,7 @@ const parseSummaryTerm = (
 ): Term | undefined => {
   const term = find(terms, ["cycle", cycle]);
   if (term) {
-    term.key = "term";
+    term.name = "term";
     term.category = "Billing Cycle";
     return term;
   }
@@ -790,7 +798,7 @@ const parseSummaryProvisionFields = (
         title = find(provisionField.oneOf, ["const", title])?.title;
       }
       result.push({
-        key: `provision_field.${key}`,
+        name: `provision_field.${key}`,
         category: get(provisionField, "title", key),
         title,
         cycle: undefined,

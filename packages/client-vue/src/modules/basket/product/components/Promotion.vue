@@ -1,6 +1,6 @@
 <template>
   <Badge
-    v-if="discounted"
+    v-if="meta?.discounted"
     :color="disabled ? 'disabled' : 'promotion'"
     variant="tonal"
     class="rounded-lg uppercase"

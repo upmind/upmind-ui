@@ -25,10 +25,11 @@
           <Promotion
             v-if="meta.isAvailable"
             :class="styles.domain.card.promotion"
-            :discounted="!!summary?.meta.discounted"
-            :currentSaving="summary?.currentSaving"
-            :currentSavingAmount="summary?.currentSavingAmount"
-            :mixed="summary?.meta?.mixed"
+            :meta="summary?.meta"
+            :saving-amount="summary?.savingAmount"
+            :saving-price="summary?.savingPrice"
+            :saving-percent="summary?.savingPercent"
+            code=""
             size="md"
           />
         </section>
@@ -41,6 +42,7 @@
           :inBasket="inBasket"
           :tld="tld"
           @update="onUpdate"
+          code=""
         />
       </div>
     </header>

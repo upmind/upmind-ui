@@ -1,8 +1,8 @@
 <template>
-  <template v-if="!props.meta.free">
+  <template v-if="!props.meta?.free">
     <ExPrice v-bind="props" />
 
-    <Tooltip v-if="props.meta.overrides" :label="t('product.overrides')">
+    <Tooltip v-if="props.meta?.overrides" :label="t('product.overrides')">
       <span class="hover:cursor-help">
         <Icon icon="transfer" size="3xs" class="text-inherit" />
         {{ props.currentPrice }}
@@ -22,20 +22,9 @@ import { useI18n } from "vue-i18n";
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 import ExPrice from "../pricing/ExPrice.vue";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
+import type { SubProductOptionValue } from "@upmind-automation/headless-vue";
 
-interface PricingProps {
-  regularAmount: number;
-  regularPrice: string;
-  currentAmount: number;
-  currentPrice: string;
-  meta: {
-    discounted?: boolean;
-    free?: boolean;
-    overrides?: boolean;
-  };
-}
-
-const props = defineProps<PricingProps>();
+const props = defineProps<SubProductOptionValue["price"]>();
 
 const { t } = useI18n();
 </script>

@@ -3,8 +3,7 @@
     <div class="flex flex-col md:gap-y-1">
       <Promotion
         v-if="primary"
-        v-bind="pricing"
-        :discounted="pricing.meta?.discounted"
+        v-bind="parsePromotion(pricing)"
         :disabled="error"
         size="md"
         class="mb-2 inline-block md:hidden"
@@ -26,8 +25,7 @@
               </div>
               <Promotion
                 v-if="primary"
-                v-bind="pricing"
-                :discounted="pricing.meta?.discounted"
+                v-bind="parsePromotion(pricing)"
                 :disabled="error"
                 class="-mt-3 hidden md:block"
               />
@@ -44,10 +42,6 @@
                   v-bind="product"
                   :id="id"
                   :quantity="pricing.quantity"
-                  :quantifiable="product.quantifiable"
-                  :min="product?.min"
-                  :max="product?.max"
-                  :step="product?.step"
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
@@ -63,13 +57,7 @@
       </div>
 
       <div class="mt-1 flex flex-col gap-y-1 md:hidden">
-        <TermsDescription
-          v-bind="pricing"
-          :discounted="pricing.meta?.discounted"
-          :free="pricing.meta?.free"
-          :one-off="pricing.meta?.oneoff"
-          :taxes="pricing.meta?.includesTax"
-        />
+        <TermsDescription v-bind="pricing" />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <CurrentPrice
@@ -87,23 +75,13 @@
             v-bind="product"
             :id="id"
             :quantity="pricing.quantity"
-            :quantifiable="product.quantifiable"
-            :min="product?.min"
-            :max="product?.max"
-            :step="product?.step"
             @update:quantity="doUpdateQuantity"
           />
         </div>
       </div>
 
       <div class="hidden justify-between md:flex">
-        <TermsDescription
-          v-bind="pricing"
-          :discounted="pricing.meta?.discounted"
-          :free="pricing.meta?.free"
-          :one-off="pricing.meta?.oneoff"
-          :taxes="pricing.meta?.includesTax"
-        />
+        <TermsDescription v-bind="pricing" />
         <ExPrice
           v-bind="pricing"
           :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
@@ -134,6 +112,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- types
+import { PromotionDisplayTypes } from "@upmind-automation/headless-vue";
 import { type BasketProductSummaryProps } from "./types";
 import type { ComputedRef } from "vue";
 
@@ -161,5 +140,15 @@ const styles = useStyles(
 
 function doUpdateQuantity(value: number) {
   emits("update:quantity", value);
+}
+
+function parsePromotion(pricing: BasketProductSummaryProps["pricing"]) {
+  return {
+    code: "",
+    savingAmount: pricing.savingAmount ?? 0,
+    savingPrice: pricing.savingPrice ?? "",
+    savingPercent: pricing.savingPercent ?? "",
+    meta: pricing.meta,
+  };
 }
 </script>

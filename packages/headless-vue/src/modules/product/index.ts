@@ -23,6 +23,8 @@ export type {
   // UIConfig,
   // UISchema,
 } from "@upmind-automation/headless";
+export { PromotionDisplayTypes } from "@upmind-automation/types";
+
 // -----------------------------------------------------------------------------
 
 export * from "./useProductConfig";

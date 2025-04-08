@@ -6,15 +6,11 @@
     <h5 class="text-emphasis-medium m-0 truncate">{{ category }}</h5>
 
     <template v-if="!invalid">
-      <template v-for="(item, index) in items" :key="'details-item-' + index">
-        <DetailsItem
-          :id="id"
-          v-bind="item"
-          :free="item.meta?.free"
-          :overrides="item.meta?.overrides"
-          :pricing-key="item.key"
-        />
-      </template>
+      <DetailsItem
+        v-for="(item, index) in items"
+        :key="`details-item-${index}`"
+        v-bind="item"
+      />
     </template>
 
     <template v-else>
@@ -42,12 +38,15 @@ import { some } from "lodash-es";
 import DetailsItem from "./DetailsItem.vue";
 
 // --- types
-import type { BasketProductSummaryDetail } from "@upmind-automation/headless-vue";
+import type {
+  BasketProductSummaryDetail,
+  BasketProductSummaryPrice,
+} from "@upmind-automation/headless-vue";
 
 const props = defineProps<{
   id: string;
   category?: string;
-  items: BasketProductSummaryDetail[];
+  items: (BasketProductSummaryPrice | BasketProductSummaryDetail)[];
 }>();
 
 const { t } = useI18n();
@@ -60,6 +59,6 @@ const editLink = computed(() => ({
 const invalid = computed(() => some(props.items, "meta.invalid"));
 
 const hasProvisioning = computed(() =>
-  props.items.some(item => item.key.includes("provision_field"))
+  props.items.some(item => item?.name?.includes("provision_field"))
 );
 </script>

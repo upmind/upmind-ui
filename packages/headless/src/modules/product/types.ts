@@ -8,6 +8,7 @@ import type {
   ICurrency,
   IBasketPromotion,
 } from "@upmind-automation/types";
+export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations/types";
 import type {
@@ -87,7 +88,6 @@ export type ProductSummaryDetail = BasketProductSummaryDetail & {
 
 export type ProductSummaryPrice = ProductSummaryDetail &
   Price & {
-    promotions?: Promotion[];
     monthlyFromCurrentAmount?: number;
     monthlyFromCurrentPrice?: string;
     monthlyFromRegularAmount?: number;
@@ -99,7 +99,7 @@ export type Term = ProductSummaryPrice & {};
 export type SubproductOption = {
   id: string;
   title: string;
-  key?: string;
+  name?: string;
   category?: string;
   description?: string;
   excerpt?: string;
@@ -111,26 +111,14 @@ export type SubproductOption = {
   values?: SubProductOptionValue[];
 };
 
-export type SubProductOptionValue = {
+export type SubProductOptionValue = Product & {
   id: string;
-  cycle: number;
-  // ---
-  title: string;
-  description?: string;
-  excerpt?: string;
-  // ---
-  quantifiable: boolean;
-  step: number;
-  min: number;
-  max: number;
-  // ---
-  default: boolean;
-  meta: BasketProductSummaryMeta;
-  uiMeta?: Record<string, any>;
-  uiCategoryMeta?: Record<string, any>;
   order: number;
+  default: boolean;
   // ---
-  price?: ProductSummaryDetail;
+  meta: BasketProductSummaryMeta;
+  // ---
+  price?: ProductSummaryPrice;
   prices?: ProductSummaryPrice[];
 };
 
@@ -144,13 +132,15 @@ export type Promotion = {
   title?: string;
   description?: string;
   excerpt?: string;
-  display: PromotionDisplayTypes;
   savingAmount: number;
   savingPrice: string;
   savingPercent: string;
   code: string | string[];
-  mixed: boolean;
-  discounted: boolean;
+  meta?: {
+    display?: PromotionDisplayTypes;
+    mixed?: boolean;
+    discounted?: boolean;
+  };
 };
 
 export type SubproductModel = Record<

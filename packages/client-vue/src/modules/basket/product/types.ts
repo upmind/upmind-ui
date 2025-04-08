@@ -1,9 +1,11 @@
-import { type BasketProduct } from "@upmind-automation/headless-vue";
+import {
+  type BasketProduct,
+  type BasketProductSummaryDetail,
+} from "@upmind-automation/headless-vue";
 import { type ButtonProps } from "@upmind-automation/upmind-ui";
 import {
   type BasketProductSummaryPrice,
   type BasketProductDetails,
-  type BasketProductSummaryDetail,
 } from "@upmind-automation/headless-vue";
 import { type RouteLocationRaw } from "vue-router";
 
@@ -34,7 +36,7 @@ export interface BasketProductSummaryProps {
 
 export interface BasketProductConfigDetailsProps {
   id: string;
-  details: BasketProductSummaryDetail[];
+  details: (BasketProductSummaryPrice | BasketProductSummaryDetail)[];
 }
 
 export interface BasketProductCardsProps {

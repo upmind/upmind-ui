@@ -9,9 +9,11 @@
         }}
       </strong>
 
-      <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Promotion v-bind="promotion" />
-      </template>
+      <Promotion
+        v-for="promotion in props.promotions"
+        :key="promotion.code.toString()"
+        v-bind="promotion"
+      />
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
@@ -41,6 +43,7 @@ import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -69,7 +72,7 @@ const props = withDefaults(
 const { t, te } = useI18n();
 
 const meta = computed(() => ({
-  hasPromotions: !!props.promotions?.length || props.meta?.mixed,
+  hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
   isSelected: !!props.select,
 }));
 
