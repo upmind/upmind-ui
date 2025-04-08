@@ -21,7 +21,7 @@ export const contentVariants = cva(
 );
 
 export const itemVariants = cva(
-  "flex w-full !cursor-pointer items-center bg-base px-3 py-2 text-sm text-base-foreground",
+  "flex w-full !cursor-pointer items-center bg-base-background px-3 py-2 text-sm text-base-foreground",
   {
     variants: {
       color: {
