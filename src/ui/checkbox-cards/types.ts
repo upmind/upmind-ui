@@ -3,14 +3,14 @@ import { type HTMLAttributes } from "vue";
 
 // --- types
 import type { ButtonProps } from "../button";
-import type { ListboxRootProps, ListboxItemProps } from "radix-vue";
+import type { ToggleGroupRootProps, ToggleGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
 import type { checkboxLabelVariants } from "./checkboxCards.config";
 type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
 
-export interface CheckboxCardsItemProps extends ListboxItemProps {
+export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
   label: string;
   id?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
@@ -20,7 +20,7 @@ export interface CheckboxCardsItemProps extends ListboxItemProps {
   name?: string;
 }
 
-export interface CheckboxCardsProps extends ListboxRootProps {
+export interface CheckboxCardsProps extends ToggleGroupRootProps {
   modelValue?: string[];
   defaultValue?: string[];
   label?: string;

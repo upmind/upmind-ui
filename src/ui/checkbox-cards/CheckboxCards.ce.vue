@@ -38,7 +38,7 @@
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
-import { ToggleGroupItem, ToggleGroupRoot } from "radix-vue";
+import { ToggleGroupRoot } from "radix-vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -47,28 +47,15 @@ import config from "./checkboxCards.config";
 // --- components
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
-import {
-  ListboxItem,
-  ListboxItemIndicator,
-  type ListboxItemProps,
-  useForwardProps,
-} from "radix-vue";
+
 // --- types
 import type { CheckboxCardsProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
-  // --- props
-  loading: false,
   placeholder: "Select an option",
-  required: false,
-  // -- styles
-  color: "base",
-  variant: "control",
-  padding: true,
   cursor: "pointer",
-  // layout: "list",
   // --- styles
   class: "",
 });
