@@ -4,11 +4,12 @@ import { computed, onUnmounted } from "vue";
 // --- internal
 import {
   type Company,
+  CompanyModel,
   useClientCompany as useUpmindClientCompany,
 } from "@upmind-automation/headless";
 
 // --- utils
-import { get } from "lodash-es";
+import { get, debounce } from "lodash-es";
 
 // --- types
 export type { Company, CompanyModel } from "@upmind-automation/headless";
@@ -55,7 +56,7 @@ export const useClientCompany = (
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear,
-    input,
+    input: debounce((model: CompanyModel) => input(model), 300),
     update,
     stop,
   };

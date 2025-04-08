@@ -5,7 +5,7 @@ export const useSchema = () => {
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["email"],
+    required: ["email", "type"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -18,10 +18,11 @@ export const useSchema = () => {
       type: {
         type: "number",
         const: 1,
+        readOnly: true,
       },
 
       email: {
-        type: ["string", "null"],
+        type: "string",
         format: "email",
         title: "Email",
       },
@@ -44,7 +45,16 @@ export const useUischema = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/username",
+        scope: "#/properties/id",
+        rule: {
+          effect: "HIDE",
+          condition: { const: true },
+        },
+      }, // HACK: need to force hide this otherwise the id renders in hte email field?
+
+      {
+        type: "Control",
+        scope: "#/properties/email",
         options: {
           autoFocus: true,
           autocomplete: "email",

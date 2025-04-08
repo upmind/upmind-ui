@@ -11,7 +11,7 @@
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
-        @update:modelValue="doInput"
+        @update:modelValue="data => input(data as EmailModel)"
         @resolve="doUpdate"
         @reject="doCancel"
       />
@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from "lodash-es";
 import { useRoute, useRouter } from "vue-router";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
+import { debounce } from "lodash-es";
 
 import {
   UpmForm,
@@ -45,11 +45,7 @@ const { update, input, model, meta, title, schema, uischema, stop } =
 
 // --- METHODS
 
-const doInput = debounce((data: EmailModel) => {
-  input(data);
-}, 500);
-
-function doUpdate() {
+function doUpdate(data: any) {
   update().then(() => {
     router.push({
       name: "client.emails",
