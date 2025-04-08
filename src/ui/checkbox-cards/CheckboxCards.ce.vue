@@ -1,20 +1,20 @@
 <template>
-  <CheckboxGroup
+  <ToggleGroupRoot
     v-model="modelValue"
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
-    multiple
+    type="multiple"
   >
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
       :class="styles.checkboxCards.item"
     >
-      <CheckboxGroupItem
+      <CheckboxCardItem
         :id="`${props.name}-${index}`"
         :index="index"
-        :value="item.value"
+        :value="item.value as string"
         :name="props.name"
         :required="props.required"
         :disabled="props.disabled"
@@ -29,22 +29,23 @@
             {{ item.label }}
           </slot>
         </Label>
-      </CheckboxGroupItem>
+      </CheckboxCardItem>
     </div>
-  </CheckboxGroup>
+  </ToggleGroupRoot>
 </template>
 
 <script setup lang="ts">
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
+import { ToggleGroupItem, ToggleGroupRoot } from "radix-vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./checkboxCards.config";
 
 // --- components
-import { CheckboxGroup, CheckboxGroupItem } from "../checkbox-group";
+import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
 import {
   ListboxItem,
