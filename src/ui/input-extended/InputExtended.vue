@@ -28,6 +28,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
         props.class
       )
     "
+    data-testid="input-extended"
   >
     <slot name="prepend" />
     <input
