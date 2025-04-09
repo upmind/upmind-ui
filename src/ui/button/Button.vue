@@ -13,7 +13,12 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <Primitive :as="as" :as-child="asChild" :class="cn(props.class)">
+  <Primitive
+    :as="as"
+    :as-child="asChild"
+    :class="cn(props.class)"
+    data-testid="button"
+  >
     <slot />
   </Primitive>
 </template>

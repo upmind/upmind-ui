@@ -10,6 +10,7 @@
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
           :class="styles.lineclamp.action"
+          data-testid="lineclamp"
           as="span"
         >
           <template #append>
