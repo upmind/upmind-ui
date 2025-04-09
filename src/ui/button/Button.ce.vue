@@ -8,6 +8,9 @@
     :loading="props.loading"
     :type="props.type || 'button'"
     :tabindex="props.focusable ? '0' : '-1'"
+    :data-testid="
+      `button-${label || 'default'}`.toLowerCase().replace(/\s+/g, '-')
+    "
   >
     <slot name="prepend"></slot>
 

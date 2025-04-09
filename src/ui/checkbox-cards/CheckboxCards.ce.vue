@@ -5,6 +5,7 @@
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
+    data-testid="checkbox-group"
   >
     <div
       v-for="(item, index) in items"
@@ -20,10 +21,12 @@
         :disabled="props.disabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
+        data-testid="checkbox-item"
       >
         <Label
           :for="`${item.id}-${index}`"
           :class="cn(styles.checkboxCards.label)"
+          data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
             {{ item.label }}
