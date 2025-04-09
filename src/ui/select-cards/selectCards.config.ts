@@ -6,7 +6,7 @@ export const triggerVariants = cva(
   {
     variants: {
       isMinimal: {
-        true: "m-0 !h-auto gap-0 border-none !p-0 shadow-none",
+        true: "m-0 !h-auto gap-0 border-none !p-0 shadow-none !outline-none !ring-0 !ring-offset-0",
         false: "h-auto min-h-10 w-full rounded-lg border-control px-4 py-3",
       },
       width: {
