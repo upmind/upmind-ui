@@ -27,6 +27,8 @@ export interface ProductConfigContext {
   currencyId?: ICurrency["id"];
   promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
+  subproducts?: string[];
+  // ---
   baseModel?: ProductModel;
   model?: ProductModel;
   // ---
@@ -143,6 +145,24 @@ export type Promotion = {
   };
 };
 
+export interface ProductProps extends ProductModel {
+  subproducts?: string[];
+  currencyId?: string;
+  promotions?: IBasketPromotion[];
+  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
+}
+
+export type ProductModel = {
+  id?: string;
+  productId: string;
+  quantity: number;
+  // ---
+  term?: number;
+  attributes?: SubproductModel;
+  options?: SubproductModel;
+  provisionFields?: Record<string, any>;
+};
+
 export type SubproductModel = Record<
   string, // Category ID
   Record<
@@ -154,31 +174,10 @@ export type SubproductModel = Record<
     }
   >
 >;
-export interface ProductModel {
-  id?: string;
-  productId: string;
-  quantity: number;
-  // ---
-  subproducts?: string[];
-  term?: number;
-  attributes?: SubproductModel;
-  options?: SubproductModel;
-  provisionFields?: Record<string, any>;
-  // ---
-  currencyId?: string;
-  promotions?: IBasketPromotion[];
-  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
-  // ---
-  prices?: {
-    term: { regular: number; current: number };
-    attributes: { regular: number; current: number };
-    options: { regular: number; current: number };
-  };
-}
 
-export interface ProductPromotion {
+export type PromotionModel = {
   code: string;
-}
+};
 
 export interface UIMeta {
   ui?: UIConfig;

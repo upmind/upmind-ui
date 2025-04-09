@@ -489,6 +489,7 @@ export default createMachine(
             clientId,
             promotions,
             coupons,
+            subproducts,
             errorExternal,
             error,
           }: ProductConfigContext,
@@ -501,9 +502,9 @@ export default createMachine(
             basketId,
             clientId,
             currencyId,
-
             promotions: promotions ?? [],
             coupons: coupons ?? [],
+            subproducts: subproducts ?? [],
             // ---
             baseModel: !isEmpty(basketProduct)
               ? parseBasketProductModel(basketProduct)

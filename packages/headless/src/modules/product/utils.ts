@@ -817,16 +817,15 @@ const parseSummaryProvisionFields = (
   );
 };
 
-export const parseModel = (raw: ProductModel): ProductModel => {
+export const parseModel = (data: ProductModel): ProductModel => {
   // handle  product model
   return {
-    quantity: raw?.quantity || 1,
-    productId: raw.productId,
-    term: raw.term,
-    options: raw.options,
-    attributes: raw.attributes,
-    provisionFields: raw.provisionFields,
-    subproducts: raw.subproducts,
+    quantity: data?.quantity || 1,
+    productId: data.productId,
+    term: data.term,
+    options: data.options,
+    attributes: data.attributes,
+    provisionFields: data.provisionFields,
   };
 };
 

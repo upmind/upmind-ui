@@ -23,7 +23,9 @@
     >
       <template #item="{ item: { value } }">
         <DomainCard
-          v-bind="getDomain(value as string)"
+          v-bind="getDomain(value.toString())"
+          :selected="includes(props.modelValue, value)"
+          :color="props.color"
           @update:selected="onToggleSelected"
           @remove="onRemove"
         />
@@ -84,6 +86,7 @@ import { includes, isArray, isNil, find, map } from "lodash-es";
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { DomainCardProps, DomainCardsProps } from "../types";
+import type { DomainLookup } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 // const emit = defineEmits(["update:modelValue", "update:selected"]);
@@ -135,11 +138,8 @@ const safeValue = computed(() => {
       : [props.modelValue];
 });
 
-function getDomain(value: string): DomainCardProps {
-  const domain = find(props.items, ["value", value]) as DomainCardProps;
-  domain.selected = includes(props.modelValue, value);
-  domain.color = props.color;
-  return domain;
+function getDomain(value: string): DomainLookup {
+  return find(props.items, ["value", value]) as DomainLookup;
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {

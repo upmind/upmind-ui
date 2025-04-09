@@ -36,7 +36,7 @@ import {
   PromotionDisplayTypes,
   DefaultPaymentPeriod,
 } from "@upmind-automation/types";
-import type { ProductConfigContext } from "./types";
+import type { ProductConfigContext, Term } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -194,24 +194,24 @@ async function checkTerm(
 }
 
 async function checkAttributes(
-  { error, lookups, model }: ProductConfigContext,
+  { error, lookups, model, subproducts }: ProductConfigContext,
   _event: any
 ) {
   const value = model?.attributes;
   return checkSubproducts(
     { error, lookups, model },
-    { data: value, type: "attributes", subproductIds: model?.subproducts }
+    { data: value, type: "attributes", subproductIds: subproducts }
   );
 }
 
 async function checkOptions(
-  { error, lookups, model }: ProductConfigContext,
+  { error, lookups, model, subproducts }: ProductConfigContext,
   _event: any
 ) {
   const value = model?.options;
   return checkSubproducts(
     { error, lookups, model },
-    { data: value, type: "options", subproductIds: model?.subproducts }
+    { data: value, type: "options", subproductIds: subproducts }
   );
 }
 
@@ -395,13 +395,13 @@ const calculateSummary = (
   }).then(({ data }: any) => pick(data, ["total", "total_formatted"]));
 };
 
-export const calculateBillingTerm = async (
+export const calculateBillingTerm = (
   period: DefaultPaymentPeriod | undefined,
-  availableTerms: any
-): Promise<any> => {
+  availableTerms: Term[]
+): Term | undefined => {
   // because we have multiple options, we need to select one base don the following strategy:
 
-  const { getConfig } = useBrand();
+  const { getDefaultPaymentPeriod } = useBrand();
 
   let term;
 
@@ -416,14 +416,7 @@ export const calculateBillingTerm = async (
       term = minBy(availableTerms, "monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = await getConfig(BrandConfigKeys.DEFAULT_PAYMENT_PERIOD).then(
-        async config => {
-          const period =
-            get(config, BrandConfigKeys.DEFAULT_PAYMENT_PERIOD) || 0;
-          return await calculateBillingTerm(period, availableTerms);
-        }
-      );
-
+      term = calculateBillingTerm(getDefaultPaymentPeriod(), availableTerms);
       break;
 
     default:

@@ -43,20 +43,18 @@ export interface DomainCardsProps {
   disabled?: boolean;
 }
 
-export interface DomainCardProps extends DomainLookup {
+export type DomainCardProps = DomainLookup & {
   selected?: boolean;
   processing?: boolean;
-  basket?: boolean;
-  // ---
   color?: ButtonProps["color"];
-}
+};
 
 export interface DomainPricesProps {
   summary?: {
-    currentPrice?: DomainLookup["summary"]["currentPrice"];
-    regularPrice?: DomainLookup["summary"]["regularPrice"];
+    currentPrice?: DomainLookup["currentPrice"];
+    regularPrice?: DomainLookup["regularPrice"];
     meta: {
-      discounted?: DomainLookup["summary"]["meta"]["discounted"];
+      discounted?: DomainLookup["meta"]["discounted"];
     };
   };
 }

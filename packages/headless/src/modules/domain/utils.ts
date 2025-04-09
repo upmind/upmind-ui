@@ -63,6 +63,9 @@ export async function parseAvailable(
   results: IProduct[] = [],
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ): Promise<DomainProduct[]> {
+  const { getDefaultPaymentPeriod } = useBrand();
+  const defaultPaymentPeriod = preferredCycle ?? getDefaultPaymentPeriod();
+
   const available = await Promise.all(
     map(results, (raw: IProduct) => {
       // This is where we map our domain search result raw to a format that we can use in our basket
@@ -75,29 +78,31 @@ export async function parseAvailable(
 
       const domain = `${sld}${raw.tld}`;
       const parsedDomain = parseDomain(domain);
-      return calculateBillingTerm(
-        preferredCycle || raw.default_payment_period,
+      const term = calculateBillingTerm(
+        defaultPaymentPeriod || raw.default_payment_period,
         parseTerms(raw.prices)
-      ).then(term => {
-        return {
-          ...term,
-          // ---
-          productId: raw.id, //raw.product_id,
-          quantity: raw.unit_quantity ?? 1,
-          // ---
-          title: domain,
-          domain: parsedDomain?.domain ?? domain,
-          sld: parsedDomain?.sld ?? sld,
-          tld: parsedDomain?.tld ?? raw.tld,
-          // ---
-          summary: term?.summary,
-        } as DomainProduct;
-      });
+      );
+
+      return {
+        ...term,
+        // ---
+        productId: raw.id, //raw.product_id,
+        quantity: raw.unit_quantity ?? 1,
+        // ---
+        title: domain,
+        domain: parsedDomain?.domain ?? domain,
+        sld: parsedDomain?.sld ?? sld,
+        tld: parsedDomain?.tld ?? raw.tld,
+        // ---
+        meta: {
+          ...(term?.meta ?? {}),
+          available: raw?.domain_available,
+        },
+      } as DomainProduct;
     })
   );
 
   // and ensure we don't have any duplicates or falsy
-  debugger;
   return compact(uniqBy(available, "domain"));
 }
 

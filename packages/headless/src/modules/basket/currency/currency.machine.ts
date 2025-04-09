@@ -224,9 +224,6 @@ export default createMachine(
       }),
 
       // ---
-      // setFeedbackSuccess: (_context: any, _event: any) => {
-      //   addSuccess("Successfully updated the basket currency");
-      // },
 
       setFeedbackError: ({ error }: CurrencyContext, _event) => {
         if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
@@ -240,7 +237,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -258,8 +255,10 @@ export default createMachine(
     guards: {
       isDirty: ({ dirty }: CurrencyContext, _event) => !!dirty,
       hasBasket: ({ basketId }: CurrencyContext, _event) => !!basketId,
-      hasChanged: ({ model, basketId }: CurrencyContext, { data }: any) =>
-        model?.id !== data?.currency_id || basketId !== data?.id,
+      hasChanged: (
+        { model, basketId }: CurrencyContext,
+        { data }: AnyEventObject
+      ) => model?.id !== data?.currency_id || basketId !== data?.id,
       shouldUpdate: ({ autoupdate, basketId }: CurrencyContext, _event) =>
         !!autoupdate && !!basketId,
     },

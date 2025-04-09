@@ -42,8 +42,6 @@ import type {
   BasketProduct,
   BasketProductSummaryPrice,
   IBasketProductData,
-  BasketProductDetails,
-  SubProductChoices,
   IBasketProductModel,
   IBasketSubProductModel,
   BasketProductSummaryDetail,
@@ -375,7 +373,7 @@ export function parseBasketProductData(
 }
 
 function parseBasketSubproductConfig(
-  subproducts?: SubProductChoices | SubproductModel
+  subproducts?: SubproductModel
 ): IBasketSubProductModel[] {
   return reduce(
     subproducts ?? {},
@@ -384,7 +382,7 @@ function parseBasketSubproductConfig(
         const selected = values(
           mapValues(subproduct, choice => {
             return {
-              product_id: "productId" in choice ? choice.productId : choice.id,
+              product_id: choice.productId,
               unit_quantity: choice.quantity,
               billing_cycle_months: choice.cycle,
             };

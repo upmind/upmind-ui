@@ -29,7 +29,12 @@ export const useBasketProducts = () => {
     get: async (id: string): Promise<BasketProduct | undefined> => {
       return isReady().then(() => findProduct({ id }));
     },
-    remove: async (id: string): Promise<void> => {
+    remove: async (id: string): Promise<IBasket> => {
+      const basketId = getBasketId();
+      if (!basketId) {
+        throw new DetailedError("No Basket found", responseCodes.Not_Found);
+      }
+
       const basketProduct = findProduct({ id });
       if (!basketProduct) {
         throw new DetailedError(
@@ -38,31 +43,36 @@ export const useBasketProducts = () => {
         );
       }
       return services
-        .remove({ basketId: getBasketId(), bpid: id })
+        .remove({ basketId, bpid: id })
         .then((rawBasket: IBasket) => {
           dataLayer({ event: "remove_from_cart" })
             .withItems(map(rawBasket?.products, parseEcommerceItem))
             .push();
         })
-        .then(refresh);
+        .then(() => refresh());
     },
 
-    resolve: async (id: string, data: BasketProduct): Promise<void> => {
+    resolve: async (id: string, data: BasketProduct): Promise<IBasket> => {
+      const basketId = getBasketId();
+      if (!basketId) {
+        throw new DetailedError("No Basket found", responseCodes.Not_Found);
+      }
       return services
-        .update(
-          { basketId: getBasketId() },
-          { data: { ...data, id } as ProductModel }
-        )
+        .update({ basketId }, { data: { ...data, id } as ProductModel })
         .then((rawBasket: IBasket) => {
           dataLayer({ event: "add_to_cart" })
             .withItems(map(rawBasket?.products, parseEcommerceItem))
             .push();
         })
-        .then(refresh);
+        .then(() => refresh());
     },
     // ---
-    incrementQuantity: async (id: string): Promise<void> => {
+    incrementQuantity: async (id: string): Promise<IBasket> => {
       return isReady().then(() => {
+        const basketId = getBasketId();
+        if (!basketId) {
+          throw new DetailedError("No Basket found", responseCodes.Not_Found);
+        }
         const basketProduct = findProduct({ id });
         if (!basketProduct) {
           throw new DetailedError(
@@ -74,7 +84,7 @@ export const useBasketProducts = () => {
         return services
           .updateQuantity(
             {
-              basketId: getBasketId(),
+              basketId,
               basketProduct,
             },
             { data: add(qty, basketProduct.product.step || 1) }
@@ -84,12 +94,17 @@ export const useBasketProducts = () => {
               .withItems(map(rawBasket?.products, parseEcommerceItem))
               .push();
           })
-          .then(refresh);
+          .then(() => refresh());
       });
     },
 
-    decrementQuantity: async (id: string): Promise<void> => {
+    decrementQuantity: async (id: string): Promise<IBasket> => {
       return isReady().then(() => {
+        const basketId = getBasketId();
+        if (!basketId) {
+          throw new DetailedError("No Basket found", responseCodes.Not_Found);
+        }
+
         const basketProduct = findProduct({ id });
         if (!basketProduct) {
           throw new DetailedError(
@@ -102,7 +117,7 @@ export const useBasketProducts = () => {
         return services
           .updateQuantity(
             {
-              basketId: getBasketId(),
+              basketId,
               basketProduct,
             },
             { data: subtract(qty, basketProduct.product?.step || 1) }
@@ -112,12 +127,17 @@ export const useBasketProducts = () => {
               .withItems(map(rawBasket?.products, parseEcommerceItem))
               .push();
           })
-          .then(refresh);
+          .then(() => refresh());
       });
     },
 
-    updateQuantity: async (id: string, quantity: number): Promise<void> => {
+    updateQuantity: async (id: string, quantity: number): Promise<IBasket> => {
       return isReady().then(() => {
+        const basketId = getBasketId();
+        if (!basketId) {
+          throw new DetailedError("No Basket found", responseCodes.Not_Found);
+        }
+
         const basketProduct = findProduct({ id });
         if (!basketProduct) {
           throw new DetailedError(
@@ -126,16 +146,13 @@ export const useBasketProducts = () => {
           );
         }
         return services
-          .updateQuantity(
-            { basketId: getBasketId(), basketProduct },
-            { data: quantity }
-          )
+          .updateQuantity({ basketId, basketProduct }, { data: quantity })
           .then((rawBasket: IBasket) => {
             dataLayer({ event: "add_to_cart" })
               .withItems(map(rawBasket?.products, parseEcommerceItem))
               .push();
           })
-          .then(refresh);
+          .then(() => refresh());
       });
     },
   };

@@ -9,7 +9,7 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 
 // --- types
 import type { IProduct } from "@upmind-automation/types";
-import type { DomainContext, DomainProduct } from "./types";
+import type { DomainContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
