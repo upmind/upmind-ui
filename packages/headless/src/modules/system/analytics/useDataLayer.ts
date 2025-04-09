@@ -1,5 +1,5 @@
 // --- internal
-import { useBrand, useBasket, useRoutingEngine, useI18n } from "../..";
+import { useBasket, useI18n } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
