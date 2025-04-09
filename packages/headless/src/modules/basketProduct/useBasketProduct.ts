@@ -19,6 +19,9 @@ import type { Product } from "../product";
 export const useBasketProduct = (bpid: string) => {
   const { getBasket, getErrors } = useBasket();
   const rawBasket = getBasket();
+  if (!rawBasket)
+    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+
   let rawBasketProduct = getBasketProduct(bpid, rawBasket);
   let provisioningErrors = get(getErrors(), "provisioningErrors");
 

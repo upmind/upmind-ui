@@ -1,5 +1,5 @@
 // --- external
-import type { AnyEventObject } from "xstate";
+import type { AnyEventObject, EventObject } from "xstate";
 import { createMachine, assign, spawn, actions } from "xstate";
 const { sendTo } = actions;
 
@@ -45,7 +45,7 @@ import type {
   DomainProduct,
   DomainLookup,
 } from "./types";
-import type { ProductModel } from "../product";
+import type { Product, ProductModel } from "../product";
 import type { BasketProduct } from "../basketProduct";
 
 // -----------------------------------------------------------------------------
@@ -368,7 +368,7 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign((context: DomainContext, _event) =>
+      setContext: assign((context: DomainContext, _event: AnyEventObject) =>
         defaultsDeep(context, {
           choices: DomainTypes,
           type: undefined,
@@ -437,8 +437,8 @@ export default createMachine(
           const selected = find(model, "selected") || first(model);
           const domain = get(selected, "domain");
           if (domain) {
-            const inBasket = some(lookups.basket, ["domain", domain]);
-            if (inBasket) return DomainTypes.basket;
+            const added = some(lookups.basket, ["domain", domain]);
+            if (added) return DomainTypes.basket;
             return DomainTypes.existing;
           }
           return undefined;
@@ -466,7 +466,7 @@ export default createMachine(
       })),
 
       loadBasket: sendTo(
-        ({ basketHelper }: DomainContext, _event) => {
+        ({ basketHelper }: DomainContext, _event: AnyEventObject) => {
           if (!basketHelper)
             throw new Error("No basket helper available to sync");
           return basketHelper;
@@ -495,13 +495,15 @@ export default createMachine(
             };
           },
 
-          parseProductModel: (item: DomainProduct) => {
+          parseProductModel: (
+            item: DomainProduct
+          ): ProductModel | undefined => {
             if (!item?.productId) return undefined;
 
             return {
               productId: item.productId,
               quantity: 1,
-              term: item.term, // TODO Check the model if its term or cycle `item.cycle,`
+              term: item.cycle, // TODO Check the model if its term or cycle `item.cycle,`
               options: item.options,
               attributes: item.attributes,
               provisionFields: {
@@ -540,12 +542,12 @@ export default createMachine(
       }),
 
       addToBasket: sendTo(
-        ({ basketHelper }: DomainContext, _event) => {
+        ({ basketHelper }: DomainContext, _event: AnyEventObject) => {
           if (!basketHelper)
             throw new Error("No basket helper available to sync");
           return basketHelper;
         },
-        (context: DomainContext, _event) => {
+        (context: DomainContext, _event: AnyEventObject) => {
           // not all values might be products, eg an exiting domain value,
           // so we need to filter out any non product values
           // and then map them to a be a basket item model
@@ -553,7 +555,7 @@ export default createMachine(
             context.model?.filter(
               (item): item is DomainProduct => "productId" in item
             ),
-            (result: any[], item: DomainProduct) => {
+            (result: ProductModel[], item: DomainProduct) => {
               if (item?.productId) {
                 const model = isFunction(context?.parseProductModel)
                   ? context.parseProductModel(item)
@@ -573,8 +575,8 @@ export default createMachine(
       ),
 
       // loadBasketProducts: sendTo(
-      //   ({ basketHelper }: DomainContext, _event) => basketHelper,
-      //   (context, _event) => ({
+      //   ({ basketHelper }: DomainContext, _event:AnyEventObject) => basketHelper,
+      //   (context, _event:AnyEventObject) => ({
       //     type: "LOAD",
       //     context,
       //   })
@@ -630,11 +632,14 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ model, lookups, type }: any, { data }: AnyEventObject) => {
+        model: (
+          { model, lookups, type }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
           return reduce(
             data,
             (result: Domain[], item) => {
-              let available = [];
+              let available: DomainProduct[] = [];
               switch (type) {
                 case DomainTypes.register:
                   available = lookups?.searched;
@@ -660,7 +665,7 @@ export default createMachine(
       }),
 
       setModelFromBasket: assign({
-        type: (_context, _event) => DomainTypes.basket,
+        type: (_context, _event: AnyEventObject) => DomainTypes.basket,
         model: (
           { model, lookups }: DomainContext,
           { data }: AnyEventObject
@@ -690,7 +695,7 @@ export default createMachine(
       }),
 
       resetModel: assign({
-        model: ({ baseModel }, _event) => {
+        model: ({ baseModel }, _event: AnyEventObject) => {
           return cloneDeep(baseModel);
         },
       }),
@@ -722,37 +727,48 @@ export default createMachine(
       }),
 
       setSearchOffset: assign({
-        search: ({ search }: any, _event) => {
-          search.offset += search?.limit;
+        search: ({ search }: DomainContext, _event: AnyEventObject) => {
+          search ??= {
+            offset: 0,
+            limit: 10,
+            total: 0,
+          };
+          search.offset += search?.limit ?? 10;
           return search;
         },
       }),
 
       clearSearch: assign({
-        search: ({ search }: any, _event) => ({
+        search: ({ search }: DomainContext, _event: AnyEventObject) => ({
           query: undefined,
           offset: 0,
-          limit: search.limit,
+          limit: search?.limit ?? 10,
           total: 0,
         }),
         lookups: ({ lookups }) => {
           // lookups.history = [];
-          lookups.search = [];
+          lookups.searched = [];
           return lookups;
         },
       }),
 
       setSearchResults: assign({
-        lookups: ({ lookups, model, search }: any, { data }: any) => {
-          const previous = search.offset > 0 ? lookups.searched : [];
+        lookups: (
+          { lookups, model, search }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
 
-          const available: DomainLookup[] = map(data?.available, item => {
-            item.value = item.domain;
-            item.isOwned = some(lookups.owned, ["domain", item.domain]);
-            item.inBasket = some(lookups.basket, ["domain", item.domain]);
-            item.disabled = item.isOwned || item.inBasket;
-            return item as DomainLookup;
-          });
+          const available: DomainLookup[] = map(
+            data?.available,
+            (item: DomainLookup) => {
+              item.value = item.domain;
+              item.meta.owned = some(lookups.owned, ["domain", item.domain]);
+              item.meta.added = some(lookups.basket, ["domain", item.domain]);
+              item.meta.disabled = item.meta.owned || item.meta.added;
+              return item as DomainLookup;
+            }
+          );
 
           const persisted = filter(lookups.history, ({ domain }) =>
             some(model, ["domain", domain])
@@ -785,7 +801,7 @@ export default createMachine(
       }),
 
       setOwned: assign({
-        lookups: ({ lookups }: any, { data }: any) => {
+        lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           const available = map(data, item => {
             item.value = item.domain;
             item.persist = true;
@@ -797,7 +813,7 @@ export default createMachine(
       }),
 
       clearLookups: assign({
-        lookups: (_context: any, _event: any) => {
+        lookups: (_context: DomainContext, _event: AnyEventObject) => {
           return {
             searched: [],
             history: [],
@@ -808,7 +824,7 @@ export default createMachine(
       }),
 
       resetLookups: assign({
-        lookups: ({ lookups }: any, _event: any) => {
+        lookups: ({ lookups }: DomainContext, _event: AnyEventObject) => {
           return {
             searched: [],
             history: [],
@@ -819,7 +835,7 @@ export default createMachine(
       }),
 
       select: assign({
-        model: ({ lookups }: DomainContext, { data }: any) => {
+        model: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           const selected =
             find(lookups.basket, ["domain", data]) || first(lookups.basket);
           return map(lookups.basket, value => {
@@ -860,7 +876,7 @@ export default createMachine(
       isValidDomain: (_context, { data }: AnyEventObject) =>
         !isEmpty(parseDomain(data)),
 
-      hasSearchQuery: ({ search }: DomainContext, _event) => {
+      hasSearchQuery: ({ search }: DomainContext, _event: AnyEventObject) => {
         const sld = parseSld(search?.query ?? "");
         return sld?.length > 2;
       },
@@ -868,7 +884,10 @@ export default createMachine(
         const sld = parseSld(data);
         return sld?.length >= 2;
       },
-      validSearchOffset: ({ search }: DomainContext, _event) => {
+      validSearchOffset: (
+        { search }: DomainContext,
+        _event: AnyEventObject
+      ) => {
         const offset = (search?.offset ?? 0) + (search?.limit ?? 0);
         return offset < (search?.total || 0);
       },

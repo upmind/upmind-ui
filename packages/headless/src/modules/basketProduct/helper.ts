@@ -56,6 +56,14 @@ export function basketSubscription(callback: any, onReceive: any) {
   onReceive((event: any) => {
     const rawBasket = basket.getBasket();
 
+    if (!rawBasket) {
+      callback({
+        type: "ERROR",
+        data: new DetailedError("Basket not found", responseCodes.Not_Found),
+      });
+      return;
+    }
+
     switch (event.type) {
       case "INIT":
         basket
@@ -79,8 +87,8 @@ export function basketSubscription(callback: any, onReceive: any) {
         productServices
           .fetch(
             {
-              basketId: rawBasket?.id,
-              currencyId: rawBasket?.currency_id,
+              basketId: rawBasket.id,
+              currencyId: rawBasket.currency_id,
               promotions: uniq(
                 concat(rawBasket?.promotions, event.context?.promotions)
               ),
@@ -106,7 +114,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             {
               basketId: rawBasket?.id,
               currencyId: rawBasket?.currency_id,
-              promotions: rawBasket?.promotions,
+              promotions: map(rawBasket?.promotions, "promotion.code"),
               // promotions: uniq(concat(rawBasket?.promotions, context?.promotions)),
             },
             { data: { productIds: event.target } }
@@ -127,7 +135,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             {
               basketId: rawBasket?.id,
               currencyId: rawBasket?.currency_id,
-              promotions: rawBasket?.promotions,
+              promotions: map(rawBasket?.promotions, "promotion.code"),
             },
             {
               data: defaults(pick(event.context, ["limit", "offset"]), {
@@ -358,9 +366,10 @@ export function basketSubscription(callback: any, onReceive: any) {
         }
 
         callback({ type: "PROCESSING" });
+
         productServices
           .remove({
-            basketId: basket.getBasketId(),
+            basketId: rawBasket?.id,
             bpid: basketProduct.id,
           })
           .then((rawBasket: IBasket) => {

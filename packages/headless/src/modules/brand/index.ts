@@ -158,6 +158,7 @@ export const useBrand = () => {
   };
 
   // ---
+
   const getCurrencyId = () => service.getSnapshot()?.context?.currency_id;
 
   const getCurrency = () =>
@@ -169,6 +170,16 @@ export const useBrand = () => {
   const getCurrencies = () => service.getSnapshot()?.context?.currencies;
 
   const getCountry = () => service.getSnapshot()?.context?.country_id;
+
+  // ---
+
+  const getDefaultPaymentPeriod = () =>
+    get(
+      service.getSnapshot()?.context,
+      BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
+      0
+    );
+
   // ---
 
   const getTaxType = () => service.getSnapshot()?.context?.tax_type;
@@ -197,5 +208,6 @@ export const useBrand = () => {
     getCountry,
     getTaxType,
     checkIncludesTax,
+    getDefaultPaymentPeriod,
   };
 };

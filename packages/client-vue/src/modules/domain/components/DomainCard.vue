@@ -15,51 +15,36 @@
         <section :class="styles.domain.card.container">
           <div :class="styles.domain.card.title">
             <h2 :class="styles.domain.card.sld">
-              {{ props.sld
+              {{ sld
               }}<strong :class="styles.domain.card.tld">
-                {{ props.tld }}
+                {{ tld }}
               </strong>
             </h2>
           </div>
 
           <Promotion
-            v-if="meta.isAvailable"
+            v-for="(promotion, index) in promotions"
+            :key="`promotion-${index}`"
+            v-bind="promotion"
             :class="styles.domain.card.promotion"
-            :meta="summary?.meta"
-            :saving-amount="summary?.savingAmount"
-            :saving-price="summary?.savingPrice"
-            :saving-percent="summary?.savingPercent"
-            code=""
             size="md"
           />
         </section>
 
         <DomainDescription
           v-if="meta.isAvailable"
-          :domain="domain"
-          :summary="summary"
-          :isOwned="isOwned"
-          :inBasket="inBasket"
-          :tld="tld"
-          @update="onUpdate"
-          code=""
+          v-bind="domain"
+          :title="props.domain"
         />
       </div>
     </header>
 
     <footer :class="styles.domain.card.footer.root">
-      <DomainPrices v-if="meta.isAvailable" :summary="summary" />
+      <DomainPrices v-if="meta.isAvailable" :summary="domain" />
 
       <DomainActions
-        :domain="domain"
-        :isOwned="isOwned"
-        :inBasket="inBasket"
-        :selected="selected"
-        :summary="summary"
-        :type="type"
-        :disabled="meta.isDisabled"
+        v-bind="domain"
         :processing="meta.isProcessing"
-        :tld="tld"
         @update="onUpdate"
         @remove="onRemove"
       />
@@ -84,9 +69,13 @@ import DomainActions from "./DomainActions.vue";
 import DomainDescription from "./DomainDescription.vue";
 import DomainPrices from "./DomainPrices.vue";
 
+// --- utils
+import { omit } from "lodash-es";
+
 // --- types
 import type { ComputedRef } from "vue";
 import type { DomainCardProps } from "../types";
+import type { DomainLookup } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
   (e: "update:selected", domain: string): void;
@@ -101,10 +90,14 @@ const props = withDefaults(defineProps<DomainCardProps>(), {
 
 const { t } = useI18n();
 
+const domain = computed<DomainLookup>(
+  () => omit(props, ["color", "secondary", "processing"]) as DomainLookup
+);
+
 const meta = computed(() => ({
-  isDisabled: props.disabled,
+  isDisabled: props.meta.disabled,
   isProcessing: props.processing,
-  isAvailable: props.summary.meta.available,
+  isAvailable: props.meta.available,
 }));
 
 const styles = useStyles(
@@ -132,17 +125,17 @@ const styles = useStyles(
 }>;
 
 const getContent = computed(() => {
-  if (props.isOwned) {
+  if (props.meta.owned) {
     return {
       icon: "lock",
       label: t("domain.card.owned.label"),
     };
-  } else if (props.inBasket) {
+  } else if (props.meta.added) {
     return {
       icon: "check-circle-solid",
       label: t("domain.card.basket.label"),
     };
-  } else if (props?.summary?.meta?.available) {
+  } else if (props.meta.available) {
     return {
       icon: "check-circle",
       label: t("domain.card.available.label"),

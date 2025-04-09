@@ -115,7 +115,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
   const { get: getTracking } = useTracking();
 
-  const data: any = {
+  const data: Record<string, any> = {
     category_slug: "new_contract",
   };
   // ---
@@ -179,7 +179,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   // bail if we have no basket, or if we have a basket with products
   if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
 
-  const provisioningPromises: any[] = [];
+  const provisioningPromises: Promise<any>[] = [];
 
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({

@@ -16,14 +16,23 @@ import { isEmpty, get, add, subtract, find, omitBy, isNil } from "lodash-es";
 
 // --- types
 
-import type { ProductModel, Product, SummaryDetails, Term } from "../product";
+import type {
+  ProductModel,
+  Product,
+  SummaryDetails,
+  Term,
+  ProductProps,
+} from "../product";
 import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
-export const useBasketProductPending = (model: ProductModel) => {
+export const useBasketProductPending = (model: ProductProps) => {
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
+
+  if (!rawBasket)
+    throw new DetailedError("No Basket found", responseCodes.Not_Found);
 
   if (isEmpty(model) || isEmpty(model.productId))
     throw new DetailedError(

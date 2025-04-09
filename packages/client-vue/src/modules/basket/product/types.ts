@@ -1,13 +1,11 @@
-import {
-  type BasketProduct,
-  type BasketProductSummaryDetail,
+import type {
+  BasketProduct,
+  BasketProductSummaryDetail,
+  BasketProductSummaryPrice,
 } from "@upmind-automation/headless-vue";
-import { type ButtonProps } from "@upmind-automation/upmind-ui";
-import {
-  type BasketProductSummaryPrice,
-  type BasketProductDetails,
-} from "@upmind-automation/headless-vue";
-import { type RouteLocationRaw } from "vue-router";
+import type { ButtonProps } from "@upmind-automation/upmind-ui";
+
+import type { RouteLocationRaw } from "vue-router";
 
 export interface BasketProductProps extends BasketProduct {
   open?: boolean;
@@ -24,9 +22,9 @@ export interface BasketProductActionsProps {
 }
 
 export interface BasketProductSummaryProps {
-  id: string;
+  id: BasketProduct["id"];
   pricing: BasketProductSummaryPrice;
-  product: BasketProductDetails;
+  product: BasketProduct["product"];
   error: boolean;
   primary: boolean;
   processing: boolean;

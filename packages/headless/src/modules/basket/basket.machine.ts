@@ -341,10 +341,10 @@ export default createMachine(
           src: paymentMachine,
           data: ({ invoice, paymentDetails }: BasketContext) =>
             ({
-              orderId: invoice.id,
-              address: invoice.address,
-              clientId: invoice.client_id,
-              currency: invoice.currency,
+              orderId: invoice?.id,
+              address: invoice?.address,
+              clientId: invoice?.client_id,
+              currency: invoice?.currency,
               paymentDetail: paymentDetails,
             }) as PaymentContext,
           onDone: {
@@ -520,12 +520,12 @@ export default createMachine(
       },
 
       // When a user completes their purchase, even if they have not paid
-      pushPurchase: ({ invoice }: any, _event: AnyEventObject) => {
+      pushPurchase: ({ invoice }: BasketContext, _event: AnyEventObject) => {
         dataLayer({ event: "purchase" }).withEcommerce(invoice).push();
       },
 
       // When a user completes their purchase
-      pushPaid: ({ invoice }: any, _event: AnyEventObject) => {
+      pushPaid: ({ invoice }: BasketContext, _event: AnyEventObject) => {
         dataLayer({ event: "invoice_paid" }).withEcommerce(invoice).push();
       },
 

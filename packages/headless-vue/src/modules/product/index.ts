@@ -18,7 +18,7 @@ export type {
   Promotion,
   SubproductModel,
   ProductModel,
-  ProductPromotion,
+  PromotionModel,
   // UIMeta,
   // UIConfig,
   // UISchema,

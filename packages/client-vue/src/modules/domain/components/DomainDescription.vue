@@ -1,29 +1,25 @@
 <template>
   <p class="m-0">
     <Description as="span">
-      <template v-if="isOwned">{{
+      <template v-if="meta.owned">{{
         t("domain.card.owned.description")
       }}</template>
 
-      <template v-if="inBasket"
+      <template v-if="meta.added"
         >{{ t("domain.card.basket.description") }}
       </template>
 
-      <template v-else-if="summary?.meta?.available && !isOwned">
-        <template v-if="summary?.meta.discounted">
+      <template v-else-if="meta?.available && !meta.owned">
+        <template v-if="meta.discounted">
           {{
             t("domain.card.available.description.discounted", [
-              summary?.regularPrice,
-              summary?.currentPrice,
+              regularPrice,
+              currentPrice,
             ])
           }}
         </template>
         <template v-else>
-          {{
-            t("domain.card.available.description.regular", [
-              summary?.currentPrice,
-            ])
-          }}
+          {{ t("domain.card.available.description.regular", [currentPrice]) }}
         </template>
       </template>
     </Description>
@@ -45,8 +41,4 @@ defineProps<DomainDescriptionProps>();
 const emit = defineEmits(["update"]);
 
 const { t } = useI18n();
-
-const onUpdate = (domain: string) => {
-  emit("update", domain);
-};
 </script>

@@ -2,16 +2,8 @@ import type {
   IBasketProduct,
   IBasketPromotion,
 } from "@upmind-automation/types";
-import type { ProductModel, Product } from "../product";
+import type { ProductModel, SubproductModel, Product } from "../product";
 // -----------------------------------------------------------------------------
-
-export type SubProductChoices = Record<
-  string, // the category id
-  Record<
-    string, // the subproduct id
-    Product
-  >
->;
 
 export interface BasketHelperContext<T = unknown> {
   [key: string]: any;
@@ -23,29 +15,15 @@ export interface BasketHelperContext<T = unknown> {
   promotions?: IBasketPromotion[];
 }
 
-export interface BasketProduct {
-  product_id?: any;
-  id: string; // the basket product id (bpid)
-
-  // --- Model
-  productId: string;
-  quantity: number;
-  term: number;
-  options?: SubProductChoices;
-  attributes?: SubProductChoices;
-  provisionFields?: Record<string, any>;
+export interface BasketProduct extends ProductModel {
+  id: string;
   serviceIdentifier?: string;
-
-  // ---
-  product: BasketProductDetails;
-
+  product: Product;
   // ---
   summary: {
     details: (BasketProductSummaryDetail | BasketProductSummaryPrice)[];
-    // ---
     pricing: BasketProductSummaryPrice[];
   };
-
   // ---
   error?: {
     term?: any;
@@ -54,8 +32,6 @@ export interface BasketProduct {
     provisionFields?: any;
   };
 }
-
-export type BasketProductDetails = Omit<Product, "cycle" | "quantity"> & {};
 
 export interface BasketProductSummaryMeta {
   oneoff?: boolean;

@@ -2,10 +2,12 @@
 import { computed, ref } from "vue";
 
 // --- internal
+import { IBasket } from "@upmind-automation/types";
 import {
   useBasketProduct as useUpmindBasketProduct,
   useBasketProducts as useUpmindBasketProducts,
 } from "@upmind-automation/headless";
+
 import { useBasket } from "../basket";
 import { useBasketProduct } from "./useBasketProduct";
 
@@ -42,10 +44,10 @@ export const useBasketProducts = () => {
    * });
    *  action("123");
    */
-  function action<T extends (...args: any[]) => Promise<void>>(
+  function action<T extends (...args: any[]) => Promise<IBasket>>(
     action: T,
     delay = 350
-  ): (...args: Parameters<T>) => Promise<void> {
+  ): (...args: Parameters<T>) => Promise<IBasket> {
     return debounce((...args: Parameters<T>) => {
       // Assume the first argument is bpid
       const bpid = args[0];
@@ -56,7 +58,7 @@ export const useBasketProducts = () => {
       return action(...args).finally(() => {
         processing.value = _remove(processing.value, bpid);
       });
-    }, delay) as (...args: Parameters<T>) => Promise<void>;
+    }, delay) as (...args: Parameters<T>) => Promise<IBasket>;
   }
 
   // ----------------------------------------------------------------------------
