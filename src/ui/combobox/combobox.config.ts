@@ -25,20 +25,28 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-[highlighted]:bg-control-active-focus flex w-full !cursor-pointer items-center bg-base-background px-3 py-2 text-sm text-control-foreground",
+  "data-[highlighted]:bg-control-active-focus flex w-full !cursor-pointer items-center rounded-md bg-base-background px-3 py-2 text-sm text-control-foreground",
   {
     variants: {
       color: {
-        base: "data-[highlighted]:text-control-foreground",
-        primary: "data-[highlighted]:text-primary",
-        secondary: "data-[highlighted]:text-secondary",
-        accent: "data-[highlighted]:text-accent",
-        promotion: "data-[highlighted]:text-promotion",
-        destructive: "data-[highlighted]:text-destructive",
-        success: "data-[highlighted]:text-success",
-        info: "data-[highlighted]:text-info",
-        error: "data-[highlighted]:text-error",
-        warning: "data-[highlighted]:text-warning",
+        base: "data-[highlighted]:bg-control-active-focus data-[highlighted]:text-control-active-foreground",
+        primary:
+          "data-[highlighted]:bg-primary-background data-[highlighted]:text-primary-foreground",
+        secondary:
+          "data-[highlighted]:bg-secondary-background data-[highlighted]:text-secondary-foreground",
+        accent:
+          "data-[highlighted]:bg-accent-background data-[highlighted]:text-accent-foreground",
+        promotion:
+          "data-[highlighted]:bg-promotion-background data-[highlighted]:text-promotion-foreground",
+        destructive:
+          "data-[highlighted]:bg-destructive-background data-[highlighted]:text-destructive-foreground",
+        success:
+          "data-[highlighted]:bg-success-background data-[highlighted]:text-success-foreground",
+        info: "data-[highlighted]:bg-info-background data-[highlighted]:text-info-foreground",
+        error:
+          "data-[highlighted]:bg-error-background data-[highlighted]:text-error-foreground",
+        warning:
+          "data-[highlighted]:bg-warning-background data-[highlighted]:text-warning-foreground",
       },
     },
     defaultVariants: {
