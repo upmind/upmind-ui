@@ -152,58 +152,6 @@ const parseSubproductChoices = (rawSubproducts: IBasketProduct[]) => {
   );
 };
 
-/**
- * Parse the product summary from the basket product, this is the main pricing summary based on the term/cycle
- * @param raw - The raw basket product
- * @returns
- */
-// export function parseTermSummary(
-//   raw: IBasketProduct
-// ): BasketProductSummaryPrice {
-//   const { checkIncludesTax } = useBrand();
-
-//   const summary = parseProductSummary(raw) as BasketProductSummaryPrice;
-
-//   summary.name = "term";
-
-//   summary.meta = {
-//     oneoff: raw.billing_cycle_months > 0,
-//     discounted: raw?.net_global_discount_amount > 0,
-//     free: isEmpty(raw.net_unit_selling_price_formatted),
-//     includesTax: checkIncludesTax(),
-//   };
-
-//   summary.regularAmount = raw.selling_price_converted;
-//   summary.regularPrice = raw.selling_price_formatted;
-//   summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
-//   summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
-
-//   // add any saving information (if available)
-//   if (
-//     summary.meta.discounted &&
-//     !isNil(summary?.regularAmount) &&
-//     !isNil(summary?.currentAmount)
-//   ) {
-//     summary.savingAmount = summary.meta.discounted
-//       ? ((summary.regularAmount - summary.currentAmount) /
-//           summary.regularAmount) *
-//         100
-//       : 0;
-
-//     summary.savingPercent = summary.meta.discounted
-//       ? `${Math.round(summary.savingAmount)}%`
-//       : "";
-//   }
-
-//   // retained in case we wan tto show the term name as opposed to the actual product name/category
-//   // const { getBillingCycle } = useSystem();
-//   // const cycle = getBillingCycle(raw.billing_cycle_months);
-//   // const name = cycle ? useTranslateName(cycle) : null;
-//   // term.category = "Billing Cycle";
-//   // term.name = name;
-//   return summary;
-// }
-
 export function parseProductSummary(
   subproduct: IBasketProduct
 ): BasketProductSummaryDetail {

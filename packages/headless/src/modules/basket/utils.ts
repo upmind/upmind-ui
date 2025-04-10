@@ -123,6 +123,7 @@ export const parseSummary = (data?: any, provisioningErrors?: any) => {
     subtotal: data?.net_amount_formatted || "",
     taxes: parseTaxes(data?.taxes),
     total: data?.total_amount_formatted || "",
+    // ---
   };
   return summary;
 };

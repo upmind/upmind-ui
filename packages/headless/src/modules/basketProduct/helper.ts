@@ -11,7 +11,6 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { parseEcommerceItem } from "../system/analytics/utils";
 import { DetailedError, responseCodes } from "../../utils";
 import {
   concat,
@@ -24,9 +23,11 @@ import {
   uniq,
   compact,
 } from "lodash-es";
-import { IBasket } from "@upmind-automation/types";
 
 // --- types
+import type { IBasket } from "@upmind-automation/types";
+import type { BasketProduct } from "./types";
+import type { Product } from "../product";
 
 type Basket = ReturnType<typeof useBasket>;
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
@@ -55,6 +56,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
   onReceive((event: any) => {
     const rawBasket = basket.getBasket();
+    let basketProduct: BasketProduct | undefined;
 
     if (!rawBasket) {
       callback({
@@ -197,14 +199,14 @@ export function basketSubscription(callback: any, onReceive: any) {
           })
           .then((instance: BasketProductPending) => {
             const actor = instance.service;
+            const product = get(actor.getSnapshot(), "context.summary");
+
+            if (!product) throw new Error("Product not found");
+
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });
-            const model = get(
-              actor.getSnapshot(),
-              "context.model",
-              event.target
-            );
+
             // try to update the actor we just added
             productServices
               .update(
@@ -220,9 +222,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               .then((rawBasket: IBasket) => {
                 // add the success event to the datalayer
                 debugger;
-                dataLayer({ event: "add_to_cart" })
-                  .withItems(map(rawBasket?.products, parseEcommerceItem))
-                  .push();
+                dataLayer({ event: "add_to_cart" }).withItems([product]).push();
                 return rawBasket;
               })
               .then((rawBasket: IBasket) => {
@@ -299,6 +299,17 @@ export function basketSubscription(callback: any, onReceive: any) {
               { data: compact(data) }
             );
           })
+          .then((rawBasket: IBasket) => {
+            // add the success event to the datalayer
+            // TODO : map the data
+            debugger;
+            if (basketProduct)
+              dataLayer({ event: "add_to_cart" })
+                .withItems([basketProduct])
+                .push();
+
+            return rawBasket;
+          })
           .catch(error => callback({ type: "ERROR", data: error }))
           .finally(() => {
             basket
@@ -310,6 +321,18 @@ export function basketSubscription(callback: any, onReceive: any) {
         break;
 
       case "UPDATE":
+        basketProduct = basket.findProduct({ id: event.target.id });
+        if (!basketProduct) {
+          callback({
+            type: "ERROR",
+            data: new DetailedError(
+              "Basket Product not found",
+              responseCodes.Not_Found
+            ),
+          });
+          break;
+        }
+
         callback({ type: "PROCESSING" });
 
         if (isEmpty(event.target)) {
@@ -333,9 +356,11 @@ export function basketSubscription(callback: any, onReceive: any) {
           .then((rawBasket: IBasket) => {
             // add the success event to the datalayer
             debugger;
-            dataLayer({ event: "add_to_cart" })
-              .withItems(map(rawBasket?.products, parseEcommerceItem))
-              .push();
+            if (basketProduct)
+              dataLayer({ event: "add_to_cart" })
+                .withItems([basketProduct])
+                .push();
+
             return rawBasket;
           })
           .then(rawBasket => {
@@ -353,7 +378,8 @@ export function basketSubscription(callback: any, onReceive: any) {
         break;
 
       case "REMOVE":
-        const basketProduct = basket.findProduct({ id: event.target.id });
+        basketProduct = basket.findProduct({ id: event.target.id });
+
         if (!basketProduct) {
           callback({
             type: "ERROR",
@@ -370,13 +396,14 @@ export function basketSubscription(callback: any, onReceive: any) {
         productServices
           .remove({
             basketId: rawBasket?.id,
-            bpid: basketProduct.id,
+            bpid: event.target.id,
           })
           .then((rawBasket: IBasket) => {
             debugger;
-            dataLayer({ event: "remove_from_cart" })
-              .withItems(map(rawBasket?.products, parseEcommerceItem))
-              .push();
+            if (basketProduct)
+              dataLayer({ event: "remove_from_cart" })
+                .withItems([basketProduct])
+                .push();
           })
           .then(() => {
             basket

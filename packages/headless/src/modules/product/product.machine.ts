@@ -47,11 +47,13 @@ import { calculateSubscription } from "./services";
 
 // ---types
 import type { AnyEventObject } from "xstate";
+import type { BasketProduct } from "../basketProduct";
 import type {
-  BasketProduct,
-  BasketProductSummaryPrice,
-} from "../basketProduct";
-import type { ProductConfigContext, ProductModel } from "./types";
+  PriceDisplay,
+  ProductConfigContext,
+  ProductModel,
+  ProductSummaryDetailWithPrice,
+} from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -340,9 +342,9 @@ export default createMachine(
                 return basketHelper;
               },
               (context: ProductConfigContext, _event) => {
-                const { model, basketProduct } = context;
+                const { model, rawBasketProduct } = context;
                 // NB:ensure we ad dout basket product id to the model, so we update instead of add
-                if (basketProduct && model) model.id = basketProduct.id;
+                if (rawBasketProduct && model) model.id = rawBasketProduct.id;
 
                 return {
                   type: "REMOVE",
@@ -362,10 +364,10 @@ export default createMachine(
                 return basketHelper;
               },
               (context: ProductConfigContext, _event) => {
-                const { model, basketProduct } = context;
+                const { model, rawBasketProduct } = context;
 
                 // NB:ensure we ad dout basket product id to the model, so we update instead of add
-                if (basketProduct && model) model.id = basketProduct.id;
+                if (rawBasketProduct && model) model.id = rawBasketProduct.id;
 
                 return {
                   type: "UPDATE",
@@ -483,7 +485,7 @@ export default createMachine(
           {
             // id,
             model,
-            basketProduct,
+            rawBasketProduct,
             currencyId,
             basketId,
             clientId,
@@ -506,14 +508,14 @@ export default createMachine(
             coupons: coupons ?? [],
             subproducts: subproducts ?? [],
             // ---
-            baseModel: !isEmpty(basketProduct)
-              ? parseBasketProductModel(basketProduct)
+            baseModel: !isEmpty(rawBasketProduct)
+              ? parseBasketProductModel(rawBasketProduct)
               : model
                 ? parseModel(model)
                 : undefined,
 
-            model: !isEmpty(basketProduct)
-              ? parseBasketProductModel(basketProduct)
+            model: !isEmpty(rawBasketProduct)
+              ? parseBasketProductModel(rawBasketProduct)
               : model
                 ? parseModel(model)
                 : undefined,
@@ -531,7 +533,7 @@ export default createMachine(
             rawProduct,
             error,
             coupons,
-            basketProduct,
+            rawBasketProduct,
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
@@ -549,13 +551,13 @@ export default createMachine(
             lookups.product = parseProduct(rawProduct);
           }
 
-          if (basketProduct && basketProduct != basket_product) {
+          if (rawBasketProduct && rawBasketProduct != basket_product) {
             console.warn(
               "Product Machine",
               "refresh",
               "basketProduct mismatch",
               {
-                basketProduct,
+                rawBasketProduct,
                 basket_product,
               }
             );
@@ -566,7 +568,7 @@ export default createMachine(
             currencyId: currency_id,
             promotions: uniq(concat(promotions ?? [], coupons ?? [])),
             coupons: coupons ?? [],
-            basketProduct: basketProduct ?? basket_product, // ensure we honoure any given basket product
+            rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
@@ -626,12 +628,15 @@ export default createMachine(
       }),
 
       setTitle: assign({
-        title: ({ rawProduct, basketProduct }: ProductConfigContext, _event) =>
+        title: (
+          { rawProduct, rawBasketProduct }: ProductConfigContext,
+          _event
+        ) =>
           rawProduct
             ? useUischemaTitle(rawProduct, {
-                basketProduct,
+                basketProduct: rawBasketProduct,
                 valueKey: "meta.uischema.title",
-                fallback: useProductName(rawProduct, basketProduct),
+                fallback: useProductName(rawProduct, rawBasketProduct),
               })
             : "",
       }),
@@ -664,26 +669,34 @@ export default createMachine(
             error,
             summary,
             rawProduct,
-            basketProduct,
+            rawBasketProduct,
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          const fallback = first(summary?.pricing) as BasketProductSummaryPrice;
-          const totals = has(data, "total")
-            ? data
-            : {
-                total: fallback?.regularAmount,
-                total_formatted: fallback?.regularPrice,
-                discounted: fallback?.currentAmount,
-                discounted_formatted: fallback?.currentPrice,
-              };
+          const fallback = first(
+            summary?.pricing
+          ) as ProductSummaryDetailWithPrice;
 
-          const parsedSummary = parseSummary(totals, {
+          const values: PriceDisplay = {
+            regularAmount: data?.total ? data.total : fallback?.regularAmount,
+            regularPrice: data?.total
+              ? data?.totalFormatted
+              : fallback?.regularPrice,
+            currentAmount: data?.total ? data.total : fallback?.currentAmount,
+            currentPrice: data?.total
+              ? data.totalFormatted
+              : fallback?.currentPrice,
+            savingAmount: data?.total ? 0 : fallback?.savingAmount,
+            savingPrice: data?.total ? "" : fallback?.savingPrice,
+            savingPercent: data?.total ? "" : fallback?.savingPercent,
+          };
+
+          const parsedSummary = parseSummary(values, {
             model,
             lookups,
             error,
             rawProduct,
-            basketProduct,
+            rawBasketProduct,
           });
 
           return parsedSummary;
@@ -691,17 +704,17 @@ export default createMachine(
       }),
 
       setSummaryCalculating: assign({
-        summary: ({ summary }: ProductConfigContext, _event) => {
-          summary ??= {};
-          set(summary, "isCalculating", true);
-          return summary;
+        prices: ({ prices }: ProductConfigContext, _event) => {
+          prices ??= {};
+          set(prices, "calculating", true);
+          return prices;
         },
       }),
       clearSummaryCalculating: assign({
-        summary: ({ summary }: ProductConfigContext, _event) => {
-          summary ??= {};
-          set(summary, "isCalculating", false);
-          return summary;
+        prices: ({ prices }: ProductConfigContext, _event) => {
+          prices ??= {};
+          set(prices, "calculating", false);
+          return prices;
         },
       }),
 
@@ -856,8 +869,8 @@ export default createMachine(
     },
     services,
     guards: {
-      isNew: ({ basketProduct }: ProductConfigContext) =>
-        isEmpty(basketProduct),
+      isNew: ({ rawBasketProduct }: ProductConfigContext) =>
+        isEmpty(rawBasketProduct),
 
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
@@ -866,6 +879,7 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const cleanModel = compactDeep(model);
+        debugger; // TODO: check if .basketProperty exusts on data
         const cleanProduct = data?.basketProduct
           ? compactDeep(parseBasketProductModel(data.basketProduct))
           : {};
@@ -881,7 +895,7 @@ export default createMachine(
           clientId,
           currencyId,
           promotions,
-          basketProduct,
+          rawBasketProduct,
         }: ProductConfigContext,
         { data }: AnyEventObject
       ) => {
@@ -896,9 +910,10 @@ export default createMachine(
         // lets see if any important value have changed within the basketProduct
         // dont compare the entire object, just the keys that are important to this machine
         const keys = ["id", "productId", "service_identifier"];
+        // todo: check if bbasketProduct exists on data
         const basketPoductChanged = !isEqual(
           pick(data?.basketProduct, keys),
-          pick(basketProduct, keys)
+          pick(rawBasketProduct, keys)
         );
 
         const value =

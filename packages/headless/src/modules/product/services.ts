@@ -36,7 +36,7 @@ import {
   PromotionDisplayTypes,
   DefaultPaymentPeriod,
 } from "@upmind-automation/types";
-import type { ProductConfigContext, Term } from "./types";
+import type { ProductConfigContext, Term, Price } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ async function load(
     currencyId,
     promotions,
     basketId,
-    basketProduct,
+    rawBasketProduct,
   }: ProductConfigContext,
   _event: any
 ) {
@@ -77,7 +77,8 @@ async function load(
   // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
-  if (basketProduct?.id) set(params, "basket_product_id", basketProduct.id);
+  if (rawBasketProduct?.id)
+    set(params, "basket_product_id", rawBasketProduct.id);
 
   const productPromise = getRequest({
     url: useUrl(`basket/products/${productId}`, params),
@@ -392,7 +393,17 @@ const calculateSummary = (
       currency_id: currencyId,
       prices: values,
     },
-  }).then(({ data }: any) => pick(data, ["total", "total_formatted"]));
+  }).then(({ data }: any) => {
+    debugger;
+    return {
+      total: get(data, "total", 0),
+      totalFormatted: get(data, "total_formatted", ""),
+      // subtotal: get(data, "subtotal", 0),
+      // subtotalFormatted: get(data, "subtotal_formatted", ""),
+      // discount: get(data, "discount", 0),
+      // discountFormatted: get(data, "discount_formatted", ""),
+    } as Price;
+  });
 };
 
 export const calculateBillingTerm = (

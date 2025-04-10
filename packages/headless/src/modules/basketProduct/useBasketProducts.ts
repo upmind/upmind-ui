@@ -46,7 +46,7 @@ export const useBasketProducts = () => {
         .remove({ basketId, bpid: id })
         .then((rawBasket: IBasket) => {
           dataLayer({ event: "remove_from_cart" })
-            .withItems(map(rawBasket?.products, parseEcommerceItem))
+            .withItems(parseEcommerceItem(basketProduct))
             .push();
         })
         .then(() => refresh());

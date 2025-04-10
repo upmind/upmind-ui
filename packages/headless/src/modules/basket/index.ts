@@ -74,7 +74,7 @@ export const useBasket = () => {
 
   function hasInvalidProducts() {
     const state = service.getSnapshot();
-    return some(state?.context?.products, product => !isEmpty(product?.error));
+    return some(state?.context?.products, product => !isEmpty(product?.errors));
   }
 
   async function hasPromotions(): Promise<boolean> {
@@ -268,7 +268,7 @@ export const useBasket = () => {
   function getInvalidProducts(): BasketProduct[] {
     const state = service.getSnapshot();
     const products = get(state, "context.products", []);
-    return filter(products, product => !isEmpty(product?.error));
+    return filter(products, product => !isEmpty(product?.errors));
   }
 
   function findProduct(

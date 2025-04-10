@@ -4,13 +4,25 @@ import packageJson from "../../../../package.json";
 
 // --- utils
 import { useCookies, usePOP, useTime } from "../../../utils";
-import { isEmpty, isNil, omitBy, set, map, isArray } from "lodash-es";
+import {
+  isEmpty,
+  isNil,
+  omitBy,
+  set,
+  map,
+  isArray,
+  sumBy,
+  some,
+} from "lodash-es";
 
 // --- types
 import { IBasket, IInvoice } from "@upmind-automation/types";
-import { parseEcommerceItem } from "./utils";
+import type { BasketProduct } from "../../basketProduct";
+import type { ProductSummary as Product } from "../../product";
+import { mapBasketProduct, mapIBasketProduct, mapProduct } from "./utils";
 import {
   DataLayerEcommerce,
+  DataLayerEcommerceItems,
   DataLayerEcommerceItem,
   DataLayerPage,
   DataLayerUser,
@@ -118,7 +130,10 @@ class TrackingEvent {
       transaction_id: safeBasket?.number,
       tax: safeBasket.tax_amount,
       purchase_type: invoice ? "new_purchase" : undefined,
-      items: map(safeBasket.products, parseEcommerceItem),
+      items: map(
+        safeBasket.products,
+        mapIBasketProduct
+      ) as DataLayerEcommerceItem[],
     };
 
     set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -126,15 +141,83 @@ class TrackingEvent {
     return this; // nb this is needed to chain the methods
   }
 
+  // withBasketProducts(items: BasketProduct | BasketProduct[]): TrackingEvent {
+  //   const safeItems = isArray(items) ? items : [items];
+
+  //   if (isEmpty(safeItems)) {
+  //     throw new Error("No Products available");
+  //   }
+
+  //   const { getBasket } = useBasket();
+  //   const basket = getBasket() as IBasket;
+
+  //   if (isEmpty(basket)) {
+  //     throw new Error("No Basket available");
+  //   }
+
+  //   // When a user submits their billing address
+  //   const payload: DataLayerEcommerceItems = {
+  //     currency: basket.currency.code,
+  //     value: sumBy(safeItems, "summary.configuration.subtotal"),
+  //     gross_value: sumBy(safeItems, "summary.configuration.total"),
+  //     // --- invoice specific data
+  //     items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
+  //   };
+
+  //   set(this.args, "ecommerce", omitBy(payload, isNil));
+
+  //   return this; // nb this is needed to chain the methods
+  // }
+
+  // /**
+  //  * This is usually used when updating/removing item(s) to/from the basket
+  //  * Can be for a single item or multiple in the case of bulk add/remove
+  //  * @param value : the total net value of the items
+  //  * @param grossValue : the total gross value of the items
+  //  * @param items
+  //  * @returns
+  //  */
+  // withProducts(items: Product | Product[]): TrackingEvent {
+  //   const safeItems = isArray(items) ? items : [items];
+
+  //   if (isEmpty(safeItems)) {
+  //     throw new Error("No Products available");
+  //   }
+
+  //   const { getBasket } = useBasket();
+  //   const basket = getBasket() as IBasket;
+
+  //   if (isEmpty(basket)) {
+  //     throw new Error("No Basket available");
+  //   }
+
+  //   // When a user submits their billing address
+  //   const payload: DataLayerEcommerceItems = {
+  //     currency: basket.currency.code,
+  //     value: sumBy(safeItems, "summary.configuration.subtotal"),
+  //     gross_value: sumBy(safeItems, "summary.configuration.total"),
+  //     // --- invoice specific data
+  //     items: map(safeItems, mapProduct) as DataLayerEcommerceItem[],
+  //   };
+
+  //   set(this.args, "ecommerce", omitBy(payload, isNil));
+
+  //   return this; // nb this is needed to chain the methods
+  // }
+
+  /**
+   * This is usually used when adding/updating/removing item(s) to/from the basket
+   * Can be for a single item or multiple in the case of bulk add/remove
+   * @param items : Can be either a Product(s) or a BasketProduct(s) and represent the item(s) being added/updated/removed
+   */
   withItems(
-    items: DataLayerEcommerceItem | DataLayerEcommerceItem[]
+    items: (Product | Product[]) | (BasketProduct | BasketProduct[])
   ): TrackingEvent {
     const safeItems = isArray(items) ? items : [items];
 
     if (isEmpty(safeItems)) {
       throw new Error("No Products available");
     }
-    // When a user submits their billing address
 
     const { getBasket } = useBasket();
     const basket = getBasket() as IBasket;
@@ -142,18 +225,18 @@ class TrackingEvent {
     if (isEmpty(basket)) {
       throw new Error("No Basket available");
     }
+
+    const mapper = some(safeItems, "product") ? mapBasketProduct : mapProduct;
+
     // When a user submits their billing address
-    const payload: DataLayerEcommerce = {
+    const payload: DataLayerEcommerceItems = {
       currency: basket.currency.code,
-      value: basket.total_amount, //TODO: check the correct value is used
-      // net_value: basket.net_amount, //TODO: check the correct value is used
-      coupon: !isEmpty(basket.promotions)
-        ? map(basket.promotions, "promotion.code").toString()
-        : undefined,
-      // --- invoice specific data
-      items: safeItems,
+      value: sumBy(safeItems, "summary.configuration.subtotal"),
+      gross_value: sumBy(safeItems, "summary.configuration.total"),
+      items: map(safeItems, mapper) as unknown as DataLayerEcommerceItem[],
     };
 
+    debugger;
     set(this.args, "ecommerce", omitBy(payload, isNil));
 
     return this; // nb this is needed to chain the methods
