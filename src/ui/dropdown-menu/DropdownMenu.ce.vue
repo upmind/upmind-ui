@@ -59,11 +59,14 @@
         )
       "
     >
-      <DropdownMenuLabel v-if="props.title || $slots.label" class="border-b">
+      <DropdownMenuLabel
+        v-if="props.title || $slots.label"
+        :class="styles.dropdownMenu.label"
+      >
         <slot name="label">{{ title }}</slot>
       </DropdownMenuLabel>
 
-      <DropdownMenuGroup>
+      <DropdownMenuGroup :class="styles.dropdownMenu.group">
         <template v-for="(item, index) in items" :key="`item-${index}`">
           <DropdownMenuItem
             v-if="!item.hidden"
@@ -160,7 +163,12 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  dropdownMenu: { trigger?: string; content?: string; item?: string };
+  dropdownMenu: {
+    trigger?: string;
+    content?: string;
+    item?: string;
+    label?: string;
+  };
 }>;
 // ---
 
