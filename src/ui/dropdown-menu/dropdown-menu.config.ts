@@ -47,7 +47,7 @@ export default {
   dropdownMenu: {
     content: contentVariants,
     item: itemVariants,
-    label: cva("border-b px-4 py-3"),
+    label: cva("border-base-muted border-b px-4 py-3"),
     group: cva("p-1"),
   },
 };
