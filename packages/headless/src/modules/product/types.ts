@@ -11,13 +11,59 @@ import type {
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations/types";
-import type {
-  BasketProduct,
-  BasketProductSummaryDetail,
-  BasketProductSummaryPrice,
-  Price,
-  BasketProductSummaryMeta,
-} from "../basketProduct";
+import type { BasketProduct } from "../basketProduct";
+
+// -----------------------------------------------------------------------------
+/**
+ * The price details for any price , allowing for gross/net and discount breakdowns
+ * @interface Price
+ * @property {number} total - The total price of the product
+ * @property {string} totalFormatted - The formatted total price of the product
+ * @property {number} subtotal - The subtotal price of the product
+ * @property {string} subtotalFormatted - The formatted subtotal price of the product
+ * @property {number} discount - The discount price of the product
+ * @property {string} discountFormatted - The formatted discount price of the product
+ */
+export interface Price {
+  total: number;
+  totalFormatted: string;
+  subtotal: number;
+  subtotalFormatted: string;
+  discount: number;
+  discountFormatted: string;
+}
+
+/**
+ * The display price structure for any price that is displayed in the UI
+ * We will always provide the price details:
+ *    Based on the TOTAL CONFIGURATION which could be GROSS OR NET based on the Brands settings
+ *    This would include quantity modifier, discounts, and any other adjustments
+ *    Effectively this is the price that should be shown to the customer
+ */
+export type PriceDisplay = {
+  currentAmount: number;
+  currentPrice: string;
+  // ---
+  regularAmount: number;
+  regularPrice: string;
+  // ---
+  savingAmount: number;
+  savingPrice: string;
+  savingPercent: string;
+};
+
+/**
+ * The price details for any price that is displayed in the UI
+ * We also provide all the necessary price breakdowns for display and tracking purposes
+ * The Individual unit price, both gross and net:
+ *    Individual unit prices are the base price of the product, before any adjustments or quantity modifiers
+ * The Configuration price, both gross and net:
+ *    Configuration prices are the total price of the product, including any adjustments or quantity modifiers
+ */
+export type PriceDetail = PriceDisplay & {
+  unit?: Price;
+  configuration?: Price;
+};
 
 // -----------------------------------------------------------------------------
 
@@ -32,40 +78,117 @@ export interface ProductConfigContext {
   baseModel?: ProductModel;
   model?: ProductModel;
   // ---
-  rawProduct?: IProduct;
   title?: string; // computed name of the product
   // description?: string; // computed description of the product
   // ---
   lookups?: {
-    product?: Product;
-    terms?: Term[];
-    options?: SubproductOption[];
-    attributes?: SubproductOption[];
+    product?: ProductDetails;
+    terms?: TermDetails[];
+    options?: SubproductDetails[];
+    attributes?: SubproductDetails[];
     provisionFields?: Record<string, any>;
+    prices?: {
+      calculating?: boolean;
+      term?: number[];
+      attributes?: number[];
+      options?: number[];
+    };
   };
   // ---
-  summary?: SummaryDetails; // IProductSummary;
-  prices?: {
-    term?: number[];
-    attributes?: number[];
-    options?: number[];
-  };
+  summary?: ProductSummary;
   meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
   error?: any;
   errorExternal?: any;
   // ---
+  rawProduct?: IProduct;
+  rawBasketProduct?: IBasketProduct;
+  // ---
   basketId?: string;
-  basketProduct?: IBasketProduct;
   basketHelper?: ActorRef<any>;
   parseBasketProduct?: (item: ProductModel) => ProductModel;
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
 }
 
+export type ProductSummary = PriceDetail & {
+  details: (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
+  pricing: ProductSummaryDetailWithPrice[];
+};
+
+/**
+ * Represents a product with its configuration, pricing, and associated details.
+ */
 export type Product = {
+  /**
+   * The unique identifier of the product. Optional as pending products will not have an ID.
+   */
+  id?: string;
+
+  /**
+   * The model of the product, this contains the configuration settings/values to be used for editing purposes
+   */
+  model: ProductModel;
+
+  /**
+   * The detailed information about the actial product. This wil lcontain al lthe product details such as title, description etc
+   */
+  product: ProductDetails;
+
+  /**
+   * The display price details for the product. This is the total configured pricing including any discounts or adjustments.
+   * It will always be the price that is shown to the customer, and it may or may not include tax, depending on the brand's settings.
+   * The display price includes the current amount, regular amount, and any savings.
+   */
+  price: PriceDetail;
+
+  /**
+   * A breakdown of the product's pricing details.
+   * This may have multiple entries depending on if some configuration options are not quantifiable
+   */
+  pricing: ProductSummaryDetailWithPrice[];
+
+  /**
+   * A summary of the product configuration.
+   * This can include details with or without pricing information, depending on the context.
+   * eg:
+   *  terms will have pricing information
+   *  a subproduct may have pricing information depending if its an option or attribute
+   *  provision fields will not have pricing information
+   */
+  details: (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
+
+  /**
+   * An optional object containing errors related to the product.
+   * This can include errors for terms, attributes, options, or provision fields.
+   */
+  errors?: {
+    /**
+     * Errors related to the product's term.
+     */
+    term?: any;
+
+    /**
+     * Errors related to the product's attributes.
+     */
+    attributes?: any;
+
+    /**
+     * Errors related to the product's options.
+     */
+    options?: any;
+
+    /**
+     * Errors related to the product's provision fields.
+     */
+    provisionFields?: any;
+  };
+};
+
+export type ProductDetails = {
   id: string;
   title: string;
+  name: string; // untranslated name for reporting purposes
   brand: string;
   categoryId: string;
   category: string;
@@ -84,21 +207,39 @@ export type Product = {
   uiCategoryMeta?: Record<string, any>;
 };
 
-export type ProductSummaryDetail = BasketProductSummaryDetail & {
-  promotions?: Promotion[];
+export type ProductSummaryMeta = {
+  oneoff?: boolean;
+  quantifiable?: boolean;
+  discounted?: boolean;
+  free?: boolean;
+  invalid?: boolean;
+  overrides?: boolean;
+  mixed?: boolean;
+  includes?: boolean;
+  available?: boolean;
+  includesTax?: boolean;
 };
 
-export type ProductSummaryPrice = ProductSummaryDetail &
-  Price & {
-    monthlyFromCurrentAmount?: number;
-    monthlyFromCurrentPrice?: string;
-    monthlyFromRegularAmount?: number;
-    monthlyFromRegularPrice?: string;
-  };
+export type ProductSummaryDetail = {
+  name?: string;
+  category?: string;
+  title: string;
+  cycle?: number;
+  quantity?: number;
+  promotions?: Promotion[];
+  meta?: ProductSummaryMeta;
+};
 
-export type Term = ProductSummaryPrice & {};
+export type ProductSummaryDetailWithPrice = ProductSummaryDetail & PriceDetail;
 
-export type SubproductOption = {
+export type TermDetails = ProductSummaryDetailWithPrice & {
+  monthlyFromCurrentAmount?: number;
+  monthlyFromCurrentPrice?: string;
+  monthlyFromRegularAmount?: number;
+  monthlyFromRegularPrice?: string;
+};
+
+export type SubproductDetails = {
   id: string;
   title: string;
   name?: string;
@@ -110,24 +251,18 @@ export type SubproductOption = {
   priceOverride: boolean;
   uiMeta?: Record<string, any>;
   uiCategoryMeta?: Record<string, any>;
-  values?: SubProductOptionValue[];
+  values?: SubProductValue[];
 };
 
-export type SubProductOptionValue = Product & {
+export type SubProductValue = ProductDetails & {
   id: string;
   order: number;
   default: boolean;
   // ---
-  meta: BasketProductSummaryMeta;
+  meta: ProductSummaryMeta;
   // ---
-  price?: ProductSummaryPrice;
-  prices?: ProductSummaryPrice[];
-};
-
-export type SummaryDetails = {
-  isCalculating?: boolean;
-  details?: ProductSummaryDetail[];
-  pricing?: ProductSummaryPrice[];
+  price?: PriceDetail;
+  pricing?: ProductSummaryDetailWithPrice[];
 };
 
 export type Promotion = {

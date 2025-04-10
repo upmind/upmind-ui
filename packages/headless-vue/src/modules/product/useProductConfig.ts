@@ -75,7 +75,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       "lookups.provisionFields.properties",
     ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
-    isCalculating: contextMatches(state, ["summary.isCalculating"]),
+    isCalculating: contextMatches(state, ["prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
     isComplete:
       state.value?.done ||

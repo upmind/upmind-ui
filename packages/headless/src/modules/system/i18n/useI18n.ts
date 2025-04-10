@@ -118,8 +118,10 @@ export const useI18n = () => {
   }
 
   return {
+    isReady,
     getLocale,
     setDefaultLocale,
     setLocale,
+    getSupportedlocales: getLanguages,
   };
 };

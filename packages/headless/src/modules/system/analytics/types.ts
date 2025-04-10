@@ -23,11 +23,25 @@ export interface DataLayerEcommerce {
   purchase_type?: string;
   tax?: number;
   transaction_id?: string;
-  value: number;
+  value: number; // always net value
+  gross_value?: number;
 }
 
+export interface DataLayerEcommerceItems {
+  currency: string;
+  items: DataLayerEcommerceItem[];
+  value: number; // always net value
+  gross_value?: number;
+}
+
+/**
+ * DataLayerEcommerceItem
+ * @description
+ * This should always be the unit/base price of the item and not the total price.
+ * Proces should always be nett, we have added a custom field for gross price
+ *
+ */
 export interface DataLayerEcommerceItem {
-  // net_price: string;
   discount?: number;
   duration?: number; // billing cycle months
   index: number;
@@ -37,6 +51,7 @@ export interface DataLayerEcommerceItem {
   item_category?: string;
   item_id: string;
   item_name: string;
-  price: number;
+  price: number; // price should always be nett
+  gross_price?: number;
   quantity: number;
 }
