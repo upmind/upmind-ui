@@ -50,5 +50,6 @@ export default {
     item: itemVariants,
     label: cva("border-base-muted border-b px-4 py-3"),
     group: cva("p-1"),
+    icon: cva("text-base-muted-foreground"),
   },
 };
