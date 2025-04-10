@@ -1,6 +1,10 @@
 <template>
   <DropdownMenuRoot v-model:open="open" tabindex="-1">
-    <DropdownMenuTrigger as-child :disabled="disabled">
+    <DropdownMenuTrigger
+      as-child
+      :disabled="disabled"
+      :class="styles.select.trigger"
+    >
       <TriggerButton
         :open="open"
         :selected="selected"
@@ -8,7 +12,6 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
-        :size="props.size"
         focusable
       >
         <template #item="{ item }">
@@ -78,7 +81,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
-const meta = computed(() => ({}));
+const meta = computed(() => ({
+  width: props.width,
+}));
 
 const styles = useStyles(
   ["select"],
@@ -90,6 +95,7 @@ const styles = useStyles(
     item: string;
     content: string;
     group: string;
+    trigger: string;
   };
 }>;
 

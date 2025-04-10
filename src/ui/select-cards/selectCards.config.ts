@@ -2,10 +2,16 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const triggerVariants = cva(
-  `h-auto min-h-10 w-full min-w-0 items-center justify-start rounded-lg border-control px-4 py-3 text-left font-medium !text-primary`,
+  `h-auto min-h-10 min-w-0 items-center justify-start rounded-lg border-control px-4 py-3 text-left font-medium`,
   {
     variants: {
       width: {
+        xs: "!w-dropdown-xs",
+        sm: "!w-dropdown-sm",
+        md: "!w-dropdown-md",
+        lg: "!w-dropdown-lg",
+        xl: "!w-dropdown-xl",
+        "2xl": "!w-dropdown-2xl",
         full: "w-full",
         auto: "w-auto",
         app: "w-app",
@@ -22,7 +28,25 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-lg border border-control shadow-sm`
+  `bg-control-background ${ringClasses} ${invalidRingClasses} mt-2 flex max-h-72 !w-[--radix-dropdown-menu-trigger-width] flex-col overflow-hidden overflow-y-scroll rounded-lg border border-control shadow-sm`,
+  {
+    variants: {
+      width: {
+        xs: "w-dropdown-xs",
+        sm: "w-dropdown-sm",
+        md: "w-dropdown-md",
+        lg: "w-dropdown-lg",
+        xl: "w-dropdown-xl",
+        "2xl": "w-dropdown-2xl",
+        full: "w-full",
+        auto: "w-auto",
+        app: "w-app",
+      },
+    },
+    defaultVariants: {
+      width: "full",
+    },
+  }
 );
 
 const groupVariants = cva(

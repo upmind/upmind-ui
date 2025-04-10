@@ -25,7 +25,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   // ---
   color?: ButtonProps["color"];
   side?: PopoverContentProps["side"];
-  size?: ButtonProps["size"];
+  width?: ButtonProps["width"];
   focusable?: boolean;
 
   uiConfig?: { select: CxOptions };
