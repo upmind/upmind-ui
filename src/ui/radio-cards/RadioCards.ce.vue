@@ -5,6 +5,7 @@
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.radioCards.root, props.class)"
+    data-testid="radio-card-group"
     @update:model-value="onChange"
   >
     <template v-for="(option, index) in items" :key="option.id || index">
@@ -19,6 +20,7 @@
         :width="props.width"
         :value="option.value"
         :class="props.radioClass"
+        data-testid="radio-card-item"
         :uiConfig="props.uiConfig"
         @keydown.enter="onChange(option.value)"
       >

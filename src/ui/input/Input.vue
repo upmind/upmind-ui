@@ -28,5 +28,6 @@ const modelValue = useVModel(props, "modelValue", emits, {
         props.class
       )
     "
+    data-testid="text-input"
   />
 </template>

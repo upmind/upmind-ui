@@ -1,5 +1,5 @@
 <template>
-  <Sanitized :modelValue="compiledMarkdown" />
+  <Sanitized :modelValue="compiledMarkdown" data-testid="markdown" />
 </template>
 
 <script lang="ts" setup>

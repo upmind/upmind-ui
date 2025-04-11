@@ -5,6 +5,7 @@
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
+    data-testid="checkbox-group"
     @update:model-value="onChange"
   >
     <div
@@ -22,10 +23,12 @@
         :disabled="props.disabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
+        data-testid="checkbox-item"
       >
         <Label
           :for="`${props.name}-${index}`"
           :class="cn(styles.checkboxCards.label)"
+          data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
             {{ item.label }}
