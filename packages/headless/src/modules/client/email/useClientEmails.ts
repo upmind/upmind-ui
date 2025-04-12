@@ -10,7 +10,15 @@ import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 
 // --- utils
-import { find, filter, isEqual, isString } from "lodash-es";
+import {
+  find,
+  filter,
+  isEqual,
+  isString,
+  includes,
+  every,
+  get,
+} from "lodash-es";
 
 // --- types
 import type { Email } from "./types";
@@ -81,15 +89,27 @@ export const useClientEmails = () => {
 
   /**
    * Find a single email based on the given param. The param is matched against the id and email.
-   * @param param The filter to match against the email id and email.
+   * @param mapping The filter to match against the email id and email.
    * @returns A promise that resolves to an email or undefined.
    * @example findOne("123").then((email) => console.log(email))
    */
-  function findOne(param: string) {
+  function findOne(mapping: string | Partial<Email>) {
     const emails = getAllFromCache();
-    return find(
-      emails,
-      item => isEqual(item.id, param) || isEqual(item.email, param)
+    if (isString(mapping)) {
+      return find(emails, item =>
+        includes(item.email.toLowerCase(), mapping.toLowerCase())
+      );
+    }
+
+    return find(emails, item =>
+      every(mapping, (value, key) => {
+        if (key == "id") {
+          return item.id == value;
+        } else {
+          const modelValue = get(item, key);
+          return modelValue == value;
+        }
+      })
     );
   }
 

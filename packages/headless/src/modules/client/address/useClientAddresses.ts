@@ -10,7 +10,7 @@ import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 
 // --- utils
-import { find, filter, includes, isString } from "lodash-es";
+import { find, filter, includes, isString, every, get } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
@@ -80,17 +80,29 @@ export const useClientAddresses = () => {
 
   /**
    * Find a single address based on the given param. The param is matched against the title and description.
-   * @param param The filter to match against the address title and description.
+   * @param mapping The filter to match against the address title and description.
    * @returns The address object if found, otherwise undefined.
    * @example findOne("home").then((address) => console.log(address))
    */
-  function findOne(param: string) {
+  function findOne(mapping: string | Partial<Address>) {
     const addresses = getAllFromCache();
-    return find(
-      addresses,
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item.description.toLowerCase(), param.toLowerCase())
+    if (isString(mapping)) {
+      return find(
+        addresses,
+        item =>
+          includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
+          includes(item.description.toLowerCase(), mapping.toLowerCase())
+      );
+    }
+
+    return find(addresses, item =>
+      every(mapping, (value, key) => {
+        if (key == "id") {
+          return item.id == value;
+        }
+        const modelValue = get(item, key);
+        return modelValue == value;
+      })
     );
   }
 
