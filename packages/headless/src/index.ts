@@ -1,6 +1,5 @@
 import { inspect } from "@xstate/inspect";
-import { usePOP, type IApiPop } from "./utils/usePOP";
-import { useSessionStorage } from "./utils";
+import { usePOP, type IApiPop, useSessionStorage } from "./utils";
 
 export * from "./modules";
 export * as utils from "./utils";
