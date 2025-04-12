@@ -1,5 +1,4 @@
 // --- external
-import { sha1 } from "object-hash";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -20,8 +19,7 @@ import {
 import { responseCodes } from "../../utils";
 
 // --- types
-import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
-import type { ProductModel } from "../product";
+import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
 export * from "./types";
 
