@@ -19,6 +19,7 @@ export interface ClientItemContext {
   model?: any;
   error?: any;
   // ---
+  autoupdate?: boolean;
   allowMultipleEdits?: boolean;
 }
 

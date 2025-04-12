@@ -21,7 +21,6 @@ export default createMachine(
     states: {
       loading: {
         entry: ["clearError"],
-
         invoke: {
           src: "loadLookups",
           onDone: {
@@ -68,10 +67,11 @@ export default createMachine(
           },
           valid: {
             id: "valid",
+            always: { target: "processing", cond: "shouldUpdate" },
             on: {
               SET: {
                 target: "checking",
-                actions: log((_context, { data }: AnyEventObject) => data),
+                actions: ["setAutoUpdate"],
               },
               UPDATE: [
                 {
@@ -89,7 +89,7 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: log((_context, { data }: AnyEventObject) => data),
+                actions: ["setAutoUpdate"],
               },
             },
           },
@@ -98,7 +98,7 @@ export default createMachine(
             on: {
               SET: {
                 target: "checking",
-                actions: log((_context, { data }: AnyEventObject) => data),
+                actions: ["setAutoUpdate"],
               },
             },
           },
@@ -146,7 +146,6 @@ export default createMachine(
           wait: [
             {
               target: "available",
-              cond: "continueEditing",
             },
             {
               target: "complete",
@@ -154,7 +153,6 @@ export default createMachine(
           ],
         },
       },
-
       complete: {
         type: "final",
       },
@@ -164,8 +162,6 @@ export default createMachine(
         target: "available.checking",
         actions: ["clearModel"],
       },
-
-      // ---
     },
   },
   {
@@ -190,7 +186,14 @@ export default createMachine(
         model: undefined,
       }),
 
-      // ---
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+      }),
+
+      clearAutoUpdate: assign({
+        autoupdate: false,
+      }),
+
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
@@ -209,6 +212,9 @@ export default createMachine(
     guards: {
       isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
       continueEditing: ({ allowMultipleEdits }) => !!allowMultipleEdits,
+      shouldUpdate: ({ autoupdate }, _event) => {
+        return !!autoupdate;
+      },
     },
     delays: {
       error: () => useTime().ERROR,

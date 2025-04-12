@@ -10,7 +10,7 @@ import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 
 // --- utils
-import { find, filter, includes, isString } from "lodash-es";
+import { find, filter, includes, isString, every, get } from "lodash-es";
 
 // --- types
 import type { Phone } from "./types";
@@ -81,17 +81,30 @@ export const useClientPhones = () => {
 
   /**
    * Find a phone by a search parameter
-   * @param param The search parameter to use
+   * @param mapping The search parameter to use
    * @returns The phone if found or undefined.
    * @example findOne("123").then(phone => console.log(phone))
    */
-  function findOne(param: string) {
+  function findOne(mapping: string | Partial<Phone>) {
     const phones = getAllFromCache();
-    return find(
-      phones,
-      item =>
-        includes(item.title.toLowerCase(), param.toLowerCase()) ||
-        includes(item.description?.toLowerCase(), param.toLowerCase())
+    if (isString(mapping)) {
+      return find(
+        phones,
+        item =>
+          includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
+          includes(item.description?.toLowerCase(), mapping.toLowerCase())
+      );
+    }
+
+    return find(phones, item =>
+      every(mapping, (value, key) => {
+        if (key == "id") {
+          return item.id == value;
+        } else {
+          const modelValue = get(item, key);
+          return modelValue == value;
+        }
+      })
     );
   }
 

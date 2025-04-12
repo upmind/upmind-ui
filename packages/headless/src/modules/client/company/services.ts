@@ -234,12 +234,12 @@ export default {
 export const useClientCompanyServices = () => {
   return {
     loadLookups,
-    add: async (context: CompanyContext) => {
+    add: async (context: Partial<CompanyContext>) => {
       if (isEmpty(context.model))
         return Promise.reject("No company model provided");
       return add(context.model);
     },
-    update: async (context: CompanyContext) => {
+    update: async (context: Partial<CompanyContext>) => {
       if (!context.id) return Promise.reject("No company id provided");
       if (isEmpty(context.model))
         return Promise.reject("No company model provided");

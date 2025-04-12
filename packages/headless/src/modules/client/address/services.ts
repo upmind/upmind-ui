@@ -4,16 +4,7 @@ import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 // --- utils
 import { mapAddresses, mapIAddress } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import {
-  defaultsDeep,
-  find,
-  first,
-  get,
-  isEmpty,
-  isNil,
-  set,
-  some,
-} from "lodash-es";
+import { find, first, get, isEmpty, isNil, set, some } from "lodash-es";
 import {
   useValidation,
   useModelParser,
@@ -261,12 +252,12 @@ export default {
 export const useClientAddressServices = () => {
   return {
     loadLookups,
-    add: async (context: AddressContext) => {
+    add: async (context: Partial<AddressContext>) => {
       if (isEmpty(context.model))
         return Promise.reject("No address model provided");
       return add(context.model);
     },
-    update: async (context: AddressContext) => {
+    update: async (context: Partial<AddressContext>) => {
       if (!context.id) return Promise.reject("No address id provided");
       if (isEmpty(context.model))
         return Promise.reject("No address model provided");
