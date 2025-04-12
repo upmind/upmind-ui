@@ -1,30 +1,30 @@
 // --- external
 
 // --- internal
+import { useQuery, useClientAddresses, useClientCompanies } from "../../..";
 import { find, isEmpty } from "lodash-es";
-import { useQuery, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
 
 // --- types
-import type { BillingDetailsContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import type { BillingDetailsContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
-  const { isAuthenticated } = useSession();
+  const { getAll: getAddresses } = useClientAddresses();
+  const { getAll: getCompanies } = useClientCompanies();
 
-  await isAuthenticated().catch(error => Promise.reject(error));
+  const addresses = getAddresses({ allowStale: false });
+  const companies = getCompanies({ allowStale: false });
 
-  const { isReady, getItems } = useClientUnifiedAddresses();
-
-  return isReady().then(() => {
-    const addresses = getItems();
-
-    return { addresses };
-  });
+  return Promise.all([companies, addresses]).then(
+    ([companies, addresses]) => {
+      return [...companies, ...addresses];
+    } // we prioritise/return the companies first so they are at the top of the list
+  );
 }
 
 async function update(
@@ -60,7 +60,7 @@ async function parse(
   }
 
   // ---
-  // we dont have any parsing checks or transforms so we can pass through the model
+  // we don't have any parsing checks or transforms so we can pass through the model
   return Promise.resolve({ model });
 }
 
@@ -87,6 +87,6 @@ async function validate(
 export default {
   load,
   parse,
-  validate,
   update,
+  validate,
 };
