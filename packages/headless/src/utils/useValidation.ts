@@ -89,17 +89,17 @@ export const useValidationParser = (error: any) => {
   return error;
 };
 
-export const useModelParser = <T = object>(
+export const useModelParser = <T extends Record<string, any> = Record<string, any>>(
   schema: JsonSchema | undefined,
-  values?: T,
-  baseModel?: T,
+  values?: Partial<T>,
+  baseModel?: Partial<T>,
   {
     allowExtraProps,
   }: {
     allowExtraProps?: boolean;
   } = { allowExtraProps: true }
 ): T => {
-  if (!schema?.properties) return values ?? baseModel ?? ({} as T);
+  if (!schema?.properties) return (values ?? baseModel ?? {}) as T;
 
   const model = reduce(
     schema.properties,
@@ -109,7 +109,7 @@ export const useModelParser = <T = object>(
       set(result, key, value);
       return result;
     },
-    {}
+    {} as Record<string, any>
   );
   if (!allowExtraProps) return model as T;
 
