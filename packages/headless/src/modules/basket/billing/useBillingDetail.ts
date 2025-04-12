@@ -4,6 +4,7 @@ import { interpret } from "xstate";
 
 // --- internal
 import {
+  UnifiedAddressContext,
   useBillingDetailsActions,
   useBillingDetailsServices,
 } from "./unifiedAddress";
@@ -30,13 +31,13 @@ export const useBillingDetail = (
         services: useBillingDetailsServices() as any,
       })
       .withContext(() => {
-        if (!id) return { model: undefined };
+        if (!id) return { model: undefined } as Partial<UnifiedAddressContext>;
         const { getOne } = useBillingDetails();
         return {
           id,
           model: getOne(id),
           allowMultipleEdits,
-        };
+        } as Partial<UnifiedAddressContext>;
       }),
     {
       id: id ?? "new-billing-detail",
