@@ -112,7 +112,7 @@ export function parseData(data: any) {
  */
 export const invalidateQueryByKey =
   (queryKey: QueryKey) =>
-  async <T>(data: T) => {
+  async <T = any>(data: T) => {
     const { queryClient } = useQuery();
     return queryClient.invalidateQueries({ queryKey }).then(() => data);
   };
