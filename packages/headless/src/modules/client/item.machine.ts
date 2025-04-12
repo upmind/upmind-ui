@@ -1,17 +1,17 @@
 // --- external
-import { createMachine, assign, log } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- utils
+import { responseCodes } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { ClientItemContext } from "./types";
-import { responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
-export default createMachine(
+export default createMachine<ClientItemContext>(
   {
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
     id: "clientManager",
@@ -195,7 +195,7 @@ export default createMachine(
       }),
 
       setError: assign({
-        error: (_context, { data }: AnyEventObject) => {
+        error: (_context: ClientItemContext, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
