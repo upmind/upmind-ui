@@ -22,6 +22,7 @@ import { responseCodes } from "../../utils";
 import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
 export * from "./types";
+export * from "./billing";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
