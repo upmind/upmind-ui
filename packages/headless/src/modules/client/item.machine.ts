@@ -67,7 +67,11 @@ export default createMachine<ClientItemContext>(
           },
           valid: {
             id: "valid",
-            always: { target: "processing", cond: "shouldUpdate" },
+            // TODO: allow auto update (we should create a new condition)
+            // always: [
+            //   { target: "#processing.adding", cond: "isNew" },
+            //   { target: "#processing.updating", cond: "shouldUpdate" },
+            // ],
             on: {
               SET: {
                 target: "checking",
