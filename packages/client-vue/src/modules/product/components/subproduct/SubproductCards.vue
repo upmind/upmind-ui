@@ -66,8 +66,8 @@ import type {
   CheckboxCardsItemProps,
 } from "@upmind-automation/upmind-ui";
 import type {
-  SubproductOption,
-  SubProductOptionValue,
+  SubproductDetails,
+  SubproductValue,
 } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ import type {
 const emit = defineEmits(["update:modelValue", "update:quantity"]);
 
 const props = defineProps<{
-  subproduct: SubproductOption;
+  subproduct: SubproductDetails;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
   errors?: string;
@@ -147,11 +147,11 @@ const parsedValues = computed(() => {
   return values;
 });
 
-function getSubproductValue(value: string): SubProductOptionValue {
+function getSubproductValue(value: string): SubproductValue {
   const product = find(props.subproduct?.values, [
     "id",
     value,
-  ]) as SubProductOptionValue;
+  ]) as SubproductValue;
 
   return {
     ...product,

@@ -10,13 +10,13 @@ import { basketSubscription } from "../basketProduct/helper";
 import { responseCodes } from "../../utils";
 import { useTime, compactDeep, useValidationParser } from "../../utils";
 import {
-  parseSubproduct,
+  parseSubproductDetails,
   parseProvisioningSchema,
-  parseProduct,
-  parseTerms,
+  parseProductDetails,
+  parseTermDetails,
   parseModel,
   parseBasketProductModel,
-  parseSummary,
+  parseProduct,
   useUischemaTitle,
   useProductName,
 } from "./utils";
@@ -54,6 +54,7 @@ import type {
   ProductModel,
   ProductSummaryDetailWithPrice,
 } from "./types";
+import { parseBasketProduct } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -86,7 +87,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups", "setTitle"],
+              actions: ["setLookups"],
             },
           ],
           onError: {
@@ -104,7 +105,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups", "setTitle"],
+              actions: ["setLookups"],
             },
           ],
           onError: {
@@ -163,7 +164,7 @@ export default createMachine(
                           target: ["valid"],
                           actions: [
                             "setTerm",
-                            "setSummaryCalculating",
+                            "setProductCalculating",
                             "calculate",
                             raise("CHECK.OPTIONS"),
                           ],
@@ -174,7 +175,7 @@ export default createMachine(
                           target: "valid",
                           actions: [
                             "setTerm",
-                            "setSummary",
+                            "setProduct",
                             raise("CHECK.OPTIONS"),
                           ],
                         },
@@ -185,14 +186,14 @@ export default createMachine(
                           actions: [
                             "setTerm",
                             "setError",
-                            "setSummaryCalculating",
+                            "setProductCalculating",
                             "calculate",
                           ],
                           cond: "needsCalculating",
                         },
                         {
                           target: "invalid",
-                          actions: ["setTerm", "setSummary", "setError"],
+                          actions: ["setTerm", "setProduct", "setError"],
                         },
                       ],
                     },
@@ -216,11 +217,11 @@ export default createMachine(
                       src: "checkAttributes",
                       onDone: {
                         target: "valid",
-                        actions: ["setAttributes", "setSummary"],
+                        actions: ["setAttributes", "setProduct"],
                       },
                       onError: {
                         target: "invalid",
-                        actions: ["setAttributes", "setSummary", "setError"],
+                        actions: ["setAttributes", "setProduct", "setError"],
                       },
                     },
                   },
@@ -246,14 +247,14 @@ export default createMachine(
                           target: "valid",
                           actions: [
                             "setOptions",
-                            "setSummaryCalculating",
+                            "setProductCalculating",
                             "calculate",
                           ],
                           cond: "needsCalculating",
                         },
                         {
                           target: "valid",
-                          actions: ["setOptions", "setSummary"],
+                          actions: ["setOptions", "setProduct"],
                         },
                       ],
                       onError: [
@@ -262,14 +263,14 @@ export default createMachine(
                           actions: [
                             "setOptions",
                             "setError",
-                            "setSummaryCalculating",
+                            "setProductCalculating",
                             "calculate",
                           ],
                           cond: "needsCalculating",
                         },
                         {
                           target: "invalid",
-                          actions: ["setOptions", "setSummary", "setError"],
+                          actions: ["setOptions", "setProduct", "setError"],
                         },
                       ],
                     },
@@ -291,11 +292,11 @@ export default createMachine(
                       src: "checkProvisioning",
                       onDone: {
                         target: "valid",
-                        actions: ["setProvisioning", "setSummary"],
+                        actions: ["setProvisioning", "setProduct"],
                       },
                       onError: {
                         target: "invalid",
-                        actions: ["setProvisioning", "setSummary", "setError"],
+                        actions: ["setProvisioning", "setProduct", "setError"],
                       },
                     },
                   },
@@ -383,7 +384,7 @@ export default createMachine(
           },
           CALCULATED: [
             {
-              actions: ["clearSummaryCalculating", "setSummary"],
+              actions: ["clearSummaryCalculating", "setProduct"],
               cond: "hasSummaryData",
             },
             {
@@ -548,7 +549,7 @@ export default createMachine(
           lookups ??= {};
 
           if (rawProduct) {
-            lookups.product = parseProduct(rawProduct);
+            lookups.product = parseProductDetails(rawProduct);
           }
 
           if (rawBasketProduct && rawBasketProduct != basket_product) {
@@ -577,7 +578,6 @@ export default createMachine(
               : cloneDeep(model),
             errorExternal,
             error: merge({}, errorExternal, error),
-            prices: undefined, // they need to be recalculated
             lookups,
           };
 
@@ -608,14 +608,17 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           return {
-            product: parseProduct(data.product),
-            terms: parseTerms(data.product.prices, data.promotionDisplayType),
-            options: parseSubproduct(
+            product: parseProductDetails(data.product),
+            terms: parseTermDetails(
+              data.product.prices,
+              data.promotionDisplayType
+            ),
+            options: parseSubproductDetails(
               data.product.products_options,
               data?.promotionDisplayType,
               model?.term
             ),
-            attributes: parseSubproduct(
+            attributes: parseSubproductDetails(
               data.product.products_attributes,
               data?.promotionDisplayType
             ),
@@ -625,20 +628,6 @@ export default createMachine(
             ),
           };
         },
-      }),
-
-      setTitle: assign({
-        title: (
-          { rawProduct, rawBasketProduct }: ProductConfigContext,
-          _event
-        ) =>
-          rawProduct
-            ? useUischemaTitle(rawProduct, {
-                basketProduct: rawBasketProduct,
-                valueKey: "meta.uischema.title",
-                fallback: useProductName(rawProduct, rawBasketProduct),
-              })
-            : "",
       }),
 
       persistModel: assign({
@@ -661,23 +650,21 @@ export default createMachine(
 
       // ---
 
-      setSummary: assign({
-        summary: (
+      setProduct: assign({
+        product: (
           {
             model,
             lookups,
             error,
-            summary,
-            rawProduct,
+            product,
             rawBasketProduct,
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          const fallback = first(
-            summary?.pricing
-          ) as ProductSummaryDetailWithPrice;
+          const fallback = product?.price;
 
-          const values: PriceDisplay = {
+          // parse new pricing data ( if provided ) with fallbacks
+          const price: PriceDisplay = {
             regularAmount: data?.total ? data.total : fallback?.regularAmount,
             regularPrice: data?.total
               ? data?.totalFormatted
@@ -686,35 +673,33 @@ export default createMachine(
             currentPrice: data?.total
               ? data.totalFormatted
               : fallback?.currentPrice,
-            savingAmount: data?.total ? 0 : fallback?.savingAmount,
-            savingPrice: data?.total ? "" : fallback?.savingPrice,
-            savingPercent: data?.total ? "" : fallback?.savingPercent,
+            savingAmount: data?.total ? 0 : (fallback?.savingAmount ?? 0),
+            savingPrice: data?.total ? "" : (fallback?.savingPrice ?? ""),
+            savingPercent: data?.total ? "" : (fallback?.savingPercent ?? ""),
           };
 
-          const parsedSummary = parseSummary(values, {
+          return parseProduct(price, {
             model,
             lookups,
             error,
-            rawProduct,
-            rawBasketProduct,
           });
-
-          return parsedSummary;
         },
       }),
 
-      setSummaryCalculating: assign({
-        prices: ({ prices }: ProductConfigContext, _event) => {
-          prices ??= {};
-          set(prices, "calculating", true);
-          return prices;
+      setProductCalculating: assign({
+        lookups: ({ lookups }: ProductConfigContext, _event) => {
+          lookups ??= {};
+          lookups.prices ??= {};
+          set(lookups.prices, "calculating", true);
+          return lookups;
         },
       }),
       clearSummaryCalculating: assign({
-        prices: ({ prices }: ProductConfigContext, _event) => {
-          prices ??= {};
-          set(prices, "calculating", false);
-          return prices;
+        lookups: ({ lookups }: ProductConfigContext, _event) => {
+          lookups ??= {};
+          lookups.prices ??= {};
+          set(lookups.prices, "calculating", false);
+          return lookups;
         },
       }),
 
@@ -725,12 +710,9 @@ export default createMachine(
           }
           return calculateCallback;
         },
-        (
-          { currencyId, prices, model, lookups }: ProductConfigContext,
-          _event
-        ) => ({
+        ({ currencyId, model, lookups }: ProductConfigContext, _event) => ({
           type: "CALCULATE",
-          data: { currencyId, prices, model, lookups },
+          data: { currencyId, model, lookups },
         })
       ),
 
@@ -754,24 +736,22 @@ export default createMachine(
           }
           return model;
         },
-        lookups: ({ lookups, rawProduct, model }, _event: AnyEventObject) => {
+        lookups: ({ lookups, rawProduct, model }, { data }: AnyEventObject) => {
           // reset the lookup options options based on the term selected,
           //  as this may impact what price and options are available
           lookups ??= {};
-          lookups.options = parseSubproduct(
+          lookups.options = parseSubproductDetails(
             rawProduct?.products_options,
             // @ts-ignore this is added by the setLookups action
             rawProduct?.promotionDisplayType,
             model?.term
           );
+
+          lookups.prices ??= {};
+          const prices = lookups?.prices;
+          if (!data?.price) return lookups;
+          lookups.prices = { ...prices, term: data.price };
           return lookups;
-        },
-        prices: (
-          { prices }: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => {
-          if (!data?.price) return prices;
-          return { ...prices, term: data.price };
         },
       }),
 
@@ -783,12 +763,16 @@ export default createMachine(
           }
           return model;
         },
-        prices: (
-          { prices }: ProductConfigContext,
+        lookups: (
+          { lookups }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          if (!data?.price) return prices;
-          return { ...prices, attributes: data.price };
+          lookups ??= {};
+          lookups.prices ??= {};
+          const prices = lookups?.prices;
+          if (!data?.price) return lookups;
+          lookups.prices = { ...prices, attributes: data.price };
+          return lookups;
         },
       }),
 
@@ -800,12 +784,16 @@ export default createMachine(
           }
           return model;
         },
-        prices: (
-          { prices }: ProductConfigContext,
+        lookups: (
+          { lookups }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          if (!data?.price) return prices;
-          return { ...prices, options: data.price };
+          lookups ??= {};
+          lookups.prices ??= {};
+          const prices = lookups?.prices;
+          if (!data?.price) return lookups;
+          lookups.prices = { ...prices, options: data.price };
+          return lookups;
         },
       }),
 
@@ -927,7 +915,7 @@ export default createMachine(
       },
 
       needsCalculating: (
-        { prices, summary }: ProductConfigContext,
+        { lookups, product }: ProductConfigContext,
         { data }: AnyEventObject
       ) => {
         // work out which property we need to compare
@@ -936,12 +924,13 @@ export default createMachine(
         prop ??= has(data, "options") ? "options" : null;
         prop ??= has(data, "attributes") ? "attributes" : null;
 
-        if (!prop) return false;
+        // safeguard: bail if we dont have a "summary" or a matching property to calculate
+        if (!prop || !product) return false;
 
         const newPrice = compact(get(data, "price", []));
-        const oldPrice = compact(get(prices, prop, []));
+        const oldPrice = compact(get(lookups?.prices, prop, []));
 
-        const value = !summary || !prop || !isEqual(oldPrice, newPrice);
+        const value = !isEqual(oldPrice, newPrice);
 
         // console.debug("productConfig", "needsCalculating", value, {
         //   prop,

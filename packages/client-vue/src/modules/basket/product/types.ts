@@ -1,7 +1,6 @@
 import type {
   BasketProduct,
-  BasketProductSummaryDetail,
-  BasketProductSummaryPrice,
+  ProductSummaryDetailWithPrice,
 } from "@upmind-automation/headless-vue";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
@@ -14,8 +13,9 @@ export interface BasketProductProps extends BasketProduct {
 
 export interface BasketProductActionsProps {
   id: string;
+  details: BasketProduct["details"]; // any[]
+  // ---
   open: boolean;
-  details: any[];
   disabled: boolean;
   editLink: RouteLocationRaw;
   color?: ButtonProps["color"];
@@ -23,8 +23,10 @@ export interface BasketProductActionsProps {
 
 export interface BasketProductSummaryProps {
   id: BasketProduct["id"];
-  pricing: BasketProductSummaryPrice;
-  product: BasketProduct["product"];
+  price: ProductSummaryDetailWithPrice;
+  productDetails: BasketProduct["productDetails"];
+  quantity: BasketProduct["configuration"]["quantity"];
+  // ---
   error: boolean;
   primary: boolean;
   processing: boolean;
@@ -34,7 +36,7 @@ export interface BasketProductSummaryProps {
 
 export interface BasketProductConfigDetailsProps {
   id: string;
-  details: (BasketProductSummaryPrice | BasketProductSummaryDetail)[];
+  details: BasketProduct["details"];
 }
 
 export interface BasketProductCardsProps {

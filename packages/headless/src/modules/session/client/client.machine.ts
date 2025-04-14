@@ -3,7 +3,7 @@ import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import { useI18n } from "../../system/i18n/useI18n";
+import { useSystemI18n } from "../../system/i18n/useSystemI18n";
 import services from "./services";
 
 import type { ClientContext } from "./types";
@@ -136,7 +136,7 @@ export default createMachine(
       setLocale: ({ user }) => {
         if (!user) return;
         const locale = user.locale;
-        useI18n().setLocale(locale);
+        useSystemI18n().setLocale(locale);
       },
 
       setTransfer: assign({

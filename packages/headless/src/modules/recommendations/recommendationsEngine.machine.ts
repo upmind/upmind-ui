@@ -47,6 +47,7 @@ import {
 import type { AnyEventObject } from "xstate";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
+import type { ProductModel } from "../product";
 import type { RecommendationsEngineContext, Recommendation } from "./types";
 
 // ---
@@ -227,12 +228,15 @@ export default createMachine(
           parseProductModel: (
             recommendation: Recommendation,
             products: IBasketProduct
-          ) => {
-            if (!recommendation?.config && !recommendation.config?.productId)
-              return null;
+          ): ProductModel | undefined => {
+            if (
+              !recommendation?.configuration &&
+              !recommendation.configuration?.productId
+            )
+              return undefined;
 
-            recommendation.config.provisionFields = mapValues(
-              recommendation.config?.provisionFields ?? {},
+            recommendation.configuration.provisionFields = mapValues(
+              recommendation.configuration?.provisionFields ?? {},
               (value: any) => {
                 // get any dynamic properties that we need to resolve
                 const dynamicProperty: string = first(
@@ -249,11 +253,11 @@ export default createMachine(
                 return value;
               }
             );
-            return recommendation.config;
+            return recommendation.configuration;
           },
 
           parseBasketProductComparison: (item: BasketProduct) => ({
-            productId: item.productId,
+            productId: item.configuration.productId,
           }),
         };
       }),

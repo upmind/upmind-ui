@@ -1,5 +1,5 @@
 // --- internal
-import { useBasket, useI18n } from "../..";
+import { useBasket, useSystemI18n } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
@@ -18,8 +18,8 @@ import {
 // --- types
 import { IBasket, IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../../basketProduct";
-import type { ProductSummary as Product } from "../../product";
-import { mapBasketProduct, mapIBasketProduct, mapProduct } from "./utils";
+import type { Product } from "../../product";
+import { mapIBasketProduct, mapBasketProduct } from "./utils";
 import {
   DataLayerEcommerce,
   DataLayerEcommerceItems,
@@ -71,7 +71,7 @@ class TrackingEvent {
   }
 
   withPage(router?: PageRoute): TrackingEvent {
-    const { getLocale } = useI18n();
+    const { getLocale } = useSystemI18n();
     const { getPOP } = usePOP();
 
     const locale = getLocale();
@@ -197,7 +197,7 @@ class TrackingEvent {
   //     value: sumBy(safeItems, "summary.configuration.subtotal"),
   //     gross_value: sumBy(safeItems, "summary.configuration.total"),
   //     // --- invoice specific data
-  //     items: map(safeItems, mapProduct) as DataLayerEcommerceItem[],
+  //     items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
   //   };
 
   //   set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -226,14 +226,12 @@ class TrackingEvent {
       throw new Error("No Basket available");
     }
 
-    const mapper = some(safeItems, "product") ? mapBasketProduct : mapProduct;
-
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
       currency: basket.currency.code,
       value: sumBy(safeItems, "summary.configuration.subtotal"),
       gross_value: sumBy(safeItems, "summary.configuration.total"),
-      items: map(safeItems, mapper) as unknown as DataLayerEcommerceItem[],
+      items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
     };
 
     debugger;

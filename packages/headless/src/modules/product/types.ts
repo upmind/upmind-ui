@@ -67,57 +67,8 @@ export type PriceDetail = PriceDisplay & {
 
 // -----------------------------------------------------------------------------
 
-export interface ProductConfigContext {
-  id: string;
-  clientId?: IClient["id"];
-  currencyId?: ICurrency["id"];
-  promotions?: IBasketPromotion[];
-  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
-  subproducts?: string[];
-  // ---
-  baseModel?: ProductModel;
-  model?: ProductModel;
-  // ---
-  title?: string; // computed name of the product
-  // description?: string; // computed description of the product
-  // ---
-  lookups?: {
-    product?: ProductDetails;
-    terms?: TermDetails[];
-    options?: SubproductDetails[];
-    attributes?: SubproductDetails[];
-    provisionFields?: Record<string, any>;
-    prices?: {
-      calculating?: boolean;
-      term?: number[];
-      attributes?: number[];
-      options?: number[];
-    };
-  };
-  // ---
-  summary?: ProductSummary;
-  meta?: UIMeta;
-  // ---
-  calculateCallback?: ActorRef<any>;
-  error?: any;
-  errorExternal?: any;
-  // ---
-  rawProduct?: IProduct;
-  rawBasketProduct?: IBasketProduct;
-  // ---
-  basketId?: string;
-  basketHelper?: ActorRef<any>;
-  parseBasketProduct?: (item: ProductModel) => ProductModel;
-  parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
-}
-
-export type ProductSummary = PriceDetail & {
-  details: (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
-  pricing: ProductSummaryDetailWithPrice[];
-};
-
 /**
- * Represents a product with its configuration, pricing, and associated details.
+ * Represents a "configured" product with its configuration, pricing, and associated details.
  */
 export type Product = {
   /**
@@ -128,12 +79,17 @@ export type Product = {
   /**
    * The model of the product, this contains the configuration settings/values to be used for editing purposes
    */
-  model: ProductModel;
+  configuration: ProductModel;
 
   /**
-   * The detailed information about the actial product. This wil lcontain al lthe product details such as title, description etc
+   * The detailed information about the actial product. This will contain all the product details such as title, description etc
    */
-  product: ProductDetails;
+  productDetails: ProductDetails;
+
+  /**
+   * The promotions that are currently applied to the product.
+   */
+  promotions?: PromotionDetails[];
 
   /**
    * The display price details for the product. This is the total configured pricing including any discounts or adjustments.
@@ -185,6 +141,9 @@ export type Product = {
   };
 };
 
+/**
+ * Represents the actual store product being configured.
+ */
 export type ProductDetails = {
   id: string;
   title: string;
@@ -207,86 +166,10 @@ export type ProductDetails = {
   uiCategoryMeta?: Record<string, any>;
 };
 
-export type ProductSummaryMeta = {
-  oneoff?: boolean;
-  quantifiable?: boolean;
-  discounted?: boolean;
-  free?: boolean;
-  invalid?: boolean;
-  overrides?: boolean;
-  mixed?: boolean;
-  includes?: boolean;
-  available?: boolean;
-  includesTax?: boolean;
-};
-
-export type ProductSummaryDetail = {
-  name?: string;
-  category?: string;
-  title: string;
-  cycle?: number;
-  quantity?: number;
-  promotions?: Promotion[];
-  meta?: ProductSummaryMeta;
-};
-
-export type ProductSummaryDetailWithPrice = ProductSummaryDetail & PriceDetail;
-
-export type TermDetails = ProductSummaryDetailWithPrice & {
-  monthlyFromCurrentAmount?: number;
-  monthlyFromCurrentPrice?: string;
-  monthlyFromRegularAmount?: number;
-  monthlyFromRegularPrice?: string;
-};
-
-export type SubproductDetails = {
-  id: string;
-  title: string;
-  name?: string;
-  category?: string;
-  description?: string;
-  excerpt?: string;
-  multiple: boolean;
-  required: boolean;
-  priceOverride: boolean;
-  uiMeta?: Record<string, any>;
-  uiCategoryMeta?: Record<string, any>;
-  values?: SubProductValue[];
-};
-
-export type SubProductValue = ProductDetails & {
-  id: string;
-  order: number;
-  default: boolean;
-  // ---
-  meta: ProductSummaryMeta;
-  // ---
-  price?: PriceDetail;
-  pricing?: ProductSummaryDetailWithPrice[];
-};
-
-export type Promotion = {
-  title?: string;
-  description?: string;
-  excerpt?: string;
-  savingAmount: number;
-  savingPrice: string;
-  savingPercent: string;
-  code: string | string[];
-  meta?: {
-    display?: PromotionDisplayTypes;
-    mixed?: boolean;
-    discounted?: boolean;
-  };
-};
-
-export interface ProductProps extends ProductModel {
-  subproducts?: string[];
-  currencyId?: string;
-  promotions?: IBasketPromotion[];
-  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
-}
-
+/**
+ * Represents the product model used for configuration.
+ * This is the model that is built and verified by the schema
+ */
 export type ProductModel = {
   id?: string;
   productId: string;
@@ -314,6 +197,103 @@ export type PromotionModel = {
   code: string;
 };
 
+// The props required to create a product configuration
+export interface ProductProps extends ProductModel {
+  currencyId?: ICurrency["id"];
+  clientId?: IClient["id"];
+  promotions?: IBasketPromotion[];
+  coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
+  subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
+}
+
+// syntax sugar for product summary
+export type ProductSummary = {
+  price: Product["price"];
+  pricing: Product["pricing"];
+  details: Product["details"];
+};
+
+export type ProductSummaryMeta = {
+  oneoff?: boolean;
+  quantifiable?: boolean;
+  discounted?: boolean;
+  free?: boolean;
+  invalid?: boolean;
+  overrides?: boolean;
+  mixed?: boolean;
+  includes?: boolean;
+  available?: boolean;
+  includesTax?: boolean;
+  default?: boolean;
+};
+
+export type ProductSummaryDetail = {
+  name: string; // untranslated name for reporting purposes  category?: string;
+  title: string;
+  cycle?: number;
+  category?: string;
+  quantity?: number;
+  promotions?: PromotionDetails[];
+  meta?: ProductSummaryMeta;
+};
+
+export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
+  price: PriceDetail;
+};
+
+export type TermDetails = ProductSummaryDetail & {
+  price: PriceDetail & {
+    monthlyFromCurrentAmount?: number;
+    monthlyFromCurrentPrice?: string;
+    monthlyFromRegularAmount?: number;
+    monthlyFromRegularPrice?: string;
+  };
+};
+
+export type SubproductDetails = {
+  id: string;
+  name: string; // untranslated name for reporting purposes  category?: string;
+  title: string;
+  description?: string;
+  excerpt?: string;
+  uiMeta?: Record<string, any>;
+  uiCategoryMeta?: Record<string, any>;
+  // ---
+  meta?: {
+    multiple?: boolean;
+    required?: boolean;
+    overrides?: boolean;
+  };
+  // ---
+  values?: SubproductValue[];
+};
+
+export type SubproductValue = ProductDetails & {
+  meta: ProductSummaryMeta;
+  price?: PriceDetail;
+  pricing?: ProductSummaryDetailWithPrice[];
+  order: number;
+};
+
+export type PromotionDetails = {
+  name: string; // untranslated name for reporting purposes  category?: string;
+  title: string;
+  description?: string;
+  excerpt?: string;
+  code: string | string[];
+  //  ---
+  meta?: {
+    display?: PromotionDisplayTypes;
+    mixed?: boolean;
+    discounted?: boolean;
+  };
+  price?: {
+    savingAmount: PriceDetail["savingAmount"];
+    savingPrice: PriceDetail["savingPrice"];
+    savingPercent: PriceDetail["savingPercent"];
+  };
+};
+
 export interface UIMeta {
   ui?: UIConfig;
   uischema?: UISchema;
@@ -330,4 +310,46 @@ export interface UISchema {
   billing?: {
     control?: string;
   };
+}
+// -----------------------------------------------------------------------------
+
+export interface ProductConfigContext {
+  id: string;
+  clientId?: ProductProps["clientId"];
+  currencyId?: ProductProps["currencyId"];
+  promotions?: ProductProps["promotions"];
+  coupons?: ProductProps["coupons"];
+  subproducts?: ProductProps["subproducts"];
+  // ---
+  baseModel?: ProductModel;
+  model?: ProductModel;
+  // ---
+  lookups?: {
+    product?: ProductDetails;
+    terms?: TermDetails[];
+    options?: SubproductDetails[];
+    attributes?: SubproductDetails[];
+    provisionFields?: Record<string, any>;
+    prices?: {
+      calculating?: boolean;
+      term?: number[];
+      attributes?: number[];
+      options?: number[];
+    };
+  };
+  // ---
+  product?: Product;
+  meta?: UIMeta;
+  // ---
+  calculateCallback?: ActorRef<any>;
+  error?: any;
+  errorExternal?: any;
+  // ---
+  rawProduct?: IProduct;
+  rawBasketProduct?: IBasketProduct;
+  // ---
+  basketId?: string;
+  basketHelper?: ActorRef<any>;
+  parseBasketProduct?: (item: ProductModel) => ProductModel;
+  parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
 }

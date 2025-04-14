@@ -3,7 +3,7 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { useI18n } from "../system";
+import { useSystemI18n } from "../system";
 import { querySubscription } from "../query";
 
 // --- utils
@@ -275,7 +275,7 @@ export default createMachine(
         { initialised }: BrandContext,
         _event: AnyEventObject
       ) => {
-        if (!initialised) useI18n().setDefaultLocale();
+        if (!initialised) useSystemI18n().setDefaultLocale();
       },
 
       setModules: assign({

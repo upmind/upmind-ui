@@ -8,7 +8,7 @@ import type { ProductModel, Product } from "../product";
 export interface BasketHelperContext<T = unknown> {
   [key: string]: any;
   // Converts a basket product to an unknown Typem eg: From BasketProduct to DomainProduct
-  parseBasketProduct: (product: IBasketProduct) => T | undefined;
+  parseBasketProduct: (product: IBasketProduct, context?: any) => T | undefined;
   //  Converts an unknown model into the correct product model to be added to the basket
   parseProductModel: (model: T) => ProductModel | undefined;
 
@@ -29,25 +29,19 @@ export interface BasketProduct extends Product {
   serviceIdentifier?: string;
 }
 
-export interface IBasketProductModel {
-  product_id: string;
-  quantity: number;
-  billing_cycle_months: number;
-}
-
-export interface IBasketSubProductModel {
+export interface IBasketSubproductModel {
   product_id: string;
   unit_quantity: number;
   billing_cycle_months: number;
 }
 
-export interface IBasketProductData extends IBasketProductModel {
+export interface IBasketProductModel {
   product_id: string;
   quantity: number;
   billing_cycle_months: number;
   // ---
-  attributes?: IBasketSubProductModel[];
-  options?: IBasketSubProductModel[];
+  attributes?: IBasketSubproductModel[];
+  options?: IBasketSubproductModel[];
   provision_field_values?: Record<string, any>;
   promotions?: { promocode: string }[];
 }

@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 // --- internal
 // import type { ImageObjectTypes } from "@upmind-automation/headless";
-import { useI18n as useHeadlessI18n } from "@upmind-automation/headless";
+import { useSystemI18n as useHeadlessI18n } from "@upmind-automation/headless";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -11,7 +11,7 @@ import { isEmpty } from "lodash-es";
 // --- types
 // -----------------------------------------------------------------------------
 
-export const useI18n = () => {
+export const useSystemI18n = () => {
   const { getLocale, setLocale, getSupportedlocales, isReady } =
     useHeadlessI18n();
 

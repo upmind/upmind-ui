@@ -48,17 +48,12 @@ import { useI18n } from "vue-i18n";
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type {
-  BasketProductSummaryPrice,
-  BasketProductSummaryDetail,
-} from "@upmind-automation/headless-vue";
+import type { Product } from "@upmind-automation/headless-vue";
 import { has } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<
-  BasketProductSummaryPrice | (BasketProductSummaryDetail & {})
->();
+const props = defineProps<Product["details"]>();
 
 const { t } = useI18n();
 

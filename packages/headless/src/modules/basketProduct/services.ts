@@ -1,7 +1,6 @@
 // --- external
 
 // --- internal
-import type { BasketProduct, Product, ProductModel } from "../..";
 import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
@@ -24,6 +23,8 @@ import { ActorRef } from "xstate";
 import { IBasket } from "@upmind-automation/types";
 
 // --- types
+import type { ProductDetails, ProductModel } from "../product";
+import type { BasketProduct } from "../basketProduct";
 
 // -----------------------------------------------------------------------------
 
@@ -260,16 +261,16 @@ async function updateQuantity(
 ): Promise<IBasket> {
   // sanity check
   if (!basketId) return Promise.reject("No basket provided/available");
-  if (!basketProduct.product) return Promise.reject("Product not found");
-  if (!basketProduct.product?.quantifiable)
+  if (!basketProduct.productDetails) return Promise.reject("Product not found");
+  if (!basketProduct.productDetails?.quantifiable)
     return Promise.reject("Product not quantifiable");
   // ---
   const { put, useUrl } = useQuery();
-  basketProduct.quantity = parseQuantity(
+  basketProduct.configuration.quantity = parseQuantity(
     data,
-    basketProduct.product as Product
+    basketProduct.productDetails as ProductDetails
   );
-  const product = parseBasketProductData(basketProduct);
+  const product = parseBasketProductData(basketProduct.configuration);
   return put({
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
