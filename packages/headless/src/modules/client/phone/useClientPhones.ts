@@ -10,7 +10,15 @@ import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 
 // --- utils
-import { find, filter, includes, isString, every, get } from "lodash-es";
+import {
+  find,
+  filter,
+  includes,
+  isString,
+  every,
+  get,
+  isEqual,
+} from "lodash-es";
 
 // --- types
 import type { Phone } from "./types";
@@ -102,7 +110,7 @@ export const useClientPhones = () => {
           return item.id == value;
         } else {
           const modelValue = get(item, key);
-          return modelValue == value;
+          return isEqual(modelValue, value);
         }
       })
     );
@@ -136,7 +144,7 @@ export const useClientPhones = () => {
         includes(item.title.toLowerCase(), param.toLowerCase()) ||
         (item.description &&
           includes(item?.description.toLowerCase(), param.toLowerCase())) ||
-        includes(item.phone.country.toUpperCase(), param.toUpperCase())
+        includes(item.phone?.number?.toUpperCase(), param.toUpperCase())
     );
   }
 

@@ -29,10 +29,10 @@ export interface Phone {
   title: string;
   description?: string;
   phone: {
-    number: IPhone["phone"];
-    nationalNumber: IPhone["phone"];
-    countryCallingCode: IPhone["phone_code"];
-    country: IPhone["phone_country_code"];
+    number?: string;
+    country?: string;
+    nationalNumber?: string;
+    countryCallingCode?: string;
   };
   type: IPhone["type"];
   meta: {

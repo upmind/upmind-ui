@@ -92,7 +92,6 @@ export const useClientPhone = (
           )
             .then(state => {
               if (["error", "available.error"].some(state.matches)) {
-                debugger;
                 return Promise.reject(state.context.error);
               }
               return Promise.resolve();
@@ -100,7 +99,6 @@ export const useClientPhone = (
             .then(() => useClientPhoneServices().refresh());
         })
         .catch(error => {
-          debugger;
           return Promise.reject(
             new DetailedError(
               error ?? "Update only available if model is valid",
