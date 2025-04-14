@@ -11,7 +11,7 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { get, set, isEmpty, isNil, defaultsDeep } from "lodash-es";
+import { get, set, isEmpty, isNil } from "lodash-es";
 import { mapCompanies, mapICompany } from "./mappers";
 
 // --- types
@@ -64,7 +64,7 @@ async function loadPaged(
       set(response, "data", mapCompanies(response?.data ?? [])),
     revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => mapCompanies(data ?? []));
+  }).then(({ data }) => data);
 }
 
 function loadAllFromCache() {

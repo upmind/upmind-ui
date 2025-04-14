@@ -6,7 +6,7 @@ import { useSchema, useUischema } from "./schemas";
 
 // --- utils
 import { useModelParser } from "../../../utils";
-import { get, compact, isObject } from "lodash-es";
+import { get, compact, isObject, toString } from "lodash-es";
 
 // --- types
 import type { PhoneContext } from "./types";
@@ -23,9 +23,11 @@ export const useClientPhoneActions = () => {
         return get(model, "international_phone");
       },
       description: ({ model, country, types }: PhoneContext) => {
-        let type = get(model, "type");
-        type = get(types, type);
-        return compact([get(country, "name"), type?.value]).join(" | ");
+        let typeKey = get(model, "type");
+        // Convert type to string before using it as a path
+        const typeStr = toString(typeKey);
+        const typeObj = types ? get(types, typeStr) : undefined;
+        return compact([get(country, "name"), typeObj?.value]).join(" | ");
       },
     }),
 
