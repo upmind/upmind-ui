@@ -22,17 +22,21 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
+import {
+  UpmCard,
+  UpmForm,
+  UpmContentSection,
+} from "@upmind-automation/client-vue";
 import { debounce } from "lodash-es";
+import { useRoute, useRouter } from "vue-router";
 
 import {
-  UpmForm,
   useBasketBillingDetail,
+  useBasketBillingDetails,
   type UnifiedAddressModel,
 } from "@upmind-automation/headless-vue";
 
-const { isReady, getAll } = useBasketBillingDetail();
+const { isReady, getAll } = useBasketBillingDetails();
 await isReady()
   .then(() => getAll())
   .catch(() => router.push({ name: "basket.billing" }));

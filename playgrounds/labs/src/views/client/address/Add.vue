@@ -22,16 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
-import { debounce } from "lodash-es";
-
 import {
   UpmForm,
+  UpmCard,
+  UpmContentSection,
   useClientAddress,
   useClientAddresses,
   type AddressModel,
 } from "@upmind-automation/client-vue";
+import { useRouter } from "vue-router";
 
 const { isReady } = useClientAddresses();
 await isReady().catch(() => router.push({ name: "client.addresses" }));

@@ -11,7 +11,7 @@
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
-        @update:modelValue="doInput"
+        @update:modelValue="data => input(data as UnifiedAddressModel)"
         @resolve="doUpdate"
         @reject="doCancel"
       />
@@ -22,29 +22,24 @@
 </template>
 
 <script setup lang="ts">
+import {
+  UpmForm,
+  UpmCard,
+  UpmContentSection,
+  useBasketBillingDetail,
+  useBasketBillingDetails,
+  type UnifiedAddressModel,
+} from "@upmind-automation/client-vue";
 import { useRouter } from "vue-router";
 
-import {
-  UpmCard,
-  UpmForm,
-  UpmContentSection,
-} from "@upmind-automation/client-vue";
-import { debounce } from "lodash-es";
-
-import {
-  useClientAddress,
-  type UnifiedAddressModel,
-} from "@upmind-automation/headless-vue";
+const { isReady } = useBasketBillingDetails();
+await isReady().catch(() => router.push({ name: "basket.billing" }));
 
 const router = useRouter();
 const { update, input, model, meta, schema, uischema, stop } =
-  useClientAddress();
+  useBasketBillingDetail();
 
 // --- METHODS
-
-const doInput = debounce((data: UnifiedAddressModel) => {
-  input(data);
-}, 500);
 
 function doUpdate() {
   update().then(() => {
