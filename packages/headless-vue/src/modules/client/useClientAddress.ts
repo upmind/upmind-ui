@@ -5,11 +5,12 @@ import { computed, onUnmounted } from "vue";
 // --- internal
 import {
   type Address,
+  AddressModel,
   useClientAddress as useUpmindClientAddress,
 } from "@upmind-automation/headless";
 
 // --- utils
-import { get } from "lodash-es";
+import { get, debounce } from "lodash-es";
 
 // --- types
 export type { Address, AddressModel } from "@upmind-automation/headless";
@@ -56,7 +57,7 @@ export const useClientAddress = (
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear,
-    input,
+    input: debounce((model: AddressModel) => input(model), 300),
     update,
     stop,
   };

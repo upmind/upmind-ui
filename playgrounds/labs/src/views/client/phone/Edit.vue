@@ -11,7 +11,7 @@
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
-        @update:modelValue="doInput"
+        @update:modelValue="data => input(data as PhoneModel)"
         @resolve="doUpdate"
         @reject="doCancel"
       />
@@ -44,10 +44,6 @@ const { update, input, model, meta, title, schema, uischema, stop } =
   useClientPhone(params.id as string);
 
 // --- METHODS
-
-const doInput = debounce((data: PhoneModel) => {
-  input(data);
-}, 500);
 
 function doUpdate() {
   update().then(() => {
