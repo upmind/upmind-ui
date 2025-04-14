@@ -2,27 +2,33 @@
 import { sha1 } from "object-hash";
 
 // --- internal
-import { parseProduct, parseTerms } from "../product/utils";
+import { parseProductDetails, parseTermDetails } from "../product/utils";
 
 // --- utils
 import {
   compact,
   concat,
+  defaultsDeep,
   find,
-  get,
-  isEqual,
-  reduce,
-  some,
-  isEmpty,
-  set,
-  toSafeInteger,
-  uniqWith,
-  includes,
   first,
+  get,
+  includes,
+  isEmpty,
+  isEqual,
   isString,
   map,
+  reduce,
+  set,
+  some,
+  toSafeInteger,
+  uniqWith,
 } from "lodash-es";
-import { useTranslateField, useTranslateName } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  useTranslateField,
+  useTranslateName,
+} from "../../utils";
 
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
@@ -35,6 +41,8 @@ import type {
   Badge,
   Benefit,
 } from "./types";
+import { calculateBillingTerm } from "../product/services";
+import { ProductDetails } from "../product";
 
 // ---------------------------------------------------------------------------
 
@@ -239,53 +247,64 @@ export function parseRecommendation(
     loading?: boolean;
   }
 ): Recommendation {
-  const product = !isEmpty(raw.product)
-    ? parseProduct(raw.product)
-    : ({} as any);
+  if (!raw?.product)
+    throw new DetailedError(
+      "Invalid recommendation",
+      responseCodes.Unprocessable_Entity
+    );
 
+  const productDetails: ProductDetails = parseProductDetails(raw.product);
   const config: IProductConfig = get(raw, "config", {});
-  const terms = parseTerms(raw?.product?.prices);
-  const term =
-    find(terms, { cycle: config?.bcm }) ??
-    find(terms, { cycle: product?.cycle }) ??
-    first(terms);
+  const terms = parseTermDetails(raw?.product?.prices);
+  const term = calculateBillingTerm(
+    config?.bcm ?? productDetails?.cycle,
+    terms
+  );
 
-  const metaInfo = get(term, "meta", {});
-  // --- additional state
-  set(metaInfo, "added", meta?.added ?? false);
-  set(metaInfo, "seen", meta?.seen ?? false);
-  set(metaInfo, "processing", meta?.processing ?? false);
-  set(metaInfo, "loading", meta?.loading ?? false);
+  term.meta = defaultsDeep(term.meta, {
+    added: meta?.added ?? false,
+    seen: meta?.seen ?? false,
+    processing: meta?.processing ?? false,
+    loading: meta?.loading ?? false,
+  });
+
   // ---------------------------------------------------------------------------
   return {
-    productId: raw.object_id,
-    ...product,
-    ...term,
-    meta: metaInfo,
-    // --- forced overrides
     id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
-    label: useTranslateField(raw, "label"),
-    title: useTranslateName(raw) || product?.title,
-    description: useTranslateField(raw, "description") || product?.description,
-    excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
-    imgUrl: raw.image_url || product?.imgUrl,
-    badge: isString(raw?.badge) ? ({ label: raw?.badge } as Badge) : raw?.badge,
-    benefits: map(raw?.benefits, benefit => {
-      if (isString(benefit)) return { label: benefit } as Benefit;
-      return benefit;
-    }),
+    productDetails: {
+      ...productDetails,
+      // --- forced overrides
+      label: useTranslateField(raw, "label"),
+      title: useTranslateName(raw) || productDetails?.title,
+      description:
+        useTranslateField(raw, "description") || productDetails?.description,
+      excerpt:
+        useTranslateField(raw, "short_description") || productDetails?.excerpt,
+      imgUrl: raw.image_url || productDetails?.imgUrl,
+      // --- additional ui data
+      // -- TODO: Maybe move this into UI meta
+      badge: isString(raw?.badge)
+        ? ({ label: raw?.badge } as Badge)
+        : raw?.badge,
+      benefits: map(raw?.benefits, benefit =>
+        isString(benefit) ? ({ label: benefit } as Benefit) : benefit
+      ),
+    },
+    meta: term.meta,
+    promotions: term.promotions,
+    price: term.price,
     // --- default config to be used when adding to basket
-    config: {
+    configuration: {
       productId: raw.object_id,
       quantity: toSafeInteger(
-        config?.qty || product?.min || product?.step || 1
+        config?.qty || productDetails?.min || productDetails?.step || 1
       ),
       term: config?.bcm ?? term?.cycle ?? 0,
       subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
     },
-  };
+  } as Recommendation;
 }
 
 export function parseDataLayerItem(raw: RelatedProduct, index: number) {

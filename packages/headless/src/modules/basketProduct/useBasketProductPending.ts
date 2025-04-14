@@ -9,7 +9,6 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { parsePendingDataLayerEcommerceItem } from "./utils";
 import { parseQuantity } from "../product/utils";
 import { DetailedError, responseCodes } from "../../utils";
 import { isEmpty, get, add, subtract, find, omitBy, isNil } from "lodash-es";
@@ -19,8 +18,8 @@ import { isEmpty, get, add, subtract, find, omitBy, isNil } from "lodash-es";
 import type {
   ProductModel,
   Product,
-  SummaryDetails,
-  Term,
+  ProductSummary,
+  TermDetails,
   ProductProps,
 } from "../product";
 import { DataLayerEcommerceItem } from "../system/analytics/types";
@@ -77,41 +76,40 @@ export const useBasketProductPending = (model: ProductProps) => {
 
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
-      const product = get(service.getSnapshot(), "context.lookups.product") as
-        | Product
-        | undefined;
-      // sanity check
-      if (!product) return reject("Product not found");
-      // ---
+      const product = get(service.getSnapshot(), "context.product") as Product;
+      if (!product)
+        return reject(
+          new DetailedError("Product not found", responseCodes.Not_Found)
+        );
       return resolve(product);
     });
   }
 
-  async function getTerm(): Promise<Term> {
-    return new Promise<Term>((resolve, reject) => {
-      const terms = get(service.getSnapshot(), "context.lookups.terms") as
-        | Term[]
-        | undefined;
+  // async function getTermDetails(): Promise<TermDetails> {
+  //   return new Promise<TermDetails>((resolve, reject) => {
+  //     const terms = get(service.getSnapshot(), "context.lookups.terms") as
+  //       | TermDetails[]
+  //       | undefined;
 
-      const term = find(terms, ["cycle", model.term]) as Term;
-      // sanity check
-      if (!term) return reject("Product Term not found");
-      // ---
-      return resolve(term);
-    });
-  }
+  //     const term = find(terms, ["cycle", model.term]) as TermDetails;
+  //     // sanity check
+  //     if (!term) return reject("Product Term not found");
+  //     // ---
+  //     return resolve(term);
+  //   });
+  // }
 
-  async function getSummary(): Promise<SummaryDetails> {
-    return new Promise<SummaryDetails>((resolve, reject) => {
-      const summary = get(service.getSnapshot(), "context.suummary") as
-        | SummaryDetails
-        | undefined;
-      // sanity check
-      if (!summary) return reject("Product Summary not found");
-      // ---
-      return resolve(summary);
-    });
-  }
+  // async function getSummary(): Promise<ProductSummary> {
+  //   return new Promise<ProductSummary>((resolve, reject) => {
+  //     const summary = get(service.getSnapshot(), "context.suummary") as
+  //       | ProductSummary
+  //       | undefined;
+  //     // sanity check
+  //     if (!summary) return reject("Product Summary not found");
+  //     // ---
+  //     return resolve(summary);
+  //   });
+  // }
 
   async function update(): Promise<void> {
     return waitFor(service, state =>
@@ -139,23 +137,12 @@ export const useBasketProductPending = (model: ProductProps) => {
   // Add our Pending Product being configured to the datalayer
   async function pushSelectItem() {
     await isReady(); // NB wait for everything to finish loading
-    const product = getProduct();
-    const term = getTerm();
-
-    Promise.all([product, term])
-      .then(([product, term]) => {
-        {
-          const payload = parsePendingDataLayerEcommerceItem(
-            model,
-            product,
-            term
-          );
-          dataLayer({ event: "select_item" }).withItems(payload).push();
-        }
+    const product = getProduct()
+      .then(product => {
+        dataLayer({ event: "select_item" }).withItems(product).push();
       })
       .catch(() => {
-        // do notihng
-        return;
+        /* do nothing*/
       });
   }
 
@@ -170,13 +157,18 @@ export const useBasketProductPending = (model: ProductProps) => {
     // ---
     updateQuantity: async (value: number): Promise<void> =>
       getProduct().then(product => {
-        if (!product?.quantifiable)
-          return Promise.reject("Product not quantifiable");
+        if (!product?.productDetails.quantifiable)
+          return Promise.reject(
+            new DetailedError(
+              "Product not quantifiable",
+              responseCodes.Unprocessable_Entity
+            )
+          );
 
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(value, product),
+            quantity: parseQuantity(value, product.productDetails),
           },
         });
         return update();
@@ -184,12 +176,22 @@ export const useBasketProductPending = (model: ProductProps) => {
 
     incrementQuantity: async (): Promise<void> =>
       getProduct().then(product => {
-        const model = get(service.getSnapshot(), "context.model");
-        const qty = add(get(model, "quantity", 1), product.step);
+        if (!product?.productDetails.quantifiable)
+          return Promise.reject(
+            new DetailedError(
+              "Product not quantifiable",
+              responseCodes.Unprocessable_Entity
+            )
+          );
+
+        const qty = add(
+          get(product.configuration, "quantity", 1),
+          product.productDetails.step
+        );
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product),
+            quantity: parseQuantity(qty, product.productDetails),
           },
         });
         return update();
@@ -197,12 +199,22 @@ export const useBasketProductPending = (model: ProductProps) => {
 
     decrementQuantity: async (): Promise<void> =>
       getProduct().then(product => {
-        const model = get(service.getSnapshot(), "context.model");
-        const qty = subtract(get(model, "quantity", 1), product.step);
+        if (!product?.productDetails.quantifiable)
+          return Promise.reject(
+            new DetailedError(
+              "Product not quantifiable",
+              responseCodes.Unprocessable_Entity
+            )
+          );
+
+        const qty = subtract(
+          get(product.configuration, "quantity", 1),
+          product.productDetails.step
+        );
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product),
+            quantity: parseQuantity(qty, product.productDetails),
           },
         });
         return update();

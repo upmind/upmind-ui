@@ -8,7 +8,6 @@ const { dataLayer } = useDataLayer();
 
 // --- utils
 import { DetailedError, responseCodes } from "../../utils";
-import { parseEcommerceItem } from "../system/analytics/utils";
 import { get, add, subtract, map } from "lodash-es";
 
 // --- types
@@ -46,25 +45,33 @@ export const useBasketProducts = () => {
         .remove({ basketId, bpid: id })
         .then((rawBasket: IBasket) => {
           dataLayer({ event: "remove_from_cart" })
-            .withItems(parseEcommerceItem(basketProduct))
+            .withItems(basketProduct)
             .push();
         })
         .then(() => refresh());
     },
 
-    resolve: async (id: string, data: BasketProduct): Promise<IBasket> => {
+    resolve: async (id: string, data: ProductModel): Promise<IBasket> => {
       const basketId = getBasketId();
       if (!basketId) {
         throw new DetailedError("No Basket found", responseCodes.Not_Found);
       }
+
       return services
         .update({ basketId }, { data: { ...data, id } as ProductModel })
+        .then(() => refresh())
         .then((rawBasket: IBasket) => {
-          dataLayer({ event: "add_to_cart" })
-            .withItems(map(rawBasket?.products, parseEcommerceItem))
-            .push();
-        })
-        .then(() => refresh());
+          const basketProduct = findProduct({ id });
+          if (!basketProduct) {
+            throw new DetailedError(
+              "Basket Product not found after update",
+              responseCodes.Not_Found
+            );
+          }
+          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+
+          return rawBasket;
+        });
     },
     // ---
     incrementQuantity: async (id: string): Promise<IBasket> => {
@@ -80,21 +87,28 @@ export const useBasketProducts = () => {
             responseCodes.Not_Found
           );
         }
-        const qty = get(basketProduct, "quantity", 1);
+        const qty = get(basketProduct, "configuration.quantity", 1);
         return services
           .updateQuantity(
             {
               basketId,
               basketProduct,
             },
-            { data: add(qty, basketProduct.product.step || 1) }
+            { data: add(qty, basketProduct.productDetails.step || 1) }
           )
+          .then(() => refresh())
           .then((rawBasket: IBasket) => {
-            dataLayer({ event: "add_to_cart" })
-              .withItems(map(rawBasket?.products, parseEcommerceItem))
-              .push();
-          })
-          .then(() => refresh());
+            const basketProduct = findProduct({ id });
+            if (!basketProduct) {
+              throw new DetailedError(
+                "Basket Product not found after update",
+                responseCodes.Not_Found
+              );
+            }
+            dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+
+            return rawBasket;
+          });
       });
     },
 
@@ -120,14 +134,23 @@ export const useBasketProducts = () => {
               basketId,
               basketProduct,
             },
-            { data: subtract(qty, basketProduct.product?.step || 1) }
+            { data: subtract(qty, basketProduct.productDetails?.step || 1) }
           )
+          .then(() => refresh())
           .then((rawBasket: IBasket) => {
+            const basketProduct = findProduct({ id });
+            if (!basketProduct) {
+              throw new DetailedError(
+                "Basket Product not found after update",
+                responseCodes.Not_Found
+              );
+            }
             dataLayer({ event: "remove_from_cart" })
-              .withItems(map(rawBasket?.products, parseEcommerceItem))
+              .withItems(basketProduct)
               .push();
-          })
-          .then(() => refresh());
+
+            return rawBasket;
+          });
       });
     },
 
@@ -147,12 +170,19 @@ export const useBasketProducts = () => {
         }
         return services
           .updateQuantity({ basketId, basketProduct }, { data: quantity })
+          .then(() => refresh())
           .then((rawBasket: IBasket) => {
-            dataLayer({ event: "add_to_cart" })
-              .withItems(map(rawBasket?.products, parseEcommerceItem))
-              .push();
-          })
-          .then(() => refresh());
+            const basketProduct = findProduct({ id });
+            if (!basketProduct) {
+              throw new DetailedError(
+                "Basket Product not found after update",
+                responseCodes.Not_Found
+              );
+            }
+            dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+
+            return rawBasket;
+          });
       });
     },
   };

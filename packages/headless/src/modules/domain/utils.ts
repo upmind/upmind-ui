@@ -6,7 +6,11 @@ import { useBrand } from "../brand";
 import { calculateBillingTerm } from "../product/services";
 
 // --- utils
-import { parsePrice, parseQuantity, parseTerms } from "../product/utils";
+import {
+  parseProductDetails,
+  parseQuantity,
+  parseTermDetails,
+} from "../product/utils";
 import {
   compact,
   find,
@@ -31,13 +35,13 @@ import {
   IProductPrice,
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { DomainProduct, Domain } from "./types";
+import type { DomainProduct, DomainModel } from "./types";
 
 // ----------------------------------------------------------------------------
 const DOMAIN_PATTERN =
   /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/i;
 
-export function parseDomain(raw: any, force = false): Domain | undefined {
+export function parseDomain(raw: any, force = false): DomainModel | undefined {
   let domain = (isObject(raw) ? get(raw, "domain") : raw) ?? "";
 
   if (isEmpty(domain) || !DOMAIN_PATTERN.test(domain)) return undefined;
@@ -78,26 +82,35 @@ export async function parseAvailable(
 
       const domain = `${sld}${raw.tld}`;
       const parsedDomain = parseDomain(domain);
-      const term = calculateBillingTerm(
+      const productDetails = parseProductDetails(raw);
+      const terms = parseTermDetails(raw.prices);
+      const termDetails = calculateBillingTerm(
         defaultPaymentPeriod || raw.default_payment_period,
-        parseTerms(raw.prices)
+        terms
       );
 
       return {
-        ...term,
         // ---
-        productId: raw.id, //raw.product_id,
-        quantity: raw.unit_quantity ?? 1,
+        configuration: {
+          productId: raw.id, //raw.product_id,
+          quantity: raw.unit_quantity ?? 1,
+        },
         // ---
-        title: domain,
         domain: parsedDomain?.domain ?? domain,
         sld: parsedDomain?.sld ?? sld,
         tld: parsedDomain?.tld ?? raw.tld,
         // ---
         meta: {
-          ...(term?.meta ?? {}),
+          ...(termDetails.meta ?? {}),
           available: raw?.domain_available,
         },
+        productDetails: {
+          ...productDetails,
+          title: domain,
+        },
+        price: termDetails.price,
+        pricing: [],
+        details: [],
       } as DomainProduct;
     })
   );
@@ -107,19 +120,20 @@ export async function parseAvailable(
 }
 
 export function parseValue(
-  raw: (Domain | DomainProduct) | string,
-  values: (Domain | DomainProduct)[] = [],
+  raw: (DomainModel | DomainProduct) | string,
+  values: (DomainModel | DomainProduct)[] = [],
   available: any[] = []
-) {
+): DomainModel {
   // parse the domain name provided
   const value = (isObject(raw) ? get(raw, "domain") : raw)?.toLowerCase();
   // check if we already have the domain
-  let domain: any = find(values, ["domain", value]);
+  let domain: DomainModel = find(values, ["domain", value]) as DomainModel;
 
   // if we dont then add it to our list of values, if it exists in available
   domain ??= find(available, ["domain", value]);
+
   // finally parse the domain name provided and check if its a valid domain
-  domain ??= parseDomain(value);
+  domain ??= parseDomain(value) as DomainModel;
 
   return domain;
 }

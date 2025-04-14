@@ -7,8 +7,14 @@ import type {
   ICurrency,
   IPromotion,
 } from "@upmind-automation/types";
-import type { BasketProduct, Price } from "../basketProduct";
-import type { ProductModel, ProductSummaryPrice, Product } from "../product";
+import type { BasketProduct } from "../basketProduct";
+import type {
+  ProductModel,
+  ProductProps,
+  PriceDetail,
+  ProductSummaryMeta,
+  Product,
+} from "../product";
 
 // -----------------------------------------------------------------------------
 
@@ -31,19 +37,22 @@ interface Promotion {
   amountFormatted: string;
 }
 
-export interface Recommendation
-  extends Product,
-    Omit<ProductSummaryPrice, "category" | "cycle" | "quantity"> {
+export interface Recommendation extends Product {
   id: string;
-  productId: string;
   // ---
-  label?: string;
   serviceIdentifier?: string;
-  badge?: Badge;
-  benefits?: Benefit[];
+  productDetails: Product["productDetails"] & {
+    label: string;
+    badge?: Badge;
+    benefits?: Benefit[];
+  };
+  /**
+   * The product configuration matches the way we can interperet a product config machine: ie ProductProps
+   * This has additional fields to allow setting sub_pids, coupons,currency, etc...
+   */
+  configuration: ProductProps;
   // ---
-  config?: ProductModel;
-  meta?: ProductSummaryPrice["meta"] & {
+  meta?: {
     seen?: boolean;
     added?: boolean;
     processing?: boolean;

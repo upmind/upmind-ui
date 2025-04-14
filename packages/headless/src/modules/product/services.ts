@@ -5,7 +5,12 @@ import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTime, useValidation } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  useTime,
+  useValidation,
+} from "../../utils";
 import { parseQuantity, checkPriceOverride } from "./utils";
 
 import {
@@ -36,7 +41,7 @@ import {
   PromotionDisplayTypes,
   DefaultPaymentPeriod,
 } from "@upmind-automation/types";
-import type { ProductConfigContext, Term, Price } from "./types";
+import type { ProductConfigContext, TermDetails, Price } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -141,7 +146,7 @@ async function checkQuantity(
   });
 }
 
-async function checkTerm(
+async function checkTermDetails(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
@@ -154,7 +159,7 @@ async function checkTerm(
     return Promise.reject({
       term,
       price,
-      error: { ...error, term: "No Terms available" },
+      error: { ...error, term: "No TermDetailss available" },
     });
   }
 
@@ -172,7 +177,7 @@ async function checkTerm(
     }
   }
 
-  if (isNil(term)) errors.push("Valid Term is required");
+  if (isNil(term)) errors.push("Valid TermDetails is required");
 
   // ---
   // set price values, taking into account the quantity and unit quantity
@@ -362,7 +367,7 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
 const calculateSummary = (
-  { currencyId, prices, model, lookups }: ProductConfigContext,
+  { currencyId, model, lookups }: ProductConfigContext,
   controller: AbortController
 ) => {
   const { post, useUrl } = useQuery();
@@ -373,9 +378,9 @@ const calculateSummary = (
     concat(
       checkPriceOverride(model?.options, lookups?.options)
         ? []
-        : prices?.term || [],
-      prices?.attributes,
-      prices?.options
+        : lookups?.prices?.term || [],
+      lookups?.prices?.attributes,
+      lookups?.prices?.options
     ),
     isNil
   );
@@ -408,9 +413,12 @@ const calculateSummary = (
 
 export const calculateBillingTerm = (
   period: DefaultPaymentPeriod | undefined,
-  availableTerms: Term[]
-): Term | undefined => {
+  available: TermDetails[]
+): TermDetails => {
   // because we have multiple options, we need to select one base don the following strategy:
+
+  if (isEmpty(available))
+    throw new DetailedError("No Available terms", responseCodes.Not_Found);
 
   const { getDefaultPaymentPeriod } = useBrand();
 
@@ -418,22 +426,25 @@ export const calculateBillingTerm = (
 
   switch (period) {
     case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(availableTerms, "currentAmount");
+      term = maxBy(available, "currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(availableTerms, "currentAmount");
+      term = minBy(available, "currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(availableTerms, "monthlyFromCurrentAmount");
+      term = minBy(available, "monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(getDefaultPaymentPeriod(), availableTerms);
+      term = calculateBillingTerm(getDefaultPaymentPeriod(), available);
       break;
 
     default:
-      term = first(availableTerms);
       break;
   }
+  term ??= first(available);
+
+  if (isEmpty(term))
+    throw new DetailedError("No Available term", responseCodes.Not_Found);
 
   return term;
 };
@@ -493,7 +504,7 @@ export default {
   refresh: load, // alias
   // ---
   checkQuantity,
-  checkTerm,
+  checkTermDetails,
   checkAttributes,
   checkOptions,
   checkProvisioning,

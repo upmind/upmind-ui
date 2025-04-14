@@ -5,7 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- exports
 export * from "./upload/useSystemUpload";
 export * from "./recaptcha/useSystemRecaptcha";
-export * from "./i18n/useI18n";
+export * from "./i18n/useSystemI18n";
 export * from "./analytics/useDataLayer";
 export * from "./analytics/useTracking";
 

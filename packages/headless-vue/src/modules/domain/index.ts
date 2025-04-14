@@ -8,13 +8,15 @@ import type { DomainTypes } from "@upmind-automation/headless";
 import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 
 // --- utils
-import { map, some, find, isArray, get, first, debounce } from "lodash-es";
+import { map, find, get, first, debounce } from "lodash-es";
 
 // --- types
 export {
   DomainTypes,
-  type DomainLookup,
-  type Domain,
+  type DomainProduct,
+  type DomainModel,
+  type DomainProps,
+  type DomainSearch,
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

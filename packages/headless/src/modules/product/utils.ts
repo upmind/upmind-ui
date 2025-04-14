@@ -6,6 +6,7 @@ import { useBrand } from "../brand";
 import { useTranslateName, useTranslateField } from "../../utils";
 import {
   compact,
+  concat,
   find,
   first,
   forEach,
@@ -43,18 +44,17 @@ import type {
 import type {
   ProductConfigContext,
   ProductModel,
-  Promotion,
+  PromotionDetails,
   ProductDetails,
   SubproductDetails,
-  SubProductValue,
+  SubproductValue,
   TermDetails,
-  ProductSummary,
+  Product,
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice,
   UIMeta,
   PriceDetail,
   PriceDisplay,
-  Price,
 } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -201,9 +201,10 @@ export function parseQuantity(
   return quantity;
 }
 
-export const parseProduct = (rawProduct: IProduct): ProductDetails => {
+export const parseProductDetails = (rawProduct: IProduct): ProductDetails => {
   return {
     id: rawProduct?.id,
+    name: rawProduct.name,
     title: useUischemaTitle(rawProduct, {
       valueKey: "meta.uischema.title",
       fallback: useTranslateName(rawProduct),
@@ -258,24 +259,30 @@ export const parseMeta = (
   );
 };
 
-export const parseTerms = (
+export const parseTermDetails = (
   raw: any,
   promotionDisplayType?: PromotionDisplayTypes
 ): TermDetails[] => {
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
-    const price: TermDetails = parsePrice(rawTerm, promotionDisplayType);
-    price.monthlyFromCurrentAmount =
+    const details: TermDetails = parseSummaryDetailWithPrice(
+      rawTerm,
+      promotionDisplayType
+    );
+
+    details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
-    price.monthlyFromCurrentPrice =
+    details.price.monthlyFromCurrentPrice =
       rawTerm.monthly_price_from_discounted_formatted ??
       rawTerm.monthly_price_from_formatted;
-    price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
-    price.monthlyFromRegularPrice = rawTerm.monthly_price_from_formatted;
-    return price;
+    details.price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
+    details.price.monthlyFromRegularPrice =
+      rawTerm.monthly_price_from_formatted;
+
+    return details;
   });
 };
 
-export const parseSubproduct = (
+export const parseSubproductDetails = (
   data: any,
   promotionDisplayType?: PromotionDisplayTypes,
   cycle?: number
@@ -300,6 +307,7 @@ export const parseSubproduct = (
       // create the option based on the category ... if it isnt already set
       const option: SubproductDetails = get(result, rawSubproduct.category_id, {
         id: rawSubproduct.category.id,
+        name: rawSubproduct.category.name,
         title: useTranslateName(rawSubproduct.category),
         description: useTranslateField(rawSubproduct.category, "description"),
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
@@ -325,11 +333,11 @@ export const parseSubproduct = (
       if (!valid) return result;
 
       // get the prev values...if there are any
-      const values: any[] = get(option, "values", []);
+      const values: SubproductValue[] = get(option, "values", []);
 
       // ---
       const pricing = map(rawSubproduct.prices, rawPrice =>
-        parsePrice(
+        parseSummaryDetailWithPrice(
           rawPrice,
           promotionDisplayType,
           rawSubproduct.category.price_override
@@ -339,29 +347,12 @@ export const parseSubproduct = (
       const price =
         find(pricing, ["cycle", 0]) || find(pricing, ["cycle", cycle]);
 
-      const value: SubProductValue = {
-        default: !!rawSubproduct?.pivot?.default,
-        id: rawSubproduct.id,
-        title: useTranslateName(rawSubproduct),
-        description: useTranslateField(rawSubproduct, "description"),
-        excerpt: useTranslateField(rawSubproduct, "short_description"),
-        brand: useTranslateName(rawSubproduct?.brand),
-        categoryId: rawSubproduct?.category_id,
-        category: useTranslateName(rawSubproduct?.category),
-        // ---
-        cycle: price?.cycle ?? rawSubproduct.billing_cycle_months,
-        // ---
-        quantity: rawSubproduct?.unit_quantity || 1,
-        quantifiable: rawSubproduct.order_type == 2,
-        step: rawSubproduct.unit_quantity || 1,
-        min:
-          rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity || 1,
-        max:
-          rawSubproduct.max_order_quantity > 0
-            ? rawSubproduct.max_order_quantity
-            : Infinity,
-        pricing,
-        price,
+      const productDetails = parseProductDetails(rawSubproduct);
+      const value: SubproductValue = {
+        ...productDetails,
+        cycle: price?.cycle ?? productDetails.cycle,
+        price: price?.price,
+        pricing: pricing,
         meta: {
           // NB: only show term pricing if recurring!
           oneoff: rawSubproduct.billing_cycle_months == 0,
@@ -371,14 +362,13 @@ export const parseSubproduct = (
           includesTax: checkIncludesTax(),
           free: (rawSubproduct.price_discounted ?? rawSubproduct.price) == 0,
           overrides: rawSubproduct.category.price_override,
+          default: !!rawSubproduct?.pivot?.default,
         },
-        uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
-        uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         order: rawSubproduct?.order,
       };
 
       // ---
-      values.push(value);
+      values.push(value as SubproductValue);
       set(option, "values", orderBy(values, "order"));
 
       // finally  set the updated option
@@ -392,7 +382,7 @@ export const parseSubproduct = (
   return values(options);
 };
 
-export const parsePrice = (
+export const parseSummaryDetail = (
   raw: IProductPrice,
   promotionDisplayType?: PromotionDisplayTypes,
   overrides?: boolean
@@ -401,6 +391,28 @@ export const parsePrice = (
   const { checkIncludesTax } = useBrand();
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
+  const discounted =
+    !!raw.price_discounted && raw.price !== raw.price_discounted;
+
+  return {
+    cycle: raw.billing_cycle_months,
+    title: cycle ? useTranslateName(cycle) : useTranslateName(raw),
+    name: cycle?.name,
+    promotions: parsePromotionDetails(raw, promotionDisplayType),
+    meta: {
+      oneoff: raw.billing_cycle_months == 0,
+      mixed: raw.mixed_promotions,
+      discounted,
+      includesTax: checkIncludesTax(),
+      free: (raw.price_discounted ?? raw.price) == 0,
+      overrides: !!overrides,
+    },
+  } as ProductSummaryDetailWithPrice;
+};
+
+export const parsePrice = (raw: IProductPrice): PriceDetail => {
+  const { checkIncludesTax } = useBrand();
+
   const savingAmount =
     Math.round(subtract(raw.price, raw?.price_discounted || raw.price) * 100) /
     100;
@@ -408,10 +420,7 @@ export const parsePrice = (
   const discounted =
     !!raw.price_discounted && raw.price !== raw.price_discounted;
 
-  const price: ProductSummaryDetailWithPrice = {
-    cycle: raw.billing_cycle_months,
-    title: cycle ? useTranslateName(cycle) : useTranslateName(raw),
-
+  return {
     currentAmount: raw.price_discounted ?? raw.price,
     currentPrice: raw.price_discounted_formatted ?? raw.price_formatted,
     regularAmount: raw.price,
@@ -421,26 +430,24 @@ export const parsePrice = (
     savingPercent: discounted
       ? `${Math.round((savingAmount / raw.price) * 100)}%`
       : "",
-
-    promotions: parsePromotion(raw, promotionDisplayType),
-
-    meta: {
-      oneoff: raw.billing_cycle_months == 0,
-      mixed: raw.mixed_promotions,
-      discounted,
-      includesTax: checkIncludesTax(),
-      free: (raw.price_discounted ?? raw.price) == 0,
-      overrides: !!overrides,
-    },
   };
-
-  return price;
 };
 
-export const parsePromotion = (
+export const parseSummaryDetailWithPrice = (
+  raw: IProductPrice,
+  promotionDisplayType?: PromotionDisplayTypes,
+  overrides?: boolean
+): ProductSummaryDetailWithPrice => {
+  return {
+    ...parseSummaryDetail(raw, promotionDisplayType, overrides),
+    ...parsePrice(raw),
+  } as ProductSummaryDetailWithPrice;
+};
+
+export const parsePromotionDetails = (
   raw: IProductPrice,
   promotionDisplayType: PromotionDisplayTypes = PromotionDisplayTypes.PERCENTAGE
-): Promotion[] => {
+): PromotionDetails[] => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
   //  - As a sumamry percentage, eg "Save 20%"
@@ -454,22 +461,27 @@ export const parsePromotion = (
   // ---
 
   if (promotionDisplayType == PromotionDisplayTypes.NAME) {
-    return map(raw.promotions, rawPromo => {
-      return {
-        savingAmount: toNumber(rawPromo.amount),
-        savingPrice: rawPromo.amount_formatted,
-        savingPercent: "", //TODO: missing % value from response
-        code: rawPromo.code,
-        title: useTranslateName(rawPromo),
-        description: useTranslateField(rawPromo, "description"),
-        excerpt: useTranslateField(rawPromo, "short_description"),
-        meta: {
-          display: promotionDisplayType,
-          mixed: !!raw.mixed_promotions,
-          discounted: !isEmpty(rawPromo.amount),
-        },
-      };
-    });
+    return map(
+      raw.promotions,
+      rawPromo =>
+        ({
+          code: rawPromo.code,
+          name: rawPromo.name,
+          title: useTranslateName(rawPromo),
+          description: useTranslateField(rawPromo, "description"),
+          excerpt: useTranslateField(rawPromo, "short_description"),
+          meta: {
+            display: promotionDisplayType,
+            mixed: !!raw.mixed_promotions,
+            discounted: !isEmpty(rawPromo.amount),
+          },
+          price: {
+            savingAmount: toNumber(rawPromo.amount),
+            savingPrice: rawPromo.amount_formatted,
+            savingPercent: "", //TODO: missing % value from response
+          },
+        }) as PromotionDetails
+    );
   } else {
     const saving =
       ((raw.price - (raw.price_discounted ?? raw.price)) / raw.price) * 100;
@@ -477,20 +489,22 @@ export const parsePromotion = (
 
     return [
       {
-        savingAmount:
-          isNil(raw.price_discounted) || raw.mixed_promotions ? 0 : saving,
-        savingPrice: "", // TODO: misisng formatted value
-        savingPercent:
-          isNil(raw.price_discounted) || raw.mixed_promotions
-            ? ""
-            : saving_formatted,
         code: map(raw.promotions, "code"),
         meta: {
           display: promotionDisplayType,
           mixed: !!raw.mixed_promotions,
           discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions,
         },
-      },
+        price: {
+          savingAmount:
+            isNil(raw.price_discounted) || raw.mixed_promotions ? 0 : saving,
+          savingPrice: "", // TODO: misisng formatted value
+          savingPercent:
+            isNil(raw.price_discounted) || raw.mixed_promotions
+              ? ""
+              : saving_formatted,
+        },
+      } as PromotionDetails,
     ];
   }
 };
@@ -612,65 +626,26 @@ export const parseProvisioningSchema = (data: any, product: any) => {
   };
 };
 
-export const parseSummary = (
-  values: PriceDisplay,
-  {
-    model,
-    lookups,
-    error,
-    rawProduct,
-    rawBasketProduct,
-  }: Partial<ProductConfigContext>
-): ProductSummary => {
+export const parseProduct = (
+  price: PriceDisplay,
+  { model, lookups, error }: Partial<ProductConfigContext>
+): Product => {
   // sanity check
-  if (isEmpty(model) || isEmpty(lookups)) {
-    return {
-      currentAmount: 0,
-      currentPrice: "",
-      regularAmount: 0,
-      regularPrice: "",
-      savingAmount: 0,
-      savingPrice: "",
-      savingPercent: "",
-      details: [],
-      pricing: [],
-    };
-  }
-
-  // ---
-  const { checkIncludesTax } = useBrand();
+  if (isEmpty(model) || isEmpty(lookups) || !lookups.product)
+    return {} as Product;
 
   const term = find(lookups.terms, ["cycle", model.term]);
-
-  // const summaryPrice: PriceDisplay = {
-  //   regularAmount: values.regularAmount,
-  //   regularPrice: values.currentPrice,
-  //   currentAmount: values?.currentAmount,
-  //   currentPrice: values?.currentPrice,
-  //   savingAmount
-  //   // savingAmount:
-  //   //   Math.round(
-  //   //     subtract(values.total, values?.discounted || values.total) * 100
-  //   //   ) / 100,
-  //   // savingPrice: "", //TODO: missing formatted value
-  //   // savingPercent: values.discounted
-  //   //   ? `${Math.round((values.discounted / values.total) * 100)}%`
-  //   //   : "",
-  // };
-
-  const summaryPriceWithBreakdown: PriceDetail = {
-    ...values,
-    unit: term?.configuration,
-    // TODO: Dont have the necessary data now to calculate this
-    // configuration: {
-    //   total: values.total,
-    //   totalFormatted: values.total_formatted,
-    //   subtotal: values.subtotal,
-    //   subtotalFormatted: values.subtotal_formatted,
-    //   discount: values.discounted,
-    //   discountFormatted: values.discounted_formatted,
-    // },
-  };
+  // ---
+  // TODO: Dont have the necessary data now to calculate this
+  // price.unit: term?.price.unit,
+  // price.configuration: {
+  //   total: values.total,
+  //   totalFormatted: values.total_formatted,
+  //   subtotal: values.subtotal,
+  //   subtotalFormatted: values.subtotal_formatted,
+  //   discount: values.discounted,
+  //   discountFormatted: values.discounted_formatted,
+  // },
 
   const summaryDetailWithPrice: ProductSummaryDetailWithPrice = {
     name: "totals",
@@ -678,14 +653,10 @@ export const parseSummary = (
     category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
-    meta: {
-      oneoff: model?.term == 0,
-      discounted: (raw.discounted ?? raw.total) !== raw.total,
-      includesTax: checkIncludesTax(),
-      free: (raw?.discounted ?? raw.total) == 0,
-    },
+    meta: term?.meta,
+    promotions: term?.promotions,
     // ---
-    ...summaryPriceWithBreakdown,
+    price,
   };
   // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration
@@ -694,71 +665,56 @@ export const parseSummary = (
   // and allow for easy i18n
   const details: ProductSummaryDetail[] = [];
 
-  //  product title
-  if (rawProduct) {
-    details.push({
-      name: "product",
-      title: useUischemaTitle(rawProduct, {
-        basketProduct: rawBasketProduct,
-        valueKey: "meta.uischema.summary.title.name",
-        fallback: useProductName(rawProduct, rawBasketProduct),
-      }),
-      category: useUischemaTitle(rawProduct, {
-        basketProduct: rawBasketProduct,
-        valueKey: "meta.uischema.summary.title.category",
-        fallback: "ProductDetails",
-      }),
-    });
-  }
+  // product title
+  details.push({
+    name: "product",
+    title: lookups.product?.title,
+    category: lookups.product?.category,
+  });
 
   //  product category
-  if (lookups.product?.category) {
-    details.push({
-      name: "category",
-      title: lookups.product.category,
-      category: lookups.product.category,
-    });
-  }
+  details.push({
+    name: "category",
+    title: lookups.product.category,
+  });
 
-  // term
-  const termSummary = parseSummaryTerm(
+  const termDetails = parseSummaryTerm(
     model.term ?? 0,
     lookups.terms ?? [],
     error?.term
   );
-  if (!isEmpty(termSummary)) details.push(termSummary);
 
-  // options
-  const options = parseSummarySubproduct(
+  const optionDetails = parseSummarySubproduct(
     "option",
     model.options,
     lookups.options,
     error?.options
   );
-  details.push(...options);
 
-  // attributes
-  const attributes = parseSummarySubproduct(
+  const attributeDetail = parseSummarySubproduct(
     "attribute",
     model.attributes,
     lookups.attributes,
     error?.attributes
   );
-  details.push(...attributes);
 
-  // provision fields
-  const provisionFields = parseSummaryProvisionFields(
+  const provisionFieldDetails = parseSummaryProvisionFields(
     model.provisionFields,
     lookups.provisionFields,
     error?.provisionFields
   );
-  if (!isEmpty(provisionFields)) details.push(...provisionFields);
 
   // ---------------------------------------------------------------------------
   return {
-    ...values,
+    id: model.id,
+    configuration: model,
+    productDetails: lookups.product,
+    price,
     pricing: [summaryDetailWithPrice],
-    details,
+    details: compact(
+      concat(termDetails, optionDetails, attributeDetail, provisionFieldDetails)
+    ),
+    errors: error,
   };
 };
 
@@ -771,6 +727,10 @@ const parseSummaryTerm = (
   if (term) {
     term.name = "term";
     term.category = "Billing Cycle";
+    term.meta = {
+      ...term.meta,
+      invalid: has(error, "term"),
+    };
     return term;
   }
 
@@ -796,7 +756,7 @@ const parseSummarySubproduct = (
 
             const subproduct = find(category?.values, {
               id,
-            }) as SubProductValue;
+            }) as SubproductValue;
 
             if (subproduct) {
               const summary:
@@ -882,13 +842,13 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     quantity: raw.quantity,
     productId: raw.product_id,
     term: raw.billing_cycle_months,
-    options: parseSubproductChoices(raw.options),
-    attributes: parseSubproductChoices(raw.attributes),
+    options: parseSubproductDetailsChoices(raw.options),
+    attributes: parseSubproductDetailsChoices(raw.attributes),
     provisionFields: raw.provision_fields,
   };
 };
 
-const parseSubproductChoices = (values: IBasketProduct[]) => {
+const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
   return reduce(
     values,
     (result, value) => {
@@ -901,7 +861,7 @@ const parseSubproductChoices = (values: IBasketProduct[]) => {
         productId: value.product_id,
         quantity: parseQuantity(
           value.unit_quantity,
-          parseProduct(value.product)
+          parseProductDetails(value.product)
         ),
         cycle: value.billing_cycle_months,
       });

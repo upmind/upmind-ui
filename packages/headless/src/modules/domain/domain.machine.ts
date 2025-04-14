@@ -39,14 +39,10 @@ import {
 // --- types
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
-import type {
-  Domain,
-  DomainContext,
-  DomainProduct,
-  DomainLookup,
-} from "./types";
+import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import type { Product, ProductModel } from "../product";
 import type { BasketProduct } from "../basketProduct";
+import { parseBasketProduct } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -409,9 +405,12 @@ export default createMachine(
         model: ({ model, lookups }: DomainContext) => {
           const values = map(compact(model), item =>
             parseDomain(item)
-          ) as DomainProduct[];
-          if (isEmpty(values) && !isEmpty(lookups.basket))
-            return lookups.basket;
+          ) as DomainModel[];
+
+          if (isEmpty(values) && !isEmpty(lookups.basket)) {
+            debugger;
+            // return lookups.basket; //TODO: do we still need this?
+          }
 
           return values;
         },
@@ -479,33 +478,39 @@ export default createMachine(
         return {
           basketHelper: basketHelper ?? spawn(basketSubscription),
 
-          parseBasketProduct: (product: IBasketProduct) => {
-            const isDomainProduct = has(product, "provision_fields.sld");
+          parseBasketProduct: (
+            raw: IBasketProduct,
+            primaryDomain?: string
+          ): DomainProduct | undefined => {
+            const isDomainProduct = has(raw, "provision_fields.sld");
             if (!isDomainProduct) return undefined;
-            const value = product?.service_identifier;
+
+            const value = raw?.service_identifier;
             const parsed = value ? parseDomain(value) : undefined;
 
             if (!parsed) return undefined;
 
-            return {
-              productId: product.product_id,
-              tld: parsed.tld,
-              sld: parsed.sld,
-              domain: parsed.domain,
-            };
+            const basketProduct = parseBasketProduct(raw) as DomainProduct;
+
+            basketProduct.tld = parsed.tld;
+            basketProduct.sld = parsed.sld;
+            basketProduct.domain = parsed.domain;
+            basketProduct.meta.selected = parsed.domain === primaryDomain;
+            basketProduct.productDetails.title = parsed.domain;
+            return basketProduct;
           },
 
           parseProductModel: (
             item: DomainProduct
           ): ProductModel | undefined => {
-            if (!item?.productId) return undefined;
+            if (!item?.configuration?.productId) return undefined;
 
             return {
-              productId: item.productId,
+              productId: item.configuration.productId,
               quantity: 1,
-              term: item.cycle, // TODO Check the model if its term or cycle `item.cycle,`
-              options: item.options,
-              attributes: item.attributes,
+              term: item.configuration.term,
+              options: item.configuration.options,
+              attributes: item.configuration.attributes,
               provisionFields: {
                 sld: item.sld,
               },
@@ -524,19 +529,14 @@ export default createMachine(
 
           const available = reduce(
             data.products,
-            (result: DomainProduct[], product: IBasketProduct) => {
-              const parsed = parseBasketProduct(product) as DomainLookup;
-              if (parsed) {
-                parsed.selected = parsed.domain == primary?.domain;
-                parsed.value = parsed.domain;
-                result.push(parsed);
-              }
-
+            (result: DomainProduct[], raw: IBasketProduct) => {
+              const parsed = parseBasketProduct(raw, primary?.domain);
+              if (parsed) result.push(parsed);
               return result;
             },
             []
           );
-          set(lookups, "basket", uniqBy(available, "domain"));
+          set(lookups, "basket", available);
           return lookups;
         },
       }),
@@ -556,7 +556,7 @@ export default createMachine(
               (item): item is DomainProduct => "productId" in item
             ),
             (result: ProductModel[], item: DomainProduct) => {
-              if (item?.productId) {
+              if (item?.configuration.productId) {
                 const model = isFunction(context?.parseProductModel)
                   ? context.parseProductModel(item)
                   : undefined;
@@ -589,7 +589,7 @@ export default createMachine(
           { model, lookups, type }: DomainContext,
           { data }: AnyEventObject
         ) => {
-          let available: DomainLookup[] = [];
+          let available: DomainProduct[] = [];
           switch (type) {
             case DomainTypes.register:
               available = lookups.searched || [];
@@ -615,7 +615,7 @@ export default createMachine(
         model: (_context: DomainContext, { data }: AnyEventObject) => {
           const value = isArray(data) ? first(data) : data;
           const parsed = parseDomain(value, true);
-          const domain: Domain = {
+          const domain: DomainModel = {
             type: DomainTypes.existing,
             domain: value,
             tld: parsed?.tld ?? "",
@@ -638,7 +638,7 @@ export default createMachine(
         ) => {
           return reduce(
             data,
-            (result: Domain[], item) => {
+            (result: DomainModel[], item) => {
               let available: DomainProduct[] = [];
               switch (type) {
                 case DomainTypes.register:
@@ -654,7 +654,7 @@ export default createMachine(
                   available = lookups?.basket;
                   break;
               }
-              const domain: Domain = parseValue(item, data, available);
+              const domain: DomainModel = parseValue(item, data, available);
               if (domain) result.push(domain);
 
               return result;
@@ -673,10 +673,10 @@ export default createMachine(
           const products = (data as IBasket).products;
           const values = reduce(
             products,
-            (result: Domain[], rawItem: IBasketProduct) => {
+            (result: DomainModel[], rawItem: IBasketProduct) => {
               if (!rawItem.service_identifier) return result; //safety check
               // ---
-              const domain: Domain = parseValue(
+              const domain: DomainModel = parseValue(
                 rawItem.service_identifier ?? "",
                 model,
                 lookups?.basket
@@ -759,14 +759,13 @@ export default createMachine(
         ) => {
           const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
 
-          const available: DomainLookup[] = map(
+          const available: DomainProduct[] = map(
             data?.available,
-            (item: DomainLookup) => {
-              item.value = item.domain;
+            (item: DomainProduct) => {
               item.meta.owned = some(lookups.owned, ["domain", item.domain]);
               item.meta.added = some(lookups.basket, ["domain", item.domain]);
               item.meta.disabled = item.meta.owned || item.meta.added;
-              return item as DomainLookup;
+              return item as DomainProduct;
             }
           );
 
@@ -802,10 +801,21 @@ export default createMachine(
 
       setOwned: assign({
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
-          const available = map(data, item => {
-            item.value = item.domain;
-            item.persist = true;
-            return item;
+          debugger;
+
+          const available = map(data, (item: DomainModel) => {
+            return {
+              domain: item.domain,
+              tld: item.tld,
+              sld: item.sld,
+              productDetails: {
+                title: item.domain,
+              },
+              meta: {
+                owned: true,
+                persisted: true,
+              },
+            } as DomainProduct;
           });
           set(lookups, "owned", available);
           return lookups;
@@ -839,7 +849,7 @@ export default createMachine(
           const selected =
             find(lookups.basket, ["domain", data]) || first(lookups.basket);
           return map(lookups.basket, value => {
-            value.selected = value === selected;
+            value.meta.selected = value === selected;
             return value;
           });
         },

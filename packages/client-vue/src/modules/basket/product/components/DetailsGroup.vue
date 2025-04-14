@@ -38,15 +38,12 @@ import { some } from "lodash-es";
 import DetailsItem from "./DetailsItem.vue";
 
 // --- types
-import type {
-  BasketProductSummaryDetail,
-  BasketProductSummaryPrice,
-} from "@upmind-automation/headless-vue";
+import type { Product } from "@upmind-automation/headless-vue";
 
 const props = defineProps<{
   id: string;
   category?: string;
-  items: (BasketProductSummaryPrice | BasketProductSummaryDetail)[];
+  items: Product["details"];
 }>();
 
 const { t } = useI18n();

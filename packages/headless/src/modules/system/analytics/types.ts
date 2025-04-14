@@ -48,6 +48,8 @@ export interface DataLayerEcommerceItem {
   item_brand?: string;
   item_category2?: string;
   item_category3?: string;
+  item_category4?: string;
+  item_category5?: string;
   item_category?: string;
   item_id: string;
   item_name: string;

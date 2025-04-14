@@ -3,7 +3,9 @@
     <div class="flex flex-col md:gap-y-1">
       <Promotion
         v-if="primary"
-        v-bind="parsePromotion(pricing)"
+        v-for="(promotion, index) in price.promotions"
+        :key="index"
+        v-bind="promotion"
         :disabled="error"
         size="md"
         class="mb-2 inline-block md:hidden"
@@ -11,21 +13,26 @@
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
           <router-link
-            v-if="primary && product.imgUrl"
+            v-if="primary && productDetails.imgUrl"
             :to="editLink"
             :class="styles.product.summary.imageRoute"
           >
-            <img :src="product.imgUrl" :class="styles.product.summary.image" />
+            <img
+              :src="productDetails.imgUrl"
+              :class="styles.product.summary.image"
+            />
           </router-link>
 
           <div class="flex w-full flex-col gap-y-1">
             <div class="flex items-end justify-between">
               <div class="text-sm font-normal leading-5">
-                {{ pricing.category }}
+                {{ price.category }}
               </div>
               <Promotion
                 v-if="primary"
-                v-bind="parsePromotion(pricing)"
+                v-for="(promotion, index) in price.promotions"
+                :key="index"
+                v-bind="promotion"
                 :disabled="error"
                 class="-mt-3 hidden md:block"
               />
@@ -33,19 +40,19 @@
             <div class="flex items-end justify-between">
               <Link :to="editLink" offset="2">
                 <strong class="text-xl font-semibold leading-7 underline">
-                  {{ pricing.title }}
+                  {{ price.title }}
                 </strong>
               </Link>
 
               <div class="hidden items-center gap-x-6 md:flex">
                 <QuantityField
-                  v-bind="product"
+                  v-bind="productDetails"
                   :id="id"
-                  :quantity="pricing.quantity"
+                  :quantity="quantity"
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
-                  v-bind="pricing"
+                  v-bind="price"
                   :ui-config="{
                     pricing: { current: styles.product.pricing.current },
                   }"
@@ -57,33 +64,33 @@
       </div>
 
       <div class="mt-1 flex flex-col gap-y-1 md:hidden">
-        <TermsDescription v-bind="pricing" />
+        <TermsDescription v-bind="price" />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <CurrentPrice
-              v-bind="pricing"
+              v-bind="price"
               :ui-config="{
                 pricing: { current: styles.product.pricing.current },
               }"
             />
             <ExPrice
-              v-bind="pricing"
+              v-bind="price"
               :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
             />
           </div>
           <QuantityField
-            v-bind="product"
+            v-bind="productDetails"
             :id="id"
-            :quantity="pricing.quantity"
+            :quantity="quantity"
             @update:quantity="doUpdateQuantity"
           />
         </div>
       </div>
 
       <div class="hidden justify-between md:flex">
-        <TermsDescription v-bind="pricing" />
+        <TermsDescription v-bind="price" />
         <ExPrice
-          v-bind="pricing"
+          v-bind="price"
           :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
         />
       </div>
@@ -112,7 +119,11 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- types
-import { PromotionDisplayTypes } from "@upmind-automation/headless-vue";
+import {
+  PromotionDisplayTypes,
+  type Product,
+  type ProductSummaryDetailWithPrice,
+} from "@upmind-automation/headless-vue";
 import { type BasketProductSummaryProps } from "./types";
 import type { ComputedRef } from "vue";
 
@@ -121,7 +132,7 @@ const props = defineProps<BasketProductSummaryProps>();
 const emits = defineEmits(["update:quantity"]);
 
 const styles = useStyles(
-  ["product.summary", "product.pricing"],
+  ["productDetails.summary", "productDetails.pricing"],
   props,
   config
 ) as ComputedRef<{
@@ -140,15 +151,5 @@ const styles = useStyles(
 
 function doUpdateQuantity(value: number) {
   emits("update:quantity", value);
-}
-
-function parsePromotion(pricing: BasketProductSummaryProps["pricing"]) {
-  return {
-    code: "",
-    savingAmount: pricing.savingAmount ?? 0,
-    savingPrice: pricing.savingPrice ?? "",
-    savingPercent: pricing.savingPercent ?? "",
-    meta: pricing.meta,
-  };
 }
 </script>
