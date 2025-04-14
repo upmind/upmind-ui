@@ -11,7 +11,7 @@
         :model-value="model"
         :schema="schema"
         :uischema="uischema"
-        @update:modelValue="doInput"
+        @update:modelValue="data => input(data as AddressModel)"
         @resolve="doUpdate"
         @reject="doCancel"
       />
@@ -41,10 +41,6 @@ const { update, input, model, meta, schema, uischema, stop } =
   useClientAddress();
 
 // --- METHODS
-
-const doInput = debounce((data: AddressModel) => {
-  input(data);
-}, 500);
 
 function doUpdate() {
   update().then(() => {
