@@ -90,14 +90,14 @@ export default createMachine(
           },
           valid: {
             id: "valid",
-            always: { target: "processing", cond: "shouldUpdate" },
+            always: { target: "#processing", cond: "shouldUpdate" },
             on: {
               SET: {
                 target: "checking",
                 actions: ["setAutoUpdate"],
               },
               UPDATE: {
-                target: "processing",
+                target: "#processing",
                 cond: "hasBasket",
               },
             },
@@ -254,7 +254,12 @@ export default createMachine(
         return basketId !== data?.id || clientId !== data?.client_id;
       },
       shouldUpdate: ({ autoupdate, clientId, basketId, model }, _event) => {
-        return !!autoupdate && !!basketId && !!clientId && !!model?.addressId;
+        return (
+          !!autoupdate &&
+          !!basketId &&
+          !!clientId &&
+          (!!model?.addressId || !!model?.companyId)
+        );
       },
     },
 

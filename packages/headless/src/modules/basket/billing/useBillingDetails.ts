@@ -1,5 +1,6 @@
 // --- internal
 import {
+  useQuery,
   QueryObserver,
   invalidateQueryByKey,
   useQuerySubscription,
@@ -8,6 +9,7 @@ import service from "./unifiedAddress/services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
+import { useClientAddresses, useClientCompanies } from "../../client";
 
 // --- utils
 import {
@@ -17,7 +19,6 @@ import {
   isString,
   every,
   get,
-  map,
   has,
   isNil,
 } from "lodash-es";
@@ -25,11 +26,6 @@ import {
 // --- types
 import type { UnifiedAddress } from "./unifiedAddress";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-import {
-  useClientAddresses,
-  useClientCompanies,
-  useClientEmails,
-} from "../../client";
 
 let observer: QueryObserver | undefined;
 
@@ -49,13 +45,14 @@ const subscribe = (
 };
 
 export const useBillingDetails = () => {
-  const { addError, addSuccess } = useFeedback();
+  const { queryClient } = useQuery();
   const { isAuthenticated } = useSession();
+  const { addError, addSuccess } = useFeedback();
 
   /**
    * Check if the unified addresses are loaded and ready
    * @returns A promise that resolves to true when the unified addresses are ready to be fetched.
-   * @example isReady().then(getAll).then(() => console.log("Details are ready))
+   * @example isReady().then(getAll).then(() => console.log("Details are ready"))
    */
   async function isReady(): Promise<void> {
     return isAuthenticated();
@@ -71,72 +68,37 @@ export const useBillingDetails = () => {
     const { getAll: getAddresses } = useClientAddresses();
     const { getAll: getCompanies } = useClientCompanies();
 
-    // Fetch addresses and companies in parallel
-    const [addresses, companies] = await Promise.all([
-      getAddresses({ allowStale }),
-      getCompanies({ allowStale }),
-    ]);
+    return (
+      // Fetch addresses and companies in parallel
+      Promise.all([getCompanies({ allowStale }), getAddresses({ allowStale })])
+        .then(([companies, addresses]) => {
+          // we prioritise/return the companies first so they are at the top of the list
+          const unifiedAddresses = [...companies, ...addresses];
 
-    // Create unified addresses from regular addresses
-    const unifiedAddresses = map(addresses || [], address => ({
-      ...address,
-      companyDetails: false,
-    }));
+          // Cache the combined data under the unified-addresses key
+          queryClient.setQueryData(service.queryKey, {
+            data: unifiedAddresses,
+            meta: {
+              isStale: false,
+              isInvalid: false,
+            },
+          });
 
-    // Create unified addresses from companies
-    const companyAddresses = map(companies || [], company => {
-      const address = find(addresses || [], ["id", company.addressId]);
-
-      return {
-        ...address,
-        companyDetails: true,
-        companyId: company.id,
-        companyName: company.name,
-        regNumber: company.regNumber,
-        vatNumber: company.vatNumber,
-      };
-    });
-
-    // Combine and return all unified addresses
-    return [...unifiedAddresses, ...companyAddresses] as UnifiedAddress[];
+        return unifiedAddresses;
+      })
+    );
   }
 
   /**
    * Get all the unified addresses from the cache.
    * @returns An array of parsed unified addresses if found, otherwise an empty array.
    * @example getAllFromCache().then((addresses) => console.log(addresses))
-   * @throws {@link CacheIsStaleError} when the cache is stale
    */
   function getAllFromCache() {
-    const { getAllFromCache: getAddresses } = useClientAddresses();
-    const { getAllFromCache: getCompanies } = useClientCompanies();
-
-    // Fetch addresses and companies in parallel
-    const addresses = getAddresses();
-    const companies = getCompanies();
-
-    // Create unified addresses from regular addresses
-    const unifiedAddresses = map(addresses || [], address => ({
-      ...address,
-      companyDetails: false,
-    }));
-
-    // Create unified addresses from companies
-    const companyAddresses = map(companies || [], company => {
-      const address = find(addresses || [], ["id", company.addressId]);
-
-      return {
-        ...address,
-        companyDetails: true,
-        companyId: company.id,
-        companyName: company.name,
-        regNumber: company.regNumber,
-        vatNumber: company.vatNumber,
-      };
-    });
-
-    // Combine and return all unified addresses
-    return [...unifiedAddresses, ...companyAddresses] as UnifiedAddress[];
+    const unifiedAddressesQuery = queryClient.getQueryData<{
+      data: UnifiedAddress[];
+    }>(service.queryKey);
+    return unifiedAddressesQuery?.data || [];
   }
 
   /**
@@ -323,6 +285,15 @@ export const useBillingDetails = () => {
     getAllFromCache,
     remove,
     setDefault,
-    invalidate: invalidateQueryByKey(service.queryKey),
+    invalidate: async () => {
+      // Invalidate the unified-addresses query
+      await invalidateQueryByKey(service.queryKey)(null);
+
+      // Also invalidate the underlying queries
+      const { invalidate: invalidateAddresses } = useClientAddresses();
+      const { invalidate: invalidateCompanies } = useClientCompanies();
+
+      await Promise.all([invalidateAddresses(null), invalidateCompanies(null)]);
+    },
   };
 };
