@@ -3,16 +3,14 @@ import { get, map, compact, isArray } from "lodash-es";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
-import type { Company, CompanyModel, CompanyWithRelations } from "./types";
+import type { Company, CompanyModel } from "./types";
 
-export function mapCompanies(
-  raw: CompanyWithRelations | CompanyWithRelations[] | ICompany | ICompany[]
-): Company[] {
+export function mapCompanies(raw: ICompany | ICompany[]): Company[] {
   const rawListings = isArray(raw) ? raw : [raw];
   return map(rawListings, mapCompany);
 }
 
-export function mapCompany(raw: ICompany | CompanyWithRelations): Company {
+export function mapCompany(raw: ICompany): Company {
   return {
     id: raw.id,
     emailId: raw.email_id,
@@ -36,8 +34,8 @@ export function mapCompany(raw: ICompany | CompanyWithRelations): Company {
     // ---
     meta: {
       isDefault: raw.default,
-      isVerified: raw.verified,
       canDelete: raw.can_delete,
+      isVerified: !!raw.verified,
     },
   };
 }
