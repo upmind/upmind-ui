@@ -45,9 +45,9 @@ const subscribe = (
 };
 
 export const useBillingDetails = () => {
+  const { addError } = useFeedback();
   const { queryClient } = useQuery();
   const { isAuthenticated } = useSession();
-  const { addError, addSuccess } = useFeedback();
 
   /**
    * Check if the unified addresses are loaded and ready
@@ -70,19 +70,21 @@ export const useBillingDetails = () => {
 
     return (
       // Fetch addresses and companies in parallel
-      Promise.all([getCompanies({ allowStale }), getAddresses({ allowStale })])
-        .then(([companies, addresses]) => {
-          // we prioritise/return the companies first so they are at the top of the list
-          const unifiedAddresses = [...companies, ...addresses];
+      Promise.all([
+        getCompanies({ allowStale }),
+        getAddresses({ allowStale }),
+      ]).then(([companies, addresses]) => {
+        // we prioritise/return the companies first so they are at the top of the list
+        const unifiedAddresses = [...companies, ...addresses];
 
-          // Cache the combined data under the unified-addresses key
-          queryClient.setQueryData(service.queryKey, {
-            data: unifiedAddresses,
-            meta: {
-              isStale: false,
-              isInvalid: false,
-            },
-          });
+        // Cache the combined data under the unified-addresses key
+        queryClient.setQueryData(service.queryKey, {
+          data: unifiedAddresses,
+          meta: {
+            isStale: false,
+            isInvalid: false,
+          },
+        });
 
         return unifiedAddresses;
       })
@@ -165,6 +167,10 @@ export const useBillingDetails = () => {
     return getAll().then(items => find(items, "meta.isDefault"));
   }
 
+  async function refresh() {
+    return getAll({ allowStale: false });
+  }
+
   /**
    * Remove a unified address by id.
    * @param id The id of the unified address to remove.
@@ -186,35 +192,10 @@ export const useBillingDetails = () => {
       });
     }
 
-    // Check if the address is a company address
-    if (has(unifiedAddress, "companyDetails")) {
-      // Remove company address
-      return removeCompany(id)
-        .then(() => addSuccess("Successfully removed company address"))
-        .catch(error => {
-          addError({
-            message: {
-              title: "Something went wrong.",
-              copy: isString(error)
-                ? error
-                : "We experienced an error removing this company address",
-            },
-          });
-        });
-    }
-
-    return removeAddress(id)
-      .then(() => addSuccess("Successfully removed address"))
-      .catch(error => {
-        addError({
-          message: {
-            title: "Something went wrong.",
-            copy: isString(error)
-              ? error
-              : "We experienced an error removing this address",
-          },
-        });
-      });
+    // remove company and remove address already handle error and success messages
+    return has(unifiedAddress, "addressId")
+      ? removeCompany(id).then(refresh)
+      : removeAddress(id).then(refresh);
   }
 
   /**
@@ -238,41 +219,15 @@ export const useBillingDetails = () => {
       });
     }
 
-    // Check if the address is a company address
-    if (has(unifiedAddress, "companyDetails")) {
-      // Remove company address
-      return setCompanyAsDefault(id)
-        .then(() => addSuccess("Successfully removed company address"))
-        .catch(error => {
-          addError({
-            message: {
-              title: "Something went wrong.",
-              copy: isString(error)
-                ? error
-                : "We experienced an error removing this company address",
-            },
-          });
-        });
-    }
-
-    return setAddressAsDefault(id)
-      .then(() => addSuccess("Successfully set address as default"))
-      .catch(error => {
-        addError({
-          message: {
-            title: "Something went wrong.",
-            copy: isString(error)
-              ? error
-              : "We experienced an error setting this address as default",
-          },
-        });
-      });
+    return has(unifiedAddress, "addressId")
+      ? setCompanyAsDefault(id).then(refresh)
+      : setAddressAsDefault(id).then(refresh);
   }
 
   return {
     queryOptions: {
       queryKey: service.queryKey,
-      queryFn: () => getAll(),
+      queryFn: getAll,
       staleTime: useTime().DAY,
     },
     subscribe,
