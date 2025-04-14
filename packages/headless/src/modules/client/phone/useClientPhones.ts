@@ -197,7 +197,7 @@ export const useClientPhones = () => {
   return {
     queryOptions: {
       queryKey: service.queryKey,
-      queryFn: () => getAll(),
+      queryFn: getAll,
       staleTime: useTime().DAY,
     },
     subscribe,

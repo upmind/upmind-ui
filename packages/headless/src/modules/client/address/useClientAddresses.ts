@@ -193,7 +193,7 @@ export const useClientAddresses = () => {
   return {
     queryOptions: {
       queryKey: service.queryKey,
-      queryFn: () => getAll(),
+      queryFn: getAll,
       staleTime: useTime().DAY,
     },
     subscribe,

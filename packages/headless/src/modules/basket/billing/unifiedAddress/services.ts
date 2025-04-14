@@ -41,7 +41,7 @@ import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
 // -----------------------------------------------------------------------------
 // QUERIES
 
-const queryKey = ["clients"];
+const queryKey = ["unified-addresses"];
 
 /**
  * Load the lookups for the address form
