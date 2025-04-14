@@ -69,7 +69,7 @@ export const useSchema = ({
           ? undefined
           : map(choices.phones, item => ({
               const: item.id,
-              title: item.nationalNumber,
+              title: item.phone.nationalNumber,
             })),
         lookup: phones?.filter,
       },

@@ -6,7 +6,7 @@ import { PhoneTypes } from "./types";
 import type { ICountry } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
-export const useSchema = ({ country }: { country: ICountry }) => {
+export const useSchema = ({ country }: { country?: ICountry }) => {
   const schema = {
     type: "object",
     title: "Address Fields",
@@ -106,7 +106,7 @@ export const useUischema = () => {
       },
 
       // ---
-      // We dont ever show this field as it is set by an action
+      // We don't ever show this field as it is set by an action
       // {
       //   type: "Control",
       //   scope: "#/properties/default",

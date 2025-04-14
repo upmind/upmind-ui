@@ -6,7 +6,7 @@ import { createMachine, assign } from "xstate";
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
-const { addError, addSuccess } = useFeedback();
+const { addError } = useFeedback();
 
 // --- utils
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
@@ -14,7 +14,7 @@ import { useSchema, useUischema } from "./utils";
 import { parseBasketFieldsModel } from "../utils";
 
 // --- types
-import type { FieldsContext } from "./types";
+import { Field, FieldsContext } from "./types";
 import { responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
@@ -188,8 +188,8 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) =>
-          useModelParser(schema, data || model),
+        model: ({ fields, model }: FieldsContext, { data }: AnyEventObject) =>
+          useModelParser<Field>(fields, data || model),
       }),
 
       clearModel: assign({

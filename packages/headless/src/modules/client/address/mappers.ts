@@ -43,7 +43,7 @@ export function mapAddress(raw: IAddress): Address {
     meta: {
       isDefault: raw.default,
       canDelete: raw.can_delete,
-      isVerified: raw.verified,
+      isVerified: !!raw.verified,
     },
   };
 }
