@@ -1,3 +1,6 @@
+// --- external
+import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
+
 // --- utils
 import { map, get, compact, isArray } from "lodash-es";
 
@@ -15,6 +18,11 @@ export function mapPhone(raw: IPhone): Phone {
   let rawType = get(raw, "type");
   const type = rawType ? get(PhoneTypes, rawType) : undefined;
 
+  const phone = parsePhoneNumber(
+    raw.phone || "",
+    raw.phone_country_code as CountryCode
+  );
+
   return {
     id: raw.id,
     title: get(raw, "international_phone"),
@@ -22,10 +30,10 @@ export function mapPhone(raw: IPhone): Phone {
       " | "
     ),
     phone: {
-      number: raw.phone,
-      nationalNumber: raw.phone,
-      countryCallingCode: raw.phone_code,
-      country: raw.phone_country_code,
+      number: phone?.number,
+      country: phone?.country,
+      nationalNumber: phone?.nationalNumber,
+      countryCallingCode: phone?.countryCallingCode,
     },
     type: raw.type,
     // ---
@@ -38,7 +46,6 @@ export function mapPhone(raw: IPhone): Phone {
 }
 
 export function mapIPhone(data: PhoneModel): IPhone {
-  debugger;
   return {
     type: data.type,
     phone: data.phone.nationalNumber, // without the country code
