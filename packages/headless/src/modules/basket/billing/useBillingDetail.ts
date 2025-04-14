@@ -85,17 +85,13 @@ export const useBillingDetail = (
           return waitFor(
             service,
             state => ["processed", "available.error"].some(state.matches),
-            {
-              timeout: Infinity,
+            { timeout: Infinity }
+          ).then(state => {
+            if (["error", "available.error"].some(state.matches)) {
+              return Promise.reject(state.context.error);
             }
-          )
-            .then(state => {
-              if (["error", "available.error"].some(state.matches)) {
-                return Promise.reject(state.context.error);
-              }
-              return Promise.resolve();
-            })
-            .then(() => useBillingDetailsServices().refresh());
+            return Promise.resolve();
+          });
         })
         .catch(() => {
           return Promise.reject(
