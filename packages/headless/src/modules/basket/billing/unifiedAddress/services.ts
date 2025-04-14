@@ -118,22 +118,27 @@ async function add(data: UnifiedAddressModel) {
     // If we don't then we can just create the address as normal...simple
     return addAddress({ model: data });
   } else {
-    // if we do then we need to :
+    // if we do then we need to:
     // check if the address provided already exists in our addresses or if we need to create a new one
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // then create the address, email and phone as necessary and use the ids to create the company
+
+    // First ensure dependencies to get refs to address, email, and phone
     return ensureDependencies({ model: data }).then(
       ({ address, email, phone }) =>
+        // Only create company, since address was already created or found by ensureDependencies
         addCompany({
           model: {
+            // relations details
+            emailId: email?.id,
+            phoneId: phone?.id,
+            addressId: address?.id,
+            // company details
             name: data.companyName,
-            address_id: address?.id,
-            email_id: email?.id,
-            phone_id: phone?.id,
-            reg_number: data.regNumber,
-            vat_number: data.vatNumber,
-            // vat_percent: model.vatPercent,
+            regNumber: data.regNumber,
+            vatNumber: data.vatNumber,
+            // vatPercent: model.vatPercent,
           },
         })
     );
@@ -160,12 +165,12 @@ async function update(id: string, data: UnifiedAddressModel) {
           id,
           model: {
             name: data.companyName,
-            address_id: address?.id,
-            email_id: email?.id,
-            phone_id: phone?.id,
-            reg_number: data.regNumber,
-            vat_number: data.vatNumber,
-            // vat_percent: model.vatPercent,
+            addressId: address?.id,
+            emailId: email?.id,
+            phoneId: phone?.id,
+            regNumber: data.regNumber,
+            vatNumber: data.vatNumber,
+            // vatPercent: model.vatPercent,
           },
         })
     );
@@ -176,7 +181,7 @@ async function update(id: string, data: UnifiedAddressModel) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, model, regions, country }: UnifiedAddressContext,
+  { baseModel, schema, regions, country }: UnifiedAddressContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -203,7 +208,7 @@ async function parse(
     // if so, then we need to update the model with the new region id
     // otherwise the region_id is reset to null
     country = getCountry(safeModel.countryId);
-    const region = find(regions, ["id", model?.regionId]);
+    const region = find(regions, ["id", data?.regionId]);
     safeModel.regionId = get(region, "id", undefined);
 
     // now lets check our phone number
@@ -232,9 +237,8 @@ async function parse(
     }
 
     // force the type as company if we have added company details
-    if (safeModel.companyId) {
+    if (safeModel.companyDetails) {
       safeModel.type = 4; // company
-      safeModel.companyDetails = true;
     }
 
     if (!safeModel.companyDetails) {
@@ -360,9 +364,6 @@ async function ensureDependencies({
 
 export default {
   queryKey,
-  refresh: () => {
-    throw new Error("Not yet implemented");
-  },
 };
 
 export const useBillingDetailsServices = () => {
@@ -382,8 +383,5 @@ export const useBillingDetailsServices = () => {
     },
     parse,
     validate,
-    refresh: () => {
-      throw new Error("Not yet implemented");
-    },
   };
 };

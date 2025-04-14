@@ -1,5 +1,5 @@
 // --- utils
-import { compact, map, reduce } from "lodash-es";
+import { map, reduce } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../../../client";
@@ -98,12 +98,10 @@ export const useSchema = ({
         default: baseModel?.countryId,
         oneOf: !countries?.length
           ? undefined
-          : map(countries, item => {
-              return {
-                const: item.id,
-                title: item.name,
-              };
-            }),
+          : map(countries, item => ({
+              const: item.id,
+              title: item.name,
+            })),
       },
 
       // ---
@@ -195,40 +193,37 @@ export const useSchema = ({
     },
   };
 
-  // if (id) {
-  //   schema.required.push("name");
-  //   schema.required.push("type");
-  // }
-
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ addresses, emails, phones }: any) => {
+export const useUischema = ({
+  emails,
+  phones,
+  addresses,
+}: UnifiedAddressContext) => {
   const lookups = {
     addresses: reduce(
-      addresses.getItems(),
+      addresses,
       (result: any[], item) => {
         // Only return actual addresses, NOT companies
-        if (!item?.companyDetails) {
-          result.push({
-            value: item.id,
-            label: [
-              item.name,
-              item.address1,
-              item.address2,
-              item.city,
-              item.postcode,
-            ].join(", "),
-          });
-        }
+        result.push({
+          value: item.id,
+          label: [
+            item.name,
+            item.address1,
+            item.address2,
+            item.city,
+            item.postcode,
+          ].join(", "),
+        });
 
         return result;
       },
       []
     ),
 
-    emails: emails.getItems(),
-    phones: phones.getItems(),
+    emails: emails,
+    phones: phones,
   };
 
   const schema = {
@@ -277,125 +272,63 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
         // --- address details
         type: "VerticalLayout",
         elements: [
-          // ---
           {
             type: "Control",
-            scope: "#/properties/place",
-            i18n: "client.unified.form.fields.place",
+            scope: "#/properties/address1",
+            i18n: "client.unified.form.fields.address1",
             options: {
-              autoFocus: true,
-              icon: "search",
-              autocomplete: "off",
-              align: "start",
-              side: "bottom",
-              placeholder: "Search for address ...",
-              items: compact([
-                lookups.addresses?.length
-                  ? {
-                      label: "Your saved addresses",
-                      i18n: "client.unified.form.fields.saved",
-                      as: "separator",
-                    }
-                  : null,
-                ...lookups.addresses,
-                // {
-                //   label: "Enter manually",
-                //   i18n: "client.unified.form.fields.manual",
-                //   value: "manual",
-                //   as: "button",
-                //   variant: "link",
-                //   size: "sm",
-                //   persist: true,
-                // },
-              ]),
+              autocomplete: "address-line1",
             },
-            rule: {
-              effect: "HIDE",
-              condition: {
-                scope: "#",
-                schema: {
-                  anyOf: [
-                    { required: ["id"] },
-                    {
-                      required: ["place"],
-                      properties: { place: { const: "manual" } },
-                    },
-                  ],
-                },
-              },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/address2",
+            i18n: "client.unified.form.fields.address2",
+            options: {
+              autocomplete: "address-line2",
             },
           },
 
           // ---
           {
-            type: "VerticalLayout",
+            type: "HorizontalLayout",
             elements: [
               {
                 type: "Control",
-                scope: "#/properties/address1",
-                i18n: "client.unified.form.fields.address1",
+                scope: "#/properties/city",
+                i18n: "client.unified.form.fields.city",
                 options: {
-                  autocomplete: "address-line1",
+                  autocomplete: "address-level2",
                 },
               },
               {
                 type: "Control",
-                scope: "#/properties/address2",
-                i18n: "client.unified.form.fields.address2",
+                scope: "#/properties/postcode",
+                i18n: "client.unified.form.fields.postcode",
                 options: {
-                  autocomplete: "address-line2",
-                },
-              },
-
-              // ---
-              {
-                type: "HorizontalLayout",
-                elements: [
-                  {
-                    type: "Control",
-                    scope: "#/properties/city",
-                    i18n: "client.unified.form.fields.city",
-                    options: {
-                      autocomplete: "address-level2",
-                    },
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/postcode",
-                    i18n: "client.unified.form.fields.postcode",
-                    options: {
-                      autocomplete: "postal-code",
-                    },
-                  },
-                ],
-              },
-              // ---
-              {
-                type: "Control",
-                scope: "#/properties/regionId",
-                i18n: "client.unified.form.fields.regionId",
-                options: {
-                  autocomplete: "address-level1",
-                  placeholder: "Please select a Region...",
-                },
-              },
-              {
-                type: "Control",
-                scope: "#/properties/countryId",
-                i18n: "client.unified.form.fields.countryId",
-                options: {
-                  autocomplete: "country",
-                  placeholder: "Please select a Country...",
+                  autocomplete: "postal-code",
                 },
               },
             ],
-            // rule: {
-            //   effect: "SHOW",
-            //   condition: {
-            //     scope: "#/properties/manualPlace",
-            //     schema: { const: true },
-            //   },
-            // },
+          },
+          // ---
+          {
+            type: "Control",
+            scope: "#/properties/regionId",
+            i18n: "client.unified.form.fields.regionId",
+            options: {
+              autocomplete: "address-level1",
+              placeholder: "Please select a Region...",
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/countryId",
+            i18n: "client.unified.form.fields.countryId",
+            options: {
+              autocomplete: "country",
+              placeholder: "Please select a Country...",
+            },
           },
         ],
         rule: {
