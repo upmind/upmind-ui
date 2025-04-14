@@ -41,7 +41,6 @@ export class QueryObserver {
       exact: this.options?.exact,
     });
     if (query) {
-      debugger;
       callback(query);
     }
 
@@ -51,7 +50,6 @@ export class QueryObserver {
 
       const fn = this.options?.exact ? every : some;
       if (fn(this.queryKey, key => includes(event.query.queryKey, key))) {
-        debugger;
         callback(event.query);
       }
     });

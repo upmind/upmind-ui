@@ -516,7 +516,6 @@ export default createMachine(
         { raw, currency }: RecommendationsEngineContext,
         { data }: AnyEventObject
       ) => {
-        debugger;
         const product = data; //TODO: check / parse the data is a basket item
         dataLayer({
           event: "view_item_list",
