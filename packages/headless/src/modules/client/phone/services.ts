@@ -5,22 +5,22 @@ import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { mapIPhone, mapPhones } from "./mapper";
-import { invalidateQueryByKey } from "../../query";
-import { isString, isNil, get, set, defaultsDeep, first } from "lodash-es";
 import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
+import { mapIPhone, mapPhones } from "./mapper";
+import { invalidateQueryByKey } from "../../query";
+import { isString, isNil, get, set, first } from "lodash-es";
 
 // --- types
-import type { ICountry, IPhone } from "@upmind-automation/types";
+import { PhoneTypes } from "./types";
+import type { IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Phone, PhoneModel, PhoneContext } from "./types";
-import { PhoneTypes } from "./types";
 
 // -----------------------------------------------------------------------------// QUERIES
 // QUERIES
@@ -176,7 +176,7 @@ async function parse(
 ) {
   const safeModel: PhoneModel = useModelParser(
     schema,
-    get(data, "model", data),
+    get(data, "model", data) as PhoneModel,
     baseModel,
     { allowExtraProps: false }
   );
@@ -189,7 +189,7 @@ async function parse(
 
   const countryCode: CountryCode = (safeModel?.phone?.country ||
     data?.country?.code ||
-    country.code ||
+    country?.code ||
     "") as CountryCode;
   const phone = parsePhoneNumber(phoneNumber, countryCode) || safeModel.phone;
 
@@ -199,10 +199,10 @@ async function parse(
     nationalNumber: phone?.nationalNumber || safeModel.phone?.nationalNumber,
     countryCallingCode:
       phone?.countryCallingCode || safeModel.phone?.countryCallingCode,
-    country: phone?.country || safeModel.phone?.country || country?.code,
+    country: phone?.country || safeModel.phone?.country || country?.code || "",
   };
 
-  if (!!safeModel.phone?.country && safeModel.phone.country !== country.code) {
+  if (!!safeModel.phone?.country && safeModel.phone.country !== country?.code) {
     const { getCountry } = useSystem();
     // we have change countries in the form, so we need to get our new country
     country = getCountry(safeModel.phone.country);
