@@ -416,7 +416,8 @@ export const parseSummaryDetail = (
 };
 
 export const parsePrice = (raw: IProductPrice): PriceDetail => {
-  const { checkIncludesTax } = useBrand();
+  //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
+  // const { checkIncludesTax } = useBrand();
 
   const savingAmount =
     Math.round(subtract(raw.price, raw?.price_discounted || raw.price) * 100) /
@@ -664,7 +665,17 @@ export const parseProduct = (
     meta: term?.meta ?? {},
     promotions: term?.promotions,
     // ---
-    price,
+    price: !isNil(price?.regularPrice)
+      ? price
+      : term?.price || {
+          currentAmount: 0,
+          currentPrice: "",
+          regularAmount: 0,
+          regularPrice: "",
+          savingAmount: 0,
+          savingPrice: "",
+          savingPercent: "",
+        },
   };
   // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration

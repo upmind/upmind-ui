@@ -227,6 +227,7 @@ export type ProductSummaryMeta = {
   available?: boolean;
   includesTax?: boolean;
   default?: boolean;
+  freeTrail?: boolean;
 };
 
 export type ProductSummaryDetail = {

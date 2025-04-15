@@ -36,7 +36,6 @@ export function mapIBasketProduct(
     },
     isNil
   );
-  debugger;
   return item;
 }
 
@@ -65,6 +64,5 @@ export function mapBasketProduct(
     },
     isNil
   );
-  debugger;
   return item;
 }

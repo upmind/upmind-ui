@@ -18,7 +18,7 @@
       <figure :class="styles.product.config.media" v-if="productImage()">
         <img
           :src="productImage()"
-          :alt="`${product?.name} thumbnail`"
+          :alt="`${product.productDetails?.name} thumbnail`"
           :class="styles.product.config.image"
         />
       </figure>
@@ -28,38 +28,19 @@
         :class="styles.product.config.wrapper"
         v-if="
           !props.noTitle ||
-          product?.hasFreeTrial ||
-          product?.isOnPromotion ||
-          !!product?.description ||
-          !!product?.excerpt
+          !!product.productDetails?.description ||
+          !!product.productDetails?.excerpt
         "
       >
         <!-- heading -->
         <div :class="styles.product.config.heading">
           <div
             :class="styles.product.config.headingContent"
-            v-if="
-              !props.noTitle || product?.hasFreeTrial || product?.isOnPromotion
-            "
+            v-if="!props.noTitle"
           >
             <h3 :class="styles.product.config.title" v-if="!props.noTitle">
               {{ title }}
             </h3>
-
-            <Badge
-              v-if="product?.hasFreeTrial"
-              color="secondary"
-              :label="t('product.trail')"
-              variant="tonal"
-            />
-
-            <Badge
-              v-if="product?.isOnPromotion"
-              color="promotion"
-              :label="t('product.promotion')"
-              variant="tonal"
-              size="sm"
-            />
           </div>
 
           <Lineclamp
@@ -67,9 +48,9 @@
             :lines="2"
             :labelMore="t('product.actions.more', 1)"
             :labelLess="t('product.actions.more', 0)"
-            v-if="product?.description"
+            v-if="product.productDetails?.description"
           >
-            <Markdown :model-value="product.description" />
+            <Markdown :model-value="product.productDetails.description" />
           </Lineclamp>
 
           <Lineclamp
@@ -77,9 +58,9 @@
             :lines="2"
             labelMore=""
             labelLess=""
-            v-if="product?.excerpt"
+            v-if="product.productDetails?.excerpt"
           >
-            <Markdown :model-value="product.excerpt" />
+            <Markdown :model-value="product.productDetails.excerpt" />
           </Lineclamp>
         </div>
       </div>
@@ -113,7 +94,7 @@
             (value: string, qty: number) =>
               updateOptionQuantity(option, value, qty)
           "
-          :required="option.required"
+          :required="option.meta.required"
           :visible="!!option.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="props.disabled || meta.isLoading || meta.isProcessing"
@@ -126,7 +107,7 @@
           :subproduct="attribute"
           :model-value="getValue('attributes', attribute)"
           :errors="getErrors('attributes', attribute)"
-          :required="attribute.required"
+          :required="attribute.meta.required"
           :visible="!!attribute.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="
@@ -167,10 +148,13 @@
           @click="doReject"
         />
 
-        <span :class="styles.product.config.itemtotal" v-if="summary?.total">
+        <span
+          :class="styles.product.config.itemtotal"
+          v-if="product.price.regularAmount"
+        >
           <span>{{ t("product.total") }}</span>
           <strong :class="styles.product.config.bold">
-            {{ summary?.regularPrice }}
+            {{ product.price?.regularPrice }}
           </strong>
         </span>
 
@@ -216,6 +200,8 @@ import type { ActorRef } from "xstate";
 import type { ComputedRef, HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
+const { t } = useI18n();
+
 const emit = defineEmits(["reject", "resolve"]);
 
 const props = withDefaults(
@@ -240,8 +226,6 @@ const props = withDefaults(
   }
 );
 
-const { t } = useI18n();
-
 const {
   title,
   product,
@@ -254,7 +238,6 @@ const {
   errors,
   model,
   meta,
-  summary,
   updateTerm,
   setAttributes,
   setOptions,
@@ -295,8 +278,8 @@ function safeValue(subproduct: any, value: any): string | string[] {
 const getTermsComponent = computed(() => {
   // TODO: Can we do this in a lookup?
   const control =
-    product?.value?.uiMeta?.uischema?.billing?.control ||
-    product?.value?.uiCategoryMeta?.uischema?.billing?.control;
+    product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
+    product.value.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
 
   return control === "TermsConfigSelect" ? TermsConfigSelect : TermsConfigGrid;
 });
