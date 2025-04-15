@@ -1,8 +1,8 @@
 <template>
   <Card :class="styles.recommendation.root" :disabled="configMeta?.isDisabled">
     <Badge
-      v-if="badge?.label"
-      v-bind="badge"
+      v-if="props.productDetails?.badge?.label"
+      v-bind="props.productDetails.badge"
       variant="flat"
       size="lg"
       :class="styles.recommendation.badge"
@@ -12,10 +12,10 @@
       <!-- Image section -->
       <figure :class="styles.recommendation.image.root">
         <img
-          v-if="imgUrl"
+          v-if="props.productDetails?.imgUrl"
           :class="styles.recommendation.image.image"
-          :src="imgUrl"
-          :alt="`${title} item image`"
+          :src="props.productDetails.imgUrl"
+          :alt="`${props.productDetails.title} product image`"
         />
         <span v-else :class="styles.recommendation.image.placeholder" />
       </figure>
@@ -26,25 +26,24 @@
           <!-- Title and description -->
           <section :class="styles.recommendation.content.details.root">
             <h3 :class="styles.recommendation.content.details.title">
-              {{ title }}
+              {{ props.productDetails.title }}
             </h3>
 
             <Lineclamp
-              v-if="description"
+              v-if="props.productDetails?.description"
               :class="styles.recommendation.content.details.description"
               :lines="2"
               :labelMore="t('product.actions.more', 1)"
               :labelLess="t('product.actions.more', 0)"
-              >{{ description }}</Lineclamp
+              >{{ props.productDetails.description }}</Lineclamp
             >
 
             <ul :class="styles.recommendation.content.list">
-              <template v-for="benefit in benefits" :key="benefit.label">
-                <RecommendationBenefit
-                  v-if="benefit?.label"
-                  :label="benefit.label"
-                  :icon="benefit.icon as IconProps"
-                />
+              <template
+                v-for="benefit in props.productDetails?.benefits"
+                :key="benefit.label"
+              >
+                <RecommendationBenefit v-if="benefit?.label" v-bind="benefit" />
               </template>
             </ul>
           </section>
@@ -55,10 +54,12 @@
             <small :class="styles.recommendation.content.price.intro.root">
               <p :class="styles.recommendation.content.price.intro.text">
                 <!-- If discounted, show regular price -->
-                <template v-if="meta?.discounted">
+                <template v-if="props.meta?.discounted">
                   <del>{{
                     t("recommendations.card.was_price", {
-                      price: !!cycle ? monthlyFromRegularPrice : regularPrice,
+                      price: !!props.configuration.term
+                        ? props.price.monthlyFromRegularPrice
+                        : props.price.regularPrice,
                     })
                   }}</del>
                 </template>
@@ -70,7 +71,7 @@
               </p>
 
               <Promotion
-                v-for="promotion in promotions"
+                v-for="promotion in props.promotions"
                 :key="promotion.code?.toString()"
                 v-bind="promotion"
                 size="sm"
@@ -80,17 +81,17 @@
             <div :class="styles.recommendation.content.price.current.root">
               <!-- Current Price -->
               <span :class="styles.recommendation.content.price.current.text">
-                <template v-if="meta?.free">{{
+                <template v-if="props.meta?.free">{{
                   t("recommendations.card.free")
                 }}</template>
-                <template v-else-if="!!cycle">{{
-                  monthlyFromCurrentPrice
+                <template v-else-if="!!props.configuration.term">{{
+                  props.price.monthlyFromCurrentPrice
                 }}</template>
-                <template v-else>{{ currentPrice }}</template>
+                <template v-else>{{ props.price.currentPrice }}</template>
               </span>
 
               <!-- Term -->
-              <template v-if="!!cycle">
+              <template v-if="!!props.configuration.term">
                 <span :class="styles.recommendation.content.price.term">{{
                   ` / ${t(`recommendations.terms.month`).toLocaleLowerCase()}`
                 }}</span>
@@ -98,20 +99,22 @@
             </div>
 
             <!-- Summary (If there is a billing cycle) -->
-            <template v-if="!!cycle">
+            <template v-if="!!props.configuration.term">
               <small :class="styles.recommendation.content.price.summary">
                 {{
                   t(
-                    meta?.discounted
+                    props.meta?.discounted
                       ? "recommendations.card.discounted_summary"
                       : "recommendations.card.non_discounted_summary",
                     {
-                      numericTerm: t(`recommendations.terms.numeric.${cycle}`),
+                      numericTerm: t(
+                        `recommendations.terms.numeric.${props.configuration.term}`
+                      ),
                       descriptiveTerm: t(
-                        `recommendations.terms.descriptive.${cycle}`
+                        `recommendations.terms.descriptive.${props.configuration.term}`
                       ).toLocaleLowerCase(),
-                      currentPrice,
-                      regularPrice,
+                      currentPrice: props.price.currentPrice,
+                      regularPrice: props.price.regularPrice,
                     }
                   )
                 }}
@@ -129,7 +132,7 @@
             :label="
               meta?.added
                 ? t('recommendations.card.added')
-                : label || t('recommendations.card.add')
+                : props.productDetails?.label || t('recommendations.card.add')
             "
             block
             @click="doResolve(id)"

@@ -1,7 +1,7 @@
 <template>
   <Card :class="styles.summary.card" as="aside" class="">
     <header :class="styles.summary.header">
-      <SummaryPricing :summary="summary" :meta="meta" />
+      <SummaryPricing :pricing="pricing" :meta="meta" />
     </header>
 
     <footer :class="styles.summary.footer">
@@ -60,7 +60,6 @@ import SummaryList from "./SummaryList.vue";
 import { NumberField, Icon, Button, Alert } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { omitBy, find, isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";

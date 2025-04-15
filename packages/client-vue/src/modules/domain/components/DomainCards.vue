@@ -85,8 +85,8 @@ import { includes, isArray, isNil, find, map } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { DomainCardProps, DomainCardsProps } from "../types";
-import type { DomainLookup } from "@upmind-automation/headless-vue";
+import type { DomainCardsProps } from "../types";
+import type { DomainProduct } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 // const emit = defineEmits(["update:modelValue", "update:selected"]);
@@ -138,15 +138,15 @@ const safeValue = computed(() => {
       : [props.modelValue];
 });
 
-function getDomain(value: string): DomainLookup {
-  return find(props.items, ["value", value]) as DomainLookup;
+function getDomain(value: string): DomainProduct {
+  return find(props.items, ["value", value]) as DomainProduct;
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
-      id: item.value ?? "",
-      value: item.value ?? "",
+      id: item.domain,
+      value: item.domain,
       label: item.domain,
     };
   });

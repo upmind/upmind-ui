@@ -48,26 +48,30 @@ import { useI18n } from "vue-i18n";
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { Product } from "@upmind-automation/headless-vue";
-import { has } from "lodash-es";
+import type {
+  ProductSummaryDetailWithPrice,
+  ProductSummaryDetail,
+} from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<Product["details"]>();
+const props = defineProps<
+  ProductSummaryDetail | ProductSummaryDetailWithPrice
+>();
 
 const { t } = useI18n();
 
 const showPlusIcon = computed(
   () =>
     !props.meta?.overrides &&
-    "currentAmount" in props &&
-    props.currentAmount > 0
+    "price" in props &&
+    props?.price?.currentAmount > 0
 );
 const showTermLabel = computed(() => props?.cycle && props.cycle > 0);
 
 const hasPricing = computed(() => "currentAmount" in props);
 
 const safePrice = computed(() => {
-  return "currentPrice" in props ? props.currentPrice : "";
+  return "price" in props ? props.price.currentPrice : "";
 });
 </script>

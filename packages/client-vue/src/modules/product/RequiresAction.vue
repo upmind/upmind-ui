@@ -39,7 +39,7 @@
         <template #default>
           <ol class="mt-4 list-disc text-left font-semibold">
             <li v-for="basketItem in products" :key="basketItem.id">
-              <span>{{ basketItem?.product?.title }}</span>
+              <span>{{ basketItem?.productDetails?.title }}</span>
             </li>
           </ol>
         </template>

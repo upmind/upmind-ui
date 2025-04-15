@@ -16,7 +16,6 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  parseDataLayerItem,
   checkInBasket,
 } from "./utils";
 import {
@@ -527,7 +526,7 @@ export default createMachine(
           currency: currency?.code,
           item_list_id: "recommendations",
           // item_list_name: "Recommendations",
-          items: map(raw.related, parseDataLayerItem),
+          items: raw.related,
         }).push();
       },
 

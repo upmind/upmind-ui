@@ -17,11 +17,15 @@
 
       <span
         :class="styles.product.config.grid.item.text"
-        v-if="props.monthlyFromCurrentAmount && props?.cycle && props.cycle > 1"
+        v-if="
+          props.price.monthlyFromCurrentAmount &&
+          props?.cycle &&
+          props.cycle > 1
+        "
       >
         {{
           t("product.cycle", {
-            value: props.monthlyFromCurrentPrice,
+            value: props.price.monthlyFromCurrentPrice,
           })
         }}
       </span>
@@ -58,11 +62,11 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { Term } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<Term>();
+const props = defineProps<TermDetails>();
 
 // ---
 

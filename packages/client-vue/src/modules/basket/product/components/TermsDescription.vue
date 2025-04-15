@@ -1,8 +1,8 @@
 <template>
   <Description>
-    {{ t(`product.terms.billing.${props.cycle}`, [props.currentPrice]) }}.
+    {{ t(`product.terms.billing.${props.cycle}`, [props.price.currentPrice]) }}.
     <template v-if="props.meta?.discounted && cycle !== 0"
-      >{{ t("product.terms.renews", [regularPrice]) }}.
+      >{{ t("product.terms.renews", [props.price.regularPrice]) }}.
     </template>
     <template v-if="props.meta?.includesTax"
       >{{ t("product.terms.taxes") }}.</template
@@ -19,10 +19,10 @@ import Description from "../../../../components/content/Description.vue";
 import { useI18n } from "vue-i18n";
 
 // --- types
-import type { BasketProductSummaryPrice } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const props = defineProps<BasketProductSummaryPrice>();
+const props = defineProps<TermDetails>();
 </script>

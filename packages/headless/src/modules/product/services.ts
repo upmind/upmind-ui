@@ -146,7 +146,7 @@ async function checkQuantity(
   });
 }
 
-async function checkTermDetails(
+async function checkTerm(
   { error, lookups, model }: ProductConfigContext,
   _event: any
 ) {
@@ -504,7 +504,7 @@ export default {
   refresh: load, // alias
   // ---
   checkQuantity,
-  checkTermDetails,
+  checkTerm,
   checkAttributes,
   checkOptions,
   checkProvisioning,

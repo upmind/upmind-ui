@@ -3,7 +3,7 @@
     :id="subproduct.id"
     :name="subproduct.id"
     :class="styles.product.config.list.root"
-    :required="subproduct.required"
+    :required="subproduct.meta.required"
     :disabled="props.disabled"
     :visible="props.visible"
     :dirty="blurred"
@@ -17,13 +17,13 @@
       :id="subproduct.id"
       v-model="modelValue"
       :name="subproduct.id"
-      :required="subproduct.required"
+      :required="subproduct.meta.required"
       :items="parsedValues"
       :disabled="props.disabled"
       :errors="errors"
       :none-text="t('product.select.none')"
       :placeholder="t('product.select.placeholder')"
-      :multiple="subproduct.multiple"
+      :multiple="subproduct.meta.multiple"
       :size="subproduct.uiMeta?.uischema?.options?.size"
     >
       <template #item="{ item: { value } }">
@@ -123,7 +123,8 @@ const mapComponent = (name: string) => {
     case "SelectCards":
       return SelectCards;
     default:
-      return props.subproduct.multiple || props.subproduct.values?.length == 1
+      return props.subproduct.meta.multiple ||
+        props.subproduct.values?.length == 1
         ? CheckboxCards
         : RadioCards;
   }

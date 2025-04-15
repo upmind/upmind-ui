@@ -56,6 +56,8 @@ export const parseBasketProduct = (
   errors?: any
 ): BasketProduct => {
   // Get price object matching `display_price_billing_cycle_months`
+  const pricing = parsSummaryWithPrice(raw);
+
   const basketProduct: BasketProduct = {
     id: raw.id,
     serviceIdentifier: raw?.service_identifier ?? undefined,
@@ -73,9 +75,11 @@ export const parseBasketProduct = (
     // --- product details
     productDetails: parseProductDetails(raw.product),
 
+    // --- meta details
+    meta: pricing.meta,
     // --- summary details
-    price: parsPrice(raw),
-    pricing: [parsSummaryWithPrice(raw)], // may be added to below
+    price: pricing.price,
+    pricing: [pricing], // may be added to below
     details: [], // will be built up below
 
     // --- errors
@@ -162,6 +166,7 @@ export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
     category: useTranslateName(subproduct.product.category),
     cycle: subproduct.billing_cycle_months,
     quantity: subproduct.quantity,
+    meta: {},
   };
 }
 

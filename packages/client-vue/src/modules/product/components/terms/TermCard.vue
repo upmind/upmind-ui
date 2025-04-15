@@ -48,12 +48,12 @@ import { isEmpty } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import { type BadgeProps } from "@upmind-automation/upmind-ui";
-import type { Term } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
   defineProps<
-    Term & {
+    TermDetails & {
       select?: boolean;
       badge?: BadgeProps;
     }

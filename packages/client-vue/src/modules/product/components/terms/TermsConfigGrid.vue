@@ -60,13 +60,13 @@ import { isNil, map, toNumber, find } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { Term } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
-    items: Term[];
+    items: TermDetails[];
     modelValue?: string | number;
     errors?: string;
     // ---
@@ -107,7 +107,7 @@ const styles = useStyles(
 }>;
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
-  return map(props.items, (item: Term, index: number) => {
+  return map(props.items, (item: TermDetails, index: number) => {
     return {
       id: item.cycle,
       value: item.cycle?.toString(),
@@ -123,14 +123,16 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function getTerm(value: string): Term {
-  const item = find(props.items, ["cycle", toNumber(value)]) as Term;
+function getTerm(value: string): TermDetails {
+  const item = find(props.items, ["cycle", toNumber(value)]) as TermDetails;
   return item;
 }
 
 function isMonthly(value: string) {
-  const term = getTerm(value) as Term;
-  return props.monthly && term.monthlyFromRegularPrice && (term.cycle ?? 0) > 1;
+  const term = getTerm(value) as TermDetails;
+  return (
+    props.monthly && term.price.monthlyFromRegularPrice && (term.cycle ?? 0) > 1
+  );
 }
 
 function doResolve(value: string | number) {
