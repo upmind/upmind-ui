@@ -89,7 +89,9 @@ export const useValidationParser = (error: any) => {
   return error;
 };
 
-export const useModelParser = <T extends Record<string, any> = Record<string, any>>(
+export const useModelParser = <
+  T extends Record<string, any> = Record<string, any>,
+>(
   schema: JsonSchema | undefined,
   values?: Partial<T>,
   baseModel?: Partial<T>,

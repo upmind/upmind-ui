@@ -142,7 +142,7 @@ export const useRoutingEngine = () => {
     }
 
     resolve(
-      target,
+      target as ROUTE,
       {
         name: route.name?.toString(),
         params: route.params,
