@@ -7,6 +7,7 @@ import {
   useClientEmails,
   useClientPhones,
   useClientAddresses,
+  useClientCompanies,
 } from "../../../client";
 import { useSystem } from "../../../system";
 import { useClientEmailServices } from "../../../client/email/services";
@@ -37,6 +38,7 @@ import type {
 } from "../../../client";
 import type { AnyEventObject } from "xstate";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import { invalidateQueryByKey } from "../../../query";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -116,7 +118,9 @@ async function add(data: UnifiedAddressModel) {
   // for the unified address we need to check if we have company details or just an address.
   if (!data?.companyDetails) {
     // If we don't then we can just create the address as normal...simple
-    return addAddress({ model: data });
+    return addAddress({ model: data }).then(() =>
+      useBillingDetailsServices().invalidate()
+    );
   } else {
     // if we do then we need to:
     // check if the address provided already exists in our addresses or if we need to create a new one
@@ -125,8 +129,8 @@ async function add(data: UnifiedAddressModel) {
     // then create the address, email and phone as necessary and use the ids to create the company
 
     // First ensure dependencies to get refs to address, email, and phone
-    return ensureDependencies({ model: data }).then(
-      ({ address, email, phone }) =>
+    return ensureDependencies({ model: data })
+      .then(({ address, email, phone }) =>
         // Only create company, since address was already created or found by ensureDependencies
         addCompany({
           model: {
@@ -141,7 +145,8 @@ async function add(data: UnifiedAddressModel) {
             // vatPercent: model.vatPercent,
           },
         })
-    );
+      )
+      .then(() => useBillingDetailsServices().invalidate());
   }
 }
 
@@ -152,15 +157,17 @@ async function update(id: string, data: UnifiedAddressModel) {
   // for the unified address we need to check if we have company details or just an address.
   if (!data?.companyDetails) {
     // If we don't then we can just create the address as normal...simple
-    return updateAddress({ id, model: data });
+    return updateAddress({ id, model: data }).then(() =>
+      useBillingDetailsServices().invalidate()
+    );
   } else {
     // if we do then we need to :
     // check if the address provided already exists in our addresses or if we need to create a new one
     // check if the phone number provided already exists in our phones or if we need to create a new one
     // check if the email provided already exists in our emails or if we need to create a new one
     // then create the address, email and phone as necessary and use the ids to create the company
-    return ensureDependencies({ model: data }).then(
-      ({ address, email, phone }) =>
+    return ensureDependencies({ model: data })
+      .then(({ address, email, phone }) =>
         updateCompany({
           id,
           model: {
@@ -172,8 +179,9 @@ async function update(id: string, data: UnifiedAddressModel) {
             vatNumber: data.vatNumber,
             // vatPercent: model.vatPercent,
           },
-        })
-    );
+        }).then(() => {})
+      )
+      .then(() => useBillingDetailsServices().invalidate());
   }
 }
 
@@ -383,5 +391,15 @@ export const useBillingDetailsServices = () => {
     },
     parse,
     validate,
+    invalidate: async () => {
+      // Invalidate the unified-addresses query
+      await invalidateQueryByKey(queryKey)(null);
+
+      // Also invalidate the underlying queries
+      const { invalidate: invalidateAddresses } = useClientAddresses();
+      const { invalidate: invalidateCompanies } = useClientCompanies();
+
+      await Promise.all([invalidateAddresses(null), invalidateCompanies(null)]);
+    },
   };
 };
