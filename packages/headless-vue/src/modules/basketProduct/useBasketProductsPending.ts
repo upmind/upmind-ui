@@ -15,7 +15,7 @@ type PendingProduct = ReturnType<typeof useBasketProductPending>;
 // -----------------------------------------------------------------------------
 
 export const useBasketProductsPending = () => {
-  const { getProducts, get, remove, resolve, sync, clear } =
+  const { getProducts, get, remove, resolve, addMany, clear } =
     useUpmindPendingProducts();
 
   const products = ref(getProducts());
@@ -38,7 +38,7 @@ export const useBasketProductsPending = () => {
     },
     remove,
     resolve,
-    sync,
+    addMany,
     clear,
   };
 };

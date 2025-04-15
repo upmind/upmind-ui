@@ -38,7 +38,6 @@ import {
 // --- types
 import {
   BrandConfigKeys,
-  PromotionDisplayTypes,
   DefaultPaymentPeriod,
 } from "@upmind-automation/types";
 import type { ProductConfigContext, TermDetails, Price } from "./types";
@@ -59,7 +58,12 @@ async function load(
   if (!productId) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
-  const currency = await useBrand().validateCurrency({ id: currencyId });
+  // as well as ensuring our promo display type is available
+  const { validateCurrency, ensureConfig } = useBrand();
+  const [currency] = await Promise.all([
+    validateCurrency({ id: currencyId }),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+  ]);
 
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
@@ -101,21 +105,10 @@ async function load(
 
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
-  // lets also get some brand config for how we want to show promotions
-  // Get the brands preference on how to display promotions
-  const { getConfig } = useBrand();
-  const configPromise = getConfig(BrandConfigKeys.SHOW_PROMOTION_AS).then(
-    response =>
-      get(
-        response,
-        BrandConfigKeys.SHOW_PROMOTION_AS,
-        PromotionDisplayTypes.PERCENTAGE
-      )
-  );
 
-  return Promise.all([productPromise, provisioningPromise, configPromise]).then(
-    ([product, provisioning, promotionDisplayType]) => {
-      return { product, provisioning, promotionDisplayType, currency };
+  return Promise.all([productPromise, provisioningPromise]).then(
+    ([product, provisioning]) => {
+      return { product, provisioning, currency };
     }
   );
 }

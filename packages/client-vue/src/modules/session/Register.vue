@@ -58,7 +58,9 @@ import type { AuthProps } from "./components/types";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { next, back, navigate } = useRoutingEngine();
+const { next, back, navigate, isResolved } = useRoutingEngine();
+
+await isResolved(ROUTE.SESSION_REGISTER).catch(back);
 
 function doLogin(value: AuthProps["modelValue"]) {
   if (value === "login") {

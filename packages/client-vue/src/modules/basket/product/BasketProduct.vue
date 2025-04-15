@@ -3,11 +3,11 @@
     <Card :class="styles.product.root.card" v-auto-animate>
       <div :class="styles.product.root.container">
         <BasketProductSummary
-          v-for="(price, index) in props.pricing"
+          v-for="(summary, index) in props.pricing"
           :key="`${props.id}-${index}`"
           :id="id"
           :productDetails="props.productDetails"
-          :price="price"
+          :summary="summary"
           :quantity="props.configuration.quantity"
           :error="meta.hasErrors"
           :primary="index === 0"

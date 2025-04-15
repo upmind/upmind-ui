@@ -32,8 +32,10 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import Internet from "../../assets/animations/internet.json?url";
+import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+
 // -- components
+import Internet from "../../assets/animations/internet.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
@@ -41,7 +43,11 @@ import ContentSection from "../../components/content/ContentSection.vue";
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
+
 const { t } = useI18n();
+const { back, isResolved } = useRoutingEngine();
+
+await isResolved(ROUTE.SESSION_END).catch(back);
 
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 

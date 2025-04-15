@@ -33,7 +33,10 @@
 
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
-        v-bind="props"
+        :regular-price="props.price.regularPrice"
+        :current-price="props.price.currentPrice"
+        :meta="props.meta"
+        :cycle="props.cycle"
         :ui-config="{
           pricing: {
             current: styles.product.config.grid.item.total,

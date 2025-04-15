@@ -321,18 +321,6 @@ export function basketSubscription(callback: any, onReceive: any) {
         break;
 
       case "UPDATE":
-        basketProduct = basket.findProduct({ id: event.target.id });
-        if (!basketProduct) {
-          callback({
-            type: "ERROR",
-            data: new DetailedError(
-              "Basket Product not found",
-              responseCodes.Not_Found
-            ),
-          });
-          break;
-        }
-
         callback({ type: "PROCESSING" });
 
         if (isEmpty(event.target)) {
@@ -355,6 +343,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           )
           .then((rawBasket: IBasket) => {
             // add the success event to the datalayer
+            const basketProduct = basket.findProduct({ id: event.target.id });
             debugger;
             if (basketProduct)
               dataLayer({ event: "add_to_cart" })
@@ -364,11 +353,10 @@ export function basketSubscription(callback: any, onReceive: any) {
             return rawBasket;
           })
           .then(rawBasket => {
-            basket
-              .refresh()
-              .then(rawBasket =>
-                callback({ type: "UPDATED", data: rawBasket })
-              );
+            return basket.refresh().then(rawBasket => {
+              callback({ type: "UPDATED", data: rawBasket });
+              return rawBasket;
+            });
           })
           .catch(error => {
             callback({ type: "ERROR", data: error });

@@ -8,18 +8,20 @@ import { waitFor } from "xstate/lib/waitFor";
 import {
   useRoutingEngine as useUpmindRoutingEngine,
   useDataLayer,
+  utils,
 } from "@upmind-automation/headless";
 import { useBasket } from "../basket";
 import { useSession } from "../session";
 
 // --- utils
-
+const { DetailedError, responseCodes } = utils;
 import { isEmpty } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
 import type { Route } from "@upmind-automation/headless";
 import { ROUTE } from "@upmind-automation/headless";
+
 // -----------------------------------------------------------------------------
 
 // a singletom for the router
@@ -186,7 +188,7 @@ export const useRoutingEngine = () => {
 
   // ---------------------------------------------------------------------------
   return {
-    isReady: async () =>
+    isReady: async (): Promise<boolean> =>
       isReady()
         .then(() => {
           return waitFor(
@@ -197,12 +199,28 @@ export const useRoutingEngine = () => {
             if (state.matches("unavailable")) {
               return Promise.reject("Routing Engine is unavailable");
             }
-            return state;
+            return true;
           });
         })
         .catch(() => {
-          return Promise.reject("Routing Engine is not ready");
+          throw new DetailedError(
+            "Routing Engine is unavailable",
+            responseCodes.Conflict
+          );
         }),
+
+    isResolved: async (route: ROUTE | string): Promise<boolean> =>
+      waitFor(service, state => ["resolved"].some(state.matches), {
+        timeout: 60_000,
+      }).then(state => {
+        if (state.context.currentRoute?.name !== route)
+          throw new DetailedError(
+            "Route is not available",
+            responseCodes.Forbidden
+          );
+
+        return true;
+      }),
 
     state: computed(() => state.value.value),
     // ---

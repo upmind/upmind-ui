@@ -33,7 +33,12 @@ import {
 } from "lodash-es";
 
 // --- types
-import { PromotionDisplayTypes } from "@upmind-automation/types";
+
+import {
+  PromotionDisplayTypes,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
+
 import type {
   IBasketProduct,
   IProduct,
@@ -259,15 +264,9 @@ export const parseMeta = (
   );
 };
 
-export const parseTermDetails = (
-  raw: any,
-  promotionDisplayType?: PromotionDisplayTypes
-): TermDetails[] => {
+export const parseTermDetails = (raw: any): TermDetails[] => {
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
-    const details: TermDetails = parseSummaryDetailWithPrice(
-      rawTerm,
-      promotionDisplayType
-    );
+    const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
@@ -284,7 +283,6 @@ export const parseTermDetails = (
 
 export const parseSubproductDetails = (
   data: any,
-  promotionDisplayType?: PromotionDisplayTypes,
   cycle?: number
 ): SubproductDetails[] => {
   const { checkIncludesTax } = useBrand();
@@ -343,7 +341,6 @@ export const parseSubproductDetails = (
         rawPrice =>
           parseSummaryDetailWithPrice(
             rawPrice,
-            promotionDisplayType,
             rawSubproduct.category.price_override
           )
       );
@@ -389,7 +386,6 @@ export const parseSubproductDetails = (
 
 export const parseSummaryDetail = (
   raw: IProductPrice,
-  promotionDisplayType?: PromotionDisplayTypes,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const { getBillingCycle } = useSystem();
@@ -403,7 +399,7 @@ export const parseSummaryDetail = (
     cycle: raw.billing_cycle_months,
     title: cycle ? useTranslateName(cycle) : useTranslateName(raw),
     name: cycle?.name,
-    promotions: parsePromotionDetails(raw, promotionDisplayType),
+    promotions: parsePromotionDetails(raw),
     meta: {
       oneoff: raw.billing_cycle_months == 0,
       mixed: raw.mixed_promotions,
@@ -441,12 +437,10 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
 
 export const parseSummaryDetailWithPrice = (
   raw: IProductPrice,
-  promotionDisplayType?: PromotionDisplayTypes,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const result: ProductSummaryDetailWithPrice = parseSummaryDetail(
     raw,
-    promotionDisplayType,
     overrides
   );
   result.price = parsePrice(raw);
@@ -454,16 +448,22 @@ export const parseSummaryDetailWithPrice = (
 };
 
 export const parsePromotionDetails = (
-  raw: IProductPrice,
-  promotionDisplayType: PromotionDisplayTypes = PromotionDisplayTypes.PERCENTAGE
+  raw: IProductPrice
 ): PromotionDetails[] => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
-  //  - As a sumamry percentage, eg "Save 20%"
+  //  - As a summary percentage, eg "Save 20%"
   //  - As individual names, eg ["20% off", "Black Friday"]
-  // NB: we always supply the amouns so we can show meta data if needed, eg a tooltip
+  // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
 
   // ---
+  const { getConfig } = useBrand();
+
+  const promotionDisplayType: PromotionDisplayTypes = get(
+    getConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    BrandConfigKeys.SHOW_PROMOTION_AS,
+    PromotionDisplayTypes.PERCENTAGE
+  );
 
   if (isEmpty(raw?.promotions)) return [];
 
@@ -736,7 +736,7 @@ export const parseProduct = (
     details: compact(
       concat(termDetails, optionDetails, attributeDetail, provisionFieldDetails)
     ),
-    errors: error,
+    errors: omitBy(error, isEmpty),
   };
 };
 

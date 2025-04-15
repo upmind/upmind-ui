@@ -169,7 +169,7 @@ export const useProductFlows = () => {
       name: ROUTE.PRODUCT_EDIT,
       guard: async (route: Route) => {
         const { basketProductId } = useRouteQueryParams(route);
-        return getProduct(basketProductId)
+        return await getProduct(basketProductId)
           .then(() => true)
           .catch(() => false);
       },
@@ -239,7 +239,7 @@ export const useProductFlows = () => {
             },
           },
         ],
-        back: [ROUTE.RECOMMENDATIONS, ROUTE.BASKET],
+        back: [ROUTE.BASKET],
         fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
