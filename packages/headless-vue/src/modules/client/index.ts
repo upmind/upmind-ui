@@ -7,5 +7,6 @@ export * from "./useClientEmails";
 export * from "./useClientEmail";
 export * from "./useClientPhone";
 export * from "./useClientPhones";
-export * from "./unifiedAddress";
+export * from "./useBillingDetail";
+export * from "./useBillingDetails";
 export * from "./types";
