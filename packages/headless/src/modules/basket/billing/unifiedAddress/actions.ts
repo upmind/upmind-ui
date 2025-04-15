@@ -17,7 +17,7 @@ export const useBillingDetailsActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: UnifiedAddressContext) =>
-        model?.companyName || model?.name || "New Address",
+        model?.companyName || model?.name || model?.address1 || "New Address",
       description: ({ model }: UnifiedAddressContext) => {
         const address = compact([
           get(model, "address1"),
