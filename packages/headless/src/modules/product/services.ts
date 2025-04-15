@@ -399,7 +399,6 @@ const calculateSummary = (
       prices: values,
     },
   }).then(({ data }: any) => {
-    debugger;
     return {
       total: get(data, "total", 0),
       totalFormatted: get(data, "total_formatted", ""),

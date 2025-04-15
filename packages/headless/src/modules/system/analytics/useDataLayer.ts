@@ -234,7 +234,6 @@ class TrackingEvent {
       items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
     };
 
-    debugger;
     set(this.args, "ecommerce", omitBy(payload, isNil));
 
     return this; // nb this is needed to chain the methods

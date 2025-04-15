@@ -20,7 +20,7 @@ import { ROUTE } from "../types";
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
   const { hasProducts, setCurrency, addPromotion, isReady } = useBasket();
-  const { sync } = useBasketProductsPending();
+  const { addMany } = useBasketProductsPending();
 
   let flows: Flow[] = [
     {
@@ -33,7 +33,7 @@ export const useBasketFlows = () => {
         if (coupon) addPromotion(coupon);
 
         // then we sync the product(s) from our Query Params if we have any
-        if (productConfigs) await sync(productConfigs);
+        if (productConfigs) addMany(productConfigs);
 
         return false; //NB ALWAYS return false as we dont want the currentFlow to be Loading, but rather its fallback
       },

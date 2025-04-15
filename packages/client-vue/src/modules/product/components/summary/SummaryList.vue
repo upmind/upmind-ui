@@ -1,18 +1,17 @@
 <template>
   <ul :class="styles.summary.list.root">
     <SummaryItem
-      v-if="termSummary"
-      :category="termSummary.category"
+      v-if="term"
+      v-bind="term"
       :title="
-        te(`product.terms.cycle.${termSummary.cycle}`)
-          ? t(`product.terms.cycle.${termSummary.cycle}`)
-          : termSummary.title
+        te(`product.terms.cycle.${term.cycle}`)
+          ? t(`product.terms.cycle.${term.cycle}`)
+          : term.title
       "
-      :quantity="termSummary.quantity"
       icon="configuration"
     />
 
-    <template v-for="item in summaryItems" :key="item.title">
+    <template v-for="item in summary" :key="item.title">
       <SummaryItem v-bind="item" />
     </template>
   </ul>
@@ -34,11 +33,15 @@ import SummaryItem from "./SummaryItem.vue";
 import { find, omitBy, isEmpty } from "lodash-es";
 
 // --- types
-import type { SummaryListProps } from "./types";
+import type {
+  Product,
+  ProductSummaryDetail,
+  ProductSummaryDetailWithPrice,
+} from "@upmind-automation/headless-vue";
 import type { ComputedRef } from "vue";
 
 // --- props
-const props = defineProps<SummaryListProps>();
+const props = defineProps<Product>();
 
 const { t, te } = useI18n();
 
@@ -50,17 +53,15 @@ const styles = useStyles("summary.list", {}, config) as ComputedRef<{
   };
 }>;
 
-const termSummary = computed(() => {
-  return find(props.summary?.details, detail => detail.name === "term");
+const term = computed(() => {
+  return find(props.details, detail => detail.name === "term");
 });
 
-const hasSummaryDetails = computed(() => {
-  return !isEmpty(termSummary.value) || !isEmpty(summaryItems.value);
-});
-
-const summaryItems = computed(() => {
-  return omitBy(props.summary?.details, detail =>
+const summary = computed<
+  (ProductSummaryDetail | ProductSummaryDetailWithPrice)[]
+>(() => {
+  return omitBy(props.details, detail =>
     ["term", "category", "provision_field.sld"].includes(detail.name)
-  );
+  ) as (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
 });
 </script>

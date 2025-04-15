@@ -7,6 +7,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import {
   useBrand,
   useBasketProductsPending,
+  SubproductDetails,
 } from "@upmind-automation/headless";
 import { stateMatches, contextMatches } from "../../utils";
 
@@ -15,7 +16,6 @@ import {
   add,
   get,
   isEmpty,
-  isNil,
   isEqual,
   set,
   some,
@@ -27,6 +27,12 @@ import {
 
 // --- types
 import type { ActorRef } from "xstate";
+import type {
+  Product,
+  ProductDetails,
+  SubproductValue,
+  TermDetails,
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -40,24 +46,34 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const touched = ref(false);
 
   // syntactic sugar
-  // const productDetails = computed(() => state.value.context?.lookups?.product);
-  const title = computed(() => state.value.context?.title);
-  const productImage = (size: string = "400x400") => {
-    const productDetails = state.value.context?.lookups?.product;
-
-    if (!productDetails?.full_url) return undefined;
-
-    const url = new URL(productDetails.full_url);
+  const productDetails = computed<ProductDetails>(
+    () => state.value.context?.lookups?.product
+  );
+  const productImage = (size: string = "400x400"): string | undefined => {
+    if (!productDetails.value?.imgUrl) return undefined;
+    const url = new URL(productDetails.value.imgUrl);
     url.searchParams.set("size", size);
     return url.toString();
   };
 
-  const terms = computed(() => state.value.context?.lookups?.terms);
-  const attributes = computed(() => state.value.context?.lookups?.attributes);
-  const options = computed(() => state.value.context?.lookups?.options);
-  const fields = computed(() => state.value.context?.lookups?.provisionFields);
+  const product = computed<Product>(() => state.value.context?.product);
+
+  const title = computed<string>(() => state.value.context?.product?.title);
+
+  const terms = computed<TermDetails[]>(
+    () => state.value.context?.lookups?.terms
+  );
+  const attributes = computed<SubproductDetails[]>(
+    () => state.value.context?.lookups?.attributes
+  );
+  const options = computed<SubproductDetails[]>(
+    () => state.value.context?.lookups?.options
+  );
+  const fields = computed<Record<string, any>>(
+    () => state.value.context?.lookups?.provisionFields
+  );
   // ---
-  const errors = computed(() => state.value.context?.error);
+  const errors = computed<Product["errors"]>(() => state.value.context?.error);
 
   const meta = computed(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
@@ -75,7 +91,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       "lookups.provisionFields.properties",
     ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
-    isCalculating: contextMatches(state, ["prices.calculating"]),
+    isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
     isComplete:
       state.value?.done ||
@@ -93,8 +109,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
     hasTaxIncluded: checkIncludesTax(),
   }));
-
-  const product = computed(() => state.value.context?.product);
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
@@ -139,23 +153,22 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   // --- TERMS
 
-  function isSelectedTerm(term: any) {
-    const value = isEqual(term.cycle, model.value?.term?.cycle);
-    return value;
+  function isSelectedTerm(value: number): boolean {
+    return isEqual(value, model.value?.term?.cycle);
   }
 
-  const updateTerm = (term: any) => {
+  const updateTerm = (calue: number): void => {
     touched.value = true;
     send({
       type: "SET.TERM",
-      data: { term },
+      data: { term: calue },
     });
   };
   //emit("update:term",{itemId: props.id,...);
 
   // --- ATTRIBUTES
 
-  const updateAttributes = () => {
+  const updateAttributes = (): void => {
     touched.value = true;
     send({
       type: "SET.ATTRIBUTES",
@@ -165,11 +178,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
     });
   };
 
-  function isSelectedAttribute(attributeId: any, value: any) {
+  function isSelectedAttribute(attributeId: string, value: string): boolean {
     return some(model.value.attributes[attributeId], ["productId", value]);
   }
 
-  function setAttributes(attribute: any, values: any) {
+  function setAttributes(
+    attribute: SubproductDetails,
+    values: string | string[]
+  ): void {
     const safeValues = isArray(values) ? values : [values];
     set(model.value.attributes, attribute.id, {}); // reset all previous attributes
 
@@ -185,7 +201,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   // --- OPTIONS
 
-  const updateOptions = () => {
+  const updateOptions = (): void => {
     touched.value = true;
     send({
       type: "SET.OPTIONS",
@@ -195,11 +211,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
     });
   };
 
-  function isSelectedOption(optionId: any, value: any) {
+  function isSelectedOption(optionId: string, value: string): boolean {
     return some(model.value.options[optionId], ["productId", value]);
   }
 
-  function setOptions(option: any, values: any) {
+  function setOptions(
+    option: SubproductDetails,
+    values: string | string[]
+  ): void {
     const safeValues = isArray(values) ? values : [values];
     set(model.value.options, option.id, {}); // reset all previous options
     forEach(safeValues, value => {
@@ -212,7 +231,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
     updateOptions();
   }
 
-  function updateOptionQuantity(option: any, productId: string, qty: number) {
+  function updateOptionQuantity(
+    option: SubproductDetails,
+    productId: string,
+    qty: number
+  ): void {
     // sanity check
     const product = find(option.values, ["id", productId]);
     if (!product?.quantifiable) return;
@@ -223,7 +246,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
     updateOptions();
   }
 
-  function incrementOption(option: any, value: any) {
+  function incrementOption(
+    option: SubproductDetails,
+    value: SubproductValue
+  ): void {
     // sanity check
     if (!value?.quantifiable) return;
 
@@ -237,7 +263,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
     updateOptions();
   }
 
-  function decrementOption(option: any, value: any) {
+  function decrementOption(
+    option: SubproductDetails,
+    value: SubproductValue
+  ): void {
     // sanity check
     if (!value?.quantifiable) return;
     const qty = get(model.value.options, [option.id, value.id, "step"], 0);
@@ -252,18 +281,17 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   // --- PROVISIONING
 
-  function setProvisioningFields(value: any) {
-    set(model.value, "provisionFields", value);
+  function setProvisioningFields(values: Record<string, any>): void {
+    set(model.value, "provisionFields", values);
     // emit the event
     updateProvisioning();
   }
 
-  function getProvisioningField(field: any) {
-    const value = get(model.value, ["provisionFields", field], null);
-    return value;
+  function getProvisioningField(field: string): any {
+    return get(model.value, ["provisionFields", field]);
   }
 
-  const updateProvisioning = () => {
+  const updateProvisioning = (): void => {
     touched.value = true;
     send({
       type: "SET.PROVISIONING",
@@ -281,7 +309,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     lookups,
     title,
-    product,
+    // productDetails,
     productImage,
     terms,
     options,
@@ -289,7 +317,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     fields,
     // ---
     model,
-    summary,
+    product,
     // ---
     updateQuantity,
     incrementQuantity,

@@ -22,7 +22,7 @@ import type {
   TermDetails,
   ProductProps,
 } from "../product";
-import { DataLayerEcommerceItem } from "../system/analytics/types";
+// import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
@@ -84,32 +84,6 @@ export const useBasketProductPending = (model: ProductProps) => {
       return resolve(product);
     });
   }
-
-  // async function getTermDetails(): Promise<TermDetails> {
-  //   return new Promise<TermDetails>((resolve, reject) => {
-  //     const terms = get(service.getSnapshot(), "context.lookups.terms") as
-  //       | TermDetails[]
-  //       | undefined;
-
-  //     const term = find(terms, ["cycle", model.term]) as TermDetails;
-  //     // sanity check
-  //     if (!term) return reject("Product Term not found");
-  //     // ---
-  //     return resolve(term);
-  //   });
-  // }
-
-  // async function getSummary(): Promise<ProductSummary> {
-  //   return new Promise<ProductSummary>((resolve, reject) => {
-  //     const summary = get(service.getSnapshot(), "context.suummary") as
-  //       | ProductSummary
-  //       | undefined;
-  //     // sanity check
-  //     if (!summary) return reject("Product Summary not found");
-  //     // ---
-  //     return resolve(summary);
-  //   });
-  // }
 
   async function update(): Promise<void> {
     return waitFor(service, state =>

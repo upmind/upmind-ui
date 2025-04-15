@@ -15,14 +15,11 @@ import {
   forEach,
   get,
   set,
-  has,
   unset,
   isEmpty,
   keys,
   map,
-  merge,
   omit,
-  reject,
   isString,
   isNil,
 } from "lodash-es";
@@ -113,10 +110,15 @@ export const useBasketProductsPending = () => {
 
   function subscribe(pid: string, actor: ActorRef<any>) {
     const subscription = actor.subscribe((state: State<any>) => {
+      debugger;
       if (state.matches("error")) {
         unsetProduct(pid);
       } else if (state.matches("available")) {
+        debugger;
         setProduct(pid, get(state, "context.model"));
+      } else if (state.done) {
+        debugger;
+        unsetProduct(pid);
       } else {
         // should we resolve on complete?
         console.info("Product state", state.value);
@@ -141,6 +143,7 @@ export const useBasketProductsPending = () => {
       });
     }
     const model = get(productConfigs, productId, { productId, quantity: 1 });
+    debugger;
     return ensure(productId, model).then(instance => {
       if (sync) subscribe(productId, instance.service);
       return instance;
@@ -153,7 +156,7 @@ export const useBasketProductsPending = () => {
     const model = defaults(safeValue, { productId });
 
     set(productConfigs, productId, model);
-
+    debugger;
     storage.set("pendingProducts", productConfigs);
   }
 
@@ -176,6 +179,7 @@ export const useBasketProductsPending = () => {
 
     // remove the product from the pending products storage
     unset(productConfigs, pid);
+    debugger;
     storage.set("pendingProducts", productConfigs);
   }
 
@@ -189,15 +193,9 @@ export const useBasketProductsPending = () => {
     if (pid) unsetProduct(pid);
   }
 
-  async function sync(
-    configs?: ProductModel[]
-  ): Promise<BasketProductPending[]> {
+  function addMany(configs?: ProductModel[]): void {
     // ensure we add all our configs to the productConfigs
     forEach(configs, config => setProduct(config.productId, config));
-    const promises = map(productConfigs, (_model, pid) => {
-      return getProduct(pid);
-    });
-    return Promise.all(promises);
   }
 
   function clear() {
@@ -216,7 +214,7 @@ export const useBasketProductsPending = () => {
     remove: unsetProduct,
     resolve,
     // --
-    sync,
+    addMany,
     clear,
   };
 };
