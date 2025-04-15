@@ -40,7 +40,11 @@
     </header>
 
     <footer :class="styles.domain.card.footer.root">
-      <DomainPrices v-if="meta.isAvailable" :summary="domain" />
+      <DomainPrices
+        v-if="meta.isAvailable"
+        :meta="domain.meta"
+        :price="domain.price"
+      />
 
       <DomainActions
         v-bind="domain"
@@ -75,7 +79,7 @@ import { omit } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { DomainCardProps } from "../types";
-import type { DomainLookup } from "@upmind-automation/headless-vue";
+import type { DomainProduct } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
   (e: "update:selected", domain: string): void;
@@ -90,8 +94,8 @@ const props = withDefaults(defineProps<DomainCardProps>(), {
 
 const { t } = useI18n();
 
-const domain = computed<DomainLookup>(
-  () => omit(props, ["color", "secondary", "processing"]) as DomainLookup
+const domain = computed<DomainProduct>(
+  () => omit(props, ["color", "secondary", "processing"]) as DomainProduct
 );
 
 const meta = computed(() => ({

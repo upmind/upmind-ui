@@ -801,8 +801,6 @@ export default createMachine(
 
       setOwned: assign({
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
-          debugger;
-
           const available = map(data, (item: DomainModel) => {
             return {
               domain: item.domain,

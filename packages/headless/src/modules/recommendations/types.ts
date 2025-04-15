@@ -46,13 +46,21 @@ export interface Recommendation extends Product {
     badge?: Badge;
     benefits?: Benefit[];
   };
+
+  // --- we need additional monthly price details for recommendations
+  price: Product["price"] & {
+    monthlyFromCurrentAmount?: number;
+    monthlyFromCurrentPrice?: string;
+    monthlyFromRegularAmount?: number;
+    monthlyFromRegularPrice?: string;
+  };
   /**
    * The product configuration matches the way we can interperet a product config machine: ie ProductProps
    * This has additional fields to allow setting sub_pids, coupons,currency, etc...
    */
   configuration: ProductProps;
   // ---
-  meta?: {
+  meta: Product["meta"] & {
     seen?: boolean;
     added?: boolean;
     processing?: boolean;

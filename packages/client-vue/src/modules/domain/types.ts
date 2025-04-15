@@ -1,5 +1,5 @@
 import type {
-  DomainLookup,
+  DomainProduct,
   DomainTypes,
 } from "@upmind-automation/headless-vue";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
@@ -20,7 +20,7 @@ export interface DacProps {
   color?: ButtonProps["color"];
   offset?: number;
   values?: string[];
-  items?: DomainLookup[];
+  items?: DomainProduct[];
   dialog?: boolean;
   loading?: boolean;
   processing?: boolean;
@@ -33,7 +33,7 @@ export interface DacProps {
 export interface DomainCardsProps {
   i18n?: string;
   modelValue?: string | string[];
-  items: DomainLookup[];
+  items: DomainProduct[];
   offset?: number;
   // ---
   color?: ButtonProps["color"];
@@ -43,25 +43,20 @@ export interface DomainCardsProps {
   disabled?: boolean;
 }
 
-export type DomainCardProps = DomainLookup & {
+export type DomainCardProps = DomainProduct & {
   selected?: boolean;
   processing?: boolean;
   color?: ButtonProps["color"];
 };
 
-export interface DomainPricesProps {
-  summary?: {
-    currentPrice?: DomainLookup["currentPrice"];
-    regularPrice?: DomainLookup["regularPrice"];
-    meta: {
-      discounted?: DomainLookup["meta"]["discounted"];
-    };
-  };
+export interface DomainSummaryProps {
+  price: DomainProduct["price"];
+  meta: DomainProduct["meta"];
 }
-export interface DomainDescriptionProps
-  extends Omit<DomainLookup, "sld" | "productId" | "quantity" | "term"> {}
 
-export interface DomainActionProps extends DomainDescriptionProps {
+export interface DomainActionProps extends DomainSummaryProps {
+  domain: DomainProduct["domain"];
+  tld: DomainProduct["tld"];
   color?: string;
   processing?: boolean;
 }

@@ -13,13 +13,15 @@
         <template v-if="meta.discounted">
           {{
             t("domain.card.available.description.discounted", [
-              regularPrice,
-              currentPrice,
+              price.regularPrice,
+              price.currentPrice,
             ])
           }}
         </template>
         <template v-else>
-          {{ t("domain.card.available.description.regular", [currentPrice]) }}
+          {{
+            t("domain.card.available.description.regular", [price.currentPrice])
+          }}
         </template>
       </template>
     </Description>
@@ -34,9 +36,9 @@ import Description from "../../../components/content/Description.vue";
 import { useI18n } from "vue-i18n";
 
 // --- types
-import type { DomainDescriptionProps } from "../types";
+import type { DomainSummaryProps } from "../types";
 
-defineProps<DomainDescriptionProps>();
+defineProps<DomainSummaryProps>();
 
 const emit = defineEmits(["update"]);
 

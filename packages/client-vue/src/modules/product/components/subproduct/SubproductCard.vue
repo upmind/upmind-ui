@@ -6,17 +6,21 @@
           <h5 class="m-0 font-medium">{{ title }}</h5>
 
           <Promotion
-            v-for="promotion in props.price?.promotions"
+            v-for="promotion in props.promotions"
             :key="promotion.code.toString()"
             v-bind="promotion"
           />
         </div>
 
         <div
-          v-if="props.price && !props.price?.meta?.free"
+          v-if="props.price && !props.meta?.free"
           class="my-1 flex items-center gap-x-1 text-xs md:hidden"
         >
-          <SubproductCardPricing v-bind="props.price" />
+          <SubproductCardPricing
+            v-if="props.price"
+            :price="props.price"
+            :meta="props.meta"
+          />
         </div>
       </div>
 
@@ -37,7 +41,11 @@
 
         <div class="hidden flex-col text-right md:flex">
           <span class="flex flex-shrink-0 items-center justify-end gap-x-1">
-            <SubproductCardPricing v-if="props.price" v-bind="props.price" />
+            <SubproductCardPricing
+              v-if="props.price"
+              :price="props.price"
+              :meta="props.meta"
+            />
           </span>
         </div>
       </div>
@@ -64,11 +72,11 @@ import SubproductCardPricing from "./SubproductCardPricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- types
-import type { SuproductOptionValue } from "@upmind-automation/headless-vue";
+import type { SubproductValue } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["update:quantity"]);
 const props = defineProps<
-  SuproductOptionValue & {
+  SubproductValue & {
     processing?: boolean;
   }
 >();

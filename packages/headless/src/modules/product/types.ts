@@ -91,6 +91,8 @@ export type Product = {
    */
   promotions?: PromotionDetails[];
 
+  meta: ProductSummaryMeta;
+
   /**
    * The display price details for the product. This is the total configured pricing including any discounts or adjustments.
    * It will always be the price that is shown to the customer, and it may or may not include tax, depending on the brand's settings.
@@ -234,7 +236,7 @@ export type ProductSummaryDetail = {
   category?: string;
   quantity?: number;
   promotions?: PromotionDetails[];
-  meta?: ProductSummaryMeta;
+  meta: ProductSummaryMeta;
 };
 
 export type ProductSummaryDetailWithPrice = ProductSummaryDetail & {
@@ -259,10 +261,10 @@ export type SubproductDetails = {
   uiMeta?: Record<string, any>;
   uiCategoryMeta?: Record<string, any>;
   // ---
-  meta?: {
-    multiple?: boolean;
-    required?: boolean;
-    overrides?: boolean;
+  meta: {
+    multiple: boolean;
+    required: boolean;
+    overrides: boolean;
   };
   // ---
   values?: SubproductValue[];
@@ -271,6 +273,7 @@ export type SubproductDetails = {
 export type SubproductValue = ProductDetails & {
   meta: ProductSummaryMeta;
   price?: PriceDetail;
+  promotions?: PromotionDetails[];
   pricing?: ProductSummaryDetailWithPrice[];
   order: number;
 };

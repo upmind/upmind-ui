@@ -54,12 +54,12 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { Term } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<
-  Term & {
+  TermDetails & {
     select?: boolean;
   }
 >();

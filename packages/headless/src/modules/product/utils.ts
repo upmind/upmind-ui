@@ -311,12 +311,14 @@ export const parseSubproductDetails = (
         title: useTranslateName(rawSubproduct.category),
         description: useTranslateField(rawSubproduct.category, "description"),
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
-        multiple: rawSubproduct.category.multiple,
-        required: rawSubproduct.category.required,
-        priceOverride: rawSubproduct.category.price_override,
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
+        meta: {
+          multiple: rawSubproduct.category.multiple,
+          required: rawSubproduct.category.required,
+          overrides: rawSubproduct.category.price_override,
+        },
       });
 
       // check EARLY if we have a price for one of the following:
@@ -336,12 +338,14 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing = map(rawSubproduct.prices, rawPrice =>
-        parseSummaryDetailWithPrice(
-          rawPrice,
-          promotionDisplayType,
-          rawSubproduct.category.price_override
-        )
+      const pricing: ProductSummaryDetailWithPrice[] = map(
+        rawSubproduct.prices,
+        rawPrice =>
+          parseSummaryDetailWithPrice(
+            rawPrice,
+            promotionDisplayType,
+            rawSubproduct.category.price_override
+          )
       );
 
       const price =
@@ -353,6 +357,7 @@ export const parseSubproductDetails = (
         cycle: price?.cycle ?? productDetails.cycle,
         price: price?.price,
         pricing: pricing,
+        promotions: price?.promotions,
         meta: {
           // NB: only show term pricing if recurring!
           oneoff: rawSubproduct.billing_cycle_months == 0,
@@ -438,10 +443,13 @@ export const parseSummaryDetailWithPrice = (
   promotionDisplayType?: PromotionDisplayTypes,
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
-  return {
-    ...parseSummaryDetail(raw, promotionDisplayType, overrides),
-    ...parsePrice(raw),
-  } as ProductSummaryDetailWithPrice;
+  const result: ProductSummaryDetailWithPrice = parseSummaryDetail(
+    raw,
+    promotionDisplayType,
+    overrides
+  );
+  result.price = parsePrice(raw);
+  return result;
 };
 
 export const parsePromotionDetails = (
@@ -653,7 +661,7 @@ export const parseProduct = (
     category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
-    meta: term?.meta,
+    meta: term?.meta ?? {},
     promotions: term?.promotions,
     // ---
     price,
@@ -670,12 +678,14 @@ export const parseProduct = (
     name: "product",
     title: lookups.product?.title,
     category: lookups.product?.category,
+    meta: {},
   });
 
   //  product category
   details.push({
     name: "category",
     title: lookups.product.category,
+    meta: {},
   });
 
   const termDetails = parseSummaryTerm(
@@ -709,6 +719,7 @@ export const parseProduct = (
     id: model.id,
     configuration: model,
     productDetails: lookups.product,
+    meta: summaryDetailWithPrice.meta,
     price,
     pricing: [summaryDetailWithPrice],
     details: compact(

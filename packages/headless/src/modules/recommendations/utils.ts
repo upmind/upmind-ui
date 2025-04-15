@@ -86,7 +86,9 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
       // Lets allow the back end to hide the native related products.
       // Any meta level (product, category) can have the hide_native_related flag
+      // TODO: make this link to the `uimeta.hide_native_related`
       const hideNative = true;
+
       // const hideNative = some(
       //   concat(
       //     basketProduct?.product?.meta,
@@ -307,38 +309,38 @@ export function parseRecommendation(
   } as Recommendation;
 }
 
-export function parseDataLayerItem(raw: RelatedProduct, index: number) {
-  const product = raw.product;
-  const config: IProductConfig = get(raw, "config", {});
-  const terms = raw?.product?.prices;
-  const term =
-    find(terms, { billing_cycle_months: config?.bcm }) ??
-    find(terms, { billing_cycle_months: product?.billing_cycle_months }) ??
-    first(terms);
+// export function parseDataLayerItem(raw: RelatedProduct, index: number) {
+//   const product = raw.product;
+//   const config: IProductConfig = get(raw, "config", {});
+//   const terms = raw?.product?.prices;
+//   const term =
+//     find(terms, { billing_cycle_months: config?.bcm }) ??
+//     find(terms, { billing_cycle_months: product?.billing_cycle_months }) ??
+//     first(terms);
 
-  //   currentAmount: rawTerm.price_discounted ?? rawTerm.price,
-  // currentPrice:
-  //   rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
-  // regularAmount: rawTerm.price,
-  // regularPrice: rawTerm.price_formatted,
+//   //   currentAmount: rawTerm.price_discounted ?? rawTerm.price,
+//   // currentPrice:
+//   //   rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
+//   // regularAmount: rawTerm.price,
+//   // regularPrice: rawTerm.price_formatted,
 
-  return {
-    item_id: raw.object_id,
-    item_name: raw?.name || product?.name, // For reporting purposes we intentionally pass untranslated product name
-    discount: term?.price_discounted ? term?.price - term?.price_discounted : 0,
-    coupon: compact(config?.coupons?.toString()?.split(",") ?? []).toString(),
-    index,
-    item_brand: product?.brand?.name, // For reporting purposes we intentionally pass untranslated brand name
-    item_category: product?.category.name, // For reporting purposes we intentionally pass untranslated category name
-    // @ts-ignore: TODO see why this is warning when it is in fact valid
-    item_category2: product?.category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
-    // @ts-ignore: TODO see why this is warning when it is in fact valid
-    item_category3: product?.category?.top_category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
-    price: term?.price_discounted ?? term?.price,
-    // net_price: product?.configuration_net_amount_converted, //TODO: check the correct value is used
-    quantity: toSafeInteger(
-      config?.qty || product?.min_order_quantity || product?.unit_quantity || 1
-    ),
-    duration: config?.bcm ?? term?.billing_cycle_months ?? 0,
-  };
-}
+//   return {
+//     item_id: raw.object_id,
+//     item_name: raw?.name || product?.name, // For reporting purposes we intentionally pass untranslated product name
+//     discount: term?.price_discounted ? term?.price - term?.price_discounted : 0,
+//     coupon: compact(config?.coupons?.toString()?.split(",") ?? []).toString(),
+//     index,
+//     item_brand: product?.brand?.name, // For reporting purposes we intentionally pass untranslated brand name
+//     item_category: product?.category.name, // For reporting purposes we intentionally pass untranslated category name
+//     // @ts-ignore: TODO see why this is warning when it is in fact valid
+//     item_category2: product?.category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
+//     // @ts-ignore: TODO see why this is warning when it is in fact valid
+//     item_category3: product?.category?.top_category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
+//     price: term?.price_discounted ?? term?.price,
+//     // net_price: product?.configuration_net_amount_converted, //TODO: check the correct value is used
+//     quantity: toSafeInteger(
+//       config?.qty || product?.min_order_quantity || product?.unit_quantity || 1
+//     ),
+//     duration: config?.bcm ?? term?.billing_cycle_months ?? 0,
+//   };
+// }

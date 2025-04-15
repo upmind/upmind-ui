@@ -40,14 +40,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const touched = ref(false);
 
   // syntactic sugar
-  const product = computed(() => state.value.context?.lookups?.product);
+  // const productDetails = computed(() => state.value.context?.lookups?.product);
   const title = computed(() => state.value.context?.title);
   const productImage = (size: string = "400x400") => {
-    const product = state.value.context?.lookups?.product;
+    const productDetails = state.value.context?.lookups?.product;
 
-    if (!product?.full_url) return undefined;
+    if (!productDetails?.full_url) return undefined;
 
-    const url = new URL(product.full_url);
+    const url = new URL(productDetails.full_url);
     url.searchParams.set("size", size);
     return url.toString();
   };
@@ -94,7 +94,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasTaxIncluded: checkIncludesTax(),
   }));
 
-  const summary = computed(() => state.value.context?.summary);
+  const product = computed(() => state.value.context?.product);
 
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed

@@ -1,10 +1,10 @@
 <template>
   <Badge
-    v-if="meta?.discounted"
+    v-if="meta?.discounted && price"
     :color="disabled ? 'disabled' : 'promotion'"
     variant="tonal"
     class="rounded-lg uppercase"
-    :label="t('product.promotionSave', [savingPercent])"
+    :label="t('product.promotionSave', [price.savingPercent])"
     :size="size"
   />
 </template>
@@ -12,11 +12,11 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind-automation/upmind-ui";
-import type { Promotion } from "@upmind-automation/headless-vue";
+import type { PromotionDetails } from "@upmind-automation/headless-vue";
 
 withDefaults(
   defineProps<
-    Promotion & {
+    PromotionDetails & {
       disabled?: boolean;
       size?: "xs" | "sm" | "md";
     }

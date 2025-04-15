@@ -1,7 +1,9 @@
+import type { Product } from "@upmind-automation/headless-vue";
+
 // TODO: Should we be exporting the types from headless-vue?
 export interface SummaryListProps {
-  summary: any;
-  product: any;
+  details: Product["details"];
+  productDetails: Product["productDetails"];
 }
 
 export interface SummaryItemProps {
@@ -13,6 +15,7 @@ export interface SummaryItemProps {
 }
 
 export interface SummaryPricingProps {
-  summary: any;
-  meta: any;
+  pricing: Product["pricing"];
+  processing?: boolean;
+  loading?: boolean;
 }

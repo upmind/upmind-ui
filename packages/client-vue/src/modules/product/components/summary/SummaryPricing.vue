@@ -1,9 +1,9 @@
 <template>
-  <template v-if="!meta.isLoading">
+  <template v-if="!props.loading">
     <div v-auto-animate>
       <div
         :class="styles.summary.pricing.root"
-        v-for="(item, index) in summary?.pricing"
+        v-for="(item, index) in props.pricing"
         :key="`pricing-${index}`"
       >
         <span>{{ t("product.total") }}</span>
@@ -13,18 +13,18 @@
             :class="styles.summary.pricing.regularPrice"
           >
             <span>
-              {{ item.regularPrice }}
+              {{ item.price.regularPrice }}
             </span>
           </span>
           <span
             :class="[
               styles.summary?.pricing?.currentPrice,
               {
-                'opacity-0': meta.isLoading || meta.isCalculating,
+                'opacity-0': props.loading || props.processing,
               },
             ]"
           >
-            {{ item.meta?.free ? t("product.free") : item.currentPrice }}
+            {{ item.meta?.free ? t("product.free") : item.price.currentPrice }}
           </span>
         </span>
       </div>
