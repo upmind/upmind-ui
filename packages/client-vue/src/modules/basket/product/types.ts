@@ -23,7 +23,7 @@ export interface BasketProductActionsProps {
 
 export interface BasketProductSummaryProps {
   id: BasketProduct["id"];
-  price: ProductSummaryDetailWithPrice;
+  summary: ProductSummaryDetailWithPrice;
   productDetails: BasketProduct["productDetails"];
   quantity: BasketProduct["configuration"]["quantity"];
   // ---

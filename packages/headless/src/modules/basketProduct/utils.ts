@@ -15,13 +15,15 @@ import {
   find,
   forEach,
   get,
+  isEmpty,
+  isNil,
   isObject,
   map,
   mapValues,
+  omitBy,
   reduce,
   set,
   values,
-  isEmpty,
 } from "lodash-es";
 
 // --- types
@@ -29,9 +31,12 @@ import type {
   IBasket,
   IBasketProduct,
   IBasketPromotion,
-  IProduct,
 } from "@upmind-automation/types";
-import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
+import {
+  ProductOrderTypes,
+  PromotionDisplayTypes,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
 
 import type {
   BasketProduct,
@@ -41,6 +46,7 @@ import type {
 
 import type {
   Product,
+  PromotionDetails,
   ProductModel,
   SubproductModel,
   ProductSummaryDetailWithPrice,
@@ -84,12 +90,15 @@ export const parseBasketProduct = (
 
     // --- errors
     // TODO: check the errors provided and map correctly
-    errors: {
-      term: get(errors, [raw?.id, "term"]),
-      attributes: get(errors, [raw?.id, "attributes"]),
-      options: get(errors, [raw?.id, "options"]),
-      provisionFields: get(errors, [raw?.id, "provision_fields"]),
-    },
+    errors: omitBy(
+      {
+        term: get(errors, [raw?.id, "term"]),
+        attributes: get(errors, [raw?.id, "attributes"]),
+        options: get(errors, [raw?.id, "options"]),
+        provisionFields: get(errors, [raw?.id, "provision_fields"]),
+      },
+      isEmpty
+    ),
   };
 
   // --- because we are a full basket product, we may have a service identifier
@@ -186,6 +195,7 @@ export function parsSummaryWithPrice(
     includesTax: checkIncludesTax(),
   };
 
+  summary.promotions = parsePromotionDetails(raw);
   summary.price = parsPrice(raw);
 
   return summary as ProductSummaryDetailWithPrice;
@@ -232,6 +242,37 @@ export function parsPrice(raw: IBasketProduct): PriceDetail {
     savingPercent,
   } as PriceDetail;
 }
+
+export const parsePromotionDetails = (
+  raw: IBasketProduct
+): PromotionDetails[] => {
+  //  Basket Product Promotions can only be displayed in one of 2 ways:
+  //  - As a generic summary label with no values when mixed, eg "SAVE"
+  //  - As a summary percentage, eg "Save 20%"
+  // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
+
+  const price = parsPrice(raw);
+
+  if (!price.savingAmount) return [];
+
+  return [
+    {
+      code: "save",
+      name: "", // untranslated name for reporting purposes  category?: string;
+      title: "",
+      meta: {
+        display: PromotionDisplayTypes.PERCENTAGE,
+        mixed: raw.product.mixed_promotions,
+        discounted: !!price.savingAmount || raw.product.mixed_promotions,
+      },
+      price: {
+        savingAmount: price.savingAmount,
+        savingPrice: price.savingPrice,
+        savingPercent: price.savingPercent,
+      },
+    } as PromotionDetails,
+  ];
+};
 
 export function parseTermSummary(
   raw: IBasketProduct

@@ -20,6 +20,7 @@
             v-if="props.price"
             :price="props.price"
             :meta="props.meta"
+            :cycle="props.cycle"
           />
         </div>
       </div>
@@ -45,6 +46,7 @@
               v-if="props.price"
               :price="props.price"
               :meta="props.meta"
+              :cycle="props.cycle"
             />
           </span>
         </div>

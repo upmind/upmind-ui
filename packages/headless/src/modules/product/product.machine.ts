@@ -609,18 +609,13 @@ export default createMachine(
         ) => {
           return {
             product: parseProductDetails(data.product),
-            terms: parseTermDetails(
-              data.product.prices,
-              data.promotionDisplayType
-            ),
+            terms: parseTermDetails(data.product.prices),
             options: parseSubproductDetails(
               data.product.products_options,
-              data?.promotionDisplayType,
               model?.term
             ),
             attributes: parseSubproductDetails(
-              data.product.products_attributes,
-              data?.promotionDisplayType
+              data.product.products_attributes
             ),
             provisionFields: parseProvisioningSchema(
               data.provisioning,
@@ -742,8 +737,6 @@ export default createMachine(
           lookups ??= {};
           lookups.options = parseSubproductDetails(
             rawProduct?.products_options,
-            // @ts-ignore this is added by the setLookups action
-            rawProduct?.promotionDisplayType,
             model?.term
           );
 
@@ -867,7 +860,7 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const cleanModel = compactDeep(model);
-        debugger; // TODO: check if .basketProperty exusts on data
+        debugger; // TODO: check if .basketProduct exusts on data
         const cleanProduct = data?.basketProduct
           ? compactDeep(parseBasketProductModel(data.basketProduct))
           : {};

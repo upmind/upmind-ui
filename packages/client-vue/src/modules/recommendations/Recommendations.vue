@@ -49,6 +49,7 @@ import {
   useBasket,
   useRecommendationsEngine,
   useRoutingEngine,
+  ROUTE,
 } from "@upmind-automation/headless-vue";
 
 // --- components
@@ -62,9 +63,11 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 const { t } = useI18n();
 
 // --- basket setup
-const { next } = useRoutingEngine();
+const { next, back, isResolved } = useRoutingEngine();
 const { seen, isReady } = useRecommendationsEngine();
 const { products } = useBasket();
+
+await isResolved(ROUTE.RECOMMENDATIONS).catch(back);
 
 await isReady();
 // ---

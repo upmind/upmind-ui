@@ -69,10 +69,10 @@ export const useBasketProductsPending = () => {
     model: ProductModel,
     force: boolean = false
   ): Promise<BasketProductPending> {
-    const product = find(productsPending, [
-      "service.state.context.model.productId",
-      pid,
-    ]);
+    const product = find(productsPending, service => {
+      const state = service.getSnapshot();
+      return get(state, "context.model.productId") === pid;
+    });
 
     if (isEmpty(product) || force) {
       return add(model)
@@ -110,14 +110,11 @@ export const useBasketProductsPending = () => {
 
   function subscribe(pid: string, actor: ActorRef<any>) {
     const subscription = actor.subscribe((state: State<any>) => {
-      debugger;
       if (state.matches("error")) {
         unsetProduct(pid);
       } else if (state.matches("available")) {
-        debugger;
         setProduct(pid, get(state, "context.model"));
       } else if (state.done) {
-        debugger;
         unsetProduct(pid);
       } else {
         // should we resolve on complete?
@@ -143,7 +140,6 @@ export const useBasketProductsPending = () => {
       });
     }
     const model = get(productConfigs, productId, { productId, quantity: 1 });
-    debugger;
     return ensure(productId, model).then(instance => {
       if (sync) subscribe(productId, instance.service);
       return instance;
@@ -156,15 +152,14 @@ export const useBasketProductsPending = () => {
     const model = defaults(safeValue, { productId });
 
     set(productConfigs, productId, model);
-    debugger;
     storage.set("pendingProducts", productConfigs);
   }
 
   function unsetProduct(pid: string) {
-    const product = find(productsPending, [
-      "service.state.context.model.productId",
-      pid,
-    ]);
+    const product = find(productsPending, service => {
+      const state = service.getSnapshot();
+      return get(state, "context.model.productId") === pid;
+    });
 
     // ensure we unsubscribe from the item if it exists
     const sub = get(subscriptions, pid);
@@ -179,7 +174,6 @@ export const useBasketProductsPending = () => {
 
     // remove the product from the pending products storage
     unset(productConfigs, pid);
-    debugger;
     storage.set("pendingProducts", productConfigs);
   }
 

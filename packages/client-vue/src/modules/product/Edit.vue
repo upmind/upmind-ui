@@ -83,6 +83,7 @@ import {
   useBasketProduct,
   useBasketProducts,
   useQueryParams,
+  ROUTE,
 } from "@upmind-automation/headless-vue";
 
 // --- components
@@ -101,10 +102,12 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { back, next } = useRoutingEngine();
+const { back, next, isResolved } = useRoutingEngine();
 const { meta: basketMeta } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
+
+await isResolved(ROUTE.PRODUCT_EDIT).catch(back);
 
 const {
   meta,

@@ -20,7 +20,8 @@ import {
   set,
 } from "lodash-es";
 import { ActorRef } from "xstate";
-import { IBasket } from "@upmind-automation/types";
+import type { IBasket } from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
 import type { ProductDetails, ProductModel } from "../product";
@@ -58,7 +59,13 @@ async function fetch(
   if (!productId) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
-  const currency = await useBrand().validateCurrency({ id: currencyId });
+  // as well as ensuring our promo display type is available
+  const { validateCurrency, ensureConfig } = useBrand();
+  const [currency] = await Promise.all([
+    validateCurrency({ id: currencyId }),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+  ]);
+
   // ---
   const { get: getRequest, useUrl } = useQuery();
   const params = {

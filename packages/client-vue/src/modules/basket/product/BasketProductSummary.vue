@@ -3,7 +3,7 @@
     <div class="flex flex-col md:gap-y-1">
       <Promotion
         v-if="primary"
-        v-for="(promotion, index) in price.promotions"
+        v-for="(promotion, index) in summary.promotions"
         :key="index"
         v-bind="promotion"
         :disabled="error"
@@ -26,11 +26,11 @@
           <div class="flex w-full flex-col gap-y-1">
             <div class="flex items-end justify-between">
               <div class="text-sm font-normal leading-5">
-                {{ price.category }}
+                {{ summary.category }}
               </div>
               <Promotion
                 v-if="primary"
-                v-for="(promotion, index) in price.promotions"
+                v-for="(promotion, index) in summary.promotions"
                 :key="index"
                 v-bind="promotion"
                 :disabled="error"
@@ -40,7 +40,7 @@
             <div class="flex items-end justify-between">
               <Link :to="editLink" offset="2">
                 <strong class="text-xl font-semibold leading-7 underline">
-                  {{ price.title }}
+                  {{ summary.title }}
                 </strong>
               </Link>
 
@@ -52,7 +52,9 @@
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
-                  v-bind="price"
+                  :current-price="summary.price.currentPrice"
+                  :meta="summary.meta"
+                  :cycle="summary.cycle"
                   :ui-config="{
                     pricing: { current: styles.product.pricing.current },
                   }"
@@ -64,17 +66,21 @@
       </div>
 
       <div class="mt-1 flex flex-col gap-y-1 md:hidden">
-        <TermsDescription v-bind="price" />
+        <TermsDescription v-bind="summary" />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <CurrentPrice
-              v-bind="price"
+              :current-price="summary.price.currentPrice"
+              :meta="summary.meta"
+              :cycle="summary.cycle"
               :ui-config="{
                 pricing: { current: styles.product.pricing.current },
               }"
             />
             <ExPrice
-              v-bind="price"
+              :regular-price="summary.price.regularPrice"
+              :meta="summary.meta"
+              :cycle="summary.cycle"
               :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
             />
           </div>
@@ -88,9 +94,11 @@
       </div>
 
       <div class="hidden justify-between md:flex">
-        <TermsDescription v-bind="price" />
+        <TermsDescription v-bind="summary" />
         <ExPrice
-          v-bind="price"
+          :regular-price="summary.price.regularPrice"
+          :meta="summary.meta"
+          :cycle="summary.cycle"
           :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
         />
       </div>
@@ -119,11 +127,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- types
-import {
-  PromotionDisplayTypes,
-  type Product,
-  type ProductSummaryDetailWithPrice,
-} from "@upmind-automation/headless-vue";
 import { type BasketProductSummaryProps } from "./types";
 import type { ComputedRef } from "vue";
 
@@ -132,7 +135,7 @@ const props = defineProps<BasketProductSummaryProps>();
 const emits = defineEmits(["update:quantity"]);
 
 const styles = useStyles(
-  ["productDetails.summary", "productDetails.pricing"],
+  ["product.summary", "product.pricing"],
   props,
   config
 ) as ComputedRef<{

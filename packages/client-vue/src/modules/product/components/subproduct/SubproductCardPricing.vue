@@ -1,6 +1,10 @@
 <template>
   <template v-if="!props.meta?.free">
-    <ExPrice v-bind="props.price" />
+    <ExPrice
+      :regular-price="props.price?.regularPrice ?? ''"
+      :meta="props.meta"
+      :cycle="props.cycle"
+    />
 
     <Tooltip
       v-if="props.meta?.overrides && props.price"
@@ -14,7 +18,12 @@
 
     <Tooltip v-else :label="t('product.adds')">
       <span class="hover:cursor-help">
-        <span>+</span><CurrentPrice v-bind="props.price" />
+        <span>+</span
+        ><CurrentPrice
+          :current-price="props.price?.currentPrice ?? ''"
+          :meta="props.meta"
+          :cycle="props.cycle"
+        />
       </span>
     </Tooltip>
   </template>
@@ -30,6 +39,7 @@ import type { SubproductValue } from "@upmind-automation/headless-vue";
 const props = defineProps<{
   price: SubproductValue["price"];
   meta: SubproductValue["meta"];
+  cycle: SubproductValue["cycle"];
 }>();
 
 const { t } = useI18n();
