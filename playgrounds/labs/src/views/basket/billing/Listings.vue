@@ -90,11 +90,14 @@
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useBasketBillingDetails } from "@upmind-automation/headless-vue";
+import {
+  UpmCard,
+  UpmContentSection,
+  useBasketBillingDetails,
+} from "@upmind-automation/client-vue";
 
 // --- components
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
-import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
 const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
   useBasketBillingDetails();
