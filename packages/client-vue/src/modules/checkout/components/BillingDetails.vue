@@ -79,17 +79,12 @@ import config from "../checkout.config";
 import Item from "../../client/components/Item.vue";
 import Card from "../../client/components/Card.vue";
 import Listings from "../../client/Listings.vue";
-import {
-  SkeletonList,
-  Button,
-  DropdownMenu,
-} from "@upmind-automation/upmind-ui";
+import { SkeletonList, DropdownMenu } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
 import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 import type { BillingDetailsProps } from "../types";
 

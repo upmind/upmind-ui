@@ -3,7 +3,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientUnifiedAddresses as useUpmindClientUnifiedAddresses } from "@upmind-automation/headless";
+import { useBillingDetail as useUpmindClientUnifiedAddresses } from "@upmind-automation/headless";
 
 // --- utils
 import { machineMatches, useContextActor, useContextActors } from "../../utils";
