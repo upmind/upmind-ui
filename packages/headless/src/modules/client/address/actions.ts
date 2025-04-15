@@ -17,7 +17,8 @@ import type { AnyEventObject } from "xstate";
 export const useClientAddressActions = () => {
   return {
     setMeta: assign({
-      title: ({ model }: AddressContext) => model?.name || "New Address",
+      title: ({ model }: AddressContext) =>
+        model?.name || model?.address1 || "New Address",
       description: ({ model }: AddressContext) => {
         return compact([
           get(model, "address1"),

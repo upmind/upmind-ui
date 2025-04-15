@@ -19,7 +19,7 @@ export function mapAddress(raw: IAddress): Address {
     id: raw.id,
     clientId: raw.client_id,
     // ---
-    title: raw.name || "New Address",
+    title: raw.name || raw.address_1 || "New Address",
     description: compact([
       get(raw, "address1"),
       get(raw, "address2"),
