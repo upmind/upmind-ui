@@ -26,15 +26,12 @@ import {
   UpmCard,
   UpmForm,
   UpmContentSection,
-} from "@upmind-automation/client-vue";
-import { debounce } from "lodash-es";
-import { useRoute, useRouter } from "vue-router";
-
-import {
   useBasketBillingDetail,
   useBasketBillingDetails,
   type UnifiedAddressModel,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/client-vue";
+import { debounce } from "lodash-es";
+import { useRoute, useRouter } from "vue-router";
 
 const { isReady, getAll } = useBasketBillingDetails();
 await isReady()
