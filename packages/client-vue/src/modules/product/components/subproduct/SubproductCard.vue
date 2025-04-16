@@ -38,6 +38,8 @@
           size="sm"
           width="sm"
           variant="minimal"
+          @click.stop
+          @keydown.enter.prevent.stop
         />
 
         <div class="hidden flex-col text-right md:flex">
