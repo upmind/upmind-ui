@@ -69,8 +69,8 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  useClientUnifiedAddress,
-  useClientUnifiedAddresses,
+  useBillingDetail,
+  useBasketBillingDetails,
 } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../checkout.config";
@@ -100,7 +100,7 @@ const props = withDefaults(defineProps<BillingDetailsProps>(), {
 });
 
 const { t } = useI18n();
-const client = useClientUnifiedAddresses();
+const client = useBasketBillingDetails();
 const styles = useStyles(["client"], client.meta, config) as ComputedRef<{
   client: {
     root: string;
@@ -117,7 +117,7 @@ const styles = useStyles(["client"], client.meta, config) as ComputedRef<{
 const { select, selected, getSelected, add, meta } = client;
 
 // Provide the client to the form/card components
-provide("client", useClientUnifiedAddress);
+provide("client", useBillingDetail);
 
 // ---
 // check if we have a selected client, if we dont then we are creating a new one
@@ -158,7 +158,7 @@ function onChange() {
 }
 
 function onEdit(companyDetails = false) {
-  const client = useClientUnifiedAddress(selected.value);
+  const client = useBillingDetail(selected.value);
   const model = client.model.value;
   client.edit();
   // force the company details to be shown
