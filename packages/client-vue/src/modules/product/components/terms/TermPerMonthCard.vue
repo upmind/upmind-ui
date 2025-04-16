@@ -17,16 +17,20 @@
 
       <CurrentPrice
         :current-price="props.price.currentPrice"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
         :meta="props.meta"
         :cycle="props.cycle"
         :class="styles.product.config.grid.item.text"
       />
     </div>
 
-    <div :class="styles.product.config.grid.item.footer">
+    <div :class="styles.product.config.grid.item.footer" class="pricing">
       <Pricing
+        class="pricing"
         :regular-price="props.price.regularPrice"
+        :monthly-from-regular-price="props.price.monthlyFromRegularPrice"
         :current-price="props.price.currentPrice"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
         :meta="props.meta"
         :cycle="props.cycle"
         :ui-config="{
@@ -75,7 +79,7 @@ const { t, te } = useI18n();
 
 const meta = computed(() => ({
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  select: props.select,
+  isSelected: props.select,
 }));
 
 const styles = useStyles(
