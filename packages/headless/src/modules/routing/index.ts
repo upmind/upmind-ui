@@ -24,7 +24,7 @@ export type RouteQueryParams = typeof useRouteQueryParams;
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
 const service = interpret(routingEngine, {
-  devTools: true,
+  devTools: false,
 });
 
 // -----------------------------------------------------------------------------

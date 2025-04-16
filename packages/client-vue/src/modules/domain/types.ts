@@ -57,8 +57,9 @@ export interface DomainSummaryProps {
 export interface DomainActionProps extends DomainSummaryProps {
   domain: DomainProduct["domain"];
   tld: DomainProduct["tld"];
-  color?: string;
+  selected?: boolean;
   processing?: boolean;
+  color?: string;
 }
 
 export interface DomainSearchProps {
