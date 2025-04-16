@@ -49,6 +49,7 @@
       <DomainActions
         v-bind="domain"
         :processing="meta.isProcessing"
+        :selected="props.selected"
         @update="onUpdate"
         @remove="onRemove"
       />

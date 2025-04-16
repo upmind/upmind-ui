@@ -24,7 +24,7 @@
       <template #item="{ item: { value } }">
         <DomainCard
           v-bind="getDomain(value.toString())"
-          :selected="includes(props.modelValue, value)"
+          :selected="isSelected(value.toString())"
           :color="props.color"
           @update:selected="onToggleSelected"
           @remove="onRemove"
@@ -139,7 +139,7 @@ const safeValue = computed(() => {
 });
 
 function getDomain(value: string): DomainProduct {
-  return find(props.items, ["value", value]) as DomainProduct;
+  return find(props.items, ["domain", value]) as DomainProduct;
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
@@ -171,6 +171,10 @@ watch(
   },
   { immediate: true }
 );
+
+function isSelected(value: string): boolean {
+  return includes(safeValue.value, value);
+}
 
 function onToggleSelected(domain: string) {
   if (meta.value.isProcessing) return;

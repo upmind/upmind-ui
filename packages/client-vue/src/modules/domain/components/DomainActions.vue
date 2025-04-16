@@ -3,19 +3,19 @@
     v-if="meta?.available || meta?.added || meta?.selected"
     :class="styles.domain.card.footer.action"
     :disabled="meta.disabled"
-    :loading="processing && meta.selected"
-    :variant="meta.selected || meta.added ? 'flat' : 'outline'"
+    :loading="processing && selected"
+    :variant="selected || meta.added ? 'flat' : 'outline'"
     :truncate="false"
     color="secondary"
-    @click="meta.selected ? onRemove(props.domain) : onUpdate(props.domain)"
+    @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
     size="md"
   >
     <span :class="styles.domain.card.footer.label">
-      {{ t("domain.card.available.action", meta.selected ? 0 : 1) }}
+      {{ t("domain.card.available.action", selected ? 0 : 1) }}
     </span>
     <Icon
       :class="styles.domain.card.footer.icon"
-      :icon="meta.selected || meta.added ? 'basket-check' : 'basket-add'"
+      :icon="selected || meta.added ? 'basket-check' : 'basket-add'"
       size="xs"
     />
   </Button>

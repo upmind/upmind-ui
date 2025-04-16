@@ -491,7 +491,6 @@ export default createMachine(
             if (!parsed) return undefined;
 
             const basketProduct = parseBasketProduct(raw) as DomainProduct;
-
             basketProduct.tld = parsed.tld;
             basketProduct.sld = parsed.sld;
             basketProduct.domain = parsed.domain;

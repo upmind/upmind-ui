@@ -402,6 +402,7 @@ async function formatCalculation(
     return {
       total: get(data, "total", 0),
       totalFormatted: get(data, "total_formatted", ""),
+      // TODO: get the API to return these values
       // subtotal: get(data, "subtotal", 0),
       // subtotalFormatted: get(data, "subtotal_formatted", ""),
       // discount: get(data, "discount", 0),
