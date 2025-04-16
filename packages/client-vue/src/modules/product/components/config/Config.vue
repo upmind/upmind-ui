@@ -39,7 +39,7 @@
             v-if="!props.noTitle"
           >
             <h3 :class="styles.product.config.title" v-if="!props.noTitle">
-              {{ title }}
+              {{ product.productDetails.title }}
             </h3>
           </div>
 
