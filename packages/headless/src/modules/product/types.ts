@@ -280,7 +280,7 @@ export type SubproductValue = ProductDetails & {
 };
 
 export type PromotionDetails = {
-  code: string | string[];
+  code: string;
   name: string; // untranslated name for reporting purposes  category?: string;
   title: string;
   description?: string;

@@ -498,7 +498,9 @@ export const parsePromotionDetails = (
 
     return [
       {
-        code: map(raw.promotions, "code"),
+        code: map(raw.promotions, "code").toString(),
+        name: map(raw.promotions, "name").toString(),
+        title: map(raw.promotions, useTranslateName).toString(),
         meta: {
           display: promotionDisplayType,
           mixed: !!raw.mixed_promotions,
@@ -730,6 +732,7 @@ export const parseProduct = (
     id: model.id,
     configuration: model,
     productDetails: lookups.product,
+    promotions: term?.promotions,
     meta: summaryDetailWithPrice.meta,
     price,
     pricing: [summaryDetailWithPrice],
@@ -821,9 +824,9 @@ const parseSummaryProvisionFields = (
   return reduce(
     schema?.properties,
     (result: any[], provisionField, key) => {
-      let title = get(data, key);
+      let title = get(data, key, key);
       if (provisionField.oneOf) {
-        title = find(provisionField.oneOf, ["const", title])?.title;
+        title = find(provisionField.oneOf, ["const", title])?.title ?? key;
       }
       result.push({
         name: `provision_field.${key}`,
