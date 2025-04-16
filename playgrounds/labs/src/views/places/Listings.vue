@@ -4,9 +4,9 @@
     title="Address Search"
     subtitle="Search for addresses using the Places API"
   >
-    <UpmCard class="p-4">
+    <UpmCard class="space-y-8">
       <!-- Debug Info -->
-      <div class="mb-4 border-b pb-2 text-xs">
+      <div class="border-b pb-2 text-xs">
         <div>
           API Key: {{ apiKey ? apiKey.substring(0, 8) + "..." : "Not found" }}
         </div>
@@ -14,26 +14,25 @@
       </div>
 
       <!-- Search Input -->
-      <div class="mb-6">
+      <div class="mx-auto max-w-md">
         <Input
           v-model="searchQuery"
           label="Search for an address"
           placeholder="Type at least 3 characters..."
           :loading="isLoading"
-          @update:modelValue="onSearchInput"
         />
       </div>
 
       <!-- Error Display -->
-      <div v-if="error" class="mb-4 rounded bg-red-50 p-3 text-red-500">
+      <div v-if="error" class="rounded bg-destructive-50 p-3 text-destructive">
         {{ error }}
       </div>
 
       <!-- Results -->
       <div v-if="parsedResults.length > 0">
-        <h3 class="mb-2 font-medium">Parsed Addresses</h3>
+        <h3 class="font-medium">Parsed Addresses</h3>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div
             v-for="(place, index) in parsedResults"
             :key="index"
@@ -62,34 +61,48 @@
               </div>
             </div>
 
-            <details class="mt-2">
-              <summary class="cursor-pointer text-sm text-secondary">
-                View Raw Data
-              </summary>
-              <pre
-                class="mt-2 max-h-72 overflow-auto rounded-md border p-2 text-xs"
-                >{{ JSON.stringify(place, null, 2) }}</pre
+            <div class="mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                @click="openJsonDialog(place)"
+                class="text-sm text-secondary"
               >
-            </details>
+                View Raw Data
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       <div
         v-else-if="searchQuery.length >= 3 && !isLoading"
-        class="py-6 text-center text-gray-500"
+        class="text-center"
       >
         No results found
       </div>
     </UpmCard>
   </UpmContentSection>
+
+  <!-- JSON Data Dialog -->
+  <Dialog :open="isDialogOpen" title="Raw Address Data">
+    <div class="max-h-[60vh] overflow-auto">
+      <pre
+        class="overflow-auto rounded-lg bg-primary p-4 text-xs text-primary-foreground"
+        >{{ selectedJsonData }}</pre
+      >
+    </div>
+    <template #footer>
+      <Button @click="isDialogOpen = false">Close</Button>
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 import { debounce } from "lodash-es";
 import { usePlaces } from "@upmind-automation/headless";
-import { ref, onMounted } from "vue";
-import { Input } from "@upmind-automation/upmind-ui";
+import { ref, onMounted, watch } from "vue";
+import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 
 // State
@@ -99,6 +112,16 @@ const isLoading = ref(false);
 const error = ref("");
 const apiKey = ref(import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "");
 const apiStatus = ref("Not initialized");
+
+// Dialog state
+const isDialogOpen = ref(false);
+const selectedJsonData = ref("");
+
+// Dialog functions
+function openJsonDialog(place: any) {
+  selectedJsonData.value = JSON.stringify(place, null, 2);
+  isDialogOpen.value = true;
+}
 
 // Initialize Places service
 const places = usePlaces();
@@ -123,7 +146,7 @@ onMounted(async () => {
 });
 
 // Search for addresses with debounce
-const onSearchInput = debounce(async (query: string) => {
+const searchAddresses = debounce(async (query: string) => {
   // Reset results when input changes
   parsedResults.value = [];
 
@@ -146,4 +169,9 @@ const onSearchInput = debounce(async (query: string) => {
     isLoading.value = false;
   }
 }, 300);
+
+// Watch for changes to searchQuery
+watch(searchQuery, newQuery => {
+  searchAddresses(newQuery);
+});
 </script>
