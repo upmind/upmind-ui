@@ -45,7 +45,6 @@ import type {
 } from "./types";
 
 import type {
-  Product,
   PromotionDetails,
   ProductModel,
   SubproductModel,
