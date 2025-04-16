@@ -34,7 +34,9 @@
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
         :regular-price="props.price.regularPrice"
+        :monthly-from-regular-price="props.price.monthlyFromRegularPrice"
         :current-price="props.price.currentPrice"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
         :meta="props.meta"
         :cycle="props.cycle"
         :ui-config="{
