@@ -36,7 +36,7 @@
           <div
             v-for="(place, index) in parsedResults"
             :key="index"
-            class="rounded-lg border p-4 transition-all hover:bg-gray-100 hover:shadow-lg"
+            class="rounded-lg border p-4 transition-all hover:bg-secondary/15 hover:shadow-lg"
           >
             <div class="space-y-2">
               <div v-if="place.address?.name" class="flex gap-1">
