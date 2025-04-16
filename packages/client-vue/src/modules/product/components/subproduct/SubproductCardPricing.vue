@@ -1,5 +1,5 @@
 <template>
-  <template v-if="!props.meta?.free">
+  <template v-if="!props.meta?.free || props.meta?.overrides">
     <ExPrice
       :regular-price="props.price?.regularPrice ?? ''"
       :meta="props.meta"
@@ -12,7 +12,11 @@
     >
       <span class="hover:cursor-help">
         <Icon icon="transfer" size="3xs" class="text-inherit" />
-        {{ props.price.currentPrice }}
+        <CurrentPrice
+          :current-price="props.price?.currentPrice ?? ''"
+          :meta="props.meta"
+          :cycle="props.cycle"
+        />
       </span>
     </Tooltip>
 

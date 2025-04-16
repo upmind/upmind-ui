@@ -25,7 +25,7 @@ import {
   cloneDeep,
   compact,
   concat,
-  xorBy,
+  first,
   forEach,
   get,
   has,
@@ -37,10 +37,11 @@ import {
   pick,
   remove,
   set,
+  sumBy,
   toNumber,
-  unset,
-  first,
   uniq,
+  unset,
+  xorBy,
 } from "lodash-es";
 
 import { calculateSubscription } from "./services";
@@ -159,43 +160,20 @@ export default createMachine(
                     entry: ({ error }) => unset(error, "term"),
                     invoke: {
                       src: "checkTerm",
-                      onDone: [
-                        {
-                          target: ["valid"],
-                          actions: [
-                            "setTerm",
-                            "setProductCalculating",
-                            "calculate",
-                            raise("CHECK.OPTIONS"),
-                          ],
-                          cond: "needsCalculating",
-                        },
+                      onDone: {
+                        target: ["valid"],
+                        actions: [
+                          "setTerm",
 
-                        {
-                          target: "valid",
-                          actions: [
-                            "setTerm",
-                            "setProduct",
-                            raise("CHECK.OPTIONS"),
-                          ],
-                        },
-                      ],
-                      onError: [
-                        {
-                          target: "invalid",
-                          actions: [
-                            "setTerm",
-                            "setError",
-                            "setProductCalculating",
-                            "calculate",
-                          ],
-                          cond: "needsCalculating",
-                        },
-                        {
-                          target: "invalid",
-                          actions: ["setTerm", "setProduct", "setError"],
-                        },
-                      ],
+                          "calculate",
+                          raise("CHECK.OPTIONS"),
+                        ],
+                      },
+
+                      onError: {
+                        target: "invalid",
+                        actions: ["setTerm", "setError", "calculate"],
+                      },
                     },
                   },
                   invalid: {},
@@ -242,37 +220,15 @@ export default createMachine(
                     entry: ({ error }) => unset(error, "options"),
                     invoke: {
                       src: "checkOptions",
-                      onDone: [
-                        {
-                          target: "valid",
-                          actions: [
-                            "setOptions",
-                            "setProductCalculating",
-                            "calculate",
-                          ],
-                          cond: "needsCalculating",
-                        },
-                        {
-                          target: "valid",
-                          actions: ["setOptions", "setProduct"],
-                        },
-                      ],
-                      onError: [
-                        {
-                          target: "invalid",
-                          actions: [
-                            "setOptions",
-                            "setError",
-                            "setProductCalculating",
-                            "calculate",
-                          ],
-                          cond: "needsCalculating",
-                        },
-                        {
-                          target: "invalid",
-                          actions: ["setOptions", "setProduct", "setError"],
-                        },
-                      ],
+                      onDone: {
+                        target: "valid",
+                        actions: ["setOptions", "calculate"],
+                      },
+
+                      onError: {
+                        target: "invalid",
+                        actions: ["setOptions", "setError", "calculate"],
+                      },
                     },
                   },
                   invalid: {},
@@ -379,16 +335,21 @@ export default createMachine(
             ),
             target: "processing",
           },
-          CALCULATE_CANCELLED: {
-            actions: ["clearSummaryCalculating"],
+          CALCULATING: {
+            actions: ["setCalculating"],
           },
+
+          CALCULATE_CANCELLED: {
+            actions: ["clearCalculating"],
+          },
+
           CALCULATED: [
             {
-              actions: ["clearSummaryCalculating", "setProduct"],
+              actions: ["clearCalculating", "setProduct"],
               cond: "hasSummaryData",
             },
             {
-              actions: ["clearSummaryCalculating"],
+              actions: ["clearCalculating"],
             },
           ],
           // ---
@@ -647,30 +608,20 @@ export default createMachine(
 
       setProduct: assign({
         product: (
-          {
-            model,
-            lookups,
-            error,
-            product,
-            rawBasketProduct,
-          }: ProductConfigContext,
+          { model, lookups, error, product }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
+          // if we don't have any value in the data, then fallback to the existing product.price if available
+          // otherwise parse the data
           const fallback = product?.price;
-
-          // parse new pricing data ( if provided ) with fallbacks
           const price: PriceDisplay = {
-            regularAmount: data?.total ? data.total : fallback?.regularAmount,
-            regularPrice: data?.total
-              ? data?.totalFormatted
-              : fallback?.regularPrice,
-            currentAmount: data?.total ? data.total : fallback?.currentAmount,
-            currentPrice: data?.total
-              ? data.totalFormatted
-              : fallback?.currentPrice,
-            savingAmount: data?.total ? 0 : (fallback?.savingAmount ?? 0),
-            savingPrice: data?.total ? "" : (fallback?.savingPrice ?? ""),
-            savingPercent: data?.total ? "" : (fallback?.savingPercent ?? ""),
+            regularAmount: data?.total ?? fallback?.regularAmount,
+            regularPrice: data?.totalFormatted ?? fallback?.regularPrice,
+            currentAmount: data?.total ?? fallback?.currentAmount,
+            currentPrice: data?.totalFormatted ?? fallback?.currentPrice,
+            savingAmount: data?.total ? 0 : (fallback?.savingAmount ?? 0), // Cant calculate this
+            savingPrice: data?.total ? "" : (fallback?.savingPrice ?? ""), // Cant calculate this
+            savingPercent: data?.total ? "" : (fallback?.savingPercent ?? ""), // Cant calculate this
           };
 
           return parseProduct(price, {
@@ -681,19 +632,19 @@ export default createMachine(
         },
       }),
 
-      setProductCalculating: assign({
+      setCalculating: assign({
         lookups: ({ lookups }: ProductConfigContext, _event) => {
           lookups ??= {};
           lookups.prices ??= {};
-          set(lookups.prices, "calculating", true);
+          lookups.prices.calculating = true;
           return lookups;
         },
       }),
-      clearSummaryCalculating: assign({
+      clearCalculating: assign({
         lookups: ({ lookups }: ProductConfigContext, _event) => {
           lookups ??= {};
           lookups.prices ??= {};
-          set(lookups.prices, "calculating", false);
+          lookups.prices.calculating = false;
           return lookups;
         },
       }),
@@ -741,8 +692,8 @@ export default createMachine(
           );
 
           lookups.prices ??= {};
-          const prices = lookups?.prices;
-          if (!data?.price) return lookups;
+          const prices = lookups.prices;
+          if (isEmpty(data?.price)) return lookups;
           lookups.prices = { ...prices, term: data.price };
           return lookups;
         },
@@ -762,8 +713,8 @@ export default createMachine(
         ) => {
           lookups ??= {};
           lookups.prices ??= {};
-          const prices = lookups?.prices;
-          if (!data?.price) return lookups;
+          const prices = lookups.prices;
+          if (isEmpty(data?.price)) return lookups;
           lookups.prices = { ...prices, attributes: data.price };
           return lookups;
         },
@@ -783,8 +734,8 @@ export default createMachine(
         ) => {
           lookups ??= {};
           lookups.prices ??= {};
-          const prices = lookups?.prices;
-          if (!data?.price) return lookups;
+          const prices = lookups.prices;
+          if (isEmpty(data?.price)) return lookups;
           lookups.prices = { ...prices, options: data.price };
           return lookups;
         },
@@ -903,33 +854,6 @@ export default createMachine(
           currencyChanged ||
           promotionsChanged ||
           basketPoductChanged;
-
-        return value;
-      },
-
-      needsCalculating: (
-        { lookups, product }: ProductConfigContext,
-        { data }: AnyEventObject
-      ) => {
-        // work out which property we need to compare
-        let prop;
-        prop ??= has(data, "term") ? "term" : null;
-        prop ??= has(data, "options") ? "options" : null;
-        prop ??= has(data, "attributes") ? "attributes" : null;
-
-        // safeguard: bail if we dont have a "summary" or a matching property to calculate
-        if (!prop || !product) return false;
-
-        const newPrice = compact(get(data, "price", []));
-        const oldPrice = compact(get(lookups?.prices, prop, []));
-
-        const value = !isEqual(oldPrice, newPrice);
-
-        // console.debug("productConfig", "needsCalculating", value, {
-        //   prop,
-        //   newPrice,
-        //   oldPrice,
-        // });
 
         return value;
       },
