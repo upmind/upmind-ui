@@ -47,6 +47,8 @@ import type {
   TermDetails,
   Price,
   PriceCalculations,
+  SubproductValue,
+  SubproductDetails,
 } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -239,7 +241,7 @@ async function checkSubproducts(
 
   subproducts = reduce(
     lookups[type],
-    (result, subproduct) => {
+    (result, subproduct: SubproductDetails) => {
       let selected = get(data, subproduct.id, {});
 
       // try set anymatching pre-selected values for this subproduct ( subproductIds ),
@@ -255,12 +257,15 @@ async function checkSubproducts(
       // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
 
       if (isEmpty(selected)) {
-        const defaultSubproduct = find(subproduct.values, "default");
+        const defaultSubproduct = find(
+          subproduct.values,
+          "default"
+        ) as SubproductValue;
         if (defaultSubproduct) {
           set(selected, defaultSubproduct.id, {
             productId: defaultSubproduct.id,
           });
-        } else if (subproduct?.required && !subproduct.multiple) {
+        } else if (subproduct?.meta.required && !subproduct.meta.multiple) {
           const pid = get(first(subproduct.values), "id");
           if (pid) set(selected, pid, { productId: pid });
         }
@@ -292,7 +297,7 @@ async function checkSubproducts(
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
               times(value.quantity * model.quantity, () => {
-                price.push(product.price.currentAmount);
+                price.push(product?.price?.currentAmount);
               });
             }
 
@@ -304,7 +309,7 @@ async function checkSubproducts(
       }
 
       // check if we values too many values for this subproduct
-      if (!subproduct?.multiple && keys(selected)?.length > 1) {
+      if (!subproduct?.meta.multiple && keys(selected)?.length > 1) {
         errors[subproduct.id] ??= [];
         errors[subproduct.id].push(
           `${subproduct.name} does not allow multiple choice`
