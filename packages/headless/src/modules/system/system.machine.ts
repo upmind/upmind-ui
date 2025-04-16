@@ -121,13 +121,8 @@ export default createMachine(
       // --- ad hoc: these can be loaded at any time as needed
 
       countries: {
-        initial: "idle",
+        initial: "loading",
         states: {
-          idle: {
-            on: {
-              "COUNTRIES.GET": "loading",
-            },
-          },
           loading: {
             invoke: {
               src: "fetchCountries",
