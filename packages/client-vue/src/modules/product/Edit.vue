@@ -46,7 +46,7 @@
           >
             <ContentSection :title="t('product.summary.title')">
               <Summary
-                v-if="basketProduct"
+                v-if="basketProduct && !meta?.isLoading"
                 :item="basketProduct"
                 @resolve="doResolve"
               />
@@ -80,7 +80,6 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useRoutingEngine,
-  useBasketProduct,
   useBasketProducts,
   useQueryParams,
   ROUTE,
@@ -88,10 +87,10 @@ import {
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import Summary from "./components/summary/Summary.vue";
-import ProductConfig from "./components/config/Config.vue";
-import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
+import Card from "../../components/content/Card.vue";
+import ProductConfig from "./components/config/Config.vue";
+import Summary from "./components/summary/Summary.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 
@@ -113,8 +112,11 @@ const {
   meta,
   stop,
   update,
+  isReady,
   service: basketProduct,
 } = await configure(basketProductId);
+
+await isReady();
 
 async function doResolve() {
   update().then(() => next(basketProduct));

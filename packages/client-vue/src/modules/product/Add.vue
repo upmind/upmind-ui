@@ -112,8 +112,11 @@ const {
   meta,
   stop,
   update,
+  isReady,
   service: pendingProduct,
 } = await configure(productId);
+
+await isReady();
 
 async function doResolve() {
   update().then(() => {
@@ -122,11 +125,6 @@ async function doResolve() {
   });
 }
 
-/**
- * NB: DO NOT remove/unset this item from the basket,
- * This is so that we can keep the item in the basket for later use,
- * especially if the user hits the back button on the browser
- */
 function doReject() {
   stop();
   back();

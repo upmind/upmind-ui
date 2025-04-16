@@ -258,8 +258,8 @@ export const parsePromotionDetails = (
   return [
     {
       code: "save",
-      name: "", // untranslated name for reporting purposes  category?: string;
-      title: "",
+      name: "save", // untranslated name for reporting purposes  category?: string;
+      title: "Save",
       meta: {
         display: PromotionDisplayTypes.PERCENTAGE,
         mixed: raw.product.mixed_promotions,
