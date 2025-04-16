@@ -40,7 +40,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function request<T extends object = object>({
+  async function request<T extends Record<any, any> = any>({
     url,
     init,
     withAccessToken,
@@ -108,11 +108,12 @@ export const useQuery = () => {
    * @param init The request options.
    * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
    * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param transformResponse A function to transform the response data before returning it.
    * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function getRequest<T = object>({
+  async function getRequest<T>({
     url,
     init,
     allowStale = true,
@@ -199,7 +200,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function putRequest<T = object>({
+  async function putRequest<T = any>({
     url,
     init,
     data,
@@ -231,7 +232,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function patchRequest<T = object>({
+  async function patchRequest<T = any>({
     url,
     init,
     data,
@@ -262,7 +263,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function deleteRequest<T = object>({
+  async function deleteRequest<T = any>({
     url,
     init,
     data,
@@ -294,7 +295,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function headRequest<T = object>({
+  async function headRequest<T = any>({
     url,
     init,
     withAccessToken,
