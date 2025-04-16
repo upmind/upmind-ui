@@ -9,16 +9,21 @@
         <h3 class="mt-0">
           This is a playground for Upmind components and utilities.
         </h3>
-        <!-- custom components go here -->
-        <p>
-          Anim cupidatat dolor cillum consequat veniam. Et aliqua do consectetur
-          laboris incididunt ad esse incididunt aute incididunt sunt incididunt
-          pariatur esse. Pariatur consequat nostrud culpa ut aliqua adipisicing
-          aute nisi. Aute ex cupidatat quis reprehenderit ad cupidatat voluptate
-          mollit non cupidatat voluptate proident culpa. Ipsum veniam deserunt
-          nisi exercitation sunt commodo. Id aute Lorem minim officia.
-          Consectetur reprehenderit eu dolore aliquip ut et ipsum eiusmod
-        </p>
+
+        <div class="mt-8">
+          <h4 class="mb-4 text-lg font-medium">Available Playground Pages:</h4>
+
+          <div class="space-y-4">
+            <div>
+              <Button @click="router.push({ name: 'places' })" color="primary">
+                Places API Playground
+              </Button>
+              <span class="ml-4 text-gray-600"
+                >Test the Google Places API for address search</span
+              >
+            </div>
+          </div>
+        </div>
       </UpmCard>
     </UpmContentSection>
   </article>
@@ -26,14 +31,16 @@
 
 <script lang="ts" setup>
 // --- external
+import { useRouter } from "vue-router";
 
 // --- internal
 
 // --- components
-// import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 
 // --- types
 
 // -----------------------------------------------------------------------------
+const router = useRouter();
 </script>
