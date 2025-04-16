@@ -176,7 +176,7 @@ async function checkTerm(
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
   times(model?.quantity ?? 0, () => {
-    price.push(term?.currentAmount);
+    price.push(term?.price.currentAmount);
   });
 
   return new Promise((resolve, reject) => {
@@ -317,7 +317,9 @@ async function checkSubproducts(
         price,
         error: { ...error, [type]: errors },
       });
-    } else resolve({ [type]: subproducts, price });
+    } else {
+      resolve({ [type]: subproducts, price });
+    }
   });
 }
 
