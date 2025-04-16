@@ -11,16 +11,92 @@
         </h3>
 
         <div class="mt-8">
-          <h4 class="mb-4 text-lg font-medium">Available Playground Pages:</h4>
-
-          <div class="space-y-4">
+          <div class="space-y-8">
+            <!-- Places API -->
             <div>
-              <Button @click="router.push({ name: 'places' })" color="primary">
-                Places API Playground
-              </Button>
-              <span class="ml-4 text-gray-600"
-                >Test the Google Places API for address search</span
-              >
+              <h4 class="mb-4 text-lg font-medium">Places API</h4>
+              <div class="flex items-center justify-between border-b">
+                <div>
+                  <h5 class="font-medium">Places API Playground</h5>
+                  <p class="mt-1 text-gray-600">
+                    Test the Google Places API for address search
+                  </p>
+                </div>
+                <Button
+                  @click="router.push({ name: 'places' })"
+                  color="primary"
+                >
+                  <Icon icon="arrow-right" size="xs" />
+                </Button>
+              </div>
+            </div>
+
+            <!-- Client Management -->
+            <div>
+              <h4 class="mb-4 text-lg font-medium">Client Management</h4>
+
+              <div class="space-y-4">
+                <div class="flex items-center justify-between border-b">
+                  <div>
+                    <h5 class="font-medium">Client Addresses</h5>
+                    <p class="mt-1 text-gray-600">Manage client address data</p>
+                  </div>
+                  <Button @click="router.push({ name: 'client.addresses' })">
+                    <Icon icon="arrow-right" size="xs" />
+                  </Button>
+                </div>
+
+                <div class="flex items-center justify-between border-b">
+                  <div>
+                    <h5 class="font-medium">Client Phone Numbers</h5>
+                    <p class="mt-1 text-gray-600">
+                      Manage client phone numbers
+                    </p>
+                  </div>
+                  <Button @click="router.push({ name: 'client.phones' })">
+                    <Icon icon="arrow-right" size="xs" />
+                  </Button>
+                </div>
+
+                <div class="flex items-center justify-between border-b">
+                  <div>
+                    <h5 class="font-medium">Client Emails</h5>
+                    <p class="mt-1 text-gray-600">
+                      Manage client email addresses
+                    </p>
+                  </div>
+                  <Button @click="router.push({ name: 'client.emails' })">
+                    <Icon icon="arrow-right" size="xs" />
+                  </Button>
+                </div>
+
+                <div class="flex items-center justify-between border-b">
+                  <div>
+                    <h5 class="font-medium">Client Companies</h5>
+                    <p class="mt-1 text-gray-600">Manage client company data</p>
+                  </div>
+                  <Button @click="router.push({ name: 'client.companies' })">
+                    <Icon icon="arrow-right" size="xs" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Basket Management -->
+            <div>
+              <h4 class="mb-4 text-lg font-medium">Basket Management</h4>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <h5 class="font-medium">Basket Billing</h5>
+                  <p class="mt-1 text-gray-600">
+                    Manage basket billing details
+                  </p>
+                </div>
+                <Button @click="router.push({ name: 'basket.billing' })">
+                  <Icon icon="arrow-right" size="xs" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -36,7 +112,7 @@ import { useRouter } from "vue-router";
 // --- internal
 
 // --- components
-import { Button } from "@upmind-automation/upmind-ui";
+import { Button, Icon } from "@upmind-automation/upmind-ui";
 import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
 
 // --- types
