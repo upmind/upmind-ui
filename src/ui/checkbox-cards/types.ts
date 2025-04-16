@@ -20,24 +20,29 @@ export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
   name?: string;
 }
 
+type HTMLClassAttributes = HTMLAttributes["class"];
+type Cursor = CheckboxLabelVariantProps["cursor"];
 export interface CheckboxCardsProps extends ToggleGroupRootProps {
   modelValue?: string[];
+  /** The default active value. Use when you do not need to control the state of the items. */
   defaultValue?: string[];
-  label?: string;
-  placeholder?: string;
-  noneText?: string;
+  /** Require at least one checkbox to be checked */
   required?: boolean;
   // --- state
   items: CheckboxCardsItemProps[];
+  /** Enable loading state */
   loading?: boolean;
+  /** Hides the checkbox input */
   noInput?: boolean;
-  // ---
-  color?: ButtonProps["color"] | string;
-  variant?: ButtonProps["variant"] | string;
-  cursor?: CheckboxLabelVariantProps["cursor"];
+  /** Disable the pointer cursor allowing text selection */
+  cursor?: Cursor;
+  /** Display the checkbox cards as a list */
   list?: boolean;
   // ---
   uiConfig?: { tooltip: CxOptions };
-  class?: HTMLAttributes["class"];
-  itemClass?: HTMLAttributes["class"];
+  /** Apply additional classes to the container */
+  /** @type {import('vue').HTMLAttributes['class']} */
+  class?: HTMLClassAttributes;
+  /** Apply additional classes to the items */
+  itemClass?: HTMLClassAttributes;
 }

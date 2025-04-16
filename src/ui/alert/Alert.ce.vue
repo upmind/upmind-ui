@@ -52,10 +52,6 @@ import type { AlertProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<AlertProps>(), {
-  // --- props
-  title: "",
-  description: "",
-  action: "",
   // --- styles
   variant: "outline",
   color: "base",
@@ -64,10 +60,20 @@ const props = withDefaults(defineProps<AlertProps>(), {
   class: "",
 });
 
+defineSlots<{
+  /** Append additional content */
+  default(props: {}): any;
+  /** Provide a title */
+  title(props: {}): any;
+  /** Provide an action */
+  action(props: {}): any;
+  /** Provide a description */
+  description(props: {}): any;
+}>();
+
 const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
-  border: props.border,
 }));
 
 const styles = useStyles(

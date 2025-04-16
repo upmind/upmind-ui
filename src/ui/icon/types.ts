@@ -6,7 +6,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { iconVariants } from "./icon.config";
 type IconVariantProps = VariantProps<typeof iconVariants>;
 
-interface Icon {
+export interface Icon {
   name: string;
   path: string;
 }

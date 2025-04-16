@@ -54,20 +54,26 @@ import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
-  placeholder: "Select an option",
   cursor: "pointer",
   // --- styles
-  class: "",
 });
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits<{
+  /** Update the model value */
+  (e: "update:modelValue", payload: string[]): void;
+}>();
+
+defineSlots<{
+  /** Provide a checkbox card item */
+  item(props: { item: any; index: number }): any;
+}>();
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
 
 const meta = computed(() => ({
-  color: props.color,
   // layout: props.layout,
   isList: props.list,
   noInput: props.noInput,
