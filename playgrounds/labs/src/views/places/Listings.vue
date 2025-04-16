@@ -36,7 +36,7 @@
           <div
             v-for="(place, index) in parsedResults"
             :key="index"
-            class="rounded-md border p-4 hover:bg-gray-50"
+            class="rounded-lg border p-4 transition-all hover:bg-gray-100 hover:shadow-lg"
           >
             <div class="space-y-2">
               <div v-if="place.address?.name" class="flex gap-1">
@@ -62,12 +62,7 @@
             </div>
 
             <div class="mt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                @click="openJsonDialog(place)"
-                class="text-sm text-secondary"
-              >
+              <Button size="sm" @click="openJsonDialog(place)">
                 View Raw Data
               </Button>
             </div>
