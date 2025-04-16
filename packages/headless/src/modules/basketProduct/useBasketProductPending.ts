@@ -11,35 +11,28 @@ const { dataLayer } = useDataLayer();
 // --- utils
 import { parseQuantity } from "../product/utils";
 import { DetailedError, responseCodes } from "../../utils";
-import { isEmpty, get, add, subtract, find, omitBy, isNil } from "lodash-es";
+import { isEmpty, get, add, subtract, find, omit, isNil } from "lodash-es";
 
 // --- types
-
-import type {
-  ProductModel,
-  Product,
-  ProductSummary,
-  TermDetails,
-  ProductProps,
-} from "../product";
+import type { Product, ProductModel, ProductProps } from "../product";
 // import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
-export const useBasketProductPending = (model: ProductProps) => {
+export const useBasketProductPending = (data: ProductProps) => {
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
 
   if (!rawBasket)
     throw new DetailedError("No Basket found", responseCodes.Not_Found);
 
-  if (isEmpty(model) || isEmpty(model.productId))
+  if (isEmpty(data) || isEmpty(data.productId))
     throw new DetailedError(
       "Product Model is empty or has no productId",
       responseCodes.Unprocessable_Entity
     );
 
-  const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
+  const id = btoa(JSON.stringify(data)); // use the model as the basis for the id
 
   let service = interpret(
     productMachine.withContext({
@@ -48,9 +41,15 @@ export const useBasketProductPending = (model: ProductProps) => {
       clientId: rawBasket.client_id,
       currencyId: rawBasket.currency_id,
       promotions: rawBasket.promotions,
-      coupons: model?.coupons ?? [],
+      coupons: data?.coupons ?? [],
       // ---
-      model,
+      model: omit(data, [
+        "currencyId",
+        "clientId",
+        "promotions",
+        "coupons",
+        "subproducts",
+      ]) as ProductModel,
     }),
     {
       id,
@@ -86,19 +85,19 @@ export const useBasketProductPending = (model: ProductProps) => {
   }
 
   async function update(): Promise<void> {
-    return waitFor(service, state =>
-      ["available.valid"].some(state.matches)
-    ).then(() => {
-      service.send({ type: "UPDATE" });
-      return waitFor(service, state => !state.matches("processing"), {
-        timeout: Infinity,
-      }).then(state => {
-        if (["error", "available.error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
-        }
-        return Promise.resolve();
-      });
-    });
+    return waitFor(service, state => state.matches("available.valid")).then(
+      () => {
+        service.send({ type: "UPDATE" });
+        return waitFor(service, state => !state.matches("processing"), {
+          timeout: Infinity,
+        }).then(state => {
+          if (["error", "available.error"].some(state.matches)) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve();
+        });
+      }
+    );
   }
 
   async function remove(): Promise<void> {

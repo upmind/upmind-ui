@@ -20,14 +20,8 @@ type BasketProduct = ReturnType<typeof useBasketProduct>;
 // -----------------------------------------------------------------------------
 
 export const useBasketProducts = () => {
-  const {
-    getProducts,
-    get,
-    updateQuantity,
-    incrementQuantity,
-    decrementQuantity,
-    remove,
-  } = useUpmindBasketProducts();
+  const { get, updateQuantity, incrementQuantity, decrementQuantity, remove } =
+    useUpmindBasketProducts();
 
   const processing = ref<string[]>([]);
 

@@ -24,7 +24,9 @@ export const useBasketProductsPending = () => {
     meta: computed(() => ({
       hasProducts: !isEmpty(products),
     })),
-    products: computed(() => products.value),
+
+    products,
+
     configure: async (
       pid?: string,
       sync?: boolean
