@@ -14,6 +14,7 @@ import {
 import { parseQuantity, checkPriceOverride } from "./utils";
 
 import {
+  compact,
   concat,
   find,
   first,
@@ -32,6 +33,7 @@ import {
   reject,
   set,
   some,
+  sum,
   times,
 } from "lodash-es";
 
@@ -40,7 +42,12 @@ import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
 } from "@upmind-automation/types";
-import type { ProductConfigContext, TermDetails, Price } from "./types";
+import type {
+  ProductConfigContext,
+  TermDetails,
+  Price,
+  PriceCalculations,
+} from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -361,29 +368,22 @@ async function checkProvisioning({ error, lookups, model }: any, _event: any) {
 
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
-const calculateSummary = (
-  { currencyId, model, lookups }: ProductConfigContext,
-  controller: AbortController
-) => {
-  const { post, useUrl } = useQuery();
-
-  // clean the prices object, removing any nil values. we dont use compact because that also removes 0 values
-  // NB: remove the term price if we have any price overrides
-  const values = reject(
-    concat(
-      checkPriceOverride(model?.options, lookups?.options)
-        ? []
-        : lookups?.prices?.term || [],
-      lookups?.prices?.attributes,
-      lookups?.prices?.options
-    ),
-    isNil
+function calculate(prices: PriceCalculations, overrides: boolean): number[] {
+  const values = concat(
+    overrides ? [] : prices?.term,
+    prices?.attributes,
+    prices?.options
   );
-  // ---
 
-  if (!currencyId || !values?.length) {
-    return Promise.reject({});
-  }
+  return values.filter(value => !isNil(value));
+}
+
+async function formatCalculation(
+  currencyId: string,
+  values: number[],
+  controller: AbortController
+): Promise<Price> {
+  const { post, useUrl } = useQuery();
 
   return post({
     url: useUrl("cart/calculate", {}),
@@ -403,7 +403,7 @@ const calculateSummary = (
       // discountFormatted: get(data, "discount_formatted", ""),
     } as Price;
   });
-};
+}
 
 export const calculateBillingTerm = (
   period: DefaultPaymentPeriod | undefined,
@@ -446,29 +446,86 @@ export const calculateBillingTerm = (
 // ---  SUBSCRIPTIONS
 // These are used by the other machines to listen for changes/messages from this machine
 
+//  needsCalculating: (
+//         { lookups, product }: ProductConfigContext,
+//         { data }: AnyEventObject
+//       ) => {
+//         // work out which property we need to compare
+//         let prop;
+//         prop ??= has(data, "term") ? "term" : null;
+//         prop ??= has(data, "options") ? "options" : null;
+//         prop ??= has(data, "attributes") ? "attributes" : null;
+
+//         // safeguard: bail if we dont have a "summary" or a matching property to calculate
+//         if (!prop || !product || !has(data, "price")) return false;
+
+//         // if we dont have any prev prices then we must need to calculate
+//         if (!lookups?.prices || !has(lookups, ["prices", prop])) return true;
+
+//         const newPrice = sumBy(get(data, "price", []));
+//         const oldPrice = sumBy(get(lookups.prices, prop, []));
+//       //         const value = !isEqual(oldPrice, newPrice);
+//
+//         // console.debug("productConfig", "needsCalculating", value, {
+//         //   prop,
+//         //   newPrice,
+//         //   oldPrice,
+//         // });
+
+//         return value;
+//       },
+
 export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
   let controller: AbortController | null;
 
+  let price: Price | undefined;
+
   onReceive((event: any) => {
     if (event.type === "CALCULATE") {
-      // Firstly, we need to check if we have a controller already doing calculation requests.
-      // If we do, we need to abort the current request and start a new one.
+      // safety check, ensure we have a valid event
+      if (
+        !event.data?.currencyId ||
+        !event.data?.lookups ||
+        !event.data?.model
+      ) {
+        return;
+      }
+
+      const { currencyId, lookups, model } = event.data;
+      const overrides =
+        !!model?.options &&
+        !!lookups?.options &&
+        checkPriceOverride(model.options, lookups.options);
+
+      const values = calculate(lookups.prices, overrides);
+      // Check if we actually need to calculate the price
+      if (price?.total == sum(values) || !values?.length) {
+        // no need to recalculate, just return the current price
+        callback({ type: "CALCULATED", data: price });
+        return;
+      }
+
+      callback({ type: "CALCULATING" });
+
+      // if we do...we need to check if we have a controller already doing calculation requests.
+      // if we do, we need to abort the current request and start a new one.
       if (controller?.signal && !controller.signal?.aborted) {
-        controller?.abort("New request received");
+        controller?.abort();
       }
 
       // create a new controller to allow us to abort the request if needed
       controller = new AbortController();
-
-      calculateSummary(event.data, controller)
-        .then(summary => {
-          // send the summary back to the machine
-          callback({ type: "CALCULATED", data: summary });
+      formatCalculation(currencyId, values, controller)
+        .then((result: Price) => {
+          // send the price back to the machine
+          price = result;
+          callback({ type: "CALCULATED", data: price });
         })
-        .catch(() => {
-          // still notify the machine, but with an no value, so we can move out of the state
-          callback({ type: "CALCULATE_CANCELLED", data: null });
+        // this catch will also trigger when a request is aborted, but it wont have any error message
+        .catch(error => {
+          // notify the machine if we have an anctual error, so we can move out of the calculating state
+          if (!isEmpty(error)) callback({ type: "CALCULATE_CANCELLED" });
         });
     }
 

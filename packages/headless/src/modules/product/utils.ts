@@ -53,6 +53,7 @@ import type {
   ProductDetails,
   SubproductDetails,
   SubproductValue,
+  SubproductModel,
   TermDetails,
   Product,
   ProductSummaryDetail,
@@ -167,12 +168,14 @@ export function iterateParents(
   });
 }
 
-export function checkPriceOverride(values: any, lookups: any) {
+export function checkPriceOverride(
+  values: SubproductModel,
+  lookups: SubproductDetails[]
+) {
   return some(values, (value, key) => {
     const item = find(lookups, ["id", key]);
-
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
-    return !isEmpty(value) && !!item?.priceOverride;
+    return !isEmpty(value) && !!item?.meta?.overrides;
   });
 }
 // -----------------------------------------------------------------------------
@@ -362,7 +365,7 @@ export const parseSubproductDetails = (
             (rawSubproduct.price_discounted ?? rawSubproduct.price) !==
             rawSubproduct.price,
           includesTax: checkIncludesTax(),
-          free: (rawSubproduct.price_discounted ?? rawSubproduct.price) == 0,
+          free: price?.price?.currentAmount == 0,
           overrides: rawSubproduct.category.price_override,
           default: !!rawSubproduct?.pivot?.default,
         },
@@ -646,6 +649,17 @@ export const parseProduct = (
     return {} as Product;
 
   const term = find(lookups.terms, ["cycle", model.term]);
+  price = !isNil(price?.regularPrice)
+    ? price
+    : term?.price || {
+        currentAmount: 0,
+        currentPrice: "",
+        regularAmount: 0,
+        regularPrice: "",
+        savingAmount: 0,
+        savingPrice: "",
+        savingPercent: "",
+      };
   // ---
   // TODO: Dont have the necessary data now to calculate this
   // price.unit: term?.price.unit,
@@ -664,20 +678,15 @@ export const parseProduct = (
     category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
-    meta: term?.meta ?? {},
+    meta: {
+      ...(term?.meta ?? {}),
+      free: price.currentAmount == 0,
+      discounted:
+        price.currentAmount != price.regularAmount && price.regularAmount > 0,
+    },
     promotions: term?.promotions,
     // ---
-    price: !isNil(price?.regularPrice)
-      ? price
-      : term?.price || {
-          currentAmount: 0,
-          currentPrice: "",
-          regularAmount: 0,
-          regularPrice: "",
-          savingAmount: 0,
-          savingPrice: "",
-          savingPercent: "",
-        },
+    price,
   };
   // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration

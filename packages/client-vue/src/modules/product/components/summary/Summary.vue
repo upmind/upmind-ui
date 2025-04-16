@@ -1,7 +1,12 @@
 <template>
   <Card :class="styles.summary.card" as="aside" class="">
     <header :class="styles.summary.header">
-      <SummaryPricing :pricing="product.pricing" :meta="product.meta" />
+      <SummaryPricing
+        :pricing="product.pricing"
+        :meta="product.meta"
+        :loading="meta.isLoading"
+        :processing="meta.isCalculating"
+      />
     </header>
 
     <footer :class="styles.summary.footer">

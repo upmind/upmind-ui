@@ -315,6 +315,13 @@ export interface UISchema {
     control?: string;
   };
 }
+
+export type PriceCalculations = {
+  calculating?: boolean;
+  term?: number[];
+  options?: number[];
+  attributes?: number[];
+};
 // -----------------------------------------------------------------------------
 
 export interface ProductConfigContext {
@@ -334,12 +341,7 @@ export interface ProductConfigContext {
     options?: SubproductDetails[];
     attributes?: SubproductDetails[];
     provisionFields?: Record<string, any>;
-    prices?: {
-      calculating?: boolean;
-      term?: number[];
-      attributes?: number[];
-      options?: number[];
-    };
+    prices?: PriceCalculations;
   };
   // ---
   product?: Product;
