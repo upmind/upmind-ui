@@ -1,14 +1,14 @@
 // --- external
 
 // --- internal
-import { useSystem } from "../..";
+import { useSystem } from "../index";
 
 // --- utils
-import { some, get, find, includes, map, compact, isArray } from "lodash-es";
+import { compact, find, get, includes, map, some } from "lodash-es";
 
 // --- types
-import { Address } from "../address/types";
-import { Places } from "./types";
+import type { Places } from "./types";
+import type { Address } from "../../client";
 
 // -----------------------------------------------------------------------------
 
@@ -42,18 +42,14 @@ function parseValue(addressComponents: any[], fields: string[]) {
 
 // -----------------------------------------------------------------------------
 export async function usePredictionsParser(results: any) {
-  return map(results, result => {
-    const value = {
-      id: result.place_id,
-      title: result.description,
-      description: null,
-      // ---
-      label: result.description,
-      value: result.place_id,
-    };
-
-    return value;
-  });
+  return map(results, result => ({
+    id: result.place_id,
+    title: result.description,
+    description: null,
+    // ---
+    label: result.description,
+    value: result.place_id,
+  }));
 }
 
 export async function usePlaceParser(result: any): Promise<Address> {

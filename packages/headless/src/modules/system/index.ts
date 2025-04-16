@@ -3,6 +3,7 @@ import { AnyEventObject, interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- exports
+export * from "./places";
 export * from "./upload/useSystemUpload";
 export * from "./recaptcha/useSystemRecaptcha";
 export * from "./i18n/useI18n";
