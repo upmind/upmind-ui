@@ -44,7 +44,10 @@ onMounted(async () => {
 });
 
 const searchAddresses = debounce(async (query: string) => {
-  if (!query || query.length < 3) return;
+  if (!query || query.length < 3) {
+    parsedResults.value = [];
+    return;
+  }
 
   const results = await places.search(query);
   if (!isEmpty(results)) {
