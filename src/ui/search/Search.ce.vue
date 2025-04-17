@@ -1,28 +1,30 @@
 <template>
-  <PopoverRoot>
-    <PopoverTrigger as-child>
-      <Input
+  <PopoverRoot v-model:open="open">
+    <PopoverTrigger class="w-full" tabindex="-1">
+      <InputExtended
+        v-model="search"
         type="text"
         placeholder="Search for an address..."
-        @update:model-value="onSearch"
         width="full"
-      />
+        @update:model-value="onSearch"
+        :class="cn(styles.search.input)"
+      >
+        <template #prepend>
+          <Icon icon="search" :class="styles.search.icon" />
+        </template>
+      </InputExtended>
     </PopoverTrigger>
     <PopoverPortal>
-      <PopoverContent
-        v-if="isValid"
-        align="start"
-        side="bottom"
-        class="z-50 mt-2 w-[--radix-popover-trigger-width] overflow-hidden rounded-lg border bg-white"
-      >
-        <ul v-if="results">
+      <PopoverContent v-if="meta.isOpen" :class="styles.search.content">
+        <!-- <div :class="styles.search.divider" /> -->
+        <ul>
           <li
-            v-for="(result, index) in results"
-            :key="result.id"
-            @click="$emit('select', result)"
-            class="cursor-pointer px-4 py-2 hover:bg-gray-100"
+            v-for="item in results"
+            :key="item.id"
+            @click="onSelect(item)"
+            :class="styles.search.item"
           >
-            {{ result.label }}
+            {{ item.label }}
           </li>
         </ul>
       </PopoverContent>
@@ -39,8 +41,17 @@ import {
   PopoverContent,
   PopoverPortal,
 } from "radix-vue";
-import { Input } from "../input";
+import { InputExtended } from "../input-extended";
+import { Icon } from "../icon";
+
 import type { SearchItem } from "./types";
+
+import { useStyles, cn } from "../../utils";
+import config from "./search.config";
+
+import type { ComputedRef } from "vue";
+
+// -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<{
@@ -55,10 +66,30 @@ const props = withDefaults(
 const emit = defineEmits(["update:search", "select"]);
 
 const search = ref("");
+const open = ref(false);
+
+const meta = computed(() => ({
+  isOpen: open.value && isValid.value,
+}));
+
+const styles = useStyles(["search"], meta, config, {}) as ComputedRef<{
+  search: {
+    container: string;
+    input: string;
+    icon: string;
+    content: string;
+    divider: string;
+    item: string;
+  };
+}>;
 
 const onSearch = (value: string | number) => {
-  search.value = value as string;
   emit("update:search", value);
+};
+
+const onSelect = (item: SearchItem) => {
+  search.value = "";
+  emit("select", item);
 };
 
 const isValid = computed(() => {
