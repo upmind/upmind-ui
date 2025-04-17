@@ -1,5 +1,5 @@
 <template>
-  <article v-if="visible">
+  <article>
     <ContentSection v-auto-animate>
       <Interstitial
         v-bind="props"
@@ -33,7 +33,11 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+import {
+  useRoutingEngine,
+  useSession,
+  ROUTE,
+} from "@upmind-automation/headless-vue";
 
 // -- components
 import Internet from "../../assets/animations/internet.json?url";
@@ -46,15 +50,12 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { back, isResolved } = useRoutingEngine();
+const { isResolved } = useRoutingEngine();
+const { logout } = useSession();
 
-const visible = ref(false);
-visible.value = await isResolved(ROUTE.SESSION_END)
-  .then(() => true)
-  .catch(() => {
-    back();
-    return false;
-  });
+// if we are not logged out, we should log out
+await isResolved(ROUTE.SESSION_END).catch(() => logout());
+
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
