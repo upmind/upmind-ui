@@ -310,7 +310,10 @@ export function basketSubscription(callback: any, onReceive: any) {
 
             return rawBasket;
           })
-          .catch(error => callback({ type: "ERROR", data: error }))
+          .catch(error => {
+            callback({ type: "ERROR", data: error });
+          })
+
           .finally(() => {
             basket
               .refresh()

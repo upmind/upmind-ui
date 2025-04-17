@@ -285,9 +285,7 @@ export default createMachine(
               cond: "hasError",
             },
             {
-              target: "available.invalid",
               actions: ["refreshContext", "setError"],
-              cond: "hasChanged",
             },
           ],
           REMOVE: {
@@ -805,21 +803,6 @@ export default createMachine(
         isEmpty(rawBasketProduct),
 
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
-
-      hasChanged: (
-        { model }: ProductConfigContext,
-        { data }: AnyEventObject
-      ) => {
-        const cleanModel = compactDeep(model);
-        debugger; // TODO: check if .basketProduct exusts on data
-        const cleanProduct = data?.basketProduct
-          ? compactDeep(parseBasketProductModel(data.basketProduct))
-          : {};
-        const isDirty =
-          !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
-
-        return isDirty;
-      },
 
       hasBasketChanged: (
         {
