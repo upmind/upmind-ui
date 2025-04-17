@@ -1,5 +1,5 @@
 <template>
-  <article>
+  <article v-if="visible">
     <ContentSection v-auto-animate>
       <Interstitial
         v-bind="props"
@@ -28,6 +28,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -47,8 +48,13 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 const { t } = useI18n();
 const { back, isResolved } = useRoutingEngine();
 
-await isResolved(ROUTE.SESSION_END).catch(back);
-
+const visible = ref(false);
+visible.value = await isResolved(ROUTE.SESSION_END)
+  .then(() => true)
+  .catch(() => {
+    back();
+    return false;
+  });
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
