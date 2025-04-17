@@ -10,10 +10,11 @@ const { dataLayer } = useDataLayer();
 
 // --- utils
 import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, responseCodes, stopService } from "../../utils";
 import { isEmpty, get, add, subtract, find, omit, isNil } from "lodash-es";
 
 // --- types
+import type { InterpreterFrom } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
 // import { DataLayerEcommerceItem } from "../system/analytics/types";
 
@@ -124,7 +125,8 @@ export const useBasketProductPending = (data: ProductProps) => {
     id,
     service,
     getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    getProduct: () => service.getSnapshot().context.product,
+    stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     isReady,
     // ---

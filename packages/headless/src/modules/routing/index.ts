@@ -8,10 +8,12 @@ export * from "./flows";
 export * from "./types";
 
 // --- utils
+import { stopService } from "../../utils";
 import { awaitResolved, useRouteQueryParams } from "./utils";
 export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 
 // --- types
+import type { InterpreterFrom } from "xstate";
 import type { ROUTE, Flow, Route, Target } from "./types";
 import { isEmpty, get, some } from "lodash-es";
 export type RouteQueryParams = typeof useRouteQueryParams;
@@ -86,6 +88,6 @@ export const useRoutingEngine = () => {
     // ---
     useQueryParams: useRouteQueryParams as RouteQueryParams,
     // ---
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

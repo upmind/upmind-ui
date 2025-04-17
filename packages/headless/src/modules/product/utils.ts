@@ -42,7 +42,9 @@ import {
 import type {
   IBasketProduct,
   IProduct,
+  IProductAttribute,
   IProductCategory,
+  IProductOption,
   IProductPrice,
 } from "@upmind-automation/types";
 
@@ -267,7 +269,7 @@ export const parseMeta = (
   );
 };
 
-export const parseTermDetails = (raw: any): TermDetails[] => {
+export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
 
@@ -285,7 +287,7 @@ export const parseTermDetails = (raw: any): TermDetails[] => {
 };
 
 export const parseSubproductDetails = (
-  data: any,
+  data?: (IProductAttribute | IProductOption)[],
   cycle?: number
 ): SubproductDetails[] => {
   const { checkIncludesTax } = useBrand();
@@ -361,17 +363,14 @@ export const parseSubproductDetails = (
         meta: {
           // NB: only show term pricing if recurring!
           oneoff: rawSubproduct.billing_cycle_months == 0,
-          discounted:
-            (rawSubproduct.price_discounted ?? rawSubproduct.price) !==
-            rawSubproduct.price,
+          discounted: !!price?.meta?.discounted,
           includesTax: checkIncludesTax(),
           free: price?.price?.currentAmount == 0,
           overrides: rawSubproduct.category.price_override,
-          default: !!rawSubproduct?.pivot?.default,
+          default: rawSubproduct.pivot.default == rawSubproduct.pivot.order,
         },
-        order: rawSubproduct?.order,
+        order: rawSubproduct.pivot.order,
       };
-
       // ---
       values.push(value as SubproductValue);
       set(option, "values", orderBy(values, "order"));

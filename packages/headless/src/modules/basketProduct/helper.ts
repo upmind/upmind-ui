@@ -54,7 +54,25 @@ export function basketSubscription(callback: any, onReceive: any) {
     }
   });
 
+  //-- initialise our basket
   onReceive((event: any) => {
+    if (event.type === "INIT") {
+      basket
+        .isReady()
+        .then(() => {
+          callback({
+            type: "REFRESH",
+            data: basket.getSnapshot()?.context?.basket,
+          });
+        })
+        .catch(error => {
+          // console.error("basketHelper", "REFRESH", error);
+          callback({ type: "ERROR", data: error });
+        });
+      return;
+    }
+    // --- from this point on we assum we have a basket
+
     const rawBasket = basket.getBasket();
     let basketProduct: BasketProduct | undefined;
 
@@ -67,21 +85,6 @@ export function basketSubscription(callback: any, onReceive: any) {
     }
 
     switch (event.type) {
-      case "INIT":
-        basket
-          .isReady()
-          .then(() => {
-            callback({
-              type: "REFRESH",
-              data: basket.getSnapshot()?.context?.basket,
-            });
-          })
-          .catch(error => {
-            // console.error("basketHelper", "REFRESH", error);
-            callback({ type: "ERROR", data: error });
-          });
-        break;
-
       case "FETCH":
         if (isEmpty(event.target)) return Promise.resolve([]);
 
@@ -199,14 +202,11 @@ export function basketSubscription(callback: any, onReceive: any) {
           })
           .then((instance: BasketProductPending) => {
             const actor = instance.service;
-            const product = get(actor.getSnapshot(), "context.summary");
-
+            const product = instance.getProduct();
             if (!product) throw new Error("Product not found");
-
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });
-
             // try to update the actor we just added
             productServices
               .update(

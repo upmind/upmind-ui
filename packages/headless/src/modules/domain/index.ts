@@ -7,8 +7,12 @@ import { DomainTypes } from "./types";
 export * from "./types";
 
 // --- utils
-import { has, map, isArray, some } from "lodash-es";
+import { stopService } from "../../utils";
 import { parseDomain } from "./utils";
+import { has, map, isArray, some } from "lodash-es";
+
+// --- types
+import type { InterpreterFrom } from "xstate";
 
 // -----------------------------------------------------------------------------
 export const useDomain = (
@@ -37,7 +41,7 @@ export const useDomain = (
   };
 
   const service = interpret(domainMachine.withContext(context as any), {
-    devTools: true,
+    devTools: false,
   }).start();
 
   // ---------------------------------------------------------------------------
@@ -129,6 +133,6 @@ export const useDomain = (
       const valid = some(state.context.model, { domain: value });
       return valid;
     },
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

@@ -2,7 +2,11 @@
 import { sha1 } from "object-hash";
 
 // --- internal
-import { parseProductDetails, parseTermDetails } from "../product/utils";
+import {
+  parseProductDetails,
+  parseQuantity,
+  parseTermDetails,
+} from "../product/utils";
 
 // --- utils
 import {
@@ -42,7 +46,7 @@ import type {
   Benefit,
 } from "./types";
 import { calculateBillingTerm } from "../product/services";
-import { ProductDetails } from "../product";
+import { ProductDetails, TermDetails } from "../product";
 
 // ---------------------------------------------------------------------------
 
@@ -249,19 +253,14 @@ export function parseRecommendation(
     loading?: boolean;
   }
 ): Recommendation {
-  if (!raw?.product)
-    throw new DetailedError(
-      "Invalid recommendation",
-      responseCodes.Unprocessable_Entity
-    );
-
-  const productDetails: ProductDetails = parseProductDetails(raw.product);
+  const productDetails: ProductDetails = !isEmpty(raw.product)
+    ? parseProductDetails(raw.product)
+    : ({} as ProductDetails);
   const config: IProductConfig = get(raw, "config", {});
-  const terms = parseTermDetails(raw?.product?.prices);
-  const term = calculateBillingTerm(
-    config?.bcm ?? productDetails?.cycle,
-    terms
-  );
+  const terms = parseTermDetails(raw.product?.prices);
+  const term = !isEmpty(terms)
+    ? calculateBillingTerm(config?.bcm ?? productDetails?.cycle, terms)
+    : ({} as TermDetails);
 
   term.meta = defaultsDeep(term.meta, {
     added: meta?.added ?? false,
@@ -292,15 +291,21 @@ export function parseRecommendation(
         isString(benefit) ? ({ label: benefit } as Benefit) : benefit
       ),
     },
-    meta: term.meta,
-    promotions: term.promotions,
-    price: term.price,
+    meta: term?.meta,
+    promotions: term?.promotions,
+    price: term?.price,
+    pricing: [],
+    details: [],
     // --- default config to be used when adding to basket
     configuration: {
       productId: raw.object_id,
-      quantity: toSafeInteger(
-        config?.qty || productDetails?.min || productDetails?.step || 1
+      quantity: parseQuantity(
+        toSafeInteger(
+          config?.qty || productDetails?.min || productDetails?.step || 1
+        ),
+        productDetails
       ),
+
       term: config?.bcm ?? term?.cycle ?? 0,
       subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
       provisionFields: config?.pfields ?? {},
