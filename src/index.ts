@@ -32,6 +32,7 @@ export * from "./ui/radio-cards";
 export * from "./ui/radio-group";
 export * from "./ui/select";
 export * from "./ui/select-cards";
+export * from "./ui/search";
 export * from "./ui/separator";
 export * from "./ui/skeleton";
 export * from "./ui/sonner";
