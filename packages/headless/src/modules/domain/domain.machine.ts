@@ -40,8 +40,7 @@ import {
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
-import type { Product, ProductModel } from "../product";
-import type { BasketProduct } from "../basketProduct";
+import type { ProductModel } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -190,6 +189,7 @@ export default createMachine(
               UPDATED: {
                 target: "#basket",
                 actions: [
+                  "setBasketProducts",
                   "setModelFromBasket",
                   "ensureSelected",
                   "checkChoices",
@@ -403,15 +403,18 @@ export default createMachine(
 
       checkModel: assign({
         model: ({ model, lookups }: DomainContext) => {
-          const values = map(compact(model), item =>
-            parseDomain(item)
-          ) as DomainModel[];
-
+          const values = map(model, item => parseDomain(item)) as DomainModel[];
           if (isEmpty(values) && !isEmpty(lookups.basket)) {
-            debugger;
-            // return lookups.basket; //TODO: do we still need this?
+            return map(lookups.basket, item => {
+              return {
+                domain: item.domain,
+                tld: item.tld,
+                sld: item.sld,
+                typee: DomainTypes.basket,
+                selected: item.meta.selected,
+              } as DomainModel;
+            }) as DomainModel[];
           }
-
           return values;
         },
       }),
@@ -551,13 +554,16 @@ export default createMachine(
           // so we need to filter out any non product values
           // and then map them to a be a basket item model
           const products = reduce(
-            context.model?.filter(
-              (item): item is DomainProduct => "productId" in item
-            ),
-            (result: ProductModel[], item: DomainProduct) => {
-              if (item?.configuration.productId) {
+            context.model ?? [],
+            (result: ProductModel[], item: DomainModel) => {
+              const product = find(context.lookups.searched, [
+                "domain",
+                item.domain,
+              ]);
+
+              if (product?.configuration?.productId) {
                 const model = isFunction(context?.parseProductModel)
-                  ? context.parseProductModel(item)
+                  ? context.parseProductModel(product)
                   : undefined;
                 if (model) result.push(model);
               }
@@ -653,6 +659,7 @@ export default createMachine(
                   available = lookups?.basket;
                   break;
               }
+
               const domain: DomainModel = parseValue(item, data, available);
               if (domain) result.push(domain);
 
@@ -665,28 +672,16 @@ export default createMachine(
 
       setModelFromBasket: assign({
         type: (_context, _event: AnyEventObject) => DomainTypes.basket,
-        model: (
-          { model, lookups }: DomainContext,
-          { data }: AnyEventObject
-        ) => {
-          const products = (data as IBasket).products;
-          const values = reduce(
-            products,
-            (result: DomainModel[], rawItem: IBasketProduct) => {
-              if (!rawItem.service_identifier) return result; //safety check
-              // ---
-              const domain: DomainModel = parseValue(
-                rawItem.service_identifier ?? "",
-                model,
-                lookups?.basket
-              );
-              if (domain) result.push(domain);
-              return result;
-            },
-            []
-          );
-          return !isEmpty(values) ? values : lookups.basket;
-        },
+        model: ({ lookups }: DomainContext, _event: AnyEventObject) =>
+          map(lookups.basket, (item: DomainProduct) => {
+            return {
+              domain: item.domain,
+              tld: item.tld,
+              sld: item.sld,
+              typee: DomainTypes.basket,
+              selected: item.meta.selected,
+            } as DomainModel;
+          }) as DomainModel[],
       }),
 
       clearModel: assign({
@@ -847,7 +842,13 @@ export default createMachine(
             find(lookups.basket, ["domain", data]) || first(lookups.basket);
           return map(lookups.basket, value => {
             value.meta.selected = value === selected;
-            return value;
+            return {
+              domain: value.domain,
+              tld: value.tld,
+              sld: value.sld,
+              typee: DomainTypes.basket,
+              selected: value.domain === selected?.domain,
+            } as DomainModel;
           });
         },
       }),

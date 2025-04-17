@@ -25,7 +25,7 @@ import { BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
 import type { ProductDetails, ProductModel } from "../product";
-import type { BasketProduct } from "../basketProduct";
+import type { BasketProduct, IBasketProductModel } from "../basketProduct";
 
 // -----------------------------------------------------------------------------
 
@@ -358,7 +358,7 @@ async function updateMany(
 
   // --- then build the basket config for the validItems products
   const products = map(validItems, item => {
-    const id = get(item, "state.context.basketProduct.id");
+    const id = get(item.getSnapshot(), "context.rawBasketProduct.id");
     // inform the item that it is being processed
     item.send({ type: "PROCESSING" });
     // ---
@@ -379,11 +379,11 @@ async function updateMany(
   // the existing products dont need to have their full config, just the id
   const existingProducts = reduce(
     basketProducts,
-    (result: any[], item: any) => {
+    (result: IBasketProductModel[], item: BasketProduct) => {
       const id = get(item, "id");
 
       if (id) {
-        const product = parseBasketProductData(item, promotions);
+        const product = parseBasketProductData(item.configuration, promotions);
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
