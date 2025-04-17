@@ -47,7 +47,10 @@
       />
 
       <DomainActions
-        v-bind="domain"
+        :domain="domain.domain"
+        :tld="domain.tld"
+        :meta="domain.meta"
+        :price="domain.price"
         :processing="meta.isProcessing"
         :selected="props.selected"
         @update="onUpdate"
