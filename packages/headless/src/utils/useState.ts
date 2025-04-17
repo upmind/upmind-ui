@@ -23,7 +23,6 @@ export function stopService(machine: InterpreterFrom<any>): boolean {
     !machine.getSnapshot().done &&
     machine.stop();
 
-  debugger;
   return machine.status == InterpreterStatus.Stopped;
 }
 
