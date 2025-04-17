@@ -12,6 +12,7 @@
     />
 
     <template v-for="item in summary" :key="item.title">
+      <pre>{{ item }}</pre>
       <SummaryItem v-bind="item" />
     </template>
   </ul>

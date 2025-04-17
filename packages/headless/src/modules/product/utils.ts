@@ -835,7 +835,7 @@ const parseSummaryProvisionFields = (
     (result: any[], provisionField, key) => {
       let title = get(data, key, key);
       if (provisionField.oneOf) {
-        title = find(provisionField.oneOf, ["const", title])?.title ?? key;
+        title = find(provisionField.oneOf, ["const", title])?.title ?? title;
       }
       result.push({
         name: `provision_field.${key}`,
