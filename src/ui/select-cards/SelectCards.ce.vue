@@ -11,8 +11,10 @@
         :size="props.size"
         focusable
       >
-        <template #item="{ item }">
-          <slot name="item" :item="item"></slot>
+        <template #item="{ item }: { item: SelectCardsItemProps }">
+          <slot name="item" :item="item">
+            {{ item.label }}
+          </slot>
         </template>
         <template #placeholder>
           <slot name="placeholder"></slot>
@@ -63,7 +65,7 @@ import {
 } from "radix-vue";
 
 // --- types
-import type { SelectCardsProps } from "./types";
+import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = defineProps<SelectCardsProps>();
