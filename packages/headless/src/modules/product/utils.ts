@@ -692,22 +692,19 @@ export const parseProduct = (
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
   // and allow for easy i18n
-  const details: ProductSummaryDetail[] = [];
-
-  // product title
-  details.push({
-    name: "product",
-    title: lookups.product?.title,
-    category: lookups.product?.category,
-    meta: {},
-  });
-
-  //  product category
-  details.push({
-    name: "category",
-    title: lookups.product.category,
-    meta: {},
-  });
+  const productDetails: ProductSummaryDetail[] = [
+    {
+      name: "product",
+      title: lookups.product?.title,
+      category: lookups.product?.category,
+      meta: {},
+    },
+    {
+      name: "category",
+      title: lookups.product.category,
+      meta: {},
+    },
+  ];
 
   const termDetails = parseSummaryTerm(
     model.term ?? 0,
@@ -745,7 +742,13 @@ export const parseProduct = (
     price,
     pricing: [summaryDetailWithPrice],
     details: compact(
-      concat(termDetails, optionDetails, attributeDetail, provisionFieldDetails)
+      concat(
+        productDetails,
+        termDetails,
+        optionDetails,
+        attributeDetail,
+        provisionFieldDetails
+      )
     ),
     errors: omitBy(error, isEmpty),
   };
