@@ -73,7 +73,7 @@
         <div>
           <h4 class="mb-4 text-lg font-medium">Basket Management</h4>
 
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between border-b">
             <div>
               <h5 class="font-medium">Basket Billing</h5>
               <p class="mt-1 text-gray-600">Manage basket billing details</p>
@@ -81,6 +81,35 @@
             <Button @click="router.push({ name: 'basket.billing' })">
               <Icon icon="arrow-right" size="xs" />
             </Button>
+          </div>
+        </div>
+
+        <!-- Forms & Renderers -->
+        <div>
+          <h4 class="mb-4 text-lg font-medium">Forms & Renderers</h4>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b">
+              <div>
+                <h5 class="font-medium">Address Renderer</h5>
+                <p class="mt-1 text-gray-600">Search and select an address</p>
+              </div>
+              <Button @click="router.push({ name: 'form.address' })">
+                <Icon icon="arrow-right" size="xs" />
+              </Button>
+            </div>
+
+            <div class="flex items-center justify-between border-b">
+              <div>
+                <h5 class="font-medium">Domain Renderer</h5>
+                <p class="mt-1 text-gray-600">
+                  Search and manage basket domains
+                </p>
+              </div>
+              <Button @click="router.push({ name: 'form.domain' })">
+                <Icon icon="arrow-right" size="xs" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
