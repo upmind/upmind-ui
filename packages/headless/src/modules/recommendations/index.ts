@@ -4,10 +4,13 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
-import { isEmpty, some } from "lodash-es";
 export * from "./types";
 
 // --- utils
+import { stopService } from "../../utils";
+import { isEmpty, some } from "lodash-es";
+// --- types
+import type { InterpreterFrom } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -114,6 +117,6 @@ export const useRecommendationsEngine = () => {
       });
     },
     // ---
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

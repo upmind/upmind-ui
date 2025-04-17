@@ -9,10 +9,11 @@ import { useBasket } from "../basket";
 // --- utils
 import { getBasketProduct } from "./utils";
 import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, responseCodes, stopService } from "../../utils";
 import { isEmpty, get, add, subtract } from "lodash-es";
 
 // --- types
+import type { InterpreterFrom } from "xstate";
 import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
@@ -98,7 +99,7 @@ export const useBasketProduct = (bpid: string) => {
     id: bpid,
     service,
     getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     isReady,
     // ---

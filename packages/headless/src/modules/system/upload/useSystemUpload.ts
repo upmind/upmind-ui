@@ -5,8 +5,10 @@ import { interpret, InterpreterStatus } from "xstate";
 import uploadMachine from "./upload.machine";
 
 // --- utils
+import { stopService } from "../../../utils";
 
 // --- types
+import type { InterpreterFrom } from "xstate";
 
 // ---
 // system uploads is NOT a global insance, and is always instantiated as a new machine
@@ -26,6 +28,6 @@ export const useSystemUpload = (field?: object) => {
     service: service.start(), // allow for interpreting the machine + inspecting it
     // ---
     getSnapshot: service.getSnapshot,
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

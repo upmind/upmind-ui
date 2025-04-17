@@ -7,8 +7,10 @@ import recaptchaMachine from "./recaptcha.machine";
 import { generateToken } from "./services";
 
 // --- utils
+import { stopService } from "../../../utils";
 
 // --- types
+import type { InterpreterFrom } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -42,6 +44,6 @@ export const useSystemRecaptcha = () => {
     getSnapshot: service.getSnapshot,
     generate,
     clear,
-    stop: () => service.status == InterpreterStatus.Running && service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

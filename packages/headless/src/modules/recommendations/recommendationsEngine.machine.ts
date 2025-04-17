@@ -65,7 +65,8 @@ export default createMachine(
             actions: ["setBasket", "setLookups", "setRecommendations"],
           },
           ERROR: {
-            target: "unavailable",
+            actions: ["setError"],
+            // target: "unavailable",
           },
         },
       },
@@ -270,25 +271,30 @@ export default createMachine(
       ),
 
       fetchProduct: sendTo(
-        ({ basketHelper }: any, _event) => basketHelper,
-        ({ recommendations }, { data }: AnyEventObject) => {
+        ({ basketHelper }: RecommendationsEngineContext, _event) => {
+          if (!basketHelper) throw new Error("Basket helper is not defined");
+          return basketHelper;
+        },
+        (
+          { recommendations }: RecommendationsEngineContext,
+          { data }: AnyEventObject
+        ) => {
           const context = find(recommendations, ["id", data]);
-
+          if (!context) throw new Error("Context is not defined");
           // ensure we add our configured coupons to the recommendation ( in the format of IBasketPromotion)
           set(
             context,
             "promotions",
-            map(context?.config?.coupons, coupon => ({
+            map(context.configuration.coupons, coupon => ({
               promotion: { code: coupon },
             }))
           );
 
           // and remove the config as it's not needed
-          unset(context, "config");
-
+          // unset(context, "configuration");
           return {
             type: "FETCH",
-            target: context.productId,
+            target: context.configuration.productId,
             context,
           };
         }
@@ -316,7 +322,6 @@ export default createMachine(
             recommendation.id,
             []
           );
-
           const relatedProducts = filter(context.raw.added, product => {
             return includes(relationships, product.id);
           });
@@ -325,7 +330,6 @@ export default createMachine(
             recommendation,
             relatedProducts
           );
-
           return {
             type: "ADD_UPDATE",
             target: model,
@@ -445,8 +449,8 @@ export default createMachine(
         recommendations: (
           { raw }: RecommendationsEngineContext,
           _event: AnyEventObject
-        ) =>
-          reduce(
+        ) => {
+          const parsed = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
               const product = find(raw.products, ["id", rawRelated.object_id]);
@@ -465,7 +469,9 @@ export default createMachine(
               return result;
             },
             []
-          ),
+          );
+          return parsed;
+        },
       }),
 
       setRecommendation: assign({
@@ -519,7 +525,6 @@ export default createMachine(
         { raw, currency }: RecommendationsEngineContext,
         { data }: AnyEventObject
       ) => {
-        debugger;
         const product = data; //TODO: check / parse the data is a basket item
         dataLayer({
           event: "view_item_list",
