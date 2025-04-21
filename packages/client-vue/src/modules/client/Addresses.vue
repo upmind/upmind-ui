@@ -10,6 +10,7 @@
 
     <RadioCards
       v-if="isEditing"
+      v-model="selectedAddress"
       :items="parsedValues"
       :default-value="defaultAddress?.id"
       list
@@ -27,7 +28,8 @@
       :label="isEditing ? 'Confirm' : 'Change'"
       size="sm"
       class="leading-none"
-      @click="isEditing = !isEditing"
+      @click="clickEdit"
+      :disabled="isLoading"
     >
       <template #append>
         <Icon
@@ -43,7 +45,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { map } from "lodash-es";
 
@@ -61,9 +62,18 @@ import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless-vue";
 // -----------------------------------------------------------------------------
 
-const router = useRouter();
-
+const selectedAddress = ref("");
+const isLoading = ref(false);
 const isEditing = ref(false);
+
+const defaultAddress = computed(() => {
+  return data.value.find(address => address.meta.isDefault);
+});
+
+await isReady().then(() => {
+  getAll();
+  selectedAddress.value = defaultAddress.value?.id as string;
+});
 
 const addresses = computed(() => {
   if (isEditing.value) {
@@ -72,14 +82,24 @@ const addresses = computed(() => {
   return data.value.filter(address => address.meta.isDefault);
 });
 
-const defaultAddress = computed(() => {
-  return data.value.find(address => address.meta.isDefault);
-});
-
-await isReady().then(() => getAll());
-
 const getAddress = (id: string) => {
   return data.value.find(address => address.id === id);
+};
+
+const defaultChanged = computed(() => {
+  return selectedAddress.value !== defaultAddress.value?.id;
+});
+
+const clickEdit = async () => {
+  if (isEditing.value && defaultChanged.value) {
+    isLoading.value = true;
+    await setDefault(selectedAddress.value);
+    await getAll();
+    isEditing.value = false;
+    isLoading.value = false;
+  } else {
+    isEditing.value = !isEditing.value;
+  }
 };
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
