@@ -3,7 +3,7 @@
     <h3
       class="m-0 flex items-center gap-x-1 text-sm font-semibold leading-none"
     >
-      <span>{{ address.title }}</span>
+      {{ address.title }}
       <Badge variant="tonal" size="xs">{{ getTypeBadge() }}</Badge>
       <Badge
         v-if="editing && address.meta.isDefault"
@@ -16,8 +16,18 @@
       {{ address.description }}
     </p>
 
-    <footer v-if="editing" class="flex items-center gap-x-2">
-      <Link :label="getEditLabel()" size="xs" variant="muted" />
+    <footer
+      v-if="editing"
+      class="flex items-center gap-x-2"
+      tabindex="-1"
+      @mousedown.stop.prevent
+    >
+      <Link
+        :label="getEditLabel()"
+        size="xs"
+        variant="muted"
+        @click.prevent="editAddress"
+      />
     </footer>
   </div>
 </template>
@@ -50,5 +60,9 @@ const getEditLabel = () => {
     case 2:
       return "Edit company details";
   }
+};
+
+const editAddress = () => {
+  console.log("editAddress");
 };
 </script>
