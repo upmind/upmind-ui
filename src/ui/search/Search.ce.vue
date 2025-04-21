@@ -16,17 +16,14 @@
     </PopoverTrigger>
     <PopoverPortal>
       <PopoverContent v-if="meta.isOpen" :class="styles.search.content">
-        <!-- <div :class="styles.search.divider" /> -->
-        <ul>
-          <li
-            v-for="item in results"
-            :key="item.id"
-            @click="onSelect(item)"
-            :class="styles.search.item"
-          >
-            {{ item.label }}
-          </li>
-        </ul>
+        <div
+          v-for="item in results"
+          :key="item.id"
+          @click="onSelect(item)"
+          :class="styles.search.item"
+        >
+          {{ item.label }}
+        </div>
       </PopoverContent>
     </PopoverPortal>
   </PopoverRoot>
