@@ -31,6 +31,11 @@ export const useValidation = (ajv?: any) => {
     /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
   );
 
+  ajv.addFormat("address", {
+    type: "string",
+    validate: (x: string) => !!x,
+  });
+
   ajv.addKeyword({
     keyword: "isPhoneNumber",
     type: ["string", "object"],

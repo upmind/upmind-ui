@@ -21,6 +21,12 @@ export function useSchema({
         readOnly: true,
       },
 
+      address: {
+        type: "string",
+        title: "Address",
+        format: "address",
+      },
+
       // ---
       address1: {
         type: "string",
@@ -107,88 +113,20 @@ export function useUischema(): UISchemaElement {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/name",
+        scope: "#/properties/countryId",
+        options: {
+          autocomplete: "country",
+          placeholder: "Please select a Country...",
+        },
+      },
+      {
+        type: "Control",
+        scope: "#/properties/address",
         options: {
           autoFocus: true,
           autocomplete: "off",
-          placeholder: "My home address, etc...",
+          placeholder: "Search for an address...",
         },
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["id"],
-            },
-          },
-        },
-      },
-
-      // ---
-      {
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/address1",
-            label: "Address", // ensure we  show the title for BOTH address fields
-            options: {
-              autoFocus: true,
-              autocomplete: "address-line1",
-              placeholder: "Address first line...",
-            },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/address2",
-            label: "", // ensure we DON'T show the title
-            options: {
-              autocomplete: "address-line2",
-              placeholder: "Address second line...",
-              class: "-mt-8",
-            },
-          },
-
-          // ---
-          {
-            type: "HorizontalLayout",
-            elements: [
-              {
-                type: "Control",
-                scope: "#/properties/city",
-                options: {
-                  autocomplete: "address-level2",
-                  placeholder: "City...",
-                },
-              },
-              {
-                type: "Control",
-                scope: "#/properties/postcode",
-                options: {
-                  autocomplete: "postal-code",
-                  placeholder: "Postcode...",
-                },
-              },
-            ],
-          },
-          // ---
-          {
-            type: "Control",
-            scope: "#/properties/regionId",
-            options: {
-              autocomplete: "address-level1",
-              placeholder: "Please select a Region...",
-            },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/countryId",
-            options: {
-              autocomplete: "country",
-              placeholder: "Please select a Country...",
-            },
-          },
-        ],
       },
     ],
   };
