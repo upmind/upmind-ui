@@ -1,5 +1,8 @@
 <template>
-  <div :class="styles.radioCards.item">
+  <div
+    :class="styles.radioCards.item"
+    :data-state="isSelected ? 'checked' : ''"
+  >
     <Label :for="`${props.name}-${index}`" :class="cn(styles.radioCards.label)">
       <div :class="styles.radioCards.radio">
         <RadioGroupItem
@@ -49,6 +52,7 @@ import type { RadioCardsItemProps } from "./types";
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   // -- variants
   width: 12,
+  isList: false,
 });
 
 const emits = defineEmits(["focus"]);
@@ -58,6 +62,7 @@ const isSelected = computed(() => {
 });
 
 const meta = computed(() => ({
+  isList: props.list,
   width: props.width,
 }));
 

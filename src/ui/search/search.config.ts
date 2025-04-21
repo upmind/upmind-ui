@@ -4,7 +4,7 @@ import { ringClasses } from "../../assets/styles";
 export default {
   search: {
     input: cva("h-12"),
-    inputContainer: cva("py-0 !text-md"),
+    inputContainer: cva("cursor-default py-0 !text-md"),
     icon: cva("text-emphasis-medium mr-1 size-5"),
     content: cva(
       `z-50 mt-2 w-[--radix-popover-trigger-width] overflow-hidden rounded-lg border bg-white p-2 ${ringClasses}`

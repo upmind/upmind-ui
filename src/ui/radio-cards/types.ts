@@ -21,6 +21,7 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   value: string;
   // ---
   width?: RadioCardsItemVariantProps["width"] | string;
+  list?: boolean;
   uiConfig?: { radioCards: CxOptions };
 }
 
@@ -36,6 +37,7 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   loading?: boolean;
   // ---
   width?: RadioCardsItemVariantProps["width"] | string;
+  list?: boolean;
   // ---
   uiConfig?: { radioCards: CxOptions };
   class?: HTMLAttributes["class"];

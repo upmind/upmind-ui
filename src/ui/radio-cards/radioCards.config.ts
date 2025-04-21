@@ -2,9 +2,14 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `hover:border-control-strong group rounded-lg border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} data-[state=checked]:bg-control-active-focus`,
+  `group rounded-lg bg-control text-control-foreground transition-all duration-200 ${ringClasses}`,
   {
     variants: {
+      isList: {
+        true: "data-[state=checked]:bg-control-active-focus border-0 shadow-none data-[state=checked]:ring-2 data-[state=checked]:ring-control-active",
+        false:
+          "hover:border-control-strong rounded-lg border border-control shadow-sm",
+      },
       width: {
         0: "",
         1: "col-span-12 md:col-span-1",
@@ -22,14 +27,26 @@ export const itemVariants = cva(
       },
     },
     defaultVariants: {
+      isList: false,
       width: 12,
     },
   }
 );
 
+export const rootVariants = cva(`w-full`, {
+  variants: {
+    isList: {
+      true: "flex flex-col gap-1",
+      false: "grid grid-cols-1 gap-2",
+    },
+  },
+  defaultVariants: {
+    isList: false,
+  },
+});
 export default {
   radioCards: {
-    root: cva(`grid w-full grid-cols-12 gap-2`),
+    root: rootVariants,
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
