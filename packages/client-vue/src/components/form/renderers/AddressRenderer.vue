@@ -1,10 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Search
-      label="Search for an address"
-      placeholder="Type at least 3 characters..."
       :results="searchResults"
       @update:search="searchAddresses"
+      :placeholder="appliedOptions?.placeholder"
     />
   </FormField>
 </template>
@@ -36,7 +35,10 @@ import { ref, onMounted, computed } from "vue";
 const props = defineProps<RendererProps<ControlElement>>();
 
 const places = usePlaces();
-const { formFieldProps } = useUpmindUIRenderer(useJsonFormsControl(props));
+const { appliedOptions, formFieldProps } = useUpmindUIRenderer(
+  useJsonFormsControl(props)
+);
+
 const parsedResults = ref<any[]>([]);
 
 onMounted(async () => {

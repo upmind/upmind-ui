@@ -6,8 +6,8 @@
   >
     <UpmCard class="space-y-8">
       <UpmForm
-        :schema="fields"
-        :ui-schema="uischema"
+        :schema="schema"
+        :uischema="uischema"
         :model-value="modelValue"
         :additional-renderers="formRenderers"
         no-actions
@@ -28,13 +28,32 @@ import { ref } from "vue";
 
 const modelValue = ref({});
 
-const fields = {
+const schema = {
   type: "object",
   properties: {
     address: {
       type: "string",
-      title: "Address Input",
+      title: "Address",
       format: "address",
+    },
+    address1: {
+      type: "string",
+      title: "Address Line 1",
+    },
+
+    address2: {
+      type: ["string", "null"],
+      title: "Address Line 2",
+    },
+
+    city: {
+      type: "string",
+      title: "City",
+    },
+
+    postcode: {
+      type: "string",
+      title: "Postcode",
     },
   },
 };
@@ -45,7 +64,27 @@ const uischema = {
     {
       type: "Control",
       scope: "#/properties/address",
-      options: {},
+      options: {
+        autoFocus: true,
+        autocomplete: "off",
+        placeholder: "Search for an address...",
+      },
+    },
+    {
+      type: "Control",
+      scope: "#/properties/address1",
+    },
+    {
+      type: "Control",
+      scope: "#/properties/address2",
+    },
+    {
+      type: "Control",
+      scope: "#/properties/city",
+    },
+    {
+      type: "Control",
+      scope: "#/properties/postcode",
     },
   ],
 };
