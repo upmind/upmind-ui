@@ -1,5 +1,5 @@
 <template>
-  <PopoverRoot v-model:open="open">
+  <PopoverRoot v-model:open="open" tabindex="-1">
     <PopoverTrigger class="w-full" tabindex="-1">
       <InputExtended
         v-model="search"
@@ -7,7 +7,8 @@
         placeholder="Search for an address..."
         width="full"
         @update:model-value="onSearch"
-        :class="cn(styles.search.input)"
+        :class="styles.search.inputContainer"
+        :input-class="styles.search.input"
       >
         <template #prepend>
           <Icon icon="search" :class="styles.search.icon" />
@@ -73,6 +74,7 @@ const styles = useStyles(["search"], meta, config, {}) as ComputedRef<{
   search: {
     container: string;
     input: string;
+    inputContainer: string;
     icon: string;
     content: string;
     divider: string;
