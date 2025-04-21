@@ -4,7 +4,7 @@
       <InputExtended
         v-model="search"
         type="text"
-        placeholder="Search for an address..."
+        :placeholder="placeholder"
         width="full"
         @update:model-value="onSearch"
         :class="styles.search.inputContainer"
@@ -54,6 +54,7 @@ import type { ComputedRef } from "vue";
 const props = withDefaults(
   defineProps<{
     results: SearchItem[];
+    placeholder?: string;
     minQueryLength?: number;
   }>(),
   {
