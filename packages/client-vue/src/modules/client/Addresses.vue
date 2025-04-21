@@ -16,7 +16,10 @@
       required
     >
       <template #item="{ item }">
-        <Item :address="getAddress(item.value) as Address" />
+        <Item
+          :address="getAddress(item.value) as Address"
+          :editing="isEditing"
+        />
       </template>
     </RadioCards>
 
@@ -64,11 +67,9 @@ const isEditing = ref(false);
 
 const addresses = computed(() => {
   if (isEditing.value) {
-    return data.value;
+    return data.value.sort((a, b) => (a.meta.isDefault ? -1 : 1));
   }
-  return data.value
-    .filter(address => address.meta.isDefault)
-    .sort((a, b) => (a.meta.isDefault ? -1 : 1));
+  return data.value.filter(address => address.meta.isDefault);
 });
 
 const defaultAddress = computed(() => {
@@ -82,7 +83,7 @@ const getAddress = (id: string) => {
 };
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
-  return map(data.value, (item: any) => {
+  return map(addresses.value, (item: any) => {
     return {
       id: item.id,
       value: item.id,
