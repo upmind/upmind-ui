@@ -24,7 +24,7 @@ export const useBasketProduct = (bpid: string) => {
     throw new DetailedError("No Basket found", responseCodes.Not_Found);
 
   let rawBasketProduct = getBasketProduct(bpid, rawBasket);
-  let provisioningErrors = get(getErrors(), "provisioningErrors");
+  let errors = getErrors();
 
   if (isEmpty(rawBasketProduct))
     throw new DetailedError("No Basket Product found", responseCodes.Not_Found);
@@ -39,7 +39,7 @@ export const useBasketProduct = (bpid: string) => {
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(provisioningErrors, [bpid]),
+      errorExternal: get(errors, bpid),
     }),
     {
       id: bpid,

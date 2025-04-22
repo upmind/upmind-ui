@@ -408,21 +408,17 @@ export default createMachine(
         basket: (_context: BasketContext, { data }: AnyEventObject) =>
           parseBasket(data),
         error: ({ error }: BasketContext, { data }: AnyEventObject) => {
-          error ??= {}; // safety check
-          set(error, "provisioningErrors", get(data, "provisioningErrors"));
-          return error;
+          return get(data, "errors", error);
         },
         products: (context: BasketContext, { data }: AnyEventObject) => {
           const basket = parseBasket(data);
           const products = get(basket, "products", []);
-          const provisioningErrors = get(data, "provisioningErrors");
-          return map(products, product =>
-            parseBasketProduct(product, provisioningErrors)
-          );
+          const errors = get(data, "errors");
+          return map(products, product => parseBasketProduct(product, errors));
         },
         summary: (_context: BasketContext, { data }: AnyEventObject) => {
-          const provisioningErrors = get(data, "provisioningErrors");
-          return parseSummary(parseBasket(data), provisioningErrors);
+          const errors = get(data, "errors");
+          return parseSummary(parseBasket(data), errors);
         },
       }),
 
