@@ -137,19 +137,3 @@ export function parseValue(
 
   return domain;
 }
-
-export const parseSubproductChoices = (values: any, subproductId?: string) => {
-  return reduce(
-    values,
-    (result, value) => {
-      if (subproductId == value.id)
-        set(result, [value.category_id, value.id], {
-          productId: value.id,
-          unitQuantity: parseQuantity(value.unit_quantity, value),
-          cycle: value.billing_cycle_months,
-        });
-      return result;
-    },
-    {}
-  );
-};

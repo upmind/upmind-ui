@@ -9,6 +9,7 @@ import {
   useUischemaTitle,
   useProductName,
   parseProductDetails,
+  parseBasketProductModel,
 } from "../product/utils";
 
 import {
@@ -16,7 +17,6 @@ import {
   forEach,
   get,
   isEmpty,
-  isNil,
   isObject,
   map,
   mapValues,
@@ -35,7 +35,6 @@ import type {
 import {
   ProductOrderTypes,
   PromotionDisplayTypes,
-  BrandConfigKeys,
 } from "@upmind-automation/types";
 
 import type {
@@ -52,7 +51,6 @@ import type {
   ProductSummaryDetail,
   PriceDetail,
 } from "../product/types";
-import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
@@ -68,14 +66,7 @@ export const parseBasketProduct = (
     serviceIdentifier: raw?.service_identifier ?? undefined,
 
     // --- model/configuration
-    configuration: {
-      quantity: raw.quantity,
-      productId: raw.product_id,
-      term: raw.billing_cycle_months,
-      options: parseSubproductChoices(raw.options),
-      attributes: parseSubproductChoices(raw.attributes),
-      provisionFields: raw.provision_fields,
-    },
+    configuration: parseBasketProductModel(raw),
 
     // --- product details
     productDetails: parseProductDetails(raw.product),
@@ -145,22 +136,6 @@ export const parseBasketProduct = (
   // ---
 
   return basketProduct;
-};
-
-const parseSubproductChoices = (rawSubproducts: IBasketProduct[]) => {
-  return reduce(
-    rawSubproducts,
-    (result, value) => {
-      set(
-        result,
-        [value.product.category_id, value.product_id],
-        parseProductDetails(value.product)
-      );
-
-      return result;
-    },
-    {}
-  );
 };
 
 export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
