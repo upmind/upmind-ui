@@ -6,7 +6,7 @@
     :additional-renderers="formRenderers"
     @update:modelValue="(data: any) => doUpdate(data)"
   >
-    <template #actions="{ meta, doResolve, doReject }">
+    <template #actions>
       <Link
         label="Enter address manually"
         size="sm"
@@ -18,9 +18,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { ref, onUnmounted } from "vue";
-
 // --- internal
 import { useClientAddress } from "@upmind-automation/headless-vue";
 
@@ -30,8 +27,7 @@ import { Link } from "@upmind-automation/upmind-ui";
 // --- types
 import type { AddressModel } from "@upmind-automation/headless-vue";
 
-const { isReady, update, set, model, meta, schema, uischema, stop, errors } =
-  useClientAddress();
+const { update, set, model, schema, uischema } = useClientAddress();
 
 const doUpdate = async (data: AddressModel) => {
   await set(data);
