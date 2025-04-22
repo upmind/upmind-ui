@@ -183,15 +183,17 @@ export type ProductModel = {
   provisionFields?: Record<string, any>;
 };
 
+export type SubproductModelValue = {
+  productId: string;
+  cycle: number;
+  quantity: number;
+};
+
 export type SubproductModel = Record<
   string, // Category ID
   Record<
     string, // Value ID
-    {
-      productId: string;
-      cycle: number;
-      quantity: number;
-    }
+    SubproductModelValue
   >
 >;
 
