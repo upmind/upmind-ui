@@ -8,7 +8,7 @@ import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
 import { responseCodes } from "../../utils";
-import { useTime, compactDeep, useValidationParser } from "../../utils";
+import { useTime, useValidationParser } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -21,12 +21,9 @@ import {
 
 import {
   cloneDeep,
-  compact,
   concat,
-  first,
   forEach,
   get,
-  has,
   isEmpty,
   isEqual,
   isNil,
@@ -35,7 +32,6 @@ import {
   pick,
   remove,
   set,
-  sumBy,
   toNumber,
   uniq,
   unset,
@@ -47,13 +43,7 @@ import { calculateSubscription } from "./services";
 // ---types
 import type { AnyEventObject } from "xstate";
 import type { BasketProduct } from "../basketProduct";
-import type {
-  PriceDisplay,
-  ProductConfigContext,
-  ProductModel,
-  ProductSummaryDetailWithPrice,
-} from "./types";
-import { parseBasketProduct } from "../basketProduct/utils";
+import type { PriceDisplay, ProductConfigContext, ProductModel } from "./types";
 
 // -----------------------------------------------------------------------------
 

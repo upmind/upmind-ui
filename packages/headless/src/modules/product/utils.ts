@@ -188,6 +188,7 @@ export function parseQuantity(
   product?: ProductDetails
 ): number {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
+
   // Check the product data is available
   // Check the quantity is valid,
   //  - min Quantity matches the product min

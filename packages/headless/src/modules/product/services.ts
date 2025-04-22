@@ -49,6 +49,8 @@ import type {
   PriceCalculations,
   SubproductValue,
   SubproductDetails,
+  SubproductModel,
+  SubproductModelValue,
 } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -92,7 +94,7 @@ async function load(
       `category${".top_category".repeat(4)}`,
     ].join(),
   };
-  // conditionally add the basket_id / basket_product_id if we have them,
+  // conditionally agd the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
   if (rawBasketProduct?.id)
@@ -238,11 +240,14 @@ async function checkSubproducts(
       price,
     });
   }
-
   subproducts = reduce(
     lookups[type],
     (result, subproduct: SubproductDetails) => {
-      let selected = get(data, subproduct.id, {});
+      let selected: Record<string, SubproductModelValue> = get(
+        data,
+        subproduct.id,
+        {}
+      );
 
       // try set anymatching pre-selected values for this subproduct ( subproductIds ),
       // NB: ONLY when data is being set for the first time
@@ -281,16 +286,22 @@ async function checkSubproducts(
         // then parse each selected value, and ensure it has all its required and VALID values
         selected = reduce(
           selected,
-          (result, value, id) => {
-            // ensure we have an object
-            if (!isObject(value)) value = { productId: id };
+          (
+            result: Record<string, SubproductModelValue>,
+            value: SubproductModelValue,
+            id: string
+          ) => {
             const product = find(subproduct.values, ["id", value.productId]);
+
             // safety check, ensure we have a valid product otherwise bail
             if (isEmpty(product)) return result;
 
             // ensure we have a valid unit_quantity
-            value.quantity = parseQuantity(value?.step, product);
+            value.quantity = parseQuantity(Number(value.quantity), product);
+
+            // ensure we map the product cycle to the value
             value.cycle = product.cycle;
+
             set(result, id, value);
 
             // if we have a price, set price values, taking into account the quantity and unit quantity
