@@ -442,8 +442,6 @@ export default createMachine(
         summary: undefined,
         products: undefined,
         error: undefined,
-        paymentDetails: undefined,
-        payment: undefined,
         invoice: (_context: BasketContext, { data }: AnyEventObject) => data,
       }),
 
