@@ -173,7 +173,7 @@ export const useRouteRequiresAction = () => {
       const serviceIdentifier = get(basketProduct, "serviceIdentifier");
       if (!serviceIdentifier) return false;
       const value = includes(values(provisionFields), serviceIdentifier);
-      const hasError = !!get(basketProduct, "errors");
+      const hasError = !isEmpty(get(basketProduct, "errors"));
       return value && hasError;
     });
 
