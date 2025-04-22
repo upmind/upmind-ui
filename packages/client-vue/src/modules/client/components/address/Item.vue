@@ -41,7 +41,7 @@ import type { Address } from "@upmind-automation/headless-vue";
 
 const props = defineProps<{
   address: Address;
-  editing: boolean;
+  editing?: boolean;
 }>();
 
 const getTypeBadge = () => {
