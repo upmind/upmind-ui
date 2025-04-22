@@ -112,10 +112,10 @@ export const parseBasket = (data: any) => {
 
 // --- SUMMARY
 
-export const parseSummary = (data?: any, provisioningErrors?: any) => {
+export const parseSummary = (data?: any, errors?: any) => {
   const summary = {
     products: map(get(data, "products"), product =>
-      parseBasketProduct(product, provisioningErrors)
+      parseBasketProduct(product, errors)
     ),
     discount: data?.total_discount_amount
       ? data.net_discount_amount_formatted

@@ -20,7 +20,6 @@ export interface BasketContext {
     title?: string;
     message?: string;
     data?: any;
-    provisioningErrors?: Record<string, any>;
   };
   controller?: AbortController;
   summary?: any; //TODO: define summary type

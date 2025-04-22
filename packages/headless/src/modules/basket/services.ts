@@ -11,14 +11,12 @@ import { useCookies } from "../../utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 
 import {
-  cloneDeep,
   compact,
   concat,
   forEach,
   isEmpty,
   isNil,
   map,
-  omit,
   omitBy,
   reduce,
   set,
@@ -231,30 +229,32 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 
   // return the 'updated' basket once all the provisioning fields have been fetched
   return Promise.all(provisioningPromises).then(([rawErrors]) => {
-    // rawErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
-    const { products: parsedErrors } = reduce(
+    // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+    // and thenwe 'pick' the products out of the errors
+    const { products } = reduce(
       rawErrors?.data,
       (result, value, key) => {
         set(result, key, value);
         return result;
       },
-      {}
-    ) as any;
+      []
+    ) as Record<string, any>;
 
     // then we parse the errors into a more usable format, replacing their indexes with the product ids
     // this will allow us to easily access the provisioning fields for each product
-    const provisioningErrors = reduce(
-      parsedErrors,
+    const errors = reduce(
+      products,
       (result, value, key: number) => {
         const bpid = basket.products[key]?.id;
-        set(result, bpid, value?.provision_field_values);
+        if (!bpid) return result;
+        set(result, bpid, value);
         return result;
       },
       {}
     );
     return {
       basket,
-      provisioningErrors,
+      errors,
     };
   });
 }

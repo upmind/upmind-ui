@@ -94,7 +94,7 @@ export const parseBasketProduct = (
         term: get(errors, [raw?.id, "term"]),
         attributes: get(errors, [raw?.id, "attributes"]),
         options: get(errors, [raw?.id, "options"]),
-        provisionFields: get(errors, [raw?.id, "provision_fields"]),
+        provisionFields: get(errors, [raw?.id, "provision_field_values"]),
       },
       isEmpty
     ),
