@@ -1,34 +1,38 @@
 <template>
-  <Item v-if="view === Views.default" :address="defaultAddress" />
+  <section class="flex flex-col gap-y-4">
+    <Item v-if="view === Views.default" :address="defaultAddress" />
 
-  <RadioCards
-    v-else-if="view === Views.list"
-    v-model="selectedAddress"
-    :items="parsedValues"
-    list
-    required
-  >
-    <template #item="{ item }">
-      <Item :address="getAddress(item.value)" editing />
-    </template>
-  </RadioCards>
+    <RadioCards
+      v-else-if="view === Views.list"
+      v-model="selectedAddress"
+      :items="parsedValues"
+      :disabled="isLoading"
+      list
+      required
+    >
+      <template #item="{ item }">
+        <Item :address="getAddress(item.value)" editing />
+      </template>
+    </RadioCards>
 
-  <Link
-    :label="primaryLabel"
-    size="sm"
-    class="leading-none"
-    :disabled="isLoading"
-    @click="handlePrimaryAction"
-  >
-    <template #append>
-      <Icon
-        icon="arrow-down"
-        size="xs"
-        class="mt-[1px] transition-all duration-300"
-        :class="{ 'rotate-180': view === Views.list }"
+    <footer class="flex gap-x-4">
+      <Link
+        :label="primaryLabel"
+        size="sm"
+        variant="muted"
+        :disabled="isLoading"
+        @click="handlePrimaryAction"
       />
-    </template>
-  </Link>
+
+      <Link
+        v-if="view === Views.list"
+        label="Add new address"
+        size="sm"
+        variant="muted"
+        @click="emit('setView', Views.add)"
+      />
+    </footer>
+  </section>
 </template>
 
 <script lang="ts" setup>
