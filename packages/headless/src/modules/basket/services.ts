@@ -92,7 +92,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.related",
         "products.product.category",
         // "status",
-        // `products.product.category${".top_category".repeat(4)}`,
+        `products.product.category${".top_category".repeat(4)}`,
       ].join(),
     }),
     init: { signal: context.controller?.signal },
