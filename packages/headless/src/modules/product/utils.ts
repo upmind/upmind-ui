@@ -100,7 +100,8 @@ export function useUischemaTitle(
     )
   ) as string[];
 
-  if (isEmpty(templates)) return fallback;
+  if (isEmpty(templates)) fallback;
+
   // ---
   const template = first(templates) ?? "";
   const result = template.replace(
@@ -221,7 +222,7 @@ export const parseProductDetails = (
     title: useUischemaTitle(rawProduct, {
       basketProduct: rawBasketProduct,
       valueKey: "meta.uischema.title",
-      fallback: useTranslateName(rawProduct),
+      fallback: useProductName(rawProduct, rawBasketProduct),
     }),
     brand: useTranslateName(rawProduct?.brand),
     categoryId: rawProduct?.category_id,
