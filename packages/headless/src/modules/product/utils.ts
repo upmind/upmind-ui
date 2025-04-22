@@ -211,11 +211,15 @@ export function parseQuantity(
   return quantity;
 }
 
-export const parseProductDetails = (rawProduct: IProduct): ProductDetails => {
+export const parseProductDetails = (
+  rawProduct: IProduct,
+  rawBasketProduct?: IBasketProduct
+): ProductDetails => {
   return {
     id: rawProduct?.id,
     name: rawProduct.name,
     title: useUischemaTitle(rawProduct, {
+      basketProduct: rawBasketProduct,
       valueKey: "meta.uischema.title",
       fallback: useTranslateName(rawProduct),
     }),
@@ -354,6 +358,7 @@ export const parseSubproductDetails = (
         find(pricing, ["cycle", 0]) || find(pricing, ["cycle", cycle]);
 
       const productDetails = parseProductDetails(rawSubproduct);
+
       const value: SubproductValue = {
         ...productDetails,
         cycle: price?.cycle ?? productDetails.cycle,
@@ -641,7 +646,7 @@ export const parseProvisioningSchema = (data: any, product: any) => {
 
 export const parseProduct = (
   price: PriceDisplay,
-  { model, lookups, error }: Partial<ProductConfigContext>
+  { model, lookups, error, rawBasketProduct }: Partial<ProductConfigContext>
 ): Product => {
   // sanity check
   if (isEmpty(model) || isEmpty(lookups) || !lookups.product)

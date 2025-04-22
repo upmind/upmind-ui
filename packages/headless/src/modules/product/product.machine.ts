@@ -17,8 +17,6 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  useUischemaTitle,
-  useProductName,
 } from "./utils";
 
 import {
@@ -508,7 +506,7 @@ export default createMachine(
           lookups ??= {};
 
           if (rawProduct) {
-            lookups.product = parseProductDetails(rawProduct);
+            lookups.product = parseProductDetails(rawProduct, rawBasketProduct);
           }
 
           if (rawBasketProduct && rawBasketProduct != basket_product) {
@@ -563,25 +561,21 @@ export default createMachine(
 
         rawProduct: (_context, { data }: AnyEventObject) => data.product,
         lookups: (
-          { model }: ProductConfigContext,
+          { model, rawBasketProduct }: ProductConfigContext,
           { data }: AnyEventObject
-        ) => {
-          return {
-            product: parseProductDetails(data.product),
-            terms: parseTermDetails(data.product.prices),
-            options: parseSubproductDetails(
-              data.product.products_options,
-              model?.term
-            ),
-            attributes: parseSubproductDetails(
-              data.product.products_attributes
-            ),
-            provisionFields: parseProvisioningSchema(
-              data.provisioning,
-              data.product
-            ),
-          };
-        },
+        ) => ({
+          product: parseProductDetails(data.product, rawBasketProduct),
+          terms: parseTermDetails(data.product.prices),
+          options: parseSubproductDetails(
+            data.product.products_options,
+            model?.term
+          ),
+          attributes: parseSubproductDetails(data.product.products_attributes),
+          provisionFields: parseProvisioningSchema(
+            data.provisioning,
+            data.product
+          ),
+        }),
       }),
 
       persistModel: assign({
@@ -606,7 +600,13 @@ export default createMachine(
 
       setProduct: assign({
         product: (
-          { model, lookups, error, product }: ProductConfigContext,
+          {
+            model,
+            lookups,
+            error,
+            product,
+            rawBasketProduct,
+          }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
           // if we don't have any value in the data, then fallback to the existing product.price if available
@@ -626,6 +626,7 @@ export default createMachine(
             model,
             lookups,
             error,
+            rawBasketProduct,
           });
         },
       }),

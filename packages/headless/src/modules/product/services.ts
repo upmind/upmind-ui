@@ -89,7 +89,7 @@ async function load(
       "products_attributes",
       "products_options",
       "products_options.prices",
-      "category.top_category.top_category.top_category.top_category",
+      `category${".top_category".repeat(4)}`,
     ].join(),
   };
   // conditionally add the basket_id / basket_product_id if we have them,
