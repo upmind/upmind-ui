@@ -1,23 +1,20 @@
 <template>
-  <section class="flex flex-col gap-y-2">
-    <List
-      v-if="view === Views.list || view === Views.default"
-      :view="view"
-      @setView="setView"
-    />
+  <List
+    v-if="view === Views.list || view === Views.default"
+    :view="view"
+    @setView="setView"
+  />
 
-    <Add v-else-if="view === Views.add" />
-  </section>
+  <Add v-else-if="view === Views.add" @setView="setView" />
 </template>
 
 <script setup lang="ts">
 // --- external
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { isEmpty } from "lodash-es";
 import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
-import { Link, Icon } from "@upmind-automation/upmind-ui";
 import Add from "../../client/components/address/Add.vue";
 import List from "../../client/components/address/List.vue";
 

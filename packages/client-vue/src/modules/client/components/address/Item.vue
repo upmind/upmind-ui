@@ -1,34 +1,34 @@
 <template>
-  <div class="flex flex-col gap-y-1">
-    <h3
-      class="m-0 flex items-center gap-x-1 text-sm font-semibold leading-none"
-    >
-      {{ address.title }}
-      <Badge variant="tonal" size="xs">{{ getTypeBadge() }}</Badge>
-      <Badge
-        v-if="editing && address.meta.isDefault"
-        variant="flat"
-        size="xs"
-        label="Default"
-      />
-    </h3>
-    <p class="text-emphasis-medium m-0 text-sm leading-none">
-      {{ address.description }}
-    </p>
+  <div class="flex w-full flex-col gap-y-1">
+    <header class="flex w-full items-start justify-between">
+      <h3
+        class="m-0 flex items-center gap-x-1 text-sm font-semibold leading-none"
+      >
+        {{ address.title }}
+        <Badge variant="tonal" size="xs">{{ getTypeBadge() }}</Badge>
+        <Badge
+          v-if="editing && address.meta.isDefault"
+          variant="flat"
+          size="xs"
+          label="Default"
+        />
+      </h3>
 
-    <footer
-      v-if="editing"
-      class="flex items-center gap-x-2"
-      tabindex="-1"
-      @mousedown.stop.prevent
-    >
       <Link
-        :label="getEditLabel()"
+        v-if="editing"
+        label="Edit"
         size="xs"
         variant="muted"
         @click.prevent="editAddress"
+        tabindex="-1"
+        @mousedown.stop.prevent
+        class="h-4"
       />
-    </footer>
+    </header>
+
+    <p class="text-emphasis-medium m-0 text-sm leading-none">
+      {{ address.description }}
+    </p>
   </div>
 </template>
 
@@ -50,15 +50,6 @@ const getTypeBadge = () => {
       return "Address";
     case 2:
       return "Company";
-  }
-};
-
-const getEditLabel = () => {
-  switch (props.address.type) {
-    case 1:
-      return "Edit address";
-    case 2:
-      return "Edit company details";
   }
 };
 
