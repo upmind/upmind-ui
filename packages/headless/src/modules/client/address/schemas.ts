@@ -120,6 +120,9 @@ export function useUischema(): UISchemaElement {
               },
               {
                 type: "Place",
+                options: {
+                  fields: ["address1", "address2", "city", "postcode"],
+                },
                 elements: [
                   {
                     type: "Control",
@@ -136,10 +139,6 @@ export function useUischema(): UISchemaElement {
                   {
                     type: "Control",
                     scope: "#/properties/postcode",
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/regionId",
                   },
                 ],
               },
