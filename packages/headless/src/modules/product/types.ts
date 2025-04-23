@@ -1,5 +1,6 @@
 // --- types
 import type { ActorRef } from "xstate";
+import type { ErrorObject } from "ajv";
 
 import type {
   IBasketProduct,
@@ -323,6 +324,13 @@ export type PriceCalculations = {
   term?: number[];
   options?: number[];
   attributes?: number[];
+};
+
+export type ExternalError = {
+  term?: ErrorObject[];
+  options?: ErrorObject[];
+  attributes?: ErrorObject[];
+  provisionFields?: ErrorObject[];
 };
 // -----------------------------------------------------------------------------
 

@@ -12,6 +12,7 @@ import ajvErrors from "ajv-errors";
 import { forEach, reduce, get, set, defaultsDeep, trimStart } from "lodash-es";
 
 // --- types
+import type { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -67,12 +68,11 @@ export const useValidationParser = (error: any) => {
       // because we have a specific schema for provision_fields, we dont need the prefix of the path
       // we also need to handle any nested properties correctly, JSON schema would have them withing properties
 
-      const instancePath = trimStart(
-        key.replace("provision_field_values.", "").replace(".", "/properties/"),
-        "/"
-      );
+      if (!key.startsWith("provision_field_values.")) debugger;
 
-      const newError = {
+      const instancePath = trimStart(key.replace(".", "/properties/"), "/");
+
+      const newError: ErrorObject = {
         instancePath: `/${instancePath}`, // AJV style path to the property in the schema
         message: value.toString(),
         // --- optional

@@ -17,6 +17,7 @@ import {
   isEmpty,
   isNil,
   map,
+  mapKeys,
   omitBy,
   reduce,
   set,
@@ -26,6 +27,7 @@ import {
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { parseProductApiErrors, parseApiError } from "../product/utils";
 
 // ---  UTILS
 
@@ -228,30 +230,27 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched
-  return Promise.all(provisioningPromises).then(([rawErrors]) => {
+  return Promise.all(provisioningPromises).then(([{ data }]) => {
     // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-    // and thenwe 'pick' the products out of the errors
-    const { products } = reduce(
-      rawErrors?.data,
-      (result, value, key) => {
-        set(result, key, value);
-        return result;
-      },
+    // and then we 'pick' the products out of the object
+    const { products: rawErrors } = reduce(
+      data,
+      (result, value, key) => set(result, key, value),
       []
     ) as Record<string, any>;
 
     // then we parse the errors into a more usable format, replacing their indexes with the product ids
     // this will allow us to easily access the provisioning fields for each product
     const errors = reduce(
-      products,
+      rawErrors,
       (result, value, key: number) => {
         const bpid = basket.products[key]?.id;
         if (!bpid) return result;
-        set(result, bpid, value);
-        return result;
+        return set(result, bpid, parseApiError(value));
       },
       {}
     );
+
     return {
       basket,
       errors,

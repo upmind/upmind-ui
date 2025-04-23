@@ -17,7 +17,7 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseApiErrors,
+  parseProductApiErrors,
 } from "./utils";
 
 import {
@@ -442,8 +442,9 @@ export default createMachine(
           }: ProductConfigContext,
           _event: AnyEventObject
         ) => {
+          debugger;
           return {
-            errorExternal: parseApiErrors(errorExternal),
+            errorExternal,
             error: merge({}, errorExternal, error),
             // ---
             basketId,
@@ -764,16 +765,20 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => (data?.error ? parseApiErrors(data?.error) : undefined),
+        ) => {
+          debugger;
+          return data?.error?.data
+            ? parseProductApiErrors(data?.error?.data)
+            : undefined;
+        },
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let rawErrors = data?.error;
+          let errors = data?.error;
+          if (!data?.error?.data) return error;
 
-          if (!rawErrors) return error;
-
-          let errors = rawErrors;
-
+          let rawErrors = data.error.data;
           if (rawErrors?.code == responseCodes.Unprocessable_Entity) {
-            errors = parseApiErrors(rawErrors);
+            debugger;
+            errors = parseProductApiErrors(rawErrors);
           }
 
           return merge({}, error, errors);
