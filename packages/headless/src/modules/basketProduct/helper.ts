@@ -223,6 +223,7 @@ export function basketSubscription(callback: any, onReceive: any) {
                 { data: model }
               )
               .then((rawBasket: IBasket) => {
+                debugger;
                 dataLayer({ event: "add_to_cart" }).withItems(product).push();
                 return rawBasket;
               })
@@ -354,12 +355,12 @@ export function basketSubscription(callback: any, onReceive: any) {
           .then((rawBasket: IBasket) => {
             // add the success event to the datalayer
             const basketProduct = basket.findProduct({ id: event.target.id });
-            debugger;
-            if (basketProduct)
+            if (basketProduct) {
+              debugger;
               dataLayer({ event: "add_to_cart" })
-                .withItems([basketProduct])
+                .withItems(basketProduct)
                 .push();
-
+            }
             return rawBasket;
           })
           .then(rawBasket => {

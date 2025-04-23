@@ -1,5 +1,4 @@
 <template>
-  <pre>{{ meta }}</pre>
   <component
     :is="as"
     :class="cn(styles.product.config.root, $props.class)"
