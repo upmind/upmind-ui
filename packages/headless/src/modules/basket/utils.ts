@@ -10,24 +10,9 @@ import currencyMachine from "./currency/currency.machine";
 import billingDetailsMachine from "./billing/details.machine";
 
 // --- utils
-import { useValidationParser } from "../../utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 
-import {
-  compact,
-  defaults,
-  forEach,
-  get,
-  isEmpty,
-  map,
-  pick,
-  reduce,
-  set,
-  toNumber,
-  uniq,
-  uniqueId,
-  isNil,
-} from "lodash-es";
+import { compact, get, map, reduce, set, uniq } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
@@ -186,43 +171,4 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
     notes,
     customFields,
   };
-};
-
-export const parseBasketProvisioningErrors = (error: any, index: any) => {
-  // now pass any provisioning errors to the item
-  if (error) {
-    const errors = get(
-      error,
-      `data.products.${index}.provision_field_values`,
-      []
-    );
-
-    let parsedError = undefined;
-
-    if (!isEmpty(errors)) {
-      parsedError = {
-        provisionFields: useValidationParser({
-          data: errors,
-        }),
-      };
-    }
-
-    return parsedError;
-  }
-
-  return undefined;
-};
-
-export const forwardBasketProvisioningErrors = (
-  error: any,
-  item: any,
-  index: any
-) => {
-  // now pass any provisioning errors to the item
-  const parsedError = parseBasketProvisioningErrors(error, index);
-  if (parsedError && !isEmpty(parsedError)) {
-    waitFor(item, state => state.matches("available")).then(() => {
-      item.send({ type: "ERROR", data: { error: parsedError } });
-    });
-  }
 };

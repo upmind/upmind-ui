@@ -125,7 +125,7 @@
         <ConfigForm
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
-          :additional-errors="errors?.provisionFields?.data"
+          :additional-errors="errors?.provisionFields"
           :fields="fields"
           :model-value="model.provisionFields"
           @update:modelValue="setProvisioningFields"

@@ -10,15 +10,14 @@ import type { GuestContext } from "./types";
 import { useDataLayer } from "../../system";
 const { dataLayer } = useDataLayer();
 
-import { useCookies } from "../../../utils";
-const { setTopLevel: setCookie } = useCookies();
-
 import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
+import { useValidationParser, useCookies } from "../../../utils";
+const { setTopLevel: setCookie } = useCookies();
+
 import {
-  useValidationParser,
   useRegisterSchemaParser,
   useRegisterUischemaParser,
   useRegisterModelParser,
