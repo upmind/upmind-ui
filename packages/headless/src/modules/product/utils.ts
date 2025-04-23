@@ -842,7 +842,7 @@ const parseSummaryProvisionFields = (
   return reduce(
     schema?.properties,
     (result: any[], provisionField, key) => {
-      let title = get(data, key, key);
+      let title = get(data, key);
       if (provisionField.oneOf) {
         title = find(provisionField.oneOf, ["const", title])?.title ?? title;
       }
