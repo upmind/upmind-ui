@@ -5,41 +5,28 @@
     @select="selectAddress"
   />
 
-  <fieldset v-if="layout.visible" :class="styles.group.root" class="mt-6">
-    <div v-if="layout.label" :class="styles.group.label">
-      <legend>{{ layout.label }}</legend>
-    </div>
-
-    <div
-      v-for="(element, index) in layout.uischema.elements"
-      :key="`${layout.path}-${index}`"
-      :class="styles.group.item"
-    >
-      <DispatchRenderer
-        :schema="layout.schema"
-        :uischema="element"
-        :path="layout.path"
-        :enabled="layout.enabled"
-        :renderers="layout.renderers"
-        :cells="layout.cells"
-      />
-    </div>
-  </fieldset>
+  <DispatchRenderer
+    v-if="showAddressFields"
+    class="mt-6"
+    :visible="control.visible"
+    :enabled="control.enabled"
+    :schema="control.schema"
+    :uischema="detailUiSchema"
+    :path="control.path"
+    :renderers="control.renderers"
+    :cells="control.cells"
+  />
 </template>
 
 <script setup lang="ts">
 // --- external
 import { computed, ref, onMounted } from "vue";
-import { and, isLayout, uiTypeIs } from "@jsonforms/core";
+import { Generate, findUISchema } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
-  useJsonFormsLayout,
+  useJsonFormsControlWithDetail,
 } from "@jsonforms/vue";
-import { usePlaces } from "@upmind-automation/headless-vue";
-
-// --- internal
-import config from "./layouts.config";
 
 // --- components
 import { Search } from "@upmind-automation/upmind-ui";
@@ -50,38 +37,53 @@ import {
   useUpmindUIRenderer,
   useStyles,
 } from "@upmind-automation/upmind-ui";
-import { debounce, isEmpty } from "lodash-es";
-import { useJsonFormsControlWithDetail } from "@jsonforms/vue";
+import { debounce, isEmpty, find, filter } from "lodash-es";
 
 // --- types
-import type { PropType, ComputedRef } from "vue";
-import type { Layout, ControlElement } from "@jsonforms/core";
-import type { InputProps, SearchItem } from "@upmind-automation/upmind-ui";
+import type {
+  ControlElement,
+  GroupLayout,
+  UISchemaElement,
+} from "@jsonforms/core";
+import type { ComputedRef } from "vue";
+import { usePlaces } from "@upmind-automation/headless-vue";
+import type { SearchItem } from "@upmind-automation/upmind-ui";
+import type { Address } from "@upmind-automation/headless-vue";
 
-// -------------------------------------------------------------------
+// ----------------------------------------------
 
 const props = defineProps({
-  ...rendererProps<Layout>(),
+  ...rendererProps<ControlElement>(),
 });
 
-const meta = computed(() => ({
-  isVisible: layout.value.visible,
-  isDisabled: !layout.value.enabled,
-}));
+const { control, appliedOptions, formFieldProps, updateControl } =
+  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
 
-// const { control } = useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
+const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
+  const allowedFields = control.value.uischema.options?.fields || [];
 
-const styles = useStyles(["group"], meta, config, {}) as ComputedRef<{
-  group: {
-    root: string;
-    label: string;
-    item: string;
-  };
-}>;
+  const uiSchema = Generate.uiSchema(
+    control.value.schema,
+    "VerticalLayout",
+    undefined,
+    control.value.rootSchema
+  );
+
+  if (isLayout(uiSchema) && uiSchema.elements) {
+    uiSchema.elements = filter(uiSchema.elements, (element: any) => {
+      const fieldName = element.scope?.split("/").pop();
+      return fieldName && allowedFields.includes(fieldName);
+    }) as UISchemaElement[];
+  }
+
+  return uiSchema;
+});
 
 const places = usePlaces();
 
-const parsedResults = ref<any[]>([]);
+const showAddressFields = ref<boolean>(false);
+
+const addresses = ref<any[]>([]);
 
 onMounted(async () => {
   await places.load();
@@ -89,18 +91,18 @@ onMounted(async () => {
 
 const searchAddresses = debounce(async (query: string) => {
   if (!query || query.length < 3) {
-    parsedResults.value = [];
+    addresses.value = [];
     return;
   }
 
   const results = await places.search(query);
   if (!isEmpty(results)) {
-    parsedResults.value = results;
+    addresses.value = results;
   }
 }, 300);
 
 const searchResults = computed(() => {
-  return parsedResults.value.map(
+  return addresses.value.map(
     (result: any) =>
       ({
         id: result.id,
@@ -110,17 +112,16 @@ const searchResults = computed(() => {
 });
 
 const selectAddress = (selectedItem: SearchItem) => {
-  //   const address = find(
-  //     parsedResults.value,
-  //     address => address.id === selectedItem.id
-  //   ).address as Address;
-  //   // updateControl("address", address);
-};
+  const address = find(addresses.value, a => a.id === selectedItem.id)
+    .address as Address;
 
-const { layout } = useUpmindUILayoutRenderer(useJsonFormsLayout(props));
+  updateControl("address", address);
+  showAddressFields.value = true;
+};
 </script>
 
 <script lang="ts">
+import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isLayout, uiTypeIs("Place")),
