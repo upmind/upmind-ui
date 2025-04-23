@@ -1,37 +1,49 @@
 <template>
   <section class="flex flex-col gap-y-4">
-    <Item v-if="view === Views.default" :address="defaultAddress" />
+    <template v-if="view === Views.default">
+      <Item :address="defaultAddress" />
 
-    <RadioCards
-      v-else-if="view === Views.list"
-      v-model="selectedAddress"
-      :items="parsedValues"
-      :disabled="isLoading"
-      list
-      required
-    >
-      <template #item="{ item }">
-        <Item :address="getAddress(item.value)" editing />
-      </template>
-    </RadioCards>
+      <footer class="flex gap-x-4">
+        <Link
+          :label="defaultLabel"
+          size="sm"
+          variant="muted"
+          @click="defaultAction"
+        />
+      </footer>
+    </template>
 
-    <footer class="flex gap-x-4">
-      <Link
-        :label="primaryLabel"
-        size="sm"
-        variant="muted"
+    <template v-else-if="view === Views.list">
+      <RadioCards
+        v-model="selectedAddress"
+        :items="parsedValues"
         :disabled="isLoading"
-        @click="handlePrimaryAction"
-      />
+        list
+        required
+      >
+        <template #item="{ item }">
+          <Item :address="getAddress(item.value)" editing />
+        </template>
+      </RadioCards>
 
-      <Link
-        v-if="view === Views.list"
-        label="Add new address"
-        size="sm"
-        variant="muted"
-        @click="emit('setView', Views.add)"
-      />
-    </footer>
+      <footer class="flex gap-x-4">
+        <Link
+          label="Confirm"
+          size="sm"
+          variant="muted"
+          :disabled="meta.isLoading"
+          @click="listAction"
+        />
+
+        <Link
+          v-if="view === Views.list"
+          label="Add new address"
+          size="sm"
+          variant="muted"
+          @click="emit('setView', Views.add)"
+        />
+      </footer>
+    </template>
   </section>
 </template>
 
@@ -44,7 +56,7 @@ import { map } from "lodash-es";
 import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
-import { RadioCards, Link, Icon } from "@upmind-automation/upmind-ui";
+import { RadioCards, Link } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils
@@ -58,13 +70,13 @@ import { Views } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<ListProps>();
+defineProps<ListProps>();
 
 const emit = defineEmits<{
   (e: "setView", value: Views): void;
 }>();
 
-const { isReady, getAll, data, setDefault } = useClientAddresses();
+const { isReady, getAll, data, setDefault, meta } = useClientAddresses();
 
 const selectedAddress = ref<string>("");
 const isLoading = ref(false);
@@ -86,29 +98,19 @@ const getAddress = (id: string) => {
   return find(data.value, { id }) as Address;
 };
 
-const primaryLabel = computed(() => {
-  switch (props.view) {
-    case Views.default:
-      return data.value.length > 1 ? "Change" : "Add new address";
-    case Views.list:
-      return "Confirm";
-  }
+const defaultLabel = computed(() => {
+  return data.value.length > 1 ? "Change" : "Add new address";
 });
 
-const handlePrimaryAction = async () => {
-  switch (props.view) {
-    case Views.default:
-      emit("setView", data.value.length > 1 ? Views.list : Views.add);
-      break;
-    case Views.list:
-      if (defaultChanged.value) {
-        isLoading.value = true;
-        await setDefault(selectedAddress.value);
-        isLoading.value = false;
-      }
-      emit("setView", Views.default);
-      break;
+const defaultAction = async () => {
+  emit("setView", data.value.length > 1 ? Views.list : Views.add);
+};
+
+const listAction = async () => {
+  if (defaultChanged.value) {
+    await setDefault(selectedAddress.value);
   }
+  emit("setView", Views.default);
 };
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
