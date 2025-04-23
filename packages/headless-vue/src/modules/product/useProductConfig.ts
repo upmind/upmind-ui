@@ -4,11 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import {
-  useBrand,
-  useBasketProductsPending,
-  SubproductDetails,
-} from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 import { stateMatches, contextMatches } from "../../utils";
 
 // --- utils
@@ -23,6 +19,7 @@ import {
   isArray,
   forEach,
   find,
+  compact,
 } from "lodash-es";
 
 // --- types
@@ -30,8 +27,9 @@ import type { ActorRef } from "xstate";
 import type {
   Product,
   ProductDetails,
-  SubproductValue,
+  ProductModel,
   TermDetails,
+  SubproductDetails,
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -63,15 +61,19 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const terms = computed<TermDetails[]>(
     () => state.value.context?.lookups?.terms
   );
+
   const attributes = computed<SubproductDetails[]>(
     () => state.value.context?.lookups?.attributes
   );
+
   const options = computed<SubproductDetails[]>(
     () => state.value.context?.lookups?.options
   );
+
   const fields = computed<Record<string, any>>(
     () => state.value.context?.lookups?.provisionFields
   );
+
   // ---
   const errors = computed<Product["errors"]>(() => state.value.context?.error);
 
@@ -118,18 +120,32 @@ export const useProductConfig = (service: ActorRef<any>) => {
     }
   });
 
-  // --- QUANTITY
-  const updateQuantity = async (value?: number): Promise<void> => {
+  // --
+  async function setValues(
+    type:
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING",
+    data: Partial<ProductModel>
+  ) {
     touched.value = true;
-    send({
-      type: "SET.QUANTITY",
-      data: {
-        quantity: value || model.value.quantity,
-      },
-    });
+    send({ type, data });
 
-    return waitFor(service, state => state.matches("available.valid"));
-  };
+    return waitFor(service, state =>
+      ["available.valid", "available.invalid"].some(state.matches)
+    ).then(state => {
+      // NB only updat ethe model AFTER we have chaecked/parsed/validated
+      model.value = state.context.model;
+    });
+  }
+
+  // --- QUANTITY
+  const updateQuantity = async (value?: number): Promise<void> =>
+    setValues("SET.QUANTITY", {
+      quantity: value,
+    });
 
   async function incrementQuantity(): Promise<void> {
     // sanity check
@@ -157,147 +173,121 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return isEqual(value, model.value?.term?.cycle);
   }
 
-  const updateTerm = (calue: number): void => {
-    touched.value = true;
-    send({
-      type: "SET.TERM",
-      data: { term: calue },
+  const updateTerm = async (value: number): Promise<void> =>
+    setValues("SET.TERM", {
+      term: value,
     });
-  };
-  //emit("update:term",{itemId: props.id,...);
 
   // --- ATTRIBUTES
-
-  const updateAttributes = (): void => {
-    touched.value = true;
-    send({
-      type: "SET.ATTRIBUTES",
-      data: {
-        attributes: model.value.attributes,
-      },
-    });
-  };
 
   function isSelectedAttribute(attributeId: string, value: string): boolean {
     return some(model.value.attributes[attributeId], ["productId", value]);
   }
 
-  function setAttributes(
+  async function setAttributes(
     attribute: SubproductDetails,
     values: string | string[]
-  ): void {
-    const safeValues = isArray(values) ? values : [values];
-    set(model.value.attributes, attribute.id, {}); // reset all previous attributes
+  ): Promise<void> {
+    const attributes = model.value.attributes;
+    set(attributes, attribute.id, {}); // reset all previous attributes
+
+    const safeValues = compact(isArray(values) ? values : [values]);
 
     forEach(safeValues, value => {
-      set(model.value.attributes, [attribute.id, value], {
+      set(attributes, [attribute.id, value], {
         productId: value,
       });
     });
 
     // emit the event
-    updateAttributes();
+    return setValues("SET.ATTRIBUTES", { attributes });
   }
 
   // --- OPTIONS
-
-  const updateOptions = (): void => {
-    touched.value = true;
-    send({
-      type: "SET.OPTIONS",
-      data: {
-        options: model.value.options,
-      },
-    });
-  };
 
   function isSelectedOption(optionId: string, value: string): boolean {
     return some(model.value.options[optionId], ["productId", value]);
   }
 
-  function setOptions(
+  async function setOptions(
     option: SubproductDetails,
     values: string | string[]
-  ): void {
-    const safeValues = isArray(values) ? values : [values];
-    set(model.value.options, option.id, {}); // reset all previous options
+  ): Promise<void> {
+    const options = model.value.options;
+    set(options, option.id, {}); // reset all previous options
+
+    const safeValues = compact(isArray(values) ? values : [values]);
     forEach(safeValues, value => {
-      set(model.value.options, [option.id, value], {
+      set(options, [option.id, value], {
         productId: value,
       });
     });
 
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
-  function updateOptionQuantity(
+  async function updateOptionQuantity(
     option: SubproductDetails,
-    productId: string,
+    valueId: string,
     qty: number
-  ): void {
+  ): Promise<void> {
     // sanity check
-    const product = find(option.values, ["id", productId]);
-    if (!product?.quantifiable) return;
-
-    set(model.value.options, [option.id, productId, "step"], qty);
-
+    const value = find(option.values, ["id", valueId]);
+    if (!value?.quantifiable) return;
+    const options = model.value.options;
+    set(options, [option.id, value.id, "quantity"], qty);
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
-  function incrementOption(
+  async function incrementOption(
     option: SubproductDetails,
-    value: SubproductValue
-  ): void {
+    valueId: string
+  ): Promise<void> {
     // sanity check
+    const value = find(option.values, ["id", valueId]);
     if (!value?.quantifiable) return;
+    const options = model.value.options;
+    const qty = get(options, [option.id, value.id, "step"], 0);
+    set(options, [option.id, value.id, "quantity"], add(qty, value?.step || 1));
 
-    const qty = get(model.value.options, [option.id, value.id, "step"], 0);
-    set(
-      model.value.options,
-      [option.id, value.id, "step"],
-      add(qty, value?.step || 1)
-    );
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
-  function decrementOption(
+  async function decrementOption(
     option: SubproductDetails,
-    value: SubproductValue
-  ): void {
+    valueId: string
+  ): Promise<void> {
     // sanity check
+    const value = find(option.values, ["id", valueId]);
     if (!value?.quantifiable) return;
-    const qty = get(model.value.options, [option.id, value.id, "step"], 0);
+
+    const options = model.value.options;
+    const qty = get(options, [option.id, value.id, "step"], 0);
     set(
-      model.value.options,
-      [option.id, value.id, "step"],
+      options,
+      [option.id, value.id, "quantity"],
       subtract(qty, value?.step || 1)
     );
+
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
   // --- PROVISIONING
 
-  function setProvisioningFields(values: Record<string, any>): void {
-    set(model.value, "provisionFields", values);
+  async function setProvisioningFields(
+    values: Record<string, any>
+  ): Promise<void> {
     // emit the event
-    updateProvisioning();
+    return setValues("SET.PROVISIONING", { provisionFields: values });
   }
 
   function getProvisioningField(field: string): any {
     return get(model.value, ["provisionFields", field]);
   }
-
-  const updateProvisioning = (): void => {
-    touched.value = true;
-    send({
-      type: "SET.PROVISIONING",
-      data: { provisionFields: model.value.provisionFields },
-    });
-  };
 
   // ---------------------------------------------------------------------------
   return {
@@ -326,11 +316,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
     updateTerm,
     isSelectedTerm,
     // ---
-    updateAttributes,
     isSelectedAttribute,
     setAttributes,
     // ---
-    updateOptions,
     isSelectedOption,
     setOptions,
     updateOptionQuantity,
@@ -338,7 +326,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     decrementOption,
     // ---
     setProvisioningFields,
-    updateProvisioning,
     getProvisioningField,
     // ---
     reset: () => send("RESET"),
