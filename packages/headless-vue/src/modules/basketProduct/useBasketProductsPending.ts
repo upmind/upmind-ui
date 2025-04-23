@@ -10,6 +10,7 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
+import { isActor } from "xstate/lib/Actor";
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 
 // -----------------------------------------------------------------------------
@@ -28,13 +29,18 @@ export const useBasketProductsPending = () => {
     products,
 
     configure: async (
-      pid?: string,
+      pid?: string | ActorRef<any>,
       sync?: boolean
     ): Promise<PendingProduct> => {
-      const instance = await get(pid, sync);
+      const instance = isActor(pid)
+        ? (pid as ActorRef<any>)
+        : await get(pid as string, sync);
+
       if (isEmpty(instance)) return Promise.reject("Not found");
+
       return Promise.resolve(useBasketProductPending(instance));
     },
+
     refresh: () => {
       products.value = getProducts();
     },

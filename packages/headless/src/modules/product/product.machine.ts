@@ -8,7 +8,7 @@ import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
 import { responseCodes } from "../../utils";
-import { useTime, useValidationParser } from "../../utils";
+import { useTime } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -17,6 +17,7 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
+  parseApiErrors,
 } from "./utils";
 
 import {
@@ -327,19 +328,10 @@ export default createMachine(
             actions: ["setCalculating"],
           },
 
-          CALCULATE_CANCELLED: {
-            actions: ["clearCalculating"],
+          CALCULATED: {
+            actions: ["clearCalculating", "setProduct"],
           },
 
-          CALCULATED: [
-            {
-              actions: ["clearCalculating", "setProduct"],
-              cond: "hasSummaryData",
-            },
-            {
-              actions: ["clearCalculating"],
-            },
-          ],
           // ---
           SET: {
             target: "available.invalid",
@@ -424,7 +416,10 @@ export default createMachine(
       },
       ERROR: {
         target: "available.error",
-        actions: ["setError"],
+        actions: ["setError", "clearCalculating"],
+      },
+      CALCULATE_CANCELLED: {
+        actions: ["clearCalculating"],
       },
     },
   },
@@ -448,7 +443,7 @@ export default createMachine(
           _event: AnyEventObject
         ) => {
           return {
-            errorExternal,
+            errorExternal: parseApiErrors(errorExternal),
             error: merge({}, errorExternal, error),
             // ---
             basketId,
@@ -631,6 +626,7 @@ export default createMachine(
           return lookups;
         },
       }),
+
       clearCalculating: assign({
         lookups: ({ lookups }: ProductConfigContext, _event) => {
           lookups ??= {};
@@ -768,54 +764,16 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => data?.error,
+        ) => (data?.error ? parseApiErrors(data?.error) : undefined),
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
           let rawErrors = data?.error;
 
           if (!rawErrors) return error;
 
-          let errors = {};
+          let errors = rawErrors;
 
           if (rawErrors?.code == responseCodes.Unprocessable_Entity) {
-            // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-            // and thenwe 'pick' the products out of the errors
-            const { products } = reduce(
-              rawErrors?.data,
-              (result, value, key) => {
-                set(result, key, value);
-                return result;
-              },
-              []
-            ) as Record<string, any>;
-
-            // then we parse the errors into a more usable format, replacing their indexes with the product ids
-            // this will allow us to easily access the provisioning fields for each product
-            const errors = reduce(
-              products,
-              (
-                result: {
-                  term: any[];
-                  options: any[];
-                  attributes: any[];
-                  provisionFields: any[];
-                },
-                err: any,
-                key: number
-              ) => {
-                if (err?.attributes) result.attributes.push(...err.attributes);
-                if (err?.options) result.options.push(...err.options);
-                if (err?.term) result.term.push(...err.term);
-                if (err?.provisionFields)
-                  result.provisionFields.push(useValidationParser(err));
-                return result;
-              },
-              {
-                term: [] as any[],
-                options: [] as any[],
-                attributes: [] as any[],
-                provisionFields: [] as any[],
-              }
-            );
+            errors = parseApiErrors(rawErrors);
           }
 
           return merge({}, error, errors);

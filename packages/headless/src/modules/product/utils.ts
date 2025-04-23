@@ -3,7 +3,12 @@ import { useSystem } from "../system";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTranslateName, useTranslateField } from "../../utils";
+import {
+  useTranslateName,
+  useTranslateField,
+  useValidationParser,
+} from "../../utils";
+
 import {
   compact,
   concat,
@@ -913,3 +918,49 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
     {}
   );
 };
+
+export function parseApiErrors(rawErrors: any) {
+  // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+  // and thenwe 'pick' the products out of the errors
+  const { products } = reduce(
+    rawErrors?.data,
+    (result, value, key) => {
+      set(result, key, value);
+      return result;
+    },
+    []
+  ) as Record<string, any>;
+
+  // then we parse the errors into a more usable format, replacing their indexes with the product ids
+  // this will allow us to easily access the provisioning fields for each product
+  const errors = reduce(
+    products,
+    (
+      result: {
+        term: any[];
+        options: any[];
+        attributes: any[];
+        provisionFields: any[];
+      },
+      err: any,
+      key: number
+    ) => {
+      if (err?.attributes) result.attributes.push(...err.attributes);
+      if (err?.options) result.options.push(...err.options);
+      if (err?.term) result.term.push(...err.term);
+      if (err?.provisionFields) {
+        debugger;
+        result.provisionFields.push(useValidationParser(rawErrors));
+      }
+      return result;
+    },
+    {
+      term: [] as any[],
+      options: [] as any[],
+      attributes: [] as any[],
+      provisionFields: [] as any[],
+    }
+  );
+
+  return omitBy(errors, isEmpty) as Record<string, any>;
+}

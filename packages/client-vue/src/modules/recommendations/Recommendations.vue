@@ -16,6 +16,12 @@
 
     <Carousel @resolve="doClose" />
 
+    <Configure
+      v-if="basketItem?.id"
+      :modelValue="basketItem"
+      @resolve="doClose"
+    />
+
     <Card
       class="md:bg-base mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
     >
@@ -54,6 +60,7 @@ import {
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
+import Configure from "./components/Configure.vue";
 import Carousel from "./components/Carousel.vue";
 import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
@@ -64,12 +71,15 @@ const { t } = useI18n();
 
 // --- basket setup
 const { next, back, isResolved } = useRoutingEngine();
-const { seen, isReady } = useRecommendationsEngine();
-const { products } = useBasket();
 
 await isResolved(ROUTE.RECOMMENDATIONS).catch(back);
 
+const { products } = useBasket();
+
+const { seen, isReady, basketItem } = useRecommendationsEngine();
+
 await isReady();
+
 // ---
 
 function doClose() {

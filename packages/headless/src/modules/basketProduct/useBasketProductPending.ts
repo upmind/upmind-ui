@@ -12,51 +12,72 @@ const { dataLayer } = useDataLayer();
 import { parseQuantity } from "../product/utils";
 import { DetailedError, responseCodes, stopService } from "../../utils";
 import { isEmpty, get, add, subtract, find, omit, isNil } from "lodash-es";
+import { isActor } from "xstate/lib/utils";
 
 // --- types
-import type { InterpreterFrom } from "xstate";
+import type { InterpreterFrom, ActorRef } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
+import { isFunction } from "xstate/lib/utils";
 // import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
-export const useBasketProductPending = (data: ProductProps) => {
-  const { getBasket } = useBasket();
-  const rawBasket = getBasket();
+export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
+  function isProductProps(
+    value: ProductProps | ActorRef<any>
+  ): value is ProductProps {
+    return value && typeof value === "object" && "productId" in value;
+  }
 
-  if (!rawBasket)
-    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+  const actor: ActorRef<any> | undefined = isActor(data)
+    ? (data as ActorRef<any>)
+    : undefined;
 
-  if (isEmpty(data) || isEmpty(data.productId))
-    throw new DetailedError(
-      "Product Model is empty or has no productId",
-      responseCodes.Unprocessable_Entity
-    );
-
-  const id = btoa(JSON.stringify(data)); // use the model as the basis for the id
-
-  let service = interpret(
-    productMachine.withContext({
-      id,
-      basketId: rawBasket.id,
-      clientId: rawBasket.client_id,
-      currencyId: rawBasket.currency_id,
-      promotions: rawBasket.promotions,
-      coupons: data?.coupons ?? [],
-      // ---
-      model: omit(data, [
+  const model: ProductProps | undefined = isProductProps(data)
+    ? (omit(data, [
         "currencyId",
         "clientId",
         "promotions",
         "coupons",
         "subproducts",
-      ]) as ProductModel,
-    }),
-    {
-      id,
-      devTools: true,
-    }
-  ).start();
+      ]) as ProductModel)
+    : undefined;
+
+  const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
+  const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
+
+  const { getBasket } = useBasket();
+  const rawBasket = getBasket();
+  if (!rawBasket)
+    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+
+  if (isEmpty(data) || (isEmpty(actor) && isEmpty(model?.productId)))
+    throw new DetailedError(
+      "Product Model is empty or has no productId",
+      responseCodes.Not_Found
+    );
+
+  const id = actor?.id || btoa(JSON.stringify(data)); // use the model as the basis for the id
+
+  let service =
+    actor ||
+    interpret(
+      productMachine.withContext({
+        id,
+        basketId: rawBasket.id,
+        clientId: rawBasket.client_id,
+        currencyId: rawBasket.currency_id,
+        promotions: rawBasket.promotions,
+        subproducts,
+        coupons,
+        // ---
+        model,
+      }),
+      {
+        id,
+        devTools: true,
+      }
+    ).start();
 
   // now that we have a product configation, we can push it to the datalayer
   pushSelectItem();
@@ -126,6 +147,7 @@ export const useBasketProductPending = (data: ProductProps) => {
     service,
     getSnapshot: () => service?.getSnapshot(),
     getProduct: () => service.getSnapshot().context.product,
+    getModel: () => service.getSnapshot().context.model,
     stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     isReady,

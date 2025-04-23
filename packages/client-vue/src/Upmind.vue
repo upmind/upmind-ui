@@ -11,7 +11,7 @@
         </Header>
       </slot>
 
-      <main class="w-full flex-1">
+      <main class="w-full flex-1 overflow-hidden">
         <RouterView v-slot="routerViewProps" :key="$route.fullPath">
           <slot v-bind="routerViewProps">
             <template v-if="routerViewProps.Component">
