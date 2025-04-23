@@ -23,14 +23,12 @@ import {
   isEmpty,
   isNil,
   isNumber,
-  isObject,
   keys,
   map,
   maxBy,
   minBy,
   pick,
   reduce,
-  reject,
   set,
   some,
   sum,
@@ -229,7 +227,7 @@ async function checkSubproducts(
   { error, lookups, model }: any,
   { type, data, subproductIds }: any
 ) {
-  let subproducts: any = null;
+  let subproducts: SubproductModel = {};
   const price: any[] = [];
   const errors: any = {};
   // ---
@@ -240,6 +238,8 @@ async function checkSubproducts(
       price,
     });
   }
+  const isInitial = isEmpty(model[type]);
+
   subproducts = reduce(
     lookups[type],
     (result, subproduct: SubproductDetails) => {
@@ -260,12 +260,13 @@ async function checkSubproducts(
       }
 
       // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
-
-      if (isEmpty(selected)) {
+      // NB we only do this on the initial load, not when we are updating the values
+      if (isEmpty(selected) && isInitial) {
         const defaultSubproduct = find(
           subproduct.values,
-          "default"
+          "meta.default"
         ) as SubproductValue;
+
         if (defaultSubproduct) {
           set(selected, defaultSubproduct.id, {
             productId: defaultSubproduct.id,
@@ -326,8 +327,10 @@ async function checkSubproducts(
           `${subproduct.name} does not allow multiple choice`
         );
       }
+
       // ---
       set(result, subproduct.id, selected);
+
       return result;
     },
     {}
