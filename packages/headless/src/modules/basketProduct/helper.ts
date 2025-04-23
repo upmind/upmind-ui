@@ -22,12 +22,14 @@ import {
   pick,
   uniq,
   compact,
+  forEach,
 } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "./types";
 import type { Product } from "../product";
+import { ActorRef } from "xstate";
 
 type Basket = ReturnType<typeof useBasket>;
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
@@ -203,11 +205,12 @@ export function basketSubscription(callback: any, onReceive: any) {
           .then((instance: BasketProductPending) => {
             const actor = instance.service;
             const product = instance.getProduct();
+            const model = instance.getModel();
             if (!product) throw new Error("Product not found");
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });
-            // try to update the actor we just added
+            // try to update the actor we just added, using the parsed mpdel
             productServices
               .update(
                 {
@@ -217,12 +220,10 @@ export function basketSubscription(callback: any, onReceive: any) {
                   ),
                   currencyId: rawBasket?.currency_id,
                 },
-                { data: event.target }
+                { data: model }
               )
               .then((rawBasket: IBasket) => {
-                // add the success event to the datalayer
-                debugger;
-                dataLayer({ event: "add_to_cart" }).withItems([product]).push();
+                dataLayer({ event: "add_to_cart" }).withItems(product).push();
                 return rawBasket;
               })
               .then((rawBasket: IBasket) => {
@@ -285,30 +286,36 @@ export function basketSubscription(callback: any, onReceive: any) {
                 .then(() => actor)
                 .catch(() => undefined);
             });
-        });
+        }) as Promise<ActorRef<any>>[];
 
         // then update the basket
         Promise.all(promises)
-          .then(data => {
-            return productServices.updateMany(
-              {
-                basketId: basket.getBasketId(),
-                basketProducts: basket.getProducts(),
-                promotions: event.context?.promotions,
-              },
-              { data: compact(data) }
-            );
+          .then((instances: ActorRef<any>[]) => {
+            return productServices
+              .updateMany(
+                {
+                  basketId: basket.getBasketId(),
+                  basketProducts: basket.getProducts(),
+                  promotions: event.context?.promotions,
+                },
+                { data: compact(instances) }
+              )
+              .then(() => instances);
           })
-          .then((rawBasket: IBasket) => {
+          .then((instances: ActorRef<any>[]) => {
             // add the success event to the datalayer
-            // TODO : map the data
             debugger;
-            if (basketProduct)
-              dataLayer({ event: "add_to_cart" })
-                .withItems([basketProduct])
-                .push();
+            dataLayer({ event: "add_to_cart" })
+              .withItems(
+                compact(
+                  map(instances, instance =>
+                    get(instance.getSnapshot(), "context.product")
+                  )
+                )
+              )
+              .push();
 
-            return rawBasket;
+            return instances;
           })
           .catch(error => {
             callback({ type: "ERROR", data: error });

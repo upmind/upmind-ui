@@ -1,5 +1,10 @@
-import type { Recommendation, Benefit } from "@upmind-automation/headless-vue";
+import type {
+  Recommendation,
+  Benefit,
+  ProductModel,
+} from "@upmind-automation/headless-vue";
 import type { IconProps } from "@upmind-automation/upmind-ui";
+import type { ActorRef } from "xstate";
 
 export interface RecommendationsProps {
   disabled?: boolean;
@@ -13,4 +18,8 @@ export interface RecommendationItemProps extends Recommendation {
 export interface RecommendationBenefitProps extends Benefit {
   label: string;
   icon?: IconProps | string;
+}
+
+export interface RecommendationConfigurationProps {
+  modelValue: ActorRef<any>;
 }

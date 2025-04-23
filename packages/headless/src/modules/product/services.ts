@@ -509,6 +509,7 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
         !event.data?.lookups ||
         !event.data?.model
       ) {
+        callback({ type: "CALCULATE_CANCELLED" });
         return;
       }
 

@@ -253,6 +253,7 @@ export default createMachine(
                 return value;
               }
             );
+
             return recommendation.configuration;
           },
 

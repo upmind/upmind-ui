@@ -54,6 +54,9 @@ export default {
     carousel: {
       navigation: cva("flex justify-end space-x-2"),
       item: cva("md:basis-1/2 xl:basis-1/3"),
+    },
+
+    drawer: {
       footer: cva("flex-row items-center justify-between gap-x-4"),
     },
 
