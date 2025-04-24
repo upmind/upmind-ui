@@ -66,7 +66,6 @@ watch(selectedAddress, async address => {
 
 const updateAddress = async (address: Address) => {
   await set(address);
-  console.log("model!!!", JSON.stringify(model.value));
   await update();
   await getAll();
   emit("setView", Views.default);
