@@ -2,6 +2,7 @@
   <FormField
     v-bind="formFieldProps"
     :label="showAddressFields ? '' : appliedOptions?.label"
+    required
   >
     <Search
       v-if="!showAddressFields"
