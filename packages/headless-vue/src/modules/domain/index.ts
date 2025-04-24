@@ -9,6 +9,7 @@ import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 
 // --- utils
 import { map, find, get, first, debounce } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 export {
@@ -108,7 +109,7 @@ export const useDomain = ({
     })),
     // ---
     choose: domain.choose,
-    search: debounce(domain.search as (value: string) => void, 500),
+    search: debounce(domain.search as (value: string) => void, DEBOUNCE_DELAY),
     searchMore: domain.searchMore,
     searchOffset: computed<number>(() => state.value.context?.search?.offset),
     add: domain.add,
