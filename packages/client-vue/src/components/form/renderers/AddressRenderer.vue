@@ -6,41 +6,104 @@
       @select="selectAddress"
       :placeholder="appliedOptions?.placeholder"
     />
+
+    <section class="!mt-6 flex w-full flex-col gap-y-6">
+      <DispatchRenderer
+        v-show="showAddressFields"
+        :visible="control.visible"
+        :enabled="control.enabled"
+        :schema="control.schema"
+        :uischema="detailUiSchema"
+        :path="control.path"
+        :renderers="control.renderers"
+        :cells="control.cells"
+      />
+
+      <Link
+        v-if="!showAddressFields"
+        label="Enter address manually"
+        size="sm"
+        variant="muted"
+        @click="showAddressFields = true"
+      />
+    </section>
   </FormField>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 // --- external
-import { useJsonFormsControl } from "@jsonforms/vue";
+import { computed, ref, onMounted, inject } from "vue";
+import { Generate } from "@jsonforms/core";
+import {
+  DispatchRenderer,
+  rendererProps,
+  useJsonFormsControlWithDetail,
+} from "@jsonforms/vue";
 
 // --- components
-import {
-  FormField,
-  Search,
-  type SearchItem,
-} from "@upmind-automation/upmind-ui";
+import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import { debounce, isEmpty, find, filter, last } from "lodash-es";
 
 // --- types
-import type { ControlElement } from "@jsonforms/core";
-import type { RendererProps } from "@jsonforms/vue";
+import type { ControlElement, UISchemaElement } from "@jsonforms/core";
+import type { ComputedRef } from "vue";
+import { usePlaces } from "@upmind-automation/headless-vue";
+import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless-vue";
 
-import { debounce, isEmpty, find } from "lodash-es";
-import { usePlaces } from "@upmind-automation/headless-vue";
-import { ref, onMounted, computed } from "vue";
 // ----------------------------------------------
 
-const props = defineProps<RendererProps<ControlElement>>();
+const props = defineProps({
+  ...rendererProps<ControlElement>(),
+});
+
+const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
+
+const { control, appliedOptions, formFieldProps, updateControl } =
+  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
+
+const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
+  const allowedFields = control.value.uischema.options?.fields || [];
+
+  const uiSchema = Generate.uiSchema(
+    control.value.schema,
+    "VerticalLayout",
+    undefined,
+    control.value.rootSchema
+  );
+
+  if (isLayout(uiSchema) && uiSchema.elements) {
+    uiSchema.elements = filter(uiSchema.elements, (element: any) => {
+      const fieldName = element.scope?.split("/").pop();
+      return fieldName && allowedFields.includes(fieldName);
+    }) as UISchemaElement[];
+  }
+
+  return uiSchema;
+});
+
+const nestedErrors = computed(() => {
+  const errors = jsonforms?.core?.errors || [];
+
+  return errors
+    .filter(
+      (error: { instancePath: string; message?: string }) =>
+        error.instancePath.startsWith(`/${control.value.path}`) &&
+        error.instancePath !== `/${control.value.path}`
+    )
+    .map((error: { instancePath: string; message?: string }) => {
+      return `${last(error.instancePath.split("/"))}: ${error.message}`;
+    });
+});
 
 const places = usePlaces();
 
-const { appliedOptions, formFieldProps, updateControl } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
-const parsedResults = ref<any[]>([]);
+const showAddressFields = ref<boolean>(false);
+
+const addresses = ref<any[]>([]);
 
 onMounted(async () => {
   await places.load();
@@ -48,18 +111,18 @@ onMounted(async () => {
 
 const searchAddresses = debounce(async (query: string) => {
   if (!query || query.length < 3) {
-    parsedResults.value = [];
+    addresses.value = [];
     return;
   }
 
   const results = await places.search(query);
   if (!isEmpty(results)) {
-    parsedResults.value = results;
+    addresses.value = results;
   }
 }, 300);
 
 const searchResults = computed(() => {
-  return parsedResults.value.map(
+  return addresses.value.map(
     (result: any) =>
       ({
         id: result.id,
@@ -68,25 +131,27 @@ const searchResults = computed(() => {
   );
 });
 
-const selectAddress = (selectedItem: SearchItem) => {
-  const address = find(
-    parsedResults.value,
-    address => address.id === selectedItem.id
-  ).address as Address;
+const selectAddress = (data: SearchItem) => {
+  const address = find(addresses.value, a => a.id === data.id)
+    .address as Address;
 
-  updateControl("id", address.id ?? "");
-  updateControl("address1", address.address1 ?? "");
-  updateControl("address2", address.address2 ?? "");
-  updateControl("city", address.city ?? "");
-  updateControl("postcode", address.postcode ?? "");
-  updateControl("countryId", address.countryId ?? "");
+  // TODO: Find a nicer way of setting every nested input as touched to enable validation
+  const properties = control.value.schema.properties;
+  if (properties) {
+    Object.keys(properties).forEach(fieldName => {
+      updateControl(`${control.value.path}.${fieldName}`, "");
+    });
+  }
+
+  updateControl("address", address);
+  showAddressFields.value = !isEmpty(nestedErrors.value);
 };
 </script>
 
 <script lang="ts">
-import { isStringControl, formatIs, and } from "@jsonforms/core";
+import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 export const tester = {
-  rank: 3,
-  controlType: and(isStringControl, formatIs("address")),
+  rank: 2,
+  controlType: and(isLayout, uiTypeIs("address")),
 };
 </script>
