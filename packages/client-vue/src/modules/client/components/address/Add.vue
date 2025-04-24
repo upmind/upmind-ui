@@ -48,20 +48,27 @@ await isReady().then(async () => {
 
 const updateModel = debounce(async (address: Address) => {
   if (showAddressFields.value) {
-    await set(address);
-    await update();
+    await updateAddress(address);
   }
 }, 500);
 
 watch(selectedAddress, async address => {
-  if (address) {
-    try {
-      await set(address);
-      await update();
-    } catch (error) {
-      // Show the address input fields if the address lookup update fails
-      setShowAddressFields(true);
+  try {
+    if (address) {
+      await updateAddress(address);
     }
+  } catch (error) {
+    // Show the address input fields if the address lookup update fails
+    setShowAddressFields(true);
+    throw error;
   }
 });
+
+const updateAddress = async (address: Address) => {
+  await set(address);
+  console.log("model!!!", JSON.stringify(model.value));
+  await update();
+  await getAll();
+  emit("setView", Views.default);
+};
 </script>
