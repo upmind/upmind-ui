@@ -762,11 +762,11 @@ export default createMachine(
           { errorExternal }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          let errors = data?.error;
+          let errors = data?.error?.data;
           return merge({}, errorExternal, errors);
         },
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error;
+          let errors = data?.error?.data;
           return merge({}, error, errors);
         },
       }),

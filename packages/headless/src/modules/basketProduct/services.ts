@@ -458,21 +458,20 @@ async function remove({
   }).then(({ data }: any) => data);
 }
 
-function parseApiErrors({ error }: any): Promise<void> {
-  if (!error) return Promise.resolve();
+function parseApiErrors(response: any): Promise<void> {
+  if (!response?.error) return Promise.resolve();
   // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-  const rawErrors = unflattenErrors(error.data);
+  const rawErrors = unflattenErrors(response.error.data);
   // Currently we receive errors in 2 ways,
   // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
   // 2) Provision fields returns an object
   if (isArray(rawErrors?.products)) {
-    error.data = parseBasketProductError(first(rawErrors?.products));
+    response.error.data = parseBasketProductError(first(rawErrors?.products));
   } else {
-    error.data = parseBasketProductError(rawErrors);
+    response.error.data = parseBasketProductError(rawErrors);
   }
 
-  debugger;
-  return Promise.reject(error);
+  return Promise.reject(response);
 }
 // -----------------------------------------------------------------------------
 
