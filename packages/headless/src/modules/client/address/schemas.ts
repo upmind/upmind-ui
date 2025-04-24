@@ -12,7 +12,6 @@ export function useSchema({
   const schema = {
     type: "object",
     title: "Address Fields",
-    required: ["address1", "city", "countryId", "postcode", "type"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -25,6 +24,7 @@ export function useSchema({
         type: "object",
         title: "Address",
         default: {},
+        required: ["address1", "city", "postcode", "countryId", "type"],
         properties: {
           address1: {
             type: "string",
@@ -68,27 +68,19 @@ export function useSchema({
                   title: item.name,
                 })),
           },
+
+          type: {
+            type: "number",
+            title: "Address Type",
+            default: baseModel?.type,
+            oneOf: !types?.length
+              ? undefined
+              : map(types, item => ({
+                  const: item.key,
+                  title: item.value,
+                })),
+          },
         },
-      },
-
-      // ---
-
-      name: {
-        type: ["string", "null"],
-        title: "Name",
-        default: baseModel?.name,
-      },
-
-      type: {
-        type: "number",
-        title: "Address Type",
-        default: baseModel?.type,
-        oneOf: !types?.length
-          ? undefined
-          : map(types, item => ({
-              const: item.key,
-              title: item.value,
-            })),
       },
     },
   };
