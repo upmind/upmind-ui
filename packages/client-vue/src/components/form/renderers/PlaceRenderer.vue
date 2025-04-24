@@ -1,22 +1,33 @@
 <template>
-  <section class="flex flex-col gap-y-6">
+  <FormField v-bind="formFieldProps">
     <Search
       :results="searchResults"
       @update:search="searchAddresses"
       @select="selectAddress"
       :placeholder="appliedOptions?.placeholder"
     />
-    <DispatchRenderer
-      v-show="showAddressFields"
-      :visible="control.visible"
-      :enabled="control.enabled"
-      :schema="control.schema"
-      :uischema="detailUiSchema"
-      :path="control.path"
-      :renderers="control.renderers"
-      :cells="control.cells"
-    />
-  </section>
+
+    <section class="!mt-6 flex w-full flex-col gap-y-6">
+      <DispatchRenderer
+        v-show="showAddressFields"
+        :visible="control.visible"
+        :enabled="control.enabled"
+        :schema="control.schema"
+        :uischema="detailUiSchema"
+        :path="control.path"
+        :renderers="control.renderers"
+        :cells="control.cells"
+      />
+
+      <Link
+        v-if="!showAddressFields"
+        label="Enter address manually"
+        size="sm"
+        variant="muted"
+        @click="showAddressFields = true"
+      />
+    </section>
+  </FormField>
 </template>
 
 <script setup lang="ts">
@@ -30,7 +41,7 @@ import {
 } from "@jsonforms/vue";
 
 // --- components
-import { Search } from "@upmind-automation/upmind-ui";
+import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
