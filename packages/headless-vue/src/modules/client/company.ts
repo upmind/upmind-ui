@@ -7,7 +7,12 @@ import { useClientCompanies as useUpmindClientCompanies } from "@upmind-automati
 
 // --- utils
 import { get, map, debounce, isEmpty } from "lodash-es";
-import { machineMatches, useContextActor, useContextActors } from "../../utils";
+import {
+  DEBOUNCE_DELAY,
+  machineMatches,
+  useContextActor,
+  useContextActors,
+} from "../../utils";
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 
 // ---
@@ -53,7 +58,10 @@ export const useClientCompany = (
     uischema: computed(() => state.value?.context?.uischema),
     // ---
     clear: () => send({ type: "CLEAR" }),
-    input: debounce((model: any) => send({ type: "SET", data: model }), 300),
+    input: debounce(
+      (model: any) => send({ type: "SET", data: model }),
+      DEBOUNCE_DELAY
+    ),
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
@@ -122,7 +130,7 @@ export const useClientCompanies = (): ClientListingDefinition => {
     // ---
     isReady,
     getSelected,
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
     select: async (id: any) => {
       await isReady();
       send({ type: "SELECT", data: id });

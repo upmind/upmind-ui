@@ -9,3 +9,5 @@ export const useCookies = utils.useCookies;
 
 // --- expose our custom utils
 export * from "./useState";
+
+export const DEBOUNCE_DELAY = 350;

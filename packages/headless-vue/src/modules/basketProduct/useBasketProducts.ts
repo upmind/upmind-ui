@@ -13,6 +13,7 @@ import { useBasketProduct } from "./useBasketProduct";
 
 // --- utils
 import { isEmpty, debounce, includes, remove as _remove } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 type BasketProduct = ReturnType<typeof useBasketProduct>;
@@ -40,7 +41,7 @@ export const useBasketProducts = () => {
    */
   function action<T extends (...args: any[]) => Promise<IBasket>>(
     action: T,
-    delay = 350
+    delay = DEBOUNCE_DELAY
   ): (...args: Parameters<T>) => Promise<IBasket> {
     return debounce((...args: Parameters<T>) => {
       // Assume the first argument is bpid
