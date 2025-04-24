@@ -119,7 +119,7 @@ export function useUischema(): UISchemaElement {
                 scope: "#/properties/countryId",
               },
               {
-                type: "Place",
+                type: "address",
                 options: {
                   fields: ["address1", "address2", "city", "postcode"],
                   placeholder: "Search for an address...",
