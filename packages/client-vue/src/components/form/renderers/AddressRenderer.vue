@@ -1,13 +1,18 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField
+    v-bind="formFieldProps"
+    :label="showAddressFields ? '' : appliedOptions?.label"
+  >
     <Search
+      v-if="!showAddressFields"
       :results="searchResults"
       @update:search="searchAddresses"
       @select="selectAddress"
       :placeholder="appliedOptions?.placeholder"
+      class="mb-6"
     />
 
-    <section class="!mt-6 flex w-full flex-col gap-y-6">
+    <section>
       <DispatchRenderer
         v-show="showAddressFields"
         :visible="control.visible"
