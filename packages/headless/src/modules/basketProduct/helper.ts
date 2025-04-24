@@ -22,16 +22,13 @@ import {
   pick,
   uniq,
   compact,
-  forEach,
 } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "./types";
-import type { Product } from "../product";
 import { ActorRef } from "xstate";
 
-type Basket = ReturnType<typeof useBasket>;
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 
 // -----------------------------------------------------------------------------

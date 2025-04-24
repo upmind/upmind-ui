@@ -8,7 +8,8 @@ import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
 import { responseCodes } from "../../utils";
-import { useTime } from "../../utils";
+import { useTime, unflattenErrors } from "../../utils";
+import { parseBasketProductError } from "../basketProduct/utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -17,7 +18,6 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseProductApiErrors,
 } from "./utils";
 
 import {
@@ -442,10 +442,10 @@ export default createMachine(
           }: ProductConfigContext,
           _event: AnyEventObject
         ) => {
-          debugger;
           return {
             errorExternal,
-            error: merge({}, errorExternal, error),
+            error: merge({}, error),
+
             // ---
             basketId,
             clientId,
@@ -522,7 +522,7 @@ export default createMachine(
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
             errorExternal,
-            error: merge({}, errorExternal, error),
+            error: merge({}, error),
             lookups,
           };
 
@@ -743,17 +743,13 @@ export default createMachine(
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
           const provisionFields = get(data, "provisionFields");
 
-          if (!error?.provisionFields?.data?.length) return error;
+          if (!error?.provisionFields?.length) return error;
 
           forEach(provisionFields, (field, key) => {
             if (!isEmpty(field) || !isNil(field)) {
-              remove(error.provisionFields.data, ["schemaPath", key]);
+              remove(error.provisionFields, ["schemaPath", key]);
             }
           });
-
-          // housekeeping, if we have no errors, remove the provisionFields key
-          if (isEmpty(error?.provisionFields?.data))
-            unset(error, "provisionFields");
 
           return error;
         },
@@ -763,24 +759,14 @@ export default createMachine(
 
       setError: assign({
         errorExternal: (
-          _context: ProductConfigContext,
+          { errorExternal }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          debugger;
-          return data?.error?.data
-            ? parseProductApiErrors(data?.error?.data)
-            : undefined;
+          let errors = data?.error ?? data;
+          return merge({}, errorExternal, errors);
         },
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let errors = data?.error;
-          if (!data?.error?.data) return error;
-
-          let rawErrors = data.error.data;
-          if (rawErrors?.code == responseCodes.Unprocessable_Entity) {
-            debugger;
-            errors = parseProductApiErrors(rawErrors);
-          }
-
+          let errors = data?.error ?? data;
           return merge({}, error, errors);
         },
       }),

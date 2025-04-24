@@ -4,7 +4,12 @@
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTranslateName, DetailedError, responseCodes } from "../../utils";
+import {
+  useTranslateName,
+  DetailedError,
+  responseCodes,
+  parseError,
+} from "../../utils";
 import {
   useUischemaTitle,
   useProductName,
@@ -27,6 +32,8 @@ import {
 } from "lodash-es";
 
 // --- types
+import type { ErrorObject } from "ajv";
+
 import type {
   IBasket,
   IBasketProduct,
@@ -346,4 +353,16 @@ export function getBasketProduct(id: string, basket: IBasket) {
   }
 
   return value;
+}
+
+export function parseBasketProductError(
+  rawError: any | any[]
+): Record<string, ErrorObject[]> {
+  const error = {
+    term: map(rawError?.term, parseError),
+    options: map(rawError?.options, parseError),
+    attributes: map(rawError?.attributes, parseError),
+    provisionFields: map(rawError?.provision_field_values, parseError),
+  };
+  return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
 }

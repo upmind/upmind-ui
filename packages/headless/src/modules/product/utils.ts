@@ -29,13 +29,11 @@ import {
   some,
   subtract,
   toNumber,
-  trimStart,
   uniq,
   values,
 } from "lodash-es";
 
 // --- types
-import type { ErrorObject } from "ajv";
 
 import {
   PromotionDisplayTypes,
@@ -918,43 +916,3 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
 };
 
 // -----------------------------------------------------------------------------
-// --- error handling
-
-export function parseErrorObj(value: string | string[], key: string) {
-  const instancePath = trimStart(key.replace(".", "/properties/"), "/");
-  return {
-    instancePath: `/${instancePath}`, // AJV style path to the property in the schema
-    message: value.toString(),
-    // --- optional
-    schemaPath: instancePath,
-    keyword: "",
-    params: {},
-  } as ErrorObject;
-}
-
-export function parseApiError(rawError: any) {
-  const error = {
-    term: map(rawError?.term, parseErrorObj),
-    options: map(rawError?.options, parseErrorObj),
-    attributes: map(rawError?.attributes, parseErrorObj),
-    provisionFields: map(rawError?.provision_field_values, parseErrorObj),
-  };
-  return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
-}
-
-export function parseProductApiErrors(rawErrors: any) {
-  debugger;
-  // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-  // and then we 'pick' the products out of the errors
-
-  return reduce(
-    rawErrors,
-    (result, value, key) => {
-      debugger;
-      set(result, key, parseApiError(value));
-      debugger;
-      return result;
-    },
-    []
-  ) as Record<string, any>;
-}

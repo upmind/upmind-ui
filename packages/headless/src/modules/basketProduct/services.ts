@@ -5,19 +5,21 @@ import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTime } from "../../utils";
-import { parseBasketProductData } from "./utils";
+import { unflattenErrors, useTime } from "../../utils";
+import { parseBasketProductData, parseBasketProductError } from "./utils";
 import { parseQuantity } from "../product/utils";
 
 import {
   concat,
   filter,
+  first,
   forEach,
   get,
   isEmpty,
   map,
   reduce,
   set,
+  isArray,
 } from "lodash-es";
 import { ActorRef } from "xstate";
 import type { IBasket } from "@upmind-automation/types";
@@ -26,6 +28,7 @@ import { BrandConfigKeys } from "@upmind-automation/types";
 // --- types
 import type { ProductDetails, ProductModel } from "../product";
 import type { BasketProduct, IBasketProductModel } from "../basketProduct";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -256,6 +259,18 @@ async function fetchRelated(
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Updates a product quantity
+ *
+ * @param context - The parameters for the update operation.
+ * @param context.basketId - The ID of the basket.
+ * @param context.basketProduct - The basket product to be updated.
+ * @param event - Additional event for the update operation.
+ * @param event.data - The new quantity for the product.
+ * @returns A promise that resolves with the updated basket data.
+ * @throws Will reject the promise if no basket ID is provided, if the product is not found, or if the product is not quantifiable.
+ * @throws Will reject the promise if the quantity is invalid.
+ */
 async function updateQuantity(
   {
     basketId,
@@ -282,7 +297,9 @@ async function updateQuantity(
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(({ data }: any) => data)
+    .catch(parseApiErrors);
 }
 
 /**
@@ -324,7 +341,9 @@ async function update(
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(({ data }: any) => data)
+    .catch(parseApiErrors);
 }
 
 /**
@@ -437,6 +456,20 @@ async function remove({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true,
   }).then(({ data }: any) => data);
+}
+
+function parseApiErrors({ error }: any): Promise<void> {
+  if (!error) return Promise.resolve();
+  // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+  const rawErrors = unflattenErrors(error.data);
+  // Currently we receive errors in 2 ways,
+  // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
+  // 2) Provision fields returns an object
+  if (isArray(rawErrors?.products)) {
+    return Promise.reject(parseBasketProductError(first(rawErrors?.products)));
+  } else {
+    return Promise.reject(parseBasketProductError(rawErrors));
+  }
 }
 // -----------------------------------------------------------------------------
 
