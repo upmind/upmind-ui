@@ -466,10 +466,13 @@ function parseApiErrors({ error }: any): Promise<void> {
   // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
   // 2) Provision fields returns an object
   if (isArray(rawErrors?.products)) {
-    return Promise.reject(parseBasketProductError(first(rawErrors?.products)));
+    error.data = parseBasketProductError(first(rawErrors?.products));
   } else {
-    return Promise.reject(parseBasketProductError(rawErrors));
+    error.data = parseBasketProductError(rawErrors);
   }
+
+  debugger;
+  return error;
 }
 // -----------------------------------------------------------------------------
 

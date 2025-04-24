@@ -889,8 +889,7 @@ export default createMachine(
         return sld?.length > 2;
       },
       validSearchQuery: (_context, { data }: AnyEventObject) => {
-        const sld = parseSld(data);
-        return sld?.length >= 2;
+        return !isEmpty(data);
       },
       validSearchOffset: (
         { search }: DomainContext,
