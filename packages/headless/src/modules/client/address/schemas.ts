@@ -24,6 +24,7 @@ export function useSchema({
       address: {
         type: "object",
         title: "Address",
+        default: {},
         properties: {
           address1: {
             type: "string",
@@ -110,7 +111,6 @@ export function useUischema(): UISchemaElement {
         options: {
           autoFocus: true,
           autocomplete: "off",
-          placeholder: "Search for an address...",
           detail: {
             type: "VerticalLayout",
             elements: [
@@ -122,6 +122,7 @@ export function useUischema(): UISchemaElement {
                 type: "Place",
                 options: {
                   fields: ["address1", "address2", "city", "postcode"],
+                  placeholder: "Search for an address...",
                 },
                 elements: [
                   {
