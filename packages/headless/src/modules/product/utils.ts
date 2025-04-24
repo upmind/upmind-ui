@@ -375,7 +375,7 @@ export const parseSubproductDetails = (
           includesTax: checkIncludesTax(),
           free: price?.price?.currentAmount == 0,
           overrides: rawSubproduct.category.price_override,
-          default: rawSubproduct.pivot.default == rawSubproduct.pivot.order,
+          default: !!rawSubproduct?.pivot?.default,
         },
         order: rawSubproduct.pivot.order,
       };
