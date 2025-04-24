@@ -5,27 +5,8 @@
     :uischema="uischema"
     :additional-renderers="formRenderers"
     @update:modelValue="(data: any) => doUpdate(data)"
-  >
-    <template #actions>
-      <footer class="flex gap-x-4">
-        <Link
-          label="Enter address manually"
-          size="sm"
-          variant="muted"
-          class="leading-none"
-        />
-
-        <Link
-          v-if="!isEmpty(data)"
-          label="Use existing address"
-          size="sm"
-          variant="muted"
-          class="leading-none"
-          @click="emit('setView', Views.list)"
-        />
-      </footer>
-    </template>
-  </UpmForm>
+    noActions
+  />
 </template>
 
 <script setup lang="ts">
