@@ -1,21 +1,22 @@
 <template>
-  <Search
-    :results="searchResults"
-    @update:search="searchAddresses"
-    @select="selectAddress"
-  />
-
-  <DispatchRenderer
-    v-show="showAddressFields"
-    class="mt-6"
-    :visible="control.visible"
-    :enabled="control.enabled"
-    :schema="control.schema"
-    :uischema="detailUiSchema"
-    :path="control.path"
-    :renderers="control.renderers"
-    :cells="control.cells"
-  />
+  <section class="flex flex-col gap-y-6">
+    <Search
+      :results="searchResults"
+      @update:search="searchAddresses"
+      @select="selectAddress"
+      :placeholder="appliedOptions?.placeholder"
+    />
+    <DispatchRenderer
+      v-show="showAddressFields"
+      :visible="control.visible"
+      :enabled="control.enabled"
+      :schema="control.schema"
+      :uischema="detailUiSchema"
+      :path="control.path"
+      :renderers="control.renderers"
+      :cells="control.cells"
+    />
+  </section>
 </template>
 
 <script setup lang="ts">
