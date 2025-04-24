@@ -30,7 +30,7 @@
         label="Enter address manually"
         size="sm"
         variant="muted"
-        @click="showAddressFields = true"
+        @click="setShowAddressFields(true)"
       />
     </section>
   </FormField>
@@ -52,6 +52,7 @@ import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { debounce, isEmpty, find, filter, last } from "lodash-es";
+import { useAddressFields } from "../composables/useAddressFields";
 
 // --- types
 import type { ControlElement, UISchemaElement } from "@jsonforms/core";
@@ -70,6 +71,16 @@ const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
 
 const { control, appliedOptions, formFieldProps, updateControl } =
   useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
+
+const { showAddressFields, setShowAddressFields, setSelectedAddress } =
+  useAddressFields();
+
+const places = usePlaces();
+const addresses = ref<any[]>([]);
+
+onMounted(async () => {
+  await places.load();
+});
 
 const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   const allowedFields = control.value.uischema.options?.fields || [];
@@ -103,16 +114,6 @@ const nestedErrors = computed(() => {
     .map((error: { instancePath: string; message?: string }) => {
       return `${last(error.instancePath.split("/"))}: ${error.message}`;
     });
-});
-
-const places = usePlaces();
-
-const showAddressFields = ref<boolean>(false);
-
-const addresses = ref<any[]>([]);
-
-onMounted(async () => {
-  await places.load();
 });
 
 const searchAddresses = debounce(async (query: string) => {
@@ -149,8 +150,13 @@ const selectAddress = (data: SearchItem) => {
     });
   }
 
-  updateControl("address", address);
+  setAddress(address);
   showAddressFields.value = !isEmpty(nestedErrors.value);
+};
+
+const setAddress = async (address: Address) => {
+  updateControl("address", address);
+  setSelectedAddress(address);
 };
 </script>
 

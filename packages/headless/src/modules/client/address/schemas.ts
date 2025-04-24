@@ -114,7 +114,7 @@ export function useUischema(): UISchemaElement {
                 type: "address",
                 options: {
                   fields: ["address1", "address2", "city", "postcode"],
-                  placeholder: "Search for an address...",
+                  placeholder: "Start typing your address",
                 },
                 elements: [
                   {
