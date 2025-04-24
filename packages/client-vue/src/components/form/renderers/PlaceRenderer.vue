@@ -20,8 +20,8 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, onMounted } from "vue";
-import { Generate, findUISchema } from "@jsonforms/core";
+import { computed, ref, onMounted, inject } from "vue";
+import { Generate } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
@@ -32,19 +32,11 @@ import {
 import { Search } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import {
-  useUpmindUILayoutRenderer,
-  useUpmindUIRenderer,
-  useStyles,
-} from "@upmind-automation/upmind-ui";
-import { debounce, isEmpty, find, filter } from "lodash-es";
+import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import { debounce, isEmpty, find, filter, last } from "lodash-es";
 
 // --- types
-import type {
-  ControlElement,
-  GroupLayout,
-  UISchemaElement,
-} from "@jsonforms/core";
+import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
 import { usePlaces } from "@upmind-automation/headless-vue";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
@@ -55,6 +47,8 @@ import type { Address } from "@upmind-automation/headless-vue";
 const props = defineProps({
   ...rendererProps<ControlElement>(),
 });
+
+const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
 
 const { control, appliedOptions, formFieldProps, updateControl } =
   useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
@@ -79,9 +73,24 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   return uiSchema;
 });
 
+// Computed property to get nested errors
+const nestedErrors = computed(() => {
+  const errors = jsonforms?.core?.errors || [];
+
+  return errors
+    .filter(
+      (error: { instancePath: string; message?: string }) =>
+        error.instancePath.startsWith(`/${control.value.path}`) &&
+        error.instancePath !== `/${control.value.path}`
+    )
+    .map((error: { instancePath: string; message?: string }) => {
+      return `${last(error.instancePath.split("/"))}: ${error.message}`;
+    });
+});
+
 const places = usePlaces();
 
-const showAddressFields = ref<boolean>(false);
+const showAddressFields = ref<boolean>(true);
 
 const addresses = ref<any[]>([]);
 
