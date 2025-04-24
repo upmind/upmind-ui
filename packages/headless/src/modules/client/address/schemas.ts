@@ -1,6 +1,6 @@
-import { compact, map, reduce } from "lodash-es";
+import { map } from "lodash-es";
 
-import type { Address, AddressContext } from "./types";
+import type { AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export function useSchema({
