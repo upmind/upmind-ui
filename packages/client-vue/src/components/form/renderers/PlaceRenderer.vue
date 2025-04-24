@@ -6,7 +6,7 @@
   />
 
   <DispatchRenderer
-    v-if="showAddressFields"
+    v-show="showAddressFields"
     class="mt-6"
     :visible="control.visible"
     :enabled="control.enabled"
@@ -73,7 +73,6 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
   return uiSchema;
 });
 
-// Computed property to get nested errors
 const nestedErrors = computed(() => {
   const errors = jsonforms?.core?.errors || [];
 
@@ -90,7 +89,7 @@ const nestedErrors = computed(() => {
 
 const places = usePlaces();
 
-const showAddressFields = ref<boolean>(true);
+const showAddressFields = ref<boolean>(false);
 
 const addresses = ref<any[]>([]);
 
@@ -120,12 +119,20 @@ const searchResults = computed(() => {
   );
 });
 
-const selectAddress = (selectedItem: SearchItem) => {
-  const address = find(addresses.value, a => a.id === selectedItem.id)
+const selectAddress = (data: SearchItem) => {
+  const address = find(addresses.value, a => a.id === data.id)
     .address as Address;
 
+  // TODO: Find a nicer way of setting every nested input as touched to enable validation
+  const properties = control.value.schema.properties;
+  if (properties) {
+    Object.keys(properties).forEach(fieldName => {
+      updateControl(`${control.value.path}.${fieldName}`, "");
+    });
+  }
+
   updateControl("address", address);
-  showAddressFields.value = true;
+  showAddressFields.value = !isEmpty(nestedErrors.value);
 };
 </script>
 
