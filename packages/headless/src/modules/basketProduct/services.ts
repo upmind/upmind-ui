@@ -472,7 +472,7 @@ function parseApiErrors({ error }: any): Promise<void> {
   }
 
   debugger;
-  return error;
+  return Promise.reject(error);
 }
 // -----------------------------------------------------------------------------
 
