@@ -30,6 +30,7 @@ import {
   isNil,
   isObject,
   merge,
+  omitBy,
   pick,
   reduce,
   remove,
@@ -751,7 +752,7 @@ export default createMachine(
             }
           });
 
-          return error;
+          return omitBy(error, isEmpty);
         },
       }),
 
