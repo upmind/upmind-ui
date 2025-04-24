@@ -75,7 +75,6 @@ export const useQuery = () => {
           return doFetch<T>({ url, init });
         });
       }
-      debugger;
       return Promise.reject(requestError);
     });
   }
