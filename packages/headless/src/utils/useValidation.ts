@@ -9,10 +9,19 @@ import {
 import ajvErrors from "ajv-errors";
 
 // --- utils
-import { forEach, reduce, get, set, defaultsDeep, trimStart } from "lodash-es";
+import {
+  forEach,
+  reduce,
+  get,
+  set,
+  defaultsDeep,
+  compact,
+  includes,
+} from "lodash-es";
+import { parseError } from "./useError";
+import { ErrorObject } from "ajv";
 
 // --- types
-import type { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -59,7 +68,7 @@ export const useValidation = (ajv?: any) => {
   };
 };
 
-export const useValidationParser = (error: any) => {
+export const useValidationParser = (error: any): ErrorObject[] => {
   if (error?.data) {
     error.message = "Validation error";
 
@@ -68,23 +77,14 @@ export const useValidationParser = (error: any) => {
       // because we have a specific schema for provision_fields, we dont need the prefix of the path
       // we also need to handle any nested properties correctly, JSON schema would have them withing properties
 
-      if (!key.startsWith("provision_field_values.")) debugger;
+      // TODO: check if we need to still replace 'provision_field_values'
+      if (includes(key, "provision_field_values")) debugger;
+      const instancePath = key.replace("provision_field_values.", "");
 
-      const instancePath = trimStart(key.replace(".", "/properties/"), "/");
-
-      const newError: ErrorObject = {
-        instancePath: `/${instancePath}`, // AJV style path to the property in the schema
-        message: value.toString(),
-        // --- optional
-        schemaPath: instancePath,
-        keyword: "",
-        params: {},
-      };
-
-      errors.push(newError);
+      errors.push(parseError(value, instancePath));
     });
 
-    error.data = errors;
+    error.data = compact(errors);
   }
   return error;
 };
