@@ -15,12 +15,7 @@
     <component
       :is="as"
       :id="subproduct.id"
-      :model-value="
-        subproduct.meta?.multiple
-          ? (modelValue as string[])
-          : (modelValue as string)
-      "
-      @update:modelValue="doUpdate"
+      v-bind="modelValue"
       :name="subproduct.id"
       :required="subproduct.meta.required"
       :items="parsedValues"
@@ -97,7 +92,7 @@ const props = defineProps<{
 const modelValue = useVModel(props, "modelValue", emit, {
   passive: true,
   // defaultValue: null, //props.defaultValue,
-});
+}) as ComputedRef<any>; // HACK: this allows us to pass the value to our dynamic component
 
 // ---
 const { t } = useI18n();
@@ -173,10 +168,5 @@ const blurred = ref(false);
 
 function doUpdateQuantity(value: any, quantity: number) {
   emit("update:quantity", value, quantity);
-}
-
-function doUpdate(value: string | string[]) {
-  modelValue.value = value;
-  emit("update:modelValue", value);
 }
 </script>
