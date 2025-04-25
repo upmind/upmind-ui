@@ -24,7 +24,7 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <Loading :modal="loadingModal">
+                        <Loading>
                           <template #background>
                             <slot name="loading-background"></slot>
                           </template>
@@ -70,7 +70,6 @@ import Loading from "./modules/system/Loading.vue";
 const props = defineProps<{
   theme: any;
   logo?: string;
-  loadingModal: boolean;
 }>();
 
 const { activeTheme } = useThemes(props.theme);
