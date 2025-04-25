@@ -165,7 +165,7 @@ export const useSchema = ({
         type: ["string", "null"],
         title: "Email",
         format: "email",
-        default: baseModel.email,
+        default: baseModel?.email,
         // lookup: emails?.search,
       },
 
@@ -248,7 +248,7 @@ export const useSchema = ({
 export const useUischema = ({ addresses, emails, phones }: any) => {
   const lookups = {
     addresses: reduce(
-      addresses.getItems(),
+      addresses?.getItems(),
       (result: any[], item) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
@@ -269,8 +269,8 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
       []
     ),
 
-    emails: emails.getItems(),
-    phones: phones.getItems(),
+    emails: emails?.getItems(),
+    phones: phones?.getItems(),
   };
 
   const schema = {
@@ -624,7 +624,7 @@ export const parseCompany = (raw: ICompany | ICompany[]) => {
     return {
       id: rawItem?.id,
       clientId: rawItem?.client_id,
-      addressId: rawItem?.address.id, // add the address id as the unified id representing the actual address
+      addressId: rawItem?.address?.id, // add the address id as the unified id representing the actual address
       companyId: rawItem?.id, // add the company id as the unified id representing the actual address
       companyDetails: true, // our flag to show company details
       companyName: rawItem?.name,

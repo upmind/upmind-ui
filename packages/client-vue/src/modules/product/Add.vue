@@ -82,6 +82,7 @@ import {
   useRoutingEngine,
   useBasketProductsPending,
   useQueryParams,
+  ROUTE,
 } from "@upmind-automation/headless-vue";
 
 // --- components
@@ -100,17 +101,22 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { back, next } = useRoutingEngine();
+const { back, next, isResolved } = useRoutingEngine();
 const { meta: basketMeta } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve } = useBasketProductsPending();
+
+await isResolved(ROUTE.PRODUCT_ADD).catch(back);
 
 const {
   meta,
   stop,
   update,
+  isReady,
   service: pendingProduct,
 } = await configure(productId);
+
+await isReady();
 
 async function doResolve() {
   update().then(() => {
@@ -119,11 +125,6 @@ async function doResolve() {
   });
 }
 
-/**
- * NB: DO NOT remove/unset this item from the basket,
- * This is so that we can keep the item in the basket for later use,
- * especially if the user hits the back button on the browser
- */
 function doReject() {
   stop();
   back();

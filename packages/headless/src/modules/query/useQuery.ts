@@ -70,13 +70,11 @@ export const useQuery = () => {
       if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
         return refreshToken().then(() => {
           // get the new access token and update the access token in the request
-          const token = getTokenFromStorage();
-          set(init, `headers.Authorization`, `Bearer ${token}`);
+          set(init, `headers.Authorization`, `Bearer ${getToken()}`);
           // finally rety the request
           return doFetch<T>({ url, init });
         });
       }
-
       return Promise.reject(requestError);
     });
   }

@@ -13,6 +13,7 @@ import {
   stateValue,
   contextValue,
   contextActor,
+  DEBOUNCE_DELAY,
 } from "../../utils";
 
 import { isEqual, debounce } from "lodash-es";
@@ -80,6 +81,6 @@ export const useBasketFields = (service?: ActorRef<any>) => {
 
         customFields.value?.send({ type: "SET", data: model, update: true });
       }
-    }, 500),
+    }, DEBOUNCE_DELAY),
   };
 };

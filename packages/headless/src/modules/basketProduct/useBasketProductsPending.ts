@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -15,21 +15,18 @@ import {
   forEach,
   get,
   set,
-  has,
   unset,
   isEmpty,
   keys,
   map,
-  merge,
   omit,
-  reject,
   isString,
   isNil,
 } from "lodash-es";
 
 // --- types
 import type { ActorRef, State, Subscription } from "xstate";
-import type { ProductModel } from "../product";
+import type { ProductModel, ProductProps } from "../product";
 import { responseCodes } from "../../utils";
 
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
@@ -50,7 +47,7 @@ export const useBasketProductsPending = () => {
 
   // ---
 
-  async function add(model: ProductModel): Promise<BasketProductPending> {
+  async function add(model: ProductProps): Promise<BasketProductPending> {
     if (isEmpty(model)) return Promise.reject("No product model found");
 
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
@@ -69,13 +66,13 @@ export const useBasketProductsPending = () => {
 
   async function ensure(
     pid: string,
-    model: ProductModel,
+    model: ProductProps,
     force: boolean = false
   ): Promise<BasketProductPending> {
-    const product = find(productsPending, [
-      "service.state.context.model.productId",
-      pid,
-    ]);
+    const product = find(productsPending, service => {
+      const state = service.getSnapshot();
+      return get(state, "context.model.productId") === pid;
+    });
 
     if (isEmpty(product) || force) {
       return add(model)
@@ -117,10 +114,9 @@ export const useBasketProductsPending = () => {
         unsetProduct(pid);
       } else if (state.matches("available")) {
         setProduct(pid, get(state, "context.model"));
+      } else if (state.done) {
+        unsetProduct(pid);
       } else {
-        // should we resolve on complete?
-        console.info("Product state", state.value);
-
         // resolve(actor);
       }
     });
@@ -153,15 +149,14 @@ export const useBasketProductsPending = () => {
     const model = defaults(safeValue, { productId });
 
     set(productConfigs, productId, model);
-
     storage.set("pendingProducts", productConfigs);
   }
 
   function unsetProduct(pid: string) {
-    const product = find(productsPending, [
-      "service.state.context.model.productId",
-      pid,
-    ]);
+    const product = find(productsPending, service => {
+      const state = service.getSnapshot();
+      return get(state, "context.model.productId") === pid;
+    }) as BasketProductPending;
 
     // ensure we unsubscribe from the item if it exists
     const sub = get(subscriptions, pid);
@@ -169,7 +164,7 @@ export const useBasketProductsPending = () => {
     unset(subscriptions, pid);
 
     // stop the product if it exists and remove it from the pending products
-    if (!isEmpty(product) && product?.stop) {
+    if (product?.service?.getSnapshot().status == InterpreterStatus.Running) {
       product.stop();
       unset(productsPending, product.id);
     }
@@ -189,15 +184,9 @@ export const useBasketProductsPending = () => {
     if (pid) unsetProduct(pid);
   }
 
-  async function sync(
-    configs?: ProductModel[]
-  ): Promise<BasketProductPending[]> {
+  function addMany(configs?: ProductModel[]): void {
     // ensure we add all our configs to the productConfigs
     forEach(configs, config => setProduct(config.productId, config));
-    const promises = map(productConfigs, (_model, pid) => {
-      return getProduct(pid);
-    });
-    return Promise.all(promises);
   }
 
   function clear() {
@@ -216,7 +205,7 @@ export const useBasketProductsPending = () => {
     remove: unsetProduct,
     resolve,
     // --
-    sync,
+    addMany,
     clear,
   };
 };

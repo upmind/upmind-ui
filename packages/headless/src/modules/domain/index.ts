@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 
 // --- internal
 import domainMachine from "./domain.machine";
@@ -7,8 +7,12 @@ import { DomainTypes } from "./types";
 export * from "./types";
 
 // --- utils
-import { has, map, isArray, some } from "lodash-es";
+import { stopService } from "../../utils";
 import { parseDomain } from "./utils";
+import { has, map, isArray, some } from "lodash-es";
+
+// --- types
+import type { InterpreterFrom } from "xstate";
 
 // -----------------------------------------------------------------------------
 export const useDomain = (
@@ -129,6 +133,6 @@ export const useDomain = (
       const valid = some(state.context.model, { domain: value });
       return valid;
     },
-    destroy: () => service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

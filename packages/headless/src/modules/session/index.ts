@@ -8,7 +8,7 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { getTokenFromStorage } from "./utils";
-import { get } from "lodash-es";
+import { get, isEmpty } from "lodash-es";
 
 // ---types
 import type { ActorRef } from "xstate";
@@ -20,7 +20,7 @@ export type { User } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(sessionMachine, { devTools: false });
+const service = interpret(sessionMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
@@ -274,9 +274,13 @@ export const useSession = () => {
       });
     },
 
-    hasExpired: () => {
-      const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
-      return clientMachine && clientMachine?.state?.matches("expired");
+    /**
+     *This indicaes that there is no active session
+     * @returns {boolean} true if the session has expired/ended
+     */
+    hasExpired: (): boolean => {
+      const state = service.getSnapshot();
+      return state.matches("expired") || isEmpty(state.children);
     },
     // ---
     showLogin,

@@ -39,7 +39,7 @@
         <template #default>
           <ol class="mt-4 list-disc text-left font-semibold">
             <li v-for="basketItem in products" :key="basketItem.id">
-              <span>{{ basketItem?.product?.title }}</span>
+              <span>{{ basketItem?.productDetails?.title }}</span>
             </li>
           </ol>
         </template>
@@ -53,24 +53,27 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import Basket from "../../assets/animations/basket.json?url";
+import {
+  useProductsRequiringAction,
+  useRoutingEngine,
+  ROUTE,
+} from "@upmind-automation/headless-vue";
 
 // --- components
+import Basket from "../../assets/animations/basket.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- utils
-import {
-  useProductsRequiringAction,
-  useRoutingEngine,
-} from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
-const { t, tm } = useI18n();
+const { t } = useI18n();
 
-const { next, back } = useRoutingEngine();
+const { next, back, isResolved } = useRoutingEngine();
 const { products, isReady } = useProductsRequiringAction();
+
+await isResolved(ROUTE.PRODUCT_REQUIRES_ACTION).catch(back);
 
 await isReady();
 </script>

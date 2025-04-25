@@ -15,7 +15,7 @@ import { PaymentDetailsArgs, PaymentDetailModel } from "./types";
 
 export const usePaymentDetails = (context: PaymentDetailsArgs) => {
   const service = interpret(paymentDetailsMachine.withContext(context), {
-    devTools: true,
+    devTools: false,
   });
 
   return {

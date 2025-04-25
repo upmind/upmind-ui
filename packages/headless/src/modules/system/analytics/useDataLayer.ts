@@ -1,16 +1,28 @@
 // --- internal
-import { useBrand, useBasket, useRoutingEngine, useI18n } from "../..";
+import { useBasket, useSystemI18n } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
 import { useCookies, usePOP, useTime } from "../../../utils";
-import { isEmpty, isNil, omitBy, set, map, isArray } from "lodash-es";
+import {
+  isEmpty,
+  isNil,
+  omitBy,
+  set,
+  map,
+  isArray,
+  sumBy,
+  some,
+} from "lodash-es";
 
 // --- types
 import { IBasket, IInvoice } from "@upmind-automation/types";
-import { parseEcommerceItem } from "./utils";
+import type { BasketProduct } from "../../basketProduct";
+import type { Product } from "../../product";
+import { mapIBasketProduct, mapBasketProduct } from "./utils";
 import {
   DataLayerEcommerce,
+  DataLayerEcommerceItems,
   DataLayerEcommerceItem,
   DataLayerPage,
   DataLayerUser,
@@ -19,8 +31,11 @@ import { PageRoute } from "../../routing";
 
 // -----------------------------------------------------------------------------
 // ---  Globals/Singeltons
-let DATA_LAYER: Window["dataLayer"]; // GTM
 let UETQ: Window["uetq"]; // Microsoft Consent
+let DATA_LAYER = window.dataLayer || [];
+function push(...args: any) {
+  DATA_LAYER.push(arguments);
+}
 
 // -----------------------------------------------------------------------------
 
@@ -56,30 +71,26 @@ class TrackingEvent {
   }
 
   withPage(router?: PageRoute): TrackingEvent {
-    const { currentFlow, currentRoute } = useRoutingEngine();
-    const { getLocale } = useI18n();
+    const { getLocale } = useSystemI18n();
     const { getPOP } = usePOP();
 
-    const flow = currentFlow();
-    const route = currentRoute();
     const locale = getLocale();
     const POP = getPOP();
     const version = packageJson?.version; // TODO: Come up with a relevant version number: which Pkg should provide this?
 
     const payload: DataLayerPage = omitBy(
       {
-        page_type: flow?.name,
+        page_type: router?.to?.name,
         environment: POP.name,
         version,
         language: locale?.toLocaleUpperCase(),
-        current_url: router?.to ?? route?.path,
-        previous_url: router?.from,
+        current_url: router?.to?.fullPath,
+        previous_url: router?.from?.fullPath,
       },
       isNil
     );
 
     set(this.args, "page", payload);
-
     return this; // nb this is needed to chain the methods
   }
 
@@ -92,11 +103,11 @@ class TrackingEvent {
     ) as DataLayerUser;
 
     if (!isEmpty(storedActor)) {
-      payload = storedActor ?? {};
+      payload = storedActor ?? {
+        logged_in: false,
+      };
     }
-
     set(this.args, "user", omitBy(payload, isNil));
-
     return this; // nb this is needed to chain the methods
   }
 
@@ -110,14 +121,19 @@ class TrackingEvent {
     // When a user submits their billing address
     const payload: DataLayerEcommerce = {
       currency: safeBasket.currency.code,
-      value: safeBasket.total_amount, //TODO: check the correct value is used
-      // net_value: safeBasket.net_amount, //TODO: check the correct value is used
-      coupon: map(safeBasket.promotions, "promotion.code").toString(),
+      value: safeBasket.net_amount, //TODO: check the correct value is used
+      gross_value: safeBasket.total_amount, //TODO: check the correct value is used
+      coupon: !isEmpty(safeBasket.promotions)
+        ? map(safeBasket.promotions, "promotion.code").toString()
+        : undefined,
       // --- invoice specific data
-      transaction_id: invoice?.number,
-      tax: invoice ? invoice.tax_amount_converted : undefined,
-      purchase_type: invoice ? "new purchase" : undefined,
-      items: map(safeBasket.products, parseEcommerceItem),
+      transaction_id: safeBasket?.number,
+      tax: safeBasket.tax_amount,
+      purchase_type: invoice ? "new_purchase" : undefined,
+      items: map(
+        safeBasket.products,
+        mapIBasketProduct
+      ) as DataLayerEcommerceItem[],
     };
 
     set(this.args, "ecommerce", omitBy(payload, isNil));
@@ -125,17 +141,38 @@ class TrackingEvent {
     return this; // nb this is needed to chain the methods
   }
 
+  /**
+   * This is usually used when adding/updating/removing item(s) to/from the basket
+   * Can be for a single item or multiple in the case of bulk add/remove
+   * @param items : Can be either a Product(s) or a BasketProduct(s) and represent the item(s) being added/updated/removed
+   */
   withItems(
-    items: DataLayerEcommerceItem | DataLayerEcommerceItem[]
+    items: (Product | Product[]) | (BasketProduct | BasketProduct[])
   ): TrackingEvent {
     const safeItems = isArray(items) ? items : [items];
 
     if (isEmpty(safeItems)) {
       throw new Error("No Products available");
     }
-    // When a user submits their billing address
 
-    set(this.args, "items", safeItems);
+    const { getBasket } = useBasket();
+    const basket = getBasket() as IBasket;
+    if (isEmpty(basket)) throw new Error("No Basket available");
+
+    // When a user submits their billing address
+    const payload: DataLayerEcommerceItems = {
+      currency: basket.currency.code,
+      value: sumBy(
+        safeItems,
+        ({ price }) =>
+          price?.configuration?.subtotal ?? price.currentAmount ?? 0
+      ),
+      // Dont have the current values to be able to calculate this
+      // gross_value: sumBy(safeItems, "price.configuration.total"),
+      items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
+    };
+
+    set(this.args, "ecommerce", omitBy(payload, isNil));
 
     return this; // nb this is needed to chain the methods
   }
@@ -143,7 +180,7 @@ class TrackingEvent {
   push() {
     const payload = this.args;
 
-    DATA_LAYER.push(payload);
+    push(payload);
     this.complete = true;
     return payload;
   }
@@ -162,13 +199,13 @@ class TrackingEvent {
  * @property {Function} track - Function to create a new tracking event.
  */
 export const useDataLayer = (dataLayer: string = "dataLayer") => {
-  DATA_LAYER = (window[dataLayer] =
-    window[dataLayer] || []) as Window["dataLayer"];
+  DATA_LAYER = (window.dataLayer =
+    window.dataLayer || []) as Window["dataLayer"];
   UETQ = window["uetq"] = window["uetq"] || [];
 
   function init(): Promise<void> {
     // ---  Init the contsent manager
-    DATA_LAYER.push("consent", "default", {
+    push("consent", "default", {
       ad_personalization: "denied",
       ad_storage: "denied",
       ad_user_data: "denied",
@@ -183,9 +220,8 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
       ad_storage: "denied",
       wait_for_update: 500,
     });
-
-    DATA_LAYER.push("set", "ads_data_redaction", true);
-    DATA_LAYER.push("set", "url_passthrough", false);
+    push("set", "ads_data_redaction", true);
+    push("set", "url_passthrough", false);
 
     return Promise.resolve();
   }

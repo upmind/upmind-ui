@@ -59,7 +59,7 @@ export const useCheckoutFlows = () => {
                 params: { orderId: invoice?.id },
                 query: { payment_success: isOrderPaid().toString() },
                 meta: { replace: true },
-              };
+              } as Route;
             },
           },
         ],
@@ -75,7 +75,7 @@ export const useCheckoutFlows = () => {
                 params: { orderId: invoice?.id },
                 query: { payment_success: isOrderPaid().toString() },
                 meta: { replace: true },
-              };
+              } as Route;
             },
           },
 

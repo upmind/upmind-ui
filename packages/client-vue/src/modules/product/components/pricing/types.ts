@@ -1,14 +1,12 @@
 import type { VariantProps } from "class-variance-authority";
 import type { currentVariants, exVariants } from "./pricing.config";
+import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless-vue";
 export type ExVariantProps = VariantProps<typeof exVariants>;
 export type CurrentVariantProps = VariantProps<typeof currentVariants>;
 
 interface BasePrice {
-  cycle?: number | string;
-  meta?: {
-    discounted?: boolean;
-    free?: boolean;
-  };
+  cycle?: ProductSummaryDetailWithPrice["cycle"];
+  meta?: ProductSummaryDetailWithPrice["meta"];
   showCycle?: boolean;
   uiConfig?: {
     pricing: {
@@ -19,13 +17,13 @@ interface BasePrice {
 }
 
 export interface ExPriceProps extends BasePrice {
-  regularPrice?: number | string;
-  monthlyFromRegularPrice?: number | string;
+  regularPrice: string;
+  monthlyFromRegularPrice?: string;
 }
 
 export interface CurrentPriceProps extends BasePrice {
-  currentPrice?: number | string;
-  monthlyFromCurrentPrice?: number | string;
+  currentPrice: string;
+  monthlyFromCurrentPrice?: string;
 }
 
 export interface PricingProps extends ExPriceProps, CurrentPriceProps {}

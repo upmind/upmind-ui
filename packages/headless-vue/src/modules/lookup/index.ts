@@ -7,6 +7,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- utils
 import { map, get, pick, debounce } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // ----------------------------------------------------------------------------
 
@@ -72,7 +73,7 @@ export function useLookup(lookup: Function) {
     add: () => send({ type: "ADD" }),
     refresh: () => send({ type: "REFRESH" }),
 
-    filter: debounce(data => send({ type: "FILTER", data }), 600),
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
     // filter: data => send({ type: "FILTER", data })
   };
 }
