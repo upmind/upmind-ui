@@ -14,7 +14,7 @@
       </p>
     </div>
 
-    <Carousel
+    <CardsCarousel
       :loading="meta?.isLoading"
       :processing="meta?.isProcessing"
       :refreshing="meta?.isRefreshing"
@@ -69,7 +69,7 @@ import {
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
 import Configure from "../recommendations/components/Configure.vue";
-import Carousel from "../recommendations/components/Carousel.vue";
+import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 

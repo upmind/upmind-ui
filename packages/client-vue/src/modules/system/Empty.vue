@@ -33,9 +33,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 
-// --- internal
-import BasketEmpty from "../../assets/animations/basket-empty.json?url";
-
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
@@ -57,7 +54,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   skrim: "light",
 
   animatedIcon: () => ({
-    icon: BasketEmpty,
+    icon: "basket-empty",
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",

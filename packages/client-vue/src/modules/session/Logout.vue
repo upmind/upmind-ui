@@ -64,7 +64,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   skrim: "light",
 
   animatedIcon: () => ({
-    icon: Internet,
+    icon: "internet",
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",

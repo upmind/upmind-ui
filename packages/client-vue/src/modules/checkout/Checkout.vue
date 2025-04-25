@@ -134,9 +134,6 @@ import {
   useRoutingEngine,
   ROUTE,
 } from "@upmind-automation/headless-vue";
-import TappingCard from "../../assets/animations/tapping-card.json?url";
-import Receipt from "../../assets/animations/receipt.json?url";
-import Basket from "../../assets/animations/basket.json?url";
 
 import config from "./checkout.config";
 import { useStyles, Interstitial } from "@upmind-automation/upmind-ui";
@@ -241,26 +238,26 @@ const processingTextKey = computed(() => {
 
 const processingIcon = computed(() => {
   if (meta.value.needsApproval) {
-    return Basket;
+    return "basket";
   }
 
   if (meta.value.isConverting) {
-    return Receipt;
+    return "receipt";
   }
 
   if (meta.value.isPaying) {
-    return TappingCard;
+    return "tapping-card";
   }
 
   if (meta.value.isCheckout) {
-    return TappingCard;
+    return "tapping-card";
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return Basket;
+    return "basket";
   }
 
-  return Basket;
+  return "basket";
 });
 
 // --- side effects
