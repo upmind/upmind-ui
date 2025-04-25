@@ -624,7 +624,7 @@ export const parseCompany = (raw: ICompany | ICompany[]) => {
     return {
       id: rawItem?.id,
       clientId: rawItem?.client_id,
-      addressId: rawItem?.address.id, // add the address id as the unified id representing the actual address
+      addressId: rawItem?.address?.id, // add the address id as the unified id representing the actual address
       companyId: rawItem?.id, // add the company id as the unified id representing the actual address
       companyDetails: true, // our flag to show company details
       companyName: rawItem?.name,
