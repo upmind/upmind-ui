@@ -10,18 +10,20 @@ vi.mock("@xstate/vue", () => ({
 
 // Mock useDomain from @upmind-automation/headless
 vi.mock("@upmind-automation/headless", () => ({
+  utils: {},
   useDomain: vi.fn(() => ({
     domain: {
       service: vi.fn(),
     },
+
     search: vi.fn(), // Mock search function
     // choose: vi.fn(), // Mock choose function
   })),
 }));
 
-vi.mock("lodash/debounce", () => ({
-  default: vi.fn(fn => fn), // Mock debounce to immediately call the function
-}));
+// vi.mock("lodash/debounce", () => ({
+//   default: vi.fn(fn => fn), // Mock debounce to immediately call the function
+// }));
 
 describe("useDomain", () => {
   let mockState: any;
