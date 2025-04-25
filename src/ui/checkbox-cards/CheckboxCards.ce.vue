@@ -12,17 +12,17 @@
       :class="styles.checkboxCards.item"
     >
       <CheckboxCardItem
-        :id="`${props.name}-${index}`"
+        :id="`${item.id}-${index}`"
         :index="index"
         :value="item.value as string"
-        :name="props.name"
+        :name="item.id"
         :required="props.required"
         :disabled="props.disabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
       >
         <Label
-          :for="`${props.name}-${index}`"
+          :for="`${item.id}-${index}`"
           :class="cn(styles.checkboxCards.label)"
         >
           <slot name="item" v-bind="{ item, index }">
