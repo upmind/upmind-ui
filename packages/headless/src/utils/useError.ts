@@ -59,7 +59,7 @@ export function unflattenErrors(data: any) {
   return parsed;
 }
 
-export function parseError(value: string | string[], key: string) {
+export function parseError(value: string | string[], key: string): ErrorObject {
   const instancePath = trimStart(
     key.toString().replace(".", "/properties/"),
     "/"

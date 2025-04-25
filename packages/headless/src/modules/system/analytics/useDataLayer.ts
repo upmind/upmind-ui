@@ -121,8 +121,8 @@ class TrackingEvent {
     // When a user submits their billing address
     const payload: DataLayerEcommerce = {
       currency: safeBasket.currency.code,
-      value: safeBasket.total_amount, //TODO: check the correct value is used
-      // net_value: safeBasket.net_amount, //TODO: check the correct value is used
+      value: safeBasket.net_amount, //TODO: check the correct value is used
+      gross_value: safeBasket.total_amount, //TODO: check the correct value is used
       coupon: !isEmpty(safeBasket.promotions)
         ? map(safeBasket.promotions, "promotion.code").toString()
         : undefined,
@@ -141,70 +141,6 @@ class TrackingEvent {
     return this; // nb this is needed to chain the methods
   }
 
-  // withBasketProducts(items: BasketProduct | BasketProduct[]): TrackingEvent {
-  //   const safeItems = isArray(items) ? items : [items];
-
-  //   if (isEmpty(safeItems)) {
-  //     throw new Error("No Products available");
-  //   }
-
-  //   const { getBasket } = useBasket();
-  //   const basket = getBasket() as IBasket;
-
-  //   if (isEmpty(basket)) {
-  //     throw new Error("No Basket available");
-  //   }
-
-  //   // When a user submits their billing address
-  //   const payload: DataLayerEcommerceItems = {
-  //     currency: basket.currency.code,
-  //     value: sumBy(safeItems, "summary.configuration.subtotal"),
-  //     gross_value: sumBy(safeItems, "summary.configuration.total"),
-  //     // --- invoice specific data
-  //     items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
-  //   };
-
-  //   set(this.args, "ecommerce", omitBy(payload, isNil));
-
-  //   return this; // nb this is needed to chain the methods
-  // }
-
-  // /**
-  //  * This is usually used when updating/removing item(s) to/from the basket
-  //  * Can be for a single item or multiple in the case of bulk add/remove
-  //  * @param value : the total net value of the items
-  //  * @param grossValue : the total gross value of the items
-  //  * @param items
-  //  * @returns
-  //  */
-  // withProducts(items: Product | Product[]): TrackingEvent {
-  //   const safeItems = isArray(items) ? items : [items];
-
-  //   if (isEmpty(safeItems)) {
-  //     throw new Error("No Products available");
-  //   }
-
-  //   const { getBasket } = useBasket();
-  //   const basket = getBasket() as IBasket;
-
-  //   if (isEmpty(basket)) {
-  //     throw new Error("No Basket available");
-  //   }
-
-  //   // When a user submits their billing address
-  //   const payload: DataLayerEcommerceItems = {
-  //     currency: basket.currency.code,
-  //     value: sumBy(safeItems, "summary.configuration.subtotal"),
-  //     gross_value: sumBy(safeItems, "summary.configuration.total"),
-  //     // --- invoice specific data
-  //     items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
-  //   };
-
-  //   set(this.args, "ecommerce", omitBy(payload, isNil));
-
-  //   return this; // nb this is needed to chain the methods
-  // }
-
   /**
    * This is usually used when adding/updating/removing item(s) to/from the basket
    * Can be for a single item or multiple in the case of bulk add/remove
@@ -221,16 +157,18 @@ class TrackingEvent {
 
     const { getBasket } = useBasket();
     const basket = getBasket() as IBasket;
-
-    if (isEmpty(basket)) {
-      throw new Error("No Basket available");
-    }
+    if (isEmpty(basket)) throw new Error("No Basket available");
 
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
       currency: basket.currency.code,
-      value: sumBy(safeItems, "summary.configuration.subtotal"),
-      gross_value: sumBy(safeItems, "summary.configuration.total"),
+      value: sumBy(
+        safeItems,
+        ({ price }) =>
+          price?.configuration?.subtotal ?? price.currentAmount ?? 0
+      ),
+      // Dont have the current values to be able to calculate this
+      // gross_value: sumBy(safeItems, "price.configuration.total"),
       items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[],
     };
 

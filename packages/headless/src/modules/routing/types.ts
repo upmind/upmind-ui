@@ -11,6 +11,7 @@ export enum ROUTE {
   PRODUCT_EDIT = "product.edit",
   PRODUCT_REQUIRES_ACTION = "product.requiresAction",
   PRODUCT_NOT_FOUND = "product.notFound",
+  PRODUCT_RECOMMENDATIONS = "product.recommendations",
   RECOMMENDATIONS = "recommendations",
   SESSION = "session",
   SESSION_LOGIN = "session.login",

@@ -12,7 +12,6 @@ const { dataLayer } = useDataLayer();
 // --- utils
 import { useTime } from "../../utils";
 import {
-  parseBasketItem,
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
@@ -197,7 +196,6 @@ export default createMachine(
           promotions: [],
           // ---
           basketHelper: undefined,
-          parseBasketProduct: undefined,
           parseBasketProductComparison: undefined,
         })
       ),
@@ -221,9 +219,6 @@ export default createMachine(
       setBasketHelper: assign(({ basketHelper, raw }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          parseBasketProduct: function (item: BasketProduct) {
-            return parseBasketItem(item);
-          },
 
           parseProductModel: (
             recommendation: Recommendation,
@@ -454,6 +449,10 @@ export default createMachine(
           const parsed = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
+              // because we may have the same raw recommendation multiple times ( due to multiple products having the same related )
+              // we need to check if we have already added it so the parsed recommendations are deduped
+              if (some(result, ["id", rawRelated.id])) return result;
+
               const product = find(raw.products, ["id", rawRelated.object_id]);
               rawRelated.product = product;
               const added = checkInBasket(rawRelated, raw.added);
@@ -490,6 +489,10 @@ export default createMachine(
           const augmentedRecommendations = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
+              // because we may have the same raw recommendation multiple times ( due to multiple products having the same related )
+              // we need to check if we have already added it so the parsed recommendations are deduped
+              if (some(result, ["id", rawRelated.id])) return result;
+
               if (context?.id == rawRelated?.id) rawRelated.product = data;
               const added = checkInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);

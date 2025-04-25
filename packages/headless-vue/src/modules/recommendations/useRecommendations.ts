@@ -15,7 +15,7 @@ import { useContext } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
-export const useRecommendationsEngine = () => {
+export const useRecommendations = () => {
   const {
     service,
     add,
