@@ -74,8 +74,11 @@ const { transfer: transferSession, meta } = useSession();
 const orderId = route.params.orderId.toString();
 const success = computed(() => route.query.payment_success === "true");
 
+const transferBase =
+  import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH_BASE ?? undefined;
+
 const transferAuth =
-  import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH ?? "auth/transfer";
+  import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH_PATH ?? "auth/transfer";
 
 const transferRedirect = (
   import.meta.env.VITE_APP_ORDER_TRANSFER_REDIRECT ||
@@ -158,7 +161,7 @@ function doAction() {
               code: transfer.code,
               redirect: transferRedirect,
             },
-            { base: transfer.redirect_url, context: "" }
+            { base: transferBase ?? transfer.redirect_url, context: "" }
           )
           .toString();
       }
