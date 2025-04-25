@@ -234,7 +234,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     .then(([data]) => {
       // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
       // and then we 'pick' the products out of the object
-      const { products: rawErrors } = unflattenErrors(data);
+      const { products: rawErrors } = unflattenErrors(data?.data);
       // then we parse the errors into a more usable format, replacing their indexes with the product ids
       // this will allow us to easily access the provisioning fields for each product
       const errors = reduce(

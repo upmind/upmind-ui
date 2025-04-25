@@ -1,0 +1,53 @@
+import {
+  Meta,
+  Title,
+  Description,
+  Primary,
+  Controls,
+  Stories,
+  useOf,
+} from "@storybook/blocks";
+
+import { Canvas } from "@storybook/blocks";
+
+import { List } from "@upmind-automation/upmind-ui";
+
+<Meta isTemplate />
+
+<Title />
+
+<Description />
+
+<Primary />
+
+<Controls />
+
+{(() => {
+const { story } = useOf("story");
+const bestPracticeItems = story?.parameters?.docs?.bestPractices?.items;
+const useCaseItems = story?.parameters?.docs?.useCases?.items;
+
+if (
+(!bestPracticeItems || bestPracticeItems.length === 0) &&
+(!useCaseItems || useCaseItems.length === 0)
+) {
+return null;
+}
+
+return (
+
+<div className="flex gap-5">
+  {bestPracticeItems && bestPracticeItems.length > 0 && (
+    <div className="flex-1">
+      <h3>Best practices</h3>
+      <List items={bestPracticeItems} />
+    </div>
+  )}
+  {useCaseItems && useCaseItems.length > 0 && (
+    <div className="flex-1">
+      <h3>Use cases</h3>
+      <List items={useCaseItems} />
+    </div>
+  )}
+</div>
+); })()}

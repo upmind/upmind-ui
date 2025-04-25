@@ -24,7 +24,7 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <Loading>
+                        <Loading v-bind="loadingProps">
                           <template #background>
                             <slot name="loading-background"></slot>
                           </template>
@@ -58,7 +58,10 @@ export default {
 // --- external
 
 // --- internal
-import { useThemes } from "@upmind-automation/upmind-ui";
+import {
+  useThemes,
+  type InterstitialProps,
+} from "@upmind-automation/upmind-ui";
 
 // --- components
 import Header from "./components/header/Header.vue";
@@ -70,6 +73,7 @@ import Loading from "./modules/system/Loading.vue";
 const props = defineProps<{
   theme: any;
   logo?: string;
+  loadingProps?: InterstitialProps;
 }>();
 
 const { activeTheme } = useThemes(props.theme);

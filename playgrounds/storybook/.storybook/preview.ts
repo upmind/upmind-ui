@@ -8,14 +8,15 @@ import { useArgs } from "@storybook/preview-api";
 import { createI18n } from "vue-i18n";
 
 // --- internal
-import upmind from "../plugins/upmind";
-import themes from "@/assets/themes";
+import upmindUI from "../plugins/upmind-ui";
+import themes from "../stories/assets/themes";
+import OverviewTemplate from "./OverviewTemplate.mdx";
 
 // --- utils
 import { reduce, last, merge } from "lodash-es";
 
 // --- types
-import type { Preview } from "@storybook/your-renderer";
+import type { Preview } from "@storybook/vue3";
 // -----------------------------------------------------------------------------
 
 setup(app => {
@@ -47,7 +48,7 @@ setup(app => {
   });
   app.use(i18n);
 
-  app.use(upmind);
+  app.use(upmindUI);
 });
 
 const preview: Preview = {
@@ -59,6 +60,24 @@ const preview: Preview = {
       copy: { hidden: true },
       // fullscreen: { hidden: true },
     },
+    controls: { exclude: ["uiConfig"] },
+    docs: {
+      page: OverviewTemplate,
+      story: {
+        inline: false,
+      },
+    },
+    options: {
+      storySort: {
+        order: [
+          "Introduction",
+          "Components",
+          ["Overview", "Variations", "Accessibility", "Base"],
+          ["Accordion", ["Overview", "Variations", "Accessibility", "Base"]],
+        ],
+      },
+    },
+    defaultPath: "/docs/introduction--page",
   },
 
   globalTypes: {

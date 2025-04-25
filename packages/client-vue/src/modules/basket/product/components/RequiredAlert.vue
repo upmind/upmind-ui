@@ -3,7 +3,7 @@
     color="error"
     icon="alert"
     icon-size="xs"
-    variant="tonal"
+    variant="solid"
     class="p-2 px-3"
   >
     <template #title>
