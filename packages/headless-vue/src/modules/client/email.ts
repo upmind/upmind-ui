@@ -7,7 +7,12 @@ import { useClientEmails as useUpmindClientEmails } from "@upmind-automation/hea
 
 // --- utils
 import { get, map, debounce, isEmpty } from "lodash-es";
-import { machineMatches, useContextActor, useContextActors } from "../../utils";
+import {
+  DEBOUNCE_DELAY,
+  machineMatches,
+  useContextActor,
+  useContextActors,
+} from "../../utils";
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
 // ---
 export const useClientEmail = (
@@ -120,7 +125,7 @@ export const useClientEmails = (): ClientListingDefinition => {
     // ---
     isReady,
     getSelected,
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
     select: async (id: any) => {
       await isReady();
       send({ type: "SELECT", data: id });

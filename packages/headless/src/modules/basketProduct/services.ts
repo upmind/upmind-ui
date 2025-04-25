@@ -1,28 +1,34 @@
 // --- external
 
 // --- internal
-import type { BasketProduct, ProductDetails, ProductModel } from "../..";
 import { useQuery } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTime } from "../../utils";
-import { parseBasketProductConfig } from "./utils";
+import { unflattenErrors, useTime } from "../../utils";
+import { parseBasketProductData, parseBasketProductError } from "./utils";
 import { parseQuantity } from "../product/utils";
 
 import {
   concat,
   filter,
+  first,
   forEach,
   get,
   isEmpty,
   map,
   reduce,
   set,
+  isArray,
 } from "lodash-es";
 import { ActorRef } from "xstate";
+import type { IBasket } from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
+import type { ProductDetails, ProductModel } from "../product";
+import type { BasketProduct, IBasketProductModel } from "../basketProduct";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -56,7 +62,13 @@ async function fetch(
   if (!productId) return Promise.reject("No Product ID provided");
 
   // lets ensure we have a valid currency > fallback to default
-  const currency = await useBrand().validateCurrency({ id: currencyId });
+  // as well as ensuring our promo display type is available
+  const { validateCurrency, ensureConfig } = useBrand();
+  const [currency] = await Promise.all([
+    validateCurrency({ id: currencyId }),
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+  ]);
+
   // ---
   const { get: getRequest, useUrl } = useQuery();
   const params = {
@@ -247,6 +259,18 @@ async function fetchRelated(
   }).then(({ data }: any) => data);
 }
 
+/**
+ * Updates a product quantity
+ *
+ * @param context - The parameters for the update operation.
+ * @param context.basketId - The ID of the basket.
+ * @param context.basketProduct - The basket product to be updated.
+ * @param event - Additional event for the update operation.
+ * @param event.data - The new quantity for the product.
+ * @returns A promise that resolves with the updated basket data.
+ * @throws Will reject the promise if no basket ID is provided, if the product is not found, or if the product is not quantifiable.
+ * @throws Will reject the promise if the quantity is invalid.
+ */
 async function updateQuantity(
   {
     basketId,
@@ -256,24 +280,26 @@ async function updateQuantity(
     basketProduct: BasketProduct;
   },
   { data }: { data: number }
-): Promise<void> {
+): Promise<IBasket> {
   // sanity check
   if (!basketId) return Promise.reject("No basket provided/available");
-  if (!basketProduct.product) return Promise.reject("Product not found");
-  if (!basketProduct.product?.quantifiable)
+  if (!basketProduct.productDetails) return Promise.reject("Product not found");
+  if (!basketProduct.productDetails?.quantifiable)
     return Promise.reject("Product not quantifiable");
   // ---
   const { put, useUrl } = useQuery();
-  basketProduct.quantity = parseQuantity(
+  basketProduct.configuration.quantity = parseQuantity(
     data,
-    basketProduct.product as ProductDetails
+    basketProduct.productDetails as ProductDetails
   );
-  const product = parseBasketProductConfig(basketProduct);
+  const product = parseBasketProductData(basketProduct.configuration);
   return put({
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(({ data }: any) => data)
+    .catch(parseApiErrors);
 }
 
 /**
@@ -299,12 +325,12 @@ async function update(
     promotions?: string[];
   },
   { data }: { data: ProductModel }
-): Promise<void> {
+): Promise<IBasket> {
   const { put, post, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
   if (isEmpty(data)) return Promise.reject(`No product data provided`);
 
-  const product = parseBasketProductConfig(data, promotions);
+  const product = parseBasketProductData(data, promotions);
   // ---
   const isNew = !data?.id;
 
@@ -315,7 +341,9 @@ async function update(
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  })
+    .then(({ data }: any) => data)
+    .catch(parseApiErrors);
 }
 
 /**
@@ -335,7 +363,7 @@ async function update(
 async function updateMany(
   { basketId, basketProducts, promotions }: any,
   { data }: { data: ActorRef<any>[] }
-): Promise<void> {
+): Promise<IBasket> {
   if (!basketId) return Promise.reject("No basket provided/available");
 
   // When updating the basket we need to provide :
@@ -349,14 +377,14 @@ async function updateMany(
 
   // --- then build the basket config for the validItems products
   const products = map(validItems, item => {
-    const id = get(item, "state.context.basketProduct.id");
+    const id = get(item.getSnapshot(), "context.rawBasketProduct.id");
     // inform the item that it is being processed
     item.send({ type: "PROCESSING" });
     // ---
     const model = get(item, "state.context.model");
     if (!model) return Promise.reject("No model found");
     // ---
-    const product = parseBasketProductConfig(model, promotions);
+    const product = parseBasketProductData(model, promotions);
     // Add a flag to the product to indicate that the field values should NOT be validated.
     //  we want to ge these products in without deep validation
     set(product, "provision_field_values_validate", false);
@@ -370,11 +398,11 @@ async function updateMany(
   // the existing products dont need to have their full config, just the id
   const existingProducts = reduce(
     basketProducts,
-    (result: any[], item: any) => {
+    (result: IBasketProductModel[], item: BasketProduct) => {
       const id = get(item, "id");
 
       if (id) {
-        const product = parseBasketProductConfig(item, promotions);
+        const product = parseBasketProductData(item.configuration, promotions);
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
@@ -419,15 +447,31 @@ async function remove({
 }: {
   basketId: string;
   bpid: string;
-}): Promise<void> {
+}): Promise<IBasket> {
   const { del, useUrl } = useQuery();
   if (!basketId) return Promise.reject("No basket provided/available");
-  if (!bpid) return Promise.resolve(); // we dont need to make a request as there is no id, must be a new product
+  if (!bpid) return Promise.reject("No product provided"); // we dont need to make a request as there is no id, must be a new product
   // ---
   return del({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true,
   }).then(({ data }: any) => data);
+}
+
+function parseApiErrors(response: any): Promise<void> {
+  if (!response?.error) return Promise.resolve();
+  // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+  const rawErrors = unflattenErrors(response.error.data);
+  // Currently we receive errors in 2 ways,
+  // 1) Options or Attributes returns an collection of products with errors, we only look at the first ( and usually only )
+  // 2) Provision fields returns an object
+  if (isArray(rawErrors?.products)) {
+    response.error.data = parseBasketProductError(first(rawErrors?.products));
+  } else {
+    response.error.data = parseBasketProductError(rawErrors);
+  }
+
+  return Promise.reject(response);
 }
 // -----------------------------------------------------------------------------
 

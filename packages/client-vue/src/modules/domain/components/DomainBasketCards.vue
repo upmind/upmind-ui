@@ -13,12 +13,12 @@
       v-model="modelValue"
       content-class="z-50"
     >
-      <template #item>
-        {{ getItem(modelValue)?.sld }}{{ getItem(modelValue)?.tld }}
+      <template #item="{ item }">
+        {{ item.label }}
       </template>
+
       <template #dropdown-item="{ item }">
-        {{ getItem(item.value as string)?.sld
-        }}{{ getItem(item.value as string)?.tld }}
+        {{ item.label }}
       </template>
     </SelectCards>
   </section>
@@ -37,11 +37,12 @@ import config from "../domain.config";
 import { SelectCards } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { find, map } from "lodash-es";
+import { find, isEmpty, map } from "lodash-es";
 
 // --- types
 import { type ComputedRef } from "vue";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { DomainProduct } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ const props = withDefaults(
   defineProps<{
     i18nKey?: string;
     modelValue?: string;
-    items: any[];
+    items: DomainProduct[];
     loading?: boolean;
     processing?: boolean;
     disabled?: boolean;
@@ -71,7 +72,7 @@ const modelValue = useVModel(props, "modelValue", emit);
 
 const meta = computed(() => ({
   isLoading: props.loading,
-  isEmpty: !props.items?.length,
+  isEmpty: isEmpty(props.items),
   isDisabled: props.disabled,
   isProcessing: props.processing,
 }));
@@ -84,18 +85,13 @@ const styles = useStyles(["domain.form"], meta, config) as ComputedRef<{
   };
 }>;
 
-const getItem = (value: string) => {
-  const found = find(props.items, { value });
-  return found;
-};
-
 const items = computed((): SelectCardsItemProps[] => {
   return map(props.items, (item, index) => ({
-    ...item,
     index,
+    item: item,
     modelValue: modelValue.value,
-    value: item.value,
-    label: item.label,
+    value: item.domain,
+    label: item.domain,
   }));
 });
 </script>

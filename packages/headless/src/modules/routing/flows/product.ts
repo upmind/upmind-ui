@@ -17,6 +17,7 @@ import { uniqBy, get, set, isEmpty } from "lodash-es";
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
+import { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -28,8 +29,12 @@ export const useProductFlows = () => {
     getProduct,
     isReady: isBasketReady,
   } = useBasket();
+
   const { get: getPendingProduct, remove: removePendingProduct } =
     useBasketProductsPending();
+
+  const { hasRecommendations, isReady: isRecommendationsReady } =
+    useRecommendationsEngine();
 
   let flows: Flow[] = [
     {
@@ -123,13 +128,20 @@ export const useProductFlows = () => {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
           {
-            name: ROUTE.RECOMMENDATIONS,
-            guard: async (_route: Route) => {
-              const { hasUnseenRecommendations, isReady } =
-                useRecommendationsEngine();
-              await isReady();
-              const valid = hasUnseenRecommendations();
-              return valid;
+            name: ROUTE.PRODUCT_RECOMMENDATIONS,
+            guard: async (route: Route) => {
+              const { productId: pid } = useRouteQueryParams(route);
+              return (
+                !!pid &&
+                isRecommendationsReady().then(() => hasRecommendations(pid))
+              );
+            },
+            resolve: async (route: Route) => {
+              const { productId: pid } = useRouteQueryParams(route);
+              return {
+                name: ROUTE.PRODUCT_RECOMMENDATIONS,
+                params: { pid },
+              };
             },
           },
           ROUTE.CHECKOUT,
@@ -169,23 +181,13 @@ export const useProductFlows = () => {
       name: ROUTE.PRODUCT_EDIT,
       guard: async (route: Route) => {
         const { basketProductId } = useRouteQueryParams(route);
-        return getProduct(basketProductId)
+        return await getProduct(basketProductId)
           .then(() => true)
           .catch(() => false);
       },
       targets: {
         next: [
           ROUTE.PRODUCT_REQUIRES_ACTION,
-          {
-            name: ROUTE.RECOMMENDATIONS,
-            guard: async (_route: Route) => {
-              const { hasUnseenRecommendations, isReady } =
-                useRecommendationsEngine();
-              await isReady();
-              const valid = hasUnseenRecommendations();
-              return valid;
-            },
-          },
           ROUTE.CHECKOUT,
           ROUTE.SESSION_REGISTER,
           ROUTE.BASKET,
@@ -239,7 +241,7 @@ export const useProductFlows = () => {
             },
           },
         ],
-        back: [ROUTE.RECOMMENDATIONS, ROUTE.BASKET],
+        back: [ROUTE.BASKET],
         fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
@@ -262,6 +264,20 @@ export const useProductFlows = () => {
       },
       targets: {
         next: [],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
+      },
+    },
+    {
+      name: ROUTE.PRODUCT_RECOMMENDATIONS,
+      guard: async (route: Route) => {
+        const { productId: pid } = useRouteQueryParams(route);
+        return (
+          !!pid && isRecommendationsReady().then(() => hasRecommendations(pid))
+        );
+      },
+      targets: {
+        next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],
         fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },

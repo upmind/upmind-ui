@@ -74,6 +74,17 @@ const { transfer: transferSession, meta } = useSession();
 const orderId = route.params.orderId.toString();
 const success = computed(() => route.query.payment_success === "true");
 
+const transferAuth =
+  import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH ?? "auth/transfer";
+
+const transferRedirect = (
+  import.meta.env.VITE_APP_ORDER_TRANSFER_REDIRECT ||
+  "/billing/orders/{{orderId}}/overview"
+).replace(/{{([^{}]+)}}/g, (keyExpr: string, key: string) => {
+  if (key == "orderId") return orderId;
+  return;
+});
+
 const title = computed(() => {
   if (!meta.value.isAuthenticated) {
     return "order.confirmation.invalid.title";
@@ -136,15 +147,16 @@ function doAction() {
   }
 
   processing.value = true;
+
   transferSession()
     .then(transfer => {
       if (transfer?.code) {
         window.location.href = utils
           .useUrl(
-            "auth/transfer",
+            transferAuth,
             {
               code: transfer.code,
-              redirect: `/billing/orders/${orderId}/overview`,
+              redirect: transferRedirect,
             },
             { base: transfer.redirect_url, context: "" }
           )

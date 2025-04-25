@@ -1,13 +1,13 @@
 <template>
   <Button
-    v-if="summary?.meta?.available || inBasket || selected"
+    v-if="meta?.available || meta?.added || selected"
     :class="styles.domain.card.footer.action"
-    :disabled="disabled"
+    :disabled="meta.disabled"
     :loading="processing && selected"
-    :variant="selected || inBasket ? 'flat' : 'outline'"
+    :variant="selected || meta.added ? 'flat' : 'outline'"
     :truncate="false"
     color="secondary"
-    @click="selected ? onRemove(domain) : onUpdate(domain)"
+    @click="selected ? onRemove(props.domain) : onUpdate(props.domain)"
     size="md"
   >
     <span :class="styles.domain.card.footer.label">
@@ -15,21 +15,23 @@
     </span>
     <Icon
       :class="styles.domain.card.footer.icon"
-      :icon="selected || inBasket ? 'basket-check' : 'basket-add'"
+      :icon="selected || meta.added ? 'basket-check' : 'basket-add'"
       size="xs"
     />
   </Button>
 
-  <template v-if="!summary?.meta?.available && !selected" as="span">
+  <template v-if="!meta?.available && !selected" as="span">
     <Description class="not-italic md:max-w-64">
       {{ t("domain.card.transfer.ownership") }}
       {{ t("domain.card.transfer.transfer") }}
       <Link
         class="text-emphasis-medium font-medium text-inherit underline !underline-offset-1"
-        @click="onUpdate(domain)"
+        @click="onUpdate(props.domain)"
         >{{ t("domain.card.transfer.action") }}</Link
       >.
-      {{ t("domain.card.transfer.renew", [tld, summary?.regularPrice]) }}
+      {{
+        t("domain.card.transfer.renew", [props.tld, props.price.regularPrice])
+      }}
     </Description>
   </template>
 </template>
@@ -49,6 +51,8 @@ import Description from "../../../components/content/Description.vue";
 // --- types
 import type { DomainActionProps } from "../types";
 import type { ComputedRef } from "vue";
+
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 

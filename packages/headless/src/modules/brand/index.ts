@@ -51,7 +51,37 @@ export const useBrand = () => {
       return state;
     });
 
-  const getConfig = async (keys: BrandConfigKeys | BrandConfigKeys[]) => {
+  /**
+   * This method will return the requested keys from the config,
+   * It assumes that the keys are already in context in the state machine.
+   * It will not request the keys from the API if they are not already in context.
+   * It will also not wait for the state of the request to be processed/cached
+   * before returning the requested keys.
+   * @param keys - The keys to request from the config
+   * @returns
+   */
+  const getConfig = (
+    keys: BrandConfigKeys | BrandConfigKeys[]
+  ): Record<string, any> => {
+    // ensure we have an array of keys
+    keys = isArray(keys) ? keys : [keys];
+
+    // finally return the requested keys from the config
+    return pick(service.getSnapshot().context, keys);
+  };
+
+  /**
+   * This method ensures that we have the requested keys from the config
+   * and that they are in context in the state machine.
+   * it will request the keys from the API if they are not already in context.
+   * It will also wait for the state of the request to be processed/cached
+   * before returning the requested keys.
+   * @param keys - The keys to request from the config
+   * @returns and Object with the requested keys from the config
+   */
+  const ensureConfig = async (
+    keys: BrandConfigKeys | BrandConfigKeys[]
+  ): Promise<Record<string, any>> => {
     const state = service.getSnapshot();
     // ensure we have an array of keys
     keys = isArray(keys) ? keys : [keys];
@@ -75,7 +105,7 @@ export const useBrand = () => {
 
   const getAnayltics = async () =>
     isReady().then(() =>
-      getConfig([
+      ensureConfig([
         BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
         BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
       ]).then((data: any) => data?.analytics)
@@ -158,6 +188,7 @@ export const useBrand = () => {
   };
 
   // ---
+
   const getCurrencyId = () => service.getSnapshot()?.context?.currency_id;
 
   const getCurrency = () =>
@@ -169,6 +200,16 @@ export const useBrand = () => {
   const getCurrencies = () => service.getSnapshot()?.context?.currencies;
 
   const getCountry = () => service.getSnapshot()?.context?.country_id;
+
+  // ---
+
+  const getDefaultPaymentPeriod = () =>
+    get(
+      service.getSnapshot()?.context,
+      BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
+      0
+    );
+
   // ---
 
   const getTaxType = () => service.getSnapshot()?.context?.tax_type;
@@ -185,6 +226,7 @@ export const useBrand = () => {
     isModuleReady,
     isReady,
     getConfig,
+    ensureConfig,
     getAnayltics,
     validateCurrency,
     getBrandId,
@@ -197,5 +239,6 @@ export const useBrand = () => {
     getCountry,
     getTaxType,
     checkIncludesTax,
+    getDefaultPaymentPeriod,
   };
 };

@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, spawn } from "xstate";
+import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 
 // --- internal
 import { authSubscription } from "../session";
@@ -262,10 +262,10 @@ export default createMachine(
 
       clearItems: assign({
         raw: ({ raw }, _event) => {
-          forEach(
-            raw,
-            (item: any) => !item?.state?.done && item?.stop && item?.stop()
-          );
+          forEach(raw, (actor: ActorRef<any>) => {
+            if (actor.getSnapshot().states == InterpreterStatus.Running)
+              actor?.stop && actor.stop();
+          });
           return [];
         },
         items: [],

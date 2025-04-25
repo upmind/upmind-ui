@@ -1,5 +1,12 @@
 // --- external
-import { createMachine, assign, actions, spawn, sendParent } from "xstate";
+import {
+  createMachine,
+  assign,
+  actions,
+  spawn,
+  sendParent,
+  InterpreterStatus,
+} from "xstate";
 
 // --- internal
 import services from "./services";
@@ -259,8 +266,10 @@ export default createMachine(
 
           // stop any existing gateways if they are different and not done/complete
           if (actors?.gateway?.id != gateway?.id) {
-            if (!actors.gateway?.getSnapshot()?.done && actors.gateway?.stop)
-              actors.gateway?.stop();
+            if (
+              actors.gateway?.getSnapshot()?.status == InterpreterStatus.Running
+            )
+              actors.gateway.stop();
 
             unset(actors, "gateway");
           }

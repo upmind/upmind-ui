@@ -20,7 +20,7 @@ import { ROUTE } from "../types";
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
   const { hasProducts, setCurrency, addPromotion, isReady } = useBasket();
-  const { sync } = useBasketProductsPending();
+  const { addMany } = useBasketProductsPending();
 
   let flows: Flow[] = [
     {
@@ -31,10 +31,8 @@ export const useBasketFlows = () => {
         const { currency, coupon, productConfigs } = useRouteQueryParams(route);
         if (currency) setCurrency(currency);
         if (coupon) addPromotion(coupon);
-
         // then we sync the product(s) from our Query Params if we have any
-        if (productConfigs) await sync(productConfigs);
-
+        if (productConfigs) addMany(productConfigs);
         return false; //NB ALWAYS return false as we dont want the currentFlow to be Loading, but rather its fallback
       },
       targets: {
@@ -63,7 +61,7 @@ export const useBasketFlows = () => {
       guard: async (_route: Route) => isReady().then(() => hasProducts()),
       resolve: async (_route: Route) => {
         // When a user enters the basket, we want to add this to our dataLayer
-        dataLayer({ event: "view__cart" }).withEcommerce().push();
+        dataLayer({ event: "view_cart" }).withEcommerce().push();
         return { name: ROUTE.BASKET };
       },
       //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.

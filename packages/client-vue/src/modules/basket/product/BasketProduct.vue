@@ -3,12 +3,12 @@
     <Card :class="styles.product.root.card" v-auto-animate>
       <div :class="styles.product.root.container">
         <BasketProductSummary
-          v-for="(pricing, index) in props.summary.pricing"
+          v-for="(summary, index) in props.pricing"
           :key="`${props.id}-${index}`"
           :id="id"
-          :product="product"
-          :pricing="pricing"
-          :quantity="quantity"
+          :productDetails="props.productDetails"
+          :summary="summary"
+          :quantity="props.configuration.quantity"
           :error="meta.hasErrors"
           :primary="index === 0"
           :loading="meta.isLoading"
@@ -16,20 +16,20 @@
           :edit-link="editLink"
           @update:quantity="doUpdateQuantity"
         >
-          <slot :product="product" :pricing="pricing" :summary="summary"></slot>
+          <slot
+            :productDetails="props.productDetails"
+            :price="price"
+            :quantity="props.configuration.quantity"
+          ></slot>
         </BasketProductSummary>
       </div>
 
-      <BasketConfigurationDetails
-        v-if="open"
-        :id="id"
-        :details="summary.details"
-      />
+      <BasketConfigurationDetails v-if="open" :id="id" :details="details" />
 
       <BasketProductActions
         v-model:open="open"
         :id="props.id"
-        :details="summary.details"
+        :details="details"
         :disabled="meta.isProcessing || meta.isLoading"
         :color="color"
         :edit-link="editLink"
@@ -86,13 +86,13 @@ const meta = computed(() => ({
   isLoading: props.loading,
   isProcessing: props.processing,
   isUnavailable: isEmpty(props.id),
-  hasErrors: !isEmpty(props.error) || some(props.summary?.details, "invalid"),
+  hasErrors: !isEmpty(props.errors) || some(props.details, "meta.invalid"),
 
   // ---
-  hasProvisioning: !!props?.provisionFields,
-  hasAttributes: !!props?.attributes,
-  hasOptions: !!props?.options,
-  hasTerms: !!props?.term,
+  hasTerms: !!props?.configuration?.term,
+  hasOptions: !!props?.configuration?.options,
+  hasAttributes: !!props?.configuration?.attributes,
+  hasProvisioning: !!props?.configuration?.provisionFields,
 }));
 
 // error: computed(() => get(props, "error")),

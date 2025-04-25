@@ -19,7 +19,7 @@
       overflow
     >
       <CarouselItem
-        v-for="recommendation in recommendations"
+        v-for="recommendation in items"
         :key="recommendation.id"
         :class="styles.recommendation.carousel.item"
       >
@@ -29,53 +29,12 @@
           v-else
           v-bind="recommendation"
           @resolve="doResolve"
-          :disabled="meta.isProcessing"
+          :disabled="processing"
           class="animate-fade"
         />
       </CarouselItem>
     </CarouselContent>
   </Carousel>
-
-  <Drawer
-    v-if="basketItem"
-    to="#vue-app"
-    fit="cover"
-    skrim="primary"
-    :open="meta.isConfiguring"
-    :title="t('recommendations.configuration.title')"
-    :description="t('recommendations.configuration.description')"
-    :dismissible="false"
-    :class-footer="styles.recommendation.carousel.footer"
-  >
-    <ProductConfig
-      :item="basketItem"
-      :processing="meta?.isProcessing"
-      :model-value="basketItem.id"
-      :no-footer="true"
-      @resolve="doUpdate(basketItem.id)"
-      @reject="doCancel(basketItem.id)"
-    />
-
-    <template #close>
-      <Button
-        @click="doCancel(basketItem.id)"
-        :label="t('recommendations.configuration.actions.reject')"
-        variant="link"
-        color="primary"
-      />
-    </template>
-
-    <template #actions>
-      <Button
-        :loading="meta.isProcessing"
-        :disabled="props.disabled || meta.isProcessing"
-        @click="doUpdate(basketItem.id)"
-        :label="t('recommendations.configuration.actions.resolve')"
-        prependIcon="plus-circle"
-        color="primary"
-      />
-    </template>
-  </Drawer>
 </template>
 
 <script lang="ts" setup>
@@ -86,11 +45,6 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
-import {
-  useBasket,
-  useRecommendationsEngine,
-} from "@upmind-automation/headless-vue";
-import ProductConfig from "../../product/components/config/Config.vue";
 
 // --- components
 import {
@@ -99,7 +53,6 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  Drawer,
   Button,
 } from "@upmind-automation/upmind-ui";
 
@@ -118,7 +71,8 @@ import type { RecommendationsProps } from "./types";
 const props = withDefaults(defineProps<RecommendationsProps>(), {});
 
 const emit = defineEmits<{
-  (e: "resolve", ids: string[]): void;
+  (e: "resolve", id: string): void;
+  (e: "fetch", id: string): void;
 }>();
 
 const { t } = useI18n();
@@ -137,24 +91,10 @@ const styles = useStyles(
   };
 }>;
 
-// --- basket setup
-const { meta, recommendations, add, basketItem, cancel, fetchRecommendation } =
-  useRecommendationsEngine();
-
-const { updateItem, removeItem } = useBasket();
-
 // ---
 
 function doResolve(value: string) {
-  add(value).then(() => emit("resolve", [value]));
-}
-
-function doUpdate(id: string) {
-  updateItem(id).then(() => emit("resolve", [id]));
-}
-
-function doCancel(id: string) {
-  removeItem(id).then(cancel);
+  emit("resolve", value);
 }
 
 const active = ref(false);
@@ -169,9 +109,9 @@ function fetchVisibleRecommendations() {
   if (!visible.length) return;
 
   // now fetch the next batch of recommendations, one by one
-  forEach(recommendations.value, (recommendation, index) => {
+  forEach(props.items, (recommendation, index) => {
     if (visible.includes(index)) {
-      fetchRecommendation(recommendation.id);
+      emit("fetch", recommendation.id);
     }
   });
 }
@@ -194,7 +134,7 @@ const stop = watch(carouselApi, api => {
   api.on("slidesInView", fetchVisibleRecommendations);
 });
 
-watch(meta, ({ isRefreshing }) => {
-  if (isRefreshing) fetchVisibleRecommendations();
+watch(props, ({ refreshing }) => {
+  if (refreshing) fetchVisibleRecommendations();
 });
 </script>

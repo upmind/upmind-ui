@@ -5,7 +5,7 @@ import { useQuery } from "../../..";
 
 // --- utils
 import { useValidation } from "../../../utils";
-import { get, isEmpty, some } from "lodash-es";
+import { get, isEmpty, some, trim } from "lodash-es";
 
 // --- types
 import type { PromotionsContext } from "./types";
@@ -31,7 +31,7 @@ async function add(
 
   return post({
     url: useUrl(`/orders/${basketId}/promotions`),
-    data: { promocode: model?.promocode },
+    data: { promocode: trim(model?.promocode) },
     withAccessToken: true,
   }).then(({ data }: any) => data);
 }

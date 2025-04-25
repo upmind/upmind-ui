@@ -770,18 +770,12 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
-      '@gtm-support/vue-gtm':
-        specifier: ^3.1.0
-        version: 3.1.0(vue@3.5.13(typescript@5.8.2))
       '@sentry/vue':
         specifier: ^9.1.0
         version: 9.3.0(vue@3.5.13(typescript@5.8.2))
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17)
-      '@tanstack/vue-query':
-        specifier: ^5.67.1
-        version: 5.67.1(vue@3.5.13(typescript@5.8.2))
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
@@ -1148,9 +1142,6 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17)
-      '@tanstack/vue-query':
-        specifier: ^5.67.1
-        version: 5.67.1(vue@3.5.13(typescript@5.8.2))
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue

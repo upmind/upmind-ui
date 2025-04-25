@@ -13,7 +13,7 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-export const useI18n = () => {
+export const useSystemI18n = () => {
   const { validateLanguage, getLanguages, isReady } = useBrand();
   const { get, set } = useLocalStorage();
 
@@ -118,8 +118,10 @@ export const useI18n = () => {
   }
 
   return {
+    isReady,
     getLocale,
     setDefaultLocale,
     setLocale,
+    getSupportedlocales: getLanguages,
   };
 };

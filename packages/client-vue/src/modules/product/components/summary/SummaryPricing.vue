@@ -1,31 +1,23 @@
 <template>
-  <template v-if="!meta.isLoading">
+  <template v-if="!props.loading">
     <div v-auto-animate>
       <div
         :class="styles.summary.pricing.root"
-        v-for="(item, index) in summary?.pricing"
+        v-for="(item, index) in props.pricing"
         :key="`pricing-${index}`"
       >
         <span>{{ t("product.total") }}</span>
         <span>
-          <span
-            v-if="item.meta?.discounted"
-            :class="styles.summary.pricing.regularPrice"
-          >
-            <span>
-              {{ item.regularPrice }}
-            </span>
-          </span>
-          <span
+          <CurrentPrice
             :class="[
-              styles.summary?.pricing?.currentPrice,
               {
-                'opacity-0': meta.isLoading || meta.isCalculating,
+                'opacity-0': props.loading || props.processing,
               },
             ]"
-          >
-            {{ item.meta?.free ? t("product.free") : item.currentPrice }}
-          </span>
+            :current-price="item.price.currentPrice"
+            :meta="item.meta"
+            :cycle="item.cycle"
+          />
         </span>
       </div>
     </div>
@@ -54,6 +46,7 @@ import { Skeleton } from "@upmind-automation/upmind-ui";
 import type { SummaryPricingProps } from "./types";
 import type { ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
+import CurrentPrice from "../pricing/CurrentPrice.vue";
 
 const { t } = useI18n();
 

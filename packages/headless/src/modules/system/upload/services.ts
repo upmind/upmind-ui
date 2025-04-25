@@ -84,9 +84,9 @@ async function check(_context: UploadContext, { data }: AnyEventObject) {
   let isValid = true;
   let error: any = null;
 
-  const { getConfig } = useBrand();
+  const { ensureConfig } = useBrand();
 
-  const fileTypes = await getConfig(
+  const fileTypes = await ensureConfig(
     BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES
   ).then(response => {
     const types =

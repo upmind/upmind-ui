@@ -2,15 +2,18 @@
 import { computed, ref } from "vue";
 
 // --- internal
+import { IBasket } from "@upmind-automation/types";
 import {
   useBasketProduct as useUpmindBasketProduct,
   useBasketProducts as useUpmindBasketProducts,
 } from "@upmind-automation/headless";
+
 import { useBasket } from "../basket";
 import { useBasketProduct } from "./useBasketProduct";
 
 // --- utils
 import { isEmpty, debounce, includes, remove as _remove } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 type BasketProduct = ReturnType<typeof useBasketProduct>;
@@ -18,14 +21,8 @@ type BasketProduct = ReturnType<typeof useBasketProduct>;
 // -----------------------------------------------------------------------------
 
 export const useBasketProducts = () => {
-  const {
-    getProducts,
-    get,
-    updateQuantity,
-    incrementQuantity,
-    decrementQuantity,
-    remove,
-  } = useUpmindBasketProducts();
+  const { get, updateQuantity, incrementQuantity, decrementQuantity, remove } =
+    useUpmindBasketProducts();
 
   const processing = ref<string[]>([]);
 
@@ -42,10 +39,10 @@ export const useBasketProducts = () => {
    * });
    *  action("123");
    */
-  function action<T extends (...args: any[]) => Promise<void>>(
+  function action<T extends (...args: any[]) => Promise<IBasket>>(
     action: T,
-    delay = 350
-  ): (...args: Parameters<T>) => Promise<void> {
+    delay = DEBOUNCE_DELAY
+  ): (...args: Parameters<T>) => Promise<IBasket> {
     return debounce((...args: Parameters<T>) => {
       // Assume the first argument is bpid
       const bpid = args[0];
@@ -56,7 +53,7 @@ export const useBasketProducts = () => {
       return action(...args).finally(() => {
         processing.value = _remove(processing.value, bpid);
       });
-    }, delay) as (...args: Parameters<T>) => Promise<void>;
+    }, delay) as (...args: Parameters<T>) => Promise<IBasket>;
   }
 
   // ----------------------------------------------------------------------------

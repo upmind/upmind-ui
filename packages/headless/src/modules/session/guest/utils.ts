@@ -1,5 +1,4 @@
 // --- utils
-export { useValidationParser } from "../../../utils";
 import {
   useFieldsSchemaParser,
   useFieldsUischemaParser,
