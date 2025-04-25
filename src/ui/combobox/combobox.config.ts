@@ -29,7 +29,7 @@ export const itemVariants = cva(
   {
     variants: {
       color: {
-        base: "data-[highlighted]:bg-control-active-focus data-[highlighted]:text-control-active-foreground",
+        base: "data-[highlighted]:bg-control-active-hover data-[highlighted]:text-control-active",
         primary:
           "data-[highlighted]:bg-primary-background data-[highlighted]:text-primary-foreground",
         secondary:
