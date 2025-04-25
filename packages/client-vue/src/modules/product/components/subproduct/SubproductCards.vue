@@ -15,7 +15,7 @@
     <component
       :is="as"
       :id="subproduct.id"
-      v-model="modelValue"
+      v-model="modelValue as any"
       :name="subproduct.id"
       :required="subproduct.meta.required"
       :items="parsedValues"

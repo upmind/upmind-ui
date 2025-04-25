@@ -91,7 +91,7 @@ export const useBasket = (): any => {
         hasProducts: contextMatches(state, ["products"]),
         hasInvalidProducts: some(
           contextValue(state, "products", []),
-          product => !isEmpty(product?.error)
+          product => !isEmpty(product?.errors)
         ),
 
         hasTaxes: contextMatches(state, ["basket.taxes"]), // TODO: check config for taxes
@@ -156,7 +156,7 @@ export const useBasket = (): any => {
     productsInvalid: computed(() =>
       filter(
         contextValue(state, "products", []),
-        product => !isEmpty(product?.error)
+        product => !isEmpty(product?.errors)
       )
     ),
     promotions: useContext(state, "basket.promotions", []),
