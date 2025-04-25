@@ -15,7 +15,12 @@
     <component
       :is="as"
       :id="subproduct.id"
-      v-model="modelValue as any"
+      :model-value="
+        subproduct.meta?.multiple
+          ? (modelValue as string[])
+          : (modelValue as string)
+      "
+      @update:modelValue="doUpdate"
       :name="subproduct.id"
       :required="subproduct.meta.required"
       :items="parsedValues"
@@ -168,5 +173,10 @@ const blurred = ref(false);
 
 function doUpdateQuantity(value: any, quantity: number) {
   emit("update:quantity", value, quantity);
+}
+
+function doUpdate(value: string | string[]) {
+  modelValue.value = value;
+  emit("update:modelValue", value);
 }
 </script>
