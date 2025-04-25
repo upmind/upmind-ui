@@ -103,7 +103,7 @@
           >
             <template #title>
               <i18n-t
-                keypath="basket.requiresAction.summary.title"
+                keypath="basket.requiresAction.productDetails.title"
                 tag="span"
                 :plural="productsInvalid.length"
                 scope="global"
@@ -122,7 +122,7 @@
                     params: { bpid: basketItem.id },
                   }"
                 >
-                  <span>{{ basketItem?.product?.title }}</span>
+                  <span>{{ basketItem?.productDetails?.title }}</span>
                 </router-link>
               </li>
             </ol>
