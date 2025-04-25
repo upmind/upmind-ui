@@ -1,13 +1,24 @@
 <template>
   <UpmForm
     :model-value="model"
+    @update:modelValue="(data: any) => updateModel(data)"
     :schema="schema"
     :uischema="uischema"
     :additional-renderers="formRenderers"
-    @update:modelValue="(data: any) => updateModel(data)"
     :noActions="!showAddressFields"
-    @resolve="updateAddress"
-  />
+  >
+    <template #actions v-bind="{ meta }">
+      <Button
+        type="submit"
+        :disabled="meta.isProcessing || !meta.isValid"
+        :loading="meta.isLoading"
+        color="secondary"
+        @click="updateAddress"
+      >
+        Save details
+      </Button>
+    </template>
+  </UpmForm>
 </template>
 
 <script setup lang="ts">
@@ -22,7 +33,7 @@ import {
 
 // --- components
 import { UpmForm, formRenderers } from "../../../../components/form";
-import { Link } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
 import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
 
 // --- types
@@ -38,7 +49,7 @@ const emit = defineEmits<{
   (e: "setView", value: Views): void;
 }>();
 
-const { update, set, model, schema, uischema } = useClientAddress();
+const { update, set, model, schema, uischema, meta } = useClientAddress();
 const { isReady, getAll, data } = useClientAddresses();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
