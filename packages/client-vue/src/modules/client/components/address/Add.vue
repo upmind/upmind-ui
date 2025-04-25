@@ -6,6 +6,7 @@
     :additional-renderers="formRenderers"
     @update:modelValue="(data: any) => updateModel(data)"
     :noActions="!showAddressFields"
+    @resolve="updateAddress"
   />
 </template>
 
@@ -48,14 +49,15 @@ await isReady().then(async () => {
 
 const updateModel = debounce(async (address: Address) => {
   if (showAddressFields.value) {
-    await updateAddress(address);
+    await set(address.address);
   }
 }, 500);
 
 watch(selectedAddress, async address => {
   try {
     if (address) {
-      await updateAddress(address);
+      await set(address);
+      await updateAddress();
     }
   } catch (error) {
     // Show the address input fields if the address lookup update fails
@@ -64,8 +66,7 @@ watch(selectedAddress, async address => {
   }
 });
 
-const updateAddress = async (address: Address) => {
-  await set(address);
+const updateAddress = async () => {
   await update();
   await getAll();
   emit("setView", Views.default);
