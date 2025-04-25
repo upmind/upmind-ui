@@ -15,7 +15,7 @@
     <component
       :is="as"
       :id="subproduct.id"
-      v-bind="modelValue"
+      v-model="modelValue"
       :name="subproduct.id"
       :required="subproduct.meta.required"
       :items="parsedValues"
@@ -92,7 +92,7 @@ const props = defineProps<{
 const modelValue = useVModel(props, "modelValue", emit, {
   passive: true,
   // defaultValue: null, //props.defaultValue,
-}) as ComputedRef<any>; // HACK: this allows us to pass the value to our dynamic component
+}) as any; // HACK : allows us to pass modle value to our dynamic component without typescript moaning
 
 // ---
 const { t } = useI18n();
