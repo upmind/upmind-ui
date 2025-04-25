@@ -17,7 +17,7 @@
         :class="styles.summary.list.item.quantity"
         v-if="quantity && quantity > 1"
       >
-        {{ `x ${quantity}` }}
+        &nbsp;{{ `x&nbsp;${quantity}` }}
       </span>
     </span>
   </li>

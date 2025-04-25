@@ -5,7 +5,7 @@
         :title="t('basket.requiresAction.title')"
         :text="t('basket.requiresAction.text')"
         :animatedIcon="{
-          icon: Basket,
+          icon: 'basket',
           delay: 5000,
           primaryColor: 'primary',
           secondaryColor: 'promotion',
