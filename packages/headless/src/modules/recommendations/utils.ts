@@ -13,26 +13,16 @@ import {
   compact,
   concat,
   defaultsDeep,
-  find,
-  first,
   get,
   includes,
   isEmpty,
-  isEqual,
   isString,
   map,
   reduce,
-  set,
   some,
   toSafeInteger,
-  uniqWith,
 } from "lodash-es";
-import {
-  DetailedError,
-  responseCodes,
-  useTranslateField,
-  useTranslateName,
-} from "../../utils";
+import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
@@ -49,19 +39,6 @@ import { calculateBillingTerm } from "../product/services";
 import { ProductDetails, TermDetails } from "../product";
 
 // ---------------------------------------------------------------------------
-
-export function parseBasketItem(data: BasketProduct) {
-  // TODO: implement
-  // const name = data.product.serviceIdentifier;
-  // const parsed = parseDomain(name);
-  // const result = {
-  //   productId: data.productId,
-  //   tld: parsed?.tld,
-  //   sld: parsed?.sld,
-  //   domain: parsed?.domain,
-  // };
-  // return result;
-}
 
 /**
  * Parses the given basket and returns a list of recommendations.
@@ -102,7 +79,8 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
       // );
 
       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
-      // so we need to filter out the duplicates
+      // but we need them to be able to show the same recommendation for individual source products
+      // so do not dedupe them!
 
       const allRelated = reduce(
         concat(
@@ -117,6 +95,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
           if (valid) {
             rawRelated.id = ensureId(rawRelated);
+            rawRelated.product_id ??= basketProduct.product_id; // ensure we have a product id associated with the recommendation
             result.push(rawRelated);
           }
 
@@ -125,12 +104,19 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
         []
       ) as RelatedProduct[];
 
-      return uniqWith(allRelated, isEqual);
+      return allRelated;
     },
     []
   );
 }
 
+/**
+ *  This function parses the relationships between products in a basket.
+ *  It extracts the related products from each product in the basket and creates a mapping of product IDs to their related product IDs.
+ *  The relationships are stored in a dictionary where the keys are basket product IDs and the values are arrays of related product IDs.
+ * @param raw - The raw basket data to parse.
+ * @returns
+ */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
   return reduce(
     raw.products,

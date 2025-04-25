@@ -7,7 +7,11 @@ import type { IconProps } from "@upmind-automation/upmind-ui";
 import type { ActorRef } from "xstate";
 
 export interface RecommendationsProps {
+  items: Recommendation[];
   disabled?: boolean;
+  loading?: boolean;
+  refreshing?: boolean;
+  processing?: boolean;
 }
 
 export interface RecommendationItemProps extends Recommendation {

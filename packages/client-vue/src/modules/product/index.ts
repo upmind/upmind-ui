@@ -14,6 +14,8 @@ export const UpmProductRequiresActionView = import("./RequiresAction.vue");
 
 export const UpmProductConfigView = import("./Config.vue");
 
+export const UpmProductRecommendationsView = import("./Recommendations.vue");
+
 // --- Export Components
 export { default as UpmProductConfig } from "./components/config/Config.vue";
 export { default as UpmTermsConfigSelect } from "./components/terms/TermsConfigSelect.vue";

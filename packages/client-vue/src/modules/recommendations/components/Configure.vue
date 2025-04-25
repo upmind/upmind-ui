@@ -48,7 +48,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  useRecommendationsEngine,
+  useRecommendations,
   useBasketProductsPending,
 } from "@upmind-automation/headless-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -75,7 +75,7 @@ const { t } = useI18n();
 
 // --- basket setup
 
-const { cancel } = useRecommendationsEngine();
+const { cancel } = useRecommendations();
 const { configure, resolve } = useBasketProductsPending();
 const {
   meta,

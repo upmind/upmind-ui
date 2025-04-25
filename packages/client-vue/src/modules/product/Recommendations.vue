@@ -60,15 +60,16 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   useBasket,
-  useRecommendations,
+  useProductRecommendations,
+  useQueryParams,
   useRoutingEngine,
   ROUTE,
 } from "@upmind-automation/headless-vue";
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import Configure from "./components/Configure.vue";
-import Carousel from "./components/Carousel.vue";
+import Configure from "../recommendations/components/Configure.vue";
+import Carousel from "../recommendations/components/Carousel.vue";
 import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
@@ -78,6 +79,7 @@ const { t } = useI18n();
 
 // --- basket setup
 const { next, back, isResolved } = useRoutingEngine();
+const { productId } = useQueryParams();
 
 await isResolved(ROUTE.RECOMMENDATIONS).catch(back);
 
@@ -90,7 +92,7 @@ const {
   recommendations,
   add,
   fetchRecommendation,
-} = useRecommendations();
+} = useProductRecommendations(productId);
 
 await isReady();
 
