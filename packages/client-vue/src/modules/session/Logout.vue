@@ -40,6 +40,7 @@ import {
 } from "@upmind-automation/headless-vue";
 
 // -- components
+import Internet from "../../assets/animations/internet.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
