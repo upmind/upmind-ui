@@ -220,7 +220,6 @@ export function basketSubscription(callback: any, onReceive: any) {
                 { data: model }
               )
               .then((rawBasket: IBasket) => {
-                debugger;
                 dataLayer({ event: "add_to_cart" }).withItems(product).push();
                 return rawBasket;
               })
@@ -302,7 +301,6 @@ export function basketSubscription(callback: any, onReceive: any) {
           })
           .then((instances: ActorRef<any>[]) => {
             // add the success event to the datalayer
-            debugger;
             dataLayer({ event: "add_to_cart" })
               .withItems(
                 compact(
@@ -353,7 +351,6 @@ export function basketSubscription(callback: any, onReceive: any) {
             // add the success event to the datalayer
             const basketProduct = basket.findProduct({ id: event.target.id });
             if (basketProduct) {
-              debugger;
               dataLayer({ event: "add_to_cart" })
                 .withItems(basketProduct)
                 .push();
@@ -395,7 +392,6 @@ export function basketSubscription(callback: any, onReceive: any) {
             bpid: event.target.id,
           })
           .then((rawBasket: IBasket) => {
-            debugger;
             if (basketProduct)
               dataLayer({ event: "remove_from_cart" })
                 .withItems([basketProduct])
