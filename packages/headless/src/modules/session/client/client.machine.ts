@@ -3,7 +3,7 @@ import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import { useI18n } from "../../system/i18n/useI18n";
+import { useSystemI18n } from "../../system/i18n/useSystemI18n";
 import services from "./services";
 
 import type { ClientContext } from "./types";
@@ -18,6 +18,7 @@ const { addError } = useFeedback();
 import { useTime, useCookies } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useUserParser } from "../utils";
+import { omit } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -120,9 +121,13 @@ export default createMachine(
       }),
       // ---
       setActor: (_context, { data }: AnyEventObject) => {
-        setCookie("upm_actor", data?.analytics, {
-          expires: "8h",
-        });
+        setCookie(
+          "upm_actor",
+          omit(data?.analytics, ["environment", "language", "version"]),
+          {
+            expires: "8h",
+          }
+        );
       },
 
       setUser: assign({
@@ -131,7 +136,7 @@ export default createMachine(
       setLocale: ({ user }) => {
         if (!user) return;
         const locale = user.locale;
-        useI18n().setLocale(locale);
+        useSystemI18n().setLocale(locale);
       },
 
       setTransfer: assign({

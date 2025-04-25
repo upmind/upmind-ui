@@ -1,17 +1,24 @@
 <template>
   <Card :class="styles.summary.card" as="aside" class="">
     <header :class="styles.summary.header">
-      <SummaryPricing :summary="summary" :meta="meta" />
+      <SummaryPricing
+        :pricing="product.pricing"
+        :meta="product.meta"
+        :loading="meta.isLoading"
+        :processing="meta.isCalculating"
+      />
     </header>
 
     <footer :class="styles.summary.footer">
       <NumberField
-        v-if="product?.quantifiable"
-        :min="product?.min"
-        :max="product?.max"
-        :step="product?.step"
-        :model-value="model.quantity"
-        :default-value="model.quantity || product?.step"
+        v-if="product.productDetails.quantifiable"
+        :min="product.productDetails.min"
+        :max="product.productDetails.max"
+        :step="product.productDetails.step"
+        :model-value="product.configuration.quantity"
+        :default-value="
+          product.configuration.quantity || product.productDetails.step
+        "
         @update:modelValue="updateQuantity"
       />
 
@@ -40,7 +47,7 @@
     class="mt-4"
   />
 
-  <SummaryList :summary="summary" :product="product" />
+  <SummaryList v-bind="product" />
 </template>
 
 <script setup lang="ts">
@@ -60,7 +67,6 @@ import SummaryList from "./SummaryList.vue";
 import { NumberField, Icon, Button, Alert } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { omitBy, find, isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -77,8 +83,7 @@ const { t, te } = useI18n();
 
 const showErrors = ref(false);
 
-const { product, summary, meta, lookups, model, updateQuantity } =
-  useProductConfig(props.item);
+const { product, meta, model, updateQuantity } = useProductConfig(props.item);
 
 const styles = useStyles(["summary"], {}, config) as ComputedRef<{
   summary: {

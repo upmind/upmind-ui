@@ -1,28 +1,26 @@
 <template>
   <p class="m-0">
     <Description as="span">
-      <template v-if="isOwned">{{
+      <template v-if="meta.owned">{{
         t("domain.card.owned.description")
       }}</template>
 
-      <template v-if="inBasket"
+      <template v-if="meta.added"
         >{{ t("domain.card.basket.description") }}
       </template>
 
-      <template v-else-if="summary?.meta?.available && !isOwned">
-        <template v-if="summary?.meta.discounted">
+      <template v-else-if="meta?.available && !meta.owned">
+        <template v-if="meta.discounted">
           {{
             t("domain.card.available.description.discounted", [
-              summary?.regularPrice,
-              summary?.currentPrice,
+              price.regularPrice,
+              price.currentPrice,
             ])
           }}
         </template>
         <template v-else>
           {{
-            t("domain.card.available.description.regular", [
-              summary?.currentPrice,
-            ])
+            t("domain.card.available.description.regular", [price.currentPrice])
           }}
         </template>
       </template>
@@ -38,15 +36,11 @@ import Description from "../../../components/content/Description.vue";
 import { useI18n } from "vue-i18n";
 
 // --- types
-import type { DomainDescriptionProps } from "../types";
+import type { DomainSummaryProps } from "../types";
 
-defineProps<DomainDescriptionProps>();
+defineProps<DomainSummaryProps>();
 
 const emit = defineEmits(["update"]);
 
 const { t } = useI18n();
-
-const onUpdate = (domain: string) => {
-  emit("update", domain);
-};
 </script>

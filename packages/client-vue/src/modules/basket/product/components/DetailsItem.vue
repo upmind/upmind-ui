@@ -9,12 +9,12 @@
       </template>
     </p>
 
-    <span v-if="currentPrice" class="flex items-center gap-x-1">
-      <template v-if="pricingKey !== 'term'">
+    <span v-if="hasPricing" class="flex items-center gap-x-1">
+      <template v-if="props.name !== 'term'">
         <span v-if="showPlusIcon">
           <Icon icon="plus" size="4xs" class="-mt-[2px] mr-0.5" />
         </span>
-        <span v-else-if="overrides">
+        <span v-else-if="props.meta?.overrides">
           <Tooltip
             :label="t('product.overridden')"
             class="max-w-64 text-center"
@@ -24,8 +24,9 @@
         </span>
       </template>
 
-      <p v-if="!free" class="m-0 whitespace-nowrap">
-        {{ currentPrice }}
+      <p v-if="!props.meta?.free" class="m-0 whitespace-nowrap">
+        {{ safePrice }}
+
         <template v-if="showTermLabel">
           {{ t(`product.terms.term.${cycle}`) }}
         </template>
@@ -42,26 +43,35 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+
+// --- components
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 
-const props = defineProps<{
-  id: string;
-  title: string;
-  quantity?: number;
-  currentPrice?: string;
-  currentAmount?: number;
-  overrides?: boolean;
-  cycle?: number;
-  pricingKey?: string;
-  free?: boolean;
-}>();
+// --- types
+import type {
+  ProductSummaryDetailWithPrice,
+  ProductSummaryDetail,
+} from "@upmind-automation/headless-vue";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<
+  ProductSummaryDetail | ProductSummaryDetailWithPrice
+>();
 
 const { t } = useI18n();
 
 const showPlusIcon = computed(
-  () => !props.overrides && props.currentAmount && props.currentAmount > 0
+  () =>
+    !props.meta?.overrides &&
+    "price" in props &&
+    props?.price?.currentAmount > 0
 );
-const showTermLabel = computed(
-  () => props.currentAmount && props.currentAmount > 0
-);
+const showTermLabel = computed(() => props?.cycle && props.cycle > 0);
+
+const hasPricing = computed(() => "currentAmount" in props);
+
+const safePrice = computed(() => {
+  return "price" in props ? props.price.currentPrice : "";
+});
 </script>

@@ -6,7 +6,12 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientUnifiedAddresses as useUpmindClientUnifiedAddresses } from "@upmind-automation/headless";
 
 // --- utils
-import { machineMatches, useContextActor, useContextActors } from "../../utils";
+import {
+  DEBOUNCE_DELAY,
+  machineMatches,
+  useContextActor,
+  useContextActors,
+} from "../../utils";
 import { get, debounce, isEmpty } from "lodash-es";
 
 // --- types
@@ -123,7 +128,7 @@ export const useClientUnifiedAddresses = (): ClientListingDefinition => {
     // ---
     isReady,
     getSelected,
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
     select: async (id: any) => {
       await isReady();
       send({ type: "SELECT", data: id });

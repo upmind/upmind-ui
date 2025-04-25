@@ -132,6 +132,7 @@ import {
   useBasketBillingDetails,
   useBasketPaymentDetails,
   useRoutingEngine,
+  ROUTE,
 } from "@upmind-automation/headless-vue";
 import TappingCard from "../../assets/animations/tapping-card.json?url";
 import Receipt from "../../assets/animations/receipt.json?url";
@@ -160,7 +161,7 @@ const { t } = useI18n();
 
 const { meta: account, isAuthenticated } = useSession();
 const { state, meta, isReady } = useBasket();
-const { next, back } = useRoutingEngine();
+const { next, back, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -185,6 +186,7 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();
 // -----------------------------------------------------------------------------
+await isResolved(ROUTE.CHECKOUT).catch(back);
 await isReady().then(() => isAuthenticated().catch(back));
 
 // -----------------------------------------------------------------------------

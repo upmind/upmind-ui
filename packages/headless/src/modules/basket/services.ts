@@ -7,18 +7,18 @@ import { useSession } from "../session";
 import { useTracking } from "../system";
 
 // --- utils
-import { useCookies } from "../../utils";
+import { unflattenErrors, useCookies } from "../../utils";
+import { parseBasketProductError } from "../basketProduct/utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 
 import {
-  cloneDeep,
   compact,
   concat,
   forEach,
   isEmpty,
   isNil,
   map,
-  omit,
+  mapKeys,
   omitBy,
   reduce,
   set,
@@ -92,7 +92,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.related",
         "products.product.category",
         // "status",
-        // `products.product.category${".top_category".repeat(4)}`,
+        `products.product.category${".top_category".repeat(4)}`,
       ].join(),
     }),
     init: { signal: context.controller?.signal },
@@ -115,7 +115,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
   const { get: getTracking } = useTracking();
 
-  const data: any = {
+  const data: Record<string, any> = {
     category_slug: "new_contract",
   };
   // ---
@@ -179,7 +179,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   // bail if we have no basket, or if we have a basket with products
   if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
 
-  const provisioningPromises: any[] = [];
+  const provisioningPromises: Promise<any>[] = [];
 
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
@@ -230,33 +230,34 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   });
 
   // return the 'updated' basket once all the provisioning fields have been fetched
-  return Promise.all(provisioningPromises).then(([rawErrors]) => {
-    // rawErrors will return  a flattened ovhect path in dot notation, so we need to convert back it to an object
-    const { products: parsedErrors } = reduce(
-      rawErrors?.data,
-      (result, value, key) => {
-        set(result, key, value);
-        return result;
-      },
-      {}
-    ) as any;
+  return Promise.all(provisioningPromises)
+    .then(([data]) => {
+      // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+      // and then we 'pick' the products out of the object
+      const { products: rawErrors } = unflattenErrors(data);
+      // then we parse the errors into a more usable format, replacing their indexes with the product ids
+      // this will allow us to easily access the provisioning fields for each product
+      const errors = reduce(
+        rawErrors,
+        (result, value, key: number) => {
+          const bpid = basket.products[key]?.id;
+          if (!bpid) return result;
+          return set(result, bpid, parseBasketProductError(value));
+        },
+        {}
+      );
 
-    // then we parse the errors into a more usable format, replacing their indexes with the product ids
-    // this will allow us to easily access the provisioning fields for each product
-    const provisioningErrors = reduce(
-      parsedErrors,
-      (result, value, key: number) => {
-        const bpid = basket.products[key]?.id;
-        set(result, bpid, value?.provision_field_values);
-        return result;
-      },
-      {}
-    );
-    return {
-      basket,
-      provisioningErrors,
-    };
-  });
+      return {
+        basket,
+        errors,
+      };
+    })
+    .catch(error => {
+      return {
+        basket,
+        errors: error,
+      };
+    });
 }
 // -----------------------------------------------------------------------------
 

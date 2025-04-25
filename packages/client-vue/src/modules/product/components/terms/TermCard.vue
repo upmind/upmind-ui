@@ -5,23 +5,25 @@
         {{
           te(`product.terms.cycle.${props.cycle}`)
             ? t(`product.terms.cycle.${props.cycle}`)
-            : props.name
+            : props.title
         }}
       </strong>
 
-      <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Promotion
-          :discounted="!!promotion.amount"
-          :currentSaving="promotion.amountFormatted"
-          :currentSavingAmount="promotion.amount"
-          :mixed="promotion.mixed"
-        />
-      </template>
+      <Promotion
+        v-for="promotion in props.promotions"
+        :key="promotion.code.toString()"
+        v-bind="promotion"
+      />
     </div>
 
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
-        v-bind="props"
+        :regular-price="props.price.regularPrice"
+        :monthly-from-regular-price="props.price.monthlyFromRegularPrice"
+        :current-price="props.price.currentPrice"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
+        :meta="props.meta"
+        :cycle="props.cycle"
         :ui-config="{
           pricing: {
             current: styles.product.config.grid.item.total,
@@ -42,47 +44,25 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import { type BadgeProps } from "@upmind-automation/upmind-ui";
 import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { type BadgeProps } from "@upmind-automation/upmind-ui";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
-  defineProps<{
-    name: string;
-    price?: number;
-    cycle?: number;
-    // ---
-    mixedPromotions?: boolean;
-    monthlyFromCurrentAmount?: number;
-    monthlyFromCurrentPrice?: string;
-    monthlyFromRegularAmount?: number;
-    monthlyFromRegularPrice?: string;
-    regularAmount?: number;
-    regularPrice?: string;
-    currentPrice?: string;
-    currentAmount?: number;
-    meta: {
-      discounted?: boolean;
-      free?: boolean;
-    };
-    promotions?: {
-      name?: string;
-      amount?: number;
-      amountFormatted?: string;
-      code: string[];
-      display?: string;
-      mixed?: boolean;
-    }[];
-    // ---
-    select?: boolean;
-    badge?: BadgeProps;
-  }>(),
+  defineProps<
+    TermDetails & {
+      select?: boolean;
+      badge?: BadgeProps;
+    }
+  >(),
   {
     badge: () => ({
       color: "promotion",
@@ -97,8 +77,8 @@ const props = withDefaults(
 const { t, te } = useI18n();
 
 const meta = computed(() => ({
-  hasPromotions: !!props.promotions?.length || props.mixedPromotions,
-  select: props.select,
+  hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
+  isSelected: !!props.select,
 }));
 
 const styles = useStyles(

@@ -14,7 +14,7 @@ import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export const useRecaptcha = () => {
-  const { service, destroy, generate, clear } = useSystemRecaptcha();
+  const { service, stop, generate, clear } = useSystemRecaptcha();
   const { state } = useActor(service);
 
   // ---
@@ -42,6 +42,6 @@ export const useRecaptcha = () => {
     // ---
     generate,
     clear,
-    destroy,
+    stop,
   };
 };

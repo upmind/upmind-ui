@@ -9,18 +9,22 @@ import { useBasket } from "../basket";
 // --- utils
 import { getBasketProduct } from "./utils";
 import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, responseCodes, stopService } from "../../utils";
 import { isEmpty, get, add, subtract } from "lodash-es";
 
 // --- types
-import type { ProductDetails } from "../product";
+import type { InterpreterFrom } from "xstate";
+import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export const useBasketProduct = (bpid: string) => {
   const { getBasket, getErrors } = useBasket();
   const rawBasket = getBasket();
+  if (!rawBasket)
+    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+
   let rawBasketProduct = getBasketProduct(bpid, rawBasket);
-  let provisioningErrors = get(getErrors(), "provisioningErrors");
+  let errors = getErrors();
 
   if (isEmpty(rawBasketProduct))
     throw new DetailedError("No Basket Product found", responseCodes.Not_Found);
@@ -34,8 +38,8 @@ export const useBasketProduct = (bpid: string) => {
       promotions: rawBasket.promotions,
       coupons: [],
       // ---
-      basketProduct: rawBasketProduct,
-      errorExternal: get(provisioningErrors, [bpid]),
+      rawBasketProduct,
+      errorExternal: get(errors, bpid),
     }),
     {
       id: bpid,
@@ -45,19 +49,24 @@ export const useBasketProduct = (bpid: string) => {
 
   // ---------------------------------------------------------------------------
 
+  async function isReady(): Promise<void> {
+    return waitFor(service, state => state.matches("available"), {
+      timeout: Infinity, // infinity = no timeout
+    }).then(() => {});
+  }
+
   // refresh: async (newBasket: IBasket) => {
   //   service.send({ type: "REFRESH", rawBasket });
   //   return waitFor(service, state => state.matches("available"));
   // },
 
-  async function getProductDetails(): Promise<ProductDetails> {
-    return new Promise<ProductDetails>((resolve, reject) => {
-      const product = get(service.getSnapshot(), "context.lookup.product") as
-        | ProductDetails
-        | undefined;
-      // sanity check
-      if (!product) return reject("Product not found");
-      // ---
+  async function getProduct(): Promise<Product> {
+    return new Promise<Product>((resolve, reject) => {
+      const product = get(service.getSnapshot(), "context.product") as Product;
+      if (!product)
+        return reject(
+          new DetailedError("Product not found", responseCodes.Not_Found)
+        );
       return resolve(product);
     });
   }
@@ -90,48 +99,70 @@ export const useBasketProduct = (bpid: string) => {
     id: bpid,
     service,
     getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
     // ---
-    isReady: async () => {
-      return waitFor(service, state => state.matches("available"), {
-        timeout: Infinity, // infinity = no timeout
-      });
-    },
+    isReady,
     // ---
     updateQuantity: async (value: number): Promise<void> =>
-      getProductDetails().then(product => {
-        if (!product?.quantifiable)
-          return Promise.reject("Product not quantifiable");
+      getProduct().then(product => {
+        if (!product?.productDetails.quantifiable)
+          return Promise.reject(
+            new DetailedError(
+              "Product not quantifiable",
+              responseCodes.Unprocessable_Entity
+            )
+          );
+
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(value, product),
+            quantity: parseQuantity(value, product.productDetails),
           },
         });
         return update();
       }),
 
     incrementQuantity: async (): Promise<void> =>
-      getProductDetails().then(product => {
-        const model = get(service.getSnapshot(), "context.model");
-        const qty = add(get(model, "quantity", 1), product.step);
+      getProduct().then(product => {
+        if (!product?.productDetails.quantifiable)
+          return Promise.reject(
+            new DetailedError(
+              "Product not quantifiable",
+              responseCodes.Unprocessable_Entity
+            )
+          );
+
+        const qty = add(
+          get(product.configuration, "quantity", 1),
+          product.productDetails.step
+        );
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product),
+            quantity: parseQuantity(qty, product.productDetails),
           },
         });
         return update();
       }),
 
     decrementQuantity: async (): Promise<void> =>
-      getProductDetails().then(product => {
-        const model = get(service.getSnapshot(), "context.model");
-        const qty = subtract(get(model, "quantity", 1), product.step);
+      getProduct().then(product => {
+        if (!product?.productDetails.quantifiable)
+          return Promise.reject(
+            new DetailedError(
+              "Product not quantifiable",
+              responseCodes.Unprocessable_Entity
+            )
+          );
+
+        const qty = subtract(
+          get(product.configuration, "quantity", 1),
+          product.productDetails.step
+        );
         service.send({
           type: "SET.QUANTITY",
           data: {
-            quantity: parseQuantity(qty, product),
+            quantity: parseQuantity(qty, product.productDetails),
           },
         });
         return update();

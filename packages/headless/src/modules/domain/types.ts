@@ -3,12 +3,8 @@ import type { ActorRef } from "xstate";
 
 // --- internal
 import { IBasketPromotion } from "@upmind-automation/types";
-import type {
-  BasketProduct,
-  BasketHelperContext,
-  Price,
-  BasketProductSummaryMeta,
-} from "../basketProduct";
+import type { Product, ProductSummaryDetail } from "../product";
+import type { BasketHelperContext } from "../basketProduct";
 
 // -----------------------------------------------------------------------------
 
@@ -26,52 +22,56 @@ export enum DomainTypes {
   basket = "basket",
 }
 
-export interface DomainProduct
-  extends Domain,
-    Omit<BasketProduct, "id" | "product" | "product_id" | "summary"> {
-  summary: Price & {
-    meta: BasketProductSummaryMeta;
+export type DomainProduct = Product &
+  Omit<DomainModel, "selected"> & {
+    meta: ProductSummaryDetail["meta"] & {
+      available?: boolean;
+      owned?: boolean;
+      added?: boolean;
+      disabled?: boolean;
+      selected?: boolean;
+      persisted?: boolean;
+    };
   };
-}
 
-export interface Domain {
+export type DomainModel = {
   domain: string;
   tld: string;
   sld: string;
   type?: DomainTypes;
   selected?: boolean;
-}
+};
 
-export interface DomainLookup extends DomainProduct {
-  value?: string;
-  isOwned?: boolean;
-  inBasket?: boolean;
-  disabled?: boolean;
-}
-
-export interface DomainSearch {
+export type DomainSearch = {
   domain: string;
   offset: number;
-}
+};
 
-export interface DomainContext extends BasketHelperContext<DomainProduct> {
-  choices: DomainTypes[];
+export type DomainProps = {
   type?: DomainTypes;
-  model?: Domain[];
-  baseModel?: Domain[];
+};
+
+export type DomainContext = BasketHelperContext<DomainProduct> & {
+  choices: DomainTypes[];
+  type?: DomainProps["type"];
+  // ---
+  model?: DomainModel[];
+  baseModel?: DomainModel[];
+  // ---
   lookups: {
-    searched: DomainLookup[];
+    searched: DomainProduct[];
     history: DomainProduct[];
     owned: DomainProduct[];
-    basket: DomainLookup[];
+    basket: DomainProduct[];
   };
   total?: number;
+  preferredCycle?: number;
   // ---
   search?: {
     limit: number;
     offset: number;
     total: number;
-    query: string;
+    query?: string;
   };
   currency?: string;
   promotions?: IBasketPromotion[];
@@ -82,4 +82,4 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
   // ---
   authHelper?: ActorRef<any>;
   basketHelper?: ActorRef<any>;
-}
+};

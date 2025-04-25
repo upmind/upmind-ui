@@ -4,8 +4,10 @@ import { useBrand } from "../brand";
 
 // --- utils
 import { useTranslateName, useTranslateField } from "../../utils";
+
 import {
   compact,
+  concat,
   find,
   first,
   forEach,
@@ -22,36 +24,47 @@ import {
   omitBy,
   orderBy,
   reduce,
+  reverse,
   set,
   some,
+  subtract,
   toNumber,
   uniq,
   values,
 } from "lodash-es";
 
 // --- types
-import { PromotionDisplayTypes } from "@upmind-automation/types";
+
+import {
+  PromotionDisplayTypes,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
+
 import type {
   IBasketProduct,
   IProduct,
+  IProductAttribute,
   IProductCategory,
+  IProductOption,
+  IProductPrice,
 } from "@upmind-automation/types";
+
 import type {
-  ProductModel,
-  TermDetails,
-  SubproductOption,
-  SubProductOptionValue,
-  SummaryDetails,
   ProductConfigContext,
+  ProductModel,
   PromotionDetails,
-  UIMeta,
   ProductDetails,
+  SubproductDetails,
+  SubproductValue,
+  SubproductModel,
+  TermDetails,
+  Product,
+  ProductSummaryDetail,
+  ProductSummaryDetailWithPrice,
+  UIMeta,
+  PriceDetail,
+  PriceDisplay,
 } from "./types";
-import type {
-  BasketProductDetails,
-  BasketProductSummaryDetail,
-  BasketProductSummaryPrice,
-} from "../basketProduct";
 
 // -----------------------------------------------------------------------------
 
@@ -88,7 +101,8 @@ export function useUischemaTitle(
     )
   ) as string[];
 
-  if (isEmpty(templates)) return fallback;
+  if (isEmpty(templates)) fallback;
+
   // ---
   const template = first(templates) ?? "";
   const result = template.replace(
@@ -158,12 +172,14 @@ export function iterateParents(
   });
 }
 
-export function checkPriceOverride(values: any, lookups: any) {
+export function checkPriceOverride(
+  values: SubproductModel,
+  lookups: SubproductDetails[]
+) {
   return some(values, (value, key) => {
     const item = find(lookups, ["id", key]);
-
     // make sure we only apply this IF this value is actually selected, ie has a value and is not empty
-    return !isEmpty(value) && !!item?.priceOverride;
+    return !isEmpty(value) && !!item?.meta?.overrides;
   });
 }
 // -----------------------------------------------------------------------------
@@ -173,6 +189,7 @@ export function parseQuantity(
   product?: ProductDetails
 ): number {
   quantity = toNumber(quantity) || 1; // ensure we have a number;
+
   // Check the product data is available
   // Check the quantity is valid,
   //  - min Quantity matches the product min
@@ -197,21 +214,28 @@ export function parseQuantity(
   return quantity;
 }
 
-export const parseProduct = (rawProduct: IProduct): ProductDetails => {
+export const parseProductDetails = (
+  rawProduct: IProduct,
+  rawBasketProduct?: IBasketProduct
+): ProductDetails => {
   return {
     id: rawProduct?.id,
+    name: rawProduct.name,
     title: useUischemaTitle(rawProduct, {
+      basketProduct: rawBasketProduct,
       valueKey: "meta.uischema.title",
-      fallback: useTranslateName(rawProduct),
+      fallback: useProductName(rawProduct, rawBasketProduct),
     }),
     brand: useTranslateName(rawProduct?.brand),
     categoryId: rawProduct?.category_id,
     category: useTranslateName(rawProduct?.category),
-    categories: iterateParents(rawProduct.category, [], {
-      valueKey: "name",
-      parentKey: "top_category",
-      transform: useTranslateName,
-    }) as string[],
+    categories: reverse(
+      iterateParents(rawProduct.category, [], {
+        valueKey: "name",
+        parentKey: "top_category",
+        transform: useTranslateName,
+      })
+    ) as string[],
     // ---
     cycle: rawProduct?.billing_cycle_months, // TODO check: cycle: rawProduct?.display_price_billing_cycle_months ?? rawProduct?.billing_cycle_months,
     defaultPaymentPeriod: rawProduct?.default_payment_period,
@@ -252,59 +276,27 @@ export const parseMeta = (
   );
 };
 
-export const parseTerms = (
-  raw: any,
-  promotionDisplayType?: PromotionDisplayTypes
-): TermDetails[] => {
-  const { getBillingCycle } = useSystem();
-  const { checkIncludesTax } = useBrand();
-
+export const parseTermDetails = (raw: IProductPrice[]): TermDetails[] => {
   return map(orderBy(raw, "billing_cycle_months"), rawTerm => {
-    // Pick only the properties we need
+    const details: TermDetails = parseSummaryDetailWithPrice(rawTerm);
 
-    const term: any = {
-      cycle: rawTerm.billing_cycle_months,
-      mixedPromotions: rawTerm.mixed_promotions,
-      // ---
-      monthlyFromCurrentAmount:
-        rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from,
-      monthlyFromCurrentPrice:
-        rawTerm.monthly_price_from_discounted_formatted ??
-        rawTerm.monthly_price_from_formatted,
-      monthlyFromRegularAmount: rawTerm.monthly_price_from,
-      monthlyFromRegularPrice: rawTerm.monthly_price_from_formatted,
+    details.price.monthlyFromCurrentAmount =
+      rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
+    details.price.monthlyFromCurrentPrice =
+      rawTerm.monthly_price_from_discounted_formatted ??
+      rawTerm.monthly_price_from_formatted;
+    details.price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
+    details.price.monthlyFromRegularPrice =
+      rawTerm.monthly_price_from_formatted;
 
-      currentAmount: rawTerm.price_discounted ?? rawTerm.price,
-      currentPrice:
-        rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
-      regularAmount: rawTerm.price,
-      regularPrice: rawTerm.price_formatted,
-
-      meta: {
-        discounted:
-          (rawTerm.price_discounted ?? rawTerm.price) !== rawTerm.price,
-        includesTax: checkIncludesTax(),
-        free: (rawTerm.price_discounted ?? rawTerm.price) == 0,
-      },
-    };
-
-    // ---    // Ensure the name is set
-
-    const cycle = getBillingCycle(rawTerm.billing_cycle_months);
-    term.name = cycle ? useTranslateName(cycle) : null;
-
-    term.promotions = parsePromotion(rawTerm, promotionDisplayType);
-
-    return term;
+    return details;
   });
 };
 
-export const parseSubproduct = (
-  data: any,
-  promotionDisplayType?: PromotionDisplayTypes,
+export const parseSubproductDetails = (
+  data?: (IProductAttribute | IProductOption)[],
   cycle?: number
-): SubproductOption[] => {
-  const { getBillingCycle } = useSystem();
+): SubproductDetails[] => {
   const { checkIncludesTax } = useBrand();
 
   // safety check, bail if we have no data
@@ -319,21 +311,24 @@ export const parseSubproduct = (
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
-  const options: Record<string, SubproductOption> = reduce(
+  const options: Record<string, SubproductDetails> = reduce(
     sorted,
     (result, rawSubproduct) => {
       // create the option based on the category ... if it isnt already set
-      const option: SubproductOption = get(result, rawSubproduct.category_id, {
+      const option: SubproductDetails = get(result, rawSubproduct.category_id, {
         id: rawSubproduct.category.id,
-        name: useTranslateName(rawSubproduct.category),
+        name: rawSubproduct.category.name,
+        title: useTranslateName(rawSubproduct.category),
         description: useTranslateField(rawSubproduct.category, "description"),
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
-        multiple: rawSubproduct.category.multiple,
-        required: rawSubproduct.category.required,
-        priceOverride: rawSubproduct.category.price_override,
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
+        meta: {
+          multiple: rawSubproduct.category.multiple,
+          required: rawSubproduct.category.required,
+          overrides: rawSubproduct.category.price_override,
+        },
       });
 
       // check EARLY if we have a price for one of the following:
@@ -350,76 +345,42 @@ export const parseSubproduct = (
       if (!valid) return result;
 
       // get the prev values...if there are any
-      const values: any[] = get(option, "values", []);
+      const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const prices = map(rawSubproduct.prices, rawPrice => {
-        const price: any = {
-          mixedPromotions: rawPrice.mixed_promotions,
-          cycle: rawPrice.billing_cycle_months,
-
-          currentAmount: rawPrice.price_discounted ?? rawPrice.price,
-          currentPrice:
-            rawPrice.price_discounted_formatted ?? rawPrice.price_formatted,
-          regularAmount: rawPrice.price,
-          regularPrice: rawPrice.price_formatted,
-
-          meta: {
-            discounted:
-              rawPrice.price_discounted &&
-              rawPrice.price !== rawPrice.price_discounted,
-            includesTax: checkIncludesTax(),
-            free: (rawPrice.price_discounted ?? rawPrice.price) == 0,
-            overrides: rawSubproduct.category.price_override,
-          },
-        };
-
-        const cycle = getBillingCycle(price.cycle);
-        price.name = cycle ? useTranslateName(cycle) : null;
-
-        price.promotions = parsePromotion(rawPrice, promotionDisplayType);
-
-        return price;
-      });
+      const pricing: ProductSummaryDetailWithPrice[] = map(
+        rawSubproduct.prices,
+        rawPrice =>
+          parseSummaryDetailWithPrice(
+            rawPrice,
+            rawSubproduct.category.price_override
+          )
+      );
 
       const price =
-        find(prices, ["cycle", 0]) || find(prices, ["cycle", cycle]);
+        find(pricing, ["cycle", 0]) || find(pricing, ["cycle", cycle]);
 
-      const value: SubProductOptionValue = {
-        default: !!rawSubproduct?.pivot?.default,
-        id: rawSubproduct.id,
-        name: useTranslateName(rawSubproduct),
-        description: useTranslateField(rawSubproduct, "description"),
-        excerpt: useTranslateField(rawSubproduct, "short_description"),
-        // ---
-        cycle: price?.cycle ?? rawSubproduct.billing_cycle_months,
-        // ---
-        quantifiable: rawSubproduct.order_type == 2,
-        step: rawSubproduct.unit_quantity || 1,
-        min:
-          rawSubproduct.min_order_quantity || rawSubproduct.unit_quantity || 1,
-        max:
-          rawSubproduct.max_order_quantity > 0
-            ? rawSubproduct.max_order_quantity
-            : Infinity,
-        prices,
-        price,
+      const productDetails = parseProductDetails(rawSubproduct);
+
+      const value: SubproductValue = {
+        ...productDetails,
+        cycle: price?.cycle ?? productDetails.cycle,
+        price: price?.price,
+        pricing: pricing,
+        promotions: price?.promotions,
         meta: {
           // NB: only show term pricing if recurring!
           oneoff: rawSubproduct.billing_cycle_months == 0,
-          discounted:
-            (rawSubproduct.price_discounted ?? rawSubproduct.price) !==
-            rawSubproduct.price,
+          discounted: !!price?.meta?.discounted,
           includesTax: checkIncludesTax(),
-          free: (rawSubproduct.price_discounted ?? rawSubproduct.price) == 0,
+          free: price?.price?.currentAmount == 0,
+          overrides: rawSubproduct.category.price_override,
+          default: !!rawSubproduct?.pivot?.default,
         },
-        uiMeta: parseMeta(rawSubproduct?.meta ?? {}, rawSubproduct?.category),
-        uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
-        order: rawSubproduct?.order,
+        order: rawSubproduct.pivot.order,
       };
-
       // ---
-      values.push(value);
+      values.push(value as SubproductValue);
       set(option, "values", orderBy(values, "order"));
 
       // finally  set the updated option
@@ -433,52 +394,138 @@ export const parseSubproduct = (
   return values(options);
 };
 
-export const parsePromotion = (
-  data: any,
-  promotionDisplayType: PromotionDisplayTypes = PromotionDisplayTypes.PERCENTAGE
+export const parseSummaryDetail = (
+  raw: IProductPrice,
+  overrides?: boolean
+): ProductSummaryDetailWithPrice => {
+  const { getBillingCycle } = useSystem();
+  const { checkIncludesTax } = useBrand();
+  const cycle = getBillingCycle(raw.billing_cycle_months);
+
+  const discounted =
+    !!raw.price_discounted && raw.price !== raw.price_discounted;
+
+  return {
+    cycle: raw.billing_cycle_months,
+    title: cycle ? useTranslateName(cycle) : useTranslateName(raw),
+    name: cycle?.name,
+    promotions: parsePromotionDetails(raw),
+    meta: {
+      oneoff: raw.billing_cycle_months == 0,
+      mixed: raw.mixed_promotions,
+      discounted,
+      includesTax: checkIncludesTax(),
+      free: (raw.price_discounted ?? raw.price) == 0,
+      overrides: !!overrides,
+    },
+  } as ProductSummaryDetailWithPrice;
+};
+
+export const parsePrice = (raw: IProductPrice): PriceDetail => {
+  //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
+  // const { checkIncludesTax } = useBrand();
+
+  const savingAmount =
+    Math.round(subtract(raw.price, raw?.price_discounted || raw.price) * 100) /
+    100;
+
+  const discounted =
+    !!raw.price_discounted && raw.price !== raw.price_discounted;
+
+  return {
+    currentAmount: raw.price_discounted ?? raw.price,
+    currentPrice: raw.price_discounted_formatted ?? raw.price_formatted,
+    regularAmount: raw.price,
+    regularPrice: raw.price_formatted,
+    savingAmount,
+    savingPrice: "", //TODO: missing formatted value
+    savingPercent: discounted
+      ? `${Math.round((savingAmount / raw.price) * 100)}%`
+      : "",
+  };
+};
+
+export const parseSummaryDetailWithPrice = (
+  raw: IProductPrice,
+  overrides?: boolean
+): ProductSummaryDetailWithPrice => {
+  const result: ProductSummaryDetailWithPrice = parseSummaryDetail(
+    raw,
+    overrides
+  );
+  result.price = parsePrice(raw);
+  return result;
+};
+
+export const parsePromotionDetails = (
+  raw: IProductPrice
 ): PromotionDetails[] => {
   //  Promotions can be display in one of 3 ways:
   //  - As a generic summary label with no values, eg "SAVE"
-  //  - As a sumamry percentage, eg "Save 20%"
+  //  - As a summary percentage, eg "Save 20%"
   //  - As individual names, eg ["20% off", "Black Friday"]
-  // NB: we always supply the amouns so we can show meta data if needed, eg a tooltip
+  // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
 
   // ---
+  const { getConfig } = useBrand();
 
-  if (!data?.promotions?.length) return [];
+  const promotionDisplayType: PromotionDisplayTypes = get(
+    getConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    BrandConfigKeys.SHOW_PROMOTION_AS,
+    PromotionDisplayTypes.PERCENTAGE
+  );
+
+  if (isEmpty(raw?.promotions)) return [];
 
   // ---
 
   if (promotionDisplayType == PromotionDisplayTypes.NAME) {
-    return map(data.promotions, rawPromo => {
-      return {
-        amount: rawPromo.amount,
-        amountFormatted: rawPromo.amount_formatted,
-        code: rawPromo.code,
-        name: useTranslateName(rawPromo),
-        description: useTranslateField(rawPromo, "description"),
-        excerpt: useTranslateField(rawPromo, "short_description"),
-        display: promotionDisplayType,
-        mixed: data.mixed_promotions,
-      };
-    });
+    return map(
+      raw.promotions,
+      rawPromo =>
+        ({
+          code: rawPromo.code,
+          name: rawPromo.name,
+          title: useTranslateName(rawPromo),
+          description: useTranslateField(rawPromo, "description"),
+          excerpt: useTranslateField(rawPromo, "short_description"),
+          meta: {
+            display: promotionDisplayType,
+            mixed: !!raw.mixed_promotions,
+            discounted: !isEmpty(rawPromo.amount),
+          },
+          price: {
+            savingAmount: toNumber(rawPromo.amount),
+            savingPrice: rawPromo.amount_formatted,
+            savingPercent: "", //TODO: missing % value from response
+          },
+        }) as PromotionDetails
+    );
   } else {
     const saving =
-      ((data.price - (data.price_discounted ?? data.price)) / data.price) * 100;
+      ((raw.price - (raw.price_discounted ?? raw.price)) / raw.price) * 100;
     const saving_formatted = `${Math.round(saving)}%`;
 
     return [
       {
-        amount:
-          isNil(data.price_discounted) || data.mixed_promotions ? 0 : saving,
-        amountFormatted:
-          isNil(data.price_discounted) || data.mixed_promotions
-            ? ""
-            : saving_formatted,
-        code: map(data.promotions, "code"),
-        display: promotionDisplayType,
-        mixed: data.mixed_promotions,
-      },
+        code: map(raw.promotions, "code").toString(),
+        name: map(raw.promotions, "name").toString(),
+        title: map(raw.promotions, useTranslateName).toString(),
+        meta: {
+          display: promotionDisplayType,
+          mixed: !!raw.mixed_promotions,
+          discounted: !isNil(raw.price_discounted) && !raw.mixed_promotions,
+        },
+        price: {
+          savingAmount:
+            isNil(raw.price_discounted) || raw.mixed_promotions ? 0 : saving,
+          savingPrice: "", // TODO: misisng formatted value
+          savingPercent:
+            isNil(raw.price_discounted) || raw.mixed_promotions
+              ? ""
+              : saving_formatted,
+        },
+      } as PromotionDetails,
     ];
   }
 };
@@ -600,153 +647,135 @@ export const parseProvisioningSchema = (data: any, product: any) => {
   };
 };
 
-export const parseSummary = (
-  raw: any,
-  {
-    model,
-    lookups,
-    error,
-    rawProduct,
-    basketProduct,
-  }: Partial<ProductConfigContext>
-): SummaryDetails => {
+export const parseProduct = (
+  price: PriceDisplay,
+  { model, lookups, error, rawBasketProduct }: Partial<ProductConfigContext>
+): Product => {
   // sanity check
-  if (isEmpty(model) || isEmpty(lookups)) {
-    return {
-      pricing: [],
-      details: [],
-    };
-  }
+  if (isEmpty(model) || isEmpty(lookups) || !lookups.product)
+    return {} as Product;
 
+  const term = find(lookups.terms, ["cycle", model.term]);
+  price = !isNil(price?.regularPrice)
+    ? price
+    : term?.price || {
+        currentAmount: 0,
+        currentPrice: "",
+        regularAmount: 0,
+        regularPrice: "",
+        savingAmount: 0,
+        savingPrice: "",
+        savingPercent: "",
+      };
   // ---
-  const { checkIncludesTax } = useBrand();
+  // TODO: Dont have the necessary data now to calculate this
+  // price.unit: term?.price.unit,
+  // price.configuration: {
+  //   total: values.total,
+  //   totalFormatted: values.total_formatted,
+  //   subtotal: values.subtotal,
+  //   subtotalFormatted: values.subtotal_formatted,
+  //   discount: values.discounted,
+  //   discountFormatted: values.discounted_formatted,
+  // },
 
-  const summaryPricing: BasketProductSummaryPrice = {
-    key: "totals",
+  const summaryDetailWithPrice: ProductSummaryDetailWithPrice = {
+    name: "totals",
     title: lookups.product?.title ?? "",
     category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
-    // ---
-    regularAmount: raw.total,
-    regularPrice: raw.total_formatted,
-    currentAmount: raw?.discounted || raw.total,
-    currentPrice: raw?.discounted_formatted || raw.total_formatted,
-    // ---
     meta: {
-      oneoff: (model?.term ?? 0) > 0,
-      discounted: (raw.discounted ?? raw.total) !== raw.total,
-      includesTax: checkIncludesTax(),
-      free: (raw?.discounted ?? raw.total) == 0,
+      ...(term?.meta ?? {}),
+      free: price.currentAmount == 0,
+      discounted:
+        price.currentAmount != price.regularAmount && price.regularAmount > 0,
     },
+    promotions: term?.promotions,
+    // ---
+    price,
   };
   // -------
   // this is an array of  key value pairs that can be used to display a summary of the configuration
   // typically used in the basket or checkout
   // it is in this format to preserve the order of the configuration
   // and allow for easy i18n
-  const details: SummaryDetails["details"] = [];
-
-  //  product title
-  if (rawProduct) {
-    details.push({
-      key: "product",
-      title: useUischemaTitle(rawProduct, {
-        basketProduct,
-        valueKey: "meta.uischema.summary.title.name",
-        fallback: useProductName(rawProduct, basketProduct),
-      }),
-      category: useUischemaTitle(rawProduct, {
-        basketProduct,
-        valueKey: "meta.uischema.summary.title.category",
-        fallback: "Product",
-      }),
-    });
-  }
-
-  //  product category
-  if (lookups.product?.category) {
-    details.push({
-      key: "category",
+  const productDetails: ProductSummaryDetail[] = [
+    {
+      name: "product",
+      title: lookups.product?.title,
+      category: lookups.product?.category,
+      meta: {},
+    },
+    {
+      name: "category",
       title: lookups.product.category,
-      category: lookups.product.category,
-    });
-  }
+      meta: {},
+    },
+  ];
 
-  // term
-  const term = parseSummaryTerm(model.term, lookups.terms, error?.term);
-  if (!isEmpty(term)) details.push(term);
+  const termDetails = parseSummaryTerm(
+    model.term ?? 0,
+    lookups.terms ?? [],
+    error?.term
+  );
 
-  // options
-  const options = parseSummarySubproduct(
+  const optionDetails = parseSummarySubproduct(
     "option",
     model.options,
     lookups.options,
     error?.options
   );
-  details.push(...options);
 
-  // attributes
-  const attributes = parseSummarySubproduct(
+  const attributeDetail = parseSummarySubproduct(
     "attribute",
     model.attributes,
     lookups.attributes,
     error?.attributes
   );
-  details.push(...attributes);
 
-  // provision fields
-  const provisionFields = parseSummaryProvisionFields(
+  const provisionFieldDetails = parseSummaryProvisionFields(
     model.provisionFields,
     lookups.provisionFields,
     error?.provisionFields
   );
-  if (!isEmpty(provisionFields)) details.push(...provisionFields);
 
   // ---------------------------------------------------------------------------
   return {
-    pricing: [summaryPricing],
-    details,
+    id: model.id,
+    configuration: model,
+    productDetails: lookups.product,
+    promotions: term?.promotions,
+    meta: summaryDetailWithPrice.meta,
+    price,
+    pricing: [summaryDetailWithPrice],
+    details: compact(
+      concat(
+        productDetails,
+        termDetails,
+        optionDetails,
+        attributeDetail,
+        provisionFieldDetails
+      )
+    ),
+    errors: omitBy(error, isEmpty),
   };
 };
 
-export function parsSummaryPrice(data: any): BasketProductSummaryDetail {
-  const { checkIncludesTax } = useBrand();
-
-  return {
-    key: "",
-    title: data.title,
-    category: data.category,
-    // ---
-    cycle: data.cycle,
-    quantity: data.quantity || 1,
-    // ---
-    regularAmount: data.regularAmount,
-    regularPrice: data.regularPrice,
-    currentAmount: data.currentAmount,
-    currentPrice: data.currentPrice,
-    // ---
-    meta: {
-      oneoff: data.cycle > 0,
-      discounted: data.currentAmount !== data.regularAmount,
-      includesTax: checkIncludesTax(),
-      free: data.currentAmount == 0,
-    },
-  };
-}
-
 const parseSummaryTerm = (
-  term: any,
-  terms: any,
+  cycle: number,
+  terms: TermDetails[],
   error?: any
-): BasketProductSummaryDetail | undefined => {
-  const cycle = find(terms, ["cycle", term]);
-  if (cycle) {
-    return {
-      ...parsSummaryPrice(cycle),
-      key: "term",
-      category: "Billing Cycle",
+): TermDetails | undefined => {
+  const term = find(terms, ["cycle", cycle]);
+  if (term) {
+    term.name = "term";
+    term.category = "Billing Cycle";
+    term.meta = {
+      ...term.meta,
+      invalid: has(error, "term"),
     };
+    return term;
   }
 
   return undefined;
@@ -755,11 +784,9 @@ const parseSummaryTerm = (
 const parseSummarySubproduct = (
   key: string,
   data: ProductModel["options"],
-  lookup?: SubproductOption[],
+  lookup?: SubproductDetails[],
   error?: any
-): BasketProductSummaryDetail[] => {
-  const { checkIncludesTax } = useBrand();
-
+): (ProductSummaryDetail | ProductSummaryDetailWithPrice)[] => {
   return reduce(
     data,
     (result, choices) => {
@@ -769,37 +796,42 @@ const parseSummarySubproduct = (
           (result, choice, id) => {
             const category = find(lookup, {
               values: [{ id }],
-            }) as SubproductOption;
+            }) as SubproductDetails;
+
             const subproduct = find(category?.values, {
               id,
-            }) as SubProductOptionValue;
+            }) as SubproductValue;
+
             if (subproduct) {
-              result.push({
-                key,
+              const summary:
+                | ProductSummaryDetail
+                | ProductSummaryDetailWithPrice = {
+                name: key,
                 quantity: choice.quantity,
-                category: category?.name,
-                title: subproduct.name,
+                category: category?.title,
+                title: subproduct.title,
                 cycle: subproduct.cycle,
-                // ---
-                price: subproduct.price,
-                prices: subproduct.prices,
                 // ---
                 meta: {
                   ...subproduct.meta,
                   invalid: has(error, `${key}.${id}`),
                 },
-              });
+                // ---
+                ...(subproduct.price ?? {}),
+              };
+
+              result.push(summary);
             }
 
             return result;
           },
-          [] as any[] // Provide initial value as an empty array
+          [] as (ProductSummaryDetail | ProductSummaryDetailWithPrice)[] // Provide initial value as an empty array
         );
         result.push(...selected);
       }
       return result;
     },
-    [] as BasketProductSummaryDetail[] // Provide initial value as an empty array
+    [] as (ProductSummaryDetail | ProductSummaryDetailWithPrice)[] // Provide initial value as an empty array
   );
 };
 
@@ -807,16 +839,16 @@ const parseSummaryProvisionFields = (
   data: any,
   schema: any,
   error?: any
-): BasketProductSummaryDetail[] => {
+): ProductSummaryDetail[] => {
   return reduce(
     schema?.properties,
     (result: any[], provisionField, key) => {
       let title = get(data, key);
       if (provisionField.oneOf) {
-        title = find(provisionField.oneOf, ["const", title])?.title;
+        title = find(provisionField.oneOf, ["const", title])?.title ?? title;
       }
       result.push({
-        key: `provision_field.${key}`,
+        name: `provision_field.${key}`,
         category: get(provisionField, "title", key),
         title,
         cycle: undefined,
@@ -831,20 +863,19 @@ const parseSummaryProvisionFields = (
       });
       return result;
     },
-    [] as BasketProductSummaryDetail[]
+    [] as ProductSummaryDetail[]
   );
 };
 
-export const parseModel = (raw: ProductModel): ProductModel => {
+export const parseModel = (data: ProductModel): ProductModel => {
   // handle  product model
   return {
-    quantity: raw?.quantity || 1,
-    productId: raw.productId,
-    term: raw.term,
-    options: raw.options,
-    attributes: raw.attributes,
-    provisionFields: raw.provisionFields,
-    subproducts: raw.subproducts,
+    quantity: data?.quantity || 1,
+    productId: data.productId,
+    term: data.term,
+    options: data.options,
+    attributes: data.attributes,
+    provisionFields: data.provisionFields,
   };
 };
 
@@ -855,13 +886,13 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     quantity: raw.quantity,
     productId: raw.product_id,
     term: raw.billing_cycle_months,
-    options: parseSubproductChoices(raw.options),
-    attributes: parseSubproductChoices(raw.attributes),
+    options: parseSubproductDetailsChoices(raw.options),
+    attributes: parseSubproductDetailsChoices(raw.attributes),
     provisionFields: raw.provision_fields,
   };
 };
 
-const parseSubproductChoices = (values: IBasketProduct[]) => {
+const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
   return reduce(
     values,
     (result, value) => {
@@ -874,7 +905,7 @@ const parseSubproductChoices = (values: IBasketProduct[]) => {
         productId: value.product_id,
         quantity: parseQuantity(
           value.unit_quantity,
-          parseProduct(value.product)
+          parseProductDetails(value.product)
         ),
         cycle: value.billing_cycle_months,
       });
@@ -883,3 +914,5 @@ const parseSubproductChoices = (values: IBasketProduct[]) => {
     {}
   );
 };
+
+// -----------------------------------------------------------------------------

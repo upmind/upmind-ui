@@ -3,12 +3,12 @@
     :id="subproduct.id"
     :name="subproduct.id"
     :class="styles.product.config.list.root"
-    :required="subproduct.required"
+    :required="subproduct.meta.required"
     :disabled="props.disabled"
     :visible="props.visible"
     :dirty="blurred"
     :errors="props.errors"
-    :label="subproduct.name"
+    :label="subproduct.title"
     :tooltip="subproduct?.description"
     @blur="blurred = true"
   >
@@ -17,13 +17,13 @@
       :id="subproduct.id"
       v-model="modelValue"
       :name="subproduct.id"
-      :required="subproduct.required"
+      :required="subproduct.meta.required"
       :items="parsedValues"
       :disabled="props.disabled"
       :errors="errors"
       :none-text="t('product.select.none')"
       :placeholder="t('product.select.placeholder')"
-      :multiple="subproduct.multiple"
+      :multiple="subproduct.meta.multiple"
       :size="subproduct.uiMeta?.uischema?.options?.size"
     >
       <template #item="{ item: { value } }">
@@ -60,13 +60,22 @@ import { find, map, get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type {
+  SelectCardsItemProps,
+  RadioCardsItemProps,
+  CheckboxCardsItemProps,
+} from "@upmind-automation/upmind-ui";
+import type {
+  SubproductDetails,
+  SubproductValue,
+} from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["update:modelValue", "update:quantity"]);
 
 const props = defineProps<{
-  subproduct: any;
+  subproduct: SubproductDetails;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
   errors?: string;
@@ -114,35 +123,44 @@ const mapComponent = (name: string) => {
     case "SelectCards":
       return SelectCards;
     default:
-      return props.subproduct.multiple || props.subproduct.values?.length == 1
+      return props.subproduct.meta.multiple ||
+        props.subproduct.values?.length == 1
         ? CheckboxCards
         : RadioCards;
   }
 };
 
-const parsedValues = computed<any[]>(() => {
-  return map(props.subproduct?.values, (subproduct, index) => ({
-    id: subproduct.id,
-    value: subproduct.id,
-    sublabel: subproduct?.name ?? "",
-    text: subproduct?.excerpt,
-    values: subproduct.values,
-    group: subproduct?.uiMeta?.uischema?.group,
-    item: subproduct,
-    index,
-    modelValue: modelValue.value,
-  }));
+const parsedValues = computed(() => {
+  const values = map(props.subproduct?.values, (subproduct, index) => {
+    return {
+      id: subproduct.id,
+      value: subproduct.id.toString(), // Ensure value is a string
+      label: subproduct?.title ?? "", // Add the required label property
+      sublabel: subproduct?.title ?? "",
+      text: subproduct?.excerpt,
+      group: subproduct?.uiMeta?.uischema?.group,
+      item: subproduct,
+      index,
+      modelValue: modelValue.value,
+    };
+  });
+
+  return values;
 });
 
-function getSubproductValue(value: string) {
-  const product = find(props.subproduct?.values, ["id", value]);
+function getSubproductValue(value: string): SubproductValue {
+  const product = find(props.subproduct?.values, [
+    "id",
+    value,
+  ]) as SubproductValue;
+
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    name: product?.uiMeta?.uischema?.primary
+    title: product?.uiMeta?.uischema?.primary
       ? product?.uiMeta?.uischema?.group
-      : product?.name,
-    icon: product?.uiMeta?.uischema?.icon,
+      : product?.title,
+    // icon: product?.uiMeta?.uischema?.icon, //Is this used?
   };
 }
 

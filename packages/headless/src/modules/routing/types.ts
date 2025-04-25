@@ -11,6 +11,7 @@ export enum ROUTE {
   PRODUCT_EDIT = "product.edit",
   PRODUCT_REQUIRES_ACTION = "product.requiresAction",
   PRODUCT_NOT_FOUND = "product.notFound",
+  PRODUCT_RECOMMENDATIONS = "product.recommendations",
   RECOMMENDATIONS = "recommendations",
   SESSION = "session",
   SESSION_LOGIN = "session.login",
@@ -32,8 +33,16 @@ export enum REQUIRES_ACTION {
 }
 
 export interface PageRoute {
-  to?: string;
-  from?: string;
+  to?: {
+    fullPath: string;
+    name?: string | symbol;
+    params?: Record<string, string | string[]>;
+  };
+  from?: {
+    fullPath: string;
+    name?: string | symbol;
+    params?: Record<string, string | string[]>;
+  };
 }
 
 export type Route = {
@@ -41,9 +50,7 @@ export type Route = {
   name?: string;
   params?: Record<string, string | string[]>;
   query?: Record<string, any>;
-  meta?: {
-    [key: string]: any; // allow for any meta data to help enhance the route/navigation
-  };
+  meta?: Record<string, any>;
 };
 
 export type Target =
@@ -52,18 +59,15 @@ export type Target =
       name: ROUTE;
       guard?: (route: Route, data?: any) => Promise<boolean>;
       resolve?: (route: Route, data?: any) => Promise<Route>;
-      meta?: {
-        [key: string]: any; // allow for any  meta data
-      };
+      meta?: Record<string, any>;
     };
 
 export interface Flow {
   name: ROUTE;
   guard?: (route: Route, data?: any) => Promise<boolean>;
   resolve?: (route: Route, data?: any) => Promise<Route>;
-  meta?: {
+  meta?: Record<string, any> & {
     replace?: boolean; // this is so we know to replace the current route instead of redirecting
-    [key: string]: any; // allow for any other meta data
   };
   targets?: {
     next?: Target[];
