@@ -33,9 +33,6 @@ import { PageRoute } from "../../routing";
 // ---  Globals/Singeltons
 let UETQ: Window["uetq"]; // Microsoft Consent
 let DATA_LAYER = window.dataLayer || [];
-function push(...args: any) {
-  DATA_LAYER.push(arguments);
-}
 
 // -----------------------------------------------------------------------------
 
@@ -179,8 +176,7 @@ class TrackingEvent {
 
   push() {
     const payload = this.args;
-
-    push(payload);
+    DATA_LAYER.push(payload);
     this.complete = true;
     return payload;
   }
@@ -205,23 +201,27 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
 
   function init(): Promise<void> {
     // ---  Init the contsent manager
-    push("consent", "default", {
-      ad_personalization: "denied",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      analytics_storage: "denied",
-      functionality_storage: "denied",
-      personalization_storage: "denied",
-      security_storage: "denied",
-      wait_for_update: 500,
-    });
+    DATA_LAYER.push([
+      "consent",
+      "default",
+      {
+        ad_personalization: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        analytics_storage: "denied",
+        functionality_storage: "denied",
+        personalization_storage: "denied",
+        security_storage: "denied",
+        wait_for_update: 500,
+      },
+    ]);
 
     UETQ.push("consent", "default", {
       ad_storage: "denied",
       wait_for_update: 500,
     });
-    push("set", "ads_data_redaction", true);
-    push("set", "url_passthrough", false);
+    DATA_LAYER.push(["set", "ads_data_redaction", true]);
+    DATA_LAYER.push(["set", "url_passthrough", false]);
 
     return Promise.resolve();
   }
