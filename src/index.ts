@@ -24,6 +24,7 @@ export * from "./ui/interstitial";
 export * from "./ui/label";
 export * from "./ui/lineclamp";
 export * from "./ui/link";
+export * from "./ui/list";
 export * from "./ui/loading";
 export * from "./ui/markdown";
 export * from "./ui/number-field";

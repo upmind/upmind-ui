@@ -6,12 +6,12 @@ import {
 } from "../../assets/styles";
 
 export const checkboxLabelVariants = cva(
-  "m-0 h-full w-full rounded-lg py-3 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+  "m-0 h-full w-full rounded-lg py-3.5 text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       isList: {
         true: "",
-        false: "pr-6",
+        false: "pr-4",
       },
       cursor: {
         pointer: "cursor-pointer",
@@ -23,7 +23,7 @@ export const checkboxLabelVariants = cva(
 
 export default {
   checkboxCards: {
-    root: cva(`w-full`),
+    root: cva(`grid w-full gap-2`),
     item: cva(
       `group flex items-start space-x-2 text-control-foreground transition-all duration-200`,
       {

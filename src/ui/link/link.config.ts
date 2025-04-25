@@ -12,7 +12,7 @@ export const rootVariants = cva(
           "opacity-50 data-[disabled=true]:opacity-50 hover:data-[disabled=false]:opacity-100 focus:data-[disabled=false]:opacity-100",
       },
       size: {
-        inherit: "text-inherit",
+        inherit: "",
         xs: "text-xs",
         sm: "text-sm",
         md: "text-base",

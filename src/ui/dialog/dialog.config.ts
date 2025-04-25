@@ -24,7 +24,7 @@ export const contentVariant = cva(
         scroll: "overflow-scroll",
       },
       fit: {
-        cover: "p-0",
+        cover: "border-none p-0",
         contain: "p-6",
       },
     },
@@ -35,6 +35,18 @@ export const contentVariant = cva(
     },
   }
 );
+
+export const containerVariant = cva("", {
+  variants: {
+    fit: {
+      cover: "",
+      contain: "grid gap-4 overflow-y-auto px-1 py-4",
+    },
+  },
+  defaultVariants: {
+    fit: "contain",
+  },
+});
 
 export const overlayVariant = cva("", {
   variants: {
