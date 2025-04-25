@@ -6,7 +6,7 @@ const props = defineProps<DialogCloseProps>();
 </script>
 
 <template>
-  <DialogClose v-bind="props" :as="Button" size="icon" variant="ghost">
+  <DialogClose v-bind="props" :as="Button" variant="ghost">
     <slot>
       <Icon icon="close" size="auto" />
       <span class="sr-only">Close</span>

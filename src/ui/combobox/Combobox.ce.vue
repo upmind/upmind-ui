@@ -7,7 +7,7 @@
     <PopoverTrigger as-child>
       <Button
         :loading="props.loading"
-        :class="cn('group w-full', styles.combobox.trigger, props.class)"
+        :class="cn('group', styles.combobox.trigger, props.class)"
         :size="props.size"
         :aria-expanded="open"
         :color="props.color"

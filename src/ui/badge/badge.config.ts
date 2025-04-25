@@ -7,7 +7,7 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         flat: "border border-transparent",
-        outline: "border bg-opacity-0",
+        outline: "border !bg-opacity-0",
         tonal: "border border-transparent",
       },
       size: {

@@ -38,7 +38,7 @@
         </slot>
       </DialogHeader>
 
-      <div class="grid gap-4 overflow-y-auto px-1 py-4">
+      <div :class="cn(styles.dialog.container)">
         <div class="flex flex-col justify-start">
           <slot />
         </div>
@@ -151,7 +151,13 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  dialog: { overlay: string; content: string; header: string; footer: string };
+  dialog: {
+    overlay: string;
+    content: string;
+    header: string;
+    footer: string;
+    container: string;
+  };
 }>;
 
 // --- state
@@ -166,6 +172,7 @@ const { handlePointerEvents } = usePointerEvents(value, props.to);
 const onOpen = (open: boolean, force: boolean = false) => {
   if (!props.dismissable && !open && !force) return;
   value.value = open;
+  emits("update:open", open);
   nextTick(() => handlePointerEvents(open));
 };
 

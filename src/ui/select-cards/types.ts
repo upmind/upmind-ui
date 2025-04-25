@@ -8,7 +8,11 @@ import type {
   RadioGroupItemProps,
   PopoverContentProps,
 } from "radix-vue";
-import type { CxOptions } from "class-variance-authority";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+
+// --- internal
+import type { triggerVariants } from "./selectCards.config";
+type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
 export interface SelectCardsItemProps extends RadioGroupItemProps {
   label: string;
@@ -25,7 +29,7 @@ export interface SelectCardsProps extends RadioGroupRootProps {
   // ---
   color?: ButtonProps["color"];
   side?: PopoverContentProps["side"];
-  size?: ButtonProps["size"];
+  width?: TriggerVariantProps["width"];
   focusable?: boolean;
 
   uiConfig?: { select: CxOptions };
