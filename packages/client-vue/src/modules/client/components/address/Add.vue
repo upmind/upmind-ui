@@ -50,7 +50,7 @@ const emit = defineEmits<{
 }>();
 
 const { update, set, model, schema, uischema, meta } = useClientAddress();
-const { isReady, getAll, data } = useClientAddresses();
+const { isReady, getAll } = useClientAddresses();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
@@ -65,15 +65,9 @@ const updateModel = debounce(async (address: Address) => {
 }, 500);
 
 watch(selectedAddress, async address => {
-  try {
-    if (address) {
-      await set(address);
-      await updateAddress();
-    }
-  } catch (error) {
-    // Show the address input fields if the address lookup update fails
+  if (address) {
+    await set(address);
     setShowAddressFields(true);
-    throw error;
   }
 });
 
