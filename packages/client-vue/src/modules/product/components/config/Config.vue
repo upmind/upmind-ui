@@ -268,7 +268,8 @@ const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
 }>;
 
 function safeValue(subproduct: any, value: any): string | string[] {
-  const shouldBeArray = subproduct?.multiple || subproduct?.values?.length == 1;
+  const shouldBeArray =
+    subproduct?.meta?.multiple || subproduct?.values?.length == 1;
   const safeArray = !isArray(value) ? [value] : value;
   const safeString = isArray(value) ? first(value) : value;
   const safeValue = shouldBeArray ? safeArray : safeString;
