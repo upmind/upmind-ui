@@ -63,8 +63,9 @@ import type {
 
 export const parseBasketProduct = (
   raw: IBasketProduct,
-  errors?: any
+  basketErrors?: any
 ): BasketProduct => {
+  const errors = get(basketErrors, raw?.id);
   // Get price object matching `display_price_billing_cycle_months`
   const pricing = parsSummaryWithPrice(raw);
 
@@ -87,15 +88,7 @@ export const parseBasketProduct = (
 
     // --- errors
     // TODO: check the errors provided and map correctly
-    errors: omitBy(
-      {
-        term: get(errors, [raw?.id, "term"]),
-        attributes: get(errors, [raw?.id, "attributes"]),
-        options: get(errors, [raw?.id, "options"]),
-        provisionFields: get(errors, [raw?.id, "provision_field_values"]),
-      },
-      isEmpty
-    ),
+    errors: omitBy(errors, isEmpty),
   };
 
   // --- because we are a full basket product, we may have a service identifier

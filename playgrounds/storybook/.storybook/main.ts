@@ -1,5 +1,6 @@
 import type { StorybookConfig } from "@storybook/vue3-vite";
 import { join, dirname } from "path";
+import remarkGfm from "remark-gfm";
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -17,27 +18,40 @@ const config: StorybookConfig = {
   staticDirs: ["../public"],
 
   addons: [
-    getAbsolutePath("@storybook/addon-links"),
+    "@storybook/addon-links",
     {
-      name: getAbsolutePath("@storybook/addon-essentials"),
+      name: "@storybook/addon-essentials",
       options: {
         backgrounds: false,
         measure: false,
         outline: false,
       },
     },
-    getAbsolutePath("@chromatic-com/storybook"),
-    getAbsolutePath("@storybook/addon-interactions"),
-    getAbsolutePath("@storybook/addon-themes"),
+    "@chromatic-com/storybook",
+    "@storybook/addon-interactions",
+    "@storybook/addon-themes",
+    "@storybook/components",
+    "storybook-addon-vue-mdx",
+    {
+      name: "@storybook/addon-docs",
+      options: {
+        mdxPluginOptions: {
+          mdxCompileOptions: {
+            remarkPlugins: [remarkGfm],
+          },
+        },
+      },
+    },
   ],
 
   framework: {
     name: getAbsolutePath("@storybook/vue3-vite"),
-    options: {
-      docgen: "vue-component-meta",
-    },
+    options: {},
   },
 
-  docs: {},
+  docs: {
+    autodocs: true,
+    defaultName: "Overview",
+  },
 };
 export default config;

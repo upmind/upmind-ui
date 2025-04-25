@@ -1,6 +1,7 @@
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,19 +10,29 @@ export default defineConfig({
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: (tag) => tag.startsWith('upm-')
-        }
-      }
+          isCustomElement: tag => tag.startsWith("upm-"),
+        },
+      },
     }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./stories', import.meta.url)),
-      '@icons': fileURLToPath(new URL('./stories/assets/icons', import.meta.url)),
-      '@themes': fileURLToPath(new URL('./stories/assets/themes', import.meta.url)),
-      '@locales': fileURLToPath(new URL('./stories/assets/locales', import.meta.url)),
-
-    }
+      "@": fileURLToPath(new URL("./stories", import.meta.url)),
+      "@icons": fileURLToPath(
+        new URL("./stories/assets/icons", import.meta.url)
+      ),
+      "@themes": fileURLToPath(
+        new URL("./stories/assets/themes", import.meta.url)
+      ),
+      "@locales": fileURLToPath(
+        new URL("./stories/assets/locales", import.meta.url)
+      ),
+      // Map local package imports to their source folders.
+      "@upmind-automation/upmind-ui": resolve(
+        __dirname,
+        "../../packages/ui/src/index.ts"
+      ),
+    },
   },
   // build: {
   //   rollupOptions: {
@@ -39,4 +50,4 @@ export default defineConfig({
   //     }
   //   }
   // }
-})
+});
