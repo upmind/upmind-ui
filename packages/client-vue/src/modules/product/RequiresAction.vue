@@ -60,6 +60,7 @@ import {
 } from "@upmind-automation/headless-vue";
 
 // --- components
+import Basket from "../../assets/animations/basket.json?url";
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
