@@ -6,7 +6,12 @@ import { waitFor } from "xstate/lib/waitFor";
 import { useClientPhones as useUpmindClientPhones } from "@upmind-automation/headless";
 
 // --- utils
-import { machineMatches, useContextActor, useContextActors } from "../../utils";
+import {
+  DEBOUNCE_DELAY,
+  machineMatches,
+  useContextActor,
+  useContextActors,
+} from "../../utils";
 import { get, map, debounce, isEmpty } from "lodash-es";
 
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
@@ -122,7 +127,7 @@ export const useClientPhones = (): ClientListingDefinition => {
     // ---
     isReady,
     getSelected,
-    filter: debounce(data => send({ type: "FILTER", data }), 300),
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
     select: async (id: any) => {
       await isReady();
       send({ type: "SELECT", data: id });

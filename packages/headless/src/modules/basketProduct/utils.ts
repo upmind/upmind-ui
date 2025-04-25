@@ -4,91 +4,103 @@
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTranslateName, DetailedError, responseCodes } from "../../utils";
 import {
-  parseProduct,
+  useTranslateName,
+  DetailedError,
+  responseCodes,
+  parseError,
+} from "../../utils";
+import {
   useUischemaTitle,
   useProductName,
+  parseProductDetails,
+  parseBasketProductModel,
 } from "../product/utils";
 
 import {
   find,
   forEach,
   get,
-  isNil,
+  isEmpty,
   isObject,
   map,
   mapValues,
   omitBy,
   reduce,
   set,
-  subtract,
-  toNumber,
   values,
-  isEmpty,
 } from "lodash-es";
 
 // --- types
+import type { ErrorObject } from "ajv";
+
 import type {
   IBasket,
   IBasketProduct,
   IBasketPromotion,
-  IProduct,
 } from "@upmind-automation/types";
-import { TaxTagTypes, ProductOrderTypes } from "@upmind-automation/types";
+import {
+  ProductOrderTypes,
+  PromotionDisplayTypes,
+} from "@upmind-automation/types";
 
 import type {
   BasketProduct,
-  BasketProductSummaryDetail,
-  BasketProductSummaryPrice,
-  BasketProductConfig,
-  BasketProductDetails,
-  SubProductChoices,
-} from "./types.ts";
+  IBasketProductModel,
+  IBasketSubproductModel,
+} from "./types";
 
 import type {
-  ProductDetails,
+  PromotionDetails,
   ProductModel,
   SubproductModel,
-  SubproductOption,
-  TermDetails,
+  ProductSummaryDetailWithPrice,
+  ProductSummaryDetail,
+  PriceDetail,
 } from "../product/types";
-import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
 export const parseBasketProduct = (
   raw: IBasketProduct,
-  provisioningErrors?: any
+  errors?: any
 ): BasketProduct => {
   // Get price object matching `display_price_billing_cycle_months`
-  const basketProduct: BasketProduct = {
-    id: raw?.id,
+  const pricing = parsSummaryWithPrice(raw);
 
-    // --- model
-    quantity: raw.quantity,
-    productId: raw.product_id,
-    term: raw.billing_cycle_months,
-    options: parseSubproductChoices(raw.options),
-    attributes: parseSubproductChoices(raw.attributes),
-    provisionFields: raw.provision_fields,
+  const basketProduct: BasketProduct = {
+    id: raw.id,
     serviceIdentifier: raw?.service_identifier ?? undefined,
 
-    // --- product details
-    product: parseProduct(raw.product),
+    // --- model/configuration
+    configuration: parseBasketProductModel(raw),
 
+    // --- product details
+    productDetails: parseProductDetails(raw.product),
+
+    // --- meta details
+    meta: pricing.meta,
     // --- summary details
-    summary: {
-      pricing: [parsPriceSummary(raw)],
-      details: [],
-    },
+    price: pricing.price,
+    pricing: [pricing], // may be added to below
+    details: [], // will be built up below
+
     // --- errors
-    error: get(provisioningErrors, [raw?.id]),
+    // TODO: check the errors provided and map correctly
+    errors: omitBy(
+      {
+        term: get(errors, [raw?.id, "term"]),
+        attributes: get(errors, [raw?.id, "attributes"]),
+        options: get(errors, [raw?.id, "options"]),
+        provisionFields: get(errors, [raw?.id, "provision_field_values"]),
+      },
+      isEmpty
+    ),
   };
 
   // --- because we are a full basket product, we may have a service identifier
   //     so we should regenerate the product title
-  basketProduct.product.title = useUischemaTitle(raw.product, {
+  basketProduct.productDetails.title = useUischemaTitle(raw.product, {
     basketProduct: raw,
     valueKey: "meta.uischema.title",
     fallback: useProductName(raw.product, raw),
@@ -97,37 +109,35 @@ export const parseBasketProduct = (
   // --- Now build up our details
   const term = parseTermSummary(raw);
   if (term) {
-    basketProduct.summary.details.push(term);
+    basketProduct.details.push(term);
   }
   // ---
   forEach(raw?.options, option => {
-    const subproduct = parsPriceSummary(option);
+    const subproduct = parsSummaryWithPrice(option);
     if (subproduct) {
+      // Add our non-quantifiable pricing
       if (option.product.order_type === ProductOrderTypes.SINGLE_OPTION)
-        basketProduct.summary.pricing.push(subproduct);
-      subproduct.key = "option";
-      basketProduct.summary.details.push(
-        subproduct as BasketProductSummaryDetail
-      );
+        basketProduct.pricing.push(subproduct);
+
+      subproduct.name = "option";
+      basketProduct.details.push(subproduct as ProductSummaryDetailWithPrice);
     }
   });
 
   // ---
   forEach(raw?.attributes, attribute => {
-    const subproduct = parseSubproductSummary(attribute);
+    const subproduct = parseSummary(attribute);
     if (subproduct) {
-      subproduct.key = "attribute";
-      basketProduct.summary.details.push(
-        subproduct as BasketProductSummaryDetail
-      );
+      subproduct.name = "attribute";
+      basketProduct.details.push(subproduct as ProductSummaryDetail);
     }
   });
 
   // ---
   forEach(raw?.provision_fields, (value, key) => {
-    const hasError = get(provisioningErrors, [raw?.id, key]);
+    const hasError = get(errors, [raw?.id, key]);
     const field = parseProvisionFieldSummary(key.toString(), value, hasError);
-    if (field) basketProduct.summary.details.push(field);
+    if (field) basketProduct.details.push(field);
   });
 
   // ---
@@ -135,75 +145,9 @@ export const parseBasketProduct = (
   return basketProduct;
 };
 
-const parseSubproductChoices = (rawSubproducts: IBasketProduct[]) => {
-  return reduce(
-    rawSubproducts,
-    (result, value) => {
-      set(
-        result,
-        [value.product.category_id, value.product_id],
-        parseProduct(value.product)
-      );
-
-      return result;
-    },
-    {}
-  );
-};
-
-export function parseTermSummary(raw: any): BasketProductSummaryDetail | null {
-  const { checkIncludesTax } = useBrand();
-
-  const summary: BasketProductSummaryPrice = parseSubproductSummary(
-    raw
-  ) as BasketProductSummaryPrice;
-
-  summary.key = "term";
-
-  summary.meta = {
-    oneoff: raw.billing_cycle_months > 0,
-    discounted: raw?.net_global_discount_amount > 0,
-    free: raw.net_unit_selling_price_formatted == 0,
-    includesTax: checkIncludesTax(),
-  };
-
-  summary.regularAmount = raw.selling_price_converted;
-  summary.regularPrice = raw.selling_price_formatted;
-  summary.currentAmount = raw.net_amount; // TBC //term.price_discounted ?? term.price;
-  summary.currentPrice = raw.net_unit_selling_price_formatted; //term.price_discounted_formatted ?? term.price_formatted;
-
-  // add any saving information (if available)
-  if (
-    summary.meta.discounted &&
-    !isNil(summary?.regularAmount) &&
-    !isNil(summary?.currentAmount)
-  ) {
-    summary.currentSavingAmount = summary.meta.discounted
-      ? ((summary.regularAmount - summary.currentAmount) /
-          summary.regularAmount) *
-        100
-      : 0;
-
-    summary.currentSaving = summary.meta.discounted
-      ? `${Math.round(summary.currentSavingAmount)}%`
-      : "";
-  }
-
-  // retained in case we wan tto show the term name as opposed to the actual product name/category
-  // const { getBillingCycle } = useSystem();
-  // const cycle = getBillingCycle(raw.billing_cycle_months);
-  // const name = cycle ? useTranslateName(cycle) : null;
-  // term.category = "Billing Cycle";
-  // term.name = name;
-  return summary;
-}
-
-export function parseSubproductSummary(
-  subproduct: IBasketProduct
-): Partial<BasketProductSummaryDetail> | null {
-  // NB: only show term pricing if recurring!
-
+export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
   return {
+    name: subproduct.product.name,
     title: useUischemaTitle(subproduct.product, {
       basketProduct: subproduct,
       valueKey: "meta.uischema.title",
@@ -212,80 +156,120 @@ export function parseSubproductSummary(
     category: useTranslateName(subproduct.product.category),
     cycle: subproduct.billing_cycle_months,
     quantity: subproduct.quantity,
+    meta: {},
   };
 }
 
-export function parsPriceSummary(raw: any) {
+export function parsSummaryWithPrice(
+  raw: IBasketProduct
+): ProductSummaryDetailWithPrice {
   const { checkIncludesTax } = useBrand();
 
-  const summary: BasketProductSummaryPrice = parseSubproductSummary(
-    raw
-  ) as BasketProductSummaryPrice;
+  const summary = parseSummary(raw) as Partial<ProductSummaryDetailWithPrice>;
 
   summary.meta = {
     oneoff: raw.billing_cycle_months > 0,
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
     overrides: raw?.product?.category?.price_override,
-    mixed: raw?.product?.mixed_promotions,
+    mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
     includesTax: checkIncludesTax(),
   };
 
-  summary.regularAmount = checkIncludesTax()
+  summary.promotions = parsePromotionDetails(raw);
+  summary.price = parsPrice(raw);
+
+  return summary as ProductSummaryDetailWithPrice;
+}
+
+export function parsPrice(raw: IBasketProduct): PriceDetail {
+  const { checkIncludesTax } = useBrand();
+
+  const includesTax = checkIncludesTax();
+  const discounted = raw.configuration_net_amount_discount_converted > 0;
+
+  const regularAmount = includesTax
     ? raw.configuration_total_amount_converted
     : raw.configuration_net_amount_converted;
-  summary.regularPrice = checkIncludesTax()
+  const regularPrice = includesTax
     ? raw.configuration_total_amount_formatted
     : raw.configuration_net_amount_formatted;
-  summary.currentAmount = checkIncludesTax()
+  //  ---
+  const currentAmount = includesTax
     ? raw.configuration_total_discounted_amount_converted
     : raw.configuration_net_amount_discounted_converted;
-  summary.currentPrice = checkIncludesTax()
+  const currentPrice = includesTax
     ? raw.configuration_total_discounted_amount_formatted
     : raw.configuration_net_amount_discounted_formatted;
+  // ---
+  const savingAmount = includesTax
+    ? raw.configuration_total_discount_amount_converted
+    : raw.configuration_net_amount_discount_converted; //TODO: MISSING net price discount
+  const savingPrice = includesTax
+    ? raw.configuration_total_discount_amount_formatted
+    : raw.configuration_net_amount_discount_formatted;
 
-  // add any saving information (if available)
-  if (
-    summary.meta.discounted &&
-    !isNil(summary?.regularAmount) &&
-    !isNil(summary?.currentAmount)
-  ) {
-    summary.currentSavingAmount = summary.meta.discounted
-      ? ((summary.regularAmount - summary.currentAmount) /
-          summary.regularAmount) *
-        100
-      : 0;
+  const savingPercent = discounted
+    ? `${Math.round((savingAmount / regularAmount) * 100)}%`
+    : "";
 
-    summary.currentSaving = summary.meta.discounted
-      ? `${Math.round(summary.currentSavingAmount)}%`
-      : "";
-  }
+  return {
+    regularAmount,
+    regularPrice,
+    currentAmount,
+    currentPrice,
+    savingAmount,
+    savingPrice,
+    savingPercent,
+  } as PriceDetail;
+}
 
-  // if we have a quantity greater than 1, lets include the pricing for a single unit
-  if (raw.quantity > 1) {
-    summary.selling = {
-      regularAmount: raw.selling_amount_converted,
-      regularPrice: raw.selling_amount_formatted,
-      currentAmount: raw.selling_amount_discounted_converted,
-      currentPrice: raw.selling_amount_discounted_formatted,
-    };
+export const parsePromotionDetails = (
+  raw: IBasketProduct
+): PromotionDetails[] => {
+  //  Basket Product Promotions can only be displayed in one of 2 ways:
+  //  - As a generic summary label with no values when mixed, eg "SAVE"
+  //  - As a summary percentage, eg "Save 20%"
+  // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
 
-    // add any saving information (if available)
-    if (
-      summary.meta.discounted &&
-      summary?.selling?.regularAmount &&
-      summary?.selling?.currentAmount
-    ) {
-      summary.selling.currentSavingAmount = summary.meta.discounted
-        ? ((summary.selling.regularAmount - summary.selling.currentAmount) /
-            summary.selling.regularAmount) *
-          100
-        : 0;
+  const price = parsPrice(raw);
 
-      summary.selling.currentSaving = summary.meta.discounted
-        ? `${Math.round(summary.selling.currentSavingAmount)}%`
-        : "";
-    }
+  if (!price.savingAmount) return [];
+
+  return [
+    {
+      code: "save",
+      name: "save", // untranslated name for reporting purposes  category?: string;
+      title: "Save",
+      meta: {
+        display: PromotionDisplayTypes.PERCENTAGE,
+        mixed: raw.product.mixed_promotions,
+        discounted: !!price.savingAmount || raw.product.mixed_promotions,
+      },
+      price: {
+        savingAmount: price.savingAmount,
+        savingPrice: price.savingPrice,
+        savingPercent: price.savingPercent,
+      },
+    } as PromotionDetails,
+  ];
+};
+
+export function parseTermSummary(
+  raw: IBasketProduct
+): ProductSummaryDetailWithPrice {
+  const summary = parsSummaryWithPrice(raw) as ProductSummaryDetailWithPrice;
+
+  summary.name = "term";
+
+  //  Allow for "price-overrrides"
+  set(summary, "meta.free", raw.net_amount == 0);
+  set(summary, "meta.overriden", raw.net_amount == 0);
+
+  // if we have no price then we are being overridden, so we need to force the currentPricing to 0
+  if (raw.net_amount == 0) {
+    set(summary, "price.currentAmount", raw.net_amount);
+    set(summary, "price.currentPrice", "");
   }
 
   return summary;
@@ -295,11 +279,11 @@ export function parseProvisionFieldSummary(
   key: string,
   data: any,
   hasError?: any
-): BasketProductSummaryDetail | null {
+): ProductSummaryDetail {
   const title = get(data, key, data); // just in case its an object > unti lwe have types
 
   return {
-    key: `provision_field.${key}`,
+    name: `provision_field.${key}`,
     category: key,
     title,
     meta: {
@@ -308,39 +292,42 @@ export function parseProvisionFieldSummary(
   };
 }
 
-export function parseBasketProductConfig(
-  model: BasketProduct | ProductModel,
-  promotions?: BasketProductConfig["promotions"]
-): BasketProductConfig {
+export function parseBasketProductData(
+  model: ProductModel,
+  promotions?: IBasketPromotion[] | string[]
+): IBasketProductModel {
   return {
-    product_id: model?.productId,
-    quantity: model?.quantity,
-    billing_cycle_months: model?.term,
+    product_id: model.productId,
+    quantity: model.quantity,
+    billing_cycle_months: model.term ?? 0,
     // ---
     attributes: parseBasketSubproductConfig(model?.attributes),
     options: parseBasketSubproductConfig(model?.options),
     // ---
-    provision_field_values: model.provisionFields || [],
+    provision_field_values: model.provisionFields || {},
     // ---
-    promotions: map(promotions, (promotion: IBasketPromotion) => {
-      return isObject(promotion)
-        ? { promocode: promotion.promotion.code }
-        : { promocode: promotion };
+    promotions: map(promotions, basketPromotion => {
+      const promocode =
+        isObject(basketPromotion) && "promotion" in basketPromotion
+          ? basketPromotion.promotion.code
+          : basketPromotion;
+
+      return { promocode };
     }),
-  } as BasketProductConfig;
+  } as IBasketProductModel;
 }
 
 function parseBasketSubproductConfig(
-  subproducts?: SubProductChoices | SubproductModel
-) {
+  subproducts?: SubproductModel
+): IBasketSubproductModel[] {
   return reduce(
     subproducts ?? {},
-    (result: any[], subproduct) => {
+    (result: IBasketSubproductModel[], subproduct) => {
       if (subproduct) {
         const selected = values(
           mapValues(subproduct, choice => {
             return {
-              product_id: "productId" in choice ? choice.productId : choice.id,
+              product_id: choice.productId,
               unit_quantity: choice.quantity,
               billing_cycle_months: choice.cycle,
             };
@@ -368,25 +355,14 @@ export function getBasketProduct(id: string, basket: IBasket) {
   return value;
 }
 
-export function ParseDataLayerEcommerceItem(
-  model: ProductModel,
-  product: ProductDetails,
-  term: TermDetails
-): DataLayerEcommerceItem {
-  const payload = {
-    // net_price: string;
-    discount: subtract(term.regularAmount, term.currentAmount),
-    duration: model.term,
-    index: 0,
-    item_brand: product?.brand,
-    item_category: product?.categories?.[0],
-    item_category2: product?.categories?.[1],
-    item_category3: product?.categories?.[2],
-    item_id: product.id,
-    item_name: product.title,
-    price: term.currentAmount,
-    quantity: model.quantity,
-  } as DataLayerEcommerceItem;
-
-  return omitBy(payload, isNil) as DataLayerEcommerceItem;
+export function parseBasketProductError(
+  rawError: any | any[]
+): Record<string, ErrorObject[]> {
+  const error = {
+    term: map(rawError?.term, parseError),
+    options: map(rawError?.options, parseError),
+    attributes: map(rawError?.attributes, parseError),
+    provisionFields: map(rawError?.provision_field_values, parseError),
+  };
+  return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
 }

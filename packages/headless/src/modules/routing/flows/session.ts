@@ -16,7 +16,7 @@ import { ROUTE } from "../types";
 
 export const useSessionFlows = () => {
   const routing = useRoutingEngine();
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated, hasExpired } = useSession();
   const { clear: clearPendingProducts } = useBasketProductsPending();
 
   let flows: Flow[] = [
@@ -65,13 +65,14 @@ export const useSessionFlows = () => {
     {
       name: ROUTE.SESSION_END,
       guard: async (route: Route) => {
-        const valid = await isAuthenticated()
-          .then(() => false)
-          .catch(() => true);
-
+        const valid = hasExpired();
         if (valid) clearPendingProducts();
-
         return valid;
+      },
+      targets: {
+        next: [],
+        back: [ROUTE.BASKET, ROUTE.EMPTY],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
 

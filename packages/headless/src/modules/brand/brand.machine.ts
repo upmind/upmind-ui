@@ -3,7 +3,7 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { useI18n } from "../system";
+import { useSystemI18n } from "../system";
 import { querySubscription } from "../query";
 
 // --- utils
@@ -43,6 +43,7 @@ export default createMachine(
           BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
           BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
           BrandConfigKeys.BASKET_DEFAULT_CURRENCY,
+          BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
           BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
           BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
           BrandConfigKeys.CHECKOUT_FLOW,
@@ -52,6 +53,7 @@ export default createMachine(
           BrandConfigKeys.CHECKOUT_SUMMARY_CONTRAST_MODE,
           BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED,
           BrandConfigKeys.DEFAULT_CLIENT_HOMEPAGE,
+          BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
           BrandConfigKeys.DISABLE_CLIENT_REGISTRATION,
           BrandConfigKeys.PREVENT_CARD_REMOVAL_IF_LAST,
           BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION,
@@ -60,7 +62,6 @@ export default createMachine(
           BrandConfigKeys.SUPPORT_PIN_ENABLED,
           BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
           BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
-          BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
           BrandConfigKeys.UI_ENTER_KEY_ACTION,
           BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION,
         ],
@@ -274,7 +275,7 @@ export default createMachine(
         { initialised }: BrandContext,
         _event: AnyEventObject
       ) => {
-        if (!initialised) useI18n().setDefaultLocale();
+        if (!initialised) useSystemI18n().setDefaultLocale();
       },
 
       setModules: assign({

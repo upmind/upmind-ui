@@ -1,4 +1,11 @@
-// ---
+// --- utils
+import { reduce, set, trimStart } from "lodash-es";
+
+// --- types
+import type { ErrorObject } from "ajv";
+
+// -----------------------------------------------------------------------------
+
 export enum responseCodes {
   "OK" = 200,
   "No_Content" = 204,
@@ -36,4 +43,33 @@ export class CacheIsNotAvailableError extends Error {
     );
     this.code = responseCodes.Unprocessable_Entity;
   }
+}
+
+// -----------------------------------------------------------------------------
+
+export function unflattenErrors(data: any) {
+  // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
+  // and then we 'pick' the products out of the object
+  const parsed = reduce(
+    data,
+    (result, value, key) => set(result, key, value),
+    []
+  ) as Record<string, any>;
+
+  return parsed;
+}
+
+export function parseError(value: string | string[], key: string): ErrorObject {
+  const instancePath = trimStart(
+    key.toString().replace(".", "/properties/"),
+    "/"
+  );
+  return {
+    instancePath: `/${instancePath}`, // AJV style path to the property in the schema
+    message: value.toString(),
+    // --- optional
+    schemaPath: instancePath,
+    keyword: "",
+    params: {},
+  } as ErrorObject;
 }

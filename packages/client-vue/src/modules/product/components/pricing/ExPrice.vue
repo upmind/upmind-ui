@@ -18,8 +18,8 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
 
 // --- types
-import { type ComputedRef } from "vue";
-import { type ExPriceProps } from "./types";
+import type { ComputedRef } from "vue";
+import type { ExPriceProps } from "./types";
 
 const props = defineProps<ExPriceProps>();
 

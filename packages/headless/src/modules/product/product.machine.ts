@@ -8,50 +8,45 @@ import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
 import { responseCodes } from "../../utils";
-import { useTime, compactDeep, useValidationParser } from "../../utils";
+import { useTime, unflattenErrors } from "../../utils";
+import { parseBasketProductError } from "../basketProduct/utils";
 import {
-  parseSubproduct,
+  parseSubproductDetails,
   parseProvisioningSchema,
-  parseProduct,
-  parseTerms,
+  parseProductDetails,
+  parseTermDetails,
   parseModel,
   parseBasketProductModel,
-  parseSummary,
-  useUischemaTitle,
-  useProductName,
+  parseProduct,
 } from "./utils";
 
 import {
   cloneDeep,
-  compact,
   concat,
-  xorBy,
   forEach,
   get,
-  has,
   isEmpty,
   isEqual,
   isNil,
   isObject,
   merge,
+  omitBy,
   pick,
+  reduce,
   remove,
   set,
   toNumber,
-  unset,
-  first,
   uniq,
+  unset,
+  xorBy,
 } from "lodash-es";
 
 import { calculateSubscription } from "./services";
 
 // ---types
 import type { AnyEventObject } from "xstate";
-import type {
-  BasketProduct,
-  BasketProductSummaryPrice,
-} from "../basketProduct";
-import type { ProductConfigContext, ProductModel } from "./types";
+import type { BasketProduct } from "../basketProduct";
+import type { PriceDisplay, ProductConfigContext, ProductModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -84,7 +79,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups", "setTitle"],
+              actions: ["setLookups"],
             },
           ],
           onError: {
@@ -102,7 +97,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups", "setTitle"],
+              actions: ["setLookups"],
             },
           ],
           onError: {
@@ -156,43 +151,20 @@ export default createMachine(
                     entry: ({ error }) => unset(error, "term"),
                     invoke: {
                       src: "checkTerm",
-                      onDone: [
-                        {
-                          target: ["valid"],
-                          actions: [
-                            "setTerm",
-                            "setSummaryCalculating",
-                            "calculate",
-                            raise("CHECK.OPTIONS"),
-                          ],
-                          cond: "needsCalculating",
-                        },
+                      onDone: {
+                        target: ["valid"],
+                        actions: [
+                          "setTerm",
 
-                        {
-                          target: "valid",
-                          actions: [
-                            "setTerm",
-                            "setSummary",
-                            raise("CHECK.OPTIONS"),
-                          ],
-                        },
-                      ],
-                      onError: [
-                        {
-                          target: "invalid",
-                          actions: [
-                            "setTerm",
-                            "setError",
-                            "setSummaryCalculating",
-                            "calculate",
-                          ],
-                          cond: "needsCalculating",
-                        },
-                        {
-                          target: "invalid",
-                          actions: ["setTerm", "setSummary", "setError"],
-                        },
-                      ],
+                          "calculate",
+                          raise("CHECK.OPTIONS"),
+                        ],
+                      },
+
+                      onError: {
+                        target: "invalid",
+                        actions: ["setTerm", "setError", "calculate"],
+                      },
                     },
                   },
                   invalid: {},
@@ -214,11 +186,11 @@ export default createMachine(
                       src: "checkAttributes",
                       onDone: {
                         target: "valid",
-                        actions: ["setAttributes", "setSummary"],
+                        actions: ["setAttributes", "setProduct"],
                       },
                       onError: {
                         target: "invalid",
-                        actions: ["setAttributes", "setSummary", "setError"],
+                        actions: ["setAttributes", "setProduct", "setError"],
                       },
                     },
                   },
@@ -239,37 +211,15 @@ export default createMachine(
                     entry: ({ error }) => unset(error, "options"),
                     invoke: {
                       src: "checkOptions",
-                      onDone: [
-                        {
-                          target: "valid",
-                          actions: [
-                            "setOptions",
-                            "setSummaryCalculating",
-                            "calculate",
-                          ],
-                          cond: "needsCalculating",
-                        },
-                        {
-                          target: "valid",
-                          actions: ["setOptions", "setSummary"],
-                        },
-                      ],
-                      onError: [
-                        {
-                          target: "invalid",
-                          actions: [
-                            "setOptions",
-                            "setError",
-                            "setSummaryCalculating",
-                            "calculate",
-                          ],
-                          cond: "needsCalculating",
-                        },
-                        {
-                          target: "invalid",
-                          actions: ["setOptions", "setSummary", "setError"],
-                        },
-                      ],
+                      onDone: {
+                        target: "valid",
+                        actions: ["setOptions", "calculate"],
+                      },
+
+                      onError: {
+                        target: "invalid",
+                        actions: ["setOptions", "setError", "calculate"],
+                      },
                     },
                   },
                   invalid: {},
@@ -289,11 +239,11 @@ export default createMachine(
                       src: "checkProvisioning",
                       onDone: {
                         target: "valid",
-                        actions: ["setProvisioning", "setSummary"],
+                        actions: ["setProvisioning", "setProduct"],
                       },
                       onError: {
                         target: "invalid",
-                        actions: ["setProvisioning", "setSummary", "setError"],
+                        actions: ["setProvisioning", "setProduct", "setError"],
                       },
                     },
                   },
@@ -326,9 +276,7 @@ export default createMachine(
               cond: "hasError",
             },
             {
-              target: "available.invalid",
               actions: ["refreshContext", "setError"],
-              cond: "hasChanged",
             },
           ],
           REMOVE: {
@@ -340,9 +288,9 @@ export default createMachine(
                 return basketHelper;
               },
               (context: ProductConfigContext, _event) => {
-                const { model, basketProduct } = context;
+                const { model, rawBasketProduct } = context;
                 // NB:ensure we ad dout basket product id to the model, so we update instead of add
-                if (basketProduct && model) model.id = basketProduct.id;
+                if (rawBasketProduct && model) model.id = rawBasketProduct.id;
 
                 return {
                   type: "REMOVE",
@@ -362,10 +310,10 @@ export default createMachine(
                 return basketHelper;
               },
               (context: ProductConfigContext, _event) => {
-                const { model, basketProduct } = context;
+                const { model, rawBasketProduct } = context;
 
                 // NB:ensure we ad dout basket product id to the model, so we update instead of add
-                if (basketProduct && model) model.id = basketProduct.id;
+                if (rawBasketProduct && model) model.id = rawBasketProduct.id;
 
                 return {
                   type: "UPDATE",
@@ -376,18 +324,15 @@ export default createMachine(
             ),
             target: "processing",
           },
-          CALCULATE_CANCELLED: {
-            actions: ["clearSummaryCalculating"],
+
+          CALCULATING: {
+            actions: ["setCalculating"],
           },
-          CALCULATED: [
-            {
-              actions: ["clearSummaryCalculating", "setSummary"],
-              cond: "hasSummaryData",
-            },
-            {
-              actions: ["clearSummaryCalculating"],
-            },
-          ],
+
+          CALCULATED: {
+            actions: ["clearCalculating", "setProduct"],
+          },
+
           // ---
           SET: {
             target: "available.invalid",
@@ -472,7 +417,10 @@ export default createMachine(
       },
       ERROR: {
         target: "available.error",
-        actions: ["setError"],
+        actions: ["setError", "clearCalculating"],
+      },
+      CALCULATE_CANCELLED: {
+        actions: ["clearCalculating"],
       },
     },
   },
@@ -483,12 +431,13 @@ export default createMachine(
           {
             // id,
             model,
-            basketProduct,
+            rawBasketProduct,
             currencyId,
             basketId,
             clientId,
             promotions,
             coupons,
+            subproducts,
             errorExternal,
             error,
           }: ProductConfigContext,
@@ -496,23 +445,24 @@ export default createMachine(
         ) => {
           return {
             errorExternal,
-            error: merge({}, errorExternal, error),
+            error: merge({}, error),
+
             // ---
             basketId,
             clientId,
             currencyId,
-
             promotions: promotions ?? [],
             coupons: coupons ?? [],
+            subproducts: subproducts ?? [],
             // ---
-            baseModel: !isEmpty(basketProduct)
-              ? parseBasketProductModel(basketProduct)
+            baseModel: !isEmpty(rawBasketProduct)
+              ? parseBasketProductModel(rawBasketProduct)
               : model
                 ? parseModel(model)
                 : undefined,
 
-            model: !isEmpty(basketProduct)
-              ? parseBasketProductModel(basketProduct)
+            model: !isEmpty(rawBasketProduct)
+              ? parseBasketProductModel(rawBasketProduct)
               : model
                 ? parseModel(model)
                 : undefined,
@@ -530,7 +480,7 @@ export default createMachine(
             rawProduct,
             error,
             coupons,
-            basketProduct,
+            rawBasketProduct,
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
@@ -545,16 +495,16 @@ export default createMachine(
           lookups ??= {};
 
           if (rawProduct) {
-            lookups.product = parseProduct(rawProduct);
+            lookups.product = parseProductDetails(rawProduct, rawBasketProduct);
           }
 
-          if (basketProduct && basketProduct != basket_product) {
+          if (rawBasketProduct && rawBasketProduct != basket_product) {
             console.warn(
               "Product Machine",
               "refresh",
               "basketProduct mismatch",
               {
-                basketProduct,
+                rawBasketProduct,
                 basket_product,
               }
             );
@@ -565,7 +515,7 @@ export default createMachine(
             currencyId: currency_id,
             promotions: uniq(concat(promotions ?? [], coupons ?? [])),
             coupons: coupons ?? [],
-            basketProduct: basketProduct ?? basket_product, // ensure we honoure any given basket product
+            rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
@@ -573,8 +523,7 @@ export default createMachine(
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
             errorExternal,
-            error: merge({}, errorExternal, error),
-            prices: undefined, // they need to be recalculated
+            error: merge({}, error),
             lookups,
           };
 
@@ -601,38 +550,21 @@ export default createMachine(
 
         rawProduct: (_context, { data }: AnyEventObject) => data.product,
         lookups: (
-          { model }: ProductConfigContext,
+          { model, rawBasketProduct }: ProductConfigContext,
           { data }: AnyEventObject
-        ) => {
-          return {
-            product: parseProduct(data.product),
-            terms: parseTerms(data.product.prices, data.promotionDisplayType),
-            options: parseSubproduct(
-              data.product.products_options,
-              data?.promotionDisplayType,
-              model?.term
-            ),
-            attributes: parseSubproduct(
-              data.product.products_attributes,
-              data?.promotionDisplayType
-            ),
-            provisionFields: parseProvisioningSchema(
-              data.provisioning,
-              data.product
-            ),
-          };
-        },
-      }),
-
-      setTitle: assign({
-        title: ({ rawProduct, basketProduct }: ProductConfigContext, _event) =>
-          rawProduct
-            ? useUischemaTitle(rawProduct, {
-                basketProduct,
-                valueKey: "meta.uischema.title",
-                fallback: useProductName(rawProduct, basketProduct),
-              })
-            : "",
+        ) => ({
+          product: parseProductDetails(data.product, rawBasketProduct),
+          terms: parseTermDetails(data.product.prices),
+          options: parseSubproductDetails(
+            data.product.products_options,
+            model?.term
+          ),
+          attributes: parseSubproductDetails(data.product.products_attributes),
+          provisionFields: parseProvisioningSchema(
+            data.provisioning,
+            data.product
+          ),
+        }),
       }),
 
       persistModel: assign({
@@ -655,52 +587,54 @@ export default createMachine(
 
       // ---
 
-      setSummary: assign({
-        summary: (
+      setProduct: assign({
+        product: (
           {
             model,
             lookups,
             error,
-            summary,
-            rawProduct,
-            basketProduct,
+            product,
+            rawBasketProduct,
           }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          const fallback = first(summary?.pricing) as BasketProductSummaryPrice;
-          const totals = has(data, "total")
-            ? data
-            : {
-                total: fallback?.regularAmount,
-                total_formatted: fallback?.regularPrice,
-                discounted: fallback?.currentAmount,
-                discounted_formatted: fallback?.currentPrice,
-              };
+          // if we don't have any value in the data, then fallback to the existing product.price if available
+          // otherwise parse the data
+          const fallback = product?.price;
+          const price: PriceDisplay = {
+            regularAmount: data?.total ?? fallback?.regularAmount,
+            regularPrice: data?.totalFormatted ?? fallback?.regularPrice,
+            currentAmount: data?.total ?? fallback?.currentAmount,
+            currentPrice: data?.totalFormatted ?? fallback?.currentPrice,
+            savingAmount: data?.total ? 0 : (fallback?.savingAmount ?? 0), // Cant calculate this
+            savingPrice: data?.total ? "" : (fallback?.savingPrice ?? ""), // Cant calculate this
+            savingPercent: data?.total ? "" : (fallback?.savingPercent ?? ""), // Cant calculate this
+          };
 
-          const parsedSummary = parseSummary(totals, {
+          return parseProduct(price, {
             model,
             lookups,
             error,
-            rawProduct,
-            basketProduct,
+            rawBasketProduct,
           });
-
-          return parsedSummary;
         },
       }),
 
-      setSummaryCalculating: assign({
-        summary: ({ summary }: ProductConfigContext, _event) => {
-          summary ??= {};
-          set(summary, "isCalculating", true);
-          return summary;
+      setCalculating: assign({
+        lookups: ({ lookups }: ProductConfigContext, _event) => {
+          lookups ??= {};
+          lookups.prices ??= {};
+          lookups.prices.calculating = true;
+          return lookups;
         },
       }),
-      clearSummaryCalculating: assign({
-        summary: ({ summary }: ProductConfigContext, _event) => {
-          summary ??= {};
-          set(summary, "isCalculating", false);
-          return summary;
+
+      clearCalculating: assign({
+        lookups: ({ lookups }: ProductConfigContext, _event) => {
+          lookups ??= {};
+          lookups.prices ??= {};
+          lookups.prices.calculating = false;
+          return lookups;
         },
       }),
 
@@ -711,12 +645,9 @@ export default createMachine(
           }
           return calculateCallback;
         },
-        (
-          { currencyId, prices, model, lookups }: ProductConfigContext,
-          _event
-        ) => ({
+        ({ currencyId, model, lookups }: ProductConfigContext, _event) => ({
           type: "CALCULATE",
-          data: { currencyId, prices, model, lookups },
+          data: { currencyId, model, lookups },
         })
       ),
 
@@ -740,24 +671,20 @@ export default createMachine(
           }
           return model;
         },
-        lookups: ({ lookups, rawProduct, model }, _event: AnyEventObject) => {
+        lookups: ({ lookups, rawProduct, model }, { data }: AnyEventObject) => {
           // reset the lookup options options based on the term selected,
           //  as this may impact what price and options are available
           lookups ??= {};
-          lookups.options = parseSubproduct(
+          lookups.options = parseSubproductDetails(
             rawProduct?.products_options,
-            // @ts-ignore this is added by the setLookups action
-            rawProduct?.promotionDisplayType,
             model?.term
           );
+
+          lookups.prices ??= {};
+          const prices = lookups.prices;
+          if (isEmpty(data?.price)) return lookups;
+          lookups.prices = { ...prices, term: data.price };
           return lookups;
-        },
-        prices: (
-          { prices }: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => {
-          if (!data?.price) return prices;
-          return { ...prices, term: data.price };
         },
       }),
 
@@ -769,12 +696,16 @@ export default createMachine(
           }
           return model;
         },
-        prices: (
-          { prices }: ProductConfigContext,
+        lookups: (
+          { lookups }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          if (!data?.price) return prices;
-          return { ...prices, attributes: data.price };
+          lookups ??= {};
+          lookups.prices ??= {};
+          const prices = lookups.prices;
+          if (isEmpty(data?.price)) return lookups;
+          lookups.prices = { ...prices, attributes: data.price };
+          return lookups;
         },
       }),
 
@@ -786,12 +717,16 @@ export default createMachine(
           }
           return model;
         },
-        prices: (
-          { prices }: ProductConfigContext,
+        lookups: (
+          { lookups }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
-          if (!data?.price) return prices;
-          return { ...prices, options: data.price };
+          lookups ??= {};
+          lookups.prices ??= {};
+          const prices = lookups.prices;
+          if (isEmpty(data?.price)) return lookups;
+          lookups.prices = { ...prices, options: data.price };
+          return lookups;
         },
       }),
 
@@ -809,19 +744,15 @@ export default createMachine(
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
           const provisionFields = get(data, "provisionFields");
 
-          if (!error?.provisionFields?.data?.length) return error;
+          if (!error?.provisionFields?.length) return error;
 
           forEach(provisionFields, (field, key) => {
             if (!isEmpty(field) || !isNil(field)) {
-              remove(error.provisionFields.data, ["schemaPath", key]);
+              remove(error.provisionFields, ["schemaPath", key]);
             }
           });
 
-          // housekeeping, if we have no errors, remove the provisionFields key
-          if (isEmpty(error?.provisionFields?.data))
-            unset(error, "provisionFields");
-
-          return error;
+          return omitBy(error, isEmpty);
         },
       }),
 
@@ -829,23 +760,15 @@ export default createMachine(
 
       setError: assign({
         errorExternal: (
-          _context: ProductConfigContext,
+          { errorExternal }: ProductConfigContext,
           { data }: AnyEventObject
-        ) => data?.error,
+        ) => {
+          let errors = data?.error?.data;
+          return merge({}, errorExternal, errors);
+        },
         error: ({ error }: ProductConfigContext, { data }: AnyEventObject) => {
-          let err = data?.error;
-
-          if (!err) return error;
-
-          if (err?.code == responseCodes.Unprocessable_Entity) {
-            // lets parse/override our error message and data
-            // this is to generate valid json schema validation errors
-            err = {
-              provisionFields: useValidationParser(err),
-            };
-          }
-
-          return merge({}, error, err);
+          let errors = data?.error?.data;
+          return merge({}, error, errors);
         },
       }),
 
@@ -855,24 +778,10 @@ export default createMachine(
     },
     services,
     guards: {
-      isNew: ({ basketProduct }: ProductConfigContext) =>
-        isEmpty(basketProduct),
+      isNew: ({ rawBasketProduct }: ProductConfigContext) =>
+        isEmpty(rawBasketProduct),
 
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
-
-      hasChanged: (
-        { model }: ProductConfigContext,
-        { data }: AnyEventObject
-      ) => {
-        const cleanModel = compactDeep(model);
-        const cleanProduct = data?.basketProduct
-          ? compactDeep(parseBasketProductModel(data.basketProduct))
-          : {};
-        const isDirty =
-          !isEmpty(cleanProduct) && !isEqual(cleanModel, cleanProduct);
-
-        return isDirty;
-      },
 
       hasBasketChanged: (
         {
@@ -880,7 +789,7 @@ export default createMachine(
           clientId,
           currencyId,
           promotions,
-          basketProduct,
+          rawBasketProduct,
         }: ProductConfigContext,
         { data }: AnyEventObject
       ) => {
@@ -895,9 +804,10 @@ export default createMachine(
         // lets see if any important value have changed within the basketProduct
         // dont compare the entire object, just the keys that are important to this machine
         const keys = ["id", "productId", "service_identifier"];
+        // todo: check if bbasketProduct exists on data
         const basketPoductChanged = !isEqual(
           pick(data?.basketProduct, keys),
-          pick(basketProduct, keys)
+          pick(rawBasketProduct, keys)
         );
 
         const value =
@@ -906,32 +816,6 @@ export default createMachine(
           currencyChanged ||
           promotionsChanged ||
           basketPoductChanged;
-
-        return value;
-      },
-
-      needsCalculating: (
-        { prices, summary }: ProductConfigContext,
-        { data }: AnyEventObject
-      ) => {
-        // work out which property we need to compare
-        let prop;
-        prop ??= has(data, "term") ? "term" : null;
-        prop ??= has(data, "options") ? "options" : null;
-        prop ??= has(data, "attributes") ? "attributes" : null;
-
-        if (!prop) return false;
-
-        const newPrice = compact(get(data, "price", []));
-        const oldPrice = compact(get(prices, prop, []));
-
-        const value = !summary || !prop || !isEqual(oldPrice, newPrice);
-
-        // console.debug("productConfig", "needsCalculating", value, {
-        //   prop,
-        //   newPrice,
-        //   oldPrice,
-        // });
 
         return value;
       },

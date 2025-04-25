@@ -3,8 +3,9 @@
     <div class="flex flex-col md:gap-y-1">
       <Promotion
         v-if="primary"
-        v-bind="pricing"
-        :discounted="pricing.meta?.discounted"
+        v-for="(promotion, index) in summary.promotions"
+        :key="index"
+        v-bind="promotion"
         :disabled="error"
         size="md"
         class="mb-2 inline-block md:hidden"
@@ -12,22 +13,26 @@
       <div class="flex items-center justify-between">
         <div class="flex w-full items-center gap-x-3">
           <router-link
-            v-if="primary && product.imgUrl"
+            v-if="primary && productDetails.imgUrl"
             :to="editLink"
             :class="styles.product.summary.imageRoute"
           >
-            <img :src="product.imgUrl" :class="styles.product.summary.image" />
+            <img
+              :src="productDetails.imgUrl"
+              :class="styles.product.summary.image"
+            />
           </router-link>
 
           <div class="flex w-full flex-col gap-y-1">
             <div class="flex items-end justify-between">
               <div class="text-sm font-normal leading-5">
-                {{ pricing.category }}
+                {{ summary.category }}
               </div>
               <Promotion
                 v-if="primary"
-                v-bind="pricing"
-                :discounted="pricing.meta?.discounted"
+                v-for="(promotion, index) in summary.promotions"
+                :key="index"
+                v-bind="promotion"
                 :disabled="error"
                 class="-mt-3 hidden md:block"
               />
@@ -35,23 +40,21 @@
             <div class="flex items-end justify-between">
               <Link :to="editLink" offset="2">
                 <strong class="text-xl font-semibold leading-7 underline">
-                  {{ pricing.title }}
+                  {{ summary.title }}
                 </strong>
               </Link>
 
               <div class="hidden items-center gap-x-6 md:flex">
                 <QuantityField
-                  v-bind="product"
+                  v-bind="productDetails"
                   :id="id"
-                  :quantity="pricing.quantity"
-                  :quantifiable="product.quantifiable"
-                  :min="product?.min"
-                  :max="product?.max"
-                  :step="product?.step"
+                  :quantity="quantity"
                   @update:quantity="doUpdateQuantity"
                 />
                 <CurrentPrice
-                  v-bind="pricing"
+                  :current-price="summary.price.currentPrice"
+                  :meta="summary.meta"
+                  :cycle="summary.cycle"
                   :ui-config="{
                     pricing: { current: styles.product.pricing.current },
                   }"
@@ -63,49 +66,39 @@
       </div>
 
       <div class="mt-1 flex flex-col gap-y-1 md:hidden">
-        <TermsDescription
-          v-bind="pricing"
-          :discounted="pricing.meta?.discounted"
-          :free="pricing.meta?.free"
-          :one-off="pricing.meta?.oneoff"
-          :taxes="pricing.meta?.includesTax"
-        />
+        <TermsDescription v-bind="summary" />
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <CurrentPrice
-              v-bind="pricing"
+              :current-price="summary.price.currentPrice"
+              :meta="summary.meta"
+              :cycle="summary.cycle"
               :ui-config="{
                 pricing: { current: styles.product.pricing.current },
               }"
             />
             <ExPrice
-              v-bind="pricing"
+              :regular-price="summary.price.regularPrice"
+              :meta="summary.meta"
+              :cycle="summary.cycle"
               :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
             />
           </div>
           <QuantityField
-            v-bind="product"
+            v-bind="productDetails"
             :id="id"
-            :quantity="pricing.quantity"
-            :quantifiable="product.quantifiable"
-            :min="product?.min"
-            :max="product?.max"
-            :step="product?.step"
+            :quantity="quantity"
             @update:quantity="doUpdateQuantity"
           />
         </div>
       </div>
 
       <div class="hidden justify-between md:flex">
-        <TermsDescription
-          v-bind="pricing"
-          :discounted="pricing.meta?.discounted"
-          :free="pricing.meta?.free"
-          :one-off="pricing.meta?.oneoff"
-          :taxes="pricing.meta?.includesTax"
-        />
+        <TermsDescription v-bind="summary" />
         <ExPrice
-          v-bind="pricing"
+          :regular-price="summary.price.regularPrice"
+          :meta="summary.meta"
+          :cycle="summary.cycle"
           :ui-config="{ pricing: { ex: styles.product.pricing.ex } }"
         />
       </div>

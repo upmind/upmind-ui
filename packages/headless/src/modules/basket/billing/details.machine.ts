@@ -229,9 +229,6 @@ export default createMachine(
       }),
 
       // ---
-      // setFeedbackSuccess: (_context, _event: any) => {
-      //   addSuccess("Successfully updated billing details");
-      // },
 
       setFeedbackError: ({ error }: BillingDetailsContext, _event) => {
         // dont show any unauthorized errors

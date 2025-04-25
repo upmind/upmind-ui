@@ -40,7 +40,7 @@ async function load(
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
-  const { getBrandId, getCurrencyId, isReady, getConfig } = useBrand();
+  const { getBrandId, getCurrencyId, isReady, ensureConfig } = useBrand();
   const { get: getRequest, useUrl } = useQuery();
 
   await isReady().catch(error => Promise.reject(error));
@@ -52,7 +52,7 @@ async function load(
 
   const currencyId = currency?.id || getCurrencyId(); // fallback to default currency
 
-  await getConfig([
+  await ensureConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
     BrandConfigKeys.PAY_LATER_ENABLED,
     BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,

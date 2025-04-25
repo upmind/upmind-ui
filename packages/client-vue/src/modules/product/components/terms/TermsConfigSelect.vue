@@ -81,13 +81,14 @@ import { isNil, map, toNumber, find } from "lodash-es";
 // --- types
 import type { ComputedRef, HTMLAttributes } from "vue";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
-    items: any[];
+    items: TermDetails[];
     modelValue?: string | number;
     errors?: string;
     // ---
@@ -130,14 +131,16 @@ const styles = useStyles(
   };
 }>;
 
-const parsedValues = computed<any[]>(() => {
-  return map(props.items, (item: any) => {
+const parsedValues = computed<SelectCardsItemProps[]>(() => {
+  return map(props.items, (item: TermDetails, index: number) => {
     return {
       id: item.cycle,
-      value: item.cycle.toString(),
-      label: item.name,
-      ...item,
-    };
+      value: item.cycle?.toString(),
+      label: item.title,
+      item: item, // Ensure the `item` property is included
+      index: index, // Add the `index` property
+      modelValue: props.modelValue?.toString(), // Add the `modelValue` property
+    } as SelectCardsItemProps;
   });
 });
 
@@ -145,16 +148,17 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function getTerm(value: string) {
-  const item = find(props.items, ["cycle", toNumber(value)]);
+function getTerm(value: string): TermDetails {
+  const item = find(props.items, ["cycle", toNumber(value)]) as TermDetails;
   return item;
 }
 
-function isMonthly(item: any) {
-  const term = getTerm(item);
-  return props.monthly && term.monthlyFromRegularPrice && term.cycle > 1;
+function isMonthly(value: string) {
+  const term = getTerm(value) as TermDetails;
+  return (
+    props.monthly && term.price.monthlyFromRegularPrice && (term.cycle ?? 0) > 1
+  );
 }
-
 function doResolve(item: string | number) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(item));

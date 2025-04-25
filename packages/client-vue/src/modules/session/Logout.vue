@@ -28,8 +28,16 @@
 
 <script lang="ts" setup>
 // --- external
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
+
+// --- internal
+import {
+  useRoutingEngine,
+  useSession,
+  ROUTE,
+} from "@upmind-automation/headless-vue";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
@@ -39,7 +47,13 @@ import ContentSection from "../../components/content/ContentSection.vue";
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
+
 const { t } = useI18n();
+const { isResolved } = useRoutingEngine();
+const { logout } = useSession();
+
+// if we are not logged out, we should log out
+await isResolved(ROUTE.SESSION_END).catch(() => logout());
 
 const storefrontUrl = import.meta.env.VITE_APP_STOREFRONT;
 

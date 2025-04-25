@@ -4,10 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import {
-  useBrand,
-  useBasketProductsPending,
-} from "@upmind-automation/headless";
+import { useBrand } from "@upmind-automation/headless";
 import { stateMatches, contextMatches } from "../../utils";
 
 // --- utils
@@ -15,7 +12,6 @@ import {
   add,
   get,
   isEmpty,
-  isNil,
   isEqual,
   set,
   some,
@@ -23,10 +19,18 @@ import {
   isArray,
   forEach,
   find,
+  compact,
 } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
+import type {
+  Product,
+  ProductDetails,
+  ProductModel,
+  TermDetails,
+  SubproductDetails,
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -40,24 +44,38 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const touched = ref(false);
 
   // syntactic sugar
-  const product = computed(() => state.value.context?.lookups?.product);
-  const title = computed(() => state.value.context?.title);
-  const productImage = (size: string = "400x400") => {
-    const product = state.value.context?.lookups?.product;
-
-    if (!product?.full_url) return undefined;
-
-    const url = new URL(product.full_url);
+  const productDetails = computed<ProductDetails>(
+    () => state.value.context?.lookups?.product
+  );
+  const productImage = (size: string = "400x400"): string | undefined => {
+    if (!productDetails.value?.imgUrl) return undefined;
+    const url = new URL(productDetails.value.imgUrl);
     url.searchParams.set("size", size);
     return url.toString();
   };
 
-  const terms = computed(() => state.value.context?.lookups?.terms);
-  const attributes = computed(() => state.value.context?.lookups?.attributes);
-  const options = computed(() => state.value.context?.lookups?.options);
-  const fields = computed(() => state.value.context?.lookups?.provisionFields);
+  const product = computed<Product>(() => state.value.context?.product);
+
+  const title = computed<string>(() => state.value.context?.product?.title);
+
+  const terms = computed<TermDetails[]>(
+    () => state.value.context?.lookups?.terms
+  );
+
+  const attributes = computed<SubproductDetails[]>(
+    () => state.value.context?.lookups?.attributes
+  );
+
+  const options = computed<SubproductDetails[]>(
+    () => state.value.context?.lookups?.options
+  );
+
+  const fields = computed<Record<string, any>>(
+    () => state.value.context?.lookups?.provisionFields
+  );
+
   // ---
-  const errors = computed(() => state.value.context?.error);
+  const errors = computed<Product["errors"]>(() => state.value.context?.error);
 
   const meta = computed(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
@@ -75,7 +93,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       "lookups.provisionFields.properties",
     ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
-    isCalculating: contextMatches(state, ["summary.isCalculating"]),
+    isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
     isComplete:
       state.value?.done ||
@@ -94,8 +112,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasTaxIncluded: checkIncludesTax(),
   }));
 
-  const summary = computed(() => state.value.context?.summary);
-
   // keep our model in sync with the machine,
   // typically this is only needed when the machine is updated/refreshed
   watch(state, newVal => {
@@ -104,18 +120,32 @@ export const useProductConfig = (service: ActorRef<any>) => {
     }
   });
 
-  // --- QUANTITY
-  const updateQuantity = async (value?: number): Promise<void> => {
+  // --
+  async function setValues(
+    type:
+      | "SET.QUANTITY"
+      | "SET.TERM"
+      | "SET.ATTRIBUTES"
+      | "SET.OPTIONS"
+      | "SET.PROVISIONING",
+    data: Partial<ProductModel>
+  ) {
     touched.value = true;
-    send({
-      type: "SET.QUANTITY",
-      data: {
-        quantity: value || model.value.quantity,
-      },
-    });
+    send({ type, data });
 
-    return waitFor(service, state => state.matches("available.valid"));
-  };
+    return waitFor(service, state =>
+      ["available.valid", "available.invalid"].some(state.matches)
+    ).then(state => {
+      // NB only updat ethe model AFTER we have chaecked/parsed/validated
+      model.value = state.context.model;
+    });
+  }
+
+  // --- QUANTITY
+  const updateQuantity = async (value?: number): Promise<void> =>
+    setValues("SET.QUANTITY", {
+      quantity: value,
+    });
 
   async function incrementQuantity(): Promise<void> {
     // sanity check
@@ -139,137 +169,125 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   // --- TERMS
 
-  function isSelectedTerm(term: any) {
-    const value = isEqual(term.cycle, model.value?.term?.cycle);
-    return value;
+  function isSelectedTerm(value: number): boolean {
+    return isEqual(value, model.value?.term?.cycle);
   }
 
-  const updateTerm = (term: any) => {
-    touched.value = true;
-    send({
-      type: "SET.TERM",
-      data: { term },
+  const updateTerm = async (value: number): Promise<void> =>
+    setValues("SET.TERM", {
+      term: value,
     });
-  };
-  //emit("update:term",{itemId: props.id,...);
 
   // --- ATTRIBUTES
 
-  const updateAttributes = () => {
-    touched.value = true;
-    send({
-      type: "SET.ATTRIBUTES",
-      data: {
-        attributes: model.value.attributes,
-      },
-    });
-  };
-
-  function isSelectedAttribute(attributeId: any, value: any) {
+  function isSelectedAttribute(attributeId: string, value: string): boolean {
     return some(model.value.attributes[attributeId], ["productId", value]);
   }
 
-  function setAttributes(attribute: any, values: any) {
-    const safeValues = isArray(values) ? values : [values];
-    set(model.value.attributes, attribute.id, {}); // reset all previous attributes
+  async function setAttributes(
+    attribute: SubproductDetails,
+    values: string | string[]
+  ): Promise<void> {
+    const attributes = model.value.attributes;
+    set(attributes, attribute.id, {}); // reset all previous attributes
+
+    const safeValues = compact(isArray(values) ? values : [values]);
 
     forEach(safeValues, value => {
-      set(model.value.attributes, [attribute.id, value], {
+      set(attributes, [attribute.id, value], {
         productId: value,
       });
     });
 
     // emit the event
-    updateAttributes();
+    return setValues("SET.ATTRIBUTES", { attributes });
   }
 
   // --- OPTIONS
 
-  const updateOptions = () => {
-    touched.value = true;
-    send({
-      type: "SET.OPTIONS",
-      data: {
-        options: model.value.options,
-      },
-    });
-  };
-
-  function isSelectedOption(optionId: any, value: any) {
+  function isSelectedOption(optionId: string, value: string): boolean {
     return some(model.value.options[optionId], ["productId", value]);
   }
 
-  function setOptions(option: any, values: any) {
-    const safeValues = isArray(values) ? values : [values];
-    set(model.value.options, option.id, {}); // reset all previous options
+  async function setOptions(
+    option: SubproductDetails,
+    values: string | string[]
+  ): Promise<void> {
+    const options = model.value.options;
+    set(options, option.id, {}); // reset all previous options
+
+    const safeValues = compact(isArray(values) ? values : [values]);
     forEach(safeValues, value => {
-      set(model.value.options, [option.id, value], {
+      set(options, [option.id, value], {
         productId: value,
       });
     });
 
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
-  function updateOptionQuantity(option: any, productId: string, qty: number) {
+  async function updateOptionQuantity(
+    option: SubproductDetails,
+    valueId: string,
+    qty: number
+  ): Promise<void> {
     // sanity check
-    const product = find(option.values, ["id", productId]);
-    if (!product?.quantifiable) return;
+    const value = find(option.values, ["id", valueId]);
+    if (!value?.quantifiable) return;
+    const options = model.value.options;
+    set(options, [option.id, value.id, "quantity"], qty);
+    // emit the event
+    return setValues("SET.OPTIONS", { options });
+  }
 
-    set(model.value.options, [option.id, productId, "step"], qty);
+  async function incrementOption(
+    option: SubproductDetails,
+    valueId: string
+  ): Promise<void> {
+    // sanity check
+    const value = find(option.values, ["id", valueId]);
+    if (!value?.quantifiable) return;
+    const options = model.value.options;
+    const qty = get(options, [option.id, value.id, "step"], 0);
+    set(options, [option.id, value.id, "quantity"], add(qty, value?.step || 1));
 
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
-  function incrementOption(option: any, value: any) {
+  async function decrementOption(
+    option: SubproductDetails,
+    valueId: string
+  ): Promise<void> {
     // sanity check
+    const value = find(option.values, ["id", valueId]);
     if (!value?.quantifiable) return;
 
-    const qty = get(model.value.options, [option.id, value.id, "step"], 0);
+    const options = model.value.options;
+    const qty = get(options, [option.id, value.id, "step"], 0);
     set(
-      model.value.options,
-      [option.id, value.id, "step"],
-      add(qty, value?.step || 1)
-    );
-    // emit the event
-    updateOptions();
-  }
-
-  function decrementOption(option: any, value: any) {
-    // sanity check
-    if (!value?.quantifiable) return;
-    const qty = get(model.value.options, [option.id, value.id, "step"], 0);
-    set(
-      model.value.options,
-      [option.id, value.id, "step"],
+      options,
+      [option.id, value.id, "quantity"],
       subtract(qty, value?.step || 1)
     );
+
     // emit the event
-    updateOptions();
+    return setValues("SET.OPTIONS", { options });
   }
 
   // --- PROVISIONING
 
-  function setProvisioningFields(value: any) {
-    set(model.value, "provisionFields", value);
+  async function setProvisioningFields(
+    values: Record<string, any>
+  ): Promise<void> {
     // emit the event
-    updateProvisioning();
+    return setValues("SET.PROVISIONING", { provisionFields: values });
   }
 
-  function getProvisioningField(field: any) {
-    const value = get(model.value, ["provisionFields", field], null);
-    return value;
+  function getProvisioningField(field: string): any {
+    return get(model.value, ["provisionFields", field]);
   }
-
-  const updateProvisioning = () => {
-    touched.value = true;
-    send({
-      type: "SET.PROVISIONING",
-      data: { provisionFields: model.value.provisionFields },
-    });
-  };
 
   // ---------------------------------------------------------------------------
   return {
@@ -281,7 +299,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     lookups,
     title,
-    product,
+    // productDetails,
     productImage,
     terms,
     options,
@@ -289,7 +307,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     fields,
     // ---
     model,
-    summary,
+    product,
     // ---
     updateQuantity,
     incrementQuantity,
@@ -298,11 +316,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
     updateTerm,
     isSelectedTerm,
     // ---
-    updateAttributes,
     isSelectedAttribute,
     setAttributes,
     // ---
-    updateOptions,
     isSelectedOption,
     setOptions,
     updateOptionQuantity,
@@ -310,7 +326,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     decrementOption,
     // ---
     setProvisioningFields,
-    updateProvisioning,
     getProvisioningField,
     // ---
     reset: () => send("RESET"),

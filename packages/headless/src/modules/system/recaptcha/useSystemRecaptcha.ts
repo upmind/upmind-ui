@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -7,8 +7,10 @@ import recaptchaMachine from "./recaptcha.machine";
 import { generateToken } from "./services";
 
 // --- utils
+import { stopService } from "../../../utils";
 
 // --- types
+import type { InterpreterFrom } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -42,6 +44,6 @@ export const useSystemRecaptcha = () => {
     getSnapshot: service.getSnapshot,
     generate,
     clear,
-    destroy: service.stop,
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

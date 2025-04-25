@@ -37,19 +37,6 @@
             </template>
           </slot>
         </RouterView>
-
-        <slot name="expired">
-          <SessionExpired
-            :title="t('session.expired.title')"
-            :text="t('session.expired.text')"
-            :action="{
-              label: t('session.expired.actions.continue'),
-              color: 'primary',
-              handler: refresh,
-              auto: true,
-            }"
-          />
-        </slot>
       </main>
 
       <slot name="footer"></slot>
@@ -69,16 +56,13 @@ export default {
 
 <script setup lang="ts">
 // --- external
-import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useThemes } from "@upmind-automation/upmind-ui";
-import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
 import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
-import SessionExpired from "./modules/session/components/Expired.vue";
 import Content from "./components/content/Content.vue";
 import Loading from "./modules/system/Loading.vue";
 
@@ -89,9 +73,5 @@ const props = defineProps<{
   loadingModal: boolean;
 }>();
 
-const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
-
-// setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
-const { meta, refresh } = useRoutingEngine();
 </script>

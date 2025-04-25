@@ -1,13 +1,19 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
-import { isEmpty, some } from "lodash-es";
 export * from "./types";
 
 // --- utils
+import { stopService } from "../../utils";
+import { isEmpty, some, find, filter } from "lodash-es";
+
+// --- types
+import type { InterpreterFrom } from "xstate";
+import { ProductModel } from "../product";
+import { Recommendation } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -16,9 +22,28 @@ export * from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(recommendationsEngine, { devTools: false });
+const service = interpret(recommendationsEngine, { devTools: true });
 
 // -----------------------------------------------------------------------------
+function filterByProduct(
+  pid: ProductModel["productId"],
+  recommendations: Recommendation[]
+) {
+  const state = service.getSnapshot();
+  // match all the recommended products that are based/related to the specified product
+  const related = filter(state.context.raw.related, ["product_id", pid]);
+  return filter(recommendations, ({ id }) => some(related, ["id", id]));
+}
+
+function getRecommendations(pid?: ProductModel["productId"]) {
+  const state = service.getSnapshot();
+  const recommendations = state.context.recommendations;
+
+  if (pid) filterByProduct(pid, recommendations);
+
+  // if we dont have a pid then return all the recommendations
+  return recommendations;
+}
 
 export const useRecommendationsEngine = () => {
   return {
@@ -31,22 +56,22 @@ export const useRecommendationsEngine = () => {
         { timeout: Infinity }
       ),
 
-    hasRecommendations: () => {
-      const state = service.getSnapshot();
-      return !isEmpty(state.context?.raw?.related);
+    getRecommendations,
+
+    hasRecommendations: (pid?: ProductModel["productId"]) => {
+      const recommendations = getRecommendations(pid);
+      return !isEmpty(recommendations);
     },
 
-    hasUnseenRecommendations: () => {
-      const state = service.getSnapshot();
+    hasUnseenRecommendations: (pid?: ProductModel["productId"]) => {
+      const recommendations = getRecommendations(pid);
 
       return (
-        !isEmpty(state.context?.recommendations) &&
-        some(
-          state.context?.recommendations,
-          ({ meta }) => !meta?.added && !meta?.seen
-        )
+        !isEmpty(recommendations) &&
+        some(recommendations, ({ meta }) => !meta?.added && !meta?.seen)
       );
     },
+
     // ---
 
     reset: function () {
@@ -90,6 +115,8 @@ export const useRecommendationsEngine = () => {
       });
     },
 
+    filterByProduct,
+
     /*
      * Mark the recommendations as seen. Optinally provide an array of ids to mark as seen.
      * If no values are provided, all recommendations will be marked as seen.
@@ -108,12 +135,6 @@ export const useRecommendationsEngine = () => {
       });
     },
 
-    syncBasket: function () {
-      service.send({
-        type: "SYNC",
-      });
-    },
-    // ---
-    destroy: () => service.stop(),
+    stop: () => stopService(service as InterpreterFrom<any>),
   };
 };

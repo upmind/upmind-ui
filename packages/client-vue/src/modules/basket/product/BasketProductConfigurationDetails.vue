@@ -23,7 +23,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- types
-import { type BasketProductConfigDetailsProps } from "./types";
+import type { BasketProductConfigDetailsProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = defineProps<BasketProductConfigDetailsProps>();
@@ -40,7 +40,9 @@ const styles = useStyles(
   };
 }>;
 
-const groupedDetails = computed(() => {
-  return groupBy(props.details, "category");
-});
+const groupedDetails = computed(
+  (): Record<string, BasketProductConfigDetailsProps["details"]> => {
+    return groupBy(props.details, "category");
+  }
+);
 </script>

@@ -1,15 +1,12 @@
 <template>
   <span :class="styles.domain.card.prices.root">
-    <s
-      v-if="summary?.meta.discounted"
-      :class="styles.domain.card.prices.regular"
-    >
-      {{ summary?.regularPrice }}
+    <s v-if="props?.meta.discounted" :class="styles.domain.card.prices.regular">
+      {{ props.price.regularPrice }}
     </s>
 
     <strong :class="styles.domain.card.prices.current">
-      {{ summary?.currentPrice
-      }}<span :class="styles.domain.card.prices.cycle"> /yr</span>
+      {{ props.price.currentPrice }}
+      <span :class="styles.domain.card.prices.cycle"> /yr</span>
     </strong>
   </span>
 </template>
@@ -23,10 +20,10 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- types
-import type { DomainPricesProps } from "../types";
+import type { DomainSummaryProps } from "../types";
 import type { ComputedRef } from "vue";
 
-const props = defineProps<DomainPricesProps>();
+const props = defineProps<DomainSummaryProps>();
 
 const meta = computed(() => ({
   //

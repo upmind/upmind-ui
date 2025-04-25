@@ -10,15 +10,14 @@ import type { GuestContext } from "./types";
 import { useDataLayer } from "../../system";
 const { dataLayer } = useDataLayer();
 
-import { useCookies } from "../../../utils";
-const { setTopLevel: setCookie } = useCookies();
-
 import { useFeedback } from "../../feedback";
 const { addError } = useFeedback();
 
 // --- utils
+import { useValidationParser, useCookies } from "../../../utils";
+const { setTopLevel: setCookie } = useCookies();
+
 import {
-  useValidationParser,
   useRegisterSchemaParser,
   useRegisterUischemaParser,
   useRegisterModelParser,
@@ -30,6 +29,7 @@ import {
   use2faModelParser,
 } from "./utils";
 
+import { omit, pick, set } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
 
@@ -305,9 +305,13 @@ export default createMachine(
       },
 
       setActor: (_context, { data }: AnyEventObject) => {
-        setCookie("upm_actor", data?.analytics, {
-          expires: "8h",
-        });
+        setCookie(
+          "upm_actor",
+          omit(data?.analytics, ["environment", "language", "version"]),
+          {
+            expires: "8h",
+          }
+        );
       },
 
       // ---

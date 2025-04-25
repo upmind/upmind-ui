@@ -156,7 +156,7 @@ export function useSchema({
 export function useUischema({ addresses }: any): UISchemaElement {
   const lookups = {
     addresses: reduce(
-      addresses.getItems(),
+      addresses?.getItems(),
       (result: { value: any; label: string }[], item) => {
         // Only return actual addresses, NOT companies
         if (!item?.companyDetails) {
