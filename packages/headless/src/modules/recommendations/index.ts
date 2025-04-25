@@ -38,8 +38,7 @@ function filterByProduct(
 function getRecommendations(pid?: ProductModel["productId"]) {
   const state = service.getSnapshot();
   const recommendations = state.context.recommendations;
-
-  if (pid) filterByProduct(pid, recommendations);
+  if (pid) return filterByProduct(pid, recommendations);
 
   // if we dont have a pid then return all the recommendations
   return recommendations;
