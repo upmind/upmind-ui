@@ -43,7 +43,7 @@ export * from "./ui/tabs";
 export * from "./ui/textarea";
 export * from "./ui/tooltip";
 
-export * as plugins from "./plugins";
+export { default as plugins } from "./plugins";
 
 // --- utils
 export {
@@ -51,7 +51,6 @@ export {
   cn,
   useThemes,
   useStyleSheet,
-  initializeLottie,
   usePointerEvents,
   useForwardPropsEmits,
 } from "./utils";
