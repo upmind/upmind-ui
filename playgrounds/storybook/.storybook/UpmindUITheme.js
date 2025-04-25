@@ -6,7 +6,7 @@ export default create({
   // --- Branding
   brandTitle: "Upmind Labs",
   brandUrl: "/",
-  brandImage: "/logo.svg",
+  brandImage: "/logo.png",
   brandTarget: "_self",
 
   // --- Typography
@@ -14,29 +14,29 @@ export default create({
   fontCode: '"Inconsolata", monospace',
 
   // --- Colors
-  colorPrimary: "#2b4779",
-  colorSecondary: "#018ffd",
+  colorPrimary: "#251d49",
+  colorSecondary: "#e64565",
 
   // UI
-  appBg: "#F4F6FB",
-  appContentBg: "#F4F6FB",
+  appBg: "#f8faff",
+  appContentBg: "#f8faff",
   appPreviewBg: "#ffffff",
   appBorderColor: "#CBD8EC",
-  appBorderRadius: 4,
+  appBorderRadius: 8,
 
   // Text colors
-  textColor: "#2B4779",
+  textColor: "#251d49",
   texttonalColor: "#ffffff",
 
   // Toolbar default and active colors
-  barTextColor: "#ffffff",
-  barSelectedColor: "#CBD8EC",
-  barHoverColor: "#CBD8EC",
-  barBg: "#2b4779",
+  barTextColor: "#251d49",
+  barSelectedColor: "#585C6D",
+  barHoverColor: "#585C6D",
+  barBg: "#ffffff",
 
   // Form colors
   inputBg: "#ffffff",
   inputBorder: "#CBD8EC",
-  inputTextColor: "#2B4779",
-  inputBorderRadius: 4,
+  inputTextColor: "#251d49",
+  inputBorderRadius: 8,
 });

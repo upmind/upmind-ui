@@ -1,10 +1,5 @@
-import type { Config } from "tailwindcss";
-import type { PluginUtils } from "tailwindcss/types/config";
-// ---
 import defaultTheme from "tailwindcss/defaultTheme";
 
-// -----------------------------------------------------------------------------
-// Light theme
 // -----------------------------------------------------------------------------
 
 const colors = {
@@ -15,7 +10,7 @@ const colors = {
   // --- Theme Variants
 
   base: {
-    DEFAULT: "#ffffff",
+    DEFAULT: "#000000",
     50: "#fefefe",
     100: "#f5f5f5",
     200: "#efefef",
@@ -30,13 +25,12 @@ const colors = {
     foreground: "#000000",
     background: "#ffffff",
     muted: {
-      DEFAULT: "#efefef",
-      foreground: "#65758b",
-      active: "#dcdcdc",
+      DEFAULT: "#f8f8f8",
+      foreground: "#445061",
+      active: "#f8f8f8",
     },
   },
 
-  // ---
   primary: {
     DEFAULT: "#018ffd",
     50: "#edfbff",
@@ -74,6 +68,11 @@ const colors = {
     950: "#083444",
     foreground: "#ffffff",
     background: "#05c3de",
+    muted: {
+      DEFAULT: "#ecfeff",
+      foreground: "#05c3de",
+      active: "#cffbfe",
+    },
   },
 
   accent: {
@@ -91,6 +90,11 @@ const colors = {
     950: "#470074",
     foreground: "#ffffff",
     background: "#8b04de",
+    muted: {
+      DEFAULT: "#fbf3ff",
+      foreground: "#cc6fff",
+      active: "#f5e4ff",
+    },
   },
 
   // --- State Variants
@@ -109,6 +113,11 @@ const colors = {
     950: "#231263",
     foreground: "#ffffff",
     background: "#5E36E8",
+    muted: {
+      DEFAULT: "#f3f3ff",
+      foreground: "#998ef7",
+      active: "#eae9fe",
+    },
   },
 
   destructive: {
@@ -126,6 +135,11 @@ const colors = {
     950: "#4c0519",
     foreground: "#ffffff",
     background: "#ff4d6d",
+    muted: {
+      DEFAULT: "#fff1f2",
+      foreground: "#fb7185",
+      active: "#ffe4e6",
+    },
   },
 
   info: {
@@ -143,6 +157,11 @@ const colors = {
     950: "#172e54",
     foreground: "#ffffff",
     background: "#3b82f6",
+    muted: {
+      DEFAULT: "#eff5ff",
+      foreground: "#609afa",
+      active: "#dbe8fe",
+    },
   },
 
   success: {
@@ -160,6 +179,11 @@ const colors = {
     950: "#022c1e",
     foreground: "#ffffff",
     background: "#10b981",
+    muted: {
+      DEFAULT: "#ecfdf7",
+      foreground: "#34d39e",
+      active: "#d1faec",
+    },
   },
 
   warning: {
@@ -177,6 +201,11 @@ const colors = {
     950: "#432207",
     foreground: "#fff3e0",
     background: "#fb923c",
+    muted: {
+      DEFAULT: "#fff5ed",
+      foreground: "#fdb274",
+      active: "#ffe8d5",
+    },
   },
 
   error: {
@@ -194,16 +223,16 @@ const colors = {
     950: "#450a0a",
     foreground: "#ffebee",
     background: "#ef4444",
+    muted: {
+      DEFAULT: "#fef2f2",
+      foreground: "#f87171",
+      active: "#fee2e2",
+    },
   },
 
   disabled: {
     DEFAULT: "#9e9e9e",
     foreground: "#eeeeee",
-  },
-
-  muted: {
-    DEFAULT: "#f1f5f9",
-    foreground: "#65758b",
   },
 
   // --- Component Variants
@@ -220,27 +249,37 @@ const colors = {
 
   control: {
     DEFAULT: "#ffffff",
-    foreground: "#000000",
-    active: "#5E36E8",
-    error: "#EF4444",
+    background: "#ffffff",
+    foreground: "#021831",
+    active: {
+      DEFAULT: "#e64565",
+      muted: "#e6456550",
+      foreground: "#ffffff",
+      background: "#e6456510",
+      hover: "#e64565",
+      focus: "#e64565",
+    },
+    error: {
+      DEFAULT: "#EF4444",
+      muted: "#EF444420",
+      foreground: "#ffffff",
+      background: "#EF4444",
+    },
   },
 };
 
 // -----------------------------------------------------------------------------
 
 export default {
-  content: [],
   colors,
   fontFamily: {
-    sans: ["Inter", ...defaultTheme.fontFamily.sans].toString(),
-    serif: ["Inter", ...defaultTheme.fontFamily.serif].toString(),
-    mono: ["Inconsolata", ...defaultTheme.fontFamily.mono].toString(),
+    sans: ["Inter", "sans-serif", ...defaultTheme.fontFamily.sans],
+    serif: ["Inter", "sans-serif", ...defaultTheme.fontFamily.serif],
+    mono: ["Inconsolata", "monospace", ...defaultTheme.fontFamily.mono],
   },
-
-  fontSize: {
+  textSizes: {
     xs: ".75rem", // 12px
     sm: ".875rem", // 14px
-    base: "1rem", // 16px
     md: "1rem", // 16px
     lg: "1.125rem", // 18px
     xl: "1.25rem", // 20px
@@ -249,7 +288,6 @@ export default {
     "4xl": "2.25rem", // 36px
     "5xl": "3rem", // 48px
   },
-
   width: {
     "dropdown-3xs": "6rem",
     "dropdown-2xs": "8rem",
@@ -274,6 +312,8 @@ export default {
   borderColor: {
     DEFAULT: colors.base[300],
     input: colors.base[300],
+    control: colors.base[300],
+    active: colors.control.active.DEFAULT,
   },
   borderRadius: {
     DEFAULT: ".5rem",
@@ -297,34 +337,9 @@ export default {
     none: "none",
   },
   ringColor: {
-    DEFAULT: colors.control.active,
+    DEFAULT: colors.control.active.muted,
+    ring: colors.control.active.muted,
+    invalid: colors.control.error.muted,
+    active: colors.control.active.DEFAULT,
   },
-  typography: ({ theme }: PluginUtils) => ({
-    DEFAULT: {
-      css: {
-        fontFamily: theme("fontFamily.body"),
-
-        h1: {
-          fontFamily: theme("fontFamily.display"),
-          fontWeight: theme("fontWeight.light"),
-          fontSize: theme("fontSize.5xl"),
-        },
-        h2: {
-          fontFamily: theme("fontFamily.display"),
-        },
-        h3: {
-          fontFamily: theme("fontFamily.display"),
-        },
-        h4: {
-          fontFamily: theme("fontFamily.display"),
-        },
-        h5: {
-          fontFamily: theme("fontFamily.display"),
-        },
-        h6: {
-          fontFamily: theme("fontFamily.display"),
-        },
-      },
-    },
-  }),
-} satisfies Config;
+};

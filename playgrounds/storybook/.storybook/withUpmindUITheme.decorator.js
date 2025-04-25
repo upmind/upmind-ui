@@ -2,8 +2,7 @@ import { useEffect } from "@storybook/preview-api";
 import { DecoratorHelpers } from "@storybook/addon-themes";
 import { reduce, set } from "lodash-es";
 
-const { initializeThemeState, pluckThemeFromContext, useThemeParameters } =
-  DecoratorHelpers;
+const { initializeThemeState, pluckThemeFromContext } = DecoratorHelpers;
 
 export const withUpmindUITheme = ({
   themes,
@@ -24,7 +23,7 @@ export const withUpmindUITheme = ({
 
   return (story, context) => {
     const selectedTheme = pluckThemeFromContext(context);
-    const { themeOverride } = useThemeParameters();
+    const { themeOverride } = context.parameters.themes ?? {};
     const selected = themeOverride || selectedTheme || defaultTheme;
 
     const locale = context.globals.locale || defaultLocale;
@@ -41,11 +40,9 @@ export const withUpmindUITheme = ({
     return {
       components: { story },
       template: `
-      <upm-provider theme="${selected}" locale="${locale}">
-        <div class="content bg-background p-4 sm:p-8 text-foreground prose max-w-full min-h-screen">
-            <story />
-        </div>
-      </upm-provider>`,
+        <div id="provider" data-theme="${selected}" data-locale="${locale}" class="content bg-background p-4 sm:p-8 text-foreground prose max-w-full min-h-screen">
+          <story />
+        </div>`,
     };
   };
 };

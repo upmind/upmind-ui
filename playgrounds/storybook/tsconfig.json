@@ -1,7 +1,9 @@
 {
   "files": [],
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   },
   "references": [
     { "path": "../../packages/headless" },
