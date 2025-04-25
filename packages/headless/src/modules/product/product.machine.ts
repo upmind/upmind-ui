@@ -7,9 +7,7 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { responseCodes } from "../../utils";
-import { useTime, unflattenErrors } from "../../utils";
-import { parseBasketProductError } from "../basketProduct/utils";
+import { useTime } from "../../utils";
 import {
   parseSubproductDetails,
   parseProvisioningSchema,
@@ -682,7 +680,6 @@ export default createMachine(
 
           lookups.prices ??= {};
           const prices = lookups.prices;
-          if (isEmpty(data?.price)) return lookups;
           lookups.prices = { ...prices, term: data.price };
           return lookups;
         },
@@ -703,7 +700,6 @@ export default createMachine(
           lookups ??= {};
           lookups.prices ??= {};
           const prices = lookups.prices;
-          if (isEmpty(data?.price)) return lookups;
           lookups.prices = { ...prices, attributes: data.price };
           return lookups;
         },
@@ -724,7 +720,6 @@ export default createMachine(
           lookups ??= {};
           lookups.prices ??= {};
           const prices = lookups.prices;
-          if (isEmpty(data?.price)) return lookups;
           lookups.prices = { ...prices, options: data.price };
           return lookups;
         },
