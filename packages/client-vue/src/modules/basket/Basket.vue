@@ -103,7 +103,7 @@
           >
             <template #title>
               <i18n-t
-                keypath="basket.requiresAction.product.title"
+                keypath="basket.requiresAction.summary.title"
                 tag="span"
                 :plural="productsInvalid.length"
                 scope="global"
