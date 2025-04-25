@@ -69,7 +69,7 @@ const showPlusIcon = computed(
 );
 const showTermLabel = computed(() => props?.cycle && props.cycle > 0);
 
-const hasPricing = computed(() => "currentAmount" in props);
+const hasPricing = computed(() => "price" in props);
 
 const safePrice = computed(() => {
   return "price" in props ? props.price.currentPrice : "";
