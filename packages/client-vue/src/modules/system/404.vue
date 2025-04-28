@@ -8,7 +8,7 @@
         :actions="[
           {
             as: 'a',
-            color: 'primary',
+            color: 'secondary',
             href: storefrontUrl,
             prependIcon: {
               icon: 'arrow-left',

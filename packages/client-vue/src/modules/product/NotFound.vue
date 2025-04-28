@@ -9,7 +9,7 @@
         :text="t('basket.notFound.text')"
         :actions="[
           {
-            color: 'primary',
+            color: 'secondary',
             handler: back,
             prependIcon: {
               icon: 'arrow-left',

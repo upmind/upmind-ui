@@ -20,7 +20,7 @@
             label: t('basket.requiresAction.actions.back'),
           },
           {
-            color: 'primary',
+            color: 'secondary',
             handler: next,
             appendIcon: { icon: 'arrow-right', size: '2xs' },
             label: t('basket.requiresAction.actions.continue'),
