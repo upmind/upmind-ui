@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, withDefaults } from "vue";
 import Icon from "../icon/Icon.ce.vue";
 
 withDefaults(
