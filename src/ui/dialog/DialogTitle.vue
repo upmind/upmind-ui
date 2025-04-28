@@ -22,6 +22,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     :class="
       cn('text-lg font-semibold leading-none tracking-tight', props.class)
     "
+    data-testid="dialog-title"
   >
     <slot />
   </DialogTitle>

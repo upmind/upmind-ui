@@ -11,6 +11,7 @@
       />
       <NumberFieldInput
         :class="cn(styles.numberField.field, props.classField)"
+        data-testid="quantity-input"
       />
       <NumberFieldIncrement
         class="rounded-r-lg"
