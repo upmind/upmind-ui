@@ -72,6 +72,6 @@ const showTermLabel = computed(() => props?.cycle && props.cycle > 0);
 const hasPricing = computed(() => "price" in props);
 
 const safePrice = computed(() => {
-  return "price" in props ? props.price.currentPrice : "";
+  return "price" in props ? props.price?.currentPrice : "";
 });
 </script>
