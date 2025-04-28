@@ -72,8 +72,6 @@ export default createMachine(
         },
       },
 
-      expired: {},
-
       error: {},
 
       // ---
@@ -85,7 +83,7 @@ export default createMachine(
     },
     on: {
       EXPIRED: {
-        target: "expired",
+        target: "checking",
       },
     },
   },

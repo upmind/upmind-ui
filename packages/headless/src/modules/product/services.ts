@@ -440,13 +440,13 @@ export const calculateBillingTerm = (
 
   switch (period) {
     case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(available, "currentAmount");
+      term = maxBy(available, "price.currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(available, "currentAmount");
+      term = minBy(available, "price.currentAmount");
       break;
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(available, "monthlyFromCurrentAmount");
+      term = minBy(available, "price.monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
       term = calculateBillingTerm(getDefaultPaymentPeriod(), available);
