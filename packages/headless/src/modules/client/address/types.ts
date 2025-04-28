@@ -1,13 +1,10 @@
 // --- internal
-import { usePlaces } from "../places";
 import { useClientAddress } from "./useClientAddress";
+import { useClientAddresses } from "./useClientAddresses";
 
 // --- types
-import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
-import { useClientAddresses } from "./useClientAddresses";
 
 // -----------------------------------------------------------------------------
 
