@@ -28,6 +28,7 @@ const forwarded = useForwardProps(delegatedProps);
         props.class
       )
     "
+    data-testid="number-field-increment"
   >
     <slot>
       <Plus class="h-4 w-4" />
