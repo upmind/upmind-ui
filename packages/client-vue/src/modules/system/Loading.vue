@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   modal: false,
   skrim: "light",
   animatedIcon: () => ({
-    icon: "basket",
+    icon: "loading",
     delay: 250,
     primaryColor: "base-foreground",
     secondaryColor: "secondary",
