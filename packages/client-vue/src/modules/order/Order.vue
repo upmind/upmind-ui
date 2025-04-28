@@ -28,7 +28,7 @@
 
         <template #actions>
           <Button
-            color="primary"
+            color="secondary"
             :label="t(action)"
             :loading="processing"
             @click.stop="doAction"
@@ -127,14 +127,13 @@ const action = computed(() => {
 });
 
 const icon = computed(() => {
-  if (success.value) {
+  if (!meta.value.isAuthenticated) {
+    return "2fa";
+  } else if (success.value) {
     return "confetti";
   }
 
-  if (!success.value) {
-    return "error";
-  }
-  return "basket";
+  return "error";
 });
 
 // -----------------------------------------------------------------------------
