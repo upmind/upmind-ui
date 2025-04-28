@@ -35,6 +35,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
       v-model="modelValue"
       :class="cn(props.inputClass, 'w-full focus:outline-none focus:ring-0')"
       v-bind="$attrs"
+      data-testid="text-input"
     />
     <slot name="append" />
   </div>
