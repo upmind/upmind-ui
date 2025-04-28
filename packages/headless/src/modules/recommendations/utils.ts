@@ -245,7 +245,6 @@ export function parseRecommendation(
     : ({} as ProductDetails);
   const config: IProductConfig = get(raw, "config", {});
   const terms = parseTermDetails(raw.product?.prices);
-  debugger;
   // try use the provided config term, otherwise calculate the term based on the product details
   const term = !isEmpty(terms)
     ? find(terms, ["cycle", config?.bcm]) ||
