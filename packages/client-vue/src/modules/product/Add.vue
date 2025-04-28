@@ -116,8 +116,6 @@ const {
   service: pendingProduct,
 } = await configure(productId);
 
-await isReady();
-
 async function doResolve() {
   update().then(() => {
     resolve(pendingProduct);
