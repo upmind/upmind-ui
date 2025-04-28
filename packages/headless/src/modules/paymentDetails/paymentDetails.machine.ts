@@ -10,7 +10,7 @@ import {
 
 // --- internal
 import services from "./services";
-import { authSubscription } from "../session";
+import { authSubscription } from "../session/helper";
 import { useFeedback } from "../feedback";
 const { addError } = useFeedback();
 
@@ -19,7 +19,7 @@ import { spawnGateway, parsePaymentDetails } from "./utils";
 import { useModelParser } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./utils";
-import { get, set, unset, forEach } from "lodash-es";
+import { set, unset, forEach } from "lodash-es";
 
 // --- types
 import type { ActorRef, AnyEventObject } from "xstate";
