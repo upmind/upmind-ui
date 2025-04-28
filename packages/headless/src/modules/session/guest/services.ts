@@ -78,7 +78,10 @@ async function authenticate({ model }: GuestContext) {
       if (data.actor_type != GrantTypes.TWOFA) persistTokenToStorage(data);
       return data;
     })
-    .then(loadUser);
+    .then(data => {
+      if (data?.actor_type === GrantTypes.TWOFA) return data;
+      return loadUser();
+    });
 }
 
 async function verify2fa({ token }: GuestContext, { data }: any) {
