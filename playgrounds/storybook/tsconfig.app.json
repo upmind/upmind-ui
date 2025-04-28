@@ -1,12 +1,13 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "stories/**/*", "stories/**/*.vue"],
+  "include": ["env.d.ts", "stories/**/*", "stories/**/*.vue", "utils/**/*"],
   "exclude": [],
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   }
 }

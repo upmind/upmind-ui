@@ -56,9 +56,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useSession, useBasket, utils } from "@upmind-automation/headless-vue";
-import Confetti from "../../assets/animations/confetti.json?url";
-import Basket from "../../assets/animations/basket.json?url";
-import Error from "../../assets/animations/error.json?url";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
@@ -76,6 +73,20 @@ const { transfer: transferSession, meta } = useSession();
 
 const orderId = route.params.orderId.toString();
 const success = computed(() => route.query.payment_success === "true");
+
+const transferBase =
+  import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH_BASE ?? undefined;
+
+const transferAuth =
+  import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH_PATH ?? "auth/transfer";
+
+const transferRedirect = (
+  import.meta.env.VITE_APP_ORDER_TRANSFER_REDIRECT ||
+  "/billing/orders/{{orderId}}/overview"
+).replace(/{{([^{}]+)}}/g, (keyExpr: string, key: string) => {
+  if (key == "orderId") return orderId;
+  return;
+});
 
 const title = computed(() => {
   if (!meta.value.isAuthenticated) {
@@ -117,13 +128,13 @@ const action = computed(() => {
 
 const icon = computed(() => {
   if (success.value) {
-    return Confetti;
+    return "confetti";
   }
 
   if (!success.value) {
-    return Error;
+    return "error";
   }
-  return Basket;
+  return "basket";
 });
 
 // -----------------------------------------------------------------------------
@@ -139,17 +150,18 @@ function doAction() {
   }
 
   processing.value = true;
+
   transferSession()
     .then(transfer => {
       if (transfer?.code) {
         window.location.href = utils
           .useUrl(
-            "auth/transfer",
+            transferAuth,
             {
               code: transfer.code,
-              redirect: `/billing/orders/${orderId}/overview`,
+              redirect: transferRedirect,
             },
-            { base: transfer.redirect_url, context: "" }
+            { base: transferBase ?? transfer.redirect_url, context: "" }
           )
           .toString();
       }

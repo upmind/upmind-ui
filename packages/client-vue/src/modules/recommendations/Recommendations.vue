@@ -14,7 +14,20 @@
       </p>
     </div>
 
-    <Carousel @resolve="doClose" />
+    <CardsCarousel
+      :loading="meta?.isLoading"
+      :processing="meta?.isProcessing"
+      :refreshing="meta?.isRefreshing"
+      :items="recommendations"
+      @resolve="doAdd"
+      @fetch="fetchRecommendation"
+    />
+
+    <Configure
+      v-if="basketItem?.id"
+      :modelValue="basketItem"
+      @resolve="doClose"
+    />
 
     <Card
       class="md:bg-base mt-8 flex flex-col items-center justify-between bg-transparent !p-0 shadow-none md:mt-8 md:flex-row md:!px-8 md:!py-6 md:shadow-sm"
@@ -47,13 +60,15 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   useBasket,
-  useRecommendationsEngine,
+  useRecommendations,
   useRoutingEngine,
+  ROUTE,
 } from "@upmind-automation/headless-vue";
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import Carousel from "./components/Carousel.vue";
+import Configure from "./components/Configure.vue";
+import CardsCarousel from "./components/CardsCarousel.vue";
 import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
@@ -62,13 +77,28 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 const { t } = useI18n();
 
 // --- basket setup
-const { next } = useRoutingEngine();
-const { seen, isReady } = useRecommendationsEngine();
+const { next, back, isResolved } = useRoutingEngine();
+
+await isResolved(ROUTE.RECOMMENDATIONS).catch(back);
+
 const { products } = useBasket();
+const {
+  seen,
+  isReady,
+  basketItem,
+  meta,
+  recommendations,
+  add,
+  fetchRecommendation,
+} = useRecommendations();
 
 await isReady();
+
 // ---
 
+function doAdd(value: string) {
+  add(value).then(() => doClose());
+}
 function doClose() {
   seen();
   next();

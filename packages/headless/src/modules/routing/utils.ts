@@ -167,14 +167,13 @@ export const useRouteRequiresAction = () => {
       "context.model.provisionFields",
       {}
     );
-
     if (isEmpty(provisionFields)) return;
 
     const basketProduct = find(getProducts(), basketProduct => {
       const serviceIdentifier = get(basketProduct, "serviceIdentifier");
       if (!serviceIdentifier) return false;
       const value = includes(values(provisionFields), serviceIdentifier);
-      const hasError = !!get(basketProduct, "error");
+      const hasError = !isEmpty(get(basketProduct, "errors"));
       return value && hasError;
     });
 

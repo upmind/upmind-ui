@@ -2,10 +2,6 @@
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 
-// --- exports
-export * from "./upload";
-export * from "./recaptcha";
-
 // --- internal
 import { useSystem as useUpmindSystem } from "@upmind-automation/headless";
 export { useDataLayer, useTracking } from "@upmind-automation/headless";

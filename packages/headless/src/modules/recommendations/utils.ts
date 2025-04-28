@@ -2,25 +2,25 @@
 import { sha1 } from "object-hash";
 
 // --- internal
-import { parseProduct, parseTerms } from "../product/utils";
+import {
+  parseProductDetails,
+  parseQuantity,
+  parseTermDetails,
+} from "../product/utils";
 
 // --- utils
 import {
   compact,
   concat,
-  find,
+  defaultsDeep,
   get,
-  isEqual,
-  reduce,
-  some,
-  isEmpty,
-  set,
-  toSafeInteger,
-  uniqWith,
   includes,
-  first,
+  isEmpty,
   isString,
   map,
+  reduce,
+  some,
+  toSafeInteger,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -35,21 +35,10 @@ import type {
   Badge,
   Benefit,
 } from "./types";
+import { calculateBillingTerm } from "../product/services";
+import { ProductDetails, TermDetails } from "../product";
 
 // ---------------------------------------------------------------------------
-
-export function parseBasketItem(data: BasketProduct) {
-  // TODO: implement
-  // const name = data.product.serviceIdentifier;
-  // const parsed = parseDomain(name);
-  // const result = {
-  //   productId: data.productId,
-  //   tld: parsed?.tld,
-  //   sld: parsed?.sld,
-  //   domain: parsed?.domain,
-  // };
-  // return result;
-}
 
 /**
  * Parses the given basket and returns a list of recommendations.
@@ -78,7 +67,9 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
       // Lets allow the back end to hide the native related products.
       // Any meta level (product, category) can have the hide_native_related flag
+      // TODO: make this link to the `uimeta.hide_native_related`
       const hideNative = true;
+
       // const hideNative = some(
       //   concat(
       //     basketProduct?.product?.meta,
@@ -88,7 +79,8 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
       // );
 
       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
-      // so we need to filter out the duplicates
+      // but we need them to be able to show the same recommendation for individual source products
+      // so do not dedupe them!
 
       const allRelated = reduce(
         concat(
@@ -103,6 +95,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
 
           if (valid) {
             rawRelated.id = ensureId(rawRelated);
+            rawRelated.product_id ??= basketProduct.product_id; // ensure we have a product id associated with the recommendation
             result.push(rawRelated);
           }
 
@@ -111,12 +104,19 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
         []
       ) as RelatedProduct[];
 
-      return uniqWith(allRelated, isEqual);
+      return allRelated;
     },
     []
   );
 }
 
+/**
+ *  This function parses the relationships between products in a basket.
+ *  It extracts the related products from each product in the basket and creates a mapping of product IDs to their related product IDs.
+ *  The relationships are stored in a dictionary where the keys are basket product IDs and the values are arrays of related product IDs.
+ * @param raw - The raw basket data to parse.
+ * @returns
+ */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
   return reduce(
     raw.products,
@@ -239,87 +239,99 @@ export function parseRecommendation(
     loading?: boolean;
   }
 ): Recommendation {
-  const product = !isEmpty(raw.product)
-    ? parseProduct(raw.product)
-    : ({} as any);
-
+  const productDetails: ProductDetails = !isEmpty(raw.product)
+    ? parseProductDetails(raw.product)
+    : ({} as ProductDetails);
   const config: IProductConfig = get(raw, "config", {});
-  const terms = parseTerms(raw?.product?.prices);
-  const term =
-    find(terms, { cycle: config?.bcm }) ??
-    find(terms, { cycle: product?.cycle }) ??
-    first(terms);
+  const terms = parseTermDetails(raw.product?.prices);
+  const term = !isEmpty(terms)
+    ? calculateBillingTerm(config?.bcm ?? productDetails?.cycle, terms)
+    : ({} as TermDetails);
 
-  const metaInfo = get(term, "meta", {});
-  // --- additional state
-  set(metaInfo, "added", meta?.added ?? false);
-  set(metaInfo, "seen", meta?.seen ?? false);
-  set(metaInfo, "processing", meta?.processing ?? false);
-  set(metaInfo, "loading", meta?.loading ?? false);
+  term.meta = defaultsDeep(term.meta, {
+    added: meta?.added ?? false,
+    seen: meta?.seen ?? false,
+    processing: meta?.processing ?? false,
+    loading: meta?.loading ?? false,
+  });
+
   // ---------------------------------------------------------------------------
   return {
-    productId: raw.object_id,
-    ...product,
-    ...term,
-    meta: metaInfo,
-    // --- forced overrides
     id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
-    label: useTranslateField(raw, "label"),
-    title: useTranslateName(raw) || product?.title,
-    description: useTranslateField(raw, "description") || product?.description,
-    excerpt: useTranslateField(raw, "short_description") || product?.excerpt,
-    imgUrl: raw.image_url || product?.imgUrl,
-    badge: isString(raw?.badge) ? ({ label: raw?.badge } as Badge) : raw?.badge,
-    benefits: map(raw?.benefits, benefit => {
-      if (isString(benefit)) return { label: benefit } as Benefit;
-      return benefit;
-    }),
-    // --- default config to be used when adding to basket
-    config: {
-      productId: raw.object_id,
-      quantity: toSafeInteger(
-        config?.qty || product?.min || product?.step || 1
+    productDetails: {
+      ...productDetails,
+      // --- forced overrides
+      label: useTranslateField(raw, "label"),
+      title: useTranslateName(raw) || productDetails?.title,
+      description:
+        useTranslateField(raw, "description") || productDetails?.description,
+      excerpt:
+        useTranslateField(raw, "short_description") || productDetails?.excerpt,
+      imgUrl: raw.image_url || productDetails?.imgUrl,
+      // --- additional ui data
+      // -- TODO: Maybe move this into UI meta
+      badge: isString(raw?.badge)
+        ? ({ label: raw?.badge } as Badge)
+        : raw?.badge,
+      benefits: map(raw?.benefits, benefit =>
+        isString(benefit) ? ({ label: benefit } as Benefit) : benefit
       ),
+    },
+    meta: term?.meta,
+    promotions: term?.promotions,
+    price: term?.price,
+    pricing: [],
+    details: [],
+    // --- default config to be used when adding to basket
+    configuration: {
+      productId: raw.object_id,
+      quantity: parseQuantity(
+        toSafeInteger(
+          config?.qty || productDetails?.min || productDetails?.step || 1
+        ),
+        productDetails
+      ),
+
       term: config?.bcm ?? term?.cycle ?? 0,
       subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
     },
-  };
+  } as Recommendation;
 }
 
-export function parseDataLayerItem(raw: RelatedProduct, index: number) {
-  const product = raw.product;
-  const config: IProductConfig = get(raw, "config", {});
-  const terms = raw?.product?.prices;
-  const term =
-    find(terms, { billing_cycle_months: config?.bcm }) ??
-    find(terms, { billing_cycle_months: product?.billing_cycle_months }) ??
-    first(terms);
+// export function parseDataLayerItem(raw: RelatedProduct, index: number) {
+//   const product = raw.product;
+//   const config: IProductConfig = get(raw, "config", {});
+//   const terms = raw?.product?.prices;
+//   const term =
+//     find(terms, { billing_cycle_months: config?.bcm }) ??
+//     find(terms, { billing_cycle_months: product?.billing_cycle_months }) ??
+//     first(terms);
 
-  //   currentAmount: rawTerm.price_discounted ?? rawTerm.price,
-  // currentPrice:
-  //   rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
-  // regularAmount: rawTerm.price,
-  // regularPrice: rawTerm.price_formatted,
+//   //   currentAmount: rawTerm.price_discounted ?? rawTerm.price,
+//   // currentPrice:
+//   //   rawTerm.price_discounted_formatted ?? rawTerm.price_formatted,
+//   // regularAmount: rawTerm.price,
+//   // regularPrice: rawTerm.price_formatted,
 
-  return {
-    item_id: raw.object_id,
-    item_name: raw?.name || product?.name, // For reporting purposes we intentionally pass untranslated product name
-    discount: term?.price_discounted ? term?.price - term?.price_discounted : 0,
-    coupon: compact(config?.coupons?.toString()?.split(",") ?? []).toString(),
-    index,
-    item_brand: product?.brand?.name, // For reporting purposes we intentionally pass untranslated brand name
-    item_category: product?.category.name, // For reporting purposes we intentionally pass untranslated category name
-    // @ts-ignore: TODO see why this is warning when it is in fact valid
-    item_category2: product?.category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
-    // @ts-ignore: TODO see why this is warning when it is in fact valid
-    item_category3: product?.category?.top_category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
-    price: term?.price_discounted ?? term?.price,
-    // net_price: product?.configuration_net_amount_converted, //TODO: check the correct value is used
-    quantity: toSafeInteger(
-      config?.qty || product?.min_order_quantity || product?.unit_quantity || 1
-    ),
-    duration: config?.bcm ?? term?.billing_cycle_months ?? 0,
-  };
-}
+//   return {
+//     item_id: raw.object_id,
+//     item_name: raw?.name || product?.name, // For reporting purposes we intentionally pass untranslated product name
+//     discount: term?.price_discounted ? term?.price - term?.price_discounted : 0,
+//     coupon: compact(config?.coupons?.toString()?.split(",") ?? []).toString(),
+//     index,
+//     item_brand: product?.brand?.name, // For reporting purposes we intentionally pass untranslated brand name
+//     item_category: product?.category.name, // For reporting purposes we intentionally pass untranslated category name
+//     // @ts-ignore: TODO see why this is warning when it is in fact valid
+//     item_category2: product?.category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
+//     // @ts-ignore: TODO see why this is warning when it is in fact valid
+//     item_category3: product?.category?.top_category?.top_category?.name, // For reporting purposes we intentionally pass untranslated category name
+//     price: term?.price_discounted ?? term?.price,
+//     // net_price: product?.configuration_net_amount_converted, //TODO: check the correct value is used
+//     quantity: toSafeInteger(
+//       config?.qty || product?.min_order_quantity || product?.unit_quantity || 1
+//     ),
+//     duration: config?.bcm ?? term?.billing_cycle_months ?? 0,
+//   };
+// }

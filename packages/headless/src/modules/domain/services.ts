@@ -9,7 +9,7 @@ import { parseAvailable, parseDomain, parseSld } from "./utils";
 
 // --- types
 import type { IProduct } from "@upmind-automation/types";
-import type { DomainContext, DomainProduct } from "./types";
+import type { DomainContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -18,6 +18,7 @@ async function search({
   currency,
   controller,
   promotions,
+  preferredCycle,
 }: DomainContext) {
   const { get, useUrl } = useQueryPaginated();
   if (!search?.query?.length) return Promise.reject("No query provided");
@@ -52,10 +53,12 @@ async function search({
     },
     staleTime: 0,
     gcTime: 0,
-  }).then(({ data, pageTotal }) => ({
-    total: pageTotal || 0,
-    available: parseAvailable(sld, data ?? []),
-  }));
+  }).then(async response => {
+    return {
+      total: response.itemTotal,
+      available: await parseAvailable(sld, response.data ?? [], preferredCycle),
+    };
+  });
 }
 
 function getClientDomains({ controller }: DomainContext) {

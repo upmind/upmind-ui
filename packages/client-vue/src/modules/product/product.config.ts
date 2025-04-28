@@ -132,9 +132,9 @@ export default {
         }
       ),
 
-      content: cva("flex flex-wrap items-start gap-x-2 gap-y-10 p-6 md:p-10"),
+      content: cva("flex flex-wrap items-start gap-x-4 gap-y-10 p-6 md:p-10"),
 
-      media: cva("m-0 size-80 flex-none overflow-hidden rounded-lg p-0", {
+      media: cva("m-0 size-24 flex-none overflow-hidden rounded-lg p-0", {
         variants: {
           filled: {
             true: "bg-base-muted text-base-muted-foreground border",
@@ -232,7 +232,7 @@ export default {
             "m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
             {
               variants: {
-                select: {
+                isSelected: {
                   true: "w-full items-start justify-between sm:items-center",
                 },
               },
@@ -241,7 +241,7 @@ export default {
           // input: cva("text-primary"),
           header: cva("flex items-center gap-x-2 gap-y-1 leading-tight", {
             variants: {
-              select: {
+              isSelected: {
                 false:
                   "flex-1 flex-wrap items-center justify-start sm:justify-between",
               },
@@ -249,7 +249,7 @@ export default {
           }),
           footer: cva("flex", {
             variants: {
-              select: {
+              isSelected: {
                 false: "w-full flex-col gap-y-1.5 self-end",
                 true: "items-baseline gap-x-2",
               },
@@ -260,7 +260,7 @@ export default {
           text: cva("text-emphasis-medium w-full text-xs"),
           total: cva("!leading-none text-inherit", {
             variants: {
-              select: {
+              isSelected: {
                 true: "",
                 false: "text-2xl",
               },

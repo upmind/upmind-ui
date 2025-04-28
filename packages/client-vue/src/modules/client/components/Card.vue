@@ -158,15 +158,6 @@ const actions = computed((): DropdownMenuItemProps[] => {
         remove();
       },
     },
-    {
-      icon: "copy",
-      label: t(`client.${props.i18nKey}.actions.copy`, copied ? 0 : 1),
-      value: "copy",
-      hidden: !isSupported,
-      handler: () => {
-        copy(description.value);
-      },
-    },
   ];
 });
 

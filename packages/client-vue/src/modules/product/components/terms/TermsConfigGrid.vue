@@ -60,12 +60,13 @@ import { isNil, map, toNumber, find } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { TermDetails } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
-    items: any[];
+    items: TermDetails[];
     modelValue?: string | number;
     errors?: string;
     // ---
@@ -106,13 +107,15 @@ const styles = useStyles(
 }>;
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
-  return map(props.items, (item: any) => {
+  return map(props.items, (item: TermDetails, index: number) => {
     return {
       id: item.cycle,
-      value: item.cycle.toString(),
-      label: item.name,
-      ...item,
-    };
+      value: item.cycle?.toString(),
+      label: item.title,
+      item: item, // Ensure the `item` property is included
+      index: index, // Add the `index` property
+      modelValue: props.modelValue?.toString(), // Add the `modelValue` property
+    } as RadioCardsItemProps;
   });
 });
 
@@ -120,18 +123,20 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function getTerm(value: string) {
-  const item = find(props.items, ["cycle", toNumber(value)]);
+function getTerm(value: string): TermDetails {
+  const item = find(props.items, ["cycle", toNumber(value)]) as TermDetails;
   return item;
 }
 
-function isMonthly(item: any) {
-  const term = getTerm(item);
-  return props.monthly && term.monthlyFromRegularPrice && term.cycle > 1;
+function isMonthly(value: string) {
+  const term = getTerm(value) as TermDetails;
+  return (
+    props.monthly && term.price.monthlyFromRegularPrice && (term.cycle ?? 0) > 1
+  );
 }
 
-function doResolve(item: string | number) {
+function doResolve(value: string | number) {
   if (props.disabled) return;
-  emits("update:modelValue", toNumber(item));
+  emits("update:modelValue", toNumber(value));
 }
 </script>

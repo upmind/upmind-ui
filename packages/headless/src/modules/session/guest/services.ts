@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery } from "../..";
+import { useBasket, useQuery } from "../..";
 import { useSystemRecaptcha, useTracking, useDataLayer } from "../../system/";
 import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
@@ -55,13 +55,23 @@ async function loadUser() {
 
 async function authenticate({ model }: GuestContext) {
   const { post, useUrl } = useQuery();
+  const { getCurrency } = useBasket();
+
+  const data: any = {
+    username: model.username,
+    password: model.password,
+    grant_type: GrantTypes.PASSWORD,
+  };
+
+  // Add.match the basket currency (if available)
+  // so as to persist the currency when client logs in and claims a basket
+  // without it the basket will revert to the default currency
+  const currency = getCurrency();
+  if (currency) data.currency_id = currency.id;
+
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
-    data: {
-      username: model.username,
-      password: model.password,
-      grant_type: GrantTypes.PASSWORD,
-    },
+    data,
   })
     .then((data: any) => {
       // we record the history of the token to be able to referejce the originating guest token
@@ -110,6 +120,7 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
 }
 
 async function register({ model }: GuestContext) {
+  const { getCurrency } = useBasket();
   const { post, useUrl } = useQuery();
   const recaptcha = useSystemRecaptcha();
   const { get: getCookie } = useCookies();
@@ -129,6 +140,12 @@ async function register({ model }: GuestContext) {
 
   // ---
   // Conditional data
+
+  // Add.match the basket currency (if available)
+  // so as to persist the currency when client registers and claims a basket
+  // without it the basket will revert to the default currency
+  const currency = getCurrency();
+  if (currency) data.currency_id = currency.id;
 
   // add recaptcha token if available
   await recaptcha
