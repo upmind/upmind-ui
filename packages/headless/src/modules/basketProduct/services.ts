@@ -71,9 +71,12 @@ async function fetch(
 
   // ---
   const { get: getRequest, useUrl } = useQuery();
+  // lets ensure we parse our promotions correctly
+  const promocodes = map(promotions, "promotion.code").join();
+
   const params = {
     currency_id: currency?.id,
-    promotions: (promotions ?? []).join(","), // ensure we pass any applied promotions to get the correct prices
+    promotions: promocodes,
     with: [
       "image",
       "prices",
@@ -86,9 +89,6 @@ async function fetch(
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
   if (bpid) set(params, "basket_product_id", bpid);
-
-  // lets ensure we parse our promotions correctly
-  const promocodes = map(promotions, "promotion.code").join();
 
   return getRequest({
     url: useUrl(`basket/products/${productId}`, params),
