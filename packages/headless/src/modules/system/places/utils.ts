@@ -1,18 +1,17 @@
-// --- external
-
 // --- internal
-import { useSystem } from "../..";
+import { Place, useSystem } from "..";
 
 // --- utils
-import { some, get, find, includes, map, compact, isArray } from "lodash-es";
+import { compact, find, get, includes, some } from "lodash-es";
 
 // --- types
-import { Address } from "../address/types";
-import { Places } from "./types";
+import type { Places } from "./types";
 
 // -----------------------------------------------------------------------------
 
-function parseCountry(addressComponents: any) {
+function parseCountry(
+  addressComponents: google.maps.places.PlaceResult["address_components"]
+) {
   const { getCountry } = useSystem();
 
   const country = find(addressComponents, entry =>
@@ -32,32 +31,23 @@ async function parseRegion(
   return getRegion([regionLevel1, regionLevel2], country);
 }
 
-function parseValue(addressComponents: any[], fields: string[]) {
+function parseValue(
+  addressComponents: google.maps.places.PlaceResult["address_components"],
+  fields: string[]
+) {
   const value = find(addressComponents, entry =>
     some(entry.types, type => includes(fields, type))
   );
 
-  return get(value, "long_name");
+  return get(value, "long_name", "");
 }
 
 // -----------------------------------------------------------------------------
-export async function usePredictionsParser(results: any) {
-  return map(results, result => {
-    const value = {
-      id: result.place_id,
-      title: result.description,
-      description: null,
-      // ---
-      label: result.description,
-      value: result.place_id,
-    };
-
-    return value;
-  });
-}
-
-export async function usePlaceParser(result: any): Promise<Address> {
+export async function usePlaceParser(
+  result: google.maps.places.PlaceResult
+): Promise<Place> {
   const name = get(result, "name");
+
   const address = get(result, "address_components", []);
 
   const address_1 = compact([
@@ -83,15 +73,26 @@ export async function usePlaceParser(result: any): Promise<Address> {
     country?.code ?? ""
   );
 
+  const fallbackTitle = compact([address_1, city, get(country, "name")]).join(
+    ", "
+  );
+  const title = name || fallbackTitle || "Address";
+
   return {
-    name,
-    address1: address_1.length ? address_1.join(" ") : undefined,
-    address2: address_2.length ? address_2.join(" ") : undefined,
-    postcode,
-    city,
-    countryId: get(country, "id"),
-    regionId: get(region, "id"),
-  } as Address;
+    id: get(result, "place_id", ""),
+    title,
+    description: get(result, "formatted_address", fallbackTitle),
+    address: {
+      name,
+      address1: address_1.length ? address_1.join(" ") : "",
+      address2: address_2.length ? address_2.join(" ") : undefined,
+      city,
+      type: 1,
+      postcode,
+      regionId: get(region, "id"),
+      countryId: get(country, "id"),
+    },
+  };
 }
 
 export function parsePlaces(api: google.maps.PlacesLibrary): Places {
