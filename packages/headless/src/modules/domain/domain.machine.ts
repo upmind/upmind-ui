@@ -6,7 +6,7 @@ const { sendTo } = actions;
 // --- internal
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
-import { authSubscription } from "../session";
+import { authSubscription } from "../session/helper";
 
 // --- utils
 import { useTime } from "../../utils";
