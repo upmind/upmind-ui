@@ -17,6 +17,7 @@ import {
   includes,
   isEmpty,
   isString,
+  find,
   map,
   reduce,
   some,
@@ -244,10 +245,12 @@ export function parseRecommendation(
     : ({} as ProductDetails);
   const config: IProductConfig = get(raw, "config", {});
   const terms = parseTermDetails(raw.product?.prices);
+  debugger;
+  // try use the provided config term, otherwise calculate the term based on the product details
   const term = !isEmpty(terms)
-    ? calculateBillingTerm(config?.bcm ?? productDetails?.cycle, terms)
+    ? find(terms, ["cycle", config?.bcm]) ||
+      calculateBillingTerm(productDetails?.cycle, terms)
     : ({} as TermDetails);
-
   term.meta = defaultsDeep(term.meta, {
     added: meta?.added ?? false,
     seen: meta?.seen ?? false,
