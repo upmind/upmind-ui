@@ -69,8 +69,8 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
   router.afterEach((to, from) => {
     dataLayer({ event: "page_view" })
       .withPage({
-        to: to?.fullPath,
-        from: from?.fullPath,
+        to,
+        from,
       })
       .push();
   });

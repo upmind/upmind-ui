@@ -8,13 +8,16 @@ import type { DomainTypes } from "@upmind-automation/headless";
 import { useDomain as useUpmindDomain } from "@upmind-automation/headless";
 
 // --- utils
-import { map, some, find, isArray, get, first, debounce } from "lodash-es";
+import { map, find, get, first, debounce } from "lodash-es";
+import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
 export {
   DomainTypes,
-  type DomainLookup,
-  type Domain,
+  type DomainProduct,
+  type DomainModel,
+  type DomainProps,
+  type DomainSearch,
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -106,7 +109,7 @@ export const useDomain = ({
     })),
     // ---
     choose: domain.choose,
-    search: debounce(domain.search as (value: string) => void, 500),
+    search: debounce(domain.search as (value: string) => void, DEBOUNCE_DELAY),
     searchMore: domain.searchMore,
     searchOffset: computed<number>(() => state.value.context?.search?.offset),
     add: domain.add,
@@ -117,6 +120,6 @@ export const useDomain = ({
     select: domain.select,
     addToBasket: domain.addToBasket,
     isSelected: domain.isSelected,
-    destroy: domain.destroy,
+    stop: domain.stop,
   };
 };

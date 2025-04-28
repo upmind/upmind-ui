@@ -21,6 +21,7 @@ import { responseCodes } from "../../utils";
 // --- types
 import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
+import { IBasket, ICurrency } from "@upmind-automation/types";
 export * from "./types";
 export * from "./billing";
 
@@ -30,7 +31,7 @@ export * from "./billing";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service: any = interpret(basketMachine, {
+const service = interpret(basketMachine, {
   devTools: true,
 });
 
@@ -72,7 +73,7 @@ export const useBasket = () => {
 
   function hasInvalidProducts() {
     const state = service.getSnapshot();
-    return some(state?.context?.products, product => !isEmpty(product?.error));
+    return some(state?.context?.products, product => !isEmpty(product?.errors));
   }
 
   async function hasPromotions(): Promise<boolean> {
@@ -185,14 +186,14 @@ export const useBasket = () => {
     return service.send({ type: "CHECKOUT" });
   }
 
-  function refresh(data?: any) {
+  function refresh(data?: IBasket): Promise<IBasket> {
     service.send({ type: "REFRESH", data });
     return waitFor(service, state =>
       state.matches("shopping.refreshing.processed")
-    ).then(() => get(service.getSnapshot(), "context.basket"));
+    ).then(() => get(service.getSnapshot(), "context.basket") as IBasket);
   }
 
-  async function setCurrency(currency: any) {
+  async function setCurrency(currency: string) {
     return waitFor(service, state => state.matches("shopping"), {
       timeout: 60_000,
     }).then(() => {
@@ -220,7 +221,7 @@ export const useBasket = () => {
     });
   }
 
-  async function addPromotion(coupon: any) {
+  async function addPromotion(coupon: string) {
     return waitFor(service, state => state.matches("shopping"), {
       timeout: 60_000,
     }).then(async () => {
@@ -266,12 +267,14 @@ export const useBasket = () => {
   function getInvalidProducts(): BasketProduct[] {
     const state = service.getSnapshot();
     const products = get(state, "context.products", []);
-    return filter(products, product => !isEmpty(product?.error));
+    return filter(products, product => !isEmpty(product?.errors));
   }
 
-  function findProduct(mapping: any): BasketProduct | undefined {
+  function findProduct(
+    mapping: Record<string, any>
+  ): BasketProduct | undefined {
     const products = getProducts();
-    return findLast(products, (basketItem: any) =>
+    return findLast(products, basketItem =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return basketItem.id == value;
@@ -283,7 +286,7 @@ export const useBasket = () => {
     );
   }
 
-  function productExists(mapping: any, pending?: boolean) {
+  function productExists(mapping: Record<string, any>) {
     const products = getProducts();
 
     return some(products, product =>
@@ -306,7 +309,7 @@ export const useBasket = () => {
     getPromotionCodes: () =>
       map(service.getSnapshot()?.context?.basket?.promotions, "promotion.code"),
     getTaxes: () => service.getSnapshot()?.context?.basket?.taxes ?? [],
-    getErrors: () => service.getSnapshot()?.context?.errors,
+    getErrors: () => service.getSnapshot()?.context?.error,
     // --- meta functions
     isReady,
     isAvailable,

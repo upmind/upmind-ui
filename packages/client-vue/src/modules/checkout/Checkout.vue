@@ -132,10 +132,8 @@ import {
   useBasketBillingDetails,
   useBasketPaymentDetails,
   useRoutingEngine,
+  ROUTE,
 } from "@upmind-automation/headless-vue";
-import TappingCard from "../../assets/animations/tapping-card.json?url";
-import Receipt from "../../assets/animations/receipt.json?url";
-import Basket from "../../assets/animations/basket.json?url";
 
 import config from "./checkout.config";
 import { useStyles, Interstitial } from "@upmind-automation/upmind-ui";
@@ -160,7 +158,7 @@ const { t } = useI18n();
 
 const { meta: account, isAuthenticated } = useSession();
 const { state, meta, isReady } = useBasket();
-const { next, back } = useRoutingEngine();
+const { next, back, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -185,6 +183,7 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();
 // -----------------------------------------------------------------------------
+await isResolved(ROUTE.CHECKOUT).catch(back);
 await isReady().then(() => isAuthenticated().catch(back));
 
 // -----------------------------------------------------------------------------
@@ -239,26 +238,26 @@ const processingTextKey = computed(() => {
 
 const processingIcon = computed(() => {
   if (meta.value.needsApproval) {
-    return Basket;
+    return "basket";
   }
 
   if (meta.value.isConverting) {
-    return Receipt;
+    return "receipt";
   }
 
   if (meta.value.isPaying) {
-    return TappingCard;
+    return "tapping-card";
   }
 
   if (meta.value.isCheckout) {
-    return TappingCard;
+    return "tapping-card";
   }
 
   if (paymentDetailsMeta.value.isFree) {
-    return Basket;
+    return "basket";
   }
 
-  return Basket;
+  return "basket";
 });
 
 // --- side effects

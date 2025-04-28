@@ -12,11 +12,9 @@ const { dataLayer } = useDataLayer();
 // --- utils
 import { useTime } from "../../utils";
 import {
-  parseBasketItem,
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  parseDataLayerItem,
   checkInBasket,
 } from "./utils";
 import {
@@ -47,6 +45,7 @@ import {
 import type { AnyEventObject } from "xstate";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
+import type { ProductModel } from "../product";
 import type { RecommendationsEngineContext, Recommendation } from "./types";
 
 // ---
@@ -65,7 +64,8 @@ export default createMachine(
             actions: ["setBasket", "setLookups", "setRecommendations"],
           },
           ERROR: {
-            target: "unavailable",
+            actions: ["setError"],
+            // target: "unavailable",
           },
         },
       },
@@ -196,7 +196,6 @@ export default createMachine(
           promotions: [],
           // ---
           basketHelper: undefined,
-          parseBasketProduct: undefined,
           parseBasketProductComparison: undefined,
         })
       ),
@@ -220,19 +219,19 @@ export default createMachine(
       setBasketHelper: assign(({ basketHelper, raw }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
-          parseBasketProduct: function (item: BasketProduct) {
-            return parseBasketItem(item);
-          },
 
           parseProductModel: (
             recommendation: Recommendation,
             products: IBasketProduct
-          ) => {
-            if (!recommendation?.config && !recommendation.config?.productId)
-              return null;
+          ): ProductModel | undefined => {
+            if (
+              !recommendation?.configuration &&
+              !recommendation.configuration?.productId
+            )
+              return undefined;
 
-            recommendation.config.provisionFields = mapValues(
-              recommendation.config?.provisionFields ?? {},
+            recommendation.configuration.provisionFields = mapValues(
+              recommendation.configuration?.provisionFields ?? {},
               (value: any) => {
                 // get any dynamic properties that we need to resolve
                 const dynamicProperty: string = first(
@@ -249,11 +248,12 @@ export default createMachine(
                 return value;
               }
             );
-            return recommendation.config;
+
+            return recommendation.configuration;
           },
 
           parseBasketProductComparison: (item: BasketProduct) => ({
-            productId: item.productId,
+            productId: item.configuration.productId,
           }),
         };
       }),
@@ -267,25 +267,30 @@ export default createMachine(
       ),
 
       fetchProduct: sendTo(
-        ({ basketHelper }: any, _event) => basketHelper,
-        ({ recommendations }, { data }: AnyEventObject) => {
+        ({ basketHelper }: RecommendationsEngineContext, _event) => {
+          if (!basketHelper) throw new Error("Basket helper is not defined");
+          return basketHelper;
+        },
+        (
+          { recommendations }: RecommendationsEngineContext,
+          { data }: AnyEventObject
+        ) => {
           const context = find(recommendations, ["id", data]);
-
+          if (!context) throw new Error("Context is not defined");
           // ensure we add our configured coupons to the recommendation ( in the format of IBasketPromotion)
           set(
             context,
             "promotions",
-            map(context?.config?.coupons, coupon => ({
+            map(context.configuration.coupons, coupon => ({
               promotion: { code: coupon },
             }))
           );
 
           // and remove the config as it's not needed
-          unset(context, "config");
-
+          // unset(context, "configuration");
           return {
             type: "FETCH",
-            target: context.productId,
+            target: context.configuration.productId,
             context,
           };
         }
@@ -313,7 +318,6 @@ export default createMachine(
             recommendation.id,
             []
           );
-
           const relatedProducts = filter(context.raw.added, product => {
             return includes(relationships, product.id);
           });
@@ -322,7 +326,6 @@ export default createMachine(
             recommendation,
             relatedProducts
           );
-
           return {
             type: "ADD_UPDATE",
             target: model,
@@ -442,10 +445,14 @@ export default createMachine(
         recommendations: (
           { raw }: RecommendationsEngineContext,
           _event: AnyEventObject
-        ) =>
-          reduce(
+        ) => {
+          const parsed = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
+              // because we may have the same raw recommendation multiple times ( due to multiple products having the same related )
+              // we need to check if we have already added it so the parsed recommendations are deduped
+              if (some(result, ["id", rawRelated.id])) return result;
+
               const product = find(raw.products, ["id", rawRelated.object_id]);
               rawRelated.product = product;
               const added = checkInBasket(rawRelated, raw.added);
@@ -462,7 +469,9 @@ export default createMachine(
               return result;
             },
             []
-          ),
+          );
+          return parsed;
+        },
       }),
 
       setRecommendation: assign({
@@ -480,6 +489,10 @@ export default createMachine(
           const augmentedRecommendations = reduce(
             raw.related,
             (result: any[], rawRelated: any) => {
+              // because we may have the same raw recommendation multiple times ( due to multiple products having the same related )
+              // we need to check if we have already added it so the parsed recommendations are deduped
+              if (some(result, ["id", rawRelated.id])) return result;
+
               if (context?.id == rawRelated?.id) rawRelated.product = data;
               const added = checkInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
@@ -522,7 +535,7 @@ export default createMachine(
           currency: currency?.code,
           item_list_id: "recommendations",
           // item_list_name: "Recommendations",
-          items: map(raw.related, parseDataLayerItem),
+          items: raw.related,
         }).push();
       },
 

@@ -32,7 +32,7 @@
 
                       <!-- fallback / loading state -->
                       <template #fallback>
-                        <Loading>
+                        <Loading v-bind="loadingProps">
                           <template #background>
                             <slot name="loading-background"></slot>
                           </template>
@@ -45,19 +45,6 @@
             </template>
           </slot>
         </RouterView>
-
-        <slot name="expired">
-          <SessionExpired
-            :title="t('session.expired.title')"
-            :text="t('session.expired.text')"
-            :action="{
-              label: t('session.expired.actions.continue'),
-              color: 'primary',
-              handler: refresh,
-              auto: true,
-            }"
-          />
-        </slot>
       </div>
 
       <slot name="footer"></slot>
@@ -79,16 +66,13 @@ export default {
 // --- external
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
-import { useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
 import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
-import SessionExpired from "./modules/session/components/Expired.vue";
 import Page from "./components/content/Page.vue";
 import Loading from "./modules/system/Loading.vue";
 
@@ -97,17 +81,16 @@ import { get } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   theme: any;
   logo?: string;
+  loadingProps?: InterstitialProps;
 }>();
 
-const { t } = useI18n();
 const { activeTheme } = useThemes(props.theme);
-// setup routing engine and wait for it to be resolved, this is important as it will trigger the asyn loading fallback
-const { refresh } = useRoutingEngine();
 const currentRoute = useRoute();
 
 const route = computed(() =>

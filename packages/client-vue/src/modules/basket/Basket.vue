@@ -122,7 +122,7 @@
                     params: { bpid: basketItem.id },
                   }"
                 >
-                  <span>{{ basketItem?.product?.title }}</span>
+                  <span>{{ basketItem?.productDetails?.title }}</span>
                 </router-link>
               </li>
             </ol>

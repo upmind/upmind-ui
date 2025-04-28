@@ -5,26 +5,27 @@
         {{
           te(`product.terms.cycle.${props.cycle}`)
             ? t(`product.terms.cycle.${props.cycle}`)
-            : props.name
+            : props.title
         }}
       </strong>
 
-      <template v-for="promotion in props.promotions" :key="promotion.id">
-        <Promotion
-          :discounted="!!promotion.amount"
-          :currentSaving="promotion.amountFormatted"
-          :currentSavingAmount="promotion.amount"
-          :mixed="promotion.mixed"
-        />
-      </template>
+      <Promotion
+        v-for="promotion in props.promotions"
+        :key="promotion.code.toString()"
+        v-bind="promotion"
+      />
 
       <span
         :class="styles.product.config.grid.item.text"
-        v-if="props.monthlyFromCurrentAmount && props.cycle > 1"
+        v-if="
+          props.price.monthlyFromCurrentAmount &&
+          props?.cycle &&
+          props.cycle > 1
+        "
       >
         {{
           t("product.cycle", {
-            value: props.monthlyFromCurrentPrice,
+            value: props.price.monthlyFromCurrentPrice,
           })
         }}
       </span>
@@ -32,7 +33,12 @@
 
     <div :class="styles.product.config.grid.item.footer">
       <Pricing
-        v-bind="props"
+        :regular-price="props.price.regularPrice"
+        :monthly-from-regular-price="props.price.monthlyFromRegularPrice"
+        :current-price="props.price.currentPrice"
+        :monthly-from-current-price="props.price.monthlyFromCurrentPrice"
+        :meta="props.meta"
+        :cycle="props.cycle"
         :ui-config="{
           pricing: {
             current: styles.product.config.grid.item.total,
@@ -57,45 +63,22 @@ import Pricing from "../pricing/Pricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type { TermDetails } from "@upmind-automation/headless-vue";
+
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  name: string;
-  price: number;
-  cycle: number;
-  // ---
-  mixedPromotions?: boolean;
-  monthlyFromCurrentAmount?: number;
-  monthlyFromCurrentPrice?: string;
-  monthlyFromRegularAmount?: number;
-  monthlyFromRegularPrice?: string;
-  regularAmount?: number;
-  regularPrice?: string;
-  currentPrice?: string;
-  currentAmount?: number;
-  meta: {
-    discounted?: boolean;
-    free?: boolean;
-  };
-  promotions?: {
-    name?: string;
-    amount?: number;
-    amountFormatted?: string;
-    code: string[];
-    display?: string;
-    mixed?: boolean;
-  }[];
-}>();
+const props = defineProps<TermDetails>();
 
 // ---
 
 const { t, te } = useI18n();
 
 const meta = computed(() => ({
-  hasPromotions: !!props.promotions?.length || props.mixedPromotions,
+  hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
 }));
 
 const styles = useStyles(

@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useI18n } from "../system";
+import { useSystemI18n } from "../system";
 import { useQuery } from ".";
 import { useSession } from "../session";
 
@@ -31,7 +31,7 @@ async function doFetch<T extends object = object>({
   if (!url) return Promise.reject("Invalid URL");
 
   if (!url.searchParams.has("lang")) {
-    const { getLocale } = useI18n();
+    const { getLocale } = useSystemI18n();
     const locale = await getLocale();
     if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
   }
