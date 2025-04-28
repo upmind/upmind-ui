@@ -9,7 +9,7 @@
     :type="props.type || 'button'"
     :tabindex="props.focusable ? '0' : '-1'"
     :data-testid="
-      `button-${label || 'default'}`.toLowerCase().replace(/\s+/g, '-')
+      `button-${kebabCase(label ?? 'default')}`
     "
   >
     <slot name="prepend"></slot>
@@ -37,6 +37,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import config from "./button.config";
