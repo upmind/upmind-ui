@@ -2,7 +2,7 @@
 import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 
 // --- internal
-import { authSubscription } from "../session";
+import { authSubscription } from "../session/helper";
 import { querySubscription } from "../query/useQuerySubscription";
 
 // --- utils
