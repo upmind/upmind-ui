@@ -116,8 +116,6 @@ const {
   service: basketProduct,
 } = await configure(basketProductId);
 
-await isReady();
-
 async function doResolve() {
   update().then(() => next(basketProduct));
 }
