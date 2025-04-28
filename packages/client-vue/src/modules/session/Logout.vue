@@ -8,7 +8,7 @@
         :actions="[
           {
             as: 'a',
-            color: 'primary',
+            color: 'secondary',
             href: storefrontUrl,
             appendIcon: {
               icon: 'arrow-right',
@@ -64,7 +64,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   skrim: "light",
 
   animatedIcon: () => ({
-    icon: "internet",
+    icon: "keys",
     trigger: "loop",
     primaryColor: "base-foreground",
     secondaryColor: "tertiary",
