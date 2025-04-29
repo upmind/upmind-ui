@@ -2,6 +2,7 @@
   <Card :class="styles.summary.card" as="aside" class="">
     <header :class="styles.summary.header">
       <SummaryPricing
+        v-if="product?.pricing"
         :pricing="product.pricing"
         :meta="product.meta"
         :loading="meta.isLoading"
@@ -11,7 +12,7 @@
 
     <footer :class="styles.summary.footer">
       <NumberField
-        v-if="product.productDetails.quantifiable"
+        v-if="product?.productDetails?.quantifiable"
         :min="product.productDetails.min"
         :max="product.productDetails.max"
         :step="product.productDetails.step"
@@ -47,7 +48,7 @@
     class="mt-4"
   />
 
-  <SummaryList v-bind="product" />
+  <SummaryList v-if="product?.productDetails" v-bind="product" />
 </template>
 
 <script setup lang="ts">

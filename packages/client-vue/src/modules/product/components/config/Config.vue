@@ -13,7 +13,7 @@
     </header>
 
     <!-- content -->
-    <div :class="styles.product.config.content">
+    <div :class="styles.product.config.content" v-if="product?.productDetails">
       <!-- thumb -->
       <figure :class="styles.product.config.media" v-if="productImage()">
         <img
