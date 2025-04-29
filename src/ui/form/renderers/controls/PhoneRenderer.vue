@@ -183,9 +183,11 @@ const errors = computed(() => {
       parsePhoneNumberWithError(phone.value.number, {
         defaultCountry: phone.value.country,
       });
-      return validatePhoneNumberLength(phone.value.number, {
-        defaultCountry: phone.value.country,
-      });
+      return (
+        validatePhoneNumberLength(phone.value.number, {
+          defaultCountry: phone.value.country,
+        }) || "NOT_A_NUMBER"
+      );
     } catch (error) {
       return (error as ParseError).message;
     }
