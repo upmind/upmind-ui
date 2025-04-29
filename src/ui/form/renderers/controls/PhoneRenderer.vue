@@ -4,7 +4,9 @@
       <Autocomplete
         :display-value="displayValue"
         :items="countryItems"
-        :model-value="control.data?.country || defaultCountryCode"
+        :model-value="
+          phone?.country || control.data?.country || defaultCountryCode
+        "
         :search="onSearch"
         @update:model-value="onCountyInput"
         align="start"
@@ -23,7 +25,11 @@
       </Autocomplete>
       <Input
         :disabled="!control.enabled"
-        :default-value="control.data?.nationalNumber || control.data?.number"
+        :default-value="
+          phone?.nationalNumber ||
+          control.data?.nationalNumber ||
+          control.data?.number
+        "
         :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
@@ -92,7 +98,29 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 );
 
 const requiresString = first(control.value.schema.type) === "string";
-const phone = ref({ ...control.value.data });
+
+const initialPhoneData = () => {
+  const data = control.value.data;
+
+  // Parsing E.164 format
+  if (isString(data) && data.startsWith("+")) {
+    try {
+      const parsedNumber = parsePhoneNumber(data);
+      return {
+        country: parsedNumber.country,
+        nationalNumber: parsedNumber.nationalNumber,
+        number: parsedNumber.number,
+      };
+    } catch (error) {
+      console.warn("Failed to parse E.164 format phone number:", error);
+      return {};
+    }
+  }
+
+  return data;
+};
+
+const phone = ref(initialPhoneData());
 
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
@@ -111,7 +139,7 @@ function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
 }
 
 function onCountyInput(value: any) {
-  phone.value = parsePhone(phone.value.number, value as CountryCode);
+  phone.value = parsePhone(phone.value?.number, value as CountryCode);
   onInput(requiresString ? phone.value.number : phone.value);
 }
 
