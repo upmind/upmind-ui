@@ -24,6 +24,7 @@
       <Input
         :disabled="!control.enabled"
         :default-value="control.data?.nationalNumber || control.data?.number"
+        :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"
@@ -36,7 +37,8 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import parsePhoneNumber from "libphonenumber-js";
+import examples from "libphonenumber-js/mobile/examples";
+import { parsePhoneNumber, getExampleNumber } from "libphonenumber-js";
 
 // --- internal
 import { countries, getCountryCode } from "countries-list";
@@ -53,7 +55,15 @@ import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { get, map, trimStart, includes, filter, isString } from "lodash-es";
+import {
+  get,
+  map,
+  trimStart,
+  includes,
+  filter,
+  isString,
+  first,
+} from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -81,32 +91,33 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
+const requiresString = first(control.value.schema.type) === "string";
 const phone = ref({ ...control.value.data });
+
+const exampleNumber = computed(() => {
+  const countryCode = phone.value?.country || defaultCountryCode;
+  return getExampleNumber(countryCode, examples)?.formatNational();
+});
 
 function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
   const phonenumber = isString(value)
     ? value
     : value?.nationalNumber || value?.number || "";
 
-  const parsed = parsePhoneNumber(
-    phonenumber,
-    countryCode || defaultCountryCode
-  );
-
-  if (!parsed) {
-    return { country: countryCode, number: phonenumber };
+  if (phonenumber) {
+    return parsePhoneNumber(phonenumber, countryCode || defaultCountryCode);
   }
-  return parsed;
+  return { country: countryCode, number: phonenumber };
 }
 
 function onCountyInput(value: any) {
-  phone.value = parsePhone(phone.value, value as CountryCode);
-  onInput(phone.value);
+  phone.value = parsePhone(phone.value.number, value as CountryCode);
+  onInput(requiresString ? phone.value.number : phone.value);
 }
 
 function onPhoneInput(value: string | number) {
   phone.value = parsePhone(value as string, phone.value?.country);
-  onInput(phone.value);
+  onInput(requiresString ? phone.value.number : phone.value);
 }
 
 async function onSearch(value: string) {
@@ -128,12 +139,18 @@ const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
 </script>
 
 <script lang="ts">
-import { and, isObjectControl, schemaMatches } from "@jsonforms/core";
+import {
+  and,
+  isStringControl,
+  isObjectControl,
+  schemaMatches,
+  or,
+} from "@jsonforms/core";
 
 export const tester = {
   rank: 2,
   controlType: and(
-    isObjectControl,
+    or(isStringControl, isObjectControl),
     schemaMatches(
       schema => "isPhoneNumber" in schema && !!(schema as any).isPhoneNumber
     )

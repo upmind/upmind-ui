@@ -5,11 +5,12 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
 
 // --- utils
-
+import { isString, isObject } from "lodash-es";
 // --- types
 import type { Ajv } from "ajv";
 import type { JsonSchema } from "@jsonforms/core";
 import { type CountryCode, type PhoneNumber } from "libphonenumber-js";
+
 // --------------------------------------------------------
 
 export const useValidation = (ajv?: Ajv) => {
@@ -27,13 +28,18 @@ export const useValidation = (ajv?: Ajv) => {
     keyword: "isPhoneNumber",
     type: ["string", "object"],
     schemaType: "string",
-    validate: (schema: CountryCode, data: PhoneNumber) => {
-      const value = data?.number || data?.nationalNumber || "";
-      const country = data?.country || schema;
-      return isValidPhoneNumber(value, country);
+    validate: (schema: CountryCode, data: string | PhoneNumber) => {
+      if (isString(data) && data.includes("+")) {
+        return isValidPhoneNumber(data);
+      } else if (isObject(data)) {
+        const value = data?.number || data?.nationalNumber || "";
+        const country = data?.country || schema;
+        return isValidPhoneNumber(value, country);
+      }
+      return false;
     },
     error: {
-      message: cxt => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
+      message: () => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
     },
   });
 
