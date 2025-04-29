@@ -4,6 +4,9 @@
     v-show="meta.isVisible"
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
+    :data-testid="
+      `form-field-${kebabCase(label ?? 'default')}`
+    "
   >
     <slot name="field">
       <!-- label -->
@@ -96,7 +99,7 @@ import { Tooltip } from "../tooltip";
 import { Icon } from "../icon";
 
 // --- utils
-import { isEmpty, isNil, some } from "lodash-es";
+import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";
