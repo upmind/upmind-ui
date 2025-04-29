@@ -9,7 +9,7 @@
         <SelectItem
           v-for="item in items"
           :key="item.value"
-          :value="item.const?.toString() || item.value?.toString()"
+          :value="item.const || item.value"
         >
           <span class="flex items-center space-x-1">
             <span>{{ item?.title || item?.textValue }}</span>
