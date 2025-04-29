@@ -102,17 +102,16 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 const { t, tm } = useI18n();
 
 const { back, next, isResolved } = useRoutingEngine();
-const { meta: basketMeta } = useBasket();
+const { meta: basketMeta, isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
 
 await isResolved(ROUTE.PRODUCT_EDIT).catch(back);
-
+await isReady();
 const {
   meta,
   stop,
   update,
-  isReady,
   service: basketProduct,
 } = await configure(basketProductId);
 
