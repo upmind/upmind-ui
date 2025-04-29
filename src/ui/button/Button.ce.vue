@@ -8,9 +8,7 @@
     :loading="props.loading"
     :type="props.type || 'button'"
     :tabindex="props.focusable ? '0' : '-1'"
-    :data-testid="
-      `button-${kebabCase(label ?? 'default')}`
-    "
+    :data-testid="`button-${kebabCase(label ?? 'default')}`"
   >
     <slot name="prepend"></slot>
 
