@@ -5,7 +5,7 @@
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
     :data-testid="
-      `form-field--${kebabCase(label ?? 'default')}`
+      `form-field-${kebabCase(label ?? 'default')}`
     "
   >
     <slot name="field">
