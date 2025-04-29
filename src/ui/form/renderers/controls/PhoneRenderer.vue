@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField v-bind="formFieldProps" no-errors>
     <InputGroup class="flex">
       <Autocomplete
         :display-value="displayValue"
@@ -36,6 +36,13 @@
         class="rounded-l-none focus:outline-none"
       />
     </InputGroup>
+
+    <FormMessage
+      v-if="errors"
+      :errors="[errorsMapped]"
+      :formMessageId="`form-item-message-${control.id}`"
+      :name="control.path"
+    />
   </FormField>
 </template>
 
@@ -44,20 +51,26 @@
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import examples from "libphonenumber-js/mobile/examples";
-import { parsePhoneNumber, getExampleNumber } from "libphonenumber-js";
+import {
+  parsePhoneNumber,
+  getExampleNumber,
+  validatePhoneNumberLength,
+  parsePhoneNumberWithError,
+  ParseError,
+} from "libphonenumber-js";
 
 // --- internal
 import { countries, getCountryCode } from "countries-list";
 
 // --- components
 import FormField from "../../FormField.vue";
+import FormMessage from "../../FormMessage.vue";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
 import {
   Autocomplete,
   type AutocompleteItemProps,
 } from "../../../autocomplete";
-import { Icon } from "../../../icon";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
@@ -97,8 +110,6 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-const requiresString = first(control.value.schema.type) === "string";
-
 const initialPhoneData = () => {
   const data = control.value.data;
 
@@ -120,8 +131,9 @@ const initialPhoneData = () => {
   return data;
 };
 
+const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const requiresString = first(control.value.schema.type) === "string";
 const phone = ref(initialPhoneData());
-
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
   return getExampleNumber(countryCode, examples)?.formatNational();
@@ -144,8 +156,12 @@ function onCountyInput(value: any) {
 }
 
 function onPhoneInput(value: string | number) {
-  phone.value = parsePhone(value as string, phone.value?.country);
-  onInput(requiresString ? phone.value.number : phone.value);
+  try {
+    phone.value = parsePhone(value as string, phone.value?.country);
+    onInput(requiresString ? phone.value.number : phone.value);
+  } catch (error) {
+    console.warn("Failed to parse phone number:", error);
+  }
 }
 
 async function onSearch(value: string) {
@@ -158,12 +174,38 @@ async function onSearch(value: string) {
   );
 }
 
+const errors = computed(() => {
+  if (control?.value?.errors) {
+    try {
+      parsePhoneNumberWithError(phone.value.number, {
+        defaultCountry: phone.value.country,
+      });
+      return validatePhoneNumberLength(phone.value.number, {
+        defaultCountry: phone.value.country,
+      });
+    } catch (error) {
+      return (error as ParseError).message;
+    }
+  }
+});
+
+const errorsMapped = computed(() => {
+  switch (errors.value) {
+    case "TOO_LONG":
+      return "Phone number is too long";
+    case "TOO_SHORT":
+      return "Phone number is too short";
+    case "INVALID_COUNTRY":
+      return "Invalid country";
+    default:
+      return "Not a number";
+  }
+});
+
 function displayValue(item: any) {
   const label = trimStart(item?.tag, "+");
   return label;
 }
-
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
 </script>
 
 <script lang="ts">

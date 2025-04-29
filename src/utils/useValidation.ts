@@ -39,7 +39,7 @@ export const useValidation = (ajv?: Ajv) => {
       return false;
     },
     error: {
-      message: () => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
+      message: () => "Not a phone number",
     },
   });
 
