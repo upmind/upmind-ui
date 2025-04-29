@@ -12,7 +12,7 @@
         align="start"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50"
         dropdown-width="lg"
-        icon-size="3xs"
+        icon-size="2xs"
         item-label="label"
         item-value="value"
         side="bottom"
@@ -139,25 +139,28 @@ const exampleNumber = computed(() => {
   return getExampleNumber(countryCode, examples)?.formatNational();
 });
 
-function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
+function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
   const phonenumber = isString(value)
     ? value
     : value?.nationalNumber || value?.number || "";
 
+  const code = countryCode || phone.value?.country || defaultCountryCode;
+
   if (phonenumber) {
-    return parsePhoneNumber(phonenumber, countryCode || defaultCountryCode);
+    return parsePhoneNumber(phonenumber, code);
   }
-  return { country: countryCode, number: phonenumber };
+
+  return { country: code, number: phonenumber };
 }
 
 function onCountyInput(value: any) {
-  phone.value = parsePhone(phone.value?.number, value as CountryCode);
-  onInput(requiresString ? phone.value.number : phone.value);
+  phone.value = parsePhone(phone.value?.nationalNumber, value as CountryCode);
+  onInput(requiresString ? phone.value.nationalNumber : phone.value);
 }
 
 function onPhoneInput(value: string | number) {
   try {
-    phone.value = parsePhone(value as string, phone.value?.country);
+    phone.value = parsePhone(value as string);
     onInput(requiresString ? phone.value.number : phone.value);
   } catch (error) {
     console.warn("Failed to parse phone number:", error);
