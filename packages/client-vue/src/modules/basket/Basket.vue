@@ -43,7 +43,6 @@
                 v-if="!fieldsMeta.isLoading"
                 :additional-errors="fieldsErrors?.data"
                 :model-value="fieldsModel"
-                :processing="fieldsMeta.isProcessing"
                 :schema="fieldsSchema"
                 :uischema="fieldsUischema"
                 @reject="fieldsClear"
