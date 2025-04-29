@@ -12,6 +12,7 @@ export enum responseCodes {
   "Unauthorized" = 401,
   "Forbidden" = 403,
   "Not_Found" = 404,
+  "Timeout" = 408,
   "Conflict" = 409,
   "Too_Many_Requests" = 429,
   "Unprocessable_Entity" = 422,
@@ -21,9 +22,11 @@ export enum responseCodes {
 
 export class DetailedError extends Error {
   code: number;
-  constructor(message: string, code: number) {
+  data?: any;
+  constructor(message: string, code: number, data?: any) {
     super(message);
     this.code = code;
+    this.data = data;
   }
 }
 
