@@ -10,3 +10,9 @@ dist
 bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
