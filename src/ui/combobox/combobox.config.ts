@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses, invalidRingClasses } from "../input/input.config";
 
 export const triggerVariants = cva(
-  "hover:bg-base-muted h-auto min-h-10 justify-start overflow-hidden rounded-lg border-opacity-10 px-3 transition-all duration-300 hover:border-opacity-10",
+  "h-auto min-h-10 justify-start overflow-hidden rounded-lg border-opacity-10 px-3 transition-all duration-300 hover:border-opacity-10",
   {
     variants: {
       width: {

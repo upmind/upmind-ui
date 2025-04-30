@@ -58,7 +58,22 @@
     >
       <Command>
         <template v-if="props.search">
-          <CommandInput v-model="searchTerm" :placeholder="placeholder" />
+          <InputExtended
+            v-if="isFunction(props.search)"
+            @update:modelValue="onSearch"
+            :placeholder="placeholder"
+            input-size="sm"
+            class="!rounded-none !border-b !border-l-0 !border-r-0 !border-t-0 !shadow-none !ring-0"
+          >
+            <template #prepend>
+              <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
+            </template>
+          </InputExtended>
+          <CommandInput
+            v-else
+            v-model="searchTerm"
+            :placeholder="placeholder"
+          />
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
         </template>
         <CommandList class="w-full max-w-full" loop>
@@ -95,6 +110,7 @@
               </span>
 
               <Icon
+                v-if="props.checkedIcon"
                 icon="check"
                 :size="props.iconSize"
                 :class="
@@ -121,7 +137,7 @@ import config from "./combobox.config";
 import Icon from "../icon/Icon.ce.vue";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import { Input } from "../input";
+import { InputExtended } from "../input-extended";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import {
   Command,
@@ -163,6 +179,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
+  checkedIcon: true,
   // -- styles
   color: "base",
   size: "md",
