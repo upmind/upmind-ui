@@ -147,7 +147,11 @@ export function useSchema({
   };
 
   const { getConfig } = useBrand();
-  if (getConfig(BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+  const regionRequired = get(
+    getConfig(BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS),
+    BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
+  );
+  if (regionRequired) {
     schema.required.push("regionId");
   }
 

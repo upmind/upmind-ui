@@ -7,7 +7,7 @@ import { useSystemI18n } from "../system";
 import { querySubscription } from "../query";
 
 // --- utils
-import { set } from "lodash-es";
+import { set, defaultsDeep, startsWith } from "lodash-es";
 import { useTime } from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
@@ -229,34 +229,35 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        ({ initialised }: BrandContext, { data, queryKey }: AnyEventObject) => {
-          if (!initialised) return;
-          switch (queryKey) {
-            case "brand,organisation,config":
-              return useBrandParser(data);
+        (context: BrandContext, { data, queryKey }: AnyEventObject) => {
+          if (!context.initialised) return;
 
-            case "brand,config":
-              return useBrandParser(data);
-
-            case "brand,settings":
-              return useBrandParser(data);
-
-            case "brand,modules":
-              return data;
-
-            default:
-              return; // do nothing
+          if (startsWith(queryKey, "brand,organisation,config")) {
+            return useBrandParser(data, context);
           }
+
+          if (startsWith(queryKey, "brand,config")) {
+            return useBrandParser(data, context);
+          }
+
+          if (startsWith(queryKey, "brand,settings")) {
+            return useBrandParser(data, context);
+          }
+
+          if (startsWith(queryKey, "brand,modules")) {
+            return defaultsDeep(data, context);
+          }
+          // otherwsie do nothing
         }
       ),
 
       setOrganisation: assign(
-        (_context: BrandContext, { data }: AnyEventObject) =>
-          useBrandParser(data)
+        (context: BrandContext, { data }: AnyEventObject) =>
+          useBrandParser(data, context)
       ),
       // ---
-      setConfig: assign((_context: BrandContext, { data }: AnyEventObject) =>
-        useBrandParser(data)
+      setConfig: assign((context: BrandContext, { data }: AnyEventObject) =>
+        useBrandParser(data, context)
       ),
 
       setConfigKeys: assign({
@@ -267,8 +268,8 @@ export default createMachine(
       }),
 
       // ---
-      setSettings: assign((_context: BrandContext, { data }: AnyEventObject) =>
-        useBrandParser(data)
+      setSettings: assign((context: BrandContext, { data }: AnyEventObject) =>
+        useBrandParser(data, context)
       ),
 
       setDefaultLocale: (
