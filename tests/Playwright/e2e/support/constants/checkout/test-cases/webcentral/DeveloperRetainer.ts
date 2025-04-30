@@ -5,21 +5,21 @@ export const DeveloperRetainer = [
     radioSelection: [[0, 0]],
     total: "",
     billingCycle: "1 month",
-    product: "Development Retainer",
+    development: "Development Retainer",
   },
   {
     name: "Billing Term: 1 year - Addon: None @webcentral @development-retainer",
     radioSelection: [[0, 1]],
     total: "",
     billingCycle: "1 year",
-    product: "Development Retainer",
+    development: "Development Retainer",
   },
   {
     name: "Billing Term: 2 year - Addon: None @webcentral @development-retainer",
     radioSelection: [[0, 2]],
     total: "",
     billingCycle: "2 year",
-    product: "Development Retainer",
+    development: "Development Retainer",
   },
 
   /* ADDONS SELECTED */
@@ -31,7 +31,7 @@ export const DeveloperRetainer = [
     ],
     total: "",
     billingCycle: "1 month",
-    product: "1 year",
+    development: "1 year",
     addons: "Documentation",
   },
   {
@@ -42,7 +42,7 @@ export const DeveloperRetainer = [
     ],
     total: "",
     billingCycle: "1 month",
-    product: "1 year",
+    development: "1 year",
     addons: "Automation",
   },
   {
@@ -53,7 +53,7 @@ export const DeveloperRetainer = [
     ],
     total: "",
     billingCycle: "1 month",
-    product: "1 year",
+    development: "1 year",
     addons: "Data Importer",
   },
   {
@@ -64,7 +64,7 @@ export const DeveloperRetainer = [
     ],
     total: "",
     billingCycle: "1 month",
-    product: "1 year",
+    development: "1 year",
     addons: "Planning",
   },
   {
@@ -75,7 +75,7 @@ export const DeveloperRetainer = [
     ],
     total: "",
     billingCycle: "1 month",
-    product: "1 year",
+    development: "1 year",
     addons: "Daily Standups",
   },
 ];

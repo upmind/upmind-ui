@@ -17,6 +17,7 @@
             :current-price="item.price.currentPrice"
             :meta="item.meta"
             :cycle="item.cycle"
+            data-testid="total-price"
           />
         </span>
       </div>

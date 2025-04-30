@@ -42,6 +42,7 @@ export class Checkout {
   readonly totalQty: Locator;
   readonly billingCycle: Locator;
   readonly product: Locator;
+  readonly development: Locator;
   readonly bundle: Locator;
   readonly addons: Locator;
   readonly tracking: Locator;
@@ -115,7 +116,10 @@ export class Checkout {
     this.totalValue = page.getByTestId("total-price");
     this.totalQty = page.getByTestId("quantity-input"); // TODO: Move to shared page object
     this.billingCycle = page.getByTestId("summary-value-billing-cycle");
+
+    // refactor all of this to better fit the dynamic naming of the sumamry fields
     this.product = page.getByTestId("summary-value-product");
+    this.development = page.getByTestId("summary-value-development");
     this.bundle = page.getByTestId("summary-value-bundle");
     this.addons = page.getByTestId("summary-value-addons");
     this.tracking = page.getByTestId("summary-value-tracking");

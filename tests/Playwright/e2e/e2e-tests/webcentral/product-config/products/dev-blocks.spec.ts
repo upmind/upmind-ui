@@ -18,7 +18,7 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
     checkboxSelection = [],
     total,
     billingCycle,
-    //product,
+    development,
     bundle,
     addons,
   } of testCases) {
@@ -45,7 +45,7 @@ test.describe("Product Config - Happy Paths - Dev Blocks", async () => {
       /* Verify that all summary fields contain the expected data */
       await expect(checkout.totalValue).toContainText(total);
       await expect(checkout.billingCycle).toContainText(billingCycle);
-      //await expect(checkout.product).toContainText(product);
+      await expect(checkout.development).toContainText(development);
       await expect(checkout.bundle).toContainText(bundle);
       await expect(checkout.addons).toContainText(addons);
       //await expect(page).toHaveScreenshot(name);
