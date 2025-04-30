@@ -43,6 +43,7 @@ export class Checkout {
   readonly billingCycle: Locator;
   readonly product: Locator;
   readonly development: Locator;
+  readonly consulting: Locator;
   readonly bundle: Locator;
   readonly addons: Locator;
   readonly tracking: Locator;
@@ -120,6 +121,7 @@ export class Checkout {
     // refactor all of this to better fit the dynamic naming of the sumamry fields
     this.product = page.getByTestId("summary-value-product");
     this.development = page.getByTestId("summary-value-development");
+    this.consulting = page.getByTestId("summary-value-consulting");
     this.bundle = page.getByTestId("summary-value-bundle");
     this.addons = page.getByTestId("summary-value-addons");
     this.tracking = page.getByTestId("summary-value-tracking");
