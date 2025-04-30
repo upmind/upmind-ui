@@ -13,7 +13,7 @@
 <span class="text-icon-primary text-icon-secondary hidden" />
 <script lang="ts" setup>
 // --- external
-import { onMounted, computed, ref } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
 import { find } from "lodash-es";
 
 // --- internal
@@ -61,6 +61,13 @@ const loadIcon = async () => {
 onMounted(() => {
   loadIcon();
 });
+
+watch(
+  () => props.icon,
+  () => {
+    loadIcon();
+  }
+);
 
 const styles = useStyles(
   "iconAnimated",
