@@ -43,6 +43,7 @@ import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import type { SelectProps } from "./types";
 import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
+import { isEqual } from "lodash-es";
 
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props
@@ -78,7 +79,8 @@ const styles = useStyles(
 // NB: set the new timestamp when items change to force a re-render
 watch(
   () => props.items,
-  () => {
+  (newItems, oldItems) => {
+    if (isEqual(newItems, oldItems)) return;
     uid.value = timestamp();
   },
   { immediate: true }
