@@ -17,8 +17,8 @@ test.describe("Product Config - Happy Paths - Developer Retainer", async () => {
     radioSelection = [],
     total,
     billingCycle,
-    //product,
-    addons = "",
+    development,
+    addons = [],
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -34,7 +34,7 @@ test.describe("Product Config - Happy Paths - Developer Retainer", async () => {
       /* Verify that all summary fields contain the expected data */
       await expect(checkout.totalValue).toContainText(total);
       await expect(checkout.billingCycle).toContainText(billingCycle);
-      //await expect(checkout.product).toContainText(product);
+      await expect(checkout.development).toContainText(development);
       await expect(checkout.addons).toContainText(addons);
       //await expect(page).toHaveScreenshot(name);
     });

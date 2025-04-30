@@ -18,9 +18,9 @@ test.describe("Product Config - Happy Paths - Consulting Block", async () => {
     checkboxSelection = [],
     total,
     billingCycle,
-    //product,
+    consulting,
     engagementTypes,
-    outcomes = "",
+    outcomes = [],
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -45,9 +45,9 @@ test.describe("Product Config - Happy Paths - Consulting Block", async () => {
       /* Verify that all summary fields contain the expected data */
       await expect(checkout.totalValue).toContainText(total);
       await expect(checkout.billingCycle).toContainText(billingCycle);
-      //await expect(checkout.product).toContainText(product);
-      await expect(checkout.bundle).toContainText(engagementTypes);
-      await expect(checkout.addons).toContainText(outcomes);
+      await expect(checkout.consulting).toContainText(consulting);
+      await expect(checkout.engagementTypes).toContainText(engagementTypes);
+      await expect(checkout.outcomes).toContainText(outcomes);
       //await expect(page).toHaveScreenshot(name);
     });
   }
