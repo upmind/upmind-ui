@@ -2,7 +2,7 @@
 import { useQuery } from "../..";
 
 // --- utils
-import { filter, has, reduce, defaultsDeep } from "lodash-es";
+import { filter, has, reduce, defaultsDeep, keys } from "lodash-es";
 import { useTime } from "../../utils";
 
 // -----------------------------------------------------------------------------
@@ -37,14 +37,16 @@ async function fetchBrandConfig(context: any, _event: any) {
   // only request keys that are missing from the state, if any
   const missingKeys = filter(context.keys.config, key => !has(context, key));
 
+  // if we dont have any missing keys, we can return the current state
   if (!missingKeys.length) return Promise.resolve();
 
   return get({
     url: useUrl("config/brand/values", {
       keys: missingKeys.join(),
     }),
-    queryKey: ["brand", "config"],
-    staleTime: useTime()?.DAY,
+    queryKey: ["brand", "config", ...missingKeys],
+    staleTime: 0,
+    gcTime: 0,
   }).then(({ data }: any) => {
     // create an object template with ALL the keys and set them to null
     // this is to ensure that the config object has all the keys that were requested
