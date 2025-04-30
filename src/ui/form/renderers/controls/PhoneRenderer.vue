@@ -145,7 +145,7 @@ function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
 
 function onCountyInput(value: any) {
   phone.value = parsePhone(phone.value?.nationalNumber, value as CountryCode);
-  onInput(requiresString ? phone.value.nationalNumber : phone.value);
+  onInput(requiresString ? phone.value.number : phone.value);
 }
 
 function onPhoneInput(value: string | number) {
