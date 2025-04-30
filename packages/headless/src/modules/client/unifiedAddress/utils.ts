@@ -3,6 +3,7 @@ import type { ActorRef } from "xstate";
 import { spawn } from "xstate";
 
 // --- internal
+import { useBrand } from "../../brand";
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
@@ -20,8 +21,16 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IAddress, ICompany } from "@upmind-automation/types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import {
+  BrandConfigKeys,
+  type IAddress,
+  type ICompany,
+} from "@upmind-automation/types";
+import {
+  getConfig,
+  type JsonSchema,
+  type UISchemaElement,
+} from "@jsonforms/core";
 import type { UnifiedAddressContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -237,10 +246,10 @@ export const useSchema = ({
     },
   };
 
-  // if (id) {
-  //   schema.required.push("name");
-  //   schema.required.push("type");
-  // }
+  const { getConfig } = useBrand();
+  if (getConfig(BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+    schema.required.push("regionId");
+  }
 
   return schema as JsonSchema;
 };

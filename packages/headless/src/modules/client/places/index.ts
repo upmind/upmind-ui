@@ -40,7 +40,8 @@ export const usePlaces = () => {
       waitFor(
         service,
         state =>
-          state.matches("available") && !state.matches("available.loading")
+          state.matches("available") && !state.matches("available.loading"),
+        { timeout: 60_000 }
       ),
     getSnapshot: service.getSnapshot,
     getItemsSnapshot: () => service.getSnapshot()?.context?.items,

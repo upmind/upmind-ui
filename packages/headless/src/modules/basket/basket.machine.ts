@@ -1,12 +1,5 @@
 // --- external
-import {
-  createMachine,
-  assign,
-  pure,
-  sendTo,
-  spawn,
-  InterpreterStatus,
-} from "xstate";
+import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -62,6 +55,9 @@ export default createMachine(
         id: "subscribing",
         entry: ["setAuthHelper"],
         on: {
+          REFRESH: {
+            // do nothing until we have a session
+          },
           SESSION: {
             target: "#loading",
           },
@@ -333,7 +329,7 @@ export default createMachine(
             },
           ],
           onError: {
-            target: "#checkout",
+            target: "#shopping",
             actions: ["setError"],
           },
         },

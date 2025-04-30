@@ -60,13 +60,6 @@ export default createMachine(
         },
       },
 
-      processed: {
-        id: "processed",
-        after: {
-          wait: "available",
-        },
-      },
-
       available: {
         initial: "idle",
         states: {

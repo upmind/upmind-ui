@@ -50,8 +50,10 @@ export const useSystem = () => {
     // if we are, then wait for the fetch to complete
 
     if (service.getSnapshot().matches(`${node}.loading`)) {
-      await waitFor(service, newstate =>
-        [`${node}.idle`, `${node}.complete`].some(newstate.matches)
+      await waitFor(
+        service,
+        newstate => [`${node}.idle`, `${node}.complete`].some(newstate.matches),
+        { timeout: Infinity }
       );
       return fetch(node, getValues, data);
     }
@@ -67,8 +69,8 @@ export const useSystem = () => {
     return new Promise((resolve, reject) => {
       waitFor(
         service,
-        state => [`${node}.processed`, `${node}.error`].some(state.matches)
-        // { timeout: Infinity }
+        state => [`${node}.processed`, `${node}.error`].some(state.matches),
+        { timeout: Infinity }
       )
         .then(state => {
           if (state.matches(`${node}.processed`)) {

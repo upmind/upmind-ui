@@ -71,8 +71,10 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
     async add(coupon?: string) {
       if (coupon) {
         actor.value?.send({ type: "SET", data: { promocode: coupon } });
-        const state = await waitFor(service as ActorRef<any>, state =>
-          ["valid", "error"].some(state.matches)
+        const state = await waitFor(
+          service as ActorRef<any>,
+          state => ["valid", "error"].some(state.matches),
+          { timeout: 60_000 }
         );
         if (state.matches("error")) {
           return Promise.reject(state.context.error);
@@ -82,9 +84,13 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
       actor.value?.send({ type: "ADD" });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      ).then(state => {
         if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }
@@ -94,9 +100,13 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
 
     remove: (promotion: any) => {
       actor.value?.send({ type: "REMOVE", data: promotion });
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      ).then(state => {
         if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }

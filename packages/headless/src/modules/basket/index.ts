@@ -81,8 +81,10 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const promotions = get(state, "context.actors.promotions");
     if (!promotions) return false;
-    return waitFor(promotions as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      promotions as ActorRef<any>,
+      state => state.matches("complete"),
+      { timeout: 60_000 }
     )
       .then(() => true)
       .catch(() => false);
@@ -92,8 +94,10 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const billingDetails = get(state, "context.actors.billingDetails");
     if (!billingDetails) return false;
-    return waitFor(billingDetails as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      billingDetails as ActorRef<any>,
+      state => state.matches("complete"),
+      { timeout: 60_000 }
     )
       .then(() => true)
       .catch(() => false);
@@ -103,8 +107,10 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const currency = get(state, "context.actors.currency");
     if (!currency) return false;
-    return waitFor(currency as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      currency as ActorRef<any>,
+      state => state.matches("complete"),
+      { timeout: 60_000 }
     )
       .then(() => true)
       .catch(() => false);
@@ -114,8 +120,10 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const customFields = get(state, "context.actors.customFields");
     if (!customFields) return false;
-    return waitFor(customFields as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      customFields as ActorRef<any>,
+      state => state.matches("complete"),
+      { timeout: 60_000 }
     )
       .then(() => true)
       .catch(() => false);
@@ -189,8 +197,10 @@ export const useBasket = () => {
 
   function refresh(data?: IBasket): Promise<IBasket> {
     service.send({ type: "REFRESH", data });
-    return waitFor(service, state =>
-      state.matches("shopping.refreshing.processed")
+    return waitFor(
+      service,
+      state => state.matches("shopping.refreshing.processed"),
+      { timeout: 60_000 }
     ).then(() => get(service.getSnapshot(), "context.basket") as IBasket);
   }
 
@@ -211,9 +221,13 @@ export const useBasket = () => {
       actor?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      ).then(state => {
         if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }
@@ -243,9 +257,13 @@ export const useBasket = () => {
       actor?.send({ type: "ADD" });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      ).then(state => {
         if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }

@@ -15,6 +15,9 @@ import type { GuestContext } from "./types";
 
 async function load(_context: GuestContext, _event: any) {
   // if we DONT have a token, we need to generate one, otherwise we are authenticated already
+  // init early so the service is available
+  useSystemRecaptcha();
+
   const token = getTokenFromStorage("guest");
   if (!isEmpty(token)) return Promise.resolve(token);
 

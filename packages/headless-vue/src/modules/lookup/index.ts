@@ -64,7 +64,9 @@ export function useLookup(lookup: Function) {
     // ---
     select: async (id: any) => {
       if (state.value.matches("loading")) {
-        await waitFor(service, newstate => !newstate.matches("loading"));
+        await waitFor(service, newstate => !newstate.matches("loading"), {
+          timeout: 60_000,
+        });
       }
       send({ type: "SELECT", data: id });
     },
