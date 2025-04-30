@@ -1,34 +1,39 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField v-bind="formFieldProps" no-errors>
     <InputGroup class="flex">
-      <Autocomplete
-        :display-value="displayValue"
+      <Combobox
+        :model-value="
+          phone?.country || control.data?.country || defaultCountryCode
+        "
         :items="countryItems"
-        :model-value="control.data?.country || defaultCountryCode"
-        :search="onSearch"
-        @update:model-value="onCountyInput"
+        @update:modelValue="onCountyInput"
+        class="rounded-r-none border-r-0 text-sm !text-opacity-50 !ring-0"
+        popover-class="!w-dropdown-xl"
         align="start"
-        class="rounded-r-none border-r-0 text-sm !text-opacity-50"
-        dropdown-width="lg"
-        icon-size="3xs"
-        item-label="label"
-        item-value="value"
-        side="bottom"
-        width="3xs"
-        popover-width="lg"
-      >
-        <template #prepend>
-          <span class="text-opacity-50">+</span>
-        </template>
-      </Autocomplete>
+        width="xs"
+        :checked-icon="false"
+        :search="onSearch"
+      />
       <Input
         :disabled="!control.enabled"
-        :default-value="control.data?.nationalNumber || control.data?.number"
+        :default-value="
+          phone?.nationalNumber ||
+          control.data?.nationalNumber ||
+          control.data?.number
+        "
+        :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"
       />
     </InputGroup>
+
+    <FormMessage
+      v-if="errors"
+      :errors="[errorsMapped]"
+      :formMessageId="`form-item-message-${control.id}`"
+      :name="control.path"
+    />
   </FormField>
 </template>
 
@@ -36,104 +41,178 @@
 // --- external
 import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import parsePhoneNumber from "libphonenumber-js";
+import examples from "libphonenumber-js/mobile/examples";
+import {
+  parsePhoneNumber,
+  getExampleNumber,
+  validatePhoneNumberLength,
+  parsePhoneNumberWithError,
+  ParseError,
+} from "libphonenumber-js";
 
 // --- internal
 import { countries, getCountryCode } from "countries-list";
 
 // --- components
 import FormField from "../../FormField.vue";
+import FormMessage from "../../FormMessage.vue";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
-import {
-  Autocomplete,
-  type AutocompleteItemProps,
-} from "../../../autocomplete";
-import { Icon } from "../../../icon";
+import { Combobox } from "../../../combobox";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { get, map, trimStart, includes, filter, isString } from "lodash-es";
+import {
+  get,
+  map,
+  trimStart,
+  includes,
+  filter,
+  isString,
+  first,
+} from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { ICountry } from "countries-list";
 import type { PhoneNumber, CountryCode } from "libphonenumber-js";
+import type { ComboboxItemProps } from "../../../combobox";
 
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const countryItems = computed<AutocompleteItemProps[]>(() =>
-  map(countries, (country: ICountry) => {
+const countryItems = computed(() => {
+  return map(countries, country => {
     const countryCode = getCountryCode(country.name) as string;
     return {
       avatar: { icon: countryCode?.toLowerCase() },
       label: country.name,
+      selectedLabel: `+${country.phone.join(", +")}`,
       tag: `+${country.phone.join(", +")}`,
       value: countryCode?.toUpperCase(),
+      selected: countryCode === phone.value?.country,
     };
-  })
-);
+  }) as ComboboxItemProps[];
+});
 
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-const phone = ref({ ...control.value.data });
+const initialPhoneData = () => {
+  const data = control.value.data;
 
-function parsePhone(value: string | PhoneNumber, countryCode: CountryCode) {
+  // Parsing E.164 string format
+  if (isString(data) && data.startsWith("+")) {
+    try {
+      const parsedNumber = parsePhoneNumber(data);
+      return {
+        country: parsedNumber.country,
+        nationalNumber: parsedNumber.nationalNumber,
+        number: parsedNumber.number,
+      };
+    } catch (error) {
+      console.warn("Failed to parse E.164 format phone number:", error);
+      return {};
+    }
+  }
+
+  return data;
+};
+
+const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const requiresString = first(control.value.schema.type) === "string";
+const phone = ref(initialPhoneData());
+const exampleNumber = computed(() => {
+  const countryCode = phone.value?.country || defaultCountryCode;
+  return getExampleNumber(countryCode, examples)?.formatNational();
+});
+
+function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
   const phonenumber = isString(value)
     ? value
     : value?.nationalNumber || value?.number || "";
 
-  const parsed = parsePhoneNumber(
-    phonenumber,
-    countryCode || defaultCountryCode
-  );
+  const code = countryCode || phone.value?.country || defaultCountryCode;
 
-  if (!parsed) {
-    return { country: countryCode, number: phonenumber };
+  if (phonenumber) {
+    return parsePhoneNumber(phonenumber, code);
   }
-  return parsed;
+
+  return { country: code, number: phonenumber };
 }
 
 function onCountyInput(value: any) {
-  phone.value = parsePhone(phone.value, value as CountryCode);
-  onInput(phone.value);
+  phone.value = parsePhone(phone.value?.nationalNumber, value as CountryCode);
+  onInput(requiresString ? phone.value.number : phone.value);
 }
 
 function onPhoneInput(value: string | number) {
-  phone.value = parsePhone(value as string, phone.value?.country);
-  onInput(phone.value);
+  try {
+    phone.value = parsePhone(value as string);
+    onInput(requiresString ? phone.value.number : phone.value);
+  } catch (error) {
+    console.warn("Failed to parse phone number:", error);
+  }
 }
 
-async function onSearch(value: string) {
+function onSearch(value: string): ComboboxItemProps[] {
   return filter(
     countryItems.value,
-    (item: AutocompleteItemProps) =>
-      includes(item.label.toLowerCase(), value.toLowerCase()) ||
-      includes(item.value.toLowerCase(), value.toLowerCase()) ||
-      includes(item.tag, value.toLowerCase())
+    (item: ComboboxItemProps): boolean =>
+      !!(
+        includes(item.label.toLowerCase(), value.toLowerCase()) ||
+        includes(item.value.toLowerCase(), value.toLowerCase()) ||
+        (item.tag && includes(item.tag, value))
+      )
   );
 }
 
-function displayValue(item: any) {
-  const label = trimStart(item?.tag, "+");
-  return label;
-}
+const errors = computed(() => {
+  if (control?.value?.errors) {
+    try {
+      parsePhoneNumberWithError(phone.value.number, {
+        defaultCountry: phone?.value?.country,
+      });
+      return (
+        validatePhoneNumberLength(phone.value.number, {
+          defaultCountry: phone.value.country,
+        }) || "NOT_A_NUMBER"
+      );
+    } catch (error) {
+      return (error as ParseError).message;
+    }
+  }
+});
 
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const errorsMapped = computed(() => {
+  switch (errors.value) {
+    case "TOO_LONG":
+      return "Phone number is too long";
+    case "TOO_SHORT":
+      return "Phone number is too short";
+    case "INVALID_COUNTRY":
+      return "Invalid country";
+    default:
+      return "Not a phone number";
+  }
+});
 </script>
 
 <script lang="ts">
-import { and, isObjectControl, schemaMatches } from "@jsonforms/core";
+import {
+  and,
+  isStringControl,
+  isObjectControl,
+  schemaMatches,
+  or,
+} from "@jsonforms/core";
 
 export const tester = {
   rank: 2,
   controlType: and(
-    isObjectControl,
+    or(isStringControl, isObjectControl),
     schemaMatches(
       schema => "isPhoneNumber" in schema && !!(schema as any).isPhoneNumber
     )

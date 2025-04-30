@@ -47,7 +47,7 @@ export const anchorVariants = cva(
 );
 
 export const contentVariants = cva(
-  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border border-control bg-base will-change-[opacity,transform] empty:hidden",
+  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border border-control bg-base p-1 will-change-[opacity,transform] empty:hidden",
   {
     variants: {
       popoverWidth: {
@@ -82,7 +82,7 @@ export default {
     empty: cva("py-2 text-center text-xs font-medium"),
     content: contentVariants,
     item: cva(
-      "data-[disabled]:text-control-disabled data-[highlighted]:bg-base-muted relative flex !cursor-pointer select-none items-center justify-between rounded-lg px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:outline-none"
+      "data-[disabled]:text-control-disabled data-[highlighted]:bg-control-active-hover relative flex !cursor-pointer select-none items-center justify-between rounded-lg px-3 py-2 text-sm text-control-foreground data-[disabled]:pointer-events-none data-[highlighted]:text-control-active data-[highlighted]:outline-none"
     ),
     indicator: cva("pr-2"),
   },
