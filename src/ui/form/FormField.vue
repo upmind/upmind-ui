@@ -4,9 +4,7 @@
     v-show="meta.isVisible"
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
-    :data-testid="
-      `form-field-${kebabCase(label ?? 'default')}`
-    "
+    :data-testid="`form-field-${kebabCase(label ?? 'default')}`"
   >
     <slot name="field">
       <!-- label -->
@@ -47,6 +45,7 @@
 
       <!-- input -->
       <FormControl
+        :key="props.id"
         :invalid="meta.isInvalid"
         :disabled="props.disabled"
         :required="props.required"

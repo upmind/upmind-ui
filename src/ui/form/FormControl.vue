@@ -16,11 +16,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
-import { useIntersectionObserver, watchOnce } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
+import { ref, computed, watch } from "vue";
+import { useIntersectionObserver } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
 import { Slot } from "radix-vue";
 
 import type { ComponentPublicInstance } from "vue";
+const hasFocused = ref(false);
 
 const props = defineProps<{
   formItemId: string;
@@ -45,7 +46,7 @@ const attributesToRemove = {
 
 const meta = computed(() => ({
   isInvalid: !!props.invalid,
-  shouldFocus: !!props.autoFocus,
+  shouldFocus: !!props.autoFocus && !hasFocused.value,
 }));
 
 const slotElement = ref<ComponentPublicInstance | null>(null);
@@ -76,8 +77,10 @@ function maybeFocus(entries: IntersectionObserverEntry[]) {
       el.setAttribute("tabindex", "-1");
     }
 
+    // only focus if we have not already focused
     if (el) {
       el.focus();
+      hasFocused.value = true;
     }
 
     // Prevents focusing on hidden elements
@@ -105,7 +108,7 @@ function maybeFocus(entries: IntersectionObserverEntry[]) {
 }
 
 if (meta.value.shouldFocus) {
-  watchOnce(
+  watch(
     () => slotElement.value,
     async el => {
       if (el?.$el && isSelectable(el.$el)) {
