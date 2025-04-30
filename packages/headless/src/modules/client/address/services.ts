@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession, useBrand } from "../..";
 import { usePlaces } from "../places";
 import { useClientAddresses } from ".";
 
@@ -26,6 +26,7 @@ import type { AnyEventObject } from "xstate";
 import { AddressTypes } from "./types";
 import type { AddressContext, AddressesContext, IAddressData } from "./types";
 import { isString } from "xstate/lib/utils";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // SERVICE METHODS
@@ -51,6 +52,11 @@ export async function invalidateAddresses(context: object) {
 
 async function load(_context: AddressesContext) {
   const { get, useUrl } = useQuery();
+
+  // prepare our brand settings
+  const { ensureConfig } = useBrand();
+  ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]);
+
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 

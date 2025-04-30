@@ -25,23 +25,19 @@ export const useUpload = (field: any) => {
       data: value,
     });
 
-    return new Promise((resolve, reject) => {
-      waitFor(upload.service, state =>
-        ["processed", "error"].some(state.matches)
-      )
-        .then(() => {
-          if (state.value.matches("processed")) {
-            const file = get(state.value, "context.file");
-            resolve(file);
-          } else {
-            // throw
-            const error = get(state.value, "context.error");
-            reject(error);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
+    return waitFor(
+      upload.service,
+      state => ["processed", "error"].some(state.matches),
+      { timeout: 60_000 }
+    ).then(() => {
+      if (state.value.matches("processed")) {
+        const file = get(state.value, "context.file");
+        return file;
+      } else {
+        // throw
+        const error = get(state.value, "context.error");
+        throw new Error(error);
+      }
     });
   };
 

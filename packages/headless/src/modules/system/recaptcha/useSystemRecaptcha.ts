@@ -21,7 +21,9 @@ import type { InterpreterFrom } from "xstate";
 const service = interpret(recaptchaMachine, { devTools: false });
 
 async function generate(action?: string) {
-  return waitFor(service, state => ["available"].some(state.matches))
+  return waitFor(service, state => ["available"].some(state.matches), {
+    timeout: 60_000,
+  })
     .then(() => {
       const grecaptcha = service.getSnapshot().context.grecaptcha;
       return generateToken(grecaptcha, action);
@@ -39,7 +41,10 @@ function clear() {
 export const useSystemRecaptcha = () => {
   return {
     service: service.start(), // allow for interpreting the machine + inspecting it
-    isReady: async () => waitFor(service, state => state.matches("available")),
+    isReady: async () =>
+      waitFor(service, state => state.matches("available"), {
+        timeout: 60_000,
+      }),
     // ---
     getSnapshot: service.getSnapshot,
     generate,

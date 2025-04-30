@@ -2,6 +2,7 @@
 import { spawn } from "xstate";
 
 // --- internal
+import { useBrand } from "../../brand";
 import itemMachine from "../item.machine";
 import { ItemActions as actions } from "./actions";
 import services from "./services";
@@ -20,7 +21,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IAddress } from "@upmind-automation/types";
+import { type IAddress, BrandConfigKeys } from "@upmind-automation/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // ---
@@ -144,6 +145,11 @@ export function useSchema({
       },
     },
   };
+
+  const { getConfig } = useBrand();
+  if (getConfig(BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+    schema.required.push("regionId");
+  }
 
   // if (id) {
   //   schema.required.push("name");

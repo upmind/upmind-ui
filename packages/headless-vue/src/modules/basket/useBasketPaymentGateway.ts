@@ -73,7 +73,7 @@ export const useBasketPaymentGateway = () => {
     clear: () => paymentGateway.value?.send({ type: "CLEAR" }),
     input: (model: any) =>
       paymentGateway.value?.send({ type: "SET", data: model }),
-    update(model: any) {
+    async update(model: any) {
       model = toRaw(unref(model));
       if (!model) return;
 
@@ -88,9 +88,11 @@ export const useBasketPaymentGateway = () => {
 
       // then wait for the paymentGateway actor to be valid
       // then send the update event to the paymentGateway actor
-      waitFor(paymentGateway.value, newstate => newstate.matches("valid")).then(
-        () => paymentGateway.value?.send({ type: "UPDATE" })
-      );
+      return waitFor(
+        paymentGateway.value,
+        newstate => newstate.matches("valid"),
+        { timeout: 60_000 }
+      ).then(() => paymentGateway.value?.send({ type: "UPDATE" }));
     },
 
     async render(container: HTMLElement | null = null) {

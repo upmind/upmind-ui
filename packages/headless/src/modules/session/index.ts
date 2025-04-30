@@ -55,13 +55,13 @@ export const useSession = () => {
 
   async function getUser() {
     const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
-    return waitFor(clientMachine, state => !state.matches("loading")).then(
-      state => {
-        const user = get(state, "context.user");
-        if (!user) return Promise.reject({ title: "Unauthorized", code: 401 });
-        return user;
-      }
-    );
+    return waitFor(clientMachine, state => !state.matches("loading"), {
+      timeout: 60_000,
+    }).then(state => {
+      const user = get(state, "context.user");
+      if (!user) return Promise.reject({ title: "Unauthorized", code: 401 });
+      return user;
+    });
   }
 
   async function getUserId() {
@@ -75,8 +75,10 @@ export const useSession = () => {
       type: "LOGIN",
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state =>
-      ["available.login"].some(state.matches)
+    return waitFor(
+      guestMachine,
+      state => ["available.login"].some(state.matches),
+      { timeout: 60_000 }
     );
   }
 
@@ -85,8 +87,10 @@ export const useSession = () => {
       type: "REGISTER",
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state =>
-      ["available.register"].some(state.matches)
+    return waitFor(
+      guestMachine,
+      state => ["available.register"].some(state.matches),
+      { timeout: 60_000 }
     );
   }
 
@@ -97,7 +101,9 @@ export const useSession = () => {
       data: get(model, "value", model), // ensure we dont have any reactive refs
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
+    return waitFor(guestMachine, state => ["complete"].some(state.matches), {
+      timeout: 60_000,
+    });
   }
 
   function verify2fa({ token }: { token: string }): Promise<any> {
@@ -108,7 +114,9 @@ export const useSession = () => {
       type: "VERIFY",
       data: get(token, "value", token), // ensure we dont have any reactive refs
     });
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
+    return waitFor(guestMachine, state => ["complete"].some(state.matches), {
+      timeout: 60_000,
+    });
   }
 
   function register(model: any): Promise<any> {
@@ -119,16 +127,9 @@ export const useSession = () => {
       type: "REGISTER",
       data: get(model, "value", model), // ensure we dont have any reactive refs
     });
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
-  }
-
-  function verifyReCaptcha(token: any): Promise<any> {
-    service.send({
-      type: "VERIFY",
-      data: get(token, "value", token), // ensure we dont have any reactive refs
+    return waitFor(guestMachine, state => ["complete"].some(state.matches), {
+      timeout: 60_000,
     });
-    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state => ["complete"].some(state.matches));
   }
 
   function logout(): Promise<any> {
@@ -138,7 +139,9 @@ export const useSession = () => {
     service.send({
       type: "LOGOUT",
     });
-    return waitFor(clientMachine, state => ["complete"].some(state.matches));
+    return waitFor(clientMachine, state => ["complete"].some(state.matches), {
+      timeout: 60_000,
+    });
   }
 
   async function transfer() {
@@ -155,8 +158,10 @@ export const useSession = () => {
       type: "TRANSFER",
     });
 
-    return waitFor(clientMachine, newState =>
-      newState.matches("transferring.available")
+    return waitFor(
+      clientMachine,
+      newState => newState.matches("transferring.available"),
+      { timeout: 60_000 }
     ).then(newState => newState.context.transfer);
   }
 
@@ -179,7 +184,9 @@ export const useSession = () => {
         if (!clientMachine)
           return Promise.reject({ title: "Unauthorized", code: 401 });
 
-        return waitFor(clientMachine, state => state.matches("available"))
+        return waitFor(clientMachine, state => state.matches("available"), {
+          timeout: 60_000,
+        })
           .then(() => clientMachine.state.context.user)
           .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
       });
@@ -199,7 +206,6 @@ export const useSession = () => {
     login,
     register,
     verify2fa,
-    verifyReCaptcha,
     logout,
     transfer,
     reauth: () => service.send({ type: "EXPIRED" }),
