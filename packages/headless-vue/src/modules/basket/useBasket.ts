@@ -115,6 +115,8 @@ export const useBasket = (): any => {
         hasAccount: stateMatches(state, [
           "shopping.account.complete",
           "checkout",
+          "converting",
+          "paying",
         ]),
         hasTaxIncluded: checkIncludesTax(),
 
@@ -147,6 +149,7 @@ export const useBasket = (): any => {
         isComplete: stateMatches(state, ["complete", "failed"]),
         hasPaid: stateMatches(state, ["complete"]),
         hasFailed: stateMatches(state, ["failed"]),
+        hasError: contextMatches(state, ["error"]),
       };
     }),
     //  ---

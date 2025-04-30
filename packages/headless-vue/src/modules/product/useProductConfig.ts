@@ -133,8 +133,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
     touched.value = true;
     send({ type, data });
 
-    return waitFor(service, state =>
-      ["available.valid", "available.invalid"].some(state.matches)
+    return waitFor(
+      service,
+      state => ["available.valid", "available.invalid"].some(state.matches),
+      { timeout: 60_000 }
     ).then(state => {
       // NB only updat ethe model AFTER we have chaecked/parsed/validated
       model.value = state.context.model;

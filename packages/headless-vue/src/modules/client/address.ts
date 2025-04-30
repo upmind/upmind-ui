@@ -66,8 +66,10 @@ export const useClientAddress = (
     update: () => {
       // avoid race conditions and wait for the selected item to be valid
       if (!state.value.matches("valid")) {
-        waitFor(service, newState =>
-          newState.context?.selected?.state?.matches("valid")
+        waitFor(
+          service,
+          newState => newState.context?.selected?.state?.matches("valid"),
+          { timeout: 60_000 }
         ).then(() => {
           send({ type: "UPDATE" });
         });

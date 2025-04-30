@@ -5,7 +5,7 @@ import { find, isEmpty } from "lodash-es";
 import { useQuery, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
+import { DetailedError, responseCodes, useValidation } from "../../../utils";
 
 // --- types
 import type { BillingDetailsContext } from "./types";
@@ -33,11 +33,16 @@ async function update(
 ) {
   const { put, useUrl } = useQuery();
 
+  if (!model?.addressId)
+    return Promise.reject(
+      new DetailedError("No addressId", responseCodes.Unprocessable_Entity)
+    );
+
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basketId}`),
     data: {
-      address_id: model?.addressId || null,
+      address_id: model?.addressId,
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
@@ -45,7 +50,7 @@ async function update(
 }
 
 async function parse(
-  { model, addresses }: BillingDetailsContext,
+  { model, autoupdate, dirty, addresses }: BillingDetailsContext,
   _event: AnyEventObject
 ) {
   const defaultAddress = find(addresses, "default");
@@ -57,11 +62,13 @@ async function parse(
       addressId: defaultAddress.id,
       companyId: defaultAddress.company_id,
     };
+    autoupdate = true;
+    dirty = true;
   }
 
   // ---
   // we dont have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model });
+  return Promise.resolve({ model, autoupdate, dirty });
 }
 
 async function validate(

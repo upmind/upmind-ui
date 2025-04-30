@@ -182,6 +182,7 @@ export const use2faUischemaParser = () => {
         type: "Control",
         scope: "#/properties/token",
         options: {
+          autoFocus: true,
           autocomplete: "off",
           placeholder: "123 456",
           // mask: "### ###"

@@ -2,7 +2,7 @@
 import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession, useBrand } from "../..";
 import { usePlaces } from "../places";
 import { useClientCompanies } from "../company";
 import { useClientAddresses } from "../address";
@@ -30,6 +30,7 @@ import {
 import { AddressTypes } from "../address/types";
 import type { UnifiedAddressContext, UnifiedAddressesContext } from "./types";
 import type { AnyEventObject, ActorRef } from "xstate";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // ENUMS
@@ -66,6 +67,10 @@ export async function invalidateAddresses(context: object) {
 
 async function load(_context: UnifiedAddressesContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
+
+  // prepare our brand settings
+  const { ensureConfig } = useBrand();
+  ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]);
 
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));

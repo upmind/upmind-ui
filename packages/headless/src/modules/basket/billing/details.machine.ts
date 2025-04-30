@@ -188,6 +188,8 @@ export default createMachine(
 
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
+        autoupdate: (_context, { data }: AnyEventObject) => data.autoupdate,
+        dirty: (_context, { data }: AnyEventObject) => data.dirty,
       }),
 
       setLookups: assign({

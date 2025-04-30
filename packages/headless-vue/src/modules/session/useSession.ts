@@ -27,7 +27,6 @@ export const useSession = (inspector?: Function): IUseSession => {
     login,
     register,
     verify2fa,
-    verifyReCaptcha,
     logout,
     transfer,
   } = useUpmindSession();
@@ -123,7 +122,9 @@ export const useSession = (inspector?: Function): IUseSession => {
       type: "CANCEL",
     });
     const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["available"].some(state.matches));
+    return waitFor(guestMachine, state => ["available"].some(state.matches), {
+      timeout: 60_000,
+    });
   }
   // ---
   if (isFunction(inspector)) {
@@ -181,7 +182,6 @@ export const useSession = (inspector?: Function): IUseSession => {
     showLogin,
     showRegister,
     verify2fa,
-    verifyReCaptcha,
     transfer,
   };
 };

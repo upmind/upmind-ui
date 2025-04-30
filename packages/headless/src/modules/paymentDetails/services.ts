@@ -202,7 +202,8 @@ async function validate(
     if (!actor) return;
     return waitFor(
       actor,
-      state => !["loading", "checking", "error"].some(state.matches)
+      state => !["loading", "checking", "error"].some(state.matches),
+      { timeout: 60_000 }
     );
   });
 
