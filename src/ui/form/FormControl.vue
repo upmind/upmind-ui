@@ -108,7 +108,6 @@ function maybeFocus(entries: IntersectionObserverEntry[]) {
 }
 
 if (meta.value.shouldFocus) {
-  debugger;
   watch(
     () => slotElement.value,
     async el => {
