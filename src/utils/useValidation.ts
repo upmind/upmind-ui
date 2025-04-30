@@ -39,7 +39,7 @@ export const useValidation = (ajv?: Ajv) => {
       return false;
     },
     error: {
-      message: () => "Not a phone number",
+      message: () => "Invalid phone number format",
     },
   });
 
