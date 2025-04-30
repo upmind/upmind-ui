@@ -45,7 +45,8 @@ export const useClientPhones = () => {
       waitFor(
         service,
         state =>
-          state.matches("available") && !state.matches("available.loading")
+          state.matches("available") && !state.matches("available.loading"),
+        { timeout: Infinity }
       ),
     getSnapshot: service.getSnapshot,
     getItemsSnapshot: () => service.getSnapshot()?.context?.items,
@@ -62,7 +63,8 @@ export const useClientPhones = () => {
       return waitFor(
         service,
         state =>
-          state.matches("available") && !state.matches("available.loading")
+          state.matches("available") && !state.matches("available.loading"),
+        { timeout: 60_000 }
       ).then(state => {
         // first try to get the selected address from the context
         if (state?.context?.selected) return state.context.selected;

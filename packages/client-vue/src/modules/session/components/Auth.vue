@@ -165,9 +165,10 @@ const buttonAction = computed(() => {
     : t("session.unauthenticated.login.actions.action");
 });
 
-watch(meta, ({ canShowForms }) => {
-  if (canShowForms) {
-    toggleForm(modelValue.value);
+watch(meta, ({ canShowForms, isAuthenticated }) => {
+  if (canShowForms) toggleForm(modelValue.value);
+  if (isAuthenticated) {
+    emit("resolve", model.value);
   }
 });
 </script>

@@ -146,12 +146,15 @@ function toggleForm(type: AuthProps["modelValue"]) {
 
   switch (type) {
     case "login":
-      if (!meta.value.showLoginForm)
+      if (!meta.value.showLoginForm) {
         showLogin().then(() => (modelValue.value = type));
+      }
       break;
     case "register":
-      if (!meta.value.showRegisterForm)
+      if (!meta.value.showRegisterForm) {
         showRegister().then(() => (modelValue.value = type));
+      }
+
       break;
     // case "forgot":
     //   if (!meta.value.showForgotForm)
@@ -171,9 +174,10 @@ onMounted(() => {
   toggleForm(modelValue.value);
 });
 
-watch(meta, ({ canShowForms }) => {
-  if (canShowForms) {
-    toggleForm(modelValue.value);
+watch(meta, ({ canShowForms, isAuthenticated }) => {
+  if (canShowForms) toggleForm(modelValue.value);
+  if (isAuthenticated) {
+    emit("resolve", model.value);
   }
 });
 </script>

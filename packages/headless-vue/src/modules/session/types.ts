@@ -180,13 +180,6 @@ export interface IUseSession {
   verify2fa: ({ token }: { token: string }) => Promise<any>;
 
   /**
-   * Verifies the ReCaptcha challenge response from the user.
-   * @param {string} response The ReCaptcha response token from the user.
-   * @returns {Promise<void>} A promise that resolves when the verification is successful.
-   */
-  verifyReCaptcha: (response: string) => Promise<any>;
-
-  /**
    * Transfer session data between different parts of the application, such as from guest to client.
    */
   transfer: () => Promise<any>;

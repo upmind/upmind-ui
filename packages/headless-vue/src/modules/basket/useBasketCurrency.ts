@@ -78,9 +78,13 @@ export const useBasketCurrency = (actorRef?: ActorRef<any>) => {
       actor.value?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      ).then(state => {
         if (["error"].some(state.matches)) {
           return Promise.reject(state.context.error);
         }

@@ -1,11 +1,14 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useSession } from "./";
 
+// --- utils
+import { isEmpty } from "lodash-es";
+
 // --- types
 import type { State } from "xstate";
+import { getTokenFromStorage } from "./utils";
 // -----------------------------------------------------------------------------
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
@@ -19,6 +22,8 @@ const authCallback = (
   // Valid session
   const clientMachine = state?.children?.clientMachine;
   const guestMachine = state?.children?.guestMachine;
+  const currentMachine =
+    state?.children?.clientMachine || state?.children?.guestMachine;
 
   if (["checking", "error"].some(state.matches)) {
     if (hasSession) callback({ type: "UNAUTHENTICATED" });
@@ -29,35 +34,30 @@ const authCallback = (
     return false;
   }
 
-  if (
-    (state.matches("guest") &&
-      guestMachine?.getSnapshot()?.matches &&
-      guestMachine?.getSnapshot()?.matches("available")) ||
-    (state.matches("client") &&
-      clientMachine?.getSnapshot()?.matches &&
-      clientMachine?.getSnapshot()?.matches("available"))
-  ) {
-    hasSession = true;
-    callback({ type: "SESSION" });
+  // We have a session IF we are a client or guest
+  // and we have an access token
+  if (currentMachine?.getSnapshot()?.matches("available")) {
+    hasSession = !isEmpty(getTokenFromStorage());
+    if (hasSession) callback({ type: "SESSION" });
   } else {
     return false;
   }
 
-  // Authenticated if client ( eventually +admin +actor)
+  // Authenticated if client is available
+  // > indicates we are logged in and have a valid access token
   if (
     hasSession &&
     state.matches("client") &&
-    clientMachine?.getSnapshot()?.matches &&
     clientMachine?.getSnapshot()?.matches("available")
   ) {
     callback({ type: "AUTHENTICATED" });
   }
 
-  // Unauthenticated if guest
+  // Unauthenticated if guest loading
+  // > indicates we are not logged in and are generating a guest token
   else if (
     hasSession &&
     state.matches("guest") &&
-    guestMachine?.getSnapshot()?.matches &&
     guestMachine?.getSnapshot()?.matches("loading")
   ) {
     hasSession = false;
