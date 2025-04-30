@@ -173,7 +173,7 @@ const errors = computed(() => {
   if (control?.value?.errors) {
     try {
       parsePhoneNumberWithError(phone.value.number, {
-        defaultCountry: phone.value.country,
+        defaultCountry: phone?.value?.country,
       });
       return (
         validatePhoneNumberLength(phone.value.number, {
@@ -195,7 +195,7 @@ const errorsMapped = computed(() => {
     case "INVALID_COUNTRY":
       return "Invalid country";
     default:
-      return "Not a number";
+      return "Not a phone number";
   }
 });
 </script>
