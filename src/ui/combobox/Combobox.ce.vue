@@ -32,7 +32,7 @@
               aria-hidden="true"
             />
 
-            {{ label }}
+            <span class="truncate">{{ label }}</span>
           </slot>
         </template>
 
