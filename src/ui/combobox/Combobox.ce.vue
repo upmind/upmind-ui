@@ -63,7 +63,7 @@
             @update:modelValue="onSearch"
             :placeholder="placeholder"
             input-size="sm"
-            class="!rounded-none !border-b !border-l-0 !border-r-0 !border-t-0 !shadow-none !ring-0"
+            :class="styles.combobox.input"
           >
             <template #prepend>
               <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
@@ -234,7 +234,13 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  combobox: { root: string; trigger: string; content: string; item: string };
+  combobox: {
+    root: string;
+    trigger: string;
+    content: string;
+    item: string;
+    input: string;
+  };
 }>;
 
 async function safeSearch(value: string | number) {

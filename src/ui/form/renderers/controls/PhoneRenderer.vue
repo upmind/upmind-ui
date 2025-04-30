@@ -4,7 +4,6 @@
       <Combobox
         :modelValue="phone?.country"
         :items="countryItems"
-        :loading="false"
         @update:modelValue="onCountyInput"
         class="rounded-r-none border-r-0 text-sm !text-opacity-50 !ring-0"
         popover-class="!w-dropdown-xl"

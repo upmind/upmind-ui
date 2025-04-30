@@ -93,5 +93,8 @@ export default {
     trigger: triggerVariants,
     content: contentVariants,
     item: itemVariants,
+    input: cva(
+      "!rounded-none !border-b !border-l-0 !border-r-0 !border-t-0 !shadow-none !ring-0"
+    ),
   },
 };
