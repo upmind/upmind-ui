@@ -1,0 +1,40 @@
+export const netDomain = [
+  {
+    name: ".NET Domain - Billing Cycle - 1 year @webcentral @domains",
+    radioSelection: [[0, 0]],
+    checkboxSelection: [],
+    sldValue: "nettestingdomain",
+    total: "$9.00",
+    billingCycle: "1 year",
+    tldValue: ".net",
+  },
+  {
+    name: ".NET Domain - Billing Cycle - 2 year @webcentral @domains",
+    radioSelection: [[0, 1]],
+    checkboxSelection: [],
+    sldValue: "nettestingdomain",
+    total: "$13.50",
+    billingCycle: "2 year",
+    tldValue: ".net",
+  },
+  {
+    name: ".NET Domain - Billing Cycle - 3 year @webcentral @domains",
+    radioSelection: [[0, 2]],
+    checkboxSelection: [],
+    sldValue: "nettestingdomain",
+    total: "$18.00",
+    billingCycle: "3 year",
+    tldValue: ".net",
+  },
+
+  /* TRANSFERRING A DOMAIN */
+  {
+    name: ".NET Domain - Billing Cycle - 3 year - Domain Transfer @webcentral @domains @domain-transfer",
+    radioSelection: [[0, 2]],
+    checkboxSelection: [[0, 0]],
+    sldValue: "nettestingdomain",
+    total: "FREE",
+    billingCycle: "3 year",
+    tldValue: ".net",
+  },
+];
