@@ -45,6 +45,7 @@
 
       <!-- input -->
       <FormControl
+        :key="props.id"
         :invalid="meta.isInvalid"
         :disabled="props.disabled"
         :required="props.required"
