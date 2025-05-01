@@ -72,6 +72,6 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
         to,
         from,
       })
-      .push();
+      .push(false);
   });
 };

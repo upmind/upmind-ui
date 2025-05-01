@@ -22,4 +22,5 @@ export interface FieldsContext {
   // ---
   dirty?: boolean;
   error?: any;
+  controller?: AbortController;
 }

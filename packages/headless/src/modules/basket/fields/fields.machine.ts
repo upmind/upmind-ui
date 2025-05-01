@@ -103,8 +103,7 @@ export default createMachine(
       },
 
       processing: {
-        entry: ["clearError"],
-
+        entry: ["clearError", "cancelController", "newController"],
         invoke: {
           src: "update",
           onDone: {
@@ -209,6 +208,21 @@ export default createMachine(
       }),
       clearAutoUpdate: assign({
         autoupdate: false,
+      }),
+
+      cancelController: assign({
+        controller: ({ controller }: FieldsContext) => {
+          if (controller?.signal && !controller.signal?.aborted) {
+            controller?.abort();
+          }
+          return undefined;
+        },
+      }),
+
+      newController: assign({
+        controller: () => {
+          return new AbortController();
+        },
       }),
 
       // ---
