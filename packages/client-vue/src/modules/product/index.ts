@@ -20,5 +20,6 @@ export const UpmProductRecommendationsView = import("./Recommendations.vue");
 export { default as UpmProductConfig } from "./components/config/Config.vue";
 export { default as UpmTermsConfigSelect } from "./components/terms/TermsConfigSelect.vue";
 export { default as UpmTermCard } from "./components/terms/TermCard.vue";
+export { default as UpmConfigSkeleton } from "./components/ConfigSkeleton.vue";
 
 // --- Export Types
