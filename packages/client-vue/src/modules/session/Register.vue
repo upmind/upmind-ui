@@ -29,7 +29,6 @@
           no-tabs
           no-header
           model-value="register"
-          @update:model-value="doLogin"
           @resolve="doResolve"
         >
         </Auth>
@@ -41,9 +40,13 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-
+import { watch } from "vue";
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+import {
+  useRoutingEngine,
+  useSession,
+  ROUTE,
+} from "@upmind-automation/headless-vue";
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
@@ -53,20 +56,15 @@ import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- types
-import type { AuthProps } from "./components/types";
+import type { IUseSessionMeta } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { next, back, navigate, isResolved } = useRoutingEngine();
+const { meta } = useSession();
 
 await isResolved(ROUTE.SESSION_REGISTER).catch(back);
-
-function doLogin(value: AuthProps["modelValue"]) {
-  if (value === "login") {
-    navigate(ROUTE.SESSION_LOGIN);
-  }
-}
 
 function doReject() {
   back();
@@ -77,4 +75,10 @@ function doResolve() {
   // router.push(redirectPath);
   next();
 }
+
+watch(meta, (newVal: IUseSessionMeta, oldVal: IUseSessionMeta) => {
+  if (oldVal.showRegisterForm && newVal.showLoginForm) {
+    navigate(ROUTE.SESSION_LOGIN);
+  }
+});
 </script>

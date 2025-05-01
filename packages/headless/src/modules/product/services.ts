@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
+import { useQuery, useSystem } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
@@ -69,6 +69,8 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
+  const { fetchCountries } = useSystem();
+
   const [currency] = await Promise.all([
     validateCurrency({ id: currencyId }),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
@@ -115,11 +117,15 @@ async function load(
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
 
-  return Promise.all([productPromise, provisioningPromise]).then(
-    ([product, provisioning]) => {
-      return { product, provisioning, currency };
-    }
-  );
+  const conuntriesPromise = fetchCountries();
+
+  return Promise.all([
+    productPromise,
+    provisioningPromise,
+    conuntriesPromise,
+  ]).then(([product, provisioning]) => {
+    return { product, provisioning, currency };
+  });
 }
 
 async function loadProvisioningFields(productId: any) {

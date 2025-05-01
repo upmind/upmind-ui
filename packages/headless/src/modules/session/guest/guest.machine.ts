@@ -291,10 +291,10 @@ export default createMachine(
       },
 
       pushRegister: (_context, { data }: any) => {
-        dataLayer({ event: "sign_up" }).withUser().push();
+        dataLayer({ event: "sign_up" }).withUser().push(false);
       },
       pushLogin: (_context, { data }: any) => {
-        dataLayer({ event: "login" }).withUser().push();
+        dataLayer({ event: "login" }).withUser().push(false);
       },
 
       setActor: (_context, { data }: AnyEventObject) => {
