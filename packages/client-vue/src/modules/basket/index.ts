@@ -10,5 +10,6 @@ export const UpmBasketView = import("./Basket.vue");
 export { default as UpmCurrency } from "./components/CurrencySwitcher.vue";
 export { default as UpmPromotionBadge } from "./product/components/Promotion.vue";
 export { default as UpmBasketProductCards } from "./product/BasketProductCards.vue";
+export { default as UpmPromotion } from "./product/components/Promotion.vue";
 
 // --- Export Types
