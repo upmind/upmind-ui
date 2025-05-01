@@ -531,9 +531,16 @@ export const parsePromotionDetails = (
 };
 
 export const parseProvisioningSchema = (data: any, product: any) => {
+  const { getCountry } = useBrand();
+  const { getCountries } = useSystem();
+
+  const defaultCountryId = getCountry();
+  const countries = getCountries();
+
   const required: string[] = [];
   const properties = {};
   const errorMessage = {};
+  const schemaAdditional: Record<string, any> = {};
 
   forEach(data, field => {
     let type = ["string"];
@@ -570,9 +577,10 @@ export const parseProvisioningSchema = (data: any, product: any) => {
       case "input_phone":
       case "input_tel":
         type = ["string"];
-        // format = "phone";
-        // todo ad dthe default country code
-        // isPhoneNumber = defaultCountry?.code;
+        format = "phone";
+        set(schemaAdditional, field.name, {
+          isPhoneNumber: find(countries, ["id", defaultCountryId])?.code ?? "",
+        });
         break;
       case "input_ip":
         type = ["string"];
@@ -632,6 +640,7 @@ export const parseProvisioningSchema = (data: any, product: any) => {
                 title: item.label,
               };
             }),
+        ...(schemaAdditional[field.name] || {}),
       };
 
       set(properties, field.name, omitBy(schema, isNil));

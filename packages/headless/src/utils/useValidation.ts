@@ -9,7 +9,16 @@ import {
 import ajvErrors from "ajv-errors";
 
 // --- utils
-import { reduce, get, set, defaultsDeep, compact, map } from "lodash-es";
+import {
+  reduce,
+  get,
+  set,
+  defaultsDeep,
+  compact,
+  map,
+  isString,
+  isObject,
+} from "lodash-es";
 import { parseError } from "./useError";
 import { ErrorObject } from "ajv";
 
@@ -37,13 +46,18 @@ export const useValidation = (ajv?: any) => {
     keyword: "isPhoneNumber",
     type: ["string", "object"],
     schemaType: "string",
-    validate: (schema: CountryCode, data: PhoneNumber) => {
-      const value = data?.number || data?.nationalNumber || "";
-      const country = data?.country || schema;
-      return isValidPhoneNumber(value, country);
+    validate: (schema: CountryCode, data: string | PhoneNumber) => {
+      if (isString(data) && data.includes("+")) {
+        return isValidPhoneNumber(data);
+      } else if (isObject(data)) {
+        const value = data?.number || data?.nationalNumber || "";
+        const country = data?.country || schema;
+        return isValidPhoneNumber(value, country);
+      }
+      return false;
     },
     error: {
-      message: () => "invalid phone number format", // return `must be a valid ${cxt.schema} phone number`;
+      message: () => "Invalid phone number format",
     },
   });
 

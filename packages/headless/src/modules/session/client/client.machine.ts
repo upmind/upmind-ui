@@ -116,7 +116,7 @@ export default createMachine(
         //  also update the data layer to indicate the user has logged out
         localStorage.clear();
         removeCookie("upm_actor");
-        dataLayer().withPage().withUser().push();
+        dataLayer().withPage().withUser().push(false);
         return {};
       }),
       // ---

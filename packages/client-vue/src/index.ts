@@ -181,7 +181,7 @@ class Upmind {
     }
 
     // --- Finally push our initial payload to the data layer
-    dataLayer().withPage().withUser().push();
+    dataLayer().withPage().withUser().push(false);
   }
 
   // ---

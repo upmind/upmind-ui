@@ -99,7 +99,7 @@ export default createMachine(
         // if there is an actor, we need to clear the user data and update the data layer
         if (actor) {
           removeCookie("upm_actor");
-          dataLayer().withPage().withUser().push();
+          dataLayer().withPage().withUser().push(false);
         }
       },
     },
