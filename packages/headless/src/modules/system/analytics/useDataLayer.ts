@@ -57,7 +57,7 @@ let DATA_LAYER = window.dataLayer || [];
  * trackingEvent.push();
  * @example
  * const trackingEvent = new TrackingEvent();
- * trackingEvent.withPage({to: "/checkout", from: "/basket"}).withEcommerce().withUser().push();
+ * trackingEvent.withPage({to: "/checkout", from: "/basket"}).withEcommerce().withUser().push(false);
  */
 class TrackingEvent {
   args: Record<string, any> = {};
@@ -100,10 +100,13 @@ class TrackingEvent {
     ) as DataLayerUser;
 
     if (!isEmpty(storedActor)) {
-      payload = storedActor ?? {
+      payload = storedActor;
+    } else {
+      payload = {
         logged_in: false,
       };
     }
+
     set(this.args, "user", omitBy(payload, isNil));
     return this; // nb this is needed to chain the methods
   }
@@ -174,8 +177,11 @@ class TrackingEvent {
     return this; // nb this is needed to chain the methods
   }
 
-  push() {
+  push(clear: boolean = true): Record<string, any> {
     const payload = this.args;
+
+    if (clear) set(payload, "_clear", true);
+
     DATA_LAYER.push(payload);
     this.complete = true;
     return payload;

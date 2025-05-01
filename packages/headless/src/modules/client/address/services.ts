@@ -271,6 +271,7 @@ async function parse(
         const place = await getPlaceDetails(model.place);
         model = defaultsDeep(place, model);
       }
+      model.place = undefined; // we dont need this anymore
     }
 
     // lets check if the country has changed, ie: the regions dont match
