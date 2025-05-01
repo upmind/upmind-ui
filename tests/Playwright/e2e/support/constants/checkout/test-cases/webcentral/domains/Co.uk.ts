@@ -1,0 +1,41 @@
+export const coukDomain = [
+  /* NEW DOMAIN */
+  {
+    name: ".CO.UK Domain - Billing Cycle - 1 year @webcentral @domains",
+    radioSelection: [[0, 0]],
+    checkboxSelection: [],
+    sldValue: "couktestingdomain",
+    registrantName: "Joe Bloggs",
+    registrantOrg: "Bloggs Inc",
+    registrantEmail: "joebloggs@upmind.com",
+    registrantPhone: "+447111111111",
+    registrantAddr1: "10 Downing Street",
+    registrantCity: "London",
+    registrantState: "",
+    registrantPostcode: "SW1A",
+    registrantCountry: "United Kingdom",
+    total: "$9.00",
+    billingCycle: "1 year",
+    tldValue: ".co.uk",
+  },
+
+  /* TRANSFERRING A DOMAIN */
+  {
+    name: ".CO.UK Domain - Billing Cycle - 1 year - Domain Transfer @webcentral @domains @domain-transfer",
+    radioSelection: [[0, 0]],
+    checkboxSelection: [[0, 0]],
+    sldValue: "couktestingdomain",
+    registrantName: "Joe Bloggs",
+    registrantOrg: "Bloggs Inc",
+    registrantEmail: "joebloggs@upmind.com",
+    registrantPhone: "+447111111111",
+    registrantAddr1: "10 Downing Street",
+    registrantCity: "London",
+    registrantState: "",
+    registrantPostcode: "SW1A",
+    registrantCountry: "United Kingdom",
+    total: "FREE",
+    billingCycle: "1 year",
+    tldValue: ".co.uk",
+  },
+];
