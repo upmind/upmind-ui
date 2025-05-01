@@ -5,7 +5,7 @@ export const Meeting = [
     checkboxSelection: [],
     total: "",
     billingCycle: "",
-    product: "",
+    consulting: "",
   },
   /* NO MEETING TYPE SELECTION */
   {
@@ -14,8 +14,8 @@ export const Meeting = [
     checkboxSelection: [[0, 0]],
     total: "FREE",
     billingCycle: "One-time",
-    product: "Meeting",
-    meetingTypes: "Ideation",
+    consulting: "Meeting",
+    meetingTypes: "Meet and Greet",
   },
   /* MULTIPLE MEETING TYPE SELECTION */
   {
@@ -27,7 +27,7 @@ export const Meeting = [
     ],
     total: "FREE",
     billingCycle: "One-time",
-    product: "Meeting",
+    consulting: "Meeting",
     meetingTypes: "Ideation, Meet and Greet",
   },
   {
@@ -43,7 +43,7 @@ export const Meeting = [
     ],
     total: "FREE",
     billingCycle: "One-time",
-    product: "Meeting",
+    consulting: "Meeting",
     meetingTypes: "Ideation, Meet and Greet",
   },
 ];

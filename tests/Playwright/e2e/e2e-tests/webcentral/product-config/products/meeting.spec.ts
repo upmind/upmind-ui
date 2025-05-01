@@ -18,8 +18,8 @@ test.describe("Product Config - Happy Paths - Meeting", async () => {
     checkboxSelection = [],
     total,
     billingCycle,
-    //product,
-    meetingTypes = "",
+    consulting,
+    meetingTypes = [],
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -44,8 +44,8 @@ test.describe("Product Config - Happy Paths - Meeting", async () => {
       /* Verify that all summary fields contain the expected data */
       await expect(checkout.totalValue).toContainText(total);
       await expect(checkout.billingCycle).toContainText(billingCycle);
-      //await expect(checkout.product).toContainText(product);
-      await expect(checkout.bundle).toContainText(meetingTypes);
+      await expect(checkout.consulting).toContainText(consulting);
+      await expect(checkout.meetingTypes).toContainText(meetingTypes);
       //await expect(page).toHaveScreenshot(name);
     });
   }

@@ -45,6 +45,7 @@ export class Checkout {
   readonly development: Locator;
   readonly consulting: Locator;
   readonly bundle: Locator;
+  readonly meetingTypes: Locator;
   readonly addons: Locator;
   readonly tracking: Locator;
   readonly tldValue: Locator;
@@ -123,6 +124,7 @@ export class Checkout {
     this.development = page.getByTestId("summary-value-development");
     this.consulting = page.getByTestId("summary-value-consulting");
     this.bundle = page.getByTestId("summary-value-bundle");
+    this.meetingTypes = page.getByTestId("summary-value-meeting-types");
     this.addons = page.getByTestId("summary-value-addons");
     this.tracking = page.getByTestId("summary-value-tracking");
     this.tldValue = page.getByTestId("summary-value-domain-names");
