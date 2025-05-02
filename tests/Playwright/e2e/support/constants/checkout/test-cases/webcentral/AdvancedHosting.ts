@@ -6,7 +6,7 @@ export const AdvancedHosting = [
     accordionSelection: [0],
     total: "$10.00",
     billingCycle: "1 month",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -15,7 +15,7 @@ export const AdvancedHosting = [
     accordionSelection: [0],
     total: "$100.00",
     billingCycle: "1 year",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -24,7 +24,7 @@ export const AdvancedHosting = [
     accordionSelection: [0],
     total: "$160.00",
     billingCycle: "2 year",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   /* TRANSFER DOMAIN */
@@ -34,7 +34,7 @@ export const AdvancedHosting = [
     accordionSelection: [1],
     total: "$10.00",
     billingCycle: "1 month",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -43,7 +43,7 @@ export const AdvancedHosting = [
     accordionSelection: [1],
     total: "$100.00",
     billingCycle: "1 year",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -52,7 +52,7 @@ export const AdvancedHosting = [
     accordionSelection: [1],
     total: "$160.00",
     billingCycle: "2 year",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   /* EXISTING DOMAIN */
@@ -62,7 +62,7 @@ export const AdvancedHosting = [
     accordionSelection: [1],
     total: "$10.00",
     billingCycle: "1 month",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -71,7 +71,7 @@ export const AdvancedHosting = [
     accordionSelection: [1],
     total: "$100.00",
     billingCycle: "1 year",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -80,7 +80,7 @@ export const AdvancedHosting = [
     accordionSelection: [1],
     total: "$160.00",
     billingCycle: "2 year",
-    product: "Advanced Hosting",
+    webHosting: "Advanced Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
 ];
