@@ -4,7 +4,7 @@ import { BrandContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const useBrandParser = (context: BrandContext, data: object) => {
+export const useBrandParser = (data: object, context: BrandContext) => {
   const mapped = reduce(
     data,
     (result, value, key) => {
