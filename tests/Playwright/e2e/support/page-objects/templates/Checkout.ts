@@ -43,6 +43,8 @@ export class Checkout {
   readonly billingCycle: Locator;
   readonly product: Locator;
   readonly development: Locator;
+  readonly webHosting: Locator;
+  readonly designServices: Locator;
   readonly consulting: Locator;
   readonly bundle: Locator;
   readonly meetingTypes: Locator;
@@ -122,6 +124,8 @@ export class Checkout {
     // refactor all of this to better fit the dynamic naming of the sumamry fields
     this.product = page.getByTestId("summary-value-product");
     this.development = page.getByTestId("summary-value-development");
+    this.webHosting = page.getByTestId("summary-value-web-hosting");
+    this.designServices = page.getByTestId("summary-value-design-services");
     this.consulting = page.getByTestId("summary-value-consulting");
     this.bundle = page.getByTestId("summary-value-bundle");
     this.meetingTypes = page.getByTestId("summary-value-meeting-types");

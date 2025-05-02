@@ -18,7 +18,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
     accordionSelection,
     total,
     billingCycle,
-    //product,
+    webHosting,
     domainName,
   } of testCases) {
     test(name, async ({ page }) => {
@@ -46,7 +46,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
       /* Verify that all summary fields contain the expected data */
       await expect(checkout.totalValue).toContainText(total);
       await expect(checkout.billingCycle).toContainText(billingCycle);
-      //await expect(checkout.product).toContainText(product);
+      await expect(checkout.webHosting).toContainText(webHosting);
       await expect(checkout.domainName).toContainText(domainName);
       //await expect(page).toHaveScreenshot(name);
 

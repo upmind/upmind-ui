@@ -17,7 +17,7 @@ test.describe("Product Config - Happy Paths - Logo Design", async () => {
     radioSelection = [],
     total,
     billingCycle,
-    //product,
+    designServices,
   } of testCases) {
     test(name, async ({ page }) => {
       /* PRODUCT OPTIONS */
@@ -33,7 +33,7 @@ test.describe("Product Config - Happy Paths - Logo Design", async () => {
       /* Verify that all summary fields contain the expected data */
       await expect(checkout.totalValue).toContainText(total);
       await expect(checkout.billingCycle).toContainText(billingCycle);
-      //await expect(checkout.product).toContainText(product);
+      await expect(checkout.designServices).toContainText(designServices);
       //await expect(page).toHaveScreenshot(name);
     });
   }
