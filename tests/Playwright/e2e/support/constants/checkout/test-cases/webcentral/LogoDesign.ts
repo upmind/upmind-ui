@@ -4,6 +4,6 @@ export const LogoDesign = [
     radioSelection: [[0, 0]],
     total: "$199.98",
     billingCycle: "One-time",
-    product: "Logo Design",
+    designServices: "Logo Design",
   },
 ];
