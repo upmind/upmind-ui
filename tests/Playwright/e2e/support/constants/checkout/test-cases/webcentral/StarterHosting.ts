@@ -6,7 +6,7 @@ export const StarterHosting = [
     accordionSelection: [0],
     total: "$5.00",
     billingCycle: "1 month",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -15,7 +15,7 @@ export const StarterHosting = [
     accordionSelection: [0],
     total: "$50.00",
     billingCycle: "1 year",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingasdfg.net",
   },
   {
@@ -24,7 +24,7 @@ export const StarterHosting = [
     accordionSelection: [0],
     total: "$80.00",
     billingCycle: "2 year",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingzxa.net",
   },
 
@@ -35,7 +35,7 @@ export const StarterHosting = [
     accordionSelection: [1],
     total: "$5.00",
     billingCycle: "1 month",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -44,7 +44,7 @@ export const StarterHosting = [
     accordionSelection: [1],
     total: "$50.00",
     billingCycle: "1 year",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingasdfg.net",
   },
   {
@@ -53,7 +53,7 @@ export const StarterHosting = [
     accordionSelection: [1],
     total: "$80.00",
     billingCycle: "2 year",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingzxa.net",
   },
 
@@ -64,7 +64,7 @@ export const StarterHosting = [
     accordionSelection: [2],
     total: "$5.00",
     billingCycle: "1 month",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingjghfjhf.net",
   },
   {
@@ -73,7 +73,7 @@ export const StarterHosting = [
     accordionSelection: [2],
     total: "$50.00",
     billingCycle: "1 year",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingasdfg.net",
   },
   {
@@ -82,7 +82,7 @@ export const StarterHosting = [
     accordionSelection: [2],
     total: "$80.00",
     billingCycle: "2 year",
-    product: "Starter Hosting",
+    webHosting: "Starter Hosting",
     domainName: "wcautotestingzxa.net",
   },
 ];
