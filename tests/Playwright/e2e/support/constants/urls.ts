@@ -16,6 +16,8 @@ export const URLs = {
   advancedHosting: `${baseUrl}product/add/4d036794-24d0-e710-965b-3153698d582e`,
   consultingBlock: `${baseUrl}product/add/5952098d-3de4-0917-e88b-31578626e347`,
 
+  billingTermsPromo: `${baseUrl}product/add/20403869-6e54-721d-254a-518d9305e7d2`,
+
   comDomain: `${baseUrl}product/add/78985742-6489-7012-096c-21e325d0ed36`,
   ioDomain: `${baseUrl}product/add/5d085e69-d562-3719-e46c-218e940d4237`,
   orgDomain: `${baseUrl}product/add/2785d26e-9678-3d16-72ea-314502e70439`,
