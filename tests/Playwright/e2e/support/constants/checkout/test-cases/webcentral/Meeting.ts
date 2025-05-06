@@ -45,6 +45,6 @@ export const Meeting = [
     billingCycle: "One-time",
     consulting: "Meeting",
     meetingTypes:
-      "Meet and Greet, Referral or Introduction, Ideation, Enquiry, Interview, Validation",
+      "Meet and Greet, Referral or Introduction, Ideation, Enquiry, Interview x 2, Validation",
   },
 ];
