@@ -5,16 +5,16 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   /*Filepaths*/
-  testDir: "./tests/Playwright/e2e/e2e-tests",
-  outputDir: "./tests/Playwright/e2e/test-results",
+  testDir: "./e2e/e2e-tests",
+  outputDir: "./e2e/e2e-tests/test-results",
   testMatch: "**/*.spec.ts",
-  snapshotPathTemplate: "./snapshots/{testFileDir}/{arg}-{projectName}.png",
+  snapshotPathTemplate: "./e2e/snapshots/{testFileDir}/{arg}-{projectName}.png",
   /*Set number of retries on a failed test*/
   //retries: 2,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html", { outputFolder: ".tests/playwright-report" }]],
+  reporter: [["html", { outputFolder: "./e2e/e2e-tests/playwright-report" }]],
 
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
