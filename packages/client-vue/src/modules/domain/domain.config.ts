@@ -98,7 +98,7 @@ export default {
         radio: cva("relative flex w-11 justify-center pl-1.5"),
       },
       item: cva(
-        "hover:border-control-strong rounded-lg border transition-all duration-200"
+        "hover:border-control-strong !text-base-foreground rounded-lg border transition-all duration-200"
       ),
       items: cva("h-12"),
       card: cva("bg-base shadow-sm"),
@@ -110,6 +110,9 @@ export default {
         ),
       },
       error: cva("m-0 mt-1"),
+      basket: {
+        item: cva("text-base-foreground"),
+      },
     },
 
     transitions: {
