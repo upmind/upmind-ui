@@ -18,24 +18,4 @@ export const ioDomain = [
     billingCycle: "1 year",
     tldValue: ".io",
   },
-
-  /* TRANSFERRING A DOMAIN */
-  {
-    name: ".IO Domain - Billing Cycle - 1 year - Domain Transfer @webcentral @domains @domain-transfer",
-    radioSelection: [[0, 0]],
-    checkboxSelection: [[0, 0]],
-    sldValue: "iotestingdomain",
-    registrantName: "Joe Bloggs",
-    registrantOrg: "Bloggs Inc",
-    registrantEmail: "joebloggs@upmind.com",
-    registrantPhone: "+447111111111",
-    registrantAddr1: "10 Downing Street",
-    registrantCity: "London",
-    registrantState: "",
-    registrantPostcode: "SW1A",
-    registrantCountry: "United Kingdom",
-    total: "FREE",
-    billingCycle: "1 year",
-    tldValue: ".io",
-  },
 ];
