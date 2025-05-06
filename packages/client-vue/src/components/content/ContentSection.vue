@@ -5,11 +5,11 @@
       v-if="title || tagline || $slots.header || $slots.title"
     >
       <slot name="header">
-        <slot name="title">
-          <h3 :class="cn(styles.section.title, props.classTitle)">
+        <h3 :class="cn(styles.section.title, props.classTitle)">
+          <slot name="title">
             {{ title }}
-          </h3>
-        </slot>
+          </slot>
+        </h3>
         <slot name="option">
           <div v-if="tagline" :class="styles.section.tagline">
             {{ tagline }}
