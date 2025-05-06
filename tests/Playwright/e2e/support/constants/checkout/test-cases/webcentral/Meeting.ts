@@ -28,7 +28,7 @@ export const Meeting = [
     total: "FREE",
     billingCycle: "One-time",
     consulting: "Meeting",
-    meetingTypes: "Ideation, Meet and Greet",
+    meetingTypes: "Meet and Greet, Ideation",
   },
   {
     name: "Billing Term: One-Time, Meeting Types: All  @webcentral @meeting",
@@ -44,6 +44,7 @@ export const Meeting = [
     total: "FREE",
     billingCycle: "One-time",
     consulting: "Meeting",
-    meetingTypes: "Ideation, Meet and Greet",
+    meetingTypes:
+      "Meet and Greet, Referral or Introduction, Ideation, Enquiry, Interview x 2, Validation",
   },
 ];

@@ -29,7 +29,7 @@ export const AdvancedHosting = [
   },
   /* TRANSFER DOMAIN */
   {
-    name: "Billing term: 1 Month - Account Domain Name: Register New Domain @webcentral @advanced-hosting @transfer-domain",
+    name: "Billing term: 1 Month - Account Domain Name: Transfer Domain @webcentral @advanced-hosting @transfer-domain",
     radioSelection: [[0, 0]],
     accordionSelection: [1],
     total: "$10.00",
@@ -38,7 +38,7 @@ export const AdvancedHosting = [
     domainName: "wcautotestingjghfjhf.net",
   },
   {
-    name: "Billing term: 1 year - Account Domain Name: Register New Domain @webcentral @advanced-hosting @transfer-domain",
+    name: "Billing term: 1 year - Account Domain Name: Transfer Domain @webcentral @advanced-hosting @transfer-domain",
     radioSelection: [[0, 1]],
     accordionSelection: [1],
     total: "$100.00",
@@ -47,7 +47,7 @@ export const AdvancedHosting = [
     domainName: "wcautotestingjghfjhf.net",
   },
   {
-    name: "Billing term: 2 years - Account Domain Name: Register New Domain @webcentral @advanced-hosting @transfer-domain",
+    name: "Billing term: 2 years - Account Domain Name: Transfer Domain @webcentral @advanced-hosting @transfer-domain",
     radioSelection: [[0, 2]],
     accordionSelection: [1],
     total: "$160.00",
@@ -57,7 +57,7 @@ export const AdvancedHosting = [
   },
   /* EXISTING DOMAIN */
   {
-    name: "Billing term: 1 Month - Account Domain Name: Register New Domain @webcentral @advanced-hosting @existing-domain",
+    name: "Billing term: 1 Month - Account Domain Name: Existing Domain @webcentral @advanced-hosting @existing-domain",
     radioSelection: [[0, 0]],
     accordionSelection: [1],
     total: "$10.00",
@@ -66,7 +66,7 @@ export const AdvancedHosting = [
     domainName: "wcautotestingjghfjhf.net",
   },
   {
-    name: "Billing term: 1 year - Account Domain Name: Register New Domain @webcentral @advanced-hosting @existing-domain",
+    name: "Billing term: 1 year - Account Domain Name: Existing Domain @webcentral @advanced-hosting @existing-domain",
     radioSelection: [[0, 1]],
     accordionSelection: [1],
     total: "$100.00",
@@ -75,7 +75,7 @@ export const AdvancedHosting = [
     domainName: "wcautotestingjghfjhf.net",
   },
   {
-    name: "Billing term: 2 years - Account Domain Name: Register New Domain @webcentral @advanced-hosting @existing-domain",
+    name: "Billing term: 2 years - Account Domain Name: Existing Domain @webcentral @advanced-hosting @existing-domain",
     radioSelection: [[0, 2]],
     accordionSelection: [1],
     total: "$160.00",
