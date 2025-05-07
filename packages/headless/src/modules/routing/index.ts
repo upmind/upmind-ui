@@ -81,7 +81,7 @@ export const useRoutingEngine = () => {
       service.send({ type: "BACK", data: { route, event } });
       return awaitResolved(service);
     },
-    resolve: async (name: ROUTE, route: Route, event?: any) => {
+    resolve: async (name: ROUTE | string, route: Route, event?: any) => {
       service.send("RESOLVE", { data: { name, route, event } });
       return awaitResolved(service);
     },

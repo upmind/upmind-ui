@@ -58,9 +58,10 @@ async function parse(
   // We should ALWAYS have an address set  ( if we have addresses )
   // if model is not set, set it to the default address
   if (!model?.addressId && !isEmpty(defaultAddress)) {
+    debugger;
     model = {
-      addressId: defaultAddress.id,
-      companyId: defaultAddress.company_id,
+      addressId: defaultAddress.addressId,
+      companyId: defaultAddress.companyId,
     };
     autoupdate = true;
     dirty = true;
