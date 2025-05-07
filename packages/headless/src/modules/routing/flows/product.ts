@@ -12,12 +12,13 @@ import { useBasket } from "../../basket";
 import { useRecommendationsEngine } from "../../recommendations";
 
 // --- utils
-import { uniqBy, get, set, isEmpty } from "lodash-es";
+import { uniqBy, get, set, isEmpty, find } from "lodash-es";
 
 // --- types
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { ActorRef } from "xstate";
+import { ProductProps } from "src/modules/product";
 
 // -----------------------------------------------------------------------------
 
@@ -30,8 +31,11 @@ export const useProductFlows = () => {
     isReady: isBasketReady,
   } = useBasket();
 
-  const { get: getPendingProduct, remove: removePendingProduct } =
-    useBasketProductsPending();
+  const {
+    get: getPendingProduct,
+    remove: removePendingProduct,
+    isInBasket,
+  } = useBasketProductsPending();
 
   const { hasRecommendations, isReady: isRecommendationsReady } =
     useRecommendationsEngine();
@@ -102,7 +106,10 @@ export const useProductFlows = () => {
     {
       name: ROUTE.PRODUCT_ADD,
       guard: async (route: Route) => {
-        const { productId } = useRouteQueryParams(route);
+        const { productId, productConfig } = useRouteQueryParams(route);
+        const exists = !!productConfig && (await isInBasket(productConfig));
+        if (exists) return false;
+
         const valid = await getPendingProduct(productId, true)
           .then(
             basketItem =>

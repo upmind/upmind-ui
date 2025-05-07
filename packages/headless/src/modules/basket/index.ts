@@ -14,9 +14,11 @@ import {
   get,
   isEmpty,
   map,
+  isEqual,
   some,
 } from "lodash-es";
-import { DetailedError, responseCodes } from "../../utils";
+
+import { DetailedError, responseCodes, compactDeep } from "../../utils";
 
 // --- types
 export * from "./types";
@@ -303,27 +305,34 @@ export const useBasket = () => {
   function findProduct(
     mapping: Record<string, any>
   ): BasketProduct | undefined {
+    const cleanedMapping = compactDeep(mapping);
     const products = getProducts();
-    return findLast(products, basketItem =>
-      every(mapping, (value, key) => {
+    return findLast(products, basketProduct =>
+      every(cleanedMapping, (value, key) => {
         if (key == "id") {
-          return basketItem.id == value;
+          return basketProduct.id == value;
         } else {
-          const modelValue = get(basketItem, key);
-          return modelValue == value;
+          const cleanedConfig = compactDeep(basketProduct.configuration);
+          const modelValue = get(cleanedConfig, key);
+          return isEqual(modelValue, value);
         }
       })
     );
   }
 
   function productExists(mapping: Record<string, any>) {
+    const cleanedMapping = compactDeep(mapping);
     const products = getProducts();
 
-    return some(products, product =>
-      every(mapping, (value, key) => {
-        const itemValue = get(product, key);
-        const matches = itemValue == value;
-        return matches;
+    return some(products, basketProduct =>
+      every(cleanedMapping, (value, key) => {
+        if (key == "id") {
+          return basketProduct.id == value;
+        } else {
+          const cleanedConfig = compactDeep(basketProduct.configuration);
+          const modelValue = get(cleanedConfig, key);
+          return isEqual(modelValue, value);
+        }
       })
     );
   }
@@ -376,13 +385,13 @@ export const useBasket = () => {
       await isReady();
       const target = bpid;
       const products = getProducts();
-      const basketItem = find(products, ["id", target]) as
+      const basketProduct = find(products, ["id", target]) as
         | ActorRef<any>
         | undefined;
 
       return new Promise((resolve, reject) => {
-        if (basketItem) {
-          resolve(basketItem);
+        if (basketProduct) {
+          resolve(basketProduct);
         } else {
           reject({
             message: "Basket item not found",
