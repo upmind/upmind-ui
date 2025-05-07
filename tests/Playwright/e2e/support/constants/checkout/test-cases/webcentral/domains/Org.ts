@@ -1,0 +1,40 @@
+export const orgDomain = [
+  {
+    name: ".ORG Domain - Billing Cycle - 1 year @webcentral @domains",
+    radioSelection: [[0, 0]],
+    checkboxSelection: [],
+    sldValue: "orgtestingdomain",
+    total: "$9.00",
+    billingCycle: "1 year",
+    tldValue: ".org",
+  },
+  {
+    name: ".ORG Domain - Billing Cycle - 2 year @webcentral @domains",
+    radioSelection: [[0, 1]],
+    checkboxSelection: [],
+    sldValue: "orgtestingdomain",
+    total: "$13.50",
+    billingCycle: "2 year",
+    tldValue: ".org",
+  },
+  {
+    name: ".ORG Domain - Billing Cycle - 3 year @webcentral @domains",
+    radioSelection: [[0, 2]],
+    checkboxSelection: [],
+    sldValue: "orgtestingdomain",
+    total: "$18.00",
+    billingCycle: "3 year",
+    tldValue: ".org",
+  },
+
+  /* TRANSFERRING A DOMAIN */
+  {
+    name: ".ORG Domain - Billing Cycle - 3 year - Domain Transfer @webcentral @domains @domain-transfer",
+    radioSelection: [[0, 2]],
+    checkboxSelection: [[0, 0]],
+    sldValue: "orgtestingdomain",
+    total: "FREE",
+    billingCycle: "3 year",
+    tldValue: ".org",
+  },
+];
