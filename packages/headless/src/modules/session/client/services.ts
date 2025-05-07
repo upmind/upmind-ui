@@ -16,7 +16,7 @@ async function load(_context: ClientContext, _event: any) {
   // and we need to check the token/get the user
 
   const token = getTokenFromStorage("client");
-  if (isEmpty(token)) return Promise.reject("No token found");
+  if (isEmpty(token)) return Promise.reject(new Error("No token found"));
 
   const { get, useUrl } = useQuery();
 

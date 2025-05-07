@@ -48,7 +48,8 @@ export const useBasketProductsPending = () => {
   // ---
 
   async function add(model: ProductProps): Promise<BasketProductPending> {
-    if (isEmpty(model)) return Promise.reject("No product model found");
+    if (isEmpty(model))
+      return Promise.reject(new Error("No product model found"));
 
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
 

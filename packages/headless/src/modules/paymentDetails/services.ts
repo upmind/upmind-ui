@@ -4,7 +4,7 @@
 import { useQuery, useSession, useBrand } from "..";
 
 // --- utils
-import { useValidation } from "../../utils";
+import { DetailedError, responseCodes, useValidation } from "../../utils";
 import {
   unset,
   get,
@@ -204,7 +204,12 @@ async function validate(
       actor,
       state => !["loading", "checking", "error"].some(state.matches),
       { timeout: 60_000 }
-    );
+    ).catch(() => {
+      throw new DetailedError(
+        "[headless] validate on paymentDetails timed out",
+        responseCodes.Timeout
+      );
+    });
   });
 
   await Promise.all(promises)

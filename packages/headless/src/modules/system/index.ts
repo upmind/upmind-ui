@@ -1,6 +1,6 @@
 // --- external
-import { AnyEventObject, interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { interpret } from "xstate";
 
 // --- exports
 export * from "./upload/useSystemUpload";
@@ -14,10 +14,11 @@ import systemMachine from "./system.machine";
 import { useBrand } from "../brand";
 
 // --- utils
+import { DetailedError, responseCodes } from "../../utils";
 import { find, isString, get, isEmpty, some, isArray } from "lodash-es";
-import type { ICountry, IRegion } from "@upmind-automation/types";
 
 // --- types
+import type { ICountry } from "@upmind-automation/types";
 
 // ---  create a global instance of the system machine
 // and a global object to store state
@@ -54,7 +55,12 @@ export const useSystem = () => {
         service,
         newstate => [`${node}.idle`, `${node}.complete`].some(newstate.matches),
         { timeout: Infinity }
-      );
+      ).catch(() => {
+        throw new DetailedError(
+          `[headless] fetch on useSystem timed out while fetching "${node}"`,
+          responseCodes.Timeout
+        );
+      });
       return fetch(node, getValues, data);
     }
 
@@ -129,7 +135,7 @@ export const useSystem = () => {
     if (isString(country)) country = getCountry(country);
 
     if (!country)
-      return Promise.reject("Country not found, cannot get regions");
+      return Promise.reject(new Error("Country not found, cannot get regions"));
 
     return fetch("regions", getRegions, country);
   };

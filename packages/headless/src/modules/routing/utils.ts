@@ -6,29 +6,22 @@ import { useBasket } from "../basket";
 import { useBasketProductsPending } from "../basketProduct";
 
 // --- utils
-import { useSafeParse, useSessionStorage } from "../../utils";
+import { DetailedError, responseCodes, useSafeParse } from "../../utils";
 import {
   compact,
   concat,
   find,
   first,
-  forEach,
   get,
-  has,
   includes,
   isArray,
   isEmpty,
   isFunction,
-  keys,
-  map,
-  merge,
-  omit,
   reduce,
   reject,
   set,
   toNumber,
   uniq,
-  unset,
   values,
 } from "lodash-es";
 
@@ -44,7 +37,14 @@ import { REQUIRES_ACTION, type Route } from "./types";
 export async function awaitResolved(service: ActorRef<any>) {
   return waitFor(service, state => ["resolved"].some(state.matches), {
     timeout: 60_000,
-  }).then(state => get(state, "context.currentRoute"));
+  })
+    .then(state => get(state, "context.currentRoute"))
+    .catch(() => {
+      throw new DetailedError(
+        "[headless] awaitResolved on routing/utils timed out",
+        responseCodes.Timeout
+      );
+    });
 }
 
 // vanilla js function to parse the current route, similar to vue-router

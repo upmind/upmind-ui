@@ -1,16 +1,30 @@
+// --- internal
+import { useBrand } from "../../brand";
+import { useSystem } from "../../system";
+
 // --- utils
 import {
+  useFieldsModelParser,
   useFieldsSchemaParser,
   useFieldsUischemaParser,
-  useFieldsModelParser,
 } from "../../../utils";
+import { get, remove } from "lodash-es";
 
 // --- types
 import type { AuthModel } from "./types";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
 export const useRegisterSchemaParser = (data: any) => {
+  const { getConfig } = useBrand();
+  const { getCountry } = useSystem();
+
+  const phoneRequired = get(
+    getConfig(BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION),
+    BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION
+  );
+
   const schema = {
     type: "object",
     title: "Register",
@@ -35,14 +49,47 @@ export const useRegisterSchemaParser = (data: any) => {
         minLength: 8,
         format: "password",
       },
+      phone: {
+        type: ["object", "null"],
+        title: "Phone",
+        isPhoneNumber: getCountry()?.code,
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Phone number ( with dialing code )",
+          },
+          country: {
+            type: ["string", "null"],
+            title: "Country",
+          },
+          nationalNumber: {
+            type: ["string", "null"],
+            title: "Phone number",
+          },
+          countryCallingCode: {
+            type: ["string", "null"],
+            title: "Country calling code",
+          },
+        },
+      },
       customFields: useFieldsSchemaParser(data, "auth"),
     },
   };
+
+  if (phoneRequired) {
+    schema.required.push("phone");
+  }
 
   return schema;
 };
 
 export const useRegisterUischemaParser = (data: any) => {
+  const { getConfig } = useBrand();
+  const phoneRequired: boolean = get(
+    getConfig(BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION),
+    BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION
+  );
+
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -86,9 +133,26 @@ export const useRegisterUischemaParser = (data: any) => {
           placeholder: "Use a strong password or passphrase",
         },
       },
+      {
+        type: "Control",
+        scope: "#/properties/phone",
+        i18n: "client.unified.form.fields.phone",
+        options: {
+          autocomplete: "tel",
+          suggestions: true,
+          itemLabel: "number",
+          itemValue: "number",
+          align: "start",
+          side: "bottom",
+        },
+      },
       ...useFieldsUischemaParser(data),
     ],
   };
+
+  if (!phoneRequired) {
+    remove(schema.elements, ["scope", "#/properties/phone"]);
+  }
 
   return schema;
 };

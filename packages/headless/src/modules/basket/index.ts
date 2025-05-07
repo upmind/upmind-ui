@@ -1,7 +1,6 @@
 // --- external
-import { sha1 } from "object-hash";
-import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { interpret } from "xstate";
 
 // --- internal
 import basketMachine from "./basket.machine";
@@ -9,22 +8,21 @@ import basketMachine from "./basket.machine";
 // --- utils
 import {
   every,
+  filter,
   find,
   findLast,
   get,
-  some,
   isEmpty,
-  filter,
   map,
+  some,
 } from "lodash-es";
-import { responseCodes } from "../../utils";
+import { DetailedError, responseCodes } from "../../utils";
 
 // --- types
-import type { ActorRef, ActorRefFrom, StateMachine } from "xstate";
-import type { ProductModel } from "../product";
-import type { BasketProduct } from "../basketProduct";
-import { IBasket, ICurrency } from "@upmind-automation/types";
 export * from "./types";
+import type { ActorRef } from "xstate";
+import type { IBasket } from "@upmind-automation/types";
+import type { BasketProduct } from "../basketProduct";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
@@ -43,10 +41,7 @@ export const useBasket = () => {
   async function isReady() {
     return waitFor(
       service,
-      state => {
-        const basketReady = ["shopping", "error"].some(state.matches);
-        return basketReady;
-      },
+      state => ["shopping", "error"].some(state.matches),
       {
         timeout: Infinity, // infinity = no timeout
       }
@@ -195,13 +190,20 @@ export const useBasket = () => {
     return service.send({ type: "CHECKOUT" });
   }
 
-  function refresh(data?: IBasket): Promise<IBasket> {
+  async function refresh(data?: IBasket): Promise<IBasket> {
     service.send({ type: "REFRESH", data });
     return waitFor(
       service,
       state => state.matches("shopping.refreshing.processed"),
       { timeout: 60_000 }
-    ).then(() => get(service.getSnapshot(), "context.basket") as IBasket);
+    )
+      .then(() => get(service.getSnapshot(), "context.basket") as IBasket)
+      .catch(() => {
+        throw new DetailedError(
+          "[headless] refresh on basket timed out",
+          responseCodes.Timeout
+        );
+      });
   }
 
   async function setCurrency(currency: string) {
@@ -210,7 +212,8 @@ export const useBasket = () => {
     }).then(() => {
       // first check if our currency has change, ie: model.code has changed
       const actor = service.getSnapshot()?.context?.actors?.currency;
-      if (!actor) return Promise.reject("Currency service not available");
+      if (!actor)
+        return Promise.reject(new Error("Currency service not available"));
 
       const code = currency?.toUpperCase();
       const value = actor.getSnapshot()?.context?.model;
@@ -227,12 +230,19 @@ export const useBasket = () => {
           return ["processed", "complete", "error"].some(state.matches);
         },
         { timeout: 60_000 }
-      ).then(state => {
-        if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
-        }
-        return Promise.resolve();
-      });
+      )
+        .then(state => {
+          if (["error"].some(state.matches)) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve();
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] setCurrency on basket timed out",
+            responseCodes.Timeout
+          );
+        });
     });
   }
 
@@ -242,7 +252,8 @@ export const useBasket = () => {
     }).then(async () => {
       const actor = service.getSnapshot()?.context?.actors?.promotions;
 
-      if (!actor) return Promise.reject("Promotions service not available");
+      if (!actor)
+        return Promise.reject(new Error("Promotions service not available"));
 
       if (coupon) {
         actor?.send({ type: "SET", data: { promocode: coupon } });

@@ -140,7 +140,7 @@ export const useRoutingEngine = () => {
 
     if (!route?.name) {
       // console.debug("UseRouteingEngine", "No route name", route);
-      return Promise.reject("No route name");
+      return Promise.reject(new Error("No route name"));
     }
 
     resolve(
@@ -197,7 +197,7 @@ export const useRoutingEngine = () => {
             { timeout: Infinity }
           ).then(state => {
             if (state.matches("unavailable")) {
-              return Promise.reject("Routing Engine is unavailable");
+              return Promise.reject(new Error("Routing Engine is unavailable"));
             }
             return true;
           });

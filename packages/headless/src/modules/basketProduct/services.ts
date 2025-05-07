@@ -59,7 +59,7 @@ async function fetch(
   },
   { data: { productId } }: { data: { productId: string } }
 ) {
-  if (!productId) return Promise.reject("No Product ID provided");
+  if (!productId) return Promise.reject(new Error("No Product ID provided"));
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
@@ -132,7 +132,8 @@ async function fetchSelected(
   },
   { data: { productIds } }: { data: { productIds: string[] } }
 ) {
-  if (isEmpty(productIds)) return Promise.reject("No Product ID provided");
+  if (isEmpty(productIds))
+    return Promise.reject(new Error("No Product ID provided"));
 
   // let's ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
@@ -210,7 +211,7 @@ async function fetchRelated(
     };
   }
 ) {
-  if (!productId) return Promise.reject("No Product ID provided");
+  if (!productId) return Promise.reject(new Error("No Product ID provided"));
 
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
@@ -282,10 +283,12 @@ async function updateQuantity(
   { data }: { data: number }
 ): Promise<IBasket> {
   // sanity check
-  if (!basketId) return Promise.reject("No basket provided/available");
-  if (!basketProduct.productDetails) return Promise.reject("Product not found");
+  if (!basketId)
+    return Promise.reject(new Error("No basket provided/available"));
+  if (!basketProduct.productDetails)
+    return Promise.reject(new Error("Product not found"));
   if (!basketProduct.productDetails?.quantifiable)
-    return Promise.reject("Product not quantifiable");
+    return Promise.reject(new Error("Product not quantifiable"));
   // ---
   const { put, useUrl } = useQuery();
   basketProduct.configuration.quantity = parseQuantity(
@@ -327,8 +330,10 @@ async function update(
   { data }: { data: ProductModel }
 ): Promise<IBasket> {
   const { put, post, useUrl } = useQuery();
-  if (!basketId) return Promise.reject("No basket provided/available");
-  if (isEmpty(data)) return Promise.reject(`No product data provided`);
+  if (!basketId)
+    return Promise.reject(new Error("No basket provided/available"));
+  if (isEmpty(data))
+    return Promise.reject(new Error("No product data provided"));
 
   const product = parseBasketProductData(data, promotions);
   // ---
@@ -364,7 +369,8 @@ async function updateMany(
   { basketId, basketProducts, promotions }: any,
   { data }: { data: ActorRef<any>[] }
 ): Promise<IBasket> {
-  if (!basketId) return Promise.reject("No basket provided/available");
+  if (!basketId)
+    return Promise.reject(new Error("No basket provided/available"));
 
   // When updating the basket we need to provide :
   //   * ALL products that are valid and ready to be saved
@@ -382,7 +388,7 @@ async function updateMany(
     item.send({ type: "PROCESSING" });
     // ---
     const model = get(item, "state.context.model");
-    if (!model) return Promise.reject("No model found");
+    if (!model) return Promise.reject(new Error("No model found"));
     // ---
     const product = parseBasketProductData(model, promotions);
     // Add a flag to the product to indicate that the field values should NOT be validated.
@@ -449,8 +455,9 @@ async function remove({
   bpid: string;
 }): Promise<IBasket> {
   const { del, useUrl } = useQuery();
-  if (!basketId) return Promise.reject("No basket provided/available");
-  if (!bpid) return Promise.reject("No product provided"); // we dont need to make a request as there is no id, must be a new product
+  if (!bpid) return Promise.reject(new Error("No product provided")); // we don't need to make a request as there is no id, must be a new product
+  if (!basketId)
+    return Promise.reject(new Error("No basket provided/available"));
   // ---
   return del({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
