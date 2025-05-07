@@ -12,8 +12,9 @@ import { getTokenFromStorage } from "./utils";
 import { DetailedError, responseCodes } from "../../utils";
 
 // ---types
-export type { User } from "./types";
 import type { ActorRef } from "xstate";
+import type { IAuthTransfer, SessionTransfer } from "./types";
+export type { User, SessionTransfer, IAuthTransfer } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -183,7 +184,7 @@ export const useSession = () => {
     });
   }
 
-  async function transfer() {
+  async function transferTo(): Promise<IAuthTransfer> {
     const state = service.getSnapshot();
     const clientMachine = state?.children?.clientMachine;
 
@@ -194,7 +195,7 @@ export const useSession = () => {
     }
 
     service.send({
-      type: "TRANSFER",
+      type: "TRANSFER_TO",
     });
 
     return waitFor(
@@ -202,13 +203,64 @@ export const useSession = () => {
       newState => newState.matches("transferring.available"),
       { timeout: 60_000 }
     )
-      .then(newState => newState.context.transfer)
+      .then(newState => {
+        const transfer = newState.context.transfer;
+        if (!transfer) {
+          throw new Error("Transfer not available");
+        }
+        return transfer;
+      })
+      .catch(() => {
+        const { addError } = useFeedback();
+        addError({ title: "Transfer not available" });
+        return Promise.reject(
+          new DetailedError(
+            "[headless] TransferTo on useSession not available",
+            responseCodes.No_Content
+          )
+        );
+      });
+  }
+
+  async function transferFrom(
+    code: string,
+    redirect?: string
+  ): Promise<SessionTransfer> {
+    service.send({
+      type: "TRANSFER_FROM",
+      data: {
+        code,
+        redirect,
+      },
+    });
+
+    return waitFor(
+      service,
+      newState => newState.matches("transferring.processed"),
+      { timeout: 60_000 }
+    )
+      .then(newState => {
+        const transfer = newState.context.transfer;
+        if (!transfer) {
+          return Promise.reject(
+            new DetailedError(
+              "Transfer not available",
+              responseCodes.No_Content
+            )
+          );
+        }
+        return transfer;
+      })
       .catch(() => {
         throw new DetailedError(
-          "[headless] transfer on useSession timed out",
+          "[headless] TransferFrom on useSession timed out",
           responseCodes.Timeout
         );
       });
+  }
+
+  function transferred() {
+    service.send({ type: "TRANSFERRED" });
   }
 
   // ---------------------------------------------------------------------------
@@ -253,7 +305,13 @@ export const useSession = () => {
     register,
     verify2fa,
     logout,
-    transfer,
+    transferTo,
+    transferFrom,
+    transferred,
+    getTransferDetails: () => {
+      const state = service.getSnapshot();
+      return state.context?.transfer;
+    },
     reauth: () => service.send({ type: "EXPIRED" }),
   };
 };

@@ -139,7 +139,11 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket, useBasketFields } from "@upmind-automation/headless-vue";
+import {
+  useBasket,
+  useBasketFields,
+  useDataLayer,
+} from "@upmind-automation/headless-vue";
 
 // --- components
 import {
@@ -174,4 +178,7 @@ const {
 const open = ref(false);
 
 await isReady();
+
+const { dataLayer } = useDataLayer();
+dataLayer({ event: "view_cart" }).withEcommerce().push();
 </script>

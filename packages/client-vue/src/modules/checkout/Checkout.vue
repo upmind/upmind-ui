@@ -142,6 +142,7 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
   ROUTE,
+  useDataLayer,
 } from "@upmind-automation/headless-vue";
 
 import config from "./checkout.config";
@@ -193,8 +194,11 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();
 // -----------------------------------------------------------------------------
-await isResolved(ROUTE.CHECKOUT).catch(back);
+await isResolved(ROUTE.CHECKOUT);
 await isReady().then(() => isAuthenticated().catch(back));
+
+const { dataLayer } = useDataLayer();
+dataLayer({ event: "begin_checkout" }).withEcommerce().push();
 
 // -----------------------------------------------------------------------------
 

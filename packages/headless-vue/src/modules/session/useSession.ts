@@ -28,7 +28,7 @@ export const useSession = (inspector?: Function): IUseSession => {
     register,
     verify2fa,
     logout,
-    transfer,
+    transferTo,
   } = useUpmindSession();
   const { state, send } = useActor(service);
 
@@ -182,6 +182,6 @@ export const useSession = (inspector?: Function): IUseSession => {
     showLogin,
     showRegister,
     verify2fa,
-    transfer,
+    transferTo,
   };
 };

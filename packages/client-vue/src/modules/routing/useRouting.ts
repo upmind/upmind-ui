@@ -6,7 +6,7 @@ import {
 } from "@upmind-automation/headless-vue";
 
 // --- utils
-
+import { isEqual, isNil } from "lodash-es";
 // --- types
 import type { Router, RouteLocation } from "vue-router";
 import { ROUTE, type Route, type Flow } from "@upmind-automation/headless-vue";
@@ -29,7 +29,7 @@ import { ROUTE, type Route, type Flow } from "@upmind-automation/headless-vue";
 
 export const useRouting = (router: Router, flows?: Flow[]): void => {
   const { register } = useRoutingFlows();
-  const { isReady, resolve, exists, init, guard } = useRoutingEngine();
+  const { init, guard } = useRoutingEngine();
   const { dataLayer } = useDataLayer();
 
   // Initialise our engine and register Flows that add to or override the default flows
@@ -40,10 +40,12 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
     target: Route | RouteLocation | undefined,
     route: RouteLocation
   ) {
-    return (
-      (target?.name && target.name !== route?.name) ||
-      (target?.path && target.path !== route?.path)
-    );
+    const value =
+      (!isNil(target?.name) && !isEqual(target.name, route?.name)) ||
+      (!isNil(target?.path) && !isEqual(target.path, route?.path)) ||
+      (!isNil(target?.query) && !isEqual(target.query, route?.query));
+
+    return value;
   }
 
   // NB: once the router is ready then need to force check the current route
@@ -62,11 +64,14 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
     const route = to;
     const target = await guard(route);
     //  only redirect if we have a target and it's not the same as the current routeName
-    if (shouldRedirect(target, route)) return target;
+    if (shouldRedirect(target, route)) {
+      return target;
+    }
   });
 
   // Route tracking
-  router.afterEach((to, from) => {
+  router.beforeResolve((to, from) => {
+    if (to.name === from.name || to.path === from.path) return; // dont track if we are on the same route
     dataLayer({ event: "page_view" })
       .withPage({
         to,

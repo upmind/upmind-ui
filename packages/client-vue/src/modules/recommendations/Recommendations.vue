@@ -77,9 +77,9 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 const { t } = useI18n();
 
 // --- basket setup
-const { next, back, isResolved } = useRoutingEngine();
+const { next, isResolved } = useRoutingEngine();
 
-await isResolved(ROUTE.RECOMMENDATIONS).catch(back);
+await isResolved(ROUTE.RECOMMENDATIONS);
 
 const { products } = useBasket();
 const {

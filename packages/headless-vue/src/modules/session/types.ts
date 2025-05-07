@@ -1,4 +1,4 @@
-import type { User } from "@upmind-automation/headless";
+import type { User, IAuthTransfer } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
 /**
@@ -182,5 +182,5 @@ export interface IUseSession {
   /**
    * Transfer session data between different parts of the application, such as from guest to client.
    */
-  transfer: () => Promise<any>;
+  transferTo: () => Promise<IAuthTransfer>;
 }

@@ -1,10 +1,25 @@
-import type { IUser } from "@upmind-automation/types";
+import { IUser, IClient, AccessRoleTypes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
+export interface IAuthTransfer {
+  client_id: IClient["id"];
+  code: string;
+  actor_type: AccessRoleTypes;
+  actor_id: IUser["id"];
+  redirect_url: string;
+}
+
+export interface SessionTransfer {
+  code: string | null;
+  redirect: string | null;
+  token: string | null;
+}
 
 export interface SessionContext {
   history?: string[];
   error?: any | null;
+  // ---
+  transfer?: SessionTransfer;
 }
 
 export interface Token {
