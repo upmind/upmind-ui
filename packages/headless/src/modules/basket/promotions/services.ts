@@ -25,9 +25,11 @@ async function add(
   const { post, useUrl } = useQuery();
 
   if (!model?.promocode)
-    return Promise.reject("No Promocode provided to add to basketId");
+    return Promise.reject(
+      new Error("No Promocode provided to add to basketId")
+    );
   if (some(promotions, { promocode: model?.promocode }))
-    return Promise.reject("Promocode already exists in basketId");
+    return Promise.reject(new Error("Promocode already exists in basketId"));
 
   return post({
     url: useUrl(`/orders/${basketId}/promotions`),
@@ -43,7 +45,9 @@ async function remove(
   const id = get(data, "id", data);
 
   if (!id)
-    return Promise.reject("No Promotion provided to remove from basketId");
+    return Promise.reject(
+      new Error("No Promotion provided to remove from basketId")
+    );
 
   const { del, useUrl } = useQuery();
 

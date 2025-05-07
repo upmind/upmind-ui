@@ -27,7 +27,7 @@ async function matchTargets(
   event?: any
 ): Promise<Flow> {
   if (isEmpty(targets)) return Promise.reject();
-  // NB cant use odash her as we are async
+  // NB cant use lodash her as we are async
   const guards = map(targets, flow => guardTarget(flow, route, event));
   const match = await Promise.all(guards)
     .then(responses => {

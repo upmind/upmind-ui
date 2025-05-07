@@ -3,10 +3,13 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientEmails as useUpmindClientEmails } from "@upmind-automation/headless";
+import {
+  utils,
+  useClientEmails as useUpmindClientEmails,
+} from "@upmind-automation/headless";
 
 // --- utils
-import { get, map, debounce, isEmpty } from "lodash-es";
+import { get, debounce, isEmpty } from "lodash-es";
 import {
   DEBOUNCE_DELAY,
   machineMatches,
@@ -14,6 +17,9 @@ import {
   useContextActors,
 } from "../../utils";
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
+
+const { DetailedError, responseCodes } = utils;
+
 // ---
 export const useClientEmail = (
   item: any, // Actor
@@ -64,9 +70,16 @@ export const useClientEmail = (
           service,
           newState => newState.context?.selected?.state?.matches("valid"),
           { timeout: 60_000 }
-        ).then(() => {
-          send({ type: "UPDATE" });
-        });
+        )
+          .then(() => {
+            send({ type: "UPDATE" });
+          })
+          .catch(() => {
+            throw new DetailedError(
+              `[headless-vue] fetch on useClientEmail timed out while waiting for email check to complete`,
+              responseCodes.Timeout
+            );
+          });
       } else {
         send({ type: "UPDATE" });
       }

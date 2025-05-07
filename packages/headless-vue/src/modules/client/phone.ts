@@ -3,7 +3,10 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientPhones as useUpmindClientPhones } from "@upmind-automation/headless";
+import {
+  utils,
+  useClientPhones as useUpmindClientPhones,
+} from "@upmind-automation/headless";
 
 // --- utils
 import {
@@ -12,9 +15,11 @@ import {
   useContextActor,
   useContextActors,
 } from "../../utils";
-import { get, map, debounce, isEmpty } from "lodash-es";
+import { get, debounce, isEmpty } from "lodash-es";
 
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
+
+const { DetailedError, responseCodes } = utils;
 
 // ---
 export const useClientPhone = (
@@ -66,9 +71,16 @@ export const useClientPhone = (
           service,
           newState => newState.context?.selected?.state?.matches("valid"),
           { timeout: 60_000 }
-        ).then(() => {
-          send({ type: "UPDATE" });
-        });
+        )
+          .then(() => {
+            send({ type: "UPDATE" });
+          })
+          .catch(() => {
+            throw new DetailedError(
+              `[headless-vue] fetch on useClientPhone timed out while waiting for phone check to complete`,
+              responseCodes.Timeout
+            );
+          });
       } else {
         send({ type: "UPDATE" });
       }

@@ -18,7 +18,6 @@ import {
   isEmpty,
   isNil,
   map,
-  mapKeys,
   omitBy,
   reduce,
   set,
@@ -37,7 +36,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   const { get, patch, useUrl } = useQuery();
 
   // check if we are logged in as a client
-  // then try get any previous guest token a
+  // then try to get any previous guest token a
   const client_token = getTokenFromStorage("client");
   const guest_token = getTokenFromStorage("guest");
 
@@ -60,8 +59,8 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   const { isReady } = useBrand();
   await isReady().catch(error => Promise.reject(error));
 
-  // finally return a the basket with all the relevant data, include the provisioning fields
-  // NB  we DONT cache the current basket as it can change frequently and it is the source of truth
+  // finally return a basket with all the relevant data, include the provisioning fields
+  // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
   // for the current state of the basket
   return get({
     url: useUrl("orders/current", {
@@ -97,13 +96,13 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     }),
     init: { signal: context.controller?.signal },
     queryKey: ["basket", "current"],
-    staleTime: 0, // disable cache, this may stil lreturn stale data while the request is in flight
+    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true,
     revalidateIfStale: true,
   })
     .then(({ data }: any) => {
-      // generate a new basket if we dont have one;
+      // generate a new basket if we don't have one;
       if (isEmpty(data)) return generate(context, { type: "GENERATE" });
       return data;
     })
@@ -150,8 +149,8 @@ async function convert(
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
 
-  if (!basket?.id) return Promise.reject("No basket to convert");
-  if (!paymentDetails) return Promise.reject("No data to convert");
+  if (!basket?.id) return Promise.reject(new Error("No basket to convert"));
+  if (!paymentDetails) return Promise.reject(new Error("No data to convert"));
 
   const data = paymentDetails;
 
@@ -191,7 +190,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 
   provisioningPromises.push(checkPromise);
 
-  // then get each products provisioning fields
+  // then get each product provisioning fields
   // this will get all our provisioning fields for each product that has them,
   // and update the baskets relevant products with the values
   forEach(basket.products, async rawProduct => {
@@ -201,7 +200,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       map(concat(rawProduct.options, rawProduct.attributes), "product_id")
     );
 
-    // we dont cache provisioning fields, as they can change with different options/attributes being selected
+    // we don't cache provisioning fields, as they can change with different options/attributes being selected
     const promise = get({
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
@@ -218,7 +217,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
         "values",
       ],
       withAccessToken: true,
-      staleTime: 0, // disable cache, this may stil lreturn stale data while the request is in flight
+      staleTime: 0, // disable cache, this may still return stale data while the request is in flight
       gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     }).then(({ data }: any) => {
       // update the product with the provisioning fields

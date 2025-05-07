@@ -7,12 +7,14 @@ import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
 
 // --- utils
-import { getTokenFromStorage } from "./utils";
 import { get, isEmpty } from "lodash-es";
+import { getTokenFromStorage } from "./utils";
+import { DetailedError, responseCodes } from "../../utils";
 
 // ---types
-import type { ActorRef } from "xstate";
 export type { User } from "./types";
+import type { ActorRef } from "xstate";
+
 // -----------------------------------------------------------------------------
 
 // create a global instance of the session machine
@@ -57,11 +59,18 @@ export const useSession = () => {
     const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
     return waitFor(clientMachine, state => !state.matches("loading"), {
       timeout: 60_000,
-    }).then(state => {
-      const user = get(state, "context.user");
-      if (!user) return Promise.reject({ title: "Unauthorized", code: 401 });
-      return user;
-    });
+    })
+      .then(state => {
+        const user = get(state, "context.user");
+        if (!user) return Promise.reject({ title: "Unauthorized", code: 401 });
+        return user;
+      })
+      .catch(() => {
+        throw new DetailedError(
+          "[headless] getUser on useSession timed out",
+          responseCodes.Timeout
+        );
+      });
   }
 
   async function getUserId() {
@@ -79,7 +88,12 @@ export const useSession = () => {
       guestMachine,
       state => ["available.login"].some(state.matches),
       { timeout: 60_000 }
-    );
+    ).catch(() => {
+      throw new DetailedError(
+        "[headless] showLogin on useSession timed out",
+        responseCodes.Timeout
+      );
+    });
   }
 
   function showRegister(): Promise<any> {
@@ -91,7 +105,12 @@ export const useSession = () => {
       guestMachine,
       state => ["available.register"].some(state.matches),
       { timeout: 60_000 }
-    );
+    ).catch(() => {
+      throw new DetailedError(
+        "[headless] showRegister on useSession timed out",
+        responseCodes.Timeout
+      );
+    });
   }
 
   // ---
@@ -103,6 +122,11 @@ export const useSession = () => {
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
     return waitFor(guestMachine, state => ["complete"].some(state.matches), {
       timeout: 60_000,
+    }).catch(() => {
+      throw new DetailedError(
+        "[headless] login on useSession timed out",
+        responseCodes.Timeout
+      );
     });
   }
 
@@ -116,6 +140,11 @@ export const useSession = () => {
     });
     return waitFor(guestMachine, state => ["complete"].some(state.matches), {
       timeout: 60_000,
+    }).catch(() => {
+      throw new DetailedError(
+        "[headless] verify2fa on useSession timed out",
+        responseCodes.Timeout
+      );
     });
   }
 
@@ -129,6 +158,11 @@ export const useSession = () => {
     });
     return waitFor(guestMachine, state => ["complete"].some(state.matches), {
       timeout: 60_000,
+    }).catch(() => {
+      throw new DetailedError(
+        "[headless] register on useSession timed out",
+        responseCodes.Timeout
+      );
     });
   }
 
@@ -141,6 +175,11 @@ export const useSession = () => {
     });
     return waitFor(clientMachine, state => ["complete"].some(state.matches), {
       timeout: 60_000,
+    }).catch(() => {
+      throw new DetailedError(
+        "[headless] logout on useSession timed out",
+        responseCodes.Timeout
+      );
     });
   }
 
@@ -151,7 +190,7 @@ export const useSession = () => {
     if (!clientMachine) {
       const { addError } = useFeedback();
       addError({ title: "Transfer not available" });
-      return Promise.reject("Transfer not available");
+      return Promise.reject(new Error("Transfer not available"));
     }
 
     service.send({
@@ -162,7 +201,14 @@ export const useSession = () => {
       clientMachine,
       newState => newState.matches("transferring.available"),
       { timeout: 60_000 }
-    ).then(newState => newState.context.transfer);
+    )
+      .then(newState => newState.context.transfer)
+      .catch(() => {
+        throw new DetailedError(
+          "[headless] transfer on useSession timed out",
+          responseCodes.Timeout
+        );
+      });
   }
 
   // ---------------------------------------------------------------------------
