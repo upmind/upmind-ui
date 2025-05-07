@@ -64,7 +64,7 @@ const { t } = useI18n();
 const { next, back, navigate, isResolved } = useRoutingEngine();
 const { meta } = useSession();
 
-await isResolved(ROUTE.SESSION_REGISTER).catch(back);
+await isResolved(ROUTE.SESSION_REGISTER);
 
 function doReject() {
   back();

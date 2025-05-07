@@ -4,23 +4,25 @@
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
 import { useDataLayer } from "../../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { useRouteQueryParams } from "../utils";
 import { useBasketProductsPending } from "../../basketProduct";
-import { uniqBy } from "lodash-es";
+import { uniqBy, first, keys, isEqual } from "lodash-es";
 
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
+import { ProductModel } from "../../product";
+import { compactDeep } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, setCurrency, addPromotion, isReady } = useBasket();
-  const { addMany } = useBasketProductsPending();
+  const { hasProducts, setCurrency, addPromotion, isReady, productExists } =
+    useBasket();
+  const { addMany, isInBasket } = useBasketProductsPending();
 
   let flows: Flow[] = [
     {
@@ -41,6 +43,17 @@ export const useBasketFlows = () => {
         fallback: [
           ROUTE.EXPRESS_PRODUCT_ADD,
           ROUTE.PRODUCT_ADD,
+          // if we have an exact match for our config in the basket,
+          // then we can skip the product flow and go straight to the basket
+          {
+            name: ROUTE.BASKET,
+            guard: async (route: Route) => {
+              const { productConfig } = useRouteQueryParams(route);
+              const valid =
+                !!productConfig && (await isInBasket(productConfig));
+              return valid;
+            },
+          },
           ROUTE.PRODUCT_NOT_FOUND,
           ROUTE.BASKET,
           ROUTE.EMPTY,
@@ -60,8 +73,6 @@ export const useBasketFlows = () => {
       name: ROUTE.BASKET,
       guard: async (_route: Route) => isReady().then(() => hasProducts()),
       resolve: async (_route: Route) => {
-        // When a user enters the basket, we want to add this to our dataLayer
-        dataLayer({ event: "view_cart" }).withEcommerce().push();
         return { name: ROUTE.BASKET };
       },
       //  uncomment if we want to FORCE a redirect to a specific path for the basket/flow.

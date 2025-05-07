@@ -41,5 +41,5 @@ async function load(_context: ClientContext, _event: any) {
 
 export default {
   load,
-  transfer: services.transfer,
+  transferTo: services.transferTo,
 };

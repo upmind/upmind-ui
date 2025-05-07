@@ -64,18 +64,18 @@ export default createMachine(
             target: "complete",
             actions: "clear",
           },
-          TRANSFER: {
+          TRANSFER_TO: {
             target: "transferring",
           },
         },
       },
 
       transferring: {
-        initial: "initiating",
+        initial: "processing",
         states: {
-          initiating: {
+          processing: {
             invoke: {
-              src: "transfer",
+              src: "transferTo",
               onDone: {
                 target: "available",
                 actions: "setTransfer",
@@ -116,7 +116,7 @@ export default createMachine(
         //  also update the data layer to indicate the user has logged out
         localStorage.clear();
         removeCookie("upm_actor");
-        dataLayer().withPage().withUser().push(false);
+        dataLayer().withUser().push(false);
         return {};
       }),
       // ---
@@ -142,7 +142,7 @@ export default createMachine(
       setTransfer: assign({
         transfer: (_context, { data }: AnyEventObject) => data,
       }),
-      clearTransfer: assign({ transfer: null }),
+      clearTransfer: assign({ transfer: undefined }),
       // ---
       setError: assign({
         error: (context, { data }: AnyEventObject) => data,
@@ -158,17 +158,15 @@ export default createMachine(
         });
       },
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
-    guards: {
-      hasUser: context => context.user !== null,
-    },
+    guards: {},
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5,
     },
-    services,
+    services: services as any,
   }
 );

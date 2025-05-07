@@ -12,6 +12,7 @@ import {
   isObject,
   isFunction,
   compact,
+  merge,
 } from "lodash-es";
 
 // --- types
@@ -172,10 +173,13 @@ async function resolveRoute(
   event?: any
 ): Promise<Route> {
   return isFunction(flow?.resolve)
-    ? flow
-        .resolve(route, event)
-        .then(resolved => ({ ...resolved, meta: flow?.meta }))
-    : Promise.resolve({ name: flow.name, meta: flow?.meta });
+    ? flow.resolve(route, event).then(resolved => {
+        return {
+          ...resolved,
+          meta: merge({}, flow?.meta, resolved?.meta),
+        };
+      })
+    : Promise.resolve({ name: flow.name, meta: flow?.meta ?? {} });
 }
 
 // -----------------------------------------------------------------------------

@@ -14,20 +14,22 @@ import {
   first,
   forEach,
   get,
+  isEmpty,
+  isEqual,
+  isNil,
+  isString,
+  keys,
+  omit,
   set,
   unset,
-  isEmpty,
-  keys,
-  map,
-  omit,
-  isString,
-  isNil,
+  some,
 } from "lodash-es";
 
 // --- types
 import type { ActorRef, State, Subscription } from "xstate";
 import type { ProductModel, ProductProps } from "../product";
-import { responseCodes } from "../../utils";
+import { responseCodes, compactDeep } from "../../utils";
+import { isArray } from "xstate/lib/utils";
 
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 // -----------------------------------------------------------------------------
@@ -40,7 +42,7 @@ let subscriptions: Record<string, Subscription> = {}; // store subscriptions to 
 // -----------------------------------------------------------------------------
 
 export const useBasketProductsPending = () => {
-  const { isReady, getBasket } = useBasket();
+  const { isReady, productExists } = useBasket();
   const storage = useSessionStorage();
 
   productConfigs = storage.get("pendingProducts", {});
@@ -200,6 +202,15 @@ export const useBasketProductsPending = () => {
   return {
     getProducts: () => productsPending,
     isReady: () => new Promise(resolve => resolve(!isNil(productConfigs))),
+    isInBasket: async (config: Partial<ProductProps>) => {
+      const cleanConfig = compactDeep(config);
+      const keysModel = keys(cleanConfig);
+      const hasConfig = !isEqual(keysModel, ["productId", "quantity"]);
+      // bail early if we have no config other than productId and quantity
+      if (!hasConfig) return false;
+      await isReady();
+      return productExists(config);
+    },
     // ---
     add: ensure,
     get: getProduct,

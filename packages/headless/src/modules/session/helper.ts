@@ -74,7 +74,7 @@ export const authSubscription = async (callback: any, onReceive: any) => {
 
   // authCallback(callback);
 
-  onReceive(() => {
+  onReceive((event: any) => {
     // do nothing for now
     // console.debug("authSubscription", "receivedEvent", { event });
   });

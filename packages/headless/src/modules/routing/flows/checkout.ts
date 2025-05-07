@@ -3,8 +3,6 @@
 // --- internal
 import { useBasket } from "../../basket";
 import { useRoutingEngine } from "..";
-import { useDataLayer } from "../../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { uniqBy } from "lodash-es";
@@ -43,14 +41,13 @@ export const useCheckoutFlows = () => {
         return validProducts && validFields && validAuth;
       },
       resolve: async (_route: Route) => {
-        // When a user enters the checkout, we want to add this to our dataLayer
-        dataLayer({ event: "begin_checkout" }).withEcommerce().push();
         return { name: ROUTE.CHECKOUT };
       },
       targets: {
         next: [
           {
             name: ROUTE.ORDER,
+            meta: { replace: true },
             guard: async (_route: Route) => hasOrder(),
             resolve: async (_route: Route) => {
               const invoice = getInvoice();
@@ -58,7 +55,6 @@ export const useCheckoutFlows = () => {
                 name: ROUTE.ORDER,
                 params: { orderId: invoice?.id },
                 query: { payment_success: isOrderPaid().toString() },
-                meta: { replace: true },
               } as Route;
             },
           },
@@ -67,6 +63,7 @@ export const useCheckoutFlows = () => {
         fallback: [
           {
             name: ROUTE.ORDER,
+            meta: { replace: true },
             guard: async (_route: Route) => hasOrder(),
             resolve: async (_route: Route) => {
               const invoice = getInvoice();
@@ -74,7 +71,6 @@ export const useCheckoutFlows = () => {
                 name: ROUTE.ORDER,
                 params: { orderId: invoice?.id },
                 query: { payment_success: isOrderPaid().toString() },
-                meta: { replace: true },
               } as Route;
             },
           },
