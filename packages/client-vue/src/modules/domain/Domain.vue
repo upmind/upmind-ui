@@ -94,15 +94,6 @@
                 :processing="meta.isSyncing"
                 @update:modelValue="select"
               />
-              <div v-auto-animate>
-                <FormMessage
-                  v-if="props.errors && props.touched"
-                  :errors="props.errors"
-                  :class="styles.domain.form.error"
-                  formMessageId="domain-error-message"
-                  name="domain"
-                />
-              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -209,7 +200,6 @@ const styles = useStyles(
         container: string;
       };
       item: string;
-      error: string;
     };
     trigger: {
       root: string;
