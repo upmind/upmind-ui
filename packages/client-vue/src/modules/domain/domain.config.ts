@@ -109,7 +109,6 @@ export default {
           "data-[state=open]:animate-accordion-transform-down data-[state=closed]:animate-accordion-transform-up overflow-visible transition-all duration-200"
         ),
       },
-      error: cva("m-0 mt-1"),
       basket: {
         item: cva("text-base-foreground"),
       },

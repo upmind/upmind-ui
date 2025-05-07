@@ -9,7 +9,6 @@ export interface DomainProps {
   modelValue?: string;
   multiple?: boolean;
   color?: ButtonProps["color"];
-  errors?: any;
   touched?: boolean;
 }
 
