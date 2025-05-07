@@ -1,5 +1,4 @@
 //  --- external
-import type { ActorRef } from "xstate";
 import { spawn } from "xstate";
 
 // --- internal
@@ -137,7 +136,7 @@ export const useSchema = ({
             }),
       },
 
-      // not sure this is ever used, but it is in the type definition
+      // not sure if this is ever used, but it is in the type definition
       state: {
         type: ["string", "null"],
         title: "State",
@@ -185,7 +184,7 @@ export const useSchema = ({
         properties: {
           number: {
             type: ["string", "null"],
-            title: "Phone number ( with dailing code )",
+            title: "Phone number ( with dialing code )",
             default: baseModel?.phone?.number,
           },
 

@@ -112,7 +112,7 @@ export const useBrand = () => {
       );
     });
 
-    // finally return the requested keys from the config
+    // finally, return the requested keys from the config
     return pick(service.getSnapshot().context, keys);
   };
 

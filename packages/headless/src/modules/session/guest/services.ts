@@ -1,7 +1,11 @@
 // --- internal
-import { useBasket, useQuery } from "../..";
+import { useBasket, useBrand, useQuery, useSystem } from "../..";
 import { useSystemRecaptcha, useTracking, useDataLayer } from "../../system/";
-import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  GrantTypes,
+  TwofaProviders,
+} from "@upmind-automation/types";
 
 // --- utils
 import { useCookies } from "../../../utils";
@@ -14,9 +18,16 @@ import type { GuestContext } from "./types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: GuestContext, _event: any) {
-  // if we DONT have a token, we need to generate one, otherwise we are authenticated already
-  // init early so the service is available
+  // if we DON'T have a token, we need to generate one, otherwise we are authenticated already
+  // init early, so the service is available
   useSystemRecaptcha();
+  const { ensureConfig } = useBrand();
+  const { fetchCountries } = useSystem();
+
+  await Promise.allSettled([
+    fetchCountries(),
+    ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION]),
+  ]);
 
   const token = getTokenFromStorage("guest");
   if (!isEmpty(token)) return Promise.resolve(token);
