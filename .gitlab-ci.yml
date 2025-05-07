@@ -66,8 +66,10 @@ dependencies:
       paths:
         - node_modules
         - playgrounds/storybook/node_modules
-        - playgrounds/velia/node_modules
-        - playgrounds/webcentral/node_modules
+        - apps/doteasy/node_modules
+        - apps/velia/node_modules
+        - apps/webcentral/node_modules
+        - apps/hosting/node_modules
         - packages/headless/node_modules
         - packages/headless-vue/node_modules
         - packages/client-vue/node_modules
@@ -80,8 +82,10 @@ dependencies:
     paths:
       - node_modules
       - playgrounds/storybook/node_modules
-      - playgrounds/velia/node_modules
-      - playgrounds/webcentral/node_modules
+      - apps/doteasy/node_modules
+      - apps/velia/node_modules
+      - apps/webcentral/node_modules
+      - apps/hosting/node_modules
       - packages/headless/node_modules
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
