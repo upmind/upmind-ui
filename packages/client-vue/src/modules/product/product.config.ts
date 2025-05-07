@@ -229,7 +229,7 @@ export default {
         ),
         item: {
           root: cva(
-            "m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
+            "text-base-foreground m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-2 gap-y-3 rounded-md sm:flex-row sm:gap-y-4",
             {
               variants: {
                 isSelected: {

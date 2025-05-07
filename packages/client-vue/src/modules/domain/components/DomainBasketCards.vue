@@ -14,11 +14,11 @@
       content-class="z-50"
     >
       <template #item="{ item }">
-        {{ item.label }}
+        <span :class="styles.domain.form.basket.item">{{ item.label }}</span>
       </template>
 
       <template #dropdown-item="{ item }">
-        {{ item.label }}
+        <span :class="styles.domain.form.basket.item">{{ item.label }}</span>
       </template>
     </SelectCards>
   </section>
@@ -77,10 +77,17 @@ const meta = computed(() => ({
   isProcessing: props.processing,
 }));
 
-const styles = useStyles(["domain.form"], meta, config) as ComputedRef<{
+const styles = useStyles(
+  ["domain.form", "domain.form.basket"],
+  meta,
+  config
+) as ComputedRef<{
   domain: {
     form: {
       items: string;
+      basket: {
+        item: string;
+      };
     };
   };
 }>;

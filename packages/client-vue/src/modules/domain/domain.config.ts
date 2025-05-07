@@ -110,6 +110,9 @@ export default {
         ),
       },
       error: cva("m-0 mt-1"),
+      basket: {
+        item: cva("text-base-foreground"),
+      },
     },
 
     transitions: {

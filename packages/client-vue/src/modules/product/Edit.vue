@@ -106,8 +106,8 @@ const { meta: basketMeta, isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
 
-await isResolved(ROUTE.PRODUCT_EDIT).catch(back);
 await isReady();
+await isResolved(ROUTE.PRODUCT_EDIT).catch(back);
 const {
   meta,
   stop,

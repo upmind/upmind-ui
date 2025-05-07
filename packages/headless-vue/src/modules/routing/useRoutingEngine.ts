@@ -209,18 +209,14 @@ export const useRoutingEngine = () => {
           );
         }),
 
-    isResolved: async (route: ROUTE | string): Promise<boolean> =>
-      waitFor(service, state => ["resolved"].some(state.matches), {
-        timeout: 60_000,
-      }).then(state => {
-        if (state.context.currentRoute?.name !== route)
-          throw new DetailedError(
-            "Route is not available",
-            responseCodes.Forbidden
-          );
-
-        return true;
-      }),
+    isResolved: async (route: ROUTE | string): Promise<boolean> => {
+      const currentRoute = router.currentRoute.value;
+      return resolve(route, {
+        name: currentRoute?.name?.toString(),
+        params: currentRoute.params,
+        query: currentRoute.query,
+      }).then(() => true);
+    },
 
     state: computed(() => state.value.value),
     // ---
