@@ -5,12 +5,14 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 // import type { ImageObjectTypes } from "@upmind-automation/headless";
-import { useSystemUpload } from "@upmind-automation/headless";
+import { utils, useSystemUpload } from "@upmind-automation/headless";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
 
 // --- types
+
+const { DetailedError, responseCodes } = utils;
 
 // -----------------------------------------------------------------------------
 
@@ -29,16 +31,25 @@ export const useUpload = (field: any) => {
       upload.service,
       state => ["processed", "error"].some(state.matches),
       { timeout: 60_000 }
-    ).then(() => {
-      if (state.value.matches("processed")) {
-        const file = get(state.value, "context.file");
-        return file;
-      } else {
-        // throw
-        const error = get(state.value, "context.error");
-        throw new Error(error);
-      }
-    });
+    )
+      .then(() => {
+        if (state.value.matches("processed")) {
+          const file = get(state.value, "context.file");
+          return file;
+        } else {
+          // throw
+          const error = get(state.value, "context.error");
+          throw new Error(error);
+        }
+      })
+      .catch(() => {
+        reject(
+          new DetailedError(
+            `[headless-vue] fetch on useUpload timed out while waiting for upload to complete`,
+            responseCodes.Timeout
+          )
+        );
+      });
   };
 
   const remove = () => {

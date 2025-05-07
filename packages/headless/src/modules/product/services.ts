@@ -64,7 +64,7 @@ async function load(
   _event: any
 ) {
   const productId = get(model, "productId");
-  if (!productId) return Promise.reject("No Product ID provided");
+  if (!productId) return Promise.reject(new Error("No Product ID provided"));
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
@@ -130,8 +130,8 @@ async function load(
 
 async function loadProvisioningFields(productId: any) {
   const { get, useUrl } = useQuery();
-  if (!productId) return Promise.reject("No Product ID provided");
-  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  // we dont cache provisioning fields, as they can change with different options/attributes being selected
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
@@ -150,7 +150,7 @@ async function checkQuantity(
 
   return new Promise((resolve, reject) => {
     if (isNumber(quantity)) resolve({ quantity });
-    else reject("Invalid Quantity Selected");
+    else reject(new Error("Invalid Quantity Selected"));
   });
 }
 
@@ -167,7 +167,7 @@ async function checkTerm(
     return Promise.reject({
       term,
       price,
-      error: { ...error, term: "No TermDetailss available" },
+      error: { ...error, term: "No TermDetails available" },
     });
   }
 
@@ -438,7 +438,10 @@ export const calculateBillingTerm = (
   // because we have multiple options, we need to select one base don the following strategy:
 
   if (isEmpty(available))
-    throw new DetailedError("No Available terms", responseCodes.Not_Found);
+    throw new DetailedError(
+      "[headless] getBillingTerms on product not found",
+      responseCodes.Not_Found
+    );
 
   const { getDefaultPaymentPeriod } = useBrand();
 
@@ -464,7 +467,10 @@ export const calculateBillingTerm = (
   term ??= first(available);
 
   if (isEmpty(term))
-    throw new DetailedError("No Available term", responseCodes.Not_Found);
+    throw new DetailedError(
+      "[headless] getBillingTerm on product not found",
+      responseCodes.Not_Found
+    );
 
   return term;
 };

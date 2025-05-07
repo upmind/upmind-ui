@@ -1,6 +1,6 @@
 // --- external
-import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { interpret } from "xstate";
 
 // --- internal
 import productMachine from "../product/product.machine";
@@ -9,16 +9,14 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes, stopService } from "../../utils";
-import { isEmpty, get, add, subtract, find, omit, isNil } from "lodash-es";
 import { isActor } from "xstate/lib/utils";
+import { parseQuantity } from "../product/utils";
+import { isEmpty, get, omit, add, subtract } from "lodash-es";
+import { DetailedError, responseCodes, stopService } from "../../utils";
 
 // --- types
-import type { InterpreterFrom, ActorRef } from "xstate";
+import type { ActorRef, InterpreterFrom } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
-import { isFunction } from "xstate/lib/utils";
-// import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
@@ -49,11 +47,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
   if (!rawBasket)
-    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+    throw new DetailedError(
+      "[headless] getBasket on useBasketProductPending not found",
+      responseCodes.Not_Found
+    );
 
   if (isEmpty(data) || (isEmpty(actor) && isEmpty(model?.productId)))
     throw new DetailedError(
-      "Product Model is empty or has no productId",
+      "[headless] getProduct on useBasketProductPending not found",
       responseCodes.Not_Found
     );
 
@@ -79,7 +80,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       }
     ).start();
 
-  // now that we have a product configation, we can push it to the datalayer
+  // now that we have a product configuration, we can push it to the datalayer
   pushSelectItem();
 
   // ---------------------------------------------------------------------------

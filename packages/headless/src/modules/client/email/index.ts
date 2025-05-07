@@ -1,5 +1,5 @@
 // --- external
-import type { ActorRef, AnyEventObject } from "xstate";
+import type { AnyEventObject } from "xstate";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -10,6 +10,7 @@ import { ListingActions as actions } from "./actions";
 
 // --- utils
 import { find, map, compact } from "lodash-es";
+import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
 
@@ -46,7 +47,12 @@ export const useClientEmails = () => {
         state =>
           state.matches("available") && !state.matches("available.loading"),
         { timeout: Infinity }
-      ),
+      ).catch(() => {
+        throw new DetailedError(
+          "[headless] isReady on useClientEmails timed out",
+          responseCodes.Timeout
+        );
+      }),
     getSnapshot: service.getSnapshot,
     getItemsSnapshot: () => service.getSnapshot()?.context?.items,
     getItems: () =>
@@ -64,22 +70,29 @@ export const useClientEmails = () => {
         state =>
           state.matches("available") && !state.matches("available.loading"),
         { timeout: 60_000 }
-      ).then(state => {
-        // first try to get the selected address from the context
-        if (state?.context?.selected) return state.context.selected;
+      )
+        .then(state => {
+          // first try to get the selected address from the context
+          if (state?.context?.selected) return state.context.selected;
 
-        // if no selected address, try to get the default address
-        const defaultAddress = find(
-          state?.context?.items,
-          "state.context.model.default"
-        );
+          // if no selected address, try to get the default address
+          const defaultAddress = find(
+            state?.context?.items,
+            "state.context.model.default"
+          );
 
-        // if we have a default address, select it
-        if (defaultAddress) {
-          service.send({ type: "SELECT", data: defaultAddress.id });
-          return defaultAddress;
-        }
-      });
+          // if we have a default address, select it
+          if (defaultAddress) {
+            service.send({ type: "SELECT", data: defaultAddress.id });
+            return defaultAddress;
+          }
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] getSelected on useClientEmails timed out",
+            responseCodes.Timeout
+          );
+        });
     },
     getDefault: () =>
       find(
@@ -89,11 +102,16 @@ export const useClientEmails = () => {
 
     search: async (data: any) => {
       service.send({ type: "FILTER", data });
-      return waitFor(service, state =>
-        state.matches("available.filtered")
-      ).then(state => {
-        return state.context.items;
-      });
+      return waitFor(service, state => state.matches("available.filtered"))
+        .then(state => {
+          return state.context.items;
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] search on useClientEmails timed out",
+            responseCodes.Timeout
+          );
+        });
     },
     find: (data: string) =>
       services.find(service.getSnapshot().context, {

@@ -21,7 +21,8 @@ async function search({
   preferredCycle,
 }: DomainContext) {
   const { get, useUrl } = useQueryPaginated();
-  if (!search?.query?.length) return Promise.reject("No query provided");
+  if (!search?.query?.length)
+    return Promise.reject(new Error("No query provided"));
   const sld = parseSld(search.query);
 
   // lets ensure we parse our promotions correctly

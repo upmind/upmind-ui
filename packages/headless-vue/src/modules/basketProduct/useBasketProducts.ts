@@ -47,7 +47,7 @@ export const useBasketProducts = () => {
       // Assume the first argument is bpid
       const bpid = args[0];
       if (processing.value.includes(bpid)) {
-        return Promise.reject("Already processing");
+        return Promise.reject(new Error("Already processing"));
       }
       processing.value.push(bpid);
       return action(...args).finally(() => {
@@ -70,7 +70,7 @@ export const useBasketProducts = () => {
 
     configure: async (bpid: string): Promise<BasketProduct> => {
       const basketProduct = await get(bpid);
-      if (isEmpty(basketProduct)) return Promise.reject("Not found");
+      if (isEmpty(basketProduct)) return Promise.reject(new Error("Not found"));
       return Promise.resolve(useBasketProduct(basketProduct.id));
     },
 

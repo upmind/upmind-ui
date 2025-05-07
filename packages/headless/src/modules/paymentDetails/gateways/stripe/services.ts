@@ -20,13 +20,13 @@ async function load({ gateway }: StripeContext, _event: AnyEventObject) {
   const options = await sharedServices.load({ gateway }, _event);
 
   const key = getPublicKey(gateway);
-  if (!key) return Promise.reject("Stripe public key not found.");
+  if (!key) return Promise.reject(new Error("Stripe public key not found."));
 
   const stripe = await loadStripe(key);
 
   return new Promise(resolve => {
     if (!stripe) {
-      reject("Stripe not found.");
+      reject(new Error("Stripe not found."));
     } else {
       resolve({ stripe, ...(options || {}) });
     }
@@ -40,7 +40,7 @@ async function validate(
   // ---
 
   // Get any errors from the Stripe Element
-  if (!element) return Promise.reject("Stripe elements not found.");
+  if (!element) return Promise.reject(new Error("Stripe elements not found."));
 
   // Now validate the model as per normal
   const { validate } = useValidation();
@@ -106,7 +106,7 @@ async function createPaymentElement(
  */
 async function update({ elements, stripe, model }: StripeContext) {
   if (!elements || !stripe)
-    return Promise.reject("Gateway elements not found.");
+    return Promise.reject(new Error("Gateway elements not found."));
 
   // Submit form to validate fields
   const { error: submitError } = await elements

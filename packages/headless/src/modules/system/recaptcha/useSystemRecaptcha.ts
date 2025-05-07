@@ -29,7 +29,7 @@ async function generate(action?: string) {
       return generateToken(grecaptcha, action);
     })
     .catch(() => {
-      return Promise.reject("Recaptcha not available");
+      return Promise.reject(new Error("Recaptcha not available"));
     });
 }
 
