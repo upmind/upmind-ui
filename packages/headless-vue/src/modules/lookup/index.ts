@@ -4,10 +4,13 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import { utils } from "@upmind-automation/headless";
 
 // --- utils
 import { map, get, pick, debounce } from "lodash-es";
 import { DEBOUNCE_DELAY } from "../../utils";
+
+const { DetailedError, responseCodes } = utils;
 
 // ----------------------------------------------------------------------------
 
@@ -66,6 +69,11 @@ export function useLookup(lookup: Function) {
       if (state.value.matches("loading")) {
         await waitFor(service, newstate => !newstate.matches("loading"), {
           timeout: 60_000,
+        }).catch(() => {
+          throw new DetailedError(
+            `[headless-vue] fetch on useLookup timed out while waiting for loading state to complete`,
+            responseCodes.Timeout
+          );
         });
       }
       send({ type: "SELECT", data: id });

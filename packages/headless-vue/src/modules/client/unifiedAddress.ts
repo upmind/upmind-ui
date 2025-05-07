@@ -3,7 +3,10 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useClientUnifiedAddresses as useUpmindClientUnifiedAddresses } from "@upmind-automation/headless";
+import {
+  utils,
+  useClientUnifiedAddresses as useUpmindClientUnifiedAddresses,
+} from "@upmind-automation/headless";
 
 // --- utils
 import {
@@ -16,6 +19,9 @@ import { get, debounce, isEmpty } from "lodash-es";
 
 // --- types
 import type { ClientItemDefinition, ClientListingDefinition } from "./types";
+
+const { DetailedError, responseCodes } = utils;
+
 // ---
 export const useClientUnifiedAddress = (
   item: any, // Actor
@@ -68,9 +74,16 @@ export const useClientUnifiedAddress = (
           service,
           newState => newState.context?.selected?.state?.matches("valid"),
           { timeout: 60_000 }
-        ).then(() => {
-          send({ type: "UPDATE" });
-        });
+        )
+          .then(() => {
+            send({ type: "UPDATE" });
+          })
+          .catch(() => {
+            throw new DetailedError(
+              `[headless-vue] fetch on useClientUnifiedAddress timed out while waiting for address check to complete`,
+              responseCodes.Timeout
+            );
+          });
       } else {
         send({ type: "UPDATE" });
       }

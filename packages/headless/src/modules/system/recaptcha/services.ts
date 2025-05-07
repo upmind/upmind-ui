@@ -34,7 +34,7 @@ async function load(_context: RecaptchaContext, _event: AnyEventObject) {
     script.setAttribute("async", "true");
 
     script.addEventListener("error", async () => {
-      return reject("Recaptcha failed to load");
+      return reject(new Error("Recaptcha failed to load"));
     });
 
     script.addEventListener("load", async () => {
@@ -48,7 +48,7 @@ async function load(_context: RecaptchaContext, _event: AnyEventObject) {
 }
 
 export async function generateToken(grecaptcha: any, action?: string) {
-  if (!grecaptcha) return Promise.reject("Recaptcha not loaded");
+  if (!grecaptcha) return Promise.reject(new Error("Recaptcha not loaded"));
 
   return grecaptcha.execute(siteKey, { action });
 }

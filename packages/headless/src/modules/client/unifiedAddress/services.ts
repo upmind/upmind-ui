@@ -463,7 +463,7 @@ async function loadLookups(
   const regions = await fetchRegions(model?.countryId || country?.id);
 
   if (!countries || !regions) {
-    return Promise.reject("Failed to load countries and regions");
+    return Promise.reject(new Error("Failed to load countries and regions"));
   }
 
   // ---
@@ -511,7 +511,7 @@ async function loadLookups(
       };
     })
     .catch(() => {
-      Promise.reject("Failed to load lookups");
+      Promise.reject(new Error("Failed to load lookups"));
     });
 }
 
