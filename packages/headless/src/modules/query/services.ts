@@ -25,10 +25,10 @@ async function doFetch<T extends object = object>({
   init,
 }: RequestParams): Promise<T> {
   if (!includes(map(Methods, upperCase), init?.method)) {
-    return Promise.reject(`Invalid method: ${init?.method}`);
+    return Promise.reject(new Error(`Invalid method: ${init?.method}`));
   }
 
-  if (!url) return Promise.reject("Invalid URL");
+  if (!url) return Promise.reject(new Error("Invalid URL"));
 
   if (!url.searchParams.has("lang")) {
     const { getLocale } = useSystemI18n();

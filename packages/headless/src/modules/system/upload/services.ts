@@ -65,7 +65,7 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   }
 
   if (!field?.field_type && !data.hash)
-    return Promise.reject("No field type or hash provided");
+    return Promise.reject(new Error("No field type or hash provided"));
 
   const { get, useUrl } = useQuery();
 
