@@ -1,5 +1,8 @@
 <template>
-  <section :class="cn(styles.section.root, props.class)">
+  <section
+    :class="cn(styles.section.root, props.class)"
+    data-testid="card-container"
+  >
     <header
       :class="cn(styles.section.header, props.classHeader)"
       v-if="title || tagline || $slots.header || $slots.title"

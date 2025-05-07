@@ -9,9 +9,11 @@
         {{ category }}
       </h5>
 
-      <strong :class="styles.summary.list.item.title">{{
-        title ?? "&ndash;"
-      }}</strong>
+      <strong
+        :class="styles.summary.list.item.title"
+        :data-testid="`summary-value-${kebabCase(category)}`"
+        >{{ title ?? "&ndash;" }}</strong
+      >
 
       <span
         :class="styles.summary.list.item.quantity"
@@ -37,6 +39,7 @@ import { Icon } from "@upmind-automation/upmind-ui";
 // --- types
 import type { SummaryItemProps } from "./types";
 import type { ComputedRef } from "vue";
+import { kebabCase } from "lodash-es";
 
 const props = defineProps<SummaryItemProps>();
 
