@@ -1,52 +1,32 @@
 <template>
-  <section :class="styles.skeletonList.root" role="status">
+  <div
+    class="divide-base-muted flex w-full animate-pulse flex-col space-y-4 divide-y rounded border p-4 md:p-6"
+    role="status"
+  >
     <div
       v-for="row in props.rows"
       :key="`skeleton-row-${row}`"
-      :class="styles.skeletonList.rows"
+      class="flex items-center justify-between pt-4 first:pt-0"
     >
       <div>
-        <div :class="styles.skeletonList.line1"></div>
-        <div :class="styles.skeletonList.line2"></div>
+        <div class="bg-base-muted-active mb-2.5 h-2.5 w-24 rounded-full"></div>
+        <div class="bg-base-muted h-2 w-32 rounded-full"></div>
       </div>
-      <div :class="styles.skeletonList.line3"></div>
+      <div class="bg-base-muted-active h-2.5 w-12 rounded-full"></div>
     </div>
 
     <span class="sr-only">Loading List...</span>
-  </section>
+  </div>
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed } from "vue";
-
-// --- internal
-import { useStyles } from "../../utils";
-import config from "./skeleton.config";
-
-// --- types
-import type { SkeletonListProps } from "./types";
-import type { ComputedRef } from "vue";
-const props = withDefaults(defineProps<SkeletonListProps>(), {
-  rows: 5,
-});
-
-const meta = computed(() => ({
-  // ---
-}));
-
-const styles = useStyles(
-  "skeletonList",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  skeletonList: {
-    root: string;
-    rows: string;
-    line1: string;
-    line2: string;
-    line3: string;
-  };
-}>;
+// ----------------------------------------------
+const props = withDefaults(
+  defineProps<{
+    rows?: number;
+  }>(),
+  {
+    rows: 5,
+  }
+);
 </script>
