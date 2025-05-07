@@ -69,7 +69,7 @@ const router = useRouter();
 
 const { errors } = useBasket();
 
-const { transfer: transferSession, meta } = useSession();
+const { transferTo, meta } = useSession();
 
 const orderId = route.params.orderId.toString();
 const success = computed(() => route.query.payment_success === "true");
@@ -150,7 +150,7 @@ function doAction() {
 
   processing.value = true;
 
-  transferSession()
+  transferTo()
     .then(transfer => {
       if (transfer?.code) {
         window.location.href = utils

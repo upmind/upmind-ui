@@ -56,7 +56,7 @@ import type { AuthProps } from "./components/types";
 const { t } = useI18n();
 const { next, back, navigate, isResolved } = useRoutingEngine();
 
-await isResolved(ROUTE.SESSION_LOGIN).catch(back);
+await isResolved(ROUTE.SESSION_LOGIN);
 
 function doRegister(value: AuthProps["modelValue"]) {
   if (value === "register") {

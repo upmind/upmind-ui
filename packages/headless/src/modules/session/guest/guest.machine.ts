@@ -32,6 +32,7 @@ import {
 import { omit, pick, set } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
+import { GrantTypes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -332,11 +333,14 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
     guards: {
-      requires2fa: (_context, { data }: any) =>
-        data.actor_type == "twofa" && !!data?.second_factor_required,
+      requires2fa: (_context, { data }: any) => {
+        return (
+          data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
+        );
+      },
       requiresReCaptcha: (_context, { data }: any) =>
         !!data?.recaptcha_required,
     },
