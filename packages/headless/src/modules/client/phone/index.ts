@@ -10,6 +10,7 @@ import { ListingActions as actions } from "./actions";
 
 // --- utils
 import { find, map, compact } from "lodash-es";
+import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
 import type { IPhoneData } from "./types";
@@ -47,7 +48,12 @@ export const useClientPhones = () => {
         state =>
           state.matches("available") && !state.matches("available.loading"),
         { timeout: Infinity }
-      ),
+      ).catch(() => {
+        throw new DetailedError(
+          "[headless] isReady on useClientPhones timed out",
+          responseCodes.Timeout
+        );
+      }),
     getSnapshot: service.getSnapshot,
     getItemsSnapshot: () => service.getSnapshot()?.context?.items,
     getItems: () =>
@@ -65,22 +71,29 @@ export const useClientPhones = () => {
         state =>
           state.matches("available") && !state.matches("available.loading"),
         { timeout: 60_000 }
-      ).then(state => {
-        // first try to get the selected address from the context
-        if (state?.context?.selected) return state.context.selected;
+      )
+        .then(state => {
+          // first try to get the selected address from the context
+          if (state?.context?.selected) return state.context.selected;
 
-        // if no selected address, try to get the default address
-        const defaultAddress = find(
-          state?.context?.items,
-          "state.context.model.default"
-        );
+          // if no selected address, try to get the default address
+          const defaultAddress = find(
+            state?.context?.items,
+            "state.context.model.default"
+          );
 
-        // if we have a default address, select it
-        if (defaultAddress) {
-          service.send({ type: "SELECT", data: defaultAddress.id });
-          return defaultAddress;
-        }
-      });
+          // if we have a default address, select it
+          if (defaultAddress) {
+            service.send({ type: "SELECT", data: defaultAddress.id });
+            return defaultAddress;
+          }
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] getSelected on useClientPhones timed out",
+            responseCodes.Timeout
+          );
+        });
     },
     getDefault: () =>
       find(
@@ -90,11 +103,16 @@ export const useClientPhones = () => {
 
     search: async (data: any) => {
       service.send({ type: "FILTER", data });
-      return waitFor(service, state =>
-        state.matches("available.filtered")
-      ).then(state => {
-        return state.context.items;
-      });
+      return waitFor(service, state => state.matches("available.filtered"))
+        .then(state => {
+          return state.context.items;
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] search on useClientPhones timed out",
+            responseCodes.Timeout
+          );
+        });
     },
     find: (data: IPhoneData) =>
       services.find(service.getSnapshot().context, {

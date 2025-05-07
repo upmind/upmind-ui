@@ -10,6 +10,7 @@ import { actions } from "./actions";
 
 // --- utils
 import { find, map, compact } from "lodash-es";
+import { DetailedError, responseCodes } from "../../../utils";
 
 // --- types
 
@@ -42,7 +43,12 @@ export const usePlaces = () => {
         state =>
           state.matches("available") && !state.matches("available.loading"),
         { timeout: 60_000 }
-      ),
+      ).catch(() => {
+        throw new DetailedError(
+          "[headless] isReady on usePlaces timed out",
+          responseCodes.Timeout
+        );
+      }),
     getSnapshot: service.getSnapshot,
     getItemsSnapshot: () => service.getSnapshot()?.context?.items,
     getItems: () =>
@@ -55,11 +61,16 @@ export const usePlaces = () => {
     getDefault: () => null, // we have no default in this machine,
     search: async (data: any) => {
       service.send({ type: "FILTER", data });
-      return waitFor(service, state =>
-        state.matches("available.filtered")
-      ).then(state => {
-        return state.context.items;
-      });
+      return waitFor(service, state => state.matches("available.filtered"))
+        .then(state => {
+          return state.context.items;
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] search on usePlaces timed out",
+            responseCodes.Timeout
+          );
+        });
     },
     getPlaceDetails: (id: any) =>
       services.parse(service.getSnapshot()?.context, {

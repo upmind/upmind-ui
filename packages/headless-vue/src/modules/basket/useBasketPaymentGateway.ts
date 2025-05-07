@@ -100,7 +100,7 @@ export const useBasketPaymentGateway = () => {
 
       return new Promise((resolve, reject) => {
         if (!container) {
-          return reject("No container available for the renderer");
+          return reject(new Error("No container available for the renderer"));
         }
 
         // NB: renderer MUST be a function, if not then we clear the container

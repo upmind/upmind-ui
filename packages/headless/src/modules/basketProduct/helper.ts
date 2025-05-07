@@ -39,7 +39,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
   let isRefreshing = false;
 
-  // lets let our subscriber know when the basket has been refreshed
+  // let's let our subscriber know when the basket has been refreshed
   const subscription = basket.service.subscribe((state: any) => {
     // mark the basket as refreshing
     if (state.matches("shopping.refreshing.processing")) {
@@ -70,7 +70,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         });
       return;
     }
-    // --- from this point on we assum we have a basket
+    // --- from this point on we assume we have a basket
 
     const rawBasket = basket.getBasket();
     let basketProduct: BasketProduct | undefined;
@@ -194,9 +194,11 @@ export function basketSubscription(callback: any, onReceive: any) {
                 return instance;
               })
               .catch(() => {
-                // actor was not ready in time ( likely required additional configurtion),
-                // so we reject the promise with the actor so we can continue to configure it
-                return Promise.reject(instance);
+                throw new DetailedError(
+                  "[headless] ADD_UPDATE on basketProduct timed out",
+                  responseCodes.Timeout,
+                  instance
+                );
               });
           })
           .then((instance: BasketProductPending) => {
@@ -207,7 +209,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
             callback({ type: "PROCESSING" });
-            // try to update the actor we just added, using the parsed mpdel
+            // try to update the actor we just added, using the parsed model
             productServices
               .update(
                 {
@@ -265,7 +267,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         break;
 
       case "ADD_UPDATE_MANY":
-        const models = isArray(event.target) ? event.target : [event.target]; // safey check to ensure we have an array of models
+        const models = isArray(event.target) ? event.target : [event.target]; // safety check to ensure we have an array of models
         // First ensure all our models are added to the basket...
         // Then sync all our models with the basket
         if (isEmpty(models)) callback({ type: "UPDATED", data: [] });

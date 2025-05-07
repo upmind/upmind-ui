@@ -26,15 +26,4 @@ export const netDomain = [
     billingCycle: "3 year",
     tldValue: ".net",
   },
-
-  /* TRANSFERRING A DOMAIN */
-  {
-    name: ".NET Domain - Billing Cycle - 3 year - Domain Transfer @webcentral @domains @domain-transfer",
-    radioSelection: [[0, 2]],
-    checkboxSelection: [[0, 0]],
-    sldValue: "nettestingdomain",
-    total: "FREE",
-    billingCycle: "3 year",
-    tldValue: ".net",
-  },
 ];
