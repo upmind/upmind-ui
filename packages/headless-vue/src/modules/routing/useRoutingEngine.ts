@@ -210,12 +210,16 @@ export const useRoutingEngine = () => {
         }),
 
     isResolved: async (route: ROUTE | string): Promise<boolean> => {
-      const currentRoute = router.currentRoute.value;
+      const currentRoute = router?.currentRoute?.value;
+      if (!currentRoute) return true;
+
       return resolve(route, {
         name: currentRoute?.name?.toString(),
         params: currentRoute.params,
         query: currentRoute.query,
-      }).then(() => true);
+      })
+        .then(() => true)
+        .catch(() => false);
     },
 
     state: computed(() => state.value.value),
