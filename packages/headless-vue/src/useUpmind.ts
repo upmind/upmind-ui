@@ -63,8 +63,13 @@ class Upmind {
   }
 
   init({ pop, analytics, recaptcha }: UpmindProps): Promise<void> {
-    // NB: Only initialise once
-    if (this.status != UpmindStatus.notInitialised) return Promise.reject();
+    // NB: Only initialize once
+    if (this.status != UpmindStatus.notInitialised)
+      return Promise.reject(
+        new Error(
+          `[headless-vue] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
+        )
+      );
     this.status = UpmindStatus.initialising;
     this.initPlugins();
     this.pop = pop;
