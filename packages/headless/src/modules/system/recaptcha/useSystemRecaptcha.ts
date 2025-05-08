@@ -17,7 +17,7 @@ import type { InterpreterFrom } from "xstate";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-let service = interpret(recaptchaMachine, { devTools: true });
+let service = interpret(recaptchaMachine, { devTools: false });
 
 async function init(siteKey: string) {
   if (service.status === InterpreterStatus.NotStarted) {
