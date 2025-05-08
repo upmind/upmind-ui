@@ -3,7 +3,6 @@
     v-model="modelValue"
     v-bind="delegatedProps"
     :class="cn(styles.input, props.class)"
-    :autofocus="delegatedProps.autoFocus"
   />
 </template>
 
