@@ -22,6 +22,7 @@ import {
   reduce,
   some,
   toSafeInteger,
+  isBoolean,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
@@ -269,7 +270,10 @@ export function parseRecommendation(
         useTranslateField(raw, "description") || productDetails?.description,
       excerpt:
         useTranslateField(raw, "short_description") || productDetails?.excerpt,
-      imgUrl: raw.image_url || productDetails?.imgUrl,
+      imgUrl:
+        isBoolean(raw.image_url) && !raw.image_url
+          ? ""
+          : raw.image_url || productDetails?.imgUrl,
       // --- additional ui data
       // -- TODO: Maybe move this into UI meta
       badge: isString(raw?.badge)
