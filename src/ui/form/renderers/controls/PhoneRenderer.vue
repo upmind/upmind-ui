@@ -28,12 +28,14 @@
       />
     </InputGroup>
 
-    <FormMessage
-      v-if="errors"
-      :errors="[errorsMapped]"
-      :formMessageId="`form-item-message-${control.id}`"
-      :name="control.path"
-    />
+    <template #messages>
+      <FormMessage
+        v-if="errors"
+        :errors="[errorsMapped]"
+        :formMessageId="`form-item-message-${control.id}`"
+        :name="control.path"
+      />
+    </template>
   </FormField>
 </template>
 
