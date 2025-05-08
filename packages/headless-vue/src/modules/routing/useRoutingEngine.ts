@@ -34,7 +34,7 @@ export const useRoutingEngine = () => {
     service,
     exists,
     stop,
-    isReady,
+    isReady: isRoutingEngineReady,
     next: resolveNext,
     back: resolveBack,
     resolve,
@@ -186,10 +186,9 @@ export const useRoutingEngine = () => {
     }
   );
 
-  // ---------------------------------------------------------------------------
-  return {
-    isReady: async (): Promise<boolean> =>
-      isReady()
+  const isReady = async (): Promise<boolean> =>
+    router.isReady().then(() =>
+      isRoutingEngineReady()
         .then(() => {
           return waitFor(
             service,
@@ -207,19 +206,27 @@ export const useRoutingEngine = () => {
             "Routing Engine is unavailable",
             responseCodes.Conflict
           );
-        }),
+        })
+    );
 
+  // ---------------------------------------------------------------------------
+  return {
+    isReady,
     isResolved: async (route: ROUTE | string): Promise<boolean> => {
-      const currentRoute = router?.currentRoute?.value;
-      if (!currentRoute) return true;
+      return isReady().then(() => {
+        const currentRoute = router?.currentRoute?.value;
 
-      return resolve(route, {
-        name: currentRoute?.name?.toString(),
-        params: currentRoute.params,
-        query: currentRoute.query,
-      })
-        .then(() => true)
-        .catch(() => false);
+        return resolve(route, {
+          name: currentRoute?.name?.toString(),
+          params: currentRoute.params,
+          query: currentRoute.query,
+        })
+          .then(() => true)
+          .catch(() => {
+            debugger;
+            return false;
+          });
+      });
     },
 
     state: computed(() => state.value.value),
