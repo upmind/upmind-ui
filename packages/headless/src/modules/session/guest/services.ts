@@ -18,9 +18,6 @@ import type { GuestContext } from "./types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: GuestContext, _event: any) {
-  // if we DON'T have a token, we need to generate one, otherwise we are authenticated already
-  // init early, so the service is available
-  useSystemRecaptcha();
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
 
@@ -168,7 +165,7 @@ async function register({ model }: GuestContext) {
   await recaptcha
     .generate("client_register")
     .then(token => (data.recaptcha_token = token))
-    .catch(() => null);
+    .catch(() => null); // do nothing
 
   // add referral cookie if available
   const referralCookie = getCookie("upm_aff");
@@ -185,7 +182,10 @@ async function register({ model }: GuestContext) {
     url: useUrl("clients/register"),
     data,
   })
-    .then(({ data }: any) => data)
+    .then(({ data }: any) => {
+      recaptcha.clear(); // clear our recaptcha token that has been used
+      return data;
+    })
     .then(loadUser);
 }
 
