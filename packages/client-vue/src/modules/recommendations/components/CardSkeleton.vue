@@ -2,7 +2,10 @@
   <Card :class="styles.recommendation.skeleton.root" disabled>
     <div :class="styles.recommendation.skeleton.container">
       <!-- Image section -->
-      <div :class="styles.recommendation.skeleton.image.root">
+      <div
+        v-if="props.productDetails?.imgUrl"
+        :class="styles.recommendation.skeleton.image.root"
+      >
         <Skeleton :class="styles.recommendation.skeleton.image.skeleton">
           Image
         </Skeleton>
@@ -102,6 +105,9 @@ import { Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
+import type { RecommendationItemProps } from "./types";
+
+const props = defineProps<RecommendationItemProps>();
 
 const styles = useStyles(
   [
