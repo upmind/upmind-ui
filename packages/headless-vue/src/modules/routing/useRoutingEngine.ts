@@ -187,46 +187,44 @@ export const useRoutingEngine = () => {
   );
 
   const isReady = async (): Promise<boolean> =>
-    router.isReady().then(() =>
-      isRoutingEngineReady()
-        .then(() => {
-          return waitFor(
-            service,
-            state => !["subscribing", "loading"].some(state.matches),
-            { timeout: Infinity }
-          ).then(state => {
-            if (state.matches("unavailable")) {
-              return Promise.reject(new Error("Routing Engine is unavailable"));
-            }
-            return true;
-          });
+    isRoutingEngineReady()
+      .then(() =>
+        waitFor(
+          service,
+          state => !["subscribing", "loading"].some(state.matches) && !!router,
+          { timeout: Infinity }
+        ).then(state => {
+          if (state.matches("unavailable")) {
+            return Promise.reject(new Error("Routing Engine is unavailable"));
+          }
+          return true;
         })
-        .catch(() => {
-          throw new DetailedError(
-            "Routing Engine is unavailable",
-            responseCodes.Conflict
-          );
-        })
-    );
+      )
+      .then(() => router.isReady().then(() => true))
+      .catch(() => {
+        throw new DetailedError(
+          "Routing Engine is unavailable",
+          responseCodes.Conflict
+        );
+      });
 
   // ---------------------------------------------------------------------------
   return {
     isReady,
-    isResolved: async (route: ROUTE | string): Promise<boolean> => {
-      return isReady().then(() => {
-        const currentRoute = router?.currentRoute?.value;
 
-        return resolve(route, {
-          name: currentRoute?.name?.toString(),
-          params: currentRoute.params,
-          query: currentRoute.query,
-        })
-          .then(() => true)
-          .catch(() => {
-            debugger;
-            return false;
-          });
-      });
+    isResolved: async (route: ROUTE | string): Promise<boolean> => {
+      await isReady();
+      const currentRoute = router?.currentRoute?.value;
+
+      return resolve(route, {
+        name: currentRoute?.name?.toString(),
+        params: currentRoute.params,
+        query: currentRoute.query,
+      })
+        .then(() => true)
+        .catch(() => {
+          return false;
+        });
     },
 
     state: computed(() => state.value.value),
