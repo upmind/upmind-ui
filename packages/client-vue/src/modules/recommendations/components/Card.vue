@@ -10,14 +10,15 @@
 
     <article :class="styles.recommendation.container">
       <!-- Image section -->
-      <figure :class="styles.recommendation.image.root">
+      <figure
+        v-if="configMeta.hasImage"
+        :class="styles.recommendation.image.root"
+      >
         <img
-          v-if="props.productDetails?.imgUrl"
           :class="styles.recommendation.image.image"
           :src="props.productDetails.imgUrl"
           :alt="`${props.productDetails.title} product image`"
         />
-        <span v-else :class="styles.recommendation.image.placeholder" />
       </figure>
 
       <!-- Content -->
@@ -172,9 +173,16 @@ const { t } = useI18n();
 
 const props = defineProps<RecommendationItemProps>();
 
-const configMeta = computed(() => ({
-  isDisabled: props.disabled,
-}));
+const configMeta = computed(() => {
+  const hasImage = !!props.productDetails?.imgUrl;
+  const hasBadge = !!props.productDetails?.badge?.label;
+  return {
+    isDisabled: props.disabled,
+    hasImage,
+    hasBadge,
+    hasImageAndBadge: hasImage && hasBadge,
+  };
+});
 
 const styles = useStyles(
   [
