@@ -29,7 +29,7 @@
     </InputGroup>
 
     <FormMessage
-      v-if="errors"
+      v-if="errors && formFieldProps.touched"
       :errors="[errorsMapped]"
       :formMessageId="`form-item-message-${control.id}`"
       :name="control.path"
