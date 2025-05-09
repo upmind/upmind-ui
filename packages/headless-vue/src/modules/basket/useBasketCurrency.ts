@@ -89,7 +89,7 @@ export const useBasketCurrency = (actorRef?: ActorRef<any>) => {
       )
         .then(state => {
           if (["error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
+            return Promise.reject(new Error(state.context.error));
           }
           return Promise.resolve();
         })
