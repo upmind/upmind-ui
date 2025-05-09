@@ -147,16 +147,16 @@ async function register({ model }: GuestContext) {
     firstname: model?.firstname,
     lastname: model?.lastname,
     password: model?.password,
-    phone: model?.phone,
-    phone_code: model?.phone_code,
-    phone_country_code: model?.phone_country_code,
+    phone: model.phone?.nationalNumber,
+    phone_code: model.phone?.countryCallingCode,
+    phone_country_code: model.phone?.country,
   };
 
   // ---
   // Conditional data
 
   // Add.match the basket currency (if available)
-  // so as to persist the currency when client registers and claims a basket
+  // to persist the currency when a client registers and claims a basket
   // without it the basket will revert to the default currency
   const currency = getCurrency();
   if (currency) data.currency_id = currency.id;

@@ -1,20 +1,38 @@
 // --- external
 
 // --- internal
+import {
+  useBrand,
+  useQuery,
+  useSystem,
+  useSession,
+  useClientUnifiedAddresses,
+} from "../../..";
 import { find, isEmpty } from "lodash-es";
-import { useQuery, useClientUnifiedAddresses, useSession } from "../../..";
 
 // --- utils
 import { DetailedError, responseCodes, useValidation } from "../../../utils";
 
 // --- types
-import type { BillingDetailsContext } from "./types";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
+import type { BillingDetailsContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
+  const { ensureConfig } = useBrand();
+  const { fetchCountries } = useSystem();
   const { isAuthenticated } = useSession();
+
+  await Promise.allSettled([
+    fetchCountries(),
+    ensureConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+    ]),
+  ]);
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
