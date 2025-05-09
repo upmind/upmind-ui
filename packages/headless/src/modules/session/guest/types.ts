@@ -1,7 +1,6 @@
-// --- external
-import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
-
-// --- internal
+// --- types
+import type { IPhoneData } from "../../client/phone/types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
@@ -15,7 +14,7 @@ export interface GuestContext {
   // TODO:
   // customFields: Array;
   customFields: any[];
-  model: any; //AuthModel;
+  model: any; // AuthModel;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
 }
@@ -25,13 +24,7 @@ export interface AuthModel {
   firstname?: string;
   lastname?: string;
   password?: string;
-  // TODO:
-  // phone: IPhone["phone"] | null;
-  // phone_code: IPhone["phone_code"] | null;
-  // phone_country_code: IPhone["phone_country_code"] | null;
-  phone?: any["phone"] | null;
-  phone_code?: any["phone_code"] | null;
-  phone_country_code?: any["phone_country_code"] | null;
+  phone?: IPhoneData;
   recaptcha_token?: string;
   customFields?: Record<string, any>;
 }

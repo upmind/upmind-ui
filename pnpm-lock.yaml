@@ -221,159 +221,11 @@ importers:
         specifier: ^2.2.0
         version: 2.2.8(typescript@5.7.3)
 
-  apps/hosting:
-    dependencies:
-      '@formkit/auto-animate':
-        specifier: ^0.8.2
-        version: 0.8.2
-      '@sentry/vue':
-        specifier: ^9.1.0
-        version: 9.3.0(vue@3.5.13(typescript@5.8.2))
-      '@tailwindcss/typography':
-        specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@3.4.17)
-      '@tanstack/vue-query':
-        specifier: ^5.67.1
-        version: 5.67.1(vue@3.5.13(typescript@5.8.2))
-      '@upmind-automation/client-vue':
-        specifier: workspace:*
-        version: link:../../packages/client-vue
-      '@upmind-automation/upmind-ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      '@vueuse/components':
-        specifier: ^12.7.0
-        version: 12.7.0(typescript@5.8.2)
-      '@vueuse/core':
-        specifier: ^12.7.0
-        version: 12.7.0(typescript@5.8.2)
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      lodash-es:
-        specifier: ^4.17.21
-        version: 4.17.21
-      tailwind-merge:
-        specifier: ^3.0.1
-        version: 3.0.2
-      tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.17
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.17)
-      tailwindcss-aria-attributes:
-        specifier: ^2.0.1
-        version: 2.0.1(tailwindcss@3.4.17)
-      tailwindcss-themer:
-        specifier: ^4.1.1
-        version: 4.1.1(tailwindcss@3.4.17)
-      vue:
-        specifier: ^3.5.13
-        version: 3.5.13(typescript@5.8.2)
-      vue-i18n:
-        specifier: ^11.1.1
-        version: 11.1.1(vue@3.5.13(typescript@5.8.2))
-      vue-router:
-        specifier: ^4.5.0
-        version: 4.5.0(vue@3.5.13(typescript@5.8.2))
-    devDependencies:
-      '@localazy/cli':
-        specifier: ^1.7.15
-        version: 1.7.16(encoding@0.1.13)
-      '@playwright/test':
-        specifier: ^1.50.1
-        version: 1.50.1
-      '@sentry/vite-plugin':
-        specifier: ^3.2.1
-        version: 3.2.1(encoding@0.1.13)
-      '@tsconfig/node22':
-        specifier: ^22.0.0
-        version: 22.0.0
-      '@types/jsdom':
-        specifier: ^21.1.7
-        version: 21.1.7
-      '@types/lodash-es':
-        specifier: ^4.17.12
-        version: 4.17.12
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.24.0
-        version: 8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)
-      '@vitejs/plugin-vue':
-        specifier: ^5.2.1
-        version: 5.2.1(vite@6.2.0(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
-      '@vitest/coverage-istanbul':
-        specifier: ^3.0.5
-        version: 3.0.7(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))
-      '@vitest/eslint-plugin':
-        specifier: ^1.1.31
-        version: 1.1.36(@typescript-eslint/utils@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))
-      '@vue/eslint-config-prettier':
-        specifier: ^10.2.0
-        version: 10.2.0(eslint@9.21.0(jiti@1.21.7))(prettier@3.5.3)
-      '@vue/eslint-config-typescript':
-        specifier: ^14.4.0
-        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.21.0(jiti@1.21.7)))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)
-      '@vue/test-utils':
-        specifier: ^2.4.6
-        version: 2.4.6
-      '@vue/tsconfig':
-        specifier: ^0.7.0
-        version: 0.7.0(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.20(postcss@8.5.3)
-      eslint:
-        specifier: ^9.20.1
-        version: 9.21.0(jiti@1.21.7)
-      eslint-plugin-playwright:
-        specifier: ^2.2.0
-        version: 2.2.0(eslint@9.21.0(jiti@1.21.7))
-      eslint-plugin-vue:
-        specifier: ^9.32.0
-        version: 9.32.0(eslint@9.21.0(jiti@1.21.7))
-      jsdom:
-        specifier: ^26.0.0
-        version: 26.0.0
-      postcss:
-        specifier: ^8.5.2
-        version: 8.5.3
-      postcss-import:
-        specifier: ^16.1.0
-        version: 16.1.0(postcss@8.5.3)
-      prettier:
-        specifier: ^3.5.0
-        version: 3.5.3
-      prettier-plugin-tailwindcss:
-        specifier: ^0.6.11
-        version: 0.6.11(prettier@3.5.3)
-      sass:
-        specifier: ^1.84.0
-        version: 1.85.1
-      typescript:
-        specifier: ^5.7.3
-        version: 5.8.2
-      vite:
-        specifier: ^6.1.1
-        version: 6.2.0(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0)
-      vite-plugin-dts:
-        specifier: ^4.5.0
-        version: 4.5.3(@types/node@22.15.3)(rollup@4.34.9)(typescript@5.8.2)(vite@6.2.0(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0))
-      vitest:
-        specifier: ^3.0.5
-        version: 3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0)
-      vue-tsc:
-        specifier: ^2.2.0
-        version: 2.2.8(typescript@5.8.2)
-
   apps/velia:
     dependencies:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
-      '@gtm-support/vue-gtm':
-        specifier: ^3.1.0
-        version: 3.1.0(vue@3.5.13(typescript@5.7.3))
       '@sentry/vue':
         specifier: ^9.1.0
         version: 9.3.0(vue@3.5.13(typescript@5.7.3))
@@ -433,7 +285,7 @@ importers:
         specifier: ^1.50.1
         version: 1.50.1
       '@sentry/vite-plugin':
-        specifier: ^3.2.0
+        specifier: ^3.2.1
         version: 3.2.1(encoding@0.1.13)
       '@tsconfig/node22':
         specifier: ^22.0.0
@@ -2017,14 +1869,6 @@ packages:
     resolution: {integrity: sha512-AiXO/bfe9bmxBjxxtYxFAXGZvMaN5s8kO+jBHAJCON8rJoB5YS/D6X7ZNc6XQkuHNmyl4CYaMI1fJ/Gn27RGGw==}
     engines: {node: '>=6'}
     hasBin: true
-
-  '@gtm-support/core@3.0.1':
-    resolution: {integrity: sha512-SctcoqvvAbGAgZzOb7DZ4wjbZF3ZS7Las3qIEByv6g7mzPf4E9LpRXcQzjmywYLcUx2jys7PWJAa3s5slvj/0w==}
-
-  '@gtm-support/vue-gtm@3.1.0':
-    resolution: {integrity: sha512-kGUnCI+Z5lBeCKd7rzgU7UoFU8Q0EkJfh17SgeyAyx8cLdISqeq54BNJKZrME3WXersoigLZVJ1GLs0buYD3lA==}
-    peerDependencies:
-      vue: '>= 3.2.26 < 4.0.0'
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -9020,15 +8864,6 @@ snapshots:
       protobufjs: 7.4.0
       yargs: 17.7.2
 
-  '@gtm-support/core@3.0.1': {}
-
-  '@gtm-support/vue-gtm@3.1.0(vue@3.5.13(typescript@5.7.3))':
-    dependencies:
-      '@gtm-support/core': 3.0.1
-      vue: 3.5.13(typescript@5.7.3)
-    optionalDependencies:
-      vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
-
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -9701,12 +9536,6 @@ snapshots:
       '@sentry/core': 9.3.0
       vue: 3.5.13(typescript@5.7.3)
 
-  '@sentry/vue@9.3.0(vue@3.5.13(typescript@5.8.2))':
-    dependencies:
-      '@sentry/browser': 9.3.0
-      '@sentry/core': 9.3.0
-      vue: 3.5.13(typescript@5.8.2)
-
   '@shikijs/core@2.5.0':
     dependencies:
       '@shikijs/engine-javascript': 2.5.0
@@ -10336,14 +10165,6 @@ snapshots:
       eslint: 9.21.0(jiti@1.21.7)
     optionalDependencies:
       typescript: 5.7.3
-      vitest: 3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0)
-
-  '@vitest/eslint-plugin@1.1.36(@typescript-eslint/utils@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))':
-    dependencies:
-      '@typescript-eslint/utils': 8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)
-      eslint: 9.21.0(jiti@1.21.7)
-    optionalDependencies:
-      typescript: 5.8.2
       vitest: 3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0)
 
   '@vitest/expect@2.0.5':

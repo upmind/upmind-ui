@@ -114,7 +114,11 @@ export const useSession = (inspector?: Function): IUseSession => {
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
 
-    return Promise.reject();
+    return Promise.reject(
+      new Error(
+        `[headless-vue] useSession: resolve() called but no form is available`
+      )
+    );
   }
 
   function reject(): Promise<any> {
