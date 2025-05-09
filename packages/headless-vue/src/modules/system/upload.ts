@@ -43,7 +43,7 @@ export const useUpload = (field: any) => {
         }
       })
       .catch(() => {
-        reject(
+        return Promise.reject(
           new DetailedError(
             `[headless-vue] fetch on useUpload timed out while waiting for upload to complete`,
             responseCodes.Timeout
