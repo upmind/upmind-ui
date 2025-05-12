@@ -13,6 +13,7 @@
         width="xs"
         :checked-icon="false"
         :search="onSearch"
+        tabindex="-1"
       />
       <Input
         :disabled="!control.enabled"
@@ -31,13 +32,12 @@
 
     <template #messages>
       <FormMessage
-        v-if="errors"
+        v-if="formFieldProps.dirty && errors"
         :errors="[errorsMapped]"
         :formMessageId="`form-item-message-${control.id}`"
         :name="control.path"
       />
     </template>
-
   </FormField>
 </template>
 
