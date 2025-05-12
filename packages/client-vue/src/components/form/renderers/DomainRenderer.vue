@@ -1,8 +1,7 @@
 <template>
-  <FormField v-bind="formFieldProps" noErrors>
+  <FormField v-bind="formFieldProps">
     <Domain
       :model-value="control.data"
-      :errors="formFieldProps.errors"
       :touched="formFieldProps.touched"
       @update:modelValue="onInput"
       @update:type="resetInput"
