@@ -73,11 +73,10 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const { errors, isReady } = useBasket();
+const { errors } = useBasket();
 const { isResolved } = useRoutingEngine();
 
-await isReady();
-await isResolved(ROUTE.PRODUCT_ADD);
+await isResolved(ROUTE.ORDER);
 
 const { transferTo, meta } = useSession();
 
