@@ -22,11 +22,9 @@ export interface TooltipProps
   color?: TooltipVariantProps["color"] | string;
   // ---
   uiConfig?: {
-    tooltip: {
-      content: string;
-      arrow: string;
-      trigger: string;
-    };
+    content?: string;
+    arrow?: string;
+    trigger?: string;
   };
   class?: HTMLAttributes["class"];
 }
