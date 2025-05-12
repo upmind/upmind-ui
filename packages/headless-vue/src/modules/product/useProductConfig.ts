@@ -216,13 +216,23 @@ export const useProductConfig = (service: ActorRef<any>) => {
     values: string | string[]
   ): Promise<void> {
     const options = model.value.options;
+    const previousStates = get(options, option.id, {}); // keep previous state to restore quantity
+
     set(options, option.id, {}); // reset all previous options
 
     const safeValues = compact(isArray(values) ? values : [values]);
     forEach(safeValues, value => {
-      set(options, [option.id, value], {
+      const quantity = get(previousStates, [value, "quantity"]);
+
+      const optionValue: { productId: string; quantity?: number } = {
         productId: value,
-      });
+      };
+
+      if (quantity) {
+        optionValue.quantity = quantity;
+      }
+
+      set(options, [option.id, value], optionValue);
     });
 
     // emit the event
