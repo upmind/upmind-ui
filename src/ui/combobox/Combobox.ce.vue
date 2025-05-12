@@ -6,6 +6,7 @@
   >
     <PopoverTrigger as-child>
       <Button
+        v-bind="$attrs"
         :loading="props.loading"
         :class="cn('group', styles.combobox.trigger, props.class)"
         :size="props.size"
