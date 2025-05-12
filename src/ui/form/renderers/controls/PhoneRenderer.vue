@@ -22,18 +22,22 @@
           control.data?.number
         "
         :placeholder="exampleNumber || ''"
+        :auto-focus="formFieldProps.autoFocus"
         @update:modelValue="onPhoneInput"
         type="tel"
         class="rounded-l-none focus:outline-none"
       />
     </InputGroup>
 
-    <FormMessage
-      v-if="errors && formFieldProps.touched"
-      :errors="[errorsMapped]"
-      :formMessageId="`form-item-message-${control.id}`"
-      :name="control.path"
-    />
+    <template #messages>
+      <FormMessage
+        v-if="errors"
+        :errors="[errorsMapped]"
+        :formMessageId="`form-item-message-${control.id}`"
+        :name="control.path"
+      />
+    </template>
+
   </FormField>
 </template>
 
