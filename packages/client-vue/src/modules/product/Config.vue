@@ -46,7 +46,9 @@
         >
           <ContentSection
             :title="t('product.summary.title')"
-            classTitle="py-1.5"
+            :ui-config="{
+              title: 'py-1.5',
+            }"
           >
             <Summary :item="item" @resolve="doResolve" />
           </ContentSection>
