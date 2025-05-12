@@ -20,10 +20,11 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ["vue", "vue-router"],
       output: {
         globals: {
-          vue: 'Vue',
+          vue: "Vue",
+          "vue-router": "VueRouter",
         },
       },
     },
