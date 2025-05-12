@@ -4,11 +4,11 @@
     data-testid="card-container"
   >
     <header
-      :class="cn(styles.section.header, props.classHeader)"
+      :class="styles.section.header"
       v-if="title || tagline || $slots.header || $slots.title"
     >
       <slot name="header">
-        <h3 :class="cn(styles.section.title, props.classTitle)">
+        <h3 :class="styles.section.title">
           <slot name="title">
             {{ title }}
           </slot>
@@ -21,14 +21,11 @@
       </slot>
     </header>
 
-    <div :class="cn(styles.section.content, props.classContent)">
+    <div :class="styles.section.content">
       <slot />
     </div>
 
-    <footer
-      v-if="$slots.footer"
-      :class="cn(styles.section.footer, props.classFooter)"
-    >
+    <footer v-if="$slots.footer" :class="styles.section.footer">
       <slot name="footer"></slot>
     </footer>
   </section>
@@ -41,19 +38,14 @@ import config from "./content.config";
 
 // --- types
 import type { HTMLAttributes, ComputedRef } from "vue";
+import type { ContentSectionProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<{
-  title?: string;
-  tagline?: string;
-  class?: HTMLAttributes["class"];
-  classHeader?: HTMLAttributes["class"];
-  classTitle?: HTMLAttributes["class"];
-  classContent?: HTMLAttributes["class"];
-  classFooter?: HTMLAttributes["class"];
-}>();
+const props = defineProps<ContentSectionProps>();
 
-const styles = useStyles(["section"], {}, config) as ComputedRef<{
+const styles = useStyles(["section"], {}, config, {
+  section: props.uiConfig,
+}) as ComputedRef<{
   section: {
     root: string;
     header: string;
