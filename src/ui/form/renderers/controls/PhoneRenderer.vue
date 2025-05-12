@@ -141,9 +141,8 @@ function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
   const code = countryCode || phone.value?.country || defaultCountryCode;
 
   if (phonenumber) {
-    const result = parsePhoneNumber(phonenumber, code);
     return {
-      ...result,
+      ...parsePhoneNumber(phonenumber, code),
       country: code,
     };
   }
