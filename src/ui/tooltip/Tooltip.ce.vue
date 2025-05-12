@@ -1,15 +1,19 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-
   <TooltipProvider v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger :color="color" tabindex="-1"><slot /></TooltipTrigger>
+      <TooltipTrigger
+        :color="color"
+        tabindex="-1"
+        :class="styles.tooltip.trigger"
+        ><slot
+      /></TooltipTrigger>
       <TooltipContent
         v-bind="forwarded"
-        :class="cn(styles.tooltip, props.class)"
+        :class="cn(styles.tooltip.content, props.class)"
       >
         <slot name="content">{{ props.label }}</slot>
-        <TooltipArrow fill="currentColor" :class="styles.arrow" />
+        <TooltipArrow fill="currentColor" :class="styles.tooltip.arrow" />
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>
@@ -49,7 +53,6 @@ const props = withDefaults(defineProps<TooltipProps>(), {
   // --- styles
   color: "base",
   // --- styles
-  uiConfig: () => ({ tooltip: [] }),
   class: "",
 });
 
@@ -63,10 +66,13 @@ const meta = computed(() => ({
   hasLabel: !isEmpty(props.label),
 }));
 
-const styles = useStyles(
-  ["tooltip", "arrow"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ tooltip: string; arrow: string }>;
+const styles = useStyles(["tooltip"], meta, config, {
+  tooltip: props.uiConfig,
+}) as ComputedRef<{
+  tooltip: {
+    content: string;
+    arrow: string;
+    trigger: string;
+  };
+}>;
 </script>
