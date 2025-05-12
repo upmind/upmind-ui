@@ -70,14 +70,6 @@ class UpmindClient {
 
   private initPlugins() {
     this.plugins = Upmind.plugins ?? {};
-    this.plugins.i18n = {
-      plugin: this.i18n?.provider,
-      options: {},
-    };
-    this.plugins.router = {
-      plugin: this.router?.provider,
-      options: {},
-    };
   }
 
   private async initRouter() {
