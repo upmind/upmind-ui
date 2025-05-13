@@ -49,6 +49,7 @@ export interface FormProps {
   loading?: boolean;
   processing?: boolean;
   disabled?: boolean;
+  touched?: boolean;
   // ---
   // --- Provide a way to add custom variants for a specific instance of the component
   uiConfig?: { form: CxOptions };

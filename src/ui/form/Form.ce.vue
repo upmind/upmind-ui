@@ -105,6 +105,7 @@ const emits = defineEmits<{
   resolve: [Object];
   "update:modelValue": [Object];
   "update:uischema": [Object];
+  touched: [boolean];
   valid: [boolean];
   click: [{ model: object; meta: object }];
   action: [{ name: string; model: object; meta: object }];
@@ -114,6 +115,11 @@ const slots = defineSlots<{
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();
+
+defineExpose({
+  submit: doSubmit,
+  reset: doReject,
+});
 
 // --- state
 const { ajv } = useValidation(props.ajv);
@@ -129,7 +135,10 @@ const uischema = useVModel(props, "uischema", emits, {
   passive: true,
 });
 const errors = ref<ErrorObject[]>([]);
-const touched = ref(false);
+const touched = useVModel(props, "touched", emits, {
+  passive: true,
+  defaultValue: false,
+});
 
 // ---
 
@@ -305,7 +314,7 @@ function forceTouched() {
   iterateSchema(uischema.value, (child: UISchemaElement) => {
     if (!child) return; //safety check
     child.options ??= {}; //safety check
-    set(child.options, "touched", meta.value.isTouched);
+    set(child.options, "touched", touched.value);
   });
 }
 
@@ -328,10 +337,10 @@ onMounted(() => {
 // --- effects
 watch(
   () => props,
-  ({ uischema, additionalErrors }) => {
+  ({ uischema, additionalErrors, touched }) => {
     syncUischema();
     updateUischema(uischema);
-    if (!isEmpty(additionalErrors)) {
+    if (!isEmpty(additionalErrors) || touched) {
       forceTouched();
     }
   },
