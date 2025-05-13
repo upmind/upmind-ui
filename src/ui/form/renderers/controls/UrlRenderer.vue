@@ -33,16 +33,16 @@ const { control, onInput, formFieldProps } = useUpmindUIRenderer(
 </script>
 
 <script lang="ts">
-import { and, isStringControl, or, optionIs } from "@jsonforms/core";
+import { and, isStringControl, or, formatIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(
     isStringControl,
     or(
-      optionIs("format", "uri"),
-      optionIs("format", "uri-reference"),
-      optionIs("format", "iri"),
-      optionIs("format", "iri-reference")
+      formatIs("uri"),
+      formatIs("uri-reference"),
+      formatIs("iri"),
+      formatIs("iri-reference")
     )
   ),
 };
