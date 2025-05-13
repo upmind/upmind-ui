@@ -32,12 +32,12 @@ const { control, appliedOptions, formFieldProps, onInput } =
 </script>
 
 <script lang="ts">
-import { and, isStringControl, or, optionIs } from "@jsonforms/core";
+import { and, isStringControl, or, formatIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(
     isStringControl,
-    or(optionIs("format", "date"), optionIs("format", "date-time"))
+    or(formatIs("date"), formatIs("date-time"))
   ),
 };
 </script>
