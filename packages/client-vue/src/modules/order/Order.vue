@@ -55,7 +55,13 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useSession, useBasket, utils } from "@upmind-automation/headless-vue";
+import {
+  useSession,
+  useBasket,
+  useRoutingEngine,
+  utils,
+  ROUTE,
+} from "@upmind-automation/headless-vue";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
@@ -68,6 +74,9 @@ const route = useRoute();
 const router = useRouter();
 
 const { errors } = useBasket();
+const { isResolved } = useRoutingEngine();
+
+await isResolved(ROUTE.ORDER);
 
 const { transferTo, meta } = useSession();
 

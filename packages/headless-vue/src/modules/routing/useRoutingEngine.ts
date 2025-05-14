@@ -34,7 +34,7 @@ export const useRoutingEngine = () => {
     service,
     exists,
     stop,
-    isReady,
+    isReady: isRoutingEngineReady,
     next: resolveNext,
     back: resolveBack,
     resolve,
@@ -186,36 +186,45 @@ export const useRoutingEngine = () => {
     }
   );
 
+  const isReady = async (): Promise<boolean> =>
+    isRoutingEngineReady()
+      .then(() =>
+        waitFor(
+          service,
+          state => !["subscribing", "loading"].some(state.matches) && !!router,
+          { timeout: Infinity }
+        ).then(state => {
+          if (state.matches("unavailable")) {
+            return Promise.reject(new Error("Routing Engine is unavailable"));
+          }
+          return true;
+        })
+      )
+      .then(() => router.isReady().then(() => true))
+      .catch(() => {
+        throw new DetailedError(
+          "Routing Engine is unavailable",
+          responseCodes.Conflict
+        );
+      });
+
   // ---------------------------------------------------------------------------
   return {
-    isReady: async (): Promise<boolean> =>
-      isReady()
-        .then(() => {
-          return waitFor(
-            service,
-            state => !["subscribing", "loading"].some(state.matches),
-            { timeout: Infinity }
-          ).then(state => {
-            if (state.matches("unavailable")) {
-              return Promise.reject(new Error("Routing Engine is unavailable"));
-            }
-            return true;
-          });
-        })
-        .catch(() => {
-          throw new DetailedError(
-            "Routing Engine is unavailable",
-            responseCodes.Conflict
-          );
-        }),
+    isReady,
 
     isResolved: async (route: ROUTE | string): Promise<boolean> => {
-      const currentRoute = router.currentRoute.value;
+      await isReady();
+      const currentRoute = router?.currentRoute?.value;
+
       return resolve(route, {
         name: currentRoute?.name?.toString(),
         params: currentRoute.params,
         query: currentRoute.query,
-      }).then(() => true);
+      })
+        .then(() => true)
+        .catch(() => {
+          return false;
+        });
     },
 
     state: computed(() => state.value.value),

@@ -23,7 +23,7 @@ export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(sessionMachine, { devTools: true });
+const service = interpret(sessionMachine, { devTools: false });
 
 // -----------------------------------------------------------------------------
 

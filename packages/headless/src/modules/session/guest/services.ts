@@ -18,9 +18,6 @@ import type { GuestContext } from "./types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: GuestContext, _event: any) {
-  // if we DON'T have a token, we need to generate one, otherwise we are authenticated already
-  // init early, so the service is available
-  useSystemRecaptcha();
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
 
@@ -150,16 +147,16 @@ async function register({ model }: GuestContext) {
     firstname: model?.firstname,
     lastname: model?.lastname,
     password: model?.password,
-    phone: model?.phone,
-    phone_code: model?.phone_code,
-    phone_country_code: model?.phone_country_code,
+    phone: model.phone?.nationalNumber,
+    phone_code: model.phone?.countryCallingCode,
+    phone_country_code: model.phone?.country,
   };
 
   // ---
   // Conditional data
 
   // Add.match the basket currency (if available)
-  // so as to persist the currency when client registers and claims a basket
+  // to persist the currency when a client registers and claims a basket
   // without it the basket will revert to the default currency
   const currency = getCurrency();
   if (currency) data.currency_id = currency.id;
@@ -168,7 +165,7 @@ async function register({ model }: GuestContext) {
   await recaptcha
     .generate("client_register")
     .then(token => (data.recaptcha_token = token))
-    .catch(() => null);
+    .catch(() => null); // do nothing
 
   // add referral cookie if available
   const referralCookie = getCookie("upm_aff");
@@ -185,7 +182,10 @@ async function register({ model }: GuestContext) {
     url: useUrl("clients/register"),
     data,
   })
-    .then(({ data }: any) => data)
+    .then(({ data }: any) => {
+      recaptcha.clear(); // clear our recaptcha token that has been used
+      return data;
+    })
     .then(loadUser);
 }
 
