@@ -1,16 +1,16 @@
 // --- internal
-import { Place, useSystem } from "..";
+import { useSystem } from "..";
 
 // --- utils
 import { compact, find, get, includes, some } from "lodash-es";
 
 // --- types
-import type { Places } from "./types";
+import type { Place, PlaceService } from "./types";
 
 // -----------------------------------------------------------------------------
 
 function parseCountry(
-  addressComponents: google.maps.places.PlaceResult["address_components"]
+  addressComponents: google.maps.places.AddressComponent[]
 ) {
   const { getCountry } = useSystem();
 
@@ -18,7 +18,7 @@ function parseCountry(
     includes(entry.types, "country")
   );
 
-  return getCountry(get(country, "short_name"));
+  return getCountry(country?.shortText || "");
 }
 
 async function parseRegion(
@@ -32,23 +32,23 @@ async function parseRegion(
 }
 
 function parseValue(
-  addressComponents: google.maps.places.PlaceResult["address_components"],
+  addressComponents: google.maps.places.AddressComponent[],
   fields: string[]
 ) {
   const value = find(addressComponents, entry =>
     some(entry.types, type => includes(fields, type))
   );
 
-  return get(value, "long_name", "");
+  return value?.longText || "";
 }
 
 // -----------------------------------------------------------------------------
 export async function usePlaceParser(
-  result: google.maps.places.PlaceResult
+  place: google.maps.places.Place
 ): Promise<Place> {
-  const name = get(result, "name");
-
-  const address = get(result, "address_components", []);
+  // Extract data from place object
+  const name = place.displayName;
+  const address = place.addressComponents || [];
 
   const address_1 = compact([
     parseValue(address, ["street_number"]),
@@ -73,34 +73,34 @@ export async function usePlaceParser(
     country?.code ?? ""
   );
 
-  const fallbackTitle = compact([address_1, city, get(country, "name")]).join(
-    ", "
-  );
+  const fallbackTitle = compact([
+    address_1.join(" "),
+    city,
+    get(country, "name"),
+  ]).join(", ");
   const title = name || fallbackTitle || "Address";
 
   return {
-    id: get(result, "place_id", ""),
+    id: place.id,
     title,
-    description: get(result, "formatted_address", fallbackTitle),
+    description: place.formattedAddress || fallbackTitle,
     address: {
       name,
-      address1: address_1.length ? address_1.join(" ") : "",
-      address2: address_2.length ? address_2.join(" ") : undefined,
       city,
       type: 1,
       postcode,
+      address1: address_1.length ? address_1.join(" ") : "",
+      address2: address_2.length ? address_2.join(" ") : undefined,
       regionId: get(region, "id"),
       countryId: get(country, "id"),
     },
   };
 }
 
-export function parsePlaces(api: google.maps.PlacesLibrary): Places {
+export function parsePlaces(api: google.maps.PlacesLibrary): PlaceService {
   return {
-    places: new api.PlacesService(document.createElement("div")),
-    service: new api.AutocompleteService(),
-    statuses: api.PlacesServiceStatus,
-    sessionToken: new api.AutocompleteSessionToken(),
+    Place: api.Place,
+    AutocompleteSuggestion: api.AutocompleteSuggestion,
     AutocompleteSessionToken: api.AutocompleteSessionToken,
   };
 }

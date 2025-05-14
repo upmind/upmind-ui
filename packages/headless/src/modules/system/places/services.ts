@@ -4,25 +4,25 @@ import { compact, isArray, isEmpty, map } from "lodash-es";
 
 // --- internal
 import { useQuery } from "../../query";
-import { Place, useSystem } from "..";
+import { useSystem } from "..";
 
 // --- utils
 import { parsePlaces, usePlaceParser } from "./utils";
 
 // --- types
-import type { Places } from "./types";
+import type { Place, PlaceService } from "./types";
 
 // Private service instance
-let placesService: Places | undefined;
+let service: PlaceService | undefined;
 
 /**
  * Initialize the Google Places API and return the service
  */
-async function load(): Promise<Places> {
+async function load(): Promise<PlaceService> {
   await useSystem().isReady();
 
   // If we already have a service, return it
-  if (placesService) return placesService;
+  if (service) return service;
 
   // Otherwise create a new service
   const loader = new Loader({
@@ -30,17 +30,21 @@ async function load(): Promise<Places> {
     version: "weekly",
   });
 
-  const service = await loader.importLibrary("places").then(parsePlaces);
-  placesService = service;
-  return service;
+  return loader
+    .importLibrary("places")
+    .then(parsePlaces)
+    .then(s => {
+      service = s;
+      return s;
+    });
 }
 
 /**
  * Search for address suggestions based on user input and return parsed address details
  * @param query Text to search for
- * @returns Promise with array of parsed address details only
+ * @returns Promise with an array of parsed address details only
  */
-async function search(query: string) {
+async function search(query: string): Promise<Place[]> {
   const { queryClient } = useQuery();
 
   // Return early if the query is empty
@@ -49,53 +53,54 @@ async function search(query: string) {
   // Generate a cache key based on the search query
   const queryKey = ["places", "search", query];
 
-  return queryClient.fetchQuery({
+  return queryClient.fetchQuery<Place[]>({
     queryKey,
     queryFn: async () => {
       const places = await load();
 
-      // Get the predictions first
-      const predictions = await new Promise<
-        google.maps.places.AutocompletePrediction[] | null
-      >((resolve, reject) => {
-        places.service.getPlacePredictions(
-          {
-            input: query,
-            types: ["address"],
-            sessionToken: places.sessionToken,
-          },
-          (
-            predictions: google.maps.places.AutocompletePrediction[] | null,
-            status: google.maps.places.PlacesServiceStatus
-          ) => {
-            if (status === places.statuses.OK) {
-              resolve(predictions);
-            } else if (status === places.statuses.ZERO_RESULTS) {
-              resolve([]);
-            } else {
-              reject(status);
+      // Create a session token for this search session
+      const sessionToken = new places.AutocompleteSessionToken();
+
+      // Define the request parameters with the proper type
+      const request: google.maps.places.AutocompleteRequest = {
+        input: query,
+        sessionToken,
+      };
+
+      try {
+        // Get the predictions using the new API
+        const { suggestions } =
+          await places.AutocompleteSuggestion.fetchAutocompleteSuggestions(
+            request
+          );
+
+        // If no suggestions, return an empty array
+        if (!isArray(suggestions) || isEmpty(suggestions)) return [];
+
+        // Parse all predictions and compact the results to remove nulls
+        return Promise.all(
+          map(suggestions, async suggestion => {
+            try {
+              if (!suggestion.placePrediction) {
+                return null;
+              }
+
+              const placeId = suggestion.placePrediction.placeId;
+              if (!placeId) {
+                return null;
+              }
+
+              return await parse(placeId);
+            } catch (error) {
+              console.error(`Failed to parse address from prediction:`, error);
+              return null;
             }
-          }
-        );
-      });
-
-      // If no predictions or null, return empty array
-      if (!isArray(predictions) || isEmpty(predictions)) return [];
-
-      // Parse all predictions and compact the results to remove nulls
-      return Promise.all(
-        map(predictions, async prediction => {
-          try {
-            return await parse(prediction.place_id);
-          } catch (error) {
-            console.error(
-              `Failed to parse address ID ${prediction.place_id}:`,
-              error
-            );
-            return null;
-          }
-        })
-      ).then(compact);
+          })
+        ).then(compact);
+      } catch (error) {
+        console.error("Error fetching autocomplete suggestions:", error);
+        return [];
+      }
     },
     // Cache search results for 5 minutes
     staleTime: 5 * 60 * 1000,
@@ -105,46 +110,42 @@ async function search(query: string) {
 /**
  * Get full details for a place by its ID
  * @param placeId Google Places ID
- * @returns Promise with address details
+ * @returns Promise with address details or null
  */
-async function parse(placeId: string): Promise<Place | {} | null> {
-  if (isEmpty(placeId)) return Promise.resolve(null);
-  if (placeId === "manual") return Promise.resolve(null);
+async function parse(placeId: string): Promise<Place | null> {
+  if (isEmpty(placeId)) return null;
+  if (placeId === "manual") return null;
 
   const { queryClient } = useQuery();
 
   // Generate a cache key for caching purposes
   const queryKey = ["places", "details", placeId];
 
-  return queryClient.fetchQuery({
+  return queryClient.fetchQuery<Place | null>({
     queryKey,
     queryFn: async () => {
-      const service = await load();
+      const placeLibrary = await load();
 
-      return new Promise<Place | {}>((resolve, reject) => {
-        service.places.getDetails(
-          {
-            placeId,
-            sessionToken: service.sessionToken,
-            fields: ["name", "address_components", "formatted_address"],
-          },
-          (result, status) => {
-            // Get a new session token for the next request
-            service.sessionToken = new service.AutocompleteSessionToken();
+      try {
+        // Create a new Place instance using the place ID
+        const place = new placeLibrary.Place({ id: placeId });
 
-            if (status === service.statuses.OK && result) {
-              usePlaceParser({
-                ...result,
-                place_id: placeId,
-              }).then(place => resolve(place));
-            } else if (status === service.statuses.ZERO_RESULTS) {
-              resolve({});
-            } else {
-              reject(status);
-            }
-          }
-        );
-      });
+        // Specify which fields to fetch
+        await place.fetchFields({
+          fields: [
+            "displayName",
+            "addressComponents",
+            "formattedAddress",
+            "location",
+          ],
+        });
+
+        // Parse the place data into our format
+        return await usePlaceParser(place);
+      } catch (error) {
+        console.error(`Error fetching place details for ID ${placeId}:`, error);
+        return null;
+      }
     },
     // Cache place details for 1 hour
     staleTime: 60 * 60 * 1000,
