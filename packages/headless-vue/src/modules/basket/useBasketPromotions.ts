@@ -77,7 +77,7 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
           { timeout: 60_000 }
         );
         if (state.matches("error")) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(new Error(state.context.error));
         }
       }
 
@@ -92,7 +92,7 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
         { timeout: 60_000 }
       ).then(state => {
         if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(new Error(state.context.error));
         }
         return Promise.resolve();
       });
@@ -108,7 +108,7 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
         { timeout: 60_000 }
       ).then(state => {
         if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(new Error(state.context.error));
         }
         return Promise.resolve();
       });

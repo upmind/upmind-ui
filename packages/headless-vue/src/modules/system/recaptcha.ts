@@ -14,7 +14,7 @@ import { isEmpty } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 export const useRecaptcha = () => {
-  const { service, stop, generate, clear } = useSystemRecaptcha();
+  const { service, stop, generate, clear, init } = useSystemRecaptcha();
   const { state } = useActor(service);
 
   // ---
@@ -32,14 +32,17 @@ export const useRecaptcha = () => {
     //messages: computed(() => state.value.context?.messages),
     // ---
     meta: computed(() => ({
-      isLoading: state.value.matches("loading"),
+      isInitialised: !state.value.matches("subscribing"),
+      isLoading: ["subscribing", "loading"].some(state.value.matches),
       isAvailable: state.value.matches("available"),
-      isProcessing: ["checking", "processing"].some(state.value.matches),
-      hasErrors: state.value.matches("error"),
+      isProcessing: ["available.processing"].some(state.value.matches),
+      hasErrors: state.value.matches("available.error"),
       hasToken:
-        state.value.matches("complete") && !isEmpty(state.value.context?.token),
+        state.value.matches("available.processed") &&
+        !isEmpty(state.value.context?.token),
     })),
     // ---
+    init,
     generate,
     clear,
     stop,
