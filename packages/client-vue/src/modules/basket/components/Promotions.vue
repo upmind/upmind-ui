@@ -48,12 +48,17 @@
         v-for="promotion in promotions"
         :key="promotion.promotion.code"
         :label="tooltipLabel(promotion)"
+        :open="!!open[promotion.id]"
+        :ui-config="{ trigger: 'rounded-pill' }"
       >
         <Badge
           color="promotion"
           variant="tonal"
           size="md"
           :label="promotion.promotion.code"
+          @click="toggleTooltip(promotion.id)"
+          @mouseenter="toggleTooltip(promotion.id, true)"
+          @mouseleave="toggleTooltip(promotion.id, false)"
         >
           <template #prepend>
             <Button
@@ -120,6 +125,7 @@ const {
 // ---
 const toggle = ref(false);
 const processing = ref<Record<string, boolean>>({});
+const open = ref<Record<string, boolean>>({});
 
 const formConfig = config.basket.promotions as unknown as FormProps["uiConfig"];
 
@@ -130,6 +136,10 @@ function doRemove(value: string) {
   set(processing.value, value, true);
   remove(value);
 }
+
+const toggleTooltip = (id: string, force?: boolean) => {
+  open.value[id] = force ?? !open.value[id];
+};
 
 const actions = computed((): Record<string, FormActionProps> => {
   return {
