@@ -512,6 +512,7 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
               autocomplete: "organization",
               placeholder: "My Company Name (PTY) LTD",
               label: "Company Name",
+              required: true,
             },
           },
           {
@@ -521,7 +522,9 @@ export const useUischema = ({ addresses, emails, phones }: any) => {
                 type: "Control",
                 scope: "#/properties/regNumber",
                 i18n: "client.unified.form.fields.regNumber",
-                options: {},
+                options: {
+                  required: true,
+                },
               },
               {
                 type: "Control",
