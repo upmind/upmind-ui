@@ -107,7 +107,7 @@ const { productId } = useQueryParams();
 const { configure, resolve } = useBasketProductsPending();
 
 await isReady();
-await isResolved(ROUTE.PRODUCT_ADD).catch(back);
+await isResolved(ROUTE.PRODUCT_ADD);
 const {
   meta,
   stop,
