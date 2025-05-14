@@ -60,6 +60,7 @@
         <template v-if="props.search">
           <InputExtended
             v-if="isFunction(props.search)"
+            v-model="searchTerm"
             @update:modelValue="onSearch"
             :placeholder="placeholder"
             input-size="sm"

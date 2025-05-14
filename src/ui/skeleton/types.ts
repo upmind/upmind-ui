@@ -8,3 +8,10 @@ export interface SkeletonProps {
   uiConfig?: { skeleton: CxOptions };
   class?: HTMLAttributes["class"];
 }
+
+export interface SkeletonListProps {
+  rows?: number;
+  // --- styles
+  uiConfig?: { skeletonList: CxOptions };
+  class?: HTMLAttributes["class"];
+}
