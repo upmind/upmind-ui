@@ -124,9 +124,6 @@ const places = usePlaces();
 // Load Places API when component mounts
 onMounted(async () => {
   try {
-    console.log("API Key:", apiKey.value);
-    console.log("Environment variables:", import.meta.env);
-
     isLoading.value = true;
     apiStatus.value = "Initializing...";
     await places.load();
@@ -134,7 +131,6 @@ onMounted(async () => {
   } catch (err) {
     error.value = "Failed to initialize Places API. Check your API key.";
     apiStatus.value = "Error";
-    console.error("Places API initialization error:", err);
   } finally {
     isLoading.value = false;
   }
@@ -153,17 +149,15 @@ const searchAddresses = debounce(async (query: string) => {
     error.value = "";
     apiStatus.value = "Searching...";
     const results = await places.search(query);
-    console.log("Parsed address results:", results);
     parsedResults.value = results || [];
     apiStatus.value = "Ready";
   } catch (err) {
     error.value = "Error searching for places";
     apiStatus.value = "Error";
-    console.error("Search error:", err);
   } finally {
     isLoading.value = false;
   }
-}, 300);
+}, 500);
 
 // Watch for changes to searchQuery
 watch(searchQuery, newQuery => {
