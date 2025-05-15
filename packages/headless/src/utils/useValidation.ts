@@ -1,6 +1,6 @@
 // --- external
 
-import { createAjv } from "@jsonforms/core";
+import { createAjv, type JsonSchema } from "@jsonforms/core";
 import {
   isValidPhoneNumber,
   type CountryCode,
@@ -42,6 +42,11 @@ export const useValidation = (ajv?: any) => {
     /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
   );
 
+  ajv.addFormat("address", {
+    type: "string",
+    validate: (x: string) => !!x,
+  });
+
   ajv.addKeyword({
     keyword: "isPhoneNumber",
     type: ["string", "object"],
@@ -82,15 +87,31 @@ export const useValidationParser = (error: any): ErrorObject[] => {
   return error;
 };
 
-export const useModelParser = (schema: any, values: any) => {
+export const useModelParser = <
+  T extends Record<string, any> = Record<string, any>,
+>(
+  schema: JsonSchema | undefined,
+  values?: Partial<T>,
+  baseModel?: Partial<T>,
+  {
+    allowExtraProps,
+  }: {
+    allowExtraProps?: boolean;
+  } = { allowExtraProps: true }
+): T => {
+  if (!schema?.properties) return (values ?? baseModel ?? {}) as T;
+
   const model = reduce(
-    schema?.properties,
+    schema.properties,
     (result, field, key) => {
-      const value = field?.const || get(values, key, field?.default);
+      const value =
+        field?.const || get(values, key, field?.default || get(baseModel, key));
       set(result, key, value);
       return result;
     },
-    {}
+    {} as Record<string, any>
   );
-  return defaultsDeep(model, values);
+  if (!allowExtraProps) return model as T;
+
+  return defaultsDeep(model, values) as T;
 };

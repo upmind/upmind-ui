@@ -120,6 +120,8 @@ export const useBasketProductsPending = () => {
       } else if (state.done) {
         unsetProduct(pid);
       } else {
+        // should we resolve on complete?
+        // console.info("Product state", state.value);
         // resolve(actor);
       }
     });

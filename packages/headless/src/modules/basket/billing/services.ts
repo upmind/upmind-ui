@@ -6,7 +6,8 @@ import {
   useQuery,
   useSystem,
   useSession,
-  useClientUnifiedAddresses,
+  useClientAddresses,
+  useClientCompanies,
 } from "../../..";
 import { find, isEmpty } from "lodash-es";
 
@@ -35,14 +36,17 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   ]);
 
   await isAuthenticated().catch(error => Promise.reject(error));
+  const { getAll: getAddresses } = useClientAddresses();
+  const { getAll: getCompanies } = useClientCompanies();
 
-  const { isReady, getItems } = useClientUnifiedAddresses();
+  const addresses = getAddresses({ allowStale: false });
+  const companies = getCompanies({ allowStale: false });
 
-  return isReady().then(() => {
-    const addresses = getItems();
-
-    return { addresses };
-  });
+  return Promise.all([companies, addresses]).then(
+    ([companies, addresses]) => {
+      return [...companies, ...addresses];
+    } // we prioritise/return the companies first so they are at the top of the list
+  );
 }
 
 async function update(
@@ -112,6 +116,6 @@ async function validate(
 export default {
   load,
   parse,
-  validate,
   update,
+  validate,
 };

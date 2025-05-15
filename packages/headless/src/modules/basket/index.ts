@@ -1,6 +1,6 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import basketMachine from "./basket.machine";
@@ -22,9 +22,11 @@ import { DetailedError, responseCodes, compactDeep } from "../../utils";
 
 // --- types
 export * from "./types";
-import type { ActorRef } from "xstate";
 import type { IBasket } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
+export * from "./types";
+export * from "./billing";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine

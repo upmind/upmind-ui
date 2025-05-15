@@ -1,0 +1,139 @@
+{
+  "auth": {
+    "register": {
+      "email": {
+        "label": "Your email address",
+        "placeholder": "name@email.com",
+        "error": "A valid email address is required",
+        "description": null
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password or passphrase",
+        "error": "A strong password is required",
+        "description": null
+      },
+      "firstname": {
+        "label": "First name",
+        "error": "Your first name is required",
+        "description": null
+      },
+      "lastname": {
+        "label": "Last name",
+        "error": "Your last name is required",
+        "description": null
+      },
+      "fields": {
+        "label": "Custom fields"
+      }
+    },
+    "login": {
+      "email": {
+        "label": "Your email address",
+        "placeholder": "name@email.com",
+        "error": "A valid email address is required",
+        "description": null
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password or passphrase",
+        "error": "A strong password is required",
+        "description": null
+      },
+      "actions": {
+        "register": "Create new account",
+        "login": "Log into my account",
+        "continue": "Continue",
+        "logout": "Log out",
+        "forgot": "Forgot password"
+      }
+    },
+    "actions": {
+      "toggle": {
+        "register": "New customer",
+        "login": "Existing customer"
+      },
+      "register": "Continue",
+      "login": "Log into my account",
+      "continue": "Continue",
+      "logout": "Log out",
+      "forgot": "Forgot password"
+    },
+    "privacy_policy": "Privacy policy",
+    "terms_of_service": "Terms of service",
+    "google_recaptcha_terms": "This form is protected by reCAPTCHA and Google's {privacyPolicy} and {termsOfService} apply.",
+    "brand_terms": "By clicking '{label}' I agree to {brand}'s {object}.",
+    "terms_and_conditions": "Terms & Conditions"
+  },
+  "session": {
+    "popover": {
+      "register": {
+        "title": "New here?",
+        "description": "No problem, signing up is quick and easy. See you on the other side!",
+        "action": "Create an account"
+      },
+      "login": {
+        "title": "Already have an account?",
+        "description": "Sign in for a faster checkout.",
+        "action": "Sign in"
+      }
+    },
+    "unauthenticated": {
+      "register": {
+        "title": {
+          "text": "Create an {0}",
+          "mask": "account"
+        },
+        "account": "account",
+        "actions": {
+          "text": "Have a Labs account?",
+          "action": "Login"
+        }
+      },
+      "login": {
+        "title": {
+          "text": "Login to your {0}",
+          "mask": "account"
+        },
+        "account": "account",
+        "actions": {
+          "text": "Don't have an account?",
+          "action": "Register"
+        }
+      }
+    },
+    "authenticated": {
+      "header": {
+        "text": "",
+        "title": "Welcome back, {name}"
+      },
+      "footer": {
+        "text": "Not you? Sign in with another account {action} .",
+        "action": "here"
+      }
+    },
+    "expired": {
+      "title": "Your session has expired",
+      "text": "Please restart your checkout to continue.",
+      "actions": {
+        "continue": "Restart checkout"
+      }
+    },
+    "logged_out": {
+      "title": {
+        "text": "You're {0} out",
+        "mask": "logged"
+      },
+      "text": "No worries, you can continue shopping.",
+      "actions": {
+        "continue": "Continue shopping"
+      }
+    },
+    "account_dropdown": {
+      "my_account": "My Account",
+      "not_logged_in": "Not logged in",
+      "basket": "Basket",
+      "log_out": "Log out"
+    }
+  }
+}
