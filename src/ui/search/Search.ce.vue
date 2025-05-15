@@ -10,8 +10,8 @@
         :class="styles.search.inputContainer"
         :input-class="styles.search.input"
       >
-        <template #prepend>
-          <Icon icon="search" :class="styles.search.icon" />
+        <template v-if="icon" #prepend>
+          <Icon :icon="icon" :class="styles.search.icon" />
         </template>
       </InputExtended>
     </PopoverTrigger>
@@ -56,6 +56,7 @@ const props = withDefaults(
     results: SearchItem[];
     placeholder?: string;
     minQueryLength?: number;
+    icon?: string;
   }>(),
   {
     minQueryLength: 3,

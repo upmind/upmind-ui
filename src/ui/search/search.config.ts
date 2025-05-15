@@ -3,7 +3,7 @@ import { ringClasses } from "../../assets/styles";
 
 export default {
   search: {
-    input: cva("h-12"),
+    input: cva("h-10"),
     inputContainer: cva("cursor-default py-0 !text-md"),
     icon: cva("text-emphasis-medium mr-1 size-5"),
     content: cva(

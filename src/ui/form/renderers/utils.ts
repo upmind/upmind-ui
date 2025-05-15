@@ -56,6 +56,11 @@ export const useUpmindUIRenderer = <
     input.handleChange(input.control.value.path, adaptTarget(value));
   };
 
+  const updateControl = (path: string, value: any) => {
+    touched.value = true;
+    input.handleChange(path, adaptTarget(value));
+  };
+
   const formFieldProps = computed(() => {
     const props = defaults(appliedOptions.value, {
       label: input.control.value.label,
@@ -89,6 +94,7 @@ export const useUpmindUIRenderer = <
     errors,
     appliedOptions,
     formFieldProps,
+    updateControl,
     onInput,
   };
 };
