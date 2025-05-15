@@ -40,7 +40,7 @@
             </template>
             <component :is="props.cardComponent">
               <slot name="billing-details">
-                <BillingDetails :color="color" />
+                <BillingDetails />
               </slot>
             </component>
           </component>
@@ -187,7 +187,6 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
   };
 }>;
 
-const {} = useBasketBillingDetails();
 // -----------------------------------------------------------------------------
 await isResolved(ROUTE.CHECKOUT);
 await isReady().then(() => isAuthenticated().catch(back));
