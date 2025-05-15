@@ -4,9 +4,9 @@ import type { EnsureQueryDataOptions } from "@tanstack/query-core";
 // -----------------------------------------------------------------------------
 
 export interface RequestError {
+  data?: unknown;
   status?: number;
   message?: string;
-  data?: unknown;
 }
 
 export interface PaginatedError {
@@ -22,11 +22,14 @@ export interface RequestParams {
   data?: unknown;
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
+  transformResponse?: (response: unknown) => unknown;
 }
 
 export interface QueryParams<T extends unknown>
   extends RequestParams,
-    Omit<EnsureQueryDataOptions<T>, "queryFn"> {}
+    Omit<EnsureQueryDataOptions<T>, "queryFn"> {
+  allowStale?: boolean;
+}
 
 export interface PaginatedParams {
   sort?: [direction: ApiSortDirection, property: string];
@@ -34,17 +37,19 @@ export interface PaginatedParams {
   pagination?: IAPIPagination;
 }
 
-export interface PaginatedResponse<T extends unknown> {
+// Response Types
+
+export interface QueryResponse<T extends unknown = unknown> {
   data: T;
-  total: number;
-  status: "ok" | "error"; // TODO: check if this is correct
-  errors: PaginatedError;
+  total: number | null;
+  status: ResponseStatus; // TODO: check if "ok" and "error" are the only possible values
+  errors: RequestError | null;
   messages: string | string[];
 }
 
 export interface PaginatedData<T extends unknown> {
   // response related
-  data: T | undefined;
+  data: T | null | undefined;
   // item related
   itemTo: number;
   itemFrom: number;
@@ -59,6 +64,13 @@ export interface PaginatedData<T extends unknown> {
   // function related
   nextPage: () => Promise<PaginatedData<T>>;
   prevPage: () => Promise<PaginatedData<T>>;
+}
+
+// ---  ENUMS
+
+export enum ResponseStatus {
+  OK = "ok",
+  ERROR = "error",
 }
 
 export enum ApiSortDirection {

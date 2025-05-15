@@ -1,109 +1,118 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign } from "xstate";
 
 // --- utils
+import { responseCodes } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { ClientItemContext } from "./types";
-import { responseCodes } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
-export default createMachine(
+export default createMachine<ClientItemContext>(
   {
     //tsTypes: {} as import("./item.machine.typegen").Typegen0,
-    id: "clientItemManager",
+    id: "clientManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      title: undefined,
-      description: undefined,
-      // ---
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      error: undefined,
-    } as ClientItemContext,
+    context: {} as ClientItemContext,
     states: {
       loading: {
         entry: ["clearError"],
-
         invoke: {
           src: "loadLookups",
           onDone: {
-            target: "checking",
+            target: "available",
             actions: ["setContext", "setSchemas", "setMeta"],
           },
           onError: {
-            target: "error",
-            actions: ["setError"],
+            target: "unavailable",
+            actions: ["setError", "setFeedbackError"],
           },
         },
       },
-      // ---
 
-      checking: {
-        entry: ["clearError"],
-        initial: "parsing",
+      available: {
+        id: "available",
+        initial: "checking",
         states: {
-          parsing: {
-            invoke: {
-              src: "parse",
-              onDone: {
-                target: "validating",
-                actions: ["setContext", "setSchemas", "setMeta"],
+          checking: {
+            entry: ["clearError"],
+            initial: "parsing",
+            states: {
+              parsing: {
+                invoke: {
+                  src: "parse",
+                  onDone: {
+                    target: "validating",
+                    actions: ["setContext", "setSchemas", "setMeta"],
+                  },
+                },
+              },
+              validating: {
+                invoke: {
+                  src: "validate",
+                  onDone: {
+                    target: "#valid",
+                  },
+                  onError: {
+                    target: "#invalid",
+                    actions: ["setError"],
+                  },
+                },
               },
             },
           },
-          validating: {
-            invoke: {
-              src: "validate",
-              onDone: {
-                target: "#valid",
+          valid: {
+            id: "valid",
+            // TODO: allow auto update (we should create a new condition)
+            // always: [
+            //   { target: "#processing.adding", cond: "isNew" },
+            //   { target: "#processing.updating", cond: "shouldUpdate" },
+            // ],
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"],
               },
-              onError: {
-                target: "#invalid",
-                actions: ["setError"],
+              UPDATE: [
+                {
+                  target: "#processing.adding",
+                  cond: "isNew",
+                },
+                {
+                  target: "#processing.updating",
+                },
+              ],
+            },
+          },
+          invalid: {
+            id: "invalid",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"],
+              },
+            },
+          },
+          error: {
+            id: "error",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"],
               },
             },
           },
         },
       },
 
-      valid: {
-        id: "valid",
-        on: {
-          SET: {
-            target: "checking",
-            actions: ["setModel"],
-          },
-          UPDATE: [
-            {
-              target: "processing.adding",
-              cond: "isNew",
-            },
-            {
-              target: "processing.updating",
-            },
-          ],
-        },
-      },
-
-      invalid: {
-        id: "invalid",
-        on: {
-          SET: {
-            target: "checking",
-            actions: ["setModel"],
-          },
-        },
-      },
+      unavailable: {},
 
       processing: {
+        id: "processing",
         entry: ["clearError"],
         states: {
           adding: {
@@ -132,79 +141,30 @@ export default createMachine(
               },
             },
           },
-          removing: {
-            invoke: {
-              src: "remove",
-              onDone: {
-                target: "#processed",
-                actions: ["clearModel"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError"],
-              },
-            },
-          },
-          setting: {
-            invoke: {
-              src: "setDefault",
-              onDone: {
-                target: "#processed",
-                actions: ["setModel"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError"],
-              },
-            },
-          },
         },
       },
 
       processed: {
         id: "processed",
         after: {
-          wait: {
-            target: "complete",
-          },
+          wait: [
+            {
+              target: "available",
+            },
+            {
+              target: "complete",
+            },
+          ],
         },
       },
-
       complete: {
-        entry: [
-          sendParent(
-            ({ model }: ClientItemContext, _event: AnyEventObject) => ({
-              type: "REFRESH",
-              data: model?.id,
-            })
-          ),
-        ],
         type: "final",
-      },
-
-      error: {
-        id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
       },
     },
     on: {
       CLEAR: {
-        target: "checking",
+        target: "available.checking",
         actions: ["clearModel"],
-      },
-
-      // ---
-      REMOVE: {
-        target: "processing.removing",
-        cond: "canRemove",
-      },
-      DEFAULT: {
-        target: "processing.setting",
-        cond: "isNotDefault",
       },
     },
   },
@@ -230,9 +190,16 @@ export default createMachine(
         model: undefined,
       }),
 
-      // ---
+      setAutoUpdate: assign({
+        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+      }),
+
+      clearAutoUpdate: assign({
+        autoupdate: false,
+      }),
+
       setError: assign({
-        error: (_context, { data }: AnyEventObject) => {
+        error: (_context: ClientItemContext, { data }: AnyEventObject) => {
           let error = data?.error;
           if (error?.code == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -247,14 +214,11 @@ export default createMachine(
       clearError: assign({ error: null }),
     },
     guards: {
-      isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !model?.id,
-
-      isNotDefault: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !!model?.id && !model?.default,
-
-      canRemove: ({ model }: ClientItemContext, _event: AnyEventObject) =>
-        !!model?.id && !!model?.canDelete,
+      isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,
+      continueEditing: ({ allowMultipleEdits }) => !!allowMultipleEdits,
+      shouldUpdate: ({ autoupdate }, _event) => {
+        return !!autoupdate;
+      },
     },
     delays: {
       error: () => useTime().ERROR,

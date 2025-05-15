@@ -1,0 +1,21 @@
+{
+  "errors": {
+    "generic": {
+      "title": {
+        "text": "Sorry, we have experienced an {0}",
+        "mask": "error"
+      },
+      "error": "error",
+      "text": "Let's get you back on track",
+      "action": "Back to shopping"
+    },
+    "404": {
+      "title": {
+        "text": "Sorry, this {0} was not found",
+        "mask": "page"
+      },
+      "text": "Let's get you back on track",
+      "action": "Back to shopping"
+    }
+  }
+}

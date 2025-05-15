@@ -5,11 +5,11 @@ import { useQuery } from "./useQuery";
 import { getQueryClient, PAGINATION } from "./utils";
 
 // --- types
-import {
+import type {
   QueryParams,
+  QueryResponse,
   PaginatedData,
   PaginatedParams,
-  PaginatedResponse,
 } from "./types";
 
 const queryClient = getQueryClient();
@@ -20,7 +20,7 @@ export const useQueryPaginated = () => {
   /**
    * Sends a paginated request to the server with the given URL and options.
    * Warning: The fetcher function expects a PaginatedResponse object as a response from the server.
-   * @see {@link PaginatedResponse}
+   * @see {@link QueryResponse}
    * @name getPaginatedRequest
    * @async
    * @function
@@ -56,7 +56,7 @@ export const useQueryPaginated = () => {
     filters = [],
     pagination = {},
     ...options
-  }: PaginatedParams & QueryParams<PaginatedResponse<T>>): Promise<
+  }: PaginatedParams & QueryParams<QueryResponse<T>>): Promise<
     PaginatedData<T>
   > {
     const { get: getRequest } = useQuery();
@@ -68,7 +68,9 @@ export const useQueryPaginated = () => {
       sort,
       filters,
       pagination,
-    }: Pick<PaginatedParams, "sort" | "filters" | "pagination">) {
+    }: Pick<PaginatedParams, "sort" | "filters" | "pagination">): Promise<
+      QueryResponse<T>
+    > {
       url.searchParams.set(
         "limit",
         `${get(pagination, "limit", PAGINATION.pageSize)}`
@@ -80,13 +82,13 @@ export const useQueryPaginated = () => {
       if (sort) url.searchParams.set("sort", sort.join(""));
       if (filters) filters.reduce((_url, filter) => filter(_url), url);
 
-      return getRequest<PaginatedResponse<T>>({
+      return getRequest<T>({
         url,
         queryKey: [...queryKey, { sort, filters, pagination }],
         ...options,
       }).then(response => {
-        itemTotal = response.total;
-        return response.data;
+        itemTotal = response.total || 0;
+        return response;
       });
     }
 
@@ -183,13 +185,13 @@ export const useQueryPaginated = () => {
 
     /**
      * Maps the paginated data to a more user-friendly format.
-     * @param data The data to map.
+     * @param response The data to map.
      * @returns {PaginatedData} The mapped data.
      */
-    function mapPaginatedData(data?: T): PaginatedData<T> {
+    function mapPaginatedData(response?: QueryResponse<T>): PaginatedData<T> {
       return {
         /** Returns the data for the current page. Warning: Might be undefined */
-        data,
+        data: response?.data,
         /** Returns the index of the last item on the current page. */
         itemTo: itemTo(),
         /** Returns the index of the first item on the current page. */

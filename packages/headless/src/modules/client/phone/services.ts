@@ -1,210 +1,217 @@
 // --- external
-import parsePhoneNumber from "libphonenumber-js";
+import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
 
 // --- utils
-import { useValidation } from "../../../utils";
 import {
-  includes,
-  isString,
-  keyBy,
-  filter,
-  find,
-  isEmpty,
-  isEqual,
-} from "lodash-es";
+  useValidation,
+  useModelParser,
+  CacheIsStaleError,
+} from "../../../utils";
+import { mapIPhone, mapPhones } from "./mapper";
+import { invalidateQueryByKey } from "../../query";
+import { isString, isNil, get, set, first } from "lodash-es";
 
 // --- types
-import type { AnyEventObject } from "xstate";
 import { PhoneTypes } from "./types";
-import type { PhoneContext, IPhoneData, PhonesContext } from "./types";
+import type { IPhone } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/query-core";
+import type { AnyEventObject } from "xstate";
+import type { QueryResponse, PaginatedParams } from "../..";
+import type { Phone, PhoneModel, PhoneContext } from "./types";
 
-// -----------------------------------------------------------------------------
-// SERVICE METHODS
-// Invoked by machines, providing context and event data
-export async function invalidatePhones(context: object) {
-  const { queryClient } = useQuery();
+// -----------------------------------------------------------------------------// QUERIES
+// QUERIES
 
-  return queryClient
-    .resetQueries({ queryKey: ["clients", "phones"], exact: false }) // companies needs to invalidate ALL client libs
-    .then(() => context);
-}
+const queryKey: QueryKey = ["client", "phones"];
 
-async function load(_context: PhonesContext) {
+async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get({
+  return get<Phone[]>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
-    queryKey: ["clients", "phones", { limit: 0 }],
+    queryKey,
+    allowStale,
     withAccessToken: true,
     revalidateIfStale: true,
-  }).then(({ data }: any) => data);
+    transformResponse: (response: any) =>
+      set(response, "data", mapPhones(response?.data ?? [])),
+  }).then(({ data }) => data);
 }
 
-async function filterItems({ raw }: PhonesContext, { data }: AnyEventObject) {
-  if (!data?.length)
-    return Promise.reject({ error: "No data provided for filtering" });
+async function loadPaged(
+  paginationParams: PaginatedParams,
+  { allowStale = true } = {}
+) {
+  const { get, useUrl } = useQueryPaginated();
+  const { isAuthenticated } = useSession();
+  const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  const filteredItems = filter(
-    raw,
-    item =>
-      includes(
-        item.getSnapshot().context?.title?.toLowerCase(),
-        data.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.description?.toLowerCase(),
-        data.toLowerCase()
-      ) ||
-      includes(
-        item.getSnapshot().context?.country?.code.toUpperCase(),
-        data.toUpperCase()
-      )
-  );
-
-  return Promise.resolve(filteredItems);
+  return get<Phone[]>({
+    url: useUrl(`clients/${client.id}/phones`),
+    queryKey: [...queryKey, { ...paginationParams }],
+    allowStale,
+    withAccessToken: true,
+    transformResponse: (response: any) =>
+      set(response, "data", mapPhones(response?.data ?? [])),
+    revalidateIfStale: true,
+    ...paginationParams,
+  }).then(({ data }) => data ?? []);
 }
 
-async function findItem({ raw }: PhonesContext, { data }: AnyEventObject) {
-  if (isEmpty(data))
-    return Promise.reject({ error: "No data provided for filtering" });
-
-  const found = find(
-    raw,
-    item =>
-      isEqual(item.getSnapshot().context.model.id, data) ||
-      isEqual(item.getSnapshot().context.model.phone, data)
-  );
-
-  return new Promise((resolve, reject) => {
-    if (!found) reject();
-    resolve(found);
-  });
+function loadAllFromCache() {
+  const { queryClient } = useQuery();
+  const cachedPhones =
+    queryClient.getQueryData<QueryResponse<Phone[]>>(queryKey);
+  if (isNil(cachedPhones)) throw new CacheIsStaleError();
+  return cachedPhones.data;
 }
 
-// -----------------------------------------------------------------------------
-
-async function add({ model }: PhoneContext) {
-  const { post, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return post({
-    url: useUrl(`clients/${clientId}/phones`),
-    data: {
-      phone: model.phone.nationalNumber, // without the country code
-      phone_code: `+${model.phone.countryCallingCode}`,
-      phone_country_code: model.phone.country,
-      type: model.type,
+/**
+ * Load the lookups for the phone form
+ * @param {PhoneContext} _context
+ * @returns {Promise<{PhoneContext}>}
+ */
+async function loadLookups({
+  model,
+  schema,
+}: PhoneContext): Promise<PhoneContext> {
+  const { isReady, fetchCountries, getCountry } = useSystem();
+  // we have to do this synchronously as we need the values to be available for the model
+  // these could/should be cached in the system machine, so there's no worry about performance
+  await isReady().catch(error => Promise.reject(error));
+  const countries = await fetchCountries();
+  const country = getCountry(model?.phone?.country);
+  if (!countries) {
+    return Promise.reject("Failed to load countries");
+  }
+  const baseModel: PhoneModel = {
+    phone: {
+      number: "",
+      nationalNumber: "",
+      countryCallingCode: "",
+      country: country.code,
     },
-    withAccessToken: true,
-  })
-    .then(invalidatePhones)
-    .then(({ data }: any) => data);
-}
-
-async function update({ model }: PhoneContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
-    data: {
-      phone: model.phone.nationalNumber, // without the country code
-      phone_code: `+${model.phone.countryCallingCode}`,
-      phone_country_code: model.phone.country,
-      type: model.type,
-    },
-    withAccessToken: true,
-  })
-    .then(invalidatePhones)
-    .then(({ data }: any) => data);
-}
-
-async function remove({ model }: PhoneContext) {
-  const { del, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return del({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
-    withAccessToken: true,
-  })
-    .then(invalidatePhones)
-    .then(({ data }: any) => data);
-}
-
-async function setDefault({ model }: PhoneContext) {
-  const { put, useUrl } = useQuery();
-  const { getUserId } = useSession();
-
-  const clientId = await getUserId();
-
-  return put({
-    url: useUrl(`clients/${clientId}/phones/${model.id}`),
-    data: { default: true },
-    withAccessToken: true,
-  })
-    .then(invalidatePhones)
-    .then(({ data }: any) => data);
-}
-
-// -----------------------------------------------------------------------------
-
-async function loadLookups(
-  _context: PhoneContext
-): Promise<{ types: Record<string, any>; country: any }> {
-  // we dont have any lookups for emails, so just return null
-  const { getCountry, fetchCountries } = useSystem();
-  await fetchCountries();
-  return Promise.resolve({
-    types: keyBy(PhoneTypes, "key"),
-    country: getCountry(),
-  });
-}
-
-// TODO: async function parse({ model, country }: PhoneContext, ) {
-async function parse({ model, country }: any) {
-  // ---
-  if (!model?.phone) return Promise.resolve({ model, country });
-
-  const phonenumber = isString(model.phone)
-    ? model?.phone
-    : model?.phone?.number || model?.phone?.nationalNumber || "";
-
-  const countryCode =
-    model?.phone_country_code || model?.phone?.country || country?.code;
-  const phone = parsePhoneNumber(phonenumber, countryCode) || model.phone;
-
-  // now map the phone number to the model in the correct format with fallbacks
-  model.phone = {
-    number: phone?.number || model.phone?.number,
-    nationalNumber: phone?.nationalNumber || model.phone?.nationalNumber,
-    countryCallingCode:
-      phone?.countryCallingCode || model.phone?.countryCallingCode,
-    country: phone?.country || model.phone?.country || country?.code,
+    type: first(PhoneTypes)?.key || 1,
   };
 
-  if (!!model.phone?.country && model.phone.country !== country.code) {
-    const { getCountry } = useSystem();
-    // we have change countries in the form, so we need to get our new country
-    country = getCountry(model.phone.country);
-  }
+  const safeModel = useModelParser<PhoneModel>(schema, model, baseModel, {
+    allowExtraProps: false,
+  });
 
-  return Promise.resolve({ model, country });
+  return Promise.resolve({
+    types: PhoneTypes,
+    country,
+    model: safeModel,
+    baseModel: safeModel,
+  } as PhoneContext);
 }
 
-async function validate({ schema, model }: PhoneContext) {
+// -----------------------------------------------------------------------------
+// MUTATIONS
+
+async function add(data: PhoneModel) {
+  const { getUserId } = useSession();
+  const { post, useUrl } = useQuery();
+
+  const clientId = await getUserId();
+
+  return post<IPhone>({
+    url: useUrl(`clients/${clientId}/phones`),
+    data: mapIPhone(data),
+    withAccessToken: true,
+  }).then(invalidateQueryByKey(queryKey));
+}
+
+async function update(id: Phone["id"], data: PhoneModel) {
+  const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
+
+  const clientId = await getUserId();
+
+  return put<IPhone>({
+    url: useUrl(`clients/${clientId}/phones/${id}`),
+    data: mapIPhone(data),
+    withAccessToken: true,
+  }).then(invalidateQueryByKey(queryKey));
+}
+
+async function remove(phoneId: Phone["id"]) {
+  const { getUserId } = useSession();
+  const { del, useUrl } = useQuery();
+
+  const clientId = await getUserId();
+
+  return del<null>({
+    url: useUrl(`clients/${clientId}/phones/${phoneId}`),
+    withAccessToken: true,
+  }).then(invalidateQueryByKey(queryKey));
+}
+
+async function setDefault(phoneId: Phone["id"]) {
+  const { getUserId } = useSession();
+  const { put, useUrl } = useQuery();
+
+  const clientId = await getUserId();
+
+  return put<IPhone>({
+    url: useUrl(`clients/${clientId}/phones/${phoneId}`),
+    data: { default: true },
+    withAccessToken: true,
+  }).then(invalidateQueryByKey(queryKey));
+}
+
+// -----------------------------------------------------------------------------
+//  SIDE EFFECTS
+
+async function parse(
+  { baseModel, schema, country }: PhoneContext,
+  { data }: AnyEventObject & { data: PhoneContext }
+) {
+  const safeModel: PhoneModel = useModelParser(
+    schema,
+    get(data, "model", data) as PhoneModel,
+    baseModel,
+    { allowExtraProps: false }
+  );
+  // ---
+  if (!safeModel?.phone) return Promise.resolve({ model: safeModel, country });
+
+  const phoneNumber = isString(safeModel.phone)
+    ? safeModel?.phone
+    : ((safeModel?.phone?.number || safeModel?.phone?.nationalNumber) ?? "");
+
+  const countryCode: CountryCode = (safeModel?.phone?.country ||
+    data?.country?.code ||
+    country?.code ||
+    "") as CountryCode;
+  const phone = parsePhoneNumber(phoneNumber, countryCode) || safeModel.phone;
+
+  // now map the phone number to the model in the correct format with fallbacks
+  safeModel.phone = {
+    number: phone?.number || safeModel.phone?.number,
+    nationalNumber: phone?.nationalNumber || safeModel.phone?.nationalNumber,
+    countryCallingCode:
+      phone?.countryCallingCode || safeModel.phone?.countryCallingCode,
+    country: phone?.country || safeModel.phone?.country || country?.code || "",
+  };
+
+  if (!!safeModel.phone?.country && safeModel.phone.country !== country?.code) {
+    const { getCountry } = useSystem();
+    // we have change countries in the form, so we need to get our new country
+    country = getCountry(safeModel.phone.country);
+  }
+
+  return Promise.resolve({ model: safeModel, country });
+}
+
+async function validate({ schema, model }: Partial<PhoneContext>) {
   // ---
 
   // Now validate the model as per normal
@@ -224,15 +231,36 @@ async function validate({ schema, model }: PhoneContext) {
 // EXPORTS
 
 export default {
-  find: findItem,
-  load,
-  loadLookups,
-  parse,
-  validate,
-  setDefault,
-  add,
-  update,
+  queryKey,
+  //--- queries
+  loadAll,
+  loadPaged,
+  refresh: async () => loadAll({ allowStale: false }),
+
+  loadAllFromCache,
+  //--- mutations
+
   remove,
-  filter: filterItems,
-  isAuthenticated: () => useSession().isAuthenticated(),
+  setDefault,
+};
+
+export const useClientPhoneServices = () => {
+  return {
+    loadLookups,
+    add: async (context: PhoneContext) => {
+      if (!context.model?.phone)
+        return Promise.reject("No phone model provided");
+      return add(context.model);
+    },
+    update: async (context: PhoneContext) => {
+      if (!context.id) return Promise.reject("No phone id provided");
+      if (!context.model?.phone)
+        return Promise.reject("No phone model provided");
+
+      return update(context.id, context.model);
+    },
+    parse,
+    validate,
+    refresh: async () => loadAll({ allowStale: false }),
+  };
 };

@@ -278,7 +278,7 @@ const processingIcon = computed(() => {
 watch(meta, (value, oldValue) => {
   // TEMP: DC added this log to be able to debug production using sentry when we have issues with the checkout not being Ready/Able to actually Check Out
   if (!isEqual(value, oldValue)) {
-    console.info("** Checkout State **", {
+    console.debug("** Checkout State **", {
       state: state.value,
       value,
     });

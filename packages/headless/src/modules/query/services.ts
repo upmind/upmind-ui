@@ -80,7 +80,7 @@ async function refreshToken() {
     },
   })
     .then(data => {
-      persistTokenToStorage(data);
+      persistTokenToStorage(data as unknown as Token);
       return data;
     })
     .catch(error => {

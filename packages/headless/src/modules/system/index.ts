@@ -3,6 +3,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
 
 // --- exports
+export * from "./places";
 export * from "./upload/useSystemUpload";
 export * from "./recaptcha/useSystemRecaptcha";
 export * from "./i18n/useSystemI18n";
@@ -111,14 +112,20 @@ export const useSystem = () => {
   // ---
 
   const getCountries = () => service.getSnapshot().context.countries;
-  const getCountry = (value?: string) => {
+  const getCountry = (value?: string): ICountry => {
     const state = service.getSnapshot();
     // if we are not passed a country, then we need to get the default country
     value ??= getDefaultCountry();
 
     if (value?.length == 2)
-      return find(state.context.countries, ["code", value]);
-    return find(state.context.countries, ["id", value]);
+      return (
+        (find(state.context.countries, ["code", value]) as ICountry) ??
+        getDefaultCountry()
+      );
+    return (
+      (find(state.context.countries, ["id", value]) as ICountry) ??
+      getDefaultCountry()
+    );
   };
   // ---
 

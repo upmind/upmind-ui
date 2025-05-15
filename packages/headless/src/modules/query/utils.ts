@@ -1,7 +1,8 @@
 // --- external
-import { isServer, QueryClient } from "@tanstack/query-core";
+import { isServer, QueryKey, QueryClient } from "@tanstack/query-core";
 
 // --- utils
+import { useQuery } from "./useQuery";
 import { responseCodes } from "../../utils";
 import {
   map,
@@ -17,8 +18,7 @@ import {
 // ---types
 import { RequestError } from "./types";
 
-// -----------------------------------------------------------------------------
-
+// --- constants
 export const PAGINATION = {
   offset: 0,
   pageSize: 10,
@@ -41,7 +41,8 @@ function createQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid re-fetching immediately on the client
-        staleTime: 60 * 1000, // 60 seconds
+        gcTime: 60 * 10000, // 10 minutes
+        staleTime: 60 * 10000, // 10 minutes
       },
     },
   });
@@ -100,6 +101,29 @@ export function parseData(data: any) {
   return data;
 }
 
+/**
+ * Invalidate a query by its key.
+ * Perfect for invalidating a query after a mutation on a thenable
+ * @param queryKey The key of the query to invalidate
+ * @returns A function that takes the data and returns it after invalidating the query
+ * @example
+ *    put({ url: "/clients/address/1", data: { name: "New Name" } })
+ *       .then(invalidateQueryByKey(["clients", client.id, "addresses"]))
+ */
+export const invalidateQueryByKey =
+  (queryKey: QueryKey) =>
+  async <T = any>(data: T) => {
+    const { queryClient } = useQuery();
+    return queryClient.invalidateQueries({ queryKey }).then(() => data);
+  };
+
+export const resetQueryByKey =
+  (queryKey: QueryKey) =>
+  async <T>(data: T) => {
+    const { queryClient } = useQuery();
+    queryClient.removeQueries({ queryKey, exact: false });
+    return data;
+  };
 export function canRetryAuthorization(
   url: URL,
   error: RequestError,
