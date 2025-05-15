@@ -12,7 +12,7 @@ import {
 
 import type { JsonFormsSubStates, Tester } from "@jsonforms/core";
 import { rankWith } from "@jsonforms/core";
-import { debounce, isFunction } from "lodash-es";
+import { map, isFunction } from "lodash-es";
 import type { FormControlProps } from "../types";
 import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
@@ -26,7 +26,12 @@ export const useUpmindUIRenderer = <
   const jsonforms = inject<JsonFormsSubStates>("jsonforms");
   if (!jsonforms) throw new Error("jsonforms not found");
 
-  const errors = ref();
+  const errors = ref(
+    getErrorAt(
+      input.control.value.path,
+      input.control.value.rootSchema
+    )({ jsonforms })
+  );
 
   const touched: Ref<boolean> = ref(false);
 
@@ -67,7 +72,8 @@ export const useUpmindUIRenderer = <
 
     set(props, "id", input.control.value.id);
     set(props, "name", input.control.value.path);
-    set(props, "errors", input.control.value.errors);
+    set(props, "errors", map(errors.value, "message"));
+    // set(props, "errors", input.control.value.errors);
     set(
       props,
       "dirty",
