@@ -11,27 +11,6 @@ export default {
     content: cva("flex flex-col gap-4 rounded-lg"),
     actions: cva("flex gap-2"),
   },
-  clientListings: {
-    root: cva("bg-base w-full"),
-    footer: cva("flex-row items-center justify-between gap-x-4"),
-    items: cva("grid gap-4 p-1", {
-      variants: {
-        cols: {
-          full: "grid-cols-1",
-          1: "grid-cols-1",
-          2: "grid-cols-2",
-          3: "grid-cols-3",
-          4: "grid-cols-4",
-          6: "grid-cols-6",
-        },
-      },
-      defaultVariants: {
-        cols: 1,
-      },
-    }),
-    loading: cva(""),
-    actions: cva(""),
-  },
   clientForm: {
     root: cva("bg-base w-full"),
     footer: cva("flex-row items-center justify-between gap-x-4"),

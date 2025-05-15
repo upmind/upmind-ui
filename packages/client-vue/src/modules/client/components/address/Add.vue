@@ -60,7 +60,7 @@ await isReady().then(async () => {
 
 const updateModel = debounce(async (address: Address) => {
   if (showAddressFields.value) {
-    await set(address.address);
+    await set(address);
   }
 }, 500);
 
