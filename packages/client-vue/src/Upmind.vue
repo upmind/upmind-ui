@@ -15,7 +15,7 @@
         <RouterView v-slot="routerViewProps" :key="$route.fullPath">
           <slot v-bind="routerViewProps">
             <template v-if="routerViewProps.Component">
-              <Content>
+              <Page :class="styles.page" :key="$route.fullPath">
                 <Transition mode="out-in">
                   <KeepAlive>
                     <Suspense>
@@ -33,7 +33,7 @@
                     </Suspense>
                   </KeepAlive>
                 </Transition>
-              </Content>
+              </Page>
             </template>
           </slot>
         </RouterView>
@@ -56,18 +56,27 @@ export default {
 
 <script setup lang="ts">
 // --- external
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 
 // --- internal
 import {
+  useStyles,
   useThemes,
   type InterstitialProps,
 } from "@upmind-automation/upmind-ui";
 
+// --- utils
+import { get } from "lodash-es";
+
 // --- components
 import Header from "./components/header/Header.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
-import Content from "./components/content/Content.vue";
+import Page from "./components/content/Page.vue";
 import Loading from "./modules/system/Loading.vue";
+
+// types
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -75,6 +84,20 @@ const props = defineProps<{
   logo?: string;
   loadingProps?: InterstitialProps;
 }>();
+
+const currentRoute = useRoute();
+
+const route = computed(() =>
+  get(currentRoute, "name", get(currentRoute, "path", ""))
+);
+const loading = ref(false);
+
+const styles = useStyles(["page"], {
+  route,
+  loading,
+}) as ComputedRef<{
+  page: string;
+}>;
 
 const { activeTheme } = useThemes(props.theme);
 </script>
