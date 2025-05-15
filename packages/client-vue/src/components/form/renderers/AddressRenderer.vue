@@ -141,21 +141,11 @@ const searchResults = computed(() => {
 const selectAddress = (data: SearchItem) => {
   const address = find(addresses.value, a => a.id === data.id)
     .address as Address;
-
-  // TODO: Find a nicer way of setting every nested input as touched to enable validation
-  const properties = control.value.schema.properties;
-  if (properties) {
-    Object.keys(properties).forEach(fieldName => {
-      updateControl(`${control.value.path}.${fieldName}`, "");
-    });
-  }
-
   setAddress(address);
   showAddressFields.value = !isEmpty(nestedErrors.value);
 };
 
 const setAddress = async (address: Address) => {
-  updateControl("address", address);
   setSelectedAddress(address);
 };
 </script>
