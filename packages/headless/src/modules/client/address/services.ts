@@ -6,8 +6,6 @@ import {
   useBrand,
   useQueryPaginated,
 } from "../..";
-import { usePlaces } from "../places";
-import { useClientAddresses } from ".";
 
 // --- utils
 import { mapAddresses, mapIAddress } from "./mappers";
@@ -26,7 +24,6 @@ import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
 import { AddressTypes } from "./types";
-import { isString } from "xstate/lib/utils";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
