@@ -69,9 +69,8 @@ const props = defineProps({
 
 const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
 
-const { control, appliedOptions, formFieldProps } = useUpmindUIRenderer(
-  useJsonFormsControlWithDetail(props)
-);
+const { control, appliedOptions, formFieldProps, updateControl } =
+  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
 
 const { showAddressFields, setShowAddressFields, setSelectedAddress } =
   useAddressFields();
@@ -147,7 +146,7 @@ const selectAddress = (data: SearchItem) => {
   const properties = control.value.schema.properties;
   if (properties) {
     Object.keys(properties).forEach(fieldName => {
-      // updateControl(`${control.value.path}.${fieldName}`, "");
+      updateControl(`${control.value.path}.${fieldName}`, "");
     });
   }
 
@@ -156,7 +155,7 @@ const selectAddress = (data: SearchItem) => {
 };
 
 const setAddress = async (address: Address) => {
-  // updateControl("address", address);
+  updateControl("address", address);
   setSelectedAddress(address);
 };
 </script>
