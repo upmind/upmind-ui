@@ -20,10 +20,11 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ["vue", "vue-router"],
       output: {
         globals: {
-          vue: 'Vue',
+          vue: "Vue",
+          "vue-router": "VueRouter",
         },
       },
     },
@@ -33,6 +34,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
       '@icons': resolve(__dirname, './src/assets/icons'),
       '@themes': resolve(__dirname, './src/assets/themes'),
+      "@animations": resolve(__dirname, "./src/assets/animations"),
     },
   },
 });

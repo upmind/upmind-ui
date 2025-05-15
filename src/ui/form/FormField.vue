@@ -4,14 +4,12 @@
     v-show="meta.isVisible"
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
+    :data-testid="`form-field-${kebabCase(label ?? 'default')}`"
   >
     <slot name="field">
       <!-- label -->
-      <div
-        class="flex w-full flex-row flex-nowrap items-center justify-between"
-        v-if="meta.hasLabel"
-      >
-        <FormLabel :formItemId="id">
+      <div class="w-full flex-col space-y-1">
+        <FormLabel v-if="meta.hasLabel" :formItemId="id">
           <slot name="label" :label="label">
             <span class="inline-flex items-center gap-x-1">
               <slot name="icon" />
@@ -36,32 +34,31 @@
             </span>
           </slot>
         </FormLabel>
+
+        <!-- input -->
+        <FormControl
+          :key="props.id"
+          :invalid="meta.isInvalid"
+          :disabled="props.disabled"
+          :required="props.required"
+          :formItemId="props.id"
+          :auto-focus="props.autoFocus"
+          :formDescriptionId="`form-item-description-${props.id}`"
+          :formMessageId="`form-item-message-${props.id}`"
+        >
+          <slot></slot>
+        </FormControl>
       </div>
 
-      <!-- text -->
-
-      <!-- tags -->
-
-      <!-- input -->
-      <FormControl
-        :invalid="meta.isInvalid"
-        :disabled="props.disabled"
-        :required="props.required"
-        :formItemId="props.id"
-        :auto-focus="props.autoFocus"
-        :formDescriptionId="`form-item-description-${props.id}`"
-        :formMessageId="`form-item-message-${props.id}`"
-      >
-        <slot></slot>
-      </FormControl>
-
       <!-- validation messages -->
-      <FormMessage
-        v-if="meta.isInvalid && !props.noErrors"
-        :formMessageId="`form-item-message-${props.id}`"
-        :name="name"
-        :errors="errors"
-      />
+      <slot name="messages">
+        <FormMessage
+          v-if="meta.isInvalid && !props.noErrors"
+          :formMessageId="`form-item-message-${props.id}`"
+          :name="name"
+          :errors="errors"
+        />
+      </slot>
 
       <!-- description -->
       <FormDescription
@@ -96,7 +93,7 @@ import { Tooltip } from "../tooltip";
 import { Icon } from "../icon";
 
 // --- utils
-import { isEmpty, isNil, some } from "lodash-es";
+import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";

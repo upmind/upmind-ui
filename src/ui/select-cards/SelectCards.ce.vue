@@ -1,6 +1,10 @@
 <template>
   <DropdownMenuRoot v-model:open="open" tabindex="-1">
-    <DropdownMenuTrigger as-child :disabled="disabled">
+    <DropdownMenuTrigger
+      as-child
+      :disabled="disabled"
+      :class="styles.select.trigger"
+    >
       <TriggerButton
         :open="open"
         :selected="selected"
@@ -8,11 +12,12 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
-        :size="props.size"
         focusable
       >
-        <template #item="{ item }">
-          <slot name="item" :item="item"></slot>
+        <template #item="{ item }: { item: SelectCardsItemProps }">
+          <slot name="item" :item="item">
+            {{ item.label }}
+          </slot>
         </template>
         <template #placeholder>
           <slot name="placeholder"></slot>
@@ -63,7 +68,7 @@ import {
 } from "radix-vue";
 
 // --- types
-import type { SelectCardsProps } from "./types";
+import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 import type { ComputedRef } from "vue";
 
 const props = defineProps<SelectCardsProps>();
@@ -78,7 +83,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const selected = computed(() => find(props.items, { value: modelValue.value }));
 
-const meta = computed(() => ({}));
+const meta = computed(() => ({
+  width: props.width,
+}));
 
 const styles = useStyles(
   ["select"],
@@ -90,6 +97,7 @@ const styles = useStyles(
     item: string;
     content: string;
     group: string;
+    trigger: string;
   };
 }>;
 

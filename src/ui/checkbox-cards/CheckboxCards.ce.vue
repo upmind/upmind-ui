@@ -1,85 +1,82 @@
 <template>
-  <CheckboxGroup
-    :model-value="modelValue"
-    :default-value="defaultValue"
+  <ToggleGroupRoot
+    v-model="modelValue"
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
-    @update:model-value="onChange"
+    type="multiple"
+    data-testid="checkbox-group"
   >
     <div
       v-for="(item, index) in items"
       :key="item.id || index"
-      tabindex="0"
-      @keydown.enter="onChange(item.value)"
       :class="styles.checkboxCards.item"
     >
-      <CheckboxGroupItem
-        :id="`${props.name}-${index}`"
-        :value="item.value"
-        :name="props.name"
+      <CheckboxCardItem
+        :id="`${item.id}-${index}`"
+        :index="index"
+        :value="item.value as string"
+        :name="item.id"
         :required="props.required"
         :disabled="props.disabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
+        data-testid="checkbox-item"
       >
         <Label
-          :for="`${props.name}-${index}`"
+          :for="`${item.id}-${index}`"
           :class="cn(styles.checkboxCards.label)"
+          data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
             {{ item.label }}
           </slot>
         </Label>
-      </CheckboxGroupItem>
+      </CheckboxCardItem>
     </div>
-  </CheckboxGroup>
+  </ToggleGroupRoot>
 </template>
 
 <script setup lang="ts">
 // ---external
 import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
+import { ToggleGroupRoot } from "radix-vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./checkboxCards.config";
 
 // --- components
-import { CheckboxGroup, CheckboxGroupItem } from "../checkbox-group";
+import CheckboxCardItem from "./CheckboxCardItem.vue";
 import { Label } from "../label";
 
-// --- utils
-import { find } from "lodash-es";
-
 // --- types
-import type { CheckboxCardsProps, CheckboxCardsItemProps } from "./types";
+import type { CheckboxCardsProps } from "./types";
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
-  // --- props
-  loading: false,
-  placeholder: "Select an option",
-  required: false,
-  // -- styles
-  color: "base",
-  variant: "control",
-  padding: true,
   cursor: "pointer",
-  // layout: "list",
   // --- styles
-  class: "",
 });
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits<{
+  /** Update the model value */
+  (e: "update:modelValue", payload: string[]): void;
+}>();
+
+defineSlots<{
+  /** Provide a checkbox card item */
+  item(props: { item: any; index: number }): any;
+}>();
+
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
 
 const meta = computed(() => ({
-  color: props.color,
   // layout: props.layout,
   isList: props.list,
   noInput: props.noInput,
@@ -100,13 +97,4 @@ const styles = useStyles(
     label: string;
   };
 }>;
-
-// allow for toggle of selected item
-function onChange(value: any) {
-  if (modelValue.value == value || !value) {
-    modelValue.value = undefined;
-  } else {
-    modelValue.value = value;
-  }
-}
 </script>

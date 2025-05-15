@@ -53,6 +53,7 @@ export interface ComboboxProps
   search?: boolean | ComboboxSearchFunction;
   placeholder?: string;
   emptyMessage?: string;
+  checkedIcon?: boolean;
   // --- variants
   size?: ButtonProps["size"];
   color?: ItemVariantProps["color"] | string;

@@ -7,10 +7,10 @@
     <transition name="fade">
       <p v-if="truncated" :class="styles.lineclamp.actions">
         <Link
-          size="xs"
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
           :class="styles.lineclamp.action"
+          data-testid="lineclamp"
           as="span"
         >
           <template #append>

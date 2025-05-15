@@ -8,6 +8,7 @@
     :loading="props.loading"
     :type="props.type || 'button'"
     :tabindex="props.focusable ? '0' : '-1'"
+    :data-testid="`button-${kebabCase(label ?? 'default')}`"
   >
     <slot name="prepend"></slot>
 
@@ -34,6 +35,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
+import { kebabCase } from "lodash-es";
 
 // --- internal
 import config from "./button.config";

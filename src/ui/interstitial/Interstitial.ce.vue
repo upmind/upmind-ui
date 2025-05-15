@@ -36,6 +36,7 @@
             :key="`action-${index}`"
             v-bind="action"
             :loading="meta.isProcessing"
+            color="secondary"
             @click.stop="doAction(action?.handler)"
           >
             <template #prepend>

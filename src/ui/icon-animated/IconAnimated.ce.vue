@@ -1,6 +1,7 @@
 <template>
   <lord-icon
-    :src="icon"
+    v-if="iconData"
+    :src="iconData"
     :trigger="trigger"
     :delay="delay"
     :sequence="sequence"
@@ -12,7 +13,8 @@
 <span class="text-icon-primary text-icon-secondary hidden" />
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
+import { find } from "lodash-es";
 
 // --- internal
 import { useStyles, cn } from "../../utils";
@@ -35,6 +37,37 @@ const props = withDefaults(defineProps<AnimatedIconProps>(), {
 const meta = computed(() => ({
   size: props.size,
 }));
+
+const iconData = ref("");
+
+const icons = import.meta.glob("@animations/**/*.json", {
+  query: "?url",
+  eager: false,
+  import: "default",
+});
+
+const loadIcon = async () => {
+  const path = find(Object.keys(icons), path =>
+    path.includes(`/${props.icon}.json`)
+  );
+
+  if (path) {
+    iconData.value = (await icons[path]()) as string;
+  } else {
+    console.error(`Animated icon not found: ${props.icon}`);
+  }
+};
+
+onMounted(() => {
+  loadIcon();
+});
+
+watch(
+  () => props.icon,
+  () => {
+    loadIcon();
+  }
+);
 
 const styles = useStyles(
   "iconAnimated",

@@ -6,8 +6,9 @@
   >
     <PopoverTrigger as-child>
       <Button
+        v-bind="$attrs"
         :loading="props.loading"
-        :class="cn('group w-full', styles.combobox.trigger, props.class)"
+        :class="cn('group', styles.combobox.trigger, props.class)"
         :size="props.size"
         :aria-expanded="open"
         :color="props.color"
@@ -32,7 +33,7 @@
               aria-hidden="true"
             />
 
-            {{ label }}
+            <span class="truncate">{{ label }}</span>
           </slot>
         </template>
 
@@ -58,7 +59,23 @@
     >
       <Command>
         <template v-if="props.search">
-          <CommandInput v-model="searchTerm" :placeholder="placeholder" />
+          <InputExtended
+            v-if="isFunction(props.search)"
+            v-model="searchTerm"
+            @update:modelValue="onSearch"
+            :placeholder="placeholder"
+            input-size="sm"
+            :class="styles.combobox.input"
+          >
+            <template #prepend>
+              <Icon icon="search" size="2xs" class="mr-1 opacity-50" />
+            </template>
+          </InputExtended>
+          <CommandInput
+            v-else
+            v-model="searchTerm"
+            :placeholder="placeholder"
+          />
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
         </template>
         <CommandList class="w-full max-w-full" loop>
@@ -95,6 +112,7 @@
               </span>
 
               <Icon
+                v-if="props.checkedIcon"
                 icon="check"
                 :size="props.iconSize"
                 :class="
@@ -121,7 +139,7 @@ import config from "./combobox.config";
 import Icon from "../icon/Icon.ce.vue";
 import Button from "../button/Button.ce.vue";
 import Avatar from "../avatar/Avatar.ce.vue";
-import { Input } from "../input";
+import { InputExtended } from "../input-extended";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import {
   Command,
@@ -163,6 +181,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   placeholder: "Search...",
   itemLabel: "label",
   itemValue: "value",
+  checkedIcon: true,
   // -- styles
   color: "base",
   size: "md",
@@ -217,7 +236,13 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  combobox: { root: string; trigger: string; content: string; item: string };
+  combobox: {
+    root: string;
+    trigger: string;
+    content: string;
+    item: string;
+    input: string;
+  };
 }>;
 
 async function safeSearch(value: string | number) {
