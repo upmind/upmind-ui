@@ -4,7 +4,12 @@ import { useClientAddresses } from "./useClientAddresses";
 
 // --- types
 import type { ClientItemContext } from "../types";
-import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
+import type {
+  ICountry,
+  IRegion,
+  IAddress,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -52,6 +57,7 @@ export interface AddressContext extends ClientItemContext {
   id?: Address["id"];
   country?: ICountry;
   regions?: IRegion[];
+  config?: Record<BrandConfigKeys, boolean>;
   countries: ICountry[];
   baseModel?: Address;
 }

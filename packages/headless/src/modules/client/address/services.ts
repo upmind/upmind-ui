@@ -25,6 +25,7 @@ import type { QueryResponse, PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
 import { AddressTypes } from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { getConfig } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -33,10 +34,6 @@ const queryKey: QueryKey = ["client", "addresses"];
 
 async function loadAll({ allowStale = true } = {}) {
   const { get, useUrl } = useQuery();
-
-  // prepare our brand settings
-  const { ensureConfig } = useBrand();
-  ensureConfig([BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS]);
 
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
@@ -103,6 +100,21 @@ async function loadLookups({
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);
 
+  const { ensureConfig, getConfig } = useBrand();
+  await Promise.allSettled([
+    ensureConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+    ]),
+  ]);
+
+  const config = getConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE) as Record<
+    BrandConfigKeys,
+    boolean
+  >;
+
   if (!countries || !regions) {
     return Promise.reject(new Error("Failed to load countries and regions"));
   }
@@ -124,6 +136,7 @@ async function loadLookups({
     regions,
     country,
     countries,
+    config,
     // ---
     model: safeModel,
     baseModel: safeModel,

@@ -1,13 +1,19 @@
+// --- utils
+import { get } from "lodash-es";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { map } from "lodash-es";
 
+// --- types
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AddressContext } from "./types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export function useSchema({
   types,
   regions,
   baseModel,
   countries,
+  country,
+  config,
 }: AddressContext): JsonSchema {
   const schema = {
     type: "object",
@@ -43,7 +49,7 @@ export function useSchema({
 
           postcode: {
             type: "string",
-            title: "Postcode",
+            title: "Postal / Zip Code",
           },
 
           regionId: {
@@ -69,6 +75,33 @@ export function useSchema({
                 })),
           },
 
+          phone: {
+            type: "object",
+            title: "Phone",
+            isPhoneNumber: country?.code,
+            properties: {
+              number: {
+                type: ["string", "null"],
+                title: "Phone number ( with dialing code )",
+              },
+
+              nationalNumber: {
+                type: ["string", "null"],
+                title: "Phone number",
+              },
+
+              countryCallingCode: {
+                type: ["string", "null"],
+                title: "Country calling code",
+              },
+
+              country: {
+                type: ["string", "null"],
+                title: "Country",
+              },
+            },
+          },
+
           type: {
             type: "number",
             title: "Address Type",
@@ -85,15 +118,13 @@ export function useSchema({
     },
   };
 
-  // if (id) {
-  //   schema.required.push("name");
-  //   schema.required.push("type");
-  // }
-
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    schema.properties.address.required.push("phone");
+  }
   return schema as JsonSchema;
 }
 
-export function useUischema(): UISchemaElement {
+export function useUischema({ config }: AddressContext): UISchemaElement {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -119,6 +150,9 @@ export function useUischema(): UISchemaElement {
                 elements: [
                   {
                     type: "Group",
+                    options: {
+                      border: false,
+                    },
                     elements: [
                       {
                         type: "Control",
@@ -139,10 +173,41 @@ export function useUischema(): UISchemaElement {
                   {
                     type: "Control",
                     scope: "#/properties/city",
+                    options: {
+                      placeholder: "City, town etc.",
+                    },
+                  },
+                  {
+                    type: "HorizontalLayout",
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/regionId",
+                        options: {
+                          placeholder: "Select region",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/postcode",
+                        options: {
+                          placeholder: "eg. 10011",
+                        },
+                      },
+                    ],
                   },
                   {
                     type: "Control",
-                    scope: "#/properties/postcode",
+                    scope: "#/properties/phone",
+                    rule: {
+                      effect: "HIDE",
+                      condition: get(
+                        config,
+                        BrandConfigKeys.CHECKOUT_REQUIRE_PHONE
+                      )
+                        ? { scope: "#", schema: { type: "null" } }
+                        : { scope: "#", schema: { type: "object" } },
+                    },
                   },
                 ],
               },
