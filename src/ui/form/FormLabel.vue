@@ -1,6 +1,6 @@
 <template>
   <Label
-    :class="cn('w-full text-inherit', props.class)"
+    :class="cn('w-full text-xs text-inherit', props.class)"
     :for="props.formItemId"
   >
     <slot />

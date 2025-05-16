@@ -8,10 +8,10 @@
   >
     <slot name="field">
       <!-- label -->
-      <div class="w-full flex-col space-y-1">
+      <div class="w-full flex-col">
         <FormLabel v-if="meta.hasLabel" :formItemId="id">
           <slot name="label" :label="label">
-            <span class="inline-flex items-center gap-x-1">
+            <span class="inline-flex items-center gap-x-0.5">
               <slot name="icon" />
 
               <span>{{ label }}</span>
