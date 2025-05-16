@@ -84,23 +84,10 @@ onMounted(async () => {
 });
 
 const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
-  const allowedFields = control.value.uischema.options?.fields || [];
-
-  const uiSchema = Generate.uiSchema(
-    control.value.schema,
-    "VerticalLayout",
-    undefined,
-    control.value.rootSchema
-  );
-
-  if (isLayout(uiSchema) && uiSchema.elements) {
-    uiSchema.elements = filter(uiSchema.elements, (element: any) => {
-      const fieldName = element.scope?.split("/").pop();
-      return fieldName && allowedFields.includes(fieldName);
-    }) as UISchemaElement[];
-  }
-
-  return uiSchema;
+  return {
+    ...control.value.uischema,
+    type: "VerticalLayout",
+  };
 });
 
 const nestedErrors = computed(() => {
