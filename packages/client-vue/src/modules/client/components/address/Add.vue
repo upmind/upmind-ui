@@ -58,9 +58,9 @@ await isReady().then(async () => {
   await getAll();
 });
 
-const updateModel = debounce(async (address: Address) => {
+const updateModel = debounce(async (address: any) => {
   if (showAddressFields.value) {
-    await set(address);
+    await set(address?.address);
   }
 }, 500);
 
