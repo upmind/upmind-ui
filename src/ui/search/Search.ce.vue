@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { isEmpty } from "lodash-es";
 import {
   PopoverRoot,
@@ -96,4 +96,12 @@ const onSelect = (item: SearchItem) => {
 const isValid = computed(() => {
   return search.value.length >= props.minQueryLength && !isEmpty(props.results);
 });
+
+watch(
+  () => props.results,
+  () => {
+    open.value = true;
+  },
+  { deep: true }
+);
 </script>
