@@ -28,12 +28,12 @@ export function useSchema({
         properties: {
           address1: {
             type: "string",
-            title: "Address Line 1",
+            title: "Address",
           },
 
           address2: {
             type: ["string", "null"],
-            title: "Address Line 2",
+            title: "",
           },
 
           city: {
@@ -118,12 +118,23 @@ export function useUischema(): UISchemaElement {
                 },
                 elements: [
                   {
-                    type: "Control",
-                    scope: "#/properties/address1",
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/address2",
+                    type: "Group",
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/address1",
+                        options: {
+                          placeholder: "House name, apartment number etc.",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/address2",
+                        options: {
+                          placeholder: "Road, street name etc.",
+                        },
+                      },
+                    ],
                   },
                   {
                     type: "Control",
