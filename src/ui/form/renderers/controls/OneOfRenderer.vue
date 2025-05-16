@@ -3,6 +3,7 @@
     <Select
       :model-value="control.data?.toString()"
       :items="control.options"
+      :placeholder="appliedOptions?.placeholder"
       @update:modelValue="onInput"
     />
   </FormField>
@@ -25,9 +26,8 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsOneOfEnumControl(props)
-);
+const { control, formFieldProps, onInput, appliedOptions } =
+  useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
 </script>
 
 <script lang="ts">

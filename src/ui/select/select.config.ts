@@ -23,7 +23,16 @@ export const selectVariants = cva(
   }
 );
 
+export const valueVariants = cva("", {
+  variants: {
+    hasValue: {
+      false: "text-base-500",
+    },
+  },
+});
+
 // -----------------------------------------------------------------------------
 export default {
   select: selectVariants,
+  value: valueVariants,
 };

@@ -1,7 +1,7 @@
 <template>
   <Select v-bind="forwarded" :key="uid">
     <SelectTrigger :class="cn(styles.select, props.class)">
-      <SelectValue :placeholder="placeholder" />
+      <SelectValue :placeholder="placeholder" :class="styles.value" />
     </SelectTrigger>
 
     <SelectContent>
@@ -65,15 +65,17 @@ const uid = ref(timestamp());
 const meta = computed(() => ({
   size: props.size,
   width: props.width,
+  hasValue: !!props.modelValue,
 }));
 
 const styles = useStyles(
-  ["select"],
+  ["select", "value"],
   meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
-  select: [];
+  select: string;
+  value: string;
 }>;
 
 // NB: set the new timestamp when items change to force a re-render
