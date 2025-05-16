@@ -69,8 +69,9 @@ const props = defineProps({
 
 const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
 
-const { control, appliedOptions, formFieldProps, updateControl } =
-  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
+const { control, appliedOptions, formFieldProps } = useUpmindUIRenderer(
+  useJsonFormsControlWithDetail(props)
+);
 
 const { showAddressFields, setShowAddressFields, setSelectedAddress } =
   useAddressFields();
