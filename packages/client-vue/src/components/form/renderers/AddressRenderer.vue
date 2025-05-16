@@ -27,6 +27,7 @@
 
       <Link
         v-if="!showAddressFields"
+        class="mt-2"
         label="Enter address manually"
         size="sm"
         variant="muted"
