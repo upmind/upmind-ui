@@ -73,7 +73,11 @@
         <div>
           <h4 class="mb-4 text-lg font-medium">Basket Management</h4>
 
+<<<<<<< HEAD
           <div class="flex items-center justify-between border-b">
+=======
+          <div class="flex items-center justify-between">
+>>>>>>> feat/FE-311-refactor-client-into-composables
             <div>
               <h5 class="font-medium">Basket Billing</h5>
               <p class="mt-1 text-gray-600">Manage basket billing details</p>
@@ -83,6 +87,7 @@
             </Button>
           </div>
         </div>
+<<<<<<< HEAD
 
         <!-- Forms & Renderers -->
         <div>
@@ -112,6 +117,8 @@
             </div>
           </div>
         </div>
+=======
+>>>>>>> feat/FE-311-refactor-client-into-composables
       </div>
     </div>
   </UpmContentSection>
