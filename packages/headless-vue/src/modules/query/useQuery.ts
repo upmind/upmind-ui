@@ -18,7 +18,6 @@ export const useQuery = <T = unknown>(queryKey: QueryKey) => {
   const observer = useQuerySubscription(
     queryKey,
     (response: QueryCacheNotifyEvent["query"]) => {
-      console.debug("useQuery", "query", response);
       query.value = response.state;
     }
   );

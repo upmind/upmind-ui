@@ -42,11 +42,9 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   const addresses = getAddresses({ allowStale: false });
   const companies = getCompanies({ allowStale: false });
 
-  return Promise.all([companies, addresses]).then(
-    ([companies, addresses]) => {
-      return [...companies, ...addresses];
-    } // we prioritise/return the companies first so they are at the top of the list
-  );
+  return Promise.all([companies, addresses]).then(([companies, addresses]) => {
+    return { companies, addresses };
+  });
 }
 
 async function update(
@@ -75,13 +73,13 @@ async function parse(
   { model, autoupdate, dirty, addresses }: BillingDetailsContext,
   _event: AnyEventObject
 ) {
-  const defaultAddress = find(addresses, "default");
+  const defaultAddress = find(addresses, "meta.isDefault");
 
   // We should ALWAYS have an address set  ( if we have addresses )
   // if model is not set, set it to the default address
   if (!model?.addressId && !isEmpty(defaultAddress)) {
     model = {
-      addressId: defaultAddress.addressId,
+      addressId: defaultAddress.id,
       companyId: defaultAddress.companyId,
     };
     autoupdate = true;
