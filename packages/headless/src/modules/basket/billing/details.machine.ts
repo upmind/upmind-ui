@@ -42,25 +42,26 @@ export default createMachine(
         },
       },
 
-      loading: {
-        entry: ["clearError"],
-        invoke: {
-          src: "load",
-          onDone: {
-            target: "available",
-            actions: ["setLookups", "setSchemas"],
-          },
-          onError: {
-            target: "unavailable",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
-      },
-
       available: {
-        id: "available",
-        initial: "checking",
+        initial: "loading",
         states: {
+          loading: {
+            id: "loading",
+            entry: ["clearError"],
+            invoke: {
+              src: "load",
+              onDone: {
+                target: "checking",
+                actions: ["setLookups", "setSchemas"],
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"],
+              },
+            },
+          },
+          // ---
+
           checking: {
             entry: ["clearError"],
             initial: "parsing",
@@ -77,9 +78,15 @@ export default createMachine(
               validating: {
                 invoke: {
                   src: "validate",
-                  onDone: {
-                    target: "#valid",
-                  },
+                  onDone: [
+                    {
+                      target: "#valid",
+                      cond: "isDirty",
+                    },
+                    {
+                      target: "#complete",
+                    },
+                  ],
                   onError: {
                     target: "#invalid",
                     actions: ["setError"],
@@ -88,74 +95,67 @@ export default createMachine(
               },
             },
           },
+
           valid: {
             id: "valid",
-            always: { target: "#processing", cond: "shouldUpdate" },
+            always: { target: "processing", cond: "shouldUpdate" },
+
             on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"],
-              },
               UPDATE: {
-                target: "#processing",
+                target: "processing",
                 cond: "hasBasket",
               },
             },
           },
+
           invalid: {
             id: "invalid",
-            on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"],
+          },
+
+          processing: {
+            id: "processing",
+            entry: ["clearError"],
+
+            invoke: {
+              src: "update",
+              onDone: {
+                target: "processed",
+                actions: ["setModel", "clearDirty", "clearAutoUpdate"],
+              },
+              onError: {
+                target: "#error",
+                actions: ["setError", "setFeedbackError"],
               },
             },
           },
-          error: {
-            id: "error",
-            on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"],
+
+          processed: {
+            id: "processed",
+            entry: sendParent({ type: "REFRESH" }),
+            after: {
+              wait: {
+                target: "#complete",
               },
             },
           },
         },
       },
 
-      unavailable: {},
+      // ---
+      error: { id: "error" },
 
-      processing: {
-        id: "processing",
-        entry: ["clearError"],
-        invoke: {
-          src: "update",
-          onDone: {
-            target: "processed",
-            actions: ["setModel", "clearAutoUpdate"],
-          },
-          onError: {
-            target: "#error",
-            actions: ["setError", "setFeedbackError"],
-          },
-        },
+      complete: {
+        id: "complete",
       },
-
-      processed: {
-        id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
-        after: {
-          wait: {
-            target: "complete",
-          },
-        },
-      },
-      complete: {},
     },
     on: {
       CLEAR: {
         target: "available.checking",
-        actions: ["clearModel"],
+        actions: ["clearModel", "setDirty"],
+      },
+      SET: {
+        target: "available.checking",
+        actions: ["setModel", "setDirty", "setAutoUpdate"],
       },
       REFRESH: {
         target: "available.checking",
@@ -166,10 +166,6 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign(
-        (_context: BillingDetailsContext, { data }: AnyEventObject) => data
-      ),
-
       refreshContext: assign(
         (_context: BillingDetailsContext, { data }: AnyEventObject) => {
           return {
@@ -205,6 +201,14 @@ export default createMachine(
 
       clearModel: assign({
         model: undefined,
+      }),
+
+      setDirty: assign({
+        dirty: true,
+      }),
+
+      clearDirty: assign({
+        dirty: false,
       }),
 
       setAutoUpdate: assign({
@@ -249,8 +253,9 @@ export default createMachine(
 
       clearError: assign({ error: null }),
     },
+
     guards: {
-      // isDirty: ({ dirty }, _event) => !!dirty,
+      isDirty: ({ dirty }, _event) => !!dirty,
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
       hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {
@@ -258,17 +263,12 @@ export default createMachine(
         return basketId !== data?.id || clientId !== data?.client_id;
       },
       shouldUpdate: ({ autoupdate, clientId, basketId, model }, _event) => {
-        return (
-          !!autoupdate &&
-          !!basketId &&
-          !!clientId &&
-          (!!model?.addressId || !!model?.companyId)
-        );
+        return !!autoupdate && !!basketId && !!clientId && !!model?.addressId;
       },
     },
 
     delays: {
-      error: () => useTime().ERROR,
+      // error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
 
