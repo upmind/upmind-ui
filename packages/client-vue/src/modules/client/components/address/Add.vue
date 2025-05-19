@@ -29,6 +29,7 @@ import { watch } from "vue";
 import {
   useClientAddress,
   useClientAddresses,
+  useClientPhone,
 } from "@upmind-automation/headless-vue";
 
 // --- components
@@ -50,6 +51,11 @@ const emit = defineEmits<{
 }>();
 
 const { update, set, model, schema, uischema, meta } = useClientAddress();
+const {
+  update: updatePhone,
+  set: setPhone,
+  meta: phoneMeta,
+} = useClientPhone();
 const { isReady, getAll } = useClientAddresses();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
@@ -58,9 +64,12 @@ await isReady().then(async () => {
   await getAll();
 });
 
-const updateModel = debounce(async (address: any) => {
+const updateModel = debounce(async (data: any) => {
   if (showAddressFields.value) {
-    await set(address?.address);
+    if (data?.address.phone) {
+      await setPhone({ phone: data?.address.phone, type: 1 });
+    }
+    await set(data?.address);
   }
 }, 500);
 
