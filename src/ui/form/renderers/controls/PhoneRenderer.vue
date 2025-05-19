@@ -125,7 +125,7 @@ const initialPhoneData = () => {
   return data;
 };
 
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
+const defaultCountryCode = get(control.value.schema, "phoneCountryCode");
 const requiresString = first(control.value.schema.type) === "string";
 const phone = ref(initialPhoneData());
 const exampleNumber = computed(() => {
@@ -218,7 +218,8 @@ export const tester = {
   controlType: and(
     or(isStringControl, isObjectControl),
     schemaMatches(
-      schema => "isPhoneNumber" in schema && !!(schema as any).isPhoneNumber
+      schema =>
+        "phoneCountryCode" in schema && !!(schema as any).phoneCountryCode
     )
   ),
 };
