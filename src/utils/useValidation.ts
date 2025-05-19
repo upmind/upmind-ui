@@ -1,5 +1,6 @@
 // --- external
 import { createAjv } from "@jsonforms/core";
+import Ajv from "ajv";
 
 import ajvErrors from "ajv-errors";
 import addFormats from "ajv-formats";
@@ -7,29 +8,11 @@ import addFormats from "ajv-formats";
 // --- internal
 
 // --- utils
-import {
-  compact,
-  concat,
-  defaultsDeep,
-  every,
-  forEach,
-  get,
-  has,
-  isArray,
-  isEmpty,
-  isNil,
-  map,
-  omitBy,
-  reduce,
-  replace,
-  set,
-  trimEnd,
-  trimStart,
-} from "lodash-es";
+import { compact, concat, defaultsDeep, get, reduce, set } from "lodash-es";
 import { parseError } from "./useError";
-import Ajv, { type ErrorObject } from "ajv";
 
 // --- types
+import type { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
