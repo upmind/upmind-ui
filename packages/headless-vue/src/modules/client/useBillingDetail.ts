@@ -60,6 +60,7 @@ export const useBillingDetail = (
     // ---
     clear,
     input: debounce((model: UnifiedAddressModel) => input(model), 300),
+    set: (model: UnifiedAddressModel) => input(model),
     update,
     stop,
   };

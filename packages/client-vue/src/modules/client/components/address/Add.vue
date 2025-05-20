@@ -6,24 +6,14 @@
     :uischema="uischema"
     :additional-renderers="formRenderers"
     :noActions="!showAddressFields"
-  >
-    <template #actions v-bind="{ meta }">
-      <Button
-        type="submit"
-        :disabled="meta.isProcessing || !meta.isValid"
-        :loading="meta.isLoading"
-        color="secondary"
-        @click="updateAddress"
-      >
-        Save details
-      </Button>
-    </template>
-  </UpmForm>
+    color="primary"
+    :actions="actions"
+  />
 </template>
 
 <script setup lang="ts">
 // --- external
-import { watch } from "vue";
+import { watch, computed } from "vue";
 
 // --- internal
 import {
@@ -35,11 +25,16 @@ import {
 // --- components
 import { UpmForm, formRenderers } from "../../../../components/form";
 import { Button } from "@upmind-automation/upmind-ui";
+import { useBillingDetail } from "@upmind-automation/headless-vue";
 import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
 
 // --- types
 import type { Address } from "@upmind-automation/headless-vue";
 import { Views } from "./types";
+import type {
+  ButtonProps,
+  FormActionProps,
+} from "@upmind-automation/upmind-ui";
 
 // utils
 import { debounce } from "lodash-es";
@@ -50,7 +45,7 @@ const emit = defineEmits<{
   (e: "setView", value: Views): void;
 }>();
 
-const { update, set, model, schema, uischema, meta } = useClientAddress();
+const { update, set, model, schema, uischema, meta } = useBillingDetail();
 const {
   update: updatePhone,
   set: setPhone,
@@ -63,6 +58,18 @@ const { showAddressFields, selectedAddress, setShowAddressFields } =
 await isReady().then(async () => {
   await getAll();
 });
+
+const actions = computed(() => ({
+  submit: {
+    label: "Save details",
+    color: "secondary",
+    loading: meta.value.isLoading,
+    disabled: meta.value.isProcessing || !meta.value.isValid,
+    type: "submit",
+    size: "md",
+    handler: updateAddress,
+  } as FormActionProps,
+}));
 
 const updateModel = debounce(async (data: any) => {
   if (showAddressFields.value) {
