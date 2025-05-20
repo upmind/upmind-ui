@@ -1,9 +1,8 @@
 // --- external
-import { createAjv } from "@jsonforms/core";
+import { createAjv, type JsonSchema } from "@jsonforms/core";
 import Ajv from "ajv";
 
 import ajvErrors from "ajv-errors";
-import addFormats from "ajv-formats";
 
 // --- internal
 
@@ -33,7 +32,7 @@ export const useValidationParser = (error: any): ErrorObject[] => {
   return error;
 };
 
-export const useModelParser = (schema: any, values: any) => {
+export const useModelParser = (schema: JsonSchema, values: any) => {
   const model = reduce(
     schema?.properties,
     (result, field, key) => {
@@ -52,25 +51,25 @@ export const useValidation = (ajv?: Ajv) => {
   // use JSON Forms version of AJV as it has formats and other keywords already
 
   const initial = !ajv;
-  const ajvInstance =
-    ajv ?? createAjv({ useDefaults: true, allErrors: true, verbose: false });
+  const ajvInstance = ajv ?? createAjv({ useDefaults: true, verbose: false });
 
   if (initial) {
     ajvErrors(ajvInstance, {
       keepErrors: false,
-      singleError: false,
+      singleError: true,
     });
-
-    addFormats(ajvInstance, {});
   }
 
   return {
     ajv: ajvInstance,
-    validate: (schema: any, data: any) => {
+    validate: (
+      schema: JsonSchema,
+      data: Record<string, any>
+    ): ErrorObject[] => {
       const validate = ajvInstance.compile(schema);
       const valid = validate(data);
       if (!valid) {
-        return validate.errors;
+        return validate.errors ?? [];
       }
       return [];
     },
