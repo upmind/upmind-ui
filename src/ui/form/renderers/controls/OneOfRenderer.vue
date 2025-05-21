@@ -96,6 +96,9 @@ const toggleTab = (value: any) => {
 </script>
 
 <script lang="ts">
-import { isOneOfControl } from "@jsonforms/core";
-export const tester = { rank: 2, controlType: isOneOfControl };
+import { isOneOfControl, optionIs, and } from "@jsonforms/core";
+export const tester = {
+  rank: 2,
+  controlType: and(isOneOfControl, optionIs("toggle", true)),
+};
 </script>

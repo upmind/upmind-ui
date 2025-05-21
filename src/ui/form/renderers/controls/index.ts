@@ -27,9 +27,9 @@ import MultilineRenderer, {
 import OneOfRadioRenderer, {
   tester as OneOfRadioTest,
 } from "./OneOfRadioRenderer.vue";
-import OneOfEnumRenderer, {
-  tester as OneOfEnumTest,
-} from "./OneOfEnumRenderer.vue";
+import OneOfSelectRenderer, {
+  tester as OneOfSelectTest,
+} from "./OneOfSelectRenderer.vue";
 import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
 
 // -----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ export const controlRenderers = [
   registerEntry(DateRenderer, DateTest),
   registerEntry(OneOfRenderer, OneOfTest),
   registerEntry(OneOfRadioRenderer, OneOfRadioTest),
-  registerEntry(OneOfEnumRenderer, OneOfEnumTest),
+  registerEntry(OneOfSelectRenderer, OneOfSelectTest),
   registerEntry(MultilineRenderer, MultilineTest),
   registerEntry(LookupRenderer, lookupTest),
 ];
