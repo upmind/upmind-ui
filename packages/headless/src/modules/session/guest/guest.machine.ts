@@ -17,7 +17,7 @@ import { useDataLayer } from "../../system";
 const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
+const { addSuccess } = useFeedback();
 
 // --- utils
 import { useValidationParser, useCookies } from "../../../utils";
@@ -262,11 +262,10 @@ export default createMachine(
               recovering: {
                 invoke: {
                   src: "recover",
-                  onDone: [
-                    {
-                      target: "complete",
-                    },
-                  ],
+                  onDone: {
+                    target: "complete",
+                    actions: ["setFeedbackSuccess"],
+                  },
                   onError: {
                     target: "error",
                     actions: ["setError", "setFeedbackError"],
@@ -348,6 +347,10 @@ export default createMachine(
       set2faToken: assign({
         token: (_context, { data }: AnyEventObject) => data,
       }),
+
+      setFeedbackSuccess: (_context: any, _event: any) => {
+        addSuccess("Thanks – reset instructions have been sent to your email.");
+      },
 
       setFeedbackError: ({ error }, _event) => {
         return;
