@@ -28,15 +28,6 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput, appliedOptions } =
   useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
-
-console.log(
-  "OneOfSelectRenderer data:",
-  control.value.data,
-  "path:",
-  control.value.path,
-  "options:",
-  control.value.options
-);
 </script>
 
 <script lang="ts">

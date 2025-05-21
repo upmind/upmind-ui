@@ -21,9 +21,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
-import { createCombinatorRenderInfos } from "@jsonforms/core";
+import {
+  createCombinatorRenderInfos,
+  createDefaultValue,
+} from "@jsonforms/core";
 
 // --- components
 import FormField from "../../FormField.vue";
@@ -44,7 +47,7 @@ import type { TabItem } from "../../../tabs";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps } = useUpmindUIRenderer(
+const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsOneOfControl(props)
 );
 
@@ -90,9 +93,21 @@ const oneOfItems = computed((): TabItem[] => {
 });
 
 const toggleTab = (value: any) => {
-  const numericValue = parseInt(value, 10);
-  selectedIndex.value = numericValue;
+  selectedIndex.value = parseInt(value, 10);
+  setDefaultForIndex();
 };
+
+const setDefaultForIndex = () => {
+  onInput(
+    createDefaultValue(
+      indexedOneOfRenderInfos.value[selectedIndex.value].schema,
+      control.value.rootSchema
+    ),
+    false
+  );
+};
+
+setDefaultForIndex();
 </script>
 
 <script lang="ts">
