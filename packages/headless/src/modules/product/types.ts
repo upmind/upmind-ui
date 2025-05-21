@@ -317,6 +317,8 @@ export interface UISchema {
   billing?: {
     control?: string;
   };
+  group_name?: string;
+  icon?: string;
 }
 
 export type PriceCalculations = {
