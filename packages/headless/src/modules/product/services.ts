@@ -277,7 +277,10 @@ async function checkSubproducts(
           set(selected, defaultSubproduct.id, {
             productId: defaultSubproduct.id,
           });
-        } else if (subproduct?.meta.required && !subproduct.meta.multiple) {
+        } else if (
+          (subproduct?.meta.required && !subproduct.meta.multiple) ||
+          (subproduct.meta.multiple && subproduct.values?.length === 1)
+        ) {
           const pid = get(first(subproduct.values), "id");
           if (pid) set(selected, pid, { productId: pid });
         }
