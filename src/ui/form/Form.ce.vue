@@ -3,10 +3,11 @@
     :is="as"
     :class="styles.form.root"
     :disabled="meta.isProcessing"
+    ref="form"
     @submit.prevent="doSubmit"
   >
     <JsonForms
-      ref="form"
+      ref="jsonform"
       :additionalErrors="additionalErrors"
       :ajv="ajv"
       :class="styles.form.content"
@@ -125,6 +126,7 @@ defineExpose({
 const { ajv } = useValidation(props.ajv);
 
 const form = useTemplateRef("form");
+const jsonform = useTemplateRef("jsonform");
 
 const baseModel = props.modelValue;
 const model = useVModel(props, "modelValue", emits, {
@@ -225,22 +227,15 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
 
   const isValid = isEmpty(errors.value);
   emits("valid", isValid);
-  if (isValid && props.autosave) {
-    doSubmit();
-  }
+  if (isValid && props.autosave) doSubmit();
 }
 
 function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
   touched.value = true;
+  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
 
   if (meta.value.isProcessing) {
-    $event.preventDefault();
     return;
-  }
-
-  if (!includes(["submit", "reset"], item?.type)) {
-    // dont propagate the form if we are have an action that is not submit or reset
-    $event.preventDefault();
   }
 
   if (isFunction(item.handler)) {
@@ -322,7 +317,7 @@ function syncUischema() {
   // sync the uischema to the forms current uschema so that we ALWAYS have a uischema,
   // this is important for us to be able to manipulate the form
   const currentUischema: UISchemaElement = get(
-    form.value,
+    jsonform.value,
     "uischemaToUse"
   ) as UISchemaElement;
 
