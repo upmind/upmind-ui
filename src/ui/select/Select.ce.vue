@@ -1,5 +1,5 @@
 <template>
-  <Select v-bind="forwarded" :key="uid">
+  <Select v-bind="forwarded" :key="uid" :model-value="modelValue">
     <SelectTrigger :class="cn(styles.select, props.class)">
       <SelectValue :placeholder="placeholder" :class="styles.value" />
     </SelectTrigger>
@@ -25,6 +25,7 @@
 // --- external
 import { computed, ref, watch } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
+import { useVModel } from "@vueuse/core";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -57,6 +58,11 @@ const props = withDefaults(defineProps<SelectProps>(), {
 
 const emits = defineEmits<SelectRootEmits & SelectContentEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
+
+const modelValue = useVModel(props, "modelValue", emits, {
+  passive: true,
+  defaultValue: props.defaultValue,
+});
 
 // --- This is needed as if we have changed items AFTER model is set then ...
 //     the component does not re-render with the correct selected value
