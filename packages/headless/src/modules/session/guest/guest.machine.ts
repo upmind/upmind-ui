@@ -137,7 +137,14 @@ export default createMachine(
                   },
                 },
               },
-              error: {},
+              error: {
+                on: {
+                  AUTHENTICATE: {
+                    target: "authenticating",
+                    actions: ["setModel"],
+                  },
+                },
+              },
             },
           },
 
@@ -221,7 +228,11 @@ export default createMachine(
                   },
                 },
               },
-              error: {},
+              error: {
+                on: {
+                  REGISTER: { target: "checking", actions: ["setModel"] },
+                },
+              },
             },
           },
 
@@ -260,7 +271,11 @@ export default createMachine(
                   },
                 },
               },
-              error: {},
+              error: {
+                on: {
+                  RECOVER: { target: "recovering", actions: ["setModel"] },
+                },
+              },
               complete: {},
             },
           },
