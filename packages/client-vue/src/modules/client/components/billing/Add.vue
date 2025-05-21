@@ -16,25 +16,16 @@
 import { watch, computed } from "vue";
 
 // --- internal
-import {
-  useClientAddress,
-  useClientAddresses,
-  useClientPhone,
-} from "@upmind-automation/headless-vue";
+import { useBillingDetails } from "@upmind-automation/headless-vue";
 
 // --- components
 import { UpmForm, formRenderers } from "../../../../components/form";
-import { Button } from "@upmind-automation/upmind-ui";
 import { useBillingDetail } from "@upmind-automation/headless-vue";
 import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
 
 // --- types
-import type { Address } from "@upmind-automation/headless-vue";
 import { Views } from "./types";
-import type {
-  ButtonProps,
-  FormActionProps,
-} from "@upmind-automation/upmind-ui";
+import type { FormActionProps } from "@upmind-automation/upmind-ui";
 
 // utils
 import { debounce } from "lodash-es";
@@ -46,12 +37,7 @@ const emit = defineEmits<{
 }>();
 
 const { update, set, model, schema, uischema, meta } = useBillingDetail();
-const {
-  update: updatePhone,
-  set: setPhone,
-  meta: phoneMeta,
-} = useClientPhone();
-const { isReady, getAll } = useClientAddresses();
+const { isReady, getAll } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
@@ -72,24 +58,21 @@ const actions = computed(() => ({
 }));
 
 const updateModel = debounce(async (data: any) => {
-  if (showAddressFields.value) {
-    if (data?.address.phone) {
-      await setPhone({ phone: data?.address.phone, type: 1 });
-    }
-    await set(data?.address);
-  }
+  // if (showAddressFields.value) {
+  //   await set(data?.address);
+  // }
 }, 500);
 
 watch(selectedAddress, async address => {
   if (address) {
-    await set(address);
+    // await set(address);
     setShowAddressFields(true);
   }
 });
 
 const updateAddress = async () => {
-  await update();
-  await getAll();
-  emit("setView", Views.default);
+  // await update();
+  // await getAll();
+  // emit("setView", Views.default);
 };
 </script>
