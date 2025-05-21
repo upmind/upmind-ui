@@ -11,7 +11,7 @@
     <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
         :item="option.item"
-        :index="overrideIndex || index"
+        :index="option.index || overrideIndex || index"
         :name="props.name"
         :label="option?.label"
         :required="props.required"

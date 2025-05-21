@@ -218,7 +218,8 @@ export const buttonVariants = cva(
       {
         color: "base",
         variant: "ghost",
-        class: "hover:bg-base-muted !ring-base-muted-active text-base",
+        class:
+          "hover:bg-base-muted ring-base-muted-active text-base-foreground",
       },
       {
         color: "primary",

@@ -29,7 +29,7 @@ export const itemVariants = cva(
 
 export default {
   radioCards: {
-    root: cva(`grid w-full grid-cols-12 gap-2`),
+    root: cva(`grid w-full grid-cols-12 gap-2 [&>*:only-child]:col-span-12`),
     item: itemVariants,
     radio: cva("flex h-full items-start pr-2.5"),
     label: cva(
