@@ -3,6 +3,7 @@
     class="auth"
     :class="cn(styles.session.auth.root, $props.class)"
     v-if="!meta.isAuthenticated && !meta.isLoading"
+    v-auto-animate
   >
     <Alert
       v-if="meta.hasErrors"
@@ -29,46 +30,55 @@
     />
   </div>
 
-  <div
-    v-if="!meta.isAuthenticated && !meta.isLoading"
-    :class="styles.session.auth.actions"
-  >
-    <slot
-      name="toggle"
-      v-if="
-        meta.showRegisterForm ||
-        meta.showLoginForm ||
-        meta.showRecoverPasswordForm
-      "
-    >
-      <Link v-if="meta.showLoginForm" @click="toggleForm('register')">
+  <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
+    <slot name="toggle">
+      <Link
+        v-if="!meta.isAuthenticated && meta.showLoginForm"
+        @click="toggleForm('register')"
+      >
         <span class="font-normal">
           {{ buttons.login.label }}
         </span>
         &nbsp;{{ buttons.login.action }}
       </Link>
 
-      <Link v-if="meta.showRegisterForm" @click="toggleForm('login')">
+      <Link
+        v-if="!meta.isAuthenticated && meta.showRegisterForm"
+        @click="toggleForm('login')"
+      >
         <span class="font-normal">
           {{ buttons.register.label }}
         </span>
         &nbsp;{{ buttons.register.action }}
       </Link>
 
-      <Link v-if="meta.showLoginForm" @click="toggleForm('recover')">
+      <Link
+        v-if="!meta.isAuthenticated && meta.showLoginForm"
+        @click="toggleForm('recover')"
+      >
         <span class="font-normal">
           {{ buttons.recover.label }}
         </span>
       </Link>
     </slot>
+    <Button
+      v-if="meta.isAuthenticated"
+      variant="ghost"
+      block
+      type="reset"
+      @click.prevent="logout"
+    >
+      logout
+    </Button>
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVModel } from "@vueuse/core";
-import { computed, onMounted, watch } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import Form from "../../../components/form/Form.vue";
@@ -81,7 +91,7 @@ import {
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Link, Alert } from "@upmind-automation/upmind-ui";
+import { Link, Alert, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -108,6 +118,7 @@ const {
   uischema,
   resolve,
   reject,
+  logout,
   setModel,
 } = useSession();
 
@@ -143,6 +154,7 @@ const buttons = computed(() => {
     },
   };
 });
+
 const authActions = computed(() => {
   return {
     submit: {

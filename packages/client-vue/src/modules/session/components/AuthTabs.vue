@@ -3,6 +3,7 @@
     class="auth"
     :class="cn(styles.session.auth.root, $props.class)"
     v-if="!meta.isAuthenticated && !meta.isLoading"
+    v-auto-animate
   >
     <Tabs
       :default-value="modelValue"
@@ -16,6 +17,14 @@
           meta.showRegisterForm ||
           meta.showRecoverPasswordForm)
       "
+    />
+
+    <Alert
+      v-if="meta.hasErrors"
+      color="error"
+      icon="alert-triangle"
+      :title="t(`session.unauthenticated.${modelValue}.error`)"
+      :description="errors?.message"
     />
 
     <Form
@@ -35,23 +44,26 @@
     />
   </div>
 
-  <div
-    v-if="!meta.isAuthenticated && !meta.isLoading"
-    :class="styles.session.auth.actions"
-  >
-    <slot name="toggle" v-if="meta.showRegisterForm || meta.showLoginForm">
-      <Button variant="ghost" block type="reset" @click.prevent="logout">
-        logout
-      </Button>
-    </slot>
+  <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
+    <slot name="toggle"> </slot>
+    <Button
+      v-if="meta.isAuthenticated"
+      variant="ghost"
+      block
+      type="reset"
+      @click.prevent="logout"
+    >
+      logout
+    </Button>
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVModel } from "@vueuse/core";
-import { computed, onMounted, watch } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import Form from "../../../components/form/Form.vue";
