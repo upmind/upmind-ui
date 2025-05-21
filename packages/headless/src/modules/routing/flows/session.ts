@@ -148,18 +148,19 @@ export const useSessionFlows = () => {
         fallback: [ROUTE.BASKET, ROUTE.EMPTY],
       },
     },
+    {
+      name: ROUTE.SESSION_RECOVER_PASSWORD,
+      guard: async (_route: Route) =>
+        await isAuthenticated()
+          .then(() => false)
+          .catch(() => true),
+      targets: {
+        next: [ROUTE.SESSION_LOGIN],
+        back: [ROUTE.SESSION_LOGIN],
+        fallback: [ROUTE.BASKET, ROUTE.EMPTY],
+      },
+    },
 
-    // {
-    //   name: ROUTE.SESSION_FORGOT_PASSWORD,
-    //  guard: async (_route: Route) => await  isAuthenticated()
-    // .then(() => false)
-    // .catch(() => true),
-    //   targets: {
-    //     next: [{ name: ROUTE.CHECKOUT }],
-    //     back: [{ name: ROUTE.BASKET }],
-    //     fallback: [{ name: ROUTE.BASKET }],
-    //   },
-    // },
     // {
     //   name: ROUTE.PROFILE,
     //   guard: async (_route: Route) =>await isAuthenticated()
