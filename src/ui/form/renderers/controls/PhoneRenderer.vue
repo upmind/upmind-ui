@@ -141,7 +141,10 @@ function parsePhone(value: string | PhoneNumber, countryCode?: CountryCode) {
   const code = countryCode || phone.value?.country || defaultCountryCode;
 
   if (phonenumber) {
-    return parsePhoneNumber(phonenumber, code);
+    return {
+      ...parsePhoneNumber(phonenumber, code),
+      country: code,
+    };
   }
 
   return { country: code, number: phonenumber };
@@ -157,7 +160,7 @@ function onPhoneInput(value: string | number) {
     phone.value = parsePhone(value as string);
     onInput(requiresString ? phone.value.number : phone.value);
   } catch (error) {
-    console.warn("Failed to parse phone number:", error);
+    // We don't want to spam the console with errors
   }
 }
 
