@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const tabsListVariants = cva(
-  "inline-flex h-10 items-center rounded-lg p-1 text-muted-foreground",
+  "inline-flex h-11 items-center rounded-lg p-1 text-muted-foreground",
   {
     variants: {
       variant: {
@@ -186,7 +186,7 @@ export const tabsTriggerVariants = cva(
   {
     variants: {
       variant: {
-        flat: "mx-1 w-full data-[state=active]:bg-background",
+        flat: "mx-1 w-full data-[state=active]:bg-white",
         outline:
           "text-opacity-50 hover:text-opacity-100 data-[state=active]:text-opacity-100",
         tonal: "",

@@ -68,6 +68,10 @@ const props = withDefaults(defineProps<TabsProps>(), {
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
 
+const onTabClick = (value: string) => {
+  emits("update:modelValue", value);
+};
+
 const meta = computed(() => ({
   color: props.color,
   variant: props.variant,
