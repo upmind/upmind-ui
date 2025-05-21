@@ -272,7 +272,7 @@ export const parseMeta = (
     (result, value) => {
       return merge(result, value);
     },
-    {}
+    meta || {}
   );
 };
 
