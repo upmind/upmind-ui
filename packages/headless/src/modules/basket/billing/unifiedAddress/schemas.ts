@@ -44,7 +44,7 @@ export const useSchema = ({
             type: "object",
             title: "Address",
             default: {},
-            required: ["address1", "city", "postcode"],
+            required: ["address1", "city", "postcode", "countryId"],
             properties: {
               address1: {
                 type: "string",
@@ -64,6 +64,29 @@ export const useSchema = ({
               postcode: {
                 type: "string",
                 title: "Postal / Zip Code",
+              },
+
+              regionId: {
+                type: ["string", "null"],
+                title: "Region",
+                oneOf: !regions?.length
+                  ? undefined
+                  : map(regions, item => ({
+                      const: item.id,
+                      title: item.name,
+                    })),
+              },
+
+              countryId: {
+                type: "string",
+                title: "Country",
+                default: baseModel?.countryId,
+                oneOf: !countries?.length
+                  ? undefined
+                  : map(countries, item => ({
+                      const: item.id,
+                      title: item.name,
+                    })),
               },
             },
           },
@@ -112,6 +135,10 @@ export const useUischema = ({
             type: "VerticalLayout",
             elements: [
               {
+                type: "Control",
+                scope: "#/properties/countryId",
+              },
+              {
                 type: "address",
                 options: {
                   fields: ["address1", "address2"],
@@ -141,13 +168,20 @@ export const useUischema = ({
                     ],
                   },
                   {
+                    type: "Control",
+                    scope: "#/properties/city",
+                    options: {
+                      placeholder: "City, town etc.",
+                    },
+                  },
+                  {
                     type: "HorizontalLayout",
                     elements: [
                       {
                         type: "Control",
-                        scope: "#/properties/city",
+                        scope: "#/properties/regionId",
                         options: {
-                          placeholder: "City, town etc.",
+                          placeholder: "Select region",
                         },
                       },
                       {
@@ -208,6 +242,7 @@ export const useUischema = ({
         label: "",
         scope: "#/properties/personalOrBusiness",
         options: {
+          toggle: true,
           detail: {
             type: "VerticalLayout",
             elements: [],
