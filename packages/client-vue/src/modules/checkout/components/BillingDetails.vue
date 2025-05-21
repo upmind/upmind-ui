@@ -12,18 +12,18 @@
 // --- external
 import { ref } from "vue";
 import { isEmpty } from "lodash-es";
-import { useClientAddresses } from "@upmind-automation/headless-vue";
+import { useBillingDetails } from "@upmind-automation/headless-vue";
 
 // --- components
-import Add from "../../client/components/address/Add.vue";
-import List from "../../client/components/address/List.vue";
+import Add from "../../client/components/billing/Add.vue";
+import List from "../../client/components/billing/List.vue";
 
 // --- types
-import { Views } from "../../client/components/address/types";
+import { Views } from "../../client/components/billing/types";
 
 // -----------------------------------------------------------------------------
 
-const { isReady, getAll, data } = useClientAddresses();
+const { isReady, getAll, data } = useBillingDetails();
 
 const view = ref<Views>(Views.loading);
 
