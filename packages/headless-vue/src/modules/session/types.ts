@@ -58,9 +58,19 @@ export interface IUseSessionMeta {
   showRegisterForm: boolean;
 
   /**
+   * Indicates whether the Send reset form should be displayed.
+   */
+  showRecoverPasswordForm: boolean;
+
+  /**
    * Indicates whether any forms (login or register) can be shown to the user.
    */
   canShowForms: boolean;
+
+  /**
+   * Indicates whether any errors have occurred during session management operations.
+   */
+  hasErrors: boolean;
 }
 
 /**
@@ -163,6 +173,12 @@ export interface IUseSession {
   register: (model: any) => Promise<any>;
 
   /**
+   * Sets the model for the session, typically used to update or initialize the data model
+
+   */
+  setModel: (model: any) => void;
+
+  /**
    * Displays the login form for user authentication.
    */
   showLogin: () => Promise<any>;
@@ -183,4 +199,15 @@ export interface IUseSession {
    * Transfer session data between different parts of the application, such as from guest to client.
    */
   transferTo: () => Promise<IAuthTransfer>;
+
+  /**
+   * Recovers the password for a user, typically used with form and model data.
+   * @returns {Promise<void>} A promise that resolves when the password recovery operation is completed.
+   */
+  recover: (model: any) => Promise<any>;
+
+  /**
+   * Displays the Send reset form for password recovery.
+   */
+  showRecoverPassword: () => Promise<any>;
 }

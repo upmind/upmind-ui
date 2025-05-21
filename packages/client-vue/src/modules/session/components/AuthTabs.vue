@@ -11,7 +11,10 @@
       :width="stretchTabs ? 'full' : 'auto'"
       v-if="
         !noTabs &&
-        (meta.canShowForms || meta.showLoginForm || meta.showRegisterForm)
+        (meta.canShowForms ||
+          meta.showLoginForm ||
+          meta.showRegisterForm ||
+          meta.showRecoverPasswordForm)
       "
     />
 
@@ -26,13 +29,14 @@
       :color="color"
       @reject="doReject"
       @resolve="doResolve"
+      @update:model-value="setModel"
       :class="styles.session.auth.form"
       :actions="authActions"
     />
   </div>
 
   <div
-    v-if="meta.isAuthenticated && !meta.isLoading"
+    v-if="!meta.isAuthenticated && !meta.isLoading"
     :class="styles.session.auth.actions"
   >
     <slot name="toggle" v-if="meta.showRegisterForm || meta.showLoginForm">
@@ -45,23 +49,27 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVModel } from "@vueuse/core";
+import { computed, onMounted, watch } from "vue";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
 import Form from "../../../components/form/Form.vue";
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../sesssion.config";
+import {
+  ROUTE,
+  useSession,
+  useRoutingEngine,
+} from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
 import { Button, Tabs } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { TabItem } from "@upmind-automation/upmind-ui";
 import type { ComputedRef } from "vue";
 import type { AuthProps } from "./types";
+import type { TabItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["update:modelValue", "resolve", "reject"]);
@@ -78,12 +86,14 @@ const {
   errors,
   showLogin,
   showRegister,
+  showRecoverPassword,
   model,
   schema,
   uischema,
   resolve,
   reject,
   logout,
+  setModel,
 } = useSession();
 
 await isReady();
@@ -112,6 +122,10 @@ const tabs = computed((): TabItem[] => {
       value: "login",
       label: t("auth.actions.toggle.login"),
     },
+    {
+      value: "recover",
+      label: t("auth.actions.toggle.recover"),
+    },
   ];
 });
 
@@ -123,26 +137,17 @@ const authActions = computed(() => {
         ? t("auth.actions.login")
         : meta.value.showRegisterForm
           ? t("auth.actions.register")
-          : t("auth.actions.continue"),
+          : meta.value.showRecoverPasswordForm
+            ? t("auth.actions.recover")
+            : t("auth.actions.continue"),
       block: true,
       needsValid: true,
     },
   };
-
-  // TODO: implement forgot password flow
-  // if (this.meta.showLoginForm) {
-  //   actions.forgot = {
-  //     label: this.t("auth.actions.forgot"),
-  //     block: true,
-  //     variant: "link",
-  //     size: "sm",
-  //     action: () => this.toggleForm("forgot"),
-  //   };
-  // }
 });
 
 function toggleForm(type: AuthProps["modelValue"]) {
-  if (meta.value.isLoading) return;
+  // if (meta.value.isAuthenticated) return;
 
   switch (type) {
     case "login":
@@ -154,11 +159,12 @@ function toggleForm(type: AuthProps["modelValue"]) {
       if (!meta.value.showRegisterForm) {
         showRegister().then(() => (modelValue.value = type));
       }
-
       break;
-    // case "forgot":
-    //   if (!meta.value.showForgotForm)
-    //     showForgot().then(() => (modelValue.value = type));
+    case "recover":
+      if (!meta.value.showRecoverPasswordForm) {
+        showRecoverPassword().then(() => (modelValue.value = type));
+      }
+      break;
   }
 }
 

@@ -16,7 +16,7 @@ export enum ROUTE {
   SESSION = "session",
   SESSION_LOGIN = "session.login",
   SESSION_REGISTER = "session.register",
-  SESSION_FORGOT_PASSWORD = "session.forgot",
+  SESSION_RECOVER_PASSWORD = "session.recover",
   SESSION_END = "session.end",
   SESSION_TRANSFER = "session.transfer",
   BASKET = "basket",

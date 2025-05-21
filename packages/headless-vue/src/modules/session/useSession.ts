@@ -22,6 +22,8 @@ export const useSession = (inspector?: Function): IUseSession => {
     isAuthenticated,
     isReady,
     service,
+    recover,
+    showRecoverPassword,
     showRegister,
     showLogin,
     login,
@@ -32,8 +34,8 @@ export const useSession = (inspector?: Function): IUseSession => {
   } = useUpmindSession();
   const { state, send } = useActor(service);
 
-  // We can create reactive refs to the child machines,
-  // so that when they are invoked we can listen to their state changes
+  // We can create reactive refs to the child machines
+  // so that when they are invoked, we can listen to their state changes
   const client = computed(() => {
     const clientMachine = state.value?.children?.clientMachine;
     if (!clientMachine) return null;
@@ -61,6 +63,7 @@ export const useSession = (inspector?: Function): IUseSession => {
             "loading",
             "available.login.loading",
             "available.register.loading",
+            "available.recover.loading",
           ].some(guest.value.matches)) ||
         client.value?.matches("loading") ||
         false,
@@ -76,6 +79,7 @@ export const useSession = (inspector?: Function): IUseSession => {
             "available.register.verifying",
             "available.register.registering",
             "available.register.authenticating",
+            "available.recover.recovering",
           ].some(guest.value.matches)) ||
         client.value?.matches("processing"),
 
@@ -83,6 +87,16 @@ export const useSession = (inspector?: Function): IUseSession => {
       isAuthenticated: state.value.matches("client"),
       isTransferring: client.value?.matches("transferring"),
       hasExpired: state.value.matches("expired"),
+
+      hasErrors:
+        state.value.matches("error") ||
+        (guest.value?.matches &&
+          [
+            "available.login.error",
+            "available.register.error",
+            "available.recover.error",
+          ].some(guest.value.matches)) ||
+        client.value?.matches("error"),
 
       // ---
       showReCaptcha: guest.value?.matches("available.register.challenging"),
@@ -93,8 +107,9 @@ export const useSession = (inspector?: Function): IUseSession => {
           guest.value.matches
         ),
 
-      showRegisterForm: guest.value?.matches("available.register"),
       canShowForms: guest.value?.matches("available.idle"),
+      showRegisterForm: guest.value?.matches("available.register"),
+      showRecoverPasswordForm: guest.value?.matches("available.recover"),
     })
   );
 
@@ -109,10 +124,11 @@ export const useSession = (inspector?: Function): IUseSession => {
   // ---
   // ---
 
-  function resolve(model: any): Promise<any> {
+  async function resolve(model: any): Promise<any> {
     if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
+    if (meta.value.showRecoverPasswordForm) return recover(model);
 
     return Promise.reject(
       new Error(
@@ -182,10 +198,20 @@ export const useSession = (inspector?: Function): IUseSession => {
     resolve,
     login,
     logout,
+    recover,
     register,
-    showLogin,
-    showRegister,
     verify2fa,
     transferTo,
+    // --- show boolean flags
+    showLogin,
+    showRegister,
+    showRecoverPassword,
+    // ---
+    setModel: (data: any) => {
+      send({
+        type: "SET",
+        data,
+      });
+    },
   };
 };
