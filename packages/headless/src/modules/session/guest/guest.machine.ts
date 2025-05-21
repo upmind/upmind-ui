@@ -139,6 +139,7 @@ export default createMachine(
               },
               error: {
                 on: {
+                  SET: { target: "available", actions: ["setModel"] },
                   AUTHENTICATE: {
                     target: "authenticating",
                     actions: ["setModel"],
@@ -230,6 +231,7 @@ export default createMachine(
               },
               error: {
                 on: {
+                  SET: { target: "available", actions: ["setModel"] },
                   REGISTER: { target: "checking", actions: ["setModel"] },
                 },
               },
@@ -273,6 +275,7 @@ export default createMachine(
               },
               error: {
                 on: {
+                  SET: { target: "available", actions: ["setModel"] },
                   RECOVER: { target: "recovering", actions: ["setModel"] },
                 },
               },
