@@ -6,7 +6,7 @@
         class="relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
-        :label="t('navigation.back')"
+        :label="t('navigation.login')"
         @click.prevent="doReject"
       >
         <template #prepend>
@@ -17,7 +17,10 @@
 
     <ContentSection class="mx-auto max-w-2xl">
       <template #title>
-        <SmartTitle i18n-key="session.unauthenticated.login.title" size="2xl" />
+        <SmartTitle
+          i18n-key="session.unauthenticated.recover.title"
+          size="2xl"
+        />
       </template>
 
       <Card class="pb-3 md:pb-3">
@@ -25,7 +28,7 @@
           class="rounded-box w-full max-w-5xl items-start"
           no-tabs
           no-header
-          model-value="login"
+          model-value="recover"
           @update:model-value="doUpdate"
           @resolve="doResolve"
         >
@@ -40,7 +43,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+import { ROUTE, useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
 import Card from "../../components/content/Card.vue";
@@ -56,7 +59,7 @@ import type { AuthProps } from "./components/types";
 const { t } = useI18n();
 const { next, back, navigate, isResolved } = useRoutingEngine();
 
-await isResolved(ROUTE.SESSION_LOGIN);
+await isResolved(ROUTE.SESSION_RECOVER_PASSWORD);
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {
@@ -73,8 +76,6 @@ function doReject() {
 }
 
 function doResolve() {
-  // const redirectPath = route.query.redirect || "/";
-  // router.push(redirectPath);
   next();
 }
 </script>

@@ -14,17 +14,29 @@ export interface GuestContext {
   // TODO:
   // customFields: Array;
   customFields: any[];
-  model: any; // AuthModel;
+  model: LoginModel | RegisterModel | TWOFAModel | RecoverModel;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
 }
 
-export interface AuthModel {
+export interface LoginModel {
+  username?: string;
+  password?: string;
+}
+
+export interface RegisterModel {
   username?: string;
   firstname?: string;
   lastname?: string;
   password?: string;
   phone?: IPhoneData;
-  recaptcha_token?: string;
   customFields?: Record<string, any>;
+}
+
+export interface TWOFAModel {
+  token?: string;
+}
+
+export interface RecoverModel {
+  username?: string;
 }
