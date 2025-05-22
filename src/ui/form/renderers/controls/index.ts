@@ -20,16 +20,16 @@ import UrlRenderer, { tester as UrlTest } from "./UrlRenderer.vue";
 import EmailRenderer, { tester as EmailTest } from "./EmailRenderer.vue";
 import PhoneRenderer, { tester as PhoneTest } from "./PhoneRenderer.vue";
 import DateRenderer, { tester as DateTest } from "./DateRenderer.vue";
-import OneOfRenderer, { tester as OneOfTest } from "./OneOfRenderer.vue";
+import OneOfRenderer, { tester as OneOfTest } from "./OneOf/OneOfRenderer.vue";
 import MultilineRenderer, {
   tester as MultilineTest,
 } from "./MultilineRenderer.vue";
 import OneOfRadioRenderer, {
   tester as OneOfRadioTest,
-} from "./OneOfRadioRenderer.vue";
+} from "./OneOf/OneOfRadioRenderer.vue";
 import OneOfSelectRenderer, {
   tester as OneOfSelectTest,
-} from "./OneOfSelectRenderer.vue";
+} from "./OneOf/OneOfSelectRenderer.vue";
 import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
 
 // -----------------------------------------------------------------------------

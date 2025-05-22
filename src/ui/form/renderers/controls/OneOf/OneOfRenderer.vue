@@ -29,12 +29,13 @@ import {
 } from "@jsonforms/core";
 
 // --- components
-import FormField from "../../FormField.vue";
-import { Tabs } from "../../../tabs";
+import FormField from "../../../FormField.vue";
+import { Tabs } from "../../../../tabs";
 
 // --- utils
-import { useUpmindUIRenderer } from "../utils";
+import { useUpmindUIRenderer } from "../../utils";
 import { isEmpty } from "lodash-es";
+import { prepareDataForTabSwitch } from "./utils";
 
 // --- types
 import type {
@@ -42,13 +43,13 @@ import type {
   CombinatorSubSchemaRenderInfo,
 } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { TabItem } from "../../../tabs";
+import type { TabItem } from "../../../../tabs";
 
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
+const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsOneOfControl(props)
 );
 
@@ -59,7 +60,8 @@ const storedModels = ref<Record<number, any>>({});
 const setDefaults = () => {
   if (lastDefaultValue.value !== selectedIndex.value) {
     if (!isEmpty(storedModels.value[selectedIndex.value])) {
-      handleChange(control.value.path, storedModels.value[selectedIndex.value]);
+      // Restores previously entered data when a tab is revisited and we have the model data stored
+      onInput(storedModels.value[selectedIndex.value], false);
     } else {
       setDefaultForIndex(selectedIndex.value);
     }
@@ -107,17 +109,37 @@ const oneOfItems = computed((): TabItem[] => {
 });
 
 const toggleTab = (value: any) => {
-  storedModels.value[selectedIndex.value] = control.value.data;
-  selectedIndex.value = parseInt(value, 10);
+  const index = Number(value);
+
+  /**
+   * Prepare the default data for when the dispatch renderer fires the @vue:updated event
+   * The default data can be the default values from the schema or the data from storage,
+   * which contains user input along with default values.
+   */
+  const { newData, updatedStorage } = prepareDataForTabSwitch(
+    control.value,
+    storedModels.value,
+    selectedIndex.value,
+    index,
+    indexedOneOfRenderInfos.value
+  );
+
+  storedModels.value = updatedStorage;
+
+  // Updates the form data when switching between tabs, applying either stored user input or appropriate defaults for the new schema
+  onInput(newData, false);
+  selectedIndex.value = index;
+  lastDefaultValue.value = index;
 };
 
 const setDefaultForIndex = (value: number) => {
-  handleChange(
-    control.value.path,
+  // Initializes model with schema defaults, when no stored model data exists for the selected schema
+  onInput(
     createDefaultValue(
       indexedOneOfRenderInfos.value[value].schema,
       control.value.rootSchema
-    )
+    ),
+    false
   );
 
   selectedIndex.value = value;
