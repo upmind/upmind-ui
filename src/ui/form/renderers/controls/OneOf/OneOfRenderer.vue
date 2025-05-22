@@ -31,7 +31,6 @@ import { Tabs } from "../../../../tabs";
 
 // --- utils
 import { useUpmindUIRenderer } from "../../utils";
-import { isEmpty } from "lodash-es";
 import { createIndexedOneOfRenderInfos } from "./utils";
 
 // --- types
@@ -51,8 +50,7 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 );
 
 const selectedIndex = ref(control.value.indexOfFittingSchema ?? 0);
-const lastDefaultValue = ref(-1);
-const storedModels = ref<Record<number, any>>({});
+const defaultsSet = ref(false);
 
 const formData = computed(
   (): (CombinatorSubSchemaRenderInfo & {
@@ -72,25 +70,19 @@ const oneOfItems = computed((): TabItem[] => {
 });
 
 const toggleTab = (value: any) => {
-  const index = Number(value);
-  selectedIndex.value = index;
-  lastDefaultValue.value = index;
+  selectedIndex.value = Number(value);
 };
 
 const setDefaults = () => {
-  if (lastDefaultValue.value !== selectedIndex.value) {
-    if (!isEmpty(storedModels.value[selectedIndex.value])) {
-      onInput(storedModels.value[selectedIndex.value], false);
-    } else {
-      onInput(
-        createDefaultValue(
-          formData.value[selectedIndex.value].schema,
-          control.value.rootSchema
-        ),
-        false
-      );
-    }
-    lastDefaultValue.value = selectedIndex.value;
+  if (!defaultsSet.value) {
+    onInput(
+      createDefaultValue(
+        formData.value[selectedIndex.value].schema,
+        control.value.rootSchema
+      ),
+      false
+    );
+    defaultsSet.value = true;
   }
 };
 </script>
