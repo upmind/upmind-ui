@@ -116,7 +116,11 @@ const {
 } = await configure(basketProductId);
 
 async function doResolve() {
-  update().then(() => next(basketProduct));
+  update()
+    .then(() => next(basketProduct))
+    .catch(() => {
+      // do nothing as its handled by the components
+    });
 }
 
 function doReject() {

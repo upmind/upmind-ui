@@ -1,7 +1,5 @@
 // --- external
-import type { AnyEventObject, EventObject } from "xstate";
-import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo } = actions;
+import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -37,10 +35,11 @@ import {
 } from "lodash-es";
 
 // --- types
+import type { AnyEventObject, EventObject } from "xstate";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
-import type { ProductModel } from "../product";
+import type { ProductModel, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -467,14 +466,12 @@ export default createMachine(
         authHelper: authHelper || spawn(authSubscription),
       })),
 
-      loadBasket: sendTo(
-        ({ basketHelper }: DomainContext, _event: AnyEventObject) => {
-          if (!basketHelper)
-            throw new Error("No basket helper available to sync");
-          return basketHelper;
-        },
-        { type: "INIT" }
-      ),
+      loadBasket: pure(({ basketHelper }: DomainContext, _event) => {
+        if (!basketHelper) return;
+        return sendTo(basketHelper, {
+          type: "INIT",
+        });
+      }),
 
       setBasketHelper: assign(({ basketHelper }: DomainContext) => {
         // only do this once, set up the basket helper
@@ -543,49 +540,37 @@ export default createMachine(
         },
       }),
 
-      addToBasket: sendTo(
-        ({ basketHelper }: DomainContext, _event: AnyEventObject) => {
-          if (!basketHelper)
-            throw new Error("No basket helper available to sync");
-          return basketHelper;
-        },
-        (context: DomainContext, _event: AnyEventObject) => {
-          // not all values might be products, eg an exiting domain value,
-          // so we need to filter out any non product values
-          // and then map them to a be a basket item model
-          const products = reduce(
-            context.model ?? [],
-            (result: ProductModel[], item: DomainModel) => {
-              const product = find(context.lookups.searched, [
-                "domain",
-                item.domain,
-              ]);
+      addToBasket: pure((context: DomainContext, _event) => {
+        if (!context.basketHelper) return;
 
-              if (product?.configuration?.productId) {
-                const model = isFunction(context?.parseProductModel)
-                  ? context.parseProductModel(product)
-                  : undefined;
-                if (model) result.push(model);
+        const products = reduce(
+          context.model ?? [],
+          (result: ProductModel[], item: DomainModel) => {
+            const product = find(context.lookups.searched, [
+              "domain",
+              item.domain,
+            ]);
+
+            if (product?.configuration?.productId) {
+              const model = isFunction(context?.parseProductModel)
+                ? context.parseProductModel(product)
+                : undefined;
+              if (model) {
+                model.skipValidation = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
+                result.push(model);
               }
-              return result;
-            },
-            []
-          );
-          return {
-            type: "ADD_UPDATE_MANY",
-            target: products,
-            context,
-          };
-        }
-      ),
+            }
+            return result;
+          },
+          []
+        );
 
-      // loadBasketProducts: sendTo(
-      //   ({ basketHelper }: DomainContext, _event:AnyEventObject) => basketHelper,
-      //   (context, _event:AnyEventObject) => ({
-      //     type: "LOAD",
-      //     context,
-      //   })
-      // ),
+        return sendTo(context.basketHelper, {
+          type: "ADD_UPDATE_MANY",
+          target: products,
+          context,
+        });
+      }),
 
       // ---
 

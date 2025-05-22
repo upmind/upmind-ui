@@ -77,7 +77,9 @@ export const useBasketProduct = (bpid: string) => {
       timeout: 60_000,
     })
       .then(state => {
-        if (["error", "available.error"].some(state.matches)) {
+        if (
+          ["error", "available.invalid", "available.error"].some(state.matches)
+        ) {
           return Promise.reject(state.context.error);
         }
         return Promise.resolve();
@@ -87,28 +89,6 @@ export const useBasketProduct = (bpid: string) => {
           new Error(
             "[headless-vue] update in useBasketProductPending not in a valid state"
           )
-        );
-      });
-  }
-
-  async function remove(): Promise<void> {
-    service.send({ type: "REMOVE" });
-    await waitFor(
-      service,
-      state => ["complete", "available.error"].some(state.matches),
-      {
-        timeout: 60_000,
-      }
-    )
-      .then(newState => {
-        if (["error", "available.error"].some(newState.matches)) {
-          return Promise.reject(new Error(newState.context.error));
-        }
-        return Promise.resolve();
-      })
-      .catch(() => {
-        return Promise.reject(
-          new Error("[headless-vue] remove in useBasketProductPending failed")
         );
       });
   }
@@ -188,6 +168,5 @@ export const useBasketProduct = (bpid: string) => {
       }),
 
     update,
-    remove,
   };
 };

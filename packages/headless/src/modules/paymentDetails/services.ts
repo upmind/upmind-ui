@@ -194,7 +194,7 @@ async function validate(
   const { validate } = useValidation();
 
   //
-  const errors = validate(schema, model) || [];
+  const errors = schema ? validate(schema, model) : [];
 
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed

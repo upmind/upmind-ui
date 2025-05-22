@@ -87,7 +87,10 @@ export interface RecommendationsEngineContext {
   basketHelper?: ActorRef<any>;
   parseBasketProduct?: (item: ProductModel) => ProductModel;
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
-  parseProductModel?: (model: ProductModel) => BasketProduct;
+  parseProductModel?: (
+    recommendation: Recommendation,
+    products: IBasketProduct[]
+  ) => ProductProps;
   // ---
 }
 

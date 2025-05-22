@@ -223,8 +223,10 @@ export default createMachine(
       setSchemas: assign({
         schema: (context: PaymentDetailsContext) => useSchema(context),
         uischema: _context => useUischema(),
-        model: ({ schema, model }: PaymentDetailsContext) =>
-          useModelParser(schema, model),
+        model: ({ schema, model }: PaymentDetailsContext) => {
+          if (!schema) return model;
+          return useModelParser(schema, model);
+        },
       }),
 
       clearSchemas: assign({

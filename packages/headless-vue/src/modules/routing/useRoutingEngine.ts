@@ -139,8 +139,11 @@ export const useRoutingEngine = () => {
     const route = router.currentRoute.value;
 
     if (!route?.name) {
-      // console.debug("UseRouteingEngine", "No route name", route);
-      return Promise.reject(new Error("No route name"));
+      console.warn("UseRouteingEngine", "Could not Navigate route", {
+        route,
+        data,
+      }); // do nothing, just return
+      return;
     }
 
     resolve(
@@ -195,7 +198,16 @@ export const useRoutingEngine = () => {
           { timeout: Infinity }
         ).then(state => {
           if (state.matches("unavailable")) {
-            return Promise.reject(new Error("Routing Engine is unavailable"));
+            return Promise.reject(
+              new DetailedError(
+                "Routing Engine is unavailable",
+                responseCodes.Timeout,
+                {
+                  state: state.value,
+                  errors: state.context.error,
+                }
+              )
+            );
           }
           return true;
         })
@@ -204,7 +216,11 @@ export const useRoutingEngine = () => {
       .catch(() => {
         throw new DetailedError(
           "Routing Engine is unavailable",
-          responseCodes.Conflict
+          responseCodes.Conflict,
+          {
+            state: state.value.value,
+            errors: state.value.context?.error,
+          }
         );
       });
 

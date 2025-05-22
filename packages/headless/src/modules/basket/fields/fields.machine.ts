@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
-// const { sendParent } = actions; DEPRECATED
 
 // --- internal
 import services from "./services";
@@ -187,8 +186,10 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) =>
-          useModelParser(schema, data || model),
+        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) => {
+          if (!schema) return data ?? model;
+          return useModelParser(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({

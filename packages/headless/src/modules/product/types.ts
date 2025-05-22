@@ -209,6 +209,8 @@ export interface ProductProps extends ProductModel {
   promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
+  // ---
+  skipValidation?: boolean; // if true, we will not validate the provision fields
 }
 
 // syntax sugar for product summary
@@ -235,7 +237,7 @@ export type ProductSummaryMeta = {
 
 export type ProductSummaryDetail = {
   name: string; // untranslated name for reporting purposes  category?: string;
-  title: string;
+  title?: string;
   cycle?: number;
   category?: string;
   quantity?: number;
@@ -343,6 +345,7 @@ export interface ProductConfigContext {
   promotions?: ProductProps["promotions"];
   coupons?: ProductProps["coupons"];
   subproducts?: ProductProps["subproducts"];
+  skipValidation?: ProductProps["skipValidation"];
   // ---
   baseModel?: ProductModel;
   model?: ProductModel;
@@ -362,6 +365,7 @@ export interface ProductConfigContext {
   calculateCallback?: ActorRef<any>;
   error?: any;
   errorExternal?: any;
+  attempts?: number;
   // ---
   rawProduct?: IProduct;
   rawBasketProduct?: IBasketProduct;
