@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -185,7 +184,10 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser(schema, model),
+        model: ({ schema, model }) => {
+          if (!schema) return model;
+          return useModelParser(schema, model);
+        },
       }),
 
       clearSchemas: assign({
@@ -199,7 +201,8 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           const currency = get(data, "currency", data);
-          return useModelParser(schema, currency || model);
+          if (!schema) return currency ?? model;
+          return useModelParser(schema, currency ?? model);
         },
       }),
 

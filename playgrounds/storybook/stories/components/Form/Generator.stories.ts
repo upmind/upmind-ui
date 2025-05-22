@@ -114,7 +114,7 @@ const meta: Meta<typeof Form> = {
         phone: {
           type: "object",
           title: "Phone",
-          isPhoneNumber: "GB",
+          phone_country_code: "GB",
           properties: {
             number: {
               type: ["string", "null"],

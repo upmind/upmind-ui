@@ -21,6 +21,7 @@
           product.configuration.quantity || product.productDetails.step
         "
         @update:modelValue="updateQuantity"
+        :disabled="meta.isLoading || meta.isProcessing"
       />
 
       <Button
@@ -28,7 +29,7 @@
         type="submit"
         color="secondary"
         :loading="meta.isProcessing"
-        :disabled="meta.isLoading || meta.isCalculating || meta.isInvalid"
+        :disabled="meta.isLoading"
         :label="t('product.actions.resolve')"
         @click="doResolve"
       >
@@ -72,6 +73,7 @@ import { NumberField, Icon, Button, Alert } from "@upmind-automation/upmind-ui";
 // --- types
 import type { ComputedRef } from "vue";
 import type { ActorRef } from "xstate";
+import { debounce } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{

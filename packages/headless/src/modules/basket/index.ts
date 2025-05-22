@@ -229,12 +229,14 @@ export const useBasket = () => {
       return waitFor(
         service as ActorRef<any>,
         state => {
-          return ["processed", "complete", "error"].some(state.matches);
+          return ["processed", "complete", "error", "invalid"].some(
+            state.matches
+          );
         },
         { timeout: 60_000 }
       )
         .then(state => {
-          if (["error"].some(state.matches)) {
+          if (["error", "invalid"].some(state.matches)) {
             return Promise.reject(state.context.error);
           }
           return Promise.resolve();
@@ -242,7 +244,10 @@ export const useBasket = () => {
         .catch(() => {
           throw new DetailedError(
             "[headless] setCurrency on basket timed out",
-            responseCodes.Timeout
+            responseCodes.Timeout,
+            {
+              state: service.getSnapshot().value,
+            }
           );
         });
     });
@@ -393,10 +398,9 @@ export const useBasket = () => {
         if (basketProduct) {
           resolve(basketProduct);
         } else {
-          reject({
-            message: "Basket item not found",
-            code: responseCodes.Not_Found,
-          });
+          reject(
+            new DetailedError("Basket item not found", responseCodes.Not_Found)
+          );
         }
       });
     },

@@ -58,7 +58,7 @@ export const useRegisterSchemaParser = (data: any) => {
       phone: {
         type: ["object", "null"],
         title: "Phone",
-        isPhoneNumber: getCountry()?.code,
+        phone_country_code: getCountry()?.code,
         properties: {
           number: {
             type: ["string", "null"],

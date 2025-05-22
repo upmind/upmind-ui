@@ -180,7 +180,7 @@ export const useSchema = ({
       phone: {
         type: ["object", "null"],
         title: "Phone",
-        isPhoneNumber: country?.code,
+        phone_country_code: country?.code,
         properties: {
           number: {
             type: ["string", "null"],

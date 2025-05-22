@@ -7,7 +7,7 @@ import { useBasket } from "../basket";
 import { useBasketProductPending } from "./useBasketProductPending";
 
 // --- utils
-import { useSessionStorage } from "../../utils";
+import { DetailedError, useSessionStorage } from "../../utils";
 import {
   defaults,
   find,
@@ -90,6 +90,12 @@ export const useBasketProductsPending = () => {
             { timeout: Infinity }
           ).then(state => {
             if (state.matches("error")) throw new Error(state.context.error);
+            if (state.matches("error"))
+              throw new DetailedError(
+                "[headless] add in useBasketProductsPending has an error",
+                responseCodes.Unprocessable_Entity,
+                { state: state.value, errors: state.context.error }
+              );
             return instance;
           });
         })

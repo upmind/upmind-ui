@@ -569,7 +569,7 @@ async function parse(
         : model?.phone?.number || model?.phone?.nationalNumber || "";
 
       const countryCode =
-        model?.phone?.country || model?.phoneCountryCode || country?.code;
+        model?.phone?.country || model?.phone_country_code || country?.code;
       const phone = parsePhoneNumber(phonenumber, countryCode) || undefined;
 
       // now map the phone number to the model in the correct format with fallbacks
@@ -631,6 +631,7 @@ async function validate(
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
     const errors = validate(schema, model);
     if (errors?.length) {
       reject({ error: errors });

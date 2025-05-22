@@ -116,10 +116,14 @@ const {
 } = await configure(productId);
 
 async function doResolve() {
-  update().then(() => {
-    resolve(pendingProduct);
-    next(pendingProduct);
-  });
+  update()
+    .then(() => {
+      resolve(pendingProduct);
+      next(pendingProduct);
+    })
+    .catch(() => {
+      // do nothing as its handled by the components
+    });
 }
 
 function doReject() {

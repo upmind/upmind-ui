@@ -18,6 +18,7 @@ import {
 } from "../product/utils";
 
 import {
+  concat,
   find,
   forEach,
   get,
@@ -352,10 +353,38 @@ export function parseBasketProductError(
   rawError: any | any[]
 ): Record<string, ErrorObject[]> {
   const error = {
-    term: map(rawError?.term, parseError),
-    options: map(rawError?.options, parseError),
-    attributes: map(rawError?.attributes, parseError),
-    provisionFields: map(rawError?.provision_field_values, parseError),
+    term: reduce(
+      rawError?.term,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    ),
+    options: reduce(
+      rawError?.options,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    ),
+    attributes: reduce(
+      rawError?.attributes,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    ),
+    provisionFields: reduce(
+      rawError?.provision_field_values,
+      (result: ErrorObject[], value, key) => {
+        const parsed = parseError(value, key);
+        return concat(result, parsed);
+      },
+      []
+    ),
   };
   return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
 }

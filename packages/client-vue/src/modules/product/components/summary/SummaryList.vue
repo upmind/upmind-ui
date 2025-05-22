@@ -6,7 +6,7 @@
       :title="
         te(`product.terms.cycle.${term.cycle}`)
           ? t(`product.terms.cycle.${term.cycle}`)
-          : term.title
+          : term?.title
       "
       icon="configuration"
     />

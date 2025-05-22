@@ -183,7 +183,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
       case "ADD_UPDATE":
         pendingProducts
-          .add(get(event.target, "productId"), event.target)
+          .add(get(event.target, "productId"), { ...event.target })
           .then((instance: BasketProductPending) => {
             return waitFor(
               instance.service,

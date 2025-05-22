@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, sendParent } from "xstate";
 
 // --- utils
 import { useTime, useValidationParser } from "../../utils";

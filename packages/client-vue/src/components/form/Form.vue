@@ -1,5 +1,5 @@
 <template>
-  <Form v-bind="forwarded" :i18n="i18n">
+  <Form v-bind="forwarded" :i18n="i18n" :ajv="ajv">
     <template #footer="{ meta }">
       <slot name="footer" v-bind="{ meta }"></slot>
     </template>
@@ -12,6 +12,9 @@
 <script lang="ts" setup>
 // --- external
 
+// --- internal
+import { utils } from "@upmind-automation/headless-vue";
+const { useValidation } = utils;
 // --- components
 import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";
 
@@ -28,7 +31,10 @@ import type {
 } from "@upmind-automation/upmind-ui";
 // ----------------------------------------------
 
-const props = defineProps<FormProps>();
+const props = defineProps<Omit<FormProps, "ajv">>();
+
+// B: Always ensure we use our internal ajv instance
+const { ajv } = useValidation();
 
 const emits = defineEmits<{
   reject: [];
@@ -45,7 +51,7 @@ const slots = defineSlots<{
   actions: FormActionsProps;
 }>();
 
-const forwarded: any = useForwardPropsEmits(props, emits);
+const forwarded = useForwardPropsEmits(props, emits);
 
 const i18n = useFormI18n();
 // --- state
