@@ -5,9 +5,10 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
+export * from "./useTransfer";
 
 // --- utils
-import { get, isEmpty } from "lodash-es";
+import { get, isEmpty, has } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
 import { DetailedError, responseCodes } from "../../utils";
 
@@ -305,11 +306,13 @@ export const useSession = () => {
     )
       .then(newState => {
         const transfer = newState.context.transfer;
-        if (!transfer) {
+        const error = get(transfer, "token.error");
+        if (!transfer || error) {
           return Promise.reject(
             new DetailedError(
               "Transfer not available",
-              responseCodes.No_Content
+              responseCodes.Conflict,
+              error
             )
           );
         }

@@ -12,7 +12,7 @@ export interface IAuthTransfer {
 export interface SessionTransfer {
   code: string | null;
   redirect: string | null;
-  token: string | null;
+  token?: string | null;
 }
 
 export interface SessionContext {
