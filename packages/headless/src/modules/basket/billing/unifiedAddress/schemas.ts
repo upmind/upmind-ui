@@ -43,7 +43,10 @@ export const useSchema = ({
           address: {
             type: "object",
             title: "Address",
-            default: {},
+            default: {
+              regionId: baseModel?.regionId,
+              countryId: baseModel?.countryId,
+            },
             required: ["address1", "city", "postcode", "countryId"],
             properties: {
               address1: {
@@ -69,24 +72,19 @@ export const useSchema = ({
               regionId: {
                 type: ["string", "null"],
                 title: "Region",
-                oneOf: !regions?.length
-                  ? undefined
-                  : map(regions, item => ({
-                      const: item.id,
-                      title: item.name,
-                    })),
+                oneOf: map(regions || [], item => ({
+                  const: item.id,
+                  title: item.name,
+                })),
               },
 
               countryId: {
                 type: "string",
                 title: "Country",
-                default: baseModel?.countryId,
-                oneOf: !countries?.length
-                  ? undefined
-                  : map(countries, item => ({
-                      const: item.id,
-                      title: item.name,
-                    })),
+                oneOf: map(countries || [], item => ({
+                  const: item.id,
+                  title: item.name,
+                })),
               },
             },
           },
