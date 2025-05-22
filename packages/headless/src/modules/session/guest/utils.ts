@@ -278,8 +278,7 @@ export const useRecoverSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your email address",
-        format: "email",
+        title: "Your username or email address",
       },
     },
   };

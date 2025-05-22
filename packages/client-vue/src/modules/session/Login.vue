@@ -17,8 +17,18 @@
 
     <ContentSection class="mx-auto max-w-2xl">
       <template #title>
-        <SmartTitle i18n-key="session.unauthenticated.login.title" size="2xl" />
+        <SmartTitle i18n-key="session.login.title" size="2xl" />
       </template>
+
+      <p class="mt-0">
+        <span class="font-normal"
+          >{{ t("session.login.actions.text") }}&nbsp;</span
+        >
+
+        <Link :to="{ name: ROUTE.SESSION_REGISTER }">
+          {{ t("session.login.actions.action") }}
+        </Link>
+      </p>
 
       <Card class="pb-3 md:pb-3">
         <Auth
@@ -46,7 +56,7 @@ import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
 import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Auth from "./components/Auth.vue";
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 // --- types
 import type { AuthProps } from "./components/types";

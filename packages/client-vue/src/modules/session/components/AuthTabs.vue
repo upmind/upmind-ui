@@ -23,7 +23,7 @@
       v-if="meta.hasErrors"
       color="error"
       icon="alert-triangle"
-      :title="t(`session.unauthenticated.${modelValue}.error`)"
+      :title="t(`session.${modelValue}.error`)"
       :description="errors?.message"
     />
 

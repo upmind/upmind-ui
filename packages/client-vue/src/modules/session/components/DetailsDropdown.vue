@@ -33,7 +33,7 @@ const { t } = useI18n();
 const { user, logout } = useSession();
 const items: DropdownMenuItemProps[] = [
   {
-    label: t("session.account_dropdown.log_out"),
+    label: t("auth.actions.logout"),
     icon: "logout",
     value: "logout",
     handler: logout,

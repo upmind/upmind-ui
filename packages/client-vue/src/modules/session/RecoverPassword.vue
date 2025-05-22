@@ -15,12 +15,12 @@
       </Button>
     </ContentSection>
 
-    <ContentSection class="mx-auto max-w-2xl">
+    <ContentSection
+      class="mx-auto max-w-2xl"
+      :tagline="t('session.recover.tagline')"
+    >
       <template #title>
-        <SmartTitle
-          i18n-key="session.unauthenticated.recover.title"
-          size="2xl"
-        />
+        <SmartTitle i18n-key="session.recover.title" size="2xl" />
       </template>
 
       <Card class="pb-3 md:pb-3">
@@ -34,6 +34,32 @@
         >
         </Auth>
       </Card>
+
+      <template #footer>
+        <i18n-t
+          class="mt-0"
+          keypath="auth.google_recaptcha.terms"
+          tag="p"
+          scope="global"
+        >
+          <template #[`privacyPolicy`]>
+            <Link
+              class="has-text-grey-light"
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              >{{ $t("auth.google_recaptcha.privacy_policy") }}</Link
+            >
+          </template>
+          <template #[`termsOfService`]>
+            <Link
+              class="has-text-grey-light"
+              href="https://policies.google.com/terms"
+              target="_blank"
+              >{{ $t("auth.google_recaptcha.terms_of_service") }}</Link
+            >
+          </template>
+        </i18n-t>
+      </template>
     </ContentSection>
   </article>
 </template>
@@ -49,7 +75,7 @@ import { ROUTE, useRoutingEngine } from "@upmind-automation/headless-vue";
 import Card from "../../components/content/Card.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Auth from "./components/Auth.vue";
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 // --- types
 import type { AuthProps } from "./components/types";
