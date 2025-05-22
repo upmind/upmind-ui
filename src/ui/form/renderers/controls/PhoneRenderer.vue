@@ -118,9 +118,7 @@ const initialPhoneData = () => {
 };
 
 const defaultCountryCode = get(control.value.schema, "phone_country_code");
-debugger;
 const requiresString = includes(control.value.schema.type, "string");
-debugger;
 const phone = ref(initialPhoneData());
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
