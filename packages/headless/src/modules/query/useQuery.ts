@@ -1,7 +1,6 @@
 // --- external
 
 // --- internal
-import { useSession } from "../session";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
@@ -43,8 +42,6 @@ export const useQuery = () => {
     init ??= {};
     let attempts = 0;
 
-    const { getToken } = useSession();
-
     // Enforce Method (default to GET)
     set(init, "method", get(init, "method", Methods.GET).toUpperCase());
     // Enforce Content Type header
@@ -58,7 +55,9 @@ export const useQuery = () => {
     // Enforce Authorization header, if required
     // also allow us to pass a custom token, for eg 2fa
     if (withAccessToken) {
-      const token = isString(withAccessToken) ? withAccessToken : getToken();
+      const token = isString(withAccessToken)
+        ? withAccessToken
+        : getTokenFromStorage()?.access_token;
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
@@ -70,7 +69,11 @@ export const useQuery = () => {
       if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
         return refreshToken().then(() => {
           // get the new access token and update the access token in the request
-          set(init, `headers.Authorization`, `Bearer ${getToken()}`);
+          set(
+            init,
+            `headers.Authorization`,
+            `Bearer ${getTokenFromStorage()?.access_token}`
+          );
           // finally rety the request
           return doFetch<T>({ url, init });
         });

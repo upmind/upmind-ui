@@ -88,7 +88,6 @@ import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- types
-import type { IUseSessionMeta } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -108,7 +107,7 @@ function doResolve() {
   next();
 }
 
-watch(meta, (newVal: IUseSessionMeta, oldVal: IUseSessionMeta) => {
+watch(meta, (newVal, oldVal) => {
   if (oldVal.showRegisterForm && newVal.showLoginForm) {
     navigate(ROUTE.SESSION_LOGIN);
   }
