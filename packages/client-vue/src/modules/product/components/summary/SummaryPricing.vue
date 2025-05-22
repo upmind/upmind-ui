@@ -7,11 +7,12 @@
         :key="`pricing-${index}`"
       >
         <span>{{ t("product.total") }}</span>
-        <span>
+
+        <span class="flex items-center gap-2">
           <CurrentPrice
             :class="[
               {
-                'opacity-0': props.loading || props.processing,
+                'text-emphasis-disabled': props.loading || props.processing,
               },
             ]"
             :current-price="item.price.currentPrice"
@@ -19,6 +20,7 @@
             :cycle="item.cycle"
             data-testid="total-price"
           />
+          <!-- <Spinner v-if="props.loading || props.processing" size="xs" /> -->
         </span>
       </div>
     </div>
@@ -41,7 +43,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 import config from "./summary.config";
 
 // --- components
-import { Skeleton } from "@upmind-automation/upmind-ui";
+import { Skeleton, Spinner } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { SummaryPricingProps } from "./types";

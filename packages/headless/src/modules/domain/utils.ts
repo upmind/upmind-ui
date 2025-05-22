@@ -3,7 +3,7 @@ import { parse, type ParsedDomain } from "psl";
 
 // --- internals
 import { useBrand } from "../brand";
-import { calculateBillingTerm } from "../product/services";
+import { calculateBillingTerm } from "../product/utils";
 
 // --- utils
 import {

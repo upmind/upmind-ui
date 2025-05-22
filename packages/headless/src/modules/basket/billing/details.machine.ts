@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, actions, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -199,15 +198,20 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }: BillingDetailsContext) =>
-          useModelParser(schema, model),
+        model: ({ schema, model }: BillingDetailsContext) => {
+          if (!schema) return model;
+          return useModelParser(schema, model);
+        },
       }),
 
       setModel: assign({
         model: (
           { schema, model }: BillingDetailsContext,
           { data }: AnyEventObject
-        ) => useModelParser(schema, data || model),
+        ) => {
+          if (!schema) return data ?? model;
+          return useModelParser(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({

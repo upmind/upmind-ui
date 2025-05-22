@@ -72,6 +72,7 @@
           v-if="meta.hasTerms"
           :is="getTermsComponent"
           :errors="errors?.term"
+          :touched="meta.showErrors"
           :items="terms"
           :label="t('product.terms.label')"
           :model-value="model?.term"
@@ -88,6 +89,7 @@
           :subproduct="option"
           :model-value="getValue('options', option)"
           :errors="getErrors('options', option)"
+          :touched="meta.showErrors"
           :quantities="getQuantities(option)"
           @update:modelValue="setOptions(option, safeValue(option, $event))"
           @update:quantity="
@@ -107,15 +109,11 @@
           :subproduct="attribute"
           :model-value="getValue('attributes', attribute)"
           :errors="getErrors('attributes', attribute)"
+          :touched="meta.showErrors"
           :required="attribute.meta.required"
           :visible="!!attribute.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
-          :disabled="
-            props.disabled ||
-            meta.isLoading ||
-            meta.isProcessing ||
-            meta.isCalculating
-          "
+          :disabled="props.disabled || meta.isLoading || meta.isProcessing"
           @update:modelValue="
             setAttributes(attribute, safeValue(attribute, $event))
           "
@@ -125,7 +123,8 @@
         <ConfigForm
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
-          :additional-errors="errors?.provisionFields"
+          :additional-errors="additionalErrors?.provisionFields"
+          :touched="meta.showErrors"
           :fields="fields"
           :model-value="model.provisionFields"
           @update:modelValue="setProvisioningFields"
@@ -163,7 +162,7 @@
           tabindex="0"
           :label="t('product.actions.resolve')"
           :loading="meta.isProcessing"
-          :disabled="meta.isLoading || meta.isCalculating || meta.isInvalid"
+          :disabled="meta.isLoading"
           color="secondary"
           @click="doResolve"
         />
@@ -227,7 +226,6 @@ const props = withDefaults(
 );
 
 const {
-  title,
   product,
   productImage,
   terms,
@@ -236,6 +234,7 @@ const {
   fields,
   // ---
   errors,
+  additionalErrors,
   model,
   meta,
   updateTerm,
@@ -310,7 +309,7 @@ function getQuantities(subproduct: any): Record<string, number> {
 
 function getErrors(type: "options" | "attributes", subproduct: any) {
   //  prevent error message from showing if the field has not been touched
-  if (!meta.value.isTouched) return undefined;
+  if (!meta.value.isTouched && !meta.value.showErrors) return undefined;
 
   return errors.value?.[type]?.[subproduct?.id]?.join() || undefined;
 }

@@ -54,7 +54,12 @@ export const useBrand = () => {
       }
     ).then(state => {
       if (["error"].some(state.matches))
-        return Promise.reject(new Error("Brand is not available"));
+        return Promise.reject(
+          new DetailedError("Brand not ready", responseCodes.Timeout, {
+            state: state.value,
+            errors: state.context.error,
+          })
+        );
 
       return state;
     });

@@ -2,7 +2,7 @@ import type {
   IBasketProduct,
   IBasketPromotion,
 } from "@upmind-automation/types";
-import type { ProductModel, Product } from "../product";
+import type { ProductProps, Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export interface BasketHelperContext<T = unknown> {
@@ -10,7 +10,7 @@ export interface BasketHelperContext<T = unknown> {
   // Converts a basket product to an unknown Typem eg: From BasketProduct to DomainProduct
   parseBasketProduct: (product: IBasketProduct, context?: any) => T | undefined;
   //  Converts an unknown model into the correct product model to be added to the basket
-  parseProductModel: (model: T) => ProductModel | undefined;
+  parseProductModel: (model: T) => ProductProps | undefined;
 
   promotions?: IBasketPromotion[];
 }

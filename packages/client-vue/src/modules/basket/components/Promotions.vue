@@ -130,11 +130,17 @@ const open = ref<Record<string, boolean>>({});
 const formConfig = config.basket.promotions as unknown as FormProps["uiConfig"];
 
 function doAdd() {
-  add().then(() => (toggle.value = false));
+  add()
+    .then(() => (toggle.value = false))
+    .catch(() => {
+      // do nothing as the error is already handled in the form
+    });
 }
 function doRemove(value: string) {
   set(processing.value, value, true);
-  remove(value);
+  remove(value).catch(() => {
+    // do nothing as the error is already handled in the form
+  });
 }
 
 const toggleTooltip = (id: string, force?: boolean) => {

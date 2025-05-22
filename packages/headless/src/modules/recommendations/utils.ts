@@ -37,7 +37,7 @@ import type {
   Badge,
   Benefit,
 } from "./types";
-import { calculateBillingTerm } from "../product/services";
+import { calculateBillingTerm } from "../product/utils";
 import { ProductDetails, TermDetails } from "../product";
 
 // ---------------------------------------------------------------------------

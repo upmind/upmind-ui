@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo } = actions;
+import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -57,7 +56,7 @@ export default createMachine(
     context: {} as RecommendationsEngineContext,
     states: {
       subscribing: {
-        entry: ["setContext", "clearLookups", "setBasketHelper", "getBasket"],
+        entry: ["setContext", "clearLookups", "setBasketHelper", "loadBasket"],
         on: {
           REFRESH: {
             target: "available",
@@ -222,7 +221,7 @@ export default createMachine(
 
           parseProductModel: (
             recommendation: Recommendation,
-            products: IBasketProduct
+            products: IBasketProduct[]
           ): ProductModel | undefined => {
             if (
               !recommendation?.configuration &&
@@ -258,25 +257,23 @@ export default createMachine(
         };
       }),
 
-      getBasket: sendTo(
-        ({ basketHelper }: any, _event) => basketHelper,
-        (context, _event) => ({
-          type: "INIT",
-          context,
-        })
+      loadBasket: pure(
+        ({ basketHelper }: RecommendationsEngineContext, _event) => {
+          if (!basketHelper) return;
+          return sendTo(basketHelper, {
+            type: "INIT",
+          });
+        }
       ),
 
-      fetchProduct: sendTo(
-        ({ basketHelper }: RecommendationsEngineContext, _event) => {
-          if (!basketHelper) throw new Error("Basket helper is not defined");
-          return basketHelper;
-        },
+      fetchProduct: pure(
         (
-          { recommendations }: RecommendationsEngineContext,
+          { basketHelper, recommendations }: RecommendationsEngineContext,
           { data }: AnyEventObject
         ) => {
           const context = find(recommendations, ["id", data]);
-          if (!context) throw new Error("Context is not defined");
+          if (!basketHelper || !context) return;
+
           // ensure we add our configured coupons to the recommendation ( in the format of IBasketPromotion)
           set(
             context,
@@ -288,31 +285,40 @@ export default createMachine(
 
           // and remove the config as it's not needed
           // unset(context, "configuration");
-          return {
+
+          return sendTo(basketHelper, {
             type: "FETCH",
             target: context.configuration.productId,
             context,
-          };
+          });
         }
       ),
 
-      fetchProducts: sendTo(
-        ({ basketHelper }: any, _event) => basketHelper,
-        (context, { data }: AnyEventObject) => {
+      fetchProducts: pure(
+        (context: RecommendationsEngineContext, { data }: AnyEventObject) => {
+          if (!context.basketHelper) return;
+
           const productIds =
             data ?? uniq(map(context.raw.related, "object_id"));
-          return {
+
+          return sendTo(context.basketHelper, {
             type: "FETCH_SELECTED",
             target: productIds,
             context,
-          };
+          });
         }
       ),
 
-      addToBasket: sendTo(
-        ({ basketHelper }: any, _event) => basketHelper,
-        (context, { data }: AnyEventObject) => {
+      addToBasket: pure(
+        (context: RecommendationsEngineContext, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
+          if (
+            !context.basketHelper ||
+            !context.parseProductModel ||
+            !recommendation
+          )
+            return;
+
           const relationships = get(
             context.raw.relationships,
             recommendation.id,
@@ -326,14 +332,17 @@ export default createMachine(
             recommendation,
             relatedProducts
           );
-          return {
+
+          model.skipValidation = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
+
+          return sendTo(context.basketHelper, {
             type: "ADD_UPDATE",
             target: model,
             context: {
               ...context,
               recommendation,
             },
-          };
+          });
         }
       ),
 
