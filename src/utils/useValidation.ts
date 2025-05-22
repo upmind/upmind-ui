@@ -1,60 +1,77 @@
 // --- external
+import { createAjv, type JsonSchema } from "@jsonforms/core";
+import Ajv from "ajv";
 
-import { createAjv } from "@jsonforms/core";
-import { isValidPhoneNumber } from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
 
-// --- utils
-import { isString, isObject } from "lodash-es";
-// --- types
-import type { Ajv } from "ajv";
-import type { JsonSchema } from "@jsonforms/core";
-import { type CountryCode, type PhoneNumber } from "libphonenumber-js";
+// --- internal
 
-// --------------------------------------------------------
+// --- utils
+import { compact, concat, defaultsDeep, get, reduce, set } from "lodash-es";
+import { parseError } from "./useError";
+
+// --- types
+import type { ErrorObject } from "ajv";
+
+// -----------------------------------------------------------------------------
+
+export const useValidationParser = (error: any): ErrorObject[] => {
+  if (error?.data) {
+    error.message = "Validation error";
+    error.data = compact(
+      reduce(
+        error?.data,
+        (result: ErrorObject[], value, key) => {
+          const parsed = parseError(value, key);
+          return concat(result, parsed);
+        },
+        []
+      )
+    );
+  }
+  return error;
+};
+
+export const useModelParser = (schema: JsonSchema, values: any) => {
+  const model = reduce(
+    schema?.properties,
+    (result, field, key) => {
+      const value = field?.const || get(values, key, field?.default);
+      set(result, key, value);
+      return result;
+    },
+    {}
+  );
+  return defaultsDeep(model, values);
+};
+
+// -----------------------------------------------------------------------------
 
 export const useValidation = (ajv?: Ajv) => {
-  // us JSON Forms version of AJV as it has formats and other keywords already
-  ajv ??= createAjv({ useDefaults: true, allErrors: true });
-  ajvErrors(ajv, { singleError: true });
+  // use JSON Forms version of AJV as it has formats and other keywords already
 
-  ajv.addFormat(
-    "domain_name",
-    // /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/
-    /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/
-  );
+  const initial = !ajv;
+  const ajvInstance = ajv ?? createAjv({ useDefaults: true, verbose: false });
 
-  ajv.addKeyword({
-    keyword: "isPhoneNumber",
-    type: ["string", "object"],
-    schemaType: "string",
-    validate: (schema: CountryCode, data: string | PhoneNumber) => {
-      if (isString(data) && data.includes("+")) {
-        return isValidPhoneNumber(data);
-      } else if (isObject(data)) {
-        const value = data?.number || data?.nationalNumber || "";
-        const country = data?.country || schema;
-        return isValidPhoneNumber(value, country);
-      }
-      return false;
-    },
-    error: {
-      message: () => "Invalid phone number format",
-    },
-  });
+  if (initial) {
+    ajvErrors(ajvInstance, {
+      keepErrors: false,
+      singleError: true,
+    });
+  }
 
   return {
-    ajv,
-    validate: (schema, data) => {
-      const validate = ajv.compile(schema);
+    ajv: ajvInstance,
+    validate: (
+      schema: JsonSchema,
+      data: Record<string, any>
+    ): ErrorObject[] => {
+      const validate = ajvInstance.compile(schema);
       const valid = validate(data);
       if (!valid) {
-        return validate.errors;
+        return validate.errors ?? [];
       }
       return [];
     },
-  } as {
-    ajv: Ajv;
-    validate: (schema: JsonSchema, data: object) => Object[];
   };
 };

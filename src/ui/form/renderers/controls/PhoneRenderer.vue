@@ -66,15 +66,7 @@ import { Combobox } from "../../../combobox";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import {
-  get,
-  map,
-  trimStart,
-  includes,
-  filter,
-  isString,
-  first,
-} from "lodash-es";
+import { get, map, includes, filter, isString } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -125,8 +117,8 @@ const initialPhoneData = () => {
   return data;
 };
 
-const defaultCountryCode = get(control.value.schema, "isPhoneNumber");
-const requiresString = first(control.value.schema.type) === "string";
+const defaultCountryCode = get(control.value.schema, "phone_country_code");
+const requiresString = includes(control.value.schema.type, "string");
 const phone = ref(initialPhoneData());
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
@@ -221,7 +213,8 @@ export const tester = {
   controlType: and(
     or(isStringControl, isObjectControl),
     schemaMatches(
-      schema => "isPhoneNumber" in schema && !!(schema as any).isPhoneNumber
+      schema =>
+        "phone_country_code" in schema && !!(schema as any).phone_country_code
     )
   ),
 };
