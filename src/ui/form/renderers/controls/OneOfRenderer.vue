@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, onMounted } from "vue";
+import { computed, ref } from "vue";
 import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
 import {
   createCombinatorRenderInfos,
@@ -34,6 +34,7 @@ import { Tabs } from "../../../tabs";
 
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type {
@@ -53,10 +54,15 @@ const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
 
 const selectedIndex = ref(control.value.indexOfFittingSchema ?? 0);
 const lastDefaultValue = ref(-1);
+const storedModels = ref<Record<number, any>>({});
 
 const setDefaults = () => {
   if (lastDefaultValue.value !== selectedIndex.value) {
-    setDefaultForIndex(selectedIndex.value);
+    if (!isEmpty(storedModels.value[selectedIndex.value])) {
+      handleChange(control.value.path, storedModels.value[selectedIndex.value]);
+    } else {
+      setDefaultForIndex(selectedIndex.value);
+    }
     lastDefaultValue.value = selectedIndex.value;
   }
 };
@@ -101,6 +107,7 @@ const oneOfItems = computed((): TabItem[] => {
 });
 
 const toggleTab = (value: any) => {
+  storedModels.value[selectedIndex.value] = control.value.data;
   selectedIndex.value = parseInt(value, 10);
 };
 
