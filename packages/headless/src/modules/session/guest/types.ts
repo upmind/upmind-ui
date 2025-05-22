@@ -4,7 +4,9 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
-export interface GuestContext {
+type GuestModelType = LoginModel | RegisterModel | TWOFAModel | RecoverModel;
+
+export interface GuestContext<ModelType extends GuestModelType = any> {
   // TODO:
   // token: Token;
   // error?: RequestError;
@@ -14,7 +16,7 @@ export interface GuestContext {
   // TODO:
   // customFields: Array;
   customFields: any[];
-  model: LoginModel | RegisterModel | TWOFAModel | RecoverModel;
+  model: ModelType;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
 }
