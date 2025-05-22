@@ -101,9 +101,7 @@ const oneOfItems = computed((): TabItem[] => {
 });
 
 const toggleTab = (value: any) => {
-  const index = parseInt(value, 10);
-  setDefaultForIndex(index);
-  selectedIndex.value = index;
+  selectedIndex.value = parseInt(value, 10);
 };
 
 const setDefaultForIndex = (value: number) => {
