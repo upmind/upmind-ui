@@ -13,7 +13,7 @@ import type { SessionContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
-async function check(_context: SessionContext, _event: any) {
+async function check(_context: SessionContext) {
   const token = getTokenFromStorage();
   return new Promise((resolve, reject) => {
     if (!isEmpty(token)) {
@@ -24,7 +24,7 @@ async function check(_context: SessionContext, _event: any) {
   });
 }
 
-async function transferTo(_context: SessionContext, _event: any) {
+async function transferTo(_context: SessionContext) {
   const { post, useUrl } = useQuery();
 
   return post({
@@ -33,7 +33,7 @@ async function transferTo(_context: SessionContext, _event: any) {
   }).then(({ data }: any) => data);
 }
 
-async function transferFrom({ transfer }: SessionContext, _event: any) {
+async function transferFrom({ transfer }: SessionContext) {
   const { post, useUrl } = useQuery();
 
   if (!transfer?.code)
@@ -46,6 +46,7 @@ async function transferFrom({ transfer }: SessionContext, _event: any) {
     data: {
       grant_type: GrantTypes.AUTH_CODE,
       code: transfer.code,
+      lang: "en", // ensure we dont init i18n to get the locale
     },
   }).then((data: any) => {
     persistTokenToStorage(data);
