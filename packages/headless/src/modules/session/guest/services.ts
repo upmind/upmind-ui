@@ -8,12 +8,12 @@ import {
 } from "@upmind-automation/types";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 import { useCookies } from "../../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "../utils";
-import { isEmpty } from "lodash-es";
 
 // ---types
-import type { GuestContext } from "./types";
+import { GuestContext, LoginModel, RecoverModel, RegisterModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ async function loadUser() {
   });
 }
 
-async function authenticate({ model }: GuestContext) {
+async function authenticate({ model }: GuestContext<LoginModel>) {
   const { post, useUrl } = useQuery();
   const { getCurrency } = useBasket();
 
@@ -133,7 +133,7 @@ async function verifyReCaptcha(_context: GuestContext, { data }: any) {
   return Promise.resolve(data);
 }
 
-async function register({ model }: GuestContext) {
+async function register({ model }: GuestContext<RegisterModel>) {
   const { getCurrency } = useBasket();
   const { post, useUrl } = useQuery();
   const recaptcha = useSystemRecaptcha();
@@ -189,11 +189,26 @@ async function register({ model }: GuestContext) {
     .then(loadUser);
 }
 
-async function recover({ model }: GuestContext) {
+async function recover({ model }: GuestContext<RecoverModel>) {
+  const recaptcha = useSystemRecaptcha();
   const { post, useUrl } = useQuery();
+
+  const data: any = {
+    username: model?.username,
+  };
+
+  // add recaptcha token if available
+  await recaptcha
+    .generate("client_register")
+    .then(token => (data.recaptcha_token = token))
+    .catch(() => null); // do nothing
+
   return post({
     url: useUrl("clients/password_reset"),
-    data: { username: model?.username },
+    data,
+  }).then(({ data }: any) => {
+    recaptcha.clear(); // clear our recaptcha token that has been used
+    return data;
   });
 }
 
