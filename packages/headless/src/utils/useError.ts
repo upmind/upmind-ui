@@ -1,5 +1,5 @@
 // --- utils
-import { reduce, set, trimStart } from "lodash-es";
+import { map, reduce, set, trimStart, isArray } from "lodash-es";
 
 // --- types
 import type { ErrorObject } from "ajv";
@@ -62,17 +62,28 @@ export function unflattenErrors(data: any) {
   return parsed;
 }
 
-export function parseError(value: string | string[], key: string): ErrorObject {
-  const instancePath = trimStart(
+export function parseError(
+  value: string | string[],
+  key: string,
+  external: boolean = true // we usually use this for Back end API errors, so we set it to true by default
+): ErrorObject[] {
+  const propertyName = trimStart(
     key.toString().replace(".", "/properties/"),
     "/"
   );
-  return {
-    instancePath: `/${instancePath}`, // AJV style path to the property in the schema
-    message: value.toString(),
-    // --- optional
-    schemaPath: instancePath,
-    keyword: "",
-    params: {},
-  } as ErrorObject;
+
+  const safeValue = isArray(value) ? value : [value];
+
+  return map(safeValue, (message: string) => {
+    return {
+      instancePath: `/${propertyName}`, // AJV style path to the property in the schema
+      message,
+      // --- optional
+      propertyName: propertyName,
+      schemaPath: `#/properties/${propertyName}`,
+      keyword: "",
+      params: {},
+      external: !!external,
+    } as ErrorObject;
+  });
 }

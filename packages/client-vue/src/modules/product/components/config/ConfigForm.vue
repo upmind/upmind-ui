@@ -14,6 +14,7 @@
       :schema="fields"
       :model-value="modelValue"
       :additional-errors="additionalErrors"
+      :touched="touched"
       :additional-renderers="formRenderers"
       @update:modelValue="doResolve"
       no-actions
@@ -51,6 +52,7 @@ const props = withDefaults(
     disabled?: boolean;
     loading?: boolean;
     processing?: boolean;
+    touched?: boolean;
     fields: any;
     modelValue: any;
     additionalErrors?: any[];
@@ -60,6 +62,7 @@ const props = withDefaults(
     disabled: false,
     loading: false,
     processing: false,
+    touched: false,
     additionalErrors: () => [],
     label: "",
   }

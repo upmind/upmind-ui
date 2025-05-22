@@ -1,7 +1,7 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions, spawn } from "xstate";
-const { sendParent, escalate } = actions;
+import { createMachine, assign, actions, spawn, sendParent } from "xstate";
+const { escalate } = actions;
 import { filter, isString, includes, lowerCase } from "lodash-es";
 
 // --- internal
@@ -286,8 +286,10 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }: StripeContext, { data }: AnyEventObject) =>
-          useModelParser(schema, data || model),
+        model: ({ schema, model }: StripeContext, { data }: AnyEventObject) => {
+          if (!schema) return data ?? model;
+          return useModelParser(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({

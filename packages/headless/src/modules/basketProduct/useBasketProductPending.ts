@@ -38,11 +38,13 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         "promotions",
         "coupons",
         "subproducts",
+        "skipValidation",
       ]) as ProductModel)
     : undefined;
 
   const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
   const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
+  const skipValidation = isProductProps(data) ? data?.skipValidation : false;
 
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
@@ -71,6 +73,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         promotions: rawBasket.promotions,
         subproducts,
         coupons,
+        skipValidation,
         // ---
         model,
       }),
@@ -118,7 +121,9 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       {}
     )
       .then(state => {
-        if (["error", "available.error"].some(state.matches)) {
+        if (
+          ["error", "available.invalid", "available.error"].some(state.matches)
+        ) {
           return Promise.reject(state.context.error);
         }
         return Promise.resolve();
@@ -128,28 +133,6 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
           new Error(
             "[headless-vue] update in useBasketProductPending not in a valid state"
           )
-        );
-      });
-  }
-
-  async function remove(): Promise<void> {
-    service.send({ type: "REMOVE" });
-    await waitFor(
-      service,
-      state => ["complete", "available.error"].some(state.matches),
-      {
-        timeout: 60_000,
-      }
-    )
-      .then(newState => {
-        if (["error", "available.error"].some(newState.matches)) {
-          return Promise.reject(new Error(newState.context.error));
-        }
-        return Promise.resolve();
-      })
-      .catch(() => {
-        return Promise.reject(
-          new Error("[headless-vue] remove in useBasketProductPending failed")
         );
       });
   }
@@ -243,6 +226,5 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       }),
 
     update,
-    remove,
   };
 };

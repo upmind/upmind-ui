@@ -51,7 +51,9 @@ export const ItemActions = {
   }),
 
   setModel: assign({
-    model: ({ schema, model }: PhoneContext, { data }: AnyEventObject) =>
-      useModelParser(schema, data || model),
+    model: ({ schema, model }: PhoneContext, { data }: AnyEventObject) => {
+      if (!schema) return data ?? model;
+      return useModelParser(schema, data ?? model);
+    },
   }),
 };

@@ -73,6 +73,8 @@ async function validate(
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+
     const errors = validate(schema, model);
 
     // HACK: we want promocode to be invalid if empty, but not necessarily have an error

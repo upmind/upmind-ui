@@ -37,7 +37,7 @@ export const useSchema = ({ country }: { country: ICountry }) => {
       phone: {
         type: "object",
         title: "Phone",
-        isPhoneNumber: country?.code,
+        phone_country_code: country?.code,
         properties: {
           number: {
             type: ["string", "null"],

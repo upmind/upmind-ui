@@ -1,7 +1,8 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions } from "xstate";
-const { pure, sendParent, escalate } = actions;
+import { createMachine, assign, actions, sendParent } from "xstate";
+const { escalate } = actions;
+
 // --- internal
 import services from "./card/services";
 import { useFeedback } from "../../feedback";
@@ -169,8 +170,13 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }: GatewayContext, { data }: AnyEventObject) =>
-          useModelParser(schema, data || model),
+        model: (
+          { schema, model }: GatewayContext,
+          { data }: AnyEventObject
+        ) => {
+          if (!schema) return data ?? model;
+          return useModelParser(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({
