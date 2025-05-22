@@ -9,7 +9,7 @@
       v-if="meta.hasErrors"
       color="error"
       icon="alert-triangle"
-      :title="t(`session.unauthenticated.${modelValue}.error`)"
+      :title="t(`session.${modelValue}.error`)"
       :description="errors?.message"
     />
 
@@ -32,26 +32,6 @@
 
   <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
     <slot name="toggle">
-      <Link
-        v-if="!meta.isAuthenticated && meta.showLoginForm"
-        @click="toggleForm('register')"
-      >
-        <span class="font-normal">
-          {{ buttons.login.label }}
-        </span>
-        &nbsp;{{ buttons.login.action }}
-      </Link>
-
-      <Link
-        v-if="!meta.isAuthenticated && meta.showRegisterForm"
-        @click="toggleForm('login')"
-      >
-        <span class="font-normal">
-          {{ buttons.register.label }}
-        </span>
-        &nbsp;{{ buttons.register.action }}
-      </Link>
-
       <Link
         v-if="!meta.isAuthenticated && meta.showLoginForm"
         @click="toggleForm('recover')"
@@ -141,16 +121,16 @@ const modelValue = useVModel(props, "modelValue", emit);
 const buttons = computed(() => {
   return {
     register: {
-      label: t("session.unauthenticated.register.actions.text"),
-      action: t("session.unauthenticated.register.actions.action"),
+      label: t("session.register.actions.text"),
+      action: t("session.register.actions.action"),
     },
     login: {
-      label: t("session.unauthenticated.login.actions.text"),
-      action: t("session.unauthenticated.login.actions.action"),
+      label: t("session.login.actions.text"),
+      action: t("session.login.actions.action"),
     },
     recover: {
-      label: t("session.unauthenticated.recover.actions.text"),
-      action: t("session.unauthenticated.recover.actions.action"),
+      label: t("session.recover.actions.text"),
+      action: t("session.recover.actions.action"),
     },
   };
 });
