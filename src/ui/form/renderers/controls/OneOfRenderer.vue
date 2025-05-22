@@ -14,14 +14,14 @@
       :renderers="control.renderers"
       :cells="control.cells"
       :enabled="control.enabled"
-      @vue:Mounted="setDefaultForIndex"
+      @vue:Mounted="toggleTab(selectedIndex)"
     />
   </FormField>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
 import {
   createCombinatorRenderInfos,
@@ -47,7 +47,7 @@ import type { TabItem } from "../../../tabs";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
+const { control, formFieldProps, handleChange } = useUpmindUIRenderer(
   useJsonFormsOneOfControl(props)
 );
 
@@ -93,18 +93,19 @@ const oneOfItems = computed((): TabItem[] => {
 });
 
 const toggleTab = (value: any) => {
-  selectedIndex.value = parseInt(value, 10);
-  setDefaultForIndex();
+  setDefaultForIndex(parseInt(value, 10));
 };
 
-const setDefaultForIndex = () => {
-  onInput(
+const setDefaultForIndex = (value: number) => {
+  handleChange(
+    control.value.path,
     createDefaultValue(
-      indexedOneOfRenderInfos.value[selectedIndex.value].schema,
+      indexedOneOfRenderInfos.value[value].schema,
       control.value.rootSchema
-    ),
-    false
+    )
   );
+
+  selectedIndex.value = value;
 };
 </script>
 
