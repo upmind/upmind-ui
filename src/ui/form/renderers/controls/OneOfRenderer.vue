@@ -15,6 +15,7 @@
       :renderers="control.renderers"
       :cells="control.cells"
       :enabled="control.enabled"
+      @vue:Mounted="setDefaultForIndex"
     />
   </FormField>
 </template>
@@ -106,8 +107,6 @@ const setDefaultForIndex = () => {
     false
   );
 };
-
-setDefaultForIndex();
 </script>
 
 <script lang="ts">
