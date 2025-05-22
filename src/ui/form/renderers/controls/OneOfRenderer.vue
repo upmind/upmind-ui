@@ -8,7 +8,6 @@
     />
 
     <DispatchRenderer
-      v-if="selectedIndex"
       :schema="indexedOneOfRenderInfos[selectedIndex].schema"
       :uischema="indexedOneOfRenderInfos[selectedIndex].uischema"
       :path="control.path"
