@@ -1,6 +1,6 @@
 <template>
   <UpmForm
-    :model-value="model"
+    :model-value="mappedModel"
     @update:modelValue="(data: any) => updateModel(data)"
     :schema="schema"
     :uischema="uischema"
@@ -26,9 +26,10 @@ import { useAddressFields } from "../../../../components/form/composables/useAdd
 // --- types
 import { Views } from "./types";
 import type { FormActionProps } from "@upmind-automation/upmind-ui";
+import type { UnifiedAddressModel } from "@upmind-automation/headless-vue";
 
 // utils
-import { debounce } from "lodash-es";
+import { isEmpty, pick, debounce, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -45,6 +46,25 @@ await isReady().then(async () => {
   await getAll();
 });
 
+const mappedModel = computed(() => {
+  const company = some(
+    pick(model.value, ["companyName", "regNumber", "vatNumber"]),
+    value => !isEmpty(value)
+  );
+
+  return company
+    ? {
+        details: {
+          company: model.value,
+        },
+      }
+    : {
+        details: {
+          address: model.value,
+        },
+      };
+});
+
 const actions = computed(() => ({
   submit: {
     label: "Save details",
@@ -57,22 +77,29 @@ const actions = computed(() => ({
   } as FormActionProps,
 }));
 
-const updateModel = debounce(async (data: any) => {
-  // if (showAddressFields.value) {
-  //   await set(data?.address);
-  // }
+const updateModel = debounce(async data => {
+  await set(parseData(data));
 }, 500);
 
-watch(selectedAddress, async address => {
-  if (address) {
-    // await set(address);
+watch(selectedAddress, async (data: any) => {
+  if (data) {
+    await set(parseData(data));
     setShowAddressFields(true);
   }
 });
 
+const parseData = (data: any) => {
+  const company = some(
+    pick(data, ["companyName", "regNumber", "vatNumber"]),
+    value => !isEmpty(value)
+  );
+
+  return company ? data.company : data.address;
+};
+
 const updateAddress = async () => {
-  // await update();
-  // await getAll();
-  // emit("setView", Views.default);
+  await update();
+  await getAll();
+  emit("setView", Views.default);
 };
 </script>
