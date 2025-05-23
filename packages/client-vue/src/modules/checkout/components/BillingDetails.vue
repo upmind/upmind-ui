@@ -29,7 +29,8 @@ const view = ref<Views>(Views.loading);
 
 await isReady().then(async () => {
   await getAll();
-  view.value = isEmpty(data.value) ? Views.add : Views.default;
+  view.value = Views.add;
+  //view.value = isEmpty(data.value) ? Views.add : Views.default;
 });
 
 const setView = (value: Views) => {

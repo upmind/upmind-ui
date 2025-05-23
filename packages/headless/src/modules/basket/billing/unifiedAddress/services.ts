@@ -195,10 +195,17 @@ async function parse(
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
 
+  const company = some(
+    pick(data, ["companyName", "regNumber", "vatNumber"]),
+    value => !isEmpty(value)
+  );
+
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
   const safeModel: UnifiedAddressModel = useModelParser(
-    schema,
+    company
+      ? { ...schema?.definitions?.company?.properties }
+      : { ...schema?.definitions?.address?.properties },
     get(data, "model", data),
     baseModel,
     { allowExtraProps: false }
@@ -269,8 +276,19 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
   // Now validate the model as per normal
   const { validate } = useValidation();
 
+  const company = some(
+    pick(model, ["companyName", "regNumber", "vatNumber"]),
+    value => !isEmpty(value) && value !== null && value !== undefined
+  );
+
   return new Promise((resolve, reject) => {
-    const errors = validate(schema, model);
+    const errors = validate(
+      company
+        ? { ...schema?.definitions?.company?.properties }
+        : { ...schema?.definitions?.address?.properties },
+      model
+    );
+
     if (errors?.length) {
       reject({ error: errors });
     } else {
