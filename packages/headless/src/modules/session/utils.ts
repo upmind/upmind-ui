@@ -27,9 +27,10 @@ function convertToCookie() {
 
   if (clientToken) {
     console.warn(
-      "Converting localStorage tokens to cookies. This is a one-time operation to migrate from localStorage to cookies."
+      "Converting localStorage tokens to cookies. This is a one-time operation to migrate from localStorage to cookies.",
+      clientToken
     );
-    setCookie("upm_client_session", clientToken, {
+    setCookie("upm_client_session", useTokenParser(clientToken), {
       expires: "8h", //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`client/auth/token`);
@@ -37,9 +38,10 @@ function convertToCookie() {
 
   if (guestToken) {
     console.warn(
-      "Converting localStorage tokens to cookies. This is a one-time operation to migrate from localStorage to cookies."
+      "Converting localStorage tokens to cookies. This is a one-time operation to migrate from localStorage to cookies.",
+      guestToken
     );
-    setCookie("upm_guest_session", guestToken, {
+    setCookie("upm_guest_session", useTokenParser(guestToken), {
       expires: "8h", //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`guest/auth/token`);
@@ -71,7 +73,8 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   } else {
     token = clientCookie || guestCookie || "";
   }
-  return useTokenParser(token) as Token;
+  token = useTokenParser(token) as Token;
+  return token;
 }
 
 export function persistTokenToStorage(token: Token) {
