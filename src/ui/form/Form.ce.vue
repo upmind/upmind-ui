@@ -106,7 +106,7 @@ const emits = defineEmits<{
   resolve: [Object];
   "update:modelValue": [Object];
   "update:uischema": [Object];
-  touched: [boolean];
+  "update:touched": [boolean];
   valid: [boolean];
   click: [{ model: object; meta: object }];
   action: [{ name: string; model: object; meta: object }];
