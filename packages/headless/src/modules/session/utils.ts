@@ -27,8 +27,7 @@ function convertToCookie() {
 
   if (clientToken) {
     console.warn(
-      "Converting localStorage tokens to cookies. This is a one-time operation to migrate from localStorage to cookies.",
-      clientToken
+      "Converting Client token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
     setCookie("upm_client_session", useTokenParser(clientToken), {
       expires: "8h", //default : refresh token and access token are valid for 8 hours
@@ -38,8 +37,7 @@ function convertToCookie() {
 
   if (guestToken) {
     console.warn(
-      "Converting localStorage tokens to cookies. This is a one-time operation to migrate from localStorage to cookies.",
-      guestToken
+      "Converting Guest token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
     setCookie("upm_guest_session", useTokenParser(guestToken), {
       expires: "8h", //default : refresh token and access token are valid for 8 hours
