@@ -86,7 +86,7 @@ const updateAddress = async () => {
 };
 
 const cancel = () => {
-  emit("setView", Views.list);
+  emit("setView", Views.default);
   setShowAddressFields(false);
 };
 </script>
