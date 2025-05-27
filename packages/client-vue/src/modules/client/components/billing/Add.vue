@@ -5,11 +5,28 @@
     :schema="schema"
     :uischema="uischema"
     :additional-renderers="formRenderers"
-    :noActions="!showAddressFields"
+    :no-actions="!showAddressFields"
     color="primary"
-    :actions="actions"
     @resolve="updateAddress"
-  />
+  >
+    <template v-if="showAddressFields" #actions>
+      <footer class="flex gap-x-6">
+        <Button
+          :loading="meta.isLoading"
+          :disabled="!meta.isValid"
+          type="submit"
+          size="md"
+          color="secondary"
+          @click="updateAddress"
+        >
+          Save details
+        </Button>
+        <Link as="Button" size="sm" variant="muted" @click="cancel">
+          Cancel
+        </Link>
+      </footer>
+    </template>
+  </UpmForm>
 </template>
 
 <script setup lang="ts">
@@ -23,13 +40,14 @@ import { useBillingDetails } from "@upmind-automation/headless-vue";
 import { UpmForm, formRenderers } from "../../../../components/form";
 import { useBillingDetail } from "@upmind-automation/headless-vue";
 import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
+import { Link, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { Views } from "./types";
 import type { FormActionProps } from "@upmind-automation/upmind-ui";
 
 // utils
-import { debounce } from "lodash-es";
+import { debounce, isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -38,25 +56,13 @@ const emit = defineEmits<{
 }>();
 
 const { update, set, model, schema, uischema, meta } = useBillingDetail();
-const { isReady, getAll } = useBillingDetails();
+const { isReady, getAll, data } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
 await isReady().then(async () => {
   await getAll();
 });
-
-const actions = computed(() => ({
-  submit: {
-    label: "Save details",
-    color: "secondary",
-    loading: meta.value.isLoading,
-    disabled: meta.value.isProcessing || !meta.value.isValid,
-    type: "submit",
-    size: "md",
-    handler: updateAddress,
-  } as FormActionProps,
-}));
 
 const updateModel = debounce(async (data: any) => {
   await set(data);
@@ -76,6 +82,11 @@ const updateAddress = async () => {
   await update();
   await getAll();
   emit("setView", Views.default);
+  setShowAddressFields(false);
+};
+
+const cancel = () => {
+  emit("setView", Views.list);
   setShowAddressFields(false);
 };
 </script>
