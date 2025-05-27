@@ -47,9 +47,9 @@ const props = defineProps<{
 const getTypeBadge = () => {
   switch (props.address.type) {
     case 1:
-      return "Address";
-    case 2:
-      return "Company";
+      return "Personal";
+    case 4:
+      return "Business";
   }
 };
 
