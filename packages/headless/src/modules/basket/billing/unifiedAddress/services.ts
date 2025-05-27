@@ -9,6 +9,7 @@ import {
   useClientAddresses,
   useClientCompanies,
 } from "../../../client";
+import { useBrand } from "../../../brand";
 import { useSystem } from "../../../system";
 import { useClientEmailServices } from "../../../client/email/services";
 import { useClientPhoneServices } from "../../../client/phone/services";
@@ -39,7 +40,7 @@ import type {
 import type { AnyEventObject } from "xstate";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
 import { invalidateQueryByKey } from "../../../query";
-
+import { BrandConfigKeys } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 // QUERIES
 
@@ -60,15 +61,23 @@ async function loadLookups({
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
+  const { ensureConfig, getConfig } = useBrand();
+
   await isReady().catch(error => Promise.reject(error));
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  const [phones, emails, addresses, countries] = await Promise.all([
+  const [phones, emails, addresses, countries, config] = await Promise.all([
     getPhones(),
     getEmails(),
     getAddresses(),
     fetchCountries(),
+    ensureConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+    ]),
   ]);
 
   const country = getCountry(model?.details?.address?.countryId);
@@ -106,6 +115,7 @@ async function loadLookups({
     phones,
     emails,
     addresses,
+    config,
     // ---
     model: safeModel,
     baseModel: safeModel,
@@ -119,40 +129,28 @@ async function add(data: UnifiedAddressModel) {
   const { add: addAddress } = useClientAddressServices();
   const { add: addCompany } = useClientCompanyServices();
 
-  const addressData = data?.details?.address;
   const companyData = data?.details?.company;
 
-  // for the unified address we need to check if we have company details or just an address.
   if (!companyData) {
-    // If we don't have company data, then we can just create the address as normal...simple
+    const addressData = await prepareAddressData(data);
     return addAddress({ model: addressData }).then(() =>
       useBillingDetailsServices().invalidate()
     );
   } else {
-    // if we do then we need to:
-    // check if the address provided already exists in our addresses or if we need to create a new one
-    // check if the phone number provided already exists in our phones or if we need to create a new one
-    // check if the email provided already exists in our emails or if we need to create a new one
-    // then create the address, email and phone as necessary and use the ids to create the company
-
-    // First ensure dependencies to get refs to address, email, and phone
     return ensureDependencies({ model: data })
-      .then(({ address, email, phone }) =>
-        // Only create company, since address was already created or found by ensureDependencies
-        addCompany({
+      .then(({ address, email, phone }) => {
+        return addCompany({
           model: {
-            // relations details
             emailId: email?.id,
             phoneId: phone?.id,
             addressId: address?.id,
-            // company details
             name: companyData.companyName,
             regNumber: companyData.regNumber,
             vatNumber: companyData.vatNumber,
-            // vatPercent: model.vatPercent,
+            ...pick(companyData, ["vatPercent", "taxId", "businessType"]),
           },
-        })
-      )
+        });
+      })
       .then(() => useBillingDetailsServices().invalidate());
   }
 }
@@ -161,37 +159,29 @@ async function update(id: string, data: UnifiedAddressModel) {
   const { update: updateAddress } = useClientAddressServices();
   const { update: updateCompany } = useClientCompanyServices();
 
-  // Extract the address and company data from the details structure
-  const addressData = data?.details?.address;
   const companyData = data?.details?.company;
 
-  // for the unified address we need to check if we have company details or just an address.
   if (!companyData) {
-    // If we don't have company data, then we can just update the address as normal...simple
+    const addressData = await prepareAddressData(data);
     return updateAddress({ id, model: addressData }).then(() =>
       useBillingDetailsServices().invalidate()
     );
   } else {
-    // if we do then we need to :
-    // check if the address provided already exists in our addresses or if we need to create a new one
-    // check if the phone number provided already exists in our phones or if we need to create a new one
-    // check if the email provided already exists in our emails or if we need to create a new one
-    // then create the address, email and phone as necessary and use the ids to create the company
     return ensureDependencies({ model: data })
-      .then(({ address, email, phone }) =>
-        updateCompany({
+      .then(({ address, email, phone }) => {
+        return updateCompany({
           id,
           model: {
-            name: companyData.name || companyData.companyName,
+            name: companyData.companyName,
             addressId: address?.id,
             emailId: email?.id,
             phoneId: phone?.id,
             regNumber: companyData.regNumber,
             vatNumber: companyData.vatNumber,
-            // vatPercent: model.vatPercent,
+            ...pick(companyData, ["vatPercent", "taxId", "businessType"]),
           },
-        }).then(() => {})
-      )
+        }).then(() => {});
+      })
       .then(() => useBillingDetailsServices().invalidate());
   }
 }
@@ -234,9 +224,9 @@ async function parse(
     }
 
     // now lets check our phone number
-    // TODO: This should be allowed for address not only company
-    if (data?.phone && safeModel?.details?.company) {
-      const phoneNumber = isString(safeModel.details.company.phone)
+    // Handle phone for address (not company)
+    if (data?.phone && safeModel?.details?.address) {
+      const phoneNumber = isString(data?.phone)
         ? data?.phone
         : data?.phone?.number || data?.phone?.nationalNumber || "";
 
@@ -244,19 +234,12 @@ async function parse(
         data?.phone?.country || data?.phoneCountryCode || country?.code;
       const phone = parsePhoneNumber(phoneNumber, countryCode) || undefined;
 
-      // now map the phone number to the model in the correct format with fallbacks
-      safeModel.details.company.phone = phone
+      // now map the phone number to the address model in the correct format with fallbacks
+      safeModel.details.address.phone = phone
         ? {
-            number:
-              phone?.number || safeModel.details.company.phone?.number || "",
-            nationalNumber:
-              phone?.nationalNumber ||
-              safeModel.details.company.phone?.nationalNumber ||
-              "",
-            countryCallingCode:
-              phone?.countryCallingCode ||
-              safeModel.details.company.phone?.countryCallingCode ||
-              "",
+            number: phone?.number || "",
+            nationalNumber: phone?.nationalNumber || "",
+            countryCallingCode: phone?.countryCallingCode || "",
             country: countryCode,
           }
         : undefined;
@@ -269,12 +252,9 @@ async function parse(
       }
     }
 
-    if (!safeModel?.details?.company && safeModel?.details?.company) {
-      safeModel.details.company.phone = undefined;
-      safeModel.details.company.email = undefined;
-      safeModel.details.company.companyName = undefined;
-      safeModel.details.company.regNumber = undefined;
-      safeModel.details.company.vatNumber = undefined;
+    // Clean up company fields if no company data
+    if (!safeModel?.details?.company) {
+      // No cleanup needed for company since it doesn't exist
     }
   }
 
@@ -289,6 +269,7 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
 
   return new Promise((resolve, reject) => {
     const errors = validate(schema, model);
+
     if (errors?.length) {
       reject({ error: errors });
     } else {
@@ -320,7 +301,8 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
 async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
   const phones = useClientPhones();
 
-  const data = pick(model?.details?.company, ["phone"]) as PhoneModel;
+  // Pick phone from address (not company) since that's where it's stored in the model
+  const data = pick(model?.details?.address, ["phone"]) as PhoneModel;
 
   return new Promise<Phone>((resolve, reject) => {
     const found = phones.findOne(data);
@@ -338,14 +320,21 @@ async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
 async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
   const addresses = useClientAddresses();
 
-  const data = pick(model?.details?.address, [
-    "address1",
-    "address2",
-    "city",
-    "postcode",
-    "regionId",
-    "countryId",
-  ]) as AddressModel;
+  // Include type field and set to company type if this is for a company
+  const isCompanyAddress = !!model?.details?.company;
+  const data = {
+    ...pick(model?.details?.address, [
+      "address1",
+      "address2",
+      "city",
+      "postcode",
+      "regionId",
+      "countryId",
+      "type",
+    ]),
+    // Force type to company (4) if this address is for a company
+    type: isCompanyAddress ? 4 : model?.details?.address?.type || 1,
+  } as AddressModel;
 
   return new Promise<Address>((resolve, reject) => {
     const found = addresses.findOne(data);
@@ -386,6 +375,21 @@ async function ensureDependencies({
     ensurePhone(model),
     ensureAddress(model),
   ]).then(([email, phone, address]) => ({ email, phone, address }));
+}
+
+async function prepareAddressData(data: UnifiedAddressModel) {
+  const addressData = data?.details?.address;
+
+  if (addressData?.phone) {
+    const phone = await ensurePhone(data);
+    return {
+      ...addressData,
+      phoneId: phone.id,
+      phone: undefined,
+    };
+  }
+
+  return addressData;
 }
 
 export default {
