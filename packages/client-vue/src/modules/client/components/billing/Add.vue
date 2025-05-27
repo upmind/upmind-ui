@@ -8,6 +8,7 @@
     :noActions="!showAddressFields"
     color="primary"
     :actions="actions"
+    @resolve="updateAddress"
   />
 </template>
 
@@ -58,9 +59,7 @@ const actions = computed(() => ({
 }));
 
 const updateModel = debounce(async (data: any) => {
-  // if (showAddressFields.value) {
-  //   await set(data?.address);
-  // }
+  await set(data);
 }, 500);
 
 watch(selectedAddress, async address => {
@@ -71,8 +70,8 @@ watch(selectedAddress, async address => {
 });
 
 const updateAddress = async () => {
-  // await update();
-  // await getAll();
-  // emit("setView", Views.default);
+  await update();
+  await getAll();
+  emit("setView", Views.default);
 };
 </script>

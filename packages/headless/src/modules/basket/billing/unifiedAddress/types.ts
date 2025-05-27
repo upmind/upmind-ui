@@ -26,16 +26,24 @@ export type UnifiedAddress = UnifiedAddressModel & {
   };
 };
 
-export type UnifiedAddressModel = AddressModel &
-  Omit<CompanyModel, "vatNumber" | "regNumber"> & {
-    companyDetails?: boolean;
-    companyId?: ICompany["id"];
-    companyName?: ICompany["name"];
-    regNumber?: ICompany["reg_number"];
-    vatNumber?: ICompany["vat_number"];
-    phone?: PhoneModel["phone"];
-    email?: EmailModel["email"];
+export type UnifiedAddressModel = {
+  details: {
+    address?: AddressModel;
+    company?: CompanyDetailsModel;
   };
+};
+
+export type CompanyDetailsModel = Omit<
+  CompanyModel,
+  "vatNumber" | "regNumber"
+> & {
+  companyId?: ICompany["id"];
+  companyName?: ICompany["name"];
+  regNumber?: ICompany["reg_number"];
+  vatNumber?: ICompany["vat_number"];
+  phone?: PhoneModel["phone"];
+  email?: EmailModel["email"];
+};
 
 export interface UnifiedAddressContext extends ClientItemContext {
   model: UnifiedAddressModel;
