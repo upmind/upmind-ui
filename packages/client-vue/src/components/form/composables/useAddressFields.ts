@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import type { Address } from "@upmind-automation/headless-vue";
 
-const showAddressFields = ref<boolean>(false);
+const showAddressFields = ref<boolean>(true);
 const selectedAddress = ref<Address | null>(null);
 
 export const useAddressFields = () => {

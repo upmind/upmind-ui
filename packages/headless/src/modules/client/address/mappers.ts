@@ -48,18 +48,16 @@ export function mapAddress(raw: IAddress): Address {
   };
 }
 
-export function mapIAddress(data: any): IAddress {
-  // TODO: useModelParser expects the data to match the schema(why it is nested in an address object)
-  // We need to flatten the data
+export function mapIAddress(data: AddressModel): IAddress {
   return {
-    name: data.address.name,
-    address_1: data.address.address1,
-    address_2: data.address.address2,
-    city: data.address.city,
-    state: data.address.state,
-    postcode: data.address.postcode,
-    region_id: data.address.regionId,
-    country_id: data.address.countryId,
-    type: data.address.type,
+    name: data.name || data.address1 || "Address",
+    address_1: data.address1,
+    address_2: data.address2,
+    city: data.city,
+    state: data.state,
+    postcode: data.postcode,
+    region_id: data.regionId,
+    country_id: data.countryId,
+    type: data.type,
   } as IAddress;
 }
