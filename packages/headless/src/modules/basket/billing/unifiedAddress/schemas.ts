@@ -1,16 +1,18 @@
 // --- utils
-import { map, reduce } from "lodash-es";
+import { get, map, reduce } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../../../client";
 import type { UnifiedAddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 export const useSchema = ({
   country,
   regions,
   baseModel,
   countries,
+  config,
 }: UnifiedAddressContext) => {
   const schema = {
     type: "object",
@@ -32,6 +34,7 @@ export const useSchema = ({
       company: {
         type: "object",
         title: "Company",
+        required: ["companyName"],
         properties: {
           addressId: {
             type: ["string", "null"],
@@ -45,7 +48,7 @@ export const useSchema = ({
           },
           regNumber: {
             type: ["string", "null"],
-            title: "Company number",
+            title: "Company Number",
           },
           vatNumber: {
             type: ["string", "null"],
@@ -99,11 +102,40 @@ export const useSchema = ({
               title: item.name,
             })),
           },
+
+          phone: {
+            type: "object",
+            title: "Phone",
+            isPhoneNumber: country?.code,
+            properties: {
+              number: {
+                type: ["string", "null"],
+                title: "Phone number ( with dialing code )",
+              },
+
+              nationalNumber: {
+                type: ["string", "null"],
+                title: "Phone number",
+              },
+
+              countryCallingCode: {
+                type: ["string", "null"],
+                title: "Country calling code",
+              },
+
+              country: {
+                type: ["string", "null"],
+                title: "Country",
+              },
+            },
+          },
         },
       },
+
       personal: {
         type: "object",
         title: "Personal",
+        additionalProperties: false,
         properties: {
           address: {
             $ref: "#/definitions/address",
@@ -113,6 +145,7 @@ export const useSchema = ({
       business: {
         type: "object",
         title: "Business",
+        required: ["company", "address"],
         properties: {
           company: {
             $ref: "#/definitions/company",
@@ -121,19 +154,18 @@ export const useSchema = ({
             $ref: "#/definitions/address",
           },
         },
-        required: ["name"],
       },
     },
   };
 
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    schema.definitions.address.required.push("phone");
+  }
+
   return schema as JsonSchema;
 };
 
-export const useUischema = ({
-  emails,
-  phones,
-  addresses,
-}: UnifiedAddressContext) => {
+export const useUischema = ({ config }: UnifiedAddressContext) => {
   const personalUiSchema = {
     type: "VerticalLayout",
     elements: [
@@ -205,6 +237,19 @@ export const useUischema = ({
                       },
                     ],
                   },
+                  {
+                    type: "Control",
+                    scope: "#/properties/phone",
+                    rule: {
+                      effect: "HIDE",
+                      condition: get(
+                        config,
+                        BrandConfigKeys.CHECKOUT_REQUIRE_PHONE
+                      )
+                        ? { scope: "#", schema: { type: "null" } }
+                        : { scope: "#", schema: { type: "object" } },
+                    },
+                  },
                 ],
               },
             ],
@@ -254,7 +299,6 @@ export const useUischema = ({
           },
         },
       },
-
       personalUiSchema, // UI Schema doesn't support definitions
     ],
   };

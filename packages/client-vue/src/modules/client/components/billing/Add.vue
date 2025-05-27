@@ -64,7 +64,10 @@ const updateModel = debounce(async (data: any) => {
 
 watch(selectedAddress, async address => {
   if (address) {
-    await set({ details: { address } });
+    const updatedModel = {
+      details: { address, company: model.value.details.company },
+    };
+    await set(updatedModel);
     setShowAddressFields(true);
   }
 });
@@ -73,5 +76,6 @@ const updateAddress = async () => {
   await update();
   await getAll();
   emit("setView", Views.default);
+  setShowAddressFields(false);
 };
 </script>

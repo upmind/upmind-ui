@@ -9,7 +9,12 @@ import type {
   EmailModel,
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";
-import type { ICompany, ICountry, IRegion } from "@upmind-automation/types";
+import type {
+  BrandConfigKeys,
+  ICompany,
+  ICountry,
+  IRegion,
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -28,9 +33,13 @@ export type UnifiedAddress = UnifiedAddressModel & {
 
 export type UnifiedAddressModel = {
   details: {
-    address?: AddressModel;
+    address?: ExtendedAddressModel;
     company?: CompanyDetailsModel;
   };
+};
+
+export type ExtendedAddressModel = AddressModel & {
+  phone?: PhoneModel["phone"];
 };
 
 export type CompanyDetailsModel = Omit<
@@ -41,7 +50,6 @@ export type CompanyDetailsModel = Omit<
   companyName?: ICompany["name"];
   regNumber?: ICompany["reg_number"];
   vatNumber?: ICompany["vat_number"];
-  phone?: PhoneModel["phone"];
   email?: EmailModel["email"];
 };
 
@@ -54,4 +62,5 @@ export interface UnifiedAddressContext extends ClientItemContext {
   addresses: Address[];
   phones: Phone[];
   emails: Email[];
+  config?: Record<BrandConfigKeys, boolean>;
 }
