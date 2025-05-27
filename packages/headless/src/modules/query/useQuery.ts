@@ -1,14 +1,12 @@
-// --- external
-
 // --- internal
 import { useSession } from "../session";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
 import { useUrl } from "../../utils";
-import { getTokenFromStorage } from "../session/utils";
-import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
+import { isFunction } from "xstate/lib/utils";
 import { get, set, unset, isString } from "lodash-es";
+import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 
 // --- types
 import type {
@@ -18,7 +16,6 @@ import type {
   RequestParams,
 } from "./types";
 import { Methods } from "@upmind-automation/types";
-import { isFunction } from "xstate/lib/utils";
 
 const queryClient = getQueryClient();
 
