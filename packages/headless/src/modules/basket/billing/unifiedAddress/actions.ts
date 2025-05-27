@@ -5,7 +5,7 @@ import { assign } from "xstate";
 import { useSchema, useUischema } from "./schemas";
 
 // --- utils
-import { get, compact, isEmpty, pick, some } from "lodash-es";
+import { get, compact } from "lodash-es";
 import { useModelParser } from "../../../../utils";
 
 // --- types
@@ -47,22 +47,7 @@ export const useBillingDetailsActions = () => {
       model: (
         { schema, baseModel }: UnifiedAddressContext,
         { data }: { type: string; data: Partial<UnifiedAddressModel> }
-      ) => {
-        const company = some(
-          pick(data, ["companyName", "regNumber", "vatNumber"]),
-          value => !isEmpty(value)
-        );
-
-        const assignedSchema = company
-          ? { ...schema?.definitions?.company?.properties }
-          : { ...schema?.definitions?.address?.properties };
-
-        return useModelParser<UnifiedAddressModel>(
-          assignedSchema,
-          data,
-          baseModel
-        );
-      },
+      ) => useModelParser<UnifiedAddressModel>(schema, data, baseModel),
     }),
   };
 };
