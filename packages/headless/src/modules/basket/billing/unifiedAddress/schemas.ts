@@ -230,7 +230,7 @@ export const useUischema = ({
                 elements: [
                   {
                     type: "Control",
-                    scope: "#/properties/companyNumber",
+                    scope: "#/properties/regNumber",
                     options: {
                       placeholder: "Company number",
                     },
