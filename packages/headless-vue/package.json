@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@jsonforms/core": "^3.5.1",
-    "@tanstack/vue-query": "^5.67.1",
+    "@tanstack/vue-query": "^5.77.2",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/types": "workspace:*",
     "@xstate/vue": "^2.0.0",

@@ -12,3 +12,4 @@ export * from "./recommendations";
 export * from "./routing";
 export * from "./session";
 export * from "./system";
+export * from "./productsCatalog";

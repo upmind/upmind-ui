@@ -222,13 +222,13 @@ importers:
         version: 0.8.2
       '@sentry/vue':
         specifier: ^9.1.0
-        version: 9.3.0(vue@3.5.13(typescript@5.8.2))
+        version: 9.3.0(vue@3.5.13(typescript@5.7.3))
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17)
       '@tanstack/vue-query':
         specifier: ^5.67.1
-        version: 5.67.1(vue@3.5.13(typescript@5.8.2))
+        version: 5.67.1(vue@3.5.13(typescript@5.7.3))
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
@@ -237,10 +237,10 @@ importers:
         version: link:../../packages/ui
       '@vueuse/components':
         specifier: ^12.7.0
-        version: 12.7.0(typescript@5.8.2)
+        version: 12.7.0(typescript@5.7.3)
       '@vueuse/core':
         specifier: ^12.7.0
-        version: 12.7.0(typescript@5.8.2)
+        version: 12.7.0(typescript@5.7.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -264,13 +264,13 @@ importers:
         version: 4.1.1(tailwindcss@3.4.17)
       vue:
         specifier: ^3.5.13
-        version: 3.5.13(typescript@5.8.2)
+        version: 3.5.13(typescript@5.7.3)
       vue-i18n:
         specifier: ^11.1.1
-        version: 11.1.1(vue@3.5.13(typescript@5.8.2))
+        version: 11.1.3(vue@3.5.13(typescript@5.7.3))
       vue-router:
         specifier: ^4.5.0
-        version: 4.5.0(vue@3.5.13(typescript@5.8.2))
+        version: 4.5.0(vue@3.5.13(typescript@5.7.3))
     devDependencies:
       '@localazy/cli':
         specifier: ^1.7.15
@@ -292,28 +292,28 @@ importers:
         version: 4.17.12
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.24.0
-        version: 8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)
+        version: 8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.1(vite@6.2.0(@types/node@22.13.9)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
+        version: 5.2.1(vite@6.3.3(@types/node@22.13.9)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))
       '@vitest/coverage-istanbul':
         specifier: ^3.0.5
         version: 3.0.7(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))
       '@vitest/eslint-plugin':
         specifier: ^1.1.31
-        version: 1.1.36(@typescript-eslint/utils@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))
+        version: 1.1.36(@typescript-eslint/utils@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))
       '@vue/eslint-config-prettier':
         specifier: ^10.2.0
         version: 10.2.0(eslint@9.21.0(jiti@1.21.7))(prettier@3.5.3)
       '@vue/eslint-config-typescript':
         specifier: ^14.4.0
-        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.21.0(jiti@1.21.7)))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)
+        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.21.0(jiti@1.21.7)))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
       '@vue/test-utils':
         specifier: ^2.4.6
         version: 2.4.6
       '@vue/tsconfig':
         specifier: ^0.7.0
-        version: 0.7.0(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
+        version: 0.7.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.3)
@@ -346,28 +346,25 @@ importers:
         version: 1.85.1
       typescript:
         specifier: ^5.7.3
-        version: 5.8.2
+        version: 5.7.3
       vite:
         specifier: ^6.1.1
-        version: 6.2.0(@types/node@22.13.9)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0)
+        version: 6.3.3(@types/node@22.13.9)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0)
       vite-plugin-dts:
         specifier: ^4.5.0
-        version: 4.5.3(@types/node@22.13.9)(rollup@4.34.9)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.9)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0))
+        version: 4.5.3(@types/node@22.13.9)(rollup@4.34.9)(typescript@5.7.3)(vite@6.3.3(@types/node@22.13.9)(jiti@1.21.7)(sass@1.85.1)(yaml@2.7.0))
       vitest:
         specifier: ^3.0.5
         version: 3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0)
       vue-tsc:
         specifier: ^2.2.0
-        version: 2.2.8(typescript@5.8.2)
+        version: 2.2.8(typescript@5.7.3)
 
   apps/velia:
     dependencies:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
-      '@gtm-support/vue-gtm':
-        specifier: ^3.1.0
-        version: 3.1.0(vue@3.5.13(typescript@5.7.3))
       '@sentry/vue':
         specifier: ^9.1.0
         version: 9.3.0(vue@3.5.13(typescript@5.7.3))
@@ -427,7 +424,7 @@ importers:
         specifier: ^1.50.1
         version: 1.50.1
       '@sentry/vite-plugin':
-        specifier: ^3.2.0
+        specifier: ^3.2.1
         version: 3.2.1(encoding@0.1.13)
       '@tsconfig/node22':
         specifier: ^22.0.0
@@ -910,8 +907,8 @@ importers:
         specifier: ^3.5.1
         version: 3.5.1
       '@tanstack/vue-query':
-        specifier: ^5.67.1
-        version: 5.67.1(vue@3.5.13(typescript@5.8.2))
+        specifier: ^5.77.2
+        version: 5.77.2(vue@3.5.13(typescript@5.8.2))
       '@upmind-automation/headless':
         specifier: workspace:*
         version: link:../headless
@@ -1121,7 +1118,7 @@ importers:
         specifier: ^3.0.0
         version: 3.5.13(typescript@5.8.2)
       vue-router:
-        specifier: ^4.0.0
+        specifier: ^4.5.0
         version: 4.5.0(vue@3.5.13(typescript@5.8.2))
       vue-sonner:
         specifier: ^1.3.0
@@ -3115,11 +3112,23 @@ packages:
   '@tanstack/query-core@5.67.1':
     resolution: {integrity: sha512-AkFmuukVejyqVIjEQoFhLb3q+xHl7JG8G9cANWTMe3s8iKzD9j1VBSYXgCjy6vm6xM8cUCR9zP2yqWxY9pTWOA==}
 
+  '@tanstack/query-core@5.77.2':
+    resolution: {integrity: sha512-1lqJwPsR6GX6nZFw06erRt518O19tWU6Q+x0fJUygl4lxHCYF2nhzBPwLKk2NPjYOrpR0K567hxPc5K++xDe9Q==}
+
   '@tanstack/virtual-core@3.13.2':
     resolution: {integrity: sha512-Qzz4EgzMbO5gKrmqUondCjiHcuu4B1ftHb0pjCut661lXZdGoHeze9f/M8iwsK1t5LGR6aNuNGU7mxkowaW6RQ==}
 
   '@tanstack/vue-query@5.67.1':
     resolution: {integrity: sha512-aYp6hxwcl74XJDq6AKRpROJkJqqJeTSajsdgMG5DRhUnIDEhIKPvGHAHPQc+eEnAB9DrbuIrzTkyQnGkMAmITg==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.2
+      vue: ^2.6.0 || ^3.3.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+
+  '@tanstack/vue-query@5.77.2':
+    resolution: {integrity: sha512-Neon9wds87Wo6T5qr+YxOnHYmt618IGnlYE2r6dpWDvhb/mJwlvoBw9TS2KzLfmOQuadBc4nWcpUomuDR4otKg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -3584,6 +3593,7 @@ packages:
 
   '@xstate/test@0.5.1':
     resolution: {integrity: sha512-Ltz46QR9QvEuhlNy+zvs+5ylfpGXzDBh+jVC1/WL8w88uEbN+Wf1bJ/Bi5OWVWWEgXJxfcmlavN4hJOqtQuqgQ==}
+    deprecated: Please use @xstate/graph instead.
     peerDependencies:
       xstate: ^4.29.0
 
@@ -8192,11 +8202,11 @@ packages:
       typescript:
         optional: true
 
-  vue-component-type-helpers@2.2.10:
-    resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}
-
   vue-component-type-helpers@2.2.8:
     resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
+
+  vue-component-type-helpers@3.0.0-alpha.8:
+    resolution: {integrity: sha512-90tDQ0Si5EOuBj1IWGg4o0prHt3H5xysZS/9z/m5TTC8xTKrDYAUQvbWiNVa9VXg/ED3ah6yDuQirXW+O6bTdA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -9852,12 +9862,6 @@ snapshots:
       '@sentry/core': 9.3.0
       vue: 3.5.13(typescript@5.7.3)
 
-  '@sentry/vue@9.3.0(vue@3.5.13(typescript@5.8.2))':
-    dependencies:
-      '@sentry/browser': 9.3.0
-      '@sentry/core': 9.3.0
-      vue: 3.5.13(typescript@5.8.2)
-
   '@shikijs/core@2.5.0':
     dependencies:
       '@shikijs/engine-javascript': 2.5.0
@@ -10143,7 +10147,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.13(typescript@5.7.3)
-      vue-component-type-helpers: 2.2.10
+      vue-component-type-helpers: 3.0.0-alpha.8
 
   '@stripe/stripe-js@3.5.0': {}
 
@@ -10165,6 +10169,8 @@ snapshots:
 
   '@tanstack/query-core@5.67.1': {}
 
+  '@tanstack/query-core@5.77.2': {}
+
   '@tanstack/virtual-core@3.13.2': {}
 
   '@tanstack/vue-query@5.67.1(vue@3.5.13(typescript@5.7.3))':
@@ -10175,10 +10181,10 @@ snapshots:
       vue: 3.5.13(typescript@5.7.3)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
 
-  '@tanstack/vue-query@5.67.1(vue@3.5.13(typescript@5.8.2))':
+  '@tanstack/vue-query@5.77.2(vue@3.5.13(typescript@5.8.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.67.1
+      '@tanstack/query-core': 5.77.2
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.8.2)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.8.2))
@@ -10489,14 +10495,6 @@ snapshots:
       eslint: 9.21.0(jiti@1.21.7)
     optionalDependencies:
       typescript: 5.7.3
-      vitest: 3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0)
-
-  '@vitest/eslint-plugin@1.1.36(@typescript-eslint/utils@8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2))(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0))':
-    dependencies:
-      '@typescript-eslint/utils': 8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.8.2)
-      eslint: 9.21.0(jiti@1.21.7)
-    optionalDependencies:
-      typescript: 5.8.2
       vitest: 3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(yaml@2.7.0)
 
   '@vitest/expect@2.0.5':
@@ -16278,9 +16276,9 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.3
 
-  vue-component-type-helpers@2.2.10: {}
-
   vue-component-type-helpers@2.2.8: {}
+
+  vue-component-type-helpers@3.0.0-alpha.8: {}
 
   vue-demi@0.14.10(vue@3.5.13(typescript@5.7.3)):
     dependencies:
