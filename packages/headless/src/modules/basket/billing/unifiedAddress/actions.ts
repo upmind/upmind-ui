@@ -17,27 +17,27 @@ export const useBillingDetailsActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: UnifiedAddressContext) =>
-        model?.details?.company?.companyName ||
-        model?.details?.address?.name ||
-        model?.details?.address?.address1 ||
+        model?.company?.companyName ||
+        model?.address?.name ||
+        model?.address?.address1 ||
         "Address",
       description: ({ model }: UnifiedAddressContext) => {
         const address = compact([
-          get(model, "details.address.address1"),
-          get(model, "details.address.address2"),
-          get(model, "details.address.street"),
-          get(model, "details.address.city"),
-          get(model, "details.address.postcode"),
-          get(model, "details.address.region.name"),
-          get(model, "details.address.country.name"),
+          get(model, "address.address1"),
+          get(model, "address.address2"),
+          get(model, "address.street"),
+          get(model, "address.city"),
+          get(model, "address.postcode"),
+          get(model, "address.region.name"),
+          get(model, "address.country.name"),
         ]).join(", ");
 
         const company = compact([
-          model?.details?.company?.regNumber
-            ? `Reg #: ${get(model, "details.company.regNumber")}`
+          model?.company?.regNumber
+            ? `Reg #: ${get(model, "company.regNumber")}`
             : null,
-          model?.details?.company?.vatNumber
-            ? `Tax #: ${get(model, "details.company.vatNumber")}`
+          model?.company?.vatNumber
+            ? `Tax #: ${get(model, "company.vatNumber")}`
             : null,
         ]).join(";");
 

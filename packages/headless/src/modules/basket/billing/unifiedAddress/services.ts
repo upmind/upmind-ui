@@ -39,6 +39,7 @@ import type {
 } from "../../../client";
 import type { AnyEventObject } from "xstate";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import { AddressType } from "./types";
 import { invalidateQueryByKey } from "../../../query";
 import { BrandConfigKeys } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -93,9 +94,9 @@ async function loadLookups({
       address1: "",
       countryId: country?.id,
       postcode: "",
-      type: 1,
+      type: AddressType.Personal,
     },
-    type: 0,
+    type: AddressType.Personal, // Schema level
   };
 
   const safeModel = useModelParser<UnifiedAddressModel>(
@@ -126,9 +127,7 @@ async function add(data: UnifiedAddressModel) {
   const { add: addAddress } = useClientAddressServices();
   const { add: addCompany } = useClientCompanyServices();
 
-  const companyData = data?.company;
-
-  if (!companyData) {
+  if (data?.type === AddressType.Personal) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
     if (data?.phone) {
       await ensurePhone(data);
@@ -144,10 +143,10 @@ async function add(data: UnifiedAddressModel) {
             emailId: email?.id,
             phoneId: phone?.id,
             addressId: address?.id,
-            name: companyData.companyName,
-            regNumber: companyData.regNumber,
-            vatNumber: companyData.vatNumber,
-            ...pick(companyData, ["vatPercent", "taxId", "businessType"]),
+            name: data?.company?.companyName,
+            regNumber: data?.company?.regNumber,
+            vatNumber: data?.company?.vatNumber,
+            ...pick(data?.company, ["vatPercent", "taxId", "businessType"]),
           },
         });
       })
@@ -159,9 +158,7 @@ async function update(id: string, data: UnifiedAddressModel) {
   const { update: updateAddress } = useClientAddressServices();
   const { update: updateCompany } = useClientCompanyServices();
 
-  const companyData = data?.company;
-
-  if (!companyData) {
+  if (data?.type === AddressType.Personal) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
     if (data?.phone) {
       await ensurePhone(data);
@@ -176,13 +173,13 @@ async function update(id: string, data: UnifiedAddressModel) {
         return updateCompany({
           id,
           model: {
-            name: companyData.companyName,
+            name: data?.company?.companyName,
             addressId: address?.id,
             emailId: email?.id,
             phoneId: phone?.id,
-            regNumber: companyData.regNumber,
-            vatNumber: companyData.vatNumber,
-            ...pick(companyData, ["vatPercent", "taxId", "businessType"]),
+            regNumber: data?.company?.regNumber,
+            vatNumber: data?.company?.vatNumber,
+            ...pick(data?.company, ["vatPercent", "taxId", "businessType"]),
           },
         }).then(() => {});
       })
@@ -249,15 +246,8 @@ async function parse(
     }
 
     // force the type as company if we have added company details
-    if (safeModel?.company) {
-      if (safeModel?.address) {
-        safeModel.address.type = 4; // company
-      }
-    }
-
-    // Clean up company fields if no company data
-    if (!safeModel?.company) {
-      // No cleanup needed for company since it doesn't exist
+    if (safeModel?.type === AddressType.Business && safeModel?.address) {
+      safeModel.address.type = AddressType.Business;
     }
   }
 
@@ -323,7 +313,6 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
   const addresses = useClientAddresses();
 
   // Include type field and set to company type if this is for a company
-  const isCompanyAddress = !!model?.company;
   const data = {
     ...pick(model?.address, [
       "address1",
@@ -334,8 +323,7 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
       "countryId",
       "type",
     ]),
-    // Force type to company (4) if this address is for a company
-    type: isCompanyAddress ? 4 : model?.address?.type || 1,
+    type: model.type,
   } as AddressModel;
 
   return new Promise<Address>((resolve, reject) => {
