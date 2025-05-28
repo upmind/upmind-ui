@@ -75,7 +75,8 @@ const updateModel = debounce(async (data: any) => {
 watch(selectedAddress, async address => {
   if (address) {
     await set({
-      details: { ...model.value.details, address },
+      ...model.value,
+      address,
     });
     setShowAddressFields(true);
   }

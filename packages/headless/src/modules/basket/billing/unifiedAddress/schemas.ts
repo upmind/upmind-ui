@@ -16,20 +16,16 @@ export const useSchema = ({
 }: UnifiedAddressContext) => {
   const schema = {
     type: "object",
-    properties: {
-      details: {
-        oneOf: [
-          {
-            title: "Personal",
-            $ref: "#/definitions/personal",
-          },
-          {
-            title: "Business",
-            $ref: "#/definitions/business",
-          },
-        ],
+    oneOf: [
+      {
+        title: "Personal",
+        $ref: "#/definitions/personal",
       },
-    },
+      {
+        title: "Business",
+        $ref: "#/definitions/business",
+      },
+    ],
     definitions: {
       company: {
         type: "object",
@@ -60,8 +56,8 @@ export const useSchema = ({
         type: "object",
         title: "Address",
         default: {
-          regionId: baseModel?.details?.address?.regionId,
-          countryId: baseModel?.details?.address?.countryId,
+          regionId: baseModel?.address?.regionId,
+          countryId: baseModel?.address?.countryId,
         },
         required: ["address1", "city", "postcode", "countryId"],
         properties: {
@@ -311,22 +307,16 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
   };
 
   const uiSchema = {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        label: "",
-        scope: "#/properties/details",
-        options: {
-          toggle: true,
-          detail: {
-            type: "VerticalLayout",
-            elements: [],
-          },
-          oneOfUiSchema: [personalUiSchema, businessUiSchema],
-        },
+    type: "Control",
+    scope: "#",
+    options: {
+      toggle: true,
+      detail: {
+        type: "VerticalLayout",
+        elements: [],
       },
-    ],
+      oneOfUiSchema: [personalUiSchema, businessUiSchema],
+    },
   };
 
   return uiSchema as UISchemaElement;
