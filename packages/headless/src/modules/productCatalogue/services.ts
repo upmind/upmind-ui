@@ -2,7 +2,7 @@
 import { useQuery, useQueryPaginated } from "../..";
 
 // --- utils
-import { parseProductDetails } from "../product/utils";
+import { parseProduct } from "./mappers";
 import { isNil, set, map } from "lodash-es";
 import { CacheIsStaleError } from "../../utils";
 
@@ -36,7 +36,7 @@ async function loadAll({ allowStale = true } = {}) {
     withAccessToken: true,
     revalidateIfStale: true,
     transformResponse: (response: any) =>
-      set(response, "data", map(response?.data ?? [], parseProductDetails)),
+      set(response, "data", map(response?.data ?? [], parseProduct)),
   }).then(({ data }) => data);
 }
 
@@ -61,7 +61,7 @@ async function loadPaged(
     allowStale,
     withAccessToken: true,
     transformResponse: (response: any) =>
-      set(response, "data", map(response?.data ?? [], parseProductDetails)),
+      set(response, "data", map(response?.data ?? [], parseProduct)),
     revalidateIfStale: true,
     ...paginationParams,
   }).then(({ data }) => data ?? []);
