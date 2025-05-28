@@ -71,6 +71,19 @@ const oneOfItems = computed((): TabItem[] => {
 
 const toggleTab = (value: any) => {
   selectedIndex.value = Number(value);
+
+  const newDefaults = createDefaultValue(
+    formData.value[selectedIndex.value].schema,
+    control.value.rootSchema
+  );
+
+  onInput(
+    {
+      ...control.value.data,
+      type: newDefaults.type,
+    },
+    false
+  );
 };
 
 const setDefaults = () => {
