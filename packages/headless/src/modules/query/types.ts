@@ -23,6 +23,9 @@ export interface RequestParams {
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
   transformResponse?: (response: unknown) => unknown;
+  mapPaginatedData?: (
+    response: unknown
+  ) => PaginatedData<unknown> | Promise<PaginatedData<unknown>>;
 }
 
 export interface QueryParams<T extends unknown>
@@ -45,6 +48,10 @@ export interface QueryResponse<T extends unknown = unknown> {
   status: number;
   errors: RequestError | null;
   messages: string | string[];
+  pagination?: {
+    limit: number;
+    offset: number;
+  };
 }
 
 export interface PaginatedData<T extends unknown> {

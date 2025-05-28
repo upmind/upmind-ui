@@ -42,6 +42,7 @@ export const useQuery = () => {
     init,
     withAccessToken,
     transformResponse,
+    mapPaginatedData,
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -68,10 +69,16 @@ export const useQuery = () => {
 
     return doFetch<T>({ url, init })
       .then(response => {
-        if (isFunction(transformResponse)) {
-          return transformResponse(response) as Promise<T>;
+        let parsedResponse: QueryResponse<T> = response;
+        if (isFunction(mapPaginatedData)) {
+          parsedResponse = mapPaginatedData(response);
         }
-        return response;
+
+        if (isFunction(transformResponse)) {
+          return transformResponse(parsedResponse) as Promise<T>;
+        }
+
+        return parsedResponse;
       })
       .catch(async error => {
         const requestError = error as RequestError;
@@ -113,6 +120,7 @@ export const useQuery = () => {
     allowStale = true,
     withAccessToken,
     transformResponse,
+    mapPaginatedData,
     ...options
   }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
     if (allowStale) {
@@ -127,6 +135,7 @@ export const useQuery = () => {
             init,
             withAccessToken,
             transformResponse,
+            mapPaginatedData,
           }),
         ...options,
       });
@@ -141,6 +150,7 @@ export const useQuery = () => {
           init,
           withAccessToken,
           transformResponse,
+          mapPaginatedData,
         }),
       ...options,
     });
