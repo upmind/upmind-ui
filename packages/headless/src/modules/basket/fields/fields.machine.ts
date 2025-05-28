@@ -23,17 +23,7 @@ export default createMachine(
     id: "basketFieldsManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      basketId: undefined,
-      fields: undefined,
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as FieldsContext,
+    context: {} as FieldsContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -232,12 +222,11 @@ export default createMachine(
       // },
 
       setFeedbackError: ({ error }: FieldsContext, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (!error || error?.status == responseCodes.Unprocessable_Entity)
+          return;
 
         addError({
-          title:
-            error?.title ||
-            "We experienced an error updating the basket fields",
+          title: "We experienced an error updating the basket fields",
           copy: error?.message,
           data: error?.data,
         });
@@ -246,7 +235,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: any) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -256,7 +245,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

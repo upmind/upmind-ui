@@ -42,6 +42,7 @@ import { omit } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
 import { GrantTypes } from "@upmind-automation/types";
+import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -61,7 +62,8 @@ export default createMachine(
           onError: {
             target: "error",
             actions: escalate(
-              (_context, { data }: AnyEventObject) => data?.error || data
+              (_context: GuestContext, { data }: AnyEventObject) =>
+                data?.error || data
             ),
           },
         },
@@ -306,7 +308,8 @@ export default createMachine(
   {
     actions: {
       setCustomFields: assign({
-        customFields: (_context, { data }: AnyEventObject) => data,
+        customFields: (_context: GuestContext, { data }: AnyEventObject) =>
+          data,
       }),
 
       setRegisterSchemas: assign({
@@ -321,57 +324,63 @@ export default createMachine(
       }),
 
       setLoginSchemas: assign({
-        schema: _context => useLoginSchemaParser(),
-        uischema: _context => useLoginUischemaParser(),
+        schema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useLoginSchemaParser(),
+        uischema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useLoginUischemaParser(),
         model: ({ model }: GuestContext) =>
           useLoginModelParser(model as LoginModel),
       }),
 
       set2faSchemas: assign({
-        schema: _context => use2faSchemaParser(),
-        uischema: _context => use2faUischemaParser(),
+        schema: (_context: GuestContext, { data }: AnyEventObject) =>
+          use2faSchemaParser(),
+        uischema: (_context: GuestContext, { data }: AnyEventObject) =>
+          use2faUischemaParser(),
         model: ({ model }: GuestContext) =>
           use2faModelParser(model as TWOFAModel),
       }),
 
       setRecoverSchemas: assign({
-        schema: _context => useRecoverSchemaParser(),
-        uischema: _context => useRecoverUischemaParser(),
+        schema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useRecoverSchemaParser(),
+        uischema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useRecoverUischemaParser(),
         model: ({ model }: GuestContext) =>
           useRecoverModelParser(model as RecoverModel),
       }),
 
       setModel: assign({
-        model: (_context, { data }: AnyEventObject) => data,
+        model: (_context: GuestContext, { data }: AnyEventObject) => data,
       }),
       set2faToken: assign({
-        token: (_context, { data }: AnyEventObject) => data,
+        token: (_context: GuestContext, { data }: AnyEventObject) => data,
       }),
 
-      setFeedbackSuccess: (_context: any, _event: any) => {
+      setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
         addSuccess("Thanks – reset instructions have been sent to your email.");
       },
 
-      setFeedbackError: ({ error }, _event) => {
+      setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {
         return;
         // DC: We have deprecated sending feedback for now...
-        // if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        // if (!error || error?.status == responseCodes.Unprocessable_Entity) return;
 
         // addError({
-        //   title: error?.title,
+        //   title: "We experienced an error authenticating",
         //   copy: error?.message,
         //   data: error?.data,
         // });
       },
 
-      pushRegister: _context => {
+      pushRegister: (_context: GuestContext, _event: AnyEventObject) => {
         dataLayer({ event: "sign_up" }).withUser().push(false);
       },
-      pushLogin: _context => {
+      pushLogin: (_context: GuestContext, _event: AnyEventObject) => {
         dataLayer({ event: "login" }).withUser().push(false);
       },
 
-      setActor: (_context, { data }: AnyEventObject) => {
+      setActor: (_context: GuestContext, { data }: AnyEventObject) => {
         setCookie(
           "upm_actor",
           omit(data?.analytics, ["environment", "language", "version"]),
@@ -384,37 +393,35 @@ export default createMachine(
       // ---
 
       setError: assign({
-        error: (_context, event: any) => {
+        error: (_context: GuestContext, { data }: AnyEventObject) => {
           // console.error("session", "client", "error", { event, state });
 
-          const data: any = event?.data;
-
-          if (data?.error?.code == responseCodes.Unauthorized) {
+          if (data?.status == responseCodes.Unauthorized) {
             // Usually because the refresh token has expired.
             return {
-              code: responseCodes.Unauthorized,
-              message: data.error.message || "Unauthorized",
-            };
+              type: responseCodes.Unauthorized,
+              message: data?.error?.message || "Unauthorized",
+            } as ResponseError;
           }
-          if (data?.error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(data?.error);
           }
 
-          return data?.error || data || event?.error || event || null;
+          return data?.error ?? data;
         },
       }),
 
       clearError: assign({ error: undefined }),
     },
     guards: {
-      requires2fa: (_context, { data }: any) => {
+      requires2fa: (_context: GuestContext, { data }: any) => {
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
       },
-      requiresReCaptcha: (_context, { data }: any) =>
+      requiresReCaptcha: (_context: GuestContext, { data }: any) =>
         !!data?.recaptcha_required,
     },
 

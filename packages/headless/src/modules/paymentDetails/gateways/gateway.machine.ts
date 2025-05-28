@@ -15,6 +15,8 @@ import { useSchema, useUischema } from "./utils";
 // --- types
 import type { GatewayContext } from "./types";
 import { responseCodes } from "../../../utils";
+import { ResponseError } from "src/modules/query";
+import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -209,10 +211,14 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: GatewayContext, _event: AnyEventObject) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (
+          !error ||
+          isArray(error) ||
+          error?.status == responseCodes.Unprocessable_Entity
+        )
+          return;
         addError({
-          title:
-            error?.title || "We experienced an error processing your payment",
+          title: "We experienced an error processing your payment",
           copy: error?.message,
           data: error?.data,
         });
@@ -221,7 +227,7 @@ export default createMachine(
       setError: assign({
         error: (_context: GatewayContext, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -231,7 +237,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

@@ -38,6 +38,7 @@ import {
 // --- types
 import type { AnyEventObject, ActorRef } from "xstate";
 import type { BasketContext } from "./types";
+import type { Response } from "../query/types";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 import { PaymentContext } from "../payment";
 
@@ -84,7 +85,7 @@ export default createMachine(
                 },
                 {
                   target: "#error",
-                  actions: ["setError", "setFeedbackError"],
+                  actions: ["setError"],
                 },
               ],
             },
@@ -530,18 +531,15 @@ export default createMachine(
       setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
         if (
           !error ||
-          error?.code == responseCodes.Unprocessable_Entity ||
-          error?.code == responseCodes.Unauthorized
+          error?.status == responseCodes.Unprocessable_Entity ||
+          error?.status == responseCodes.Unauthorized
         ) {
           return;
         }
 
         addError({
-          title:
-            error?.title ??
-            error?.message ??
-            "We experienced an error with the basket",
-          copy: error?.title ? error?.message : undefined,
+          title: "We experienced an error with the basket",
+          copy: error?.message ?? undefined,
           data: error,
         });
       },
@@ -557,7 +555,7 @@ export default createMachine(
 
     guards: {
       hasAuthError: (_context: BasketContext, { data }: AnyEventObject) => {
-        return data?.error?.code == responseCodes.Unauthorized;
+        return data?.status == responseCodes.Unauthorized;
       },
 
       hasNewBasket: ({ basket }: BasketContext, { data }: AnyEventObject) =>

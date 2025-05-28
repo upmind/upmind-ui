@@ -24,6 +24,7 @@ import {
   isEmpty,
   isEqual,
   isNil,
+  isObject,
   merge,
   omitBy,
   pick,
@@ -37,7 +38,12 @@ import { calculateSubscription } from "./services";
 // ---types
 import type { AnyEventObject } from "xstate";
 import type { BasketProduct } from "../basketProduct";
-import type { PriceDisplay, ProductConfigContext, ProductModel } from "./types";
+import type {
+  ExternalError,
+  PriceDisplay,
+  ProductConfigContext,
+  ProductModel,
+} from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -434,12 +440,15 @@ export default createMachine(
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
           forEach(data.model.provisionFields, (field, key) => {
-            if (!isEmpty(field) || !isNil(field)) {
-              remove(error.provisionFields, ["schemaPath", key]);
+            if (
+              !isEmpty(field) ||
+              (!isNil(field) && isObject(error) && "provisionFields" in error)
+            ) {
+              remove((error as any).provisionFields, ["schemaPath", key]);
             }
           });
 
-          return omitBy(error, isEmpty);
+          return omitBy(error, isEmpty) as ExternalError;
         },
         errorExternal: (
           { errorExternal }: ProductConfigContext,
@@ -449,12 +458,20 @@ export default createMachine(
           // For any dirty/hydrated field, remove any external error to allow for normal validation
           // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
           forEach(data.model.provisionFields, (field, key) => {
-            if (!isEmpty(field) || !isNil(field)) {
-              remove(errorExternal?.provisionFields, ["schemaPath", key]);
+            if (
+              !isEmpty(field) ||
+              (!isNil(field) &&
+                isObject(errorExternal) &&
+                "provisionFields" in errorExternal)
+            ) {
+              remove((errorExternal as any).provisionFields, [
+                "schemaPath",
+                key,
+              ]);
             }
           });
 
-          return omitBy(errorExternal, isEmpty);
+          return omitBy(errorExternal, isEmpty) as ExternalError;
         },
       }),
 

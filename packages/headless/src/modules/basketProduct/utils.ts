@@ -58,6 +58,7 @@ import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
   PriceDetail,
+  ExternalError,
 } from "../product/types";
 
 // -----------------------------------------------------------------------------
@@ -272,7 +273,7 @@ export function parseTermSummary(
 export function parseProvisionFieldSummary(
   key: string,
   data: any,
-  hasError?: any
+  error?: ExternalError["provisionFields"]
 ): ProductSummaryDetail {
   const title = get(data, key, data); // just in case its an object > unti lwe have types
 
@@ -281,7 +282,7 @@ export function parseProvisionFieldSummary(
     category: key,
     title,
     meta: {
-      invalid: hasError,
+      invalid: !!error,
     },
   };
 }

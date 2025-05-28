@@ -60,6 +60,7 @@ import type {
 } from "@upmind-automation/types";
 
 import type {
+  ExternalError,
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
@@ -906,27 +907,27 @@ export const parseProduct = (
   const termDetails = parseSummaryTerm(
     model.term ?? 0,
     lookups.terms ?? [],
-    error?.term
+    (error as ExternalError)?.term
   );
 
   const optionDetails = parseSummarySubproduct(
     "option",
     model.options,
     lookups.options,
-    error?.options
+    (error as ExternalError)?.options
   );
 
   const attributeDetail = parseSummarySubproduct(
     "attribute",
     model.attributes,
     lookups.attributes,
-    error?.attributes
+    (error as ExternalError)?.attributes
   );
 
   const provisionFieldDetails = parseSummaryProvisionFields(
     model.provisionFields,
     lookups.provisionFields,
-    error?.provisionFields
+    (error as ExternalError)?.provisionFields
   );
 
   // ---------------------------------------------------------------------------
@@ -947,14 +948,14 @@ export const parseProduct = (
         provisionFieldDetails
       )
     ),
-    errors: omitBy(error, isEmpty),
+    errors: omitBy(error, isEmpty) as ExternalError,
   };
 };
 
 const parseSummaryTerm = (
   cycle: number,
   terms: TermDetails[],
-  error?: any
+  error?: ExternalError["term"]
 ): TermDetails | undefined => {
   const term = find(terms, ["cycle", cycle]);
   if (term) {
@@ -974,7 +975,7 @@ const parseSummarySubproduct = (
   key: string,
   data: ProductModel["options"],
   lookup?: SubproductDetails[],
-  error?: any
+  error?: ExternalError["options" | "attributes"]
 ): (ProductSummaryDetail | ProductSummaryDetailWithPrice)[] => {
   return reduce(
     data,
@@ -1027,7 +1028,7 @@ const parseSummarySubproduct = (
 const parseSummaryProvisionFields = (
   data: any,
   schema: any,
-  error?: any
+  error?: ExternalError["provisionFields"]
 ): ProductSummaryDetail[] => {
   return reduce(
     schema?.properties,

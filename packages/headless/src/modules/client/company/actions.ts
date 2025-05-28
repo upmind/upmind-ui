@@ -26,7 +26,7 @@ export const ListingActions = {
         const found = find(raw, ["id", item.id]);
         return found || spawnItem(item);
       }) as ActorRef<any>[],
-    error: null,
+    error: undefined,
   }),
 };
 

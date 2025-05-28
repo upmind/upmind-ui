@@ -324,7 +324,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
     guards: {
       isNotProcessing: ({ raw }) => {
