@@ -69,10 +69,9 @@ async function loadPaged(
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedProductes =
-    queryClient.getQueryData<QueryResponse<Product[]>>(queryKey);
-  if (isNil(cachedProductes)) throw new CacheIsStaleError();
-  return cachedProductes.data;
+  const cached = queryClient.getQueryData<QueryResponse<Product[]>>(queryKey);
+  if (isNil(cached)) throw new CacheIsStaleError();
+  return cached.data;
 }
 
 // -----------------------------------------------------------------------------
