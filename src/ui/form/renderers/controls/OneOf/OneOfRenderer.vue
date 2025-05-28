@@ -1,6 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Tabs
+      v-if="oneOfItems.length > 1"
       :tabs="oneOfItems"
       :value="String(selectedIndex)"
       :defaultValue="String(selectedIndex)"
