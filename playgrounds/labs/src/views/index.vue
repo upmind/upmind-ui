@@ -107,14 +107,12 @@
 
 <script lang="ts" setup>
 // --- external
-
-// --- internal
+import { useRouter } from "vue-router";
 
 // --- components
-// import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button, Icon } from "@upmind-automation/upmind-ui";
 import { UpmContentSection } from "@upmind-automation/client-vue";
 
-// --- types
-
+const router = useRouter();
 // -----------------------------------------------------------------------------
 </script>
