@@ -8,6 +8,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/products-catalogue",
     name: "products.catalogue",
+    alias: "/products",
     component: ProductsCatalogue,
     meta: {
       title: "Products Catalogue",

@@ -1,6 +1,7 @@
-import { VueQueryPlugin, QueryClient } from "@tanstack/vue-query";
+import { VueQueryPlugin } from "@tanstack/vue-query";
 
-import { useUpmind } from "@upmind-automation/headless";
+import { useUpmind, useQuery } from "@upmind-automation/headless";
+const { queryClient } = useQuery();
 
 import {
   useBrand,
@@ -76,7 +77,7 @@ class Upmind {
     this.plugins.vueQuery = {
       plugin: VueQueryPlugin,
       options: {
-        queryClient: new QueryClient(),
+        queryClient,
         enableDevtoolsV6Plugin: true,
       },
     };
