@@ -132,8 +132,11 @@ async function add(data: UnifiedAddressModel) {
   const companyData = data?.details?.company;
 
   if (!companyData) {
-    const addressData = await prepareAddressData(data);
-    return addAddress({ model: addressData }).then(() =>
+    // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
+    if (data?.details?.phone) {
+      await ensurePhone(data);
+    }
+    return addAddress({ model: data.details.address }).then(() =>
       useBillingDetailsServices().invalidate()
     );
   } else {
@@ -162,8 +165,12 @@ async function update(id: string, data: UnifiedAddressModel) {
   const companyData = data?.details?.company;
 
   if (!companyData) {
-    const addressData = await prepareAddressData(data);
-    return updateAddress({ id, model: addressData }).then(() =>
+    // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
+    if (data?.details?.phone) {
+      await ensurePhone(data);
+    }
+
+    return updateAddress({ id, model: data.details.address }).then(() =>
       useBillingDetailsServices().invalidate()
     );
   } else {
@@ -225,8 +232,7 @@ async function parse(
     }
 
     // now lets check our phone number
-    // Handle phone for address (not company)
-    if (data?.phone && safeModel?.details?.address) {
+    if (data?.phone) {
       const phoneNumber = isString(data?.phone)
         ? data?.phone
         : data?.phone?.number || data?.phone?.nationalNumber || "";
@@ -235,8 +241,7 @@ async function parse(
         data?.phone?.country || data?.phoneCountryCode || country?.code;
       const phone = parsePhoneNumber(phoneNumber, countryCode) || undefined;
 
-      // now map the phone number to the address model in the correct format with fallbacks
-      safeModel.details.address.phone = phone
+      safeModel.details.phone = phone
         ? {
             number: phone?.number || "",
             nationalNumber: phone?.nationalNumber || "",
@@ -302,8 +307,7 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
 async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
   const phones = useClientPhones();
 
-  // Pick phone from address (not company) since that's where it's stored in the model
-  const data = pick(model?.details?.address, ["phone"]) as PhoneModel;
+  const data = pick(model?.details, ["phone"]) as PhoneModel;
 
   return new Promise<Phone>((resolve, reject) => {
     const found = phones.findOne(data);
@@ -376,21 +380,6 @@ async function ensureDependencies({
     ensurePhone(model),
     ensureAddress(model),
   ]).then(([email, phone, address]) => ({ email, phone, address }));
-}
-
-async function prepareAddressData(data: UnifiedAddressModel) {
-  const addressData = data?.details?.address;
-
-  if (addressData?.phone) {
-    const phone = await ensurePhone(data);
-    return {
-      ...addressData,
-      phoneId: phone.id,
-      phone: undefined,
-    };
-  }
-
-  return addressData;
 }
 
 export default {
