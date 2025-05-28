@@ -32,11 +32,10 @@ export type UnifiedAddress = UnifiedAddressModel & {
 };
 
 export type UnifiedAddressModel = {
-  details: {
-    address?: AddressModel;
-    company?: CompanyDetailsModel;
-    phone?: PhoneModel["phone"];
-  };
+  address?: AddressModel;
+  company?: CompanyDetailsModel;
+  phone?: PhoneModel["phone"];
+  type: number;
 };
 
 export type CompanyDetailsModel = Omit<

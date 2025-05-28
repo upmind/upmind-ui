@@ -80,25 +80,22 @@ async function loadLookups({
     ]),
   ]);
 
-  const country = getCountry(model?.details?.address?.countryId);
-  const regions = await fetchRegions(
-    model?.details?.address?.countryId || country?.id
-  );
+  const country = getCountry(model?.address?.countryId);
+  const regions = await fetchRegions(model?.address?.countryId || country?.id);
 
   if (!countries || !regions) {
     return Promise.reject("Failed to load countries and regions");
   }
 
   const baseModel: UnifiedAddressModel = {
-    details: {
-      address: {
-        city: "",
-        address1: "",
-        countryId: country?.id,
-        postcode: "",
-        type: first(AddressTypes)?.key || 1,
-      },
+    address: {
+      city: "",
+      address1: "",
+      countryId: country?.id,
+      postcode: "",
+      type: 1,
     },
+    type: 0,
   };
 
   const safeModel = useModelParser<UnifiedAddressModel>(
@@ -129,14 +126,14 @@ async function add(data: UnifiedAddressModel) {
   const { add: addAddress } = useClientAddressServices();
   const { add: addCompany } = useClientCompanyServices();
 
-  const companyData = data?.details?.company;
+  const companyData = data?.company;
 
   if (!companyData) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
-    if (data?.details?.phone) {
+    if (data?.phone) {
       await ensurePhone(data);
     }
-    return addAddress({ model: data.details.address }).then(() =>
+    return addAddress({ model: data.address }).then(() =>
       useBillingDetailsServices().invalidate()
     );
   } else {
@@ -162,15 +159,15 @@ async function update(id: string, data: UnifiedAddressModel) {
   const { update: updateAddress } = useClientAddressServices();
   const { update: updateCompany } = useClientCompanyServices();
 
-  const companyData = data?.details?.company;
+  const companyData = data?.company;
 
   if (!companyData) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
-    if (data?.details?.phone) {
+    if (data?.phone) {
       await ensurePhone(data);
     }
 
-    return updateAddress({ id, model: data.details.address }).then(() =>
+    return updateAddress({ id, model: data.address }).then(() =>
       useBillingDetailsServices().invalidate()
     );
   } else {
@@ -217,7 +214,7 @@ async function parse(
     // if so, then we need to fetch the regions for the new country
     // AND update our 'default' country to match the country from the address
     // this will in turn update the phone schema to match the country
-    const addressCountryId = safeModel?.details?.address?.countryId;
+    const addressCountryId = safeModel?.address?.countryId;
     if (!some(regions, ["countryId", addressCountryId]))
       regions = await fetchRegions(addressCountryId);
 
@@ -225,10 +222,10 @@ async function parse(
     // if so, then we need to update the model with the new region id
     // otherwise the region_id is reset to null
     country = getCountry(addressCountryId);
-    const region = find(regions, ["id", safeModel?.details?.address?.regionId]);
+    const region = find(regions, ["id", safeModel?.address?.regionId]);
 
-    if (safeModel?.details?.address) {
-      safeModel.details.address.regionId = get(region, "id");
+    if (safeModel?.address) {
+      safeModel.address.regionId = get(region, "id");
     }
 
     // now lets check our phone number
@@ -241,7 +238,7 @@ async function parse(
         data?.phone?.country || data?.phoneCountryCode || country?.code;
       const phone = parsePhoneNumber(phoneNumber, countryCode) || undefined;
 
-      safeModel.details.phone = phone
+      safeModel.phone = phone
         ? {
             number: phone?.number || "",
             nationalNumber: phone?.nationalNumber || "",
@@ -252,14 +249,14 @@ async function parse(
     }
 
     // force the type as company if we have added company details
-    if (safeModel?.details?.company) {
-      if (safeModel?.details?.address) {
-        safeModel.details.address.type = 4; // company
+    if (safeModel?.company) {
+      if (safeModel?.address) {
+        safeModel.address.type = 4; // company
       }
     }
 
     // Clean up company fields if no company data
-    if (!safeModel?.details?.company) {
+    if (!safeModel?.company) {
       // No cleanup needed for company since it doesn't exist
     }
   }
@@ -287,7 +284,7 @@ async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
 async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
   const emails = useClientEmails();
 
-  const data = pick(model?.details?.company, ["email"]) as EmailModel;
+  const data = pick(model?.company, ["email"]) as EmailModel;
 
   return new Promise<Email>((resolve, reject) => {
     const found = emails.findOne(data);
@@ -295,7 +292,7 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
   }).catch(async () => {
     const { add, refresh } = useClientEmailServices();
     return add({
-      model: { ...data, name: model?.details?.address?.name },
+      model: { ...data, name: model?.address?.name },
     }).then(item => {
       // NB: Remember to refresh our machines so we have the new data
       refresh();
@@ -307,7 +304,7 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
 async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
   const phones = useClientPhones();
 
-  const data = pick(model?.details, ["phone"]) as PhoneModel;
+  const data = pick(model, ["phone"]) as PhoneModel;
 
   return new Promise<Phone>((resolve, reject) => {
     const found = phones.findOne(data);
@@ -326,9 +323,9 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
   const addresses = useClientAddresses();
 
   // Include type field and set to company type if this is for a company
-  const isCompanyAddress = !!model?.details?.company;
+  const isCompanyAddress = !!model?.company;
   const data = {
-    ...pick(model?.details?.address, [
+    ...pick(model?.address, [
       "address1",
       "address2",
       "city",
@@ -338,7 +335,7 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
       "type",
     ]),
     // Force type to company (4) if this address is for a company
-    type: isCompanyAddress ? 4 : model?.details?.address?.type || 1,
+    type: isCompanyAddress ? 4 : model?.address?.type || 1,
   } as AddressModel;
 
   return new Promise<Address>((resolve, reject) => {
@@ -347,7 +344,7 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
   }).catch(async () => {
     const { add, refresh } = useClientAddressServices();
     return add({
-      model: { ...data, name: model?.details?.address?.name },
+      model: { ...data, name: model?.address?.name },
     }).then(item => {
       // NB: Remember to refresh our machines so we have the new data
       refresh();
