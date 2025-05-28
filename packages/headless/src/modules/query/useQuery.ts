@@ -41,8 +41,8 @@ export const useQuery = () => {
     url,
     init,
     withAccessToken,
-    transformResponse,
     mapPaginatedData,
+    transformResponse,
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -69,7 +69,7 @@ export const useQuery = () => {
 
     return doFetch<T>({ url, init })
       .then(response => {
-        let parsedResponse: QueryResponse<T> = response;
+        let parsedResponse = response;
         if (isFunction(mapPaginatedData)) {
           parsedResponse = mapPaginatedData(response);
         }
@@ -110,6 +110,8 @@ export const useQuery = () => {
    * @param init The request options.
    * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
    * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param mapPaginatedData A function to map the paginated data returned from the server. This is useful for transforming the data into a format that is easier to work with.
+   * @param transformResponse A function to transform the response data returned from the server. This is useful for transforming the data into a format that is easier to work with.
    * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
@@ -119,8 +121,8 @@ export const useQuery = () => {
     init,
     allowStale = true,
     withAccessToken,
-    transformResponse,
     mapPaginatedData,
+    transformResponse,
     ...options
   }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
     if (allowStale) {
@@ -134,8 +136,8 @@ export const useQuery = () => {
             url,
             init,
             withAccessToken,
-            transformResponse,
             mapPaginatedData,
+            transformResponse,
           }),
         ...options,
       });

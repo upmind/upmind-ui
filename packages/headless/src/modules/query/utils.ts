@@ -16,7 +16,7 @@ import {
 } from "lodash-es";
 
 // ---types
-import { RequestError } from "./types";
+import { type PaginatedParams, RequestError } from "./types";
 
 // --- constants
 export const PAGINATION = {
@@ -148,4 +148,41 @@ export function canRetryAuthorization(
   //   canAuthorize: value
   // });
   return value;
+}
+
+/**
+ * Builds a dynamic query key based on the provided query key and pagination parameters.
+ *
+ * @param {Object} params - The parameters for building the query key.
+ * @param {QueryKey} params.queryKey - The base query key to be extended dynamically.
+ * @param {PaginatedParams} params.paginatedParams - The parameters containing sort, filters, and pagination details.
+ * @return {QueryKey} Returns the updated query key with appended dynamic parameters like sort, filters, and pagination.
+ */
+export function buildDynamicQueryKey({
+  queryKey,
+  paginatedParams,
+}: {
+  queryKey: QueryKey;
+  paginatedParams: PaginatedParams;
+}): QueryKey {
+  const { sort, filters, pagination } = paginatedParams;
+
+  const url = new URL(window.location.toString());
+
+  return [
+    ...queryKey,
+    {
+      ...(sort ? { sort: sort.toString() } : {}),
+      ...(filters && {
+        filters: filters
+          .reduce((_url, filter) => filter(_url), url)
+          .searchParams.toString()
+          .split("&"),
+      }),
+      pagination: {
+        limit: pagination?.limit ?? PAGINATION.pageSize,
+        offset: pagination?.offset ?? PAGINATION.offset,
+      },
+    },
+  ];
 }
