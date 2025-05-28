@@ -5,23 +5,28 @@ import {
   useQuerySubscription,
 } from "../query";
 import service from "./services";
-import { useTime } from "../../utils";
 
 // --- utils
+import { useTime } from "../../utils";
 import { find, filter, includes, isString, every, get } from "lodash-es";
 
 // --- types
-import type { Product } from "../product/types";
+import type { Product } from "../product";
 import type { PaginatedParams } from "../query";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 let observer: QueryObserver | undefined;
 
 /**
- * Subscribe to the client address query that are present in the cache.
- * This will trigger the callback function when the query is ready/updated.
- * @param callback The callback function to be called when the query is ready/updated.
- * @returns The unsubscribe function
+ * Subscribes to a query change event and attaches a callback function to handle updates.
+ *
+ * This method ensures a query observer is created if it does not already exist and uses it to monitor changes
+ * in the associated query. The provided callback function will be invoked whenever the specified query emits
+ * an update event.
+ *
+ * @param {function} callback - A function that will be called whenever the observed query updates. The callback
+ *                              receives the updated query as its argument.
+ * @returns {QueryObserver} - The observer instance that is used to monitor the query.
  */
 const subscribe = (
   callback: (query: QueryCacheNotifyEvent["query"]) => void
@@ -32,54 +37,55 @@ const subscribe = (
   return observer;
 };
 
+/**
+ * A function that provides access to and operations on the product catalogue.
+ * @function useProductCatalogue
+ */
 export const useProductCatalogue = () => {
-  /**
-   * Check if the client items are loaded and ready.
-   * @returns A promise that resolves to true when the items are ready to be fetched.
-   * @example isReady().then(getAll).then(() => console.log("Products are ready!"))
-   */
   async function isReady(): Promise<void> {
     return Promise.resolve();
   }
 
   /**
-   * Get all the items for the current client.
-   * @param allowStale Whether to allow stale data. Defaults to true.
-   * @returns An array of parsed items if found, otherwise an empty array.
-   * @example getAll().then(items => console.log(items))
+   * Retrieves all available data by invoking the service layer.
+   *
+   * @param {Object} [options={}] - Optional configuration object.
+   * @param {boolean} [options.allowStale=true] - Flag indicating whether stale data is allowed.
+   * @return {Promise<Product[]>} A promise that resolves with the retrieved data.
    */
-  async function getAll({ allowStale = true } = {}) {
+  async function getAll({ allowStale = true } = {}): Promise<Product[]> {
     return service.loadAll({ allowStale });
   }
 
   /**
-   * Get all the items from the cache.
-   * @returns An array of parsed items if found, otherwise an empty array.
-   * @example getAllFromCache().then((items) => console.log(items))
-   * @throws {@link CacheIsStaleError} when the cache is stale
+   * Retrieves all products from the cache.
+   *
+   * @return {Product[]} An array of Product objects retrieved from the cache.
    */
-  function getAllFromCache() {
+  function getAllFromCache(): Product[] {
     return service.loadAllFromCache();
   }
 
   /**
-   * Get a single address by id.
-   * @param id The id of the address to get.
-   * @returns The address object if found, otherwise undefined.
-   * @example getOne("123").then((address) => console.log(address))
+   * Retrieves a single product by its unique identifier.
+   *
+   * @param {Product["id"]} id - The unique identifier of the product to retrieve.
+   * @return {Product | undefined} The product matching the provided identifier if found, otherwise undefined.
    */
-  function getOne(id: Product["id"]) {
+  function getOne(id: Product["id"]): Product | undefined {
     const items = getAllFromCache();
     return find(items, ["id", id]);
   }
 
   /**
-   * Find a single address based on the given param. The param is matched against the title and description.
-   * @param mapping The filter to match against the address title and description.
-   * @returns The address object if found, otherwise undefined.
-   * @example findOne("home").then((address) => console.log(address))
+   * Searches for a single product that matches the provided mapping criteria.
+   *
+   * @param {string | Partial<Product>} mapping - A string to search within product details
+   * (title, description, or excerpt), or a partial product object specifying criteria
+   * (e.g., `id` or other product properties).
+   * @return {Product | undefined} The first matching product if found, otherwise undefined.
    */
-  function findOne(mapping: string | Partial<Product>) {
+  function findOne(mapping: string | Partial<Product>): Product | undefined {
     const items = getAllFromCache();
     if (isString(mapping)) {
       return find(
@@ -112,26 +118,27 @@ export const useProductCatalogue = () => {
   }
 
   /**
-   * Get items in a paged format.
-   * @param paginationParams The pagination parameters to use.
-   * @param allowStale Whether to allow stale data. Defaults to true.
-   * @returns A promise that resolves to an object containing the items and pagination details.
-   * @example getPaged({ limit: 10, offset: 0 }) // returns the first 10 items if 10 items are available
+   * Retrieves a paginated list of products based on the provided pagination parameters.
+   *
+   * @param {PaginatedParams} paginationParams - The parameters to control pagination such as page number, size, and filters.
+   * @param {Object} [options] - Optional settings for retrieving the paginated data.
+   * @param {boolean} [options.allowStale=true] - Whether to allow stale data to be returned.
+   * @return {Promise<Product[]>} A promise that resolves to an array of products for the requested page.
    */
   async function getPaged(
     paginationParams: PaginatedParams,
-    { allowStale = true } = {}
-  ) {
+    { allowStale = true }: { allowStale?: boolean } = {}
+  ): Promise<Product[]> {
     return service.loadPaged(paginationParams, { allowStale });
   }
 
   /**
-   * Filters the items by name or description.
-   * @param param The filter string to filter the items with.
-   * @returns An array of items that match the filter.
-   * @example filter("home").then((items) => console.log(items))
+   * Filters a list of products based on a given search parameter.
+   *
+   * @param {string} param - The search keyword used to filter products. Case-insensitive.
+   * @return {Product[]} - An array of products that match the given search parameter.
    */
-  function filterProducts(param: string) {
+  function filterProducts(param: string): Product[] {
     const items = getAllFromCache();
     return filter(
       items,
@@ -159,6 +166,7 @@ export const useProductCatalogue = () => {
     },
     subscribe,
     isReady,
+    // getAll,
     getOne,
     filter: filterProducts,
     findOne,
