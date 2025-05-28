@@ -1,5 +1,5 @@
 // --- utils
-import { get, map } from "lodash-es";
+import { get, map, property } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../../../client";
@@ -132,6 +132,10 @@ export const useSchema = ({
         additionalProperties: false,
         required: ["address"],
         properties: {
+          type: {
+            type: "number",
+            default: 1,
+          },
           address: {
             $ref: "#/definitions/address",
           },
@@ -141,8 +145,13 @@ export const useSchema = ({
         },
       },
       business: {
+        type: "object",
         required: ["company", "address"],
         properties: {
+          type: {
+            type: "number",
+            default: 4,
+          },
           company: {
             $ref: "#/definitions/company",
           },
@@ -162,9 +171,9 @@ export const useSchema = ({
     schema.definitions.business.required.push("phone");
   }
 
-  // if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-  //   schema.definitions.address.required.push("regionId");
-  // }
+  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+    schema.definitions.address.required.push("regionId");
+  }
 
   return schema as JsonSchema;
 };
@@ -311,10 +320,6 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
     scope: "#",
     options: {
       toggle: true,
-      detail: {
-        type: "VerticalLayout",
-        elements: [],
-      },
       oneOfUiSchema: [personalUiSchema, businessUiSchema],
     },
   };
