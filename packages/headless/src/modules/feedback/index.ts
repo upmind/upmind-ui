@@ -12,13 +12,15 @@ import { get, isString } from "lodash-es";
 import { messageTypes } from "./types";
 import { messageDisplays, type Message } from "./types";
 
+export * from "./types";
+
 // -----------------------------------------------------------------------------
 // create a global instance of the feedback machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(feedbackMachine, { devTools: false });
+const service = interpret(feedbackMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
@@ -45,6 +47,7 @@ export const useFeedback = () => {
 
     return add({
       type: messageTypes.ERROR,
+      i18nKey: message?.i18nKey,
       title: message?.title,
       subtitle: message?.subtitle,
       copy: isString(message) ? message : message?.copy,
@@ -65,6 +68,7 @@ export const useFeedback = () => {
 
     return add({
       type: messageTypes.SUCCESS,
+      i18nKey: message?.i18nKey,
       title: message?.title,
       subtitle: message?.subtitle,
       copy: isString(message) ? message : message?.copy,

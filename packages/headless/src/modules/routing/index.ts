@@ -16,6 +16,7 @@ export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 import type { InterpreterFrom } from "xstate";
 import type { ROUTE, Flow, Route, Target } from "./types";
 import { isEmpty, get, some } from "lodash-es";
+import { ResponseError } from "../query";
 export type RouteQueryParams = typeof useRouteQueryParams;
 
 // -----------------------------------------------------------------------------
@@ -66,6 +67,10 @@ export const useRoutingEngine = () => {
       const state = service.getSnapshot();
       const currentRoute = get(state, "context.currentRoute");
       return currentRoute;
+    },
+    getErrors: (): ResponseError | undefined => {
+      const state = service.getSnapshot();
+      return get(state, "context.error", undefined) as ResponseError;
     },
     // --- methods
     register: (flows: Flow[]) => {

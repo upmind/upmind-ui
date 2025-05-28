@@ -31,32 +31,5 @@ export default {
         },
       }
     ),
-
-    transitions: {
-      banner: {
-        enter: {
-          active: cva("m-0 transition duration-300 ease-out"),
-          from: cva("-translate-y-10 transform opacity-0"),
-          to: cva("translate-y-0 transform opacity-100"),
-        },
-        leave: {
-          active: cva("absolute transition duration-100 ease-in"),
-          from: cva("translate-y-0 transform opacity-100"),
-          to: cva("-translate-y-1 transform opacity-0"),
-        },
-      },
-      toast: {
-        enter: {
-          active: cva("m-0 transition duration-300 ease-out"),
-          from: cva("translate-y-10 transform opacity-0"),
-          to: cva("translate-y-0 transform opacity-100"),
-        },
-        leave: {
-          active: cva("transition duration-100 ease-in"),
-          from: cva("translate-y-0 transform opacity-100"),
-          to: cva("translate-y-10 transform opacity-0"),
-        },
-      },
-    },
   },
 };

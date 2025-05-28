@@ -2,7 +2,6 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-// import type { RequestError } from "../..//api/types";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 import type { ClientItemContext, ClientListingsContext } from "../types";
 // -----------------------------------------------------------------------------

@@ -22,6 +22,7 @@ import { isFunction } from "lodash-es";
 import type { StripeContext } from "./types";
 import { GatewayCtx } from "../types";
 import { responseCodes } from "../../../../utils";
+import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -30,20 +31,7 @@ export default createMachine(
     id: "stripePaymentManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      orderId: undefined,
-      currency: undefined,
-      gateway: undefined,
-      amount: undefined,
-      address: undefined,
-      renderless: false, // stripe is not renderless
-      // ---
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      error: null,
-    } as StripeContext,
+    context: {} as StripeContext,
     states: {
       loading: {
         id: "loading",
@@ -347,11 +335,15 @@ export default createMachine(
 
       // ---
       setFeedbackError: ({ error }: StripeContext, _event: AnyEventObject) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (
+          !error ||
+          isArray(error) ||
+          error?.status == responseCodes.Unprocessable_Entity ||
+          error.code == responseCodes.Unprocessable_Entity
+        )
+          return;
         addError({
-          title:
-            error?.title ||
-            "We experienced an error processing your payment details",
+          title: "We experienced an error processing your payment details",
           copy: error?.message,
           data: error?.data,
         });
@@ -362,7 +354,7 @@ export default createMachine(
       setError: assign({
         error: (_context: StripeContext, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -383,7 +375,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

@@ -10,7 +10,7 @@ import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 import { get, set, unset, isString } from "lodash-es";
 
 // --- types
-import { QueryParams, RequestError, RequestParams } from "./types";
+import { QueryParams, ResponseError, RequestParams } from "./types";
 import { Methods } from "@upmind-automation/types";
 
 const queryClient = getQueryClient();
@@ -62,7 +62,7 @@ export const useQuery = () => {
     }
 
     return await doFetch<T>({ url, init }).catch(async error => {
-      const requestError = error as RequestError;
+      const requestError = error as ResponseError;
       attempts++;
 
       // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
