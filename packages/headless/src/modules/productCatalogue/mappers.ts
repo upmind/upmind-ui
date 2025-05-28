@@ -4,7 +4,8 @@
 import { parseProductDetails, parseTermDetails } from "../product/utils";
 
 // --- utils
-import { isEmpty, omit } from "lodash-es";
+import { parseQuantity } from "../product/utils";
+import { isEmpty, omit, toSafeInteger } from "lodash-es";
 
 // --- types
 import type { Product } from "../product";
@@ -33,5 +34,17 @@ export function parseProduct(raw: IProduct): Product {
     price: term?.price,
     pricing: [],
     details: [],
+    // --- default config to be used when adding to basket
+    configuration: {
+      productId: raw.id,
+      quantity: parseQuantity(
+        toSafeInteger(productDetails?.min || productDetails?.step || 1),
+        productDetails
+      ),
+      term: term?.cycle ?? 0,
+      subproducts: [],
+      provisionFields: {},
+      coupons: [],
+    },
   } as Product;
 }
