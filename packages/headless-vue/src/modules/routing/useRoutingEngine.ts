@@ -15,7 +15,7 @@ import { useSession } from "../session";
 
 // --- utils
 const { DetailedError, responseCodes } = utils;
-import { isEmpty } from "lodash-es";
+import { includes, isEmpty } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
@@ -34,6 +34,7 @@ export const useRoutingEngine = () => {
     service,
     exists,
     stop,
+    getErrors,
     isReady: isRoutingEngineReady,
     next: resolveNext,
     back: resolveBack,
@@ -49,12 +50,7 @@ export const useRoutingEngine = () => {
       .then(() => true)
       .catch(() => false);
 
-    if (!available) {
-      return {
-        name: ROUTE.ERROR,
-        path: "/error",
-      };
-    }
+    if (!available) return route;
 
     const routeName = route?.name as ROUTE;
     // --- Only try resolve if the routeName exists in our routing engine

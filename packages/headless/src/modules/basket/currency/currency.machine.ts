@@ -24,17 +24,7 @@ export default createMachine(
     id: "basketCurrencyManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      basketId: undefined,
-      currencies: undefined,
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as CurrencyContext,
+    context: {} as CurrencyContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -229,11 +219,10 @@ export default createMachine(
       // ---
 
       setFeedbackError: ({ error }: CurrencyContext, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (!error || error?.status == responseCodes.Unprocessable_Entity)
+          return;
         addError({
-          title:
-            error?.title ||
-            "We experienced an error updating the basket currency",
+          title: "We experienced an error updating the basket currency",
           copy: error?.message,
           data: error?.data,
         });
@@ -242,7 +231,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -252,7 +241,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

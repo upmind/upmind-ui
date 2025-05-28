@@ -25,7 +25,7 @@ export const ListingActions = {
         if (!found) return spawnItem(item);
         return found;
       }) as ActorRef<any>[],
-    error: null,
+    error: undefined,
   }),
 };
 

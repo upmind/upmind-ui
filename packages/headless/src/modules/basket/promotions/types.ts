@@ -2,8 +2,8 @@
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
-// import type { RequestError } from "../..//api/types";
 import type { IBasketPromotion } from "@upmind-automation/types";
+import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
@@ -21,5 +21,5 @@ export interface PromotionsContext {
   // ---
   dirty?: Boolean;
   autoupdate?: Boolean;
-  error?: any;
+  error?: ResponseError;
 }

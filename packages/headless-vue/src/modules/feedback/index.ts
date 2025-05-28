@@ -10,7 +10,8 @@ import {
 
 // --- utils
 import { map, reduce, isEmpty, sortBy } from "lodash-es";
-import type { ActorRef } from "xstate";
+import type { Actor, ActorRef } from "xstate";
+import { messageDisplays } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -31,7 +32,9 @@ export const useFeedback = (): any => {
       reduce(
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
-          if (item.getSnapshot().context.display === "notification") {
+          if (
+            item.getSnapshot().context.display === messageDisplays.NOTIFICATION
+          ) {
             result.push({
               id: item.id,
               ...useActor(item),
@@ -50,7 +53,7 @@ export const useFeedback = (): any => {
       reduce(
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
-          if (item.getSnapshot().context.display === "toast") {
+          if (item.getSnapshot().context.display === messageDisplays.TOAST) {
             result.push({
               id: item.id,
               ...useActor(item),
@@ -64,16 +67,19 @@ export const useFeedback = (): any => {
     )
   );
 
-  const events = computed(() =>
+  const system = computed(() =>
     sortBy(
       reduce(
         state.value.context.messages,
         (result: any[], item: ActorRef<any>) => {
-          if (item.getSnapshot().context.type === "event") {
-            result.push({
-              id: item.id,
-              ...useActor(item),
-            });
+          const state = item.getSnapshot();
+          if (state.context.display === messageDisplays.SYSTEM) {
+            result.push(
+              useMessage({
+                id: item.id,
+                ...useActor(item),
+              })
+            );
           }
           return result;
         },
@@ -89,7 +95,7 @@ export const useFeedback = (): any => {
     isEmpty: ["empty"].some(state.value.matches),
     hasNotifications: !isEmpty(notifications.value),
     hasToasts: !isEmpty(toasts.value),
-    hasEvents: !isEmpty(events.value),
+    hasSystem: !isEmpty(system.value),
   }));
 
   // ---------------------------------------------------------------------------
@@ -98,7 +104,7 @@ export const useFeedback = (): any => {
     messages,
     notifications,
     toasts,
-    events,
+    system,
     // ---
     meta,
     // ---
@@ -111,22 +117,18 @@ export const useFeedback = (): any => {
   };
 };
 
-export const useMessage = (item: any) => {
+export const useMessage = (item: any /** ACTOR*/) => {
   const { state, send } = item;
-
-  const message = toRef(state.value, "context");
-
-  const meta = computed(() => ({
-    isActive: state.value.matches("active"),
-    isScheduled: state.value.matches("pending"),
-  }));
-
   // ---------------------------------------------------------------------------
   return {
+    id: item.id,
     state,
-    message,
-    meta,
+    message: computed(() => state.value.context),
+    meta: computed(() => ({
+      isActive: state.value.matches("active"),
+      isScheduled: state.value.matches("pending"),
+    })),
     // ---
-    dismiss: () => send("DISMISS"),
+    dismiss: () => send({ type: "DISMISS" }),
   };
 };

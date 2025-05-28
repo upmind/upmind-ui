@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import recaptchaMachine from "./recaptcha.machine";
 
 // --- utils
-import { stopService } from "../../../utils";
+import { DetailedError, responseCodes, stopService } from "../../../utils";
 
 // --- types
 import type { InterpreterFrom } from "xstate";
@@ -36,7 +36,13 @@ async function generate(action?: string) {
         const token = service.getSnapshot().context?.token;
         const error = service.getSnapshot().context?.error;
         if (!token) {
-          return Promise.reject(new Error("Recaptcha token not set", error));
+          return Promise.reject(
+            new DetailedError(
+              "Recaptcha token not set",
+              responseCodes.Not_Found,
+              error
+            )
+          );
         }
         return token;
       });

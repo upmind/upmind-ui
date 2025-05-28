@@ -53,6 +53,7 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
   router.isReady().then(async () => {
     const route = router.currentRoute.value;
     const target = await guard(route);
+
     //  NB: only redirect if we have a target and it's not the same as the current routeName
     if (shouldRedirect(target, route)) router.push(target);
   });
@@ -70,8 +71,7 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
   });
 
   // Route tracking
-  router.beforeResolve((to, from) => {
-    if (to.name === from.name || to.path === from.path) return; // dont track if we are on the same route
+  router.afterEach((to, from) => {
     dataLayer({ event: "page_view" })
       .withPage({
         to,

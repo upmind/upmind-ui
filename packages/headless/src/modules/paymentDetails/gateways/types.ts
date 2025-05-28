@@ -13,6 +13,8 @@ import type {
   IPayment,
   IPaymentDetail,
 } from "@upmind-automation/types";
+import { ErrorObject } from "ajv";
+import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
@@ -66,6 +68,5 @@ export interface GatewayContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Card, as wel las any model data
   // ---
-  // error?: RequestError;
-  error?: any;
+  error?: ResponseError | ErrorObject[];
 }
