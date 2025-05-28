@@ -125,19 +125,21 @@ async function loadLookups({
 async function add(data: UnifiedAddressModel) {
   const { add: addAddress } = useClientAddressServices();
   const { add: addCompany } = useClientCompanyServices();
+  const { setDefault } = useClientAddresses();
 
   if (data?.type === ADDRESS_TYPE_KEYS.HOME) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
     if (data?.phone) {
       await ensurePhone(data);
     }
-    return addAddress({ model: data.address }).then(() =>
-      useBillingDetailsServices().invalidate()
-    );
+    return addAddress({ model: data.address }).then(async item => {
+      await setDefault(item.data.id);
+      return useBillingDetailsServices().invalidate();
+    });
   } else {
     return ensureDependencies({ model: data })
-      .then(({ address, email, phone }) => {
-        return addCompany({
+      .then(async ({ address, email, phone }) => {
+        const company = addCompany({
           model: {
             emailId: email?.id,
             phoneId: phone?.id,
@@ -148,6 +150,8 @@ async function add(data: UnifiedAddressModel) {
             ...pick(data?.company, ["vatPercent", "taxId", "businessType"]),
           },
         });
+        await setDefault(address?.id);
+        return company;
       })
       .then(() => useBillingDetailsServices().invalidate());
   }
