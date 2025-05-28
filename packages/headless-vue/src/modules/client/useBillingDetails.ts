@@ -6,8 +6,11 @@ import { useSession } from "../session";
 // --- types
 import {
   type UnifiedAddress,
+  useBrand,
   useBillingDetails as useUpmindBillingDetails,
 } from "@upmind-automation/headless";
+import { get } from "lodash-es";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -28,6 +31,7 @@ export const useBillingDetails = () => {
     filter,
     getOne,
     findOne,
+    meta: metaBillingDetails,
   } = useUpmindBillingDetails();
 
   const { error, meta, data } = useQuery<UnifiedAddress[]>(
@@ -39,6 +43,7 @@ export const useBillingDetails = () => {
     meta: computed(() => {
       return {
         ...meta.value,
+        ...metaBillingDetails.value,
         isAvailable: sessionMeta.value.isAuthenticated,
       };
     }),
