@@ -162,6 +162,10 @@ export const useSchema = ({
     schema.definitions.address.required.push("phone");
   }
 
+  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+    schema.definitions.address.required.push("regionId");
+  }
+
   return schema as JsonSchema;
 };
 

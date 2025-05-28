@@ -21,7 +21,13 @@
         >
           Save details
         </Button>
-        <Link as="Button" size="sm" variant="muted" @click="cancel">
+        <Link
+          v-if="!isEmpty(data)"
+          as="Button"
+          size="sm"
+          variant="muted"
+          @click="cancel"
+        >
           Cancel
         </Link>
       </footer>
@@ -31,7 +37,7 @@
 
 <script setup lang="ts">
 // --- external
-import { watch, computed } from "vue";
+import { watch } from "vue";
 
 // --- internal
 import { useBillingDetails } from "@upmind-automation/headless-vue";
@@ -44,7 +50,6 @@ import { Link, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { Views } from "./types";
-import type { FormActionProps } from "@upmind-automation/upmind-ui";
 
 // utils
 import { debounce, isEmpty } from "lodash-es";
