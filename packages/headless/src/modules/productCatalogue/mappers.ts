@@ -1,20 +1,25 @@
-// --- external
-
-// --- internal
-import { parseProductDetails, parseTermDetails } from "../product/utils";
-
 // --- utils
 import { parseQuantity } from "../product/utils";
+import { calculateBillingTerm } from "../product/services";
 import { isEmpty, omit, toSafeInteger } from "lodash-es";
+import { parseProductDetails, parseTermDetails } from "../product/utils";
 
 // --- types
 import type { Product } from "../product";
-import { calculateBillingTerm } from "../product/services";
-import { ProductDetails, TermDetails } from "../product";
-import { IProduct } from "@upmind-automation/types";
+import type { IProduct } from "@upmind-automation/types";
+import type { ProductDetails, TermDetails } from "../product";
 
 // ---------------------------------------------------------------------------
 
+/**
+ * Parses the raw product data and transforms it into a structured `Product` object.
+ *
+ * @param {IProduct} raw - The raw product data object, containing all the information
+ * about a product as received from the data source.
+ *
+ * @return {Product} The transformed and structured `Product` object containing
+ * details, pricing information, and default configuration for basket addition.
+ */
 export function parseProduct(raw: IProduct): Product {
   const productDetails: ProductDetails = !isEmpty(raw)
     ? parseProductDetails(raw)
@@ -27,14 +32,14 @@ export function parseProduct(raw: IProduct): Product {
 
   // ---------------------------------------------------------------------------
   return {
-    id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
+    id: raw.id, // this is the internal id of the recommendation, with a fallback to a random uuid for the meta-generated recommendations; they don't have an id
     productDetails: omit(productDetails, ["uiCategoryMeta", "uiMeta"]),
     meta: term?.meta,
     promotions: term?.promotions,
     price: term?.price,
     pricing: [],
     details: [],
-    // --- default config to be used when adding to basket
+    // --- default config to be used when adding to a basket
     configuration: {
       productId: raw.id,
       quantity: parseQuantity(
@@ -42,9 +47,9 @@ export function parseProduct(raw: IProduct): Product {
         productDetails
       ),
       term: term?.cycle ?? 0,
+      coupons: [],
       subproducts: [],
       provisionFields: {},
-      coupons: [],
     },
   } as Product;
 }

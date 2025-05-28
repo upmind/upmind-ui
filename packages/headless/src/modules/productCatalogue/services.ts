@@ -7,9 +7,9 @@ import { isNil, set, map } from "lodash-es";
 import { CacheIsStaleError } from "../../utils";
 
 // --- types
+import type { Product } from "../product";
 import type { QueryKey } from "@tanstack/query-core";
 import type { QueryResponse, PaginatedParams } from "../..";
-import type { Product } from "../product/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
