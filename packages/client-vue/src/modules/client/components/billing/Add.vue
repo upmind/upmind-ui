@@ -65,9 +65,8 @@ const { isReady, getAll, data } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
-await isReady().then(async () => {
-  await getAll();
-});
+await isReady();
+await getAll();
 
 const updateModel = debounce(async (data: any) => {
   await set(data);
