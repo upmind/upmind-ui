@@ -218,9 +218,10 @@ async function parse(
     // if so, then we need to update the model with the new region id
     // otherwise the region_id is reset to null
     country = getCountry(addressCountryId);
-    const region = find(regions, ["id", data?.regionId]);
+    const region = find(regions, ["id", safeModel?.details?.address?.regionId]);
+
     if (safeModel?.details?.address) {
-      safeModel.details.address.regionId = get(region, "id", undefined);
+      safeModel.details.address.regionId = get(region, "id");
     }
 
     // now lets check our phone number
