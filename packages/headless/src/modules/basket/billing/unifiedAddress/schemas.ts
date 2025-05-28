@@ -175,6 +175,10 @@ export const useSchema = ({
     schema.definitions.address.required.push("regionId");
   }
 
+  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
+    schema.oneOf.shift();
+  }
+
   return schema as JsonSchema;
 };
 
@@ -315,12 +319,18 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
     ],
   };
 
+  const oneOfUiSchemas = [personalUiSchema, businessUiSchema];
+
+  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
+    oneOfUiSchemas.shift();
+  }
+
   const uiSchema = {
     type: "Control",
     scope: "#",
     options: {
       toggle: true,
-      oneOfUiSchema: [personalUiSchema, businessUiSchema],
+      oneOfUiSchema: oneOfUiSchemas,
     },
   };
 
