@@ -1,5 +1,5 @@
 // --- utils
-import { get, map, reduce } from "lodash-es";
+import { get, map } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../../../client";
@@ -20,12 +20,12 @@ export const useSchema = ({
       details: {
         oneOf: [
           {
-            $ref: "#/definitions/personal",
             title: "Personal",
+            $ref: "#/definitions/personal",
           },
           {
-            $ref: "#/definitions/business",
             title: "Business",
+            $ref: "#/definitions/business",
           },
         ],
       },
@@ -102,49 +102,49 @@ export const useSchema = ({
               title: item.name,
             })),
           },
+        },
+      },
+      phone: {
+        type: "object",
+        title: "Phone",
+        isPhoneNumber: country?.code,
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Phone number ( with dialing code )",
+          },
 
-          phone: {
-            type: "object",
-            title: "Phone",
-            isPhoneNumber: country?.code,
-            properties: {
-              number: {
-                type: ["string", "null"],
-                title: "Phone number ( with dialing code )",
-              },
+          nationalNumber: {
+            type: ["string", "null"],
+            title: "Phone number",
+          },
 
-              nationalNumber: {
-                type: ["string", "null"],
-                title: "Phone number",
-              },
+          countryCallingCode: {
+            type: ["string", "null"],
+            title: "Country calling code",
+          },
 
-              countryCallingCode: {
-                type: ["string", "null"],
-                title: "Country calling code",
-              },
-
-              country: {
-                type: ["string", "null"],
-                title: "Country",
-              },
-            },
+          country: {
+            type: ["string", "null"],
+            title: "Country",
           },
         },
       },
 
       personal: {
         type: "object",
-        title: "Personal",
         additionalProperties: false,
+        required: ["address"],
         properties: {
           address: {
             $ref: "#/definitions/address",
           },
+          phone: {
+            $ref: "#/definitions/phone",
+          },
         },
       },
       business: {
-        type: "object",
-        title: "Business",
         required: ["company", "address"],
         properties: {
           company: {
@@ -153,114 +153,116 @@ export const useSchema = ({
           address: {
             $ref: "#/definitions/address",
           },
+          phone: {
+            $ref: "#/definitions/phone",
+          },
         },
       },
     },
   };
 
   if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    schema.definitions.address.required.push("phone");
+    schema.definitions.personal.required.push("phone");
+    schema.definitions.business.required.push("phone");
   }
 
-  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    schema.definitions.address.required.push("regionId");
-  }
+  // if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+  //   schema.definitions.address.required.push("regionId");
+  // }
 
   return schema as JsonSchema;
 };
 
 export const useUischema = ({ config }: UnifiedAddressContext) => {
-  const personalUiSchema = {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/address",
-        options: {
-          autoFocus: true,
-          autocomplete: "off",
-          detail: {
-            type: "VerticalLayout",
+  const phoneUiSchema = {
+    type: "Control",
+    scope: "#/properties/phone",
+    rule: {
+      effect: "HIDE",
+      condition: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
+        ? { scope: "#", schema: { type: "null" } }
+        : { scope: "#", schema: { type: "object" } },
+    },
+  };
+
+  const addressUiSchema = {
+    type: "Control",
+    scope: "#/properties/address",
+    options: {
+      autoFocus: true,
+      autocomplete: "off",
+      detail: {
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/countryId",
+          },
+          {
+            type: "address",
+            options: {
+              fields: ["address1", "address2"],
+              placeholder: "Start typing your address",
+            },
             elements: [
               {
-                type: "Control",
-                scope: "#/properties/countryId",
-              },
-              {
-                type: "address",
+                type: "Group",
                 options: {
-                  fields: ["address1", "address2"],
-                  placeholder: "Start typing your address",
+                  border: false,
                 },
                 elements: [
                   {
-                    type: "Group",
-                    options: {
-                      border: false,
-                    },
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/address1",
-                        options: {
-                          placeholder: "House name, apartment number etc.",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/address2",
-                        options: {
-                          placeholder: "Road, street name etc.",
-                        },
-                      },
-                    ],
-                  },
-                  {
                     type: "Control",
-                    scope: "#/properties/city",
+                    scope: "#/properties/address1",
                     options: {
-                      placeholder: "City, town etc.",
+                      placeholder: "House name, apartment number etc.",
                     },
                   },
                   {
-                    type: "HorizontalLayout",
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/regionId",
-                        options: {
-                          placeholder: "Select region",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/postcode",
-                        options: {
-                          placeholder: "eg. 10011",
-                        },
-                      },
-                    ],
+                    type: "Control",
+                    scope: "#/properties/address2",
+                    options: {
+                      placeholder: "Road, street name etc.",
+                    },
+                  },
+                ],
+              },
+              {
+                type: "Control",
+                scope: "#/properties/city",
+                options: {
+                  placeholder: "City, town etc.",
+                },
+              },
+              {
+                type: "HorizontalLayout",
+                elements: [
+                  {
+                    type: "Control",
+                    scope: "#/properties/regionId",
+                    options: {
+                      placeholder: "Select region",
+                    },
                   },
                   {
                     type: "Control",
-                    scope: "#/properties/phone",
-                    rule: {
-                      effect: "HIDE",
-                      condition: get(
-                        config,
-                        BrandConfigKeys.CHECKOUT_REQUIRE_PHONE
-                      )
-                        ? { scope: "#", schema: { type: "null" } }
-                        : { scope: "#", schema: { type: "object" } },
+                    scope: "#/properties/postcode",
+                    options: {
+                      placeholder: "eg. 10011",
                     },
                   },
                 ],
               },
             ],
           },
-        },
+        ],
       },
-    ],
+    },
+  };
+
+  const personalUiSchema = {
+    type: "VerticalLayout",
+    elements: [addressUiSchema, phoneUiSchema],
   };
 
   const businessUiSchema = {
@@ -303,7 +305,8 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
           },
         },
       },
-      personalUiSchema, // UI Schema doesn't support definitions
+      addressUiSchema,
+      phoneUiSchema,
     ],
   };
 
