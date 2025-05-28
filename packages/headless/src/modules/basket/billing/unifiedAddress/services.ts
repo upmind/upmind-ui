@@ -3,7 +3,7 @@ import parsePhoneNumber from "libphonenumber-js";
 
 // --- internal
 import {
-  AddressTypes,
+  ADDRESS_TYPE_KEYS,
   useClientEmails,
   useClientPhones,
   useClientAddresses,
@@ -39,7 +39,6 @@ import type {
 } from "../../../client";
 import type { AnyEventObject } from "xstate";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
-import { AddressType } from "./types";
 import { invalidateQueryByKey } from "../../../query";
 import { BrandConfigKeys } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -94,9 +93,9 @@ async function loadLookups({
       address1: "",
       countryId: country?.id,
       postcode: "",
-      type: AddressType.Personal,
+      type: ADDRESS_TYPE_KEYS.HOME,
     },
-    type: AddressType.Personal, // Schema level
+    type: ADDRESS_TYPE_KEYS.HOME, // Schema level
   };
 
   const safeModel = useModelParser<UnifiedAddressModel>(
@@ -127,7 +126,7 @@ async function add(data: UnifiedAddressModel) {
   const { add: addAddress } = useClientAddressServices();
   const { add: addCompany } = useClientCompanyServices();
 
-  if (data?.type === AddressType.Personal) {
+  if (data?.type === ADDRESS_TYPE_KEYS.HOME) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
     if (data?.phone) {
       await ensurePhone(data);
@@ -158,7 +157,7 @@ async function update(id: string, data: UnifiedAddressModel) {
   const { update: updateAddress } = useClientAddressServices();
   const { update: updateCompany } = useClientCompanyServices();
 
-  if (data?.type === AddressType.Personal) {
+  if (data?.type === ADDRESS_TYPE_KEYS.HOME) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
     if (data?.phone) {
       await ensurePhone(data);
@@ -246,8 +245,8 @@ async function parse(
     }
 
     // force the type as company if we have added company details
-    if (safeModel?.type === AddressType.Business && safeModel?.address) {
-      safeModel.address.type = AddressType.Business;
+    if (safeModel?.type === ADDRESS_TYPE_KEYS.COMPANY && safeModel?.address) {
+      safeModel.address.type = ADDRESS_TYPE_KEYS.COMPANY;
     }
   }
 

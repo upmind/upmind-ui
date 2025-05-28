@@ -20,6 +20,13 @@ export const AddressTypes = [
   { key: 4, value: "Company" },
 ];
 
+export const ADDRESS_TYPE_KEYS = {
+  HOME: AddressTypes[0].key,
+  OFFICE: AddressTypes[1].key,
+  HOLIDAY: AddressTypes[2].key,
+  COMPANY: AddressTypes[3].key,
+} as const;
+
 export interface AddressModel {
   address1: IAddress["address_1"];
   address2?: IAddress["address_2"];

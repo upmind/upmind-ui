@@ -60,8 +60,3 @@ export interface UnifiedAddressContext extends ClientItemContext {
   emails: Email[];
   config?: Record<BrandConfigKeys, boolean>;
 }
-
-export enum AddressType {
-  Personal = 1,
-  Business = 4,
-}
