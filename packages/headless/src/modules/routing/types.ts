@@ -1,24 +1,30 @@
 // --- types
 import type { ActorRef } from "xstate";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
 export enum ROUTE {
   LOADING = "loading",
   ERROR = "error",
-  EMPTY = "empty",
+  UNAVAILABLE = "unavailable",
+  // --- product routes
   PRODUCT_ADD = "product.add",
   PRODUCT_EDIT = "product.edit",
   PRODUCT_REQUIRES_ACTION = "product.requiresAction",
   PRODUCT_NOT_FOUND = "product.notFound",
   PRODUCT_RECOMMENDATIONS = "product.recommendations",
+  // --- product flows
   RECOMMENDATIONS = "recommendations",
+  // --- SESSION/AUTH routes
   SESSION = "session",
   SESSION_LOGIN = "session.login",
   SESSION_REGISTER = "session.register",
   SESSION_RECOVER_PASSWORD = "session.recover",
   SESSION_END = "session.end",
   SESSION_TRANSFER = "session.transfer",
+  // --- basket routes
+  EMPTY = "empty",
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
@@ -85,7 +91,7 @@ export interface RoutingEngineContext {
   currentFlow?: Flow;
   currentRoute?: Route;
   // ---
-  error?: any;
+  error?: ResponseError;
   // ---
   basketId?: string;
   basketHelper?: ActorRef<any>;

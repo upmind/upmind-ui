@@ -13,6 +13,7 @@ export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations/types";
 import type { BasketProduct } from "../basketProduct";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 /**
@@ -363,8 +364,8 @@ export interface ProductConfigContext {
   meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
-  error?: any;
-  errorExternal?: any;
+  error?: ResponseError | ExternalError;
+  errorExternal?: ResponseError | ExternalError;
   attempts?: number;
   // ---
   rawProduct?: IProduct;
