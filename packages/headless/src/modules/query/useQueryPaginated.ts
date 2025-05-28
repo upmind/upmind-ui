@@ -1,8 +1,8 @@
 // --- utils
+import { PAGINATION, getQueryClient, buildDynamicQueryKey } from "./utils";
 import { get } from "lodash-es";
 import { useUrl } from "../../utils";
 import { useQuery } from "./useQuery";
-import { getQueryClient, PAGINATION } from "./utils";
 
 // --- types
 import type {
@@ -64,13 +64,13 @@ export const useQueryPaginated = () => {
     let pageIndex = PAGINATION.pageIndex;
     let itemTotal = 0;
 
-    async function paginatedFetch({
-      sort,
-      filters,
-      pagination,
-    }: Pick<PaginatedParams, "sort" | "filters" | "pagination">): Promise<
-      QueryResponse<T>
-    > {
+    async function paginatedFetch(
+      paginatedParams: PaginatedParams & {
+        mapPaginatedData?: (response?: QueryResponse<T>) => PaginatedData<T>;
+      }
+    ): Promise<QueryResponse<T>> {
+      const { sort, filters, pagination, mapPaginatedData } = paginatedParams;
+
       url.searchParams.set(
         "limit",
         `${get(pagination, "limit", PAGINATION.pageSize)}`
@@ -84,7 +84,10 @@ export const useQueryPaginated = () => {
 
       return getRequest<T>({
         url,
-        queryKey: [...queryKey, { sort, filters, pagination }],
+        queryKey: buildDynamicQueryKey({
+          queryKey: queryKey ?? [],
+          paginatedParams,
+        }),
         ...options,
         mapPaginatedData,
       });
@@ -134,6 +137,7 @@ export const useQueryPaginated = () => {
     async function prevPage(): Promise<PaginatedData<T>> {
       pageIndex = Math.max(pageIndex - 1, 1);
       const pagination = getPagination();
+
       return paginatedFetch({
         sort,
         filters,

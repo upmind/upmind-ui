@@ -2,17 +2,18 @@
 import { computed, onUnmounted, ref } from "vue";
 
 // --- internal
-import { useQuerySubscription, PAGINATION } from "@upmind-automation/headless";
+import {
+  PAGINATION,
+  type PaginatedData,
+  useQuerySubscription,
+} from "@upmind-automation/headless";
 
 // --- utils
-import { has, isEmpty, find, isObject } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // ---types
 import type { QueryKey } from "@tanstack/vue-query";
-import type {
-  PaginatedParams,
-  QueryCacheNotifyEvent,
-} from "@upmind-automation/headless";
+import type { QueryCacheNotifyEvent } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 export const useQuery = <T = unknown>(queryKey: QueryKey) => {
@@ -35,9 +36,8 @@ export const useQuery = <T = unknown>(queryKey: QueryKey) => {
 
       query.value = response.state;
 
-      const paged = response.state.data?.pagination as
-        | PaginatedParams["pagination"]
-        | undefined;
+      const paged = response.state.data
+        ?.pagination as PaginatedData<T>["pagination"];
 
       if (response.state.status == "success") {
         pagination.value = {
@@ -61,18 +61,20 @@ export const useQuery = <T = unknown>(queryKey: QueryKey) => {
   // ---------------------------------------------------------------------------
 
   return {
-    meta: computed(() => ({
-      isLoading: query.value?.fetchStatus === "fetching",
-      isEmpty: isEmpty(query.value?.data?.data),
-      isError: !isEmpty(query.value?.error),
-      // isInvalid: query.value?.data.isInvalid,
-      // isStale: query.value?.data.isStale,
-      // isFetching: query.value?.fetchStatus === "fetching",
-      // isSuccess: query.value?.status === "success",
-      // isIdle: query.value?.fetchStatus === "idle",
-      hasNextPage: hasNextPage.value,
-      hasPreviousPage: hasPreviousPage.value,
-    })),
+    meta: computed(() => {
+      return {
+        isLoading: query.value?.fetchStatus === "fetching",
+        isEmpty: isEmpty(query.value?.data?.data),
+        isError: !isEmpty(query.value?.error),
+        // isInvalid: query.value?.data.isInvalid,
+        // isStale: query.value?.data.isStale,
+        // isFetching: query.value?.fetchStatus === "fetching",
+        // isSuccess: query.value?.status === "success",
+        // isIdle: query.value?.fetchStatus === "idle",
+        hasNextPage: hasNextPage.value,
+        hasPreviousPage: hasPreviousPage.value,
+      };
+    }),
     data: computed<T>(() => query.value?.data?.data ?? []),
     error: computed<QueryCacheNotifyEvent["query"]["state"]["error"]>(
       () => query.value?.error

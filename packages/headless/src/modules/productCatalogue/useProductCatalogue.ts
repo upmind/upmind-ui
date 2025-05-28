@@ -13,7 +13,7 @@ import { find, filter, includes, isString, every, get } from "lodash-es";
 // --- types
 import type { Product } from "../product";
 import type { PaginatedParams } from "../query";
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
+import type { QueryKey, QueryCacheNotifyEvent } from "@tanstack/query-core";
 
 let observer: QueryObserver | undefined;
 
@@ -172,6 +172,7 @@ export const useProductCatalogue = () => {
     findOne,
     getPaged,
     getAllFromCache,
-    invalidate: invalidateQueryByKey(service.queryKey),
+    invalidate: (key?: QueryKey) =>
+      invalidateQueryByKey(key ?? service.queryKey),
   };
 };

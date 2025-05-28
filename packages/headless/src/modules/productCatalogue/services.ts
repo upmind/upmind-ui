@@ -57,7 +57,7 @@ async function loadPaged(
         `category${".top_category".repeat(4)}`,
       ].join(),
     }),
-    queryKey: [...queryKey, { ...paginationParams }],
+    queryKey,
     allowStale,
     withAccessToken: true,
     transformResponse: (response: any) =>

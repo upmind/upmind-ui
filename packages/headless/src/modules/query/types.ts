@@ -57,15 +57,15 @@ export interface QueryResponse<T extends unknown = unknown> {
 export interface PaginatedData<T extends unknown> {
   // response related
   data: T | null | undefined;
-  // item related
-  itemTo: number;
-  itemFrom: number;
-  itemTotal: number;
-  // page related
-  pageSize: number;
-  pageIndex: number;
-  pageTotal: number;
   // pagination related
+  pagination?: {
+    total: number;
+    pages: number;
+    limit: number;
+    offset: number;
+    current: number;
+  };
+  // meta related
   hasNextPage: boolean;
   hasPrevPage: boolean;
   // function related
