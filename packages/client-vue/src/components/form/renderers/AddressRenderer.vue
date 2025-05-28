@@ -52,7 +52,7 @@ import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { debounce, isEmpty, find, filter, last } from "lodash-es";
+import { debounce, isEmpty, find, get, last } from "lodash-es";
 import { useAddressFields } from "../composables/useAddressFields";
 
 // --- types
@@ -111,7 +111,11 @@ const searchAddresses = debounce(async (query: string) => {
     return;
   }
 
-  const results = await places.search(query);
+  const results = await places.search(
+    query,
+    get(control.value.data, "countryId")
+  );
+
   if (!isEmpty(results)) {
     addresses.value = results;
   }

@@ -16,10 +16,11 @@ export const usePlaces = () => {
   /**
    * Search for address suggestions based on user input
    * @param query Text to search for
+   * @param countryCode Optional country id to restrict results
    * @returns Promise with array of address suggestions
    */
-  function search(query: string) {
-    return services.search(query);
+  function search(query: string, countryId?: string) {
+    return services.search(query, countryId);
   }
 
   return {

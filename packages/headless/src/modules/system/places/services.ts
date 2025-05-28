@@ -42,16 +42,21 @@ async function load(): Promise<PlaceService> {
 /**
  * Search for address suggestions based on user input and return parsed address details
  * @param query Text to search for
+ * @param countryId Optional country id to restrict results
  * @returns Promise with an array of parsed address details only
  */
-async function search(query: string): Promise<Place[]> {
+async function search(query: string, countryId?: string): Promise<Place[]> {
   const { queryClient } = useQuery();
 
   // Return early if the query is empty
   if (isEmpty(query)) return [];
 
-  // Generate a cache key based on the search query
-  const queryKey = ["places", "search", query];
+  const countryCode = countryId
+    ? useSystem().getCountry(countryId)?.code
+    : null;
+
+  // Generate a cache key based on the search query and country
+  const queryKey = ["places", "search", query, countryCode];
 
   return queryClient.fetchQuery<Place[]>({
     queryKey,
@@ -65,6 +70,7 @@ async function search(query: string): Promise<Place[]> {
       const request: google.maps.places.AutocompleteRequest = {
         input: query,
         sessionToken,
+        ...(countryCode && { includedRegionCodes: [countryCode] }),
       };
 
       try {
