@@ -12,4 +12,4 @@ export * from "./paymentDetails";
 export * from "./payment";
 export * from "./recommendations";
 export * from "./routing";
-export * from "./productsCatalogue";
+export * from "./productCatalogue";

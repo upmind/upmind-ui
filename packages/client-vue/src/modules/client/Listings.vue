@@ -104,8 +104,6 @@ import {
   useClientAddress,
   useClientCompanies,
   useClientCompany,
-  useClientUnifiedAddresses,
-  useClientUnifiedAddress,
 } from "@upmind-automation/headless-vue";
 import {
   useStyles,
@@ -181,12 +179,6 @@ switch (props.type) {
   case "companies":
     clientListings = useClientCompanies;
     client = useClientCompany;
-    break;
-
-  default:
-  case "unified":
-    clientListings = useClientUnifiedAddresses;
-    client = useClientUnifiedAddress;
     break;
 }
 

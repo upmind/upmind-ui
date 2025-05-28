@@ -86,9 +86,7 @@ export const useQueryPaginated = () => {
         url,
         queryKey: [...queryKey, { sort, filters, pagination }],
         ...options,
-      }).then(response => {
-        itemTotal = response.total || 0;
-        return response;
+        mapPaginatedData,
       });
     }
 
@@ -112,25 +110,6 @@ export const useQueryPaginated = () => {
       // Can only be 1 page if limit=0
       if (!pagination.limit) return 1;
       return Math.max(Math.ceil(itemTotal / pagination.limit), 1);
-    }
-
-    /**
-     * Returns the index of the first item on the current page.
-     * @returns {number} The index of the first item on the current page.
-     */
-    function itemFrom(): number {
-      if (!itemTotal) return 0;
-      return getPagination().limit * (pageIndex - 1) + 1;
-    }
-
-    /**
-     * Returns the index of the last item on the current page.
-     * @returns {number} The index of the last item on the current page.
-     */
-    function itemTo(): number {
-      const pagination = getPagination();
-      if (!pagination.limit) return itemTotal;
-      return Math.min(pagination.limit * pageIndex, itemTotal);
     }
 
     /**
@@ -162,7 +141,8 @@ export const useQueryPaginated = () => {
           ...pagination,
           offset: pagination.limit * (pageIndex - 1),
         },
-      }).then(mapPaginatedData);
+        mapPaginatedData,
+      });
     }
 
     /**
@@ -180,7 +160,8 @@ export const useQueryPaginated = () => {
           ...pagination,
           offset: pagination.limit * (pageIndex - 1),
         },
-      }).then(mapPaginatedData);
+        mapPaginatedData,
+      });
     }
 
     /**
@@ -189,21 +170,20 @@ export const useQueryPaginated = () => {
      * @returns {PaginatedData} The mapped data.
      */
     function mapPaginatedData(response?: QueryResponse<T>): PaginatedData<T> {
+      itemTotal = response?.total || 0;
+
       return {
         /** Returns the data for the current page. Warning: Might be undefined */
-        data: response?.data,
-        /** Returns the index of the last item on the current page. */
-        itemTo: itemTo(),
-        /** Returns the index of the first item on the current page. */
-        itemFrom: itemFrom(),
-        /** Returns the total number of items. */
-        itemTotal,
-        /** Returns the current page size. */
-        pageSize: getPagination().limit,
-        /** Returns the current page index. */
-        pageIndex,
-        /** Returns the total number of pages. */
-        pageTotal: pageTotal(),
+        data: response?.data ?? ([] as T),
+
+        pagination: {
+          current: pageIndex,
+          total: itemTotal,
+          pages: pageTotal(),
+          limit: getPagination().limit,
+          offset: getPagination().offset,
+        },
+
         /** Returns the total number of pages. */
         hasNextPage: hasNextPage(),
         /** Returns the index of the first item on the current page. */
