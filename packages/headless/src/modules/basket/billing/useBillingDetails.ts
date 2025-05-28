@@ -10,6 +10,7 @@ import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 import { useClientAddresses, useClientCompanies } from "../../client";
+import { computed } from "vue";
 
 // --- utils
 import {
@@ -26,6 +27,8 @@ import {
 // --- types
 import type { UnifiedAddress } from "./unifiedAddress";
 import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
+import { useBrand } from "../../brand";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 let observer: QueryObserver | undefined;
 
@@ -48,6 +51,7 @@ export const useBillingDetails = () => {
   const { addError } = useFeedback();
   const { queryClient } = useQuery();
   const { isAuthenticated } = useSession();
+  const { ensureConfig, getConfig } = useBrand();
 
   /**
    * Check if the unified addresses are loaded and ready
@@ -55,6 +59,9 @@ export const useBillingDetails = () => {
    * @example isReady().then(getAll).then(() => console.log("Details are ready"))
    */
   async function isReady(): Promise<void> {
+    await ensureConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE);
+    await ensureConfig(BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS);
+
     return isAuthenticated();
   }
 
@@ -224,6 +231,18 @@ export const useBillingDetails = () => {
       : setAddressAsDefault(id).then(refresh);
   }
 
+  const meta = computed(() => {
+    const config = getConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+    ]);
+
+    return {
+      requiresAddress: get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS),
+      requiresPhone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE),
+    };
+  });
+
   return {
     queryOptions: {
       queryKey: service.queryKey,
@@ -232,6 +251,7 @@ export const useBillingDetails = () => {
     },
     subscribe,
     isReady,
+    meta,
     getOne,
     getAll,
     filter: filterUnifiedAddresses,
