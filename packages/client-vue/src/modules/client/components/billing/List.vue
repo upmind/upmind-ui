@@ -1,41 +1,35 @@
 <template>
-  <template v-if="view === Views.default">
-    <FormLabel formItemId="address">Address</FormLabel>
+  <RadioCardsCollapsible
+    v-model:open="open"
+    v-model="selectedAddress"
+    :items="parsedValues"
+    :disabled="isLoading"
+    list
+    required
+    @update:modelValue="onAddressChange"
+  >
+    <template #item="{ item }">
+      <Item :address="getAddress(item.value)" editing />
+    </template>
 
-    <Item :address="defaultAddress" />
-  </template>
-
-  <template v-else-if="view === Views.list">
-    <RadioCards
-      v-model="selectedAddress"
-      :items="parsedValues"
-      :disabled="isLoading"
-      list
-      required
-    >
-      <template #item="{ item }">
-        <Item :address="getAddress(item.value)" editing />
-      </template>
-    </RadioCards>
-
-    <footer class="flex gap-x-4">
+    <template #actions>
       <Link
-        label="Confirm"
-        size="sm"
+        v-if="!open"
+        label="Change"
+        size="xs"
         variant="muted"
-        :disabled="meta.isLoading"
-        @click="listAction"
+        @click="open = true"
       />
 
       <Link
-        v-if="view === Views.list"
+        v-else
         label="Add new address"
-        size="sm"
+        size="xs"
         variant="muted"
         @click="emit('setView', Views.add)"
       />
-    </footer>
-  </template>
+    </template>
+  </RadioCardsCollapsible>
 </template>
 
 <script lang="ts" setup>
@@ -47,7 +41,11 @@ import { map } from "lodash-es";
 import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
-import { RadioCards, Link, FormLabel } from "@upmind-automation/upmind-ui";
+import {
+  RadioCardsCollapsible,
+  Link,
+  FormLabel,
+} from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils
@@ -67,14 +65,18 @@ const emit = defineEmits<{
   (e: "setView", value: Views): void;
 }>();
 
-const { isReady, getAll, data, setDefault, meta } = useClientAddresses();
+const { isReady, getAll, data, setDefault, meta, getDefault } =
+  useClientAddresses();
 
-const selectedAddress = ref<string>("");
 const isLoading = ref(false);
+
+const open = ref(false);
 
 const defaultAddress = computed(() => {
   return find(data.value, { meta: { isDefault: true } }) as Address;
 });
+
+const selectedAddress = ref<string>(defaultAddress.value?.id ?? "");
 
 const defaultChanged = computed(
   () => selectedAddress.value !== defaultAddress.value?.id
@@ -89,19 +91,10 @@ const getAddress = (id: string) => {
   return find(data.value, { id }) as Address;
 };
 
-const defaultLabel = computed(() => {
-  return data.value.length > 1 ? "Change" : "Add new address";
-});
-
-const defaultAction = async () => {
-  emit("setView", data.value.length > 1 ? Views.list : Views.add);
-};
-
-const listAction = async () => {
-  if (defaultChanged.value) {
-    await setDefault(selectedAddress.value);
+const onAddressChange = async (newValue: string) => {
+  if (defaultChanged.value && newValue !== defaultAddress.value?.id) {
+    await setDefault(newValue);
   }
-  emit("setView", Views.default);
 };
 
 const parsedValues = computed<RadioCardsItemProps[]>(() => {
