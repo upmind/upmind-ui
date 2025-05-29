@@ -54,10 +54,11 @@ const queryKey = ["unified-addresses"];
 async function loadLookups({
   model,
   schema,
+  allowMultipleEdits,
 }: UnifiedAddressContext): Promise<UnifiedAddressContext> {
   const { getAll: getPhones } = useClientPhones();
   const { getAll: getEmails } = useClientEmails();
-  const { getAll: getAddresses } = useClientAddresses();
+  const { getAll: getAddresses, getDefault } = useClientAddresses();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -87,12 +88,16 @@ async function loadLookups({
     return Promise.reject("Failed to load countries and regions");
   }
 
+  const defaultAddress = await getDefault();
+
   const baseModel: UnifiedAddressModel = {
+    addressId: defaultAddress?.id,
+    companyId: defaultAddress?.companyId,
     address: {
-      city: "",
-      address1: "",
-      countryId: country?.id,
-      postcode: "",
+      city: defaultAddress?.city ?? "",
+      address1: defaultAddress?.address1 ?? "",
+      countryId: defaultAddress?.countryId ?? country?.id,
+      postcode: defaultAddress?.postcode ?? "",
       type: ADDRESS_TYPE_KEYS.HOME,
     },
     type: ADDRESS_TYPE_KEYS.HOME, // Schema level
@@ -113,6 +118,7 @@ async function loadLookups({
     emails,
     addresses,
     config,
+    allowMultipleEdits: defaultAddress?.id ? true : allowMultipleEdits,
     // ---
     model: safeModel,
     baseModel: safeModel,
@@ -132,6 +138,11 @@ async function add(data: UnifiedAddressModel) {
     if (data?.phone) {
       await ensurePhone(data);
     }
+
+    if (data?.addressId) {
+      return Promise.resolve(data);
+    }
+
     return addAddress({ model: data.address }).then(async item => {
       await setDefault(item.data.id);
       return useBillingDetailsServices().invalidate();
