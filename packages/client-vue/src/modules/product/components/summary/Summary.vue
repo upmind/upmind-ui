@@ -49,6 +49,13 @@
   />
 
   <SummaryList v-if="product?.productDetails" v-bind="product" />
+
+  <Markdown
+    :model-value="
+      product.productDetails.uiMeta?.uischema?.config?.summary?.append ??
+      product.productDetails.uiMeta?.uischema?.productConfig?.summary?.append
+    "
+  />
 </template>
 
 <script setup lang="ts">
@@ -65,7 +72,13 @@ import config from "./summary.config";
 import Card from "../../../../components/content/Card.vue";
 import SummaryPricing from "./SummaryPricing.vue";
 import SummaryList from "./SummaryList.vue";
-import { NumberField, Icon, Button, Alert } from "@upmind-automation/upmind-ui";
+import {
+  Markdown,
+  NumberField,
+  Icon,
+  Button,
+  Alert,
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 
