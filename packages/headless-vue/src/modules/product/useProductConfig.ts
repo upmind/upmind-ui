@@ -105,10 +105,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
-    isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
-    isComplete:
-      state.value?.done ||
-      stateMatches(state, ["available.complete", "complete"]),
+    isProcessing: stateMatches(state, ["refreshing", "processing"]),
+    isComplete: state.value?.done || stateMatches(state, ["complete"]),
     isDone: state.value?.done,
 
     // ---
