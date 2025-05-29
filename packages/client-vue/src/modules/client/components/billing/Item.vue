@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full flex-col gap-y-1">
+  <div class="flex w-full flex-col gap-y-1 rounded-lg border p-5 px-6">
     <header class="flex w-full items-start justify-between">
       <h3
         class="m-0 flex items-center gap-x-1 text-sm font-semibold leading-none"
@@ -15,8 +15,7 @@
       </h3>
 
       <Link
-        v-if="editing"
-        label="Edit"
+        label="Change"
         size="xs"
         variant="muted"
         @click.prevent="editAddress"

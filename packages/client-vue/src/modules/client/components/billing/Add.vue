@@ -51,7 +51,7 @@ import { Link, Button } from "@upmind-automation/upmind-ui";
 import { Views } from "./types";
 
 // utils
-import { debounce, isEmpty } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -71,15 +71,15 @@ const updateModel = async (data: any) => {
   await input(data);
 };
 
-// watch(selectedAddress, async address => {
-//   if (address) {
-//     await input({
-//       ...model.value,
-//       address,
-//     });
-//     setShowAddressFields(true);
-//   }
-// });
+watch(selectedAddress, async address => {
+  if (address) {
+    await input({
+      ...model.value,
+      address,
+    });
+    setShowAddressFields(true);
+  }
+});
 
 const updateAddress = async () => {
   await update();
