@@ -1,35 +1,37 @@
 <template>
-  <RadioCardsCollapsible
-    v-model:open="open"
-    v-model="selectedAddress"
-    :items="parsedValues"
-    :disabled="isLoading"
-    list
-    required
-    @update:modelValue="onAddressChange"
-  >
-    <template #item="{ item }">
-      <Item :address="getAddress(item.value)" editing />
-    </template>
+  <FormField id="address" name="address" label="Address" :required="true">
+    <RadioCardsCollapsible
+      v-model:open="open"
+      v-model="selectedAddress"
+      :items="parsedValues"
+      :disabled="isLoading"
+      list
+      required
+      @update:modelValue="onAddressChange"
+    >
+      <template #item="{ item }">
+        <Item :address="getAddress(item.value)" editing />
+      </template>
 
-    <template #actions>
-      <Link
-        v-if="!open"
-        label="Change"
-        size="xs"
-        variant="muted"
-        @click="open = true"
-      />
+      <template #actions>
+        <Link
+          v-if="!open"
+          label="Change"
+          size="xs"
+          variant="muted"
+          @click="open = true"
+        />
 
-      <Link
-        v-else
-        label="Add new address"
-        size="xs"
-        variant="muted"
-        @click="emit('setView', Views.add)"
-      />
-    </template>
-  </RadioCardsCollapsible>
+        <Link
+          v-else
+          label="Add new address"
+          size="xs"
+          variant="muted"
+          @click="emit('setView', Views.add)"
+        />
+      </template>
+    </RadioCardsCollapsible>
+  </FormField>
 </template>
 
 <script lang="ts" setup>
@@ -44,7 +46,7 @@ import { useClientAddresses } from "@upmind-automation/headless-vue";
 import {
   RadioCardsCollapsible,
   Link,
-  FormLabel,
+  FormField,
 } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
