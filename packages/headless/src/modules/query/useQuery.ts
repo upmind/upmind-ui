@@ -71,7 +71,8 @@ export const useQuery = () => {
       .then(response => {
         let parsedResponse = response;
         if (isFunction(mapPaginatedData)) {
-          parsedResponse = mapPaginatedData(response);
+          debugger;
+          parsedResponse = mapPaginatedData(response as any) as any;
         }
 
         if (isFunction(transformResponse)) {

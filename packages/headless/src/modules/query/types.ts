@@ -23,9 +23,7 @@ export interface RequestParams {
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
   transformResponse?: (response: unknown) => unknown;
-  mapPaginatedData?: (
-    response: unknown
-  ) => PaginatedData<unknown> | Promise<PaginatedData<unknown>>;
+  mapPaginatedData?: (response?: QueryResponse<any>) => PaginatedData<any>;
 }
 
 export interface QueryParams<T extends unknown>

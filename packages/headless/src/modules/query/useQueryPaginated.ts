@@ -85,7 +85,9 @@ export const useQueryPaginated = () => {
       if (filters) filters.reduce((_url, filter) => filter(_url), url);
 
       return getRequest<T>({
+        ...options,
         url,
+        mapPaginatedData,
         queryKey: [
           ...queryKey,
           {
@@ -102,8 +104,6 @@ export const useQueryPaginated = () => {
             },
           },
         ],
-        ...options,
-        mapPaginatedData,
       });
     }
 
@@ -148,7 +148,7 @@ export const useQueryPaginated = () => {
     /**
      * Moves to the previous page.
      */
-    async function prevPage(): Promise<PaginatedData<T>> {
+    async function prevPage(): Promise<QueryResponse<T>> {
       pageIndex = Math.max(pageIndex - 1, 1);
       const pagination = getPagination();
 
@@ -159,14 +159,13 @@ export const useQueryPaginated = () => {
           ...pagination,
           offset: pagination.limit * (pageIndex - 1),
         },
-        mapPaginatedData,
       });
     }
 
     /**
      * Moves to the next page.
      */
-    async function nextPage(): Promise<PaginatedData<T>> {
+    async function nextPage(): Promise<QueryResponse<T>> {
       // let's add a guard to prevent going over the total number of pages
       if (pageIndex < pageTotal()) pageIndex += 1;
       const pagination = getPagination();
@@ -178,7 +177,6 @@ export const useQueryPaginated = () => {
           ...pagination,
           offset: pagination.limit * (pageIndex - 1),
         },
-        mapPaginatedData,
       });
     }
 
