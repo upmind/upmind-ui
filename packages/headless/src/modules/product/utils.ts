@@ -38,6 +38,7 @@ import {
   subtract,
   times,
   toNumber,
+  union,
   uniq,
   values,
 } from "lodash-es";
@@ -48,6 +49,7 @@ import {
   PromotionDisplayTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  ProductTypes,
 } from "@upmind-automation/types";
 
 import type {
@@ -61,13 +63,16 @@ import type {
 
 import type {
   ExternalError,
+  IProductConfig,
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
   Product,
+  ProductBundle,
   ProductConfigContext,
   ProductDetails,
   ProductModel,
+  ProductProps,
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice,
   PromotionDetails,
@@ -78,7 +83,6 @@ import type {
   TermDetails,
   UIMeta,
 } from "./types";
-import { error } from "console";
 import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
@@ -1106,3 +1110,43 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
 };
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Parses the given product and returns a list of bundled products.
+ * The bundled products are extracted from the product, and only the single products are considered.
+ * Inactive bundled products are not included.
+ *
+ * @param {IProduct} raw - The raw product data to parse.
+ * @returns {ProductProps[]} The parsed list of bundled products configurations.
+ */
+export function parseBundledProducts(raw: IProduct): ProductProps[] {
+  // safe check : dont include recommendations for products that are not single products
+  if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
+
+  const bundledProducts = reduce(
+    union(raw?.meta?.bundle, raw?.category?.meta?.bundle) as ProductBundle[],
+    (result: ProductProps[], rawBundle) => {
+      const valid = rawBundle?.object_type === "product" && rawBundle?.active;
+      if (!valid) return result; // skip if not a valid product bundle or inactive
+
+      const config: IProductConfig = get(rawBundle, "config", {});
+
+      const model = {
+        productId: rawBundle.object_id,
+        quantity: config?.qty || 1,
+        term: config?.bcm ?? 0,
+        subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
+        provisionFields: config?.pfields ?? {},
+        coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
+        // ---
+        silent: true, // always silent for bundled products
+      } as ProductProps;
+      result.push(model);
+
+      return result;
+    },
+    []
+  ) as ProductModel[];
+
+  return bundledProducts;
+}

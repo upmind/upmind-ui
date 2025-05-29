@@ -46,6 +46,7 @@ import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { ProductModel } from "../product";
 import type { RecommendationsEngineContext, Recommendation } from "./types";
+import { transformProductDynamicValues } from "../basketProduct/utils";
 
 // ---
 export default createMachine(
@@ -222,34 +223,11 @@ export default createMachine(
           parseProductModel: (
             recommendation: Recommendation,
             products: IBasketProduct[]
-          ): ProductModel | undefined => {
-            if (
-              !recommendation?.configuration &&
-              !recommendation.configuration?.productId
-            )
-              return undefined;
-
-            recommendation.configuration.provisionFields = mapValues(
-              recommendation.configuration?.provisionFields ?? {},
-              (value: any) => {
-                // get any dynamic properties that we need to resolve
-                const dynamicProperty: string = first(
-                  value.match(/(?<=\$\{).+?(?=\})/)
-                );
-                const product = findLast(products, product =>
-                  has(product, dynamicProperty)
-                );
-                if (dynamicProperty && product) {
-                  const resolved = get(product, dynamicProperty, null);
-                  return resolved;
-                }
-
-                return value;
-              }
-            );
-
-            return recommendation.configuration;
-          },
+          ): ProductModel | undefined =>
+            transformProductDynamicValues(
+              recommendation.configuration,
+              products
+            ),
 
           parseBasketProductComparison: (item: BasketProduct) => ({
             productId: item.configuration.productId,
@@ -333,7 +311,7 @@ export default createMachine(
             relatedProducts
           );
 
-          model.skipValidation = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
+          model.silent = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
 
           return sendTo(context.basketHelper, {
             type: "ADD_UPDATE",
