@@ -1,49 +1,42 @@
 <template>
   <div :class="cn(styles.radioCards.root, props.class)">
     <Collapsible v-model:open="open">
-      <div
-        v-if="selectedItem"
-        :class="styles.radioCards.item"
-        data-state="checked"
+      <RadioGroup
+        :model-value="modelValue"
+        :required="props.required"
+        :disabled="props.disabled"
+        data-testid="radio-card-group"
+        @update:model-value="onSelectionChange"
+        class="flex w-full flex-col gap-0"
       >
-        <div :class="styles.radioCards.label">
-          <div :class="styles.radioCards.radio">
-            <input
-              :id="`${props.name}-selected`"
-              :name="props.name"
-              :value="selectedItem.value"
-              :required="props.required"
-              :disabled="props.disabled"
-              type="radio"
-              checked
-              :class="styles.radioCards.input"
-              style="position: absolute; opacity: 0; pointer-events: none"
-            />
-          </div>
-          <slot
-            name="item"
-            v-bind="{
-              item: selectedItem,
-            }"
-          >
-            <span v-if="selectedItem.label">{{ selectedItem.label }}</span>
-          </slot>
-        </div>
-      </div>
-      <CollapsibleContent class="mt-2">
-        <component
-          :is="useInputGroup ? RadioGroup : 'div'"
-          :model-value="modelValue"
+        <RadioCardItem
+          v-if="selectedItem"
+          data-state="checked"
+          :item="selectedItem"
+          :index="0"
+          :name="props.name"
+          :label="selectedItem?.label"
           :required="props.required"
           :disabled="props.disabled"
-          data-testid="radio-card-group"
-          @update:model-value="onSelectionChange"
+          :model-value="modelValue"
+          :width="props.width"
+          :value="selectedItem.value"
+          :list="props.list"
+          data-testid="radio-card-item"
+          :uiConfig="selectedItemUiConfig"
         >
+          <template #item="slotProps">
+            <slot name="item" v-bind="slotProps" />
+          </template>
+        </RadioCardItem>
+
+        <CollapsibleContent class="flex w-full flex-col overflow-auto">
           <template
             v-for="(option, index) in unselectedItems"
             :key="option.id || index"
           >
             <RadioCardItem
+              class="mt-2"
               :item="option.item"
               :index="overrideIndex || index"
               :name="props.name"
@@ -64,8 +57,8 @@
               </template>
             </RadioCardItem>
           </template>
-        </component>
-      </CollapsibleContent>
+        </CollapsibleContent>
+      </RadioGroup>
 
       <slot name="actions">
         <Link
@@ -154,6 +147,14 @@ const selectedItem = computed(() => {
 const unselectedItems = computed(() => {
   return props.items.filter(item => item.value !== modelValue.value);
 });
+
+const selectedItemUiConfig = {
+  radioCards: {
+    input:
+      "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:ring-0 !ring-0",
+    item: "!outline-none !ring-0 focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 focus-visible:!outline-none focus-visible:!ring-0 !ring-0",
+  } as any,
+};
 
 const toggleExpanded = () => {
   open.value = !open.value;
