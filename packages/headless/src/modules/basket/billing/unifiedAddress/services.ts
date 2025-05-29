@@ -56,13 +56,14 @@ async function loadLookups({
   schema,
   allowMultipleEdits,
 }: UnifiedAddressContext): Promise<UnifiedAddressContext> {
-  const { getAll: getPhones } = useClientPhones();
+  const { getAll: getPhones, getDefault: getDefaultPhone } = useClientPhones();
   const { getAll: getEmails } = useClientEmails();
-  const { getAll: getAddresses, getDefault } = useClientAddresses();
+  const { getAll: getAddresses, getDefault: getDefaultAddress } =
+    useClientAddresses();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
-  const { ensureConfig, getConfig } = useBrand();
+  const { ensureConfig } = useBrand();
 
   await isReady().catch(error => Promise.reject(error));
 
@@ -88,7 +89,8 @@ async function loadLookups({
     return Promise.reject("Failed to load countries and regions");
   }
 
-  const defaultAddress = await getDefault();
+  const defaultAddress = await getDefaultAddress();
+  const defaultPhone = await getDefaultPhone();
 
   const baseModel: UnifiedAddressModel = {
     addressId: defaultAddress?.id,
@@ -100,6 +102,14 @@ async function loadLookups({
       postcode: defaultAddress?.postcode ?? "",
       type: ADDRESS_TYPE_KEYS.HOME,
     },
+    phone: defaultPhone
+      ? {
+          number: defaultPhone?.phone.number ?? "",
+          nationalNumber: defaultPhone?.phone.nationalNumber ?? "",
+          countryCallingCode: defaultPhone?.phone.countryCallingCode ?? "",
+          country: defaultPhone?.phone.country ?? "",
+        }
+      : undefined,
     type: ADDRESS_TYPE_KEYS.HOME, // Schema level
   };
 

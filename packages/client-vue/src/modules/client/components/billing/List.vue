@@ -1,16 +1,16 @@
 <template>
-  <section class="flex flex-col gap-y-4">
+  <section class="flex flex-col">
     <template v-if="view === Views.default">
-      <Item :address="defaultAddress" />
+      <section class="flex items-start">
+        <Item :address="defaultAddress" />
 
-      <footer class="flex gap-x-4">
         <Link
           :label="defaultLabel"
           size="sm"
           variant="muted"
           @click="defaultAction"
         />
-      </footer>
+      </section>
     </template>
 
     <template v-else-if="view === Views.list">
