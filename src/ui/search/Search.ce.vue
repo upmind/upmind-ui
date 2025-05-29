@@ -7,6 +7,7 @@
         :placeholder="placeholder"
         width="full"
         @update:model-value="onSearch"
+        @focus="onSearch(search)"
         :class="styles.search.inputContainer"
         :input-class="styles.search.input"
       >
