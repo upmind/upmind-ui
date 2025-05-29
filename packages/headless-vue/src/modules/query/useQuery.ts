@@ -2,21 +2,23 @@
 import { computed, onUnmounted, ref } from "vue";
 
 // --- internal
-import {
-  PAGINATION,
-  type PaginatedData,
-  useQuerySubscription,
-} from "@upmind-automation/headless";
+import { PAGINATION, useQuerySubscription } from "@upmind-automation/headless";
 
 // --- utils
 import { isEmpty } from "lodash-es";
 
 // ---types
-import type { QueryKey } from "@tanstack/vue-query";
-import type { QueryCacheNotifyEvent } from "@upmind-automation/headless";
+import type {
+  PaginatedData,
+  QueryCacheNotifyEvent,
+} from "@upmind-automation/headless";
+import type { QueryFilters, QueryKey } from "@tanstack/vue-query";
 // -----------------------------------------------------------------------------
 
-export const useQuery = <T = unknown>(queryKey: QueryKey) => {
+export const useQuery = <T = unknown>(
+  queryKey: QueryKey,
+  options: Omit<QueryFilters, "queryKey"> = { exact: true }
+) => {
   const query = ref<QueryCacheNotifyEvent["query"]["state"]>();
 
   const pagination = ref({
@@ -33,7 +35,6 @@ export const useQuery = <T = unknown>(queryKey: QueryKey) => {
     queryKey,
     (response: QueryCacheNotifyEvent["query"]) => {
       console.debug("useQuery", "query", response);
-
       query.value = response.state;
 
       const paged = response.state.data
@@ -50,7 +51,8 @@ export const useQuery = <T = unknown>(queryKey: QueryKey) => {
         hasNextPage.value = response.state?.data?.hasNextPage ?? false;
         hasPreviousPage.value = response.state?.data?.hasPreviousPage ?? false;
       }
-    }
+    },
+    options
   );
 
   // --- housekeeping

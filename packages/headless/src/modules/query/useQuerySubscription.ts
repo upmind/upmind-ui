@@ -103,14 +103,17 @@ export function useQueryHelper(callback: any, onReceive: any) {
 /**
  * Subscribe to the client address query that are present in the cache.
  * This will trigger the callback function when the query is ready/updated.
+ * @param queryKey The query key to subscribe to.
  * @param callback The callback function to be called when the query is ready/updated.
+ * @param options The options to pass to the query observer, such as `exact` to match the query key exactly.
  * @returns The unsubscribe function
  */
 export const useQuerySubscription = (
   queryKey: QueryKey,
-  callback: (query: QueryCacheNotifyEvent["query"]) => void
+  callback: (query: QueryCacheNotifyEvent["query"]) => void,
+  options: Omit<QueryFilters, "queryKey"> = { exact: true }
 ): QueryObserver => {
-  const observer = new QueryObserver(queryKey);
+  const observer = new QueryObserver(queryKey, options);
   observer.subscribe(query => callback(query));
   return observer;
 };

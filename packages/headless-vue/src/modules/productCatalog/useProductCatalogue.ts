@@ -3,8 +3,6 @@
 // --- internal
 import { useQuery } from "../query";
 import {
-  buildDynamicQueryKey,
-  type PaginatedParams,
   useProductCatalogue as useUpmindProductCatalogue,
   useProductCategories as useUpmindProductCategories,
 } from "@upmind-automation/headless";
@@ -14,8 +12,6 @@ import { add, subtract } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";
-import { ref } from "vue";
-import { QueryKey } from "@tanstack/vue-query";
 // -----------------------------------------------------------------------------
 
 export const useProductCatalogue = () => {
@@ -29,9 +25,13 @@ export const useProductCatalogue = () => {
     queryOptions,
     getAllFromCache,
   } = useUpmindProductCatalogue();
-  const queryKey = ref<QueryKey>(queryOptions.queryKey);
 
-  const { error, meta, data, pagination } = useQuery<Product[]>(queryKey.value);
+  const { error, meta, data, pagination } = useQuery<Product[]>(
+    queryOptions.queryKey,
+    {
+      exact: false,
+    }
+  );
 
   // ---------------------------------------------------------------------------
   return {
@@ -45,17 +45,7 @@ export const useProductCatalogue = () => {
     filter,
     getOne,
     findOne,
-    // this "hack" is needed to ensure that the queryKey is dynamic
-    getPaged: (
-      paginationParams: PaginatedParams,
-      { allowStale = true }: { allowStale?: boolean } = {}
-    ) => {
-      queryKey.value = buildDynamicQueryKey({
-        queryKey: queryOptions.queryKey,
-        paginatedParams: paginationParams,
-      });
-      return getPaged(paginationParams, { allowStale });
-    },
+    getPaged,
     invalidate,
     categories: useUpmindProductCategories(),
     getNextPage: async () => {

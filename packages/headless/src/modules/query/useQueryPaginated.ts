@@ -1,8 +1,10 @@
+// --- internal
+import { useQuery } from "./useQuery";
+
 // --- utils
-import { PAGINATION, getQueryClient, buildDynamicQueryKey } from "./utils";
 import { get } from "lodash-es";
 import { useUrl } from "../../utils";
-import { useQuery } from "./useQuery";
+import { PAGINATION, getQueryClient } from "./utils";
 
 // --- types
 import type {
@@ -84,10 +86,22 @@ export const useQueryPaginated = () => {
 
       return getRequest<T>({
         url,
-        queryKey: buildDynamicQueryKey({
-          queryKey: queryKey ?? [],
-          paginatedParams,
-        }),
+        queryKey: [
+          ...queryKey,
+          {
+            ...(sort ? { sort: sort.toString() } : {}),
+            ...(filters && {
+              filters: filters
+                .reduce((_url, filter) => filter(_url), url)
+                .searchParams.toString()
+                .split("&"),
+            }),
+            pagination: {
+              limit: pagination?.limit ?? PAGINATION.pageSize,
+              offset: pagination?.offset ?? PAGINATION.offset,
+            },
+          },
+        ],
         ...options,
         mapPaginatedData,
       });
