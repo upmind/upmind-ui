@@ -557,7 +557,7 @@ export default createMachine(
                 ? context.parseProductModel(product)
                 : undefined;
               if (model) {
-                model.skipValidation = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
+                model.silent = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
                 result.push(model);
               }
             }

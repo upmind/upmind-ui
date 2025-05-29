@@ -8,6 +8,7 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
+  IRelatedObject,
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
@@ -211,7 +212,17 @@ export interface ProductProps extends ProductModel {
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
   // ---
-  skipValidation?: boolean; // if true, we will not validate the provision fields
+  silent?: boolean; // if true, we will not validate the provision fields and treat this as a bulk or background operation
+}
+
+// Raw props usually passed from the back end OR Url params
+export interface IProductConfig {
+  pid?: string;
+  qty?: number;
+  bcm?: number;
+  sub_pids?: string[];
+  pfields?: Record<string, any>;
+  coupons?: string[];
 }
 
 // syntax sugar for product summary
@@ -337,6 +348,12 @@ export type ExternalError = {
   attributes?: ErrorObject[];
   provisionFields?: ErrorObject[];
 };
+
+export interface ProductBundle extends IRelatedObject {
+  // --- config to be used in adding the bundle
+  config: IProductConfig;
+}
+
 // -----------------------------------------------------------------------------
 
 export interface ProductConfigContext {
@@ -346,7 +363,7 @@ export interface ProductConfigContext {
   promotions?: ProductProps["promotions"];
   coupons?: ProductProps["coupons"];
   subproducts?: ProductProps["subproducts"];
-  skipValidation?: ProductProps["skipValidation"];
+  silent?: ProductProps["silent"];
   // ---
   baseModel?: ProductModel;
   model?: ProductModel;
@@ -358,6 +375,7 @@ export interface ProductConfigContext {
     attributes?: SubproductDetails[];
     provisionFields?: Record<string, any>;
     prices?: PriceCalculations;
+    bundled?: ProductModel[];
   };
   // ---
   product?: Product;
