@@ -213,6 +213,7 @@ export interface ProductProps extends ProductModel {
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
   // ---
   silent?: boolean; // if true, we will not validate the provision fields and treat this as a bulk or background operation
+  bundle?: string; // allow to pass a bundle id to indicate that this product should  apply the specific bundle configuration; false forces no bundles to be applied
 }
 
 // Raw props usually passed from the back end OR Url params
@@ -353,6 +354,7 @@ export interface ProductBundle extends IRelatedObject {
   // --- config to be used in adding the bundle
   config: IProductConfig;
 }
+export type ProductBundles = ProductBundle[] | Record<string, ProductBundle>;
 
 // -----------------------------------------------------------------------------
 
@@ -364,6 +366,7 @@ export interface ProductConfigContext {
   coupons?: ProductProps["coupons"];
   subproducts?: ProductProps["subproducts"];
   silent?: ProductProps["silent"];
+  bundle?: ProductProps["bundle"];
   // ---
   baseModel?: ProductModel;
   model?: ProductModel;

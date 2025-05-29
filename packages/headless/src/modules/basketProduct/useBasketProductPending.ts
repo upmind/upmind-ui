@@ -39,12 +39,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         "coupons",
         "subproducts",
         "silent",
+        "bundle",
       ]) as ProductModel)
     : undefined;
 
   const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
   const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
   const silent = isProductProps(data) ? (data?.silent ?? false) : false;
+  const bundle = isProductProps(data) ? data?.bundle : undefined;
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
   if (!rawBasket)
@@ -73,6 +75,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         subproducts,
         coupons,
         silent,
+        bundle,
         // ---
         model,
       }),
