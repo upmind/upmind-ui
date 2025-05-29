@@ -28,9 +28,7 @@ export const useProductCatalogue = () => {
 
   const { error, meta, data, pagination } = useQuery<Product[]>(
     queryOptions.queryKey,
-    {
-      exact: false,
-    }
+    { exact: false }
   );
 
   // ---------------------------------------------------------------------------
