@@ -6,7 +6,7 @@
       @setView="setView"
     />
 
-    <AddressAdd v-else-if="view === Views.add" @setView="setView" />
+    <AddressAdd @setView="setView" />
   </template>
   <template v-else-if="meta.requiresPhone">
     <PhoneListings

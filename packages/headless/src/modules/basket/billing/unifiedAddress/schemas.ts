@@ -1,5 +1,5 @@
 // --- utils
-import { get, map, property } from "lodash-es";
+import { get, map, uniq } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../../../client";
@@ -14,8 +14,45 @@ export const useSchema = ({
   countries,
   config,
 }: UnifiedAddressContext) => {
-  const schema = {
+  const schema: JsonSchema = {
     type: "object",
+    required: [],
+    properties: {
+      addressId: {
+        type: ["string"],
+        const: baseModel.addressId,
+      },
+      companyId: {
+        type: ["string"],
+        const: baseModel.companyId,
+      },
+      phone: {
+        type: "object",
+        title: "Phone",
+        isPhoneNumber: country?.code,
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Phone number ( with dialing code )",
+          },
+
+          nationalNumber: {
+            type: ["string", "null"],
+            title: "Phone number",
+          },
+
+          countryCallingCode: {
+            type: ["string", "null"],
+            title: "Country calling code",
+          },
+
+          country: {
+            type: ["string", "null"],
+            title: "Country",
+          },
+        },
+      },
+    },
     oneOf: [
       {
         title: "Personal",
@@ -100,37 +137,9 @@ export const useSchema = ({
           },
         },
       },
-      phone: {
-        type: "object",
-        title: "Phone",
-        isPhoneNumber: country?.code,
-        properties: {
-          number: {
-            type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
-          },
-
-          nationalNumber: {
-            type: ["string", "null"],
-            title: "Phone number",
-          },
-
-          countryCallingCode: {
-            type: ["string", "null"],
-            title: "Country calling code",
-          },
-
-          country: {
-            type: ["string", "null"],
-            title: "Country",
-          },
-        },
-      },
-
       personal: {
         type: "object",
         additionalProperties: false,
-        required: ["address"],
         properties: {
           type: {
             type: "number",
@@ -139,14 +148,10 @@ export const useSchema = ({
           address: {
             $ref: "#/definitions/address",
           },
-          phone: {
-            $ref: "#/definitions/phone",
-          },
         },
       },
       business: {
         type: "object",
-        required: ["company", "address"],
         properties: {
           type: {
             type: "number",
@@ -158,120 +163,121 @@ export const useSchema = ({
           address: {
             $ref: "#/definitions/address",
           },
-          phone: {
-            $ref: "#/definitions/phone",
-          },
         },
       },
     },
   };
 
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    schema.definitions.personal.required.push("phone");
-    schema.definitions.business.required.push("phone");
+  if (
+    get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS) &&
+    !baseModel.addressId
+  ) {
+    schema.required ??= [];
+    schema.required.push("address");
   }
 
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    schema.definitions.address.required.push("regionId");
+    schema.definitions?.address?.required?.push("regionId");
   }
 
-  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
-    schema.oneOf.shift();
+  if (
+    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS) &&
+    !baseModel.addressId
+  ) {
+    schema.oneOf?.shift();
+    schema.required ??= [];
+    schema.required.push("company", "address");
   }
+
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    schema.required ??= [];
+    schema.required.push("phone");
+  }
+
+  schema.required = uniq(schema.required);
 
   return schema as JsonSchema;
 };
 
 export const useUischema = ({ config }: UnifiedAddressContext) => {
-  const phoneUiSchema = {
-    type: "Control",
-    scope: "#/properties/phone",
-    rule: {
-      effect: "HIDE",
-      condition: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
-        ? { scope: "#", schema: { type: "null" } }
-        : { scope: "#", schema: { type: "object" } },
-    },
-  };
-
-  const addressUiSchema = {
-    type: "Control",
-    scope: "#/properties/address",
-    options: {
-      autoFocus: true,
-      autocomplete: "off",
-      detail: {
-        type: "VerticalLayout",
-        elements: [
-          {
-            type: "Control",
-            scope: "#/properties/countryId",
-          },
-          {
-            type: "address",
-            options: {
-              fields: ["address1", "address2"],
-              placeholder: "Start typing your address",
-            },
+  const personalUiSchema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/address",
+        options: {
+          autoFocus: true,
+          autocomplete: "off",
+          detail: {
+            type: "VerticalLayout",
             elements: [
               {
-                type: "Group",
-                options: {
-                  border: false,
-                },
-                elements: [
-                  {
-                    type: "Control",
-                    scope: "#/properties/address1",
-                    options: {
-                      placeholder: "House name, apartment number etc.",
-                    },
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/address2",
-                    options: {
-                      placeholder: "Road, street name etc.",
-                    },
-                  },
-                ],
-              },
-              {
                 type: "Control",
-                scope: "#/properties/city",
-                options: {
-                  placeholder: "City, town etc.",
-                },
+                scope: "#/properties/countryId",
               },
               {
-                type: "HorizontalLayout",
+                type: "address",
+                options: {
+                  fields: ["address1", "address2"],
+                  placeholder: "Start typing your address",
+                },
                 elements: [
                   {
-                    type: "Control",
-                    scope: "#/properties/regionId",
+                    type: "Group",
                     options: {
-                      placeholder: "Select region",
+                      border: false,
                     },
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/address1",
+                        options: {
+                          placeholder: "House name, apartment number etc.",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/address2",
+                        options: {
+                          placeholder: "Road, street name etc.",
+                        },
+                      },
+                    ],
                   },
                   {
                     type: "Control",
-                    scope: "#/properties/postcode",
+                    scope: "#/properties/city",
                     options: {
-                      placeholder: "eg. 10011",
+                      placeholder: "City, town etc.",
                     },
+                  },
+                  {
+                    type: "HorizontalLayout",
+                    elements: [
+                      {
+                        type: "Control",
+                        scope: "#/properties/regionId",
+                        options: {
+                          placeholder: "Select region",
+                        },
+                      },
+                      {
+                        type: "Control",
+                        scope: "#/properties/postcode",
+                        options: {
+                          placeholder: "eg. 10011",
+                        },
+                      },
+                    ],
                   },
                 ],
               },
             ],
           },
-        ],
+        },
       },
-    },
-  };
-
-  const personalUiSchema = {
-    type: "VerticalLayout",
-    elements: [addressUiSchema, phoneUiSchema],
+    ],
   };
 
   const businessUiSchema = {
@@ -314,8 +320,7 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
           },
         },
       },
-      addressUiSchema,
-      phoneUiSchema,
+      personalUiSchema,
     ],
   };
 
@@ -326,12 +331,61 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
   }
 
   const uiSchema = {
-    type: "Control",
-    scope: "#",
-    options: {
-      toggle: true,
-      oneOfUiSchema: oneOfUiSchemas,
-    },
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/phone",
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId", "phone"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
+        },
+      },
+      {
+        type: "Control",
+        scope: "#",
+        options: {
+          toggle: true,
+          oneOfUiSchema: oneOfUiSchemas,
+        },
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
+        },
+      },
+      {
+        type: "Control",
+        scope: "#/properties/phone",
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId", "phone"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
+        },
+      },
+    ],
   };
 
   return uiSchema as UISchemaElement;

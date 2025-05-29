@@ -5,11 +5,10 @@
     :schema="schema"
     :uischema="uischema"
     :additional-renderers="formRenderers"
-    :no-actions="!showAddressFields"
     color="primary"
     @resolve="updateAddress"
   >
-    <template v-if="showAddressFields" #actions>
+    <template #actions>
       <footer class="flex gap-x-6">
         <Button
           :loading="meta.isLoading"
@@ -60,7 +59,7 @@ const emit = defineEmits<{
   (e: "setView", value: Views): void;
 }>();
 
-const { update, set, model, schema, uischema, meta } = useBillingDetail();
+const { update, input, model, schema, uischema, meta } = useBillingDetail();
 const { isReady, getAll, data } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
@@ -68,19 +67,19 @@ const { showAddressFields, selectedAddress, setShowAddressFields } =
 await isReady();
 await getAll();
 
-const updateModel = debounce(async (data: any) => {
-  await set(data);
-}, 500);
+const updateModel = async (data: any) => {
+  await input(data);
+};
 
-watch(selectedAddress, async address => {
-  if (address) {
-    await set({
-      ...model.value,
-      address,
-    });
-    setShowAddressFields(true);
-  }
-});
+// watch(selectedAddress, async address => {
+//   if (address) {
+//     await input({
+//       ...model.value,
+//       address,
+//     });
+//     setShowAddressFields(true);
+//   }
+// });
 
 const updateAddress = async () => {
   await update();

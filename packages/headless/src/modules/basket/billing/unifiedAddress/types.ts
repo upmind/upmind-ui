@@ -11,6 +11,7 @@ import type {
 import type { ClientItemContext } from "../../../client/types";
 import type {
   BrandConfigKeys,
+  IAddress,
   ICompany,
   ICountry,
   IRegion,
@@ -32,6 +33,8 @@ export type UnifiedAddress = UnifiedAddressModel & {
 };
 
 export type UnifiedAddressModel = {
+  addressId?: IAddress["id"];
+  companyId?: ICompany["id"];
   address?: AddressModel;
   company?: CompanyDetailsModel;
   phone?: PhoneModel["phone"];
