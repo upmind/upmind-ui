@@ -5,6 +5,7 @@
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
     :data-testid="`form-field-${kebabCase(label ?? 'default')}`"
+    :data-visible="meta.isVisible"
   >
     <slot name="field">
       <!-- label -->

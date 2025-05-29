@@ -22,11 +22,11 @@ export default {
         },
       },
     }),
-    item: cva("w-full empty:hidden", {
+    item: cva("w-full [&:has([data-visible='false'])]:hidden", {
       variants: {
         isHorizontal: {
           true: "flex-1",
-          false: "w-full",
+          false: "",
         },
       },
     }),
