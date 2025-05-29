@@ -48,7 +48,7 @@ export const useQueryPaginated = () => {
    * @param queryKey {string[]} The query key to use for the query.
    * @param pagination {IAPIPagination} The pagination options.
    * @param options Additional options to pass to TanStack query.
-   * @returns {Promise<PaginatedData>} A promise that resolves to the paginated data if the request was successful, or rejects with an error if the request failed.
+   * @returns A promise that resolves to the paginated data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
   async function getPaginatedRequest<T extends object = object>({
@@ -58,9 +58,7 @@ export const useQueryPaginated = () => {
     filters = [],
     pagination = {},
     ...options
-  }: PaginatedParams & QueryParams<QueryResponse<T>>): Promise<
-    PaginatedData<T>
-  > {
+  }: PaginatedParams & QueryParams<QueryResponse<T>>) {
     const { get: getRequest } = useQuery();
 
     let pageIndex = PAGINATION.pageIndex;
@@ -183,9 +181,8 @@ export const useQueryPaginated = () => {
     /**
      * Maps the paginated data to a more user-friendly format.
      * @param response The data to map.
-     * @returns {PaginatedData} The mapped data.
      */
-    function mapPaginatedData(response?: QueryResponse<T>): PaginatedData<T> {
+    function mapPaginatedData(response?: QueryResponse<T>) {
       itemTotal = response?.total || 0;
 
       return {
