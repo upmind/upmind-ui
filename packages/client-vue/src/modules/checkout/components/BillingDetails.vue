@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col gap-y-4">
-    <section>
+    <section v-if="view === Views.default || view === Views.list">
       <List :view="view" @setView="setView" />
     </section>
 
-    <section>
+    <section class="-mt-4">
       <Add
         v-if="view === Views.default || view === Views.add"
         :view="view"
