@@ -24,6 +24,8 @@ import {
   isFunction,
   isNil,
   isNumber,
+  isObject,
+  isArray,
   keys,
   map,
   maxBy,
@@ -69,6 +71,7 @@ import type {
   PriceDisplay,
   Product,
   ProductBundle,
+  ProductBundles,
   ProductConfigContext,
   ProductDetails,
   ProductModel,
@@ -1115,38 +1118,77 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
  * Parses the given product and returns a list of bundled products.
  * The bundled products are extracted from the product, and only the single products are considered.
  * Inactive bundled products are not included.
+ * NB: Bundles have a priority...
+ *     if a product has bundles defined in its meta, those are used.
+ *     otherwise we traverse the category hierarchy to find bundles and take the first set we find.
+ * NB: Bundles may be an array or an Collection of key/value pairs.
+ *     If we have an array, we use it directly, no key is needed.
+ *     However, if we have a key/value object, we need to extract the bundle config based on the provided `bundle` key.
+ *     if no key is provided, we will NOT include any bundles.
  *
  * @param {IProduct} raw - The raw product data to parse.
  * @returns {ProductProps[]} The parsed list of bundled products configurations.
  */
-export function parseBundledProducts(raw: IProduct): ProductProps[] {
+export function parseBundledProducts(
+  raw: IProduct,
+  bundle?: ProductConfigContext["bundle"]
+): ProductProps[] {
   // safe check : dont include recommendations for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
 
+  debugger;
+  let bundles: ProductBundles =
+    raw?.meta?.bundle ??
+    first(
+      compact(
+        iterateParents(raw.category, [], {
+          valueKey: "meta.bundle",
+          parentKey: "top_category",
+          transform: (category: IProductCategory) =>
+            get(category, "meta.bundle"),
+        })
+      )
+    );
+
+  debugger;
+  if (!isArray(bundles)) {
+    debugger;
+    if (!bundle) bundles = [];
+    else bundles = get(bundles, bundle, []) as ProductBundle[];
+  }
+
+  debugger;
   const bundledProducts = reduce(
-    union(raw?.meta?.bundle, raw?.category?.meta?.bundle) as ProductBundle[],
+    bundles,
     (result: ProductProps[], rawBundle) => {
-      const valid = rawBundle?.object_type === "product" && rawBundle?.active;
-      if (!valid) return result; // skip if not a valid product bundle or inactive
+      debugger;
 
-      const config: IProductConfig = get(rawBundle, "config", {});
-
-      const model = {
-        productId: rawBundle.object_id,
-        quantity: config?.qty || 1,
-        term: config?.bcm ?? 0,
-        subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
-        provisionFields: config?.pfields ?? {},
-        coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
-        // ---
-        silent: true, // always silent for bundled products
-      } as ProductProps;
-      result.push(model);
-
+      const model = parseBundleConfig(rawBundle);
+      if (model) result.push(model);
       return result;
     },
     []
-  ) as ProductModel[];
+  ) as ProductProps[];
 
   return bundledProducts;
+}
+
+function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
+  // safe check : dont include recommendations for products that are not single products
+
+  const valid = raw?.object_type === "product" && raw?.active;
+  if (!valid) return undefined; // skip if not a valid product bundle or inactive
+
+  const config: IProductConfig = get(raw, "config", {});
+
+  return {
+    productId: raw.object_id,
+    quantity: config?.qty || 1,
+    term: config?.bcm ?? 0,
+    subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
+    provisionFields: config?.pfields ?? {},
+    coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
+    // ---
+    silent: true, // always silent for bundled products
+  } as ProductProps;
 }

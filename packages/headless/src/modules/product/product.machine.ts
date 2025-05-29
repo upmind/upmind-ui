@@ -307,6 +307,7 @@ export default createMachine(
             errorExternal,
             error,
             silent,
+            bundle,
           }: ProductConfigContext,
           _event: AnyEventObject
         ) => {
@@ -322,6 +323,7 @@ export default createMachine(
             coupons: coupons ?? [],
             subproducts: subproducts ?? [],
             silent: silent ?? false,
+            bundle: bundle ?? undefined,
             // ---
             baseModel: !isEmpty(rawBasketProduct)
               ? parseBasketProductModel(rawBasketProduct)
@@ -418,7 +420,7 @@ export default createMachine(
 
         rawProduct: (_context, { data }: AnyEventObject) => data.product,
         lookups: (
-          { model, rawBasketProduct }: ProductConfigContext,
+          { model, rawBasketProduct, bundle }: ProductConfigContext,
           { data }: AnyEventObject
         ) => ({
           product: parseProductDetails(data.product, rawBasketProduct),
@@ -432,7 +434,7 @@ export default createMachine(
             data.provisioning,
             data.product
           ),
-          bundled: parseBundledProducts(data.product),
+          bundled: parseBundledProducts(data.product, bundle),
         }),
       }),
 
