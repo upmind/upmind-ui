@@ -1,50 +1,41 @@
 <template>
-  <section class="flex flex-col">
-    <template v-if="view === Views.default">
-      <section class="flex items-start">
-        <Item :address="defaultAddress" />
+  <template v-if="view === Views.default">
+    <FormLabel formItemId="address">Address</FormLabel>
 
-        <Link
-          :label="defaultLabel"
-          size="sm"
-          variant="muted"
-          @click="defaultAction"
-        />
-      </section>
-    </template>
+    <Item :address="defaultAddress" />
+  </template>
 
-    <template v-else-if="view === Views.list">
-      <RadioCards
-        v-model="selectedAddress"
-        :items="parsedValues"
-        :disabled="isLoading"
-        list
-        required
-      >
-        <template #item="{ item }">
-          <Item :address="getAddress(item.value)" editing />
-        </template>
-      </RadioCards>
+  <template v-else-if="view === Views.list">
+    <RadioCards
+      v-model="selectedAddress"
+      :items="parsedValues"
+      :disabled="isLoading"
+      list
+      required
+    >
+      <template #item="{ item }">
+        <Item :address="getAddress(item.value)" editing />
+      </template>
+    </RadioCards>
 
-      <footer class="flex gap-x-4">
-        <Link
-          label="Confirm"
-          size="sm"
-          variant="muted"
-          :disabled="meta.isLoading"
-          @click="listAction"
-        />
+    <footer class="flex gap-x-4">
+      <Link
+        label="Confirm"
+        size="sm"
+        variant="muted"
+        :disabled="meta.isLoading"
+        @click="listAction"
+      />
 
-        <Link
-          v-if="view === Views.list"
-          label="Add new address"
-          size="sm"
-          variant="muted"
-          @click="emit('setView', Views.add)"
-        />
-      </footer>
-    </template>
-  </section>
+      <Link
+        v-if="view === Views.list"
+        label="Add new address"
+        size="sm"
+        variant="muted"
+        @click="emit('setView', Views.add)"
+      />
+    </footer>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -56,7 +47,7 @@ import { map } from "lodash-es";
 import { useClientAddresses } from "@upmind-automation/headless-vue";
 
 // --- components
-import { RadioCards, Link } from "@upmind-automation/upmind-ui";
+import { RadioCards, Link, FormLabel } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
 
 // --- utils

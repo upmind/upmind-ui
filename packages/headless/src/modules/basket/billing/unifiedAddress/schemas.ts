@@ -16,7 +16,6 @@ export const useSchema = ({
 }: UnifiedAddressContext) => {
   const schema: JsonSchema = {
     type: "object",
-    required: [],
     properties: {
       addressId: {
         type: ["string"],
@@ -25,32 +24,6 @@ export const useSchema = ({
       companyId: {
         type: ["string"],
         const: baseModel.companyId,
-      },
-      phone: {
-        type: "object",
-        title: "Phone",
-        isPhoneNumber: country?.code,
-        properties: {
-          number: {
-            type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
-          },
-
-          nationalNumber: {
-            type: ["string", "null"],
-            title: "Phone number",
-          },
-
-          countryCallingCode: {
-            type: ["string", "null"],
-            title: "Country calling code",
-          },
-
-          country: {
-            type: ["string", "null"],
-            title: "Country",
-          },
-        },
       },
     },
     oneOf: [
@@ -92,10 +65,6 @@ export const useSchema = ({
       address: {
         type: "object",
         title: "Address",
-        default: {
-          regionId: baseModel?.address?.regionId,
-          countryId: baseModel?.address?.countryId,
-        },
         required: ["address1", "city", "postcode", "countryId"],
         properties: {
           address1: {
@@ -137,22 +106,74 @@ export const useSchema = ({
           },
         },
       },
+      phone: {
+        type: "object",
+        title: "Phone number",
+        isPhoneNumber: country?.code,
+        default: baseModel?.phone,
+        properties: {
+          number: {
+            type: ["string", "null"],
+            title: "Phone number ( with dialing code )",
+          },
+
+          nationalNumber: {
+            type: ["string", "null"],
+            title: "Phone number",
+          },
+
+          countryCallingCode: {
+            type: ["string", "null"],
+            title: "Country calling code",
+          },
+
+          country: {
+            type: ["string", "null"],
+            title: "Country",
+          },
+        },
+      } as any,
       personal: {
         type: "object",
         additionalProperties: false,
+        required: ["address"],
         properties: {
+          addressId: {
+            type: ["string"],
+            const: baseModel.addressId,
+          },
+          companyId: {
+            type: ["string"],
+            const: baseModel.companyId,
+          },
           type: {
             type: "number",
             default: 1,
           },
           address: {
             $ref: "#/definitions/address",
+            default: {
+              regionId: baseModel?.address?.regionId,
+              countryId: baseModel?.address?.countryId,
+            },
+          },
+          phone: {
+            $ref: "#/definitions/phone",
           },
         },
       },
       business: {
         type: "object",
+        required: ["company", "address"],
         properties: {
+          addressId: {
+            type: ["string"],
+            const: baseModel.addressId,
+          },
+          companyId: {
+            type: ["string"],
+            const: baseModel.companyId,
+          },
           type: {
             type: "number",
             default: 4,
@@ -162,18 +183,22 @@ export const useSchema = ({
           },
           address: {
             $ref: "#/definitions/address",
+            default: {
+              regionId: baseModel?.address?.regionId,
+              countryId: baseModel?.address?.countryId,
+            },
+          },
+          phone: {
+            $ref: "#/definitions/phone",
           },
         },
       },
     },
   };
 
-  if (
-    get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS) &&
-    !baseModel.addressId
-  ) {
-    schema.required ??= [];
-    schema.required.push("address");
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    schema.definitions!.personal!.required!.push("phone");
+    schema.definitions!.business!.required!.push("phone");
   }
 
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
@@ -185,16 +210,7 @@ export const useSchema = ({
     !baseModel.addressId
   ) {
     schema.oneOf?.shift();
-    schema.required ??= [];
-    schema.required.push("company", "address");
   }
-
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    schema.required ??= [];
-    schema.required.push("phone");
-  }
-
-  schema.required = uniq(schema.required);
 
   return schema as JsonSchema;
 };

@@ -1,10 +1,17 @@
 <template>
-  <List :view="view" @setView="setView" class="mb-4" />
-  <Add
-    v-if="view === Views.list || view === Views.default"
-    :view="view"
-    @setView="setView"
-  />
+  <div class="flex flex-col gap-y-4">
+    <section>
+      <List :view="view" @setView="setView" />
+    </section>
+
+    <section>
+      <Add
+        v-if="view === Views.default || view === Views.add"
+        :view="view"
+        @setView="setView"
+      />
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -20,7 +27,7 @@ import List from "../../client/components/billing/List.vue";
 import { Views } from "../../client/components/billing/types";
 // -----------------------------------------------------------------------------
 
-const { isReady, getAll, data, meta } = useBillingDetails();
+const { isReady, getAll, data } = useBillingDetails();
 
 const view = ref<Views>(Views.loading);
 
