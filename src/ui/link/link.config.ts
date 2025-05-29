@@ -13,6 +13,7 @@ export const rootVariants = cva(
       },
       size: {
         inherit: "",
+        "2xs": "text-2xs",
         xs: "text-xs",
         sm: "text-sm",
         md: "text-base",
