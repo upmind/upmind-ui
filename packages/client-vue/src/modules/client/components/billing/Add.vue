@@ -7,6 +7,7 @@
     :additional-renderers="formRenderers"
     color="primary"
     @resolve="updateAddress"
+    :no-actions="noActions"
   >
     <template #actions>
       <footer class="flex gap-x-6">
@@ -36,7 +37,7 @@
 
 <script setup lang="ts">
 // --- external
-import { watch } from "vue";
+import { watch, ref } from "vue";
 
 // --- internal
 import { useBillingDetails } from "@upmind-automation/headless-vue";
@@ -69,11 +70,16 @@ const { isReady, getAll, data } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
+const noActions = ref(model.value?.addressId !== null);
+
 await isReady();
 await getAll();
 
 const updateModel = async (data: any) => {
   await input(data);
+  if (noActions.value) {
+    noActions.value = false;
+  }
 };
 
 watch(selectedAddress, async address => {
@@ -82,6 +88,9 @@ watch(selectedAddress, async address => {
       ...model.value,
       address: address,
     });
+    if (noActions.value) {
+      noActions.value = false;
+    }
     setShowAddressFields(true);
   }
 });
@@ -91,6 +100,7 @@ watch(
   newView => {
     if (newView === Views.add) {
       clear();
+      noActions.value = false;
     }
   }
 );
@@ -105,5 +115,6 @@ const updateAddress = async () => {
 const cancel = () => {
   emit("setView", Views.default);
   setShowAddressFields(false);
+  noActions.value = false;
 };
 </script>
