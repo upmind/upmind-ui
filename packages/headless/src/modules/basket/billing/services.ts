@@ -8,6 +8,7 @@ import {
   useSession,
   useClientAddresses,
   useClientCompanies,
+  useClientPhones,
 } from "../../..";
 import { find, isEmpty } from "lodash-es";
 
@@ -38,13 +39,17 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   await isAuthenticated().catch(error => Promise.reject(error));
   const { getAll: getAddresses } = useClientAddresses();
   const { getAll: getCompanies } = useClientCompanies();
+  const { getAll: getPhones } = useClientPhones();
 
   const addresses = getAddresses({ allowStale: false });
   const companies = getCompanies({ allowStale: false });
+  const phones = getPhones({ allowStale: false });
 
-  return Promise.all([companies, addresses]).then(([companies, addresses]) => {
-    return { companies, addresses };
-  });
+  return Promise.all([companies, addresses, phones]).then(
+    ([companies, addresses, phones]) => {
+      return { companies, addresses, phones };
+    }
+  );
 }
 
 async function update(
@@ -70,10 +75,11 @@ async function update(
 }
 
 async function parse(
-  { model, autoupdate, dirty, addresses }: BillingDetailsContext,
+  { model, autoupdate, dirty, addresses, phones }: BillingDetailsContext,
   _event: AnyEventObject
 ) {
   const defaultAddress = find(addresses, "meta.isDefault");
+  const defaultPhone = find(phones, "meta.isDefault");
 
   // We should ALWAYS have an address set  ( if we have addresses )
   // if model is not set, set it to the default address
@@ -84,6 +90,10 @@ async function parse(
     };
     autoupdate = true;
     dirty = true;
+  }
+
+  if (model && !model?.phoneId && !isEmpty(defaultPhone)) {
+    model.phoneId = defaultPhone.id;
   }
 
   // ---

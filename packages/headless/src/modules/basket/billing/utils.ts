@@ -37,29 +37,6 @@ export const useSchema = (_context: BillingDetailsContext) => {
     type: "object",
     title: "BillingDetails",
     required: [] as string[],
-    phone: {
-      type: ["object", "null"],
-      title: "Phone",
-      isPhoneNumber: getCountry()?.code,
-      properties: {
-        number: {
-          type: ["string", "null"],
-          title: "Phone number ( with dialing code )",
-        },
-        country: {
-          type: ["string", "null"],
-          title: "Country",
-        },
-        nationalNumber: {
-          type: ["string", "null"],
-          title: "Phone number",
-        },
-        countryCallingCode: {
-          type: ["string", "null"],
-          title: "Country calling code",
-        },
-      },
-    },
     anyOf: [
       {
         type: "object",
@@ -80,10 +57,15 @@ export const useSchema = (_context: BillingDetailsContext) => {
         },
       },
     ],
+    properties: {
+      phoneId: {
+        type: ["string", "null"],
+      },
+    },
   };
 
   if (phoneRequiredOnCheckout) {
-    schema.required.push("phone");
+    schema.required.push("phoneId");
   }
   if (companyRequiredOnCheckout) {
     schema.required.push("companyId");

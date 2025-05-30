@@ -183,6 +183,7 @@ export default createMachine(
 
       setLookups: assign({
         addresses: (_context, { data }: AnyEventObject) => data.addresses,
+        phones: (_context, { data }: AnyEventObject) => data.phones,
       }),
 
       setSchemas: assign({
