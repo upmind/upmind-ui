@@ -73,17 +73,17 @@ await isReady();
 await getAll();
 
 const updateModel = async (data: any) => {
-  // await input(data);
+  await input(data);
 };
 
 watch(selectedAddress, async address => {
-  // if (address && model.value) {
-  //   await input({
-  //     ...model.value,
-  //     address,
-  //   });
-  //   setShowAddressFields(true);
-  // }
+  if (address && model.value) {
+    await input({
+      ...model.value,
+      address: address,
+    });
+    setShowAddressFields(true);
+  }
 });
 
 watch(
