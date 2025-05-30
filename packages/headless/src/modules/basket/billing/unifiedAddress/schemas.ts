@@ -1,5 +1,5 @@
 // --- utils
-import { get, map, uniq } from "lodash-es";
+import { filter, get, map, uniq } from "lodash-es";
 
 // --- types
 import type { UnifiedAddressContext } from "./types";
@@ -17,7 +17,7 @@ export const useSchema = ({
     type: "object",
     properties: {
       addressId: {
-        type: ["string"],
+        type: ["string", "null"],
         const: baseModel.addressId,
       },
       companyId: {
@@ -152,14 +152,6 @@ export const useSchema = ({
           },
         ],
         properties: {
-          addressId: {
-            type: ["string"],
-            const: baseModel.addressId,
-          },
-          companyId: {
-            type: ["string"],
-            const: baseModel.companyId,
-          },
           type: {
             type: "number",
             default: 1,
@@ -196,10 +188,6 @@ export const useSchema = ({
           },
         ],
         properties: {
-          addressId: {
-            type: ["string"],
-            const: baseModel.addressId,
-          },
           companyId: {
             type: ["string"],
             const: baseModel.companyId,
@@ -261,8 +249,8 @@ export const useSchema = ({
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ config }: UnifiedAddressContext) => {
-  const personalUiSchema = {
+export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
+  const addressUiSchema = {
     type: "VerticalLayout",
     elements: [
       {
@@ -338,13 +326,48 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
             ],
           },
         },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
+        },
       },
+    ],
+  };
+
+  const personalUiSchema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "AddressList",
+        scope: "#/properties/addressId",
+        options: {
+          label: "Address",
+          oneOf: filter(addresses || [], item => item.type === 1),
+        },
+      },
+      addressUiSchema,
     ],
   };
 
   const businessUiSchema = {
     type: "VerticalLayout",
     elements: [
+      {
+        type: "AddressList",
+        scope: "#/properties/addressId",
+        options: {
+          label: "Address",
+          oneOf: filter(addresses || [], item => item.type === 4),
+        },
+      },
       {
         type: "Control",
         scope: "#/properties/company",
@@ -381,8 +404,20 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
             ],
           },
         },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
+        },
       },
-      personalUiSchema,
+      addressUiSchema,
     ],
   };
 
@@ -417,18 +452,6 @@ export const useUischema = ({ config }: UnifiedAddressContext) => {
         options: {
           toggle: true,
           oneOfUiSchema: oneOfUiSchemas,
-        },
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["addressId"],
-              properties: {
-                addressId: { not: { const: null } },
-              },
-            },
-          },
         },
       },
       {

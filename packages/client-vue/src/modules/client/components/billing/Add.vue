@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ model }}</pre>
   <UpmForm
     :model-value="model"
     @update:modelValue="(data: any) => updateModel(data)"
@@ -76,7 +77,7 @@ await isReady();
 await getAll();
 
 const updateModel = async (data: any) => {
-  await input(data);
+  // await input(data);
   if (noActions.value) {
     noActions.value = false;
   }
