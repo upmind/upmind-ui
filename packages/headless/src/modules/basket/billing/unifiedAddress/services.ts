@@ -95,10 +95,10 @@ async function loadLookups({
   const baseModel: UnifiedAddressModel = {
     addressId: defaultAddress?.id,
     address: {
-      city: defaultAddress?.city ?? "",
-      address1: defaultAddress?.address1 ?? "",
-      countryId: defaultAddress?.countryId ?? country?.id,
-      postcode: defaultAddress?.postcode ?? "",
+      city: null,
+      address1: null,
+      countryId: country?.id,
+      postcode: null,
       type: ADDRESS_TYPE_KEYS.HOME,
     },
     phone: defaultPhone
@@ -230,12 +230,18 @@ async function parse(
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
+  const inputData = get(data, "model", data);
   const safeModel: UnifiedAddressModel = useModelParser(
     schema,
-    get(data, "model", data),
+    inputData,
     baseModel,
-    { allowExtraProps: false }
+    { allowExtraProps: true }
   );
+
+  // Remove addressId if not explicitly provided in input (for new addresses)
+  if (!inputData?.addressId) {
+    delete safeModel.addressId;
+  }
 
   if (!isEmpty(data)) {
     // let's check if the country has changed, ie: the regions don't match
