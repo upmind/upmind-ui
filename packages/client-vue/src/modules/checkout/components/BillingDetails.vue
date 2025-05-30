@@ -1,17 +1,5 @@
 <template>
-  <div class="flex flex-col gap-y-4">
-    <section v-if="view === Views.default || view === Views.list">
-      <List :view="view" @setView="setView" />
-    </section>
-
-    <section class="-mt-4">
-      <Add
-        v-if="view === Views.default || view === Views.add"
-        :view="view"
-        @setView="setView"
-      />
-    </section>
-  </div>
+  <Add :view="view" @setView="setView" />
 </template>
 
 <script setup lang="ts">
@@ -22,7 +10,7 @@ import { isEmpty } from "lodash-es";
 
 // --- components
 import Add from "../../client/components/billing/Add.vue";
-import List from "../../client/components/billing/List.vue";
+
 // --- types
 import { Views } from "../../client/components/billing/types";
 // -----------------------------------------------------------------------------
