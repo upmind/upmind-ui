@@ -7,7 +7,7 @@
         {{ address.title }}
         <Badge variant="tonal" size="xs">{{ getTypeBadge() }}</Badge>
         <Badge
-          v-if="editing && address.meta.isDefault"
+          v-if="address.meta.isDefault || isDefault"
           variant="flat"
           size="xs"
           label="Default"
@@ -41,6 +41,7 @@ import type { Address } from "@upmind-automation/headless-vue";
 const props = defineProps<{
   address: Address;
   editing?: boolean;
+  isDefault?: boolean;
 }>();
 
 const getTypeBadge = () => {

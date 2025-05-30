@@ -10,7 +10,10 @@
       @update:modelValue="onAddressChange"
     >
       <template #item="{ item }">
-        <Item :address="getAddress(item.value)" editing />
+        <Item
+          :address="getAddress(item.value)"
+          :is-default="item.value === selectedAddress"
+        />
       </template>
 
       <template #actions>
