@@ -18,11 +18,11 @@ export const useSchema = ({
     properties: {
       addressId: {
         type: ["string", "null"],
-        const: baseModel.addressId,
+        default: baseModel.addressId,
       },
       companyId: {
         type: ["string"],
-        const: baseModel.companyId,
+        default: baseModel.companyId,
       },
     },
     oneOf: [
@@ -327,7 +327,7 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
           },
         },
         rule: {
-          effect: "SHOW",
+          effect: "HIDE",
           condition: {
             scope: "#",
             schema: {
@@ -351,6 +351,18 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
         options: {
           label: "Address",
           oneOf: filter(addresses || [], item => item.type === 1),
+        },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
         },
       },
       addressUiSchema,
@@ -405,7 +417,7 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
           },
         },
         rule: {
-          effect: "SHOW",
+          effect: "HIDE",
           condition: {
             scope: "#",
             schema: {
@@ -432,22 +444,6 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/phone",
-        rule: {
-          effect: "SHOW",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["addressId", "phone"],
-              properties: {
-                addressId: { not: { const: null } },
-              },
-            },
-          },
-        },
-      },
-      {
-        type: "Control",
         scope: "#",
         options: {
           toggle: true,
@@ -457,18 +453,6 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
       {
         type: "Control",
         scope: "#/properties/phone",
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["addressId", "phone"],
-              properties: {
-                addressId: { not: { const: null } },
-              },
-            },
-          },
-        },
       },
     ],
   };
