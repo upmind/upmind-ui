@@ -2,7 +2,6 @@
 import { get, map, uniq } from "lodash-es";
 
 // --- types
-import { AddressTypes } from "../../../client";
 import type { UnifiedAddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
@@ -65,10 +64,9 @@ export const useSchema = ({
       address: {
         type: "object",
         title: "Address",
-        required: ["address1", "city", "postcode", "countryId"],
         properties: {
           address1: {
-            type: "string",
+            type: ["string"],
             title: "Address",
           },
 
@@ -78,12 +76,12 @@ export const useSchema = ({
           },
 
           city: {
-            type: "string",
+            type: ["string"],
             title: "City",
           },
 
           postcode: {
-            type: "string",
+            type: ["string"],
             title: "Postal / Zip Code",
           },
 
@@ -137,6 +135,22 @@ export const useSchema = ({
         type: "object",
         additionalProperties: false,
         required: ["address"],
+        allOf: [
+          {
+            if: {
+              properties: {
+                addressId: { const: null },
+              },
+            },
+            then: {
+              properties: {
+                address: {
+                  required: ["address1", "city", "postcode", "countryId"],
+                },
+              },
+            },
+          },
+        ],
         properties: {
           addressId: {
             type: ["string"],
@@ -165,6 +179,22 @@ export const useSchema = ({
       business: {
         type: "object",
         required: ["company", "address"],
+        allOf: [
+          {
+            if: {
+              properties: {
+                addressId: { const: null },
+              },
+            },
+            then: {
+              properties: {
+                address: {
+                  required: ["address1", "city", "postcode", "countryId"],
+                },
+              },
+            },
+          },
+        ],
         properties: {
           addressId: {
             type: ["string"],
@@ -202,7 +232,23 @@ export const useSchema = ({
   }
 
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    schema.definitions?.address?.required?.push("regionId");
+    if (
+      schema.definitions?.personal?.allOf?.[0]?.then?.properties?.address
+        ?.required
+    ) {
+      schema.definitions.personal.allOf[0].then.properties.address.required.push(
+        "regionId"
+      );
+    }
+
+    if (
+      schema.definitions?.business?.allOf?.[0]?.then?.properties?.address
+        ?.required
+    ) {
+      schema.definitions.business.allOf[0].then.properties.address.required.push(
+        "regionId"
+      );
+    }
   }
 
   if (
