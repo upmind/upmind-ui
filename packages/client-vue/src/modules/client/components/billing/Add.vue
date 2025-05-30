@@ -55,11 +55,16 @@ import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
+const props = defineProps<{
+  view: Views;
+}>();
+
 const emit = defineEmits<{
   (e: "setView", value: Views): void;
 }>();
 
-const { update, input, model, schema, uischema, meta } = useBillingDetail();
+const { update, input, model, schema, uischema, meta, clear } =
+  useBillingDetail();
 const { isReady, getAll, data } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
@@ -68,18 +73,27 @@ await isReady();
 await getAll();
 
 const updateModel = async (data: any) => {
-  await input(data);
+  // await input(data);
 };
 
 watch(selectedAddress, async address => {
-  if (address) {
-    await input({
-      ...model.value,
-      address,
-    });
-    setShowAddressFields(true);
-  }
+  // if (address && model.value) {
+  //   await input({
+  //     ...model.value,
+  //     address,
+  //   });
+  //   setShowAddressFields(true);
+  // }
 });
+
+watch(
+  () => props.view,
+  newView => {
+    if (newView === Views.add) {
+      clear();
+    }
+  }
+);
 
 const updateAddress = async () => {
   await update();

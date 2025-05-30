@@ -94,7 +94,6 @@ async function loadLookups({
 
   const baseModel: UnifiedAddressModel = {
     addressId: defaultAddress?.id,
-    companyId: defaultAddress?.companyId,
     address: {
       city: defaultAddress?.city ?? "",
       address1: defaultAddress?.address1 ?? "",
@@ -216,8 +215,16 @@ async function update(id: string, data: UnifiedAddressModel) {
 
 async function parse(
   { baseModel, schema, regions, country }: UnifiedAddressContext,
-  { data }: AnyEventObject
+  { data, type }: AnyEventObject
 ) {
+  if (type === "CLEAR") {
+    return Promise.resolve({
+      model: { type: 1 } as UnifiedAddressModel,
+      regions,
+      country,
+    });
+  }
+
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
 
