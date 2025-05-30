@@ -8,6 +8,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 export interface IBillingDetail {
   addressId?: string;
   companyId?: string;
+  phoneId?: string;
 }
 
 export interface BillingDetailsContext {
@@ -20,6 +21,7 @@ export interface BillingDetailsContext {
   // ---
   addresses?: any[];
   companies?: any[];
+  phones?: any[];
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
