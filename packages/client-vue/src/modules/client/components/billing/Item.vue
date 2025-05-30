@@ -2,10 +2,9 @@
   <div class="flex w-full flex-col gap-y-2">
     <header class="flex w-full items-start justify-between">
       <h3
-        class="m-0 flex items-center gap-x-1 text-sm font-semibold leading-none"
+        class="m-0 flex items-center gap-x-2 text-sm font-semibold leading-none"
       >
         {{ address.title }}
-        <Badge variant="tonal" size="xs">{{ getTypeBadge() }}</Badge>
         <Badge
           v-if="address.meta.isDefault || isDefault"
           variant="flat"

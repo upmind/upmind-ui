@@ -215,16 +215,8 @@ async function update(id: string, data: UnifiedAddressModel) {
 
 async function parse(
   { baseModel, schema, regions, country }: UnifiedAddressContext,
-  { data, type }: AnyEventObject
+  { data }: AnyEventObject
 ) {
-  if (type === "CLEAR") {
-    return Promise.resolve({
-      model: { type: 1 } as UnifiedAddressModel,
-      regions,
-      country,
-    });
-  }
-
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
 
@@ -241,6 +233,7 @@ async function parse(
   // Remove addressId if not explicitly provided in input (for new addresses)
   if (!inputData?.addressId) {
     delete safeModel.addressId;
+    delete baseModel.addressId;
   }
 
   if (!isEmpty(data)) {
