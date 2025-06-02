@@ -18,8 +18,16 @@
       />
     </header>
 
-    <p class="text-emphasis-medium m-0 text-sm leading-none">
+    <p class="text-emphasis-high m-0 text-sm leading-none">
       {{ description }}
+    </p>
+
+    <p
+      v-if="regNumber || vatNumber"
+      class="text-emphasis-medium m-0 text-sm leading-none"
+    >
+      Company <template v-if="regNumber"> {{ regNumber }}</template>
+      <template v-if="vatNumber"> {{ vatNumber }}</template>
     </p>
   </div>
 </template>
@@ -31,6 +39,8 @@ import { Link, Badge } from "@upmind-automation/upmind-ui";
 defineProps<{
   title: string;
   description: string;
+  regNumber: string;
+  vatNumber: string;
   isSelected: boolean;
 }>();
 </script>
