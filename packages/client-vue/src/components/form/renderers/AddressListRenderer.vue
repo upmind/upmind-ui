@@ -2,18 +2,15 @@
   <FormField v-bind="formFieldProps">
     <RadioCardsCollapsible
       v-model:open="open"
-      v-model="selectedAddress"
+      v-model="selectedItem"
       :items="parsedValues"
       :disabled="isLoading"
-      @update:model-value="selectAddress"
+      @update:model-value="selectItem"
       list
       required
     >
       <template #item="{ item }">
-        <Item
-          :address="getAddress(item.value)"
-          :is-default="getAddress(item.value).meta.isDefault"
-        />
+        <Item v-bind="item" :is-default="item.value === selectedItem" />
       </template>
 
       <template #actions>
@@ -30,7 +27,7 @@
           label="Add new address"
           size="xs"
           variant="muted"
-          @click="clearAddress"
+          @click="clearItem"
         />
       </template>
     </RadioCardsCollapsible>
@@ -39,7 +36,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -58,7 +55,6 @@ import { find, map } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { Address } from "@upmind-automation/headless-vue";
 import { useBillingDetails } from "@upmind-automation/headless-vue";
 
 // ----------------------------------------------
@@ -71,53 +67,54 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 
 const { setDefault } = useBillingDetails();
 
-const addresses = computed(() => {
-  const oneOfOptions = control.value.uischema.options?.oneOf || [];
-  return oneOfOptions;
-});
-
 const isLoading = ref(false);
-
 const open = ref(false);
 
-const defaultAddress = computed(() => {
-  return find(addresses.value, { meta: { isDefault: true } }) as Address;
+const selectedItem = ref<string>("");
+
+onMounted(() => {
+  selectedDefaultItem();
 });
 
-const selectedAddress = ref<string>(defaultAddress.value?.id ?? "");
-
-const getAddress = (id: string) => {
-  return find(addresses.value, { id }) as Address;
-};
-
-const parsedValues = computed<RadioCardsItemProps[]>(() => {
-  return map(addresses.value, (item: any) => {
-    return {
-      id: item.id,
-      value: item.id,
-      label: item.title,
-      ...item,
-    };
-  });
+const parsedValues = computed(() => {
+  return map(
+    control.value.uischema.options?.oneOf || [],
+    (item: any, index: number) => {
+      return {
+        id: item.id,
+        value: item.id,
+        label: item.title,
+        item: item.item,
+        index: index,
+        modelValue: selectedItem.value,
+      };
+    }
+  ) as RadioCardsItemProps[];
 });
 
-const selectAddress = async (value: string) => {
+const selectItem = async (value: string) => {
   onInput(value, false);
+  selectedItem.value = value;
   await setDefault(value);
 };
 
-const clearAddress = () => {
+const clearItem = () => {
   onInput(null, false);
 };
 
-watch(defaultAddress, () => {
-  if (
-    defaultAddress.value?.id &&
-    defaultAddress.value.id !== selectedAddress.value
-  ) {
-    selectedAddress.value = defaultAddress.value.id;
-  }
+watch(parsedValues, () => {
+  selectedDefaultItem();
 });
+
+const selectedDefaultItem = () => {
+  selectedItem.value =
+    (
+      find(
+        parsedValues.value,
+        value => value.item?.meta?.isDefault
+      ) as RadioCardsItemProps
+    )?.id ?? "";
+};
 </script>
 
 <script lang="ts">
