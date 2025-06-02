@@ -9,8 +9,8 @@
       list
       required
     >
-      <template #item="{ item }">
-        <Item v-bind="item" :is-default="item.value === selectedItem" />
+      <template #item="{ item, isSelected }">
+        <Item v-bind="item" :is-selected="isSelected" />
       </template>
 
       <template #actions>
