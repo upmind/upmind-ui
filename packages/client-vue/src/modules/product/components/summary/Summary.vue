@@ -52,6 +52,7 @@
   <SummaryList v-if="product?.productDetails" v-bind="product" />
 
   <Markdown
+    data-testid="slots:summary-append"
     :model-value="
       product.productDetails.uiMeta?.uischema?.config?.summary?.append ??
       product.productDetails.uiMeta?.uischema?.productConfig?.summary?.append
