@@ -166,6 +166,9 @@ export default createMachine<ClientItemContext>(
         target: "available.checking",
         actions: ["clearModel"],
       },
+      REFRESH: {
+        target: "loading",
+      },
     },
   },
   {

@@ -45,12 +45,31 @@ export const useBillingDetail = (
     }
   ).start();
 
+  const { subscribe } = useBillingDetails();
+  let currentAddressId = service.getSnapshot().context.model?.addressId;
+  const subscription = subscribe(() => {
+    const snapshot = service.getSnapshot();
+    const modelAddressId = service.getSnapshot().context.model?.addressId;
+
+    if (
+      !snapshot.done &&
+      snapshot.matches("available") &&
+      currentAddressId !== modelAddressId
+    ) {
+      currentAddressId = modelAddressId;
+      service.send({ type: "REFRESH" });
+    }
+  });
+
   return {
     id,
     service,
     getModel: () => service?.getSnapshot().context.model as UnifiedAddressModel,
     getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.stop(),
+    stop: () => {
+      subscription?.unsubscribe();
+      service.stop();
+    },
     // ---
     isReady: async () => {
       return waitFor(service, state => state.matches("available"), {
