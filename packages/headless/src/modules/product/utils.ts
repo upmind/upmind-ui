@@ -833,8 +833,7 @@ export const parseProvisioningSchema = (data: any, product: any) => {
 
   // TODO: Implement a proper solution for this where field type is input_sld
   // if (field.name === "sld") {
-  //   debugger;
-  //   type = ["string"];
+  //   //   type = ["string"];
   //   format = "sld";
   //   // TODO: Set the raw TLD rather, not the product name
   //   field.description = product?.name;
@@ -1136,7 +1135,6 @@ export function parseBundledProducts(
   // safe check : dont include recommendations for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
 
-  debugger;
   let bundles: ProductBundles =
     raw?.meta?.bundle ??
     first(
@@ -1150,19 +1148,14 @@ export function parseBundledProducts(
       )
     );
 
-  debugger;
   if (!isArray(bundles)) {
-    debugger;
     if (!bundle) bundles = [];
     else bundles = get(bundles, bundle, []) as ProductBundle[];
   }
 
-  debugger;
   const bundledProducts = reduce(
     bundles,
     (result: ProductProps[], rawBundle) => {
-      debugger;
-
       const model = parseBundleConfig(rawBundle);
       if (model) result.push(model);
       return result;

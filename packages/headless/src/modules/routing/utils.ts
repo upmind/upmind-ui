@@ -111,6 +111,9 @@ export const useRouteQueryParams = (route: Route) => {
     // coupons
     const coupons = getParams(QUERY_PARAMS.COUPONS);
 
+    // bundle
+    const bundle = getParam("bundle");
+
     const model = [
       {
         productId,
@@ -119,6 +122,7 @@ export const useRouteQueryParams = (route: Route) => {
         subproducts,
         provisionFields,
         coupons,
+        bundle,
       },
     ];
 
@@ -141,6 +145,7 @@ export const useRouteQueryParams = (route: Route) => {
       getParam(QUERY_PARAMS.CURRENCY_CODE)
     ),
     coupon: getParam(QUERY_PARAMS.COUPONS),
+    bundle: getParam("bundle"),
   };
 };
 
