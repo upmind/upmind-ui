@@ -48,38 +48,31 @@ import { useBillingDetail } from "@upmind-automation/headless-vue";
 import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
 import { Link, Button } from "@upmind-automation/upmind-ui";
 
-// --- types
-import { Views } from "./types";
-
 // utils
 import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  view: Views;
-}>();
-
-const emit = defineEmits<{
-  (e: "setView", value: Views): void;
-}>();
-
 const { update, input, model, schema, uischema, meta, clear } =
   useBillingDetail();
-const { isReady, getAll, data } = useBillingDetails();
+const { isReady, getAll, data, invalidate } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
 const noActions = ref(model.value?.addressId !== null);
+const initial = ref(true);
 
 await isReady();
 await getAll();
 
 const updateModel = async (data: any) => {
   await input(data);
-  if (noActions.value) {
+
+  if (noActions.value && !initial.value) {
     noActions.value = false;
   }
+
+  initial.value = false;
 };
 
 watch(selectedAddress, async address => {
@@ -88,9 +81,8 @@ watch(selectedAddress, async address => {
       ...model.value,
       address: address,
     });
-    if (noActions.value) {
-      noActions.value = false;
-    }
+
+    noActions.value = false;
     setShowAddressFields(true);
   }
 });
@@ -98,12 +90,10 @@ watch(selectedAddress, async address => {
 const updateAddress = async () => {
   await update();
   await getAll();
-  emit("setView", Views.default);
   setShowAddressFields(false);
 };
 
 const cancel = () => {
-  emit("setView", Views.default);
   setShowAddressFields(false);
   noActions.value = false;
 };

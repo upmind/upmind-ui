@@ -21,7 +21,7 @@ export const useSchema = ({
         default: baseModel.addressId,
       },
       companyId: {
-        type: ["string"],
+        type: ["string", "null"],
         default: baseModel.companyId,
       },
     },
@@ -64,6 +64,7 @@ export const useSchema = ({
       address: {
         type: "object",
         title: "Address",
+        required: ["address1", "city", "postcode", "countryId"],
         properties: {
           address1: {
             type: ["string"],
@@ -133,7 +134,7 @@ export const useSchema = ({
       } as any,
       personal: {
         type: "object",
-        additionalProperties: false,
+        additionalProperties: true,
         required: ["address"],
         allOf: [
           {
@@ -171,6 +172,7 @@ export const useSchema = ({
       business: {
         type: "object",
         required: ["company", "address"],
+        additionalProperties: true,
         allOf: [
           {
             if: {
@@ -360,7 +362,7 @@ export const useUischema = ({
               id: item.id,
               title: item.title,
               description: item.description,
-              meta: item.meta,
+              item: item,
             })
           ),
         },
@@ -393,7 +395,7 @@ export const useUischema = ({
             id: item.id,
             title: item.title,
             description: item.description,
-            meta: item.meta,
+            item: item,
           })),
         },
         rule: {
