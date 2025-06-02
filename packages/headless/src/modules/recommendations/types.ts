@@ -11,8 +11,7 @@ import type { BasketProduct } from "../basketProduct";
 import type {
   ProductModel,
   ProductProps,
-  PriceDetail,
-  ProductSummaryMeta,
+  IProductConfig,
   Product,
 } from "../product";
 import { ResponseError } from "../query";
@@ -105,13 +104,4 @@ export interface RelatedProduct extends IRelatedObject {
   config?: IProductConfig;
   badge?: Badge;
   benefits?: Benefit[];
-}
-
-export interface IProductConfig {
-  pid?: string;
-  qty?: number;
-  bcm?: number;
-  sub_pids?: string[];
-  pfields?: Record<string, any>;
-  coupons?: string[];
 }

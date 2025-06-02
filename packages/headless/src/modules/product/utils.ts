@@ -24,6 +24,8 @@ import {
   isFunction,
   isNil,
   isNumber,
+  isObject,
+  isArray,
   keys,
   map,
   maxBy,
@@ -38,6 +40,7 @@ import {
   subtract,
   times,
   toNumber,
+  union,
   uniq,
   values,
 } from "lodash-es";
@@ -48,6 +51,7 @@ import {
   PromotionDisplayTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  ProductTypes,
 } from "@upmind-automation/types";
 
 import type {
@@ -61,13 +65,17 @@ import type {
 
 import type {
   ExternalError,
+  IProductConfig,
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
   Product,
+  ProductBundle,
+  ProductBundles,
   ProductConfigContext,
   ProductDetails,
   ProductModel,
+  ProductProps,
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice,
   PromotionDetails,
@@ -78,7 +86,6 @@ import type {
   TermDetails,
   UIMeta,
 } from "./types";
-import { error } from "console";
 import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
@@ -826,8 +833,7 @@ export const parseProvisioningSchema = (data: any, product: any) => {
 
   // TODO: Implement a proper solution for this where field type is input_sld
   // if (field.name === "sld") {
-  //   debugger;
-  //   type = ["string"];
+  //   //   type = ["string"];
   //   format = "sld";
   //   // TODO: Set the raw TLD rather, not the product name
   //   field.description = product?.name;
@@ -1106,3 +1112,76 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
 };
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Parses the given product and returns a list of bundled products.
+ * The bundled products are extracted from the product, and only the single products are considered.
+ * Inactive bundled products are not included.
+ * NB: Bundles have a priority...
+ *     if a product has bundles defined in its meta, those are used.
+ *     otherwise we traverse the category hierarchy to find bundles and take the first set we find.
+ * NB: Bundles may be an array or an Collection of key/value pairs.
+ *     If we have an array, we use it directly, no key is needed.
+ *     However, if we have a key/value object, we need to extract the bundle config based on the provided `bundle` key.
+ *     if no key is provided, we will NOT include any bundles.
+ *
+ * @param {IProduct} raw - The raw product data to parse.
+ * @returns {ProductProps[]} The parsed list of bundled products configurations.
+ */
+export function parseBundledProducts(
+  raw: IProduct,
+  bundle?: ProductConfigContext["bundle"]
+): ProductProps[] {
+  // safe check : dont include recommendations for products that are not single products
+  if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
+
+  let bundles: ProductBundles =
+    raw?.meta?.bundle ??
+    first(
+      compact(
+        iterateParents(raw.category, [], {
+          valueKey: "meta.bundle",
+          parentKey: "top_category",
+          transform: (category: IProductCategory) =>
+            get(category, "meta.bundle"),
+        })
+      )
+    );
+
+  if (!isArray(bundles)) {
+    if (!bundle) bundles = [];
+    else bundles = get(bundles, bundle, []) as ProductBundle[];
+  }
+
+  const bundledProducts = reduce(
+    bundles,
+    (result: ProductProps[], rawBundle) => {
+      const model = parseBundleConfig(rawBundle);
+      if (model) result.push(model);
+      return result;
+    },
+    []
+  ) as ProductProps[];
+
+  return bundledProducts;
+}
+
+function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
+  // safe check : dont include recommendations for products that are not single products
+
+  const valid = raw?.object_type === "product" && raw?.active;
+  if (!valid) return undefined; // skip if not a valid product bundle or inactive
+
+  const config: IProductConfig = get(raw, "config", {});
+
+  return {
+    productId: raw.object_id,
+    quantity: config?.qty || 1,
+    term: config?.bcm ?? 0,
+    subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
+    provisionFields: config?.pfields ?? {},
+    coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
+    // ---
+    silent: true, // always silent for bundled products
+  } as ProductProps;
+}

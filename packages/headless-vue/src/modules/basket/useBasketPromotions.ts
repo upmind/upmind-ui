@@ -4,7 +4,8 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { useBasket, utils } from "@upmind-automation/headless";
+const { DetailedError, responseCodes } = utils;
 
 // --- utils
 import {
@@ -31,10 +32,24 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
       basket,
       newstate => contextMatches(newstate, ["actors.promotions"]),
       { timeout: Infinity }
-    ).then(validState => {
-      service = contextValue(validState, "actors.promotions");
-      actor.value = contextActor(validState, "actors.promotions");
-    });
+    )
+      .then(validState => {
+        service = contextValue(validState, "actors.promotions");
+        actor.value = contextActor(validState, "actors.promotions");
+      })
+
+      .catch(error => {
+        return Promise.reject(
+          new DetailedError(
+            "[headless] addPromotion on basket failed",
+            responseCodes.Timeout,
+            {
+              error,
+              state: basket.getSnapshot().value,
+            }
+          )
+        );
+      });
   } else {
     actor.value = useActor(actorRef);
   }
@@ -71,14 +86,26 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
     async add(coupon?: string) {
       if (coupon) {
         actor.value?.send({ type: "SET", data: { promocode: coupon } });
-        const state = await waitFor(
+        await waitFor(
           service as ActorRef<any>,
           state => ["valid", "error"].some(state.matches),
           { timeout: 60_000 }
-        );
-        if (state.matches("error")) {
-          return Promise.reject(new Error(state.context.error));
-        }
+        )
+          .then(state => {
+            if (state.matches("error")) throw state.context?.error;
+          })
+          .catch(error => {
+            return Promise.reject(
+              new DetailedError(
+                "[headless] addPromotion on basket failed",
+                responseCodes.Timeout,
+                {
+                  error,
+                  state: actor.value?.state.value,
+                }
+              )
+            );
+          });
       }
 
       actor.value?.send({ type: "ADD" });
@@ -90,12 +117,24 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
           return ["processed", "complete", "error"].some(state.matches);
         },
         { timeout: 60_000 }
-      ).then(state => {
-        if (["error"].some(state.matches)) {
-          return Promise.reject(new Error(state.context.error));
-        }
-        return Promise.resolve();
-      });
+      )
+        .then(state => {
+          if (state.matches("error")) throw state.context?.error;
+
+          return Promise.resolve();
+        })
+        .catch(error => {
+          return Promise.reject(
+            new DetailedError(
+              "[headless] addPromotion on basket failed",
+              responseCodes.Timeout,
+              {
+                error,
+                state: actor.value?.state.value,
+              }
+            )
+          );
+        });
     },
 
     remove: (promotion: any) => {
@@ -106,12 +145,24 @@ export const useBasketPromotions = (actorRef?: ActorRef<any>) => {
           return ["processed", "complete", "error"].some(state.matches);
         },
         { timeout: 60_000 }
-      ).then(state => {
-        if (["error"].some(state.matches)) {
-          return Promise.reject(new Error(state.context.error));
-        }
-        return Promise.resolve();
-      });
+      )
+        .then(state => {
+          if (state.matches("error")) throw state.context?.error;
+
+          return Promise.resolve();
+        })
+        .catch(error => {
+          return Promise.reject(
+            new DetailedError(
+              "[headless] addPromotion on basket failed",
+              responseCodes.Timeout,
+              {
+                error,
+                state: actor.value?.state.value,
+              }
+            )
+          );
+        });
     },
   };
 };

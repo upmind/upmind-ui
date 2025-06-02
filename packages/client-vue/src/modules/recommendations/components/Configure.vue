@@ -44,6 +44,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -100,11 +101,29 @@ const styles = useStyles(
 }>;
 // ---
 
-function doResolve() {
-  update().then(() => {
-    resolve(pendingProduct);
-    emit("resolve");
-  });
+async function doResolve() {
+  update()
+    .then(() => {
+      resolve(pendingProduct);
+      emit("resolve");
+    })
+    .catch(() => {
+      // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
+      // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
+      // if the product is successfully added to the basket ( onDone = success)
+      watch(
+        meta,
+        ({ isDone }) => {
+          if (isDone) {
+            resolve(pendingProduct);
+            emit("resolve");
+          }
+        },
+        {
+          immediate: true,
+        }
+      );
+    });
 }
 
 function doReject() {
