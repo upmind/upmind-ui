@@ -1,4 +1,5 @@
 // --- utils
+import { useCookies } from "../../utils";
 import {
   toNumber,
   isBoolean,
@@ -16,57 +17,103 @@ import type { Token, User } from "./types";
 import type { IUser } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
+function convertToCookie() {
+  if (!localStorage) return;
+
+  const { setTopLevel: setCookie } = useCookies();
+
+  const guestToken = localStorage.getItem(`guest/auth/token`);
+  const clientToken = localStorage.getItem(`client/auth/token`);
+
+  if (clientToken) {
+    console.warn(
+      "Converting Client token to cookies. This is a one-time operation to migrate from localStorage to cookies."
+    );
+    setCookie("upm_client_session", useTokenParser(clientToken), {
+      expires: "8h", //default : refresh token and access token are valid for 8 hours
+    });
+    localStorage.removeItem(`client/auth/token`);
+  }
+
+  if (guestToken) {
+    console.warn(
+      "Converting Guest token to cookies. This is a one-time operation to migrate from localStorage to cookies."
+    );
+    setCookie("upm_guest_session", useTokenParser(guestToken), {
+      expires: "8h", //default : refresh token and access token are valid for 8 hours
+    });
+    localStorage.removeItem(`guest/auth/token`);
+  }
+}
 
 export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
-  let token: string = "";
+  const { get: getCookie } = useCookies();
+
+  // convert localStorage tokens to cookies if they exist
+  // this is a one-time operation to migrate from localStorage to cookies
+  convertToCookie();
+
+  const clientCookie = getCookie("upm_client_session", value => atob(value)) as
+    | string
+    | undefined;
+
+  // const guestToken = localStorage.getItem(`guest/auth/token`);
+  const guestCookie = getCookie("upm_guest_session", value => atob(value)) as
+    | string
+    | undefined;
+
+  let token: string | Token;
+
   if (actor_type === "client") {
-    token = localStorage.getItem(`client/auth/token`) || "";
+    token = clientCookie || "";
   } else if (actor_type === "guest") {
-    token = localStorage.getItem(`guest/auth/token`) || "";
+    token = guestCookie || "";
   } else {
-    const clientToken = localStorage.getItem(`client/auth/token`);
-    const guestToken = localStorage.getItem(`guest/auth/token`);
-    token = clientToken || guestToken || "";
+    token = clientCookie || guestCookie || "";
   }
-  return useTokenParser(token) as Token;
+  token = useTokenParser(token) as Token;
+  return token;
 }
 
 export function persistTokenToStorage(token: Token) {
-  if (!localStorage) return Promise.reject("No localStorage available");
+  const { setTopLevel: setCookie } = useCookies();
+
+  if (!localStorage)
+    return Promise.reject(new Error("No localStorage available"));
 
   const type = token?.actor_type || "guest";
 
   // finally, persist the new token
-  localStorage.setItem(
-    `${type}/auth/token`,
-    JSON.stringify(useTokenParser(token))
-  );
+  setCookie(`upm_${type}_session`, token, {
+    expires: "8h", //default : refresh token and access token are valid for 8 hours
+  });
 
   return Promise.resolve(token);
 }
 
 export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
-  localStorage.removeItem(`${actor_type}/auth/token`);
+  useCookies().removeTopLevel(`upm_${actor_type}_session`);
 }
 
-export function useTokenParser(data: any) {
-  if (isEmpty(data)) return null;
+export function useTokenParser(data: string | Token): Token | undefined {
+  if (isEmpty(data)) return undefined;
 
   if (isString(data)) data = JSON.parse(data);
 
+  const tokenData = data as Token;
   return {
-    access_token: toString(data?.access_token),
-    created_at: toNumber(data?.created_at) || Date.now(),
-    expires_in: toNumber(data?.expires_in),
-    refresh_expires_in: toNumber(data?.refresh_expires_in),
-    refresh_token: toString(data?.refresh_token),
-    second_factor_required: isBoolean(data?.isBoolean)
-      ? data?.isBoolean
-      : data?.isBoolean === "true",
-    actor_type: toString(data?.actor_type),
-    actor_id: toString(data?.actor_id),
-    guest_token: toString(data?.guest_token),
-  };
+    access_token: toString(tokenData.access_token),
+    created_at: toNumber(tokenData.created_at) || Date.now(),
+    expires_in: toNumber(tokenData.expires_in),
+    refresh_expires_in: toNumber(tokenData.refresh_expires_in),
+    refresh_token: toString(tokenData.refresh_token),
+    second_factor_required: isBoolean(tokenData.second_factor_required)
+      ? tokenData.second_factor_required
+      : tokenData.second_factor_required === "true",
+    actor_type: toString(tokenData.actor_type),
+    actor_id: toString(tokenData.actor_id),
+    guest_token: toString(tokenData.guest_token),
+  } as Token;
 }
 
 export function useInitialsParser(user: any, chars: number = 1) {

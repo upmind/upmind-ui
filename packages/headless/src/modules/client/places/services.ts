@@ -33,7 +33,8 @@ async function filterItems(
   { data }: AnyEventObject
 ) {
   return new Promise((resolve, reject) => {
-    if (!service) return reject("Autocomplete service not configured");
+    if (!service)
+      return reject(new Error("Autocomplete service not configured"));
 
     // if we dont have any data, then just return an empty array
     if (!data?.length) resolve([]);
@@ -69,7 +70,7 @@ async function parse(
   { data }: AnyEventObject
 ) {
   return new Promise((resolve, reject) => {
-    if (!service) reject("Autocomplete service not configured");
+    if (!service) reject(new Error("Autocomplete service not configured"));
 
     // if we dont have any data, then just return an empty array
     if (!data?.place?.length) reject(null);

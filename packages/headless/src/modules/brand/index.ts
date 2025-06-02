@@ -6,6 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import brandMachine from "./brand.machine";
 
 // --- utils
+import { DetailedError, UnavailableError, responseCodes } from "../../utils";
 import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
 // --- types
@@ -33,7 +34,14 @@ export const useBrand = () => {
     some(service.getSnapshot()?.context?.modules, ["code", code]);
   // ---
   const isModuleReady = async (module: string) =>
-    waitFor(service, state => state.matches(`processing.${module}.complete`));
+    waitFor(service, state =>
+      state.matches(`processing.${module}.complete`)
+    ).catch(() => {
+      throw new DetailedError(
+        `[headless] isModuleReady on useBrand timed out for ${module}`,
+        responseCodes.Timeout
+      );
+    });
 
   const isReady = async () =>
     waitFor(
@@ -45,8 +53,18 @@ export const useBrand = () => {
         timeout: Infinity,
       }
     ).then(state => {
-      if (["error"].some(state.matches))
-        return Promise.reject("Brand is not available");
+      if (["error"].some(state.matches)) {
+        if (state.context.error?.status == responseCodes.Service_Unavailable) {
+          return Promise.reject(new UnavailableError());
+        }
+
+        return Promise.reject(
+          new DetailedError("Brand not ready", responseCodes.Timeout, {
+            state: state.value,
+            errors: state.context.error,
+          })
+        );
+      }
 
       return state;
     });
@@ -97,9 +115,14 @@ export const useBrand = () => {
         "processing.config.error",
         "complete",
       ].some(newstate.matches);
+    }).catch(() => {
+      throw new DetailedError(
+        `[headless] getConfig on brand timed out for ${keys.join(", ")}`,
+        responseCodes.Timeout
+      );
     });
 
-    // finally return the requested keys from the config
+    // finally, return the requested keys from the config
     return pick(service.getSnapshot().context, keys);
   };
 
@@ -114,7 +137,12 @@ export const useBrand = () => {
   const validateCurrency = async (model: { id?: string; code?: string }) => {
     const state = service.getSnapshot();
     // lets wait for the brand to be ready
-    await waitFor(service, state => state.matches("complete"));
+    await waitFor(service, state => state.matches("complete")).catch(() => {
+      throw new DetailedError(
+        "[headless] validateCurrency on useBrand timed out",
+        responseCodes.Timeout
+      );
+    });
 
     // if we dont have any currencies, then just return the given currency
     if (!state?.context?.currencies?.length) return model;

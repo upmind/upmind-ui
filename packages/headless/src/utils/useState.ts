@@ -19,9 +19,18 @@ import {
 // -----------------------------------------------------------------------------
 
 export function stopService(machine: InterpreterFrom<any>): boolean {
-  machine.status == InterpreterStatus.Running &&
-    !machine.getSnapshot().done &&
+  if (
+    machine.status == InterpreterStatus.Running ||
+    !machine.getSnapshot().done
+  ) {
     machine.stop();
+  } else {
+    console.info("** MACHINE State **", "Machine is already stopped", {
+      name: machine.id,
+      status: machine.status,
+      done: machine.getSnapshot().done,
+    });
+  }
 
   return machine.status == InterpreterStatus.Stopped;
 }

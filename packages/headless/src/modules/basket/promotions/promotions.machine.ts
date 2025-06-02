@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, actions, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -25,17 +24,7 @@ export default createMachine(
     id: "basketPromotionsManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      basketId: undefined,
-      promotions: undefined,
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as PromotionsContext,
+    context: {} as PromotionsContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -200,21 +189,26 @@ export default createMachine(
       ),
 
       // NB: send the data (basket) to the parent so theres no lag in showing/removing the tags
-      refreshBasket: sendParent((_context, { data }: any) => {
-        return {
-          type: "REFRESH",
-          data,
-        };
-      }),
+      refreshBasket: sendParent(
+        (_context: PromotionsContext, { data }: AnyEventObject) => {
+          return {
+            type: "REFRESH",
+            data,
+          };
+        }
+      ),
 
       setContext: assign(
         (_context: PromotionsContext, { data }: AnyEventObject) => data
       ),
 
       setSchemas: assign({
-        schema: context => useSchema(context),
-        uischema: context => useUischema(context),
-        model: ({ schema, model }) => useModelParser<Promotion>(schema, model),
+        schema: (context: PromotionsContext) => useSchema(context),
+        uischema: (context: PromotionsContext) => useUischema(context),
+        model: ({ schema, model }) => {
+          if (!schema) return model;
+          return useModelParser<Promotion>(schema, model);
+        },
       }),
 
       clearSchemas: assign({
@@ -223,8 +217,13 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ schema, model }, { data }: AnyEventObject) =>
-          useModelParser<Promotion>(schema, data || model),
+        model: (
+          { schema, model }: PromotionsContext,
+          { data }: AnyEventObject
+        ) => {
+          if (!schema) return data ?? model;
+          return useModelParser<Promotion>(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({
@@ -232,7 +231,10 @@ export default createMachine(
       }),
 
       removePromo: assign({
-        promotions: ({ promotions }, { data }: AnyEventObject) => {
+        promotions: (
+          { promotions }: PromotionsContext,
+          { data }: AnyEventObject
+        ) => {
           const id = get(data, "id", data);
           if (promotions?.length && id) {
             remove(promotions, ["id", id]);
@@ -250,7 +252,8 @@ export default createMachine(
       }),
 
       setAutoUpdate: assign({
-        autoupdate: (_context, { update }: AnyEventObject) => !!update,
+        autoupdate: (_context: PromotionsContext, { update }: AnyEventObject) =>
+          !!update,
       }),
       clearAutoUpdate: assign({
         autoupdate: false,
@@ -258,20 +261,21 @@ export default createMachine(
 
       // ---
 
-      setFeedbackError: ({ error }, _event) => {
-        if (!error || error.code < 500) return;
+      setFeedbackError: (
+        { error }: PromotionsContext,
+        _event: AnyEventObject
+      ) => {
+        if (!error || error.status < 500) return;
 
         addError({
-          title:
-            error?.title ||
-            "We experienced an error updating the basket promotions",
+          title: "We experienced an error updating the basket promotions",
           copy: error?.message,
           data: error?.data,
         });
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context: PromotionsContext, { data }: AnyEventObject) => {
           let error = data?.error;
           if (
             includes(
@@ -292,14 +296,14 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {
       isDirty: ({ dirty, model }, _event) =>
         !!dirty && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
-      hasChanged: ({ promotions, basketId }, { data }: any) =>
+      hasChanged: ({ promotions, basketId }, { data }: AnyEventObject) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
         basketId !== data?.id,
       shouldUpdate: ({ autoupdate, basketId }, _event) =>

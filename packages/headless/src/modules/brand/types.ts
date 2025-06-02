@@ -4,6 +4,7 @@ import type {
   OrgFeatureKeys,
   IBrandSettings,
 } from "@upmind-automation/types";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -17,6 +18,6 @@ export interface BrandContext extends IBrandSettings {
   config?: BrandConfigKeys;
   organisation?: OrgFeatureKeys;
   initialised?: boolean;
-  error?: any;
+  error?: ResponseError;
   queryHelper?: any; //TODO set the cotrect observable ype
 }

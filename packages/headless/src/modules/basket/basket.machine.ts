@@ -1,17 +1,10 @@
 // --- external
-import {
-  createMachine,
-  assign,
-  pure,
-  sendTo,
-  spawn,
-  InterpreterStatus,
-} from "xstate";
+import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
 
 // --- internal
 import services from "./services";
 import paymentMachine from "../payment/payment.machine";
-import { authSubscription } from "../session";
+import { authSubscription } from "../session/helper";
 import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
@@ -45,6 +38,7 @@ import {
 // --- types
 import type { AnyEventObject, ActorRef } from "xstate";
 import type { BasketContext } from "./types";
+import type { Response } from "../query/types";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 import { PaymentContext } from "../payment";
 
@@ -59,12 +53,15 @@ export default createMachine(
       // Subscribe to changes in auth and listen for a valid Authenticated client,
       // we will also wait for a session before we can continue
       subscribing: {
+        id: "subscribing",
         entry: ["setAuthHelper"],
         on: {
+          REFRESH: {
+            // do nothing until we have a session
+          },
           SESSION: {
             target: "#loading",
           },
-          ERROR: { target: "#error", actions: "setError" },
         },
       },
       // our initial state will check and see if we have an existing basket
@@ -81,10 +78,16 @@ export default createMachine(
                 target: "actors",
                 actions: ["setError", "updateBasket"],
               },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
+              onError: [
+                {
+                  target: "#subscribing",
+                  cond: "hasAuthError",
+                },
+                {
+                  target: "#error",
+                  actions: ["setError"],
+                },
+              ],
             },
           },
 
@@ -327,7 +330,7 @@ export default createMachine(
             },
           ],
           onError: {
-            target: "#checkout",
+            target: "#shopping",
             actions: ["setError"],
           },
         },
@@ -528,18 +531,15 @@ export default createMachine(
       setFeedbackError: ({ error }: BasketContext, _event: AnyEventObject) => {
         if (
           !error ||
-          error?.code == responseCodes.Unprocessable_Entity ||
-          error?.code == responseCodes.Unauthorized
+          error?.status == responseCodes.Unprocessable_Entity ||
+          error?.status == responseCodes.Unauthorized
         ) {
           return;
         }
 
         addError({
-          title:
-            error?.title ??
-            error?.message ??
-            "We experienced an error with the basket",
-          copy: error?.title ? error?.message : undefined,
+          title: "We experienced an error with the basket",
+          copy: error?.message ?? undefined,
           data: error,
         });
       },
@@ -554,6 +554,10 @@ export default createMachine(
     },
 
     guards: {
+      hasAuthError: (_context: BasketContext, { data }: AnyEventObject) => {
+        return data?.status == responseCodes.Unauthorized;
+      },
+
       hasNewBasket: ({ basket }: BasketContext, { data }: AnyEventObject) =>
         !isEmpty(data) && !isEqual(basket, data),
 

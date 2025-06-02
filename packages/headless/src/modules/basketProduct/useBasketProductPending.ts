@@ -1,6 +1,6 @@
 // --- external
-import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { interpret } from "xstate";
 
 // --- internal
 import productMachine from "../product/product.machine";
@@ -9,16 +9,14 @@ import { useDataLayer } from "../system";
 const { dataLayer } = useDataLayer();
 
 // --- utils
-import { parseQuantity } from "../product/utils";
-import { DetailedError, responseCodes, stopService } from "../../utils";
-import { isEmpty, get, add, subtract, find, omit, isNil } from "lodash-es";
 import { isActor } from "xstate/lib/utils";
+import { parseQuantity } from "../product/utils";
+import { isEmpty, get, omit, add, subtract } from "lodash-es";
+import { DetailedError, responseCodes, stopService } from "../../utils";
 
 // --- types
-import type { InterpreterFrom, ActorRef } from "xstate";
+import type { ActorRef, InterpreterFrom } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
-import { isFunction } from "xstate/lib/utils";
-// import { DataLayerEcommerceItem } from "../system/analytics/types";
 
 // -----------------------------------------------------------------------------
 
@@ -40,20 +38,26 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         "promotions",
         "coupons",
         "subproducts",
+        "silent",
+        "bundle",
       ]) as ProductModel)
     : undefined;
 
   const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
   const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
-
+  const silent = isProductProps(data) ? (data?.silent ?? false) : false;
+  const bundle = isProductProps(data) ? data?.bundle : undefined;
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
   if (!rawBasket)
-    throw new DetailedError("No Basket found", responseCodes.Not_Found);
+    throw new DetailedError(
+      "[headless] getBasket on useBasketProductPending not found",
+      responseCodes.Not_Found
+    );
 
   if (isEmpty(data) || (isEmpty(actor) && isEmpty(model?.productId)))
     throw new DetailedError(
-      "Product Model is empty or has no productId",
+      "[headless] getProduct on useBasketProductPending not found",
       responseCodes.Not_Found
     );
 
@@ -70,6 +74,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         promotions: rawBasket.promotions,
         subproducts,
         coupons,
+        silent,
+        bundle,
         // ---
         model,
       }),
@@ -79,7 +85,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       }
     ).start();
 
-  // now that we have a product configation, we can push it to the datalayer
+  // now that we have a product configuration, we can push it to the datalayer
   pushSelectItem();
 
   // ---------------------------------------------------------------------------
@@ -107,26 +113,30 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   }
 
   async function update(): Promise<void> {
-    return waitFor(service, state => state.matches("available.valid")).then(
-      () => {
-        service.send({ type: "UPDATE" });
-        return waitFor(service, state => !state.matches("processing"), {
-          timeout: Infinity,
-        }).then(state => {
-          if (["error", "available.error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve();
-        });
-      }
-    );
-  }
-
-  async function remove(): Promise<void> {
-    service.send({ type: "REMOVE" });
-    await waitFor(service, state => ["complete"].some(state.matches), {
-      timeout: Infinity,
-    });
+    service.send({ type: "UPDATE" });
+    return waitFor(
+      service,
+      state =>
+        !state.matches("processing", {
+          timeout: 60_000,
+        }),
+      {}
+    )
+      .then(state => {
+        if (
+          ["error", "available.invalid", "available.error"].some(state.matches)
+        ) {
+          return Promise.reject(state.context.error);
+        }
+        return Promise.resolve();
+      })
+      .catch(() => {
+        return Promise.reject(
+          new Error(
+            "[headless-vue] update in useBasketProductPending not in a valid state"
+          )
+        );
+      });
   }
 
   // Add our Pending Product being configured to the datalayer
@@ -218,6 +228,5 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       }),
 
     update,
-    remove,
   };
 };

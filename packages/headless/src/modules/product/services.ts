@@ -1,55 +1,46 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
+import { useQuery, useSystem } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
-import {
-  DetailedError,
-  responseCodes,
-  useTime,
-  useValidation,
-} from "../../utils";
-import { parseQuantity, checkPriceOverride } from "./utils";
+import { useTime } from "../../utils";
 
 import {
-  compact,
+  parseQuantity,
+  parseTerm,
+  parseSubproducts,
+  checkPriceOverride,
+  checkQuantity,
+  checkTerm,
+  checkSubproducts,
+  checkProvisioning,
+} from "./utils";
+
+import {
   concat,
-  find,
-  first,
-  forEach,
+  defaultsDeep,
   get,
   isEmpty,
   isNil,
-  isNumber,
-  keys,
   map,
-  maxBy,
-  minBy,
-  pick,
-  reduce,
+  omitBy,
   set,
-  some,
   sum,
-  times,
 } from "lodash-es";
 
 // --- types
-import {
-  BrandConfigKeys,
-  DefaultPaymentPeriod,
-} from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
+
 import type {
   ProductConfigContext,
-  TermDetails,
   Price,
   PriceCalculations,
-  SubproductValue,
-  SubproductDetails,
-  SubproductModel,
-  SubproductModelValue,
+  ProductModel,
 } from "./types";
+
+import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -61,14 +52,16 @@ async function load(
     basketId,
     rawBasketProduct,
   }: ProductConfigContext,
-  _event: any
+  _event: AnyEventObject
 ) {
   const productId = get(model, "productId");
-  if (!productId) return Promise.reject("No Product ID provided");
+  if (!productId) return Promise.reject(new Error("No Product ID provided"));
 
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
+  const { fetchCountries } = useSystem();
+
   const [currency] = await Promise.all([
     validateCurrency({ id: currencyId }),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
@@ -115,17 +108,21 @@ async function load(
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
 
-  return Promise.all([productPromise, provisioningPromise]).then(
-    ([product, provisioning]) => {
-      return { product, provisioning, currency };
-    }
-  );
+  const conuntriesPromise = fetchCountries();
+
+  return Promise.all([
+    productPromise,
+    provisioningPromise,
+    conuntriesPromise,
+  ]).then(([product, provisioning]) => {
+    return { product, provisioning, currency };
+  });
 }
 
-async function loadProvisioningFields(productId: any) {
+async function loadProvisioningFields(productId: string) {
   const { get, useUrl } = useQuery();
-  if (!productId) return Promise.reject("No Product ID provided");
-  // we dont cache provisioning fields, as they can change with diferent options/attributes being selected
+  if (!productId) return Promise.reject(new Error("No Product ID provided"));
+  // we dont cache provisioning fields, as they can change with different options/attributes being selected
   return get({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
@@ -133,243 +130,102 @@ async function loadProvisioningFields(productId: any) {
   }).then(({ data }: any) => data);
 }
 
-async function checkQuantity(
-  { lookups, model }: ProductConfigContext,
-  { data }: any
-) {
-  const product = get(lookups, "product");
-  const value = data?.quantity || model?.quantity;
-  const quantity = parseQuantity(value, product);
-  // ---
+// ---
 
-  return new Promise((resolve, reject) => {
-    if (isNumber(quantity)) resolve({ quantity });
-    else reject("Invalid Quantity Selected");
-  });
-}
-
-async function checkTerm(
-  { error, lookups, model }: ProductConfigContext,
-  _event: any
-) {
-  let term: any = null;
-  const price: any[] = [];
-  const errors: any[] = [];
-  // ---
-
-  if (!lookups?.terms?.length) {
-    return Promise.reject({
-      term,
-      price,
-      error: { ...error, term: "No TermDetailss available" },
-    });
-  }
-
-  // ---
-  // try ge the full term object from the lookups terms
-  term = find(lookups.terms, ["cycle", model?.term]);
-  if (!term) {
-    if (lookups.terms.length === 1) {
-      term = first(lookups.terms);
-    } else {
-      term = await calculateBillingTerm(
-        lookups.product?.defaultPaymentPeriod,
-        lookups.terms
-      );
-    }
-  }
-
-  if (isNil(term)) errors.push("Valid TermDetails is required");
-
-  // ---
-  // set price values, taking into account the quantity and unit quantity
-  // NB: we NEVER add, we always push into an array for the backend to handle
-  times(model?.quantity ?? 0, () => {
-    price.push(term?.price.currentAmount);
+async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
+  const baseModel = defaultsDeep(context.model, {
+    productId: undefined,
+    quantity: 1,
+    term: 0,
+    options: {},
+    attributes: {},
+    provisionFields: {},
   });
 
-  return new Promise((resolve, reject) => {
-    if (errors.length)
-      reject({
-        term: get(term, "cycle"),
-        price,
-        error: { ...error, term: errors },
-      });
-    else {
-      resolve({ term: pick(term, "cycle"), price });
-    }
-  });
-}
-
-async function checkAttributes(
-  { error, lookups, model, subproducts }: ProductConfigContext,
-  _event: any
-) {
-  const value = model?.attributes;
-  return checkSubproducts(
-    { error, lookups, model },
-    { data: value, type: "attributes", subproductIds: subproducts }
-  );
-}
-
-async function checkOptions(
-  { error, lookups, model, subproducts }: ProductConfigContext,
-  _event: any
-) {
-  const value = model?.options;
-  return checkSubproducts(
-    { error, lookups, model },
-    { data: value, type: "options", subproductIds: subproducts }
-  );
-}
-
-async function checkSubproducts(
-  { error, lookups, model }: any,
-  { type, data, subproductIds }: any
-) {
-  let subproducts: SubproductModel = {};
-  const price: any[] = [];
-  const errors: any = {};
-  // ---
-  // safety check, resolve if we have no attributes to check
-  if (!lookups?.[type]?.length) {
-    return Promise.resolve({
-      subproducts,
-      price,
-    });
-  }
-  const isInitial = isEmpty(model[type]);
-
-  subproducts = reduce(
-    lookups[type],
-    (result, subproduct: SubproductDetails) => {
-      let selected: Record<string, SubproductModelValue> = get(
-        data,
-        subproduct.id,
-        {}
-      );
-
-      // try set anymatching pre-selected values for this subproduct ( subproductIds ),
-      // NB: ONLY when data is being set for the first time
-      if (isEmpty(data)) {
-        forEach(subproductIds, pid => {
-          if (some(subproduct.values, ["id", pid])) {
-            set(selected, pid, { productId: pid });
-          }
-        });
-      }
-
-      // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
-      // NB we only do this on the initial load, not when we are updating the values
-      if (isEmpty(selected) && isInitial) {
-        const defaultSubproduct = find(
-          subproduct.values,
-          "meta.default"
-        ) as SubproductValue;
-
-        if (defaultSubproduct) {
-          set(selected, defaultSubproduct.id, {
-            productId: defaultSubproduct.id,
-          });
-        } else if (subproduct?.meta.required && !subproduct.meta.multiple) {
-          const pid = get(first(subproduct.values), "id");
-          if (pid) set(selected, pid, { productId: pid });
-        }
-      }
-
-      // if we have selected values, ensure they are valid and fully formed
-      if (!isEmpty(selected)) {
-        // only include valid values, stripping out any invalid ones, if we have any
-        // selected = pickBy(selected, (_value, id) =>
-        //   some(subproduct.values, ["id", id])
-        // );
-
-        // then parse each selected value, and ensure it has all its required and VALID values
-        selected = reduce(
-          selected,
-          (
-            result: Record<string, SubproductModelValue>,
-            value: SubproductModelValue,
-            id: string
-          ) => {
-            const product = find(subproduct.values, ["id", value.productId]);
-
-            // safety check, ensure we have a valid product otherwise bail
-            if (isEmpty(product)) return result;
-
-            // ensure we have a valid unit_quantity
-            value.quantity = parseQuantity(Number(value.quantity), product);
-
-            // ensure we map the product cycle to the value
-            value.cycle = product.cycle;
-
-            set(result, id, value);
-
-            // if we have a price, set price values, taking into account the quantity and unit quantity
-            // NB: we NEVER add, we always push into an array for the backend to handle
-            if (!isEmpty(product?.price)) {
-              times(value.quantity * model.quantity, () => {
-                price.push(product?.price?.currentAmount);
-              });
-            }
-
-            // ---
-            return result;
-          },
-          {}
-        );
-      }
-
-      // check if we values too many values for this subproduct
-      if (!subproduct?.meta.multiple && keys(selected)?.length > 1) {
-        errors[subproduct.id] ??= [];
-        errors[subproduct.id].push(
-          `${subproduct.name} does not allow multiple choice`
-        );
-      }
-
-      // ---
-      set(result, subproduct.id, selected);
-
-      return result;
+  let values: ProductModel = defaultsDeep(
+    {
+      productId: data?.productId,
+      quantity: data?.quantity,
+      term: data?.term,
+      options: data?.options,
+      attributes: data?.attributes,
+      provisionFields: data?.provisionFields,
     },
-    {}
+
+    baseModel
+  );
+
+  // safety check, ensure we have a valid product
+  if (!values?.productId) {
+    return Promise.reject(new Error("No Product ID provided"));
+  }
+
+  let prices: PriceCalculations = context.lookups?.prices || {};
+
+  values.quantity = parseQuantity(values.quantity, context?.lookups?.product);
+
+  const term = parseTerm(context, values?.term, values.quantity);
+  values.term = term.term;
+  prices.term = term.price;
+
+  const options = parseSubproducts(
+    "options",
+    context,
+    values?.options,
+    values.quantity
+  );
+  values.options = options.subproducts;
+  prices.options = options.price;
+
+  const attributes = parseSubproducts(
+    "attributes",
+    context,
+    values?.attributes,
+    values.quantity
+  );
+  values.attributes = attributes.subproducts;
+
+  // ---
+  return new Promise(resolve => {
+    resolve({ model: values, prices });
+  });
+}
+
+async function validate(context: ProductConfigContext, _event: AnyEventObject) {
+  // ---
+
+  // We may opt to skip validation to allow the backend to do the validation
+  //  especially usefull when adding bulk products, recommendations etc.
+  if (context.silent) return Promise.resolve(context.model);
+
+  // TODO: validate the model as per normal using the schema
+  // const { validate } = useValidation();
+  //  const errors = validate(schema, model);
+
+  // Till then we will validate individually
+  const errors = omitBy(
+    {
+      quantity: checkQuantity(context, context?.model?.quantity),
+      term: checkTerm(context, context?.model?.term),
+      options: checkSubproducts("options", context, context.model?.options),
+      attributes: checkSubproducts(
+        "attributes",
+        context,
+        context.model?.attributes
+      ),
+      provisionFields: checkProvisioning(
+        context,
+        context.model?.provisionFields
+      ),
+    },
+    isEmpty
   );
 
   return new Promise((resolve, reject) => {
     if (!isEmpty(errors)) {
-      reject({
-        [type]: subproducts,
-        price,
-        error: { ...error, [type]: errors },
-      });
+      reject({ error: { data: errors } });
     } else {
-      resolve({ [type]: subproducts, price });
-    }
-  });
-}
-
-async function checkProvisioning({ error, lookups, model }: any, _event: any) {
-  // bail if we dont actually have any provision fields to check
-  if (isEmpty(lookups.provisionFields?.properties))
-    return Promise.resolve({ Fovision_fields: {} });
-
-  // ---
-
-  const value = model?.provisionFields || {};
-  const { validate } = useValidation();
-  const errors = validate(lookups.provisionFields, value);
-
-  return new Promise(resolve => {
-    if (errors.length) {
-      // TODO: reject with the errors , but need to allow skipping validation for sync
-      // for now we will resolve with errors
-      resolve({
-        provisionFields: value,
-        error: { ...error, provisionFields: errors },
-      });
-    } else {
-      resolve({ provisionFields: value });
+      resolve(context.model);
     }
   });
 }
@@ -425,75 +281,7 @@ async function formatCalculation(
   });
 }
 
-export const calculateBillingTerm = (
-  period: DefaultPaymentPeriod | undefined,
-  available: TermDetails[]
-): TermDetails => {
-  // because we have multiple options, we need to select one base don the following strategy:
-
-  if (isEmpty(available))
-    throw new DetailedError("No Available terms", responseCodes.Not_Found);
-
-  const { getDefaultPaymentPeriod } = useBrand();
-
-  let term;
-
-  switch (period) {
-    case DefaultPaymentPeriod.HIGHEST_PRICE:
-      term = maxBy(available, "currentAmount");
-      break;
-    case DefaultPaymentPeriod.LOWEST_PRICE:
-      term = minBy(available, "currentAmount");
-      break;
-    case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
-      term = minBy(available, "monthlyFromCurrentAmount");
-      break;
-    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(getDefaultPaymentPeriod(), available);
-      break;
-
-    default:
-      break;
-  }
-  term ??= first(available);
-
-  if (isEmpty(term))
-    throw new DetailedError("No Available term", responseCodes.Not_Found);
-
-  return term;
-};
-
 // ---  SUBSCRIPTIONS
-// These are used by the other machines to listen for changes/messages from this machine
-
-//  needsCalculating: (
-//         { lookups, product }: ProductConfigContext,
-//         { data }: AnyEventObject
-//       ) => {
-//         // work out which property we need to compare
-//         let prop;
-//         prop ??= has(data, "term") ? "term" : null;
-//         prop ??= has(data, "options") ? "options" : null;
-//         prop ??= has(data, "attributes") ? "attributes" : null;
-
-//         // safeguard: bail if we dont have a "summary" or a matching property to calculate
-//         if (!prop || !product || !has(data, "price")) return false;
-
-//         // if we dont have any prev prices then we must need to calculate
-//         if (!lookups?.prices || !has(lookups, ["prices", prop])) return true;
-
-//         const newPrice = sumBy(get(data, "price", []));
-//         const oldPrice = sumBy(get(lookups.prices, prop, []));
-//       //         const value = !isEqual(oldPrice, newPrice);
-//
-//         // console.debug("productConfig", "needsCalculating", value, {
-//         //   prop,
-//         //   newPrice,
-//         //   oldPrice,
-//         // });
-
-//         return value;
-//       },
 
 export function calculateSubscription(callback: Function, onReceive: Function) {
   // firstly, send service's current state upon subscription
@@ -575,9 +363,6 @@ export default {
   load,
   refresh: load, // alias
   // ---
-  checkQuantity,
-  checkTerm,
-  checkAttributes,
-  checkOptions,
-  checkProvisioning,
+  parse,
+  validate,
 };

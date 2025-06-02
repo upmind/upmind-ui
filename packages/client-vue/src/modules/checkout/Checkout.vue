@@ -80,7 +80,7 @@
         </div>
 
         <aside v-if="!meta.isCheckout" :class="styles.checkout.aside">
-          <aside :class="styles.checkout.asideInner">
+          <div :class="styles.checkout.asideInner">
             <component
               :is="props.contentSectionComponent"
               :title="t('checkout.summary.title')"
@@ -91,7 +91,16 @@
                 </slot>
               </component>
             </component>
-          </aside>
+          </div>
+
+          <Alert
+            v-if="meta.hasError"
+            color="error"
+            icon="alert-triangle"
+            :title="t('checkout.errors.title')"
+            :description="errors.message"
+          >
+          </Alert>
         </aside>
       </div>
     </section>
@@ -133,10 +142,11 @@ import {
   useBasketPaymentDetails,
   useRoutingEngine,
   ROUTE,
+  useDataLayer,
 } from "@upmind-automation/headless-vue";
 
 import config from "./checkout.config";
-import { useStyles, Interstitial } from "@upmind-automation/upmind-ui";
+import { useStyles, Interstitial, Alert } from "@upmind-automation/upmind-ui";
 
 // -- components
 import Session from "../session/Session.vue";
@@ -151,13 +161,14 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 // --- types
 import type { CheckoutProps } from "./types";
 import { isEqual } from "lodash-es";
+import { errorsAt } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 // ---
 
 const { meta: account, isAuthenticated } = useSession();
-const { state, meta, isReady } = useBasket();
+const { state, meta, errors, isReady } = useBasket();
 const { next, back, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
@@ -183,8 +194,11 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
 const { model: billingDetailsModel, update: billingDetailsUpdate } =
   useBasketBillingDetails();
 // -----------------------------------------------------------------------------
-await isResolved(ROUTE.CHECKOUT).catch(back);
+await isResolved(ROUTE.CHECKOUT);
 await isReady().then(() => isAuthenticated().catch(back));
+
+const { dataLayer } = useDataLayer();
+dataLayer({ event: "begin_checkout" }).withEcommerce().push();
 
 // -----------------------------------------------------------------------------
 

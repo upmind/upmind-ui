@@ -29,7 +29,6 @@
                   v-if="pendingProduct && !meta?.isLoading"
                   :item="pendingProduct"
                   :model-value="pendingProduct?.id"
-                  :processing="meta?.isProcessing"
                   :no-footer="true"
                   as="div"
                   @resolve="doResolve"
@@ -73,6 +72,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -102,27 +102,42 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 const { t, tm } = useI18n();
 
 const { back, next, isResolved } = useRoutingEngine();
-const { meta: basketMeta } = useBasket();
+const { meta: basketMeta, isReady } = useBasket();
 const { productId } = useQueryParams();
 const { configure, resolve } = useBasketProductsPending();
 
-await isResolved(ROUTE.PRODUCT_ADD).catch(back);
-
+await isReady();
+await isResolved(ROUTE.PRODUCT_ADD);
 const {
   meta,
   stop,
   update,
-  isReady,
   service: pendingProduct,
 } = await configure(productId);
 
-await isReady();
-
 async function doResolve() {
-  update().then(() => {
-    resolve(pendingProduct);
-    next(pendingProduct);
-  });
+  update()
+    .then(() => {
+      resolve(pendingProduct);
+      next(pendingProduct);
+    })
+    .catch(() => {
+      // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
+      // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
+      // if the product is successfully added to the basket ( onDone = success)
+      watch(
+        meta,
+        ({ isDone }) => {
+          if (isDone) {
+            resolve(pendingProduct);
+            next(pendingProduct);
+          }
+        },
+        {
+          immediate: true,
+        }
+      );
+    });
 }
 
 function doReject() {

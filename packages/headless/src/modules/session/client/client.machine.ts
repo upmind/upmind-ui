@@ -18,7 +18,7 @@ const { addError } = useFeedback();
 import { useTime, useCookies } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useUserParser } from "../utils";
-import { omit } from "lodash-es";
+import { omit, remove } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -64,18 +64,18 @@ export default createMachine(
             target: "complete",
             actions: "clear",
           },
-          TRANSFER: {
+          TRANSFER_TO: {
             target: "transferring",
           },
         },
       },
 
       transferring: {
-        initial: "initiating",
+        initial: "processing",
         states: {
-          initiating: {
+          processing: {
             invoke: {
-              src: "transfer",
+              src: "transferTo",
               onDone: {
                 target: "available",
                 actions: "setTransfer",
@@ -115,8 +115,10 @@ export default createMachine(
         // clear all session data, including cookies and local storage
         //  also update the data layer to indicate the user has logged out
         localStorage.clear();
+        removeCookie("upm_client_session");
+        removeCookie("upm_guest_session");
         removeCookie("upm_actor");
-        dataLayer().withPage().withUser().push();
+        dataLayer().withUser().push(false);
         return {};
       }),
       // ---
@@ -142,33 +144,32 @@ export default createMachine(
       setTransfer: assign({
         transfer: (_context, { data }: AnyEventObject) => data,
       }),
-      clearTransfer: assign({ transfer: null }),
+      clearTransfer: assign({ transfer: undefined }),
       // ---
       setError: assign({
         error: (context, { data }: AnyEventObject) => data,
       }),
 
       setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (!error || error?.status == responseCodes.Unprocessable_Entity)
+          return;
 
         addError({
-          title: error?.title,
+          title: "We experienced an error processing your request",
           copy: error?.message,
           data: error?.data,
         });
       },
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
-    guards: {
-      hasUser: context => context.user !== null,
-    },
+    guards: {},
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5,
     },
-    services,
+    services: services as any,
   }
 );

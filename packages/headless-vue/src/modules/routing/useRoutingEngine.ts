@@ -15,7 +15,7 @@ import { useSession } from "../session";
 
 // --- utils
 const { DetailedError, responseCodes } = utils;
-import { isEmpty } from "lodash-es";
+import { includes, isEmpty } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
@@ -34,7 +34,8 @@ export const useRoutingEngine = () => {
     service,
     exists,
     stop,
-    isReady,
+    getErrors,
+    isReady: isRoutingEngineReady,
     next: resolveNext,
     back: resolveBack,
     resolve,
@@ -49,12 +50,7 @@ export const useRoutingEngine = () => {
       .then(() => true)
       .catch(() => false);
 
-    if (!available) {
-      return {
-        name: ROUTE.ERROR,
-        path: "/error",
-      };
-    }
+    if (!available) return route;
 
     const routeName = route?.name as ROUTE;
     // --- Only try resolve if the routeName exists in our routing engine
@@ -139,8 +135,11 @@ export const useRoutingEngine = () => {
     const route = router.currentRoute.value;
 
     if (!route?.name) {
-      // console.debug("UseRouteingEngine", "No route name", route);
-      return Promise.reject("No route name");
+      console.warn("UseRouteingEngine", "Could not Navigate route", {
+        route,
+        data,
+      }); // do nothing, just return
+      return;
     }
 
     resolve(
@@ -186,41 +185,59 @@ export const useRoutingEngine = () => {
     }
   );
 
+  const isReady = async (): Promise<boolean> =>
+    isRoutingEngineReady()
+      .then(() =>
+        waitFor(
+          service,
+          state => !["subscribing", "loading"].some(state.matches) && !!router,
+          { timeout: Infinity }
+        ).then(state => {
+          if (state.matches("unavailable")) {
+            return Promise.reject(
+              new DetailedError(
+                "Routing Engine is unavailable",
+                responseCodes.Timeout,
+                {
+                  state: state.value,
+                  errors: state.context.error,
+                }
+              )
+            );
+          }
+          return true;
+        })
+      )
+      .then(() => router.isReady().then(() => true))
+      .catch(() => {
+        throw new DetailedError(
+          "Routing Engine is unavailable",
+          responseCodes.Conflict,
+          {
+            state: state.value.value,
+            errors: state.value.context?.error,
+          }
+        );
+      });
+
   // ---------------------------------------------------------------------------
   return {
-    isReady: async (): Promise<boolean> =>
-      isReady()
-        .then(() => {
-          return waitFor(
-            service,
-            state => !["subscribing", "loading"].some(state.matches),
-            { timeout: Infinity }
-          ).then(state => {
-            if (state.matches("unavailable")) {
-              return Promise.reject("Routing Engine is unavailable");
-            }
-            return true;
-          });
-        })
+    isReady,
+
+    isResolved: async (route: ROUTE | string): Promise<boolean> => {
+      await isReady();
+      const currentRoute = router?.currentRoute?.value;
+
+      return resolve(route, {
+        name: currentRoute?.name?.toString(),
+        params: currentRoute.params,
+        query: currentRoute.query,
+      })
+        .then(() => true)
         .catch(() => {
-          throw new DetailedError(
-            "Routing Engine is unavailable",
-            responseCodes.Conflict
-          );
-        }),
-
-    isResolved: async (route: ROUTE | string): Promise<boolean> =>
-      waitFor(service, state => ["resolved"].some(state.matches), {
-        timeout: 60_000,
-      }).then(state => {
-        if (state.context.currentRoute?.name !== route)
-          throw new DetailedError(
-            "Route is not available",
-            responseCodes.Forbidden
-          );
-
-        return true;
-      }),
+          return false;
+        });
+    },
 
     state: computed(() => state.value.value),
     // ---

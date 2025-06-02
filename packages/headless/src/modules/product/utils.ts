@@ -3,7 +3,14 @@ import { useSystem } from "../system";
 import { useBrand } from "../brand";
 
 // --- utils
-import { useTranslateName, useTranslateField } from "../../utils";
+import {
+  useTranslateName,
+  useTranslateField,
+  DetailedError,
+  responseCodes,
+  useValidation,
+  useLaravalSchemaParser,
+} from "../../utils";
 
 import {
   compact,
@@ -13,14 +20,17 @@ import {
   forEach,
   get,
   has,
-  includes,
   isEmpty,
   isFunction,
   isNil,
+  isNumber,
   isObject,
-  isString,
+  isArray,
+  keys,
   map,
+  maxBy,
   merge,
+  minBy,
   omitBy,
   orderBy,
   reduce,
@@ -28,7 +38,9 @@ import {
   set,
   some,
   subtract,
+  times,
   toNumber,
+  union,
   uniq,
   values,
 } from "lodash-es";
@@ -38,6 +50,8 @@ import {
 import {
   PromotionDisplayTypes,
   BrandConfigKeys,
+  DefaultPaymentPeriod,
+  ProductTypes,
 } from "@upmind-automation/types";
 
 import type {
@@ -50,21 +64,29 @@ import type {
 } from "@upmind-automation/types";
 
 import type {
-  ProductConfigContext,
-  ProductModel,
-  PromotionDetails,
-  ProductDetails,
-  SubproductDetails,
-  SubproductValue,
-  SubproductModel,
-  TermDetails,
-  Product,
-  ProductSummaryDetail,
-  ProductSummaryDetailWithPrice,
-  UIMeta,
+  ExternalError,
+  IProductConfig,
+  PriceCalculations,
   PriceDetail,
   PriceDisplay,
+  Product,
+  ProductBundle,
+  ProductBundles,
+  ProductConfigContext,
+  ProductDetails,
+  ProductModel,
+  ProductProps,
+  ProductSummaryDetail,
+  ProductSummaryDetailWithPrice,
+  PromotionDetails,
+  SubproductDetails,
+  SubproductModel,
+  SubproductModelValue,
+  SubproductValue,
+  TermDetails,
+  UIMeta,
 } from "./types";
+import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 
@@ -184,6 +206,134 @@ export function checkPriceOverride(
 }
 // -----------------------------------------------------------------------------
 
+export function checkQuantity(
+  { lookups }: ProductConfigContext,
+  value?: number
+): string | undefined {
+  const product = get(lookups, "product");
+  const quantity = parseQuantity(value ?? 0, product);
+
+  return !isNumber(value) || value < 1 || value !== quantity
+    ? "Invalid Quantity Selected"
+    : undefined;
+}
+
+export function checkTerm(
+  { lookups }: ProductConfigContext,
+  value?: number
+): string | undefined {
+  let term: TermDetails | undefined = undefined;
+
+  term = find(lookups?.terms, ["cycle", value]);
+
+  return isNil(term) ? "Valid Term is required" : undefined;
+}
+
+export function checkSubproducts(
+  type: "attributes" | "options",
+  { lookups, model, subproducts: subproductIds }: ProductConfigContext,
+  values?: ProductModel["attributes"] | ProductModel["options"]
+): Record<string, string[]> | undefined {
+  const errors: any = {};
+  // ---
+  // safety check, resolve if we have no attributes to check
+  if (!lookups?.[type]?.length && isEmpty(values)) return undefined;
+
+  forEach(lookups?.[type], (subproduct: SubproductDetails) => {
+    let selected: Record<string, SubproductModelValue> = get(
+      values,
+      subproduct.id,
+      {}
+    );
+
+    let error = [];
+
+    // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+    // NB we only do this on the initial load, not when we are updating the values
+    if (isEmpty(selected) && subproduct?.meta.required) {
+      error.push(`${subproduct.name} is required`);
+    }
+
+    // if we have selected values, ensure they are valid and fully formed
+
+    // then parse each selected value, and ensure it has all its required and VALID values
+    forEach(selected, (value: SubproductModelValue, id: string) => {
+      const product = find(subproduct.values, ["id", value.productId]);
+
+      // safety check, ensure we have a valid product otherwise bail
+      if (isEmpty(product))
+        error.push(`${subproduct.name} is not a valid product`);
+    });
+
+    // check if we values too many values for this subproduct
+    if (!subproduct?.meta.multiple && keys(selected)?.length > 1)
+      error.push(`${subproduct.name} does not allow multiple choice`);
+
+    if (!isEmpty(error)) errors[subproduct.id] = error;
+  });
+
+  return !isEmpty(errors) ? errors : undefined;
+}
+
+export function checkProvisioning(
+  { lookups }: ProductConfigContext,
+  values?: ProductModel["provisionFields"]
+): ErrorObject[] {
+  // this is our bypass for the validation when e are doing an express add
+  // bail if we dont actually have any provision fields to check
+  if (isEmpty(lookups?.provisionFields?.properties)) return [];
+  const { validate } = useValidation();
+
+  const errors = lookups?.provisionFields
+    ? validate(lookups.provisionFields, values)
+    : [];
+  return errors;
+}
+
+export const calculateBillingTerm = (
+  period: DefaultPaymentPeriod | undefined,
+  available: TermDetails[]
+): TermDetails => {
+  // because we have multiple options, we need to select one base don the following strategy:
+
+  if (isEmpty(available))
+    throw new DetailedError(
+      "[headless] getBillingTerms on product not found",
+      responseCodes.Not_Found
+    );
+
+  const { getDefaultPaymentPeriod } = useBrand();
+
+  let term;
+
+  switch (period) {
+    case DefaultPaymentPeriod.HIGHEST_PRICE:
+      term = maxBy(available, "price.currentAmount");
+      break;
+    case DefaultPaymentPeriod.LOWEST_PRICE:
+      term = minBy(available, "price.currentAmount");
+      break;
+    case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
+      term = minBy(available, "price.monthlyFromCurrentAmount");
+      break;
+    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
+      term = calculateBillingTerm(getDefaultPaymentPeriod(), available);
+      break;
+
+    default:
+      break;
+  }
+  term ??= first(available);
+
+  if (isEmpty(term))
+    throw new DetailedError(
+      "[headless] getBillingTerm on product not found",
+      responseCodes.Not_Found
+    );
+
+  return term;
+};
+
 export function parseQuantity(
   quantity: number,
   product?: ProductDetails
@@ -212,6 +362,147 @@ export function parseQuantity(
   }
 
   return quantity;
+}
+
+export function parseTerm(
+  { lookups }: ProductConfigContext,
+  value?: ProductModel["term"],
+  quantity?: ProductModel["quantity"]
+): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
+  let term: TermDetails | undefined = undefined;
+  const price: number[] = [];
+  // ---
+  // try ge the full term object from the lookups terms
+  term = find(lookups?.terms, ["cycle", value]);
+  if (!term) {
+    if (lookups?.terms?.length === 1) {
+      term = first(lookups?.terms);
+    } else {
+      term = calculateBillingTerm(
+        lookups?.product?.defaultPaymentPeriod,
+        lookups?.terms ?? []
+      );
+    }
+  }
+
+  // set price values, taking into account the quantity and unit quantity
+  // NB: we NEVER add, we always push into an array for the backend to handle
+  times(quantity ?? 0, () => {
+    price.push(term?.price?.currentAmount ?? 0);
+  });
+
+  return { term: get(term, "cycle") as number, price };
+}
+
+export function parseSubproducts(
+  type: "attributes" | "options",
+  { lookups, model, subproducts: subproductIds }: ProductConfigContext,
+  values: ProductModel["attributes"] | ProductModel["options"],
+  quantity?: ProductModel["quantity"]
+): {
+  subproducts?: ProductModel["attributes"] | ProductModel["options"];
+  price: PriceCalculations["attributes"] | PriceCalculations["options"];
+} {
+  let subproducts: SubproductModel = {};
+  const price: any[] = [];
+  // ---
+  // safety check, resolve if we have no attributes to check
+  if (!lookups?.[type]?.length) return { subproducts, price };
+
+  const isInitial = isEmpty(model?.[type]);
+
+  subproducts = reduce(
+    lookups[type],
+    (result, subproduct: SubproductDetails) => {
+      let selected: Record<string, SubproductModelValue> = get(
+        values,
+        subproduct.id,
+        {}
+      );
+
+      // try set anymatching pre-selected values for this subproduct ( subproductIds ),
+      // NB: ONLY when values is being set for the first time
+      if (isEmpty(values)) {
+        forEach(subproductIds, pid => {
+          if (some(subproduct.values, ["id", pid])) {
+            set(selected, pid, { productId: pid });
+          }
+        });
+      }
+
+      // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+      // NB we only do this on the initial load, not when we are updating the values
+      if (isEmpty(selected) && isInitial) {
+        const defaultSubproduct = find(
+          subproduct.values,
+          "meta.default"
+        ) as SubproductValue;
+
+        if (defaultSubproduct) {
+          set(selected, defaultSubproduct.id, {
+            productId: defaultSubproduct.id,
+          });
+        } else if (
+          (subproduct?.meta.required && !subproduct.meta.multiple) ||
+          (subproduct.meta.multiple && subproduct.values?.length === 1)
+        ) {
+          const pid = get(first(subproduct.values), "id");
+          if (pid) set(selected, pid, { productId: pid });
+        }
+      }
+
+      // if we have selected values, ensure they are valid and fully formed
+      if (!isEmpty(selected)) {
+        // only include valid values, stripping out any invalid ones, if we have any
+        // selected = pickBy(selected, (_value, id) =>
+        //   some(subproduct.values, ["id", id])
+        // );
+
+        // then parse each selected value, and ensure it has all its required and VALID values
+        selected = reduce(
+          selected,
+          (
+            result: Record<string, SubproductModelValue>,
+            value: SubproductModelValue,
+            id: string
+          ) => {
+            const product = find(subproduct.values, ["id", value.productId]);
+
+            // safety check, ensure we have a valid product otherwise bail
+            if (isEmpty(product)) return result;
+
+            // ensure we have a valid unit_quantity
+            value.quantity = parseQuantity(Number(value.quantity), product);
+
+            // ensure we map the product cycle to the value
+            value.cycle = product.cycle;
+
+            set(result, id, value);
+
+            // if we have a price, set price values, taking into account the quantity and unit quantity
+            // NB: we NEVER add, we always push into an array for the backend to handle
+            if (!isEmpty(product?.price)) {
+              times(value.quantity * (quantity ?? 1), () => {
+                price.push(product?.price?.currentAmount);
+              });
+            }
+
+            // ---
+            return result;
+          },
+          {}
+        );
+      }
+
+      // ---
+      set(result, subproduct.id, selected);
+
+      return result;
+    },
+    {}
+  );
+
+  return { subproducts, price };
 }
 
 export const parseProductDetails = (
@@ -272,7 +563,7 @@ export const parseMeta = (
     (result, value) => {
       return merge(result, value);
     },
-    {}
+    meta || {}
   );
 };
 
@@ -531,120 +822,25 @@ export const parsePromotionDetails = (
 };
 
 export const parseProvisioningSchema = (data: any, product: any) => {
-  const required: string[] = [];
-  const properties = {};
-  const errorMessage = {};
+  const { getCountry } = useSystem();
 
-  forEach(data, field => {
-    let type = ["string"];
-    let format = null; //field?.format; // || field?.semantic_type;
+  const defaultCountry = getCountry();
 
-    const fieldType = field?.semantic_type || field?.field_type || field?.type;
-    // lets map our field types...
-    switch (fieldType) {
-      case "select":
-        type = ["string", "number"];
-        break;
-      case "input_number":
-        type = ["number"];
-        break;
-      case "input-checkbox":
-        type = ["boolean"];
-        break;
-      case "input_date":
-        type = ["string"];
-        format = "date";
-        break;
-      case "input_datetime":
-        type = ["string"];
-        format = "date-time";
-        break;
-      case "input_email":
-        type = ["string"];
-        format = "email";
-        break;
-      case "input_url":
-        type = ["string"];
-        format = "uri";
-        break;
-      case "input_phone":
-      case "input_tel":
-        type = ["string"];
-        // format = "phone";
-        // todo ad dthe default country code
-        // isPhoneNumber = defaultCountry?.code;
-        break;
-      case "input_ip":
-        type = ["string"];
-        format = "ipv4";
-        break;
-      case "input_ipv6":
-        type = ["string"];
-        format = "ipv6";
-        break;
-      case "domain_name":
-        type = ["string"];
-        format = "domain_name";
-        set(
-          errorMessage,
-          ["properties", field.name],
-          "Please enter a valid domain name"
-        );
-        break;
-
-      default:
-        type = ["string"];
-
-        // TODO: Implement a proper solution for this where field type is input_sld
-        if (field.name === "sld") {
-          type = ["string"];
-          format = "sld";
-          // TODO: Set the raw TLD rather, not the product name
-          field.description = product?.name;
-        }
-
-        // additional format checks
-        if (includes(field.validation_rules, "email")) format = "email";
-        if (includes(field.validation_rules, "url")) format = "uri";
-
-        break;
-    }
-
-    if (field.required) {
-      required.push(field.name);
-    } else {
-      type.push("null");
-    }
-
-    if (!field.deferrable || field.defer_mode != "hidden") {
-      const schema = {
-        type,
-        format,
-        title: field.field_label,
-        description: field.description,
-        default: field?.default || field?.default_value,
-        enum: !some(field.options, isString) ? undefined : field.options,
-        oneOf: !some(field.options, isObject)
-          ? undefined
-          : map(field.options, item => {
-              return {
-                const: item.value,
-                title: item.label,
-              };
-            }),
-      };
-
-      set(properties, field.name, omitBy(schema, isNil));
-    }
+  const schema = useLaravalSchemaParser(data, {
+    defaultCountry,
+    product,
   });
 
-  // return a fully formed json schema
-  return {
-    type: "object",
-    properties,
-    required,
-    errorMessage,
-  };
+  // TODO: Implement a proper solution for this where field type is input_sld
+  // if (field.name === "sld") {
+  //   //   type = ["string"];
+  //   format = "sld";
+  //   // TODO: Set the raw TLD rather, not the product name
+  //   field.description = product?.name;
+  // "The sld may only contain letters, numbers, and dashes"
+  // }
+
+  return schema;
 };
 
 export const parseProduct = (
@@ -717,27 +913,27 @@ export const parseProduct = (
   const termDetails = parseSummaryTerm(
     model.term ?? 0,
     lookups.terms ?? [],
-    error?.term
+    (error as ExternalError)?.term
   );
 
   const optionDetails = parseSummarySubproduct(
     "option",
     model.options,
     lookups.options,
-    error?.options
+    (error as ExternalError)?.options
   );
 
   const attributeDetail = parseSummarySubproduct(
     "attribute",
     model.attributes,
     lookups.attributes,
-    error?.attributes
+    (error as ExternalError)?.attributes
   );
 
   const provisionFieldDetails = parseSummaryProvisionFields(
     model.provisionFields,
     lookups.provisionFields,
-    error?.provisionFields
+    (error as ExternalError)?.provisionFields
   );
 
   // ---------------------------------------------------------------------------
@@ -758,14 +954,14 @@ export const parseProduct = (
         provisionFieldDetails
       )
     ),
-    errors: omitBy(error, isEmpty),
+    errors: omitBy(error, isEmpty) as ExternalError,
   };
 };
 
 const parseSummaryTerm = (
   cycle: number,
   terms: TermDetails[],
-  error?: any
+  error?: ExternalError["term"]
 ): TermDetails | undefined => {
   const term = find(terms, ["cycle", cycle]);
   if (term) {
@@ -785,7 +981,7 @@ const parseSummarySubproduct = (
   key: string,
   data: ProductModel["options"],
   lookup?: SubproductDetails[],
-  error?: any
+  error?: ExternalError["options" | "attributes"]
 ): (ProductSummaryDetail | ProductSummaryDetailWithPrice)[] => {
   return reduce(
     data,
@@ -838,7 +1034,7 @@ const parseSummarySubproduct = (
 const parseSummaryProvisionFields = (
   data: any,
   schema: any,
-  error?: any
+  error?: ExternalError["provisionFields"]
 ): ProductSummaryDetail[] => {
   return reduce(
     schema?.properties,
@@ -916,3 +1112,76 @@ const parseSubproductDetailsChoices = (values: IBasketProduct[]) => {
 };
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Parses the given product and returns a list of bundled products.
+ * The bundled products are extracted from the product, and only the single products are considered.
+ * Inactive bundled products are not included.
+ * NB: Bundles have a priority...
+ *     if a product has bundles defined in its meta, those are used.
+ *     otherwise we traverse the category hierarchy to find bundles and take the first set we find.
+ * NB: Bundles may be an array or an Collection of key/value pairs.
+ *     If we have an array, we use it directly, no key is needed.
+ *     However, if we have a key/value object, we need to extract the bundle config based on the provided `bundle` key.
+ *     if no key is provided, we will NOT include any bundles.
+ *
+ * @param {IProduct} raw - The raw product data to parse.
+ * @returns {ProductProps[]} The parsed list of bundled products configurations.
+ */
+export function parseBundledProducts(
+  raw: IProduct,
+  bundle?: ProductConfigContext["bundle"]
+): ProductProps[] {
+  // safe check : dont include recommendations for products that are not single products
+  if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
+
+  let bundles: ProductBundles =
+    raw?.meta?.bundle ??
+    first(
+      compact(
+        iterateParents(raw.category, [], {
+          valueKey: "meta.bundle",
+          parentKey: "top_category",
+          transform: (category: IProductCategory) =>
+            get(category, "meta.bundle"),
+        })
+      )
+    );
+
+  if (!isArray(bundles)) {
+    if (!bundle) bundles = [];
+    else bundles = get(bundles, bundle, []) as ProductBundle[];
+  }
+
+  const bundledProducts = reduce(
+    bundles,
+    (result: ProductProps[], rawBundle) => {
+      const model = parseBundleConfig(rawBundle);
+      if (model) result.push(model);
+      return result;
+    },
+    []
+  ) as ProductProps[];
+
+  return bundledProducts;
+}
+
+function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
+  // safe check : dont include recommendations for products that are not single products
+
+  const valid = raw?.object_type === "product" && raw?.active;
+  if (!valid) return undefined; // skip if not a valid product bundle or inactive
+
+  const config: IProductConfig = get(raw, "config", {});
+
+  return {
+    productId: raw.object_id,
+    quantity: config?.qty || 1,
+    term: config?.bcm ?? 0,
+    subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
+    provisionFields: config?.pfields ?? {},
+    coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
+    // ---
+    silent: true, // always silent for bundled products
+  } as ProductProps;
+}

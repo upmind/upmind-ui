@@ -1,0 +1,149 @@
+import { computed } from "vue";
+import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
+
+// --- internal
+import { useClientCompanies as useUpmindClientCompanies } from "@upmind-automation/headless";
+
+// --- utils
+import { get, map, debounce, isEmpty } from "lodash-es";
+import {
+  DEBOUNCE_DELAY,
+  machineMatches,
+  useContextActor,
+  useContextActors,
+} from "../../utils";
+import type { ClientItemDefinition, ClientListingDefinition } from "./types";
+
+// ---
+export const useClientCompany = (
+  item: any, // Actor
+  context?: Record<string, any>
+): ClientItemDefinition => {
+  const { service } = useUpmindClientCompanies();
+  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
+  const { state, send } = item;
+
+  // ---------------------------------------------------------------------------
+  return {
+    state: computed(() => state.value.value),
+    context: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.error?.message),
+    //messages: computed(() => state.value.context?.messages),
+    // ---
+    meta: computed(() => ({
+      isDisabled: context?.disabled,
+      isSelected: context?.selected,
+      isHidden: context?.hidden,
+      isSelectable: context?.selectable,
+      // ---
+      isLoading: ["loading"].some(state.value.matches),
+      hasErrors: ["error"].some(state.value.matches),
+      isProcessing: ["processing"].some(state.value.matches),
+      isValid: ["valid"].some(state.value.matches),
+      isNew: !state.value.context?.model?.id,
+      canRemove: !!state.value?.context?.model?.canDelete,
+      isDefault: !!state.value?.context?.model?.default,
+      isVerified: !!state.value?.context?.model?.verified,
+      isComplete:
+        state.value.done || ["processed", "complete"].some(state.value.matches),
+    })),
+    // ---
+    filters: computed(() => state.value.context?.filters),
+    title: computed(() => get(state.value.context, "title")),
+    description: computed(() => get(state.value.context, "description")),
+    // ---
+    model: computed(() => state.value?.context?.model),
+    schema: computed(() => state.value?.context?.schema),
+    uischema: computed(() => state.value?.context?.uischema),
+    // ---
+    clear: () => send({ type: "CLEAR" }),
+    input: debounce(
+      (model: any) => send({ type: "SET", data: model }),
+      DEBOUNCE_DELAY
+    ),
+    update: () => {
+      // avoid race conditions and wait for the selected item to be valid
+      if (!state.value.matches("valid")) {
+        waitFor(
+          service,
+          newState => newState.context?.selected?.state?.matches("valid"),
+          { timeout: 60_000 }
+        ).then(() => {
+          send({ type: "UPDATE" });
+        });
+      } else {
+        send({ type: "UPDATE" });
+      }
+    },
+    remove: () => send({ type: "REMOVE" }),
+    setDefault: () => send({ type: "DEFAULT" }),
+    // ---
+    select: () => service.send({ type: "SELECT", data: item.id }),
+    edit: () => service.send({ type: "EDIT", data: item.id }),
+    cancel: () => service.send({ type: "REFRESH" }),
+  } as ClientItemDefinition;
+};
+
+export const useClientCompanies = (): ClientListingDefinition => {
+  // this will change to be a manager of ALL companies, for now its a single instance (add/update)
+
+  const { service, isReady, getSelected } = useUpmindClientCompanies();
+  const { state, send } = useActor(service);
+
+  // ---
+  const items = useContextActors(state, "items", []);
+  const selected = useContextActor(state, "selected");
+
+  // ---------------------------------------------------------------------------
+  return {
+    state: computed(() => state.value.value),
+    context: computed(() => state.value.context),
+    errors: computed(() => state.value.context?.error),
+    //messages: computed(() => state.value.context?.messages),
+    // ---
+    meta: computed(() => ({
+      isAvailable: ["available"].some(state.value.matches),
+      isLoading:
+        ["subscribing", "checking", "available.loading"].some(
+          state.value.matches
+        ) || machineMatches(selected, ["loading"]),
+
+      isProcessing: ["available.filtering", "available.processing"].some(
+        state.value.matches
+      ),
+      hasErrors: ["error"].some(state.value.matches),
+      isAdding: state.value.matches("available.adding"),
+      isEditing: state.value.matches("available.editing"),
+      isEmpty:
+        state.value.matches("available") && isEmpty(state.value.context?.items),
+      canFilter:
+        state.value.matches("available") &&
+        !["available.editing", "available.adding", "available.loading"].some(
+          state.value.matches
+        ) &&
+        (state.value.context?.raw?.length ?? 0) > 1,
+    })),
+    // ---
+    items,
+    selected,
+    initial: computed(() => state.value.context?.initial),
+
+    // ---
+    isReady,
+    getSelected,
+    filter: debounce(data => send({ type: "FILTER", data }), DEBOUNCE_DELAY),
+    select: async (id: any) => {
+      await isReady();
+      send({ type: "SELECT", data: id });
+    },
+    edit: async (id: any) => {
+      await isReady();
+      send({ type: "EDIT", data: id });
+    },
+    add: async () => {
+      await isReady();
+      send({ type: "ADD" });
+    },
+  } as ClientListingDefinition;
+};

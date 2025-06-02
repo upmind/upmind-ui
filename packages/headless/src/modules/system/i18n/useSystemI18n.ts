@@ -1,5 +1,5 @@
 // --- internal
-import { responseCodes } from "../../../utils";
+import { DetailedError, responseCodes } from "../../../utils";
 import { useBrand } from "../../brand";
 import type { SupportedLocaleCodes } from "./locales";
 
@@ -90,11 +90,11 @@ export const useSystemI18n = () => {
     // window.history.replaceState("", "", cleanedUrl);
 
     if (!locale) {
-      return Promise.reject({
-        message: "No valid locale found",
-        code: responseCodes.Not_Found,
-        data: { locale },
-      });
+      return Promise.reject(
+        new DetailedError("No valid locale found", responseCodes.Not_Found, {
+          locale,
+        })
+      );
     }
 
     return setLocale(locale);
@@ -109,11 +109,11 @@ export const useSystemI18n = () => {
         set("i18n/locale", locale.code);
         return resolve(locale.code);
       }
-      return reject({
-        message: "No valid locale found",
-        code: responseCodes.Not_Found,
-        data: { code },
-      });
+      return reject(
+        new DetailedError("No valid locale found", responseCodes.Not_Found, {
+          code,
+        })
+      );
     });
   }
 

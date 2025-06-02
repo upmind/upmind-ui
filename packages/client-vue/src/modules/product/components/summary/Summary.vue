@@ -2,6 +2,7 @@
   <Card :class="styles.summary.card" as="aside" class="">
     <header :class="styles.summary.header">
       <SummaryPricing
+        v-if="product?.pricing"
         :pricing="product.pricing"
         :meta="product.meta"
         :loading="meta.isLoading"
@@ -11,7 +12,7 @@
 
     <footer :class="styles.summary.footer">
       <NumberField
-        v-if="product.productDetails.quantifiable"
+        v-if="product?.productDetails?.quantifiable"
         :min="product.productDetails.min"
         :max="product.productDetails.max"
         :step="product.productDetails.step"
@@ -20,6 +21,7 @@
           product.configuration.quantity || product.productDetails.step
         "
         @update:modelValue="updateQuantity"
+        :disabled="meta.isLoading || meta.isProcessing"
       />
 
       <Button
@@ -27,7 +29,7 @@
         type="submit"
         color="secondary"
         :loading="meta.isProcessing"
-        :disabled="meta.isLoading || meta.isCalculating || meta.isInvalid"
+        :disabled="meta.isLoading"
         :label="t('product.actions.resolve')"
         @click="doResolve"
       >
@@ -47,7 +49,15 @@
     class="mt-4"
   />
 
-  <SummaryList v-bind="product" />
+  <SummaryList v-if="product?.productDetails" v-bind="product" />
+
+  <Markdown
+    data-testid="slots:summary-append"
+    :model-value="
+      product.productDetails.uiMeta?.uischema?.config?.summary?.append ??
+      product.productDetails.uiMeta?.uischema?.productConfig?.summary?.append
+    "
+  />
 </template>
 
 <script setup lang="ts">
@@ -64,13 +74,20 @@ import config from "./summary.config";
 import Card from "../../../../components/content/Card.vue";
 import SummaryPricing from "./SummaryPricing.vue";
 import SummaryList from "./SummaryList.vue";
-import { NumberField, Icon, Button, Alert } from "@upmind-automation/upmind-ui";
+import {
+  Markdown,
+  NumberField,
+  Icon,
+  Button,
+  Alert,
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { ActorRef } from "xstate";
+import { debounce } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{

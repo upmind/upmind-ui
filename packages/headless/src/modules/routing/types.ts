@@ -1,29 +1,39 @@
 // --- types
 import type { ActorRef } from "xstate";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
 export enum ROUTE {
   LOADING = "loading",
   ERROR = "error",
-  EMPTY = "empty",
+  UNAVAILABLE = "unavailable",
+  // --- product routes
   PRODUCT_ADD = "product.add",
   PRODUCT_EDIT = "product.edit",
   PRODUCT_REQUIRES_ACTION = "product.requiresAction",
   PRODUCT_NOT_FOUND = "product.notFound",
   PRODUCT_RECOMMENDATIONS = "product.recommendations",
+  // --- product flows
   RECOMMENDATIONS = "recommendations",
+  // --- SESSION/AUTH routes
   SESSION = "session",
   SESSION_LOGIN = "session.login",
   SESSION_REGISTER = "session.register",
-  SESSION_FORGOT_PASSWORD = "session.forgot",
+  SESSION_RECOVER_PASSWORD = "session.recover",
   SESSION_END = "session.end",
+  SESSION_TRANSFER = "session.transfer",
+  // --- basket routes
+  EMPTY = "empty",
   BASKET = "basket",
   CHECKOUT = "checkout",
   ORDER = "order",
   // --- express routes
   EXPRESS_PRODUCT_ADD = "express.product.add",
   EXPRESS_CHECKOUT = "express.checkout",
+  // --- redirect routes
+  REDIRECT_EXTERNAL = "redirect.external",
+  REDIRECT_INTERNAL = "redirect.internal",
 }
 
 export enum REQUIRES_ACTION {
@@ -56,14 +66,14 @@ export type Route = {
 export type Target =
   | ROUTE
   | {
-      name: ROUTE;
+      name: ROUTE | string;
       guard?: (route: Route, data?: any) => Promise<boolean>;
       resolve?: (route: Route, data?: any) => Promise<Route>;
       meta?: Record<string, any>;
     };
 
 export interface Flow {
-  name: ROUTE;
+  name: ROUTE | string;
   guard?: (route: Route, data?: any) => Promise<boolean>;
   resolve?: (route: Route, data?: any) => Promise<Route>;
   meta?: Record<string, any> & {
@@ -81,7 +91,7 @@ export interface RoutingEngineContext {
   currentFlow?: Flow;
   currentRoute?: Route;
   // ---
-  error?: any;
+  error?: ResponseError;
   // ---
   basketId?: string;
   basketHelper?: ActorRef<any>;

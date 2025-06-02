@@ -67,7 +67,7 @@ export const useI18n = (i18n: I18n, files?: GlobbedFiles) => {
     // TODO, make async
     // for (const path in files) {
     //   files[path]().then(mod => {
-    //     console.log(path, mod);
+    //     console.debug(path, mod);
     //   });
     // }
 

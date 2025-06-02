@@ -15,7 +15,13 @@ export default {
     },
 
     content: {
-      root: cva("flex flex-1 flex-col justify-between space-y-8 p-6"),
+      root: cva("flex flex-1 flex-col justify-between space-y-8 p-6 pt-8", {
+        variants: {
+          hasImageAndBadge: {
+            true: "pt-6", // Counteract additional padding needed for badge
+          },
+        },
+      }),
       breakdown: cva(
         "flex flex-1 flex-col gap-y-6 text-sm font-medium leading-6"
       ),

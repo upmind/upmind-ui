@@ -7,27 +7,29 @@ import { useBasket } from "../basket";
 import { useBasketProductPending } from "./useBasketProductPending";
 
 // --- utils
-import { useSessionStorage } from "../../utils";
+import { DetailedError, useSessionStorage } from "../../utils";
 import {
   defaults,
   find,
   first,
   forEach,
   get,
+  isEmpty,
+  isEqual,
+  isNil,
+  isString,
+  keys,
+  omit,
   set,
   unset,
-  isEmpty,
-  keys,
-  map,
-  omit,
-  isString,
-  isNil,
+  some,
 } from "lodash-es";
 
 // --- types
 import type { ActorRef, State, Subscription } from "xstate";
 import type { ProductModel, ProductProps } from "../product";
-import { responseCodes } from "../../utils";
+import { responseCodes, compactDeep } from "../../utils";
+import { isArray } from "xstate/lib/utils";
 
 type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 // -----------------------------------------------------------------------------
@@ -40,7 +42,7 @@ let subscriptions: Record<string, Subscription> = {}; // store subscriptions to 
 // -----------------------------------------------------------------------------
 
 export const useBasketProductsPending = () => {
-  const { isReady, getBasket } = useBasket();
+  const { isReady, productExists } = useBasket();
   const storage = useSessionStorage();
 
   productConfigs = storage.get("pendingProducts", {});
@@ -48,7 +50,8 @@ export const useBasketProductsPending = () => {
   // ---
 
   async function add(model: ProductProps): Promise<BasketProductPending> {
-    if (isEmpty(model)) return Promise.reject("No product model found");
+    if (isEmpty(model))
+      return Promise.reject(new Error("No product model found"));
 
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
 
@@ -87,6 +90,12 @@ export const useBasketProductsPending = () => {
             { timeout: Infinity }
           ).then(state => {
             if (state.matches("error")) throw new Error(state.context.error);
+            if (state.matches("error"))
+              throw new DetailedError(
+                "[headless] add in useBasketProductsPending has an error",
+                responseCodes.Unprocessable_Entity,
+                { state: state.value, errors: state.context.error }
+              );
             return instance;
           });
         })
@@ -201,6 +210,15 @@ export const useBasketProductsPending = () => {
   return {
     getProducts: () => productsPending,
     isReady: () => new Promise(resolve => resolve(!isNil(productConfigs))),
+    isInBasket: async (config: Partial<ProductProps>) => {
+      const cleanConfig = compactDeep(config);
+      const keysModel = keys(cleanConfig);
+      const hasConfig = !isEqual(keysModel, ["productId", "quantity"]);
+      // bail early if we have no config other than productId and quantity
+      if (!hasConfig) return false;
+      await isReady();
+      return productExists(config);
+    },
     // ---
     add: ensure,
     get: getProduct,

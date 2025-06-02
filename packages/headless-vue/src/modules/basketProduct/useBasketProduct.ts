@@ -13,18 +13,17 @@ import { useProductConfig } from "../product";
 export const useBasketProduct = (bpid: string) => {
   // we need our basket
   // and then we can generate our product machine
-  const { service, isReady, update, remove, stop } =
-    useUpmindBasketProduct(bpid);
+  const { service, isReady, update, stop } = useUpmindBasketProduct(bpid);
 
   // ---
-  //Finally return the  product config composable as well as our additional functions to update/remove
+  //Finally return the  product config composable as well as our additional functions to update/
+
   return {
     service,
     ...useProductConfig(service),
     // ---
     isReady,
     update,
-    remove,
     stop,
   };
 };

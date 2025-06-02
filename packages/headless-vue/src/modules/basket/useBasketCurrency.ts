@@ -4,7 +4,7 @@ import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { utils, useBasket } from "@upmind-automation/headless";
 
 // --- utils
 import {
@@ -17,6 +17,8 @@ import {
 
 // --- types
 import type { ActorRef } from "xstate";
+
+const { DetailedError, responseCodes } = utils;
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
@@ -78,14 +80,25 @@ export const useBasketCurrency = (actorRef?: ActorRef<any>) => {
       actor.value?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
-        if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
-        }
-        return Promise.resolve();
-      });
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      )
+        .then(state => {
+          if (["error"].some(state.matches)) {
+            return Promise.reject(new Error(state.context.error));
+          }
+          return Promise.resolve();
+        })
+        .catch(() => {
+          throw new DetailedError(
+            `[headless-vue] fetch on useBasketCurrency timed out while waiting for currency update to complete`,
+            responseCodes.Timeout
+          );
+        });
     },
   };
 };

@@ -4,10 +4,9 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recaptchaMachine from "./recaptcha.machine";
-import { generateToken } from "./services";
 
 // --- utils
-import { stopService } from "../../../utils";
+import { DetailedError, responseCodes, stopService } from "../../../utils";
 
 // --- types
 import type { InterpreterFrom } from "xstate";
@@ -18,16 +17,38 @@ import type { InterpreterFrom } from "xstate";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(recaptchaMachine, { devTools: false });
+let service = interpret(recaptchaMachine, { devTools: false });
 
+async function init(siteKey: string) {
+  if (service.status === InterpreterStatus.NotStarted) {
+    service.start();
+  }
+
+  service.send({ type: "SET_SITE_KEY", siteKey });
+}
 async function generate(action?: string) {
   return waitFor(service, state => ["available"].some(state.matches))
     .then(() => {
-      const grecaptcha = service.getSnapshot().context.grecaptcha;
-      return generateToken(grecaptcha, action);
+      service.send({ type: "GENERATE_TOKEN", data: { action } });
+      return waitFor(service, state =>
+        state.matches("available.processed")
+      ).then(() => {
+        const token = service.getSnapshot().context?.token;
+        const error = service.getSnapshot().context?.error;
+        if (!token) {
+          return Promise.reject(
+            new DetailedError(
+              "Recaptcha token not set",
+              responseCodes.Not_Found,
+              error
+            )
+          );
+        }
+        return token;
+      });
     })
     .catch(() => {
-      return Promise.reject("Recaptcha not available");
+      return Promise.reject(new Error("Recaptcha not available"));
     });
 }
 
@@ -38,8 +59,12 @@ function clear() {
 
 export const useSystemRecaptcha = () => {
   return {
-    service: service.start(), // allow for interpreting the machine + inspecting it
-    isReady: async () => waitFor(service, state => state.matches("available")),
+    service, // allow for interpreting the machine + inspecting it
+    init,
+    isReady: async () =>
+      waitFor(service, state => state.matches("available"), {
+        timeout: 60_000,
+      }),
     // ---
     getSnapshot: service.getSnapshot,
     generate,

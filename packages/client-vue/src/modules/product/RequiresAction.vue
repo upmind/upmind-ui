@@ -20,7 +20,7 @@
             label: t('basket.requiresAction.actions.back'),
           },
           {
-            color: 'primary',
+            color: 'secondary',
             handler: next,
             appendIcon: { icon: 'arrow-right', size: '2xs' },
             label: t('basket.requiresAction.actions.continue'),
@@ -73,7 +73,7 @@ const { t } = useI18n();
 const { next, back, isResolved } = useRoutingEngine();
 const { products, isReady } = useProductsRequiringAction();
 
-await isResolved(ROUTE.PRODUCT_REQUIRES_ACTION).catch(back);
+await isResolved(ROUTE.PRODUCT_REQUIRES_ACTION);
 
 await isReady();
 </script>

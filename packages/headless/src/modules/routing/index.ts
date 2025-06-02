@@ -16,6 +16,7 @@ export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 import type { InterpreterFrom } from "xstate";
 import type { ROUTE, Flow, Route, Target } from "./types";
 import { isEmpty, get, some } from "lodash-es";
+import { ResponseError } from "../query";
 export type RouteQueryParams = typeof useRouteQueryParams;
 
 // -----------------------------------------------------------------------------
@@ -25,9 +26,7 @@ export type RouteQueryParams = typeof useRouteQueryParams;
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(routingEngine, {
-  devTools: false,
-});
+const service = interpret(routingEngine, { devTools: false });
 
 // -----------------------------------------------------------------------------
 
@@ -40,7 +39,7 @@ export const useRoutingEngine = () => {
         timeout: Infinity,
       }).then(state => {
         if (["unavailable"].some(state.matches))
-          return Promise.reject("Routing Engine is not available");
+          return Promise.reject(new Error("Routing Engine is not available"));
 
         return state;
       }),
@@ -69,6 +68,10 @@ export const useRoutingEngine = () => {
       const currentRoute = get(state, "context.currentRoute");
       return currentRoute;
     },
+    getErrors: (): ResponseError | undefined => {
+      const state = service.getSnapshot();
+      return get(state, "context.error", undefined) as ResponseError;
+    },
     // --- methods
     register: (flows: Flow[]) => {
       service.send({ type: "REGISTER", data: flows });
@@ -81,7 +84,7 @@ export const useRoutingEngine = () => {
       service.send({ type: "BACK", data: { route, event } });
       return awaitResolved(service);
     },
-    resolve: async (name: ROUTE, route: Route, event?: any) => {
+    resolve: async (name: ROUTE | string, route: Route, event?: any) => {
       service.send("RESOLVE", { data: { name, route, event } });
       return awaitResolved(service);
     },

@@ -23,9 +23,7 @@ export default createMachine(
     id: "paymentManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      error: null,
-    } as PaymentContext,
+    context: {} as PaymentContext,
     states: {
       loading: {
         invoke: {
@@ -170,7 +168,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           let error = data?.error?.data ?? data?.error ?? data;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -180,7 +178,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

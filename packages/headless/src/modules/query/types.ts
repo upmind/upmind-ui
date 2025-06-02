@@ -1,12 +1,23 @@
 // --- types
 import type { EnsureQueryDataOptions } from "@tanstack/query-core";
+import { responseCodes } from "src/utils";
 
 // -----------------------------------------------------------------------------
 
-export interface RequestError {
-  data?: unknown;
-  status?: number;
-  message?: string;
+export interface ResponseError {
+  id: null;
+  code: string | responseCodes | number;
+  type: string | responseCodes | number;
+  message: string;
+  data: null;
+  status: responseCodes | number;
+}
+export interface Response {
+  status: number;
+  data: any | null;
+  total: number | null;
+  error: ResponseError | null;
+  messages: string[] | null;
 }
 
 export interface PaginatedError {
@@ -44,7 +55,7 @@ export interface QueryResponse<T extends unknown = unknown> {
   data: T;
   total: number | null;
   status: number;
-  errors: RequestError | null;
+  errors: ResponseError | null;
   messages: string | string[];
   pagination?: {
     limit: number;
