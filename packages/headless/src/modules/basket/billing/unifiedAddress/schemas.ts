@@ -257,95 +257,90 @@ export const useUischema = ({
   companies,
 }: UnifiedAddressContext) => {
   const addressUiSchema = {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/address",
-        options: {
-          autoFocus: true,
-          autocomplete: "off",
-          detail: {
-            type: "VerticalLayout",
+    type: "Control",
+    scope: "#/properties/address",
+    options: {
+      autoFocus: true,
+      autocomplete: "off",
+      detail: {
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/countryId",
+          },
+          {
+            type: "address",
+            options: {
+              fields: ["address1", "address2"],
+              placeholder: "Start typing your address",
+            },
             elements: [
               {
-                type: "Control",
-                scope: "#/properties/countryId",
-              },
-              {
-                type: "address",
+                type: "Group",
                 options: {
-                  fields: ["address1", "address2"],
-                  placeholder: "Start typing your address",
+                  border: false,
                 },
                 elements: [
                   {
-                    type: "Group",
+                    type: "Control",
+                    scope: "#/properties/address1",
                     options: {
-                      border: false,
+                      placeholder: "House name, apartment number etc.",
                     },
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/address1",
-                        options: {
-                          placeholder: "House name, apartment number etc.",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/address2",
-                        options: {
-                          placeholder: "Road, street name etc.",
-                        },
-                      },
-                    ],
                   },
                   {
                     type: "Control",
-                    scope: "#/properties/city",
+                    scope: "#/properties/address2",
                     options: {
-                      placeholder: "City, town etc.",
+                      placeholder: "Road, street name etc.",
+                    },
+                  },
+                ],
+              },
+              {
+                type: "Control",
+                scope: "#/properties/city",
+                options: {
+                  placeholder: "City, town etc.",
+                },
+              },
+              {
+                type: "HorizontalLayout",
+                elements: [
+                  {
+                    type: "Control",
+                    scope: "#/properties/regionId",
+                    options: {
+                      placeholder: "Select region",
                     },
                   },
                   {
-                    type: "HorizontalLayout",
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/regionId",
-                        options: {
-                          placeholder: "Select region",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/postcode",
-                        options: {
-                          placeholder: "eg. 10011",
-                        },
-                      },
-                    ],
+                    type: "Control",
+                    scope: "#/properties/postcode",
+                    options: {
+                      placeholder: "eg. 10011",
+                    },
                   },
                 ],
               },
             ],
           },
-        },
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              required: ["addressId"],
-              properties: {
-                addressId: { not: { const: null } },
-              },
-            },
+        ],
+      },
+    },
+    rule: {
+      effect: "HIDE",
+      condition: {
+        scope: "#",
+        schema: {
+          required: ["addressId"],
+          properties: {
+            addressId: { not: { const: null } },
           },
         },
       },
-    ],
+    },
   };
 
   const personalUiSchema = {
