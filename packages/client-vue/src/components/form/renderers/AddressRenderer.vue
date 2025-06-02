@@ -40,7 +40,6 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref, onMounted, inject } from "vue";
-import { Generate } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
