@@ -419,12 +419,12 @@ export function useLaravalSchemaParser(
     }
   });
 
-  console.log("useLaravalSchemaParser", {
-    type: "object",
-    properties,
-    required: requiredFields,
-    allOf,
-  });
+  // console.debug("useLaravalSchemaParser", {
+  //   type: "object",
+  //   properties,
+  //   required: requiredFields,
+  //   allOf,
+  // });
 
   return omitBy(
     {
