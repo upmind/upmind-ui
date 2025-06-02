@@ -4,7 +4,6 @@
       v-model:open="open"
       v-model="selectedItem"
       :items="parsedValues"
-      :disabled="isLoading"
       @update:model-value="selectItem"
       list
       required
@@ -64,12 +63,9 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
-
 const { setDefault } = useBillingDetails();
 
-const isLoading = ref(false);
 const open = ref(false);
-
 const selectedItem = ref<string>("");
 
 onMounted(() => {
