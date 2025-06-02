@@ -249,7 +249,11 @@ export const useSchema = ({
   return schema as JsonSchema;
 };
 
-export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
+export const useUischema = ({
+  config,
+  addresses,
+  companies,
+}: UnifiedAddressContext) => {
   const addressUiSchema = {
     type: "VerticalLayout",
     elements: [
@@ -350,7 +354,15 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
         scope: "#/properties/addressId",
         options: {
           label: "Address",
-          oneOf: filter(addresses || [], item => item.type === 1),
+          oneOf: map(
+            filter(addresses || [], item => item.type === 1),
+            item => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              meta: item.meta,
+            })
+          ),
         },
         rule: {
           effect: "SHOW",
@@ -377,7 +389,12 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
         scope: "#/properties/addressId",
         options: {
           label: "Address",
-          oneOf: filter(addresses || [], item => item.type === 4),
+          oneOf: map(companies || [], item => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            meta: item.meta,
+          })),
         },
         rule: {
           effect: "SHOW",

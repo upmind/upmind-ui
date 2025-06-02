@@ -61,6 +61,9 @@ async function loadLookups({
   const { getAll: getAddresses, getDefault: getDefaultAddress } =
     useClientAddresses();
 
+  const { getAll: getCompanies, getDefault: getDefaultCompany } =
+    useClientCompanies();
+
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
   const { ensureConfig } = useBrand();
@@ -69,18 +72,20 @@ async function loadLookups({
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  const [phones, emails, addresses, countries, config] = await Promise.all([
-    getPhones(),
-    getEmails(),
-    getAddresses(),
-    fetchCountries(),
-    ensureConfig([
-      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
-      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
-    ]),
-  ]);
+  const [phones, emails, addresses, companies, countries, config] =
+    await Promise.all([
+      getPhones(),
+      getEmails(),
+      getAddresses(),
+      getCompanies(),
+      fetchCountries(),
+      ensureConfig([
+        BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+        BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+        BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+        BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+      ]),
+    ]);
 
   const country = getCountry(model?.address?.countryId);
   const regions = await fetchRegions(model?.address?.countryId || country?.id);
@@ -91,9 +96,11 @@ async function loadLookups({
 
   const defaultAddress = await getDefaultAddress();
   const defaultPhone = await getDefaultPhone();
+  const defaultCompany = await getDefaultCompany();
 
   const baseModel: UnifiedAddressModel = {
     addressId: defaultAddress?.id,
+    companyId: defaultCompany?.id,
     address: {
       city: null,
       address1: null,
@@ -126,6 +133,7 @@ async function loadLookups({
     phones,
     emails,
     addresses,
+    companies,
     config,
     allowMultipleEdits: defaultAddress?.id ? true : allowMultipleEdits,
     // ---

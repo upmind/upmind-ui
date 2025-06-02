@@ -7,6 +7,7 @@ import type {
   CompanyModel,
   PhoneModel,
   EmailModel,
+  Company,
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";
 import type {
@@ -59,6 +60,7 @@ export interface UnifiedAddressContext extends ClientItemContext {
   regions?: IRegion[];
   countries: ICountry[];
   addresses: Address[];
+  companies: Company[];
   phones: Phone[];
   emails: Email[];
   config?: Record<BrandConfigKeys, boolean>;

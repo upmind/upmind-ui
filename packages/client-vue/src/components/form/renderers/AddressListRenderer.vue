@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -52,7 +52,7 @@ import Item from "../../../modules/client/components/billing/Item.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { find, map, first } from "lodash-es";
+import { find, map } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -109,6 +109,15 @@ const selectAddress = async (value: string) => {
 const clearAddress = () => {
   onInput(null, false);
 };
+
+watch(defaultAddress, () => {
+  if (
+    defaultAddress.value?.id &&
+    defaultAddress.value.id !== selectedAddress.value
+  ) {
+    selectedAddress.value = defaultAddress.value.id;
+  }
+});
 </script>
 
 <script lang="ts">
