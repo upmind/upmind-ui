@@ -238,12 +238,6 @@ async function parse(
     { allowExtraProps: true }
   );
 
-  // Remove addressId if not explicitly provided in input (for new addresses)
-  if (!inputData?.addressId) {
-    delete safeModel.addressId;
-    delete baseModel.addressId;
-  }
-
   if (!isEmpty(data)) {
     // let's check if the country has changed, ie: the regions don't match
     // if so, then we need to fetch the regions for the new country

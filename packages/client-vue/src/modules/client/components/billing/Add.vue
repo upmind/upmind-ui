@@ -55,7 +55,7 @@ import { isEmpty } from "lodash-es";
 
 const { update, input, model, schema, uischema, meta, clear } =
   useBillingDetail();
-const { isReady, getAll, data, invalidate } = useBillingDetails();
+const { isReady, getAll, data, refresh } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
 
@@ -89,7 +89,7 @@ watch(selectedAddress, async address => {
 
 const updateAddress = async () => {
   await update();
-  await getAll();
+  await refresh();
   setShowAddressFields(false);
 };
 

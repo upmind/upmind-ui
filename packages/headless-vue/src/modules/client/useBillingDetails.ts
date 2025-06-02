@@ -28,6 +28,7 @@ export const useBillingDetails = () => {
     filter,
     getOne,
     findOne,
+    refresh,
     meta: metaBillingDetails,
   } = useUpmindBillingDetails();
 
@@ -57,5 +58,6 @@ export const useBillingDetails = () => {
     getOne,
     findOne,
     invalidate,
+    refresh,
   };
 };
