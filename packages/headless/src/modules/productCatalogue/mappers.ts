@@ -1,6 +1,6 @@
 // --- utils
 import { parseQuantity } from "../product/utils";
-import { calculateBillingTerm } from "../product/services";
+import { calculateBillingTerm } from "../product/utils";
 import { isEmpty, omit, toSafeInteger } from "lodash-es";
 import { parseProductDetails, parseTermDetails } from "../product/utils";
 

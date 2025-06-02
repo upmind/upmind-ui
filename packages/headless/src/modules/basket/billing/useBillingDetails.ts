@@ -54,8 +54,10 @@ export const useBillingDetails = () => {
    * @returns A promise that resolves to true when the unified addresses are ready to be fetched.
    * @example isReady().then(getAll).then(() => console.log("Details are ready"))
    */
-  async function isReady(): Promise<void> {
-    return isAuthenticated();
+  async function isReady(): Promise<boolean> {
+    return isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
   }
 
   /**
