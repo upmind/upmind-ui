@@ -102,6 +102,7 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
 });
 
 const selectAddress = async (value: string) => {
+  onInput(value, false);
   await setDefault(value);
 };
 
