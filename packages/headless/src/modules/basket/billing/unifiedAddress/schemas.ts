@@ -110,6 +110,7 @@ export const useSchema = ({
         title: "Phone number",
         isPhoneNumber: country?.code,
         default: baseModel?.phone,
+        required: ["number"],
         properties: {
           number: {
             type: ["string", "null"],
@@ -135,7 +136,7 @@ export const useSchema = ({
       personal: {
         type: "object",
         additionalProperties: true,
-        required: ["address"],
+        required: ["address", "addressId"],
         allOf: [
           {
             if: {
@@ -171,7 +172,7 @@ export const useSchema = ({
       },
       business: {
         type: "object",
-        required: ["company", "address"],
+        required: ["company", "address", "companyId"],
         additionalProperties: true,
         allOf: [
           {
@@ -191,8 +192,8 @@ export const useSchema = ({
         ],
         properties: {
           companyId: {
-            type: ["string"],
-            const: baseModel.companyId,
+            type: ["string", "null"],
+            default: baseModel.companyId,
           },
           type: {
             type: "number",
@@ -222,23 +223,7 @@ export const useSchema = ({
   }
 
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    if (
-      schema.definitions?.personal?.allOf?.[0]?.then?.properties?.address
-        ?.required
-    ) {
-      schema.definitions.personal.allOf[0].then.properties.address.required.push(
-        "regionId"
-      );
-    }
-
-    if (
-      schema.definitions?.business?.allOf?.[0]?.then?.properties?.address
-        ?.required
-    ) {
-      schema.definitions.business.allOf[0].then.properties.address.required.push(
-        "regionId"
-      );
-    }
+    schema.definitions!.address!.required!.push("regionId");
   }
 
   if (
@@ -375,6 +360,10 @@ export const useUischema = ({
         },
       },
       addressUiSchema,
+      {
+        type: "Control",
+        scope: "#/properties/phone",
+      },
     ],
   };
 
@@ -383,7 +372,7 @@ export const useUischema = ({
     elements: [
       {
         type: "AddressList",
-        scope: "#/properties/addressId",
+        scope: "#/properties/companyId",
         options: {
           label: "Company",
           oneOf: map(companies || [], item => ({
@@ -398,9 +387,9 @@ export const useUischema = ({
           condition: {
             scope: "#",
             schema: {
-              required: ["addressId"],
+              required: ["companyId"],
               properties: {
-                addressId: { not: { const: null } },
+                companyId: { not: { const: null } },
               },
             },
           },
@@ -456,6 +445,10 @@ export const useUischema = ({
         },
       },
       addressUiSchema,
+      {
+        type: "Control",
+        scope: "#/properties/phone",
+      },
     ],
   };
 
@@ -475,10 +468,6 @@ export const useUischema = ({
           toggle: true,
           oneOfUiSchema: oneOfUiSchemas,
         },
-      },
-      {
-        type: "Control",
-        scope: "#/properties/phone",
       },
     ],
   };
