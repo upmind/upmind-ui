@@ -35,6 +35,7 @@ class UpmindClient {
   pop: UpmindClientProps["pop"];
   i18n: UpmindClientProps["i18n"];
   router: UpmindClientProps["router"];
+  recaptcha: UpmindClientProps["recaptcha"];
   analytics: UpmindClientProps["analytics"];
 
   // ---
@@ -42,18 +43,25 @@ class UpmindClient {
     // console.debug("Upmind Client has started");
   }
 
-  init({ pop, router, i18n, analytics }: UpmindClientProps): Promise<void> {
+  init({
+    pop,
+    router,
+    i18n,
+    recaptcha,
+    analytics,
+  }: UpmindClientProps): Promise<void> {
     // NB: Only initialise once
     if (this.status != UpmindStatus.notInitialised) return Promise.resolve();
 
     this.status = UpmindStatus.initialising;
     this.pop = pop;
     this.analytics = analytics;
+    this.recaptcha = recaptcha;
     this.router = router;
     this.i18n = i18n;
     this.initPlugins();
 
-    return Upmind.init({ pop, analytics }).then(() => {
+    return Upmind.init({ pop, recaptcha, analytics }).then(() => {
       return Promise.all([this.initRouter(), this.initI18n()]).then(() => {
         this.status = UpmindStatus.initialised;
       });
@@ -62,14 +70,6 @@ class UpmindClient {
 
   private initPlugins() {
     this.plugins = Upmind.plugins ?? {};
-    this.plugins.i18n = {
-      plugin: this.i18n?.provider,
-      options: {},
-    };
-    this.plugins.router = {
-      plugin: this.router?.provider,
-      options: {},
-    };
   }
 
   private async initRouter() {

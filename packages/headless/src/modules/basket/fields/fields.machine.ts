@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
 import { createMachine, assign } from "xstate";
-// const { sendParent } = actions; DEPRECATED
 
 // --- internal
 import services from "./services";
@@ -24,17 +23,7 @@ export default createMachine(
     id: "basketFieldsManager",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      basketId: undefined,
-      fields: undefined,
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as FieldsContext,
+    context: {} as FieldsContext,
     states: {
       loading: {
         entry: ["clearError"],
@@ -103,8 +92,7 @@ export default createMachine(
       },
 
       processing: {
-        entry: ["clearError"],
-
+        entry: ["clearError", "cancelController", "newController"],
         invoke: {
           src: "update",
           onDone: {
@@ -188,8 +176,10 @@ export default createMachine(
       }),
 
       setModel: assign({
-        model: ({ fields, model }: FieldsContext, { data }: AnyEventObject) =>
-          useModelParser<Field>(fields, data || model),
+        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) => {
+          if (!schema) return data ?? model;
+          return useModelParser<Field>(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({
@@ -211,18 +201,32 @@ export default createMachine(
         autoupdate: false,
       }),
 
+      cancelController: assign({
+        controller: ({ controller }: FieldsContext) => {
+          if (controller?.signal && !controller.signal?.aborted) {
+            controller?.abort();
+          }
+          return undefined;
+        },
+      }),
+
+      newController: assign({
+        controller: () => {
+          return new AbortController();
+        },
+      }),
+
       // ---
       // setFeedbackSuccess: (_context: any, _event: any) => {
       //   addSuccess("Successfully updated the basket fields");
       // },
 
       setFeedbackError: ({ error }: FieldsContext, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (!error || error?.status == responseCodes.Unprocessable_Entity)
+          return;
 
         addError({
-          title:
-            error?.title ||
-            "We experienced an error updating the basket fields",
+          title: "We experienced an error updating the basket fields",
           copy: error?.message,
           data: error?.data,
         });
@@ -231,7 +235,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: any) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -241,7 +245,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

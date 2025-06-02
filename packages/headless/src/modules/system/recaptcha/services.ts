@@ -1,14 +1,13 @@
 // --- internal
 
 // --- utils
+import { isEmpty } from "lodash-es";
 
 // --- types
 import { AnyEventObject } from "xstate";
 import type { RecaptchaContext } from "./types";
 
 // -----------------------------------------------------------------------------
-
-const siteKey = import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY;
 
 declare global {
   interface Window {
@@ -22,8 +21,15 @@ declare global {
   }
 }
 
-async function load(_context: RecaptchaContext, _event: AnyEventObject) {
-  // if we have a hash, we can skip the request
+async function load({ siteKey }: RecaptchaContext, _event: AnyEventObject) {
+  // check if the site key is set
+  if (isEmpty(siteKey))
+    return Promise.reject(new Error("Recaptcha site key not set"));
+
+  // prevent loading the script multiple times
+  if (window["grecaptcha"]) {
+    return Promise.resolve(window["grecaptcha"]);
+  }
 
   const src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
 
@@ -34,7 +40,7 @@ async function load(_context: RecaptchaContext, _event: AnyEventObject) {
     script.setAttribute("async", "true");
 
     script.addEventListener("error", async () => {
-      return reject("Recaptcha failed to load");
+      return reject(new Error("Recaptcha failed to load"));
     });
 
     script.addEventListener("load", async () => {
@@ -47,14 +53,19 @@ async function load(_context: RecaptchaContext, _event: AnyEventObject) {
   });
 }
 
-export async function generateToken(grecaptcha: any, action?: string) {
-  if (!grecaptcha) return Promise.reject("Recaptcha not loaded");
+async function generateToken(
+  { grecaptcha, siteKey }: RecaptchaContext,
+  { data }: AnyEventObject
+) {
+  if (!grecaptcha || !siteKey)
+    return Promise.reject(new Error("Recaptcha not loaded"));
 
-  return grecaptcha.execute(siteKey, { action });
+  return grecaptcha.execute(siteKey, { action: data.action });
 }
 
 // -----------------------------------------------------------------------------
 
 export default {
   load,
+  generateToken,
 };

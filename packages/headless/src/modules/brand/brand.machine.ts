@@ -7,7 +7,7 @@ import { useSystemI18n } from "../system";
 import { useQueryHelper } from "../query";
 
 // --- utils
-import { set } from "lodash-es";
+import { defaultsDeep, startsWith } from "lodash-es";
 import { useTime } from "../../utils";
 import { BrandConfigKeys, OrgFeatureKeys } from "@upmind-automation/types";
 import { useBrandParser } from "./utils";
@@ -72,149 +72,41 @@ export default createMachine(
     states: {
       subscribing: {
         entry: ["setQueryHelper"],
-        always: "processing",
+        always: "loading",
       },
-      processing: {
-        type: "parallel",
-        states: {
-          organisation: {
-            initial: "loading",
-            states: {
-              loading: {
-                invoke: {
-                  src: "fetchOrganisationConfig",
-                  onDone: {
-                    target: "complete",
-                    actions: ["setOrganisation"],
-                  },
-                  onError: {
-                    target: "#error",
-                    actions: assign({
-                      error: (
-                        { error }: BrandContext,
-                        { data }: AnyEventObject
-                      ) => {
-                        set(error, "organisation", data);
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
-              complete: {
-                type: "final",
-              },
-              error: {},
-            },
+      loading: {
+        invoke: {
+          src: "load",
+          onDone: {
+            target: "complete",
+            actions: ["setContext"],
           },
-          config: {
-            initial: "loading",
-            states: {
-              loading: {
-                invoke: {
-                  src: "fetchBrandConfig",
-                  onDone: {
-                    target: "complete",
-                    actions: ["setConfig"],
-                  },
-                  onError: {
-                    target: "error",
-                    actions: assign({
-                      error: (
-                        { error }: BrandContext,
-                        { data }: AnyEventObject
-                      ) => {
-                        set(error, "config", data);
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
-              complete: {
-                type: "final",
-              },
-              error: {
-                on: {},
-              },
-            },
-          },
-          settings: {
-            initial: "loading",
-            states: {
-              loading: {
-                invoke: {
-                  src: "fetchBrandSettings",
-                  onDone: {
-                    target: "complete",
-                    actions: ["setSettings"],
-                  },
-                  onError: {
-                    target: "error",
-                    actions: assign({
-                      error: (
-                        { error }: BrandContext,
-                        { data }: AnyEventObject
-                      ) => {
-                        set(error, "settings", data);
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
-              complete: {
-                type: "final",
-              },
-              error: {},
-            },
-
-            // Brand Settings
-            // /brand/settings?lang=en
-          },
-          modules: {
-            initial: "loading",
-            states: {
-              loading: {
-                invoke: {
-                  src: "fetchModules",
-                  onDone: {
-                    target: "complete",
-                    actions: ["setModules"],
-                  },
-                  onError: {
-                    target: "error",
-                    actions: assign({
-                      error: (
-                        { error }: BrandContext,
-                        { data }: AnyEventObject
-                      ) => {
-                        set(error, "modules", data);
-                        return error;
-                      },
-                    }),
-                  },
-                },
-              },
-              complete: {
-                type: "final",
-              },
-              error: {},
-            },
-
-            // Modules
-            // /org/modules?lang=en
+          onError: {
+            target: "error",
+            actions: ["setError"],
           },
         },
-        onDone: "complete",
+      },
+      processing: {
+        entry: ["clearError"],
+        invoke: {
+          src: "fetchBrandConfig",
+          onDone: {
+            target: "complete",
+            actions: ["setContext"],
+          },
+          onError: {
+            target: "error",
+            actions: "setError",
+          },
+        },
       },
       error: { id: "error" },
       complete: {
         entry: ["setDefaultLocale", "setInitialised"],
-        // type: "final",
         on: {
           "CONFIG.GET": {
-            target: "processing.config",
+            target: "processing",
             actions: ["setConfigKeys"],
           },
         },
@@ -228,35 +120,31 @@ export default createMachine(
   },
   {
     actions: {
+      setContext: assign((context: BrandContext, { data }: AnyEventObject) =>
+        useBrandParser(data, context)
+      ),
+
       refreshContext: assign(
-        ({ initialised }: BrandContext, { data, queryKey }: AnyEventObject) => {
-          if (!initialised) return;
-          switch (queryKey) {
-            case "brand,organisation,config":
-              return useBrandParser(data);
+        (context: BrandContext, { data, queryKey }: AnyEventObject) => {
+          if (!context.initialised) return;
 
-            case "brand,config":
-              return useBrandParser(data);
-
-            case "brand,settings":
-              return useBrandParser(data);
-
-            case "brand,modules":
-              return data;
-
-            default:
-              return; // do nothing
+          if (startsWith(queryKey, "brand,organisation,config")) {
+            return useBrandParser(data, context);
           }
-        }
-      ),
 
-      setOrganisation: assign(
-        (_context: BrandContext, { data }: AnyEventObject) =>
-          useBrandParser(data)
-      ),
-      // ---
-      setConfig: assign((_context: BrandContext, { data }: AnyEventObject) =>
-        useBrandParser(data)
+          if (startsWith(queryKey, "brand,config")) {
+            return useBrandParser(data, context);
+          }
+
+          if (startsWith(queryKey, "brand,settings")) {
+            return useBrandParser(data, context);
+          }
+
+          if (startsWith(queryKey, "brand,modules")) {
+            return defaultsDeep(data, context);
+          }
+          // otherwsie do nothing
+        }
       ),
 
       setConfigKeys: assign({
@@ -266,21 +154,12 @@ export default createMachine(
         },
       }),
 
-      // ---
-      setSettings: assign((_context: BrandContext, { data }: AnyEventObject) =>
-        useBrandParser(data)
-      ),
-
       setDefaultLocale: (
         { initialised }: BrandContext,
         _event: AnyEventObject
       ) => {
         if (!initialised) useSystemI18n().setDefaultLocale();
       },
-
-      setModules: assign({
-        modules: (_context: BrandContext, { data }: AnyEventObject) => data,
-      }),
 
       setInitialised: assign({
         initialised: true,
@@ -303,6 +182,14 @@ export default createMachine(
           return queryHelper;
         },
       }),
+
+      setError: assign({
+        error: (_context: BrandContext, { data }: AnyEventObject) => {
+          return data?.error ?? data;
+        },
+      }),
+
+      clearError: assign({ error: undefined }),
 
       // ---
     },

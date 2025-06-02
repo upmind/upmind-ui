@@ -28,7 +28,7 @@
 
         <template #actions>
           <Button
-            color="primary"
+            color="secondary"
             :label="t(action)"
             :loading="processing"
             @click.stop="doAction"
@@ -55,7 +55,13 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useSession, useBasket, utils } from "@upmind-automation/headless-vue";
+import {
+  useSession,
+  useBasket,
+  useRoutingEngine,
+  utils,
+  ROUTE,
+} from "@upmind-automation/headless-vue";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";
@@ -68,8 +74,11 @@ const route = useRoute();
 const router = useRouter();
 
 const { errors } = useBasket();
+const { isResolved } = useRoutingEngine();
 
-const { transfer: transferSession, meta } = useSession();
+await isResolved(ROUTE.ORDER);
+
+const { transferTo, meta } = useSession();
 
 const orderId = route.params.orderId.toString();
 const success = computed(() => route.query.payment_success === "true");
@@ -127,14 +136,13 @@ const action = computed(() => {
 });
 
 const icon = computed(() => {
-  if (success.value) {
+  if (!meta.value.isAuthenticated) {
+    return "2fa";
+  } else if (success.value) {
     return "confetti";
   }
 
-  if (!success.value) {
-    return "error";
-  }
-  return "basket";
+  return "error";
 });
 
 // -----------------------------------------------------------------------------
@@ -151,7 +159,7 @@ function doAction() {
 
   processing.value = true;
 
-  transferSession()
+  transferTo()
     .then(transfer => {
       if (transfer?.code) {
         window.location.href = utils

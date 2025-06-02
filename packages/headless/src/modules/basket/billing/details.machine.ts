@@ -1,7 +1,6 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, actions } from "xstate";
-const { sendParent } = actions;
+import { createMachine, assign, actions, sendParent } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -181,6 +180,8 @@ export default createMachine(
 
       setParsed: assign({
         model: (_context, { data }: AnyEventObject) => data.model,
+        autoupdate: (_context, { data }: AnyEventObject) => data.autoupdate,
+        dirty: (_context, { data }: AnyEventObject) => data.dirty,
       }),
 
       setLookups: assign({
@@ -190,15 +191,20 @@ export default createMachine(
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }: BillingDetailsContext) =>
-          useModelParser(schema, model),
+        model: ({ schema, model }: BillingDetailsContext) => {
+          if (!schema) return model;
+          return useModelParser(schema, model);
+        },
       }),
 
       setModel: assign({
         model: (
           { schema, model }: BillingDetailsContext,
           { data }: AnyEventObject
-        ) => useModelParser(schema, data || model),
+        ) => {
+          if (!schema) return data ?? model;
+          return useModelParser(schema, data ?? model);
+        },
       }),
 
       clearModel: assign({
@@ -217,14 +223,13 @@ export default createMachine(
         // dont show any unauthorized errors
         if (
           !error ||
-          error?.code == responseCodes.Unprocessable_Entity ||
-          error?.code == responseCodes.Unauthorized
+          error?.status == responseCodes.Unprocessable_Entity ||
+          error?.status == responseCodes.Unauthorized
         )
           return;
 
         addError({
-          title:
-            error?.title || "We experienced an error updating billing details",
+          title: "We experienced an error updating billing details",
           copy: error?.message,
           data: error?.data,
         });
@@ -233,7 +238,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -243,7 +248,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
     guards: {
       // isDirty: ({ dirty }, _event) => !!dirty,

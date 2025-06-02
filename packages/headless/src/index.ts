@@ -20,12 +20,11 @@ export const useUpmind = (pop?: IApiPop) => {
 const { get, set } = useSessionStorage();
 const queryParams = new URLSearchParams(window.location.search);
 
-if (import.meta.env.DEV || queryParams.has("debug")) {
-  set("debug", true);
-}
+// always honor the debug flag in the URL
+if (queryParams.has("debug")) set("debug", true);
 
-// read our debugging flag from session storage
-const debugging = get("debug") ?? false;
+// otherwise read our debugging flag from session storage or fallback to the default ( true if DEV )
+const debugging = get("debug") ?? import.meta.env.DEV;
 
 // finally start the inspector if debugging is enabled
 if (debugging)

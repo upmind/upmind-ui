@@ -30,9 +30,9 @@ export function mapIBasketProduct(
       quantity: product.quantity,
       duration: product.billing_cycle_months,
       // --- pricing
-      discount: product.configuration_selling_price_discount_converted, //product.configuration_net_amount_discount_converted,
-      price: product.net_selling_price, //  product.configuration_total_amount_converted, //TODO: check the correct value is used
-      gross_price: product.selling_price_converted, //product.configuration_net_amount_converted, //TODO: check the correct value is used
+      discount: product.configuration_total_discount_amount_converted, //product.configuration_net_amount_discount_converted,
+      price: product.configuration_net_amount_discounted_converted, //  product.configuration_total_amount_converted, //TODO: check the correct value is used
+      gross_price: product.configuration_total_discounted_amount_converted, //product.configuration_net_amount_converted, //TODO: check the correct value is used
     },
     isNil
   );
@@ -59,7 +59,7 @@ export function mapBasketProduct(
       duration: product.configuration.term,
       // --- pricing
       discount: product.price.configuration?.discount,
-      price: product.price?.unit?.subtotal ?? product.price.currentAmount ?? 0,
+      price: product.price?.unit?.subtotal ?? product.price?.currentAmount ?? 0,
       gross_price: product.price?.unit?.total ?? undefined, // TODO: currently will always return undefined
     },
     isNil

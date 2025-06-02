@@ -23,7 +23,7 @@ async function load(_context: FieldsContext, _event: AnyEventObject) {
 }
 
 async function update(
-  { basketId, model }: FieldsContext,
+  { basketId, model, controller }: FieldsContext,
   _event: AnyEventObject
 ) {
   const { put, useUrl } = useQuery();
@@ -35,6 +35,7 @@ async function update(
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basketId}`),
+    init: { signal: controller?.signal },
     data,
     withAccessToken: true,
   }).then(({ data }: any) => data);
@@ -56,6 +57,8 @@ async function validate(
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+
     const errors = validate(schema, model);
     if (errors?.length) {
       reject({ error: errors });

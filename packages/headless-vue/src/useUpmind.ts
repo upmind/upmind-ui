@@ -7,11 +7,10 @@ import {
   useBrand,
   useSession,
   useSystem,
-  useBasket,
+  useRecaptcha,
   useDataLayer,
   useTracking,
 } from "./modules";
-// import { useRouting } from "./modules/routing";
 
 // ---types
 import type { IApiPop } from "@upmind-automation/headless-vue";
@@ -25,8 +24,8 @@ export enum UpmindStatus {
 }
 
 export interface UpmindProps {
+  mode?: "default" | "express"; // default is the full Upmind experience, express is a simplified version that only loads up the API
   pop?: IApiPop;
-
   plugins?: Record<
     string,
     {
@@ -34,6 +33,12 @@ export interface UpmindProps {
       options?: any;
     }
   >;
+
+  recaptcha?: {
+    siteKey?: string;
+    enabled?: boolean;
+  };
+
   analytics?: {
     gtm?: {
       containerId?: string;
@@ -47,25 +52,42 @@ export interface UpmindProps {
 class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
   // ---
+  mode: UpmindProps["mode"] = "default";
   pop: UpmindProps["pop"];
   plugins: UpmindProps["plugins"] = {};
   analytics: UpmindProps["analytics"];
+  recaptcha: UpmindProps["recaptcha"];
 
   // ---
   constructor() {
     // console.debug("Upmind has started");
   }
 
-  init({ pop, analytics }: UpmindProps): Promise<void> {
-    // NB: Only initialise once
-    if (this.status != UpmindStatus.notInitialised) return Promise.reject();
+  init({ mode, pop, analytics, recaptcha }: UpmindProps): Promise<void> {
+    // NB: Only initialize once
+    if (this.status != UpmindStatus.notInitialised)
+      return Promise.reject(
+        new Error(
+          `[headless-vue] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
+        )
+      );
     this.status = UpmindStatus.initialising;
     this.initPlugins();
+    this.mode = mode ?? "default";
     this.pop = pop;
     this.analytics = analytics;
+    this.recaptcha = recaptcha;
 
     return useUpmind(pop).then(() => {
-      Promise.all([this.initHeadless(), this.initAnalytics()]).then(() => {
+      if (this.mode == "express") {
+        this.status = UpmindStatus.initialised;
+        return;
+      }
+      Promise.all([
+        this.initHeadless(),
+        this.initRecaptcha(),
+        this.initAnalytics(),
+      ]).then(() => {
         this.status = UpmindStatus.initialised;
       });
     });
@@ -84,20 +106,33 @@ class Upmind {
   }
 
   private async initHeadless() {
+    if (!this.pop) return;
+
     // init our core modules
     useSystem();
     useBrand();
     useSession();
-    // useBasket(); // we dont need this on startup
+  }
+
+  private async initRecaptcha() {
+    if (
+      !this.recaptcha?.enabled ||
+      !this.recaptcha.siteKey ||
+      this.mode == "express"
+    )
+      return;
+    const { init } = useRecaptcha();
+    init(this.recaptcha.siteKey);
   }
 
   private async initAnalytics() {
+    if (!this.analytics?.enabled) return;
+
     //  --- Initialise our Upmind tracking cookie and store the utm params
     const { init: initTracking } = useTracking();
     initTracking();
 
     // --- Initialise our dataLayer (bail if analytics is not enabled)
-    if (!this.analytics?.enabled) return;
     this.analytics.gtm ??= {}; // ensure we have a gtm object
     const { init, id, dataLayer } = useDataLayer(
       this.analytics?.gtm?.dataLayer
@@ -113,7 +148,9 @@ class Upmind {
       .then(analytics => analytics?.gtm?.container_id);
 
     if (this.analytics.gtm.containerId) {
-      dataLayer({ gtm_start: new Date().getTime(), event: "gtm.js" }).push();
+      dataLayer({ gtm_start: new Date().getTime(), event: "gtm.js" }).push(
+        false
+      );
 
       const firstScript = first(document.getElementsByTagName("script"));
       const script = document.createElement("script");
@@ -134,14 +171,16 @@ class Upmind {
     }
 
     // --- Finally push our initial payload to the data layer
-    dataLayer().withPage().withUser().push();
+    dataLayer().withPage().withUser().push(false);
   }
 
   // ---
   isReady(): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (this.status == UpmindStatus.notInitialised) resolve();
+        if (this.status == UpmindStatus.notInitialised) {
+          resolve();
+        }
       }, 100)
     );
   }

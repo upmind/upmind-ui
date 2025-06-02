@@ -22,12 +22,11 @@ export default createMachine(
     id: "sessionManager",
     predictableActionArguments: true,
     initial: "checking",
-    context: {
-      history: [],
-      error: null,
-    } as SessionContext,
+    context: {} as SessionContext,
     states: {
       checking: {
+        id: "checking",
+        entry: "clearError",
         invoke: {
           src: "check",
           onDone: [
@@ -49,7 +48,6 @@ export default createMachine(
         },
       },
 
-      // ---
       guest: {
         id: "guest",
         invoke: {
@@ -72,6 +70,34 @@ export default createMachine(
         },
       },
 
+      transferring: {
+        initial: "processing",
+        states: {
+          processing: {
+            invoke: {
+              src: "transferFrom",
+              onDone: {
+                target: "processed",
+                actions: "setTransferToken",
+              },
+              onError: {
+                target: "processed",
+                actions: "setTransferToken",
+              },
+            },
+          },
+
+          processed: {
+            on: {
+              TRANSFERRED: {
+                target: "#checking",
+                actions: "clearTransfer",
+              },
+            },
+          },
+        },
+      },
+
       expired: {},
 
       error: {},
@@ -85,14 +111,44 @@ export default createMachine(
     },
     on: {
       EXPIRED: {
-        target: "expired",
+        target: "checking",
+      },
+      TRANSFER_FROM: {
+        target: "transferring",
+        actions: "setTransfer",
       },
     },
   },
   {
     actions: {
+      setTransfer: assign({
+        transfer: (_context: SessionContext, { data }: AnyEventObject) => {
+          return {
+            redirect: data?.redirect,
+            code: data?.code,
+          } as SessionContext["transfer"];
+        },
+      }),
+
+      setTransferToken: assign({
+        transfer: ({ transfer }: SessionContext, { data }: AnyEventObject) => {
+          const token = data;
+          return {
+            token,
+            redirect: transfer?.redirect,
+            code: transfer?.code,
+          } as SessionContext["transfer"];
+        },
+      }),
+
+      clearTransfer: assign({ transfer: undefined }),
+
       setError: assign({
         error: (_context: SessionContext, { data }: AnyEventObject) => data,
+      }),
+
+      clearError: assign({
+        error: (_context: SessionContext) => undefined,
       }),
 
       clear: () => {
@@ -101,7 +157,7 @@ export default createMachine(
         // if there is an actor, we need to clear the user data and update the data layer
         if (actor) {
           removeCookie("upm_actor");
-          dataLayer().withPage().withUser().push();
+          dataLayer().withUser().push(false);
         }
       },
     },
@@ -117,6 +173,7 @@ export default createMachine(
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
+      expired: () => useTime().MINUTE * 5,
     },
     services,
   }

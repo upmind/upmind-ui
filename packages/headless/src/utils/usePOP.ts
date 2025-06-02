@@ -76,7 +76,9 @@ export const usePOP = (value?: IApiPop) => {
   // ---------------------------------------------------------------------------
   // --- initialise our Place of Presence (POP)
 
-  validatePop(getPop(value)).then(validPOP => (POP = validPOP));
+  validatePop(getPop(value))
+    .then(validPOP => (POP = validPOP))
+    .catch(() => (POP = defaults));
 
   // ---------------------------------------------------------------------------
   // --- return our API

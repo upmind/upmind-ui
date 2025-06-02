@@ -11,10 +11,10 @@ import type { BasketProduct } from "../basketProduct";
 import type {
   ProductModel,
   ProductProps,
-  PriceDetail,
-  ProductSummaryMeta,
+  IProductConfig,
   Product,
 } from "../product";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ export interface RecommendationsEngineContext {
     added: IBasketProduct[];
   };
   // ---
-  error?: any;
+  error?: ResponseError;
   basketItem?: ActorRef<any>;
   // ---
   currency?: ICurrency;
@@ -87,7 +87,10 @@ export interface RecommendationsEngineContext {
   basketHelper?: ActorRef<any>;
   parseBasketProduct?: (item: ProductModel) => ProductModel;
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
-  parseProductModel?: (model: ProductModel) => BasketProduct;
+  parseProductModel?: (
+    recommendation: Recommendation,
+    products: IBasketProduct[]
+  ) => ProductProps;
   // ---
 }
 
@@ -101,13 +104,4 @@ export interface RelatedProduct extends IRelatedObject {
   config?: IProductConfig;
   badge?: Badge;
   benefits?: Benefit[];
-}
-
-export interface IProductConfig {
-  pid?: string;
-  qty?: number;
-  bcm?: number;
-  sub_pids?: string[];
-  pfields?: Record<string, any>;
-  coupons?: string[];
 }

@@ -6,29 +6,22 @@ import { useBasket } from "../basket";
 import { useBasketProductsPending } from "../basketProduct";
 
 // --- utils
-import { useSafeParse, useSessionStorage } from "../../utils";
+import { DetailedError, responseCodes, useSafeParse } from "../../utils";
 import {
   compact,
   concat,
   find,
   first,
-  forEach,
   get,
-  has,
   includes,
   isArray,
   isEmpty,
   isFunction,
-  keys,
-  map,
-  merge,
-  omit,
   reduce,
   reject,
   set,
   toNumber,
   uniq,
-  unset,
   values,
 } from "lodash-es";
 
@@ -44,7 +37,14 @@ import { REQUIRES_ACTION, type Route } from "./types";
 export async function awaitResolved(service: ActorRef<any>) {
   return waitFor(service, state => ["resolved"].some(state.matches), {
     timeout: 60_000,
-  }).then(state => get(state, "context.currentRoute"));
+  })
+    .then(state => get(state, "context.currentRoute"))
+    .catch(() => {
+      throw new DetailedError(
+        "[headless] awaitResolved on routing/utils timed out",
+        responseCodes.Timeout
+      );
+    });
 }
 
 // vanilla js function to parse the current route, similar to vue-router
@@ -111,6 +111,9 @@ export const useRouteQueryParams = (route: Route) => {
     // coupons
     const coupons = getParams(QUERY_PARAMS.COUPONS);
 
+    // bundle
+    const bundle = getParam("bundle");
+
     const model = [
       {
         productId,
@@ -119,6 +122,7 @@ export const useRouteQueryParams = (route: Route) => {
         subproducts,
         provisionFields,
         coupons,
+        bundle,
       },
     ];
 
@@ -133,6 +137,7 @@ export const useRouteQueryParams = (route: Route) => {
     productId: getParam(QUERY_PARAMS.PRODUCT_ID),
     products: getParams(QUERY_PARAMS.PRODUCT_ID),
     productConfigs: getProductConfigs(),
+    productConfig: first(getProductConfigs()),
     basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
 
     currency: getParam(
@@ -140,6 +145,7 @@ export const useRouteQueryParams = (route: Route) => {
       getParam(QUERY_PARAMS.CURRENCY_CODE)
     ),
     coupon: getParam(QUERY_PARAMS.COUPONS),
+    bundle: getParam("bundle"),
   };
 };
 

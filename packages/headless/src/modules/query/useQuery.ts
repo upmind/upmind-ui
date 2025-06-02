@@ -1,19 +1,18 @@
 // --- internal
-import { useSession } from "../session";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
 import { useUrl } from "../../utils";
-import { isFunction } from "xstate/lib/utils";
-import { get, set, unset, isString } from "lodash-es";
+import { getTokenFromStorage } from "../session/utils";
 import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
+import { get, set, unset, isString, isFunction } from "lodash-es";
 
 // --- types
-import type {
+import {
   QueryParams,
-  RequestError,
-  QueryResponse,
+  ResponseError,
   RequestParams,
+  QueryResponse,
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 
@@ -48,8 +47,6 @@ export const useQuery = () => {
     init ??= {};
     let attempts = 0;
 
-    const { getToken } = useSession();
-
     // Enforce Method (default to GET)
     set(init, "method", get(init, "method", Methods.GET).toUpperCase());
     // Enforce Content Type header
@@ -63,7 +60,9 @@ export const useQuery = () => {
     // Enforce Authorization header, if required
     // also allow us to pass a custom token, for eg 2fa
     if (withAccessToken) {
-      const token = isString(withAccessToken) ? withAccessToken : getToken();
+      const token = isString(withAccessToken)
+        ? withAccessToken
+        : getTokenFromStorage()?.access_token;
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
@@ -82,15 +81,18 @@ export const useQuery = () => {
         return parsedResponse;
       })
       .catch(async error => {
-        const requestError = error as RequestError;
+        const requestError = error as ResponseError;
         attempts++;
 
         // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
         if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
           return refreshToken().then(() => {
             // get the new access token and update the access token in the request
-            set(init, `headers.Authorization`, `Bearer ${getToken()}`);
-            // finally rety the request
+            set(
+              init,
+              `headers.Authorization`,
+              `Bearer ${getTokenFromStorage()?.access_token}`
+            ); // finally rety the request
             return doFetch<T>({ url, init });
           });
         }

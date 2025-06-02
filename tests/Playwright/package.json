@@ -1,0 +1,19 @@
+{
+  "name": "@upmind-automation/tests-e2e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "e2e": "playwright test --project=chromium",
+    "e2e:full": "playwright test",
+    "e2e:ui": "playwright test --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.2",
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22.15.3"
+  }
+}

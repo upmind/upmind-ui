@@ -4,7 +4,7 @@
 import { useQuery, useSession, useBrand } from "..";
 
 // --- utils
-import { useValidation } from "../../utils";
+import { DetailedError, responseCodes, useValidation } from "../../utils";
 import {
   unset,
   get,
@@ -194,7 +194,7 @@ async function validate(
   const { validate } = useValidation();
 
   //
-  const errors = validate(schema, model) || [];
+  const errors = schema ? validate(schema, model) : [];
 
   // ALSO check if any of our actors are in an invalid state
   // NB, wait for them to finish loading/checking before we proceed
@@ -202,8 +202,14 @@ async function validate(
     if (!actor) return;
     return waitFor(
       actor,
-      state => !["loading", "checking", "error"].some(state.matches)
-    );
+      state => !["loading", "checking", "error"].some(state.matches),
+      { timeout: 60_000 }
+    ).catch(() => {
+      throw new DetailedError(
+        "[headless] validate on paymentDetails timed out",
+        responseCodes.Timeout
+      );
+    });
   });
 
   await Promise.all(promises)

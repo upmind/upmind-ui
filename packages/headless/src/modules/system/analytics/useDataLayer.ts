@@ -57,7 +57,7 @@ let DATA_LAYER = window.dataLayer || [];
  * trackingEvent.push();
  * @example
  * const trackingEvent = new TrackingEvent();
- * trackingEvent.withPage({to: "/checkout", from: "/basket"}).withEcommerce().withUser().push();
+ * trackingEvent.withPage({to: "/checkout", from: "/basket"}).withEcommerce().withUser().push(false);
  */
 class TrackingEvent {
   args: Record<string, any> = {};
@@ -100,10 +100,13 @@ class TrackingEvent {
     ) as DataLayerUser;
 
     if (!isEmpty(storedActor)) {
-      payload = storedActor ?? {
+      payload = storedActor;
+    } else {
+      payload = {
         logged_in: false,
       };
     }
+
     set(this.args, "user", omitBy(payload, isNil));
     return this; // nb this is needed to chain the methods
   }
@@ -174,8 +177,11 @@ class TrackingEvent {
     return this; // nb this is needed to chain the methods
   }
 
-  push() {
+  push(clear: boolean = true): Record<string, any> {
     const payload = this.args;
+
+    if (clear) set(payload, "_clear", true);
+
     DATA_LAYER.push(payload);
     this.complete = true;
     return payload;
@@ -234,9 +240,9 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
     dataLayer: (args: Record<string, any> = {}) => {
       let event: TrackingEvent | null = new TrackingEvent(args);
 
-      // lets be sensible and add some synthetic sugar and housekeeping.
-      // a track event should not be long lived, so we will push it to the data layer after a short delay to allow the user to push manually
-      // and after pushing/coplete we will destroy the event to avoid memory leaks.
+      // let's be sensible and add some synthetic sugar and housekeeping.
+      // a track event should not be long-lived, so we will push it to the data layer after a short delay to allow the user to push manually,
+      // and after pushing/complete we will destroy the event to avoid memory leaks.
       setTimeout(() => {
         if (event && !event?.complete) {
           console.warn(

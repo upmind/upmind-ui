@@ -1,6 +1,6 @@
 // --- external
-import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { interpret } from "xstate";
 
 // --- internal
 import basketMachine from "./basket.machine";
@@ -8,22 +8,24 @@ import basketMachine from "./basket.machine";
 // --- utils
 import {
   every,
+  filter,
   find,
   findLast,
   get,
-  some,
   isEmpty,
-  filter,
   map,
+  isEqual,
+  some,
 } from "lodash-es";
-import { responseCodes } from "../../utils";
+
+import { DetailedError, responseCodes, compactDeep } from "../../utils";
 
 // --- types
+export * from "./billing";
+export * from "./types";
 import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
-import { IBasket, ICurrency } from "@upmind-automation/types";
-export * from "./types";
-export * from "./billing";
+import type { IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
@@ -42,10 +44,7 @@ export const useBasket = () => {
   async function isReady() {
     return waitFor(
       service,
-      state => {
-        const basketReady = ["shopping", "error"].some(state.matches);
-        return basketReady;
-      },
+      state => ["shopping", "error"].some(state.matches),
       {
         timeout: Infinity, // infinity = no timeout
       }
@@ -80,10 +79,12 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const promotions = get(state, "context.actors.promotions");
     if (!promotions) return false;
-    return waitFor(promotions as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      promotions as ActorRef<any>,
+      state => ["complete", "error"].some(state.matches),
+      { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -91,10 +92,12 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const billingDetails = get(state, "context.actors.billingDetails");
     if (!billingDetails) return false;
-    return waitFor(billingDetails as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      billingDetails as ActorRef<any>,
+      state => ["complete", "error"].some(state.matches),
+      { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -102,10 +105,12 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const currency = get(state, "context.actors.currency");
     if (!currency) return false;
-    return waitFor(currency as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      currency as ActorRef<any>,
+      state => ["complete", "error"].some(state.matches),
+      { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -113,10 +118,12 @@ export const useBasket = () => {
     const state = service.getSnapshot();
     const customFields = get(state, "context.actors.customFields");
     if (!customFields) return false;
-    return waitFor(customFields as ActorRef<any>, state =>
-      state.matches("complete")
+    return waitFor(
+      customFields as ActorRef<any>,
+      state => ["complete", "error"].some(state.matches),
+      { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -186,11 +193,15 @@ export const useBasket = () => {
     return service.send({ type: "CHECKOUT" });
   }
 
-  function refresh(data?: IBasket): Promise<IBasket> {
+  async function refresh(data?: IBasket): Promise<IBasket> {
     service.send({ type: "REFRESH", data });
-    return waitFor(service, state =>
-      state.matches("shopping.refreshing.processed")
-    ).then(() => get(service.getSnapshot(), "context.basket") as IBasket);
+    return waitFor(
+      service,
+      state => ["shopping.refreshing.processed", "error"].some(state.matches),
+      { timeout: 60_000 }
+    )
+      .then(() => get(service.getSnapshot(), "context.basket") as IBasket)
+      .catch(() => get(service.getSnapshot(), "context.basket") as IBasket);
   }
 
   async function setCurrency(currency: string) {
@@ -199,7 +210,8 @@ export const useBasket = () => {
     }).then(() => {
       // first check if our currency has change, ie: model.code has changed
       const actor = service.getSnapshot()?.context?.actors?.currency;
-      if (!actor) return Promise.reject("Currency service not available");
+      if (!actor)
+        return Promise.reject(new Error("Currency service not available"));
 
       const code = currency?.toUpperCase();
       const value = actor.getSnapshot()?.context?.model;
@@ -210,14 +222,30 @@ export const useBasket = () => {
       actor?.send({ type: "SET", data: { code }, update: true });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
-        if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
-        }
-        return Promise.resolve();
-      });
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error", "invalid"].some(
+            state.matches
+          );
+        },
+        { timeout: 60_000 }
+      )
+        .then(state => {
+          if (["error", "invalid"].some(state.matches)) {
+            return Promise.reject(state.context.error);
+          }
+          return Promise.resolve();
+        })
+        .catch(() => {
+          throw new DetailedError(
+            "[headless] setCurrency on basket timed out",
+            responseCodes.Timeout,
+            {
+              state: service.getSnapshot().value,
+            }
+          );
+        });
     });
   }
 
@@ -227,26 +255,49 @@ export const useBasket = () => {
     }).then(async () => {
       const actor = service.getSnapshot()?.context?.actors?.promotions;
 
-      if (!actor) return Promise.reject("Promotions service not available");
+      if (!actor)
+        return Promise.reject(new Error("Promotions service not available"));
 
       if (coupon) {
         actor?.send({ type: "SET", data: { promocode: coupon } });
-        const state = await waitFor(service as ActorRef<any>, state =>
+        await waitFor(service as ActorRef<any>, state =>
           ["valid", "error"].some(state.matches)
-        );
-        if (state.matches("error")) {
-          return Promise.reject(state.context.error);
-        }
+        )
+          .then(state => {
+            if (state.matches("error")) throw state.context?.error;
+          })
+          .catch(error => {
+            return Promise.reject(
+              new DetailedError(
+                "[headless] addPromotion on basket failed",
+                responseCodes.Timeout,
+                {
+                  error,
+                  state: service.getSnapshot().value,
+                }
+              )
+            );
+          });
       }
 
       actor?.send({ type: "ADD" });
 
       // then wait for the paymentGateway actor to be updated
-      return waitFor(service as ActorRef<any>, state => {
-        return ["processed", "complete", "error"].some(state.matches);
-      }).then(state => {
+      return waitFor(
+        service as ActorRef<any>,
+        state => {
+          return ["processed", "complete", "error"].some(state.matches);
+        },
+        { timeout: 60_000 }
+      ).then(state => {
         if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(
+            new DetailedError(
+              "[headless] addPromotion on basket failed",
+              responseCodes.Timeout,
+              service.getSnapshot().context?.error
+            )
+          );
         }
         return Promise.resolve();
       });
@@ -273,27 +324,34 @@ export const useBasket = () => {
   function findProduct(
     mapping: Record<string, any>
   ): BasketProduct | undefined {
+    const cleanedMapping = compactDeep(mapping);
     const products = getProducts();
-    return findLast(products, basketItem =>
-      every(mapping, (value, key) => {
+    return findLast(products, basketProduct =>
+      every(cleanedMapping, (value, key) => {
         if (key == "id") {
-          return basketItem.id == value;
+          return basketProduct.id == value;
         } else {
-          const modelValue = get(basketItem, key);
-          return modelValue == value;
+          const cleanedConfig = compactDeep(basketProduct.configuration);
+          const modelValue = get(cleanedConfig, key);
+          return isEqual(modelValue, value);
         }
       })
     );
   }
 
   function productExists(mapping: Record<string, any>) {
+    const cleanedMapping = compactDeep(mapping);
     const products = getProducts();
 
-    return some(products, product =>
-      every(mapping, (value, key) => {
-        const itemValue = get(product, key);
-        const matches = itemValue == value;
-        return matches;
+    return some(products, basketProduct =>
+      every(cleanedMapping, (value, key) => {
+        if (key == "id") {
+          return basketProduct.id == value;
+        } else {
+          const cleanedConfig = compactDeep(basketProduct.configuration);
+          const modelValue = get(cleanedConfig, key);
+          return isEqual(modelValue, value);
+        }
       })
     );
   }
@@ -346,18 +404,17 @@ export const useBasket = () => {
       await isReady();
       const target = bpid;
       const products = getProducts();
-      const basketItem = find(products, ["id", target]) as
+      const basketProduct = find(products, ["id", target]) as
         | ActorRef<any>
         | undefined;
 
       return new Promise((resolve, reject) => {
-        if (basketItem) {
-          resolve(basketItem);
+        if (basketProduct) {
+          resolve(basketProduct);
         } else {
-          reject({
-            message: "Basket item not found",
-            code: responseCodes.Not_Found,
-          });
+          reject(
+            new DetailedError("Basket item not found", responseCodes.Not_Found)
+          );
         }
       });
     },

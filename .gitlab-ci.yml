@@ -65,15 +65,14 @@ dependencies:
           - pnpm-lock.yaml
       paths:
         - node_modules
-        - docs/node_modules
+        - playgrounds/storybook/node_modules
+        - apps/doteasy/node_modules
+        - apps/velia/node_modules
+        - apps/webcentral/node_modules
+        - apps/hosting/node_modules
         - packages/headless/node_modules
         - packages/headless-vue/node_modules
         - packages/client-vue/node_modules
-        - apps/velia/node_modules
-        - apps/webcentral/node_modules
-        - apps/doteasy/node_modules
-        - apps/hosting/node_modules
-        - playgrounds/storybook/node_modules
 
   artifacts:
     when: on_success
@@ -81,17 +80,16 @@ dependencies:
     expire_in: "1 day"
     paths:
       - node_modules
-      - docs/node_modules
+      - playgrounds/storybook/node_modules
+      - apps/doteasy/node_modules
+      - apps/velia/node_modules
+      - apps/webcentral/node_modules
+      - apps/hosting/node_modules
       - packages/headless/node_modules
       - packages/headless-vue/node_modules
       - packages/client-vue/node_modules
       - packages/types
       - packages/ui
-      - apps/velia/node_modules
-      - apps/webcentral/node_modules
-      - apps/doteasy/node_modules
-      - apps/hosting/node_modules
-      - playgrounds/storybook/node_modules
   script:
     - apk --no-cache add git openssh-client
     - |

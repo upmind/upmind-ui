@@ -1,12 +1,8 @@
 // --- external
 import type { ActorRef } from "xstate";
-import type { responseCodes } from "../../utils";
-import type {
-  IBasket,
-  IInvoice,
-  IPaymentDetail,
-} from "@upmind-automation/types";
+import type { IBasket, IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
+import type { ResponseError } from "../query/types";
 // -----------------------------------------------------------------------------
 
 export interface BasketContext {
@@ -15,12 +11,7 @@ export interface BasketContext {
   // ---
   products: BasketProduct[]; // Array of products in the basket
   // ---
-  error?: {
-    code?: string | responseCodes;
-    title?: string;
-    message?: string;
-    data?: any;
-  };
+  error?: ResponseError;
   controller?: AbortController;
   summary?: any; //TODO: define summary type
   // --- SPAWNED ACTORS/MACHINES

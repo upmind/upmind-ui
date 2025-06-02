@@ -55,11 +55,6 @@ export const useBasketProduct = (bpid: string) => {
     }).then(() => {});
   }
 
-  // refresh: async (newBasket: IBasket) => {
-  //   service.send({ type: "REFRESH", rawBasket });
-  //   return waitFor(service, state => state.matches("available"));
-  // },
-
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
       const product = get(service.getSnapshot(), "context.product") as Product;
@@ -72,26 +67,25 @@ export const useBasketProduct = (bpid: string) => {
   }
 
   async function update(): Promise<void> {
-    return waitFor(service, state => state.matches("available.valid")).then(
-      () => {
-        service.send({ type: "UPDATE" });
-        return waitFor(service, state => !state.matches("processing"), {
-          timeout: Infinity,
-        }).then(state => {
-          if (["error", "available.error"].some(state.matches)) {
-            return Promise.reject(state.context.error);
-          }
-          return Promise.resolve();
-        });
-      }
-    );
-  }
-
-  async function remove(): Promise<void> {
-    service.send({ type: "REMOVE" });
-    await waitFor(service, state => ["complete"].some(state.matches), {
-      timeout: Infinity,
-    });
+    service.send({ type: "UPDATE" });
+    return waitFor(service, state => !state.matches("processing"), {
+      timeout: 60_000,
+    })
+      .then(state => {
+        if (
+          ["error", "available.invalid", "available.error"].some(state.matches)
+        ) {
+          return Promise.reject(state.context.error);
+        }
+        return Promise.resolve();
+      })
+      .catch(() => {
+        return Promise.reject(
+          new Error(
+            "[headless-vue] update in useBasketProductPending not in a valid state"
+          )
+        );
+      });
   }
 
   // ---------------------------------------------------------------------------
@@ -169,6 +163,5 @@ export const useBasketProduct = (bpid: string) => {
       }),
 
     update,
-    remove,
   };
 };

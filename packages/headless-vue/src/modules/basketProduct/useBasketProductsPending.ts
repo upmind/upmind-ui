@@ -36,7 +36,7 @@ export const useBasketProductsPending = () => {
         ? (pid as ActorRef<any>)
         : await get(pid as string, sync);
 
-      if (isEmpty(instance)) return Promise.reject("Not found");
+      if (isEmpty(instance)) return Promise.reject(new Error("Not found"));
 
       return Promise.resolve(useBasketProductPending(instance));
     },

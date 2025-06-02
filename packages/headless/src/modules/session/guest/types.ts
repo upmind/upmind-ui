@@ -1,37 +1,44 @@
-// --- external
-import { type JsonSchema, type UISchemaElement } from "@jsonforms/core";
-
-// --- internal
+// --- types
+import { ResponseError } from "src/modules/query";
+import type { IPhoneData } from "../../client/phone/types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { ErrorObject } from "ajv";
+import { Token } from "../types";
 
 // -----------------------------------------------------------------------------
 
-export interface GuestContext {
-  // TODO:
-  // token: Token;
-  // error?: RequestError;
-  token: any;
-  error?: any;
+type GuestModelType = LoginModel | RegisterModel | TWOFAModel | RecoverModel;
+
+export interface GuestContext<ModelType extends GuestModelType = any> {
+  token: Token;
+  error?: ResponseError | ErrorObject[];
   // ---
   // TODO:
   // customFields: Array;
   customFields: any[];
-  model: any; //AuthModel;
+  model: ModelType;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
 }
 
-export interface AuthModel {
+export interface LoginModel {
+  username?: string;
+  password?: string;
+}
+
+export interface RegisterModel {
   username?: string;
   firstname?: string;
   lastname?: string;
   password?: string;
-  // TODO:
-  // phone: IPhone["phone"] | null;
-  // phone_code: IPhone["phone_code"] | null;
-  // phone_country_code: IPhone["phone_country_code"] | null;
-  phone?: any["phone"] | null;
-  phone_code?: any["phone_code"] | null;
-  phone_country_code?: any["phone_country_code"] | null;
-  recaptcha_token?: string;
+  phone?: IPhoneData;
   customFields?: Record<string, any>;
+}
+
+export interface TWOFAModel {
+  token?: string;
+}
+
+export interface RecoverModel {
+  username?: string;
 }

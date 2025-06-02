@@ -5,33 +5,44 @@ const { escalate } = actions;
 
 // --- internal
 import services from "./services";
-import type { GuestContext } from "./types";
+import type {
+  GuestContext,
+  LoginModel,
+  RecoverModel,
+  RegisterModel,
+  TWOFAModel,
+} from "./types";
 
 import { useDataLayer } from "../../system";
 const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
+const { addSuccess } = useFeedback();
 
 // --- utils
 import { useValidationParser, useCookies } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
 
 import {
-  useRegisterSchemaParser,
-  useRegisterUischemaParser,
-  useRegisterModelParser,
-  useLoginSchemaParser,
-  useLoginUischemaParser,
-  useLoginModelParser,
+  use2faModelParser,
   use2faSchemaParser,
   use2faUischemaParser,
-  use2faModelParser,
+  useLoginModelParser,
+  useLoginSchemaParser,
+  useLoginUischemaParser,
+  useRecoverModelParser,
+  useRecoverSchemaParser,
+  useRecoverUischemaParser,
+  useRegisterModelParser,
+  useRegisterSchemaParser,
+  useRegisterUischemaParser,
 } from "./utils";
 
-import { omit, pick, set } from "lodash-es";
+import { omit } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
+import { GrantTypes } from "@upmind-automation/types";
+import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -40,10 +51,7 @@ export default createMachine(
     id: "sessionGuest",
     predictableActionArguments: true,
     initial: "loading",
-    context: {
-      // ---
-      error: null,
-    } as GuestContext,
+    context: {} as GuestContext,
     states: {
       loading: {
         id: "loading",
@@ -54,16 +62,10 @@ export default createMachine(
           onError: {
             target: "error",
             actions: escalate(
-              (_context, { data }: AnyEventObject) => data?.error || data
+              (_context: GuestContext, { data }: AnyEventObject) =>
+                data?.error || data
             ),
           },
-        },
-      },
-
-      processed: {
-        id: "processed",
-        after: {
-          wait: "available",
         },
       },
 
@@ -71,8 +73,8 @@ export default createMachine(
         initial: "idle",
         states: {
           idle: {},
-          // --- Start the login flow
-          // in essence show a login form and await an event to authenticate
+          // --- Start the login flow, in essence,
+          // show a login form and await an event to authenticate
           login: {
             id: "login",
             initial: "loading",
@@ -92,7 +94,6 @@ export default createMachine(
               // loading: {} // loading state not required?
               available: {
                 on: {
-                  REGISTER: { target: "#register" },
                   AUTHENTICATE: {
                     target: "authenticating",
                     actions: ["setModel"],
@@ -114,7 +115,7 @@ export default createMachine(
                     },
                   ],
                   onError: {
-                    target: "available",
+                    target: "error",
                     actions: ["setError", "setFeedbackError"],
                   },
                 },
@@ -138,10 +139,19 @@ export default createMachine(
                   },
                 },
               },
+              error: {
+                on: {
+                  SET: { target: "available", actions: ["setModel"] },
+                  AUTHENTICATE: {
+                    target: "authenticating",
+                    actions: ["setModel"],
+                  },
+                },
+              },
             },
           },
 
-          // --- Start the create flow
+          // --- Start the creation flow,
           // in essence show a register form, possibly with custom fields, and await an event to register
           register: {
             id: "register",
@@ -155,7 +165,7 @@ export default createMachine(
                     actions: ["setCustomFields", "setRegisterSchemas"],
                   },
                   onError: {
-                    target: "#error",
+                    target: "error",
                     actions: ["setError", "setFeedbackError"],
                   },
                 },
@@ -163,7 +173,6 @@ export default createMachine(
               available: {
                 on: {
                   REGISTER: { target: "checking", actions: ["setModel"] },
-                  LOGIN: { target: "#login" },
                 },
               },
               checking: {
@@ -204,7 +213,7 @@ export default createMachine(
                     target: "authenticating",
                   },
                   onError: {
-                    target: "available",
+                    target: "error",
                     actions: ["setError", "setFeedbackError"],
                   },
                 },
@@ -217,24 +226,69 @@ export default createMachine(
                     actions: ["setActor", "pushRegister"],
                   },
                   onError: {
-                    target: "available",
+                    target: "error",
                     actions: ["setError", "setFeedbackError"],
                   },
+                },
+              },
+              error: {
+                on: {
+                  SET: { target: "available", actions: ["setModel"] },
+                  REGISTER: { target: "checking", actions: ["setModel"] },
                 },
               },
             },
           },
 
           // --- potential alternate/future form flows
-          // social: {}, // when we require user to login with a social provider
+          // social: {}, // when we require a user to log in with a social provider
           // ---
-          // confirm: {}, // when we require user to confirm their email
-          // recover: {},  // when we require user to recover their password
-          // reset: {}, // when we user is in the process of reset their password
+          // confirm: {}, // when we require a user to confirm their email
+          // recover: {}, // when we require a user to recover their password
+
+          recover: {
+            id: "recover",
+            initial: "loading",
+            states: {
+              loading: {
+                always: {
+                  target: "available",
+                  actions: ["clearError", "setRecoverSchemas"],
+                },
+              },
+              available: {
+                on: {
+                  RECOVER: { target: "recovering", actions: ["setModel"] },
+                },
+              },
+              recovering: {
+                invoke: {
+                  src: "recover",
+                  onDone: {
+                    target: "complete",
+                    actions: ["setFeedbackSuccess"],
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"],
+                  },
+                },
+              },
+              error: {
+                on: {
+                  SET: { target: "available", actions: ["setModel"] },
+                  RECOVER: { target: "recovering", actions: ["setModel"] },
+                },
+              },
+              complete: {},
+            },
+          },
         },
         on: {
-          LOGIN: { target: ".login" },
-          REGISTER: { target: ".register" },
+          LOGIN: { target: "available.login" },
+          RECOVER: { target: "available.recover" },
+          REGISTER: { target: "available.register" },
+          SET: { actions: ["setModel"] },
         },
       },
 
@@ -254,7 +308,8 @@ export default createMachine(
   {
     actions: {
       setCustomFields: assign({
-        customFields: (_context, { data }: AnyEventObject) => data,
+        customFields: (_context: GuestContext, { data }: AnyEventObject) =>
+          data,
       }),
 
       setRegisterSchemas: assign({
@@ -264,47 +319,68 @@ export default createMachine(
         uischema: ({ customFields }: GuestContext) =>
           useRegisterUischemaParser(customFields),
 
-        model: ({ customFields }: GuestContext) =>
-          useRegisterModelParser(customFields),
+        model: ({ customFields, model }: GuestContext) =>
+          useRegisterModelParser(model as RegisterModel, customFields),
       }),
 
       setLoginSchemas: assign({
-        schema: _context => useLoginSchemaParser(),
-        uischema: _context => useLoginUischemaParser(),
-        model: _context => useLoginModelParser(),
+        schema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useLoginSchemaParser(),
+        uischema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useLoginUischemaParser(),
+        model: ({ model }: GuestContext) =>
+          useLoginModelParser(model as LoginModel),
       }),
 
       set2faSchemas: assign({
-        schema: _context => use2faSchemaParser(),
-        uischema: _context => use2faUischemaParser(),
-        model: _context => use2faModelParser(),
+        schema: (_context: GuestContext, { data }: AnyEventObject) =>
+          use2faSchemaParser(),
+        uischema: (_context: GuestContext, { data }: AnyEventObject) =>
+          use2faUischemaParser(),
+        model: ({ model }: GuestContext) =>
+          use2faModelParser(model as TWOFAModel),
+      }),
+
+      setRecoverSchemas: assign({
+        schema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useRecoverSchemaParser(),
+        uischema: (_context: GuestContext, { data }: AnyEventObject) =>
+          useRecoverUischemaParser(),
+        model: ({ model }: GuestContext) =>
+          useRecoverModelParser(model as RecoverModel),
       }),
 
       setModel: assign({
-        model: (_context, { data }: AnyEventObject) => data,
+        model: (_context: GuestContext, { data }: AnyEventObject) => data,
       }),
       set2faToken: assign({
-        token: (_context, { data }: AnyEventObject) => data,
+        token: (_context: GuestContext, { data }: AnyEventObject) => data,
       }),
 
-      setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
-
-        addError({
-          title: error?.title,
-          copy: error?.message,
-          data: error?.data,
-        });
+      setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
+        addSuccess("Thanks – reset instructions have been sent to your email.");
       },
 
-      pushRegister: (_context, { data }: any) => {
-        dataLayer({ event: "sign_up" }).withUser().push();
-      },
-      pushLogin: (_context, { data }: any) => {
-        dataLayer({ event: "login" }).withUser().push();
+      setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {
+        return;
+        // DC: We have deprecated sending feedback for now...
+        // if (!error || error?.status == responseCodes.Unprocessable_Entity) return;
+
+        // addError({
+        //   title: "We experienced an error authenticating",
+        //   copy: error?.message,
+        //   data: error?.data,
+        // });
       },
 
-      setActor: (_context, { data }: AnyEventObject) => {
+      pushRegister: (_context: GuestContext, _event: AnyEventObject) => {
+        dataLayer({ event: "sign_up" }).withUser().push(false);
+      },
+      pushLogin: (_context: GuestContext, _event: AnyEventObject) => {
+        dataLayer({ event: "login" }).withUser().push(false);
+      },
+
+      setActor: (_context: GuestContext, { data }: AnyEventObject) => {
         setCookie(
           "upm_actor",
           omit(data?.analytics, ["environment", "language", "version"]),
@@ -317,34 +393,35 @@ export default createMachine(
       // ---
 
       setError: assign({
-        error: (_context, event: any, state) => {
+        error: (_context: GuestContext, { data }: AnyEventObject) => {
           // console.error("session", "client", "error", { event, state });
 
-          const data: any = event?.data;
-
-          if (data?.error?.code == responseCodes.Unauthorized) {
+          if (data?.status == responseCodes.Unauthorized) {
             // Usually because the refresh token has expired.
             return {
-              code: responseCodes.Unauthorized,
-              message: data.error.message || "Unauthorized",
-            };
+              type: responseCodes.Unauthorized,
+              message: data?.error?.message || "Unauthorized",
+            } as ResponseError;
           }
-          if (data?.error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             return useValidationParser(data?.error);
           }
 
-          return data?.error || data || event?.error || event || null;
+          return data?.error ?? data;
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
     guards: {
-      requires2fa: (_context, { data }: any) =>
-        data.actor_type == "twofa" && !!data?.second_factor_required,
-      requiresReCaptcha: (_context, { data }: any) =>
+      requires2fa: (_context: GuestContext, { data }: any) => {
+        return (
+          data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
+        );
+      },
+      requiresReCaptcha: (_context: GuestContext, { data }: any) =>
         !!data?.recaptcha_required,
     },
 

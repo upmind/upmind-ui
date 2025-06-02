@@ -5,12 +5,18 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 // import type { ImageObjectTypes } from "@upmind-automation/headless";
-import { useSystemUpload } from "@upmind-automation/headless";
+import {
+  utils,
+  useSystemUpload,
+  ResponseError,
+} from "@upmind-automation/headless";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
 
 // --- types
+
+const { DetailedError, responseCodes } = utils;
 
 // -----------------------------------------------------------------------------
 
@@ -25,24 +31,31 @@ export const useUpload = (field: any) => {
       data: value,
     });
 
-    return new Promise((resolve, reject) => {
-      waitFor(upload.service, state =>
-        ["processed", "error"].some(state.matches)
-      )
-        .then(() => {
-          if (state.value.matches("processed")) {
-            const file = get(state.value, "context.file");
-            resolve(file);
-          } else {
-            // throw
-            const error = get(state.value, "context.error");
-            reject(error);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+    return waitFor(
+      upload.service,
+      state => ["processed", "error"].some(state.matches),
+      { timeout: 60_000 }
+    )
+      .then(() => {
+        if (state.value.matches("processed")) {
+          const file = get(state.value, "context.file");
+          return file;
+        } else {
+          // throw
+          const error = get(state.value, "context.error") as ResponseError;
+          throw error;
+        }
+      })
+      .catch(error => {
+        return Promise.reject(
+          new DetailedError(
+            error?.message ??
+              `[headless-vue] fetch on useUpload timed out while waiting for upload to complete`,
+            error?.type ?? responseCodes.Timeout,
+            error
+          )
+        );
+      });
   };
 
   const remove = () => {

@@ -1,8 +1,14 @@
+//  --- external
+
+// --- internal
+import { useBrand } from "../../../brand";
+
 // --- utils
-import { map, reduce } from "lodash-es";
+import { map, reduce, get } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "../../../client";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { UnifiedAddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
@@ -128,7 +134,7 @@ export const useSchema = ({
       phone: {
         type: ["object", "null"],
         title: "Phone",
-        isPhoneNumber: country?.code,
+        phone_country_code: country?.code,
         properties: {
           number: {
             type: ["string", "null"],
@@ -192,6 +198,15 @@ export const useSchema = ({
       },
     },
   };
+
+  const { getConfig } = useBrand();
+  const regionRequired = get(
+    getConfig(BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS),
+    BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS
+  );
+  if (regionRequired) {
+    schema.required.push("regionId");
+  }
 
   return schema as JsonSchema;
 };
@@ -391,6 +406,7 @@ export const useUischema = ({
               autocomplete: "organization",
               placeholder: "My Company Name (PTY) LTD",
               label: "Company Name",
+              required: true,
             },
           },
           {
@@ -400,7 +416,9 @@ export const useUischema = ({
                 type: "Control",
                 scope: "#/properties/regNumber",
                 i18n: "client.unified.form.fields.regNumber",
-                options: {},
+                options: {
+                  required: true,
+                },
               },
               {
                 type: "Control",

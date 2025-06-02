@@ -17,26 +17,21 @@ import {
   includes,
   isEmpty,
   isString,
+  find,
   map,
   reduce,
   some,
   toSafeInteger,
+  isBoolean,
 } from "lodash-es";
 import { useTranslateField, useTranslateName } from "../../utils";
 
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { BasketProduct } from "../basketProduct";
-import type {
-  Recommendation,
-  RelatedProduct,
-  IProductConfig,
-  Badge,
-  Benefit,
-} from "./types";
-import { calculateBillingTerm } from "../product/services";
-import { ProductDetails, TermDetails } from "../product";
+import type { Recommendation, RelatedProduct, Badge, Benefit } from "./types";
+import { calculateBillingTerm } from "../product/utils";
+import { ProductDetails, TermDetails, IProductConfig } from "../product";
 
 // ---------------------------------------------------------------------------
 
@@ -244,10 +239,11 @@ export function parseRecommendation(
     : ({} as ProductDetails);
   const config: IProductConfig = get(raw, "config", {});
   const terms = parseTermDetails(raw.product?.prices);
+  // try use the provided config term, otherwise calculate the term based on the product details
   const term = !isEmpty(terms)
-    ? calculateBillingTerm(config?.bcm ?? productDetails?.cycle, terms)
+    ? find(terms, ["cycle", config?.bcm]) ||
+      calculateBillingTerm(productDetails?.cycle, terms)
     : ({} as TermDetails);
-
   term.meta = defaultsDeep(term.meta, {
     added: meta?.added ?? false,
     seen: meta?.seen ?? false,
@@ -267,7 +263,10 @@ export function parseRecommendation(
         useTranslateField(raw, "description") || productDetails?.description,
       excerpt:
         useTranslateField(raw, "short_description") || productDetails?.excerpt,
-      imgUrl: raw.image_url || productDetails?.imgUrl,
+      imgUrl:
+        isBoolean(raw.image_url) && !raw.image_url
+          ? ""
+          : raw.image_url || productDetails?.imgUrl,
       // --- additional ui data
       // -- TODO: Maybe move this into UI meta
       badge: isString(raw?.badge)

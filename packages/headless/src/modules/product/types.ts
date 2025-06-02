@@ -8,11 +8,13 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
+  IRelatedObject,
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations/types";
 import type { BasketProduct } from "../basketProduct";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 /**
@@ -209,6 +211,19 @@ export interface ProductProps extends ProductModel {
   promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
+  bundle?: string; // allow to pass a bundle id to indicate that this product should  apply the specific bundle configuration; false forces no bundles to be applied
+  // ---
+  silent?: boolean; // if true, we will not validate the provision fields and treat this as a bulk or background operation
+}
+
+// Raw props usually passed from the back end OR Url params
+export interface IProductConfig {
+  pid?: string;
+  qty?: number;
+  bcm?: number;
+  sub_pids?: string[];
+  pfields?: Record<string, any>;
+  coupons?: string[];
 }
 
 // syntax sugar for product summary
@@ -235,7 +250,7 @@ export type ProductSummaryMeta = {
 
 export type ProductSummaryDetail = {
   name: string; // untranslated name for reporting purposes  category?: string;
-  title: string;
+  title?: string;
   cycle?: number;
   category?: string;
   quantity?: number;
@@ -317,6 +332,8 @@ export interface UISchema {
   billing?: {
     control?: string;
   };
+  group_name?: string;
+  icon?: string;
 }
 
 export type PriceCalculations = {
@@ -332,6 +349,13 @@ export type ExternalError = {
   attributes?: ErrorObject[];
   provisionFields?: ErrorObject[];
 };
+
+export interface ProductBundle extends IRelatedObject {
+  // --- config to be used in adding the bundle
+  config: IProductConfig;
+}
+export type ProductBundles = ProductBundle[] | Record<string, ProductBundle>;
+
 // -----------------------------------------------------------------------------
 
 export interface ProductConfigContext {
@@ -341,6 +365,8 @@ export interface ProductConfigContext {
   promotions?: ProductProps["promotions"];
   coupons?: ProductProps["coupons"];
   subproducts?: ProductProps["subproducts"];
+  silent?: ProductProps["silent"];
+  bundle?: ProductProps["bundle"];
   // ---
   baseModel?: ProductModel;
   model?: ProductModel;
@@ -352,14 +378,16 @@ export interface ProductConfigContext {
     attributes?: SubproductDetails[];
     provisionFields?: Record<string, any>;
     prices?: PriceCalculations;
+    bundled?: ProductModel[];
   };
   // ---
   product?: Product;
   meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
-  error?: any;
-  errorExternal?: any;
+  error?: ResponseError | ExternalError;
+  errorExternal?: ResponseError | ExternalError;
+  attempts?: number;
   // ---
   rawProduct?: IProduct;
   rawBasketProduct?: IBasketProduct;

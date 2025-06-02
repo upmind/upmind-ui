@@ -1,13 +1,21 @@
 // --- external
 
 // --- internal
-import { useQuery, useClientAddresses, useClientCompanies } from "../../..";
+import {
+  useBrand,
+  useQuery,
+  useSystem,
+  useSession,
+  useClientAddresses,
+  useClientCompanies,
+} from "../../..";
 import { find, isEmpty } from "lodash-es";
 
 // --- utils
-import { useValidation } from "../../../utils";
+import { DetailedError, responseCodes, useValidation } from "../../../utils";
 
 // --- types
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { BillingDetailsContext } from "./types";
 
@@ -19,6 +27,20 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
 
   const addresses = getAddresses({ allowStale: false });
   const companies = getCompanies({ allowStale: false });
+  const { ensureConfig } = useBrand();
+  const { fetchCountries } = useSystem();
+  const { isAuthenticated } = useSession();
+
+  await Promise.allSettled([
+    fetchCountries(),
+    ensureConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+    ]),
+  ]);
+
+  await isAuthenticated().catch(error => Promise.reject(error));
 
   return Promise.all([companies, addresses]).then(
     ([companies, addresses]) => {
@@ -33,11 +55,16 @@ async function update(
 ) {
   const { put, useUrl } = useQuery();
 
+  if (!model?.addressId)
+    return Promise.reject(
+      new DetailedError("No addressId", responseCodes.Unprocessable_Entity)
+    );
+
   // get returns a promise so we can pass it directly back to the machine
   return put({
     url: useUrl(`/orders/${basketId}`),
     data: {
-      address_id: model?.addressId || null,
+      address_id: model?.addressId,
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
@@ -45,7 +72,7 @@ async function update(
 }
 
 async function parse(
-  { model, addresses }: BillingDetailsContext,
+  { model, autoupdate, dirty, addresses }: BillingDetailsContext,
   _event: AnyEventObject
 ) {
   const defaultAddress = find(addresses, "default");
@@ -54,14 +81,16 @@ async function parse(
   // if model is not set, set it to the default address
   if (!model?.addressId && !isEmpty(defaultAddress)) {
     model = {
-      addressId: defaultAddress.id,
-      companyId: defaultAddress.company_id,
+      addressId: defaultAddress.addressId,
+      companyId: defaultAddress.companyId,
     };
+    autoupdate = true;
+    dirty = true;
   }
 
   // ---
-  // we don't have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model });
+  // we dont have any parsing checks or transforms so we can pass through the model
+  return Promise.resolve({ model, autoupdate, dirty });
 }
 
 async function validate(
@@ -72,6 +101,8 @@ async function validate(
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+
     const errors = validate(schema, model);
 
     if (errors?.length) {

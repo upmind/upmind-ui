@@ -5,21 +5,25 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useBrand } from "@upmind-automation/headless";
-import { stateMatches, contextMatches } from "../../utils";
+import { stateMatches, contextMatches, DEBOUNCE_DELAY } from "../../utils";
 
 // --- utils
 import {
   add,
+  compact,
+  debounce,
+  filter,
+  find,
+  forEach,
   get,
+  isArray,
   isEmpty,
   isEqual,
+  mapValues,
+  reject,
   set,
   some,
   subtract,
-  isArray,
-  forEach,
-  find,
-  compact,
 } from "lodash-es";
 
 // --- types
@@ -77,14 +81,21 @@ export const useProductConfig = (service: ActorRef<any>) => {
   // ---
   const errors = computed<Product["errors"]>(() => state.value.context?.error);
 
+  const additionalErrors = computed<Product["errors"]>(
+    () => state.value.context?.errorExternal
+  );
+
   const meta = computed(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
     isDirty: stateMatches(state, ["available.valid"]),
     isTouched: touched.value,
+    showErrors:
+      contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
+
     isUnavailable: state.value.done || stateMatches(state, ["error"]),
     hasErrors:
-      stateMatches(state, ["available.error", "error"]) ||
+      stateMatches(state, ["error", "available.invalid", "available.error"]) ||
       contextMatches(state, ["error"]),
 
     isConfigurable: contextMatches(state, [
@@ -94,21 +105,21 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
-    isProcessing: stateMatches(state, ["refreshing", "processing", "complete"]),
-    isComplete:
-      state.value?.done ||
-      stateMatches(state, ["available.complete", "complete"]),
+    isProcessing: stateMatches(state, ["refreshing", "processing"]),
+    isComplete: state.value?.done || stateMatches(state, ["complete"]),
     isDone: state.value?.done,
 
     // ---
-
     hasProvisioning: !isEmpty(
       state.value.context?.lookups?.provisionFields?.properties
     ),
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
-    hasMonthlyTerms: some(state.value.context?.lookups?.terms, ["cycle", 1]),
+    hasMonthlyTerms: some(
+      state.value.context?.lookups?.terms,
+      ({ cycle }) => cycle > 0
+    ),
     hasTaxIncluded: checkIncludesTax(),
   }));
 
@@ -133,8 +144,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
     touched.value = true;
     send({ type, data });
 
-    return waitFor(service, state =>
-      ["available.valid", "available.invalid"].some(state.matches)
+    return waitFor(
+      service,
+      state => ["available.valid", "available.invalid"].some(state.matches),
+      { timeout: 60_000 }
     ).then(state => {
       // NB only updat ethe model AFTER we have chaecked/parsed/validated
       model.value = state.context.model;
@@ -142,12 +155,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
   }
 
   // --- QUANTITY
-  const updateQuantity = async (value?: number): Promise<void> =>
+
+  const updateQuantity = debounce(async (value?: number): Promise<void> => {
     setValues("SET.QUANTITY", {
       quantity: value,
     });
+  }, DEBOUNCE_DELAY);
 
-  async function incrementQuantity(): Promise<void> {
+  const incrementQuantity = debounce(async (value?: number): Promise<void> => {
     // sanity check
     if (!lookups.value.product?.quantifiable) return;
 
@@ -155,9 +170,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
     // emit the event
     return updateQuantity(add(qty, lookups.value.product?.step || 1));
-  }
+  }, DEBOUNCE_DELAY);
 
-  async function decrementQuantity(): Promise<void> {
+  const decrementQuantity = debounce(async (value?: number): Promise<void> => {
     // sanity check
     if (!lookups.value.product?.quantifiable) return;
 
@@ -165,7 +180,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
     // emit the event
     return updateQuantity(subtract(qty, lookups.value.product?.step || 1));
-  }
+  }, DEBOUNCE_DELAY);
 
   // --- TERMS
 
@@ -214,13 +229,23 @@ export const useProductConfig = (service: ActorRef<any>) => {
     values: string | string[]
   ): Promise<void> {
     const options = model.value.options;
+    const previousStates = get(options, option.id, {}); // keep previous state to restore quantity
+
     set(options, option.id, {}); // reset all previous options
 
     const safeValues = compact(isArray(values) ? values : [values]);
     forEach(safeValues, value => {
-      set(options, [option.id, value], {
+      const quantity = get(previousStates, [value, "quantity"]);
+
+      const optionValue: { productId: string; quantity?: number } = {
         productId: value,
-      });
+      };
+
+      if (quantity) {
+        optionValue.quantity = quantity;
+      }
+
+      set(options, [option.id, value], optionValue);
     });
 
     // emit the event
@@ -295,6 +320,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     state,
     // context,
     errors,
+    additionalErrors,
     meta,
     // ---
     lookups,

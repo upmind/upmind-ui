@@ -6,7 +6,7 @@
     </template>
 
     <template #label>
-      <div class="flex flex-col items-start px-3 py-2">
+      <div class="flex flex-col items-start break-all px-3 py-2">
         <div>{{ user.fullname }}</div>
         <div class="text-sm font-normal opacity-60">
           {{ user.email }}
@@ -33,7 +33,7 @@ const { t } = useI18n();
 const { user, logout } = useSession();
 const items: DropdownMenuItemProps[] = [
   {
-    label: t("session.account_dropdown.log_out"),
+    label: t("auth.actions.logout"),
     icon: "logout",
     value: "logout",
     handler: logout,

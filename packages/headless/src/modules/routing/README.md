@@ -47,7 +47,7 @@ The Routing Engine operates as a state machine with a distinct node for each key
 - **Session:**
   - **Session > Login:** Represents the login state.
   - **Session > Register:** Represents the registration state.
-  - **Session > ForgotPassword:** Represents the state for handling forgotten passwords.
+  - **Session > ForgottenPassword:** Represents the state for handling forgotten passwords.
 - **Checkout:** Represents the checkout process.
 - **Order:**
   - **Order > Success:** Represents a successful order completion.
@@ -326,7 +326,7 @@ The Routing Engine requires a configuration object or `Flow` to define the possi
 
 - **Route Definitions:**
 
-  - `name`: **Name of the route/node, NB: must match the node naming conventions.** (e.g. 'session.login', 'session.register', 'session.forgot', 'cart', 'checkout', 'product.add', 'product.edit', 'order.success', 'order.failed')
+  - `name`: **Name of the route/node, NB: must match the node naming conventions.** (e.g. 'session.login', 'session.register', 'session.recover', 'cart', 'checkout', 'product.add', 'product.edit', 'order.success', 'order.failed')
   - `guard` :Conditions for entering the route (e.g., user is logged in, product is available)
   - `handler` function to be executed when the route is entered (e.g., navigation logic)
   - `targets` object:
