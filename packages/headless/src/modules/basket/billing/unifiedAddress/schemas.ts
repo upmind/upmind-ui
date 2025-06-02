@@ -379,6 +379,18 @@ export const useUischema = ({ config, addresses }: UnifiedAddressContext) => {
           label: "Address",
           oneOf: filter(addresses || [], item => item.type === 4),
         },
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["addressId"],
+              properties: {
+                addressId: { not: { const: null } },
+              },
+            },
+          },
+        },
       },
       {
         type: "Control",

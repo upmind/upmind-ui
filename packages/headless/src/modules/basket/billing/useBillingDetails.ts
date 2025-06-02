@@ -10,7 +10,6 @@ import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 import { useClientAddresses, useClientCompanies } from "../../client";
-import { computed } from "vue";
 
 // --- utils
 import {
@@ -231,7 +230,7 @@ export const useBillingDetails = () => {
       : setAddressAsDefault(id).then(refresh);
   }
 
-  const meta = computed(() => {
+  const meta = () => {
     const config = getConfig([
       BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
       BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
@@ -241,7 +240,7 @@ export const useBillingDetails = () => {
       requiresAddress: get(config, BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS),
       requiresPhone: get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE),
     };
-  });
+  };
 
   return {
     queryOptions: {

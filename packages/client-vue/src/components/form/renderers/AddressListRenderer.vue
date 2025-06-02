@@ -5,13 +5,14 @@
       v-model="selectedAddress"
       :items="parsedValues"
       :disabled="isLoading"
+      @update:model-value="selectAddress"
       list
       required
     >
       <template #item="{ item }">
         <Item
           :address="getAddress(item.value)"
-          :is-default="item.value === selectedAddress"
+          :is-default="getAddress(item.value).meta.isDefault"
         />
       </template>
 
@@ -51,22 +52,24 @@ import Item from "../../../modules/client/components/billing/Item.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { find, map } from "lodash-es";
+import { find, map, first } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless-vue";
+import { useBillingDetails } from "@upmind-automation/headless-vue";
 
 // ----------------------------------------------
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-// Use the basic control instead of oneOfEnumControl since we want custom oneOf from options
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
+
+const { setDefault } = useBillingDetails();
 
 const addresses = computed(() => {
   const oneOfOptions = control.value.uischema.options?.oneOf || [];
@@ -97,6 +100,10 @@ const parsedValues = computed<RadioCardsItemProps[]>(() => {
     };
   });
 });
+
+const selectAddress = async (value: string) => {
+  await setDefault(value);
+};
 
 const clearAddress = () => {
   onInput(null, false);
