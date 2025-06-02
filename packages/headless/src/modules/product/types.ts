@@ -211,9 +211,9 @@ export interface ProductProps extends ProductModel {
   promotions?: IBasketPromotion[];
   coupons?: string[]; // these are 'promotions' passed via url or config that are not in the basket yet
   subproducts?: string[]; // these are the ids of the subproducts that are passed via url or config that are not in the model/config yet
+  bundle?: string; // allow to pass a bundle id to indicate that this product should  apply the specific bundle configuration; false forces no bundles to be applied
   // ---
   silent?: boolean; // if true, we will not validate the provision fields and treat this as a bulk or background operation
-  bundle?: string; // allow to pass a bundle id to indicate that this product should  apply the specific bundle configuration; false forces no bundles to be applied
 }
 
 // Raw props usually passed from the back end OR Url params
