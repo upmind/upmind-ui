@@ -10,7 +10,7 @@
       required
     >
       <template #item="{ item }">
-        <Item v-bind="item" :is-default="item.value === selectedItem" />
+        <Item v-bind="item" />
       </template>
 
       <template #actions>
