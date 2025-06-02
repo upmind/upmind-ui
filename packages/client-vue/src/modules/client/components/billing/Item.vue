@@ -4,7 +4,7 @@
       <h3
         class="m-0 flex items-center gap-x-2 text-sm font-semibold leading-none"
       >
-        {{ label }}
+        {{ title }}
         <Badge v-if="isDefault" variant="flat" size="xs" label="Default" />
       </h3>
 
@@ -19,7 +19,7 @@
     </header>
 
     <p class="text-emphasis-medium m-0 text-sm leading-none">
-      {{ item.description }}
+      {{ description }}
     </p>
   </div>
 </template>
@@ -28,8 +28,9 @@
 // --- components
 import { Link, Badge } from "@upmind-automation/upmind-ui";
 
-// --- types
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-
-defineProps<RadioCardsItemProps & { editing?: boolean; isDefault?: boolean }>();
+defineProps<{
+  title: string;
+  description: string;
+  isDefault: boolean;
+}>();
 </script>
