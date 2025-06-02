@@ -10,7 +10,7 @@
       required
     >
       <template #item="{ item }">
-        <Item v-bind="item" />
+        <Item v-bind="item" :is-default="item.value === selectedItem" />
       </template>
 
       <template #actions>
@@ -104,6 +104,7 @@ const clearItem = () => {
 
 watch(parsedValues, () => {
   selectedDefaultItem();
+  open.value = false;
 });
 
 const selectedDefaultItem = () => {

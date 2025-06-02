@@ -253,6 +253,7 @@ export const useBillingDetails = () => {
     meta,
     getOne,
     getAll,
+    refresh,
     filter: filterUnifiedAddresses,
     findOne,
     getDefault,
