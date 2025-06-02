@@ -24,7 +24,7 @@
 
         <Link
           v-else
-          label="Add new address"
+          :label="'Add new ' + lowerCase(formFieldProps.label)"
           size="xs"
           variant="muted"
           @click="clearItem"
@@ -49,7 +49,7 @@ import Item from "../../../modules/client/components/billing/Item.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { find, map } from "lodash-es";
+import { find, lowerCase, map } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";

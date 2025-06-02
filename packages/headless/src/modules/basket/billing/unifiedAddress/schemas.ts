@@ -385,7 +385,7 @@ export const useUischema = ({
         type: "AddressList",
         scope: "#/properties/addressId",
         options: {
-          label: "Address",
+          label: "Company",
           oneOf: map(companies || [], item => ({
             id: item.id,
             title: item.title,
