@@ -46,17 +46,12 @@ export const useBillingDetail = (
   ).start();
 
   const { subscribe } = useBillingDetails();
-  let currentAddressId = service.getSnapshot().context.model?.addressId;
-  const subscription = subscribe(() => {
-    const snapshot = service.getSnapshot();
-    const modelAddressId = service.getSnapshot().context.model?.addressId;
+  let previousAddress: string | undefined = undefined;
 
-    if (
-      !snapshot.done &&
-      snapshot.matches("available") &&
-      currentAddressId !== modelAddressId
-    ) {
-      currentAddressId = modelAddressId;
+  const subscription = subscribe(() => {
+    const model = service.getSnapshot().context.model as UnifiedAddressModel;
+    if (model?.addressId && model?.addressId !== previousAddress) {
+      previousAddress = model?.addressId;
       service.send({ type: "REFRESH" });
     }
   });
