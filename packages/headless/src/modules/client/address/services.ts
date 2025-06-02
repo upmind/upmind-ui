@@ -218,6 +218,7 @@ async function parse(
 
 async function validate({ schema, model }: Partial<AddressContext>) {
   // ---
+  if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
   const { validate } = useValidation();

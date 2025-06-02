@@ -56,7 +56,7 @@ async function search({
     gcTime: 0,
   }).then(async response => {
     return {
-      total: response.itemTotal,
+      total: response.pagination.total,
       available: await parseAvailable(sld, response.data ?? [], preferredCycle),
     };
   });

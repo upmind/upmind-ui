@@ -265,6 +265,7 @@ async function parse(
 
 async function validate({ schema, model }: Partial<UnifiedAddressContext>) {
   // ---
+  if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
   const { validate } = useValidation();
