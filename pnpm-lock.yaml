@@ -818,12 +818,18 @@ importers:
       '@tanstack/query-core':
         specifier: ^5.66.4
         version: 5.67.1
+      '@tanstack/vue-query':
+        specifier: ^5.77.2
+        version: 5.79.0(vue@3.5.13(typescript@5.7.3))
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../types
       '@xstate/inspect':
         specifier: ^0.8.0
         version: 0.8.0(ws@8.18.1)(xstate@4.38.3)
+      '@xstate/vue':
+        specifier: ^2.0.0
+        version: 2.0.0(vue@3.5.13(typescript@5.7.3))(xstate@4.38.3)
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -848,6 +854,9 @@ importers:
       uuid:
         specifier: ^11.0.5
         version: 11.1.0
+      vue:
+        specifier: ^3.4.0
+        version: 3.5.13(typescript@5.7.3)
       xstate:
         specifier: ^4.38.3
         version: 4.38.3

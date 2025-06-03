@@ -27,8 +27,10 @@
     "@jsonforms/core": "^3.5.1",
     "@stripe/stripe-js": "^3.5.0",
     "@tanstack/query-core": "^5.66.4",
+    "@tanstack/vue-query": "^5.77.2",
     "@upmind-automation/types": "workspace:*",
     "@xstate/inspect": "^0.8.0",
+    "@xstate/vue": "^2.0.0",
     "ajv": "^8.17.1",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
@@ -37,6 +39,7 @@
     "psl": "^1.15.0",
     "tiny-cookie": "^2.5.1",
     "uuid": "^11.0.5",
+    "vue": "^3.4.0",
     "xstate": "^4.38.3"
   },
   "devDependencies": {
@@ -59,5 +62,8 @@
     "vite": "^6.1.1",
     "vite-plugin-dts": "^4.5.0",
     "vitest": "^3.0.5"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0"
   }
 }
