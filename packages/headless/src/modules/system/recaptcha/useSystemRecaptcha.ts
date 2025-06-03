@@ -1,4 +1,6 @@
 // --- external
+import { computed } from "vue";
+import { useActor } from "@xstate/vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
@@ -6,69 +8,168 @@ import { waitFor } from "xstate/lib/waitFor";
 import recaptchaMachine from "./recaptcha.machine";
 
 // --- utils
+import { isEmpty } from "lodash-es";
 import { DetailedError, responseCodes, stopService } from "../../../utils";
 
 // --- types
 import type { InterpreterFrom } from "xstate";
+import { useSystemI18n } from "../i18n/useSystemI18n";
 
 // -----------------------------------------------------------------------------
 
-// create a global instance of the recaptcha machine
-// NB dont automatically start the machine as in order for the inspector to work
-// it needs to be started after the inspect service is created, so we only start it when we need it
-
+// --- state
 let service = interpret(recaptchaMachine, { devTools: false });
 
-async function init(siteKey: string) {
-  if (service.status === InterpreterStatus.NotStarted) {
-    service.start();
-  }
-
-  service.send({ type: "SET_SITE_KEY", siteKey });
-}
-async function generate(action?: string) {
-  return waitFor(service, state => ["available"].some(state.matches))
-    .then(() => {
-      service.send({ type: "GENERATE_TOKEN", data: { action } });
-      return waitFor(service, state =>
-        state.matches("available.processed")
-      ).then(() => {
-        const token = service.getSnapshot().context?.token;
-        const error = service.getSnapshot().context?.error;
-        if (!token) {
-          return Promise.reject(
-            new DetailedError(
-              "Recaptcha token not set",
-              responseCodes.Not_Found,
-              error
-            )
-          );
-        }
-        return token;
-      });
-    })
-    .catch(() => {
-      return Promise.reject(new Error("Recaptcha not available"));
-    });
-}
-
-function clear() {
-  service.send({ type: "CLEAR" });
-}
 // -----------------------------------------------------------------------------
 
 export const useSystemRecaptcha = () => {
-  return {
-    service, // allow for interpreting the machine + inspecting it
-    init,
-    isReady: async () =>
-      waitFor(service, state => state.matches("available"), {
+  // --- state
+  const { state: actorState } = useActor(service);
+
+  async function init(siteKey: string): Promise<void> {
+    if (service.status === InterpreterStatus.NotStarted) {
+      service.start();
+    }
+    service.send({ type: "SET_SITE_KEY", siteKey });
+  }
+
+  async function isReady(): Promise<boolean> {
+    try {
+      await waitFor(service, state => state.matches("available"), {
         timeout: 60_000,
-      }),
-    // ---
-    getSnapshot: service.getSnapshot,
-    generate,
+      });
+      return true;
+    } catch (err) {
+      throw new DetailedError(
+        "Recaptcha service not ready",
+        responseCodes.Timeout,
+        err
+      );
+    }
+  }
+
+  const meta = computed(() => ({
+    isInitialised: !actorState.value.matches("subscribing"),
+    isLoading: ["subscribing", "loading"].some(actorState.value.matches),
+    isAvailable: actorState.value.matches("available"),
+    isProcessing: ["available.processing"].some(actorState.value.matches),
+    hasErrors: actorState.value.matches("available.error"),
+    hasToken:
+      actorState.value.matches("available.processed") &&
+      !isEmpty(actorState.value.context?.token),
+    /**
+     * True if the recaptcha service is available (async check).
+     * @returns {Promise<boolean>}
+     */
+    isReady: isReady,
+  }));
+
+  // --- context
+  const state = computed(() => actorState.value.value);
+
+  const token = computed(() => actorState.value.context.token);
+
+  const created = computed(() =>
+    actorState.value.context?.created
+      ? new Date(`${actorState.value.context.created} Z`)
+      : null
+  );
+
+  const errors = computed(() => actorState.value.context?.error);
+
+  // --- methods
+  async function clear(): Promise<void> {
+    service.send({ type: "CLEAR" });
+  }
+
+  async function generate(action?: string): Promise<string> {
+    return waitFor(service, state => ["available"].some(state.matches))
+      .then(() => {
+        service.send({ type: "GENERATE_TOKEN", data: { action } });
+        return waitFor(service, state =>
+          state.matches("available.processed")
+        ).then(() => {
+          const token = service.getSnapshot().context?.token;
+          const error = service.getSnapshot().context?.error;
+          if (!token) {
+            return Promise.reject(
+              new DetailedError(
+                "Recaptcha token not set",
+                responseCodes.Not_Found,
+                error
+              )
+            );
+          }
+          return token;
+        });
+      })
+      .catch(err => {
+        throw new DetailedError(
+          "Recaptcha not available",
+          responseCodes.Not_Found,
+          err
+        );
+      });
+  }
+
+  async function stop(): Promise<void> {
+    stopService(service as InterpreterFrom<any>);
+  }
+
+  // -----------------------------------------------------------------------------
+
+  return {
+    // --- state
+    /**
+     * The creation date of the current recaptcha token.
+     */
+    created,
+
+    /** Any errors from the recaptcha state machine. */
+    errors,
+
+    /**
+     * Initializes the recaptcha service with the provided site key.
+     * @param {string} siteKey - The recaptcha site key.
+     * @returns {Promise<void>} Resolves when the service is started and site key is set.
+     */
+    init,
+
+    /**
+     * Checks if the recaptcha service is ready.
+     * @returns {Promise<boolean>} Resolves true if the service is available, throws otherwise.
+     */
+    isReady,
+
+    /**
+     * Computed meta information about the recaptcha state (errors, loading, etc).
+     * @property {boolean} isReady - True if the recaptcha service is available.
+     */
+    meta,
+
+    /** The current recaptcha state value. */
+    state,
+
+    /** The current recaptcha token. */
+    token,
+
+    // --- methods
+    /** Clears the recaptcha state. */
     clear,
-    stop: () => stopService(service as InterpreterFrom<any>),
+
+    /**
+     * Generates a recaptcha token for the given action.
+     * @param {string} [action] - Optional action for recaptcha.
+     * @returns {Promise<string>} Resolves with the recaptcha token.
+     */
+    generate,
+
+    /** Stops the recaptcha service. */
+    stop,
   };
 };
+
+/**
+ * The return type of useSystem composable.
+ */
+export type UseSystemRecaptchaReturn = ReturnType<typeof useSystemRecaptcha>;

@@ -4,6 +4,54 @@ This document defines the strict composable and TypeScript code style rules for 
 
 ---
 
+## How to Use This Guide
+
+- **For contributors:**
+
+  - Before starting any new code or refactor, read this guide in full.
+  - When writing new composables/utilities, copy the sample composable and follow all sectioning, JSDoc, and return type rules.
+  - Before submitting a PR, manually check your code against each rule in this guide.
+  - You can use an AI agent (e.g., GitHub Copilot) to review your code: instruct the agent to "check this file against DEVX.md and refactor to comply with all rules."
+  - If you see non-compliant code, refactor it as part of your changes and reference the relevant rule in your PR description.
+
+- **For code reviewers:**
+
+  - Use this guide as a checklist for every review—do not approve PRs with any violations.
+  - For each composable/utility, verify:
+    - Section grouping and alphabetization
+    - JSDoc placement (only above return properties)
+    - No internal state/machine exposure
+    - Lodash usage for all utility/array/object operations
+    - Return type is exported and used
+    - Section separators and spacing
+  - You can use an AI agent to assist: instruct the agent to "review this PR for DEVX.md compliance and suggest or make corrections."
+  - Request changes for any violations, no matter how small, and reference the specific rule in this guide.
+
+- **For automation/AI agents:**
+  - Always read and apply every rule in this guide when generating or editing code in this repository.
+  - When asked to review or refactor code, first read DEVX.md, then:
+    - Check for section grouping, alphabetization, and JSDoc placement
+    - Ensure no JSDoc above function declarations—only above return properties
+    - Never expose internal state/machines or add redundant computed/refs
+    - Enforce Lodash usage for all utility/array/object operations
+    - Ensure a return type is exported and used for every composable
+    - Add or correct section separators and spacing
+  - If unsure about a rule or code pattern, prefer minimal changes and ask for clarification in your output.
+
+---
+
+## Why This Matters
+
+Strict adherence to these rules ensures:
+
+- Predictable, readable, and maintainable code.
+- Easy onboarding for new developers.
+- Consistent code reviews and automation.
+
+---
+
+---
+
 ## Quick Reference
 
 - Group returns by: `// --- state`, `// --- context`, `// --- helpers`, `// --- methods`, `// --- utils`
@@ -11,9 +59,36 @@ This document defines the strict composable and TypeScript code style rules for 
 - JSDoc only above properties in the return object (never above returned functions/variables).
 - JSDoc above non-returned private methods is allowed; never above returned/public methods.
 - Use Lodash for all utility/array/object operations.
-- Never expose internal state/machines.
-- Use a full-line separator (`// -----------------------------------------------------------------------------`) after imports and above the return.
+- Never expose internal state/machines (see below for exceptions).
+- Use a full-line separator (`// -----------------------------------------------------------------------------`) after imports and above the return or between a major section if desired. ( the length of the line should be 80 characters )
+- Always export and use a composable return type for every composable (see sample below).
 - You are encouraged to copy-paste the sample composable and return block as a starting point.
+
+---
+
+## Do / Don't Table
+
+| Do                                            | Don't                                           |
+| --------------------------------------------- | ----------------------------------------------- |
+| Use computed properties for state collections | Use getter methods for collections              |
+| Group and alphabetize all returns             | Mix return order or groupings                   |
+| JSDoc only above return properties            | JSDoc above returned functions/variables        |
+| Use Lodash for all utility/array/object ops   | Use native JS for utility/array/object ops      |
+| Use section separators and spacing            | Omit section separators or inconsistent spacing |
+| Export and use a composable return type       | Return untyped objects from composables         |
+| Strictly alphabetize within each section      | Leave returns unordered                         |
+
+---
+
+## Common Pitfalls
+
+- Forgetting to alphabetize properties within each return section.
+- Placing JSDoc above function declarations instead of above return properties.
+- Exposing internal state/machines or refs directly.
+- Not exporting a return type for the composable.
+- Using native JS array/object methods instead of Lodash.
+- Not using section separators or proper spacing.
+- Returning async functions or Promises in `meta`.
 
 ---
 
@@ -24,14 +99,15 @@ This document defines the strict composable and TypeScript code style rules for 
 - All code sections and returned properties should be grouped by:
   - `// --- state`
   - `// --- context`
-  - `// --- helpers (private methods)`
+  - `// --- private (methods)`
   - `// --- methods (public methods)`
-  - `// --- utils`
+  - `// --- utils ( reusable utility functions )`
     (in that order if present)
-- Within each section, properties must be alphabetized.
+- Within each section, properties must be strictly alphabetized.
 - Every returned property must have a JSDoc comment directly above it in the return object.
 - For public methods: **No JSDoc comments above function or variable declarations**—only above returned properties. This is so we can generate documentation from the return object instead of the function itself.
 - For private methods: JSDoc comments are allowed above the function declaration, but they should not be included in the return object.
+- Always export and use a composable return type for every composable (e.g., `export type UseBrandReturn = ReturnType<typeof useBrand>`).
 
 ### 2. No Redundant Reactivity
 
@@ -48,7 +124,7 @@ This document defines the strict composable and TypeScript code style rules for 
 
 ### 4. No Internal State/Machines
 
-- Never expose internal state or state machine details to consumers.
+- Never expose internal state or state machine details to consumers unless explicitly required for advanced use (e.g., for XState inspector or advanced integrations). If you must expose `send` or similar, document it as part of the public API and explain why.
 - Always return a clean, simple interface.
 
 ### 5. Variable Naming
@@ -104,75 +180,16 @@ This document defines the strict composable and TypeScript code style rules for 
 
 ---
 
-## Do/Don’t Table
+## Sample Composable (Best Practice)
 
-| Do                                  | Don’t                                         |
-| ----------------------------------- | --------------------------------------------- |
-| Place JSDoc above return properties | Place JSDoc above function declarations       |
-| Use Lodash for all utility logic    | Use native JS array methods for utility logic |
-| Group and alphabetize returns       | Return properties in random order             |
-| Expose only clean, minimal API      | Expose internal refs, state, or machines      |
-
----
-
-## Common Pitfalls
-
-- JSDoc above function public.returned declarations (should be above return properties only)
-- Exposing internal refs or state that can be mutated directly
-- Not using Lodash for utility logic
-- Not alphabetizing return properties
-- Not using section/grouping comments
-
----
-
-## Example Return Block
-
-```typescript
-// -----------------------------------------------------------------------------
-return {
-  // --- state
-
-  /** Initializes the module (if module needs manual initialisation). */
-  init,
-
-  /**
-   * Checks if the module is ready.
-   * @returns {Promise<boolean>} Resolves true if ready.
-   */
-  isReady,
-
-  /** The current machine state. */
-  state,
-
-  /**
-   * Computed meta information about the i18n state (loading, available, etc).
-   * @returns {ComputedRef<I18nMeta>} The i18n meta information.
-   */
-  meta,
-
-  // --- context
-
-  /** The current locale. */
-  locale,
-
-  // --- methods
-
-  /** Gets the current tracking cookie values. */
-  get: getTracking,
-
-  /** Removes the tracking cookie. */
-  remove,
-};
-```
-
----
-
-## Sample Full Composable
-
-```typescript
-// --- imports
-import { ref, computed } from "vue";
+```ts
+// --- external
+import { computed, ref } from "vue";
 import { map } from "lodash-es";
+
+// --- internal
+// ...
+
 // -----------------------------------------------------------------------------
 
 export const useSample = () => {
@@ -242,41 +259,9 @@ export const useSample = () => {
     setValue,
   };
 };
+
+/**
+ * The return type of useSample composable.
+ */
+export type UseSampleReturn = ReturnType<typeof useSample>;
 ```
-
----
-
-## How to Use This Guide
-
-- **For contributors:**
-
-  - Review this guide before submitting any PRs.
-  - Ensure all composables/utilities strictly follow these rules.
-  - If you see code that does not comply, refactor it as part of your changes.
-
-- **For code reviewers:**
-
-  - Use this guide as your checklist for every review.
-  - Request changes for any violations, no matter how small.
-
-- **For automation/AI agents:**
-  - Always apply these rules when generating or editing code in this repository.
-  - Never add JSDoc above function declarations—only above return properties.
-  - Never expose internal state/machines or add redundant computed/refs.
-  - If unsure, prefer minimal changes and ask for clarification.
-
----
-
-## Why This Matters
-
-Strict adherence to these rules ensures:
-
-- Predictable, readable, and maintainable code.
-- Easy onboarding for new developers.
-- Consistent code reviews and automation.
-
----
-
-**File location:** Place this file at the root of the repository as `CODING-STYLE.md`.
-
-**If you have questions or suggestions, contact the Upmind engineering team.**

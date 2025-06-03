@@ -7,6 +7,7 @@ import type { SupportedLocaleCodes } from "./locales";
 import { useLocalStorage } from "../../../utils";
 
 import { uniq, map, compact, isEmpty, first, reduce, some } from "lodash-es";
+import { computed, ref } from "vue";
 
 // --- types
 import { QUERY_PARAMS } from "@upmind-automation/types";
@@ -14,8 +15,38 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 export const useSystemI18n = () => {
-  const { validateLanguage, getLanguages, isReady } = useBrand();
+  const { validateLanguage, getLanguages, isReady: brandIsReady } = useBrand();
   const { get, set } = useLocalStorage();
+
+  // --- state
+  const loading = ref<boolean>(true);
+  const processing = ref<boolean>(false);
+  const locale = ref<string | undefined>(undefined);
+
+  async function isReady(): Promise<boolean> {
+    await brandIsReady();
+    return typeof getLocale() === "string";
+  }
+
+  const meta = computed(() => ({
+    isLoading: loading.value,
+    isProcessing: processing.value,
+    isAvailable: !isEmpty(supportedLocales.value),
+    hasLocale: !isEmpty(locale.value),
+  }));
+
+  // --- initialization
+
+  brandIsReady().then(() => {
+    locale.value = getLocale();
+    loading.value = false;
+  });
+
+  // --- context
+
+  const supportedLocales = computed(() => getLanguages());
+
+  // --- methods
 
   function getLocale(): string | undefined {
     //  if we don't have a brand languages, we can't get the locale
@@ -79,7 +110,8 @@ export const useSystemI18n = () => {
 
   async function setDefaultLocale(): Promise<string> {
     await isReady();
-    const locale = getLocale();
+    const currentLocale = getLocale();
+
     // /**
     //  * @desc Here we silently clean 'locale' and 'lang' params from the URL
     //  * in case any were passed from an external source. */
@@ -89,25 +121,27 @@ export const useSystemI18n = () => {
     // cleanedUrl.searchParams.delete(QUERY_PARAMS.LANG);
     // window.history.replaceState("", "", cleanedUrl);
 
-    if (!locale) {
+    if (!currentLocale) {
       return Promise.reject(
         new DetailedError("No valid locale found", responseCodes.Not_Found, {
-          locale,
+          locale: currentLocale,
         })
       );
     }
 
-    return setLocale(locale);
+    return setLocale(currentLocale);
   }
 
   async function setLocale(code: string): Promise<string> {
     await isReady();
-    const locale = await validateLanguage({ code });
+    const validatedLocale = await validateLanguage({ code });
+
     // Switch i18n locale
     return new Promise((resolve, reject) => {
-      if (locale?.code) {
-        set("i18n/locale", locale.code);
-        return resolve(locale.code);
+      if (validatedLocale?.code) {
+        set("i18n/locale", validatedLocale.code);
+        locale.value = validatedLocale.code;
+        return resolve(validatedLocale.code);
       }
       return reject(
         new DetailedError("No valid locale found", responseCodes.Not_Found, {
@@ -117,11 +151,51 @@ export const useSystemI18n = () => {
     });
   }
 
+  // ---------------------------------------------------------------------------
+
   return {
+    // --- state
+
+    /**
+     * Checks if the i18n system is ready.
+     * @returns {Promise<boolean>} Resolves true if ready.
+     */
     isReady,
-    getLocale,
-    setDefaultLocale,
+
+    /**
+     * Computed meta information about the i18n state (loading, available, etc).
+     */
+    meta,
+
+    // --- context
+
+    /**
+     * The current locale (reactive).
+     */
+    locale: computed(() => locale.value),
+
+    /**
+     * The supported locales (reactive).
+     */
+    supportedLocales,
+
+    // --- methods
+
+    /**
+     * Sets the current locale asynchronously.
+     * @param {string} newLocale - The new locale to set.
+     * @returns {Promise<string | undefined>} Resolves with the new locale.
+     */
     setLocale,
-    getSupportedlocales: getLanguages,
+
+    /**
+     * Sets the default locale based on all fallback logic.
+     */
+    setDefaultLocale,
   };
 };
+
+/**
+ * The return type of useSystem composable.
+ */
+export type UseSystemI18nReturn = ReturnType<typeof useSystemI18n>;
