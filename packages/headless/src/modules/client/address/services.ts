@@ -1,68 +1,56 @@
 // --- internal
-import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSystem, useSession } from "../..";
 
 // --- utils
-import { mapAddresses, mapIAddress } from "./mappers";
-import { invalidateQueryByKey } from "../../query";
-import { find, first, get, isEmpty, isNil, set, some } from "lodash-es";
 import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
+import { invalidateQueryByKey } from "../../query";
+import { mapAddresses, mapIAddress } from "./mappers";
+import { find, first, get, isEmpty, isNil, some } from "lodash-es";
 
 // --- types
+import { AddressTypes } from "./types";
 import type { IAddress } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
-import { AddressTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["client", "addresses"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { useUrl, request } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Address[]>({
+  return request<QueryResponse<IAddress[]>>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
     }),
-    queryKey,
-    allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapAddresses(response?.data ?? [])),
-  }).then(({ data }) => data);
+  }).then(({ data }) => mapAddresses(data ?? []));
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+// TODO: add pagination support
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { useUrl, request } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Address[]>({
+  return request<QueryResponse<IAddress[]>>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
-    queryKey: [...queryKey, { ...paginationParams }],
-    allowStale,
     withAccessToken: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapAddresses(response?.data ?? [])),
-    revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => data ?? []);
+  }).then(({ data }) => mapAddresses(data ?? []));
 }
 
 function loadAllFromCache() {
@@ -179,7 +167,7 @@ async function parse(
   { regions, country, baseModel, schema }: AddressContext,
   { data }: AnyEventObject & { data: AddressModel }
 ) {
-  // We need to check and potentially update the regions list based on the selected country ( if its changed )
+  // We need to check and potentially update the region list based on the selected country (if it's changed)
   const { fetchRegions, getCountry } = useSystem();
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
@@ -193,12 +181,12 @@ async function parse(
 
   // ---
 
-  // first lets check we have a valid country,
+  // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
   country = getCountry(safeModel?.countryId ?? baseModel?.countryId);
   safeModel.countryId = country.id;
 
-  // let's check if the country has changed, ie: the regions don't match
+  // let's check if the country has changed, i.e.: the regions don't match
   // if so, then we need to fetch the regions for the new country
   // AND update our 'default' country to match the country from the address
   // this will in turn update the phone schema to match the country
@@ -207,7 +195,7 @@ async function parse(
     country = getCountry(safeModel.countryId);
   }
 
-  // now lets check our regions list to see if we have a match
+  // now let's check our region list to see if we have a match
   // if so, then we need to update the safeModel with the new region id
   // otherwise the regionId is reset to null
   const region = find(regions, ["id", safeModel?.regionId]);
@@ -241,7 +229,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -267,6 +255,6 @@ export const useClientAddressServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };
