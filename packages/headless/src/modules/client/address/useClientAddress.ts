@@ -1,5 +1,7 @@
 // --- external
 import { waitFor } from "xstate/lib/waitFor";
+import { computed } from "vue";
+import { useActor } from "@xstate/vue";
 import { interpret } from "xstate";
 
 // --- internal
@@ -10,7 +12,7 @@ import { useClientAddressServices } from "./services";
 
 // --- utils
 import { get } from "lodash-es";
-import { DetailedError, responseCodes } from "../../../utils";
+import { DetailedError, responseCodes, UnavailableError } from "../../../utils";
 
 // --- types
 import type { Address, AddressModel } from "./types";
@@ -21,6 +23,8 @@ export const useClientAddress = (
   id?: Address["id"],
   { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
 ) => {
+  // --- state
+
   const service = interpret(
     itemMachine
       .withConfig({
@@ -42,66 +46,188 @@ export const useClientAddress = (
     }
   ).start();
 
-  return {
-    id,
-    service,
-    getModel: () => service?.getSnapshot().context.model as AddressModel,
-    getSnapshot: () => service?.getSnapshot(),
-    stop: () => service.stop(),
-    // ---
-    isReady: async () => {
-      return waitFor(service, state => state.matches("available"), {
-        timeout: Infinity, // infinity = no timeout
+  const { state, send } = useActor(service);
+
+  const isReady = async (): Promise<boolean> =>
+    waitFor(service, state => state.matches("available"), {
+      timeout: Infinity,
+    }).then(state => {
+      if (["error"].some(state.matches)) {
+        if (
+          state.context.error &&
+          "status" in state.context.error &&
+          state.context.error?.status == responseCodes.Service_Unavailable
+        ) {
+          return Promise.reject(new UnavailableError());
+        }
+        return false;
+      }
+      return true;
+    });
+
+  const meta = computed(() => ({
+    isNew: ["loading"].some(state.value.matches),
+    isValid: ["available.error"].some(state.value.matches),
+    isLoading: ["processing"].some(state.value.matches),
+    hasErrors: ["available.valid"].some(state.value.matches),
+    canRemove: !state.value.context?.model?.id,
+    isDefault: !!state.value?.context?.model?.canDelete,
+    isVerified: !!state.value?.context?.model?.default,
+    isComplete: !!state.value?.context?.model?.verified,
+    isProcessing: state.value.done || ["complete"].some(state.value.matches),
+  }));
+
+  // --- context
+
+  const title = computed(() => get(state.value.context, "title"));
+
+  const model = computed(() => state.value?.context?.model as AddressModel);
+
+  const errors = computed(() => state.value.context?.error);
+
+  const schema = computed(() => state.value?.context?.schema);
+
+  const context = computed(() => state.value.context);
+
+  const uischema = computed(() => state.value?.context?.uischema);
+
+  const addressId = computed(() => state.value.context?.id);
+
+  const description = computed(() => get(state.value.context, "description"));
+
+  // --- methods
+
+  const stop = () => service.stop();
+
+  const clear = () => send({ type: "CLEAR" });
+
+  const input = async (model: AddressModel): Promise<AddressModel> => {
+    // we have to ensure we are able to input data
+    return waitFor(service, state =>
+      ["available.valid", "available.invalid"].some(state.matches)
+    )
+      .then(async () => {
+        send({ type: "SET", data: model });
+        // then we wait until the module has been checked and is valid/invalid
+        return waitFor(service, state =>
+          ["available.valid", "available.invalid"].some(state.matches)
+        ).then(state => get(state, "context.model") as AddressModel);
+      })
+      .catch(() => {
+        return Promise.reject(
+          new DetailedError("Input not available", responseCodes.Forbidden)
+        );
       });
-    },
-    clear: () => service.send({ type: "CLEAR" }),
-    input: async (model: AddressModel): Promise<AddressModel> => {
-      // we have to ensure we are able to input data
-      return waitFor(service, state =>
-        ["available.valid", "available.invalid"].some(state.matches)
-      )
-        .then(async () => {
-          service.send({ type: "SET", data: model });
-          // then we wait until the module has been checked and is valid/invalid
-          return waitFor(service, state =>
-            ["available.valid", "available.invalid"].some(state.matches)
-          ).then(state => get(state, "context.model") as AddressModel);
-        })
-        .catch(() => {
-          return Promise.reject(
-            new DetailedError("Input not available", responseCodes.Forbidden)
-          );
-        });
-    },
-    //--- actions
-    update: async () => {
-      // we have to ensure we are able to update the address, ie it's available and valid
-      return waitFor(service, state => state.matches("available.valid"))
-        .then(async () => {
-          service.send({ type: "UPDATE" });
-          return waitFor(
-            service,
-            state => ["processed", "available.error"].some(state.matches),
-            {
-              timeout: Infinity,
+  };
+
+  const update = async () => {
+    // we have to ensure we are able to update the address, i.e., it's available and valid
+    return waitFor(service, state => state.matches("available.valid"))
+      .then(async () => {
+        send({ type: "UPDATE" });
+        return waitFor(
+          service,
+          state => ["processed", "available.error"].some(state.matches),
+          { timeout: Infinity }
+        )
+          .then(state => {
+            if (["error", "available.error"].some(state.matches)) {
+              return Promise.reject(state.context.error);
             }
+            return Promise.resolve();
+          })
+          .then(() => useClientAddressServices().refresh());
+      })
+      .catch(() => {
+        return Promise.reject(
+          new DetailedError(
+            "Update only available if model is valid",
+            responseCodes.Forbidden
           )
-            .then(state => {
-              if (["error", "available.error"].some(state.matches)) {
-                return Promise.reject(state.context.error);
-              }
-              return Promise.resolve();
-            })
-            .then(() => useClientAddressServices().refresh());
-        })
-        .catch(() => {
-          return Promise.reject(
-            new DetailedError(
-              "Update only available if model is valid",
-              responseCodes.Forbidden
-            )
-          );
-        });
-    },
+        );
+      });
+  };
+
+  return {
+    // --- state
+
+    /**
+     * Resolves when the address is ready for input or update.
+     * Returns true if ready, false if an error occurred.
+     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
+     */
+    isReady,
+
+    /**
+     * Computed meta-information about the address state.
+     */
+    meta,
+
+    // --- context
+
+    /**
+     * Title of the address.
+     */
+    title,
+
+    /**
+     * The current address model.
+     */
+    model,
+
+    /**
+     * Any error object from the address context.
+     */
+    errors,
+
+    /**
+     * The JSON schema for the address.
+     */
+    schema,
+
+    /**
+     * The full address context from the XState machine.
+     */
+    context,
+
+    /**
+     * The UI schema for the address.
+     */
+    uischema,
+
+    /**
+     * The current address ID.
+     */
+    addressId,
+
+    /**
+     * Description of the address.
+     */
+    description,
+
+    // --- methods
+
+    /**
+     * Stops the address service.
+     */
+    stop,
+
+    /**
+     * Clears the address context.
+     */
+    clear,
+
+    /**
+     * Inputs a new address model, resolving to the updated model.
+     * @param {AddressModel} model - The address model to input.
+     * @returns {Promise<AddressModel>} The updated address model.
+     */
+    input,
+
+    /**
+     * Updates the address, resolving when the update is processed.
+     * @returns {Promise<void>} Resolves when the update is complete.
+     */
+    update,
   };
 };
