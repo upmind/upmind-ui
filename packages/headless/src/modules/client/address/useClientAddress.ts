@@ -64,7 +64,7 @@ export const useClientAddress = (
         ["available.valid", "available.invalid"].some(state.matches)
       )
         .then(async () => {
-          service.send({ type: "SET", data: { address: model } });
+          service.send({ type: "SET", data: { model } });
           // then we wait until the module has been checked and is valid/invalid
           return waitFor(service, state =>
             ["available.valid", "available.invalid"].some(state.matches)
