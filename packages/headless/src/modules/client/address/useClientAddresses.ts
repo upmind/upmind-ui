@@ -1,69 +1,48 @@
-// --- external
-import { computed, ref, toRefs } from "vue";
+import { ref, computed } from "vue";
 import { useQuery, keepPreviousData } from "@tanstack/vue-query";
-
-// --- internal
 import service from "./services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 import { invalidateQueryByKey } from "../../query";
-
-// --- utils
 import {
-  get,
-  find,
-  every,
-  filter,
   isEmpty,
+  find,
   includes,
+  get,
+  every,
   isString,
+  filter,
   isNumber,
 } from "lodash-es";
-
-// --- types
 import type { Address } from "./types";
-import type { PaginatedParams } from "../../query";
+import type { PaginatedParams, IAPIPagination } from "../../query";
 
-export const useClientAddresses = (params: PaginatedParams) => {
+export const useClientAddresses = (params: PaginatedParams = {}) => {
   // --- state
 
   const { isAuthenticated } = useSession();
   const { addError, addSuccess } = useFeedback();
-  const { sort, filters, pagination } = toRefs(params);
 
-  const limit = pagination?.value?.limit;
-  const offset = pagination?.value?.offset;
+  const pagination = ref<IAPIPagination | undefined>(params.pagination);
 
-  /**
-   * The current page number based on the limit and offset.
-   * If limit and offset are not provided, it defaults to -1.
-   * -1 indicates that pagination is not set and the user wants all addresses.
-   */
-  const page = ref<number>(
-    limit && offset ? Math.ceil(offset / limit) + 1 : -1
-  );
+  const page = computed(() => {
+    const limit = pagination.value?.limit;
+    const offset = pagination.value?.offset;
+    return limit && offset !== undefined ? Math.floor(offset / limit) + 1 : -1;
+  });
 
-  const hasPagination = page.value > -1;
+  const hasPagination = computed(() => page.value > -1);
 
   const query = useQuery<Address[]>({
+    queryFn: () =>
+      hasPagination.value
+        ? service.loadPaged({ pagination: pagination.value })
+        : service.loadAll(),
     queryKey: computed(() => [
       ...service.queryKey,
-      {
-        sort: sort?.value,
-        filters: filters?.value,
-        pagination: pagination?.value,
-        page: hasPagination ? page.value : undefined,
-      },
+      { pagination: pagination.value },
     ]),
-    queryFn: () =>
-      hasPagination
-        ? service.loadPaged({
-            sort: sort?.value,
-            filters: filters?.value,
-            pagination: pagination?.value,
-          })
-        : service.loadAll(),
     staleTime: useTime().DAY,
     placeholderData: keepPreviousData,
   });
@@ -80,24 +59,23 @@ export const useClientAddresses = (params: PaginatedParams) => {
     isLoading: query?.fetchStatus.value === "fetching",
   }));
 
-  // --- methods
-
   function getOne(id: Address["id"]) {
-    const addresses = getAllFromCache();
-    return find(addresses, ["id", id]);
+    return find(getAllFromCache(), ["id", id]);
   }
 
   async function getAll() {
     return service.loadAll();
   }
 
-  async function getPaged(paginationParams: PaginatedParams) {
-    return service.loadPaged(paginationParams);
+  async function getPaged(params: PaginatedParams) {
+    return service.loadPaged(params);
   }
 
   function getAllFromCache() {
     return service.loadAllFromCache();
   }
+
+  // --- methods
 
   function findOne(mapping: string | Partial<Address>) {
     const addresses = getAllFromCache();
@@ -122,9 +100,8 @@ export const useClientAddresses = (params: PaginatedParams) => {
   }
 
   function filterAddresses(param: string) {
-    const addresses = getAllFromCache();
     return filter(
-      addresses,
+      getAllFromCache(),
       item =>
         includes(item.title.toLowerCase(), param.toLowerCase()) ||
         includes(item.description.toLowerCase(), param.toLowerCase())
@@ -156,7 +133,7 @@ export const useClientAddresses = (params: PaginatedParams) => {
       .setDefault(id)
       .then(() => addSuccess("Successfully set address as default"))
       .then(service.refresh)
-      .catch(error => {
+      .catch(error =>
         addError({
           title: isString(error)
             ? error
@@ -164,28 +141,36 @@ export const useClientAddresses = (params: PaginatedParams) => {
               "We experienced an error setting this address as default",
           copy: error?.message,
           data: error?.data,
-        });
-      });
+        })
+      );
   }
 
   function nextPage() {
-    if (!pagination?.value) return;
+    const limit = pagination.value?.limit;
+    const offset = pagination.value?.offset ?? 0;
 
-    const { limit, offset } = pagination.value;
-
-    if (isNumber(limit) && isNumber(offset)) {
-      pagination.value.offset = offset + limit;
+    if (isNumber(limit)) {
+      pagination.value = {
+        ...pagination.value,
+        offset: offset + limit,
+      };
     }
   }
 
   function prevPage() {
-    if (!pagination?.value) return;
+    const limit = pagination.value?.limit;
+    const offset = pagination.value?.offset ?? 0;
 
-    const { limit, offset } = pagination.value;
-
-    if (isNumber(limit) && isNumber(offset) && offset >= limit) {
-      pagination.value.offset = offset - limit;
+    if (isNumber(limit) && offset >= limit) {
+      pagination.value = {
+        ...pagination.value,
+        offset: offset - limit,
+      };
     }
+  }
+
+  function setPagination(value: IAPIPagination) {
+    pagination.value = { ...pagination.value, ...value };
   }
 
   return {
@@ -208,6 +193,12 @@ export const useClientAddresses = (params: PaginatedParams) => {
      * If pagination is not set, it defaults to -1.
      */
     page,
+
+    /**
+     * Indicates if pagination is available.
+     * If pagination is not set, it defaults to false.
+     */
+    pagination,
 
     // --- methods
 
@@ -284,10 +275,16 @@ export const useClientAddresses = (params: PaginatedParams) => {
     prevPage,
 
     /**
+     * Set the pagination parameters.
+     * @param value The new pagination parameters to set.
+     */
+    setPagination,
+
+    /**
      * Invalidate the query cache for client addresses.
      */
-    invalidate: invalidateQueryByKey(service.queryKey),
+    invalidate: invalidateQueryByKey(service.queryKey, {
+      exact: false,
+    }),
   };
 };
-
-export type UseClientAddresses = ReturnType<typeof useClientAddresses>;
