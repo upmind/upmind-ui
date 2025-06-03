@@ -167,7 +167,7 @@ async function parse(
   { regions, country, baseModel, schema }: AddressContext,
   { data }: AnyEventObject & { data: AddressModel }
 ) {
-  // We need to check and potentially update the regions list based on the selected country ( if its changed )
+  // We need to check and potentially update the region list based on the selected country (if it's changed)
   const { fetchRegions, getCountry } = useSystem();
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
@@ -181,12 +181,12 @@ async function parse(
 
   // ---
 
-  // first lets check we have a valid country,
+  // first let's check we have a valid country,
   // fallback to the default country if not set or invalid
   country = getCountry(safeModel?.countryId ?? baseModel?.countryId);
   safeModel.countryId = country.id;
 
-  // let's check if the country has changed, ie: the regions don't match
+  // let's check if the country has changed, i.e.: the regions don't match
   // if so, then we need to fetch the regions for the new country
   // AND update our 'default' country to match the country from the address
   // this will in turn update the phone schema to match the country
@@ -195,7 +195,7 @@ async function parse(
     country = getCountry(safeModel.countryId);
   }
 
-  // now lets check our regions list to see if we have a match
+  // now let's check our region list to see if we have a match
   // if so, then we need to update the safeModel with the new region id
   // otherwise the regionId is reset to null
   const region = find(regions, ["id", safeModel?.regionId]);
@@ -229,7 +229,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -255,6 +255,6 @@ export const useClientAddressServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };
