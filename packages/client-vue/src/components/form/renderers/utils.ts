@@ -1,19 +1,21 @@
-import { get } from "lodash-es";
+import { get, find } from "lodash-es";
 import type { FormComposable } from "@upmind-automation/headless-vue";
 
 export const useSchemaComposable = (control: any): FormComposable => {
-  const fieldSchema = get(
-    control.value.schema,
-    `properties.${control.value.path}`
+  const matchingField = find(
+    get(control.value.schema, "properties", {}),
+    property => get(property, "update") === control.value.path
   );
-  const composable = get(fieldSchema, "use");
 
-  if (composable && typeof composable === "function") {
-    return (composable as any)() as FormComposable;
+  if (matchingField) {
+    const composable = get(matchingField, "use");
+    if (composable && typeof composable === "function") {
+      return composable(control.value.data);
+    }
   }
 
   return {
-    getModel: () => () => null,
+    getModel: () => () => control.value.data,
     setDefault: async () => {},
     input: async () => {},
     clear: () => {},

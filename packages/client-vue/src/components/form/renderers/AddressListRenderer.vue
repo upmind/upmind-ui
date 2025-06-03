@@ -102,15 +102,11 @@ const clearItem = () => {
 };
 
 const editItem = (id: string) => {
-  const editField = (
+  const update = (
     control.value.rootSchema?.properties?.[control.value.path] as any
-  )?.editField;
+  )?.update;
 
-  if (editField) {
-    handleChange(editField, id);
-  } else {
-    console.warn("No editField defined in schema");
-  }
+  handleChange(update, id);
 };
 
 watch(parsedValues, () => {
