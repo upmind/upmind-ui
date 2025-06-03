@@ -7,6 +7,11 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useClientAddress, useClientAddresses } from "../../../client/address";
 
+// Use a conditional element as we only want the field to mount when there is a value
+const conditionalElement = (condition: any, element: any) => {
+  return condition ? [element] : [];
+};
+
 export const useSchema = ({
   country,
   regions,
@@ -21,18 +26,18 @@ export const useSchema = ({
         type: ["string", "null"],
         default: baseModel.addressId,
         use: useClientAddress,
-        editField: "editingAddressId",
+        update: "updateAddressId",
       } as any,
       companyId: {
         type: ["string", "null"],
         default: baseModel.companyId,
-        editField: "editingCompanyId",
+        update: "updateCompanyId",
       } as any,
-      editingAddressId: {
+      updateAddressId: {
         type: ["string", "null"],
         default: null,
       },
-      editingCompanyId: {
+      updateCompanyId: {
         type: ["string", "null"],
         default: null,
       },
@@ -252,6 +257,7 @@ export const useUischema = ({
   config,
   addresses,
   companies,
+  model,
 }: UnifiedAddressContext) => {
   const addressUiSchema = {
     type: "Control",
@@ -343,22 +349,11 @@ export const useUischema = ({
   const personalUiSchema = {
     type: "VerticalLayout",
     elements: [
-      {
+      ...conditionalElement(get(model, "updateAddressId"), {
         type: "Update",
-        scope: "#/properties/editingAddressId",
+        scope: "#/properties/updateAddressId",
         label: "",
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              properties: {
-                editingAddressId: { const: null },
-              },
-            },
-          },
-        },
-      },
+      }),
       {
         type: "AddressList",
         scope: "#/properties/addressId",
@@ -398,22 +393,11 @@ export const useUischema = ({
   const businessUiSchema = {
     type: "VerticalLayout",
     elements: [
-      {
+      ...conditionalElement(get(model, "updateCompanyId"), {
         type: "Update",
-        scope: "#/properties/editingCompanyId",
+        scope: "#/properties/updateCompanyId",
         label: "",
-        rule: {
-          effect: "HIDE",
-          condition: {
-            scope: "#",
-            schema: {
-              properties: {
-                editingCompanyId: { const: null },
-              },
-            },
-          },
-        },
-      },
+      }),
       {
         type: "AddressList",
         scope: "#/properties/companyId",

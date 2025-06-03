@@ -1,12 +1,12 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <!-- <Dialog v-if="model()" :open="open" size="xl"> -->
-    <pre>model: {{ control.data }}</pre>
-    <!-- <footer class="flex justify-end gap-x-6">
-      <Link as="Button" variant="muted">Close</Link>
-      <Button color="secondary">Save</Button>
-    </footer>
-  </Dialog> -->
+    <Dialog v-model:open="open" size="xl">
+      <pre>model: {{ model }}</pre>
+      <footer class="flex justify-end gap-x-6">
+        <Link as="Button" variant="muted" @click="close">Close</Link>
+        <Button color="secondary">Save</Button>
+      </footer>
+    </Dialog>
   </FormField>
 </template>
 
@@ -26,10 +26,19 @@ import { useSchemaComposable } from "./utils";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, appliedOptions, formFieldProps, onInput } =
-  useUpmindUIRenderer(useJsonFormsControl(props));
+const { control, formFieldProps, onInput } = useUpmindUIRenderer(
+  useJsonFormsControl(props)
+);
 
 const open = ref(true);
+
+const { getModel } = useSchemaComposable(control);
+const model = computed(() => getModel());
+
+const close = () => {
+  open.value = false;
+  onInput(null, false);
+};
 </script>
 
 <script lang="ts">
