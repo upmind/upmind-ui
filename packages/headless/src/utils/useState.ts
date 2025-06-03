@@ -17,6 +17,7 @@ import {
   isEqual,
   PropertyPath,
   compact,
+  pick,
 } from "lodash-es";
 
 // --- types
@@ -146,6 +147,7 @@ export const machineMatches = (
 };
 
 // --- value helpers
+
 export const stateValue = <T = unknown>(
   stateLike: StateLike,
   props?: string | number | (string | number)[],
@@ -153,9 +155,11 @@ export const stateValue = <T = unknown>(
 ): T | undefined => {
   const state = safeState(stateLike);
 
-  if (!state) return fallback;
+  if (isEmpty(props) || isNil(state)) return fallback;
 
-  if (isEmpty(props)) return fallback;
+  if (isArray(props)) return pick(state, props) as T;
+
+  if (isFunction(props)) return props(state) as T;
 
   return get(state, props as PropertyPath, fallback) as T;
 };
@@ -168,6 +172,10 @@ export const contextValue = <T = unknown>(
   const context = stateValue<T>(stateLike, "context");
 
   if (isEmpty(props) || isNil(context)) return fallback;
+
+  if (isArray(props)) return pick(context, props) as T;
+
+  if (isFunction(props)) return props(context) as T;
 
   return get(context, props as PropertyPath, fallback);
 };
