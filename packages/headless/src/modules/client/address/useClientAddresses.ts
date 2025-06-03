@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, toRefs } from "vue";
 import { useQuery, keepPreviousData } from "@tanstack/vue-query";
 
 // --- internal
@@ -18,24 +18,22 @@ import {
   isEmpty,
   includes,
   isString,
+  isNumber,
 } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
 import type { PaginatedParams } from "../../query";
 
-export const useClientAddresses = ({
-  // sort,
-  // filters,
-  pagination,
-}: PaginatedParams) => {
+export const useClientAddresses = (params: PaginatedParams) => {
   // --- state
 
   const { isAuthenticated } = useSession();
   const { addError, addSuccess } = useFeedback();
+  const { sort, filters, pagination } = toRefs(params);
 
-  const limit = pagination?.limit;
-  const offset = pagination?.offset;
+  const limit = pagination?.value?.limit;
+  const offset = pagination?.value?.offset;
 
   /**
    * The current page number based on the limit and offset.
@@ -49,9 +47,23 @@ export const useClientAddresses = ({
   const hasPagination = page.value > -1;
 
   const query = useQuery<Address[]>({
+    queryKey: computed(() => [
+      ...service.queryKey,
+      {
+        sort: sort?.value,
+        filters: filters?.value,
+        pagination: pagination?.value,
+        page: hasPagination ? page.value : undefined,
+      },
+    ]),
     queryFn: () =>
-      hasPagination ? service.loadPaged({ pagination }) : service.loadAll(),
-    queryKey: [...service.queryKey, { ...(hasPagination ? { page } : {}) }],
+      hasPagination
+        ? service.loadPaged({
+            sort: sort?.value,
+            filters: filters?.value,
+            pagination: pagination?.value,
+          })
+        : service.loadAll(),
     staleTime: useTime().DAY,
     placeholderData: keepPreviousData,
   });
@@ -157,14 +169,22 @@ export const useClientAddresses = ({
   }
 
   function nextPage() {
-    if (page.value > -1) {
-      page.value += 1;
+    if (!pagination?.value) return;
+
+    const { limit, offset } = pagination.value;
+
+    if (isNumber(limit) && isNumber(offset)) {
+      pagination.value.offset = offset + limit;
     }
   }
 
-  function previousPage() {
-    if (page.value > 1) {
-      page.value -= 1;
+  function prevPage() {
+    if (!pagination?.value) return;
+
+    const { limit, offset } = pagination.value;
+
+    if (isNumber(limit) && isNumber(offset) && offset >= limit) {
+      pagination.value.offset = offset - limit;
     }
   }
 
@@ -194,7 +214,7 @@ export const useClientAddresses = ({
     /**
      * Get a single address by id.
      * @param id The id of the address to get.
-     * @returns The address object if found, otherwise undefined.
+     * @returns The address object if found, is otherwise undefined.
      */
     getOne,
 
@@ -220,7 +240,7 @@ export const useClientAddresses = ({
     /**
      * Find a single address based on the given param. The param is matched against the title and description.
      * @param mapping The filter to match against the address title and description.
-     * @returns The address object if found, otherwise undefined.
+     * @returns The address object if found, is otherwise undefined.
      */
     findOne,
 
@@ -240,7 +260,7 @@ export const useClientAddresses = ({
 
     /**
      * Get the default address for the current client.
-     * @returns The default address if found, otherwise undefined.
+     * @returns The default address if found, is otherwise undefined.
      */
     getDefault,
 
@@ -253,15 +273,15 @@ export const useClientAddresses = ({
 
     /**
      * Go to the next page of addresses.
-     * Increments the page number by 1 if pagination is enabled.
+     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of addresses.
      */
     nextPage,
 
     /**
      * Go to the previous page of addresses.
-     * Decrements the page number by 1 if pagination is enabled and the page number is greater than 1.
+     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
      */
-    previousPage,
+    prevPage,
 
     /**
      * Invalidate the query cache for client addresses.
