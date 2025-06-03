@@ -9,6 +9,7 @@ export * from "./recaptcha/useSystemRecaptcha";
 export * from "./i18n/useSystemI18n";
 export * from "./analytics/useDataLayer";
 export * from "./analytics/useTracking";
+export * from "./form";
 
 // --- internal
 import systemMachine from "./system.machine";

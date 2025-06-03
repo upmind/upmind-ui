@@ -7,6 +7,7 @@ import {
   type PhoneNumber,
 } from "libphonenumber-js";
 import ajvErrors from "ajv-errors";
+import { FormComposable } from "../modules/system/form";
 
 // --- utils
 import {
@@ -63,6 +64,16 @@ export const useValidation = (ajv?: any) => {
     },
     error: {
       message: () => "Invalid phone number format",
+    },
+  });
+
+  ajv.addKeyword({
+    keyword: "use",
+    validate: (data: any): data is FormComposable => {
+      return data && typeof data === "object";
+    },
+    error: {
+      message: () => "Value must be of type SchemaFormComposable",
     },
   });
 
