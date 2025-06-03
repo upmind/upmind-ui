@@ -5,6 +5,7 @@ import { filter, get, map, uniq } from "lodash-es";
 import type { UnifiedAddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { useClientAddress, useClientAddresses } from "../../../client/address";
 
 export const useSchema = ({
   country,
@@ -19,10 +20,21 @@ export const useSchema = ({
       addressId: {
         type: ["string", "null"],
         default: baseModel.addressId,
-      },
+        use: useClientAddress,
+        editField: "editingAddressId",
+      } as any,
       companyId: {
         type: ["string", "null"],
         default: baseModel.companyId,
+        editField: "editingCompanyId",
+      } as any,
+      editingAddressId: {
+        type: ["string", "null"],
+        default: null,
+      },
+      editingCompanyId: {
+        type: ["string", "null"],
+        default: null,
       },
     },
     oneOf: [
@@ -332,6 +344,22 @@ export const useUischema = ({
     type: "VerticalLayout",
     elements: [
       {
+        type: "Update",
+        scope: "#/properties/editingAddressId",
+        label: "",
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              properties: {
+                editingAddressId: { const: null },
+              },
+            },
+          },
+        },
+      },
+      {
         type: "AddressList",
         scope: "#/properties/addressId",
         options: {
@@ -370,6 +398,22 @@ export const useUischema = ({
   const businessUiSchema = {
     type: "VerticalLayout",
     elements: [
+      {
+        type: "Update",
+        scope: "#/properties/editingCompanyId",
+        label: "",
+        rule: {
+          effect: "HIDE",
+          condition: {
+            scope: "#",
+            schema: {
+              properties: {
+                editingCompanyId: { const: null },
+              },
+            },
+          },
+        },
+      },
       {
         type: "AddressList",
         scope: "#/properties/companyId",

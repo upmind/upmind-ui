@@ -9,7 +9,7 @@
       required
     >
       <template #item="{ item, isSelected }">
-        <Item v-bind="item" :is-selected="isSelected" />
+        <Item v-bind="item" :is-selected="isSelected" @edit="editItem" />
       </template>
 
       <template #actions>
@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, inject } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -48,6 +48,7 @@ import Item from "../../../modules/client/components/billing/Item.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import { useSchemaComposable } from "./utils";
 import { find, lowerCase, map } from "lodash-es";
 
 // --- types
@@ -60,10 +61,12 @@ import { useBillingDetails } from "@upmind-automation/headless-vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const jsonFormsControl = useJsonFormsControl(props);
+const { control, formFieldProps, onInput, handleChange } =
+  useUpmindUIRenderer(jsonFormsControl);
 const { setDefault } = useBillingDetails();
+
+const { input } = useSchemaComposable(control);
 
 const open = ref(false);
 const selectedItem = ref<string>("");
@@ -96,6 +99,18 @@ const selectItem = async (value: string) => {
 
 const clearItem = () => {
   onInput(null, false);
+};
+
+const editItem = (id: string) => {
+  const editField = (
+    control.value.rootSchema?.properties?.[control.value.path] as any
+  )?.editField;
+
+  if (editField) {
+    handleChange(editField, id);
+  } else {
+    console.warn("No editField defined in schema");
+  }
 };
 
 watch(parsedValues, () => {

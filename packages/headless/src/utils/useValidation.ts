@@ -69,8 +69,8 @@ export const useValidation = (ajv?: any) => {
 
   ajv.addKeyword({
     keyword: "use",
-    validate: (data: any): data is FormComposable => {
-      return data && typeof data === "object";
+    validate: (data: any) => {
+      return data && typeof data === "function";
     },
     error: {
       message: () => "Value must be of type SchemaFormComposable",
