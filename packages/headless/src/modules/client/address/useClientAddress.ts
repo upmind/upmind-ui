@@ -238,3 +238,5 @@ export const useClientAddress = (
     update,
   };
 };
+
+export type UseClientAddress = ReturnType<typeof useClientAddress>;

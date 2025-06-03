@@ -1,6 +1,6 @@
 // --- external
-import { computed } from "vue";
-import { useQuery } from "@tanstack/vue-query";
+import { computed, ref } from "vue";
+import { useQuery, keepPreviousData } from "@tanstack/vue-query";
 
 // --- internal
 import service from "./services";
@@ -24,16 +24,36 @@ import {
 import type { Address } from "./types";
 import type { PaginatedParams } from "../../query";
 
-export const useClientAddresses = () => {
+export const useClientAddresses = ({
+  // sort,
+  // filters,
+  pagination,
+}: PaginatedParams) => {
   // --- state
 
   const { isAuthenticated } = useSession();
   const { addError, addSuccess } = useFeedback();
 
+  const limit = pagination?.limit;
+  const offset = pagination?.offset;
+
+  /**
+   * The current page number based on the limit and offset.
+   * If limit and offset are not provided, it defaults to -1.
+   * -1 indicates that pagination is not set and the user wants all addresses.
+   */
+  const page = ref<number>(
+    limit && offset ? Math.ceil(offset / limit) + 1 : -1
+  );
+
+  const hasPagination = page.value > -1;
+
   const query = useQuery<Address[]>({
-    queryFn: service.loadAll,
-    queryKey: service.queryKey,
+    queryFn: () =>
+      hasPagination ? service.loadPaged({ pagination }) : service.loadAll(),
+    queryKey: [...service.queryKey, { ...(hasPagination ? { page } : {}) }],
     staleTime: useTime().DAY,
+    placeholderData: keepPreviousData,
   });
 
   async function isReady(): Promise<boolean> {
@@ -136,6 +156,18 @@ export const useClientAddresses = () => {
       });
   }
 
+  function nextPage() {
+    if (page.value > -1) {
+      page.value += 1;
+    }
+  }
+
+  function previousPage() {
+    if (page.value > 1) {
+      page.value -= 1;
+    }
+  }
+
   return {
     // --- state
 
@@ -150,6 +182,12 @@ export const useClientAddresses = () => {
      * Computed meta-information about the addresses.
      */
     meta,
+
+    /**
+     * The current page number.
+     * If pagination is not set, it defaults to -1.
+     */
+    page,
 
     // --- methods
 
@@ -214,8 +252,22 @@ export const useClientAddresses = () => {
     setDefault,
 
     /**
+     * Go to the next page of addresses.
+     * Increments the page number by 1 if pagination is enabled.
+     */
+    nextPage,
+
+    /**
+     * Go to the previous page of addresses.
+     * Decrements the page number by 1 if pagination is enabled and the page number is greater than 1.
+     */
+    previousPage,
+
+    /**
      * Invalidate the query cache for client addresses.
      */
     invalidate: invalidateQueryByKey(service.queryKey),
   };
 };
+
+export type UseClientAddresses = ReturnType<typeof useClientAddresses>;

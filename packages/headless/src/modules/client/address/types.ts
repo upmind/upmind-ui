@@ -45,10 +45,6 @@ export interface Address extends AddressModel {
   };
 }
 
-export type UseClientAddress = ReturnType<typeof useClientAddress>;
-
-export type UseClientAddresses = ReturnType<typeof useClientAddresses>;
-
 export interface AddressContext extends ClientItemContext {
   types?: typeof AddressTypes;
   model?: AddressModel;
