@@ -328,6 +328,7 @@ export const useQuery = () => {
     post: postRequest,
     head: headRequest,
     patch: patchRequest,
+    request,
     // ---
     queryClient,
   };

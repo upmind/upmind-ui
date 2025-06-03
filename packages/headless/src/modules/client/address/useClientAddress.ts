@@ -11,11 +11,18 @@ import { useClientAddressActions } from "./actions";
 import { useClientAddressServices } from "./services";
 
 // --- utils
+import {
+  useContext,
+  DetailedError,
+  responseCodes,
+  UnavailableError,
+} from "../../../utils";
 import { get } from "lodash-es";
-import { DetailedError, responseCodes, UnavailableError } from "../../../utils";
 
 // --- types
+import type { ClientItemContext } from "../types";
 import type { Address, AddressModel } from "./types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
@@ -79,21 +86,21 @@ export const useClientAddress = (
 
   // --- context
 
-  const title = computed(() => get(state.value.context, "title"));
+  const title = useContext<string | undefined>(state, "title");
 
-  const model = computed(() => state.value?.context?.model as AddressModel);
+  const model = useContext<AddressModel>(state, "model");
 
-  const errors = computed(() => state.value.context?.error);
+  const errors = useContext<ClientItemContext["error"]>(state, "error");
 
-  const schema = computed(() => state.value?.context?.schema);
+  const schema = useContext<JsonSchema>(state, "schema");
 
   const context = computed(() => state.value.context);
 
-  const uischema = computed(() => state.value?.context?.uischema);
+  const uischema = useContext<UISchemaElement>(state, "uischema");
 
-  const addressId = computed(() => state.value.context?.id);
+  const addressId = useContext<string | undefined>(state, "id");
 
-  const description = computed(() => get(state.value.context, "description"));
+  const description = useContext<string | undefined>(state, "description");
 
   // --- methods
 
@@ -231,3 +238,5 @@ export const useClientAddress = (
     update,
   };
 };
+
+export type UseClientAddress = ReturnType<typeof useClientAddress>;
