@@ -15,6 +15,7 @@
         tabindex="-1"
         @mousedown.stop.prevent
         class="h-4"
+        @click="edit"
       />
     </header>
 
@@ -36,11 +37,20 @@
 // --- components
 import { Link, Badge } from "@upmind-automation/upmind-ui";
 
-defineProps<{
+const props = defineProps<{
+  id: string;
   title: string;
   description: string;
   regNumber: string;
   vatNumber: string;
   isSelected: boolean;
 }>();
+
+const emit = defineEmits<{
+  (e: "edit", id: string): void;
+}>();
+
+const edit = () => {
+  emit("edit", props.id);
+};
 </script>
