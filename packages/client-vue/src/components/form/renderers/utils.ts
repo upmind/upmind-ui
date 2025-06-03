@@ -17,6 +17,7 @@ export const useSchemaComposable = (control: any): FormComposable => {
   return {
     getModel: () => () => control.value.data,
     setDefault: async () => {},
+    update: async () => {},
     input: async () => {},
     clear: () => {},
     stop: () => {},
@@ -24,5 +25,7 @@ export const useSchemaComposable = (control: any): FormComposable => {
     state: () => null,
     context: () => null,
     errors: () => null,
+    schema: null,
+    uischema: null,
   };
 };

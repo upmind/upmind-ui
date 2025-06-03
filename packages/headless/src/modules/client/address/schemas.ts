@@ -1,23 +1,18 @@
-// --- utils
-import { get } from "lodash-es";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { map } from "lodash-es";
+import { compact, map, reduce } from "lodash-es";
 
-// --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
-import type { AddressContext } from "./types";
+import type { Address, AddressContext } from "./types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export function useSchema({
   types,
   regions,
   baseModel,
   countries,
-  country,
-  config,
 }: AddressContext): JsonSchema {
   const schema = {
     type: "object",
     title: "Address Fields",
+    required: ["address1", "city", "countryId", "postcode", "type"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -26,194 +21,141 @@ export function useSchema({
         readOnly: true,
       },
 
-      address: {
-        type: "object",
-        title: "Address",
-        default: {},
-        required: ["address1", "city", "postcode", "countryId", "type"],
-        properties: {
-          address1: {
-            type: "string",
-            title: "Address",
-          },
+      // ---
+      address1: {
+        type: "string",
+        title: "Address Line 1",
+      },
 
-          address2: {
-            type: ["string", "null"],
-            title: "",
-          },
+      address2: {
+        type: ["string", "null"],
+        title: "Address Line 2",
+      },
 
-          city: {
-            type: "string",
-            title: "City",
-          },
+      city: {
+        type: "string",
+        title: "City",
+      },
 
-          postcode: {
-            type: "string",
-            title: "Postal / Zip Code",
-          },
+      postcode: {
+        type: "string",
+        title: "Postcode",
+      },
 
-          regionId: {
-            type: ["string", "null"],
-            title: "Region",
-            oneOf: !regions?.length
-              ? undefined
-              : map(regions, item => ({
-                  const: item.id,
-                  title: item.name,
-                })),
-          },
+      regionId: {
+        type: ["string", "null"],
+        title: "Region",
+        oneOf: !regions?.length
+          ? undefined
+          : map(regions, item => ({
+              const: item.id,
+              title: item.name,
+            })),
+      },
 
-          countryId: {
-            type: "string",
-            title: "Country",
-            default: baseModel?.countryId,
-            oneOf: !countries?.length
-              ? undefined
-              : map(countries, item => ({
-                  const: item.id,
-                  title: item.name,
-                })),
-          },
+      countryId: {
+        type: "string",
+        title: "Country",
+        default: baseModel?.countryId,
+        oneOf: !countries?.length
+          ? undefined
+          : map(countries, item => ({
+              const: item.id,
+              title: item.name,
+            })),
+      },
 
-          phone: {
-            type: "object",
-            title: "Phone",
-            isPhoneNumber: country?.code,
-            properties: {
-              number: {
-                type: ["string", "null"],
-                title: "Phone number ( with dialing code )",
-              },
-
-              nationalNumber: {
-                type: ["string", "null"],
-                title: "Phone number",
-              },
-
-              countryCallingCode: {
-                type: ["string", "null"],
-                title: "Country calling code",
-              },
-
-              country: {
-                type: ["string", "null"],
-                title: "Country",
-              },
-            },
-          },
-
-          type: {
-            type: "number",
-            title: "Address Type",
-            default: baseModel?.type,
-            oneOf: !types?.length
-              ? undefined
-              : map(types, item => ({
-                  const: item.key,
-                  title: item.value,
-                })),
-          },
-        },
+      type: {
+        type: "number",
+        title: "Address Type",
+        default: baseModel?.type,
+        oneOf: !types?.length
+          ? undefined
+          : map(types, item => ({
+              const: item.key,
+              title: item.value,
+            })),
       },
     },
   };
 
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    schema.properties.address.required.push("phone");
-  }
+  // if (id) {
+  //   schema.required.push("name");
+  //   schema.required.push("type");
+  // }
+
   return schema as JsonSchema;
 }
 
-export function useUischema({ config }: AddressContext): UISchemaElement {
+export function useUischema(): UISchemaElement {
   const schema = {
     type: "VerticalLayout",
     elements: [
+      // ---
       {
-        type: "Control",
-        scope: "#/properties/address",
-        options: {
-          autoFocus: true,
-          autocomplete: "off",
-          detail: {
-            type: "VerticalLayout",
+        type: "VerticalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/address1",
+            label: "Address", // ensure we  show the title for BOTH address fields
+            options: {
+              autoFocus: true,
+              autocomplete: "address-line1",
+              placeholder: "Address first line...",
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/address2",
+            label: "", // ensure we DON'T show the title
+            options: {
+              autocomplete: "address-line2",
+              placeholder: "Address second line...",
+              class: "-mt-8",
+            },
+          },
+
+          // ---
+          {
+            type: "HorizontalLayout",
             elements: [
               {
                 type: "Control",
-                scope: "#/properties/countryId",
+                scope: "#/properties/city",
+                options: {
+                  autocomplete: "address-level2",
+                  placeholder: "City...",
+                },
               },
               {
-                type: "address",
+                type: "Control",
+                scope: "#/properties/postcode",
                 options: {
-                  fields: ["address1", "address2", "city", "postcode"],
-                  placeholder: "Start typing your address",
+                  autocomplete: "postal-code",
+                  placeholder: "Postcode...",
                 },
-                elements: [
-                  {
-                    type: "Group",
-                    options: {
-                      border: false,
-                    },
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/address1",
-                        options: {
-                          placeholder: "House name, apartment number etc.",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/address2",
-                        options: {
-                          placeholder: "Road, street name etc.",
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/city",
-                    options: {
-                      placeholder: "City, town etc.",
-                    },
-                  },
-                  {
-                    type: "HorizontalLayout",
-                    elements: [
-                      {
-                        type: "Control",
-                        scope: "#/properties/regionId",
-                        options: {
-                          placeholder: "Select region",
-                        },
-                      },
-                      {
-                        type: "Control",
-                        scope: "#/properties/postcode",
-                        options: {
-                          placeholder: "eg. 10011",
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    type: "Control",
-                    scope: "#/properties/phone",
-                    rule: {
-                      effect: "HIDE",
-                      condition: get(
-                        config,
-                        BrandConfigKeys.CHECKOUT_REQUIRE_PHONE
-                      )
-                        ? { scope: "#", schema: { type: "null" } }
-                        : { scope: "#", schema: { type: "object" } },
-                    },
-                  },
-                ],
               },
             ],
           },
-        },
+          // ---
+          {
+            type: "Control",
+            scope: "#/properties/regionId",
+            options: {
+              autocomplete: "address-level1",
+              placeholder: "Please select a Region...",
+            },
+          },
+          {
+            type: "Control",
+            scope: "#/properties/countryId",
+            options: {
+              autocomplete: "country",
+              placeholder: "Please select a Country...",
+            },
+          },
+        ],
       },
     ],
   };

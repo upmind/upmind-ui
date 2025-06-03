@@ -1,28 +1,41 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <Dialog v-model:open="open" size="xl">
-      <pre>model: {{ model }}</pre>
-      <footer class="flex justify-end gap-x-6">
-        <Link as="Button" variant="muted" @click="close">Close</Link>
-        <Button color="secondary">Save</Button>
-      </footer>
+    <Dialog v-model:open="open" size="2xl">
+      <div v-if="isLoading">Loading address data...</div>
+      <UpmForm
+        v-else
+        :model-value="model"
+        :schema="schema()"
+        :uischema="uischema()"
+        :additional-renderers="formRenderers"
+        color="secondary"
+        @update:model-value="input"
+        @resolve="update"
+        @reject="close"
+      />
     </Dialog>
   </FormField>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+// --- external
+import { ref, computed, onMounted } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
+
+// --- components
+import { UpmForm, formRenderers } from "../../form";
 import {
   useUpmindUIRenderer,
-  Button,
   Dialog,
-  Link,
   FormField,
 } from "@upmind-automation/upmind-ui";
+
+// --- utils
+import { useSchemaComposable } from "./utils";
+
+// --- types
 import type { RendererProps } from "@jsonforms/vue";
 import type { ControlElement } from "@jsonforms/core";
-import { useSchemaComposable } from "./utils";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
@@ -31,12 +44,20 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 );
 
 const open = ref(true);
+const isLoading = ref(true);
 
-const { getModel } = useSchemaComposable(control);
+const { getModel, isReady, update, input, schema, uischema, clear } =
+  useSchemaComposable(control);
 const model = computed(() => getModel());
+
+onMounted(async () => {
+  await isReady();
+  isLoading.value = false;
+});
 
 const close = () => {
   open.value = false;
+  clear();
   onInput(null, false);
 };
 </script>

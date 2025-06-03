@@ -34,7 +34,7 @@ export const useClientAddressActions = () => {
 
     setSchemas: assign({
       schema: (context: AddressContext) => useSchema(context),
-      uischema: (context: AddressContext) => useUischema(context),
+      uischema: () => useUischema(),
     }),
 
     setModel: assign({
