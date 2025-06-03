@@ -1,68 +1,56 @@
 // --- internal
-import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSystem, useSession } from "../..";
 
 // --- utils
-import { mapAddresses, mapIAddress } from "./mappers";
-import { invalidateQueryByKey } from "../../query";
-import { find, first, get, isEmpty, isNil, set, some } from "lodash-es";
 import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
+import { invalidateQueryByKey } from "../../query";
+import { mapAddresses, mapIAddress } from "./mappers";
+import { find, first, get, isEmpty, isNil, some } from "lodash-es";
 
 // --- types
+import { AddressTypes } from "./types";
 import type { IAddress } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
-import { AddressTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["client", "addresses"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { useUrl, request } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Address[]>({
+  return request<QueryResponse<IAddress[]>>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
     }),
-    queryKey,
-    allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapAddresses(response?.data ?? [])),
-  }).then(({ data }) => data);
+  }).then(({ data }) => mapAddresses(data ?? []));
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+// TODO: add pagination support
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { useUrl, request } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Address[]>({
+  return request<QueryResponse<IAddress[]>>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),
-    queryKey: [...queryKey, { ...paginationParams }],
-    allowStale,
     withAccessToken: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapAddresses(response?.data ?? [])),
-    revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => data ?? []);
+  }).then(({ data }) => mapAddresses(data ?? []));
 }
 
 function loadAllFromCache() {
