@@ -24,12 +24,10 @@ export function useSchema({
       // ---
       address1: {
         type: "string",
-        title: "Address Line 1",
       },
 
       address2: {
         type: ["string", "null"],
-        title: "Address Line 2",
       },
 
       city: {
@@ -97,22 +95,29 @@ export function useUischema(): UISchemaElement {
         elements: [
           {
             type: "Control",
+            scope: "#/properties/countryId",
+            options: {
+              autocomplete: "country",
+              placeholder: "Please select a Country...",
+            },
+          },
+          {
+            type: "Control",
             scope: "#/properties/address1",
-            label: "Address", // ensure we  show the title for BOTH address fields
+            label: "Address",
             options: {
               autoFocus: true,
               autocomplete: "address-line1",
-              placeholder: "Address first line...",
+              placeholder: "House name, apartment number etc.",
             },
           },
           {
             type: "Control",
             scope: "#/properties/address2",
-            label: "", // ensure we DON'T show the title
+            label: "",
             options: {
               autocomplete: "address-line2",
-              placeholder: "Address second line...",
-              class: "-mt-8",
+              placeholder: "Road, street name etc.",
             },
           },
 
@@ -125,7 +130,7 @@ export function useUischema(): UISchemaElement {
                 scope: "#/properties/city",
                 options: {
                   autocomplete: "address-level2",
-                  placeholder: "City...",
+                  placeholder: "City, town etc.",
                 },
               },
               {
@@ -133,7 +138,7 @@ export function useUischema(): UISchemaElement {
                 scope: "#/properties/postcode",
                 options: {
                   autocomplete: "postal-code",
-                  placeholder: "Postcode...",
+                  placeholder: "eg. 10011",
                 },
               },
             ],
@@ -144,15 +149,7 @@ export function useUischema(): UISchemaElement {
             scope: "#/properties/regionId",
             options: {
               autocomplete: "address-level1",
-              placeholder: "Please select a Region...",
-            },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/countryId",
-            options: {
-              autocomplete: "country",
-              placeholder: "Please select a Country...",
+              placeholder: "Select region",
             },
           },
         ],

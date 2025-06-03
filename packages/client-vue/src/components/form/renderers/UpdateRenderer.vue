@@ -9,9 +9,10 @@
         :uischema="uischema()"
         :additional-renderers="formRenderers"
         color="secondary"
-        @update:model-value="input"
-        @resolve="update"
-        @reject="close"
+        @update:modelValue="input"
+        @resolve="doResolve"
+        @reject="doReject"
+        :processing="isProcessing"
       />
     </Dialog>
   </FormField>
@@ -45,6 +46,7 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 
 const open = ref(true);
 const isLoading = ref(true);
+const isProcessing = ref(false);
 
 const { getModel, isReady, update, input, schema, uischema, clear } =
   useSchemaComposable(control);
@@ -55,8 +57,15 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
-const close = () => {
-  open.value = false;
+const doResolve = async () => {
+  isProcessing.value = true;
+  await update();
+  clear();
+  onInput(null, false);
+  isProcessing.value = false;
+};
+
+const doReject = () => {
   clear();
   onInput(null, false);
 };
