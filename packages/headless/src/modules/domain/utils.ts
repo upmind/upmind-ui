@@ -67,8 +67,8 @@ export async function parseAvailable(
   results: IProduct[] = [],
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ): Promise<DomainProduct[]> {
-  const { getDefaultPaymentPeriod } = useBrand();
-  const defaultPaymentPeriod = preferredCycle ?? getDefaultPaymentPeriod();
+  const { defaultPaymentPeriod } = useBrand();
+  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
 
   const available = await Promise.all(
     map(results, (raw: IProduct) => {
@@ -85,7 +85,7 @@ export async function parseAvailable(
       const productDetails = parseProductDetails(raw);
       const terms = parseTermDetails(raw.prices);
       const termDetails = calculateBillingTerm(
-        defaultPaymentPeriod || raw.default_payment_period,
+        paymentPeriod || raw.default_payment_period,
         terms
       );
 

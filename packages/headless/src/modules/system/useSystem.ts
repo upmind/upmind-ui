@@ -3,7 +3,7 @@
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
-import { interpret } from "xstate";
+import { interpret, State } from "xstate";
 
 // --- internal
 
@@ -12,11 +12,26 @@ import { useBrand } from "../brand";
 
 // --- utils
 
-import { DetailedError, responseCodes } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  stateMatches,
+  useContext,
+} from "../../utils";
 import { find, isString, get, isEmpty, some, isArray, omit } from "lodash-es";
 
 // --- types
-import type { ICountry } from "@upmind-automation/types";
+import {
+  IBillingCycle,
+  ILanguage,
+  IStatus,
+  ITicketDepartment,
+  type ICountry,
+  type ICurrency,
+  type IRegion,
+} from "@upmind-automation/types";
+import { ResponseError } from "../query";
+import { SystemContext } from "./types";
 
 // ---------------------------------------------------------------------------
 
@@ -27,11 +42,7 @@ import type { ICountry } from "@upmind-automation/types";
  * @returns An object containing the system state, context, errors, responses, meta, and fetch utilities.
  */
 export const useSystem = () => {
-  const {
-    isReady: brandIsReady,
-    getCountry: getDefaultCountry,
-    getCurrencyId: getDefaultCurrency,
-  } = useBrand();
+  const { isReady: brandIsReady, countryId, currencyId } = useBrand();
 
   // --- state
 
@@ -59,26 +70,7 @@ export const useSystem = () => {
     );
 
   const meta = computed(() => ({
-    isLoading: [
-      "currencies.loading",
-      "billingCycles.loading",
-      "countries.loading",
-      "regions.loading",
-      "languages.loading",
-      "statuses.loading",
-      "departments.loading",
-    ].some(state.value.matches),
-    isReady: isReady(),
-    isComplete: [
-      "currencies.complete",
-      "billingCycles.complete",
-      "countries.complete",
-      "regions.complete",
-      "languages.complete",
-      "statuses.complete",
-      "departments.complete",
-    ].every(state.value.matches),
-    hasErrors: [
+    hasErrors: stateMatches(state, [
       "organisation.error",
       "config.error",
       "settings.error",
@@ -89,20 +81,39 @@ export const useSystem = () => {
       "languages.error",
       "statuses.error",
       "departments.error",
-    ].some(state.value.matches),
+    ]),
+    isComplete: [
+      "currencies.complete",
+      "billingCycles.complete",
+      "countries.complete",
+      "regions.complete",
+      "languages.complete",
+      "statuses.complete",
+      "departments.complete",
+    ].every(state.value.matches),
+    isLoading: stateMatches(state, [
+      "currencies.loading",
+      "billingCycles.loading",
+      "countries.loading",
+      "regions.loading",
+      "languages.loading",
+      "statuses.loading",
+      "departments.loading",
+    ]),
+    isReady: isReady(),
   }));
 
   // --- context
 
-  const context = computed(() => state.value.context);
-  const errors = computed(() => state.value.context?.error);
-  const responses = computed(() => omit(state.value.context, "error"));
-  const billingCycles = computed(() => state.value.context.billingCycles);
-  const currencies = computed(() => state.value.context.currencies);
-  const countries = computed(() => state.value.context.countries);
-  const languages = computed(() => state.value.context.languages);
-  const statuses = computed(() => state.value.context.statuses);
-  const departments = computed(() => state.value.context.departments);
+  const context = useContext<SystemContext>(state);
+  const errors = useContext<ResponseError>(state, "error");
+  const billingCycles = useContext<IBillingCycle[]>(state, "billingCycles", []);
+  const currencies = useContext<ICurrency[]>(state, "currencies", []);
+  const countries = useContext<ICountry[]>(state, "countries", []);
+  const regions = useContext<IRegion[]>(state, "regions", {});
+  const languages = useContext<ILanguage[]>(state, "languages", []);
+  const statuses = useContext<IStatus[]>(state, "statuses", []);
+  const departments = useContext<ITicketDepartment[]>(state, "departments", []);
 
   // --- helpers
 
@@ -146,7 +157,7 @@ export const useSystem = () => {
           if (state.matches(`${node}.processed`)) {
             resolve(getValues(data));
           } else {
-            reject(get(state, `context.error.${node}`));
+            reject(get(errors.value, node));
           }
         })
         .catch(error => {
@@ -157,57 +168,50 @@ export const useSystem = () => {
 
   // --- methods
 
-  function getCurrency(value?: string) {
+  function getCurrency(value?: string): ICurrency {
     // if we are not passed a country, then we need to get the default country
-    value ??= getDefaultCurrency();
+    value ??= currencyId.value;
 
     if (value?.length == 3)
-      return find(state.value.context.currencies, ["code", value]);
-    return find(state.value.context.currencies, ["id", value]);
+      return (find(currencies.value, ["code", value]) ??
+        find(currencies.value, ["id", currencyId.value])) as ICurrency;
+
+    return (find(currencies.value, ["id", value]) ??
+      find(currencies.value, ["id", currencyId.value])) as ICurrency;
   }
 
   function getBillingCycle(value: number) {
-    return find(state.value.context.billingCycles, ["months", value]);
+    return find(billingCycles.value, ["months", value]);
   }
 
   function getCountry(value?: string): ICountry {
     // if we are not passed a country, then we need to get the default country
-    value ??= getDefaultCountry();
+    value ??= countryId.value;
 
     if (value?.length == 2)
-      return (
-        (find(state.value.context.countries, ["code", value]) as ICountry) ??
-        getDefaultCountry()
-      );
-    return (
-      (find(state.value.context.countries, ["id", value]) as ICountry) ??
-      getDefaultCountry()
-    );
+      return (find(countries.value, ["code", value]) ??
+        find(countries.value, ["id", countryId.value])) as ICountry;
+
+    return (find(countries.value, ["id", value]) ??
+      find(countries.value, ["id", countryId.value])) as ICountry;
   }
 
-  async function fetchRegions(country?: ICountry | string) {
+  async function fetchRegions(country?: ICountry | string): Promise<IRegion[]> {
     // if we are not passed a country, then we need to get the default country
-
-    if (isEmpty(country)) {
-      // ensure we have our brand settings loaded before we try to get the default country
-      await isReady().catch(error => Promise.reject(error));
-      country = getDefaultCountry();
-    }
+    country ??= countryId.value;
 
     //  ensure we have a country object in order to fetch regions
     if (isString(country)) country = getCountry(country);
 
-    if (!country)
-      return Promise.reject(new Error("Country not found, cannot get regions"));
+    if (!country) return Promise.resolve([]);
 
     return fetch("regions", getRegions, country);
   }
 
-  function getRegions(value: string | ICountry) {
-    return get(
-      state.value?.context?.regions,
-      isString(value) ? value : value.code
-    );
+  function getRegions(value: string | ICountry): IRegion[] | undefined {
+    return get(regions.value, isString(value) ? value : value.code) as
+      | IRegion[]
+      | undefined;
   }
 
   function getRegion(values: string | string[], country: string | ICountry) {
@@ -231,15 +235,15 @@ export const useSystem = () => {
   }
 
   function getLanguage(value: string) {
-    return find(state.value.context.languages, ["code", value]);
+    return find(languages.value, ["code", value]);
   }
 
   function getStatus(value: string) {
-    return find(state.value.context.statuses, ["code", value]);
+    return find(statuses.value, ["code", value]);
   }
 
   function getDepartment(value: string) {
-    return find(state.value.context.departments, ["code", value]);
+    return find(departments.value, ["code", value]);
   }
 
   // ---------------------------------------------------------------------------
@@ -257,7 +261,12 @@ export const useSystem = () => {
     isReady,
 
     /**
-     * Computed meta information about the brand state (errors, loading, etc).
+     * Meta information about the system state.
+     * @typedef {Object} SystemMeta
+     * @property {boolean} hasErrors - Indicates if there are any errors in the system process.
+     * @property {boolean} isComplete - Indicates if the system process is complete.
+     * @property {boolean} isLoading - Indicates if the system is currently loading.
+     * @property {boolean} isReady - Indicates if the system is ready for use.
      */
     meta,
 
@@ -270,11 +279,6 @@ export const useSystem = () => {
      * Computed property to any errors encountered during the system state machine's process.
      */
     errors,
-
-    /**
-     * Computed property to the structured responses from the state machine context, excluding errors.
-     */
-    responses,
 
     // --- context
     /**

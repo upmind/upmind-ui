@@ -99,10 +99,12 @@ const safeState = (stateLike: StateLike): State<any> | undefined => {
 // --- state matching
 export const stateMatches = (
   stateLike: StateLike,
-  states: string[],
+  states: string | string[],
   matchAll: boolean = false
 ): boolean => {
   const state = safeState(stateLike);
+
+  states = isArray(states) ? states : [states];
 
   if (!isFunction(state?.matches)) return false;
 
@@ -111,12 +113,14 @@ export const stateMatches = (
 
 export const contextMatches = (
   stateLike: StateLike,
-  props: string[],
+  props: string | string[],
   value?: any
 ): boolean => {
   const context = stateValue(stateLike, "context");
 
   if (isEmpty(context) || isEmpty(props)) return false;
+
+  props = isArray(props) ? props : [props];
 
   return some(props, prop => {
     const propValue = get(context, prop);
@@ -133,11 +137,13 @@ export const contextMatches = (
 
 export const machineMatches = (
   machine: ActorRef<any> | ComputedRef<ActorRef<any>> | Ref<ActorRef<any>>,
-  states: string[]
+  states: string | string[]
 ): boolean => {
   machine = unref(machine);
 
   if (!machine || isEmpty(states)) return false;
+
+  states = isArray(states) ? states : [states];
 
   const state = safeState(machine);
 

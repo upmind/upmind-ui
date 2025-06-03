@@ -18,7 +18,7 @@ This document defines the strict composable and TypeScript code style rules for 
 
   - Use this guide as a checklist for every review—do not approve PRs with any violations.
   - For each composable/utility, verify:
-    - Section grouping and alphabetization
+    - Section grouping and alphabetisation
     - JSDoc placement (only above return properties)
     - No internal state/machine exposure
     - Lodash usage for all utility/array/object operations
@@ -30,7 +30,7 @@ This document defines the strict composable and TypeScript code style rules for 
 - **For automation/AI agents:**
   - Always read and apply every rule in this guide when generating or editing code in this repository.
   - When asked to review or refactor code, first read DEVX.md, then:
-    - Check for section grouping, alphabetization, and JSDoc placement
+    - Check for section grouping, alphabetisation, and JSDoc placement
     - Ensure no JSDoc above function declarations—only above return properties
     - Never expose internal state/machines or add redundant computed/refs
     - Enforce Lodash usage for all utility/array/object operations
@@ -71,18 +71,17 @@ Strict adherence to these rules ensures:
 | Do                                            | Don't                                           |
 | --------------------------------------------- | ----------------------------------------------- |
 | Use computed properties for state collections | Use getter methods for collections              |
-| Group and alphabetize all returns             | Mix return order or groupings                   |
+| Group all returns                             | Mix return order or groupings                   |
 | JSDoc only above return properties            | JSDoc above returned functions/variables        |
 | Use Lodash for all utility/array/object ops   | Use native JS for utility/array/object ops      |
 | Use section separators and spacing            | Omit section separators or inconsistent spacing |
 | Export and use a composable return type       | Return untyped objects from composables         |
-| Strictly alphabetize within each section      | Leave returns unordered                         |
+| Preferably alphabetize within each section    | Leave returns unordered                         |
 
 ---
 
 ## Common Pitfalls
 
-- Forgetting to alphabetize properties within each return section.
 - Placing JSDoc above function declarations instead of above return properties.
 - Exposing internal state/machines or refs directly.
 - Not exporting a return type for the composable.
@@ -103,7 +102,7 @@ Strict adherence to these rules ensures:
   - `// --- methods (public methods)`
   - `// --- utils ( reusable utility functions )`
     (in that order if present)
-- Within each section, properties must be strictly alphabetized.
+- Within each section, properties are preferred to be alphabetized.
 - Every returned property must have a JSDoc comment directly above it in the return object.
 - For public methods: **No JSDoc comments above function or variable declarations**—only above returned properties. This is so we can generate documentation from the return object instead of the function itself.
 - For private methods: JSDoc comments are allowed above the function declaration, but they should not be included in the return object.
@@ -265,3 +264,39 @@ export const useSample = () => {
  */
 export type UseSampleReturn = ReturnType<typeof useSample>;
 ```
+
+---
+
+## DEVX Rules
+
+- All composables must export their return type using:
+
+  ```ts
+  export type UseX = ReturnType<typeof useX>;
+  ```
+
+  This ensures type safety and enables consumers to use the composable's return type in their own code and documentation.
+
+## Meta Object JSDoc Requirements
+
+When returning a `meta` object from a composable, you must include a detailed JSDoc typedef above the property in the return object. This typedef should:
+
+- Use `@typedef` to define the meta object type.
+- List and describe all fields of the meta object.
+- Be placed directly above the `meta` property in the return object, with a blank line between the comment and the property.
+- Follow the style shown in `useSystemUpload`:
+
+```typescript
+/**
+ * Meta information about the upload state.
+ * @typedef {Object} UploadMeta
+ * @property {boolean} isLoading - Indicates if the upload is currently loading.
+ * @property {boolean} isProcessing - Indicates if the upload is currently processing.
+ * @property {boolean} isComplete - Indicates if the upload has been completed.
+ * @property {boolean} hasErrors - Indicates if there are any errors in the upload process.
+ * @property {boolean} hasFile - Indicates if a file has been uploaded.
+ */
+meta,
+```
+
+All composables that return a `meta` object must follow this documentation pattern for clarity and consistency.
