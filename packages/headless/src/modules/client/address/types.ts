@@ -34,7 +34,7 @@ export interface Address extends AddressModel {
   // --- identifiers
   id: IAddress["id"];
   clientId: IAddress["client_id"];
-  // --- computed
+  // --- context
   title: string;
   description: string;
   // --- meta info

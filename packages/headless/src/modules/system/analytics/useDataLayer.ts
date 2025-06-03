@@ -68,10 +68,9 @@ class TrackingEvent {
   }
 
   withPage(router?: PageRoute): TrackingEvent {
-    const { getLocale } = useSystemI18n();
+    const { locale } = useSystemI18n();
     const { getPOP } = usePOP();
 
-    const locale = getLocale();
     const POP = getPOP();
     const version = packageJson?.version; // TODO: Come up with a relevant version number: which Pkg should provide this?
 
@@ -80,7 +79,7 @@ class TrackingEvent {
         page_type: router?.to?.name,
         environment: POP.name,
         version,
-        language: locale?.toLocaleUpperCase(),
+        language: locale.value?.toLocaleUpperCase(),
         current_url: router?.to?.fullPath,
         previous_url: router?.from?.fullPath,
       },
@@ -191,22 +190,22 @@ class TrackingEvent {
 // -----------------------------------------------------------------------------
 
 /**
- * Hook to manage the data layer for tracking and analytics.
+ * Composable for managing the data layer for tracking and analytics.
  *
  * @param {string} dataLayer - The name of the data layer to be used.
- * @returns {Object} An object containing the name of the data layer, an initialise function, and a track function.
- *
- * @property {string} name - The name of the data layer.
- * @property {Function} initialise - Function to initialise the data layer with default consent settings and initial push.
- * @property {Function} track - Function to create a new tracking event.
+ * @returns {object} Grouped and documented returns for data layer management.
  */
 export const useDataLayer = (dataLayer: string = "dataLayer") => {
   DATA_LAYER = (window.dataLayer =
     window.dataLayer || []) as Window["dataLayer"];
   UETQ = window["uetq"] = window["uetq"] || [];
 
+  // --- state
+
+  const id = dataLayer;
+
   function init(): Promise<void> {
-    // ---  Init the contsent manager
+    // ---  Init the consent manager
     DATA_LAYER.push([
       "consent",
       "default",
@@ -232,31 +231,48 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
     return Promise.resolve();
   }
 
-  // ---
+  function dataLayerEvent(args: Record<string, any> = {}) {
+    let event: TrackingEvent | null = new TrackingEvent(args);
+    setTimeout(() => {
+      if (event && !event?.complete) {
+        console.warn(
+          "Tracking event not pushed after 3 seconds. Pushing now...",
+          event.args
+        );
+        event.push();
+      }
+      event = null;
+    }, useTime().SECOND * 3);
+    return event;
+  }
 
+  // --- return
   return {
-    id: dataLayer,
+    // --- context
+
+    /**
+     * The name/id of the data layer.
+     */
+    id,
+
+    // --- methods
+
+    /**
+     * Initializes the data layer with default consent settings and initial push.
+     * @returns {Promise<void>} Resolves when initialization is complete.
+     */
     init,
-    dataLayer: (args: Record<string, any> = {}) => {
-      let event: TrackingEvent | null = new TrackingEvent(args);
 
-      // let's be sensible and add some synthetic sugar and housekeeping.
-      // a track event should not be long-lived, so we will push it to the data layer after a short delay to allow the user to push manually,
-      // and after pushing/complete we will destroy the event to avoid memory leaks.
-      setTimeout(() => {
-        if (event && !event?.complete) {
-          console.warn(
-            "Tracking event not pushed after 3 seconds. Pushing now...",
-            event.args
-          );
-          event.push();
-        }
-
-        // clean up
-        event = null;
-      }, useTime().SECOND * 3);
-
-      return event;
-    },
+    /**
+     * Creates a new tracking event for the data layer.
+     * @param {Record<string, any>} args - Arguments for the tracking event.
+     * @returns {TrackingEvent} The tracking event instance.
+     */
+    dataLayer: dataLayerEvent,
   };
 };
+
+/**
+ * The return type of useBrand composable.
+ */
+export type UseDataLayer = ReturnType<typeof useDataLayer>;

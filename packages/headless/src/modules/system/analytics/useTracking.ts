@@ -12,7 +12,6 @@ import {
   set,
   reduce,
   pick,
-  remove,
 } from "lodash-es";
 import { useCookies } from "../../../utils";
 
@@ -32,6 +31,10 @@ interface IUpmState {
 // -----------------------------------------------------------------------------
 
 export const useTracking = () => {
+  const { get: getCookie, set: setCookie, remove: removeCookie } = useCookies();
+
+  // --- state
+
   const base = reduce(
     UPM_TRACK_KEYS,
     (result, key) => {
@@ -40,9 +43,9 @@ export const useTracking = () => {
     },
     {}
   );
-  const { get: getCookie, set: setCookie, remove: remove } = useCookies();
 
-  // ---
+  // --- methods
+
   function cleanParams() {
     const url = new URL(window.location.toString());
     const cleanUrl = new URL(window.location.toString());
@@ -61,8 +64,6 @@ export const useTracking = () => {
       window.history.replaceState("", "", cleanUrl);
     }
   }
-
-  // ---
 
   function getTracking() {
     return new Promise((resolve, reject) => {
@@ -129,10 +130,30 @@ export const useTracking = () => {
     );
   }
 
-  // ---
+  function remove() {
+    removeCookie(UPM_TRACK_COOKIE);
+  }
+
+  // ---------------------------------------------------------------------------
   return {
-    init,
+    // --- methods
+
+    /**
+     * Gets the current tracking cookie values.
+     * @returns {Promise<Record<string, string|null>>} Resolves to the tracking values.
+     */
     get: getTracking,
-    remove: () => remove(UPM_TRACK_COOKIE),
+
+    /**
+     * Initializes the tracking cookie from query params if not present.
+     * @returns {Promise<Record<string, string|null>|null>} Resolves to the tracking values or null.
+     */
+    init,
+
+    /**
+     * Removes the tracking cookie.
+     * @returns {void}
+     */
+    remove,
   };
 };

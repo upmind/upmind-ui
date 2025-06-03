@@ -15,7 +15,7 @@ import type { ICompany, ICountry, IRegion } from "@upmind-automation/types";
 
 export type UnifiedAddress = UnifiedAddressModel & {
   id: string;
-  // --- computed
+  // --- context
   title: string;
   description: string;
   // --- meta info

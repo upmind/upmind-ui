@@ -12,18 +12,13 @@ import brandMachine from "./brand.machine";
 // --- utils
 
 import { DetailedError, UnavailableError, responseCodes } from "../../utils";
+import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 import {
-  get,
-  pick,
-  isArray,
-  find,
-  some,
-  first,
-  isEmpty,
-  isObject,
-  reduce,
-  set,
-} from "lodash-es";
+  useContext,
+  contextValue,
+  contextMatches,
+  stateMatches,
+} from "../../utils";
 
 // --- types
 
@@ -31,14 +26,16 @@ import {
   BrandTaxType,
   BrandConfigKeys,
   ILanguage,
+  ICurrency,
+  DefaultPaymentPeriod,
 } from "@upmind-automation/types";
+import { BrandContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
 export const useBrand = () => {
   // --- state
   const service = interpret(brandMachine, { devTools: false }).start();
-
   const { state, send } = useActor(service);
 
   async function isReady(): Promise<boolean> {
@@ -59,20 +56,21 @@ export const useBrand = () => {
     });
   }
 
-  const hasModuleEnabled = (code: string) =>
-    some(state.value.context?.modules, ["code", code]);
+  function hasModuleEnabled(code: string): boolean {
+    return some(state.value.context?.modules, ["code", code]);
+  }
 
   const meta = computed(() => ({
-    hasErrors: [
+    hasErrors: stateMatches(state, [
       "organisation.error",
       "config.error",
       "settings.error",
       "modules.error",
       "currencies.error",
-    ].some(state.value.matches),
-    isComplete: state.value.matches("complete"),
-    isLoading: state.value.matches("processing"),
-    isAvailable: [
+    ]),
+    isComplete: stateMatches(state, ["complete"]),
+    isLoading: stateMatches(state, ["processing"]),
+    isAvailable: stateMatches(state, [
       "processing.organisation.idle",
       "processing.config.idle",
       "processing.settings.idle",
@@ -83,49 +81,60 @@ export const useBrand = () => {
       "processing.settings.complete",
       "processing.modules.complete",
       "processing.currencies.complete",
-    ].some(state.value.matches),
+    ]),
   }));
 
   // --- context
 
-  const brandId = computed(() => state.value.context?.id);
+  const brandId = useContext<string>(state, "id");
 
-  const context = computed(() => state.value.context);
+  const context = useContext<BrandContext>(state);
 
-  const defaultCurrency = computed(() => {
-    return (
-      find(state.value.context?.currencies, [
-        "id",
-        state.value.context?.currency_id,
-      ]) || first(state.value.context?.currencies)
+  const countryId = useContext<string>(state, "country_id");
+
+  const currencyId = useContext<ICurrency["id"]>(state, "currency_id");
+
+  const currencies = useContext<ICurrency[]>(state, "currencies", []);
+
+  const currency = computed(
+    (): ICurrency["id"] | undefined =>
+      find(currencies.value, ["id", currencyId.value]) as
+        | ICurrency["id"]
+        | undefined
+  );
+
+  const defaultCurrency = useContext<ICurrency[]>(
+    state,
+    "currencies",
+    () => first(contextValue(state, "currencies")) as ICurrency
+  );
+
+  const defaultPaymentPeriod = useContext<DefaultPaymentPeriod>(
+    state,
+    BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
+    0
+  );
+
+  const errors = useContext(state, "error");
+
+  const includesTax = !contextMatches(
+    state,
+    ["includes_tax"],
+    BrandTaxType.EXCLUDE_TAX
+  );
+
+  const languages = useContext<ILanguage>(state, "languages", []);
+
+  const language = computed((): ILanguage | undefined => {
+    const language_id = contextValue<ILanguage["id"]>(
+      state,
+      "settings.language_id"
     );
+    return (find(languages.value, ["id", language_id]) ||
+      first(languages.value)) as ILanguage | undefined;
   });
 
-  const defaultPaymentPeriod = computed(() =>
-    get(state.value.context, BrandConfigKeys.DEFAULT_PAYMENT_PERIOD, 0)
-  );
-
-  const errors = computed(() => state.value.context?.error);
-
-  const includesTax = computed(() => taxType.value != BrandTaxType.EXCLUDE_TAX);
-
-  const responses = computed(() =>
-    reduce(
-      state.value.context,
-      (result: Record<string, any>, value, key) => {
-        if (key === "error") return result;
-        if (isArray(value) || isObject(value)) {
-          set(result as object, key, value);
-        } else {
-          set(result as object, `values.${key}`, value);
-        }
-        return result;
-      },
-      { values: {} } as Record<string, any>
-    )
-  );
-
-  const taxType = computed(() => state.value.context?.tax_type);
+  const taxType = useContext(state, "tax_type");
 
   // --- methods
 
@@ -164,29 +173,6 @@ export const useBrand = () => {
     return pick(state.value.context, keys);
   };
 
-  const getCountry = () => state.value.context?.country_id;
-
-  const getCurrencies = () => state.value.context?.currencies;
-
-  const getCurrency = () =>
-    find(state.value.context.currencies, [
-      "id",
-      state.value.context?.currency_id,
-    ]);
-
-  const getCurrencyId = () => state.value.context?.currency_id;
-
-  const getLanguage = (): ILanguage => {
-    const languages = get(state, "context.settings.languages");
-    const language_id = get(state, "context.settings.language_id");
-    return (find(languages, ["id", language_id]) ||
-      first(languages)) as ILanguage;
-  };
-
-  const getLanguages = (): ILanguage[] => {
-    return get(state, "context.languages", []);
-  };
-
   const validateCurrency = async (model: { id?: string; code?: string }) => {
     await waitFor(service, state => state.matches("complete")).catch(() => {
       throw new DetailedError(
@@ -194,16 +180,14 @@ export const useBrand = () => {
         responseCodes.Timeout
       );
     });
-    if (!state.value.context?.currencies?.length) return model;
+    if (isEmpty(currencies.value)) return model;
     const defaultCurrency =
-      find(state.value.context?.currencies, [
-        "id",
-        state.value.context?.currency_id,
-      ]) || first(state.value.context?.currencies);
+      find(currencies.value, ["id", state.value.context?.currency_id]) ||
+      first(currencies.value);
     if (
       isEmpty(model) ||
       !some(
-        state.value.context?.currencies,
+        currencies.value,
         ({ id, code }) => id === model?.id || code === model?.code
       )
     )
@@ -269,6 +253,7 @@ export const useBrand = () => {
     meta,
 
     // --- context
+
     /**
      * The current brand ID.
      */
@@ -300,16 +285,32 @@ export const useBrand = () => {
     includesTax,
 
     /**
-     * All context values and objects, grouped for easy access.
-     */
-    responses,
-
-    /**
      * The tax type for the brand.
      */
     taxType,
 
+    /**
+     * The country ID for the brand.
+     */
+    countryId,
+
+    /**
+     * The current currency object for the brand.
+     */
+    currency,
+
+    /**
+     * The currency ID for the brand.
+     */
+    currencyId,
+
+    /**
+     * The current language object for the brand.
+     */
+    language,
+
     // --- methods
+
     /**
      * Ensures the given config keys are loaded and returns their values.
      * @param keys - One or more BrandConfigKeys to ensure are loaded.
@@ -336,44 +337,6 @@ export const useBrand = () => {
     getConfig,
 
     /**
-     * Gets the country ID for the brand.
-     * @returns The country ID string or undefined.
-     */
-    getCountry,
-
-    /**
-     * Gets the list of available currencies for the brand.
-     * @returns An array of currency objects or undefined.
-     */
-    getCurrencies,
-
-    /**
-     * Gets the current currency object for the brand.
-     * @returns The currency object or undefined.
-     */
-    getCurrency,
-
-    /**
-     * Gets the current currency ID for the brand.
-     * @returns The currency ID string or undefined.
-     */
-    getCurrencyId,
-
-    /**
-     * Gets the current language object for the brand.
-     * @returns The language object.
-     */
-    getLanguage,
-
-    /**
-     * Gets the list of available languages for the brand.
-     * @returns An array of language objects.
-     */
-    getLanguages,
-
-    getLocale,
-
-    /**
      * Validates and returns a supported currency object, or the default.
      * @param model - The currency model to validate ({ id?: string, code?: string }).
      * @returns A promise resolving to a valid currency object.
@@ -386,9 +349,6 @@ export const useBrand = () => {
      * @returns A promise resolving to a valid language object or undefined.
      */
     validateLanguage,
-
-    // --- utils
-    // (none currently)
   };
 };
 
