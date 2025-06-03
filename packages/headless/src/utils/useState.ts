@@ -1,7 +1,6 @@
-// ---  external
-import { ActorRef, InterpreterFrom, InterpreterStatus, State } from "xstate";
-
-// --- internal
+// --- external
+import { computed, unref } from "vue";
+import { useActor } from "@xstate/vue";
 
 // --- utils
 import {
@@ -16,6 +15,9 @@ import {
   PropertyPath,
 } from "lodash-es";
 
+// --- types
+import type { ComputedRef } from "vue";
+import { ActorRef, InterpreterFrom, InterpreterStatus, State } from "xstate";
 // -----------------------------------------------------------------------------
 
 export function stopService(machine: InterpreterFrom<any>): boolean {
@@ -123,4 +125,86 @@ export const contextValue = (
   if (isEmpty(props) || isNil(context)) return fallback;
 
   return get(context, props as PropertyPath, fallback);
+};
+
+// --- Vue helpers from headless-vue
+// --- Vue-compatible safeState (merges both approaches)
+const vueSafeState = (value: any) => {
+  let state = unref(value);
+  state = get(state, "state", state);
+  state = unref(state);
+  // fallback to xstate logic if needed
+  if (state && typeof state === "object") {
+    if ("getSnapshot" in state && isFunction(state.getSnapshot)) {
+      return state.getSnapshot();
+    }
+    if ("matches" in state && isFunction(state.matches)) {
+      return state;
+    }
+  }
+  return state;
+};
+
+// --- Vue composable helpers (from headless-vue)
+export const useState = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+): ComputedRef<any> => computed(() => stateValue(state, prop, fallback));
+
+export const useContext = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+): ComputedRef<any> => computed(() => contextValue(state, prop, fallback));
+
+export const useChildActor = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+): ComputedRef<any> => computed(() => childActor(state, prop, fallback));
+
+export const useContextActor = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+): ComputedRef<any> => computed(() => contextActor(state, prop, fallback));
+
+export const useContextActors = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+): ComputedRef<any[]> => computed(() => contextActor(state, prop, fallback));
+
+// --- Vue helpers for actors (from headless-vue)
+export const childActor = (state: any, prop?: any, fallback?: any) => {
+  state = vueSafeState(state);
+  if (!state || !prop?.length) return fallback;
+  const context = state?.children?.[prop];
+  if (isNil(context)) return fallback;
+  if (isArray(context)) return map(context, createActor);
+  return createActor(context);
+};
+
+export const contextActor = (
+  state: any,
+  prop?: string | string[],
+  fallback?: any
+) => {
+  state = vueSafeState(state);
+  if (!state || !prop?.length) return fallback;
+  const context = contextValue(state, prop);
+  if (isNil(context)) return fallback;
+  if (isArray(context)) {
+    return map(context, createActor);
+  }
+  return createActor(context);
+};
+
+export const createActor = (context: any) => {
+  const actor = useActor(context);
+  return {
+    id: context.id,
+    ...actor,
+  };
 };
