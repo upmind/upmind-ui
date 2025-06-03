@@ -1,20 +1,27 @@
+// --- external
 import { ref, computed } from "vue";
 import { useQuery, keepPreviousData } from "@tanstack/vue-query";
+
+// --- internal
 import service from "./services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { useFeedback } from "../../feedback";
 import { invalidateQueryByKey } from "../../query";
+
+// --- utils
 import {
-  isEmpty,
-  find,
-  includes,
   get,
+  find,
   every,
-  isString,
   filter,
+  isEmpty,
+  includes,
+  isString,
   isNumber,
 } from "lodash-es";
+
+// --- types
 import type { Address } from "./types";
 import type { PaginatedParams, IAPIPagination } from "../../query";
 
@@ -59,6 +66,8 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     isLoading: query?.fetchStatus.value === "fetching",
   }));
 
+  // --- methods
+
   function getOne(id: Address["id"]) {
     return find(getAllFromCache(), ["id", id]);
   }
@@ -74,8 +83,6 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   function getAllFromCache() {
     return service.loadAllFromCache();
   }
-
-  // --- methods
 
   function findOne(mapping: string | Partial<Address>) {
     const addresses = getAllFromCache();
