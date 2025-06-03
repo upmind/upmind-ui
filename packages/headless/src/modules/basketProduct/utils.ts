@@ -161,7 +161,7 @@ export function parseSummary(subproduct: IBasketProduct): ProductSummaryDetail {
 export function parsSummaryWithPrice(
   raw: IBasketProduct
 ): ProductSummaryDetailWithPrice {
-  const { checkIncludesTax } = useBrand();
+  const { includesTax } = useBrand();
 
   const summary = parseSummary(raw) as Partial<ProductSummaryDetailWithPrice>;
 
@@ -171,7 +171,7 @@ export function parsSummaryWithPrice(
     free: raw.configuration_net_amount_discounted_converted == 0,
     overrides: raw?.product?.category?.price_override,
     mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
-    includesTax: checkIncludesTax(),
+    includesTax: includesTax.value,
   };
 
   summary.promotions = parsePromotionDetails(raw);
@@ -181,29 +181,28 @@ export function parsSummaryWithPrice(
 }
 
 export function parsPrice(raw: IBasketProduct): PriceDetail {
-  const { checkIncludesTax } = useBrand();
+  const { includesTax } = useBrand();
 
-  const includesTax = checkIncludesTax();
   const discounted = raw.configuration_net_amount_discount_converted > 0;
 
-  const regularAmount = includesTax
+  const regularAmount = includesTax.value
     ? raw.configuration_total_amount_converted
     : raw.configuration_net_amount_converted;
-  const regularPrice = includesTax
+  const regularPrice = includesTax.value
     ? raw.configuration_total_amount_formatted
     : raw.configuration_net_amount_formatted;
   //  ---
-  const currentAmount = includesTax
+  const currentAmount = includesTax.value
     ? raw.configuration_total_discounted_amount_converted
     : raw.configuration_net_amount_discounted_converted;
-  const currentPrice = includesTax
+  const currentPrice = includesTax.value
     ? raw.configuration_total_discounted_amount_formatted
     : raw.configuration_net_amount_discounted_formatted;
   // ---
-  const savingAmount = includesTax
+  const savingAmount = includesTax.value
     ? raw.configuration_total_discount_amount_converted
     : raw.configuration_net_amount_discount_converted; //TODO: MISSING net price discount
-  const savingPrice = includesTax
+  const savingPrice = includesTax.value
     ? raw.configuration_total_discount_amount_formatted
     : raw.configuration_net_amount_discount_formatted;
 

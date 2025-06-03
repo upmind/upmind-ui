@@ -246,8 +246,16 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
     return event;
   }
 
-  // --- return
+  // ---------------------------------------------------------------------------
+
   return {
+    // --- state
+    /**
+     * Initializes the data layer with default consent settings and initial push.
+     * @returns {Promise<void>} Resolves when initialization is complete.
+     */
+    init,
+
     // --- context
 
     /**
@@ -256,12 +264,6 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
     id,
 
     // --- methods
-
-    /**
-     * Initializes the data layer with default consent settings and initial push.
-     * @returns {Promise<void>} Resolves when initialization is complete.
-     */
-    init,
 
     /**
      * Creates a new tracking event for the data layer.
