@@ -28,8 +28,11 @@ import {
   ILanguage,
   ICurrency,
   DefaultPaymentPeriod,
+  ICountry,
+  IBrand,
 } from "@upmind-automation/types";
 import { BrandContext } from "./types";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -86,27 +89,20 @@ export const useBrand = () => {
 
   // --- context
 
-  const brandId = useContext<string>(state, "id");
+  const brandId = useContext<IBrand["id"]>(state, "id");
 
   const context = useContext<BrandContext>(state);
 
-  const countryId = useContext<string>(state, "country_id");
+  const countryId = useContext<ICountry["id"]>(state, "country_id");
 
   const currencyId = useContext<ICurrency["id"]>(state, "currency_id");
 
   const currencies = useContext<ICurrency[]>(state, "currencies", []);
 
   const currency = computed(
-    (): ICurrency["id"] | undefined =>
-      find(currencies.value, ["id", currencyId.value]) as
-        | ICurrency["id"]
-        | undefined
-  );
-
-  const defaultCurrency = useContext<ICurrency[]>(
-    state,
-    "currencies",
-    () => first(contextValue(state, "currencies")) as ICurrency
+    (): ICurrency | undefined =>
+      find(currencies.value, ["id", currencyId.value]) ||
+      (first(state.value.context?.currencies) as ICurrency | undefined)
   );
 
   const defaultPaymentPeriod = useContext<DefaultPaymentPeriod>(
@@ -115,15 +111,14 @@ export const useBrand = () => {
     0
   );
 
-  const errors = useContext(state, "error");
+  const errors = useContext<ResponseError>(state, "error");
 
-  const includesTax = !contextMatches(
-    state,
-    ["includes_tax"],
-    BrandTaxType.EXCLUDE_TAX
+  const includesTax = computed(
+    (): boolean =>
+      !contextMatches(state, ["includes_tax"], BrandTaxType.EXCLUDE_TAX)
   );
 
-  const languages = useContext<ILanguage>(state, "languages", []);
+  const languages = useContext<ILanguage[]>(state, "languages", []);
 
   const language = computed((): ILanguage | undefined => {
     const language_id = contextValue<ILanguage["id"]>(
@@ -134,7 +129,7 @@ export const useBrand = () => {
       first(languages.value)) as ILanguage | undefined;
   });
 
-  const taxType = useContext(state, "tax_type");
+  const taxType = useContext<BrandTaxType>(state, "tax_type");
 
   // --- methods
 
@@ -158,32 +153,29 @@ export const useBrand = () => {
     return pick(state.value.context, keys);
   };
 
-  const getAnalytics = async () =>
+  const getAnalytics = async (): Promise<Record<string, any>> =>
     isReady().then(() =>
       ensureConfig([
         BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
         BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
-      ]).then((data: any) => data?.analytics)
+      ]).then((data: any) => data?.analytics || {})
     );
 
   const getConfig = (
     keys: BrandConfigKeys | BrandConfigKeys[]
   ): Record<string, any> => {
     keys = isArray(keys) ? keys : [keys];
-    return pick(state.value.context, keys);
+    return contextValue<Record<string, any>>(state, keys, {}) ?? {};
   };
 
-  const validateCurrency = async (model: { id?: string; code?: string }) => {
-    await waitFor(service, state => state.matches("complete")).catch(() => {
-      throw new DetailedError(
-        "[headless] validateCurrency on useBrand timed out",
-        responseCodes.Timeout
-      );
-    });
-    if (isEmpty(currencies.value)) return model;
-    const defaultCurrency =
-      find(currencies.value, ["id", state.value.context?.currency_id]) ||
-      first(currencies.value);
+  const validateCurrency = async (model: {
+    id?: ICurrency["id"];
+    code?: ICurrency["code"];
+  }): Promise<Partial<ICurrency> | ICurrency | undefined> => {
+    await isReady();
+
+    if (isEmpty(currencies.value)) return model as Partial<ICurrency>;
+
     if (
       isEmpty(model) ||
       !some(
@@ -191,7 +183,8 @@ export const useBrand = () => {
         ({ id, code }) => id === model?.id || code === model?.code
       )
     )
-      return defaultCurrency;
+      return currency.value as ICurrency | undefined;
+
     return model;
   };
 
@@ -265,11 +258,6 @@ export const useBrand = () => {
     context,
 
     /**
-     * The default currency object for the brand.
-     */
-    defaultCurrency,
-
-    /**
      * The default payment period for the brand.
      */
     defaultPaymentPeriod,
@@ -305,6 +293,11 @@ export const useBrand = () => {
     currencyId,
 
     /**
+     * The list of all supported currencies for the brand.
+     */
+    currencies,
+
+    /**
      * The current language object for the brand.
      */
     language,
@@ -314,13 +307,14 @@ export const useBrand = () => {
     /**
      * Ensures the given config keys are loaded and returns their values.
      * @param keys - One or more BrandConfigKeys to ensure are loaded.
-     * @returns A promise resolving to a record of config key-value pairs.
+     * @returns { Promise<Record<string, any>> } A promise resolving to a record of config key-value pairs.
+     * @throws {DetailedError} If the config keys are not available in the context or if the request times out.
      */
     ensureConfig,
 
     /**
      * Loads analytics config for the brand (GA/GTM IDs).
-     * @returns A promise resolving to the analytics config object or undefined.
+     * @returns {Promise<Record<string, any>>} A promise resolving to the analytics config object or undefined.
      */
     getAnalytics,
 
@@ -338,15 +332,17 @@ export const useBrand = () => {
 
     /**
      * Validates and returns a supported currency object, or the default.
-     * @param model - The currency model to validate ({ id?: string, code?: string }).
-     * @returns A promise resolving to a valid currency object.
+     * @param model  The currency model to validate ({ id?: string, code?: string }).
+     * @returns {Promise<Partial<ICurrency> | ICurrency | undefined>} A promise resolving to a valid currency object or undefined.
+     * @throws {DetailedError} If the currencies are not available in the context.
      */
     validateCurrency,
 
     /**
      * Validates and returns a supported language object, or the default.
      * @param model - The language model to validate ({ id?: string, code?: string }).
-     * @returns A promise resolving to a valid language object or undefined.
+     * @returns {  Promise<ILanguage | undefined>} A promise resolving to a valid language object or undefined.
+     * @throws {DetailedError} If the languages are not available in the context.
      */
     validateLanguage,
   };
