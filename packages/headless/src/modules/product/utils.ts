@@ -302,7 +302,7 @@ export const calculateBillingTerm = (
       responseCodes.Not_Found
     );
 
-  const { getDefaultPaymentPeriod } = useBrand();
+  const { defaultPaymentPeriod } = useBrand();
 
   let term;
 
@@ -317,7 +317,7 @@ export const calculateBillingTerm = (
       term = minBy(available, "price.monthlyFromCurrentAmount");
       break;
     case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(getDefaultPaymentPeriod(), available);
+      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
       break;
 
     default:
@@ -588,7 +588,7 @@ export const parseSubproductDetails = (
   data?: (IProductAttribute | IProductOption)[],
   cycle?: number
 ): SubproductDetails[] => {
-  const { checkIncludesTax } = useBrand();
+  const { includesTax } = useBrand();
 
   // safety check, bail if we have no data
   if (isEmpty(data)) return [];
@@ -663,7 +663,7 @@ export const parseSubproductDetails = (
           // NB: only show term pricing if recurring!
           oneoff: rawSubproduct.billing_cycle_months == 0,
           discounted: !!price?.meta?.discounted,
-          includesTax: checkIncludesTax(),
+          includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
           overrides: rawSubproduct.category.price_override,
           default: !!rawSubproduct?.pivot?.default,
@@ -690,7 +690,7 @@ export const parseSummaryDetail = (
   overrides?: boolean
 ): ProductSummaryDetailWithPrice => {
   const { getBillingCycle } = useSystem();
-  const { checkIncludesTax } = useBrand();
+  const { includesTax } = useBrand();
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
@@ -705,7 +705,7 @@ export const parseSummaryDetail = (
       oneoff: raw.billing_cycle_months == 0,
       mixed: raw.mixed_promotions,
       discounted,
-      includesTax: checkIncludesTax(),
+      includesTax: includesTax.value,
       free: (raw.price_discounted ?? raw.price) == 0,
       overrides: !!overrides,
     },

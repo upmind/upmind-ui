@@ -13,16 +13,15 @@ import type { CurrencyContext } from "./types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: CurrencyContext, _event: AnyEventObject) {
-  const { getCurrencies, getCurrency, isReady } = useBrand();
+  const { currencies, currency, isReady } = useBrand();
 
   await isReady().catch(error => Promise.reject(error));
-  const currencies = getCurrencies();
 
   // set our base model to match the default brand currency
-  const baseModel = getCurrency();
+  const baseModel = currency.value;
 
   return new Promise(resolve => {
-    resolve({ currencies, baseModel });
+    resolve({ currencies: currencies.value, baseModel });
   });
 }
 

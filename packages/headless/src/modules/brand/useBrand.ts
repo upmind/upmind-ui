@@ -12,13 +12,13 @@ import brandMachine from "./brand.machine";
 // --- utils
 
 import { DetailedError, UnavailableError, responseCodes } from "../../utils";
-import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 import {
   useContext,
   contextValue,
   contextMatches,
   stateMatches,
 } from "../../utils";
+import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
 // --- types
 
@@ -71,8 +71,8 @@ export const useBrand = () => {
       "modules.error",
       "currencies.error",
     ]),
-    isComplete: stateMatches(state, ["complete"]),
-    isLoading: stateMatches(state, ["processing"]),
+    isComplete: stateMatches(state, "complete"),
+    isLoading: stateMatches(state, "processing"),
     isAvailable: stateMatches(state, [
       "processing.organisation.idle",
       "processing.config.idle",
@@ -241,7 +241,12 @@ export const useBrand = () => {
     hasModuleEnabled,
 
     /**
-     * Computed meta information about the brand state (errors, loading, etc).
+     * Meta information about the brand state.
+     * @typedef {Object} BrandMeta
+     * @property {boolean} hasErrors - Indicates if there are any errors in the brand process.
+     * @property {boolean} isComplete - Indicates if the brand process is complete.
+     * @property {boolean} isLoading - Indicates if the brand is currently loading.
+     * @property {boolean} isAvailable - Indicates if the brand is available for use.
      */
     meta,
 
@@ -301,6 +306,11 @@ export const useBrand = () => {
      * The current language object for the brand.
      */
     language,
+
+    /**
+     * The  list of all supported languages for the brand.
+     */
+    languages,
 
     // --- methods
 

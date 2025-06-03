@@ -77,9 +77,10 @@ async function doFetch<T extends object = object>({
   if (!url) return Promise.reject(new Error("Invalid URL"));
 
   if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
-    const { getLocale } = useSystemI18n();
-    const locale = await getLocale();
-    if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
+    const { locale, isReady } = useSystemI18n();
+    await isReady();
+    if (!isEmpty(locale.value))
+      url.searchParams.set("lang", locale.value as string);
   }
 
   // do the fetch
