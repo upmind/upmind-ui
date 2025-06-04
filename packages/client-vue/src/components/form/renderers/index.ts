@@ -8,7 +8,7 @@ import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import AddressListRenderer, {
   tester as addressListTest,
 } from "./AddressListRenderer.vue";
-import UpdateRenderer, { tester as updateTest } from "./UpdateRenderer.vue";
+import ModelRenderer, { tester as modelTest } from "./ModelRenderer.vue";
 // -----------------------------------------------------------------------------
 
 export const formRenderers = [
@@ -16,5 +16,5 @@ export const formRenderers = [
   registerEntry(SLDRenderer, sldTest),
   registerEntry(AddressRenderer, addressTest),
   registerEntry(AddressListRenderer, addressListTest),
-  registerEntry(UpdateRenderer, updateTest),
+  registerEntry(ModelRenderer, modelTest),
 ];

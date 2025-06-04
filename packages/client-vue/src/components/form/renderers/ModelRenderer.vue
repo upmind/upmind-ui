@@ -1,7 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Dialog v-model:open="open" size="2xl">
-      <div v-if="isLoading">Loading address data...</div>
+      <div v-if="isLoading">Loading data...</div>
       <UpmForm
         v-else
         :model-value="model"
