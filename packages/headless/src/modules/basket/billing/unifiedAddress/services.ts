@@ -237,6 +237,8 @@ async function parse(
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
+  const { setDefault: setDefaultAddress } = useClientAddresses();
+  const { setDefault: setDefaultCompany } = useClientCompanies();
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
@@ -297,6 +299,14 @@ async function parse(
     // force the type as company if we have added company details
     if (safeModel?.type === ADDRESS_TYPE_KEYS.COMPANY && safeModel?.address) {
       safeModel.address.type = ADDRESS_TYPE_KEYS.COMPANY;
+    }
+
+    if (safeModel?.addressId && safeModel.addressId !== baseModel?.addressId) {
+      await setDefaultAddress(safeModel.addressId);
+    }
+
+    if (safeModel?.companyId && safeModel.companyId !== baseModel?.companyId) {
+      await setDefaultCompany(safeModel.companyId);
     }
   }
 
