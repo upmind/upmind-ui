@@ -22,28 +22,6 @@ export const useSchema = ({
 }: UnifiedAddressContext) => {
   const schema: JsonSchema = {
     type: "object",
-    properties: {
-      addressId: {
-        type: ["string", "null"],
-        default: baseModel.addressId,
-        use: useClientAddress,
-        update: "updateAddressId",
-      } as any,
-      companyId: {
-        type: ["string", "null"],
-        default: baseModel.companyId,
-        use: useClientCompany,
-        update: "updateCompanyId",
-      } as any,
-      updateAddressId: {
-        type: ["string", "null"],
-        default: null,
-      },
-      updateCompanyId: {
-        type: ["string", "null"],
-        default: null,
-      },
-    },
     oneOf: [
       {
         title: "Personal",
@@ -256,7 +234,7 @@ export const useSchema = ({
           },
           companyId: {
             type: ["string", "null"],
-            default: null,
+            default: baseModel.companyId,
           },
           updateAddressId: {
             type: ["string", "null"],
@@ -296,7 +274,7 @@ export const useSchema = ({
           },
           companyId: {
             type: ["string", "null"],
-            default: null,
+            default: baseModel.companyId,
           },
           updateAddressId: {
             type: ["string", "null"],
