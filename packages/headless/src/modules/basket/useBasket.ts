@@ -414,13 +414,13 @@ export const useBasket = (): any => {
      */
     subscribe: service.subscribe,
 
-    /**
-     * The current state of the basket machine.
-     * @typedef {Object} BasketState
-     * @property {string} value - The current state value.
-     * @property {Object} context - The current context of the basket machine.
-     */
-    state,
+    // /**
+    //  * The current state of the basket machine.
+    //  * @typedef {Object} BasketState
+    //  * @property {string} value - The current state value.
+    //  * @property {Object} context - The current context of the basket machine.
+    //  */
+    // state,
 
     /**
      * The full basket context object.

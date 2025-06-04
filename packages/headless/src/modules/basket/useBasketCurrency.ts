@@ -24,7 +24,6 @@ import { CurrencyContext, CurrencyModel } from "./currency/types";
 
 export const useBasketCurrency = () => {
   const { actors, state } = useBasket();
-  const service = useContext<ActorRef<any>>(state, "actors.currency");
   const actor = actors.currency;
 
   // --- state
@@ -32,8 +31,8 @@ export const useBasketCurrency = () => {
   async function isReady(): Promise<boolean> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (!isNil(service.value)) {
-          resolve(service.value);
+        if (!isNil(actor.value?.service)) {
+          resolve(actor.value.service);
         }
       }, 100)
     ).then(service =>
@@ -83,7 +82,7 @@ export const useBasketCurrency = () => {
     // first check if our currency has change, ie: model.code has changed
 
     const code = toRaw(unref(value))?.code?.toUpperCase();
-    const model = contextValue<CurrencyModel>(service, "model");
+    const model = contextValue<CurrencyModel>(actor, "model");
 
     // if it has not then bail
     if (!code || code == model?.code) return Promise.resolve();
@@ -92,7 +91,7 @@ export const useBasketCurrency = () => {
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      service.value as ActorRef<any>,
+      actor.value.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },

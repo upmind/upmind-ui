@@ -23,8 +23,7 @@ import { PromotionsContext, PromotionModel } from "./promotions/types";
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 export const useBasketPromotion = () => {
-  const { actors, state } = useBasket();
-  const service = useContext<ActorRef<any>>(state, "actors.promotions");
+  const { actors } = useBasket();
   const actor = actors.promotions;
 
   // --- state
@@ -32,8 +31,8 @@ export const useBasketPromotion = () => {
   async function isReady(): Promise<boolean> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (!isNil(service.value)) {
-          resolve(service.value);
+        if (!isNil(actor.value?.service)) {
+          resolve(actor.value.service);
         }
       }, 100)
     ).then(service =>
@@ -81,7 +80,7 @@ export const useBasketPromotion = () => {
 
   async function add(value?: string): Promise<void> {
     value = toRaw(unref(value));
-    const model = contextValue<PromotionModel>(service, "model");
+    const model = contextValue<PromotionModel>(actor, "model");
 
     // if it has not then bail
     if (!value) return Promise.resolve();
@@ -98,7 +97,7 @@ export const useBasketPromotion = () => {
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      service.value as ActorRef<any>,
+      actor.value?.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },
@@ -126,7 +125,7 @@ export const useBasketPromotion = () => {
   async function remove(value: PromotionModel) {
     actor.value?.send({ type: "REMOVE", data: toRaw(unref(value)) });
     return waitFor(
-      service.value as ActorRef<any>,
+      actor.value?.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },

@@ -24,8 +24,7 @@ import { FieldsContext, FieldsModel } from "./fields/types";
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 export const useBasketFields = () => {
-  const { actors, state } = useBasket();
-  const service = useContext<ActorRef<any>>(state, "actors.customFields");
+  const { actors } = useBasket();
   const actor = actors.customFields;
 
   // --- state
@@ -33,8 +32,8 @@ export const useBasketFields = () => {
   async function isReady(): Promise<boolean> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (!isNil(service.value)) {
-          resolve(service.value);
+        if (!isNil(actor.value?.service)) {
+          resolve(actor.value.service);
         }
       }, 100)
     ).then(service =>
@@ -80,7 +79,7 @@ export const useBasketFields = () => {
   async function update(value: FieldsModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
     value = toRaw(unref(value));
-    const model = contextValue<FieldsModel>(service, "model");
+    const model = contextValue<FieldsModel>(actor, "model");
 
     // if it has not then bail
     if (!value || isEqual(model, value)) {
@@ -90,7 +89,7 @@ export const useBasketFields = () => {
     }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      service.value as ActorRef<any>,
+      actor.value.service,
       state => stateMatches(state, ["processed", "complete", "error"]),
       { timeout: 60_000 }
     )

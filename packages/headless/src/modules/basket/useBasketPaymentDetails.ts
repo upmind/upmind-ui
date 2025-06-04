@@ -31,8 +31,7 @@ import {
 // We allow an actor to be passed in, but if not, we will use the basket service and wait for the 'actor'' machine to be ready
 
 export const useBasketPaymentDetails = () => {
-  const { actors, state } = useBasket();
-  const service = useContext<ActorRef<any>>(state, "actors.paymentDetails");
+  const { actors } = useBasket();
   const actor = actors.paymentDetails;
 
   // --- state
@@ -40,8 +39,8 @@ export const useBasketPaymentDetails = () => {
   async function isReady(): Promise<boolean> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (!isNil(service.value)) {
-          resolve(service.value);
+        if (!isNil(actor.value?.service)) {
+          resolve(actor.value.service);
         }
       }, 100)
     ).then(service =>
@@ -108,7 +107,7 @@ export const useBasketPaymentDetails = () => {
     }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      service.value as ActorRef<any>,
+      actor.value.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },
