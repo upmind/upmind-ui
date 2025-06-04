@@ -1,34 +1,34 @@
 // --- external
 
 // --- internal
-import { useSystemI18n } from "../system";
 import { useQuery } from ".";
 import { useSession } from "../session";
 import { useFeedback } from "../feedback";
+import { useSystemI18n } from "../system";
 const { add } = useFeedback();
 
 // --- utils
-import { responseCodes } from "../../utils";
-import {
-  getTokenFromStorage,
-  persistTokenToStorage,
-  dumpTokenFromStorage,
-} from "../session/utils";
 import {
   get,
-  includes,
-  isEmpty,
   map,
   set,
-  startsWith,
+  isEmpty,
+  includes,
   upperCase,
+  startsWith,
 } from "lodash-es";
+import {
+  getTokenFromStorage,
+  dumpTokenFromStorage,
+  persistTokenToStorage,
+} from "../session/utils";
+import { responseCodes } from "../../utils";
+import { messageDisplays, messageTypes } from "../feedback";
 
 // --- types
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
-import { RequestParams, ResponseError, Response } from "./types";
-import { messageDisplays, messageTypes } from "../feedback/types";
+import type { RequestParams, Response } from "./types";
 
 // -----------------------------------------------------------------------------
 function handleError(
@@ -64,7 +64,7 @@ function handleError(
   });
 }
 
-async function doFetch<T extends object = object>({
+async function doFetch<T extends any = any>({
   url,
   init,
 }: RequestParams): Promise<T> {

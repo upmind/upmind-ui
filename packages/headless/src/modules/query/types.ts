@@ -1,9 +1,6 @@
 // --- utils
 import { responseCodes } from "src/utils";
 
-// --- types
-import type { EnsureQueryDataOptions } from "@tanstack/vue-query";
-
 // -----------------------------------------------------------------------------
 
 export interface ResponseError {
@@ -22,27 +19,11 @@ export interface Response {
   messages: string[] | null;
 }
 
-export interface PaginatedError {
-  id: null;
-  code: number;
-  data: null;
-  type: number;
-  message: string;
-}
-
 export interface RequestParams {
   url: URL;
   data?: unknown;
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
-  transformResponse?: (response: unknown) => unknown;
-  mapPaginatedData?: (response?: QueryResponse<any>) => PaginatedData<any>;
-}
-
-export interface QueryParams<T extends unknown>
-  extends RequestParams,
-    Omit<EnsureQueryDataOptions<T>, "queryFn"> {
-  allowStale?: boolean;
 }
 
 export interface PaginatedParams {
@@ -85,11 +66,6 @@ export interface PaginatedData<T extends unknown> {
 }
 
 // ---  ENUMS
-
-export enum ResponseStatus {
-  OK = "ok",
-  ERROR = "error",
-}
 
 export enum ApiSortDirection {
   ASC = "",
