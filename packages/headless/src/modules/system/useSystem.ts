@@ -401,4 +401,4 @@ export const useSystem = () => {
 /**
  * The return type of useSystem composable.
  */
-export type UseSystemReturn = ReturnType<typeof useSystem>;
+export type UseSystem = ReturnType<typeof useSystem>;

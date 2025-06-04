@@ -40,9 +40,7 @@ export const useBasketPromotion = () => {
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
-        {
-          timeout: Infinity, // infinity = no timeout
-        }
+        { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;
         return true;
@@ -115,7 +113,7 @@ export const useBasketPromotion = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] add Promotion on basket failed",
-            responseCodes.Timeout,
+            error?.status ?? responseCodes.Timeout,
             {
               error,
               state: actor.value?.state.value,
@@ -230,4 +228,4 @@ export const useBasketPromotion = () => {
 /**
  * The return type of useBasketPromotion composable.
  */
-export type UseBasketPromotionReturn = ReturnType<typeof useBasketPromotion>;
+export type UseBasketPromotion = ReturnType<typeof useBasketPromotion>;

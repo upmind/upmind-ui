@@ -92,4 +92,4 @@ export const useTransfer = () => {
 /**
  * The return type of useTransfer composable.
  */
-export type UseTransferReturn = ReturnType<typeof useTransfer>;
+export type UseTransfer = ReturnType<typeof useTransfer>;

@@ -51,7 +51,7 @@ export const useClientPhone = (
     // ---
     isReady: async () => {
       return waitFor(service, state => state.matches("available"), {
-        timeout: Infinity, // infinity = no timeout
+        timeout: Infinity,
       });
     },
     clear: () => service.send({ type: "CLEAR" }),
