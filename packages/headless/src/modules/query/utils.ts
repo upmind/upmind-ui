@@ -1,5 +1,10 @@
 // --- external
-import { isServer, QueryKey, QueryClient } from "@tanstack/query-core";
+import {
+  isServer,
+  QueryKey,
+  QueryClient,
+  QueryFilters,
+} from "@tanstack/query-core";
 
 // --- utils
 import { useQuery } from "./useQuery";
@@ -105,16 +110,19 @@ export function parseData(data: any) {
  * Invalidate a query by its key.
  * Perfect for invalidating a query after a mutation on a thenable
  * @param queryKey The key of the query to invalidate
+ * @param filters Optional filters to apply when invalidating the query
  * @returns A function that takes the data and returns it after invalidating the query
  * @example
  *    put({ url: "/clients/address/1", data: { name: "New Name" } })
  *       .then(invalidateQueryByKey(["clients", client.id, "addresses"]))
  */
 export const invalidateQueryByKey =
-  (queryKey: QueryKey) =>
+  (queryKey: QueryKey, filters?: QueryFilters) =>
   async <T = any>(data: T) => {
     const { queryClient } = useQuery();
-    return queryClient.invalidateQueries({ queryKey }).then(() => data);
+    return queryClient
+      .invalidateQueries({ queryKey, ...filters })
+      .then(() => data);
   };
 
 export const resetQueryByKey =
