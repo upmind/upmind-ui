@@ -66,7 +66,7 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   }
 
   const meta = computed(() => ({
-    isError: !isEmpty(query.error),
+    isError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isLoading: query?.fetchStatus.value === "fetching",
   }));
