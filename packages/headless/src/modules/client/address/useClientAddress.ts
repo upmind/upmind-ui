@@ -13,11 +13,11 @@ import { useClientAddressServices } from "./services";
 // --- utils
 import {
   useContext,
+  contextValue,
+  stateMatches,
   DetailedError,
   responseCodes,
   UnavailableError,
-  stateMatches,
-  contextValue,
 } from "../../../utils";
 import { get } from "lodash-es";
 
@@ -80,9 +80,9 @@ export const useClientAddress = (
     isLoading: stateMatches(state, "processing"),
     hasErrors: stateMatches(state, "available.valid"),
     canRemove: !contextValue(state, "model.id"),
-    isDefault: !!stateMatches(state, "model.canDelete"),
-    isVerified: !!stateMatches(state, "model.default"),
-    isComplete: !!stateMatches(state, "model.verified"),
+    isDefault: stateMatches(state, "model.canDelete"),
+    isVerified: stateMatches(state, "model.default"),
+    isComplete: stateMatches(state, "model.verified"),
     isProcessing: state.value.done || stateMatches(state, "complete"),
   }));
 

@@ -4,8 +4,8 @@ import { doFetch, refreshToken } from "./services";
 // --- utils
 import { useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 import { get, set, unset, isString, isFunction } from "lodash-es";
+import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 
 // --- types
 import {
@@ -22,7 +22,7 @@ const queryClient = getQueryClient();
 
 export const useQuery = () => {
   /**
-   * Sends a request  with the given URL and options.
+   * Sends a request with the given URL and options.
    * @see {@link RequestParams}
    * @name request
    * @async
@@ -57,8 +57,8 @@ export const useQuery = () => {
       set(init, "headers.Content-Type", "application/json");
     }
 
-    // Enforce Authorization header, if required
-    // also allow us to pass a custom token, for eg 2fa
+    // Enforce Authorization header, if required,
+    // also allow us to pass a custom token, for e.g., 2fa
     if (withAccessToken) {
       const token = isString(withAccessToken)
         ? withAccessToken
@@ -84,7 +84,7 @@ export const useQuery = () => {
         const requestError = error as ResponseError;
         attempts++;
 
-        // allow us to retry the request if we have a 401 error, but only once ( we dont want an infinite loop )
+        // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
         if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
           return refreshToken().then(() => {
             // get the new access token and update the access token in the request
@@ -92,7 +92,7 @@ export const useQuery = () => {
               init,
               `headers.Authorization`,
               `Bearer ${getTokenFromStorage()?.access_token}`
-            ); // finally rety the request
+            ); // finally, retry the request
             return doFetch<T>({ url, init });
           });
         }
@@ -112,7 +112,7 @@ export const useQuery = () => {
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
    * @param mapPaginatedData A function to map the paginated data returned from the server. This is useful for transforming the data into a format that is easier to work with.
    * @param transformResponse A function to transform the response data returned from the server. This is useful for transforming the data into a format that is easier to work with.
    * @param options Additional options to pass to TanStack query.
@@ -173,7 +173,7 @@ export const useQuery = () => {
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
@@ -205,7 +205,7 @@ export const useQuery = () => {
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
@@ -237,7 +237,7 @@ export const useQuery = () => {
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
@@ -268,7 +268,7 @@ export const useQuery = () => {
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
@@ -299,7 +299,7 @@ export const useQuery = () => {
    *
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
@@ -312,7 +312,7 @@ export const useQuery = () => {
     // safeguard
     init ??= {};
 
-    // Enforce method & header
+    // Enforce method and header
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
