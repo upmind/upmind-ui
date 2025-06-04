@@ -429,15 +429,12 @@ export const useUischema = ({
         scope: "#/properties/addressId",
         options: {
           label: "Address",
-          oneOf: map(
-            filter(addresses || [], item => item.type === 1),
-            item => ({
-              id: item.id,
-              title: item.title,
-              description: item.description,
-              item: item,
-            })
-          ),
+          oneOf: map(addresses || [], item => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            item: item,
+          })),
         },
         rule: {
           effect: "SHOW",
