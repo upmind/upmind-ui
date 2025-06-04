@@ -229,7 +229,7 @@ export const useSession = () => {
       });
   }
 
-  async function getUserId(): Promise<string | undefined> {
+  async function getUserId(): Promise<User["id"] | undefined> {
     return getUser()
       .then(user => user?.id)
       .catch(() => undefined);
@@ -516,6 +516,8 @@ export const useSession = () => {
   return {
     // --- state
 
+    subscribe: service.subscribe,
+
     /**
      * Promise that resolves when the session is ready to be used.
      * Typically used to wait for initialization and loading of session data.
@@ -590,6 +592,20 @@ export const useSession = () => {
      * User-specific information for the currently authenticated user, including profile and account data.
      */
     user,
+
+    // --- methods
+
+    /**
+     * Retrieves the user object of the currently authenticated user.
+     * @returns {Promise<User>} A promise that resolves with the user object if available, or throws an error if not authenticated.
+     */
+    getUser,
+
+    /**
+     * Retrieves the user ID of the currently authenticated user.
+     * @returns {Promise<User["id"] | undefined>} A promise that resolves with the user ID if available, or undefined if not authenticated.
+     */
+    getUserId,
 
     /**
      * Function to reject an ongoing authentication or registration request.
