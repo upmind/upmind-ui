@@ -64,9 +64,9 @@ const props = defineProps<RendererProps<ControlElement>>();
 const jsonFormsControl = useJsonFormsControl(props);
 const { control, formFieldProps, onInput, handleChange } =
   useUpmindUIRenderer(jsonFormsControl);
-const { setDefault } = useBillingDetails();
 
-const { input } = useSchemaComposable(control);
+// TODO: We can make this generic for all composables
+const { setDefault } = useBillingDetails();
 
 const open = ref(false);
 const selectedItem = ref<string>("");
@@ -130,6 +130,6 @@ import { uiTypeIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 4,
-  controlType: and(uiTypeIs("AddressList")),
+  controlType: and(uiTypeIs("ModelList")),
 };
 </script>
