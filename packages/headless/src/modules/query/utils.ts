@@ -3,8 +3,8 @@ import {
   isServer,
   QueryKey,
   QueryClient,
-  QueryFilters,
-} from "@tanstack/query-core";
+  InvalidateOptions,
+} from "@tanstack/vue-query";
 
 // --- utils
 import { useQuery } from "./useQuery";
@@ -21,7 +21,7 @@ import {
 } from "lodash-es";
 
 // ---types
-import { type PaginatedParams, ResponseError } from "./types";
+import { ResponseError } from "./types";
 
 // --- constants
 export const PAGINATION = {
@@ -110,18 +110,18 @@ export function parseData(data: any) {
  * Invalidate a query by its key.
  * Perfect for invalidating a query after a mutation on a thenable
  * @param queryKey The key of the query to invalidate
- * @param filters Optional filters to apply when invalidating the query
+ * @param options Additional options for invalidating the query
  * @returns A function that takes the data and returns it after invalidating the query
  * @example
  *    put({ url: "/clients/address/1", data: { name: "New Name" } })
  *       .then(invalidateQueryByKey(["clients", client.id, "addresses"]))
  */
 export const invalidateQueryByKey =
-  (queryKey: QueryKey, filters?: QueryFilters) =>
+  (queryKey: QueryKey, options?: InvalidateOptions) =>
   async <T = any>(data: T) => {
     const { queryClient } = useQuery();
     return queryClient
-      .invalidateQueries({ queryKey, ...filters })
+      .invalidateQueries({ queryKey, ...options })
       .then(() => data);
   };
 
