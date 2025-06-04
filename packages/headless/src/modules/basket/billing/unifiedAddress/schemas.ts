@@ -54,36 +54,6 @@ export const useSchema = ({
         $ref: "#/definitions/business",
       },
     ],
-    allOf: [
-      {
-        // Personal validation requirements
-        if: {
-          properties: {
-            type: { const: 1 },
-          },
-        },
-        then: {
-          anyOf: [
-            { $ref: "#/definitions/requireAddressId" },
-            { $ref: "#/definitions/requireAddressDetails" },
-          ],
-        },
-      },
-      {
-        // Business validation requirements
-        if: {
-          properties: {
-            type: { const: 4 },
-          },
-        },
-        then: {
-          anyOf: [
-            { $ref: "#/definitions/requireCompanyId" },
-            { $ref: "#/definitions/requireCompanyDetails" },
-          ],
-        },
-      },
-    ],
     definitions: {
       requireAddressId: {
         properties: {
@@ -203,6 +173,7 @@ export const useSchema = ({
       address: {
         type: "object",
         title: "Address",
+        additionalProperties: true,
         properties: {
           address1: {
             type: ["string"],
@@ -273,11 +244,27 @@ export const useSchema = ({
       } as any,
       personal: {
         type: "object",
-        additionalProperties: false,
+        additionalProperties: true,
         properties: {
           type: {
             type: "number",
-            default: 1,
+            const: 1,
+          },
+          addressId: {
+            type: ["string", "null"],
+            default: baseModel.addressId,
+          },
+          companyId: {
+            type: ["string", "null"],
+            default: null,
+          },
+          updateAddressId: {
+            type: ["string", "null"],
+            default: null,
+          },
+          updateCompanyId: {
+            type: ["string", "null"],
+            default: null,
           },
           address: {
             $ref: "#/definitions/address",
@@ -290,6 +277,10 @@ export const useSchema = ({
             $ref: "#/definitions/phone",
           },
         },
+        anyOf: [
+          { $ref: "#/definitions/requireAddressId" },
+          { $ref: "#/definitions/requireAddressDetails" },
+        ],
       },
       business: {
         type: "object",
@@ -297,22 +288,60 @@ export const useSchema = ({
         properties: {
           type: {
             type: "number",
-            default: 4,
+            const: 4,
+          },
+          addressId: {
+            type: ["string", "null"],
+            default: baseModel.addressId,
+          },
+          companyId: {
+            type: ["string", "null"],
+            default: null,
+          },
+          updateAddressId: {
+            type: ["string", "null"],
+            default: null,
+          },
+          updateCompanyId: {
+            type: ["string", "null"],
+            default: null,
           },
           company: {
             $ref: "#/definitions/company",
-          },
-          address: {
-            $ref: "#/definitions/address",
-            default: {
-              regionId: baseModel?.address?.regionId,
-              countryId: baseModel?.address?.countryId,
-            },
           },
           phone: {
             $ref: "#/definitions/phone",
           },
         },
+        anyOf: [
+          { $ref: "#/definitions/requireCompanyId" },
+          { $ref: "#/definitions/requireCompanyDetails" },
+        ],
+        allOf: [
+          {
+            // Only include address when company.addressId is null
+            if: {
+              properties: {
+                company: {
+                  properties: {
+                    addressId: { const: null },
+                  },
+                },
+              },
+            },
+            then: {
+              properties: {
+                address: {
+                  $ref: "#/definitions/address",
+                  default: {
+                    regionId: baseModel?.address?.regionId,
+                    countryId: baseModel?.address?.countryId,
+                  },
+                },
+              },
+            },
+          },
+        ],
       },
     },
   };
