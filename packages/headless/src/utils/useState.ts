@@ -49,6 +49,7 @@ export type Actor = {
   id: string | number | symbol;
   state: Ref<State<any>>;
   send: any;
+  service: ActorRef<any>;
 };
 
 type VueState = State<
@@ -257,14 +258,15 @@ export const contextService = (
   return service;
 };
 
-export const createActor = (context: ActorRef<any>): Actor | undefined => {
-  if (!context || !context.id || isFunction(context?.getSnapshot))
+export const createActor = (service: ActorRef<any>): Actor | undefined => {
+  if (!service || !service.id || isFunction(service?.getSnapshot))
     return undefined;
 
-  const actor = useActor(context);
+  const actor = useActor(service);
   if (!actor) return undefined;
   return {
-    id: context.id,
+    id: service.id,
+    service,
     ...actor,
   } as Actor;
 };
