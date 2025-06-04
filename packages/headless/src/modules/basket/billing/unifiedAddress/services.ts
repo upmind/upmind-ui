@@ -38,9 +38,14 @@ import type {
   AddressModel,
 } from "../../../client";
 import type { AnyEventObject } from "xstate";
-import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
+import type {
+  UnifiedAddressContext,
+  UnifiedAddressModel,
+  CompanyDetailsModel,
+} from "./types";
 import { invalidateQueryByKey } from "../../../query";
 import { BrandConfigKeys } from "@upmind-automation/types";
+
 // -----------------------------------------------------------------------------
 // QUERIES
 
@@ -107,6 +112,11 @@ async function loadLookups({
       countryId: country?.id,
       postcode: null,
       type: ADDRESS_TYPE_KEYS.HOME,
+    },
+    company: {
+      addressId: defaultAddress?.id,
+      name: "",
+      default: true,
     },
     phone: defaultPhone
       ? {
@@ -222,7 +232,7 @@ async function update(id: string, data: UnifiedAddressModel) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, regions, country }: UnifiedAddressContext,
+  { baseModel, schema, regions, country, addresses }: UnifiedAddressContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -255,6 +265,13 @@ async function parse(
 
     if (safeModel?.address) {
       safeModel.address.regionId = get(region, "id");
+    }
+
+    if (inputData.type === ADDRESS_TYPE_KEYS.COMPANY && !safeModel?.company) {
+      const defaultAddress = find(addresses, "meta.isDefault");
+      safeModel.company = {
+        addressId: defaultAddress?.id,
+      } as CompanyDetailsModel;
     }
 
     // now lets check our phone number
