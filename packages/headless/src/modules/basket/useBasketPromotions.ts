@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -77,18 +77,23 @@ export const useBasketPromotion = () => {
 
   // --- methods
 
-  function input(model: PromotionModel) {
-    actor.value?.send({ type: "SET", data: model });
+  function input(value: PromotionModel) {
+    actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
-  async function add(promocode?: string): Promise<void> {
-    const value = contextValue<PromotionModel>(service, "model");
+  async function add(value?: string): Promise<void> {
+    value = toRaw(unref(value));
+    const model = contextValue<PromotionModel>(service, "model");
 
     // if it has not then bail
-    if (!promocode) return Promise.resolve();
+    if (!value) return Promise.resolve();
 
-    if (promocode != value?.promocode) {
-      actor.value?.send({ type: "SET", data: { promocode }, update: true });
+    if (value != model?.promocode) {
+      actor.value?.send({
+        type: "SET",
+        data: { promocode: value },
+        update: true,
+      });
     } else {
       actor.value?.send({ type: "ADD" });
     }
@@ -120,8 +125,8 @@ export const useBasketPromotion = () => {
       });
   }
 
-  async function remove(promotion: PromotionModel) {
-    actor.value?.send({ type: "REMOVE", data: promotion });
+  async function remove(value: PromotionModel) {
+    actor.value?.send({ type: "REMOVE", data: toRaw(unref(value)) });
     return waitFor(
       service.value as ActorRef<any>,
       state => {
@@ -201,21 +206,21 @@ export const useBasketPromotion = () => {
     clear,
 
     /** Sends a SET event to update the promotion model.
-     * @param {any} model The new promotion model to set.
+     * @param {PromotionModel} value The new promotion model to set.
      * @returns {void} Does not return anything.
      */
     input,
 
     /**
      * Adds the promotion to the basket.
-     * @param {string} promocode The new promotion model.
+     * @param {PromotionModel["promocode"]} value The new promotion model.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     add,
 
     /**
      * Removes a promotion from the basket.
-     * @param {PromotionModel} promotion The promotion model to remove.
+     * @param {PromotionModel} value The promotion model to remove.
      * @returns {Promise<void>} Resolves when removed, rejects on error.
      */
     remove,

@@ -14,7 +14,7 @@ import {
   contextValue,
   DEBOUNCE_DELAY,
 } from "../../utils";
-import { isNil, debounce } from "lodash-es";
+import { isNil, debounce, isEqual } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -75,18 +75,18 @@ export const useBasketFields = () => {
 
   // --- methods
 
-  function input(model: FieldsModel) {
-    actor.value?.send({ type: "SET", data: model });
+  function input(value: FieldsModel) {
+    actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
-  async function update(model: FieldsModel): Promise<void> {
+  async function update(value: FieldsModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
-    model = toRaw(unref(model));
-    const value = contextValue<FieldsModel>(service, "model");
+    value = toRaw(unref(value));
+    const model = contextValue<FieldsModel>(service, "model");
 
     // if it has not then bail
-    if (!model || model == value) {
-      actor.value?.send({ type: "SET", data: model, update: true });
+    if (!value || isEqual(model, value)) {
+      actor.value?.send({ type: "SET", data: value, update: true });
     } else {
       actor.value?.send({ type: "UPDATE" });
     }
@@ -168,7 +168,7 @@ export const useBasketFields = () => {
     clear,
 
     /** Sends a SET event to update the fields model.
-     * @param {FieldsModel} model The fields model to set.
+     * @param {FieldsModel} value The fields model to set.
      * @returns {void} Does not return anything.
      */
 
@@ -176,7 +176,7 @@ export const useBasketFields = () => {
 
     /**
      * Updates the fields if the code has changed.
-     * @param {FieldsModel} model The new fields model to set.
+     * @param {FieldsModel} value The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     update: debounce(update, DEBOUNCE_DELAY),
