@@ -19,17 +19,14 @@ import { isNil } from "lodash-es";
 // --- types
 import type { ActorRef } from "xstate";
 import { CurrencyContext, CurrencyModel } from "./currency/types";
-import { ICurrency } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
-export const useBasketCurrency = (actorRef?: ActorRef<any>) => {
+export const useBasketCurrency = () => {
   const { actors, state } = useBasket();
-  let service: ComputedRef<ActorRef<any> | undefined> = !actorRef
-    ? useContext(state, "actors.currency")
-    : computed(() => actorRef);
-  const actor = !actorRef ? actors.currency : useActor(actorRef);
+  const service = useContext<ActorRef<any>>(state, "actors.currency");
+  const actor = actors.currency;
 
   // --- state
 
