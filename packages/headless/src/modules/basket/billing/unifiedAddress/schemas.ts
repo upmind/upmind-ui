@@ -134,14 +134,6 @@ export const useSchema = ({
           postcode: { type: "string" },
         },
         required: ["address1", "countryId", "city", "postcode"],
-        errorMessage: {
-          properties: {
-            address1: "Address must be at least 3 characters long",
-            city: "City must be at least 3 characters long",
-            postcode: "Postcode must be at least 3 characters long",
-            countryId: "Please select a country",
-          },
-        },
       },
       company: {
         type: "object",

@@ -160,6 +160,7 @@ async function add(data: UnifiedAddressModel) {
   const { add: addCompany } = useClientCompanyServices();
   const { setDefault: setDefaultAddress } = useClientAddresses();
   const { setDefault: setDefaultCompany } = useClientCompanies();
+  const { getDefault: getDefaultCompany } = useClientCompanies();
 
   if (data?.type === ADDRESS_TYPE_KEYS.HOME) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
@@ -176,8 +177,8 @@ async function add(data: UnifiedAddressModel) {
       return useBillingDetailsServices().invalidate();
     });
   } else {
-    return ensureDependencies({ model: data })
-      .then(async ({ address, email, phone }) => {
+    return ensureDependencies({ model: data }).then(
+      async ({ address, email, phone }) => {
         const company = await addCompany({
           model: {
             emailId: email?.id,
@@ -190,9 +191,17 @@ async function add(data: UnifiedAddressModel) {
           },
         });
         await setDefaultCompany(company.data.id);
-        return company;
-      })
-      .then(() => useBillingDetailsServices().invalidate());
+        // TODO: Reactivity should handle this
+        const defaultCompany = await getDefaultCompany();
+        data.companyId = defaultCompany?.id;
+        data.company = {
+          name: "",
+          default: true,
+          countryId: company.data.address?.country_id,
+        } as CompanyDetailsModel;
+        return useBillingDetailsServices().invalidate();
+      }
+    );
   }
 }
 
