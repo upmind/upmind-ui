@@ -69,19 +69,19 @@ Strict adherence to these rules ensures:
 
 ## Do / Don't Table
 
-| Do                                                                   | Don't                                           |
-| -------------------------------------------------------------------- | ----------------------------------------------- |
-| Use computed properties for state collections                        | Use getter methods for collections              |
-| Group all returns                                                    | Mix return order or groupings                   |
-| JSDoc above **every** return property/method                         | Omit JSDoc or place above returned functions    |
-| Use Upmind state/context utilities for access (e.g., `stateMatches`) | Access state.context or state.matches directly  |
-| Use Lodash for all utility/array/object ops                          | Use native JS for utility/array/object ops      |
-| Use section separators and spacing                                   | Omit section separators or inconsistent spacing |
-| Export and use a composable return type                              | Return untyped objects from composables         |
-| Preferably alphabetize within each section                           | Leave returns unordered                         |
-| All `isReady` functions return `Promise<boolean>`                    | Return other types from `isReady`               |
-| Use reactive `state` and context utilities                           | Use `service.getSnapshot()` for state access    |
-| **Do not use `lodash` `get` for state/context access in composables.** | Use `lodash` `get` for state/context access |
+| Do                                                                     | Don't                                           |
+| ---------------------------------------------------------------------- | ----------------------------------------------- |
+| Use computed properties for state collections                          | Use getter methods for collections              |
+| Group all returns                                                      | Mix return order or groupings                   |
+| JSDoc above **every** return property/method                           | Omit JSDoc or place above returned functions    |
+| Use Upmind state/context utilities for access (e.g., `stateMatches`)   | Access state.context or state.matches directly  |
+| Use Lodash for all utility/array/object ops                            | Use native JS for utility/array/object ops      |
+| Use section separators and spacing                                     | Omit section separators or inconsistent spacing |
+| Export and use a composable return type                                | Return untyped objects from composables         |
+| Preferably alphabetize within each section                             | Leave returns unordered                         |
+| All `isReady` functions return `Promise<boolean>`                      | Return other types from `isReady`               |
+| Use reactive `state` and context utilities                             | Use `service.getSnapshot()` for state access    |
+| **Do not use `lodash` `get` for state/context access in composables.** | Use `lodash` `get` for state/context access     |
 
 ---
 
@@ -111,7 +111,7 @@ Strict adherence to these rules ensures:
 - **Every returned property and method must have a JSDoc comment directly above it in the return object.**
 - For public methods: **No JSDoc comments above function or variable declarations**—only above returned properties. This is so we can generate documentation from the return object instead of the function itself.
 - For private methods: JSDoc comments are allowed above the function declaration, but they should not be included in the return object.
-- Always export and use a composable return type for every composable (e.g., `export type UseBrandReturn = ReturnType<typeof useBrand>`).
+- Always export and use a composable return type for every composable (e.g., `export type UseBrand= ReturnType<typeof useBrand>`).
 - **All state/context access in composables must use Upmind state/context utilities (e.g., `useState`, `useContext`, `stateMatches`, etc.). Direct use of `state.matches` or similar direct state machine access is not allowed.**
 
 ### 2. No Redundant Reactivity
@@ -268,7 +268,7 @@ export const useSample = () => {
 /**
  * The return type of useSample composable.
  */
-export type UseSampleReturn = ReturnType<typeof useSample>;
+export type UseSample = ReturnType<typeof useSample>;
 ```
 
 ---

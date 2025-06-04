@@ -40,9 +40,7 @@ export const useBasketCurrency = () => {
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
-        {
-          timeout: Infinity, // infinity = no timeout
-        }
+        { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;
         return true;
@@ -109,7 +107,7 @@ export const useBasketCurrency = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] update Currency on basket failed",
-            responseCodes.Timeout,
+            error?.status ?? responseCodes.Timeout,
             {
               error,
               state: actor.value?.state.value,
@@ -171,7 +169,8 @@ export const useBasketCurrency = () => {
     /** Clears the currency state. */
     clear,
 
-    /** Sends a SET event to update the currency model.
+    /**
+     * Sends a SET event to update the currency model.
      * @param {CurrencyModel} value The currency model to set.
      * @returns {void} Does not return anything.
      */
@@ -189,4 +188,4 @@ export const useBasketCurrency = () => {
 /**
  * The return type of useBasketCurrency composable.
  */
-export type UseBasketCurrencyReturn = ReturnType<typeof useBasketCurrency>;
+export type UseBasketCurrency = ReturnType<typeof useBasketCurrency>;

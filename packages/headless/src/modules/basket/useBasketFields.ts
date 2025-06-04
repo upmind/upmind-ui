@@ -41,9 +41,7 @@ export const useBasketFields = () => {
       waitFor(
         service as ActorRef<any>,
         state => !stateMatches(state, "loading"),
-        {
-          timeout: Infinity, // infinity = no timeout
-        }
+        { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["error"])) return false;
         return true;
@@ -105,7 +103,7 @@ export const useBasketFields = () => {
         return Promise.reject(
           new DetailedError(
             "[headless] update Fields on basket failed",
-            responseCodes.Timeout,
+            error?.status ?? responseCodes.Timeout,
             {
               error,
               state: actor.value?.state.value,
@@ -186,4 +184,4 @@ export const useBasketFields = () => {
 /**
  * The return type of useBasketFields composable.
  */
-export type UseBasketFieldsReturn = ReturnType<typeof useBasketFields>;
+export type UseBasketFields = ReturnType<typeof useBasketFields>;

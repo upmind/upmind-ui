@@ -73,9 +73,7 @@ export const useBasket = (): any => {
     return waitFor(
       service,
       state => stateMatches(state, ["shopping", "error"]),
-      {
-        timeout: Infinity, // infinity = no timeout
-      }
+      { timeout: Infinity }
     ).then(state => {
       if (stateMatches(state, ["error"])) return false;
       return true;
@@ -590,4 +588,4 @@ export const useBasket = (): any => {
   };
 };
 
-export type UseBasketReturn = ReturnType<typeof useBasket>;
+export type UseBasket = ReturnType<typeof useBasket>;

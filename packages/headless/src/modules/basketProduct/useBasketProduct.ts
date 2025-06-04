@@ -51,7 +51,7 @@ export const useBasketProduct = (bpid: string) => {
 
   async function isReady(): Promise<void> {
     return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity, // infinity = no timeout
+      timeout: Infinity,
     }).then(() => {});
   }
 

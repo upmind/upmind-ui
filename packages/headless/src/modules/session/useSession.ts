@@ -63,7 +63,7 @@ export const useSession = () => {
         });
       },
       {
-        timeout: 60_000, // infinity = no timeout
+        timeout: 60_000,
       }
     )
       .then(state => {
@@ -714,4 +714,4 @@ export const useSession = () => {
 /**
  * The return type of useSession composable.
  */
-export type UseSessionReturn = ReturnType<typeof useSession>;
+export type UseSession = ReturnType<typeof useSession>;
