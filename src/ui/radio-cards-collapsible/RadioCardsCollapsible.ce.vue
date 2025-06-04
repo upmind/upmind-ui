@@ -12,7 +12,7 @@
         <RadioCardItem
           v-if="selectedItem"
           data-state="checked"
-          :item="selectedItem"
+          :item="selectedItem.item"
           :index="0"
           :name="props.name"
           :label="selectedItem?.label"
@@ -30,7 +30,7 @@
           </template>
         </RadioCardItem>
 
-        <CollapsibleContent class="flex w-full flex-col overflow-auto">
+        <CollapsibleContent class="flex w-full flex-col overflow-visible">
           <template
             v-for="(option, index) in unselectedItems"
             :key="option.id || index"
@@ -38,7 +38,7 @@
             <RadioCardItem
               class="mt-2"
               :item="option.item"
-              :index="overrideIndex || index"
+              :index="index + 1"
               :name="props.name"
               :label="option?.label"
               :required="props.required"
