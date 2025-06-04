@@ -25,11 +25,11 @@ import type { Address, AddressContext, AddressModel } from "./types";
 const queryKey: QueryKey = ["client", "addresses"];
 
 async function loadAll() {
-  const { useUrl, request } = useQuery();
+  const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return request<QueryResponse<IAddress[]>>({
+  return get<IAddress[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
@@ -38,13 +38,12 @@ async function loadAll() {
   }).then(({ data }) => mapAddresses(data ?? []));
 }
 
-// TODO: add pagination support
 async function loadPaged(paginationParams: PaginatedParams) {
-  const { useUrl, request } = useQuery();
+  const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return request<QueryResponse<IAddress[]>>({
+  return get<IAddress[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
     }),

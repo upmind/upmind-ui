@@ -1,6 +1,6 @@
 // --- external
 import { ref, computed } from "vue";
-import { useQuery, keepPreviousData } from "@tanstack/vue-query";
+import { useQuery, keepPreviousData, useMutation } from "@tanstack/vue-query";
 
 // --- internal
 import service from "./services";
@@ -61,7 +61,7 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   }
 
   const meta = computed(() => ({
-    isError: !isEmpty(query.error),
+    isError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isLoading: query?.fetchStatus.value === "fetching",
   }));
@@ -70,14 +70,6 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
 
   function getOne(id: Address["id"]) {
     return find(getAllFromCache(), ["id", id]);
-  }
-
-  async function getAll() {
-    return service.loadAll();
-  }
-
-  async function getPaged(params: PaginatedParams) {
-    return service.loadPaged(params);
   }
 
   function getAllFromCache() {
@@ -116,31 +108,37 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   }
 
   async function remove(id: Address["id"]) {
-    return service
-      .remove(id)
-      .then(() => addSuccess("Successfully removed address"))
-      .then(service.refresh)
-      .catch(error =>
+    const { mutate } = useMutation({
+      mutationFn: (id: Address["id"]) => service.remove(id),
+      onSuccess: () => {
+        addSuccess("Successfully removed address");
+        invalidateQueryByKey(service.queryKey, { exact: false });
+      },
+      onError: (error: any) =>
         addError({
           title: isString(error)
             ? error
             : error?.title || "We experienced an error removing this address",
           copy: error?.message,
           data: error?.data,
-        })
-      );
+        }),
+    });
+
+    mutate(id);
   }
 
   async function getDefault() {
-    return getAll().then(items => find(items, "meta.isDefault"));
+    return find(query.data.value, "meta.isDefault");
   }
 
   async function setDefault(id: Address["id"]) {
-    return service
-      .setDefault(id)
-      .then(() => addSuccess("Successfully set address as default"))
-      .then(service.refresh)
-      .catch(error =>
+    const { mutate } = useMutation({
+      mutationFn: (id: Address["id"]) => service.setDefault(id),
+      onSuccess: () => {
+        addSuccess("Successfully set address as default");
+        invalidateQueryByKey(service.queryKey, { exact: false });
+      },
+      onError: (error: any) =>
         addError({
           title: isString(error)
             ? error
@@ -148,8 +146,10 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
               "We experienced an error setting this address as default",
           copy: error?.message,
           data: error?.data,
-        })
-      );
+        }),
+    });
+
+    mutate(id);
   }
 
   function nextPage() {
@@ -202,6 +202,12 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     page,
 
     /**
+     * The reactive data property containing the list of client addresses.
+     * This is populated by the query and updates automatically when the query state changes.
+     */
+    data: query.data,
+
+    /**
      * Indicates if pagination is available.
      * If pagination is not set, it defaults to false.
      */
@@ -215,19 +221,6 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
      * @returns The address object if found, is otherwise undefined.
      */
     getOne,
-
-    /**
-     * Get all the addresses for the current client.
-     * @returns An array of parsed addresses if found, otherwise an empty array.
-     */
-    getAll,
-
-    /**
-     * Get addresses in a paged format.
-     * @param paginationParams The pagination parameters to use.
-     * @returns A promise that resolves to an object containing the addresses and pagination details.
-     */
-    getPaged,
 
     /**
      * Get all the addresses from the cache.
