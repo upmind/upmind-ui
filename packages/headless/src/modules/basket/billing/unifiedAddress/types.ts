@@ -46,6 +46,7 @@ export type CompanyDetailsModel = Omit<
   CompanyModel,
   "vatNumber" | "regNumber"
 > & {
+  addressId?: IAddress["id"];
   companyId?: ICompany["id"];
   companyName?: ICompany["name"];
   regNumber?: ICompany["reg_number"];
