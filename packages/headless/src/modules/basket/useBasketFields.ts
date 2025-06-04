@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -12,20 +12,21 @@ import {
   stateMatches,
   stateValue,
   contextValue,
+  DEBOUNCE_DELAY,
 } from "../../utils";
-import { isNil } from "lodash-es";
+import { isNil, debounce } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { CurrencyContext, CurrencyModel } from "./currency/types";
+import { FieldsContext, FieldsModel } from "./fields/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
-export const useBasketCurrency = () => {
+export const useBasketFields = () => {
   const { actors, state } = useBasket();
-  const service = useContext<ActorRef<any>>(state, "actors.currency");
-  const actor = actors.currency;
+  const service = useContext<ActorRef<any>>(state, "actors.customFields");
+  const actor = actors.customFields;
 
   // --- state
 
@@ -53,7 +54,7 @@ export const useBasketCurrency = () => {
   const meta = computed(() => ({
     isAvailable: !!actor.value,
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    hasCurrency: contextMatches(actor, ["currency"]),
+    hasFields: contextMatches(actor, ["fields"]),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["valid"]),
@@ -65,39 +66,34 @@ export const useBasketCurrency = () => {
 
   // --- context
 
-  const context = useContext<CurrencyContext>(actor);
-  const currencies = useContext<CurrencyContext["currencies"]>(
-    actor,
-    "currencies"
-  );
-  const errors = useContext<CurrencyContext["error"]>(actor, "error");
-  const model = useContext<CurrencyContext["model"]>(actor, "model");
-  const schema = useContext<CurrencyContext["schema"]>(actor, "schema");
-  const uischema = useContext<CurrencyContext["uischema"]>(actor, "uischema");
+  const context = useContext<FieldsContext>(actor);
+  const fields = useContext<FieldsContext["fields"]>(actor, "fields");
+  const errors = useContext<FieldsContext["error"]>(actor, "error");
+  const model = useContext<FieldsContext["model"]>(actor, "model");
+  const schema = useContext<FieldsContext["schema"]>(actor, "schema");
+  const uischema = useContext<FieldsContext["uischema"]>(actor, "uischema");
 
   // --- methods
 
-  function input(model: CurrencyModel) {
+  function input(model: FieldsModel) {
     actor.value?.send({ type: "SET", data: model });
   }
 
-  async function update(model: CurrencyModel): Promise<void> {
-    // first check if our currency has change, ie: model.code has changed
-
-    const code = model?.code?.toUpperCase();
-    const value = contextValue<CurrencyModel>(service, "model");
+  async function update(model: FieldsModel): Promise<void> {
+    // first check if our fields have change, ie: model.code has changed
+    model = toRaw(unref(model));
+    const value = contextValue<FieldsModel>(service, "model");
 
     // if it has not then bail
-    if (!code || code == value?.code) return Promise.resolve();
-
-    actor.value?.send({ type: "SET", data: { code }, update: true });
-
+    if (!model || model == value) {
+      actor.value?.send({ type: "SET", data: model, update: true });
+    } else {
+      actor.value?.send({ type: "UPDATE" });
+    }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
       service.value as ActorRef<any>,
-      state => {
-        return stateMatches(state, ["processed", "complete", "error"]);
-      },
+      state => stateMatches(state, ["processed", "complete", "error"]),
       { timeout: 60_000 }
     )
       .then(state => {
@@ -108,7 +104,7 @@ export const useBasketCurrency = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Currency on basket failed",
+            "[headless] update Fields on basket failed",
             responseCodes.Timeout,
             {
               error,
@@ -127,67 +123,67 @@ export const useBasketCurrency = () => {
     // --- state
 
     /**
-     * Waits for the currency actor to be ready (not loading or error state).
+     * Waits for the fields actor to be ready (not loading or error state).
      * @returns {Promise<boolean>} Resolves true if ready, false if error.
      */
     isReady,
 
     /**
-     * Meta information about the basket currency state.
-     * @typedef {Object} BasketCurrencyMeta
-     * @property {boolean} isAvailable - Indicates if the currency actor is available.
-     * @property {boolean} isLoading - Indicates if the currency actor is loading.
-     * @property {boolean} hasCurrency - Indicates if a currency is set.
+     * Meta information about the basket fields state.
+     * @typedef {Object} BasketFieldsMeta
+     * @property {boolean} isAvailable - Indicates if the fields actor is available.
+     * @property {boolean} isLoading - Indicates if the fields actor is loading.
+     * @property {boolean} hasFields - Indicates if a fields is set.
      * @property {boolean} hasErrors - Indicates if there are errors.
-     * @property {boolean} isProcessing - Indicates if the currency is processing.
-     * @property {boolean} isValid - Indicates if the currency is valid.
-     * @property {boolean} isDirty - Indicates if the currency is dirty.
-     * @property {boolean} isComplete - Indicates if the currency is complete.
+     * @property {boolean} isProcessing - Indicates if the fields is processing.
+     * @property {boolean} isValid - Indicates if the fields is valid.
+     * @property {boolean} isDirty - Indicates if the fields is dirty.
+     * @property {boolean} isComplete - Indicates if the fields is complete.
      */
     meta,
 
     // --- context
 
-    /** The full currency context object. */
+    /** The full fields context object. */
     context,
 
-    /** The list of available currencies. */
-    currencies,
+    /** The list of available fields. */
+    fields,
 
-    /** Any error returned by the currency actor. */
+    /** Any error returned by the fields actor. */
     errors,
 
-    /** The current currency model. */
+    /** The current fields model. */
     model,
 
-    /** The currency schema. */
+    /** The fields schema. */
     schema,
 
-    /** The currency UI schema. */
+    /** The fields UI schema. */
     uischema,
 
     // --- methods
 
-    /** Clears the currency state. */
+    /** Clears the fields state. */
     clear,
 
-    /** Sends a SET event to update the currency model.
-     * @param {CurrencyModel} model The currency model to set.
+    /** Sends a SET event to update the fields model.
+     * @param {FieldsModel} model The fields model to set.
      * @returns {void} Does not return anything.
      */
 
     input,
 
     /**
-     * Updates the currency if the code has changed.
-     * @param {CurrencyModel} model The new currency model to set.
+     * Updates the fields if the code has changed.
+     * @param {FieldsModel} model The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update,
+    update: debounce(update, DEBOUNCE_DELAY),
   };
 };
 
 /**
- * The return type of useBasketCurrency composable.
+ * The return type of useBasketFields composable.
  */
-export type UseBasketCurrencyReturn = ReturnType<typeof useBasketCurrency>;
+export type UseBasketFieldsReturn = ReturnType<typeof useBasketFields>;

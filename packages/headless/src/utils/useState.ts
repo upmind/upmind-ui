@@ -45,7 +45,7 @@ type StateLike =
   | VueState
   | UndefinedLike;
 
-type Actor = {
+export type Actor = {
   id: string | number | symbol;
   state: Ref<State<any>>;
   send: any;

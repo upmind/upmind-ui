@@ -7,7 +7,7 @@ import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
-export interface Promotion {
+export interface PromotionModel {
   promocode: string;
 }
 
@@ -17,7 +17,7 @@ export interface PromotionsContext {
   promotions?: IBasketPromotion[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: Promotion;
+  model?: PromotionModel;
   // ---
   dirty?: Boolean;
   autoupdate?: Boolean;

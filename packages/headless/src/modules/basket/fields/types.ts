@@ -3,10 +3,10 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { ResponseError } from "src/modules/query";
 
 // --- internal
-
+import type { ICustomField } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
-export interface Field {
+export interface FieldsModel {
   notes: string;
   customFields: Record<string, any>;
 }
@@ -14,10 +14,10 @@ export interface Field {
 export interface FieldsContext {
   basketId?: string;
   // ---
-  fields?: any; //IFields[];
+  fields?: ICustomField[];
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: Field;
+  model?: FieldsModel;
   autoupdate?: boolean;
   // ---
   dirty?: boolean;

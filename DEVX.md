@@ -56,7 +56,8 @@ Strict adherence to these rules ensures:
 
 - Group returns by: `// --- state`, `// --- context`, `// --- helpers`, `// --- methods`, `// --- utils`
 - Alphabetize properties within each section.
-- JSDoc only above properties in the return object (never above returned functions/variables).
+- JSDoc **must** be present above every property and method in the return object (never above returned functions/variables).
+- Use Upmind state/context utilities (e.g., `useState`, `useContext`, `stateMatches`, etc.) for all state/context access in composables. **Direct use of `state.matches` or similar direct state machine access is not allowed; always use the provided utilities.**
 - JSDoc above non-returned private methods is allowed; never above returned/public methods.
 - Use Lodash for all utility/array/object operations.
 - Never expose internal state/machines (see below for exceptions).
@@ -68,15 +69,19 @@ Strict adherence to these rules ensures:
 
 ## Do / Don't Table
 
-| Do                                            | Don't                                           |
-| --------------------------------------------- | ----------------------------------------------- |
-| Use computed properties for state collections | Use getter methods for collections              |
-| Group all returns                             | Mix return order or groupings                   |
-| JSDoc only above return properties            | JSDoc above returned functions/variables        |
-| Use Lodash for all utility/array/object ops   | Use native JS for utility/array/object ops      |
-| Use section separators and spacing            | Omit section separators or inconsistent spacing |
-| Export and use a composable return type       | Return untyped objects from composables         |
-| Preferably alphabetize within each section    | Leave returns unordered                         |
+| Do                                                                   | Don't                                           |
+| -------------------------------------------------------------------- | ----------------------------------------------- |
+| Use computed properties for state collections                        | Use getter methods for collections              |
+| Group all returns                                                    | Mix return order or groupings                   |
+| JSDoc above **every** return property/method                         | Omit JSDoc or place above returned functions    |
+| Use Upmind state/context utilities for access (e.g., `stateMatches`) | Access state.context or state.matches directly  |
+| Use Lodash for all utility/array/object ops                          | Use native JS for utility/array/object ops      |
+| Use section separators and spacing                                   | Omit section separators or inconsistent spacing |
+| Export and use a composable return type                              | Return untyped objects from composables         |
+| Preferably alphabetize within each section                           | Leave returns unordered                         |
+| All `isReady` functions return `Promise<boolean>`                    | Return other types from `isReady`               |
+| Use reactive `state` and context utilities                           | Use `service.getSnapshot()` for state access    |
+| **Do not use `lodash` `get` for state/context access in composables.** | Use `lodash` `get` for state/context access |
 
 ---
 
@@ -103,10 +108,11 @@ Strict adherence to these rules ensures:
   - `// --- utils ( reusable utility functions )`
     (in that order if present)
 - Within each section, properties are preferred to be alphabetized.
-- Every returned property must have a JSDoc comment directly above it in the return object.
+- **Every returned property and method must have a JSDoc comment directly above it in the return object.**
 - For public methods: **No JSDoc comments above function or variable declarations**—only above returned properties. This is so we can generate documentation from the return object instead of the function itself.
 - For private methods: JSDoc comments are allowed above the function declaration, but they should not be included in the return object.
 - Always export and use a composable return type for every composable (e.g., `export type UseBrandReturn = ReturnType<typeof useBrand>`).
+- **All state/context access in composables must use Upmind state/context utilities (e.g., `useState`, `useContext`, `stateMatches`, etc.). Direct use of `state.matches` or similar direct state machine access is not allowed.**
 
 ### 2. No Redundant Reactivity
 
@@ -300,3 +306,9 @@ meta,
 ```
 
 All composables that return a `meta` object must follow this documentation pattern for clarity and consistency.
+
+---
+
+## Notes
+
+- In composables where a reactive `state` is available (e.g., from `useActor`), **do not use `service.getSnapshot()`** for state access. Always use the reactive `state` and Upmind context utilities for all state/context access. This ensures reactivity and compliance with Upmind best practices.

@@ -13,7 +13,7 @@ import { useSchema, useUischema } from "./utils";
 import { parseBasketFieldsModel } from "../utils";
 
 // --- types
-import { Field, FieldsContext } from "./types";
+import { FieldsModel, FieldsContext } from "./types";
 import { responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
@@ -178,7 +178,7 @@ export default createMachine(
       setModel: assign({
         model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) => {
           if (!schema) return data ?? model;
-          return useModelParser<Field>(schema, data ?? model);
+          return useModelParser<FieldsModel>(schema, data ?? model);
         },
       }),
 

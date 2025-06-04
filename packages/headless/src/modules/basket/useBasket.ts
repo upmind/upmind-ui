@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, ComputedRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
 import { useActor } from "@xstate/vue";
@@ -21,6 +21,7 @@ import {
   stateMatches,
   useChildActor,
   useContext,
+  Actor,
 } from "../../utils";
 
 import {
@@ -179,7 +180,13 @@ export const useBasket = (): any => {
   // --- Actors
   // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
-  const actors = {
+  const actors: {
+    customFields: ComputedRef<Actor | undefined>;
+    paymentDetails: ComputedRef<Actor | undefined>;
+    billingDetails: ComputedRef<Actor | undefined>;
+    currency: ComputedRef<Actor | undefined>;
+    promotions: ComputedRef<Actor | undefined>;
+  } = {
     customFields: useContextActor(state, "actors.customFields"),
     paymentDetails: useContextActor(state, "actors.paymentDetails"),
     billingDetails: useContextActor(state, "actors.billingDetails"),
