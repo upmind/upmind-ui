@@ -240,3 +240,5 @@ export const useClientEmail = (
     update,
   };
 };
+
+export type UseClientEmail = ReturnType<typeof useClientEmail>;
