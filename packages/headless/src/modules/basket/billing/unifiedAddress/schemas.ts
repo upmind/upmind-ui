@@ -210,10 +210,6 @@ export const useSchema = ({
           },
         ],
         properties: {
-          companyId: {
-            type: ["string", "null"],
-            default: baseModel.companyId,
-          },
           type: {
             type: "number",
             default: 4,
@@ -357,7 +353,7 @@ export const useUischema = ({
         label: "",
       }),
       {
-        type: "AddressList",
+        type: "ModelList",
         scope: "#/properties/addressId",
         options: {
           label: "Address",
@@ -401,7 +397,7 @@ export const useUischema = ({
         label: "",
       }),
       {
-        type: "AddressList",
+        type: "ModelList",
         scope: "#/properties/companyId",
         options: {
           label: "Company",
@@ -446,14 +442,14 @@ export const useUischema = ({
                     type: "Control",
                     scope: "#/properties/regNumber",
                     options: {
-                      placeholder: "Company number",
+                      placeholder: "Registered tax or GST",
                     },
                   },
                   {
                     type: "Control",
                     scope: "#/properties/vatNumber",
                     options: {
-                      placeholder: "Registered Tax ID",
+                      placeholder: "VAT Number",
                     },
                   },
                 ],
