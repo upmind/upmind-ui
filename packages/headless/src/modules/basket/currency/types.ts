@@ -7,6 +7,11 @@ import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
+export type CurrencyModel = {
+  id?: ICurrency["id"];
+  code?: ICurrency["code"];
+};
+
 export interface CurrencyContext {
   basketId?: string;
   // ---
@@ -18,7 +23,7 @@ export interface CurrencyContext {
   // TODO:
   // model?: ICurrency;
   // baseModel?: ICurrency;
-  model?: any;
+  model?: CurrencyModel;
   baseModel?: any;
   autoupdate?: boolean;
   // ---
