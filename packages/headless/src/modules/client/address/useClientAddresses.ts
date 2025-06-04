@@ -290,9 +290,7 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     /**
      * Invalidate the query cache for client addresses.
      */
-    invalidate: invalidateQueryByKey(service.queryKey, {
-      exact: false,
-    }),
+    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
   };
 };
 
