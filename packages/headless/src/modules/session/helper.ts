@@ -68,7 +68,7 @@ const authCallback = (
 };
 
 export const authSubscription = async (callback: any, onReceive: any) => {
-  const { service } = useSession();
+  const { subscribe } = useSession();
   // firstly, send service's current state upon subscription
   let hasSession = false;
 
@@ -82,7 +82,7 @@ export const authSubscription = async (callback: any, onReceive: any) => {
   // then listen for any changes to the client service
   // if we get a change to either authenticated or unauthenticated
   // then we need to send the callback to the subscriber
-  const subcscription = service.subscribe(state => {
+  const subcscription = subscribe(state => {
     const currentMachine =
       state?.children?.clientMachine || state?.children?.guestMachine;
 
@@ -91,12 +91,12 @@ export const authSubscription = async (callback: any, onReceive: any) => {
     if (currentMachine) {
       // @ts-ignore -- this definitely works, despite typescriptm oanind onTrannsition doesnt exist
       currentMachine?.onTransition(() => {
-        hasSession = authCallback(service.getSnapshot(), hasSession, callback);
+        hasSession = authCallback(state, hasSession, callback);
       });
     }
 
     // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
-    hasSession = authCallback(service.getSnapshot(), hasSession, callback);
+    hasSession = authCallback(state, hasSession, callback);
   });
 
   return () => {

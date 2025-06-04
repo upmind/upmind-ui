@@ -36,7 +36,6 @@ export const useSessionFlows = () => {
   const routing = useRoutingEngine();
   const {
     isAuthenticated,
-    hasExpired,
     transferFrom,
     getTransferDetails,
     transferred,
