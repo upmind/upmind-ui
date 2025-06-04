@@ -24,11 +24,13 @@ export function useSchema({
 
       // ---
       address1: {
-        type: "string",
+        type: ["string"],
+        title: "Address",
       },
 
       address2: {
         type: ["string", "null"],
+        title: "",
       },
 
       city: {
@@ -126,23 +128,29 @@ export function useUischema(): UISchemaElement {
             },
           },
           {
-            type: "Control",
-            scope: "#/properties/address1",
-            label: "Address",
+            type: "Group",
             options: {
-              autoFocus: true,
-              autocomplete: "address-line1",
-              placeholder: "House name, apartment number etc.",
+              border: false,
             },
-          },
-          {
-            type: "Control",
-            scope: "#/properties/address2",
-            label: "",
-            options: {
-              autocomplete: "address-line2",
-              placeholder: "Road, street name etc.",
-            },
+            elements: [
+              {
+                type: "Control",
+                scope: "#/properties/address1",
+                options: {
+                  autoFocus: true,
+                  autocomplete: "address-line1",
+                  placeholder: "House name, apartment number etc.",
+                },
+              },
+              {
+                type: "Control",
+                scope: "#/properties/address2",
+                options: {
+                  autocomplete: "address-line2",
+                  placeholder: "Road, street name etc.",
+                },
+              },
+            ],
           },
 
           // ---
