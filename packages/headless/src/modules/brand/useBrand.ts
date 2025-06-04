@@ -33,6 +33,7 @@ import {
 } from "@upmind-automation/types";
 import { BrandContext } from "./types";
 import { ResponseError } from "../query";
+import { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
 
@@ -168,10 +169,9 @@ export const useBrand = () => {
     return contextValue<Record<string, any>>(state, keys, {}) ?? {};
   };
 
-  const validateCurrency = async (model: {
-    id?: ICurrency["id"];
-    code?: ICurrency["code"];
-  }): Promise<Partial<ICurrency> | ICurrency | undefined> => {
+  const validateCurrency = async (
+    model: CurrencyModel
+  ): Promise<Partial<ICurrency> | ICurrency | undefined> => {
     await isReady();
 
     if (isEmpty(currencies.value)) return model as Partial<ICurrency>;

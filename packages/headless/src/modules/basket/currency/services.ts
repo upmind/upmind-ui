@@ -45,7 +45,7 @@ async function parse({ model }: CurrencyContext, _event: AnyEventObject) {
   // ---
   // if we have a valid currency, lets hydrate it base don the code.
   const { validateCurrency } = useBrand();
-  const currency = await validateCurrency(model);
+  const currency = await validateCurrency(model ?? {});
   return Promise.resolve({ model: currency });
 }
 
