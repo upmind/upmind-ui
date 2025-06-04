@@ -2,9 +2,9 @@
   <span
     :class="cn('text-emphasis-medium', props.class)"
     :for="props.formItemId"
-    :invalid="true"
+    :invalid="false"
   >
-    <slot>*</slot>
+    <slot>Optional</slot>
   </span>
 </template>
 

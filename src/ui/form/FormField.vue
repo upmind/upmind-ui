@@ -19,7 +19,10 @@
 
               <span>{{ label }}</span>
 
-              <FormRequiredIndicator v-if="!meta.isRequired" :formItemId="id" />
+              <FormNotRequiredIndicator
+                v-if="!meta.isRequired"
+                :formItemId="id"
+              />
 
               <Tooltip
                 v-if="tooltip"
@@ -87,7 +90,7 @@ import config from "./form.config";
 import {
   FormItem,
   FormLabel,
-  FormRequiredIndicator,
+  FormNotRequiredIndicator,
   FormControl,
   FormDescription,
   FormMessage,
