@@ -54,19 +54,140 @@ export const useSchema = ({
         $ref: "#/definitions/business",
       },
     ],
+    allOf: [
+      {
+        // Personal validation requirements
+        if: {
+          properties: {
+            type: { const: 1 },
+          },
+        },
+        then: {
+          anyOf: [
+            { $ref: "#/definitions/requireAddressId" },
+            { $ref: "#/definitions/requireAddressDetails" },
+          ],
+        },
+      },
+      {
+        // Business validation requirements
+        if: {
+          properties: {
+            type: { const: 4 },
+          },
+        },
+        then: {
+          anyOf: [
+            { $ref: "#/definitions/requireCompanyId" },
+            { $ref: "#/definitions/requireCompanyDetails" },
+          ],
+        },
+      },
+    ],
     definitions: {
+      requireAddressId: {
+        properties: {
+          addressId: {
+            type: "string",
+            minLength: 1,
+          },
+        },
+        required: ["addressId"],
+      },
+      requireAddressDetails: {
+        properties: {
+          addressId: {
+            type: ["null"],
+          },
+          address: {
+            $ref: "#/definitions/requiredAddressFields",
+          },
+        },
+        required: ["address"],
+      },
+      requireCompanyId: {
+        properties: {
+          companyId: {
+            type: "string",
+            minLength: 1,
+          },
+        },
+        required: ["companyId"],
+      },
+      requireCompanyDetails: {
+        properties: {
+          companyId: {
+            type: ["null"],
+          },
+          company: {
+            properties: {
+              companyName: { type: "string", minLength: 3 },
+            },
+            required: ["companyName"],
+          },
+        },
+        required: ["company"],
+        anyOf: [
+          { $ref: "#/definitions/requireCompanyAddressId" },
+          { $ref: "#/definitions/requireCompanyAddressDetails" },
+        ],
+      },
+      requireCompanyAddressId: {
+        properties: {
+          company: {
+            properties: {
+              addressId: {
+                type: "string",
+                minLength: 1,
+              },
+            },
+            required: ["addressId"],
+          },
+        },
+      },
+      requireCompanyAddressDetails: {
+        properties: {
+          company: {
+            properties: {
+              addressId: {
+                type: ["null"],
+              },
+            },
+          },
+          address: { $ref: "#/definitions/requiredAddressFields" },
+        },
+        required: ["address"],
+      },
+      requiredAddressFields: {
+        type: "object",
+        properties: {
+          address1: { type: "string", minLength: 3 },
+          countryId: { type: "string", minLength: 1 },
+          city: { type: "string", minLength: 3 },
+          postcode: { type: "string", minLength: 3 },
+        },
+        required: ["address1", "countryId", "city", "postcode"],
+        errorMessage: {
+          properties: {
+            address1: "Address must be at least 3 characters long",
+            city: "City must be at least 3 characters long",
+            postcode: "Postcode must be at least 3 characters long",
+            countryId: "Please select a country",
+          },
+        },
+      },
       company: {
         type: "object",
         title: "Company",
-        required: ["companyName"],
         properties: {
           addressId: {
             type: ["string", "null"],
             default: baseModel.addressId,
           },
           companyName: {
-            type: ["string", "null"],
+            type: "string",
             title: "Company Name",
+            minLength: 3,
           },
           regNumber: {
             type: ["string", "null"],
@@ -77,11 +198,11 @@ export const useSchema = ({
             title: "Registered Tax ID",
           },
         },
+        required: ["companyName"],
       },
       address: {
         type: "object",
         title: "Address",
-        required: ["address1", "city", "postcode", "countryId"],
         properties: {
           address1: {
             type: ["string"],
@@ -121,13 +242,13 @@ export const useSchema = ({
             })),
           },
         },
+        required: ["address1", "city", "postcode", "countryId"],
       },
       phone: {
         type: "object",
         title: "Phone number",
         isPhoneNumber: country?.code,
         default: baseModel?.phone,
-        required: ["number"],
         properties: {
           number: {
             type: ["string", "null"],
@@ -152,24 +273,7 @@ export const useSchema = ({
       } as any,
       personal: {
         type: "object",
-        additionalProperties: true,
-        required: ["address", "addressId"],
-        allOf: [
-          {
-            if: {
-              properties: {
-                addressId: { const: null },
-              },
-            },
-            then: {
-              properties: {
-                address: {
-                  required: ["address1", "city", "postcode", "countryId"],
-                },
-              },
-            },
-          },
-        ],
+        additionalProperties: false,
         properties: {
           type: {
             type: "number",
@@ -189,24 +293,7 @@ export const useSchema = ({
       },
       business: {
         type: "object",
-        required: ["company", "address", "companyId"],
         additionalProperties: true,
-        allOf: [
-          {
-            if: {
-              properties: {
-                addressId: { const: null },
-              },
-            },
-            then: {
-              properties: {
-                address: {
-                  required: ["address1", "city", "postcode", "countryId"],
-                },
-              },
-            },
-          },
-        ],
         properties: {
           type: {
             type: "number",
@@ -231,8 +318,7 @@ export const useSchema = ({
   };
 
   if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    schema.definitions!.personal!.required!.push("phone");
-    schema.definitions!.business!.required!.push("phone");
+    //
   }
 
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
