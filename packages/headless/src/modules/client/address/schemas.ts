@@ -4,6 +4,7 @@ import type { Address, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export function useSchema({
+  id,
   types,
   regions,
   baseModel,
@@ -63,6 +64,12 @@ export function useSchema({
             })),
       },
 
+      name: {
+        type: ["string", "null"],
+        title: "Name",
+        default: baseModel?.name,
+      },
+
       type: {
         type: "number",
         title: "Address Type",
@@ -77,10 +84,9 @@ export function useSchema({
     },
   };
 
-  // if (id) {
-  //   schema.required.push("name");
-  //   schema.required.push("type");
-  // }
+  if (id) {
+    schema.required.push("name");
+  }
 
   return schema as JsonSchema;
 }
@@ -93,6 +99,24 @@ export function useUischema(): UISchemaElement {
       {
         type: "VerticalLayout",
         elements: [
+          {
+            type: "Control",
+            scope: "#/properties/name",
+            options: {
+              autoFocus: true,
+              autocomplete: "off",
+              placeholder: "My home address, etc...",
+            },
+            rule: {
+              effect: "SHOW",
+              condition: {
+                scope: "#",
+                schema: {
+                  required: ["id"],
+                },
+              },
+            },
+          },
           {
             type: "Control",
             scope: "#/properties/countryId",
