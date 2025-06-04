@@ -118,7 +118,7 @@ export function parseData(data: any) {
  */
 export const invalidateQueryByKey =
   (queryKey: QueryKey, filters?: InvalidateQueryFilters) =>
-  async <T = any>(data: T) => {
+  async <T = any>(data?: T) => {
     const { queryClient } = useQuery();
     return queryClient
       .invalidateQueries({

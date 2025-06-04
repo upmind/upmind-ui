@@ -1,12 +1,9 @@
 // --- external
 import { ref, computed } from "vue";
-import { useQuery, keepPreviousData } from "@tanstack/vue-query";
 
 // --- internal
 import service from "./services";
-import { useTime } from "../../../utils";
 import { useSession } from "../../session";
-import { useFeedback } from "../../feedback";
 import { invalidateQueryByKey } from "../../query";
 
 // --- utils
@@ -24,13 +21,15 @@ import {
 
 // --- types
 import type { Email } from "./types";
+import type { UseQueryReturnType } from "@tanstack/vue-query";
 import type { PaginatedParams, IAPIPagination } from "../../query";
 
 export const useClientEmails = (params: PaginatedParams = {}) => {
   // --- state
 
   const { isAuthenticated } = useSession();
-  const { addError, addSuccess } = useFeedback();
+
+  const query = ref<UseQueryReturnType<Email[], Error>>();
 
   const pagination = ref<IAPIPagination | undefined>(params.pagination);
 
@@ -38,21 +37,6 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
     const limit = pagination.value?.limit;
     const offset = pagination.value?.offset;
     return limit && offset !== undefined ? Math.floor(offset / limit) + 1 : -1;
-  });
-
-  const hasPagination = computed(() => page.value > -1);
-
-  const query = useQuery<Email[]>({
-    queryFn: () =>
-      hasPagination.value
-        ? service.loadPaged({ pagination: pagination.value })
-        : service.loadAll(),
-    queryKey: computed(() => [
-      ...service.queryKey,
-      { pagination: pagination.value },
-    ]),
-    staleTime: useTime().DAY,
-    placeholderData: keepPreviousData,
   });
 
   /**
@@ -66,9 +50,9 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   }
 
   const meta = computed(() => ({
-    isError: !isEmpty(query.error.value),
-    isEmpty: isEmpty(query?.data?.value),
-    isLoading: query?.fetchStatus.value === "fetching",
+    isError: !isEmpty(query.value?.error.value),
+    isEmpty: isEmpty(query?.value?.data?.value),
+    isLoading: query?.value?.fetchStatus.value === "fetching",
   }));
 
   // --- methods
@@ -78,11 +62,13 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   }
 
   async function getAll() {
-    return service.loadAll();
+    query.value = await service.loadAll();
+    // TODO: we should update pagination based on the response
   }
 
   async function getPaged(params: PaginatedParams) {
-    return service.loadPaged(params);
+    query.value = await service.loadPaged(params);
+    // TODO: we should update pagination based on the response
   }
 
   function getAllFromCache() {
@@ -117,40 +103,15 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   }
 
   async function remove(id: Email["id"]) {
-    return service
-      .remove(id)
-      .then(() => addSuccess("Successfully removed email"))
-      .then(service.refresh)
-      .catch(error =>
-        addError({
-          title: isString(error)
-            ? error
-            : error?.title || "We experienced an error removing this email",
-          copy: error?.message,
-          data: error?.data,
-        })
-      );
+    return service.remove(id).then(({ mutate }) => mutate());
   }
 
   async function getDefault() {
-    return getAll().then(items => find(items, "meta.isDefault"));
+    return find(query.value?.data, "meta.isDefault");
   }
 
   async function setDefault(id: Email["id"]) {
-    return service
-      .setDefault(id)
-      .then(() => addSuccess("Successfully set email as default"))
-      .then(service.refresh)
-      .catch(error => {
-        addError({
-          title: isString(error)
-            ? error
-            : error?.title ||
-              "We experienced an error setting this email as default",
-          copy: error?.message,
-          data: error?.data,
-        });
-      });
+    await service.setDefault(id).then(({ mutate }) => mutate());
   }
 
   function nextPage() {
