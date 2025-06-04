@@ -48,14 +48,12 @@ import Item from "../../../modules/client/components/billing/Item.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { useSchemaComposable } from "./utils";
 import { find, lowerCase, map } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import { useBillingDetails } from "@upmind-automation/headless-vue";
 
 // ----------------------------------------------
 
@@ -64,9 +62,6 @@ const props = defineProps<RendererProps<ControlElement>>();
 const jsonFormsControl = useJsonFormsControl(props);
 const { control, formFieldProps, onInput, handleChange } =
   useUpmindUIRenderer(jsonFormsControl);
-
-// TODO: We can make this generic for all composables
-const { setDefault } = useBillingDetails();
 
 const open = ref(false);
 const selectedItem = ref<string>("");
@@ -94,7 +89,6 @@ const parsedValues = computed(() => {
 const selectItem = async (value: string) => {
   onInput(value, false);
   selectedItem.value = value;
-  await setDefault(value);
 };
 
 const clearItem = () => {
