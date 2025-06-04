@@ -28,8 +28,4 @@ export interface Email extends EmailModel {
   };
 }
 
-export type UseClientEmail = ReturnType<typeof useClientEmail>;
-
-export type UseClientEmails = ReturnType<typeof useClientEmails>;
-
 export interface EmailContext extends ClientItemContext {}
