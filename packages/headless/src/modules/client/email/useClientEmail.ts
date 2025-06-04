@@ -134,18 +134,21 @@ export const useClientEmail = (
     return waitFor(service, state => stateMatches(state, "available.valid"))
       .then(async () => {
         send({ type: "UPDATE" });
-        return waitFor(
-          service,
-          state => stateMatches(state, ["processed", "available.error"]),
-          { timeout: Infinity }
-        )
-          .then(state => {
-            if (stateMatches(state, ["error", "available.error"])) {
-              return Promise.reject(state.context.error);
-            }
-            return Promise.resolve();
-          })
-          .then(() => useClientEmailServices().refresh());
+        return (
+          waitFor(
+            service,
+            state => stateMatches(state, ["processed", "available.error"]),
+            { timeout: Infinity }
+          )
+            .then(state => {
+              if (stateMatches(state, ["error", "available.error"])) {
+                return Promise.reject(state.context.error);
+              }
+              return Promise.resolve();
+            })
+            // TODO: invalidation will be handled by the service
+            .then(() => useClientEmailServices().refresh())
+        );
       })
       .catch(() => {
         return Promise.reject(

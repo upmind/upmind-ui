@@ -1,6 +1,13 @@
 // --- utils
 import { responseCodes } from "src/utils";
 
+// --- types
+import type {
+  DefaultError,
+  QueryObserverOptions,
+  MutationObserverOptions,
+} from "@tanstack/vue-query";
+
 // -----------------------------------------------------------------------------
 
 export interface ResponseError {
@@ -26,6 +33,26 @@ export interface RequestParams {
   withAccessToken?: boolean | string | null;
 }
 
+export type QueryParams<
+  TQueryFnData = unknown,
+  TData = TQueryFnData,
+> = RequestParams &
+  Omit<
+    QueryObserverOptions<TQueryFnData, DefaultError, TData>,
+    "queryFn" | "initialData" | "placeholderData"
+  >;
+
+export type MutationParams<
+  TData = unknown,
+  TError = DefaultError,
+  TVariables = void,
+  TContext = unknown,
+> = RequestParams &
+  Omit<
+    MutationObserverOptions<TData, TError, TVariables, TContext>,
+    "mutationFn"
+  >;
+
 export interface PaginatedParams {
   sort?: [direction: ApiSortDirection, property: string];
   filters?: IApiFilter[];
@@ -40,10 +67,6 @@ export interface QueryResponse<T extends unknown = unknown> {
   status: number;
   errors: ResponseError | null;
   messages: string | string[];
-  pagination?: {
-    limit: number;
-    offset: number;
-  };
 }
 
 export interface PaginatedData<T extends unknown> {

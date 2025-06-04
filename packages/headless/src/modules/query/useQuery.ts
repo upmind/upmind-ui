@@ -1,3 +1,6 @@
+// --- external
+import { useMutation, useQuery as vueUseQuery } from "@tanstack/vue-query";
+
 // --- internal
 import { doFetch, refreshToken } from "./services";
 
@@ -8,8 +11,15 @@ import { get, set, unset, isString } from "lodash-es";
 import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 
 // --- types
+import type {
+  QueryParams,
+  ResponseError,
+  RequestParams,
+  QueryResponse,
+  MutationParams,
+} from "./types";
 import { Methods } from "@upmind-automation/types";
-import { ResponseError, RequestParams, QueryResponse } from "./types";
+import type { DefaultError } from "@tanstack/vue-query";
 
 const queryClient = getQueryClient();
 
@@ -44,14 +54,14 @@ export const useQuery = () => {
     set(init, "method", get(init, "method", Methods.GET).toUpperCase());
     // Enforce Content Type header
     if (init.body instanceof FormData) {
-      // do not set header content type
+      // do not set a header content type
       unset(init, "headers.Content-Type");
     } else {
       set(init, "headers.Content-Type", "application/json");
     }
 
     // Enforce Authorization header, if required,
-    // also allow us to pass a custom token, for e.g., 2fa
+    // also allows us to pass a custom token, for e.g., 2fa
     if (withAccessToken) {
       const token = isString(withAccessToken)
         ? withAccessToken
@@ -81,54 +91,45 @@ export const useQuery = () => {
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
-   * @see {@link RequestParams}
-   * @name getRequest
-   * @async
-   * @function
-   *
-   * @example getRequest({ url: "/orders", withAccessToken: true });
-   *
+   * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
-   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
-   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
-   * @throws {Error} Might throw an error if the request fails.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
    */
-  function getRequest<T = any>({
+  function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
-    return request<QueryResponse<T>>({
-      url,
-      init,
-      withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>) {
+    return vueUseQuery<TQueryFnData, DefaultError, TData>({
+      ...options,
+      queryFn: () => request<TQueryFnData>({ url, init, withAccessToken }),
     });
   }
 
   /**
    * Syntax sugar for sending a POST request to the server with the given URL and options.
-   * @see {@link RequestParams}
-   * @name postRequest
-   * @async
-   * @function
-   *
-   * @example postRequest({ url: "/orders", withAccessToken: true });
-   *
+   * @see {@link MutationParams}
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
-   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
-   * @throws {Error} Might throw an error if the request fails.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack mutation.
    */
-  async function postRequest<T = any>({
+  function postRequest<
+    TData = unknown,
+    TError = DefaultError,
+    TVariables = void,
+    TContext = unknown,
+  >({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+    ...options
+  }: MutationParams<TData, TError, TVariables, TContext>) {
     // safeguard
     init ??= {};
 
@@ -136,31 +137,32 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return useMutation({
+      ...options,
+      mutationFn: () => request<TData>({ url, init, withAccessToken }),
+    });
   }
 
   /**
    * Syntax sugar for sending a PUT request to the server with the given URL and options.
-   * @see {@link RequestParams}
-   * @name putRequest
-   * @async
-   * @function
-   *
-   * @example putRequest({ url: "/orders", withAccessToken: true });
-   *
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
-   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
-   * @throws {Error} Might throw an error if the request fails.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack mutation.
    */
-  async function putRequest<T = any>({
+  function putRequest<
+    TData = unknown,
+    TError = DefaultError,
+    TVariables = void,
+    TContext = unknown,
+  >({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+    ...options
+  }: MutationParams<TData, TError, TVariables, TContext>) {
     // safeguard
     init ??= {};
 
@@ -168,31 +170,32 @@ export const useQuery = () => {
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return useMutation({
+      ...options,
+      mutationFn: () => request<TData>({ url, init, withAccessToken }),
+    });
   }
 
   /**
    * Syntax sugar for sending a PATCH request to the server with the given URL and options.
-   * @see {@link RequestParams}
-   * @name patchRequest
-   * @async
-   * @function
-   *
-   * @example patchRequest({ url: "/orders", withAccessToken: true });
-   *
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
-   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
-   * @throws {Error} Might throw an error if the request fails.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack mutation.
    */
-  async function patchRequest<T = any>({
+  function patchRequest<
+    TData = unknown,
+    TError = DefaultError,
+    TVariables = void,
+    TContext = unknown,
+  >({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+    ...options
+  }: MutationParams<TData, TError, TVariables, TContext>) {
     // safeguard
     init ??= {};
 
@@ -200,31 +203,32 @@ export const useQuery = () => {
     set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return useMutation({
+      ...options,
+      mutationFn: () => request<TData>({ url, init, withAccessToken }),
+    });
   }
 
   /**
    * Syntax sugar for sending a DELETE request to the server with the given URL and options.
-   * @see {@link RequestParams}
-   * @name deleteRequest
-   * @async
-   * @function
-   *
-   * @example deleteRequest({ url: "/orders", withAccessToken: true });
-   *
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
-   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
-   * @throws {Error} Might throw an error if the request fails.
+   * @param data The data to send with the request (optional).
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack mutation.
    */
-  async function deleteRequest<T = any>({
+  function deleteRequest<
+    TData = unknown,
+    TError = DefaultError,
+    TVariables = void,
+    TContext = unknown,
+  >({
     url,
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+    ...options
+  }: MutationParams<TData, TError, TVariables, TContext>) {
     // safeguard
     init ??= {};
 
@@ -232,7 +236,10 @@ export const useQuery = () => {
     set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return useMutation({
+      ...options,
+      mutationFn: () => request<TData>({ url, init, withAccessToken }),
+    });
   }
 
   /**
