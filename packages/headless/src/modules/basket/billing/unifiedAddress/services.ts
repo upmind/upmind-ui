@@ -232,7 +232,7 @@ async function update(id: string, data: UnifiedAddressModel) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, regions, country, addresses }: UnifiedAddressContext,
+  { baseModel, schema, regions, country }: UnifiedAddressContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -267,13 +267,6 @@ async function parse(
 
     if (safeModel?.address) {
       safeModel.address.regionId = get(region, "id");
-    }
-
-    if (inputData.type === ADDRESS_TYPE_KEYS.COMPANY && !safeModel?.company) {
-      const defaultAddress = find(addresses, "meta.isDefault");
-      safeModel.company = {
-        addressId: defaultAddress?.id,
-      } as CompanyDetailsModel;
     }
 
     // now lets check our phone number
