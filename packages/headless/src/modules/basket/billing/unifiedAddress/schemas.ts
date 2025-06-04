@@ -32,12 +32,33 @@ export const useSchema = ({
         $ref: "#/definitions/business",
       },
     ],
+    properties: {
+      addressId: {
+        type: ["string", "null"],
+        default: baseModel.addressId,
+        use: useClientAddress,
+        update: "updateAddressId",
+      } as any,
+      companyId: {
+        type: ["string", "null"],
+        default: baseModel.companyId,
+        use: useClientCompany,
+        update: "updateCompanyId",
+      } as any,
+      updateAddressId: {
+        type: ["string", "null"],
+        default: null,
+      },
+      updateCompanyId: {
+        type: ["string", "null"],
+        default: null,
+      },
+    },
     definitions: {
       requireAddressId: {
         properties: {
           addressId: {
             type: "string",
-            minLength: 1,
           },
         },
         required: ["addressId"],
@@ -57,7 +78,6 @@ export const useSchema = ({
         properties: {
           companyId: {
             type: "string",
-            minLength: 1,
           },
         },
         required: ["companyId"],
@@ -69,7 +89,7 @@ export const useSchema = ({
           },
           company: {
             properties: {
-              companyName: { type: "string", minLength: 3 },
+              companyName: { type: "string" },
             },
             required: ["companyName"],
           },
@@ -86,7 +106,6 @@ export const useSchema = ({
             properties: {
               addressId: {
                 type: "string",
-                minLength: 1,
               },
             },
             required: ["addressId"],
@@ -109,10 +128,10 @@ export const useSchema = ({
       requiredAddressFields: {
         type: "object",
         properties: {
-          address1: { type: "string", minLength: 3 },
-          countryId: { type: "string", minLength: 1 },
-          city: { type: "string", minLength: 3 },
-          postcode: { type: "string", minLength: 3 },
+          address1: { type: "string" },
+          countryId: { type: "string" },
+          city: { type: "string" },
+          postcode: { type: "string" },
         },
         required: ["address1", "countryId", "city", "postcode"],
         errorMessage: {
@@ -135,7 +154,6 @@ export const useSchema = ({
           companyName: {
             type: "string",
             title: "Company Name",
-            minLength: 3,
           },
           regNumber: {
             type: ["string", "null"],
@@ -226,23 +244,7 @@ export const useSchema = ({
         properties: {
           type: {
             type: "number",
-            enum: [1],
-          },
-          addressId: {
-            type: ["string", "null"],
-            default: baseModel.addressId,
-          },
-          companyId: {
-            type: ["string", "null"],
-            default: baseModel.companyId,
-          },
-          updateAddressId: {
-            type: ["string", "null"],
-            default: null,
-          },
-          updateCompanyId: {
-            type: ["string", "null"],
-            default: null,
+            default: 1,
           },
           address: {
             $ref: "#/definitions/address",
@@ -269,23 +271,7 @@ export const useSchema = ({
         properties: {
           type: {
             type: "number",
-            enum: [4],
-          },
-          addressId: {
-            type: ["string", "null"],
-            default: baseModel.addressId,
-          },
-          companyId: {
-            type: ["string", "null"],
-            default: baseModel.companyId,
-          },
-          updateAddressId: {
-            type: ["string", "null"],
-            default: null,
-          },
-          updateCompanyId: {
-            type: ["string", "null"],
-            default: null,
+            default: 4,
           },
           company: {
             $ref: "#/definitions/company",
