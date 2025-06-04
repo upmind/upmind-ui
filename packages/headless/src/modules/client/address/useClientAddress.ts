@@ -16,6 +16,8 @@ import {
   DetailedError,
   responseCodes,
   UnavailableError,
+  stateMatches,
+  contextValue,
 } from "../../../utils";
 import { get } from "lodash-es";
 
@@ -23,6 +25,7 @@ import { get } from "lodash-es";
 import type { ClientItemContext } from "../types";
 import type { Address, AddressModel } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
@@ -56,14 +59,13 @@ export const useClientAddress = (
   const { state, send } = useActor(service);
 
   const isReady = async (): Promise<boolean> =>
-    waitFor(service, state => state.matches("available"), {
+    waitFor(service, state => stateMatches(state, "available"), {
       timeout: Infinity,
     }).then(state => {
-      if (["error"].some(state.matches)) {
+      if (stateMatches(state, "error")) {
         if (
-          state.context.error &&
-          "status" in state.context.error &&
-          state.context.error?.status == responseCodes.Service_Unavailable
+          (errors.value as ResponseError)?.status ==
+          responseCodes.Service_Unavailable
         ) {
           return Promise.reject(new UnavailableError());
         }
@@ -73,15 +75,15 @@ export const useClientAddress = (
     });
 
   const meta = computed(() => ({
-    isNew: ["loading"].some(state.value.matches),
-    isValid: ["available.error"].some(state.value.matches),
-    isLoading: ["processing"].some(state.value.matches),
-    hasErrors: ["available.valid"].some(state.value.matches),
-    canRemove: !state.value.context?.model?.id,
-    isDefault: !!state.value?.context?.model?.canDelete,
-    isVerified: !!state.value?.context?.model?.default,
-    isComplete: !!state.value?.context?.model?.verified,
-    isProcessing: state.value.done || ["complete"].some(state.value.matches),
+    isNew: stateMatches(state, "loading"),
+    isValid: stateMatches(state, "available.error"),
+    isLoading: stateMatches(state, "processing"),
+    hasErrors: stateMatches(state, "available.valid"),
+    canRemove: !contextValue(state, "model.id"),
+    isDefault: !!stateMatches(state, "model.canDelete"),
+    isVerified: !!stateMatches(state, "model.default"),
+    isComplete: !!stateMatches(state, "model.verified"),
+    isProcessing: state.value.done || stateMatches(state, "complete"),
   }));
 
   // --- context
@@ -94,7 +96,7 @@ export const useClientAddress = (
 
   const schema = useContext<JsonSchema>(state, "schema");
 
-  const context = computed(() => state.value.context);
+  const context = useContext<ClientItemContext>(state);
 
   const uischema = useContext<UISchemaElement>(state, "uischema");
 
@@ -111,13 +113,13 @@ export const useClientAddress = (
   const input = async (model: AddressModel): Promise<AddressModel> => {
     // we have to ensure we are able to input data
     return waitFor(service, state =>
-      ["available.valid", "available.invalid"].some(state.matches)
+      stateMatches(state, ["available.valid", "available.invalid"])
     )
       .then(async () => {
         send({ type: "SET", data: model });
         // then we wait until the module has been checked and is valid/invalid
         return waitFor(service, state =>
-          ["available.valid", "available.invalid"].some(state.matches)
+          stateMatches(state, ["available.valid", "available.invalid"])
         ).then(state => get(state, "context.model") as AddressModel);
       })
       .catch(() => {
@@ -129,17 +131,17 @@ export const useClientAddress = (
 
   const update = async () => {
     // we have to ensure we are able to update the address, i.e., it's available and valid
-    return waitFor(service, state => state.matches("available.valid"))
+    return waitFor(service, state => stateMatches(state, "available.valid"))
       .then(async () => {
         send({ type: "UPDATE" });
         return waitFor(
           service,
-          state => ["processed", "available.error"].some(state.matches),
+          state => stateMatches(state, ["processed", "available.error"]),
           { timeout: Infinity }
         )
           .then(state => {
-            if (["error", "available.error"].some(state.matches)) {
-              return Promise.reject(state.context.error);
+            if (stateMatches(state, ["error", "available.error"])) {
+              return Promise.reject(errors.value);
             }
             return Promise.resolve();
           })

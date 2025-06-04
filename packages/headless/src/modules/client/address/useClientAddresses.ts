@@ -295,3 +295,5 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     }),
   };
 };
+
+export type UseClientAddresses = ReturnType<typeof useClientAddresses>;
