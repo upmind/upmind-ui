@@ -56,8 +56,8 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   });
 
   /**
-   * Check if the client addresses are loaded and ready.
-   * @returns A promise that resolves to true when the addresses are ready to be fetched.
+   * Check if the client emails are loaded and ready.
+   * @returns A promise that resolves to true when the emails are ready to be fetched.
    */
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
