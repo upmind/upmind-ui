@@ -4,17 +4,12 @@ import { doFetch, refreshToken } from "./services";
 // --- utils
 import { useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { get, set, unset, isString, isFunction } from "lodash-es";
+import { get, set, unset, isString } from "lodash-es";
 import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 
 // --- types
-import {
-  QueryParams,
-  ResponseError,
-  RequestParams,
-  QueryResponse,
-} from "./types";
 import { Methods } from "@upmind-automation/types";
+import { ResponseError, RequestParams, QueryResponse } from "./types";
 
 const queryClient = getQueryClient();
 
@@ -36,12 +31,10 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function request<T extends object = object>({
+  async function request<T extends any = any>({
     url,
     init,
     withAccessToken,
-    mapPaginatedData,
-    transformResponse,
   }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
@@ -66,43 +59,29 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    return doFetch<T>({ url, init })
-      .then(response => {
-        let parsedResponse = response;
-        if (isFunction(mapPaginatedData)) {
-          debugger;
-          parsedResponse = mapPaginatedData(response as any) as any;
-        }
+    return doFetch<T>({ url, init }).catch(async error => {
+      const requestError = error as ResponseError;
+      attempts++;
 
-        if (isFunction(transformResponse)) {
-          return transformResponse(parsedResponse) as Promise<T>;
-        }
-
-        return parsedResponse;
-      })
-      .catch(async error => {
-        const requestError = error as ResponseError;
-        attempts++;
-
-        // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
-        if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
-          return refreshToken().then(() => {
-            // get the new access token and update the access token in the request
-            set(
-              init,
-              `headers.Authorization`,
-              `Bearer ${getTokenFromStorage()?.access_token}`
-            ); // finally, retry the request
-            return doFetch<T>({ url, init });
-          });
-        }
-        return Promise.reject(requestError);
-      });
+      // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
+      if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
+        return refreshToken().then(() => {
+          // get the new access token and update the access token in the request
+          set(
+            init,
+            `headers.Authorization`,
+            `Bearer ${getTokenFromStorage()?.access_token}`
+          ); // finally, retry the request
+          return doFetch<T>({ url, init });
+        });
+      }
+      return Promise.reject(requestError);
+    });
   }
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
-   * @see {@link QueryParams}
+   * @see {@link RequestParams}
    * @name getRequest
    * @async
    * @function
@@ -113,51 +92,18 @@ export const useQuery = () => {
    * @param init The request options.
    * @param allowStale Whether to allow stale data to be returned if the query is not in the cache.
    * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
-   * @param mapPaginatedData A function to map the paginated data returned from the server. This is useful for transforming the data into a format that is easier to work with.
-   * @param transformResponse A function to transform the response data returned from the server. This is useful for transforming the data into a format that is easier to work with.
-   * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function getRequest<T = object>({
+  function getRequest<T = any>({
     url,
     init,
-    allowStale = true,
     withAccessToken,
-    mapPaginatedData,
-    transformResponse,
-    ...options
-  }: QueryParams<QueryResponse<T>>): Promise<QueryResponse<T>> {
-    if (allowStale) {
-      /**
-       * ensureQueryData is an asynchronous function that can be used to get an existing query's cached data.
-       * If the query does not exist, queryClient.fetchQuery will be called and its results returned.
-       */
-      return queryClient.ensureQueryData({
-        queryFn: () =>
-          request<QueryResponse<T>>({
-            url,
-            init,
-            withAccessToken,
-            mapPaginatedData,
-            transformResponse,
-          }),
-        ...options,
-      });
-    }
-    /**
-     * fetchQuery is an asynchronous function that can be used to fetch data from the server.
-     */
-    return queryClient.fetchQuery({
-      queryFn: () =>
-        request<QueryResponse<T>>({
-          url,
-          init,
-          withAccessToken,
-          transformResponse,
-          mapPaginatedData,
-        }),
-      ...options,
+  }: RequestParams): Promise<QueryResponse<T>> {
+    return request<QueryResponse<T>>({
+      url,
+      init,
+      withAccessToken,
     });
   }
 
@@ -177,7 +123,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function postRequest<T = object>({
+  async function postRequest<T = any>({
     url,
     init,
     data,
@@ -209,7 +155,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function putRequest<T = object>({
+  async function putRequest<T = any>({
     url,
     init,
     data,
@@ -220,7 +166,7 @@ export const useQuery = () => {
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PUT.toUpperCase());
-    set(init, "body", JSON.stringify(data));
+    set(init, "body", parseData(data));
 
     return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
@@ -241,7 +187,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function patchRequest<T = object>({
+  async function patchRequest<T = any>({
     url,
     init,
     data,
@@ -252,7 +198,8 @@ export const useQuery = () => {
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
-    set(init, "body", JSON.stringify(data));
+    set(init, "body", parseData(data));
+
     return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
 
@@ -272,7 +219,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function deleteRequest<T = object>({
+  async function deleteRequest<T = any>({
     url,
     init,
     data,
@@ -283,7 +230,7 @@ export const useQuery = () => {
 
     // Enforce method, header, parse body
     set(init, "method", Methods.DELETE.toUpperCase());
-    set(init, "body", JSON.stringify(data));
+    set(init, "body", parseData(data));
 
     return request<QueryResponse<T>>({ url, init, withAccessToken });
   }
@@ -304,7 +251,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function headRequest<T = object>({
+  async function headRequest<T = any>({
     url,
     init,
     withAccessToken,
@@ -328,7 +275,6 @@ export const useQuery = () => {
     post: postRequest,
     head: headRequest,
     patch: patchRequest,
-    request,
     // ---
     queryClient,
   };
