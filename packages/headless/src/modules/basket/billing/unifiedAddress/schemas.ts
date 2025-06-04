@@ -241,6 +241,7 @@ export const useSchema = ({
       personal: {
         type: "object",
         additionalProperties: true,
+        required: [],
         properties: {
           type: {
             type: "number",
@@ -314,7 +315,8 @@ export const useSchema = ({
   };
 
   if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    //
+    schema.definitions!.personal.required!.push("phone");
+    schema.definitions!.business.required!.push("phone");
   }
 
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
