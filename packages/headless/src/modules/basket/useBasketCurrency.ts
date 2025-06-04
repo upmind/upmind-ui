@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -77,18 +77,18 @@ export const useBasketCurrency = () => {
 
   // --- methods
 
-  function input(model: CurrencyModel) {
-    actor.value?.send({ type: "SET", data: model });
+  function input(value: CurrencyModel) {
+    actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
-  async function update(model: CurrencyModel): Promise<void> {
+  async function update(value: CurrencyModel): Promise<void> {
     // first check if our currency has change, ie: model.code has changed
 
-    const code = model?.code?.toUpperCase();
-    const value = contextValue<CurrencyModel>(service, "model");
+    const code = toRaw(unref(value))?.code?.toUpperCase();
+    const model = contextValue<CurrencyModel>(service, "model");
 
     // if it has not then bail
-    if (!code || code == value?.code) return Promise.resolve();
+    if (!code || code == model?.code) return Promise.resolve();
 
     actor.value?.send({ type: "SET", data: { code }, update: true });
 
@@ -172,15 +172,14 @@ export const useBasketCurrency = () => {
     clear,
 
     /** Sends a SET event to update the currency model.
-     * @param {CurrencyModel} model The currency model to set.
+     * @param {CurrencyModel} value The currency model to set.
      * @returns {void} Does not return anything.
      */
-
     input,
 
     /**
      * Updates the currency if the code has changed.
-     * @param {CurrencyModel} model The new currency model to set.
+     * @param {CurrencyModel} value The new currency model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     update,
