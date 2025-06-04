@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSession } from "../..";
 
 // --- utils
 import {
@@ -9,56 +9,43 @@ import {
 } from "../../../utils";
 import { mapEmails, mapIEmail } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { isNil, isEmpty, get, set, defaultsDeep, first } from "lodash-es";
+import { isNil, isEmpty, get, first } from "lodash-es";
 
 // --- types
+import { EmailTypes } from "./types";
 import type { IEmail } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Email, EmailModel, EmailContext } from "./types";
-import { EmailTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const queryKey: QueryKey = ["client", "emails"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { useUrl, request } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Email[]>({
+  return request<QueryResponse<IEmail[]>>({
     url: useUrl(`clients/${client.id}/emails`, {
       limit: 0,
     }),
-    queryKey,
-    allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapEmails(response?.data ?? [])),
-  }).then(({ data }) => data);
+  }).then(({ data }) => mapEmails(data ?? []));
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { useUrl, request } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Email[]>({
+  return request<QueryResponse<IEmail[]>>({
     url: useUrl(`clients/${client.id}/emails`),
-    queryKey: [...queryKey, { ...paginationParams }],
-    allowStale,
     withAccessToken: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapEmails(response?.data ?? [])),
-    revalidateIfStale: true,
     ...paginationParams,
-  }).then(({ data }) => data ?? []);
+  }).then(({ data }) => mapEmails(data ?? []));
 }
 
 function loadAllFromCache() {
@@ -78,7 +65,7 @@ async function loadLookups({
   model,
   schema,
 }: EmailContext): Promise<EmailContext> {
-  // we don't have any lookups for emails, so just return null
+  // we don't have any lookups for emails, so return null
   const baseModel: EmailModel = {
     email: "",
     type: first(EmailTypes)?.key || 1,
@@ -190,7 +177,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -216,6 +203,6 @@ export const useClientEmailServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };
