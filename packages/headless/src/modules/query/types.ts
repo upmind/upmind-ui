@@ -1,6 +1,8 @@
-// --- types
-import type { EnsureQueryDataOptions } from "@tanstack/query-core";
+// --- utils
 import { responseCodes } from "src/utils";
+
+// --- types
+import type { EnsureQueryDataOptions } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 
