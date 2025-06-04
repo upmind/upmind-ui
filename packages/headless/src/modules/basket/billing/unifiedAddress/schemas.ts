@@ -5,7 +5,8 @@ import { filter, get, map, uniq } from "lodash-es";
 import type { UnifiedAddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { useClientAddress, useClientAddresses } from "../../../client/address";
+import { useClientAddress } from "../../../client/address";
+import { useClientCompany } from "../../../client/company";
 
 // Use a conditional element as we only want the field to mount when there is a value
 const conditionalElement = (condition: any, element: any) => {
@@ -31,6 +32,7 @@ export const useSchema = ({
       companyId: {
         type: ["string", "null"],
         default: baseModel.companyId,
+        use: useClientCompany,
         update: "updateCompanyId",
       } as any,
       updateAddressId: {
@@ -350,7 +352,7 @@ export const useUischema = ({
     type: "VerticalLayout",
     elements: [
       ...conditionalElement(get(model, "updateAddressId"), {
-        type: "Update",
+        type: "Model",
         scope: "#/properties/updateAddressId",
         label: "",
       }),
@@ -394,7 +396,7 @@ export const useUischema = ({
     type: "VerticalLayout",
     elements: [
       ...conditionalElement(get(model, "updateCompanyId"), {
-        type: "Update",
+        type: "Model",
         scope: "#/properties/updateCompanyId",
         label: "",
       }),

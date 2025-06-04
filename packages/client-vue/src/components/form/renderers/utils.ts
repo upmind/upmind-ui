@@ -25,7 +25,7 @@ export const useSchemaComposable = (control: any): FormComposable => {
     state: () => null,
     context: () => null,
     errors: () => null,
-    schema: null,
-    uischema: null,
+    schema: () => null,
+    uischema: () => null,
   };
 };

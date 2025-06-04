@@ -49,6 +49,9 @@ export const useClientCompany = (
     getSnapshot: () => service?.getSnapshot(),
     stop: () => service.stop(),
     // ---
+    schema: () => service?.getSnapshot().context.schema,
+    uischema: () => service?.getSnapshot().context.uischema,
+    // ---
     isReady: async () => {
       return waitFor(service, state => state.matches("available"), {
         timeout: Infinity, // infinity = no timeout
