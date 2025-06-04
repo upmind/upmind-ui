@@ -158,7 +158,8 @@ async function loadLookups({
 async function add(data: UnifiedAddressModel) {
   const { add: addAddress } = useClientAddressServices();
   const { add: addCompany } = useClientCompanyServices();
-  const { setDefault } = useClientAddresses();
+  const { setDefault: setDefaultAddress } = useClientAddresses();
+  const { setDefault: setDefaultCompany } = useClientCompanies();
 
   if (data?.type === ADDRESS_TYPE_KEYS.HOME) {
     // For personal addresses, create phone separately if it exists (we don't link as it doesn't accept phone_id)
@@ -171,13 +172,13 @@ async function add(data: UnifiedAddressModel) {
     }
 
     return addAddress({ model: data.address }).then(async item => {
-      await setDefault(item.data.id);
+      await setDefaultAddress(item.data.id);
       return useBillingDetailsServices().invalidate();
     });
   } else {
     return ensureDependencies({ model: data })
       .then(async ({ address, email, phone }) => {
-        const company = addCompany({
+        const company = await addCompany({
           model: {
             emailId: email?.id,
             phoneId: phone?.id,
@@ -188,7 +189,7 @@ async function add(data: UnifiedAddressModel) {
             ...pick(data?.company, ["vatPercent", "taxId", "businessType"]),
           },
         });
-        await setDefault(address?.id);
+        await setDefaultCompany(company.data.id);
         return company;
       })
       .then(() => useBillingDetailsServices().invalidate());
@@ -294,11 +295,19 @@ async function parse(
       safeModel.address.type = ADDRESS_TYPE_KEYS.COMPANY;
     }
 
-    if (safeModel?.addressId && safeModel.addressId !== baseModel?.addressId) {
+    if (
+      inputData?.type === ADDRESS_TYPE_KEYS.HOME &&
+      safeModel?.addressId &&
+      safeModel.addressId !== baseModel?.addressId
+    ) {
       await setDefaultAddress(safeModel.addressId);
     }
 
-    if (safeModel?.companyId && safeModel.companyId !== baseModel?.companyId) {
+    if (
+      inputData?.type === ADDRESS_TYPE_KEYS.COMPANY &&
+      safeModel?.companyId &&
+      safeModel.companyId !== baseModel?.companyId
+    ) {
       await setDefaultCompany(safeModel.companyId);
     }
   }
@@ -362,6 +371,12 @@ async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
 }
 
 async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
+  if (model?.company?.addressId) {
+    return Promise.resolve({
+      id: model?.company?.addressId,
+    } as Address);
+  }
+
   const addresses = useClientAddresses();
 
   // Include type field and set to company type if this is for a company
