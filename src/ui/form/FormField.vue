@@ -12,12 +12,14 @@
       <div class="w-full flex-col">
         <FormLabel v-if="meta.hasLabel" :formItemId="id">
           <slot name="label" :label="label">
-            <span class="inline-flex items-center gap-x-0.5">
+            <span
+              class="inline-flex w-full items-center justify-between gap-x-0.5"
+            >
               <slot name="icon" />
 
               <span>{{ label }}</span>
 
-              <FormRequiredIndicator v-if="meta.isRequired" :formItemId="id" />
+              <FormRequiredIndicator v-if="!meta.isRequired" :formItemId="id" />
 
               <Tooltip
                 v-if="tooltip"

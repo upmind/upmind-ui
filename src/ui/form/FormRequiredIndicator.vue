@@ -1,10 +1,10 @@
 <template>
   <span
-    :class="cn('text-error', props.class)"
+    :class="cn('text-emphasis-medium', props.class)"
     :for="props.formItemId"
     :invalid="true"
   >
-    <slot>*</slot>
+    <slot>Optional</slot>
   </span>
 </template>
 
