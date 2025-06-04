@@ -8,6 +8,7 @@
     color="primary"
     @resolve="updateAddress"
     :no-actions="noActions"
+    no-errors
   >
     <template #actions>
       <footer class="flex gap-x-6">
