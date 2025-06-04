@@ -12,7 +12,18 @@ export * from "./useTransfer";
 // --- utils
 import { get, isEmpty, values } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
-import { DetailedError, responseCodes } from "../../utils";
+import {
+  useChildService,
+  DetailedError,
+  responseCodes,
+  contextValue,
+} from "../../utils";
+import {
+  useContext,
+  useChildActor,
+  stateMatches,
+  contextMatches,
+} from "../../utils";
 
 // ---types
 import type { IAuthTransfer, SessionTransfer, User } from "./types";
@@ -32,10 +43,9 @@ const service = interpret(sessionMachine, { devTools: false });
  * Composable function to manage session-related logic using Vue.
  * It provides state, context and helpers for session, login and registration processes.
  *
- * @param {Function} [inspector] - Optional function that can inspect the session's state and context changes.
  * @returns {object} Session management API (see below for details)
  */
-export const useSession = (inspector?: Function) => {
+export const useSession = () => {
   const { state, send } = useActor(service.start());
 
   // --- state
@@ -45,11 +55,9 @@ export const useSession = (inspector?: Function) => {
       service,
       state => {
         const spawned = state?.children;
-
-        if (state.matches("error")) return false;
-
+        if (stateMatches(state, "error")) return false;
         return values(spawned).some(machine => {
-          return waitFor(machine, state => state.matches("available"))
+          return waitFor(machine, state => stateMatches(state, "available"))
             .then(() => true)
             .catch(() => false);
         });
@@ -59,26 +67,35 @@ export const useSession = (inspector?: Function) => {
       }
     )
       .then(state => {
-        if (state.matches("error")) {
+        if (stateMatches(state, "error")) {
           return Promise.reject(state.context.error);
         }
         return true;
       })
-      .catch(error => {
-        return false;
-      });
+      .catch(() => false);
   }
 
   async function isAuthenticated(): Promise<User> {
     return isReady()
       .then(() => {
-        const clientMachine: any = state.value?.children?.clientMachine;
+        if (!clientMachine.value) throw new Error("Not authenticated");
 
-        if (!clientMachine) throw new Error("Not authenticated");
-
-        return waitFor(clientMachine, state => state.matches("available"), {
-          timeout: 60_000,
-        }).then(() => clientMachine.state.context.user);
+        return waitFor(
+          clientMachine.value,
+          state => stateMatches(state, "available"),
+          {
+            timeout: 60_000,
+          }
+        ).then(() => {
+          const user = contextValue<User>(clientMachine, "user");
+          if (!user) {
+            throw new DetailedError(
+              "[headless] isAuthenticated on useSession failed",
+              responseCodes.Unauthorized
+            );
+          }
+          return user;
+        });
       })
       .catch(() =>
         Promise.reject(
@@ -89,51 +106,46 @@ export const useSession = (inspector?: Function) => {
 
   const meta = computed(() => ({
     isLoading:
-      state.value.matches("checking") ||
-      (guest.value?.matches &&
-        [
-          "loading",
-          "available.login.loading",
-          "available.register.loading",
-          "available.recover.loading",
-        ].some(guest.value.matches)) ||
-      client.value?.matches("loading") ||
+      stateMatches(state, "checking") ||
+      stateMatches(guestMachine, [
+        "loading",
+        "available.login.loading",
+        "available.register.loading",
+        "available.recover.loading",
+      ]) ||
+      stateMatches(clientMachine, "loading") ||
       false,
-    isAvailable: !["error", "checking"].some(state.value.matches),
+    isAvailable: !stateMatches(state, ["error", "checking"]),
     isProcessing:
-      (guest.value?.matches &&
-        [
-          "available.login.authenticating",
-          "available.login.verifying",
-          "available.register.checking",
-          "available.register.verifying",
-          "available.register.registering",
-          "available.register.authenticating",
-          "available.recover.recovering",
-        ].some(guest.value.matches)) ||
-      client.value?.matches("processing"),
-    isAuthenticated: state.value.matches("client"),
-    isTransferring: client.value?.matches("transferring"),
-    hasExpired: state.value.matches("expired") || isEmpty(state.value.children),
+      stateMatches(guestMachine, [
+        "available.login.authenticating",
+        "available.login.verifying",
+        "available.register.checking",
+        "available.register.verifying",
+        "available.register.registering",
+        "available.register.authenticating",
+        "available.recover.recovering",
+      ]) || stateMatches(clientMachine, "processing"),
+    isAuthenticated: stateMatches(state, "client"),
+    isTransferring: stateMatches(clientMachine, "transferring"),
+    hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
-      state.value.matches("error") ||
-      (guest.value?.matches &&
-        [
-          "available.login.error",
-          "available.register.error",
-          "available.recover.error",
-        ].some(guest.value.matches)) ||
-      client.value?.matches("error"),
-    showReCaptcha: guest.value?.matches("available.register.challenging"),
-    showLoginForm: guest.value?.matches("available.login"),
-    show2fa:
-      guest.value?.matches &&
-      ["available.login.challenging", "available.login.verifying"].some(
-        guest.value.matches
-      ),
-    canShowForms: guest.value?.matches("available.idle"),
-    showRegisterForm: guest.value?.matches("available.register"),
-    showRecoverPasswordForm: guest.value?.matches("available.recover"),
+      stateMatches(state, "error") ||
+      stateMatches(guestMachine, [
+        "available.login.error",
+        "available.register.error",
+        "available.recover.error",
+      ]) ||
+      stateMatches(clientMachine, "error"),
+    showReCaptcha: stateMatches(guestMachine, "available.register.challenging"),
+    showLoginForm: stateMatches(guestMachine, "available.login"),
+    show2fa: stateMatches(guestMachine, [
+      "available.login.challenging",
+      "available.login.verifying",
+    ]),
+    canShowForms: stateMatches(guestMachine, "available.idle"),
+    showRegisterForm: stateMatches(guestMachine, "available.register"),
+    showRecoverPasswordForm: stateMatches(guestMachine, "available.recover"),
   }));
 
   // --- context
@@ -141,62 +153,67 @@ export const useSession = (inspector?: Function) => {
   /**
    * Information about the authenticated client, if available. Represents the logged-in user.
    */
-  const client = computed(() => {
-    const clientMachine = state.value?.children?.clientMachine;
-    if (!clientMachine) return null;
-    const { state: clientState } = useActor(clientMachine);
-    return clientState.value;
-  });
+  const client = useChildActor(state, "clientMachine");
+  const clientMachine = useChildService(state, "clientMachine");
 
   /**
    * Information about the guest user, if available. Used to handle non-authenticated user interactions.
    */
-  const guest = computed(() => {
-    const guestMachine = state.value?.children?.guestMachine;
-    if (!guestMachine) return null;
-    const { state: guestState } = useActor(guestMachine);
-    return guestState.value;
-  });
+  const guest = useChildActor(state, "guestMachine");
+  const guestMachine = useChildService(state, "guestMachine");
 
   /**
    * Context object containing session-specific information such as current user,
    * authentication status, and other dynamic data.
    */
-  const context = computed(() => state.value.context);
+  const context = useContext(state);
 
   /**
    * User-specific information for the currently authenticated user, including profile and account data.
    */
-  const user = computed(() => client.value?.context?.user);
+  const user = useContext(clientMachine, "user");
 
   /**
    * The underlying data model used in session-related forms such as login or registration.
    */
-  const model = computed(() => guest.value?.context?.model);
+  const model = useContext(guestMachine, "model");
+
   /**
    * JSON Schema used to define the structure of session-related forms, like login and registration.
    */
-  const schema = computed(() => guest.value?.context?.schema);
+  const schema = useContext(guestMachine, "schema");
+
   /**
    * UI Schema used to configure the presentation and layout of session-related forms.
    */
-  const uischema = computed(() => guest.value?.context?.uischema);
+  const uischema = useContext(guestMachine, "uischema");
+
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
-  const errors = computed(() => guest.value?.context?.error);
+  const errors = useContext(guestMachine, "error");
 
   // --- methdos
 
   // ---  methods
 
   async function getUser(): Promise<User> {
-    const clientMachine: any = state.value?.children?.clientMachine;
-    return waitFor(clientMachine, state => !state.matches("loading"), {
-      timeout: 60_000,
-    })
+    if (!clientMachine.value) {
+      throw new DetailedError(
+        "[headless] getUser on useSession failed",
+        responseCodes.Unauthorized
+      );
+    }
+
+    return waitFor(
+      clientMachine.value,
+      state => !stateMatches(state, "loading"),
+      {
+        timeout: 60_000,
+      }
+    )
       .then(state => {
-        const user = get(state, "context.user");
+        const user = get(state, "user");
         if (!user)
           throw new DetailedError(
             "[headless] getUser on useSession failed",
@@ -213,21 +230,23 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function getUserId(): Promise<string | undefined> {
-    const user = await getUser();
-    return user?.id;
+    return getUser()
+      .then(user => user?.id)
+      .catch(() => undefined);
   }
 
   // ---
 
   async function showLogin(): Promise<boolean> {
+    if (!guestMachine.value) return true; // already logged in
+
     service.send({
       type: "LOGIN",
     });
-    const guestMachine = get(state.value, "children.guestMachine");
 
     return await waitFor(
-      guestMachine,
-      state => ["available.login"].some(state.matches),
+      guestMachine.value,
+      state => stateMatches(state, "available.login"),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -235,14 +254,15 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function showRegister(): Promise<boolean> {
+    if (!guestMachine.value) return true; // already logged in
+
     service.send({
       type: "REGISTER",
     });
-    const guestMachine = get(state.value, "children.guestMachine");
 
     return await waitFor(
-      guestMachine,
-      state => ["available.register"].some(state.matches),
+      guestMachine.value,
+      state => stateMatches(state, "available.register"),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -250,14 +270,15 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function showRecoverPassword(): Promise<boolean> {
+    if (!guestMachine.value) return true; // already logged in
+
     service.send({
       type: "RECOVER",
     });
-    const guestMachine = get(state.value, "children.guestMachine");
 
     return await waitFor(
-      guestMachine,
-      state => ["available.recover"].some(state.matches),
+      guestMachine.value,
+      state => stateMatches(state, "available.recover"),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -267,21 +288,22 @@ export const useSession = (inspector?: Function) => {
   // ---
 
   async function login(model: any): Promise<boolean> {
+    if (!guestMachine.value) return true; // already logged in
+
     service.send({
       type: "AUTHENTICATE",
       data: get(model, "value", model), // ensure we dont have any reactive refs
     });
-    const guestMachine = get(state.value, "children.guestMachine");
 
     return await waitFor(
-      guestMachine,
-      state => ["complete", "available.login.error"].some(state.matches),
+      guestMachine.value,
+      state => stateMatches(state, ["complete", "available.login.error"]),
       {
         timeout: 60000,
       }
     )
       .then(state => {
-        if (state.matches("available.login.error")) {
+        if (stateMatches(state, "available.login.error")) {
           return false;
         }
         return true;
@@ -290,8 +312,7 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function verify2fa({ token }: { token: string }): Promise<any> {
-    const guestMachine = get(state.value, "children.guestMachine");
-    if (!guestMachine) return true; // already logged in
+    if (!guestMachine.value) return true; // already logged in
 
     service.send({
       type: "VERIFY",
@@ -299,14 +320,14 @@ export const useSession = (inspector?: Function) => {
     });
 
     return await waitFor(
-      guestMachine,
-      state => ["complete", "available.login.error"].some(state.matches),
+      guestMachine.value,
+      state => stateMatches(state, ["complete", "available.login.error"]),
       {
         timeout: 60000,
       }
     )
       .then(state => {
-        if (state.matches("available.login.error")) {
+        if (stateMatches(state, "available.login.error")) {
           return false;
         }
         return true;
@@ -315,8 +336,7 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function register(model: any): Promise<boolean> {
-    const guestMachine = get(state.value, "children.guestMachine");
-    if (!guestMachine) return true; // already logged in
+    if (!guestMachine.value) return true; // already logged in
 
     service.send({
       type: "REGISTER",
@@ -324,14 +344,14 @@ export const useSession = (inspector?: Function) => {
     });
 
     return await waitFor(
-      guestMachine,
-      state => ["complete", "available.register.error"].some(state.matches),
+      guestMachine.value,
+      state => stateMatches(state, ["complete", "available.register.error"]),
       {
         timeout: 60000,
       }
     )
       .then(state => {
-        if (state.matches("available.register.error")) {
+        if (stateMatches(state, "available.register.error")) {
           return false;
         }
         return true;
@@ -340,8 +360,7 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function recover(model: any): Promise<boolean> {
-    const guestMachine = get(state.value, "children.guestMachine");
-    if (!guestMachine) return true; // we're already logged in
+    if (!guestMachine.value) return true; // we're already logged in
 
     service.send({
       type: "RECOVER",
@@ -349,15 +368,16 @@ export const useSession = (inspector?: Function) => {
     });
 
     return await waitFor(
-      guestMachine,
+      guestMachine.value,
       state =>
-        ["available.recover.complete", "available.recover.error"].some(
-          state.matches
-        ),
+        stateMatches(state, [
+          "available.recover.complete",
+          "available.recover.error",
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (state.matches("available.recover.error")) {
+        if (stateMatches(state, "available.recover.error")) {
           return false;
         }
         return true;
@@ -366,16 +386,15 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function logout(): Promise<boolean> {
-    const clientMachine = get(state.value, "children.clientMachine");
-    if (!clientMachine) return true; // were already logged out
+    if (!clientMachine.value) return true; // were already logged out
 
     service.send({
       type: "LOGOUT",
     });
 
     return await waitFor(
-      clientMachine,
-      state => ["complete"].some(state.matches),
+      clientMachine.value,
+      state => stateMatches(state, "complete"),
       {
         timeout: 60000,
       }
@@ -385,9 +404,7 @@ export const useSession = (inspector?: Function) => {
   }
 
   async function transferTo(): Promise<IAuthTransfer> {
-    const clientMachine = state.value?.children?.clientMachine;
-
-    if (!clientMachine) {
+    if (!clientMachine.value) {
       const { addError } = useFeedback();
       addError({ title: "Transfer not available" });
       return Promise.reject(new Error("Transfer not available"));
@@ -398,8 +415,8 @@ export const useSession = (inspector?: Function) => {
     });
 
     return waitFor(
-      clientMachine,
-      newState => newState.matches("transferring.available"),
+      clientMachine.value,
+      newState => stateMatches(newState, "transferring.available"),
       { timeout: 60_000 }
     )
       .then(newState => {
@@ -435,7 +452,7 @@ export const useSession = (inspector?: Function) => {
 
     return waitFor(
       service,
-      newState => newState.matches("transferring.processed"),
+      newState => stateMatches(newState, "transferring.processed"),
       { timeout: 60_000 }
     )
       .then(newState => {
@@ -490,7 +507,7 @@ export const useSession = (inspector?: Function) => {
       type: "CANCEL",
     });
     const guestMachine = state.value?.children?.guestMachine;
-    return waitFor(guestMachine, state => ["available"].some(state.matches), {
+    return waitFor(guestMachine, state => stateMatches(state, "available"), {
       timeout: 60_000,
     });
   }

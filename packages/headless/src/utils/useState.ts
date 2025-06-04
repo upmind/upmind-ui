@@ -34,7 +34,10 @@ type StateLike =
   | ComputedRef<VueState>
   | ActorRef<any>
   | ComputedRef<ActorRef<any>>
-  | Ref<ActorRef<any>>;
+  | Ref<ActorRef<any>>
+  | undefined
+  | ComputedRef<undefined>
+  | Ref<undefined>;
 
 type Actor = {
   id: string | number | symbol;
@@ -83,12 +86,12 @@ const safeState = (stateLike: StateLike): State<any> | undefined => {
   state = unref(state);
 
   // an actor has the getSnapshot method to return the state object
-  if ("getSnapshot" in state && isFunction(state.getSnapshot)) {
+  if (state && "getSnapshot" in state && isFunction(state.getSnapshot)) {
     return state.getSnapshot();
   }
 
   // state has the matches method, so we know its a state object
-  if ("matches" in state && isFunction(state.matches)) {
+  if (state && "matches" in state && isFunction(state.matches)) {
     return state as State<any>;
   }
 
@@ -186,6 +189,22 @@ export const contextValue = <T = unknown>(
   return get(context, props as PropertyPath, fallback);
 };
 
+export const childService = (
+  stateLike: StateLike,
+  prop?: string | number,
+  fallback?: ActorRef<any> | undefined
+): ActorRef<any> | undefined => {
+  const state = safeState(stateLike);
+
+  if (!state || isNil(prop)) return fallback;
+
+  const actor = state?.children[prop];
+
+  if (isNil(actor)) return fallback;
+
+  return actor;
+};
+
 export const childActor = (
   stateLike: StateLike,
   prop?: string | number,
@@ -221,6 +240,20 @@ export const contextActor = (
   }
 
   return createActor(context);
+};
+
+export const contextService = (
+  stateLike: StateLike,
+  props?: string | number | (string | number)[],
+  fallback?: ActorRef<any> | undefined
+): ActorRef<any> | undefined => {
+  if (isEmpty(props)) return fallback;
+
+  const service = contextValue<ActorRef<any>>(stateLike, props);
+
+  if (isNil(service)) return fallback;
+
+  return service;
 };
 
 export const createActor = (context: ActorRef<any>): Actor | undefined => {
@@ -259,7 +292,7 @@ export const useChildActor = (
 
 export const useContextActor = (
   stateLike: StateLike,
-  props?: string | number | (string | number)[],
+  props?: string | number,
   fallback?: any
 ): ComputedRef<Actor | Actor[] | undefined> =>
   computed(() => contextActor(stateLike, props, fallback));
@@ -270,3 +303,17 @@ export const useContextActors = <T = unknown>(
   fallback?: any
 ): ComputedRef<Actor | Actor[] | undefined> =>
   computed(() => contextActor(stateLike, props, fallback));
+
+export const useContextService = <T = unknown>(
+  stateLike: StateLike,
+  props?: string | number,
+  fallback?: any
+): ComputedRef<ActorRef<any> | undefined> =>
+  computed(() => contextService(stateLike, props, fallback));
+
+export const useChildService = (
+  stateLike: StateLike,
+  prop?: string | number,
+  fallback?: any
+): ComputedRef<ActorRef<any> | undefined> =>
+  computed(() => childService(stateLike, prop, fallback));
