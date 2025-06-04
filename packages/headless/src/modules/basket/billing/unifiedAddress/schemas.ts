@@ -226,7 +226,7 @@ export const useSchema = ({
         properties: {
           type: {
             type: "number",
-            const: 1,
+            enum: [1],
           },
           addressId: {
             type: ["string", "null"],
@@ -255,6 +255,9 @@ export const useSchema = ({
             $ref: "#/definitions/phone",
           },
         },
+        not: {
+          required: ["company"],
+        },
         anyOf: [
           { $ref: "#/definitions/requireAddressId" },
           { $ref: "#/definitions/requireAddressDetails" },
@@ -266,7 +269,7 @@ export const useSchema = ({
         properties: {
           type: {
             type: "number",
-            const: 4,
+            enum: [4],
           },
           addressId: {
             type: ["string", "null"],
@@ -291,13 +294,13 @@ export const useSchema = ({
             $ref: "#/definitions/phone",
           },
         },
+        required: ["company"],
         anyOf: [
           { $ref: "#/definitions/requireCompanyId" },
           { $ref: "#/definitions/requireCompanyDetails" },
         ],
         allOf: [
           {
-            // Only include address when company.addressId is null
             if: {
               properties: {
                 company: {
