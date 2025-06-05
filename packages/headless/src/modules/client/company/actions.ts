@@ -21,7 +21,7 @@ export const useClientCompanyActions = () => {
       description: ({ model, addresses }: CompanyContext) => {
         let address = null;
         if (addresses && model?.addressId) {
-          address = addresses?.findOne(model.addressId);
+          address = addresses?.find(address => address.id === model.addressId);
         }
         return compact([
           // get(address, "state.context.title"),
@@ -32,7 +32,7 @@ export const useClientCompanyActions = () => {
 
     setSchemas: assign({
       schema: (context: CompanyContext) => useSchema(context),
-      uischema: () => useUischema(),
+      uischema: (context: CompanyContext) => useUischema(context),
     }),
 
     setModel: assign({
