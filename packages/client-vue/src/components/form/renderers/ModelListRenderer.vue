@@ -9,7 +9,12 @@
       required
     >
       <template #item="{ item, isSelected }">
-        <Item v-bind="item" :is-selected="isSelected" @edit="editItem" />
+        <Item
+          v-bind="item"
+          :is-selected="isSelected && !selectOnly"
+          :allow-edit="!selectOnly"
+          @edit="editItem"
+        />
       </template>
 
       <template #actions>
@@ -22,7 +27,7 @@
         />
 
         <Link
-          v-else
+          v-else-if="!selectOnly"
           :label="'Add new ' + lowerCase(formFieldProps.label)"
           size="xs"
           variant="muted"
@@ -68,6 +73,10 @@ const selectedItem = ref<string>("");
 
 onMounted(() => {
   selectedDefaultItem();
+});
+
+const selectOnly = computed(() => {
+  return control.value.uischema.options?.selectOnly || false;
 });
 
 const parsedValues = computed(() => {

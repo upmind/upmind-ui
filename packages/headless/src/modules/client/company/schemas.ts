@@ -49,35 +49,6 @@ export const useSchema = ({
         title: "Email",
         default: baseModel?.emailId,
       },
-      phoneId: {
-        type: ["string", "null"],
-        title: "Phone ID",
-        default: baseModel?.phoneId,
-      },
-      phone: {
-        type: "object",
-        title: "Phone number",
-        isPhoneNumber: country?.code,
-        default: baseModel?.phone,
-        properties: {
-          number: {
-            type: ["string", "null"],
-            title: "Phone number ( with dialing code )",
-          },
-          nationalNumber: {
-            type: ["string", "null"],
-            title: "Phone number",
-          },
-          countryCallingCode: {
-            type: ["string", "null"],
-            title: "Country calling code",
-          },
-          country: {
-            type: ["string", "null"],
-            title: "Country",
-          },
-        },
-      } as any,
     },
     anyOf: [
       {
@@ -156,13 +127,7 @@ export const useUischema = ({ addresses }: CompanyContext) => {
               item: item,
             };
           }),
-        },
-      },
-      {
-        type: "Control",
-        scope: "#/properties/phone",
-        options: {
-          autocomplete: "tel",
+          selectOnly: true,
         },
       },
     ],

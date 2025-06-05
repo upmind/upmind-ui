@@ -9,6 +9,7 @@
       </h3>
 
       <Link
+        v-if="allowEdit"
         label="Edit"
         size="xs"
         variant="muted"
@@ -44,6 +45,7 @@ const props = defineProps<{
   regNumber: string;
   vatNumber: string;
   isSelected: boolean;
+  allowEdit: boolean;
 }>();
 
 const emit = defineEmits<{
