@@ -1,7 +1,9 @@
 <template>
   <FormField v-bind="formFieldProps">
     <Dialog v-model:open="open" size="2xl">
-      <template v-if="isLoading">Loading data...</template>
+      <template v-if="isLoading">
+        <ModelRendererSkeleton />
+      </template>
       <UpmForm
         v-else
         :model-value="model"
@@ -13,7 +15,15 @@
         @resolve="doResolve"
         @reject="doReject"
         :processing="isProcessing"
-      />
+      >
+        <template #actions="{ doReject, doResolve }">
+          <ModelRendererActions
+            :disabled="isProcessing"
+            @save="doResolve"
+            @cancel="doReject"
+          />
+        </template>
+      </UpmForm>
     </Dialog>
   </FormField>
 </template>
@@ -24,15 +34,17 @@ import { ref, computed, onMounted } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
-import { UpmForm, formRenderers } from "../../form";
+import { UpmForm, formRenderers } from "../../../form";
 import {
   useUpmindUIRenderer,
   Dialog,
   FormField,
 } from "@upmind-automation/upmind-ui";
+import ModelRendererSkeleton from "./ModelRendererSkeleton.vue";
+import ModelRendererActions from "./ModelRendererActions.vue";
 
 // --- utils
-import { useSchemaComposable } from "./utils";
+import { useSchemaComposable } from "../utils";
 
 // --- types
 import type { RendererProps } from "@jsonforms/vue";
@@ -53,7 +65,17 @@ const { getModel, isReady, update, input, schema, uischema, clear } =
 const model = computed(() => getModel());
 
 onMounted(async () => {
+  const startTime = Date.now();
   await isReady();
+
+  // Ensure skeleton shows for at least 1 second
+  const elapsedTime = Date.now() - startTime;
+  const remainingTime = Math.max(0, 1000 - elapsedTime);
+
+  if (remainingTime > 0) {
+    await new Promise(resolve => setTimeout(resolve, remainingTime));
+  }
+
   isLoading.value = false;
 });
 
