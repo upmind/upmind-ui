@@ -14,6 +14,7 @@ const conditionalElement = (condition: any, element: any) => {
 };
 
 export const useSchema = ({
+  model,
   country,
   regions,
   baseModel,
@@ -141,7 +142,7 @@ export const useSchema = ({
         properties: {
           addressId: {
             type: ["string", "null"],
-            default: baseModel.addressId,
+            default: model?.addressId || baseModel.addressId,
           },
           companyName: {
             type: "string",
@@ -451,10 +452,6 @@ export const useUischema = ({
           },
         },
       },
-      {
-        type: "Control",
-        scope: "#/properties/phone",
-      },
     ],
   };
 
@@ -574,10 +571,6 @@ export const useUischema = ({
           },
         },
       },
-      {
-        type: "Control",
-        scope: "#/properties/phone",
-      },
     ],
   };
 
@@ -585,6 +578,15 @@ export const useUischema = ({
 
   if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
     oneOfUiSchemas.shift();
+  }
+
+  if (get(config, BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION)) {
+    oneOfUiSchemas.forEach(schema => {
+      schema.elements.push({
+        type: "Control",
+        scope: "#/properties/phone",
+      });
+    });
   }
 
   const uiSchema = {
