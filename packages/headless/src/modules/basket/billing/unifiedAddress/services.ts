@@ -242,7 +242,7 @@ async function update(id: string, data: UnifiedAddressModel) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, regions, country }: UnifiedAddressContext,
+  { baseModel, schema, regions, country, model }: UnifiedAddressContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
@@ -306,18 +306,18 @@ async function parse(
 
     if (
       inputData?.type === ADDRESS_TYPE_KEYS.HOME &&
-      safeModel?.addressId &&
-      safeModel.addressId !== baseModel?.addressId
+      inputData?.addressId &&
+      inputData.addressId !== model?.addressId
     ) {
-      await setDefaultAddress(safeModel.addressId);
+      await setDefaultAddress(inputData.addressId);
     }
 
     if (
       inputData?.type === ADDRESS_TYPE_KEYS.COMPANY &&
-      safeModel?.companyId &&
-      safeModel.companyId !== baseModel?.companyId
+      inputData?.companyId &&
+      inputData.companyId !== model?.companyId
     ) {
-      await setDefaultCompany(safeModel.companyId);
+      await setDefaultCompany(inputData.companyId);
     }
   }
 
