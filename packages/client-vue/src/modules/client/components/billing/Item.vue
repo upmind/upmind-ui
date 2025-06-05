@@ -22,9 +22,13 @@
       {{ description }}
     </p>
 
-    <p v-if="regNumber || vatNumber" class="text-emphasis-medium m-0 text-sm">
-      Company <template v-if="regNumber"> {{ regNumber }}</template>
-      <template v-if="vatNumber"> {{ vatNumber }}</template>
+    <p
+      v-if="regNumber || vatNumber"
+      class="text-emphasis-medium m-0 inline-flex flex-wrap gap-x-1 text-sm"
+    >
+      Company
+      <span v-if="regNumber">{{ regNumber }}</span>
+      <span v-if="vatNumber">{{ vatNumber }}</span>
     </p>
   </div>
 </template>

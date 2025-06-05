@@ -29,7 +29,7 @@ export function mapCompany(raw: ICompany): Company {
     name: raw.name,
     default: raw.default,
     regNumber: raw.reg_number,
-    vatNumber: raw.vat_percent,
+    vatNumber: raw.vat_number,
     vatPercent: raw.vat_percent,
     // ---
     meta: {
