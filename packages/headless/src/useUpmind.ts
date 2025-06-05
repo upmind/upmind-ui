@@ -1,6 +1,6 @@
 // --- external
 import { inspect } from "@xstate/inspect";
-import { VueQueryPlugin } from "@tanstack/vue-query";
+import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import { first } from "lodash-es";
 
 // --- internal
@@ -13,6 +13,7 @@ import { usePOP, useSessionStorage } from "./utils";
 
 // --- types
 import type { IApiPop } from "./utils/usePOP";
+import { App } from "vue";
 
 // ---
 export enum UpmindStatus {
@@ -22,6 +23,7 @@ export enum UpmindStatus {
 }
 
 export interface UpmindProps {
+  app: App;
   mode?: "default" | "express";
   pop?: IApiPop;
   debug?: boolean;
@@ -38,20 +40,23 @@ export interface UpmindProps {
 
 class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
+  app!: App;
   debug: UpmindProps["debug"];
   mode: UpmindProps["mode"] = "default";
   pop: UpmindProps["pop"];
   plugins: UpmindProps["plugins"] = {};
   analytics: UpmindProps["analytics"];
   recaptcha: UpmindProps["recaptcha"];
+  queryClient: QueryClient = new QueryClient({});
 
   constructor() {}
 
-  init({ mode, pop, analytics, recaptcha, debug }: UpmindProps): Promise<void> {
+  init({ app, mode, pop, analytics, recaptcha, debug }: UpmindProps) {
     if (this.status != UpmindStatus.notInitialised)
       throw new Error(
         `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
       );
+    this.app = app;
     this.status = UpmindStatus.initialising;
     this.debug = debug;
     this.mode = mode ?? "default";
@@ -60,23 +65,22 @@ class Upmind {
     this.recaptcha = recaptcha;
     this.initPlugins();
     this.initDebugging();
+  }
 
-    return usePOP(pop)
+  start(): Promise<void> {
+    return usePOP(this.pop)
       .isReady()
-      .then(() => {
-        if (this.mode == "express") {
-          this.status = UpmindStatus.initialised;
-          return;
-        }
-
-        return this.initHeadless()
-          .then(() => {
+      .then(async () => {
+        if (this.mode != "express") {
+          await this.initHeadless().then(() => {
             this.initRecaptcha();
             this.initAnalytics();
-          })
-          .then(() => {
-            this.status = UpmindStatus.initialised;
           });
+        }
+
+        debugger;
+
+        this.status = UpmindStatus.initialised;
       });
   }
 
@@ -85,6 +89,7 @@ class Upmind {
     this.plugins.vueQuery = {
       plugin: VueQueryPlugin,
       options: {
+        queryClient: this.queryClient,
         enableDevtoolsV6Plugin: true,
       },
     };
@@ -117,9 +122,9 @@ class Upmind {
 
   private async initHeadless() {
     if (!this.pop) return;
-    // useSystem();
-    // useBrand();
-    // useSession();
+    useSystem();
+    useBrand();
+    useSession();
   }
 
   private async initRecaptcha() {
@@ -167,7 +172,8 @@ class Upmind {
   isReady(): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (this.status == UpmindStatus.notInitialised) {
+        if (this.status !== UpmindStatus.notInitialised) {
+          debugger;
           resolve();
         }
       }, 100)

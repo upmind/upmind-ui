@@ -45,6 +45,7 @@ class UpmindClient {
   }
 
   init({
+    app,
     mode,
     pop,
     router,
@@ -52,7 +53,7 @@ class UpmindClient {
     recaptcha,
     analytics,
     debug,
-  }: UpmindClientProps): Promise<void> {
+  }: UpmindClientProps) {
     // NB: Only initialise once
     if (this.status != UpmindStatus.notInitialised) return Promise.resolve();
 
@@ -63,18 +64,24 @@ class UpmindClient {
 
     this.initPlugins();
 
-    return Upmind.init({ mode, pop, recaptcha, analytics, debug }).then(() => {
-      if (Upmind.mode == "express") {
-        this.status = UpmindStatus.initialised;
-        return Promise.resolve();
-      }
+    Upmind.init({ app, mode, pop, recaptcha, analytics, debug });
+  }
+
+  start(): Promise<void> {
+    if (Upmind.mode == "express") {
+      this.status = UpmindStatus.initialised;
+      return Promise.resolve();
+    }
+    return Upmind.start().then(() => {
       return Promise.allSettled([this.initRouter(), this.initI18n()]).then(
         () => {
+          debugger;
           this.status = UpmindStatus.initialised;
         }
       );
     });
   }
+  // --- initialise the router and i18n after Upmind has started
 
   private initPlugins() {
     this.plugins = Upmind.plugins ?? {};
@@ -103,7 +110,10 @@ class UpmindClient {
   isReady(): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (this.status == UpmindStatus.notInitialised) resolve();
+        if (this.status !== UpmindStatus.notInitialised) {
+          debugger;
+          resolve();
+        }
       }, 100)
     );
   }
