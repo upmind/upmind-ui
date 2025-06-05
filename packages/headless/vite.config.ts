@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
   plugins: [
+    vue(),
     dts({
       entryRoot: "src",
       outDir: "dist",
@@ -17,7 +19,13 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      // Externalize if you have external dependencies
+      external: ["vue", "vue-router"],
+      output: {
+        globals: {
+          vue: "Vue",
+          "vue-router": "VueRouter",
+        },
+      },
     },
   },
   resolve: {
@@ -27,16 +35,4 @@ export default defineConfig({
       "@upmind-automation/types": resolve(__dirname, "../types/src/index.ts"),
     },
   },
-  // Vitest config - https://vitest.dev/guide/#configuring-vitest
-  // @ts-ignore
-  // test: {
-  //   environment: "jsdom",
-  //   exclude: [...configDefaults.exclude, "e2e/*"],
-  //   root: resolve(__dirname, "./"),
-  //   // https://vitest.dev/guide/coverage.html
-  //   coverage: {
-  //     provider: "istanbul",
-  //     enabled: true,
-  //   },
-  // },
 });

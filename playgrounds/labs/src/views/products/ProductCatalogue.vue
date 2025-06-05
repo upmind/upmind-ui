@@ -615,7 +615,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import { useProductCatalogue } from "@upmind-automation/headless-vue";
+import { useProductCatalogue } from "@upmind-automation/headless";
 import type { IProductCategory } from "@upmind-automation/types";
 import type { IApiFilter } from "@upmind-automation/headless";
 

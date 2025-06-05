@@ -1,6 +1,6 @@
 import type { VariantProps } from "class-variance-authority";
 import type { currentVariants, exVariants } from "./pricing.config";
-import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless-vue";
+import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless";
 export type ExVariantProps = VariantProps<typeof exVariants>;
 export type CurrentVariantProps = VariantProps<typeof currentVariants>;
 

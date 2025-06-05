@@ -51,7 +51,7 @@ import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

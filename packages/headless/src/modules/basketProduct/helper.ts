@@ -40,7 +40,7 @@ export function basketSubscription(callback: any, onReceive: any) {
   let isRefreshing = false;
 
   // let's let our subscriber know when the basket has been refreshed
-  const subscription = basket.service.subscribe((state: any) => {
+  const subscription = basket.subscribe((state: any) => {
     // mark the basket as refreshing
     if (state.matches("shopping.refreshing.processing")) {
       isRefreshing = true;

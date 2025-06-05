@@ -37,7 +37,7 @@ import {
   useRoutingEngine,
   useSession,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // -- components
 import Internet from "../../assets/animations/internet.json?url";

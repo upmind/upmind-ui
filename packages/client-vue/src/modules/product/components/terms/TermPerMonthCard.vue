@@ -63,7 +63,7 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { TermDetails } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

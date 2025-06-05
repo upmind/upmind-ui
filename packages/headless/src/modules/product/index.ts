@@ -3,3 +3,4 @@
 // --- utils
 // --- types
 export * from "./types";
+export * from "./useProductConfig";

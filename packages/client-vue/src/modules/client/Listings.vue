@@ -104,7 +104,7 @@ import {
   useClientAddress,
   useClientCompanies,
   useClientCompany,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 import {
   useStyles,
   type ButtonProps,
@@ -128,7 +128,7 @@ import { isFunction } from "lodash-es";
 
 // ---types
 import type { ActorRef } from "xstate";
-import { type ClientComposables } from "@upmind-automation/headless-vue";
+import { type ClientComposables } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits<{

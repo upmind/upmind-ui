@@ -61,7 +61,7 @@ import {
   useRoutingEngine,
   utils,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, Button, Icon } from "@upmind-automation/upmind-ui";

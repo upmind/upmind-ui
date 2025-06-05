@@ -38,7 +38,7 @@ import { watch, ref, type ComputedRef } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
+import { useFeedback, useMessage } from "@upmind-automation/headless";
 import { useStyles, toast } from "@upmind-automation/upmind-ui";
 import config from "./feedback.config";
 

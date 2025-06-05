@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 // --- components
 import { DropdownMenu } from "@upmind-automation/upmind-ui";

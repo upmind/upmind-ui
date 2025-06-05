@@ -100,7 +100,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import { useBasketPromotions } from "@upmind-automation/headless-vue";
+import { useBasketPromotions } from "@upmind-automation/headless";
 import config from "../basket.config";
 
 // --- types

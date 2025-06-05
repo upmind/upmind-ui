@@ -76,7 +76,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./components/session.config";
 
