@@ -32,10 +32,10 @@ async function loadAll({ allowStale = true } = {}) {
       limit: 0,
     }),
     queryKey,
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
+    //revalidateIfStale: true,
+    select: response =>
       set(response, "data", map(response?.data ?? [], parseProduct)),
   }).then(({ data }) => data);
 }
@@ -58,11 +58,11 @@ async function loadPaged(
       ].join(),
     }),
     queryKey,
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    transformResponse: (response: any) =>
+    select: response =>
       set(response, "data", map(response?.data ?? [], parseProduct)),
-    revalidateIfStale: true,
+    //revalidateIfStale: true,
     ...paginationParams,
   }).then(({ data }) => data ?? []);
 }

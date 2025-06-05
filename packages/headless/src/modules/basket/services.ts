@@ -99,7 +99,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true,
-    revalidateIfStale: true,
+    //revalidateIfStale: true,
   })
     .then(({ data }: any) => {
       // generate a new basket if we don't have one;

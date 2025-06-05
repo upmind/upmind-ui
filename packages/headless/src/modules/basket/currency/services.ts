@@ -9,6 +9,7 @@ import { useValidation } from "../../../utils";
 
 // --- types
 import type { CurrencyContext } from "./types";
+import { ICurrency } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -32,13 +33,13 @@ async function update(
   const { put, useUrl } = useQuery();
 
   // get returns a promise so we can pass it directly back to the machine
-  return put({
+  return put<ICurrency>({
     url: useUrl(`/orders/${basketId}/currency`),
     data: {
       currency_code: model?.code,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 async function parse({ model }: CurrencyContext, _event: AnyEventObject) {

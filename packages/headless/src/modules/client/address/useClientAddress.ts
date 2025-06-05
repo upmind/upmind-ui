@@ -25,7 +25,7 @@ import { get } from "lodash-es";
 import type { ClientItemContext } from "../types";
 import type { Address, AddressModel } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ export const useClientAddress = (
     }).then(state => {
       if (stateMatches(state, "error")) {
         if (
-          (errors.value as ResponseError)?.status ==
+          (errors.value as QueryResponseError)?.status ==
           responseCodes.Service_Unavailable
         ) {
           return Promise.reject(new UnavailableError());

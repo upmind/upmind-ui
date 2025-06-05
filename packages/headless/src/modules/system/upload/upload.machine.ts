@@ -8,7 +8,7 @@ import type { UploadContext } from "./types";
 // --- utils
 import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "src/modules/query";
 
 // ---
 export default createMachine(

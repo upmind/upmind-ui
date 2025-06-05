@@ -35,10 +35,10 @@ async function loadAll({ allowStale = true } = {}) {
       limit: 0,
     }),
     queryKey,
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    // transformResponse: (response: any) => set(response, "data", response?.data),
+    //revalidateIfStale: true,
+    // select: (response) => set(response, "data", response?.data),
   }).then(({ data }) => data);
 }
 

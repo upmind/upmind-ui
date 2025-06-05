@@ -38,7 +38,6 @@ import {
 // --- types
 import type { AnyEventObject, ActorRef } from "xstate";
 import type { BasketContext } from "./types";
-import type { Response } from "../query/types";
 import { PaymentType, GatewayTypes } from "@upmind-automation/types";
 import { PaymentContext } from "../payment";
 

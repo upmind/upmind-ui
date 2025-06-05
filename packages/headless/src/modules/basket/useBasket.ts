@@ -48,7 +48,7 @@ import {
   IPromotion,
   type IBasket,
 } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 import { BasketContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -200,7 +200,7 @@ export const useBasket = (): any => {
   const basketId = useContext<IBasket["id"]>(state, "basket.id");
   const context = useContext<BasketContext>(state);
   const currency = useContext<ICurrency>(state, "basket.currency");
-  const errors = useContext<ResponseError>(state, "error");
+  const errors = useContext<QueryResponseError>(state, "error");
   const invoice = useContext<IInvoice>(state, "invoice");
   const products = useContext<IBasketProduct[]>(state, "products", []);
   // productsInvalid: computed(() => filter( products.value, product => !isEmpty(product?.errors))),

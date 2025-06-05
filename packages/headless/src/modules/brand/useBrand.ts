@@ -32,7 +32,7 @@ import {
   IBrand,
 } from "@upmind-automation/types";
 import { BrandContext } from "./types";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 import { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
@@ -112,7 +112,7 @@ export const useBrand = () => {
     0
   );
 
-  const errors = useContext<ResponseError>(state, "error");
+  const errors = useContext<QueryResponseError>(state, "error");
 
   const includesTax = computed(
     (): boolean =>

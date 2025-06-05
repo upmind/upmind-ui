@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { ICurrency } from "@upmind-automation/types";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
@@ -28,5 +28,5 @@ export interface CurrencyContext {
   autoupdate?: boolean;
   // ---
   dirty?: boolean;
-  error?: ResponseError;
+  error?: QueryResponseError;
 }

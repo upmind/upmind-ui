@@ -12,10 +12,10 @@ import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
 
 // --- types
 import type {
-  QueryParams,
-  ResponseError,
-  RequestParams,
   QueryResponse,
+  QueryParams,
+  QueryResponseError,
+  RequestParams,
   MutationParams,
 } from "./types";
 import { Methods } from "@upmind-automation/types";
@@ -45,7 +45,7 @@ export const useQuery = () => {
     url,
     init,
     withAccessToken,
-  }: RequestParams): Promise<T> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
     let attempts = 0;
@@ -70,7 +70,7 @@ export const useQuery = () => {
     }
 
     return doFetch<T>({ url, init }).catch(async error => {
-      const requestError = error as ResponseError;
+      const requestError = error as QueryResponseError;
       attempts++;
 
       // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
@@ -97,7 +97,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
-  function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+  async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
     withAccessToken,
@@ -105,7 +105,10 @@ export const useQuery = () => {
   }: QueryParams<TQueryFnData, TData>) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>({
       ...options,
-      queryFn: () => request<TQueryFnData>({ url, init, withAccessToken }),
+      queryFn: async () =>
+        request<TQueryFnData>({ url, init, withAccessToken }).then(
+          ({ data }) => data as TQueryFnData
+        ),
     });
   }
 
@@ -118,7 +121,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack mutation.
    */
-  function postRequest<
+  async function postRequest<
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
@@ -129,7 +132,12 @@ export const useQuery = () => {
     data,
     withAccessToken,
     ...options
-  }: MutationParams<TData, TError, TVariables, TContext>) {
+  }: MutationParams<
+    QueryResponse<TData>,
+    TError,
+    TVariables,
+    TContext
+  >): Promise<QueryResponse<TData>> {
     // safeguard
     init ??= {};
 
@@ -139,8 +147,8 @@ export const useQuery = () => {
 
     return useMutation({
       ...options,
-      mutationFn: () => request<TData>({ url, init, withAccessToken }),
-    });
+      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+    }).mutateAsync(data as TVariables);
   }
 
   /**
@@ -151,7 +159,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack mutation.
    */
-  function putRequest<
+  async function putRequest<
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
@@ -162,7 +170,12 @@ export const useQuery = () => {
     data,
     withAccessToken,
     ...options
-  }: MutationParams<TData, TError, TVariables, TContext>) {
+  }: MutationParams<
+    QueryResponse<TData>,
+    TError,
+    TVariables,
+    TContext
+  >): Promise<QueryResponse<TData>> {
     // safeguard
     init ??= {};
 
@@ -172,8 +185,8 @@ export const useQuery = () => {
 
     return useMutation({
       ...options,
-      mutationFn: () => request<TData>({ url, init, withAccessToken }),
-    });
+      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+    }).mutateAsync(data as TVariables);
   }
 
   /**
@@ -184,7 +197,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack mutation.
    */
-  function patchRequest<
+  async function patchRequest<
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
@@ -195,7 +208,12 @@ export const useQuery = () => {
     data,
     withAccessToken,
     ...options
-  }: MutationParams<TData, TError, TVariables, TContext>) {
+  }: MutationParams<
+    QueryResponse<TData>,
+    TError,
+    TVariables,
+    TContext
+  >): Promise<QueryResponse<TData>> {
     // safeguard
     init ??= {};
 
@@ -205,8 +223,8 @@ export const useQuery = () => {
 
     return useMutation({
       ...options,
-      mutationFn: () => request<TData>({ url, init, withAccessToken }),
-    });
+      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+    }).mutateAsync(data as TVariables);
   }
 
   /**
@@ -217,7 +235,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack mutation.
    */
-  function deleteRequest<
+  async function deleteRequest<
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
@@ -228,7 +246,12 @@ export const useQuery = () => {
     data,
     withAccessToken,
     ...options
-  }: MutationParams<TData, TError, TVariables, TContext>) {
+  }: MutationParams<
+    QueryResponse<TData>,
+    TError,
+    TVariables,
+    TContext
+  >): Promise<QueryResponse<TData>> {
     // safeguard
     init ??= {};
 
@@ -238,8 +261,8 @@ export const useQuery = () => {
 
     return useMutation({
       ...options,
-      mutationFn: () => request<TData>({ url, init, withAccessToken }),
-    });
+      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+    }).mutateAsync(data as TVariables);
   }
 
   /**
@@ -270,7 +293,7 @@ export const useQuery = () => {
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
-    return request<QueryResponse<T>>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken });
   }
 
   return {

@@ -22,7 +22,7 @@ import {
 import { get } from "lodash-es";
 
 // --- types
-import type { ResponseError } from "../../query";
+import type { QueryResponseError } from "../../query";
 import type { Email, EmailModel } from "./types";
 import type { ClientItemContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
@@ -64,7 +64,7 @@ export const useClientEmail = (
     }).then(state => {
       if (stateMatches(state, "error")) {
         if (
-          (errors.value as ResponseError)?.status ==
+          (errors.value as QueryResponseError)?.status ==
           responseCodes.Service_Unavailable
         ) {
           return Promise.reject(new UnavailableError());

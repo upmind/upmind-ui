@@ -28,12 +28,12 @@ import { messageDisplays, messageTypes } from "../feedback";
 // --- types
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
-import type { RequestParams, Response } from "./types";
+import type { RequestParams, QueryResponse } from "./types";
 
 // -----------------------------------------------------------------------------
 function handleError(
-  status: Response["status"],
-  error: Response["error"]
+  status: QueryResponse["status"],
+  error: QueryResponse["error"]
 ): Promise<never> {
   // of we have a server error (5xx), we want to display a system message
   if (status >= 500 && status < 600) {
@@ -67,7 +67,7 @@ function handleError(
 async function doFetch<T extends any = any>({
   url,
   init,
-}: RequestParams): Promise<T> {
+}: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
 
   if (!includes(map(Methods, upperCase), init?.method)) {
@@ -94,7 +94,7 @@ async function doFetch<T extends any = any>({
 
       if (!ok) throw data;
 
-      return data as T;
+      return data as QueryResponse<T>;
     })
     .catch(response => {
       if (!response?.status) return Promise.reject();
