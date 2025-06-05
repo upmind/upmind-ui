@@ -1,5 +1,5 @@
 // --- external
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 
 // --- internal
 import feedbackMachine from "./feedback.machine";
@@ -25,6 +25,9 @@ const service = interpret(feedbackMachine, { devTools: true });
 // -----------------------------------------------------------------------------
 
 export const useFeedback = () => {
+  // --- state
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
   // ---  // methods
 
   function add(message: Message) {
@@ -95,7 +98,7 @@ export const useFeedback = () => {
 
   // ---------------------------------------------------------------------------
   return {
-    service: service.start(), // allow for interpreting the machine + inspecting it
+    service,
     // ---
     getSnapshot: service.getSnapshot,
     getMessages: () => service.getSnapshot().context.messages,

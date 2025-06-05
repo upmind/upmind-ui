@@ -45,6 +45,7 @@ class UpmindClient {
   }
 
   init({
+    mode,
     pop,
     router,
     i18n,
@@ -62,10 +63,16 @@ class UpmindClient {
 
     this.initPlugins();
 
-    return Upmind.init({ pop, recaptcha, analytics, debug }).then(() => {
-      return Promise.all([this.initRouter(), this.initI18n()]).then(() => {
+    return Upmind.init({ mode, pop, recaptcha, analytics, debug }).then(() => {
+      if (Upmind.mode == "express") {
         this.status = UpmindStatus.initialised;
-      });
+        return Promise.resolve();
+      }
+      return Promise.allSettled([this.initRouter(), this.initI18n()]).then(
+        () => {
+          this.status = UpmindStatus.initialised;
+        }
+      );
     });
   }
 

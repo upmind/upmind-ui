@@ -89,7 +89,7 @@ async function load(
       { clientId, brandId: unref(brandId), currencyId },
     ],
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 
   // ---
   const gateways = getRequest({
@@ -107,7 +107,7 @@ async function load(
       { brandId: unref(brandId), clientId, currencyId },
     ],
     withAccessToken: true,
-  }).then(({ data }: any) => {
+  }).then(data => {
     // Whitelist payment gateways if provided
     if (whitelistGatewayProviders.length) {
       data = filter(data, ({ gateway }) => {

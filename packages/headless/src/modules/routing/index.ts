@@ -34,8 +34,10 @@ const service = interpret(routingEngine, { devTools: false });
 // -----------------------------------------------------------------------------
 
 export const useRoutingEngine = () => {
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     isReady: async () =>
       waitFor(service, state => !["subscribing"].some(state.matches), {

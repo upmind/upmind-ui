@@ -1,7 +1,7 @@
 // --- external
 import { computed, ComputedRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -57,18 +57,20 @@ import { BasketContext } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(basketMachine, {
-  devTools: true,
-});
+const service = interpret(basketMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
 export const useBasket = (): any => {
   const { includesTax } = useBrand();
   const { meta: sessionMeta } = useSession();
+
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
   const { state } = useActor(service);
 
   // --- state
+
   async function isReady(): Promise<boolean> {
     return waitFor(
       service,

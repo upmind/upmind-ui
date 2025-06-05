@@ -58,9 +58,9 @@ export const useBasketBillingDetail = (
       id: id ?? "new-billing-detail",
       devTools: false,
     }
-  );
+  ).start();
 
-  const { state, send } = useActor(service.start());
+  const { state, send } = useActor(service);
 
   onUnmounted(() => stop());
 

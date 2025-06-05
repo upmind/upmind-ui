@@ -35,9 +35,9 @@ export const useSystemUpload = (field?: object) => {
 
   const service = interpret(uploadMachine.withContext(context as any), {
     devTools: false,
-  });
+  }).start();
 
-  const { state, send } = useActor(service.start());
+  const { state, send } = useActor(service);
 
   // --- state
 
