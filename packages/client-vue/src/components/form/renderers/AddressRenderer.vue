@@ -10,6 +10,7 @@
       @update:search="searchAddresses"
       @select="selectAddress"
       :placeholder="appliedOptions?.placeholder"
+      additional-option="Enter address manually"
       class="mb-6"
     />
 
@@ -77,7 +78,7 @@ const { showAddressFields, setShowAddressFields, setSelectedAddress } =
   useAddressFields();
 
 const places = usePlaces();
-const addresses = ref<any[]>([]);
+const addresses = ref<any[] | null>(null);
 
 onMounted(async () => {
   await places.load();
@@ -106,7 +107,7 @@ const nestedErrors = computed(() => {
 
 const searchAddresses = debounce(async (query: string) => {
   if (!query || query.length < 3) {
-    addresses.value = [];
+    addresses.value = null;
     return;
   }
 
@@ -115,12 +116,12 @@ const searchAddresses = debounce(async (query: string) => {
     get(control.value.data, "countryId")
   );
 
-  if (!isEmpty(results)) {
-    addresses.value = results;
-  }
+  addresses.value = results;
 }, 300);
 
 const searchResults = computed(() => {
+  if (!addresses.value) return null;
+
   return addresses.value.map(
     (result: any) =>
       ({
@@ -131,6 +132,8 @@ const searchResults = computed(() => {
 });
 
 const selectAddress = (data: SearchItem) => {
+  if (!addresses.value) return;
+
   const address = find(addresses.value, a => a.id === data.id)
     .address as Address;
   setAddress(address);
