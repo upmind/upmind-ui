@@ -128,7 +128,7 @@ async function remove(emailId: Email["id"]) {
 
   const clientId = await getUserId();
 
-  return del({
+  return del<null>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     onSuccess: () => {
       invalidateQueryByKey(queryKey);
