@@ -1,6 +1,6 @@
 <template>
-  <FormField v-bind="formFieldProps">
-    <Dialog v-model:open="open" size="2xl">
+  <FormField v-bind="formFieldProps" label="">
+    <Dialog v-model:open="open" size="2xl" :title="formFieldProps.label">
       <template v-if="isLoading">
         <ModelRendererSkeleton />
       </template>
@@ -82,9 +82,12 @@ onMounted(async () => {
 const doResolve = async () => {
   isProcessing.value = true;
   await update();
-  onInput(null, false);
-  clear();
-  isProcessing.value = false;
+  open.value = false;
+  setTimeout(() => {
+    clear();
+    isProcessing.value = false;
+    onInput(null, false);
+  }, 300);
 };
 
 const doReject = () => {
