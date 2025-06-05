@@ -17,7 +17,7 @@ import { useBrand } from "../brand";
 
 // --- utils
 import { DetailedError, responseCodes } from "../../utils";
-import { find, isString, get, isEmpty, some, isArray } from "lodash-es";
+import { find, isString, get, isEmpty, some, isArray, sortBy } from "lodash-es";
 
 // --- types
 import type { ICountry } from "@upmind-automation/types";
@@ -145,7 +145,8 @@ export const useSystem = () => {
     if (!country)
       return Promise.reject(new Error("Country not found, cannot get regions"));
 
-    return fetch("regions", getRegions, country);
+    const regions = await fetch("regions", getRegions, country);
+    return sortBy(regions, "name");
   };
 
   const getRegions = (value: string | ICountry) =>
@@ -202,7 +203,10 @@ export const useSystem = () => {
     getBillingCycles,
     getBillingCycle,
     // ---
-    fetchCountries: async () => fetch("countries", getCountries),
+    fetchCountries: async () => {
+      const countries = await fetch("countries", getCountries);
+      return sortBy(countries, "name");
+    },
     getCountries,
     getCountry,
     // ---
