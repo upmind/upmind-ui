@@ -93,14 +93,12 @@ const props = defineProps<{
 }>();
 const loading = ref(true);
 
-debugger;
 UpmindClient.start()
   .then(() => UpmindClient.isReady())
   .then(() => {
     debugger;
   });
 // -----------------------------------------------------------------------------
-debugger;
 
 const { activeTheme } = useThemes(props.theme);
 const currentRoute = useRoute();
