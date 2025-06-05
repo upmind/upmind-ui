@@ -82,8 +82,8 @@ onMounted(async () => {
 const doResolve = async () => {
   isProcessing.value = true;
   await update();
-  clear();
   onInput(null, false);
+  clear();
   isProcessing.value = false;
 };
 
