@@ -15,7 +15,7 @@
         tabindex="-1"
         @mousedown.stop.prevent
         class="h-4"
-        @click="edit"
+        @click.stop.prevent="edit"
       />
     </header>
 

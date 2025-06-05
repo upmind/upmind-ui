@@ -61,7 +61,8 @@ const { showAddressFields, selectedAddress, setShowAddressFields } =
 const noActions = computed(() => {
   return (
     (model.value?.type === 1 && model.value?.addressId) ||
-    (model.value?.type === 4 && model.value?.companyId)
+    (model.value?.type === 4 && model.value?.companyId) ||
+    meta.value.isLoading
   );
 });
 
