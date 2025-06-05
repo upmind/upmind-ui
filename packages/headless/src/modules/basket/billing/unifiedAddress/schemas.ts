@@ -419,7 +419,7 @@ export const useUischema = ({
         type: "ModelList",
         scope: "#/properties/addressId",
         options: {
-          label: "",
+          label: "Address",
           oneOf: map(addresses || [], item => ({
             id: item.id,
             title: item.title,
@@ -467,7 +467,7 @@ export const useUischema = ({
         type: "ModelList",
         scope: "#/properties/companyId",
         options: {
-          label: "",
+          label: "Company",
           oneOf: map(companies || [], item => ({
             id: item.id,
             title: item.title,
