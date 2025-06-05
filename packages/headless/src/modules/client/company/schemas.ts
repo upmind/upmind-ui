@@ -15,7 +15,7 @@ export const useSchema = ({
   const schema: JsonSchema = {
     type: "object",
     title: "Company",
-    required: ["companyName"],
+    required: ["name"],
     properties: {
       id: {
         type: ["string", "null"],
@@ -24,7 +24,7 @@ export const useSchema = ({
         readOnly: true,
         default: baseModel?.id,
       },
-      companyName: {
+      name: {
         type: "string",
         title: "Company Name",
         default: baseModel?.name,
@@ -88,7 +88,7 @@ export const useUischema = ({ addresses }: CompanyContext) => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/companyName",
+        scope: "#/properties/name",
         options: {
           autoFocus: true,
           autocomplete: "off",
