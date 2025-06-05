@@ -197,7 +197,6 @@ async function add(data: UnifiedAddressModel) {
         data.company = {
           name: "",
           default: true,
-          countryId: company.data.address?.country_id,
         } as CompanyDetailsModel;
         return useBillingDetailsServices().invalidate();
       }
