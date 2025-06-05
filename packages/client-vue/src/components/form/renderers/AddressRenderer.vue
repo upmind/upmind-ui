@@ -134,6 +134,11 @@ const searchResults = computed(() => {
 const selectAddress = (data: SearchItem) => {
   if (!addresses.value) return;
 
+  if (data.id === "additional") {
+    setShowAddressFields(true);
+    return;
+  }
+
   const address = find(addresses.value, a => a.id === data.id)
     .address as Address;
   setAddress(address);
