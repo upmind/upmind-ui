@@ -103,24 +103,6 @@ export function useUischema(): UISchemaElement {
         elements: [
           {
             type: "Control",
-            scope: "#/properties/name",
-            options: {
-              autoFocus: true,
-              autocomplete: "off",
-              placeholder: "My home address, etc...",
-            },
-            rule: {
-              effect: "SHOW",
-              condition: {
-                scope: "#",
-                schema: {
-                  required: ["id"],
-                },
-              },
-            },
-          },
-          {
-            type: "Control",
             scope: "#/properties/countryId",
             options: {
               autocomplete: "country",
