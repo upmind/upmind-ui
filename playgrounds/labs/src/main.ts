@@ -17,6 +17,7 @@ const app = createApp(App);
 // ---
 
 UpmindClient.init({
+  app,
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,

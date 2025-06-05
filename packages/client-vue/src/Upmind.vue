@@ -68,6 +68,7 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
+import UpmindClient from "./useUpmindClient";
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -84,11 +85,22 @@ import type { ComputedRef } from "vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
+
 const props = defineProps<{
   theme: any;
   logo?: string;
   loadingProps?: InterstitialProps;
 }>();
+const loading = ref(true);
+
+debugger;
+UpmindClient.start()
+  .then(() => UpmindClient.isReady())
+  .then(() => {
+    debugger;
+  });
+// -----------------------------------------------------------------------------
+debugger;
 
 const { activeTheme } = useThemes(props.theme);
 const currentRoute = useRoute();
@@ -96,7 +108,6 @@ const currentRoute = useRoute();
 const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))
 );
-const loading = ref(false);
 
 const styles = useStyles(["page"], {
   route,
