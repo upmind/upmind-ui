@@ -1,38 +1,41 @@
 <template>
-  <UpmForm
-    :model-value="model"
-    @update:modelValue="(data: any) => updateModel(data)"
-    :schema="schema"
-    :uischema="uischema"
-    :additional-renderers="formRenderers"
-    color="primary"
-    @resolve="updateAddress"
-    :no-actions="noActions"
+  <Loading :active="!model">
+    <UpmForm
+      :model-value="model"
+      class="min-h-40"
+      @update:modelValue="(data: any) => updateModel(data)"
+      :schema="schema"
+      :uischema="uischema"
+      :additional-renderers="formRenderers"
+      color="primary"
+      @resolve="updateAddress"
+      :no-actions="noActions"
+    >
+      <template #actions>
+        <footer class="flex gap-x-6">
+          <Button
+            :loading="meta.isLoading"
+            :disabled="!meta.isValid"
+            type="submit"
+            size="md"
+            color="secondary"
+            @click="updateAddress"
+          >
+            Save details
+          </Button>
+          <Link
+            v-if="!isEmpty(data)"
+            as="Button"
+            size="sm"
+            variant="muted"
+            @click="cancel"
+          >
+            Cancel
+          </Link>
+        </footer>
+      </template>
+    </UpmForm></Loading
   >
-    <template #actions>
-      <footer class="flex gap-x-6">
-        <Button
-          :loading="meta.isLoading"
-          :disabled="!meta.isValid"
-          type="submit"
-          size="md"
-          color="secondary"
-          @click="updateAddress"
-        >
-          Save details
-        </Button>
-        <Link
-          v-if="!isEmpty(data)"
-          as="Button"
-          size="sm"
-          variant="muted"
-          @click="cancel"
-        >
-          Cancel
-        </Link>
-      </footer>
-    </template>
-  </UpmForm>
 </template>
 
 <script setup lang="ts">
@@ -46,7 +49,7 @@ import { useBillingDetails } from "@upmind-automation/headless-vue";
 import { UpmForm, formRenderers } from "../../../../components/form";
 import { useBillingDetail } from "@upmind-automation/headless-vue";
 import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
-import { Link, Button } from "@upmind-automation/upmind-ui";
+import { Link, Button, Loading } from "@upmind-automation/upmind-ui";
 
 // utils
 import { isEmpty } from "lodash-es";
