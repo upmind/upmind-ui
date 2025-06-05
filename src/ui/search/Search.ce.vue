@@ -26,6 +26,15 @@
         >
           {{ item.label }}
         </div>
+        <div
+          v-if="additionalOption"
+          :class="styles.search.item"
+          @click="
+            onSelect({ id: 'manual', label: additionalOption } as SearchItem)
+          "
+        >
+          {{ additionalOption }}
+        </div>
       </PopoverContent>
     </PopoverPortal>
   </PopoverRoot>
@@ -33,7 +42,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { isEmpty } from "lodash-es";
 import {
   PopoverRoot,
   PopoverTrigger,
@@ -54,13 +62,16 @@ import type { ComputedRef } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    results: SearchItem[];
+    results: SearchItem[] | null;
     placeholder?: string;
     minQueryLength?: number;
     icon?: string;
+    additionalOption?: string;
   }>(),
   {
+    results: null,
     minQueryLength: 3,
+    additionalOption: "Enter manually",
   }
 );
 
@@ -95,7 +106,7 @@ const onSelect = (item: SearchItem) => {
 };
 
 const isValid = computed(() => {
-  return search.value.length >= props.minQueryLength && !isEmpty(props.results);
+  return search.value.length >= props.minQueryLength && props.results !== null;
 });
 
 watch(
