@@ -94,15 +94,14 @@ async function loadLookups({
 }: CompanyContext): Promise<CompanyContext> {
   const { getAll: getPhones, getDefault: getDefaultPhone } = useClientPhones();
   const { getAll: getEmails, getDefault: getDefaultEmail } = useClientEmails();
+  const { getAll: getCompanies } = useClientCompanies();
   const { getAll: getAddresses, getDefault: getDefaultAddress } =
     useClientAddresses();
-  const { getAll: getCompanies, getDefault: getDefaultCompany } =
-    useClientCompanies();
 
   const { getCountry } = useSystem();
   const defaultCountry = getCountry();
 
-  const [phones, emails, addresses, companies] = await Promise.all([
+  const [phones, emails, addresses] = await Promise.all([
     getPhones(),
     getEmails(),
     getAddresses(),
@@ -111,48 +110,22 @@ async function loadLookups({
 
   const defaultAddress = await getDefaultAddress();
   const defaultPhone = await getDefaultPhone();
-  const defaultCompany = await getDefaultCompany();
   const defaultEmail = await getDefaultEmail();
-
-  const companyPhone = model?.phoneId
-    ? phones.find(phone => phone.id === model.phoneId)
-    : null;
-
-  const phoneToUse = companyPhone || defaultPhone;
 
   const baseModel: CompanyModel = {
     emailId: model?.emailId || defaultEmail?.id,
     addressId: model?.addressId || defaultAddress?.id,
     phoneId: model?.phoneId || defaultPhone?.id,
-    phone: phoneToUse
-      ? {
-          number: phoneToUse.phone.number ?? "",
-          nationalNumber: phoneToUse.phone.nationalNumber ?? "",
-          countryCallingCode: phoneToUse.phone.countryCallingCode ?? "",
-          country: phoneToUse.phone.country ?? defaultCountry?.code ?? "",
-        }
-      : undefined,
+    phone: model?.phone || defaultPhone?.phone,
     default: model?.default ?? false,
     name: model?.name ?? "",
     regNumber: model?.regNumber ?? "",
     vatNumber: model?.vatNumber ?? "",
   };
 
-  const updatedSchema = useSchema({
-    baseModel,
-    model,
-    phones,
-    country: defaultCountry,
-  } as CompanyContext);
-
-  const safeModel = useModelParser<CompanyModel>(
-    updatedSchema,
-    model,
-    baseModel,
-    {
-      allowExtraProps: false,
-    }
-  );
+  const safeModel = useModelParser<CompanyModel>(schema, model, baseModel, {
+    allowExtraProps: false,
+  });
 
   return {
     emails,
