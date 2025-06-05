@@ -103,7 +103,7 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   }
 
   async function remove(id: Email["id"]) {
-    return service.remove(id).then(({ mutate }) => mutate());
+    return service.remove(id);
   }
 
   async function getDefault() {
@@ -111,7 +111,7 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
   }
 
   async function setDefault(id: Email["id"]) {
-    await service.setDefault(id).then(({ mutate }) => mutate());
+    return service.setDefault(id);
   }
 
   function nextPage() {
