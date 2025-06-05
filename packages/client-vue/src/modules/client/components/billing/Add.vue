@@ -53,7 +53,8 @@ import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const { update, input, model, schema, uischema, meta } = useBillingDetail();
+const { update, input, model, schema, uischema, meta, clear } =
+  useBillingDetail();
 const { isReady, getAll, data, refresh } = useBillingDetails();
 const { showAddressFields, selectedAddress, setShowAddressFields } =
   useAddressFields();
@@ -91,6 +92,7 @@ const updateAddress = async () => {
 };
 
 const cancel = () => {
+  clear();
   setShowAddressFields(false);
 };
 </script>
