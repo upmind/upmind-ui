@@ -139,7 +139,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (_context: UploadContext, { data }: any) => {
+        error: (_context: UploadContext, { data }: AnyEventObject) => {
           let error = data?.error;
 
           if (data?.status == responseCodes.Unprocessable_Entity) {

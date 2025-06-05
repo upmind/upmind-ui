@@ -30,6 +30,7 @@ UpmindClient.init({
       : import.meta.glob("@/assets/locales/**/*.json", { eager: true }), // compiled messages
   },
   router: {
+    enabled: false, // disable router by default, we will enable it later
     provider: router,
     flows: [],
   },
@@ -39,6 +40,8 @@ UpmindClient.init({
 });
 
 // ---
+app.use(router);
+app.use(i18n);
 
 forEach(uiPlugins, ({ plugin, options }) => {
   app.use(plugin, options);

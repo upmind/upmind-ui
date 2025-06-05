@@ -315,7 +315,10 @@ export default createMachine(
 
       // ---
       setPaymentDetails: assign({
-        paymentDetails: ({ gateway }: StripeContext, { data }: any) => {
+        paymentDetails: (
+          { gateway }: StripeContext,
+          { data }: AnyEventObject
+        ) => {
           return { gateway, ...data };
         },
       }),

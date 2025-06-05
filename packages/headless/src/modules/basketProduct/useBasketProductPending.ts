@@ -1,22 +1,30 @@
 // --- external
-import { waitFor } from "xstate/lib/waitFor";
 import { interpret } from "xstate";
+import { useActor } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import productMachine from "../product/product.machine";
 import { useBasket } from "../basket";
 import { useDataLayer } from "../system";
+import { useProductConfig } from "../product";
 const { dataLayer } = useDataLayer();
 
 // --- utils
 import { isActor } from "xstate/lib/utils";
 import { parseQuantity } from "../product/utils";
 import { isEmpty, get, omit, add, subtract } from "lodash-es";
-import { DetailedError, responseCodes, stopService } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  stopService,
+  useContext,
+} from "../../utils";
 
 // --- types
 import type { ActorRef, InterpreterFrom } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
+import { p } from "@tanstack/query-core/build/legacy/hydration-B_mC2U5v";
 
 // -----------------------------------------------------------------------------
 
@@ -31,7 +39,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     ? (data as ActorRef<any>)
     : undefined;
 
-  const model: ProductProps | undefined = isProductProps(data)
+  const productProps: ProductProps | undefined = isProductProps(data)
     ? (omit(data, [
         "currencyId",
         "clientId",
@@ -55,7 +63,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       responseCodes.Not_Found
     );
 
-  if (isEmpty(data) || (isEmpty(actor) && isEmpty(model?.productId)))
+  if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
     throw new DetailedError(
       "[headless] getProduct on useBasketProductPending not found",
       responseCodes.Not_Found
@@ -63,7 +71,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   const id = actor?.id || btoa(JSON.stringify(data)); // use the model as the basis for the id
 
-  let service =
+  const service: ActorRef<any> =
     actor ||
     interpret(
       productMachine.withContext({
@@ -77,13 +85,15 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         silent,
         bundle,
         // ---
-        model,
+        model: productProps,
       }),
       {
         id,
         devTools: true,
       }
     ).start();
+
+  const { state, send } = useActor(service);
 
   // now that we have a product configuration, we can push it to the datalayer
   pushSelectItem();
@@ -100,6 +110,12 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   //   service.send({ type: "REFRESH", rawBasket });
   //   return waitFor(service, state => state.matches("available"));
   // },
+
+  // --- context
+
+  const model = useContext<ProductModel>(state, "model", {});
+  const product = useContext<Product>(state, "product", {});
+  // --- methods
 
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
@@ -153,11 +169,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   // ---------------------------------------------------------------------------
   return {
+    service, // needed for waitFors down the line
+    ...useProductConfig(service),
     id,
-    service,
-    getSnapshot: () => service?.getSnapshot(),
-    getProduct: () => service.getSnapshot().context.product,
-    getModel: () => service.getSnapshot().context.model,
+    product,
+    model,
     stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     isReady,
@@ -230,3 +246,5 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     update,
   };
 };
+
+type UsePendingProduct = ReturnType<typeof useBasketProductPending>;

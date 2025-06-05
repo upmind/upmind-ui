@@ -233,7 +233,7 @@ export default createMachine(
       },
 
       setError: assign({
-        error: (_context, { data }: any) => {
+        error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
           if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
