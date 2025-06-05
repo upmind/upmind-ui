@@ -416,12 +416,12 @@ export default createMachine(
       clearError: assign({ error: undefined }),
     },
     guards: {
-      requires2fa: (_context: GuestContext, { data }: any) => {
+      requires2fa: (_context: GuestContext, { data }: AnyEventObject) => {
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
       },
-      requiresReCaptcha: (_context: GuestContext, { data }: any) =>
+      requiresReCaptcha: (_context: GuestContext, { data }: AnyEventObject) =>
         !!data?.recaptcha_required,
     },
 

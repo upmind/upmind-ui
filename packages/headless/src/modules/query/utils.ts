@@ -30,46 +30,7 @@ export const PAGINATION = {
   pageIndex: 1,
 };
 
-/**
- * The query client for the browser
- */
-export let browserQueryClient: QueryClient | undefined = undefined;
-
 // -----------------------------------------------------------------------------
-
-/**
- * Create a new query client
- */
-function createQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid re-fetching immediately on the client
-        gcTime: 60 * 10000, // 10 minutes
-        staleTime: 60 * 10000, // 10 minutes
-      },
-    },
-  });
-}
-
-/**
- * Get the query client for the current environment.
- * This is important to ensure we don't lose the query on the client side
- */
-export function getQueryClient(): QueryClient {
-  if (isServer) {
-    // Server: always make a new query client
-    return createQueryClient();
-  } else {
-    // Browser: make a new query client if we don't already have one
-    // This is very important, so we don't re-make a new client if React
-    // suspends during the initial render. This may not be needed if we
-    // have a suspense boundary BELOW the creation of the query client
-    if (!browserQueryClient) browserQueryClient = createQueryClient();
-    return browserQueryClient;
-  }
-}
 
 /**
  * Parse the data to be sent in the request body (e.g. JSON.stringify)
@@ -113,6 +74,7 @@ export const resetQueryByKey =
     queryClient.removeQueries({ queryKey, exact: false });
     return data;
   };
+
 export function canRetryAuthorization(
   url: URL,
   error: QueryResponseError,

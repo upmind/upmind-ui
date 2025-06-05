@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 import productMachine from "../product/product.machine";
 import { useBasket } from "../basket";
+import { useProductConfig } from "../product";
 
 // --- utils
 import { getBasketProduct } from "./utils";
@@ -90,12 +91,10 @@ export const useBasketProduct = (bpid: string) => {
 
   // ---------------------------------------------------------------------------
   return {
+    ...useProductConfig(service),
     id: bpid,
-    service,
-    getSnapshot: () => service?.getSnapshot(),
-    stop: () => stopService(service as InterpreterFrom<any>),
-    // ---
     isReady,
+    stop: () => stopService(service as InterpreterFrom<any>),
     // ---
     updateQuantity: async (value: number): Promise<void> =>
       getProduct().then(product => {
@@ -165,3 +164,5 @@ export const useBasketProduct = (bpid: string) => {
     update,
   };
 };
+
+export type UseBasketProduct = ReturnType<typeof useBasketProduct>;

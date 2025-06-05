@@ -1,5 +1,9 @@
 // --- external
-import { useMutation, useQuery as vueUseQuery } from "@tanstack/vue-query";
+import {
+  useMutation,
+  useQuery as vueUseQuery,
+  useQueryClient,
+} from "@tanstack/vue-query";
 
 // --- internal
 import { doFetch, refreshToken } from "./services";
@@ -8,7 +12,7 @@ import { doFetch, refreshToken } from "./services";
 import { useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
 import { get, set, unset, isString } from "lodash-es";
-import { parseData, getQueryClient, canRetryAuthorization } from "./utils";
+import { parseData, canRetryAuthorization } from "./utils";
 
 // --- types
 import type {
@@ -20,8 +24,6 @@ import type {
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
-
-const queryClient = getQueryClient();
 
 // -----------------------------------------------------------------------------
 
@@ -306,6 +308,6 @@ export const useQuery = () => {
     head: headRequest,
     patch: patchRequest,
     // ---
-    queryClient,
+    queryClient: useQueryClient(),
   };
 };

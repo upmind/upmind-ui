@@ -1,6 +1,6 @@
 // --- external
 import { isFunction } from "xstate/lib/utils";
-import { getQueryClient } from "./utils";
+import { useQueryClient } from "@tanstack/vue-query";
 
 // --- internal
 
@@ -21,7 +21,7 @@ export type { QueryCacheNotifyEvent, QuerySubscriptionFilter };
 export class QueryObserver {
   queryKey: QueryKey;
   options?: Omit<QueryFilters, "queryKey">;
-  queryClient = getQueryClient();
+  queryClient = useQueryClient();
   private subscription: (() => void) | undefined;
 
   constructor(

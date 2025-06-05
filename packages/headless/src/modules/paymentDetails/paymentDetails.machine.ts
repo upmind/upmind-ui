@@ -304,7 +304,10 @@ export default createMachine(
             amount: data?.unpaid_amount_converted || 0.0, // NB: we always force use the outstanding amount
           };
         },
-        actors: ({ actors }, { data }: any) => {
+        actors: (
+          { actors }: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => {
           forEach(actors, actor => {
             if (actor?.send && !actor?.getSnapshot()?.done) {
               actor.send({

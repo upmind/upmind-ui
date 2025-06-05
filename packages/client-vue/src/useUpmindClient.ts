@@ -18,6 +18,7 @@ import type { GlobbedFiles } from "./modules/system/i18n/types";
 
 interface UpmindClientProps extends UpmindProps {
   router?: {
+    enabled?: boolean;
     provider: Router;
     flows?: Flow[];
   };
@@ -49,19 +50,19 @@ class UpmindClient {
     i18n,
     recaptcha,
     analytics,
+    debug,
   }: UpmindClientProps): Promise<void> {
     // NB: Only initialise once
     if (this.status != UpmindStatus.notInitialised) return Promise.resolve();
 
     this.status = UpmindStatus.initialising;
-    this.pop = pop;
-    this.analytics = analytics;
-    this.recaptcha = recaptcha;
+
     this.router = router;
     this.i18n = i18n;
+
     this.initPlugins();
 
-    return Upmind.init({ pop, recaptcha, analytics }).then(() => {
+    return Upmind.init({ pop, recaptcha, analytics, debug }).then(() => {
       return Promise.all([this.initRouter(), this.initI18n()]).then(() => {
         this.status = UpmindStatus.initialised;
       });
@@ -73,7 +74,7 @@ class UpmindClient {
   }
 
   private async initRouter() {
-    if (!this.router?.provider) return;
+    if (!this.router?.provider || !this.router.enabled) return;
     useRouting(this.router.provider, this.router.flows);
   }
 

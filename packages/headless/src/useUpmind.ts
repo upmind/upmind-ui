@@ -50,10 +50,8 @@ class Upmind {
 
   init({ mode, pop, analytics, recaptcha, debug }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
-      return Promise.reject(
-        new Error(
-          `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
-        )
+      throw new Error(
+        `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
       );
     this.status = UpmindStatus.initialising;
     this.initPlugins();
@@ -84,11 +82,11 @@ class Upmind {
 
   private initPlugins() {
     this.plugins ??= {};
-    const { queryClient } = useQuery();
+    // const { queryClient } = useQuery();
     this.plugins.vueQuery = {
       plugin: VueQueryPlugin,
       options: {
-        queryClient,
+        // queryClient,
         enableDevtoolsV6Plugin: true,
       },
     };
