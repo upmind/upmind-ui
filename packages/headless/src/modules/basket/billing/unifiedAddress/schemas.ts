@@ -413,7 +413,7 @@ export const useUischema = ({
       ...conditionalElement(get(model, "updateAddressId"), {
         type: "Model",
         scope: "#/properties/updateAddressId",
-        label: "",
+        label: "Edit Address",
       }),
       {
         type: "ModelList",
@@ -461,7 +461,7 @@ export const useUischema = ({
       ...conditionalElement(get(model, "updateCompanyId"), {
         type: "Model",
         scope: "#/properties/updateCompanyId",
-        label: "",
+        label: "Edit Company",
       }),
       {
         type: "ModelList",
