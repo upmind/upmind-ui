@@ -8,11 +8,17 @@ import type {
   IAddress,
   ICompany,
   ICountry,
+  BrandConfigKeys,
 } from "@upmind-automation/types";
-import type { UseClientEmails } from "../email";
-import type { UseClientPhones } from "../phone";
+import type {
+  Email,
+  Phone,
+  Address,
+  AddressModel,
+  PhoneModel,
+  EmailModel,
+} from "..";
 import type { ClientItemContext } from "../types";
-import type { UseClientAddresses } from "../address";
 
 // -----------------------------------------------------------------------------
 
@@ -20,6 +26,7 @@ export interface CompanyModel {
   addressId?: ICompany["address_id"];
   default: ICompany["default"];
   emailId?: ICompany["email_id"];
+  phone?: PhoneModel["phone"];
   name: ICompany["name"];
   phoneId?: ICompany["phone_id"];
   regNumber: ICompany["reg_number"];
@@ -54,7 +61,9 @@ export type UseClientCompany = ReturnType<typeof useClientCompany>;
 export type UseClientCompanies = ReturnType<typeof useClientCompanies>;
 
 export interface CompanyContext extends ClientItemContext {
-  emails?: UseClientEmails;
-  phones?: UseClientPhones;
-  addresses?: UseClientAddresses;
+  addresses: Address[];
+  emails: Email[];
+  phones: Phone[];
+  country?: ICountry;
+  config?: Record<BrandConfigKeys, boolean>;
 }

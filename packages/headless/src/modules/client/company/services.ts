@@ -3,7 +3,13 @@ import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
 import { invalidateQueryByKey } from "../../query";
-import { useQuery, useSession, useQueryPaginated } from "../..";
+import {
+  useQuery,
+  useSession,
+  useQueryPaginated,
+  useClientCompanies,
+  useSystem,
+} from "../..";
 
 // --- utils
 import {
@@ -11,7 +17,7 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { get, set, isEmpty, isNil } from "lodash-es";
+import { get, set, isEmpty, isNil, isString } from "lodash-es";
 import { mapCompanies, mapICompany } from "./mappers";
 
 // --- types
@@ -20,6 +26,8 @@ import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { CompanyContext, Company } from "./types";
 import type { PaginatedParams, QueryResponse, CompanyModel } from "../..";
+import { parsePhoneNumber } from "libphonenumber-js";
+import { useSchema } from "./schemas";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -84,45 +92,77 @@ async function loadLookups({
   model,
   schema,
 }: CompanyContext): Promise<CompanyContext> {
-  // let's start up/use our dependencies
-  const emails = useClientEmails();
-  const phones = useClientPhones();
-  const addresses = useClientAddresses();
+  const { getAll: getPhones, getDefault: getDefaultPhone } = useClientPhones();
+  const { getAll: getEmails, getDefault: getDefaultEmail } = useClientEmails();
+  const { getAll: getAddresses, getDefault: getDefaultAddress } =
+    useClientAddresses();
+  const { getAll: getCompanies, getDefault: getDefaultCompany } =
+    useClientCompanies();
 
-  return Promise.all([
-    emails.getAll().then(emails.isReady),
-    phones.getAll().then(phones.isReady),
-    addresses.getAll().then(addresses.isReady),
-  ]).then(async () => {
-    const [defaultEmail, defaultPhone, defaultAddress] = await Promise.all([
-      emails.getDefault(),
-      phones.getDefault(),
-      addresses.getDefault(),
-    ]);
+  const { getCountry } = useSystem();
+  const defaultCountry = getCountry();
 
-    const baseModel: CompanyModel = {
-      emailId: defaultEmail?.id,
-      addressId: defaultAddress?.id,
-      phoneId: defaultPhone?.id,
-      default: false, // Provide a default value
-      name: "", // Provide a default value
-      regNumber: "", // Provide a default value
-      vatNumber: "", // Provide a default value
-    };
+  const [phones, emails, addresses, companies] = await Promise.all([
+    getPhones(),
+    getEmails(),
+    getAddresses(),
+    getCompanies(),
+  ]);
 
-    const safeModel = useModelParser<CompanyModel>(schema, model, baseModel, {
+  const defaultAddress = await getDefaultAddress();
+  const defaultPhone = await getDefaultPhone();
+  const defaultCompany = await getDefaultCompany();
+  const defaultEmail = await getDefaultEmail();
+
+  const companyPhone = model?.phoneId
+    ? phones.find(phone => phone.id === model.phoneId)
+    : null;
+
+  const phoneToUse = companyPhone || defaultPhone;
+
+  const baseModel: CompanyModel = {
+    emailId: model?.emailId || defaultEmail?.id,
+    addressId: model?.addressId || defaultAddress?.id,
+    phoneId: model?.phoneId || defaultPhone?.id,
+    phone: phoneToUse
+      ? {
+          number: phoneToUse.phone.number ?? "",
+          nationalNumber: phoneToUse.phone.nationalNumber ?? "",
+          countryCallingCode: phoneToUse.phone.countryCallingCode ?? "",
+          country: phoneToUse.phone.country ?? defaultCountry?.code ?? "",
+        }
+      : undefined,
+    default: model?.default ?? false,
+    name: model?.name ?? "",
+    regNumber: model?.regNumber ?? "",
+    vatNumber: model?.vatNumber ?? "",
+  };
+
+  const updatedSchema = useSchema({
+    baseModel,
+    model,
+    phones,
+    country: defaultCountry,
+  } as CompanyContext);
+
+  const safeModel = useModelParser<CompanyModel>(
+    updatedSchema,
+    model,
+    baseModel,
+    {
       allowExtraProps: false,
-    });
+    }
+  );
 
-    return {
-      emails,
-      phones,
-      addresses,
-      // ---
-      model: safeModel,
-      baseModel: safeModel,
-    } as CompanyContext;
-  });
+  return {
+    emails,
+    phones,
+    addresses,
+    country: defaultCountry,
+    // ---
+    model: safeModel,
+    baseModel: safeModel,
+  } as CompanyContext;
 }
 
 // -----------------------------------------------------------------------------
