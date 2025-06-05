@@ -19,10 +19,9 @@ export function mapAddress(raw: IAddress): Address {
     id: raw.id,
     clientId: raw.client_id,
     // ---
-    title: raw.name || raw.address_1 || "New Address",
+    title: raw.address_1 || "New Address",
     description: compact([
-      get(raw, "address1"),
-      get(raw, "address2"),
+      get(raw, "address_2"),
       get(raw, "street"),
       get(raw, "city"),
       get(raw, "postcode"),
