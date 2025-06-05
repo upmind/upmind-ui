@@ -72,7 +72,7 @@ import {
   ROUTE,
   useSession,
   useRoutingEngine,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements

@@ -22,6 +22,7 @@ UpmindClient.init({
     apiUrl: import.meta.env.VITE_API_URL,
     region: import.meta.env.VITE_API_REGION,
   },
+  debug: import.meta.env.DEV,
   i18n: {
     provider: i18n,
     files: import.meta.env.DEV

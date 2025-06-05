@@ -1,10 +1,19 @@
 /* eslint-env node */
 module.exports = {
   root: true,
-  extends: ["eslint:recommended"],
+  extends: [
+    "plugin:vue/vue3-essential",
+    "eslint:recommended",
+    "@vue/eslint-config-typescript",
+    "@vue/eslint-config-prettier/skip-formatting",
+  ],
   parserOptions: {
     sourceType: "module",
     ecmaVersion: "latest",
+  },
+  globals: {
+    // process: true,
+    // grecaptcha: true
   },
   // custom rules here
   rules: {
@@ -35,6 +44,7 @@ module.exports = {
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/no-explicit-any": "off",
@@ -51,6 +61,14 @@ module.exports = {
         disallowTypeAnnotations: false,
       },
     ],
+
+    // vue
+
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
+    "vue/multi-word-component-names": "off",
+    "vue/no-v-html": "off",
+    "vue/no-v-text-v-html-on-component": "off",
+    "vue/no-v-model-argument": "off",
 
     // general
     "no-unsafe-optional-chaining": "off",

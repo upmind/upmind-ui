@@ -1,12 +1,16 @@
 // --- external
+import { inspect } from "@xstate/inspect";
 import { VueQueryPlugin } from "@tanstack/vue-query";
 import { first } from "lodash-es";
 
 // --- internal
-import { useUpmind, useQuery } from "./index";
+import { useQuery } from "./";
 import { useBrand, useSystem, useDataLayer, useTracking } from "./modules";
 import { useSystemRecaptcha } from "./modules/system";
 import { useSession } from "./modules/session";
+
+// --- utils
+import { usePOP, useSessionStorage } from "./utils";
 
 // --- types
 import type { IApiPop } from "./utils/usePOP";
@@ -21,6 +25,7 @@ export enum UpmindStatus {
 export interface UpmindProps {
   mode?: "default" | "express";
   pop?: IApiPop;
+  debug?: boolean;
   plugins?: Record<string, { plugin: any; options?: any }>;
   recaptcha?: { siteKey?: string; enabled?: boolean };
   analytics?: {
@@ -30,8 +35,11 @@ export interface UpmindProps {
   };
 }
 
+// -----------------------------------------------------------------------------
+
 class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
+  debug: UpmindProps["debug"];
   mode: UpmindProps["mode"] = "default";
   pop: UpmindProps["pop"];
   plugins: UpmindProps["plugins"] = {};
@@ -40,7 +48,7 @@ class Upmind {
 
   constructor() {}
 
-  init({ mode, pop, analytics, recaptcha }: UpmindProps): Promise<void> {
+  init({ mode, pop, analytics, recaptcha, debug }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       return Promise.reject(
         new Error(
@@ -49,24 +57,29 @@ class Upmind {
       );
     this.status = UpmindStatus.initialising;
     this.initPlugins();
+
+    this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;
     this.analytics = analytics;
     this.recaptcha = recaptcha;
 
-    return useUpmind(pop).then(() => {
-      if (this.mode == "express") {
-        this.status = UpmindStatus.initialised;
-        return;
-      }
-      Promise.all([
-        this.initHeadless(),
-        this.initRecaptcha(),
-        this.initAnalytics(),
-      ]).then(() => {
-        this.status = UpmindStatus.initialised;
+    return usePOP(pop)
+      .isReady()
+      .then(() => {
+        if (this.mode == "express") {
+          this.status = UpmindStatus.initialised;
+          return;
+        }
+        Promise.all([
+          this.initDebugging(),
+          this.initHeadless(),
+          this.initRecaptcha(),
+          this.initAnalytics(),
+        ]).then(() => {
+          this.status = UpmindStatus.initialised;
+        });
       });
-    });
   }
 
   private initPlugins() {
@@ -79,6 +92,31 @@ class Upmind {
         enableDevtoolsV6Plugin: true,
       },
     };
+  }
+
+  private async initDebugging() {
+    const { get, set } = useSessionStorage();
+
+    // We now persist debugging to sessionStorage so we can debug an entire session
+    // without having to pass the debug flag in the URL every time.
+
+    const queryParams = new URLSearchParams(window?.location?.search);
+
+    // always honor the debug flag in the URL
+    if (queryParams.has("debug")) set("debug", true);
+
+    // otherwise read our debugging flag from session storage or fallback to the default ( true if DEV )
+    const debugging = get("debug") ?? this.debug;
+    this.debug = debugging;
+
+    // finally start the inspector if debugging is enabled
+    if (debugging)
+      inspect({
+        // url: "https://stately.ai/registry/editor/inspect",
+        // url: "https://statecharts.io/inspect",
+        // url: "https://stately.ai/viz?inspect", // (default)
+        iframe: false,
+      });
   }
 
   private async initHeadless() {

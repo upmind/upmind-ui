@@ -90,7 +90,7 @@
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useClientCompanies } from "@upmind-automation/headless-vue";
+import { useClientCompanies } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";

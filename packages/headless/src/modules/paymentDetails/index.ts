@@ -3,7 +3,8 @@ import { interpret } from "xstate";
 
 // --- internal
 import paymentDetailsMachine from "./paymentDetails.machine";
-
+export * from "./usePaymentDetails";
+export * from "./usePaymentDetailsGateway";
 // --- utils
 
 // --- types

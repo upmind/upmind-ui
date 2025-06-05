@@ -27,7 +27,6 @@
   "references": [
     { "path": "../../packages/types" },
     { "path": "../../packages/headless" },
-    { "path": "../../packages/headless-vue" },
     { "path": "../../packages/ui" },
     { "path": "../../packages/client-vue" }
   ]

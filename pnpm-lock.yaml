@@ -682,9 +682,9 @@ importers:
       '@jsonforms/vue':
         specifier: ^3.5.1
         version: 3.5.1(@jsonforms/core@3.5.1)(vue@3.5.13(typescript@5.7.3))
-      '@upmind-automation/headless-vue':
+      '@upmind-automation/headless':
         specifier: workspace:*
-        version: link:../headless-vue
+        version: link:../headless
       '@upmind-automation/upmind-ui':
         specifier: workspace:*
         version: link:../ui
@@ -857,6 +857,9 @@ importers:
       vue:
         specifier: ^3.4.0
         version: 3.5.13(typescript@5.7.3)
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.5.0(vue@3.5.13(typescript@5.7.3))
       xstate:
         specifier: ^4.38.3
         version: 4.38.3
@@ -882,9 +885,21 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.24.0
         version: 8.26.0(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
+      '@vitejs/plugin-vue':
+        specifier: ^5.2.1
+        version: 5.2.1(vite@6.3.3(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))
       '@vitest/coverage-istanbul':
         specifier: ^3.0.5
         version: 3.0.7(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))
+      '@vue/eslint-config-prettier':
+        specifier: ^10.2.0
+        version: 10.2.0(eslint@9.21.0(jiti@1.21.7))(prettier@3.5.3)
+      '@vue/eslint-config-typescript':
+        specifier: ^14.4.0
+        version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.21.0(jiti@1.21.7)))(eslint@9.21.0(jiti@1.21.7))(typescript@5.7.3)
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.6
       '@xstate/test':
         specifier: ^0.5.1
         version: 0.5.1(xstate@4.38.3)
@@ -897,6 +912,9 @@ importers:
       eslint-plugin-prettier:
         specifier: ^5.2.3
         version: 5.2.3(eslint-config-prettier@10.0.2(eslint@9.21.0(jiti@1.21.7)))(eslint@9.21.0(jiti@1.21.7))(prettier@3.5.3)
+      eslint-plugin-vue:
+        specifier: ^9.32.0
+        version: 9.32.0(eslint@9.21.0(jiti@1.21.7))
       jsdom:
         specifier: ^26.0.0
         version: 26.0.0
@@ -915,9 +933,15 @@ importers:
       vite-plugin-dts:
         specifier: ^4.5.0
         version: 4.5.3(@types/node@22.15.3)(rollup@4.34.9)(typescript@5.7.3)(vite@6.3.3(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))
+      vite-plugin-vue-devtools:
+        specifier: ^7.7.2
+        version: 7.7.2(rollup@4.34.9)(vite@6.3.3(@types/node@22.15.3)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))
       vitest:
         specifier: ^3.0.5
         version: 3.0.7(@types/debug@4.1.12)(@types/node@22.15.3)(jiti@1.21.7)(jsdom@26.0.0)(sass@1.85.1)(terser@5.39.2)(yaml@2.7.0)
+      vue-tsc:
+        specifier: ^2.2.0
+        version: 2.2.8(typescript@5.7.3)
 
   packages/headless-vue:
     dependencies:

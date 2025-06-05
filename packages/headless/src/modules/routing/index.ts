@@ -6,6 +6,9 @@ import { waitFor } from "xstate/lib/waitFor";
 import routingEngine from "./routingEngine.machine";
 export * from "./flows";
 export * from "./types";
+export * from "./useRoutingEngine";
+export * from "./useProductsRequiringAction";
+export * from "./useRouteQueryParams";
 
 // --- utils
 import { stopService } from "../../utils";

@@ -108,7 +108,7 @@ import { computed, watch, onBeforeUnmount, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
-import { useDomain } from "@upmind-automation/headless-vue";
+import { useDomain } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./domain.config";
 
@@ -130,7 +130,7 @@ import {
 
 // --- utils
 import { map } from "lodash-es";
-import { DomainTypes } from "@upmind-automation/headless-vue";
+import { DomainTypes } from "@upmind-automation/headless";
 
 // --- types
 import type { DomainProps } from "./types";

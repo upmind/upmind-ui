@@ -11,7 +11,7 @@ import { get, isString } from "lodash-es";
 // --- types
 import { messageTypes } from "./types";
 import { messageDisplays, type Message } from "./types";
-
+export * from "./useFeedback";
 export * from "./types";
 
 // -----------------------------------------------------------------------------

@@ -50,7 +50,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+import { useRoutingEngine, ROUTE } from "@upmind-automation/headless";
 
 // --- components
 import Card from "../../components/content/Card.vue";

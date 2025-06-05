@@ -41,10 +41,7 @@ export default defineConfig({
         __dirname,
         "../headless/src/index.ts"
       ),
-      "@upmind-automation/headless-vue": resolve(
-        __dirname,
-        "../headless-vue/src/index.ts"
-      ),
+
       "@upmind-automation/upmind-ui": resolve(__dirname, "../ui/src/index.ts"),
     },
   },

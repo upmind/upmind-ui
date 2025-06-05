@@ -83,7 +83,7 @@ import {
   useBasketProductsPending,
   useQueryParams,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";

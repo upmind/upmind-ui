@@ -22,10 +22,9 @@ import type { BillingDetailsContext } from "./types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
-  const { getAll: getAddresses } = useClientAddresses();
+  const { data: addresses, isReady: isAddressesReady } = useClientAddresses();
   const { getAll: getCompanies } = useClientCompanies();
 
-  const addresses = getAddresses({ allowStale: false });
   const companies = getCompanies({ allowStale: false });
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
@@ -42,9 +41,9 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
-  return Promise.all([companies, addresses]).then(
-    ([companies, addresses]) => {
-      return [...companies, ...addresses];
+  return Promise.all([companies, isAddressesReady]).then(
+    ([companies]) => {
+      return [...companies, ...addresses.value];
     } // we prioritise/return the companies first so they are at the top of the list
   );
 }
@@ -68,7 +67,7 @@ async function update(
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function parse(

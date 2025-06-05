@@ -39,7 +39,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless-vue";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";

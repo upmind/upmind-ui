@@ -86,7 +86,7 @@ import { isEmpty } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind-automation/headless-vue";
+import { useBasketPaymentGateway } from "@upmind-automation/headless";
 
 // --- components
 import { Spinner, Alert, Markdown } from "@upmind-automation/upmind-ui";

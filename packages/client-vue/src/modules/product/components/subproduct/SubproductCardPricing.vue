@@ -38,7 +38,7 @@ import { useI18n } from "vue-i18n";
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 import ExPrice from "../pricing/ExPrice.vue";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
-import type { SubproductValue } from "@upmind-automation/headless-vue";
+import type { SubproductValue } from "@upmind-automation/headless";
 
 const props = defineProps<{
   price: SubproductValue["price"];

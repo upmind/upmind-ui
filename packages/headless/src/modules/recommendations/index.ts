@@ -4,6 +4,8 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
+export * from "./useProductRecommendations";
+export * from "./useRecommendations";
 export * from "./types";
 
 // --- utils

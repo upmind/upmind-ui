@@ -1,7 +1,7 @@
 import type {
   Product,
   ProductSummaryDetail,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 export interface SummaryItemProps extends ProductSummaryDetail {
   i18nCategory?: string;

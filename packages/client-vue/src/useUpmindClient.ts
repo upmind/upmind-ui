@@ -1,7 +1,7 @@
 import Upmind, {
   type UpmindProps,
   UpmindStatus,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- alternative implementation ----------------------------------------------
 
@@ -11,7 +11,7 @@ import { useI18n } from "./modules/system/i18n";
 // ---types
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import type { Flow } from "@upmind-automation/headless-vue";
+import type { Flow } from "@upmind-automation/headless";
 import type { GlobbedFiles } from "./modules/system/i18n/types";
 
 // ---
