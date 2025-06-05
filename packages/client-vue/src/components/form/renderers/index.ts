@@ -8,7 +8,7 @@ import AddressRenderer, { tester as addressTest } from "./AddressRenderer.vue";
 import ModelListRenderer, {
   tester as modelListTest,
 } from "./ModelListRenderer.vue";
-import ModelRenderer, { tester as modelTest } from "./ModelRenderer.vue";
+import { ModelRenderer, modelTest } from "./ModelRenderer";
 // -----------------------------------------------------------------------------
 
 export const formRenderers = [
