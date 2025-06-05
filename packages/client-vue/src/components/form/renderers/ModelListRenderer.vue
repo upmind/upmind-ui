@@ -109,6 +109,17 @@ watch(parsedValues, () => {
 });
 
 const selectedDefaultItem = () => {
+  if (control.value.data) {
+    const matchingItem = find(
+      parsedValues.value,
+      item => item.id === control.value.data
+    );
+    if (matchingItem?.id) {
+      selectedItem.value = matchingItem.id;
+      return;
+    }
+  }
+
   selectedItem.value =
     (
       find(
