@@ -1,7 +1,7 @@
 // --- internal
 import type { ImageObjectTypes } from "@upmind-automation/types";
 import { ErrorObject } from "ajv";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 

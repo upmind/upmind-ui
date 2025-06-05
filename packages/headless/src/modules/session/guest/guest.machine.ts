@@ -42,7 +42,7 @@ import { omit } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
 import { GrantTypes } from "@upmind-automation/types";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

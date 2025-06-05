@@ -18,7 +18,7 @@ import { uniqBy, get, set, isEmpty, find } from "lodash-es";
 import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { ActorRef } from "xstate";
-import { ProductProps } from "src/modules/product";
+import { ProductProps } from "../../product";
 
 // -----------------------------------------------------------------------------
 

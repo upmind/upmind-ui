@@ -1,6 +1,6 @@
 // --- internal
 
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 

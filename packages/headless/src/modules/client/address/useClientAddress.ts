@@ -25,7 +25,7 @@ import { get } from "lodash-es";
 import type { ClientItemContext } from "../types";
 import type { Address, AddressModel } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 

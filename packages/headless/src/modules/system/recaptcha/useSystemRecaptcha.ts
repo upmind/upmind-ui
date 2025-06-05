@@ -19,7 +19,7 @@ import {
 
 // --- types
 import type { InterpreterFrom } from "xstate";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 import { RecaptchaContext } from "./types";
 
 // -----------------------------------------------------------------------------
