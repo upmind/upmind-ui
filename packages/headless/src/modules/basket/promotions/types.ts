@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { IBasketPromotion } from "@upmind-automation/types";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 

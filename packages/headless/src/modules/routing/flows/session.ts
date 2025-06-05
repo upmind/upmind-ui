@@ -11,7 +11,7 @@ import { uniqBy, isEmpty } from "lodash-es";
 // --- types
 import type { Flow, Route } from "../types";
 import { ROUTE } from "../types";
-import { SessionContext } from "src/modules/session/types";
+import { SessionContext } from "../../session/types";
 
 // -----------------------------------------------------------------------------
 

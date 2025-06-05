@@ -14,7 +14,7 @@ import type {
 import { ErrorObject } from "ajv";
 import type { GatewayTypes } from "../types";
 import type { GatewayCtx, GatewayContext } from "../types";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../../query";
 
 // -----------------------------------------------------------------------------
 

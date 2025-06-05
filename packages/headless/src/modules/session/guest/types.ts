@@ -1,5 +1,5 @@
 // --- types
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 import type { PhoneModel } from "../../client/phone/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";

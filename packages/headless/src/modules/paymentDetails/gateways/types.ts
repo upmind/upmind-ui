@@ -14,7 +14,7 @@ import type {
   IPaymentDetail,
 } from "@upmind-automation/types";
 import { ErrorObject } from "ajv";
-import { QueryResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 
