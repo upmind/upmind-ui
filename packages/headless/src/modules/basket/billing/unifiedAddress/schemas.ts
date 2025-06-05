@@ -35,13 +35,13 @@ export const useSchema = ({
     properties: {
       addressId: {
         type: ["string", "null"],
-        default: baseModel.addressId,
+        default: baseModel.addressId || null,
         use: useClientAddress,
         update: "updateAddressId",
       } as any,
       companyId: {
         type: ["string", "null"],
-        default: baseModel.companyId,
+        default: baseModel.companyId || null,
         use: useClientCompany,
         update: "updateCompanyId",
       } as any,
