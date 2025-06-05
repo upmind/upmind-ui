@@ -1,9 +1,7 @@
 <template>
-  <div class="flex w-full flex-col gap-y-2">
+  <div class="flex w-full flex-col gap-y-1">
     <header class="flex w-full items-start justify-between">
-      <h3
-        class="m-0 flex items-center gap-x-2 text-sm font-semibold leading-none"
-      >
+      <h3 class="m-0 flex items-center gap-x-2 text-sm font-semibold">
         {{ title }}
         <Badge v-if="isSelected" variant="flat" size="xs" label="Default" />
       </h3>
@@ -20,14 +18,11 @@
       />
     </header>
 
-    <p class="text-emphasis-high m-0 text-sm leading-none">
+    <p class="text-emphasis-high m-0 text-sm">
       {{ description }}
     </p>
 
-    <p
-      v-if="regNumber || vatNumber"
-      class="text-emphasis-medium m-0 text-sm leading-none"
-    >
+    <p v-if="regNumber || vatNumber" class="text-emphasis-medium m-0 text-sm">
       Company <template v-if="regNumber"> {{ regNumber }}</template>
       <template v-if="vatNumber"> {{ vatNumber }}</template>
     </p>
