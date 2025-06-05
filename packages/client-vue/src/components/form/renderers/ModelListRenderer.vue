@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch, onMounted, inject } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
