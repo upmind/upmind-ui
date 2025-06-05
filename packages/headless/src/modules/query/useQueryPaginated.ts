@@ -4,7 +4,7 @@ import { useQuery } from "./useQuery";
 // --- utils
 import { get } from "lodash-es";
 import { useUrl } from "../../utils";
-import { PAGINATION, getQueryClient } from "./utils";
+import { PAGINATION } from "./utils";
 
 // --- types
 import type {
@@ -13,8 +13,6 @@ import type {
   PaginatedData,
   PaginatedParams,
 } from "./types";
-
-const queryClient = getQueryClient();
 
 // -----------------------------------------------------------------------------
 
@@ -216,6 +214,6 @@ export const useQueryPaginated = () => {
     // ---
     get: getPaginatedRequest,
     // ---
-    queryClient,
+    queryClient: useQuery().queryClient,
   };
 };

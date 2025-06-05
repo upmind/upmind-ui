@@ -17,10 +17,10 @@ import { PaymentDetailsArgs, PaymentDetailModel } from "./types";
 export const usePaymentDetails = (context: PaymentDetailsArgs) => {
   const service = interpret(paymentDetailsMachine.withContext(context), {
     devTools: false,
-  });
+  }).start();
 
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     // ---
     clear: () => service?.send({ type: "CLEAR" }),

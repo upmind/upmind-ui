@@ -47,8 +47,10 @@ function getRecommendations(pid?: ProductModel["productId"]) {
 }
 
 export const useRecommendationsEngine = () => {
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     isReady: async () =>
       waitFor(

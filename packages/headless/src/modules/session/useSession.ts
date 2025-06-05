@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -46,7 +46,9 @@ const service = interpret(sessionMachine, { devTools: false });
  * @returns {object} Session management API (see below for details)
  */
 export const useSession = () => {
-  const { state, send } = useActor(service.start());
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
+  const { state, send } = useActor(service);
 
   // --- state
 

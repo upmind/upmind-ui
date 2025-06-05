@@ -14,10 +14,11 @@ import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 
 // ---types
 import { GuestContext, LoginModel, RecoverModel, RegisterModel } from "./types";
+import { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-async function load(_context: GuestContext, _event: any) {
+async function load(_context: GuestContext, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
 
@@ -59,8 +60,6 @@ async function loadUser() {
     withAccessToken: true,
     staleTime: 0,
     gcTime: 0,
-  }).then(({ data }: any) => {
-    return data;
   });
 }
 
@@ -95,7 +94,7 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
     });
 }
 
-async function verify2fa({ token }: GuestContext, { data }: any) {
+async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
   const { post, useUrl } = useQuery();
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
@@ -113,22 +112,28 @@ async function verify2fa({ token }: GuestContext, { data }: any) {
     .then(loadUser);
 }
 
-async function getCustomFields(_context: GuestContext, _event: any) {
+async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
 
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
     queryKey: ["session", "guest", "custom-fields"],
-  }).then(({ data }: any) => data);
+  });
 }
 
-async function checkForReCaptcha(_context: GuestContext, { data }: any) {
+async function checkForReCaptcha(
+  _context: GuestContext,
+  { data }: AnyEventObject
+) {
   // not implemented so pass through
   return Promise.resolve(data);
 }
 
-async function verifyReCaptcha(_context: GuestContext, { data }: any) {
+async function verifyReCaptcha(
+  _context: GuestContext,
+  { data }: AnyEventObject
+) {
   // not implemented so pass through
   return Promise.resolve(data);
 }

@@ -77,7 +77,7 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
     queryKey: ["images", data.hash],
     staleTime: useTime()?.DAY,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function check(_context: UploadContext, { data }: AnyEventObject) {
@@ -139,7 +139,7 @@ async function upload(
     url: useUrl(path),
     data: request,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 // -----------------------------------------------------------------------------

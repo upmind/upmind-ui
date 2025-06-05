@@ -68,7 +68,7 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
   return get({
     url: useUrl(`order/${data.id}`),
     queryKey: ["order", { id: data.id }],
-  }).then(({ data }: any) => ({ fields: data }));
+  }).then(data => ({ fields: data }));
 }
 
 async function update(context: PaymentContext, _event: AnyEventObject) {
@@ -80,7 +80,7 @@ async function update(context: PaymentContext, _event: AnyEventObject) {
     url: useUrl(`/payments`),
     data,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 /**

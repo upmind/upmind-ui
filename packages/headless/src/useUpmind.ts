@@ -4,7 +4,6 @@ import { VueQueryPlugin } from "@tanstack/vue-query";
 import { first } from "lodash-es";
 
 // --- internal
-import { useQuery } from "./";
 import { useBrand, useSystem, useDataLayer, useTracking } from "./modules";
 import { useSystemRecaptcha } from "./modules/system";
 import { useSession } from "./modules/session";
@@ -54,13 +53,13 @@ class Upmind {
         `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
       );
     this.status = UpmindStatus.initialising;
-    this.initPlugins();
-
     this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;
     this.analytics = analytics;
     this.recaptcha = recaptcha;
+    this.initPlugins();
+    this.initDebugging();
 
     return usePOP(pop)
       .isReady()
@@ -69,24 +68,23 @@ class Upmind {
           this.status = UpmindStatus.initialised;
           return;
         }
-        Promise.all([
-          this.initDebugging(),
-          this.initHeadless(),
-          this.initRecaptcha(),
-          this.initAnalytics(),
-        ]).then(() => {
-          this.status = UpmindStatus.initialised;
-        });
+
+        return this.initHeadless()
+          .then(() => {
+            this.initRecaptcha();
+            this.initAnalytics();
+          })
+          .then(() => {
+            this.status = UpmindStatus.initialised;
+          });
       });
   }
 
   private initPlugins() {
     this.plugins ??= {};
-    // const { queryClient } = useQuery();
     this.plugins.vueQuery = {
       plugin: VueQueryPlugin,
       options: {
-        // queryClient,
         enableDevtoolsV6Plugin: true,
       },
     };
@@ -119,9 +117,9 @@ class Upmind {
 
   private async initHeadless() {
     if (!this.pop) return;
-    useSystem();
-    useBrand();
-    useSession();
+    // useSystem();
+    // useBrand();
+    // useSession();
   }
 
   private async initRecaptcha() {

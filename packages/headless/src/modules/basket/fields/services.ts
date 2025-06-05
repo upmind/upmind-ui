@@ -20,7 +20,7 @@ async function load(_context: FieldsContext, _event: AnyEventObject) {
   return get({
     url: useUrl("basket_fields"),
     queryKey: ["basket", "fields"],
-  }).then(({ data }: any) => ({ fields: data }));
+  }).then(data => ({ fields: data }));
 }
 
 async function update(

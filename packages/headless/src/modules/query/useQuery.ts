@@ -48,6 +48,7 @@ export const useQuery = () => {
     init,
     withAccessToken,
   }: RequestParams): Promise<QueryResponse<T>> {
+    debugger;
     // safeguard
     init ??= {};
     let attempts = 0;
@@ -71,6 +72,7 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
+    debugger;
     return doFetch<T>({ url, init }).catch(async error => {
       const requestError = error as QueryResponseError;
       attempts++;
@@ -100,6 +102,42 @@ export const useQuery = () => {
    * @param options Additional options to pass to TanStack query.
    */
   async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    queryKey,
+    url,
+    init,
+    withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>): Promise<TData> {
+    debugger;
+    // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
+    const { initialData, ...restOptions } = options as any;
+    debugger;
+    return useQueryClient().fetchQuery<TQueryFnData, DefaultError, TData>({
+      queryKey,
+      queryFn: async () => {
+        return request<TQueryFnData>({ url, init, withAccessToken }).then(
+          response => {
+            debugger;
+            return response.data as TQueryFnData;
+          }
+        );
+      },
+      ...restOptions,
+    });
+  }
+
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function geReactiveRequest<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+  >({
     url,
     init,
     withAccessToken,

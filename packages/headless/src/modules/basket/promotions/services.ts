@@ -35,7 +35,7 @@ async function add(
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: trim(model?.promocode) },
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function remove(
@@ -54,7 +54,7 @@ async function remove(
   return del({
     url: useUrl(`/orders/${basketId}/promotions/${id}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function parse({ model }: PromotionsContext, _event: AnyEventObject) {

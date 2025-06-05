@@ -1,6 +1,6 @@
 // --- external
 
-import { interpret } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
 import { useActor } from "@xstate/vue";
@@ -36,11 +36,20 @@ import { QueryResponseError } from "../query";
 import { CurrencyModel } from "../basket/currency/types";
 
 // -----------------------------------------------------------------------------
+// create a global instance of the brand machine
+// and a global object to store state
+// NB dont automatically start the machine as in order for the inspector to work
+// it needs to be started after the inspect service is created, so we only start it when we need it
+
+const service = interpret(brandMachine, { devTools: true });
+
+// -----------------------------------------------------------------------------
 
 export const useBrand = () => {
   // --- state
-  const service = interpret(brandMachine, { devTools: false }).start();
-  const { state, send } = useActor(service);
+  // if (service.status == InterpreterStatus.NotStarted) service.start();
+
+  const { state, send } = useActor(service.start());
 
   async function isReady(): Promise<boolean> {
     return waitFor(

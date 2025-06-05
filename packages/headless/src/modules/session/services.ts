@@ -30,7 +30,7 @@ async function transferTo(_context: SessionContext) {
   return post({
     url: useUrl("auth_code"),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function transferFrom({ transfer }: SessionContext) {

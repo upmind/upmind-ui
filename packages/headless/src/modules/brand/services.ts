@@ -13,15 +13,16 @@ async function fetchOrganisationConfig(
   context: BrandContext,
   _event: AnyEventObject
 ) {
+  debugger;
   const { get, useUrl } = useQuery();
-
+  debugger;
   return get({
     url: useUrl("config/organisation/values", {
       keys: context.keys.organisation.join(),
     }),
     queryKey: ["brand", "organisation", "config"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function fetchBrandSettings(
@@ -34,7 +35,7 @@ async function fetchBrandSettings(
     url: useUrl("brand/settings", {}),
     queryKey: ["brand", "settings"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data);
+  });
 }
 
 // brand config is slightly different because we can ask for more config fro mthe api
@@ -55,7 +56,7 @@ async function fetchBrandConfig(context: BrandContext, _event: AnyEventObject) {
     queryKey: ["brand", "config", ...missingKeys],
     staleTime: 0,
     gcTime: 0,
-  }).then(({ data }: any) => {
+  }).then(data => {
     // create an object template with ALL the keys and set them to null
     // this is to ensure that the config object has all the keys that were requested
     const template = reduce(
@@ -78,7 +79,7 @@ async function fetchModules(_context: BrandContext, _event: AnyEventObject) {
     url: useUrl("org/modules", {}),
     queryKey: ["brand", "modules"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function load(context: BrandContext, _event: AnyEventObject) {

@@ -34,7 +34,7 @@ async function load(_context: ClientContext, _event: any) {
     }),
     queryKey: ["session", "self"],
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 // -----------------------------------------------------------------------------

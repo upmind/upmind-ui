@@ -103,7 +103,7 @@ async function load(
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
@@ -127,7 +127,7 @@ async function loadProvisioningFields(productId: string) {
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 // ---
@@ -268,7 +268,7 @@ async function formatCalculation(
       currency_id: currencyId,
       prices: values,
     },
-  }).then(({ data }: any) => {
+  }).then(data => {
     return {
       total: get(data, "total", 0),
       totalFormatted: get(data, "total_formatted", ""),
