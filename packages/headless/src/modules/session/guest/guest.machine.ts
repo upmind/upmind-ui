@@ -42,7 +42,7 @@ import { omit } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
 import { GrantTypes } from "@upmind-automation/types";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -401,7 +401,7 @@ export default createMachine(
             return {
               type: responseCodes.Unauthorized,
               message: data?.error?.message || "Unauthorized",
-            } as ResponseError;
+            } as QueryResponseError;
           }
           if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data

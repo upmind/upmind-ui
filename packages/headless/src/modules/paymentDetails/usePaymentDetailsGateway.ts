@@ -30,7 +30,7 @@ import type { ActorRef } from "xstate";
  * const { state, context, meta, model, schema, uischema, renderer, instructions } = paymentGateway;
  * const { input, update, clear, render } = paymentGateway;
  */
-export const useBasketPaymentGateway = (paymentGateway: ActorRef<any>) => {
+export const usePaymentGateway = (paymentGateway: ActorRef<any>) => {
   // ---------------------------------------------------------------------------
   return {
     state: computed(() => stateValue(paymentGateway, "value")),

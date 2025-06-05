@@ -32,16 +32,15 @@ async function loadAll({ allowStale = true } = {}) {
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Phone[]>({
+  return get<IPhone[], Phone[]>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
     queryKey,
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapPhones(response?.data ?? [])),
+    //revalidateIfStale: true,
+    select: data => mapPhones(data ?? []),
   }).then(({ data }) => data);
 }
 
@@ -53,14 +52,13 @@ async function loadPaged(
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Phone[]>({
+  return get<IIPhone[], Phone[]>({
     url: useUrl(`clients/${client.id}/phones`),
     queryKey: [...queryKey, { ...paginationParams }],
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapPhones(response?.data ?? [])),
-    revalidateIfStale: true,
+    select: response => set(response, "data", mapPhones(response.data ?? [])),
+    //revalidateIfStale: true,
     ...paginationParams,
   }).then(({ data }) => data ?? []);
 }

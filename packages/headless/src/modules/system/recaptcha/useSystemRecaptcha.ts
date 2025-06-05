@@ -19,7 +19,7 @@ import {
 
 // --- types
 import type { InterpreterFrom } from "xstate";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "src/modules/query";
 import { RecaptchaContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ export const useSystemRecaptcha = () => {
 
   const created = useContext<string | undefined>(state, "created");
 
-  const errors = useContext<ResponseError>(state, "error");
+  const errors = useContext<QueryResponseError>(state, "error");
 
   // --- methods
 

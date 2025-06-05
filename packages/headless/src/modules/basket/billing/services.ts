@@ -15,7 +15,7 @@ import { find, isEmpty } from "lodash-es";
 import { DetailedError, responseCodes, useValidation } from "../../../utils";
 
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
+import { BrandConfigKeys, IBasket } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { BillingDetailsContext } from "./types";
 
@@ -60,7 +60,7 @@ async function update(
     );
 
   // get returns a promise so we can pass it directly back to the machine
-  return put({
+  return put<IBasket>({
     url: useUrl(`/orders/${basketId}`),
     data: {
       address_id: model?.addressId,

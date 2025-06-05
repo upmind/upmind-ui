@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery } from "../..";
+import { QueryResponse, useQuery } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
@@ -20,9 +20,11 @@ import {
   reduce,
   set,
   isArray,
+  isFunction,
+  isNil,
 } from "lodash-es";
 import { ActorRef } from "xstate";
-import type { IBasket } from "@upmind-automation/types";
+import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
@@ -105,7 +107,7 @@ async function fetch(
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 /**
@@ -174,7 +176,7 @@ async function fetchSelected(
       },
     ],
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 /**
@@ -258,7 +260,7 @@ async function fetchRelated(
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 /**
@@ -297,12 +299,15 @@ async function updateQuantity(
     basketProduct.productDetails as ProductDetails
   );
   const product = parseBasketProductData(basketProduct.configuration);
-  return put({
+  return put<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
     withAccessToken: true,
   })
-    .then(({ data }: any) => data)
+    .then(({ data }) => {
+      if (isNil(data)) throw new Error("No data returned from the server");
+      return data;
+    })
     .catch(parseApiErrors);
 }
 
@@ -343,12 +348,15 @@ async function update(
   const action = isNew ? post : put;
   const suffix = isNew ? "" : `/${data.id}`;
   // ---
-  return action({
+  return action<IBasket>({
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
     withAccessToken: true,
   })
-    .then(({ data }: any) => data)
+    .then(({ data }) => {
+      if (isNil(data)) throw new Error("No data returned from the server");
+      return data;
+    })
     .catch(parseApiErrors);
 }
 
@@ -424,13 +432,15 @@ async function updateMany(
 
   // ---
   const { put, useUrl } = useQuery();
-  return put({
+  return put<IBasket>({
     url: useUrl(`/orders/${basketId}`),
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   })
-    .then(({ data }: any) => {
+    .then(({ data }) => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
+
+      if (isNil(data)) throw new Error("No data returned from the server");
       return data;
     })
     .catch(error => {
@@ -460,14 +470,17 @@ async function remove({
   if (!basketId)
     return Promise.reject(new Error("No basket provided/available"));
   // ---
-  return del({
+  return del<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => {
+    if (isNil(data)) throw new Error("No data returned from the server");
+    return data;
+  });
 }
 
-function parseApiErrors(response: any): Promise<void> {
-  if (!response?.error) return Promise.resolve();
+function parseApiErrors(response: QueryResponse) {
+  if (!response?.error) return Promise.reject(response);
   // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
   const rawErrors = unflattenErrors(response.error.data);
   // Currently we receive errors in 2 ways,

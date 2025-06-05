@@ -5,7 +5,7 @@ import { IClient } from "@upmind-automation/types";
 // --- internal
 import type { ActorRef } from "xstate";
 import type { QueryKey } from "@tanstack/query-core";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 // Contexts
@@ -19,7 +19,7 @@ export interface ClientItemContext {
   uischema?: UISchemaElement;
   baseModel?: any;
   model?: any;
-  error?: ResponseError | ErrorObject[];
+  error?: QueryResponseError | ErrorObject[];
   // ---
   autoupdate?: boolean;
   allowMultipleEdits?: boolean;
@@ -27,7 +27,7 @@ export interface ClientItemContext {
 
 export interface ClientListingsContext {
   selected?: ActorRef<any | any> | any;
-  error?: ResponseError | ErrorObject[];
+  error?: QueryResponseError | ErrorObject[];
   initial?: string;
   filters?: any;
   items?: ActorRef<any | any>[]; //IAddress[] | ICompany[] | IEmail[] | IPhone[];

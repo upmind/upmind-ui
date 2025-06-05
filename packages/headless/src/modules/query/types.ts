@@ -10,19 +10,19 @@ import type {
 
 // -----------------------------------------------------------------------------
 
-export interface ResponseError {
+export interface QueryResponseError {
   id: null;
   code: string | responseCodes | number;
   type: string | responseCodes | number;
   message: string;
-  data: null;
+  data: any | null;
   status: responseCodes | number;
 }
-export interface Response {
+export interface QueryResponse<TData = unknown> {
   status: number;
-  data: any | null;
+  data: TData | null;
   total: number | null;
-  error: ResponseError | null;
+  error: QueryResponseError | null;
   messages: string[] | null;
 }
 
@@ -59,34 +59,26 @@ export interface PaginatedParams {
   pagination?: IAPIPagination;
 }
 
-// Response Types
+// QueryResponse Types
 
-export interface QueryResponse<T extends unknown = unknown> {
-  data: T;
-  total: number | null;
-  status: number;
-  errors: ResponseError | null;
-  messages: string | string[];
-}
-
-export interface PaginatedData<T extends unknown> {
-  // response related
-  data: T | null | undefined;
-  // pagination related
-  pagination?: {
-    total: number;
-    pages: number;
-    limit: number;
-    offset: number;
-    current: number;
-  };
-  // meta related
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  // function related
-  nextPage: () => Promise<PaginatedData<T>>;
-  prevPage: () => Promise<PaginatedData<T>>;
-}
+// export interface PaginatedData<T extends unknown> {
+//   // response related
+//   data: T | null | undefined;
+//   // pagination related
+//   pagination?: {
+//     total: number;
+//     pages: number;
+//     limit: number;
+//     offset: number;
+//     current: number;
+//   };
+//   // meta related
+//   hasNextPage: boolean;
+//   hasPrevPage: boolean;
+//   // function related
+//   nextPage: () => Promise<PaginatedData<T>>;
+//   prevPage: () => Promise<PaginatedData<T>>;
+// }
 
 // ---  ENUMS
 

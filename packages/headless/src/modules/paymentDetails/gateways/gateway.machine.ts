@@ -15,7 +15,7 @@ import { useSchema, useUischema } from "./utils";
 // --- types
 import type { GatewayContext } from "./types";
 import { responseCodes } from "../../../utils";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "src/modules/query";
 import { isArray } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------

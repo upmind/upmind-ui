@@ -21,7 +21,7 @@ import {
 } from "lodash-es";
 
 // ---types
-import { ResponseError } from "./types";
+import { QueryResponse, QueryResponseError } from "./types";
 
 // --- constants
 export const PAGINATION = {
@@ -72,28 +72,6 @@ export function getQueryClient(): QueryClient {
 }
 
 /**
- * Ensure all keys in the response are camelCase
- * @param response The response to ensure camelCase keys for (can be an object or an array)
- * @returns The response with all keys in camelCase
- */
-export function ensureCamelCaseKeys(response: any): any {
-  if (isArray(response)) return map(response, ensureCamelCaseKeys);
-
-  if (!isObject(response)) return response;
-
-  // now we know we definitely have an object
-  return reduce(
-    response,
-    (result, value: any, key) => {
-      value = ensureCamelCaseKeys(value);
-      set(result, camelCase(key), value);
-      return result;
-    },
-    {}
-  );
-}
-
-/**
  * Parse the data to be sent in the request body (e.g. JSON.stringify)
  * @param data The data to parse (can be an object or a FormData)
  * @returns The parsed data
@@ -137,7 +115,7 @@ export const resetQueryByKey =
   };
 export function canRetryAuthorization(
   url: URL,
-  error: ResponseError,
+  error: QueryResponseError,
   {
     attempts,
     max,

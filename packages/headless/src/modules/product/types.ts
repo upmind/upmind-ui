@@ -14,7 +14,7 @@ export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations/types";
 import type { BasketProduct } from "../basketProduct";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 /**
@@ -385,8 +385,8 @@ export interface ProductConfigContext {
   meta?: UIMeta;
   // ---
   calculateCallback?: ActorRef<any>;
-  error?: ResponseError | ExternalError;
-  errorExternal?: ResponseError | ExternalError;
+  error?: QueryResponseError | ExternalError;
+  errorExternal?: QueryResponseError | ExternalError;
   attempts?: number;
   // ---
   rawProduct?: IProduct;
