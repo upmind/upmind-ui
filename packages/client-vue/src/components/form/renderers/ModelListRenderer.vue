@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField v-bind="formFieldProps" required>
     <RadioCardsCollapsible
       v-model:open="open"
       v-model="selectedItem"
