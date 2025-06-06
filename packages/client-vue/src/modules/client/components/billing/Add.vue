@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 // --- external
-import { watch, ref, computed } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import {
@@ -52,7 +52,6 @@ import {
 // --- components
 import { UpmForm, formRenderers } from "../../../../components/form";
 import { useBillingDetail } from "@upmind-automation/headless-vue";
-import { useAddressFields } from "../../../../components/form/composables/useAddressFields";
 import { Link, Button, Loading } from "@upmind-automation/upmind-ui";
 
 // utils
@@ -72,7 +71,6 @@ const {
 const { isReady, getAll, data, refresh } = useBillingDetails();
 const { setDefault: setDefaultAddress } = useClientAddresses();
 const { setDefault: setDefaultCompany } = useClientCompanies();
-const { selectedAddress, setShowAddressFields } = useAddressFields();
 
 const noActions = computed(() => {
   return (
@@ -93,21 +91,9 @@ const updateModel = async (data: any) => {
   await input(data);
 };
 
-watch(selectedAddress, async address => {
-  if (address && model.value) {
-    await input({
-      ...model.value,
-      address: address,
-    });
-
-    setShowAddressFields(true);
-  }
-});
-
 const updateAddress = async () => {
   await update();
   await refresh();
-  setShowAddressFields(false);
 };
 
 const checkDefaults = async (data: any) => {
@@ -120,8 +106,8 @@ const checkDefaults = async (data: any) => {
   }
   isLoading.value = false;
 };
+
 const cancel = () => {
   clear();
-  setShowAddressFields(false);
 };
 </script>
