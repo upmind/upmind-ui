@@ -4,13 +4,16 @@ import type { FormComposable } from "@upmind-automation/headless-vue";
 export const useSchemaComposable = (control: any): FormComposable => {
   const matchingField = find(
     get(control.value.schema, "properties", {}),
-    property => get(property, "update") === control.value.path
+    property =>
+      get(property, "update") === control.value.path ||
+      get(property, "create") === control.value.path
   );
 
   if (matchingField) {
     const composable = get(matchingField, "use");
     if (composable && typeof composable === "function") {
-      return composable(control.value.data);
+      const data = control.value.data;
+      return composable(typeof data === "string" ? data : null);
     }
   }
 

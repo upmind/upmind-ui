@@ -13,12 +13,13 @@
         color="secondary"
         @update:modelValue="doInput"
         @resolve="doResolve"
-        @reject="doReject"
+        @reject="close"
         :processing="isProcessing"
       >
         <template #actions="{ doReject, doResolve }">
           <ModelRendererActions
             :disabled="isProcessing || !isTouched"
+            :loading="isProcessing || isLoading"
             @save="doResolve"
             @cancel="doReject"
           />
@@ -61,7 +62,7 @@ const isLoading = ref(true);
 const isProcessing = ref(false);
 const isTouched = ref(false);
 
-const { getModel, isReady, update, schema, uischema, clear } =
+const { getModel, isReady, update, schema, uischema, clear, input } =
   useSchemaComposable(control);
 const model = computed(() => getModel());
 
@@ -83,22 +84,21 @@ onMounted(async () => {
 const doResolve = async () => {
   isProcessing.value = true;
   await update();
+  close();
+};
+
+const doInput = (value: any) => {
+  isTouched.value = true;
+  input(value);
+};
+
+const close = () => {
   open.value = false;
   setTimeout(() => {
     clear();
     isProcessing.value = false;
     onInput(null, false);
   }, 300);
-};
-
-const doInput = (value: any) => {
-  isTouched.value = true;
-  onInput(value, true);
-};
-
-const doReject = () => {
-  clear();
-  onInput(null, false);
 };
 </script>
 

@@ -17,6 +17,7 @@ export const useSchema = ({
   model,
   country,
   regions,
+  addresses,
   baseModel,
   countries,
   config,
@@ -39,6 +40,7 @@ export const useSchema = ({
         default: baseModel.addressId || null,
         use: useClientAddress,
         update: "updateAddressId",
+        create: addresses ? "newAddressDialog" : null,
       } as any,
       companyId: {
         type: ["string", "null"],
@@ -53,6 +55,10 @@ export const useSchema = ({
       updateCompanyId: {
         type: ["string", "null"],
         default: null,
+      },
+      newAddressDialog: {
+        type: "boolean",
+        default: false,
       },
     },
     definitions: {
@@ -437,6 +443,11 @@ export const useUischema = ({
           },
         },
       },
+      ...conditionalElement(get(model, "newAddressDialog"), {
+        type: "Model",
+        scope: "#/properties/newAddressDialog",
+        label: "New Address",
+      }),
       {
         ...addressUiSchema,
         rule: {
