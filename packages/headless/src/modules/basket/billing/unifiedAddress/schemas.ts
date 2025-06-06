@@ -52,13 +52,13 @@ export const useSchema = ({
         type: ["string", "null"],
         default: null,
       },
-      updateCompanyId: {
-        type: ["string", "null"],
-        default: null,
-      },
       newAddressDialog: {
         type: "boolean",
         default: false,
+      },
+      updateCompanyId: {
+        type: ["string", "null"],
+        default: null,
       },
     },
     definitions: {
@@ -149,6 +149,17 @@ export const useSchema = ({
           addressId: {
             type: ["string", "null"],
             default: model?.addressId || baseModel.addressId,
+            use: useClientAddress,
+            update: "updateAddressId",
+            create: addresses ? "newAddressDialog" : null,
+          } as any,
+          updateAddressId: {
+            type: ["string", "null"],
+            default: null,
+          },
+          newAddressDialog: {
+            type: "boolean",
+            default: false,
           },
           companyName: {
             type: "string",
@@ -473,6 +484,16 @@ export const useUischema = ({
         type: "Model",
         scope: "#/properties/updateCompanyId",
         label: "Edit Company",
+      }),
+      ...conditionalElement(get(model, "updateAddressId"), {
+        type: "Model",
+        scope: "#/properties/updateAddressId",
+        label: "Edit Address",
+      }),
+      ...conditionalElement(get(model, "newAddressDialog"), {
+        type: "Model",
+        scope: "#/properties/newAddressDialog",
+        label: "New Address",
       }),
       {
         type: "ModelList",

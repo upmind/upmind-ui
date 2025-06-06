@@ -53,7 +53,7 @@ import Item from "../../../modules/client/components/billing/Item.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { find, lowerCase, map } from "lodash-es";
+import { find, lowerCase, map, get, flatMap } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -79,6 +79,19 @@ const selectOnly = computed(() => {
   return control.value.uischema.options?.selectOnly || false;
 });
 
+const getSchemaProperty = (path?: string) => {
+  if (!path) return null;
+
+  const nestedPath = flatMap(path.split("."), (part, index) =>
+    index === 0 ? ["definitions", part] : ["properties", part]
+  );
+
+  return (
+    get(control.value.rootSchema, nestedPath) ||
+    get(control.value.rootSchema, ["properties", path])
+  );
+};
+
 const parsedValues = computed(() => {
   return map(
     control.value.uischema.options?.oneOf || [],
@@ -101,9 +114,8 @@ const selectItem = async (value: string) => {
 };
 
 const addNewItem = () => {
-  const create = (
-    control.value.rootSchema?.properties?.[control.value.path] as any
-  )?.create;
+  const schemaProperty = getSchemaProperty(control.value.path);
+  const create = get(schemaProperty, "create");
 
   if (create) {
     handleChange(create, true);
@@ -113,9 +125,8 @@ const addNewItem = () => {
 };
 
 const editItem = (id: string) => {
-  const update = (
-    control.value.rootSchema?.properties?.[control.value.path] as any
-  )?.update;
+  const schemaProperty = getSchemaProperty(control.value.path);
+  const update = get(schemaProperty, "update");
 
   handleChange(update, id);
 };
