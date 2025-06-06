@@ -31,7 +31,7 @@
           :label="'Add new ' + lowerCase(formFieldProps.label)"
           size="xs"
           variant="muted"
-          @click="clearItem"
+          @click="addNewItem"
         />
       </template>
     </RadioCardsCollapsible>
@@ -100,8 +100,16 @@ const selectItem = async (value: string) => {
   selectedItem.value = value;
 };
 
-const clearItem = () => {
-  onInput(null, false);
+const addNewItem = () => {
+  const create = (
+    control.value.rootSchema?.properties?.[control.value.path] as any
+  )?.create;
+
+  if (create) {
+    handleChange(create, true);
+  } else {
+    onInput(null, false);
+  }
 };
 
 const editItem = (id: string) => {

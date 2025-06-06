@@ -12,7 +12,7 @@ export function useSchema({
 }: AddressContext): JsonSchema {
   const schema = {
     type: "object",
-    title: "Address Fields",
+    title: "Address",
     required: ["address1", "city", "countryId", "postcode", "type"],
     properties: {
       id: {
@@ -93,7 +93,7 @@ export function useSchema({
   return schema as JsonSchema;
 }
 
-export function useUischema(): UISchemaElement {
+export function useUischema({ id }: AddressContext): UISchemaElement {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -109,62 +109,63 @@ export function useUischema(): UISchemaElement {
               placeholder: "Please select a Country...",
             },
           },
+          // ---
           {
-            type: "Group",
+            type: id ? "VerticalLayout" : "address",
             options: {
-              border: false,
+              fields: ["address1", "address2"],
+              placeholder: "Start typing your address",
             },
             elements: [
               {
-                type: "Control",
-                scope: "#/properties/address1",
+                type: "Group",
                 options: {
-                  autoFocus: true,
-                  autocomplete: "address-line1",
-                  placeholder: "House name, apartment number etc.",
+                  border: false,
                 },
+                elements: [
+                  {
+                    type: "Control",
+                    scope: "#/properties/address1",
+                    options: {
+                      placeholder: "House name, apartment number etc.",
+                    },
+                  },
+                  {
+                    type: "Control",
+                    scope: "#/properties/address2",
+                    options: {
+                      placeholder: "Road, street name etc.",
+                    },
+                  },
+                ],
               },
-              {
-                type: "Control",
-                scope: "#/properties/address2",
-                options: {
-                  autocomplete: "address-line2",
-                  placeholder: "Road, street name etc.",
-                },
-              },
-            ],
-          },
-
-          // ---
-          {
-            type: "HorizontalLayout",
-            elements: [
               {
                 type: "Control",
                 scope: "#/properties/city",
                 options: {
-                  autocomplete: "address-level2",
                   placeholder: "City, town etc.",
                 },
               },
               {
-                type: "Control",
-                scope: "#/properties/postcode",
-                options: {
-                  autocomplete: "postal-code",
-                  placeholder: "eg. 10011",
-                },
+                type: "HorizontalLayout",
+                elements: [
+                  {
+                    type: "Control",
+                    scope: "#/properties/regionId",
+                    options: {
+                      placeholder: "Select region",
+                    },
+                  },
+                  {
+                    type: "Control",
+                    scope: "#/properties/postcode",
+                    options: {
+                      placeholder: "eg. 10011",
+                    },
+                  },
+                ],
               },
             ],
-          },
-          // ---
-          {
-            type: "Control",
-            scope: "#/properties/regionId",
-            options: {
-              autocomplete: "address-level1",
-              placeholder: "Select region",
-            },
           },
         ],
       },

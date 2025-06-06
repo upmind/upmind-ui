@@ -3,13 +3,13 @@
     <Button
       label="Save Details"
       color="secondary"
-      :disabled="disabled"
+      :disabled="disabled || loading"
       @click="$emit('save')"
     />
     <Button
       label="Cancel"
       variant="ghost"
-      :disabled="disabled"
+      :disabled="loading"
       @click="$emit('cancel')"
     />
   </footer>
@@ -20,6 +20,7 @@ import { Button, Link } from "@upmind-automation/upmind-ui";
 
 defineProps<{
   disabled: boolean;
+  loading: boolean;
 }>();
 
 defineEmits<{

@@ -26,7 +26,7 @@
       <Skeleton class="mt-2 h-10 w-full" />
     </div>
 
-    <ModelRendererActions disabled />
+    <ModelRendererActions disabled loading />
   </section>
 </template>
 
