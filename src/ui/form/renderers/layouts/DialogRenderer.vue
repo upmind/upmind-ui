@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:open="layout.visible" size="2xl">
+  <Dialog v-model:open="layout.visible" size="2xl" :title="layout.label">
     <DispatchRenderer
       v-for="(element, index) in layout.uischema.elements"
       :key="index"
@@ -15,7 +15,6 @@
 
 <script setup lang="ts">
 // --- external
-import { ref, watch } from "vue";
 import {
   DispatchRenderer,
   rendererProps,

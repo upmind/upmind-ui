@@ -30,7 +30,10 @@
           v-if="additionalOption"
           :class="styles.search.item"
           @click="
-            onSelect({ id: 'manual', label: additionalOption } as SearchItem)
+            onSelect({
+              id: 'additional',
+              label: additionalOption,
+            } as SearchItem)
           "
         >
           {{ additionalOption }}

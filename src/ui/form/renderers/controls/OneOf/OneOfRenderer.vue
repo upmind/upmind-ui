@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="formFieldProps">
+  <FormField v-bind="formFieldProps" no-errors>
     <Tabs
       v-if="oneOfItems.length > 1"
       :tabs="oneOfItems"
