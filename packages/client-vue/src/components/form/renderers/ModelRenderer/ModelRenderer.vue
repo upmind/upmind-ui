@@ -11,14 +11,14 @@
         :uischema="uischema()"
         :additional-renderers="formRenderers"
         color="secondary"
-        @update:modelValue="input"
+        @update:modelValue="doInput"
         @resolve="doResolve"
         @reject="doReject"
         :processing="isProcessing"
       >
         <template #actions="{ doReject, doResolve }">
           <ModelRendererActions
-            :disabled="isProcessing"
+            :disabled="isProcessing || !isTouched"
             @save="doResolve"
             @cancel="doReject"
           />
@@ -59,6 +59,7 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
 const open = ref(true);
 const isLoading = ref(true);
 const isProcessing = ref(false);
+const isTouched = ref(false);
 
 const { getModel, isReady, update, input, schema, uischema, clear } =
   useSchemaComposable(control);
@@ -88,6 +89,11 @@ const doResolve = async () => {
     isProcessing.value = false;
     onInput(null, false);
   }, 300);
+};
+
+const doInput = (value: any) => {
+  isTouched.value = true;
+  onInput(value, true);
 };
 
 const doReject = () => {
