@@ -133,7 +133,6 @@ const editItem = (id: string) => {
 
 watch(parsedValues, () => {
   selectedDefaultItem();
-  open.value = false;
 });
 
 const selectedDefaultItem = () => {
@@ -143,18 +142,26 @@ const selectedDefaultItem = () => {
       item => item.id === control.value.data
     );
     if (matchingItem?.id) {
-      selectedItem.value = matchingItem.id;
+      if (matchingItem.id !== selectedItem.value) {
+        open.value = false;
+        selectedItem.value = matchingItem.id;
+      }
       return;
     }
   }
 
-  selectedItem.value =
+  const defaultItem =
     (
       find(
         parsedValues.value,
         value => value.item?.meta?.isDefault
       ) as RadioCardsItemProps
     )?.id ?? "";
+
+  if (defaultItem && defaultItem !== selectedItem.value) {
+    open.value = false;
+    selectedItem.value = defaultItem;
+  }
 };
 </script>
 
