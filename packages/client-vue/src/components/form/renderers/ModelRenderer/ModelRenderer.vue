@@ -61,7 +61,7 @@ const isLoading = ref(true);
 const isProcessing = ref(false);
 const isTouched = ref(false);
 
-const { getModel, isReady, update, input, schema, uischema, clear } =
+const { getModel, isReady, update, schema, uischema, clear } =
   useSchemaComposable(control);
 const model = computed(() => getModel());
 

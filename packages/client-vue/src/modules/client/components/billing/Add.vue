@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="!model">
+  <Loading :active="!model || isLoading">
     <UpmForm
       :model-value="model"
       class="min-h-40"
@@ -14,8 +14,8 @@
       <template #actions>
         <footer class="flex gap-x-6">
           <Button
-            :loading="meta.isLoading"
-            :disabled="!meta.isValid"
+            :loading="billingMeta.isLoading"
+            :disabled="!billingMeta.isValid"
             type="submit"
             size="md"
             color="secondary"
@@ -43,7 +43,11 @@
 import { watch, ref, computed } from "vue";
 
 // --- internal
-import { useBillingDetails } from "@upmind-automation/headless-vue";
+import {
+  useBillingDetails,
+  useClientAddresses,
+  useClientCompanies,
+} from "@upmind-automation/headless-vue";
 
 // --- components
 import { UpmForm, formRenderers } from "../../../../components/form";
@@ -56,24 +60,36 @@ import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const { update, input, model, schema, uischema, meta, clear } =
-  useBillingDetail();
+const {
+  update,
+  input,
+  model,
+  schema,
+  uischema,
+  meta: billingMeta,
+  clear,
+} = useBillingDetail();
 const { isReady, getAll, data, refresh } = useBillingDetails();
-const { showAddressFields, selectedAddress, setShowAddressFields } =
-  useAddressFields();
+const { setDefault: setDefaultAddress } = useClientAddresses();
+const { setDefault: setDefaultCompany } = useClientCompanies();
+const { selectedAddress, setShowAddressFields } = useAddressFields();
 
 const noActions = computed(() => {
   return (
     (model.value?.type === 1 && model.value?.addressId) ||
     (model.value?.type === 4 && model.value?.companyId) ||
-    meta.value.isLoading
+    billingMeta.value.isLoading
   );
 });
 
 await isReady();
 await getAll();
 
+// Ensure we mark as loading straight away after input, otherwise there is a delay
+const isLoading = ref(false);
+
 const updateModel = async (data: any) => {
+  await checkDefaults(data);
   await input(data);
 };
 
@@ -94,6 +110,16 @@ const updateAddress = async () => {
   setShowAddressFields(false);
 };
 
+const checkDefaults = async (data: any) => {
+  if (data?.addressId && model.value?.addressId !== data?.addressId) {
+    isLoading.value = true;
+    await setDefaultAddress(data?.addressId);
+  } else if (data?.companyId && model.value?.companyId !== data?.companyId) {
+    isLoading.value = true;
+    await setDefaultCompany(data?.companyId);
+  }
+  isLoading.value = false;
+};
 const cancel = () => {
   clear();
   setShowAddressFields(false);

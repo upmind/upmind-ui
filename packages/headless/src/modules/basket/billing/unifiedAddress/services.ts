@@ -302,22 +302,6 @@ async function parse(
     if (safeModel?.type === ADDRESS_TYPE_KEYS.COMPANY && safeModel?.address) {
       safeModel.address.type = ADDRESS_TYPE_KEYS.COMPANY;
     }
-
-    if (
-      inputData?.type === ADDRESS_TYPE_KEYS.HOME &&
-      inputData?.addressId &&
-      inputData.addressId !== model?.addressId
-    ) {
-      await setDefaultAddress(inputData.addressId);
-    }
-
-    if (
-      inputData?.type === ADDRESS_TYPE_KEYS.COMPANY &&
-      inputData?.companyId &&
-      inputData.companyId !== model?.companyId
-    ) {
-      await setDefaultCompany(inputData.companyId);
-    }
   }
 
   return Promise.resolve({ model: safeModel, regions, country });
