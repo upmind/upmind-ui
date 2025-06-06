@@ -118,14 +118,15 @@ async function loadLookups({
       name: "",
       default: true,
     },
-    phone: defaultPhone
-      ? {
-          number: defaultPhone?.phone.number ?? "",
-          nationalNumber: defaultPhone?.phone.nationalNumber ?? "",
-          countryCallingCode: defaultPhone?.phone.countryCallingCode ?? "",
-          country: defaultPhone?.phone.country ?? "",
-        }
-      : undefined,
+    phone:
+      defaultPhone && get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
+        ? {
+            number: defaultPhone?.phone.number ?? "",
+            nationalNumber: defaultPhone?.phone.nationalNumber ?? "",
+            countryCallingCode: defaultPhone?.phone.countryCallingCode ?? "",
+            country: defaultPhone?.phone.country ?? "",
+          }
+        : undefined,
     type: ADDRESS_TYPE_KEYS.HOME, // Schema level
   };
 
