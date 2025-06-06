@@ -1,5 +1,5 @@
 // --- utils
-import { filter, get, map, uniq } from "lodash-es";
+import { isEmpty, get, map } from "lodash-es";
 
 // --- types
 import type { UnifiedAddressContext } from "./types";
@@ -35,7 +35,7 @@ export const useSchema = ({
         default: baseModel.addressId || null,
         use: useClientAddress,
         update: "updateAddressId",
-        create: addresses ? "newAddressDialog" : null,
+        create: !isEmpty(addresses) ? "newAddressDialog" : null,
       } as any,
       companyId: {
         type: ["string", "null"],
@@ -146,7 +146,7 @@ export const useSchema = ({
             default: model?.addressId || baseModel.addressId,
             use: useClientAddress,
             update: "updateAddressId",
-            create: addresses ? "newAddressDialog" : null,
+            create: !isEmpty(addresses) ? "newAddressDialog" : null,
           } as any,
           updateAddressId: {
             type: ["string", "null"],
@@ -588,7 +588,6 @@ export const useUischema = ({
                 type: "ModelList",
                 scope: "#/properties/addressId",
                 options: {
-                  label: "Address",
                   oneOf: map(addresses || [], item => ({
                     id: item.id,
                     title: item.title,
@@ -597,12 +596,10 @@ export const useUischema = ({
                   })),
                 },
                 rule: {
-                  effect: "SHOW",
+                  effect: "HIDE",
                   condition: {
                     scope: "#/properties/addressId",
-                    schema: {
-                      not: { const: null },
-                    },
+                    schema: { const: null },
                   },
                 },
               },
@@ -628,9 +625,7 @@ export const useUischema = ({
           effect: "SHOW",
           condition: {
             scope: "#/properties/company/properties/addressId",
-            schema: {
-              const: null,
-            },
+            schema: { const: null },
           },
         },
       },
@@ -648,7 +643,7 @@ export const useUischema = ({
       schema.elements.push({
         type: "Control",
         scope: "#/properties/phone",
-      });
+      } as any);
     });
   }
 

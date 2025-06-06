@@ -134,7 +134,7 @@ async function loadLookups({
     schema,
     model,
     baseModel,
-    { allowExtraProps: false }
+    { allowExtraProps: true }
   );
 
   return Promise.resolve({
@@ -242,13 +242,11 @@ async function update(id: string, data: UnifiedAddressModel) {
 //  SIDE EFFECTS
 
 async function parse(
-  { baseModel, schema, regions, country, model }: UnifiedAddressContext,
+  { baseModel, schema, regions, country }: UnifiedAddressContext,
   { data }: AnyEventObject
 ) {
   // We need to check and potentially update the regions list based on the selected country ( if its changed )
   const { fetchRegions, getCountry } = useSystem();
-  const { setDefault: setDefaultAddress } = useClientAddresses();
-  const { setDefault: setDefaultCompany } = useClientCompanies();
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
