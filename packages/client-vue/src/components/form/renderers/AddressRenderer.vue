@@ -32,7 +32,7 @@
         label="Enter address manually"
         size="sm"
         variant="muted"
-        @click="setShowAddressFields(true)"
+        @click="showAddressFields = true"
       />
     </section>
   </FormField>
@@ -53,8 +53,6 @@ import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { debounce, isEmpty, find, get, last } from "lodash-es";
-import { useAddressFields } from "../composables/useAddressFields";
-
 // --- types
 import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
@@ -70,12 +68,10 @@ const props = defineProps({
 
 const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
 
-const { control, appliedOptions, formFieldProps } = useUpmindUIRenderer(
-  useJsonFormsControlWithDetail(props)
-);
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
 
-const { showAddressFields, setShowAddressFields, setSelectedAddress } =
-  useAddressFields();
+const showAddressFields = ref(false);
 
 const places = usePlaces();
 const addresses = ref<any[] | null>(null);
@@ -134,19 +130,26 @@ const searchResults = computed(() => {
 const selectAddress = (data: SearchItem) => {
   if (!addresses.value) return;
 
+  // Dropdown option to enter address manually (they haven't selected an address)
   if (data.id === "additional") {
-    setShowAddressFields(true);
+    showAddressFields.value = true;
     return;
   }
 
   const address = find(addresses.value, a => a.id === data.id)
     .address as Address;
   setAddress(address);
-  showAddressFields.value = !isEmpty(nestedErrors.value);
 };
 
 const setAddress = async (address: Address) => {
-  setSelectedAddress(address);
+  showAddressFields.value = true;
+  onInput(
+    {
+      ...control.value.data,
+      ...address,
+    },
+    false
+  );
 };
 </script>
 
