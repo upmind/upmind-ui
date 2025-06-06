@@ -8,11 +8,6 @@ import { BrandConfigKeys } from "@upmind-automation/types";
 import { useClientAddress } from "../../../client/address";
 import { useClientCompany } from "../../../client/company";
 
-// Use a conditional element as we only want the field to mount when there is a value
-const conditionalElement = (condition: any, element: any) => {
-  return condition ? [element] : [];
-};
-
 export const useSchema = ({
   model,
   country,
@@ -427,11 +422,19 @@ export const useUischema = ({
   const personalUiSchema = {
     type: "VerticalLayout",
     elements: [
-      ...conditionalElement(get(model, "updateAddressId"), {
+      {
         type: "Model",
         scope: "#/properties/updateAddressId",
         label: "Edit Address",
-      }),
+        action: "Update",
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/updateAddressId",
+            schema: { not: { const: null } },
+          },
+        },
+      },
       {
         type: "ModelList",
         scope: "#/properties/addressId",
@@ -454,11 +457,18 @@ export const useUischema = ({
           },
         },
       },
-      ...conditionalElement(get(model, "newAddressDialog"), {
+      {
         type: "Model",
         scope: "#/properties/newAddressDialog",
         label: "New Address",
-      }),
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/newAddressDialog",
+            schema: { const: true },
+          },
+        },
+      },
       {
         ...addressUiSchema,
         rule: {
@@ -480,21 +490,42 @@ export const useUischema = ({
   const businessUiSchema = {
     type: "VerticalLayout",
     elements: [
-      ...conditionalElement(get(model, "updateCompanyId"), {
+      {
         type: "Model",
         scope: "#/properties/updateCompanyId",
         label: "Edit Company",
-      }),
-      ...conditionalElement(get(model, "updateAddressId"), {
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/updateCompanyId",
+            schema: { not: { const: null } },
+          },
+        },
+      },
+      {
         type: "Model",
         scope: "#/properties/updateAddressId",
         label: "Edit Address",
-      }),
-      ...conditionalElement(get(model, "newAddressDialog"), {
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/updateAddressId",
+            schema: { not: { const: null } },
+          },
+        },
+      },
+      {
         type: "Model",
         scope: "#/properties/newAddressDialog",
         label: "New Address",
-      }),
+        rule: {
+          effect: "SHOW",
+          condition: {
+            scope: "#/properties/newAddressDialog",
+            schema: { const: true },
+          },
+        },
+      },
       {
         type: "ModelList",
         scope: "#/properties/companyId",
