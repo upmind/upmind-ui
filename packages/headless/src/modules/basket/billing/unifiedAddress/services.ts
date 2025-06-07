@@ -261,7 +261,11 @@ async function parse(
   // Preserve company field from baseModel if it exists and safeModel doesn't have it
   // This is needed because the schema uses oneOf structure and useModelParser
   // only processes top-level/root properties
-  if (baseModel?.company && !safeModel?.company) {
+  if (
+    baseModel?.company &&
+    !safeModel?.company &&
+    inputData?.type === ADDRESS_TYPE_KEYS.COMPANY
+  ) {
     safeModel.company = baseModel.company;
   }
 
