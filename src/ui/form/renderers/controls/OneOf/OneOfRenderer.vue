@@ -78,13 +78,10 @@ const toggleTab = (value: any) => {
     control.value.rootSchema
   );
 
-  // TODO: Hotfix that we need to resolve/map
-  const typeValue = selectedIndex.value === 0 ? 1 : 4;
-
   onInput(
     {
       ...control.value.data,
-      type: typeValue,
+      type: newDefaults?.type,
     },
     false
   );
