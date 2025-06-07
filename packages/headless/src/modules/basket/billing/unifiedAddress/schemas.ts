@@ -176,6 +176,11 @@ export const useSchema = ({
         title: "Address",
         additionalProperties: true,
         properties: {
+          showAddressFields: {
+            type: "boolean",
+            default: false,
+          },
+
           address1: {
             type: ["string"],
             title: "Address",
@@ -599,8 +604,12 @@ export const useUischema = ({
                 rule: {
                   effect: "HIDE",
                   condition: {
-                    scope: "#/properties/addressId",
-                    schema: { const: null },
+                    scope: "#",
+                    schema: {
+                      properties: {
+                        addressId: { const: null },
+                      },
+                    },
                   },
                 },
               },
@@ -625,7 +634,7 @@ export const useUischema = ({
         rule: {
           effect: "SHOW",
           condition: {
-            scope: "#/properties/company/properties/addressId",
+            scope: "#/properties/addressId",
             schema: { const: null },
           },
         },
