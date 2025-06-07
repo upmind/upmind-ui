@@ -1,6 +1,6 @@
 <template>
   <PopoverRoot v-model:open="open" tabindex="-1">
-    <PopoverTrigger class="w-full" tabindex="-1">
+    <PopoverTrigger as-child>
       <InputExtended
         v-model="search"
         type="text"
