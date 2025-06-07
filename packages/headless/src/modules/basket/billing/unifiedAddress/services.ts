@@ -258,6 +258,13 @@ async function parse(
     { allowExtraProps: true }
   );
 
+  // Preserve company field from baseModel if it exists and safeModel doesn't have it
+  // This is needed because the schema uses oneOf structure and useModelParser
+  // only processes top-level/root properties
+  if (baseModel?.company && !safeModel?.company) {
+    safeModel.company = baseModel.company;
+  }
+
   if (!isEmpty(data)) {
     // let's check if the country has changed, ie: the regions don't match
     // if so, then we need to fetch the regions for the new country
