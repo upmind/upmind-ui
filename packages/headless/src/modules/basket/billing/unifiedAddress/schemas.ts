@@ -648,7 +648,7 @@ export const useUischema = ({
     oneOfUiSchemas.shift();
   }
 
-  if (get(config, BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION)) {
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
     oneOfUiSchemas.forEach(schema => {
       schema.elements.push({
         type: "Control",
