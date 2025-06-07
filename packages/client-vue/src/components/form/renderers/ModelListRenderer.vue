@@ -19,7 +19,7 @@
 
       <template #actions>
         <Link
-          v-if="!open"
+          v-if="!open && parsedValues.length > 1"
           label="Change"
           size="xs"
           variant="muted"
