@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, onMounted, inject } from "vue";
+import { computed, ref, onMounted } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
@@ -52,7 +52,7 @@ import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { debounce, isEmpty, find, get, last } from "lodash-es";
+import { debounce, find, get } from "lodash-es";
 // --- types
 import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
@@ -65,8 +65,6 @@ import type { Address } from "@upmind-automation/headless-vue";
 const props = defineProps({
   ...rendererProps<ControlElement>(),
 });
-
-const jsonforms: any = inject("jsonforms", { core: { errors: [] } });
 
 const { control, appliedOptions, formFieldProps, onInput } =
   useUpmindUIRenderer(useJsonFormsControlWithDetail(props));
@@ -85,20 +83,6 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
     ...control.value.uischema,
     type: "VerticalLayout",
   };
-});
-
-const nestedErrors = computed(() => {
-  const errors = jsonforms?.core?.errors || [];
-
-  return errors
-    .filter(
-      (error: { instancePath: string; message?: string }) =>
-        error.instancePath.startsWith(`/${control.value.path}`) &&
-        error.instancePath !== `/${control.value.path}`
-    )
-    .map((error: { instancePath: string; message?: string }) => {
-      return `${last(error.instancePath.split("/"))}: ${error.message}`;
-    });
 });
 
 const searchAddresses = debounce(async (query: string) => {
