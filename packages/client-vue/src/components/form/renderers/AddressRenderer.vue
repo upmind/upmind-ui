@@ -32,7 +32,7 @@
         label="Enter address manually"
         size="sm"
         variant="muted"
-        @click="showAddressFields = true"
+        @click="setShowAddressFields(true)"
       />
     </section>
   </FormField>
@@ -75,6 +75,11 @@ const places = usePlaces();
 const addresses = ref<any[] | null>(null);
 
 onMounted(async () => {
+  const showAddressFields = get(control.value.data, "showAddressFields");
+  if (showAddressFields) {
+    setShowAddressFields(true);
+  }
+
   await places.load();
 });
 
@@ -116,7 +121,7 @@ const selectAddress = (data: SearchItem) => {
 
   // Dropdown option to enter address manually (they haven't selected an address)
   if (data.id === "additional") {
-    showAddressFields.value = true;
+    setShowAddressFields(true);
     return;
   }
 
@@ -126,11 +131,22 @@ const selectAddress = (data: SearchItem) => {
 };
 
 const setAddress = async (address: Address) => {
-  showAddressFields.value = true;
+  setShowAddressFields(true);
   onInput(
     {
       ...control.value.data,
       ...address,
+    },
+    false
+  );
+};
+
+const setShowAddressFields = (value: boolean) => {
+  showAddressFields.value = value;
+  onInput(
+    {
+      ...control.value.data,
+      showAddressFields: value,
     },
     false
   );
