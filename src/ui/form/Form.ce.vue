@@ -1,7 +1,7 @@
 <template>
   <component
     :is="as"
-    :class="styles.form.root"
+    :class="cn(styles.form.root, props.class)"
     :disabled="meta.isProcessing"
     @submit.prevent="doSubmit"
   >
@@ -71,6 +71,7 @@ import {
   set,
   get,
 } from "lodash-es";
+import { cn } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";

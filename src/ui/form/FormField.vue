@@ -1,7 +1,7 @@
 <template>
   <FormItem
     :formItemId="id"
-    v-show="meta.isVisible"
+    v-if="meta.isVisible"
     v-auto-animate
     :class="cn('flex flex-wrap', props.class)"
     :data-testid="`form-field-${kebabCase(label ?? 'default')}`"
