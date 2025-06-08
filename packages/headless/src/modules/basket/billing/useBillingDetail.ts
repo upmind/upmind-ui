@@ -41,7 +41,7 @@ export const useBillingDetail = (
       }),
     {
       id: id ?? "new-billing-detail",
-      devTools: true,
+      devTools: false,
     }
   ).start();
 
