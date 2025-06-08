@@ -333,10 +333,7 @@ export const useSchema = ({
     schema.definitions!.address!.required!.push("regionId");
   }
 
-  if (
-    get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS) &&
-    !baseModel.addressId
-  ) {
+  if (get(config, BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS)) {
     schema.oneOf?.shift();
   }
 
