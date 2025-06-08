@@ -224,7 +224,7 @@ export const useSchema = ({
       phone: {
         type: "object",
         title: "Phone number",
-        isPhoneNumber: country?.code,
+        phone_country_code: country?.code,
         default: baseModel?.phone,
         properties: {
           number: {
