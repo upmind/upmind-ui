@@ -105,7 +105,6 @@ export function useUischema({ id }: AddressContext): UISchemaElement {
             type: "Control",
             scope: "#/properties/countryId",
             options: {
-              autocomplete: "country",
               placeholder: "Please select a Country...",
             },
           },
@@ -128,6 +127,7 @@ export function useUischema({ id }: AddressContext): UISchemaElement {
                     scope: "#/properties/address1",
                     options: {
                       placeholder: "House name, apartment number etc.",
+                      autocomplete: "address-line1",
                     },
                   },
                   {
@@ -135,6 +135,7 @@ export function useUischema({ id }: AddressContext): UISchemaElement {
                     scope: "#/properties/address2",
                     options: {
                       placeholder: "Road, street name etc.",
+                      autocomplete: "address-line2",
                     },
                   },
                 ],
@@ -144,6 +145,7 @@ export function useUischema({ id }: AddressContext): UISchemaElement {
                 scope: "#/properties/city",
                 options: {
                   placeholder: "City, town etc.",
+                  autocomplete: "address-level2",
                 },
               },
               {
@@ -154,6 +156,7 @@ export function useUischema({ id }: AddressContext): UISchemaElement {
                     scope: "#/properties/regionId",
                     options: {
                       placeholder: "Select region",
+                      autocomplete: "address-level1",
                     },
                   },
                   {
@@ -161,6 +164,7 @@ export function useUischema({ id }: AddressContext): UISchemaElement {
                     scope: "#/properties/postcode",
                     options: {
                       placeholder: "eg. 10011",
+                      autocomplete: "postal-code",
                     },
                   },
                 ],

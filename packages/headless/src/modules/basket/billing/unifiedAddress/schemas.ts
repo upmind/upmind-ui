@@ -380,6 +380,7 @@ export const useUischema = ({
                     scope: "#/properties/address1",
                     options: {
                       placeholder: "House name, apartment number etc.",
+                      autocomplete: "address-line1",
                     },
                   },
                   {
@@ -387,6 +388,7 @@ export const useUischema = ({
                     scope: "#/properties/address2",
                     options: {
                       placeholder: "Road, street name etc.",
+                      autocomplete: "address-line2",
                     },
                   },
                 ],
@@ -396,6 +398,7 @@ export const useUischema = ({
                 scope: "#/properties/city",
                 options: {
                   placeholder: "City, town etc.",
+                  autocomplete: "address-level2",
                 },
               },
               {
@@ -406,6 +409,7 @@ export const useUischema = ({
                     scope: "#/properties/regionId",
                     options: {
                       placeholder: "Select region",
+                      autocomplete: "address-level1",
                     },
                   },
                   {
@@ -413,6 +417,7 @@ export const useUischema = ({
                     scope: "#/properties/postcode",
                     options: {
                       placeholder: "eg. 10011",
+                      autocomplete: "postal-code",
                     },
                   },
                 ],
