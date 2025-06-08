@@ -1,11 +1,8 @@
-// --- external
-
 // --- internal
 import { useBrand } from "../../brand";
-import { useSystem } from "../../system";
 
 // --- utils
-import { get, remove } from "lodash-es";
+import { get, isEmpty, remove } from "lodash-es";
 
 // --- types
 import { BrandConfigKeys } from "@upmind-automation/types";
@@ -16,7 +13,6 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 export const useSchema = (_context: BillingDetailsContext) => {
   const { getConfig } = useBrand();
-  const { getCountry } = useSystem();
 
   const phoneRequiredOnCheckout = get(
     getConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE),
@@ -33,45 +29,55 @@ export const useSchema = (_context: BillingDetailsContext) => {
     BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS
   );
 
-  const schema = {
+  const schema: JsonSchema = {
     type: "object",
     title: "BillingDetails",
     required: [] as string[],
-    anyOf: [
-      {
-        type: "object",
-        required: ["addressId"],
-        properties: {
-          addressId: {
-            type: ["string", "null"],
-          },
-        },
-      },
-      {
-        type: "object",
-        required: ["companyId"],
-        properties: {
-          companyId: {
-            type: ["string", "null"],
-          },
-        },
-      },
-    ],
     properties: {
       phoneId: {
+        type: ["string", "null"],
+      },
+      addressId: {
+        type: ["string", "null"],
+      },
+      companyId: {
         type: ["string", "null"],
       },
     },
   };
 
-  if (phoneRequiredOnCheckout) {
-    schema.required.push("phoneId");
+  const anyOfSchemas = [];
+
+  if (addressRequiredOnCheckout && !companyRequiredOnCheckout) {
+    anyOfSchemas.push({
+      type: "object",
+      required: ["addressId"],
+      properties: {
+        addressId: {
+          type: ["string", "null"],
+        },
+      },
+    });
   }
+
   if (companyRequiredOnCheckout) {
-    schema.required.push("companyId");
+    anyOfSchemas.push({
+      type: "object",
+      required: ["companyId"],
+      properties: {
+        companyId: {
+          type: ["string", "null"],
+        },
+      },
+    });
   }
-  if (addressRequiredOnCheckout) {
-    schema.required.push("addressId");
+
+  if (!isEmpty(anyOfSchemas)) {
+    schema.anyOf = anyOfSchemas;
+  }
+
+  if (phoneRequiredOnCheckout) {
+    schema.required?.push("phoneId");
   }
 
   return schema as unknown as JsonSchema;
