@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
 
 // --- components
@@ -49,10 +49,6 @@ import type { RendererProps } from "@jsonforms/vue";
 
 const props = defineProps<RendererProps<ControlElement>>();
 
-const emit = defineEmits<{
-  (e: "form:errors", errors: any): void;
-}>();
-
 const { control, appliedOptions, onInput, formFieldProps } =
   useUpmindUIRenderer(useJsonFormsControl(props));
 
@@ -75,13 +71,6 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
-
-watch(
-  () => control.value.errors,
-  newErrors => {
-    emit("form:errors", newErrors);
-  }
-);
 </script>
 
 <script lang="ts">
