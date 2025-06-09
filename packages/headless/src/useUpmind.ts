@@ -1,9 +1,10 @@
 // --- external
 import { inspect } from "@xstate/inspect";
-import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
+import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import { first } from "lodash-es";
 
 // --- internal
+import { useQuery } from "./modules";
 import { useBrand, useSystem, useDataLayer, useTracking } from "./modules";
 import { useSystemRecaptcha } from "./modules/system";
 import { useSession } from "./modules/session";
@@ -47,9 +48,11 @@ class Upmind {
   plugins: UpmindProps["plugins"] = {};
   analytics: UpmindProps["analytics"];
   recaptcha: UpmindProps["recaptcha"];
-  queryClient: QueryClient = new QueryClient({});
+  queryClient: QueryClient;
 
-  constructor() {}
+  constructor() {
+    this.queryClient = useQuery().queryClient;
+  }
 
   init({ app, mode, pop, analytics, recaptcha, debug }: UpmindProps) {
     if (this.status != UpmindStatus.notInitialised)
@@ -77,8 +80,6 @@ class Upmind {
             this.initAnalytics();
           });
         }
-
-        debugger;
 
         this.status = UpmindStatus.initialised;
       });
@@ -173,7 +174,6 @@ class Upmind {
     return new Promise(resolve =>
       setTimeout(() => {
         if (this.status !== UpmindStatus.notInitialised) {
-          debugger;
           resolve();
         }
       }, 100)

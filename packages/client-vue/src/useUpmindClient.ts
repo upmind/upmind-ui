@@ -75,7 +75,6 @@ class UpmindClient {
     return Upmind.start().then(() => {
       return Promise.allSettled([this.initRouter(), this.initI18n()]).then(
         () => {
-          debugger;
           this.status = UpmindStatus.initialised;
         }
       );
@@ -111,7 +110,6 @@ class UpmindClient {
     return new Promise(resolve =>
       setTimeout(() => {
         if (this.status !== UpmindStatus.notInitialised) {
-          debugger;
           resolve();
         }
       }, 100)

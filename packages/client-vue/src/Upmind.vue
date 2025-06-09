@@ -68,7 +68,6 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
-import UpmindClient from "./useUpmindClient";
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -93,11 +92,6 @@ const props = defineProps<{
 }>();
 const loading = ref(true);
 
-UpmindClient.start()
-  .then(() => UpmindClient.isReady())
-  .then(() => {
-    debugger;
-  });
 // -----------------------------------------------------------------------------
 
 const { activeTheme } = useThemes(props.theme);
