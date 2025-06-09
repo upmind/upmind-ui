@@ -181,7 +181,9 @@ function toggleForm(type: AuthProps["modelValue"]) {
 }
 
 function doResolve(model: any) {
-  resolve(model).then(() => emit("resolve", model));
+  resolve(model).then(success => {
+    if (success) emit("resolve", model);
+  });
 }
 
 function doReject() {

@@ -8,7 +8,7 @@ import { useFeedback } from "../feedback";
 export * from "./useTransfer";
 
 // --- utils
-import { get, isEmpty, has } from "lodash-es";
+import { get, isEmpty } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
 import { DetailedError, responseCodes } from "../../utils";
 
@@ -35,12 +35,12 @@ export const useSession = () => {
     return waitFor(
       service,
       state => {
-        const currentmachine: ActorRef<any> | undefined =
+        const currentMachine: ActorRef<any> | undefined =
           service.getSnapshot()?.children?.clientMachine ??
           service.getSnapshot()?.children?.guestMachine;
 
         const valid =
-          currentmachine?.getSnapshot()?.matches("available") ||
+          currentMachine?.getSnapshot()?.matches("available") ||
           state.matches("error");
 
         return valid;
@@ -141,9 +141,7 @@ export const useSession = () => {
     return await waitFor(
       guestMachine,
       state => ["complete", "available.login.error"].some(state.matches),
-      {
-        timeout: 60000,
-      }
+      { timeout: 60000 }
     )
       .then(state => {
         if (state.matches("available.login.error")) {
@@ -166,9 +164,7 @@ export const useSession = () => {
     return await waitFor(
       guestMachine,
       state => ["complete", "available.login.error"].some(state.matches),
-      {
-        timeout: 60000,
-      }
+      { timeout: 60000 }
     )
       .then(state => {
         if (state.matches("available.login.error")) {
@@ -191,9 +187,7 @@ export const useSession = () => {
     return await waitFor(
       guestMachine,
       state => ["complete", "available.register.error"].some(state.matches),
-      {
-        timeout: 60000,
-      }
+      { timeout: 60000 }
     )
       .then(state => {
         if (state.matches("available.register.error")) {
@@ -241,9 +235,7 @@ export const useSession = () => {
     return await waitFor(
       clientMachine,
       state => ["complete"].some(state.matches),
-      {
-        timeout: 60000,
-      }
+      { timeout: 60000 }
     )
       .then(() => true)
       .catch(() => false);
