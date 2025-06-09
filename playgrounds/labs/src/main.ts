@@ -9,6 +9,7 @@ import i18n from "./i18n";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { forEach } from "lodash-es";
+import useUpmind from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

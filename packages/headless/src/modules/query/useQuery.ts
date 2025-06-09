@@ -104,7 +104,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
-  async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+  async function getAsyncRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     queryKey,
     url,
     init,
@@ -112,7 +112,6 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<TData> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
-    const { initialData, ...restOptions } = options as any;
 
     return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
       queryKey,
@@ -123,7 +122,7 @@ export const useQuery = () => {
           }
         );
       },
-      ...restOptions,
+      ...(options as any), // TODO figure out why TS moans when we dont cast options to any
     });
   }
 
@@ -135,21 +134,20 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
-  async function geReactiveRequest<
-    TQueryFnData = unknown,
-    TData = TQueryFnData,
-  >({
+  async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    queryKey,
     url,
     init,
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>({
-      ...options,
+      queryKey,
       queryFn: async () =>
         request<TQueryFnData>({ url, init, withAccessToken }).then(
           ({ data }) => data as TQueryFnData
         ),
+      ...options,
     });
   }
 
@@ -187,8 +185,8 @@ export const useQuery = () => {
     set(init, "body", parseData(data));
 
     return useMutation({
-      ...options,
       mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+      ...options,
     }).mutateAsync(data as TVariables);
   }
 
@@ -225,8 +223,8 @@ export const useQuery = () => {
     set(init, "body", parseData(data));
 
     return useMutation({
-      ...options,
       mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+      ...options,
     }).mutateAsync(data as TVariables);
   }
 
@@ -263,8 +261,8 @@ export const useQuery = () => {
     set(init, "body", parseData(data));
 
     return useMutation({
-      ...options,
       mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+      ...options,
     }).mutateAsync(data as TVariables);
   }
 
@@ -301,8 +299,8 @@ export const useQuery = () => {
     set(init, "body", parseData(data));
 
     return useMutation({
-      ...options,
       mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+      ...options,
     }).mutateAsync(data as TVariables);
   }
 
@@ -340,7 +338,8 @@ export const useQuery = () => {
   return {
     useUrl,
     // ---
-    get: getRequest,
+    getAsync: getAsyncRequest,
+    // get: getRequest, //TEMP
     del: deleteRequest,
     put: putRequest,
     post: postRequest,
