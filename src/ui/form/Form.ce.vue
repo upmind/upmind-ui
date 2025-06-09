@@ -302,6 +302,9 @@ function updateUischema(uischema: FormProps["uischema"]) {
       );
       merge(child.options, value);
     }
+
+    // TODO: map additional form props that need to be inherited by all children
+    // eg: form size, show.hide required or optional indicicators, etc
   });
 }
 
