@@ -8,33 +8,36 @@
       :max-file-size="'5MB'"
       :label-idle="labelText"
       :credits="false"
-      stylePanelLayout="integrated"
       :class="styles.form.file"
+      stylePanelLayout="integrated"
       @addfile="onAddFile"
       @removefile="onRemoveFile"
-      @change="onRemoveFile"
     />
   </FormField>
 </template>
 
 <script setup lang="ts">
+// --- external
 import { onBeforeUnmount, computed } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { FormField } from "@upmind-automation/upmind-ui";
 import { useUpload } from "@upmind-automation/headless-vue";
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-import vueFilePond from "vue-filepond";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
-
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 
+// --- internal
 import config from "../form.config";
+
+// --- components
+import { FormField } from "@upmind-automation/upmind-ui";
+import vueFilePond from "vue-filepond";
+
+// types
 import type { ComputedRef } from "vue";
 
 const FilePond = vueFilePond(
@@ -66,11 +69,11 @@ async function onAddFile(error: any, file: any) {
 
 async function onRemoveFile() {
   onInput(null);
-  await remove();
+  remove();
 }
 
 const labelText = computed(() => {
-  return `Drag & Drop your image or <span class="filepond--label-action">Browse</span`;
+  return `Drag & Drop your image or <span class="filepond--label-action">Browse</span>`;
 });
 </script>
 
