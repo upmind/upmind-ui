@@ -9,12 +9,12 @@
       v-if="meta.hasErrors"
       color="error"
       icon="alert-triangle"
-      :title="t(`session.${modelValue}.error`)"
+      :title="t(`session.${currentForm}.error`)"
       :description="errors?.message"
     />
 
     <Form
-      :key="modelValue"
+      :key="currentForm"
       :loading="meta.isLoading"
       :processing="meta.isProcessing"
       :model-value="model"
@@ -114,7 +114,15 @@ const styles = useStyles(["session.auth"], meta, config) as ComputedRef<{
   };
 }>;
 
-const modelValue = useVModel(props, "modelValue", emit);
+const currentForm = computed(() => {
+  return meta.value.showLoginForm
+    ? "login"
+    : meta.value.showRegisterForm
+      ? "register"
+      : meta.value.showRecoverPasswordForm
+        ? "recover"
+        : "unknown";
+});
 
 // ---
 
@@ -158,17 +166,17 @@ function toggleForm(type: AuthProps["modelValue"]) {
   switch (type) {
     case "login":
       if (!meta.value.showLoginForm) {
-        showLogin().then(() => (modelValue.value = type));
+        showLogin().then(() => emit("update:modelValue", "login"));
       }
       break;
     case "register":
       if (!meta.value.showRegisterForm) {
-        showRegister().then(() => (modelValue.value = type));
+        showRegister().then(() => emit("update:modelValue", "register"));
       }
       break;
     case "recover":
       if (!meta.value.showRecoverPasswordForm) {
-        showRecoverPassword().then(() => (modelValue.value = type));
+        showRecoverPassword().then(() => emit("update:modelValue", "recover"));
       }
       break;
   }
@@ -185,11 +193,11 @@ function doReject() {
 }
 
 onMounted(() => {
-  toggleForm(modelValue.value);
+  toggleForm(props.modelValue);
 });
 
 watch(meta, ({ canShowForms, isAuthenticated }) => {
-  if (canShowForms) toggleForm(modelValue.value);
+  if (canShowForms) toggleForm(props.modelValue);
   if (isAuthenticated) {
     emit("resolve", model.value);
   }
