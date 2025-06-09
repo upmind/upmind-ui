@@ -27,12 +27,12 @@ import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
 import { createDefaultValue } from "@jsonforms/core";
 
 // --- components
-import FormField from "../../../FormField.vue";
-import { Tabs } from "../../../../tabs";
+import FormField from "../../FormField.vue";
+import { Tabs } from "../../../tabs";
 
 // --- utils
-import { useUpmindUIRenderer } from "../../utils";
-import { createIndexedOneOfRenderInfos } from "./utils";
+import { useUpmindUIRenderer } from "../utils";
+import { createIndexedOneOfRenderInfos } from "../utils";
 
 // --- types
 import type {
@@ -40,7 +40,7 @@ import type {
   CombinatorSubSchemaRenderInfo,
 } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { TabItem } from "../../../../tabs";
+import type { TabItem } from "../../../tabs";
 
 // ----------------------------------------------
 
