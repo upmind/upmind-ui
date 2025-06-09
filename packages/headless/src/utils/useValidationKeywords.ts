@@ -12,6 +12,7 @@ import {
   isEqual,
   isEmpty,
   startsWith,
+  isFunction,
 } from "lodash-es";
 
 // --- types
@@ -22,7 +23,7 @@ import type { KeywordDefinition } from "ajv";
 export const useComposableKeyword: KeywordDefinition = {
   keyword: "use",
   validate: (data: any) => {
-    return data && typeof data === "function";
+    return isFunction(data);
   },
   error: {
     message: () => "Value must be of type SchemaFormComposable",

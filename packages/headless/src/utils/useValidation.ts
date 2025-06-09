@@ -2,7 +2,6 @@
 import { createAjv } from "@jsonforms/core";
 
 import ajvErrors from "ajv-errors";
-import { FormComposable } from "../modules/system/form";
 
 // --- internal
 import * as formats from "./useValidationFormats";
