@@ -205,7 +205,7 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
 
           case "input_file":
           case "image":
-            type = "file";
+            type = "image";
             break;
         }
 

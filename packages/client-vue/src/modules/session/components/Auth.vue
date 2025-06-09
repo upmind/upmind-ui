@@ -21,6 +21,7 @@
       :schema="schema"
       :uischema="uischema"
       :additional-errors="errors?.data"
+      :additional-renderers="formRenderers"
       :color="color"
       @reject="doReject"
       @resolve="doResolve"
@@ -62,6 +63,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import Form from "../../../components/form/Form.vue";
+import { formRenderers } from "../../../components/form";
 import config from "../sesssion.config";
 import {
   ROUTE,
