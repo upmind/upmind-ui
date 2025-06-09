@@ -11,8 +11,8 @@
       stylePanelLayout="integrated"
       :class="styles.form.file"
       @addfile="onAddFile"
-      @removefile="remove"
-      @change="remove"
+      @removefile="onRemoveFile"
+      @change="onRemoveFile"
     />
   </FormField>
 </template>
@@ -45,7 +45,7 @@ const FilePond = vueFilePond(
 const props = defineProps<RendererProps<ControlElement>>();
 const fileTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-const { formFieldProps, appliedOptions } = useUpmindUIRenderer(
+const { formFieldProps, appliedOptions, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
@@ -60,7 +60,13 @@ const styles = useStyles(["form.file"], {}, config) as ComputedRef<{
 onBeforeUnmount(() => stop());
 
 async function onAddFile(error: any, file: any) {
-  await add(file.file);
+  const data = await add(file.file);
+  onInput(data);
+}
+
+async function onRemoveFile() {
+  onInput(null);
+  await remove();
 }
 
 const labelText = computed(() => {
