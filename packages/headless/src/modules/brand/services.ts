@@ -13,9 +13,7 @@ async function fetchOrganisationConfig(
   context: BrandContext,
   _event: AnyEventObject
 ) {
-  debugger;
   const { get, useUrl } = useQuery();
-  debugger;
   return get({
     url: useUrl("config/organisation/values", {
       keys: context.keys.organisation.join(),
@@ -90,9 +88,9 @@ async function load(context: BrandContext, _event: AnyEventObject) {
     fetchModules(context, _event),
   ]).then(([organisationConfig, brandSettings, brandConfig, modules]) => {
     return {
-      ...organisationConfig,
-      ...brandSettings,
-      ...brandConfig,
+      ...(organisationConfig || {}),
+      ...(brandSettings || {}),
+      ...(brandConfig || {}),
       modules,
     };
   });

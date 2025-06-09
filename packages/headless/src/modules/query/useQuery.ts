@@ -2,7 +2,7 @@
 import {
   useMutation,
   useQuery as vueUseQuery,
-  useQueryClient,
+  QueryClient,
 } from "@tanstack/vue-query";
 
 // --- internal
@@ -27,6 +27,11 @@ import type { DefaultError } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 
+// NB we need to create our query client here so that it can be used in the `useQuery` hook
+// and this will then be used in the `useUpmind` composable, which initializes the Upmind instance
+// BEFORE vue has an injectible for the query client
+const queryClient = new QueryClient({});
+
 export const useQuery = () => {
   /**
    * Sends a request with the given URL and options.
@@ -48,7 +53,6 @@ export const useQuery = () => {
     init,
     withAccessToken,
   }: RequestParams): Promise<QueryResponse<T>> {
-    debugger;
     // safeguard
     init ??= {};
     let attempts = 0;
@@ -72,7 +76,6 @@ export const useQuery = () => {
       set(init, `headers.Authorization`, `Bearer ${token}`);
     }
 
-    debugger;
     return doFetch<T>({ url, init }).catch(async error => {
       const requestError = error as QueryResponseError;
       attempts++;
@@ -108,16 +111,14 @@ export const useQuery = () => {
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<TData> {
-    debugger;
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
     const { initialData, ...restOptions } = options as any;
-    debugger;
-    return useQueryClient().fetchQuery<TQueryFnData, DefaultError, TData>({
+
+    return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
       queryKey,
       queryFn: async () => {
         return request<TQueryFnData>({ url, init, withAccessToken }).then(
           response => {
-            debugger;
             return response.data as TQueryFnData;
           }
         );
@@ -345,7 +346,6 @@ export const useQuery = () => {
     post: postRequest,
     head: headRequest,
     patch: patchRequest,
-    // ---
-    queryClient: useQueryClient(),
+    queryClient,
   };
 };
