@@ -120,7 +120,21 @@ async function getCustomFields(_context: GuestContext, _event: any) {
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
     queryKey: ["session", "guest", "custom-fields"],
-  }).then(({ data }: any) => data);
+  }).then(({ data }: any) => {
+    return data.map((field: any) => {
+      if (field.type_code === "image" || field.type_code === "input_file") {
+        field.options = {
+          ...field.options,
+          field: {
+            field_id: field.id,
+            field_type: "client_custom_field",
+            field_is_default: false,
+          },
+        };
+      }
+      return field;
+    });
+  });
 }
 
 async function checkForReCaptcha(_context: GuestContext, { data }: any) {
