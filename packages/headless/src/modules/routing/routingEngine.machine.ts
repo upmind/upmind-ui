@@ -1,6 +1,5 @@
 // --- external
-import { createMachine, assign, spawn, actions } from "xstate";
-const { sendTo } = actions;
+import { createMachine, assign, spawn, actions, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -26,7 +25,7 @@ export default createMachine(
         entry: [
           "setContext",
           "setBasketHelper",
-          "getBasket",
+          "loadBasket",
           assign({ currentFlow: undefined, currentRoute: undefined }),
         ],
         on: {
@@ -45,12 +44,14 @@ export default createMachine(
           ],
           ERROR: {
             target: "unavailable",
+            actions: ["setError"],
           },
         },
       },
 
       // ---
       available: {
+        entry: ["clearError"],
         on: {
           NEXT: {
             target: "calculating.next",
@@ -207,13 +208,23 @@ export default createMachine(
         },
       }),
 
-      getBasket: sendTo(
-        ({ basketHelper }: any, _event) => basketHelper,
-        (context, _event) => ({
+      loadBasket: pure(({ basketHelper }: RoutingEngineContext, _event) => {
+        if (!basketHelper) return;
+        return sendTo(basketHelper, {
           type: "INIT",
-          context,
-        })
-      ),
+        });
+      }),
+
+      // ---
+      setError: assign({
+        error: (_context: RoutingEngineContext, { data }: AnyEventObject) => {
+          const error = get(data, "error", data);
+          return error;
+        },
+      }),
+      clearError: assign({
+        error: (_context, _event) => undefined,
+      }),
     },
 
     guards: {

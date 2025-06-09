@@ -11,7 +11,13 @@ import {
 import { get, remove } from "lodash-es";
 
 // --- types
-import type { AuthModel } from "./types";
+import type {
+  LoginModel,
+  GuestContext,
+  RecoverModel,
+  RegisterModel,
+  TWOFAModel,
+} from "./types";
 import { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -52,7 +58,7 @@ export const useRegisterSchemaParser = (data: any) => {
       phone: {
         type: ["object", "null"],
         title: "Phone",
-        isPhoneNumber: getCountry()?.code,
+        phone_country_code: getCountry()?.code,
         properties: {
           number: {
             type: ["string", "null"],
@@ -157,22 +163,24 @@ export const useRegisterUischemaParser = (data: any) => {
   return schema;
 };
 
-export const useRegisterModelParser = (data: any): AuthModel => {
-  const model: AuthModel = {
-    firstname: undefined,
-    lastname: undefined,
-    username: undefined,
-    password: undefined,
-    customFields: useFieldsModelParser(data),
+export const useRegisterModelParser = (
+  model: RegisterModel,
+  customfields: GuestContext["customFields"]
+): RegisterModel => {
+  return {
+    firstname: model?.firstname,
+    lastname: model?.lastname,
+    username: model?.username,
+    password: model?.password,
+    phone: model?.phone,
+    customFields: useFieldsModelParser(customfields),
   };
-
-  return model;
 };
 
 export const useLoginSchemaParser = () => {
   return {
     type: "object",
-    title: "Login",
+    title: "Log in",
     required: ["username", "password"],
     properties: {
       username: {
@@ -216,10 +224,10 @@ export const useLoginUischemaParser = () => {
   };
 };
 
-export const useLoginModelParser = () => {
+export const useLoginModelParser = (model: LoginModel): LoginModel => {
   return {
-    username: undefined,
-    password: undefined,
+    username: model?.username,
+    password: model?.password,
   };
 };
 
@@ -256,8 +264,46 @@ export const use2faUischemaParser = () => {
   };
 };
 
-export const use2faModelParser = () => {
+export const use2faModelParser = (model: TWOFAModel): TWOFAModel => {
   return {
-    token: undefined,
+    token: model?.token,
+  };
+};
+
+export const useRecoverSchemaParser = () => {
+  return {
+    type: "object",
+    title: "Send reset",
+    required: ["username"],
+    properties: {
+      username: {
+        type: "string",
+        title: "Your username or email address",
+      },
+    },
+  };
+};
+
+export const useRecoverUischemaParser = () => {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/username",
+        i18n: "auth.recover.email",
+        options: {
+          autoFocus: true,
+          autocomplete: "email",
+          placeholder: "name@email.com",
+        },
+      },
+    ],
+  };
+};
+
+export const useRecoverModelParser = (model: RecoverModel): RecoverModel => {
+  return {
+    username: model?.username,
   };
 };

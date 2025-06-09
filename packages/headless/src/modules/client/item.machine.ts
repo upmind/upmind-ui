@@ -204,7 +204,7 @@ export default createMachine<ClientItemContext>(
       setError: assign({
         error: (_context: ClientItemContext, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -214,7 +214,7 @@ export default createMachine<ClientItemContext>(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
     guards: {
       isNew: ({ id }: ClientItemContext, _event: AnyEventObject) => !id,

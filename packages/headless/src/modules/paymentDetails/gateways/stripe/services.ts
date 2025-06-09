@@ -46,13 +46,20 @@ async function validate(
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+
     const errors = validate(schema, model) || [];
 
     // NB: we are invalid if the stripe element status is NOT complete!
     if (!elementStatus?.complete) {
       errors.push({
-        title: "Stripe element is incomplete.",
-        data,
+        instancePath: "/payment_method_addition",
+        schemaPath: "#/properties/payment_method_addition",
+        keyword: "required",
+        params: {
+          missingProperty: "payment_method_addition",
+        },
+        message: "Stripe element is incomplete.",
       });
     }
 

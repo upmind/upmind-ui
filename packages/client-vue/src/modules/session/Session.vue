@@ -4,21 +4,21 @@
       <slot name="header" v-bind="{ meta, user }">
         <template v-if="!meta.isAuthenticated && meta.showRegisterForm">
           <span :class="styles.session.text">
-            {{ t("session.unauthenticated.header.register.text") }}
+            {{ t("session.header.register.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ t("session.unauthenticated.header.register.title") }}
+            {{ t("session.header.register.title") }}
           </h1>
         </template>
 
         <template v-if="!meta.isAuthenticated && meta.showLoginForm">
           <span :class="styles.session.text">
-            {{ t("session.unauthenticated.header.login.text") }}
+            {{ t("session.header.login.text") }}
           </span>
 
           <h1 :class="styles.session.title">
-            {{ t("session.unauthenticated.header.login.title") }}
+            {{ t("session.header.login.title") }}
           </h1>
         </template>
 

@@ -19,6 +19,7 @@
       :items="parsedValues"
       :disabled="props.disabled || props.processing"
       :errors="props.errors"
+      :touched="props.touched"
       :model-value="props.modelValue?.toString()"
       content-class="!max-h-[18.5rem]"
       @update:modelValue="doResolve"
@@ -101,6 +102,7 @@ const props = withDefaults(
     loading?: boolean;
     processing?: boolean;
     visible?: boolean;
+    touched?: boolean;
     // ---
     class?: HTMLAttributes["class"];
   }>(),

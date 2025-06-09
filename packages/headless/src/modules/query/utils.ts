@@ -16,7 +16,7 @@ import {
 } from "lodash-es";
 
 // ---types
-import { RequestError } from "./types";
+import { ResponseError } from "./types";
 
 // --- constants
 export const PAGINATION = {
@@ -126,7 +126,7 @@ export const resetQueryByKey =
   };
 export function canRetryAuthorization(
   url: URL,
-  error: RequestError,
+  error: ResponseError,
   {
     attempts,
     max,
@@ -136,7 +136,7 @@ export function canRetryAuthorization(
   }
 ): boolean {
   const isAuth = includes(url?.pathname, "oauth");
-  const isUnauthorized = error?.status === responseCodes.Unauthorized;
+  const isUnauthorized = error?.status == responseCodes.Unauthorized;
   const value =
     !isAuth &&
     isUnauthorized &&

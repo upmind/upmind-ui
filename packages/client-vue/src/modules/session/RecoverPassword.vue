@@ -6,7 +6,7 @@
         class="relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
-        :label="t('navigation.back')"
+        :label="t('navigation.login')"
         @click.prevent="doReject"
       >
         <template #prepend>
@@ -15,32 +15,51 @@
       </Button>
     </ContentSection>
 
-    <ContentSection class="mx-auto max-w-2xl">
+    <ContentSection
+      class="mx-auto max-w-2xl"
+      :tagline="t('session.recover.tagline')"
+    >
       <template #title>
-        <SmartTitle i18n-key="session.login.title" size="2xl" />
+        <SmartTitle i18n-key="session.recover.title" size="2xl" />
       </template>
-
-      <p class="mt-0">
-        <span class="font-normal"
-          >{{ t("session.login.actions.text") }}&nbsp;</span
-        >
-
-        <Link :to="{ name: ROUTE.SESSION_REGISTER }">
-          {{ t("session.login.actions.action") }}
-        </Link>
-      </p>
 
       <Card class="pb-3 md:pb-3">
         <Auth
           class="rounded-box w-full max-w-5xl items-start"
           no-tabs
           no-header
-          model-value="login"
+          model-value="recover"
           @update:model-value="doUpdate"
           @resolve="doResolve"
         >
         </Auth>
       </Card>
+
+      <template #footer>
+        <i18n-t
+          class="mt-0"
+          keypath="auth.google_recaptcha.terms"
+          tag="p"
+          scope="global"
+        >
+          <template #[`privacyPolicy`]>
+            <Link
+              class="has-text-grey-light"
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              >{{ $t("auth.google_recaptcha.privacy_policy") }}</Link
+            >
+          </template>
+          <template #[`termsOfService`]>
+            <Link
+              class="has-text-grey-light"
+              href="https://policies.google.com/terms"
+              target="_blank"
+              >{{ $t("auth.google_recaptcha.terms_of_service") }}</Link
+            >
+          </template>
+        </i18n-t>
+      </template>
     </ContentSection>
   </article>
 </template>
@@ -50,7 +69,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useRoutingEngine, ROUTE } from "@upmind-automation/headless-vue";
+import { ROUTE, useRoutingEngine } from "@upmind-automation/headless-vue";
 
 // --- components
 import Card from "../../components/content/Card.vue";
@@ -66,7 +85,7 @@ import type { AuthProps } from "./components/types";
 const { t } = useI18n();
 const { next, back, navigate, isResolved } = useRoutingEngine();
 
-await isResolved(ROUTE.SESSION_LOGIN);
+await isResolved(ROUTE.SESSION_RECOVER_PASSWORD);
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {
@@ -83,8 +102,6 @@ function doReject() {
 }
 
 function doResolve() {
-  // const redirectPath = route.query.redirect || "/";
-  // router.push(redirectPath);
   next();
 }
 </script>

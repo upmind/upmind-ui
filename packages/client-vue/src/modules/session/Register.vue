@@ -17,11 +17,18 @@
 
     <ContentSection class="mx-auto max-w-2xl">
       <template #title>
-        <SmartTitle
-          i18n-key="session.unauthenticated.register.title"
-          size="2xl"
-        />
+        <SmartTitle i18n-key="session.register.title" size="2xl" />
       </template>
+
+      <p class="mt-0">
+        <span class="font-normal"
+          >{{ t("session.register.actions.text") }}&nbsp;</span
+        >
+
+        <Link :to="{ name: ROUTE.SESSION_LOGIN }">
+          {{ t("session.register.actions.action") }}
+        </Link>
+      </p>
 
       <Card class="pb-3 md:pb-3">
         <Auth
@@ -33,6 +40,31 @@
         >
         </Auth>
       </Card>
+      <template #footer>
+        <i18n-t
+          class="mt-0"
+          keypath="auth.google_recaptcha.terms"
+          tag="p"
+          scope="global"
+        >
+          <template #[`privacyPolicy`]>
+            <Link
+              class="has-text-grey-light"
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              >{{ $t("auth.google_recaptcha.privacy_policy") }}</Link
+            >
+          </template>
+          <template #[`termsOfService`]>
+            <Link
+              class="has-text-grey-light"
+              href="https://policies.google.com/terms"
+              target="_blank"
+              >{{ $t("auth.google_recaptcha.terms_of_service") }}</Link
+            >
+          </template>
+        </i18n-t>
+      </template>
     </ContentSection>
   </article>
 </template>
@@ -49,14 +81,13 @@ import {
 } from "@upmind-automation/headless-vue";
 
 // --- components
-import { Button, Icon } from "@upmind-automation/upmind-ui";
+import { Button, Icon, Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import ContentSection from "../../components/content/ContentSection.vue";
 import Card from "../../components/content/Card.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // --- types
-import type { IUseSessionMeta } from "@upmind-automation/headless-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -76,7 +107,7 @@ function doResolve() {
   next();
 }
 
-watch(meta, (newVal: IUseSessionMeta, oldVal: IUseSessionMeta) => {
+watch(meta, (newVal, oldVal) => {
   if (oldVal.showRegisterForm && newVal.showLoginForm) {
     navigate(ROUTE.SESSION_LOGIN);
   }

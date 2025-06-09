@@ -5,15 +5,16 @@ import { waitFor } from "xstate/lib/waitFor";
 // --- internal
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
+export * from "./useTransfer";
 
 // --- utils
-import { get, isEmpty } from "lodash-es";
+import { get, isEmpty, has } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
 import { DetailedError, responseCodes } from "../../utils";
 
 // ---types
 import type { ActorRef } from "xstate";
-import type { IAuthTransfer, SessionTransfer } from "./types";
+import type { IAuthTransfer, SessionTransfer, User } from "./types";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -56,132 +57,196 @@ export const useSession = () => {
 
   // ---  // methods
 
-  async function getUser() {
+  async function getUser(): Promise<User> {
     const clientMachine: any = service.getSnapshot()?.children?.clientMachine;
     return waitFor(clientMachine, state => !state.matches("loading"), {
       timeout: 60_000,
     })
       .then(state => {
         const user = get(state, "context.user");
-        if (!user) return Promise.reject({ title: "Unauthorized", code: 401 });
+        if (!user)
+          throw new DetailedError(
+            "[headless] getUser on useSession failed",
+            responseCodes.Unauthorized
+          );
         return user;
       })
       .catch(() => {
         throw new DetailedError(
-          "[headless] getUser on useSession timed out",
+          "[headless] getUser on useSession failed",
           responseCodes.Timeout
         );
       });
   }
 
-  async function getUserId() {
+  async function getUserId(): Promise<string | undefined> {
     const user = await getUser();
     return user?.id;
   }
 
   // ---
-  function showLogin(): Promise<any> {
+  async function showLogin(): Promise<boolean> {
     service.send({
       type: "LOGIN",
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(
+
+    return await waitFor(
       guestMachine,
       state => ["available.login"].some(state.matches),
-      { timeout: 60_000 }
-    ).catch(() => {
-      throw new DetailedError(
-        "[headless] showLogin on useSession timed out",
-        responseCodes.Timeout
-      );
-    });
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
   }
 
-  function showRegister(): Promise<any> {
+  async function showRegister(): Promise<boolean> {
     service.send({
       type: "REGISTER",
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(
+
+    return await waitFor(
       guestMachine,
       state => ["available.register"].some(state.matches),
-      { timeout: 60_000 }
-    ).catch(() => {
-      throw new DetailedError(
-        "[headless] showRegister on useSession timed out",
-        responseCodes.Timeout
-      );
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function showRecoverPassword(): Promise<boolean> {
+    service.send({
+      type: "RECOVER",
     });
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+
+    return await waitFor(
+      guestMachine,
+      state => ["available.recover"].some(state.matches),
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
   }
 
   // ---
-  function login(model: any): Promise<any> {
+  async function login(model: any): Promise<boolean> {
     service.send({
       type: "AUTHENTICATE",
       data: get(model, "value", model), // ensure we dont have any reactive refs
     });
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    return waitFor(guestMachine, state => ["complete"].some(state.matches), {
-      timeout: 60_000,
-    }).catch(() => {
-      throw new DetailedError(
-        "[headless] login on useSession timed out",
-        responseCodes.Timeout
-      );
-    });
+
+    return await waitFor(
+      guestMachine,
+      state => ["complete", "available.login.error"].some(state.matches),
+      {
+        timeout: 60000,
+      }
+    )
+      .then(state => {
+        if (state.matches("available.login.error")) {
+          return false;
+        }
+        return true;
+      })
+      .catch(() => false);
   }
 
-  function verify2fa({ token }: { token: string }): Promise<any> {
+  async function verify2fa({ token }: { token: string }): Promise<any> {
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    if (!guestMachine) return Promise.resolve(); // were already logged in
+    if (!guestMachine) return true; // already logged in
 
     service.send({
       type: "VERIFY",
       data: get(token, "value", token), // ensure we dont have any reactive refs
     });
-    return waitFor(guestMachine, state => ["complete"].some(state.matches), {
-      timeout: 60_000,
-    }).catch(() => {
-      throw new DetailedError(
-        "[headless] verify2fa on useSession timed out",
-        responseCodes.Timeout
-      );
-    });
+
+    return await waitFor(
+      guestMachine,
+      state => ["complete", "available.login.error"].some(state.matches),
+      {
+        timeout: 60000,
+      }
+    )
+      .then(state => {
+        if (state.matches("available.login.error")) {
+          return false;
+        }
+        return true;
+      })
+      .catch(() => false);
   }
 
-  function register(model: any): Promise<any> {
+  async function register(model: any): Promise<boolean> {
     const guestMachine = get(service.getSnapshot(), "children.guestMachine");
-    if (!guestMachine) return Promise.resolve(); // were already logged in
+    if (!guestMachine) return true; // already logged in
 
     service.send({
       type: "REGISTER",
       data: get(model, "value", model), // ensure we dont have any reactive refs
     });
-    return waitFor(guestMachine, state => ["complete"].some(state.matches), {
-      timeout: 60_000,
-    }).catch(() => {
-      throw new DetailedError(
-        "[headless] register on useSession timed out",
-        responseCodes.Timeout
-      );
-    });
+
+    return await waitFor(
+      guestMachine,
+      state => ["complete", "available.register.error"].some(state.matches),
+      {
+        timeout: 60000,
+      }
+    )
+      .then(state => {
+        if (state.matches("available.register.error")) {
+          return false;
+        }
+        return true;
+      })
+      .catch(() => false);
   }
 
-  function logout(): Promise<any> {
+  async function recover(model: any): Promise<boolean> {
+    const guestMachine = get(service.getSnapshot(), "children.guestMachine");
+    if (!guestMachine) return true; // we're already logged in
+
+    service.send({
+      type: "RECOVER",
+      data: get(model, "value", model), // ensure we don't have any reactive refs
+    });
+
+    return await waitFor(
+      guestMachine,
+      state =>
+        ["available.recover.complete", "available.recover.error"].some(
+          state.matches
+        ),
+      { timeout: 60_000 }
+    )
+      .then(state => {
+        if (state.matches("available.recover.error")) {
+          return false;
+        }
+        return true;
+      })
+      .catch(() => false);
+  }
+
+  async function logout(): Promise<boolean> {
     const clientMachine = get(service.getSnapshot(), "children.clientMachine");
-    if (!clientMachine) return Promise.resolve(); // were already logged out
+    if (!clientMachine) return true; // were already logged out
 
     service.send({
       type: "LOGOUT",
     });
-    return waitFor(clientMachine, state => ["complete"].some(state.matches), {
-      timeout: 60_000,
-    }).catch(() => {
-      throw new DetailedError(
-        "[headless] logout on useSession timed out",
-        responseCodes.Timeout
-      );
-    });
+
+    return await waitFor(
+      clientMachine,
+      state => ["complete"].some(state.matches),
+      {
+        timeout: 60000,
+      }
+    )
+      .then(() => true)
+      .catch(() => false);
   }
 
   async function transferTo(): Promise<IAuthTransfer> {
@@ -241,11 +306,13 @@ export const useSession = () => {
     )
       .then(newState => {
         const transfer = newState.context.transfer;
-        if (!transfer) {
+        const error = get(transfer, "token.error");
+        if (!transfer || error) {
           return Promise.reject(
             new DetailedError(
               "Transfer not available",
-              responseCodes.No_Content
+              responseCodes.Conflict,
+              error
             )
           );
         }
@@ -253,7 +320,7 @@ export const useSession = () => {
       })
       .catch(() => {
         throw new DetailedError(
-          "[headless] TransferFrom on useSession timed out",
+          "[headless] TransferFrom on useSession failed",
           responseCodes.Timeout
         );
       });
@@ -274,24 +341,25 @@ export const useSession = () => {
     getHistory: () => service.getSnapshot()?.context?.history,
     getUser,
     getUserId,
-    isAuthenticated: async () => {
-      return isReady().then(() => {
-        const clientMachine: any =
-          service.getSnapshot()?.children?.clientMachine;
+    isAuthenticated: async (): Promise<User> =>
+      isReady()
+        .then(() => {
+          const clientMachine: any =
+            service.getSnapshot()?.children?.clientMachine;
 
-        if (!clientMachine)
-          return Promise.reject({ title: "Unauthorized", code: 401 });
+          if (!clientMachine) throw new Error("Not authenticated");
 
-        return waitFor(clientMachine, state => state.matches("available"), {
-          timeout: 60_000,
+          return waitFor(clientMachine, state => state.matches("available"), {
+            timeout: 60_000,
+          }).then(() => clientMachine.state.context.user);
         })
-          .then(() => clientMachine.state.context.user)
-          .catch(() => Promise.reject({ title: "Unauthorized", code: 401 }));
-      });
-    },
-
+        .catch(() =>
+          Promise.reject(
+            new DetailedError("Unauthorized", responseCodes.Unauthorized)
+          )
+        ),
     /**
-     *This indicaes that there is no active session
+     *This indicates that there is no active session
      * @returns {boolean} true if the session has expired/ended
      */
     hasExpired: (): boolean => {
@@ -301,7 +369,9 @@ export const useSession = () => {
     // ---
     showLogin,
     showRegister,
+    showRecoverPassword,
     login,
+    recover,
     register,
     verify2fa,
     logout,

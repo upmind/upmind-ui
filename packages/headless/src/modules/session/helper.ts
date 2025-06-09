@@ -36,7 +36,7 @@ const authCallback = (
 
   // We have a session IF we are a client or guest
   // and we have an access token
-  if (currentMachine?.getSnapshot()?.matches("available")) {
+  if (currentMachine?.getSnapshot()?.matches("available") && !hasSession) {
     hasSession = !isEmpty(getTokenFromStorage());
     if (hasSession) callback({ type: "SESSION" });
   } else {

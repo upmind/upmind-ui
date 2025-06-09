@@ -1,8 +1,8 @@
 // --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { ResponseError } from "src/modules/query";
 
 // --- internal
-// import type { RequestError } from "../api/types";
 
 // -----------------------------------------------------------------------------
 
@@ -21,6 +21,6 @@ export interface FieldsContext {
   autoupdate?: boolean;
   // ---
   dirty?: boolean;
-  error?: any;
+  error?: ResponseError;
   controller?: AbortController;
 }

@@ -15,7 +15,7 @@ import { useSession } from "../session";
 
 // --- utils
 const { DetailedError, responseCodes } = utils;
-import { isEmpty } from "lodash-es";
+import { includes, isEmpty } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
@@ -34,6 +34,7 @@ export const useRoutingEngine = () => {
     service,
     exists,
     stop,
+    getErrors,
     isReady: isRoutingEngineReady,
     next: resolveNext,
     back: resolveBack,
@@ -49,12 +50,7 @@ export const useRoutingEngine = () => {
       .then(() => true)
       .catch(() => false);
 
-    if (!available) {
-      return {
-        name: ROUTE.ERROR,
-        path: "/error",
-      };
-    }
+    if (!available) return route;
 
     const routeName = route?.name as ROUTE;
     // --- Only try resolve if the routeName exists in our routing engine
@@ -139,8 +135,11 @@ export const useRoutingEngine = () => {
     const route = router.currentRoute.value;
 
     if (!route?.name) {
-      // console.debug("UseRouteingEngine", "No route name", route);
-      return Promise.reject(new Error("No route name"));
+      console.warn("UseRouteingEngine", "Could not Navigate route", {
+        route,
+        data,
+      }); // do nothing, just return
+      return;
     }
 
     resolve(
@@ -195,7 +194,16 @@ export const useRoutingEngine = () => {
           { timeout: Infinity }
         ).then(state => {
           if (state.matches("unavailable")) {
-            return Promise.reject(new Error("Routing Engine is unavailable"));
+            return Promise.reject(
+              new DetailedError(
+                "Routing Engine is unavailable",
+                responseCodes.Timeout,
+                {
+                  state: state.value,
+                  errors: state.context.error,
+                }
+              )
+            );
           }
           return true;
         })
@@ -204,7 +212,11 @@ export const useRoutingEngine = () => {
       .catch(() => {
         throw new DetailedError(
           "Routing Engine is unavailable",
-          responseCodes.Conflict
+          responseCodes.Conflict,
+          {
+            state: state.value.value,
+            errors: state.value.context?.error,
+          }
         );
       });
 

@@ -82,10 +82,10 @@ export const useBasket = () => {
     if (!promotions) return false;
     return waitFor(
       promotions as ActorRef<any>,
-      state => state.matches("complete"),
+      state => ["complete", "error"].some(state.matches),
       { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -95,10 +95,10 @@ export const useBasket = () => {
     if (!billingDetails) return false;
     return waitFor(
       billingDetails as ActorRef<any>,
-      state => state.matches("complete"),
+      state => ["complete", "error"].some(state.matches),
       { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -108,10 +108,10 @@ export const useBasket = () => {
     if (!currency) return false;
     return waitFor(
       currency as ActorRef<any>,
-      state => state.matches("complete"),
+      state => ["complete", "error"].some(state.matches),
       { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -121,10 +121,10 @@ export const useBasket = () => {
     if (!customFields) return false;
     return waitFor(
       customFields as ActorRef<any>,
-      state => state.matches("complete"),
+      state => ["complete", "error"].some(state.matches),
       { timeout: 60_000 }
     )
-      .then(() => true)
+      .then(() => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -198,16 +198,11 @@ export const useBasket = () => {
     service.send({ type: "REFRESH", data });
     return waitFor(
       service,
-      state => state.matches("shopping.refreshing.processed"),
+      state => ["shopping.refreshing.processed", "error"].some(state.matches),
       { timeout: 60_000 }
     )
       .then(() => get(service.getSnapshot(), "context.basket") as IBasket)
-      .catch(() => {
-        throw new DetailedError(
-          "[headless] refresh on basket timed out",
-          responseCodes.Timeout
-        );
-      });
+      .catch(() => get(service.getSnapshot(), "context.basket") as IBasket);
   }
 
   async function setCurrency(currency: string) {
@@ -231,12 +226,14 @@ export const useBasket = () => {
       return waitFor(
         service as ActorRef<any>,
         state => {
-          return ["processed", "complete", "error"].some(state.matches);
+          return ["processed", "complete", "error", "invalid"].some(
+            state.matches
+          );
         },
         { timeout: 60_000 }
       )
         .then(state => {
-          if (["error"].some(state.matches)) {
+          if (["error", "invalid"].some(state.matches)) {
             return Promise.reject(state.context.error);
           }
           return Promise.resolve();
@@ -244,7 +241,10 @@ export const useBasket = () => {
         .catch(() => {
           throw new DetailedError(
             "[headless] setCurrency on basket timed out",
-            responseCodes.Timeout
+            responseCodes.Timeout,
+            {
+              state: service.getSnapshot().value,
+            }
           );
         });
     });
@@ -261,12 +261,24 @@ export const useBasket = () => {
 
       if (coupon) {
         actor?.send({ type: "SET", data: { promocode: coupon } });
-        const state = await waitFor(service as ActorRef<any>, state =>
+        await waitFor(service as ActorRef<any>, state =>
           ["valid", "error"].some(state.matches)
-        );
-        if (state.matches("error")) {
-          return Promise.reject(state.context.error);
-        }
+        )
+          .then(state => {
+            if (state.matches("error")) throw state.context?.error;
+          })
+          .catch(error => {
+            return Promise.reject(
+              new DetailedError(
+                "[headless] addPromotion on basket failed",
+                responseCodes.Timeout,
+                {
+                  error,
+                  state: service.getSnapshot().value,
+                }
+              )
+            );
+          });
       }
 
       actor?.send({ type: "ADD" });
@@ -280,7 +292,13 @@ export const useBasket = () => {
         { timeout: 60_000 }
       ).then(state => {
         if (["error"].some(state.matches)) {
-          return Promise.reject(state.context.error);
+          return Promise.reject(
+            new DetailedError(
+              "[headless] addPromotion on basket failed",
+              responseCodes.Timeout,
+              service.getSnapshot().context?.error
+            )
+          );
         }
         return Promise.resolve();
       });
@@ -395,10 +413,9 @@ export const useBasket = () => {
         if (basketProduct) {
           resolve(basketProduct);
         } else {
-          reject({
-            message: "Basket item not found",
-            code: responseCodes.Not_Found,
-          });
+          reject(
+            new DetailedError("Basket item not found", responseCodes.Not_Found)
+          );
         }
       });
     },

@@ -8,6 +8,7 @@ import type {
   ITicketDepartment,
   ITaxBusinessType,
 } from "@upmind-automation/types";
+import { ResponseError } from "../query";
 // ---  Contexts
 
 export interface SystemContext {
@@ -20,5 +21,15 @@ export interface SystemContext {
   departments?: ITicketDepartment[];
   systemIPAddresses?: string[];
   taxBusinessTypes?: ITaxBusinessType[];
-  error?: any;
+  error?:
+    | ResponseError
+    | {
+        currencies?: ResponseError;
+        billingCycles?: ResponseError;
+        countries?: ResponseError;
+        regions?: ResponseError;
+        languages?: ResponseError;
+        statuses?: ResponseError;
+        departments?: ResponseError;
+      };
 }

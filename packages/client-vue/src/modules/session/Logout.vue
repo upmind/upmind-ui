@@ -3,8 +3,8 @@
     <ContentSection v-auto-animate>
       <Interstitial
         v-bind="props"
-        :title="t('session.logged_out.title')"
-        :text="t('session.logged_out.text')"
+        :title="t('session.end.title')"
+        :text="t('session.end.text')"
         :actions="[
           {
             as: 'a',
@@ -14,12 +14,12 @@
               icon: 'arrow-right',
               size: '2xs',
             },
-            label: t('session.logged_out.actions.continue'),
+            label: t('session.end.actions.continue'),
           },
         ]"
       >
         <template #title>
-          <SmartTitle i18n-key="session.logged_out.title" align="center" />
+          <SmartTitle i18n-key="session.end.title" align="center" />
         </template>
       </Interstitial>
     </ContentSection>

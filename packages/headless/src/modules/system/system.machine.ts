@@ -40,6 +40,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "currencies", data);
                     return error;
                   },
@@ -89,6 +90,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "billingCycles", data);
                     return error;
                   },
@@ -137,6 +139,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "countries", data);
                     return error;
                   },
@@ -156,6 +159,7 @@ export default createMachine(
                 target: "loading",
                 actions: assign({
                   error: ({ error }: SystemContext) => {
+                    error ??= {};
                     unset(error, "countries");
                     return error;
                   },
@@ -188,6 +192,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "regions", data);
                     return error;
                   },
@@ -242,6 +247,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "languages", data);
                     return error;
                   },
@@ -293,6 +299,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "statuses", data);
                     return error;
                   },
@@ -344,6 +351,7 @@ export default createMachine(
                     { error }: SystemContext,
                     { data }: AnyEventObject
                   ) => {
+                    error ??= {};
                     set(error, "departments", data);
                     return error;
                   },

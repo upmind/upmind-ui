@@ -1,4 +1,5 @@
 import { IUser, IClient, AccessRoleTypes } from "@upmind-automation/types";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 export interface IAuthTransfer {
@@ -12,12 +13,12 @@ export interface IAuthTransfer {
 export interface SessionTransfer {
   code: string | null;
   redirect: string | null;
-  token: string | null;
+  token?: string | null;
 }
 
 export interface SessionContext {
   history?: string[];
-  error?: any | null;
+  error?: ResponseError;
   // ---
   transfer?: SessionTransfer;
 }
