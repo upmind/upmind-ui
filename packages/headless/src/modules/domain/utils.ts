@@ -66,7 +66,7 @@ export async function parseAvailable(
   sld: string,
   results: IProduct[] = [],
   preferredCycle?: number // If we have chosen a term then we need to try use that term
-): Promise<DomainProduct[]> {
+) {
   const { defaultPaymentPeriod } = useBrand();
   const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
 

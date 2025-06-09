@@ -15,7 +15,6 @@ import { useBrandParser } from "./utils";
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { BrandContext } from "./types";
-import type { QueryCacheNotifyEvent, QuerySubscriptionFilter } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

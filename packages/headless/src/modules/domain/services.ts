@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, useQueryPaginated } from "../..";
+import { DomainModel, DomainProduct, useQuery } from "../..";
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
@@ -20,7 +20,7 @@ async function search({
   promotions,
   preferredCycle,
 }: DomainContext) {
-  const { get, useUrl } = useQueryPaginated();
+  const { getAsync, useUrl } = useQuery();
   if (!search?.query?.length)
     return Promise.reject(new Error("No query provided"));
   const sld = parseSld(search.query);
@@ -36,11 +36,15 @@ async function search({
       currency_code: currency,
       // tld,
       promotions: promocodes,
+      pagination: {
+        limit: search?.limit,
+        offset: search.offset,
+      },
     },
     isEmpty
   );
 
-  return get<IProduct[]>({
+  return getAsync<IProduct[], Promise<DomainProduct[]>>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
     queryKey: [
@@ -48,31 +52,26 @@ async function search({
       "search",
       { sld, params, limit: search?.limit, offset: search.offset },
     ],
-    pagination: {
-      limit: search?.limit,
-      offset: search.offset,
-    },
     staleTime: 0,
     gcTime: 0,
-  }).then(async response => {
-    return {
-      total: response.pagination.total,
-      available: await parseAvailable(sld, response.data ?? [], preferredCycle),
-    };
+    select(data) {
+      return parseAvailable(sld, data ?? [], preferredCycle);
+    },
   });
 }
 
-function getClientDomains({ controller }: DomainContext) {
-  const { get, useUrl } = useQuery();
+async function getClientDomains({ controller }: DomainContext) {
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync<any, (DomainModel | undefined)[]>({
     url: useUrl("modules/web_hosting/domains/client_domains"),
     init: { signal: controller?.signal },
     queryKey: ["domain", "client-domains"],
+    select: data => map(data, ({ domain_name }) => parseDomain(domain_name)),
     withAccessToken: true,
     staleTime: 0,
     gcTime: 0,
-  }).then(data => map(data, ({ domain_name }) => parseDomain(domain_name)));
+  });
 }
 // ---
 // async function parse(_context, _event) {

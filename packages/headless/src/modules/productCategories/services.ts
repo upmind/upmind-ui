@@ -7,7 +7,6 @@ import { CacheIsStaleError } from "../../utils";
 
 // --- types
 import type { QueryKey } from "@tanstack/query-core";
-import type { QueryResponse } from "../..";
 import type { IProductCategory } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -15,10 +14,10 @@ import type { IProductCategory } from "@upmind-automation/types";
 
 const queryKey: QueryKey = ["product", "categories"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { getAsync, useUrl } = useQuery();
 
-  return get<IProductCategory[]>({
+  return getAsync<IProductCategory[]>({
     url: useUrl(`basket/products_categories`, {
       with: [
         "subcategories.image",
@@ -35,19 +34,15 @@ async function loadAll({ allowStale = true } = {}) {
       limit: 0,
     }),
     queryKey,
-    //allowStale,
     withAccessToken: true,
-    //revalidateIfStale: true,
-    // select: (response) => set(response, "data", response?.data),
-  }).then(({ data }) => data);
+  });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cached =
-    queryClient.getQueryData<QueryResponse<IProductCategory[]>>(queryKey);
+  const cached = queryClient.getQueryData<IProductCategory[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
-  return cached.data;
+  return cached;
 }
 
 // -----------------------------------------------------------------------------
@@ -57,6 +52,6 @@ export default {
   queryKey,
   //--- queries
   loadAll,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
   loadAllFromCache,
 };

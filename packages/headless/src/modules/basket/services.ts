@@ -33,7 +33,7 @@ import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 
 async function load(context: BasketContext, _event: AnyEventObject) {
-  const { get, patch, useUrl } = useQuery();
+  const { getAsync, patch, useUrl } = useQuery();
 
   // check if we are logged in as a client
   // then try to get any previous guest token a
@@ -62,7 +62,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   // finally return a basket with all the relevant data, include the provisioning fields
   // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
   // for the current state of the basket
-  return get({
+  return getAsync<IBasket>({
     url: useUrl("orders/current", {
       with: [
         "address",
@@ -101,7 +101,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     withAccessToken: true,
     //revalidateIfStale: true,
   })
-    .then(data => {
+    .then((data: any) => {
       // generate a new basket if we don't have one;
       if (isEmpty(data)) return generate(context, { type: "GENERATE" });
       return data;
@@ -173,7 +173,7 @@ async function convert(
 }
 
 async function getProvisioningFieldsValues(basket: IBasket) {
-  const { get, patch, useUrl } = useQuery();
+  const { getAsync, patch, useUrl } = useQuery();
 
   // bail if we have no basket, or if we have a basket with products
   if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
@@ -199,7 +199,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
     );
 
     // we don't cache provisioning fields, as they can change with different options/attributes being selected
-    const promise = get({
+    const promise = getAsync({
       url: useUrl(
         `orders/${basket.id}/products/${id}/provision_fields/values`,
         {

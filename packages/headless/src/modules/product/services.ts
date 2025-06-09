@@ -70,7 +70,7 @@ async function load(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -91,7 +91,7 @@ async function load(
   if (rawBasketProduct?.id)
     set(params, "basket_product_id", rawBasketProduct.id);
 
-  const productPromise = getRequest({
+  const productPromise = getAsync({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "product",
@@ -108,22 +108,22 @@ async function load(
   // lets get our provisioning fields early, so we can make them lookups
   const provisioningPromise = loadProvisioningFields(productId);
 
-  const conuntriesPromise = fetchCountries();
+  const countriesPromise = fetchCountries();
 
   return Promise.all([
     productPromise,
     provisioningPromise,
-    conuntriesPromise,
+    countriesPromise,
   ]).then(([product, provisioning]) => {
     return { product, provisioning, currency };
   });
 }
 
 async function loadProvisioningFields(productId: string) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   if (!productId) return Promise.reject(new Error("No Product ID provided"));
   // we dont cache provisioning fields, as they can change with different options/attributes being selected
-  return get({
+  return getAsync({
     url: useUrl(`basket/products/${productId}/provision_fields`),
     queryKey: ["product", productId, "provision-fields"],
     withAccessToken: true,

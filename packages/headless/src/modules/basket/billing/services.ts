@@ -25,7 +25,7 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   const { data: addresses, isReady: isAddressesReady } = useClientAddresses();
   const { getAll: getCompanies } = useClientCompanies();
 
-  const companies = getCompanies({ allowStale: false });
+  const companies = getCompanies();
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
   const { isAuthenticated } = useSession();
@@ -43,8 +43,8 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
 
   return Promise.all([companies, isAddressesReady]).then(
     ([companies]) => {
-      return [...companies, ...addresses.value];
-    } // we prioritise/return the companies first so they are at the top of the list
+      return [...companies, ...(addresses.value || [])];
+    } // we prioritize/return the companies first, so they are at the top of the list
   );
 }
 
