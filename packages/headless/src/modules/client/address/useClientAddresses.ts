@@ -1,12 +1,11 @@
 // --- external
 import { ref, computed } from "vue";
-import { useQuery, keepPreviousData, useMutation } from "@tanstack/vue-query";
+import { useQuery, keepPreviousData } from "@tanstack/vue-query";
 
 // --- internal
 import service from "./services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
-import { useFeedback } from "../../feedback";
 import { invalidateQueryByKey } from "../../query";
 
 // --- utils
@@ -29,7 +28,6 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   // --- state
 
   const { isAuthenticated } = useSession();
-  const { addError, addSuccess } = useFeedback();
 
   const pagination = ref<IAPIPagination | undefined>(params.pagination);
 
@@ -54,17 +52,17 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     placeholderData: keepPreviousData,
   });
 
-  async function isReady(): Promise<boolean> {
-    return isAuthenticated()
-      .then(() => true)
-      .catch(() => false);
-  }
-
   const meta = computed(() => ({
     isError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isLoading: query?.fetchStatus.value === "fetching",
   }));
+
+  async function isReady(): Promise<boolean> {
+    return isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
+  }
 
   // --- methods
 
@@ -108,23 +106,7 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   }
 
   async function remove(id: Address["id"]) {
-    const { mutate } = useMutation({
-      mutationFn: (id: Address["id"]) => service.remove(id),
-      onSuccess: () => {
-        addSuccess("Successfully removed address");
-        invalidateQueryByKey(service.queryKey, { exact: false });
-      },
-      onError: (error: any) =>
-        addError({
-          title: isString(error)
-            ? error
-            : error?.title || "We experienced an error removing this address",
-          copy: error?.message,
-          data: error?.data,
-        }),
-    });
-
-    mutate(id);
+    return service.remove(id);
   }
 
   async function getDefault() {
@@ -132,24 +114,7 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   }
 
   async function setDefault(id: Address["id"]) {
-    const { mutate } = useMutation({
-      mutationFn: (id: Address["id"]) => service.setDefault(id),
-      onSuccess: () => {
-        addSuccess("Successfully set address as default");
-        invalidateQueryByKey(service.queryKey, { exact: false });
-      },
-      onError: (error: any) =>
-        addError({
-          title: isString(error)
-            ? error
-            : error?.title ||
-              "We experienced an error setting this address as default",
-          copy: error?.message,
-          data: error?.data,
-        }),
-    });
-
-    mutate(id);
+    return service.setDefault(id);
   }
 
   function nextPage() {
@@ -265,23 +230,34 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     /**
      * Go to the next page of addresses.
      * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of addresses.
+     * This will only work if the current offset is less than the total number of addresses.
+     * @param value The new pagination parameters to set.
+     * @return {void}
      */
     nextPage,
 
     /**
      * Go to the previous page of addresses.
      * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
+     * This will only work if the current offset is greater than or equal to the limit.
+     * @param value The new pagination parameters to set.
+     * @return {void}
      */
     prevPage,
 
     /**
      * Set the pagination parameters.
+     * This updates the current pagination state with the provided values.
      * @param value The new pagination parameters to set.
+     * @return {void}
      */
     setPagination,
 
     /**
      * Invalidate the query cache for client addresses.
+     * This will trigger a refetch of the addresses when the next query is made.
+     * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
+     * @return {void}
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
   };
