@@ -45,7 +45,24 @@
   </div>
 
   <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
-    <slot name="toggle"> </slot>
+    <slot name="toggle">
+      <Link
+        v-if="!meta.isAuthenticated && meta.showLoginForm"
+        @click="toggleForm('recover')"
+      >
+        <span class="font-normal">
+          {{ t("session.recover.actions.text") }}
+        </span>
+      </Link>
+      <Link
+        v-if="!meta.isAuthenticated && meta.showRecoverPasswordForm"
+        @click="toggleForm('login')"
+      >
+        <span class="font-normal">
+          {{ t("navigation.login") }}
+        </span>
+      </Link>
+    </slot>
     <Button
       v-if="meta.isAuthenticated"
       variant="ghost"
@@ -76,7 +93,7 @@ import {
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
-import { Button, Tabs } from "@upmind-automation/upmind-ui";
+import { Link, Alert, Button, Tabs } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -133,10 +150,6 @@ const tabs = computed((): TabItem[] => {
     {
       value: "login",
       label: t("auth.actions.toggle.login"),
-    },
-    {
-      value: "recover",
-      label: t("auth.actions.toggle.recover"),
     },
   ];
 });
