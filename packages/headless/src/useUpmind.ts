@@ -54,7 +54,14 @@ class Upmind {
     this.queryClient = useQuery().queryClient;
   }
 
-  init({ app, mode, pop, analytics, recaptcha, debug }: UpmindProps) {
+  init({
+    app,
+    mode,
+    pop,
+    analytics,
+    recaptcha,
+    debug,
+  }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new Error(
         `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
@@ -68,9 +75,7 @@ class Upmind {
     this.recaptcha = recaptcha;
     this.initPlugins();
     this.initDebugging();
-  }
 
-  start(): Promise<void> {
     return usePOP(this.pop)
       .isReady()
       .then(async () => {
