@@ -4,65 +4,102 @@
 import { useSystemI18n } from "../system";
 import { useQuery } from ".";
 import { useSession } from "../session";
+import { useFeedback } from "../feedback";
+const { add } = useFeedback();
 
 // --- utils
+import { responseCodes } from "../../utils";
 import {
   getTokenFromStorage,
   persistTokenToStorage,
   dumpTokenFromStorage,
 } from "../session/utils";
-import { get, set, isEmpty, includes, map, upperCase } from "lodash-es";
+import {
+  get,
+  includes,
+  isEmpty,
+  map,
+  set,
+  startsWith,
+  upperCase,
+} from "lodash-es";
 
 // --- types
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
-import { RequestParams } from "./types";
+import { RequestParams, ResponseError, Response } from "./types";
+import { messageDisplays, messageTypes } from "../feedback/types";
 
 // -----------------------------------------------------------------------------
+function handleError(
+  status: Response["status"],
+  error: Response["error"]
+): Promise<never> {
+  // of we have a server error (5xx), we want to display a system message
+  if (status >= 500 && status < 600) {
+    add({
+      type: messageTypes.ERROR,
+      title: "Service temporarily unavailable",
+      copy: "Service temporarily down for maintenance",
+      data: error,
+      i18nKey: `errors.${status ?? responseCodes.Service_Unavailable}`,
+      display: messageDisplays.SYSTEM,
+      delay: 0,
+      maxAge: 0,
+    });
+  }
+
+  return Promise.reject({
+    status: status || responseCodes.Service_Unavailable,
+    data: null,
+    total: null,
+    error: {
+      id: error?.id ?? null,
+      type: error?.type ?? responseCodes.Service_Unavailable,
+      status,
+      code: error?.code ?? null,
+      message: error?.message || "Service temporarily unavailable",
+      data: error?.data || null,
+    },
+    messages: null,
+  });
+}
 
 async function doFetch<T extends object = object>({
   url,
   init,
 }: RequestParams): Promise<T> {
+  init ??= {};
+
   if (!includes(map(Methods, upperCase), init?.method)) {
     return Promise.reject(new Error(`Invalid method: ${init?.method}`));
   }
 
   if (!url) return Promise.reject(new Error("Invalid URL"));
 
-  if (!url.searchParams.has("lang")) {
+  if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
     const { getLocale } = useSystemI18n();
     const locale = await getLocale();
     if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
   }
 
   // do the fetch
-  const response = await fetch(url.toString(), init).catch(error => {
-    return Promise.reject(error);
-  });
+  return fetch(url.toString(), init)
+    .then(async response => {
+      const { ok, status } = response;
 
-  const { ok, status } = response;
+      const data = await response.json().catch(() => ({ data: null }));
 
-  // Digest response data (JSON)
-  // maybe instead of catching error, we can check if 204 and return null
-  // this catchall seems more robust though
-  const data = (await response
-    .json()
-    .then(data => data)
-    .catch(() => ({ data: null }))) as T;
+      set(data, "status", status); // ensure the correct status code
 
-  return new Promise((resolve, reject) => {
-    // Unpack response object
+      if (!ok) throw data;
 
-    // add status to data object
-    set(data, "status", status); // ensure the correct status code
-
-    if (ok) {
-      resolve(data);
-    } else {
-      reject(data);
-    }
-  });
+      return data as T;
+    })
+    .catch(response => {
+      if (!response?.status) return Promise.reject();
+      return handleError(response.status, response?.error);
+    });
 }
 
 async function refreshToken() {

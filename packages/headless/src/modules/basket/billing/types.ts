@@ -1,5 +1,6 @@
 // --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { ResponseError } from "src/modules/query";
 
 // --- internal
 
@@ -25,7 +26,5 @@ export interface BillingDetailsContext {
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+  error?: ResponseError;
 }

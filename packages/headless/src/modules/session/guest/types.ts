@@ -1,30 +1,44 @@
 // --- types
+import { ResponseError } from "src/modules/query";
 import type { IPhoneData } from "../../client/phone/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { ErrorObject } from "ajv";
+import { Token } from "../types";
 
 // -----------------------------------------------------------------------------
 
-export interface GuestContext {
-  // TODO:
-  // token: Token;
-  // error?: RequestError;
-  token: any;
-  error?: any;
+type GuestModelType = LoginModel | RegisterModel | TWOFAModel | RecoverModel;
+
+export interface GuestContext<ModelType extends GuestModelType = any> {
+  token: Token;
+  error?: ResponseError | ErrorObject[];
   // ---
   // TODO:
   // customFields: Array;
   customFields: any[];
-  model: any; // AuthModel;
+  model: ModelType;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
 }
 
-export interface AuthModel {
+export interface LoginModel {
+  username?: string;
+  password?: string;
+}
+
+export interface RegisterModel {
   username?: string;
   firstname?: string;
   lastname?: string;
   password?: string;
   phone?: IPhoneData;
-  recaptcha_token?: string;
   customFields?: Record<string, any>;
+}
+
+export interface TWOFAModel {
+  token?: string;
+}
+
+export interface RecoverModel {
+  username?: string;
 }

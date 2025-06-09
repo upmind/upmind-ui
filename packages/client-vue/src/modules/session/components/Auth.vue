@@ -3,7 +3,16 @@
     class="auth"
     :class="cn(styles.session.auth.root, $props.class)"
     v-if="!meta.isAuthenticated && !meta.isLoading"
+    v-auto-animate
   >
+    <Alert
+      v-if="meta.hasErrors"
+      color="error"
+      icon="alert-triangle"
+      :title="t(`session.${modelValue}.error`)"
+      :description="errors?.message"
+    />
+
     <Form
       :key="modelValue"
       :loading="meta.isLoading"
@@ -15,25 +24,32 @@
       :color="color"
       @reject="doReject"
       @resolve="doResolve"
+      @update:model-value="setModel"
       :class="styles.session.auth.form"
       :actions="authActions"
     />
   </div>
 
-  <div
-    v-if="!meta.isAuthenticated && !meta.isLoading"
-    :class="styles.session.auth.actions"
-  >
-    <slot name="toggle" v-if="meta.showRegisterForm || meta.showLoginForm">
-      <div @click="toggleForm(meta.showRegisterForm ? 'login' : 'register')">
-        <Link>
-          <span class="font-normal">
-            {{ buttonText }}
-          </span>
-          &nbsp;{{ buttonAction }}
-        </Link>
-      </div>
+  <div v-if="!meta.isLoading" :class="styles.session.auth.actions">
+    <slot name="toggle">
+      <Link
+        v-if="!meta.isAuthenticated && meta.showLoginForm"
+        @click="toggleForm('recover')"
+      >
+        <span class="font-normal">
+          {{ buttons.recover.label }}
+        </span>
+      </Link>
     </slot>
+    <Button
+      v-if="meta.isAuthenticated"
+      variant="ghost"
+      block
+      type="reset"
+      @click.prevent="logout"
+    >
+      logout
+    </Button>
   </div>
 </template>
 
@@ -42,14 +58,20 @@
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVModel } from "@vueuse/core";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
 import Form from "../../../components/form/Form.vue";
-import { useStyles, cn, Link } from "@upmind-automation/upmind-ui";
 import config from "../sesssion.config";
+import {
+  ROUTE,
+  useSession,
+  useRoutingEngine,
+} from "@upmind-automation/headless-vue";
+import { useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
+import { Link, Alert, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -70,12 +92,14 @@ const {
   errors,
   showLogin,
   showRegister,
-  verify2fa,
+  showRecoverPassword,
   model,
   schema,
   uischema,
   resolve,
   reject,
+  logout,
+  setModel,
 } = useSession();
 
 await isReady();
@@ -94,6 +118,23 @@ const modelValue = useVModel(props, "modelValue", emit);
 
 // ---
 
+const buttons = computed(() => {
+  return {
+    register: {
+      label: t("session.register.actions.text"),
+      action: t("session.register.actions.action"),
+    },
+    login: {
+      label: t("session.login.actions.text"),
+      action: t("session.login.actions.action"),
+    },
+    recover: {
+      label: t("session.recover.actions.text"),
+      action: t("session.recover.actions.action"),
+    },
+  };
+});
+
 const authActions = computed(() => {
   return {
     submit: {
@@ -102,22 +143,13 @@ const authActions = computed(() => {
         ? t("auth.actions.login")
         : meta.value.showRegisterForm
           ? t("auth.actions.register")
-          : t("auth.actions.continue"),
+          : meta.value.showRecoverPasswordForm
+            ? t("auth.actions.recover")
+            : t("auth.actions.continue"),
       block: true,
       needsValid: true,
     },
   };
-
-  // TODO: implement forgot password flow
-  // if (this.meta.showLoginForm) {
-  //   actions.forgot = {
-  //     label: this.t("auth.actions.forgot"),
-  //     block: true,
-  //     variant: "link",
-  //     size: "sm",
-  //     action: () => this.toggleForm("forgot"),
-  //   };
-  // }
 });
 
 function toggleForm(type: AuthProps["modelValue"]) {
@@ -133,11 +165,12 @@ function toggleForm(type: AuthProps["modelValue"]) {
       if (!meta.value.showRegisterForm) {
         showRegister().then(() => (modelValue.value = type));
       }
-
       break;
-    // case "forgot":
-    //   if (!meta.value.showForgotForm)
-    //     showForgot().then(() => (modelValue.value = type));
+    case "recover":
+      if (!meta.value.showRecoverPasswordForm) {
+        showRecoverPassword().then(() => (modelValue.value = type));
+      }
+      break;
   }
 }
 
@@ -151,18 +184,6 @@ function doReject() {
 
 onMounted(() => {
   toggleForm(modelValue.value);
-});
-
-const buttonText = computed(() => {
-  return meta.value.showRegisterForm
-    ? t("session.unauthenticated.register.actions.text")
-    : t("session.unauthenticated.login.actions.text");
-});
-
-const buttonAction = computed(() => {
-  return meta.value.showRegisterForm
-    ? t("session.unauthenticated.register.actions.action")
-    : t("session.unauthenticated.login.actions.action");
 });
 
 watch(meta, ({ canShowForms, isAuthenticated }) => {

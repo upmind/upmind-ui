@@ -18,7 +18,7 @@ const { addError } = useFeedback();
 import { useTime, useCookies } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useUserParser } from "../utils";
-import { omit } from "lodash-es";
+import { omit, remove } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -115,6 +115,8 @@ export default createMachine(
         // clear all session data, including cookies and local storage
         //  also update the data layer to indicate the user has logged out
         localStorage.clear();
+        removeCookie("upm_client_session");
+        removeCookie("upm_guest_session");
         removeCookie("upm_actor");
         dataLayer().withUser().push(false);
         return {};
@@ -149,10 +151,11 @@ export default createMachine(
       }),
 
       setFeedbackError: ({ error }, _event) => {
-        if (!error || error?.code == responseCodes.Unprocessable_Entity) return;
+        if (!error || error?.status == responseCodes.Unprocessable_Entity)
+          return;
 
         addError({
-          title: error?.title,
+          title: "We experienced an error processing your request",
           copy: error?.message,
           data: error?.data,
         });

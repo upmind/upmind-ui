@@ -9,19 +9,20 @@ import { useSession as useUpmindSession } from "@upmind-automation/headless";
 // --- utils
 import { isFunction } from "lodash-es";
 
-import type { IUseSession, IUseSessionMeta } from "./types";
-
 /**
  * Composable function to manage session-related logic using Vue.
  * It provides state, context and helpers for session, login and registration processes.
  *
  * @param {Function} [inspector] - Optional function that can inspect the session's state and context changes.
+ * @returns {object} Session management API (see below for details)
  */
-export const useSession = (inspector?: Function): IUseSession => {
+export const useSession = (inspector?: Function) => {
   const {
     isAuthenticated,
     isReady,
     service,
+    recover,
+    showRecoverPassword,
     showRegister,
     showLogin,
     login,
@@ -29,11 +30,15 @@ export const useSession = (inspector?: Function): IUseSession => {
     verify2fa,
     logout,
     transferTo,
+    transferFrom,
+    getTransferDetails,
+    transferred,
   } = useUpmindSession();
   const { state, send } = useActor(service);
 
-  // We can create reactive refs to the child machines,
-  // so that when they are invoked we can listen to their state changes
+  /**
+   * Information about the authenticated client, if available. Represents the logged-in user.
+   */
   const client = computed(() => {
     const clientMachine = state.value?.children?.clientMachine;
     if (!clientMachine) return null;
@@ -41,6 +46,9 @@ export const useSession = (inspector?: Function): IUseSession => {
     return clientState.value;
   });
 
+  /**
+   * Information about the guest user, if available. Used to handle non-authenticated user interactions.
+   */
   const guest = computed(() => {
     const guestMachine = state.value?.children?.guestMachine;
     if (!guestMachine) return null;
@@ -48,72 +56,110 @@ export const useSession = (inspector?: Function): IUseSession => {
     return guestState.value;
   });
 
-  // ---
+  /**
+   * Context object containing session-specific information such as current user,
+   * authentication status, and other dynamic data.
+   */
   const context = computed(() => state.value.context);
-  //const messages= computed(() => state.value.context?.messages);
-  // ---
-  const meta = computed(
-    (): IUseSessionMeta => ({
-      isLoading:
-        state.value.matches("checking") ||
-        (guest.value?.matches &&
-          [
-            "loading",
-            "available.login.loading",
-            "available.register.loading",
-          ].some(guest.value.matches)) ||
-        client.value?.matches("loading") ||
-        false,
 
-      isAvailable: !["error", "checking"].some(state.value.matches),
+  /**
+   * Computed metadata related to the session's state, including loading, ready, and error flags.
+   * @typedef {Object} meta
+   * @property {boolean} isLoading - Indicates whether any part of the session is currently in a loading state.
+   * @property {boolean} isAvailable - Indicates whether the session is ready to be used.
+   * @property {boolean} isProcessing - Indicates whether the session is currently processing an action.
+   * @property {boolean} isAuthenticated - Indicates whether the user is authenticated within the session.
+   * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
+   * @property {boolean} hasExpired - Indicates whether the session has expired.
+   * @property {boolean} showReCaptcha - Indicates whether the ReCaptcha challenge should be displayed.
+   * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
+   * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown.
+   * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
+   * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
+   * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the user.
+   * @property {boolean} hasErrors - Indicates whether any errors have occurred during session management operations.
+   */
+  const meta = computed(() => ({
+    isLoading:
+      state.value.matches("checking") ||
+      (guest.value?.matches &&
+        [
+          "loading",
+          "available.login.loading",
+          "available.register.loading",
+          "available.recover.loading",
+        ].some(guest.value.matches)) ||
+      client.value?.matches("loading") ||
+      false,
+    isAvailable: !["error", "checking"].some(state.value.matches),
+    isProcessing:
+      (guest.value?.matches &&
+        [
+          "available.login.authenticating",
+          "available.login.verifying",
+          "available.register.checking",
+          "available.register.verifying",
+          "available.register.registering",
+          "available.register.authenticating",
+          "available.recover.recovering",
+        ].some(guest.value.matches)) ||
+      client.value?.matches("processing"),
+    isAuthenticated: state.value.matches("client"),
+    isTransferring: client.value?.matches("transferring"),
+    hasExpired: state.value.matches("expired"),
+    hasErrors:
+      state.value.matches("error") ||
+      (guest.value?.matches &&
+        [
+          "available.login.error",
+          "available.register.error",
+          "available.recover.error",
+        ].some(guest.value.matches)) ||
+      client.value?.matches("error"),
+    showReCaptcha: guest.value?.matches("available.register.challenging"),
+    showLoginForm: guest.value?.matches("available.login"),
+    show2fa:
+      guest.value?.matches &&
+      ["available.login.challenging", "available.login.verifying"].some(
+        guest.value.matches
+      ),
+    canShowForms: guest.value?.matches("available.idle"),
+    showRegisterForm: guest.value?.matches("available.register"),
+    showRecoverPasswordForm: guest.value?.matches("available.recover"),
+  }));
 
-      isProcessing:
-        (guest.value?.matches &&
-          [
-            "available.login.authenticating",
-            "available.login.verifying",
-            "available.register.checking",
-            "available.register.verifying",
-            "available.register.registering",
-            "available.register.authenticating",
-          ].some(guest.value.matches)) ||
-        client.value?.matches("processing"),
-
-      // ---
-      isAuthenticated: state.value.matches("client"),
-      isTransferring: client.value?.matches("transferring"),
-      hasExpired: state.value.matches("expired"),
-
-      // ---
-      showReCaptcha: guest.value?.matches("available.register.challenging"),
-      showLoginForm: guest.value?.matches("available.login"),
-      show2fa:
-        guest.value?.matches &&
-        ["available.login.challenging", "available.login.verifying"].some(
-          guest.value.matches
-        ),
-
-      showRegisterForm: guest.value?.matches("available.register"),
-      canShowForms: guest.value?.matches("available.idle"),
-    })
-  );
-
+  /**
+   * User-specific information for the currently authenticated user, including profile and account data.
+   */
   const user = computed(() => client.value?.context?.user);
 
-  // ---
+  /**
+   * The underlying data model used in session-related forms such as login or registration.
+   */
   const model = computed(() => guest.value?.context?.model);
+  /**
+   * JSON Schema used to define the structure of session-related forms, like login and registration.
+   */
   const schema = computed(() => guest.value?.context?.schema);
+  /**
+   * UI Schema used to configure the presentation and layout of session-related forms.
+   */
   const uischema = computed(() => guest.value?.context?.uischema);
+  /**
+   * Any errors encountered during session management operations, such as login or registration failures.
+   */
   const errors = computed(() => guest.value?.context?.error);
 
-  // ---
-  // ---
-
-  function resolve(model: any): Promise<any> {
+  /**
+   * Function to resolve an ongoing authentication or registration request.
+   * @param {any} model
+   * @returns {Promise<any>}
+   */
+  async function resolve(model: any): Promise<any> {
     if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
-
+    if (meta.value.showRecoverPasswordForm) return recover(model);
     return Promise.reject(
       new Error(
         `[headless-vue] useSession: resolve() called but no form is available`
@@ -121,6 +167,10 @@ export const useSession = (inspector?: Function): IUseSession => {
     );
   }
 
+  /**
+   * Function to reject an ongoing authentication or registration request.
+   * @returns {Promise<any>}
+   */
   function reject(): Promise<any> {
     send({
       type: "CANCEL",
@@ -130,17 +180,14 @@ export const useSession = (inspector?: Function): IUseSession => {
       timeout: 60_000,
     });
   }
-  // ---
+
+  // Inspector integration for debugging/documentation
   if (isFunction(inspector)) {
-    // send a message to indicate we are
     inspector({
       key: "_upm-inspector",
       message: "inspecting session",
       flow: "session",
     });
-
-    // whenever our state changes, post a message to our parent window
-
     watch([state, client, guest], () =>
       inspector({
         key: "_upm-inspector",
@@ -158,34 +205,141 @@ export const useSession = (inspector?: Function): IUseSession => {
       })
     );
   }
+
   // ---------------------------------------------------------------------------
   return {
+    /**
+     * Promise that resolves when the session is ready to be used.
+     * Typically used to wait for initialization and loading of session data.
+     */
     isReady,
+    /**
+     * Promise that resolves when the session is fully initialized and authenticated.
+     * Typically used to wait for guarding routes or other authenticated-dependent operations.
+     * @returns {Promise<User>} A promise that resolves with the current user when the session is ready.
+     */
     isAuthenticated,
+    /**
+     * Current state of the session machine.
+     * Can include authentication, registration, and other session-related states.
+     */
     state: computed(() => state.value.value),
+    /**
+     * Context object containing session-specific information such as current user,
+     * authentication status, and other dynamic data.
+     */
     context,
+    /**
+     * Any errors encountered during session management operations, such as login or registration failures.
+     */
     errors,
-    //messages,
-    // ---
+    /**
+     * Computed metadata related to the session's state, including loading, ready, and error flags.
+     */
     meta,
-    // --- Guest
+    /**
+     * Information about the guest user, if available. Used to handle non-authenticated user interactions.
+     */
     guest,
-    // --- Client
+    /**
+     * Information about the authenticated client, if available. Represents the logged-in user.
+     */
     client,
+    /**
+     * The underlying data model used in session-related forms such as login or registration.
+     */
     model,
+    /**
+     * JSON Schema used to define the structure of session-related forms, like login and registration.
+     */
     schema,
+    /**
+     * UI Schema used to configure the presentation and layout of session-related forms.
+     */
     uischema,
-    // ---
+    /**
+     * User-specific information for the currently authenticated user, including profile and account data.
+     */
     user,
-    // ---
+    /**
+     * Function to reject an ongoing authentication or registration request.
+     */
     reject,
+    /**
+     * Function to resolve an ongoing authentication or registration request.
+     */
     resolve,
+    /**
+     * Initiates the login process for a user, typically used in conjunction with a form and model data.
+     * @returns {Promise<void>} A promise that resolves when the login operation is completed.
+     */
     login,
+    /**
+     * Logs out the currently authenticated user.
+     * @returns {Promise<void>} A promise that resolves when the logout operation is completed.
+     */
     logout,
+    /**
+     * Recovers the password for a user, typically used with form and model data.
+     * @returns {Promise<void>} A promise that resolves when the password recovery operation is completed.
+     */
+    recover,
+    /**
+     * Registers a new user, typically used with a form and model data.
+     * @returns {Promise<any>} A promise that resolves when the registration operation is completed.
+     */
     register,
-    showLogin,
-    showRegister,
+    /**
+     * Verifies the 2-factor authentication (2FA) code provided by the user.
+     * @param {string} code The 2FA code entered by the user.
+     * @returns {Promise<void>} A promise that resolves when the verification is successful.
+     */
     verify2fa,
+    /**
+     * Transfer session data between different parts of the application, such as from guest to client.
+     */
     transferTo,
+    /**
+     * Transfer session data from another part of the application.
+     * @param {string} code The transfer code used to identify the session.
+     * @param {string} redirect The URL to redirect to after the transfer is complete.
+     * @returns {Promise<IAuthTransfer>} A promise that resolves with the transfer details.
+     * @throws {Error} If the transfer fails or the code is invalid.
+     */
+    transferFrom,
+
+    /**
+     * Retrieves the transfer details, such as the transfer code and redirect URL.
+     * @returns {Promise<IAuthTransfer>} A promise that resolves with the transfer details.
+     */
+    getTransferDetails,
+
+    /**
+     * Indicates whether the session has been transferred successfully.
+     * @returns {boolean} True if the session has been transferred, false otherwise.
+     */
+    transferred,
+
+    /**
+     * Displays the login form for user authentication.
+     */
+    showLogin,
+    /**
+     * Displays the registration form for user sign-up.
+     */
+    showRegister,
+    /**
+     * Displays the Send reset form for password recovery.
+     */
+    showRecoverPassword,
+    /**
+     * Sets the model for the session, typically used to update or initialize the data model
+     */
+    setModel: (data: any) => {
+      send({
+        type: "SET",
+        data,
+      });
+    },
   };
 };

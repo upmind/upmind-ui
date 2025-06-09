@@ -240,9 +240,9 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
     dataLayer: (args: Record<string, any> = {}) => {
       let event: TrackingEvent | null = new TrackingEvent(args);
 
-      // lets be sensible and add some synthetic sugar and housekeeping.
-      // a track event should not be long lived, so we will push it to the data layer after a short delay to allow the user to push manually
-      // and after pushing/coplete we will destroy the event to avoid memory leaks.
+      // let's be sensible and add some synthetic sugar and housekeeping.
+      // a track event should not be long-lived, so we will push it to the data layer after a short delay to allow the user to push manually,
+      // and after pushing/complete we will destroy the event to avoid memory leaks.
       setTimeout(() => {
         if (event && !event?.complete) {
           console.warn(

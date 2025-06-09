@@ -12,6 +12,7 @@ import type {
   IWalletBalance,
   PaymentType,
 } from "@upmind-automation/types";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -53,5 +54,5 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
   // ---
   autoupdate?: boolean;
   dirty?: boolean;
-  error?: any;
+  error?: ResponseError;
 }

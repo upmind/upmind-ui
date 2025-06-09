@@ -29,16 +29,9 @@ import { useTranslateField, useTranslateName } from "../../utils";
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { BasketProduct } from "../basketProduct";
-import type {
-  Recommendation,
-  RelatedProduct,
-  IProductConfig,
-  Badge,
-  Benefit,
-} from "./types";
-import { calculateBillingTerm } from "../product/services";
-import { ProductDetails, TermDetails } from "../product";
+import type { Recommendation, RelatedProduct, Badge, Benefit } from "./types";
+import { calculateBillingTerm } from "../product/utils";
+import { ProductDetails, TermDetails, IProductConfig } from "../product";
 
 // ---------------------------------------------------------------------------
 

@@ -1,11 +1,11 @@
 // --- external
 import { createMachine, sendParent } from "xstate";
 
-// --- internal
-import { useMessageParser } from "./utils";
+// --- utils
 import { useTime } from "../../utils";
 
-// --utils
+// --types
+import type { Message } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ export default createMachine(
     id: "message",
     predictableActionArguments: true,
     initial: "pending",
-    context: useMessageParser(),
+    context: {} as Message,
     states: {
       // our initial state depends on how the machine was invoked
       // If we have context > message, we can skip to active
@@ -64,14 +64,14 @@ export default createMachine(
     guards: {
       isActive: ({ scheduled }) => {
         const current = Date.now();
-        const isFuture = scheduled > current;
+        const isFuture = scheduled && scheduled > current;
         return !isFuture;
       },
-      hasMaxAge: ({ maxAge }) => maxAge,
+      hasMaxAge: ({ maxAge }) => !!maxAge,
     },
     delays: {
-      delay: ({ delay }) => delay, // this allows us to override the max age in the context
-      maxAge: ({ maxAge }) => maxAge, // this allows us to override the max age in the context
+      delay: ({ delay }) => delay ?? 0, // this allows us to override the max age in the context
+      maxAge: ({ maxAge }) => maxAge ?? 0, // this allows us to override the max age in the context
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
     },
