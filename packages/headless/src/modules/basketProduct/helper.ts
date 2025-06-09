@@ -187,13 +187,13 @@ export function basketSubscription(callback: any, onReceive: any) {
       case "ADD_UPDATE":
         pendingProducts
           .add(get(event.target, "productId"), { ...event.target })
-          .then((instance: BasketProductPending) => {
+          .then(async (instance: BasketProductPending) => {
             return waitFor(
               instance.service,
               actorState => actorState.matches("available.valid"),
               { timeout: 60_000 } // wait 1 min (max) for actor to be ready
             )
-              .then(state => {
+              .then(_state => {
                 return instance;
               })
               .catch(() => {
@@ -205,9 +205,9 @@ export function basketSubscription(callback: any, onReceive: any) {
               });
           })
           .then((instance: BasketProductPending) => {
+            const model = instance.model;
             const actor = instance.service;
-            const product = instance.getProduct();
-            const model = instance.getModel();
+            const product = instance.product;
             if (!product) throw new Error("Product not found");
             // tell the subscriber we are processing as well as the actor we spawned
             actor.send({ type: "PROCESSING" });
@@ -222,10 +222,12 @@ export function basketSubscription(callback: any, onReceive: any) {
                   ),
                   currencyId: rawBasket?.currency_id,
                 },
-                { data: model }
+                { data: model.value! }
               )
               .then((rawBasket: IBasket) => {
-                dataLayer({ event: "add_to_cart" }).withItems(product).push();
+                dataLayer({ event: "add_to_cart" })
+                  .withItems(product.value!)
+                  .push();
                 return rawBasket;
               })
               .then((rawBasket: IBasket) => {
@@ -275,7 +277,7 @@ export function basketSubscription(callback: any, onReceive: any) {
         // Then sync all our models with the basket
         if (isEmpty(models)) callback({ type: "UPDATED", data: [] });
 
-        const promises = map(models, model => {
+        const promises = map(models, async model => {
           return pendingProducts
             .add(model.productId, model, true)
             .then(async (instance: BasketProductPending) => {
@@ -292,7 +294,7 @@ export function basketSubscription(callback: any, onReceive: any) {
 
         // then update the basket
         Promise.all(promises)
-          .then((instances: ActorRef<any>[]) => {
+          .then(async (instances: ActorRef<any>[]) => {
             return productServices
               .updateMany(
                 {
@@ -362,7 +364,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             }
             return rawBasket;
           })
-          .then(rawBasket => {
+          .then(_rawBasket => {
             return basket.refresh().then((rawBasket: IBasket) => {
               callback({ type: "UPDATED", data: rawBasket });
               return rawBasket;
@@ -396,7 +398,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             basketId: rawBasket?.id,
             bpid: event.target.id,
           })
-          .then((rawBasket: IBasket) => {
+          .then((_rawBasket: IBasket) => {
             if (basketProduct)
               dataLayer({ event: "remove_from_cart" })
                 .withItems([basketProduct])

@@ -25,31 +25,35 @@ import type { Address, AddressContext, AddressModel } from "./types";
 const queryKey: QueryKey = ["client", "addresses"];
 
 async function loadAll() {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddress[]>({
+  return getAsync<IAddress[], Address[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
     }),
+    select: data => mapAddresses(data ?? []),
+    queryKey,
     withAccessToken: true,
-  }).then(({ data }) => mapAddresses(data ?? []));
+  });
 }
 
 async function loadPaged(paginationParams: PaginatedParams) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddress[]>({
+  return getAsync<IAddress[], Address[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
+      ...paginationParams,
     }),
+    select: data => mapAddresses(data ?? []),
+    queryKey,
     withAccessToken: true,
-    ...paginationParams,
-  }).then(({ data }) => mapAddresses(data ?? []));
+  });
 }
 
 function loadAllFromCache() {

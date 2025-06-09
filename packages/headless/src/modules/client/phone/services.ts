@@ -2,7 +2,7 @@
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSystem, useSession } from "../..";
 
 // --- utils
 import {
@@ -12,7 +12,7 @@ import {
 } from "../../../utils";
 import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import { isString, isNil, get, set, first } from "lodash-es";
+import { isString, isNil, get, first } from "lodash-es";
 
 // --- types
 import { PhoneTypes } from "./types";
@@ -27,40 +27,34 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 const queryKey: QueryKey = ["client", "phones"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IPhone[], Phone[]>({
+  return getAsync<IPhone[], Phone[]>({
     url: useUrl(`clients/${client.id}/phones`, {
       limit: 0,
     }),
-    queryKey,
-    //allowStale,
-    withAccessToken: true,
-    //revalidateIfStale: true,
     select: data => mapPhones(data ?? []),
-  }).then(({ data }) => data);
+    queryKey,
+    withAccessToken: true,
+  });
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IIPhone[], Phone[]>({
-    url: useUrl(`clients/${client.id}/phones`),
+  return getAsync<IPhone[], Phone[]>({
+    url: useUrl(`clients/${client.id}/phones`, {
+      ...paginationParams,
+    }),
+    select: data => mapPhones(data ?? []),
     queryKey: [...queryKey, { ...paginationParams }],
-    //allowStale,
     withAccessToken: true,
-    select: response => set(response, "data", mapPhones(response.data ?? [])),
-    //revalidateIfStale: true,
-    ...paginationParams,
-  }).then(({ data }) => data ?? []);
+  });
 }
 
 function loadAllFromCache() {
@@ -234,7 +228,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -260,6 +254,6 @@ export const useClientPhoneServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };

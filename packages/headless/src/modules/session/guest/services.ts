@@ -42,9 +42,9 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
 }
 
 async function loadUser() {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("self", {
       with: [
         "actor",
@@ -113,9 +113,9 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
 }
 
 async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
     queryKey: ["session", "guest", "custom-fields"],

@@ -3,7 +3,7 @@ import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
 import { invalidateQueryByKey } from "../../query";
-import { useQuery, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSession } from "../..";
 
 // --- utils
 import {
@@ -11,7 +11,7 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
-import { get, set, isEmpty, isNil } from "lodash-es";
+import { get, isEmpty, isNil } from "lodash-es";
 import { mapCompanies, mapICompany } from "./mappers";
 
 // --- types
@@ -26,45 +26,36 @@ import type { PaginatedParams, QueryResponse, CompanyModel } from "../..";
 
 const queryKey: QueryKey = ["client", "companies"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Company[]>({
+  return getAsync<ICompany[], Company[]>({
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
       limit: 0,
     }),
     queryKey,
-    //allowStale,
     withAccessToken: true,
-    //revalidateIfStale: true,
-    select: response =>
-      set(response, "data", mapCompanies(response?.data ?? [])),
-  }).then(({ data }) => data);
+    select: data => mapCompanies(data ?? []),
+  });
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Company[]>({
+  return getAsync<ICompany[], Company[]>({
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
+      ...paginationParams,
     }),
+    select: data => mapCompanies(data ?? []),
     queryKey: [...queryKey, { ...paginationParams }],
-    //allowStale,
     withAccessToken: true,
-    select: response =>
-      set(response, "data", mapCompanies(response?.data ?? [])),
-    //revalidateIfStale: true,
-    ...paginationParams,
-  }).then(({ data }) => data);
+  });
 }
 
 function loadAllFromCache() {
@@ -92,7 +83,6 @@ async function loadLookups({
   return Promise.all([
     emails.getAll().then(emails.isReady),
     phones.getAll().then(phones.isReady),
-    addresses.getAll().then(addresses.isReady),
   ]).then(async () => {
     const [defaultEmail, defaultPhone, defaultAddress] = await Promise.all([
       emails.getDefault(),
@@ -117,7 +107,7 @@ async function loadLookups({
     return {
       emails,
       phones,
-      addresses,
+      addresses: addresses.data.value,
       // ---
       model: safeModel,
       baseModel: safeModel,
@@ -223,7 +213,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -249,6 +239,6 @@ export const useClientCompanyServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };

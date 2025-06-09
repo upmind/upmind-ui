@@ -26,35 +26,35 @@ const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
 async function loadAll() {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<QueryResponse<IEmail[]>, Email[]>({
+  return getAsync<IEmail[], Email[]>({
     url: useUrl(`clients/${client.id}/emails`, { limit: 0 }),
+    select: data => mapEmails(data ?? []),
     queryKey,
     staleTime: useTime().DAY,
     withAccessToken: true,
-    select: ({ data }) => mapEmails(data ?? []),
   });
 }
 
 async function loadPaged(params: PaginatedParams) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<QueryResponse<IEmail[]>, Email[]>({
+  return getAsync<IEmail[], Email[]>({
     url: useUrl(`clients/${client.id}/emails`, {
       limit: params.pagination?.limit || 10,
       offset: params.pagination?.offset || 0,
       // sort: params.sort, // TODO: to be implemented
       // filter: params.filters, // TODO: to be implemented
     }),
+    select: data => mapEmails(data ?? []),
     queryKey: [...queryKey, params],
     staleTime: useTime().DAY,
     withAccessToken: true,
-    select: ({ data }) => mapEmails(data ?? []),
   });
 }
 

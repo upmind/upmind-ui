@@ -15,9 +15,9 @@ import { IBasket } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 async function load(_context: FieldsContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("basket_fields"),
     queryKey: ["basket", "fields"],
   }).then(data => ({ fields: data }));

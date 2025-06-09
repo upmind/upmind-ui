@@ -39,6 +39,7 @@ import type {
 import type { AnyEventObject } from "xstate";
 import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
 import { invalidateQueryByKey } from "../../../query";
+import { IAddress, IEmail, IPhone } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -56,7 +57,7 @@ async function loadLookups({
 }: UnifiedAddressContext): Promise<UnifiedAddressContext> {
   const { getAll: getPhones } = useClientPhones();
   const { getAll: getEmails } = useClientEmails();
-  const { isReady: getAddresses, data: addresses } = useClientAddresses();
+  const { data: addresses } = useClientAddresses();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
 
@@ -68,7 +69,6 @@ async function loadLookups({
     getPhones(),
     getEmails(),
     fetchCountries(),
-    getAddresses(),
   ]);
 
   const country = getCountry(model?.countryId);
@@ -295,7 +295,7 @@ async function ensureEmail(model: UnifiedAddressModel): Promise<Email> {
     }).then(item => {
       // NB: Remember to refresh our machines so we have the new data
       refresh();
-      return mapEmail(item.data);
+      return mapEmail(item.data as IEmail);
     });
   });
 }
@@ -313,7 +313,7 @@ async function ensurePhone(model: UnifiedAddressModel): Promise<Phone> {
     return add({ model: data }).then(item => {
       // NB: Remember to refresh our machines so we have the new data
       refresh();
-      return mapPhone(item.data);
+      return mapPhone(item?.data as IPhone);
     });
   });
 }
@@ -340,7 +340,7 @@ async function ensureAddress(model: UnifiedAddressModel): Promise<Address> {
     }).then(item => {
       // NB: Remember to refresh our machines so we have the new data
       refresh();
-      return mapAddress(item.data);
+      return mapAddress(item?.data as IAddress);
     });
   });
 }

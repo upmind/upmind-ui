@@ -1,9 +1,5 @@
 // --- internal
-import {
-  QueryObserver,
-  invalidateQueryByKey,
-  useQuerySubscription,
-} from "../../query";
+import { invalidateQueryByKey } from "../../query";
 import service from "./services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
@@ -15,26 +11,6 @@ import { find, filter, includes, isString } from "lodash-es";
 // --- types
 import type { Company } from "./types";
 import type { PaginatedParams } from "../../query";
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-
-let observer: QueryObserver | undefined;
-
-/**
- * Subscribe to the client companies query that are present in the cache.
- * This will trigger the callback function when the query is ready/updated.
- * @param callback The callback function to be called when the query is ready/updated.
- * @returns The unsubscribe function
- */
-const subscribe = ({
-  callback,
-}: {
-  callback: (query: QueryCacheNotifyEvent["query"]) => void;
-}) => {
-  if (!observer) {
-    observer = useQuerySubscription(service.queryKey, callback);
-  }
-  return observer;
-};
 
 export const useClientCompanies = () => {
   const { addError, addSuccess } = useFeedback();
@@ -53,12 +29,11 @@ export const useClientCompanies = () => {
 
   /**
    * Get all the companies for the current client.
-   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to an array of companies
    * @example getAll().then(companies => console.log(companies))
    */
-  async function getAll({ allowStale = true } = {}) {
-    return service.loadAll({ allowStale });
+  async function getAll() {
+    return service.loadAll();
   }
 
   /**
@@ -101,15 +76,11 @@ export const useClientCompanies = () => {
   /**
    * Get a paginated list of companies for the current client.
    * @param paginationParams The pagination parameters to use for the request.
-   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to a paginated list of companies.
    * @example getPaged({ page: 1, pageSize: 10 }).then(companies => console.log(companies))
    */
-  async function getPaged(
-    paginationParams: PaginatedParams,
-    { allowStale = true } = {}
-  ) {
-    return service.loadPaged(paginationParams, { allowStale });
+  async function getPaged(paginationParams: PaginatedParams) {
+    return service.loadPaged(paginationParams);
   }
 
   /**
@@ -188,7 +159,6 @@ export const useClientCompanies = () => {
       queryFn: getAll,
       staleTime: useTime().DAY,
     },
-    subscribe,
     isReady,
     getOne,
     getAll,

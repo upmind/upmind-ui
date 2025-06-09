@@ -1,25 +1,26 @@
 // --- internal
-import { useQuery, useQueryPaginated } from "../..";
+import { useQuery } from "../..";
 
 // --- utils
+import { isNil, map } from "lodash-es";
 import { parseProduct } from "./mappers";
-import { isNil, set, map } from "lodash-es";
 import { CacheIsStaleError } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
 import type { QueryKey } from "@tanstack/query-core";
-import type { QueryResponse, PaginatedParams } from "../..";
+import type { PaginatedParams } from "../..";
+import { IProduct } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["product", "catalogue"];
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { getAsync, useUrl } = useQuery();
 
-  return get<Product[]>({
+  return getAsync<IProduct[], Product[]>({
     url: useUrl(`basket/products`, {
       with: [
         "image",
@@ -31,22 +32,16 @@ async function loadAll({ allowStale = true } = {}) {
       ].join(),
       limit: 0,
     }),
+    select: data => map(data ?? [], parseProduct),
     queryKey,
-    //allowStale,
     withAccessToken: true,
-    //revalidateIfStale: true,
-    select: response =>
-      set(response, "data", map(response?.data ?? [], parseProduct)),
-  }).then(({ data }) => data);
+  });
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { getAsync, useUrl } = useQuery();
 
-  return get<Product[]>({
+  return getAsync<IProduct[], Product[]>({
     url: useUrl(`basket/products`, {
       with: [
         "image",
@@ -56,22 +51,19 @@ async function loadPaged(
         "products_options.prices",
         `category${".top_category".repeat(4)}`,
       ].join(),
+      ...paginationParams,
     }),
+    select: data => map(data ?? [], parseProduct),
     queryKey,
-    //allowStale,
     withAccessToken: true,
-    select: response =>
-      set(response, "data", map(response?.data ?? [], parseProduct)),
-    //revalidateIfStale: true,
-    ...paginationParams,
-  }).then(({ data }) => data ?? []);
+  });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<QueryResponse<Product[]>>(queryKey);
+  const cached = queryClient.getQueryData<Product[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
-  return cached.data;
+  return cached;
 }
 
 // -----------------------------------------------------------------------------
@@ -82,6 +74,6 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
   loadAllFromCache,
 };
