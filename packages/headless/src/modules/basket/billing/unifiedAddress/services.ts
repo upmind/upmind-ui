@@ -56,7 +56,7 @@ async function loadLookups({
   schema,
 }: UnifiedAddressContext): Promise<UnifiedAddressContext> {
   const { getAll: getPhones } = useClientPhones();
-  const { getAll: getEmails } = useClientEmails();
+  const { data: emails } = useClientEmails();
   const { data: addresses } = useClientAddresses();
 
   const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
@@ -65,9 +65,8 @@ async function loadLookups({
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
-  const [phones, emails, countries] = await Promise.all([
+  const [phones, countries] = await Promise.all([
     getPhones(),
-    getEmails(),
     fetchCountries(),
   ]);
 
@@ -100,7 +99,7 @@ async function loadLookups({
     country,
     countries,
     phones,
-    emails,
+    emails: emails.value,
     addresses: addresses.value,
     // ---
     model: safeModel,
