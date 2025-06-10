@@ -33,6 +33,7 @@ import { Tabs } from "../../../tabs";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { createIndexedOneOfRenderInfos } from "../utils";
+import { forEach } from "lodash-es";
 
 // --- types
 import type {
@@ -72,30 +73,27 @@ const oneOfItems = computed((): TabItem[] => {
 
 const toggleTab = (value: any) => {
   selectedIndex.value = Number(value);
-
-  const newDefaults = createDefaultValue(
-    formData.value[selectedIndex.value].schema,
-    control.value.rootSchema
-  );
-
-  onInput(
-    {
-      ...control.value.data,
-      type: newDefaults?.type,
-    },
-    false
-  );
+  defaultsSet.value = false;
 };
 
 const setDefaults = () => {
   if (!defaultsSet.value) {
-    onInput(
-      createDefaultValue(
-        formData.value[selectedIndex.value].schema,
-        control.value.rootSchema
-      ),
-      false
+    const applyDefaults = (
+      control.value.schema?.oneOf?.[selectedIndex.value] as any
+    )?.applyDefaults;
+
+    const defaults = createDefaultValue(
+      formData.value[selectedIndex.value].schema,
+      control.value.rootSchema
     );
+
+    if (applyDefaults) {
+      forEach(applyDefaults, (key: any) => {
+        defaults[key] = control.value.data[key];
+      });
+    }
+
+    onInput(defaults, false);
     defaultsSet.value = true;
   }
 };
