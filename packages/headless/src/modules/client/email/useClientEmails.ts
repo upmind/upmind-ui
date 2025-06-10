@@ -105,7 +105,7 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
     return service.remove(id);
   }
 
-  async function getDefault() {
+  function getDefault() {
     return find(query.data.value, "meta.isDefault");
   }
 

@@ -196,3 +196,5 @@ export const useClientPhones = () => {
     invalidate: invalidateQueryByKey(service.queryKey),
   };
 };
+
+export type UseClientPhones = ReturnType<typeof useClientPhones>;

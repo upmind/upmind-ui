@@ -2,10 +2,11 @@
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession } from "../..";
+import { useQuery, useSystem, useSession, useFeedback } from "../..";
 
 // --- utils
 import {
+  useTime,
   useValidation,
   useModelParser,
   CacheIsStaleError,
@@ -19,13 +20,14 @@ import { PhoneTypes } from "./types";
 import type { IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
-import type { QueryResponse, PaginatedParams } from "../..";
+import type { PaginatedParams } from "../..";
 import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 // -----------------------------------------------------------------------------// QUERIES
 // QUERIES
 
 const queryKey: QueryKey = ["client", "phones"];
+const { addError, addSuccess } = useFeedback();
 
 async function loadAll() {
   const { getAsync, useUrl } = useQuery();
@@ -33,11 +35,10 @@ async function loadAll() {
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
   return getAsync<IPhone[], Phone[]>({
-    url: useUrl(`clients/${client.id}/phones`, {
-      limit: 0,
-    }),
+    url: useUrl(`clients/${client.id}/phones`, { limit: 0 }),
     select: data => mapPhones(data ?? []),
     queryKey,
+    staleTime: useTime().DAY,
     withAccessToken: true,
   });
 }
@@ -53,16 +54,16 @@ async function loadPaged(paginationParams: PaginatedParams) {
     }),
     select: data => mapPhones(data ?? []),
     queryKey: [...queryKey, { ...paginationParams }],
+    staleTime: useTime().DAY,
     withAccessToken: true,
   });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedPhones =
-    queryClient.getQueryData<QueryResponse<Phone[]>>(queryKey);
+  const cachedPhones = queryClient.getQueryData<Phone[]>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
-  return cachedPhones.data;
+  return cachedPhones;
 }
 
 /**
@@ -117,8 +118,21 @@ async function add(data: PhoneModel) {
   return post<IPhone>({
     url: useUrl(`clients/${clientId}/phones`),
     data: mapIPhone(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error adding this phone",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully added phone");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function update(id: Phone["id"], data: PhoneModel) {
@@ -130,8 +144,21 @@ async function update(id: Phone["id"], data: PhoneModel) {
   return put<IPhone>({
     url: useUrl(`clients/${clientId}/phones/${id}`),
     data: mapIPhone(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error updating this phone",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully updated phone");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function remove(phoneId: Phone["id"]) {
@@ -142,8 +169,21 @@ async function remove(phoneId: Phone["id"]) {
 
   return del<null>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this phone",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey)();
+      addSuccess("Successfully removed phone");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function setDefault(phoneId: Phone["id"]) {
@@ -155,8 +195,22 @@ async function setDefault(phoneId: Phone["id"]) {
   return put<IPhone>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     data: { default: true },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this phone as default",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully set phone as default");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 // -----------------------------------------------------------------------------

@@ -161,7 +161,7 @@ async function update(id: Address["id"], data: AddressModel) {
       addSuccess("Successfully updated address");
     },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function remove(addressId: Address["id"]) {
@@ -186,7 +186,7 @@ async function remove(addressId: Address["id"]) {
       addSuccess("Successfully removed address");
     },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function setDefault(addressId: Address["id"]) {
@@ -213,7 +213,7 @@ async function setDefault(addressId: Address["id"]) {
       addSuccess("Successfully set address as default");
     },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 // -----------------------------------------------------------------------------

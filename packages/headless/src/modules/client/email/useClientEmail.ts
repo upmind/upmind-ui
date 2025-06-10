@@ -75,15 +75,15 @@ export const useClientEmail = (
     });
 
   const meta = computed(() => ({
-    isNew: stateMatches(state, "loading"),
-    isValid: stateMatches(state, "available.error"),
-    isLoading: stateMatches(state, "processing"),
-    hasErrors: stateMatches(state, "available.valid"),
-    canRemove: !stateMatches(state, "id"),
-    isDefault: !contextValue(state, "model.canDelete"),
-    isVerified: stateMatches(state, "model.default"),
-    isComplete: stateMatches(state, "model.verified"),
-    isProcessing: state.value.done || stateMatches(state, "complete"),
+    isNew: !stateMatches(state, "mode.id"),
+    isValid: stateMatches(state, "available.valid"),
+    isLoading: stateMatches(state, "loading"),
+    hasErrors: stateMatches(state, "available.error"),
+    canRemove: !stateMatches(state, "mode.canDelete"),
+    isDefault: !contextValue(state, "model.default"),
+    isVerified: stateMatches(state, "model.verified"),
+    isComplete: state.value.done || stateMatches(state, "complete"),
+    isProcessing: stateMatches(state, "processing"),
   }));
 
   // --- context
@@ -130,7 +130,7 @@ export const useClientEmail = (
   };
 
   const update = async () => {
-    // we have to ensure we are able to update the address, ie it's available and valid
+    // we have to ensure we are able to update the email, i.e., it's available and valid
     return waitFor(service, state => stateMatches(state, "available.valid"))
       .then(async () => {
         send({ type: "UPDATE" });
@@ -164,7 +164,7 @@ export const useClientEmail = (
     // --- state
 
     /**
-     * Resolves when the service is ready to accept input.
+     * Resolves when the email is ready for input or update.
      * Returns true if ready, false if an error occurred.
      * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
      */
@@ -178,12 +178,12 @@ export const useClientEmail = (
     // --- context
 
     /**
-     * The current email model being edited or viewed.
+     * Title of the email.
      */
     title,
 
     /**
-     * The current email model being edited or viewed.
+     * The current email model.
      */
     model,
 
@@ -198,7 +198,7 @@ export const useClientEmail = (
     schema,
 
     /**
-     * The full address context from the XState machine.
+     * The full email context from the XState machine.
      */
     context,
 
@@ -220,19 +220,19 @@ export const useClientEmail = (
     // --- methods
 
     /**
-     * Stops the service.
+     * Stops the email service.
      */
     stop,
 
     /**
-     * Clears the context.
+     * Clears the email context.
      */
     clear,
 
     /**
      * Inputs a new email model, resolving to the updated model.
-     * @param {EmailModel} model The email model to input.
-     * @return {Promise<EmailModel>} A promise resolving to the updated email model.
+     * @param {EmailModel} model - The email model to input.
+     * @returns {Promise<EmailModel>} The updated email model.
      */
     input,
 

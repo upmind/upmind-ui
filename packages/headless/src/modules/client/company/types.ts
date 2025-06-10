@@ -49,10 +49,6 @@ export interface Company {
   };
 }
 
-export type UseClientCompany = ReturnType<typeof useClientCompany>;
-
-export type UseClientCompanies = ReturnType<typeof useClientCompanies>;
-
 export interface CompanyContext extends ClientItemContext {
   emails?: UseClientEmails;
   phones?: UseClientPhones;
