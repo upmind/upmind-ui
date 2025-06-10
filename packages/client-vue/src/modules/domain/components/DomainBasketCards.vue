@@ -42,7 +42,7 @@ import { find, isEmpty, map } from "lodash-es";
 // --- types
 import { type ComputedRef } from "vue";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { DomainProduct } from "@upmind-automation/headless-vue";
+import type { DomainProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

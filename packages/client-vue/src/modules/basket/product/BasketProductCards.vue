@@ -37,7 +37,7 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasketProducts } from "@upmind-automation/headless-vue";
+import { useBasketProducts } from "@upmind-automation/headless";
 import BasketProduct from "./BasketProduct.vue";
 
 // --- components

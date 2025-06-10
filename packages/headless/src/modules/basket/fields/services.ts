@@ -10,6 +10,7 @@ import { useValidation } from "../../../utils";
 // --- types
 import type { FieldsContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -19,7 +20,7 @@ async function load(_context: FieldsContext, _event: AnyEventObject) {
   return get({
     url: useUrl("basket_fields"),
     queryKey: ["basket", "fields"],
-  }).then(({ data }: any) => ({ fields: data }));
+  }).then(data => ({ fields: data }));
 }
 
 async function update(
@@ -33,12 +34,12 @@ async function update(
     custom_fields: get(model, "customFields"),
   };
   // get returns a promise so we can pass it directly back to the machine
-  return put({
+  return put<IBasket>({
     url: useUrl(`/orders/${basketId}`),
     init: { signal: controller?.signal },
     data,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  }).then(({ data }) => data);
 }
 
 async function parse({ model }: FieldsContext, _event: AnyEventObject) {

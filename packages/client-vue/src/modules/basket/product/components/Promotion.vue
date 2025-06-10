@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind-automation/upmind-ui";
-import type { PromotionDetails } from "@upmind-automation/headless-vue";
+import type { PromotionDetails } from "@upmind-automation/headless";
 
 withDefaults(
   defineProps<

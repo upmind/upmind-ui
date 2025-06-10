@@ -11,7 +11,7 @@ import type {
   ICurrency,
   IAddress,
 } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
@@ -36,5 +36,5 @@ export interface PaymentContext extends PaymentArgs {
     url: URL["href"];
   };
   payment?: IPaymentAttempt & {};
-  error?: ResponseError | ErrorObject[];
+  error?: QueryResponseError | ErrorObject[];
 }

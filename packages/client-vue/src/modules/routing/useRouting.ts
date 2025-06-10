@@ -3,13 +3,13 @@ import {
   useDataLayer,
   useRoutingEngine,
   useRoutingFlows,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- utils
 import { isEqual, isNil } from "lodash-es";
 // --- types
 import type { Router, RouteLocation } from "vue-router";
-import { ROUTE, type Route, type Flow } from "@upmind-automation/headless-vue";
+import { ROUTE, type Route, type Flow } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 /**

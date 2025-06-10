@@ -8,7 +8,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import {
   utils,
   useSystemUpload,
-  ResponseError,
+  QueryResponseError,
 } from "@upmind-automation/headless";
 
 // --- utils
@@ -42,7 +42,7 @@ export const useUpload = (field: any) => {
           return file;
         } else {
           // throw
-          const error = get(state.value, "context.error") as ResponseError;
+          const error = get(state.value, "context.error") as QueryResponseError;
           throw error;
         }
       })

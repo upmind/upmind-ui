@@ -8,7 +8,7 @@ import type { UploadContext } from "./types";
 // --- utils
 import { useTime, useValidationParser, responseCodes } from "../../../utils";
 import { useFileParser, useFileSrcParser } from "./utils";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // ---
 export default createMachine(
@@ -139,7 +139,7 @@ export default createMachine(
 
       // ---
       setError: assign({
-        error: (_context: UploadContext, { data }: any) => {
+        error: (_context: UploadContext, { data }: AnyEventObject) => {
           let error = data?.error;
 
           if (data?.status == responseCodes.Unprocessable_Entity) {

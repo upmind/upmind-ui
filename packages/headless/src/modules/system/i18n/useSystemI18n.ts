@@ -6,7 +6,17 @@ import type { SupportedLocaleCodes } from "./locales";
 // --- utils
 import { useLocalStorage } from "../../../utils";
 
-import { uniq, map, compact, isEmpty, first, reduce, some } from "lodash-es";
+import {
+  uniq,
+  map,
+  compact,
+  isEmpty,
+  first,
+  reduce,
+  some,
+  isNil,
+} from "lodash-es";
+import { computed, ref } from "vue";
 
 // --- types
 import { QUERY_PARAMS } from "@upmind-automation/types";
@@ -14,13 +24,42 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 export const useSystemI18n = () => {
-  const { validateLanguage, getLanguages, isReady } = useBrand();
+  const {
+    validateLanguage,
+    languages: supportedLocales,
+    isReady: brandIsReady,
+  } = useBrand();
   const { get, set } = useLocalStorage();
+
+  // --- state
+  const loading = ref<boolean>(true);
+  const locale = ref<string | undefined>(undefined);
+
+  // immediately check if the brand is ready and set the locale
+  brandIsReady().then(() => {
+    locale.value = getLocale();
+    loading.value = false;
+  });
+
+  async function isReady(): Promise<boolean> {
+    return brandIsReady().then(() => {
+      return !isNil(getLocale());
+    });
+  }
+
+  const meta = computed(() => ({
+    isLoading: loading.value,
+    isAvailable: !isEmpty(supportedLocales.value),
+    hasLocale: !isEmpty(locale.value),
+  }));
+
+  // --- context
+
+  // --- methods
 
   function getLocale(): string | undefined {
     //  if we don't have a brand languages, we can't get the locale
-    const languages = getLanguages();
-    if (isEmpty(languages)) return get("i18n/locale");
+    if (isEmpty(supportedLocales.value)) return get("i18n/locale");
 
     // to set locale we do a few things:
     // 2. if not, check if we have any url params and use that if it is valid/supported by the brand
@@ -51,7 +90,7 @@ export const useSystemI18n = () => {
       preferredLocales,
       (result: string[], code: SupportedLocaleCodes) => {
         const exactMatch = some(
-          languages,
+          supportedLocales.value,
           language =>
             language.code.toLocaleLowerCase() == code.toLocaleLowerCase()
         );
@@ -60,7 +99,7 @@ export const useSystemI18n = () => {
         } else {
           const designator = first(code.split("-"));
           const designatorMatch = some(
-            languages,
+            supportedLocales.value,
             language => first(language.code.split("-")) === designator
           );
           if (designator && designatorMatch) result.push(designator);
@@ -79,7 +118,8 @@ export const useSystemI18n = () => {
 
   async function setDefaultLocale(): Promise<string> {
     await isReady();
-    const locale = getLocale();
+    const currentLocale = getLocale();
+
     // /**
     //  * @desc Here we silently clean 'locale' and 'lang' params from the URL
     //  * in case any were passed from an external source. */
@@ -89,25 +129,27 @@ export const useSystemI18n = () => {
     // cleanedUrl.searchParams.delete(QUERY_PARAMS.LANG);
     // window.history.replaceState("", "", cleanedUrl);
 
-    if (!locale) {
+    if (!currentLocale) {
       return Promise.reject(
         new DetailedError("No valid locale found", responseCodes.Not_Found, {
-          locale,
+          locale: currentLocale,
         })
       );
     }
 
-    return setLocale(locale);
+    return setLocale(currentLocale);
   }
 
   async function setLocale(code: string): Promise<string> {
     await isReady();
-    const locale = await validateLanguage({ code });
+    const validatedLocale = await validateLanguage({ code });
+
     // Switch i18n locale
     return new Promise((resolve, reject) => {
-      if (locale?.code) {
-        set("i18n/locale", locale.code);
-        return resolve(locale.code);
+      if (validatedLocale?.code) {
+        set("i18n/locale", validatedLocale.code);
+        locale.value = validatedLocale.code;
+        return resolve(validatedLocale.code);
       }
       return reject(
         new DetailedError("No valid locale found", responseCodes.Not_Found, {
@@ -117,11 +159,56 @@ export const useSystemI18n = () => {
     });
   }
 
+  // ---------------------------------------------------------------------------
+
   return {
+    // --- state
+
+    /**
+     * Checks if the i18n system is ready.
+     * @returns {Promise<boolean>} Resolves true if ready.
+     */
     isReady,
-    getLocale,
-    setDefaultLocale,
+
+    /**
+     * Meta information about the i18n state.
+     * @typedef {Object} SystemI18nMeta
+     * @property {boolean} isLoading - Indicates if the locale is currently loading.
+     * @property {boolean} isAvailable - Indicates if there are supported locales available.
+     * @property {boolean} hasLocale - Indicates if a locale is set.
+     */
+    meta,
+
+    // --- context
+
+    /**
+     * The current locale (reactive).
+     */
+    locale: computed(() => locale.value),
+
+    /**
+     * The supported locales (reactive).
+     */
+    supportedLocales,
+
+    // --- methods
+
+    /**
+     * Sets the current locale asynchronously.
+     * @param {string} newLocale - The new locale to set.
+     * @returns {Promise<string | undefined>} Resolves with the new locale.
+     */
     setLocale,
-    getSupportedlocales: getLanguages,
+
+    /**
+     * Sets the default locale based on all fallback logic.
+     * @return {Promise<string>} Resolves with the default locale.
+     */
+    setDefaultLocale,
   };
 };
+
+/**
+ * The return type of useSystem composable.
+ */
+export type UseSystemI18n = ReturnType<typeof useSystemI18n>;

@@ -170,7 +170,7 @@ async function createAddElement(
     data: {
       client_id,
     },
-  }).then(({ data }: any) => {
+  }).then(data => {
     // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
     const clientPaymentDetailsId = data?.client_payment_details?.id;
     const clientSecret = data?.gateway_specific?.client_secret;

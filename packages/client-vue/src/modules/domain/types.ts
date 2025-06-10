@@ -1,7 +1,4 @@
-import type {
-  DomainProduct,
-  DomainTypes,
-} from "@upmind-automation/headless-vue";
+import type { DomainProduct, DomainTypes } from "@upmind-automation/headless";
 import type { ButtonProps } from "@upmind-automation/upmind-ui";
 
 export interface DomainProps {

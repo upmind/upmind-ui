@@ -1,64 +1,61 @@
 // --- internal
-import { useQuery, useSession, useQueryPaginated } from "../..";
+import { useFeedback, useQuery, useSession } from "../..";
 
 // --- utils
 import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
+  useTime,
 } from "../../../utils";
 import { mapEmails, mapIEmail } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { isNil, isEmpty, get, set, defaultsDeep, first } from "lodash-es";
+import { isNil, isEmpty, get, first, isString } from "lodash-es";
 
 // --- types
+import { EmailTypes } from "./types";
 import type { IEmail } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { QueryResponse, PaginatedParams } from "../..";
 import type { Email, EmailModel, EmailContext } from "./types";
-import { EmailTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const queryKey: QueryKey = ["client", "emails"];
+const { addError, addSuccess } = useFeedback();
 
-async function loadAll({ allowStale = true } = {}) {
+async function loadAll() {
   const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Email[]>({
-    url: useUrl(`clients/${client.id}/emails`, {
-      limit: 0,
-    }),
+  return get<QueryResponse<IEmail[]>, Email[]>({
+    url: useUrl(`clients/${client.id}/emails`, { limit: 0 }),
     queryKey,
-    allowStale,
+    staleTime: useTime().DAY,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapEmails(response?.data ?? [])),
-  }).then(({ data }) => data);
+    select: ({ data }) => mapEmails(data ?? []),
+  });
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(params: PaginatedParams) {
+  const { get, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Email[]>({
-    url: useUrl(`clients/${client.id}/emails`),
-    queryKey: [...queryKey, { ...paginationParams }],
-    allowStale,
+  return get<QueryResponse<IEmail[]>, Email[]>({
+    url: useUrl(`clients/${client.id}/emails`, {
+      limit: params.pagination?.limit || 10,
+      offset: params.pagination?.offset || 0,
+      // sort: params.sort, // TODO: to be implemented
+      // filter: params.filters, // TODO: to be implemented
+    }),
+    queryKey: [...queryKey, params],
+    staleTime: useTime().DAY,
     withAccessToken: true,
-    transformResponse: (response: any) =>
-      set(response, "data", mapEmails(response?.data ?? [])),
-    revalidateIfStale: true,
-    ...paginationParams,
-  }).then(({ data }) => data ?? []);
+    select: ({ data }) => mapEmails(data ?? []),
+  });
 }
 
 function loadAllFromCache() {
@@ -78,7 +75,7 @@ async function loadLookups({
   model,
   schema,
 }: EmailContext): Promise<EmailContext> {
-  // we don't have any lookups for emails, so just return null
+  // we don't have any lookups for emails, so return null
   const baseModel: EmailModel = {
     email: "",
     type: first(EmailTypes)?.key || 1,
@@ -106,8 +103,9 @@ async function add(data: EmailModel) {
   return post<IEmail>({
     url: useUrl(`clients/${clientId}/emails`),
     data: mapIEmail(data),
+    onSuccess: invalidateQueryByKey(queryKey),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function update(id: Email["id"], data: EmailModel) {
@@ -119,8 +117,9 @@ async function update(id: Email["id"], data: EmailModel) {
   return put<IEmail>({
     url: useUrl(`clients/${clientId}/emails/${id}`),
     data: mapIEmail(data),
+    onSuccess: invalidateQueryByKey(queryKey),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function remove(emailId: Email["id"]) {
@@ -131,8 +130,21 @@ async function remove(emailId: Email["id"]) {
 
   return del<null>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
+    onSuccess: () => {
+      invalidateQueryByKey(queryKey);
+      addSuccess("Successfully removed email");
+    },
+    onError: (error: any) => {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this email",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function setDefault(emailId: Email["id"]) {
@@ -144,8 +156,22 @@ async function setDefault(emailId: Email["id"]) {
   return put<IEmail>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     data: { default: true },
+    onSuccess: () => {
+      invalidateQueryByKey(queryKey);
+      addSuccess("Successfully set email as default");
+    },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this email as default",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -190,7 +216,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -216,6 +242,6 @@ export const useClientEmailServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };

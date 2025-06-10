@@ -85,7 +85,7 @@
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useClientEmails } from "@upmind-automation/headless-vue";
+import { useClientEmails } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";

@@ -14,7 +14,7 @@ import { useSchema, useUischema } from "./utils";
 import { remove, xorBy, get, includes, isEmpty } from "lodash-es";
 
 // --- types
-import type { PromotionsContext, Promotion } from "./types";
+import type { PromotionsContext, PromotionModel } from "./types";
 import { responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ export default createMachine(
         uischema: (context: PromotionsContext) => useUischema(context),
         model: ({ schema, model }) => {
           if (!schema) return model;
-          return useModelParser<Promotion>(schema, model);
+          return useModelParser<PromotionModel>(schema, model);
         },
       }),
 
@@ -222,7 +222,7 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           if (!schema) return data ?? model;
-          return useModelParser<Promotion>(schema, data ?? model);
+          return useModelParser<PromotionModel>(schema, data ?? model);
         },
       }),
 

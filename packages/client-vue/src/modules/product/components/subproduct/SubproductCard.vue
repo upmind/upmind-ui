@@ -76,7 +76,7 @@ import SubproductCardPricing from "./SubproductCardPricing.vue";
 import Promotion from "../../../basket/product/components/Promotion.vue";
 
 // --- types
-import type { SubproductValue } from "@upmind-automation/headless-vue";
+import type { SubproductValue } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["update:quantity"]);
 const props = defineProps<

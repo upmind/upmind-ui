@@ -1,5 +1,5 @@
 import { IUser, IClient, AccessRoleTypes } from "@upmind-automation/types";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 export interface IAuthTransfer {
@@ -18,7 +18,7 @@ export interface SessionTransfer {
 
 export interface SessionContext {
   history?: string[];
-  error?: ResponseError;
+  error?: QueryResponseError;
   // ---
   transfer?: SessionTransfer;
 }

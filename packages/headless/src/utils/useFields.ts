@@ -206,6 +206,12 @@ export const useFieldsUischemaParser = (data: any, i18nKey = "fields") => {
           case "input_file":
           case "image":
             type = "file";
+            options.field = {
+              field_id: field?.id,
+              field_type: "client_custom_field",
+              field_is_default: false,
+            };
+
             break;
         }
 

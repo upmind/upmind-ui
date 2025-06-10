@@ -84,30 +84,20 @@
           </div>
         </div>
 
-        <!-- Forms & Renderers -->
+        <!-- Products Management -->
         <div>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between border-b">
-              <div>
-                <h5 class="font-medium">Address Renderer</h5>
-                <p class="mt-1 text-gray-600">Search and select an address</p>
-              </div>
-              <Button @click="router.push({ name: 'form.address' })">
-                <Icon icon="arrow-right" size="xs" />
-              </Button>
-            </div>
+          <h4 class="mb-4 text-lg font-medium">Products Management</h4>
 
-            <div class="flex items-center justify-between border-b">
-              <div>
-                <h5 class="font-medium">Domain Renderer</h5>
-                <p class="mt-1 text-gray-600">
-                  Search and manage basket domains
-                </p>
-              </div>
-              <Button @click="router.push({ name: 'form.domain' })">
-                <Icon icon="arrow-right" size="xs" />
-              </Button>
+          <div class="flex items-center justify-between border-b">
+            <div>
+              <h5 class="font-medium">Products Catalogue</h5>
+              <p class="mt-1 text-gray-600">
+                Browse and test the products catalogue API
+              </p>
             </div>
+            <Button @click="router.push({ name: 'products.catalogue' })">
+              <Icon icon="arrow-right" size="xs" />
+            </Button>
           </div>
         </div>
       </div>
@@ -119,14 +109,10 @@
 // --- external
 import { useRouter } from "vue-router";
 
-// --- internal
-
 // --- components
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-import { UpmContentSection, UpmCard } from "@upmind-automation/client-vue";
+import { UpmContentSection } from "@upmind-automation/client-vue";
 
-// --- types
-
-// -----------------------------------------------------------------------------
 const router = useRouter();
+// -----------------------------------------------------------------------------
 </script>

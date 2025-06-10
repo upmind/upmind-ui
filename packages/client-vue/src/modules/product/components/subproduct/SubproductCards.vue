@@ -68,7 +68,7 @@ import type {
 import type {
   SubproductDetails,
   SubproductValue,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

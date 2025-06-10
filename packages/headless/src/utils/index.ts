@@ -10,3 +10,5 @@ export * from "./useTranslation";
 export * from "./useUrl";
 export * from "./useValidation";
 export * from "./useState";
+
+export const DEBOUNCE_DELAY = 350;

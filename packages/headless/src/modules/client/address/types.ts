@@ -1,9 +1,11 @@
 // --- internal
+import { usePlaces } from "../places";
 import { useClientAddress } from "./useClientAddress";
 import { useClientAddresses } from "./useClientAddresses";
 
 // --- types
 import type { ClientItemContext } from "../types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type {
   ICountry,
   IRegion,
@@ -43,7 +45,7 @@ export interface Address extends AddressModel {
   // --- identifiers
   id: IAddress["id"];
   clientId: IAddress["client_id"];
-  // --- computed
+  // --- context
   title: string;
   description: string;
   // --- meta info
@@ -53,10 +55,6 @@ export interface Address extends AddressModel {
     isVerified: boolean;
   };
 }
-
-export type UseClientAddress = ReturnType<typeof useClientAddress>;
-
-export type UseClientAddresses = ReturnType<typeof useClientAddresses>;
 
 export interface AddressContext extends ClientItemContext {
   types?: typeof AddressTypes;

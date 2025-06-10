@@ -68,7 +68,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
-import { useBasketProduct } from "@upmind-automation/headless-vue";
+import { useBasketProduct } from "@upmind-automation/headless";
 
 // --- components
 import { Icon, Badge, Button, Link } from "@upmind-automation/upmind-ui";
@@ -83,7 +83,7 @@ import { omit } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { DomainCardProps } from "../types";
-import type { DomainProduct } from "@upmind-automation/headless-vue";
+import type { DomainProduct } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
   (e: "update:selected", domain: string): void;

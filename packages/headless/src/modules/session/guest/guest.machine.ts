@@ -42,7 +42,7 @@ import { omit } from "lodash-es";
 // --- types
 import { responseCodes } from "../../../utils";
 import { GrantTypes } from "@upmind-automation/types";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -401,7 +401,7 @@ export default createMachine(
             return {
               type: responseCodes.Unauthorized,
               message: data?.error?.message || "Unauthorized",
-            } as ResponseError;
+            } as QueryResponseError;
           }
           if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
@@ -416,12 +416,12 @@ export default createMachine(
       clearError: assign({ error: undefined }),
     },
     guards: {
-      requires2fa: (_context: GuestContext, { data }: any) => {
+      requires2fa: (_context: GuestContext, { data }: AnyEventObject) => {
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
       },
-      requiresReCaptcha: (_context: GuestContext, { data }: any) =>
+      requiresReCaptcha: (_context: GuestContext, { data }: AnyEventObject) =>
         !!data?.recaptcha_required,
     },
 

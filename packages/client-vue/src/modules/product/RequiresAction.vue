@@ -57,7 +57,7 @@ import {
   useProductsRequiringAction,
   useRoutingEngine,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- components
 import Basket from "../../assets/animations/basket.json?url";

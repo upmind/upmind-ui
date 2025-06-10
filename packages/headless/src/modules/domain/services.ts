@@ -56,7 +56,7 @@ async function search({
     gcTime: 0,
   }).then(async response => {
     return {
-      total: response.itemTotal,
+      total: response.pagination.total,
       available: await parseAvailable(sld, response.data ?? [], preferredCycle),
     };
   });
@@ -72,9 +72,7 @@ function getClientDomains({ controller }: DomainContext) {
     withAccessToken: true,
     staleTime: 0,
     gcTime: 0,
-  }).then(({ data }: any) =>
-    map(data, ({ domain_name }) => parseDomain(domain_name))
-  );
+  }).then(data => map(data, ({ domain_name }) => parseDomain(domain_name)));
 }
 // ---
 // async function parse(_context, _event) {

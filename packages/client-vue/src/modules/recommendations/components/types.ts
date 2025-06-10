@@ -2,7 +2,7 @@ import type {
   Recommendation,
   Benefit,
   ProductModel,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 import type { IconProps } from "@upmind-automation/upmind-ui";
 import type { ActorRef } from "xstate";
 

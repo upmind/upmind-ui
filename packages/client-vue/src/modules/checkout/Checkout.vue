@@ -139,7 +139,7 @@ import {
   useRoutingEngine,
   ROUTE,
   useDataLayer,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 import config from "./checkout.config";
 import { useStyles, Interstitial, Alert } from "@upmind-automation/upmind-ui";

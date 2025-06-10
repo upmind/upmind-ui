@@ -37,7 +37,7 @@ async function fetchCurrencies(
     url: useUrl("currencies", { limit: 0 }),
     queryKey: ["system", "currencies"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data as ICurrency[]);
+  });
 }
 
 async function fetchBillingCycles(
@@ -50,7 +50,7 @@ async function fetchBillingCycles(
     url: useUrl("billing_cycles", { limit: 0 }),
     queryKey: ["system", "billing-cycles"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data as IBillingCycle[]);
+  });
 }
 
 async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
@@ -60,7 +60,7 @@ async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data as ICountry[]);
+  });
 }
 
 async function fetchRegions(
@@ -74,9 +74,7 @@ async function fetchRegions(
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
     staleTime: useTime()?.DAY,
-  }).then(
-    ({ data }: any) => ({ key: code, values: data }) as Record<string, IRegion>
-  );
+  }).then(data => ({ key: code, values: data }) as Record<string, IRegion>);
 }
 
 async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
@@ -87,7 +85,7 @@ async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
     queryKey: ["system", "languages"],
     staleTime: useTime()?.DAY,
     withAccessToken: true,
-  }).then(({ data }: any) => data as ILanguage[]);
+  });
 }
 
 async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
@@ -97,7 +95,7 @@ async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
     url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data as IStatus);
+  });
 }
 
 async function fetchDepartments(
@@ -110,7 +108,7 @@ async function fetchDepartments(
     url: useUrl("tickets/departments", { limit: 0 }),
     queryKey: ["system", "departments"],
     staleTime: useTime()?.DAY,
-  }).then(({ data }: any) => data as ITicketDepartment[]);
+  });
 }
 
 // -----------------------------------------------------------------------------

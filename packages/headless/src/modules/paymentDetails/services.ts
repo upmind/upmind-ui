@@ -25,6 +25,7 @@ import { GatewayTypes } from "./gateways/types";
 import type { PaymentDetailsContext } from "./types";
 import { waitFor } from "xstate/lib/waitFor";
 import type { AnyEventObject } from "xstate";
+import { unref } from "process";
 
 // -----------------------------------------------------------------------------
 
@@ -40,7 +41,12 @@ async function load(
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
-  const { getBrandId, getCurrencyId, isReady, ensureConfig } = useBrand();
+  const {
+    brandId,
+    currencyId: defaultCurrencyId,
+    isReady,
+    ensureConfig,
+  } = useBrand();
   const { get: getRequest, useUrl } = useQuery();
 
   await isReady().catch(error => Promise.reject(error));
@@ -48,9 +54,8 @@ async function load(
   // ---
 
   const clientId = await getUserId();
-  const brandId = getBrandId();
 
-  const currencyId = currency?.id || getCurrencyId(); // fallback to default currency
+  const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   await ensureConfig([
     BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
@@ -70,7 +75,7 @@ async function load(
   const stored_payment_methods = getRequest({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
-      brand_id: brandId,
+      brand_id: unref(brandId),
       active: true,
       "filter[gateway.currencies.id]": currencyId,
       // "filter[active]": 1,
@@ -79,13 +84,16 @@ async function load(
       with: ["gateway", "client"].join(),
       // with_staged_imports: 1
     }),
-    queryKey: ["payment-details", { clientId, brandId, currencyId }],
+    queryKey: [
+      "payment-details",
+      { clientId, brandId: unref(brandId), currencyId },
+    ],
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 
   // ---
   const gateways = getRequest({
-    url: useUrl(`brands/${brandId}/gateways`, {
+    url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
       client_id: clientId,
       order: "order",
@@ -96,10 +104,10 @@ async function load(
     queryKey: [
       "payment-details",
       "gateways",
-      { brandId, clientId, currencyId },
+      { brandId: unref(brandId), clientId, currencyId },
     ],
     withAccessToken: true,
-  }).then(({ data }: any) => {
+  }).then(data => {
     // Whitelist payment gateways if provided
     if (whitelistGatewayProviders.length) {
       data = filter(data, ({ gateway }) => {

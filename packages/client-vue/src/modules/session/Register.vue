@@ -78,7 +78,7 @@ import {
   useRoutingEngine,
   useSession,
   ROUTE,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- components
 import { Button, Icon, Link } from "@upmind-automation/upmind-ui";

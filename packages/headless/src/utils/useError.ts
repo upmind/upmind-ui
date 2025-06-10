@@ -61,6 +61,15 @@ export class CacheIsNotAvailableError extends Error {
   }
 }
 
+export class UserIsNotAuthenticatedError extends Error {
+  code: number;
+  constructor() {
+    super(
+      "The user is not authenticated. Please make sure that you are logged in."
+    );
+    this.code = responseCodes.Unauthorized;
+  }
+}
 // -----------------------------------------------------------------------------
 
 export function unflattenErrors(data: any) {

@@ -9,6 +9,7 @@ import i18n from "./i18n";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { forEach } from "lodash-es";
+import useUpmind from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -17,11 +18,13 @@ const app = createApp(App);
 // ---
 
 UpmindClient.init({
+  app,
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
     region: import.meta.env.VITE_API_REGION,
   },
+  debug: import.meta.env.DEV,
   i18n: {
     provider: i18n,
     files: import.meta.env.DEV
@@ -29,6 +32,7 @@ UpmindClient.init({
       : import.meta.glob("@/assets/locales/**/*.json", { eager: true }), // compiled messages
   },
   router: {
+    enabled: false, // disable router by default, we will enable it later
     provider: router,
     flows: [],
   },
@@ -38,6 +42,8 @@ UpmindClient.init({
 });
 
 // ---
+app.use(router);
+app.use(i18n);
 
 forEach(uiPlugins, ({ plugin, options }) => {
   app.use(plugin, options);

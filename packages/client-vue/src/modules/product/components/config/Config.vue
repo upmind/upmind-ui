@@ -177,7 +177,7 @@ import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useProductConfig } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 

@@ -4,6 +4,8 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
+export * from "./useProductRecommendations";
+export * from "./useRecommendations";
 export * from "./types";
 
 // --- utils
@@ -45,8 +47,10 @@ function getRecommendations(pid?: ProductModel["productId"]) {
 }
 
 export const useRecommendationsEngine = () => {
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     isReady: async () =>
       waitFor(

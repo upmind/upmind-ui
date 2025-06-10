@@ -1,6 +1,6 @@
 // --- types
-import { ResponseError } from "src/modules/query";
-import type { IPhoneData } from "../../client/phone/types";
+import { QueryResponseError } from "../../query";
+import type { PhoneModel } from "../../client/phone/types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import { Token } from "../types";
@@ -11,7 +11,7 @@ type GuestModelType = LoginModel | RegisterModel | TWOFAModel | RecoverModel;
 
 export interface GuestContext<ModelType extends GuestModelType = any> {
   token: Token;
-  error?: ResponseError | ErrorObject[];
+  error?: QueryResponseError | ErrorObject[];
   // ---
   // TODO:
   // customFields: Array;
@@ -31,7 +31,7 @@ export interface RegisterModel {
   firstname?: string;
   lastname?: string;
   password?: string;
-  phone?: IPhoneData;
+  phone?: PhoneModel["phone"];
   customFields?: Record<string, any>;
 }
 

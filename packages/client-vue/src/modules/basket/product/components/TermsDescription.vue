@@ -19,7 +19,7 @@ import Description from "../../../../components/content/Description.vue";
 import { useI18n } from "vue-i18n";
 
 // --- types
-import type { TermDetails } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

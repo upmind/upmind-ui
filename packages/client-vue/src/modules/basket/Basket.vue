@@ -143,7 +143,7 @@ import {
   useBasket,
   useBasketFields,
   useDataLayer,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- components
 import {

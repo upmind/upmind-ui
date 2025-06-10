@@ -1,5 +1,9 @@
 <template>
-  <Suspense>
+  <Suspense
+    @pending="setLoading(true)"
+    @resolve="setLoading(false)"
+    @fallback="setLoading(true)"
+  >
     <div
       class="bg-background text-foreground relative flex min-h-screen flex-col items-start antialiased"
       :data-theme="activeTheme"
@@ -18,8 +22,12 @@
               <Page :class="styles.page" :key="$route.fullPath">
                 <Transition mode="out-in">
                   <KeepAlive>
-                    <Suspense>
-                      <!-- main content -->
+                    <Suspense
+                      @pending="setLoading(true)"
+                      @resolve="setLoading(false)"
+                      @fallback="setLoading(true)"
+                    >
+                      <!-- page content -->
                       <component :is="routerViewProps.Component" />
 
                       <!-- fallback / loading state -->
@@ -60,14 +68,7 @@ import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
-import {
-  useStyles,
-  useThemes,
-  type InterstitialProps,
-} from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { get } from "lodash-es";
+import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Header from "./components/header/Header.vue";
@@ -75,22 +76,30 @@ import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/content/Page.vue";
 import Loading from "./modules/system/Loading.vue";
 
-// types
+// --- utils
+import { get } from "lodash-es";
+
+// --- types
 import type { ComputedRef } from "vue";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
+
 const props = defineProps<{
   theme: any;
   logo?: string;
   loadingProps?: InterstitialProps;
 }>();
+const loading = ref(true);
 
+// -----------------------------------------------------------------------------
+
+const { activeTheme } = useThemes(props.theme);
 const currentRoute = useRoute();
 
 const route = computed(() =>
   get(currentRoute, "name", get(currentRoute, "path", ""))
 );
-const loading = ref(false);
 
 const styles = useStyles(["page"], {
   route,
@@ -99,5 +108,7 @@ const styles = useStyles(["page"], {
   page: string;
 }>;
 
-const { activeTheme } = useThemes(props.theme);
+function setLoading(value: boolean) {
+  loading.value = value;
+}
 </script>

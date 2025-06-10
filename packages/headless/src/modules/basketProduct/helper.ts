@@ -40,7 +40,7 @@ export function basketSubscription(callback: any, onReceive: any) {
   let isRefreshing = false;
 
   // let's let our subscriber know when the basket has been refreshed
-  const subscription = basket.service.subscribe((state: any) => {
+  const subscription = basket.subscribe((state: any) => {
     // mark the basket as refreshing
     if (state.matches("shopping.refreshing.processing")) {
       isRefreshing = true;
@@ -64,9 +64,12 @@ export function basketSubscription(callback: any, onReceive: any) {
             data: basket.getSnapshot()?.context?.basket,
           });
         })
-        .catch(error => {
+        .catch(() => {
           // console.error("basketHelper", "REFRESH", error);
-          callback({ type: "ERROR", data: error });
+          callback({
+            type: "ERROR",
+            data: basket.getSnapshot()?.context?.error,
+          });
         });
       return;
     }
@@ -322,7 +325,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           .finally(() => {
             basket
               .refresh()
-              .then(rawBasket =>
+              .then((rawBasket: IBasket) =>
                 callback({ type: "UPDATED", data: rawBasket })
               );
           });
@@ -360,7 +363,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             return rawBasket;
           })
           .then(rawBasket => {
-            return basket.refresh().then(rawBasket => {
+            return basket.refresh().then((rawBasket: IBasket) => {
               callback({ type: "UPDATED", data: rawBasket });
               return rawBasket;
             });
@@ -402,7 +405,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           .then(() => {
             basket
               .refresh()
-              .then(rawBasket =>
+              .then((rawBasket: IBasket) =>
                 callback({ type: "REMOVED", data: rawBasket })
               );
           })

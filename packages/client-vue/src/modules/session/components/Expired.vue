@@ -42,7 +42,7 @@
 import { ref, computed, watch } from "vue";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../sesssion.config";
 

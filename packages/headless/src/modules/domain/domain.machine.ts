@@ -41,7 +41,7 @@ import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import type { ProductModel, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -859,7 +859,7 @@ export default createMachine(
             type: responseCodes.Unprocessable_Entity,
             message: "Invalid domain",
             data: null,
-          } as ResponseError;
+          } as QueryResponseError;
         },
       }),
 

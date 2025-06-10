@@ -37,7 +37,7 @@ import type {
   Product,
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
 
 // --- props
