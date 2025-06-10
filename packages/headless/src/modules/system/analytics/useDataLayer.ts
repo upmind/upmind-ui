@@ -81,8 +81,8 @@ class TrackingEvent {
         environment: POP.name,
         version,
         language: locale?.toLocaleUpperCase(),
-        current_url: router?.to?.fullPath,
-        previous_url: router?.from?.fullPath,
+        current_url: window.location.href,
+        previous_url: window.document.referrer,
       },
       isNil
     );
