@@ -23,7 +23,7 @@ export const useProductCatalogue = () => {
     getPaged,
     invalidate,
     queryOptions,
-    getAllFromCache,
+    getCached,
   } = useUpmindProductCatalogue();
 
   const { error, meta, data, pagination } = useQuery<Product[]>(
@@ -39,7 +39,7 @@ export const useProductCatalogue = () => {
     pagination,
     // ---
     isReady,
-    getAllFromCache,
+    getCached,
     filter,
     getOne,
     findOne,

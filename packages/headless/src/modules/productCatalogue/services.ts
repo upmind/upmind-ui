@@ -8,7 +8,7 @@ import { CacheIsStaleError } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
-import type { QueryKey } from "@tanstack/query-core";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { PaginatedParams } from "../..";
 import { IProduct } from "@upmind-automation/types";
 
@@ -38,7 +38,7 @@ async function loadAll() {
   });
 }
 
-async function loadPaged(paginationParams: PaginatedParams) {
+async function load(paginationParams: PaginatedParams) {
   const { getAsync, useUrl } = useQuery();
 
   return getAsync<IProduct[], Product[]>({
@@ -59,7 +59,7 @@ async function loadPaged(paginationParams: PaginatedParams) {
   });
 }
 
-function loadAllFromCache() {
+function loadCached() {
   const { queryClient } = useQuery();
   const cached = queryClient.getQueryData<Product[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
@@ -73,7 +73,7 @@ export default {
   queryKey,
   //--- queries
   loadAll,
-  loadPaged,
+  load,
   refresh: loadAll,
-  loadAllFromCache,
+  loadCached,
 };

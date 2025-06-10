@@ -1,3 +1,6 @@
+// --- external
+import { ref } from "vue";
+
 // --- internal
 import { useQuery, useSystem, useSession, useBrand, useFeedback } from "../..";
 
@@ -6,6 +9,8 @@ import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
+  useTime,
+  UserIsNotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddresses, mapIAddress } from "./mappers";
@@ -14,9 +19,9 @@ import { find, first, get, isEmpty, isNil, isString, some } from "lodash-es";
 // --- types
 import { AddressTypes } from "./types";
 import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
-import type { QueryKey } from "@tanstack/query-core";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { PaginatedParams } from "../..";
+import type { QueryListParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -25,43 +30,36 @@ import type { Address, AddressContext, AddressModel } from "./types";
 const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
 
-async function loadAll() {
-  const { getAsync, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
+function loadList(params?: QueryListParams) {
+  const { get, useUrl } = useQuery();
+  const { meta, user } = useSession();
 
-  return getAsync<IAddress[], Address[]>({
-    url: useUrl(`clients/${client.id}/addresses`, {
+  return get<IAddress[], Address[]>({
+    queryKey: [...queryKey, params],
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
+    url: useUrl(`clients/${user.value!.id}/addresses`, {
       with: ["region", "country"].join(),
-      limit: 0,
+      ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
     }),
-    select: data => mapAddresses(data ?? []),
-    queryKey,
     withAccessToken: true,
+    // --- options
+    select: mapAddresses,
+    staleTime: useTime().DAY,
   });
 }
 
-async function loadPaged(params: PaginatedParams) {
-  const { getAsync, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
-
-  return getAsync<IAddress[], Address[]>({
-    url: useUrl(`clients/${client.id}/addresses`, {
-      with: ["region", "country"].join(),
-      ...params,
-    }),
-    select: data => mapAddresses(data ?? []),
-    queryKey: [...queryKey, { ...params }],
-    withAccessToken: true,
-  });
-}
-
-function loadAllFromCache() {
+function loadCached() {
   const { queryClient } = useQuery();
-  const cachedAddresses = queryClient.getQueryData<Address[]>(queryKey);
-  if (isNil(cachedAddresses)) throw new CacheIsStaleError();
-  return cachedAddresses;
+  const cached = queryClient.getQueryData<Address[]>(queryKey);
+  if (isNil(cached)) throw new CacheIsStaleError();
+  return cached;
 }
 
 /**
@@ -82,20 +80,10 @@ async function loadLookups({
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);
 
-  const { ensureConfig, getConfig } = useBrand();
-  await Promise.allSettled([
-    ensureConfig([
-      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
-      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
-    ]),
+  const { ensureConfig } = useBrand();
+  const config = await ensureConfig([
+    BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
   ]);
-
-  const config = getConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE) as Record<
-    BrandConfigKeys,
-    boolean
-  >;
 
   if (!countries || !regions) {
     return Promise.reject("Failed to load countries and regions");
@@ -237,18 +225,20 @@ async function setDefault(addressId: Address["id"]) {
 
 async function parse(
   { regions, country, baseModel, schema }: AddressContext,
-  { data }: AnyEventObject & { data: AddressModel }
+  { data }: AnyEventObject
 ) {
   // We need to check and potentially update the region list based on the selected country (if it's changed)
   const { fetchRegions, getCountry } = useSystem();
 
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
-  const safeModel: AddressModel = useModelParser(
+  const safeModel = useModelParser<AddressModel>(
     schema,
     get(data, "model", data),
     baseModel,
-    { allowExtraProps: false }
+    {
+      allowExtraProps: false,
+    }
   );
 
   // ---
@@ -277,7 +267,6 @@ async function parse(
 }
 
 async function validate({ schema, model }: Partial<AddressContext>) {
-  // ---
   if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
@@ -294,18 +283,14 @@ async function validate({ schema, model }: Partial<AddressContext>) {
 }
 
 // -----------------------------------------------------------------------------
-// EXPORTS
 
 export default {
   queryKey,
   //--- queries
-  loadAll,
-  loadPaged,
-  refresh: loadAll,
+  loadList,
+  loadCached,
 
-  loadAllFromCache,
   //--- mutations
-
   remove,
   setDefault,
 };
@@ -327,6 +312,6 @@ export const useClientAddressServices = () => {
     },
     parse,
     validate,
-    refresh: loadAll,
+    refresh: loadList,
   };
 };

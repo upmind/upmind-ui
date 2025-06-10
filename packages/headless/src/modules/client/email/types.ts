@@ -1,6 +1,4 @@
 // --- internal
-import { useClientEmail } from "./useClientEmail";
-import { useClientEmails } from "./useClientEmails";
 
 // --- types
 import type { IEmail } from "@upmind-automation/types";
@@ -28,4 +26,4 @@ export interface Email extends EmailModel {
   };
 }
 
-export interface EmailContext extends ClientItemContext {}
+export interface EmailContext extends ClientItemContext<EmailModel, Email> {}

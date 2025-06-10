@@ -1,5 +1,8 @@
+// --- external
+import { ref } from "vue";
+
 // --- internal
-import { useFeedback, useQuery, useSession } from "../..";
+import { useQuery, useSession, useFeedback } from "../..";
 
 // --- utils
 import {
@@ -7,59 +10,55 @@ import {
   useModelParser,
   CacheIsStaleError,
   useTime,
+  UserIsNotAuthenticatedError,
 } from "../../../utils";
-import { mapEmails, mapIEmail } from "./mappers";
 import { invalidateQueryByKey } from "../../query";
-import { isNil, isEmpty, get, first, isString } from "lodash-es";
+import { mapEmails, mapIEmail } from "./mappers";
+import { get, isEmpty, isNil, isString, first } from "lodash-es";
 
 // --- types
 import { EmailTypes } from "./types";
 import type { IEmail } from "@upmind-automation/types";
-import type { QueryKey } from "@tanstack/query-core";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { PaginatedParams } from "../..";
-import type { Email, EmailModel, EmailContext } from "./types";
+import type { QueryListParams } from "../..";
+import type { EmailContext, Email, EmailModel } from "./types";
 
 // -----------------------------------------------------------------------------
+// QUERIES
 
 const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
-async function loadAll() {
-  const { getAsync, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
+function loadList(params?: QueryListParams) {
+  const { get, useUrl } = useQuery();
+  const { meta, user } = useSession();
 
-  return getAsync<IEmail[], Email[]>({
-    url: useUrl(`clients/${client.id}/emails`, { limit: 0 }),
-    select: data => mapEmails(data ?? []),
-    queryKey,
-    staleTime: useTime().DAY,
-    withAccessToken: true,
-  });
-}
-
-async function loadPaged(params: PaginatedParams) {
-  const { getAsync, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
-
-  return getAsync<IEmail[], Email[]>({
-    url: useUrl(`clients/${client.id}/emails`, {
-      ...params,
-    }),
-    select: data => mapEmails(data ?? []),
+  return get<IEmail[], Email[]>({
     queryKey: [...queryKey, params],
-    staleTime: useTime().DAY,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
+    url: useUrl(`clients/${user.value!.id}/emails`, {
+      ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
+    }),
     withAccessToken: true,
+    // --- options
+    select: mapEmails,
+    staleTime: useTime().DAY,
   });
 }
 
-function loadAllFromCache() {
+function loadCached() {
   const { queryClient } = useQuery();
-  const cachedEmails = queryClient.getQueryData<Email[]>(queryKey);
-  if (isNil(cachedEmails)) throw new CacheIsStaleError();
-  return cachedEmails;
+  const cached = queryClient.getQueryData<Email[]>(queryKey);
+  if (isNil(cached)) throw new CacheIsStaleError();
+  return cached;
 }
 
 /**
@@ -99,6 +98,7 @@ async function add(data: EmailModel) {
   return post<IEmail>({
     url: useUrl(`clients/${clientId}/emails`),
     data: mapIEmail(data),
+    withAccessToken: true,
     onError(error: any) {
       addError({
         title: isString(error)
@@ -112,7 +112,6 @@ async function add(data: EmailModel) {
       invalidateQueryByKey(queryKey)(data);
       addSuccess("Successfully added email");
     },
-    withAccessToken: true,
   });
 }
 
@@ -186,8 +185,8 @@ async function setDefault(emailId: Email["id"]) {
         data: error?.data,
       });
     },
-    onSuccess() {
-      invalidateQueryByKey(queryKey);
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
       addSuccess("Successfully set email as default");
     },
     withAccessToken: true,
@@ -199,9 +198,9 @@ async function setDefault(emailId: Email["id"]) {
 
 async function parse(
   { baseModel, schema }: EmailContext,
-  { data }: AnyEventObject & { data: EmailContext }
+  { data }: AnyEventObject
 ) {
-  const safeModel = useModelParser(
+  const safeModel = useModelParser<EmailModel>(
     schema,
     get(data, "model", data),
     baseModel,
@@ -214,11 +213,12 @@ async function parse(
 }
 
 async function validate({ schema, model }: EmailContext) {
+  if (!schema) return Promise.resolve(model);
+
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
     const errors = validate(schema, model);
     if (errors?.length) {
       reject({ error: errors });
@@ -234,13 +234,10 @@ async function validate({ schema, model }: EmailContext) {
 export default {
   queryKey,
   //--- queries
-  loadAll,
-  loadPaged,
-  refresh: loadAll,
+  loadList,
+  loadCached,
 
-  loadAllFromCache,
   //--- mutations
-
   remove,
   setDefault,
 };
@@ -262,6 +259,6 @@ export const useClientEmailServices = () => {
     },
     parse,
     validate,
-    refresh: loadAll,
+    refresh: loadList,
   };
 };

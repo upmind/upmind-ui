@@ -6,7 +6,9 @@ import type {
   DefaultError,
   QueryObserverOptions,
   MutationObserverOptions,
+  QueryKey,
 } from "@tanstack/vue-query";
+import { MaybeRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -27,6 +29,7 @@ export interface QueryResponse<TData = unknown> {
 }
 
 export interface RequestParams {
+  guard?: () => Promise<boolean>;
   url: URL;
   data?: unknown;
   init?: RequestInit;
@@ -39,7 +42,7 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData" | "placeholderData"
+    "queryFn" | "initialData"
   >;
 
 export type MutationParams<
@@ -53,32 +56,13 @@ export type MutationParams<
     "mutationFn"
   >;
 
-export interface PaginatedParams {
+export interface QueryListParamsRaw {
   sort?: [direction: ApiSortDirection, property: string];
-  filters?: IApiFilter[];
-  pagination?: IAPIPagination;
+  filters?: IApiFilter[] | undefined;
+  pagination?: IAPIPagination | undefined;
 }
 
-// QueryResponse Types
-
-// export interface PaginatedData<T extends unknown> {
-//   // response related
-//   data: T | null | undefined;
-//   // pagination related
-//   pagination?: {
-//     total: number;
-//     pages: number;
-//     limit: number;
-//     offset: number;
-//     current: number;
-//   };
-//   // meta related
-//   hasNextPage: boolean;
-//   hasPrevPage: boolean;
-//   // function related
-//   nextPage: () => Promise<PaginatedData<T>>;
-//   prevPage: () => Promise<PaginatedData<T>>;
-// }
+export type QueryListParams = MaybeRef<QueryListParamsRaw>;
 
 // ---  ENUMS
 

@@ -1,10 +1,5 @@
 // --- internal
-import {
-  useQuery,
-  QueryObserver,
-  invalidateQueryByKey,
-  useQuerySubscription,
-} from "../../query";
+import { useQuery, invalidateQueryByKey } from "../../query";
 import service from "./unifiedAddress/services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
@@ -25,26 +20,8 @@ import {
 
 // --- types
 import type { UnifiedAddress } from "./unifiedAddress";
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
 import { useBrand } from "../../brand";
 import { BrandConfigKeys } from "@upmind-automation/types";
-
-let observer: QueryObserver | undefined;
-
-/**
- * Subscribe to the client address query that are present in the cache.
- * This will trigger the callback function when the query is ready/updated.
- * @param callback The callback function to be called when the query is ready/updated.
- * @returns The unsubscribe function
- */
-const subscribe = (
-  callback: (query: QueryCacheNotifyEvent["query"]) => void
-): QueryObserver => {
-  if (!observer) {
-    observer = useQuerySubscription(service.queryKey, callback);
-  }
-  return observer;
-};
 
 export const useBillingDetails = () => {
   const { addError } = useFeedback();
@@ -57,11 +34,13 @@ export const useBillingDetails = () => {
    * @returns A promise that resolves to true when the unified addresses are ready to be fetched.
    * @example isReady().then(getAll).then(() => console.log("Details are ready"))
    */
-  async function isReady(): Promise<void> {
+  async function isReady(): Promise<boolean> {
     await ensureConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE);
     await ensureConfig(BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS);
 
-    return isAuthenticated();
+    return isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
   }
 
   /**
@@ -100,9 +79,9 @@ export const useBillingDetails = () => {
   /**
    * Get all the unified addresses from the cache.
    * @returns An array of parsed unified addresses if found, otherwise an empty array.
-   * @example getAllFromCache().then((addresses) => console.log(addresses))
+   * @example getCached().then((addresses) => console.log(addresses))
    */
-  function getAllFromCache() {
+  function getCached() {
     const unifiedAddressesQuery = queryClient.getQueryData<{
       data: UnifiedAddress[];
     }>(service.queryKey);
@@ -116,7 +95,7 @@ export const useBillingDetails = () => {
    * @example getOne("123").then((address) => console.log(address))
    */
   function getOne(id: string) {
-    const unifiedAddresses = getAllFromCache();
+    const unifiedAddresses = getCached();
     return find(unifiedAddresses, ["id", id]);
   }
 
@@ -127,7 +106,7 @@ export const useBillingDetails = () => {
    * @example findOne("home").then((address) => console.log(address))
    */
   function findOne(mapping: string | Partial<UnifiedAddress>) {
-    const unifiedAddresses = getAllFromCache();
+    const unifiedAddresses = getCached();
     if (isString(mapping)) {
       return find(
         unifiedAddresses,
@@ -155,7 +134,7 @@ export const useBillingDetails = () => {
    * @example filter("home").then((addresses) => console.log(addresses))
    */
   function filterUnifiedAddresses(param: string) {
-    const addresses = getAllFromCache();
+    const addresses = getCached();
     return filter(
       addresses,
       item =>
@@ -257,7 +236,7 @@ export const useBillingDetails = () => {
     filter: filterUnifiedAddresses,
     findOne,
     getDefault,
-    getAllFromCache,
+    getCached,
     remove,
     setDefault,
     invalidate: async () => {

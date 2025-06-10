@@ -455,18 +455,19 @@ export const useValidationParser = (error: any): ErrorObject[] => {
 };
 
 export const useModelParser = <
-  T extends Record<string, any> = Record<string, any>,
+  TModel extends Record<string, any> = Record<string, any>,
+  TBaseModel = TModel,
 >(
   schema: JsonSchema | undefined,
-  values?: Partial<T>,
-  baseModel?: Partial<T>,
+  values?: Partial<TModel>,
+  baseModel?: Partial<TBaseModel>,
   {
     allowExtraProps,
   }: {
     allowExtraProps?: boolean;
   } = { allowExtraProps: true }
-): T => {
-  if (!schema?.properties) return (values ?? baseModel ?? {}) as T;
+): TModel => {
+  if (!schema?.properties) return (values ?? baseModel ?? {}) as TModel;
 
   const model = reduce(
     schema.properties,
@@ -478,9 +479,9 @@ export const useModelParser = <
     },
     {} as Record<string, any>
   );
-  if (!allowExtraProps) return model as T;
+  if (!allowExtraProps) return model as TModel;
 
-  return defaultsDeep(model, values) as T;
+  return defaultsDeep(model, values) as TModel;
 };
 
 // -----------------------------------------------------------------------------

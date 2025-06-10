@@ -198,15 +198,15 @@ export const useBasket = (): any => {
 
   // --- context
 
-  const basket = useContext<IBasket>(state, "basket");
-  const basketId = useContext<IBasket["id"]>(state, "basket.id");
+  const basket = useContext<BasketContext["basket"]>(state, "basket");
+  const basketId = useContext<BasketContext["basket"]>(state, "basket.id");
   const context = useContext<BasketContext>(state);
   const currency = useContext<ICurrency>(state, "basket.currency");
   const errors = useContext<QueryResponseError>(state, "error");
   const invoice = useContext<IInvoice>(state, "invoice");
   const products = useContext<IBasketProduct[]>(state, "products", []);
   // productsInvalid: computed(() => filter( products.value, product => !isEmpty(product?.errors))),
-  const summary = useContext(state, "summary");
+  const summary = useContext<BasketContext["summary"]>(state, "summary");
   const promotions = useContext<IPromotion[]>(state, "basket.promotions", []);
   const promotionCodes = computed(
     () => map(promotions.value, "promotion.code") as IPromotion["code"][]

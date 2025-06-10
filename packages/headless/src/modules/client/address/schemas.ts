@@ -1,7 +1,8 @@
-import { compact, map, reduce } from "lodash-es";
+import { compact, get, map, reduce } from "lodash-es";
 
 import type { Address, AddressContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { BrandConfigKeys } from "@upmind-automation/types";
 
 export function useSchema({
   id,
@@ -9,6 +10,7 @@ export function useSchema({
   regions,
   baseModel,
   countries,
+  config,
 }: AddressContext): JsonSchema {
   const schema = {
     type: "object",
@@ -86,8 +88,15 @@ export function useSchema({
     },
   };
 
+  // ensure that id we are editing an existing address, that we require the name
   if (id) {
     schema.required.push("name");
+  }
+
+  // ensure we honor the brand config
+  if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
+    debugger;
+    schema.required.push("regionId");
   }
 
   return schema as JsonSchema;

@@ -49,7 +49,7 @@ export const useBasketBillingDetails = () => {
   }));
 
   // --- context
-  const data = computed(() => getAllFromCache());
+  const data = computed(() => getCached());
 
   // --- methods
 
@@ -69,7 +69,7 @@ export const useBasketBillingDetails = () => {
     });
   }
 
-  function getAllFromCache() {
+  function getCached() {
     const unifiedAddressesQuery = queryClient.getQueryData<{
       data: UnifiedAddress[];
     }>(service.queryKey);
@@ -77,12 +77,12 @@ export const useBasketBillingDetails = () => {
   }
 
   function getOne(id: string) {
-    const unifiedAddresses = getAllFromCache();
+    const unifiedAddresses = getCached();
     return find(unifiedAddresses, ["id", id]);
   }
 
   function findOne(mapping: string | Partial<UnifiedAddress>) {
-    const unifiedAddresses = getAllFromCache();
+    const unifiedAddresses = getCached();
     if (isString(mapping)) {
       return find(
         unifiedAddresses,
@@ -103,7 +103,7 @@ export const useBasketBillingDetails = () => {
   }
 
   function filterUnifiedAddresses(param: string) {
-    const addresses = getAllFromCache();
+    const addresses = getCached();
     return filter(
       addresses,
       item =>
@@ -207,7 +207,7 @@ export const useBasketBillingDetails = () => {
      * Gets all billing details from cache.
      * @returns {UnifiedAddress[]} The cached billing details.
      */
-    getAllFromCache,
+    getCached,
 
     /**
      * Gets all billing details.

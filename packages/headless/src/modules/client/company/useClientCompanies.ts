@@ -1,87 +1,95 @@
 // --- external
-import { ref, computed } from "vue";
-import { useQuery, keepPreviousData } from "@tanstack/vue-query";
+import { computed, ref, unref } from "vue";
 
 // --- internal
 import service from "./services";
-import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { invalidateQueryByKey } from "../../query";
 
 // --- utils
-import { find, filter, includes, isEmpty, isNumber } from "lodash-es";
+import {
+  get,
+  find,
+  every,
+  filter,
+  isEmpty,
+  includes,
+  isString,
+  isNumber,
+  add,
+  subtract,
+} from "lodash-es";
 
 // --- types
 import type { Company } from "./types";
-import type { PaginatedParams, IAPIPagination } from "../../query";
+import type {
+  QueryListParamsRaw,
+  QueryListParams,
+  IAPIPagination,
+} from "../../query";
 
-export const useClientCompanies = (params: PaginatedParams = {}) => {
+export const useClientCompanies = (initial?: QueryListParamsRaw) => {
   // --- state
 
-  const { isAuthenticated } = useSession();
+  const queryParams = ref<QueryListParams>(unref(initial ?? {}));
 
-  const pagination = ref<IAPIPagination | undefined>(params.pagination);
+  const { isAuthenticated, meta: sessionMeta } = useSession();
 
-  const page = computed(() => {
-    const limit = pagination.value?.limit;
-    const offset = pagination.value?.offset;
-    return limit && offset !== undefined ? Math.floor(offset / limit) + 1 : -1;
-  });
-
-  const hasPagination = computed(() => page.value > -1);
-
-  const query = useQuery<Company[]>({
-    queryFn: () =>
-      hasPagination.value
-        ? service.loadPaged({ pagination: pagination.value })
-        : service.loadAll(),
-    queryKey: computed(() => [
-      ...service.queryKey,
-      { pagination: pagination.value },
-    ]),
-    staleTime: useTime().DAY,
-    placeholderData: keepPreviousData,
-  });
+  const query = service.loadList(queryParams);
 
   const meta = computed(() => ({
-    isError: !isEmpty(query.error.value),
+    isLoading: query?.isFetching,
+    hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
-    isLoading: query?.fetchStatus.value === "fetching",
+    isAvailable: sessionMeta.value.isAuthenticated,
   }));
 
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
-      .then(() => true)
+      .then(() =>
+        query
+          .refetch()
+          .then(() => true)
+          .catch(() => false)
+      )
       .catch(() => false);
   }
+
+  // --- context
 
   // --- methods
 
   function getOne(id: Company["id"]) {
-    const companies = getAllFromCache();
-    return find(companies, ["id", id]);
+    return find(service.loadCached(), ["id", id]);
   }
 
-  function getAllFromCache() {
-    return service.loadAllFromCache();
-  }
+  function findOne(mapping: string | Partial<Company>) {
+    const items = service.loadCached();
+    if (isString(mapping)) {
+      return find(
+        items,
+        item =>
+          includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
+          includes(item.description.toLowerCase(), mapping.toLowerCase())
+      );
+    }
 
-  function findOne(param: string) {
-    const companies = getAllFromCache();
-    return find(
-      companies,
-      item =>
-        includes(item.name.toLowerCase(), param.toLowerCase()) ||
-        includes(item.description.toLowerCase(), param.toLowerCase())
+    return find(items, item =>
+      every(mapping, (value, key) => {
+        if (key == "id") {
+          return item.id == value;
+        }
+        const modelValue = get(item, key);
+        return modelValue == value;
+      })
     );
   }
 
-  function filterCompanies(param: string) {
-    const companies = getAllFromCache();
+  function filterAll(param: string) {
     return filter(
-      companies,
+      service.loadCached(),
       item =>
-        includes(item.name.toLowerCase(), param.toLowerCase()) ||
+        includes(item.title.toLowerCase(), param.toLowerCase()) ||
         includes(item.description.toLowerCase(), param.toLowerCase())
     );
   }
@@ -91,7 +99,9 @@ export const useClientCompanies = (params: PaginatedParams = {}) => {
   }
 
   function getDefault() {
-    return find(query.data.value, "meta.isDefault");
+    return find(query.data.value || [], "meta.isDefault") as
+      | Company
+      | undefined;
   }
 
   async function setDefault(id: Company["id"]) {
@@ -99,131 +109,145 @@ export const useClientCompanies = (params: PaginatedParams = {}) => {
   }
 
   function nextPage() {
-    const limit = pagination.value?.limit;
-    const offset = pagination.value?.offset ?? 0;
+    const limit = queryParams.value?.pagination?.limit;
+    const offset = queryParams.value?.pagination?.offset ?? 0;
 
     if (isNumber(limit)) {
-      pagination.value = {
-        ...pagination.value,
-        offset: offset + limit,
+      queryParams.value.pagination = {
+        ...(queryParams.value?.pagination ?? {}),
+        offset: add(offset, limit),
       };
     }
   }
 
   function prevPage() {
-    const limit = pagination.value?.limit;
-    const offset = pagination.value?.offset ?? 0;
+    const limit = queryParams.value?.pagination?.limit;
+    const offset = queryParams.value?.pagination?.offset ?? 0;
 
     if (isNumber(limit) && offset >= limit) {
-      pagination.value = {
-        ...pagination.value,
-        offset: offset - limit,
+      queryParams.value.pagination = {
+        ...(queryParams.value?.pagination ?? {}),
+        offset: subtract(offset, limit),
       };
     }
   }
 
   function setPagination(value: IAPIPagination) {
-    pagination.value = { ...pagination.value, ...value };
+    queryParams.value.pagination = {
+      ...(queryParams.value?.pagination ?? {}),
+      ...value,
+    };
   }
+
+  // ---------------------------------------------------------------------------
 
   return {
     // --- state
 
     /**
-     * Checks if the client 'companies' data is ready to be used.
-     * This resolves to true if the user is authenticated and the query is ready.
-     * @return A promise that resolves to a boolean indicating readiness.
+     * Resolves when the client items are ready to be used.
+     * Returns true if ready, false if an error occurred.
+     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
      */
     isReady,
 
     /**
-     * Computed meta-information about the companies.
+     * Meta information about the basket state.
+     * @typedef {Object} BasketMeta
+     * @property {boolean} isError - Indicates if there was an error during the query.
+     * @property {boolean} isEmpty - Indicates if the basket is empty.
+     * @property {boolean} isLoading - Indicates if the query is currently loading.
+     * @property {boolean} isAuthenticated - Indicates if the user is authenticated.
      */
     meta,
 
-    /**
-     * The current page number.
-     * If pagination is not set, it defaults to -1.
-     */
-    page,
+    // --- context
 
     /**
-     * The reactive data property containing the list of client companies.
+     * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
     data: query.data,
 
     /**
-     * Indicates if pagination is available.
-     * If pagination is not set, it defaults to false.
+     * The current error state of the query.
+     * This will be populated if the query fails to fetch data.
      */
-    pagination,
+    error: query.error,
+
+    /**
+     * Indicates if pagination is available
+     * If pagination is not set, it defaults to false.
+     * Otherwise, it returns the pagination object from the query parameters.
+     * @return {boolean|IAPIPagination} The pagination object if available, otherwise false.
+     */
+    pagination: computed(
+      (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
+    ),
 
     // --- methods
 
     /**
-     * Resolves when the client companies are ready to be used.
-     * Returns true if ready, false if an error occurred.
-     * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
+     * Get a single company by id.
+     * @param id The id of the company to get.
+     * @returns The company object if found, is otherwise undefined.
      */
     getOne,
 
     /**
-     * Get all client companies from the cache.
-     * This is useful for accessing the cached data without making a new request.
-     * @returns An array of all client companies.
+     * Get all the items from the cache.
+     * @returns An array of parsed items if found, otherwise an empty array.
      */
-    getAllFromCache,
+    getCached: service.loadCached,
 
     /**
-     * Finds a single company by its name or description.
-     * @param param The name or description to search for.
+     * Find a single company based on the given param. The param is matched against the title and description.
+     * @param mapping The filter to match against the company title and description.
      * @returns The company object if found, is otherwise undefined.
      */
     findOne,
 
     /**
-     * Filters companies based on a search parameter.
-     * @param param The name or description to filter by.
-     * @returns An array of companies that match the search parameter.
+     * Filters the items by name or description.
+     * @param param The filter string to filter the items with.
+     * @returns An array of items that match the filter.
      */
-    filter: filterCompanies,
+    filter: filterAll,
 
     /**
-     * Remove a company by its id.
+     * Remove an company by id.
      * @param id The id of the company to remove.
      * @returns A promise that resolves when the company is removed.
      */
     remove,
 
     /**
-     * Get the default company.
-     * This retrieves the company marked as default from the list of companies.
-     * @returns A promise that resolves to the default company if found, otherwise undefined.
+     * Get the default company for the current client.
+     * @returns The default company if found, is otherwise undefined.
      */
     getDefault,
 
     /**
-     * Set a company as the default company.
+     * Set an company as default.
      * @param id The id of the company to set as default.
-     * @returns A promise that resolves when the default company is set.
+     * @returns A promise that resolves when the company is set as default.
      */
     setDefault,
 
     /**
-     * Go to the next page of companies.
-     * Increments the page number by 1 if pagination is enabled.
-     * This will only work if the current offset is less than the total number of companies.
-     * @param {number} [limit] The number of companies per page, defaults to the current pagination limit.
+     * Go to the next page of items.
+     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
+     * This will only work if the current offset is less than the total number of items.
+     * @param value The new pagination parameters to set.
      * @return {void}
      */
     nextPage,
 
     /**
-     * Go to the previous page of companies.
+     * Go to the previous page of items.
      * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
      * This will only work if the current offset is greater than or equal to the limit.
-     * @param {number} [limit] The number of companies per page, defaults to the current pagination limit.
+     * @param value The new pagination parameters to set.
      * @return {void}
      */
     prevPage,
@@ -237,8 +261,8 @@ export const useClientCompanies = (params: PaginatedParams = {}) => {
     setPagination,
 
     /**
-     * Invalidate the query cache for client companies.
-     * This will trigger a refetch of the companies when the next query is made.
+     * Invalidate the query cache for client items.
+     * This will trigger a refetch of the items when the next query is made.
      * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
      * @return {void}
      */

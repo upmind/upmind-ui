@@ -33,7 +33,7 @@
     "type": "git",
     "url": "git@git.upmind.io:upmind/upmind-monorepo.git"
   },
-  "packageManager": "pnpm@10.11.1",
+  "packageManager": "pnpm@10.12.1",
   "scripts": {
     "clean": "rm -rf */**/{node_modules,dist,bin,lib,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "start": "pnpm -r start",

@@ -9,8 +9,9 @@ import { get, compact } from "lodash-es";
 import { useModelParser } from "../../../utils";
 
 // --- types
-import type { AddressContext } from "./types";
+import { AddressModel, type AddressContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { AddressMode } from "@stripe/stripe-js";
 
 // -----------------------------------------------------------------------------
 
@@ -41,7 +42,7 @@ export const useClientAddressActions = () => {
       model: (
         { schema, baseModel }: AddressContext,
         { data }: AnyEventObject
-      ) => useModelParser(schema, data, baseModel),
+      ) => useModelParser<AddressModel>(schema, data, baseModel),
     }),
   };
 };

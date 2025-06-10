@@ -1,10 +1,8 @@
 // --- external
-import { ref, computed } from "vue";
-import { useQuery, keepPreviousData } from "@tanstack/vue-query";
+import { computed, ref, unref } from "vue";
 
 // --- internal
 import service from "./services";
-import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { invalidateQueryByKey } from "../../query";
 
@@ -18,74 +16,65 @@ import {
   includes,
   isString,
   isNumber,
+  add,
+  subtract,
 } from "lodash-es";
 
 // --- types
 import type { Address } from "./types";
-import type { PaginatedParams, IAPIPagination } from "../../query";
+import type {
+  QueryListParamsRaw,
+  QueryListParams,
+  IAPIPagination,
+} from "../../query";
 
-export const useClientAddresses = (params: PaginatedParams = {}) => {
+export const useClientAddresses = (initial?: QueryListParamsRaw) => {
   // --- state
 
-  const { isAuthenticated } = useSession();
+  const queryParams = ref<QueryListParams>(unref(initial ?? {}));
 
-  const pagination = ref<IAPIPagination | undefined>(params.pagination);
+  const { isAuthenticated, meta: sessionMeta } = useSession();
 
-  const page = computed(() => {
-    const limit = pagination.value?.limit;
-    const offset = pagination.value?.offset;
-    return limit && offset !== undefined ? Math.floor(offset / limit) + 1 : -1;
-  });
-
-  const hasPagination = computed(() => page.value > -1);
-
-  const query = useQuery<Address[]>({
-    queryFn: () =>
-      hasPagination.value
-        ? service.loadPaged({ pagination: pagination.value })
-        : service.loadAll(),
-    queryKey: computed(() => [
-      ...service.queryKey,
-      { pagination: pagination.value },
-    ]),
-    staleTime: useTime().DAY,
-    placeholderData: keepPreviousData,
-  });
+  const query = service.loadList(queryParams);
 
   const meta = computed(() => ({
-    isError: !isEmpty(query.error.value),
+    isLoading: query?.isFetching,
+    hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
-    isLoading: query?.fetchStatus.value === "fetching",
+    isAvailable: sessionMeta.value.isAuthenticated,
   }));
 
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
-      .then(() => true)
+      .then(() =>
+        query
+          .refetch()
+          .then(() => true)
+          .catch(() => false)
+      )
       .catch(() => false);
   }
+
+  // --- context
 
   // --- methods
 
   function getOne(id: Address["id"]) {
-    return find(getAllFromCache(), ["id", id]);
-  }
-
-  function getAllFromCache() {
-    return service.loadAllFromCache();
+    return find(service.loadCached(), ["id", id]);
   }
 
   function findOne(mapping: string | Partial<Address>) {
-    const addresses = getAllFromCache();
+    const items = service.loadCached();
     if (isString(mapping)) {
       return find(
-        addresses,
+        items,
         item =>
           includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
           includes(item.description.toLowerCase(), mapping.toLowerCase())
       );
     }
 
-    return find(addresses, item =>
+    return find(items, item =>
       every(mapping, (value, key) => {
         if (key == "id") {
           return item.id == value;
@@ -96,9 +85,9 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     );
   }
 
-  function filterAddresses(param: string) {
+  function filterAll(param: string) {
     return filter(
-      getAllFromCache(),
+      service.loadCached(),
       item =>
         includes(item.title.toLowerCase(), param.toLowerCase()) ||
         includes(item.description.toLowerCase(), param.toLowerCase())
@@ -110,7 +99,9 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   }
 
   function getDefault() {
-    return find(query.data.value, "meta.isDefault");
+    return find(query.data.value || [], "meta.isDefault") as
+      | Address
+      | undefined;
   }
 
   async function setDefault(id: Address["id"]) {
@@ -118,65 +109,81 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
   }
 
   function nextPage() {
-    const limit = pagination.value?.limit;
-    const offset = pagination.value?.offset ?? 0;
+    const limit = queryParams.value?.pagination?.limit;
+    const offset = queryParams.value?.pagination?.offset ?? 0;
 
     if (isNumber(limit)) {
-      pagination.value = {
-        ...pagination.value,
-        offset: offset + limit,
+      queryParams.value.pagination = {
+        ...(queryParams.value?.pagination ?? {}),
+        offset: add(offset, limit),
       };
     }
   }
 
   function prevPage() {
-    const limit = pagination.value?.limit;
-    const offset = pagination.value?.offset ?? 0;
+    const limit = queryParams.value?.pagination?.limit;
+    const offset = queryParams.value?.pagination?.offset ?? 0;
 
     if (isNumber(limit) && offset >= limit) {
-      pagination.value = {
-        ...pagination.value,
-        offset: offset - limit,
+      queryParams.value.pagination = {
+        ...(queryParams.value?.pagination ?? {}),
+        offset: subtract(offset, limit),
       };
     }
   }
 
   function setPagination(value: IAPIPagination) {
-    pagination.value = { ...pagination.value, ...value };
+    queryParams.value.pagination = {
+      ...(queryParams.value?.pagination ?? {}),
+      ...value,
+    };
   }
+
+  // ---------------------------------------------------------------------------
 
   return {
     // --- state
 
     /**
-     * Resolves when the client addresses are ready to be used.
+     * Resolves when the client items are ready to be used.
      * Returns true if ready, false if an error occurred.
      * @returns {Promise<boolean>} A promise resolving to true if ready, false if error.
      */
     isReady,
 
     /**
-     * Computed meta-information about the addresses.
+     * Meta information about the basket state.
+     * @typedef {Object} BasketMeta
+     * @property {boolean} isError - Indicates if there was an error during the query.
+     * @property {boolean} isEmpty - Indicates if the basket is empty.
+     * @property {boolean} isLoading - Indicates if the query is currently loading.
+     * @property {boolean} isAuthenticated - Indicates if the user is authenticated.
      */
     meta,
 
-    /**
-     * The current page number.
-     * If pagination is not set, it defaults to -1.
-     */
-    page,
+    // --- context
 
     /**
-     * The reactive data property containing the list of client addresses.
+     * The reactive data property containing the list of client items.
      * This is populated by the query and updates automatically when the query state changes.
      */
     data: query.data,
 
     /**
-     * Indicates if pagination is available.
-     * If pagination is not set, it defaults to false.
+     * The current error state of the query.
+     * This will be populated if the query fails to fetch data.
      */
-    pagination,
+    error: query.error,
+
+    /**
+     * Indicates if pagination is available
+     * If pagination is not set, it defaults to false.
+     * Otherwise, it returns the pagination object from the query parameters.
+     * @return {boolean|IAPIPagination} The pagination object if available, otherwise false.
+     */
+    pagination: computed(
+      (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
+    ),
 
     // --- methods
 
@@ -188,10 +195,10 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     getOne,
 
     /**
-     * Get all the addresses from the cache.
-     * @returns An array of parsed addresses if found, otherwise an empty array.
+     * Get all the items from the cache.
+     * @returns An array of parsed items if found, otherwise an empty array.
      */
-    getAllFromCache,
+    getCached: service.loadCached,
 
     /**
      * Find a single address based on the given param. The param is matched against the title and description.
@@ -201,11 +208,11 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     findOne,
 
     /**
-     * Filters the addresses by name or description.
-     * @param param The filter string to filter the addresses with.
-     * @returns An array of addresses that match the filter.
+     * Filters the items by name or description.
+     * @param param The filter string to filter the items with.
+     * @returns An array of items that match the filter.
      */
-    filter: filterAddresses,
+    filter: filterAll,
 
     /**
      * Remove an address by id.
@@ -228,16 +235,16 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     setDefault,
 
     /**
-     * Go to the next page of addresses.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of addresses.
-     * This will only work if the current offset is less than the total number of addresses.
+     * Go to the next page of items.
+     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
+     * This will only work if the current offset is less than the total number of items.
      * @param value The new pagination parameters to set.
      * @return {void}
      */
     nextPage,
 
     /**
-     * Go to the previous page of addresses.
+     * Go to the previous page of items.
      * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
      * This will only work if the current offset is greater than or equal to the limit.
      * @param value The new pagination parameters to set.
@@ -254,8 +261,8 @@ export const useClientAddresses = (params: PaginatedParams = {}) => {
     setPagination,
 
     /**
-     * Invalidate the query cache for client addresses.
-     * This will trigger a refetch of the addresses when the next query is made.
+     * Invalidate the query cache for client items.
+     * This will trigger a refetch of the items when the next query is made.
      * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
      * @return {void}
      */

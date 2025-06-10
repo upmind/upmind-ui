@@ -34,8 +34,8 @@ export const useProductCategories = () => {
    *
    * @return {IProductCategory[]} An array of product categories retrieved from the cache.
    */
-  function getAllFromCache(): IProductCategory[] {
-    return service.loadAllFromCache();
+  function getCached(): IProductCategory[] {
+    return service.loadCached();
   }
 
   /**
@@ -45,7 +45,7 @@ export const useProductCategories = () => {
    * @return {IProductCategory | undefined} The product category object if found, otherwise undefined.
    */
   function getOne(id: Product["id"]): IProductCategory | undefined {
-    const items = getAllFromCache();
+    const items = getCached();
     return find(items, ["id", id]);
   }
 
@@ -59,7 +59,7 @@ export const useProductCategories = () => {
   function findOne(
     mapping: string | Partial<IProductCategory>
   ): IProductCategory | undefined {
-    const items = getAllFromCache();
+    const items = getCached();
     if (isString(mapping)) {
       return find(
         items,
@@ -88,7 +88,7 @@ export const useProductCategories = () => {
    * @return {IProductCategory[]} An array of filtered product categories that match the search string.
    */
   function filterProducts(param: string): IProductCategory[] {
-    const items = getAllFromCache();
+    const items = getCached();
     return filter(
       items,
       item =>
@@ -109,7 +109,7 @@ export const useProductCategories = () => {
     getOne,
     filter: filterProducts,
     findOne,
-    getAllFromCache,
+    getCached,
     invalidate: invalidateQueryByKey(service.queryKey),
   };
 };
