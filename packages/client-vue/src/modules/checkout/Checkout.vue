@@ -40,11 +40,7 @@
             </template>
             <component :is="props.cardComponent">
               <slot name="billing-details">
-                <BillingDetails
-                  :model-value="billingDetailsModel"
-                  @update:modelValue="billingDetailsUpdate"
-                  :color="color"
-                />
+                <BillingDetails />
               </slot>
             </component>
           </component>
@@ -191,8 +187,6 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
   };
 }>;
 
-const { model: billingDetailsModel, update: billingDetailsUpdate } =
-  useBasketBillingDetails();
 // -----------------------------------------------------------------------------
 await isResolved(ROUTE.CHECKOUT);
 await isReady().then(() => isAuthenticated().catch(back));
@@ -278,7 +272,7 @@ const processingIcon = computed(() => {
 watch(meta, (value, oldValue) => {
   // TEMP: DC added this log to be able to debug production using sentry when we have issues with the checkout not being Ready/Able to actually Check Out
   if (!isEqual(value, oldValue)) {
-    console.debug("** Checkout State **", {
+    console.info("** Checkout State **", {
       state: state.value,
       value,
     });

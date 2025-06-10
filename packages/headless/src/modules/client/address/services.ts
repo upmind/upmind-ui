@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery, useSystem, useSession, useFeedback } from "../..";
+import { useQuery, useSystem, useSession, useBrand, useFeedback } from "../..";
 
 // --- utils
 import {
@@ -13,7 +13,7 @@ import { find, first, get, isEmpty, isNil, isString, some } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "./types";
-import type { IAddress } from "@upmind-automation/types";
+import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { PaginatedParams } from "../..";
@@ -82,6 +82,21 @@ async function loadLookups({
   const country = getCountry(model?.countryId);
   const regions = await fetchRegions(model?.countryId || country?.id);
 
+  const { ensureConfig, getConfig } = useBrand();
+  await Promise.allSettled([
+    ensureConfig([
+      BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
+      BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
+      BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
+    ]),
+  ]);
+
+  const config = getConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE) as Record<
+    BrandConfigKeys,
+    boolean
+  >;
+
   if (!countries || !regions) {
     return Promise.reject("Failed to load countries and regions");
   }
@@ -103,6 +118,7 @@ async function loadLookups({
     regions,
     country,
     countries,
+    config,
     // ---
     model: safeModel,
     baseModel: safeModel,

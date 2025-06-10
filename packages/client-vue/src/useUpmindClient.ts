@@ -58,7 +58,6 @@ class UpmindClient {
     if (this.status != UpmindStatus.notInitialised) return Promise.resolve();
 
     this.status = UpmindStatus.initialising;
-
     this.router = router;
     this.i18n = i18n;
 

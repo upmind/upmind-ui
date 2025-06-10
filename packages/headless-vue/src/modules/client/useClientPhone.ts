@@ -59,6 +59,7 @@ export const useClientPhone = (
     // ---
     clear,
     input: debounce((model: PhoneModel) => input(model), 300),
+    set: (model: PhoneModel) => input(model),
     update,
     stop,
   };

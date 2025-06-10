@@ -12,12 +12,23 @@ import {
   isEqual,
   isEmpty,
   startsWith,
+  isFunction,
 } from "lodash-es";
 
 // --- types
 import type { CountryCode, PhoneNumber } from "libphonenumber-js";
 import type { KeywordDefinition } from "ajv";
 // -----------------------------------------------------------------------------
+
+export const useComposableKeyword: KeywordDefinition = {
+  keyword: "use",
+  validate: (data: any) => {
+    return isFunction(data);
+  },
+  error: {
+    message: () => "Value must be of type SchemaFormComposable",
+  },
+};
 
 export const phoneCountryCodeKeyword: KeywordDefinition = {
   keyword: "phone_country_code",

@@ -73,7 +73,7 @@ export const useRecommendationsEngine= () => {
 ```
 
 ```javascript
-import { useRecommendationsEngine } from "@upmind-automation/headless-vue";
+import { useRecommendationsEngine } from "@upmind-automation/headless";
 const { state } = useRecommendationsEngine();
 
 // ...

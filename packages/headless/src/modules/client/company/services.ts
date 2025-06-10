@@ -3,7 +3,13 @@ import { useClientPhones } from "../phone";
 import { useClientEmails } from "../email";
 import { useClientAddresses } from "../address";
 import { invalidateQueryByKey } from "../../query";
-import { useFeedback, useQuery, useSession } from "../..";
+import {
+  useQuery,
+  useSession,
+  useClientCompanies,
+  useSystem,
+  useFeedback,
+} from "../..";
 
 // --- utils
 import {
@@ -11,6 +17,7 @@ import {
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
+import { get, set, isEmpty, isNil, isString } from "lodash-es";
 import { mapCompanies, mapICompany } from "./mappers";
 import { get, isNil, isEmpty, isString } from "lodash-es";
 
@@ -19,7 +26,9 @@ import type { ICompany } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
 import type { CompanyContext, Company } from "./types";
-import type { PaginatedParams, CompanyModel } from "../..";
+import type { PaginatedParams, QueryResponse, CompanyModel } from "../..";
+import { parsePhoneNumber } from "libphonenumber-js";
+import { useSchema } from "./schemas";
 
 // -----------------------------------------------------------------------------
 // Queries
@@ -75,45 +84,50 @@ async function loadLookups({
   model,
   schema,
 }: CompanyContext): Promise<CompanyContext> {
-  // let's start up/use our dependencies
-  const emails = useClientEmails();
-  const phones = useClientPhones();
-  const addresses = useClientAddresses();
+  const { getAll: getPhones, getDefault: getDefaultPhone } = useClientPhones();
+  const { getAll: getEmails, getDefault: getDefaultEmail } = useClientEmails();
+  const { getAll: getCompanies } = useClientCompanies();
+  const { getAll: getAddresses, getDefault: getDefaultAddress } =
+    useClientAddresses();
 
-  return Promise.all([
-    emails.isReady(),
-    phones.isReady(),
-    addresses.isReady(),
-  ]).then(async () => {
-    const [defaultEmail, defaultPhone, defaultAddress] = await Promise.all([
-      emails.getDefault(),
-      phones.getDefault(),
-      addresses.getDefault(),
-    ]);
+  const { getCountry } = useSystem();
+  const defaultCountry = getCountry();
 
-    const baseModel: CompanyModel = {
-      emailId: defaultEmail?.id,
-      phoneId: defaultPhone?.id,
-      addressId: defaultAddress?.id,
-      default: false, // Provide a default value
-      name: "", // Provide a default value
-      regNumber: "", // Provide a default value
-      vatNumber: "", // Provide a default value
-    };
+  const [phones, emails, addresses] = await Promise.all([
+    getPhones(),
+    getEmails(),
+    getAddresses(),
+    getCompanies(),
+  ]);
 
-    const safeModel = useModelParser<CompanyModel>(schema, model, baseModel, {
-      allowExtraProps: false,
-    });
+  const defaultAddress = await getDefaultAddress();
+  const defaultPhone = await getDefaultPhone();
+  const defaultEmail = await getDefaultEmail();
 
-    return {
-      emails,
-      phones,
-      addresses: addresses.data.value,
-      // ---
-      model: safeModel,
-      baseModel: safeModel,
-    } as CompanyContext;
+  const baseModel: CompanyModel = {
+    emailId: model?.emailId || defaultEmail?.id,
+    addressId: model?.addressId || defaultAddress?.id,
+    phoneId: model?.phoneId || defaultPhone?.id,
+    phone: model?.phone || defaultPhone?.phone,
+    default: model?.default ?? false,
+    name: model?.name ?? "",
+    regNumber: model?.regNumber ?? "",
+    vatNumber: model?.vatNumber ?? "",
+  };
+
+  const safeModel = useModelParser<CompanyModel>(schema, model, baseModel, {
+    allowExtraProps: false,
   });
+
+  return {
+    emails,
+    phones,
+    addresses,
+    country: defaultCountry,
+    // ---
+    model: safeModel,
+    baseModel: safeModel,
+  } as CompanyContext;
 }
 
 // -----------------------------------------------------------------------------
