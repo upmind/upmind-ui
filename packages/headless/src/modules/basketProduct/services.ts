@@ -1,36 +1,34 @@
 // --- external
 
 // --- internal
-import { QueryResponse, useQuery } from "../..";
 import { useBrand } from "../brand";
+import { QueryResponse, useQuery } from "../..";
 
 // --- utils
+import { parseQuantity } from "../product/utils";
 import { unflattenErrors, useTime } from "../../utils";
 import { parseBasketProductData, parseBasketProductError } from "./utils";
-import { parseQuantity } from "../product/utils";
 
 import {
+  get,
+  map,
+  set,
+  first,
+  isNil,
   concat,
   filter,
-  first,
-  forEach,
-  get,
-  isEmpty,
-  map,
   reduce,
-  set,
+  forEach,
+  isEmpty,
   isArray,
-  isFunction,
-  isNil,
 } from "lodash-es";
-import { ActorRef } from "xstate";
-import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import { BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
+import type { IBasket } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { ProductDetails, ProductModel } from "../product";
-import type { BasketProduct, IBasketProductModel } from "../basketProduct";
-import { ErrorObject } from "ajv";
+import type { BasketProduct, IBasketProductModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -72,7 +70,7 @@ async function fetch(
   ]);
 
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
@@ -93,7 +91,7 @@ async function fetch(
   if (basketId) set(params, "basket_id", basketId);
   if (bpid) set(params, "basket_product_id", bpid);
 
-  return getRequest({
+  return getAsync({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "basket",
@@ -107,7 +105,7 @@ async function fetch(
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
-  }).then(({ data }) => data);
+  });
 }
 
 /**
@@ -119,7 +117,7 @@ async function fetch(
  * @param {string[]} [context.promotions] - An array of promotion IDs (optional).
  * @param {Object} event - The event containing product IDs.
  * @param {Object} event.data - The data object containing product IDs.
- * @param {string[]} context.data.productIds - An array of product IDs to fetch.
+ * @param {string[]} event.data.productIds - An array of product IDs to fetch.
  * @returns {Promise<any>} A promise that resolves with the fetched product data or rejects with an error message.
  * @throws Will reject with "No Product ID provided" if no product IDs are given.
  */
@@ -134,14 +132,14 @@ async function fetchSelected(
     promotions?: string[];
   },
   { data: { productIds } }: { data: { productIds: string[] } }
-) {
+): Promise<any> {
   if (isEmpty(productIds))
     return Promise.reject(new Error("No Product ID provided"));
 
   // let's ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -163,7 +161,7 @@ async function fetchSelected(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  return getRequest({
+  return getAsync({
     url: useUrl(`basket/products/`, params),
     queryKey: [
       "basket",
@@ -176,7 +174,7 @@ async function fetchSelected(
       },
     ],
     withAccessToken: true,
-  }).then(({ data }) => data);
+  });
 }
 
 /**
@@ -187,10 +185,10 @@ async function fetchSelected(
  * @param context.currencyId - The ID of the currency (optional).
  * @param context.promotions - An array of promotion IDs (optional).
  * @param options - Additional options for fetching related products.
- * @param event.data - The data for fetching related products.
- * @param event.data.productId - The ID of the product.
- * @param event.data.limit - The maximum number of related products to fetch (default is 4).
- * @param event.data.offset - The offset for pagination (default is 0).
+ * @param options.data - The data object containing the product ID and pagination options.
+ * @param options.data.productId - The ID of the product.
+ * @param options.data.limit - The maximum number of related products to fetch (default is 4).
+ * @param options.data.offset - The offset for pagination (default is 0).
  * @returns A promise that resolves to the related products data.
  * @throws Will reject the promise if no product ID is provided.
  */
@@ -219,7 +217,7 @@ async function fetchRelated(
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { get: getRequest, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -244,7 +242,7 @@ async function fetchRelated(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  return getRequest({
+  return getAsync({
     url: useUrl(`basket/products/${productId}/related`, params),
     queryKey: [
       "basket",
@@ -260,7 +258,7 @@ async function fetchRelated(
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day
     withAccessToken: true,
-  }).then(({ data }) => data);
+  });
 }
 
 /**

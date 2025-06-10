@@ -1,8 +1,10 @@
 // --- external
 import { ref, computed } from "vue";
+import { useQuery, keepPreviousData } from "@tanstack/vue-query";
 
 // --- internal
 import service from "./services";
+import { useTime } from "../../../utils";
 import { useSession } from "../../session";
 import { invalidateQueryByKey } from "../../query";
 
@@ -21,16 +23,12 @@ import {
 
 // --- types
 import type { Email } from "./types";
-import type { UseQueryReturnType } from "@tanstack/vue-query";
 import type { PaginatedParams, IAPIPagination } from "../../query";
 
 export const useClientEmails = (params: PaginatedParams = {}) => {
   // --- state
 
   const { isAuthenticated } = useSession();
-
-  const query = ref<UseQueryReturnType<Email[], Error>>();
-
   const pagination = ref<IAPIPagination | undefined>(params.pagination);
 
   const page = computed(() => {
@@ -39,36 +37,37 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
     return limit && offset !== undefined ? Math.floor(offset / limit) + 1 : -1;
   });
 
-  /**
-   * Check if the client emails are loaded and ready.
-   * @returns A promise that resolves to true when the emails are ready to be fetched.
-   */
+  const hasPagination = computed(() => page.value > -1);
+
+  const query = useQuery<Email[]>({
+    queryFn: () =>
+      hasPagination.value
+        ? service.loadPaged({ pagination: pagination.value })
+        : service.loadAll(),
+    queryKey: computed(() => [
+      ...service.queryKey,
+      { pagination: pagination.value },
+    ]),
+    staleTime: useTime().DAY,
+    placeholderData: keepPreviousData,
+  });
+
+  const meta = computed(() => ({
+    isError: !isEmpty(query.error.value),
+    isEmpty: isEmpty(query?.data?.value),
+    isLoading: query?.fetchStatus.value === "fetching",
+  }));
+
   async function isReady(): Promise<boolean> {
     return isAuthenticated()
       .then(() => true)
       .catch(() => false);
   }
 
-  const meta = computed(() => ({
-    isError: !isEmpty(query.value?.error.value),
-    isEmpty: isEmpty(query?.value?.data?.value),
-    isLoading: query?.value?.fetchStatus.value === "fetching",
-  }));
-
   // --- methods
 
   function getOne(id: Email["id"]) {
     return find(getAllFromCache(), ["id", id]);
-  }
-
-  async function getAll() {
-    query.value = await service.loadAll();
-    // TODO: we should update pagination based on the response
-  }
-
-  async function getPaged(params: PaginatedParams) {
-    query.value = await service.loadPaged(params);
-    // TODO: we should update pagination based on the response
   }
 
   function getAllFromCache() {
@@ -106,8 +105,8 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
     return service.remove(id);
   }
 
-  async function getDefault() {
-    return find(query.value?.data, "meta.isDefault");
+  function getDefault() {
+    return find(query.data.value, "meta.isDefault");
   }
 
   async function setDefault(id: Email["id"]) {
@@ -162,6 +161,12 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
     page,
 
     /**
+     * The reactive data property containing the list of client emails.
+     * This is populated by the query and updates automatically when the query state changes.
+     */
+    data: query.data,
+
+    /**
      * Indicates if pagination is available.
      * If pagination is not set, it defaults to false.
      */
@@ -175,19 +180,6 @@ export const useClientEmails = (params: PaginatedParams = {}) => {
      * @returns A promise that resolves to an email or undefined.
      */
     getOne,
-
-    /**
-     * Get all the emails for the current client.
-     * @returns A promise that resolves to an array of emails.
-     */
-    getAll,
-
-    /**
-     * Get emails in a paged format.
-     * @param params The pagination parameters to use.
-     * @returns A promise that resolves to an object containing the emails and pagination details.
-     */
-    getPaged,
 
     /**
      * Get all the emails for the client from the cache.

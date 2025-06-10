@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery, useSystem, useSession, useBrand } from "../..";
+import { useQuery, useSystem, useSession, useBrand, useFeedback } from "../..";
 
 // --- utils
 import {
@@ -9,55 +9,59 @@ import {
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddresses, mapIAddress } from "./mappers";
-import { find, first, get, isEmpty, isNil, some } from "lodash-es";
+import { find, first, get, isEmpty, isNil, isString, some } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "./types";
 import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
-import type { QueryResponse, PaginatedParams } from "../..";
+import type { PaginatedParams } from "../..";
 import type { Address, AddressContext, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["client", "addresses"];
+const { addError, addSuccess } = useFeedback();
 
 async function loadAll() {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddress[]>({
+  return getAsync<IAddress[], Address[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
       limit: 0,
     }),
+    select: data => mapAddresses(data ?? []),
+    queryKey,
     withAccessToken: true,
-  }).then(({ data }) => mapAddresses(data ?? []));
+  });
 }
 
-async function loadPaged(paginationParams: PaginatedParams) {
-  const { get, useUrl } = useQuery();
+async function loadPaged(params: PaginatedParams) {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IAddress[]>({
+  return getAsync<IAddress[], Address[]>({
     url: useUrl(`clients/${client.id}/addresses`, {
       with: ["region", "country"].join(),
+      ...params,
     }),
+    select: data => mapAddresses(data ?? []),
+    queryKey: [...queryKey, { ...params }],
     withAccessToken: true,
-    ...paginationParams,
-  }).then(({ data }) => mapAddresses(data ?? []));
+  });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedAddresses =
-    queryClient.getQueryData<QueryResponse<Address[]>>(queryKey);
+  const cachedAddresses = queryClient.getQueryData<Address[]>(queryKey);
   if (isNil(cachedAddresses)) throw new CacheIsStaleError();
-  return cachedAddresses.data;
+  return cachedAddresses;
 }
 
 /**
@@ -133,8 +137,21 @@ async function add(data: AddressModel) {
   return post<IAddress>({
     url: useUrl(`clients/${clientId}/addresses`),
     data: mapIAddress(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error adding this address",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully added address");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function update(id: Address["id"], data: AddressModel) {
@@ -146,8 +163,21 @@ async function update(id: Address["id"], data: AddressModel) {
   return put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${id}`),
     data: mapIAddress(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error updating this address",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully updated address");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function remove(addressId: Address["id"]) {
@@ -158,8 +188,21 @@ async function remove(addressId: Address["id"]) {
 
   return del<null>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this address",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey);
+      addSuccess("Successfully removed address");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function setDefault(addressId: Address["id"]) {
@@ -171,8 +214,22 @@ async function setDefault(addressId: Address["id"]) {
   return put<IAddress>({
     url: useUrl(`clients/${clientId}/addresses/${addressId}`),
     data: { default: true },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this address as default",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey);
+      addSuccess("Successfully set address as default");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 // -----------------------------------------------------------------------------

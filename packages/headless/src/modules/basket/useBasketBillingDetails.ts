@@ -19,7 +19,7 @@ import { useFeedback } from "../feedback";
 import { useClientAddresses, useClientCompanies } from "../client";
 
 // --- types
-import type { UnifiedAddress } from "./billing/unifiedAddress";
+import type { UnifiedAddress } from "./billing";
 
 // -----------------------------------------------------------------------------
 
@@ -53,14 +53,11 @@ export const useBasketBillingDetails = () => {
 
   // --- methods
 
-  async function getAll({ allowStale = true } = {}) {
-    const { getAll: getAddresses } = useClientAddresses();
+  async function getAll() {
+    const { data: addresses } = useClientAddresses();
     const { getAll: getCompanies } = useClientCompanies();
-    return Promise.all([
-      getCompanies({ allowStale }),
-      getAddresses(), // removed argument here
-    ]).then(([companies, addresses]) => {
-      const unifiedAddresses = [...companies, ...addresses];
+    return Promise.all([getCompanies()]).then(([companies]) => {
+      const unifiedAddresses = [...companies, ...(addresses.value || [])];
       queryClient.setQueryData(service.queryKey, {
         data: unifiedAddresses,
         meta: {
@@ -150,7 +147,7 @@ export const useBasketBillingDetails = () => {
   }
 
   async function refresh() {
-    return getAll({ allowStale: false });
+    return getAll();
   }
 
   async function invalidate() {

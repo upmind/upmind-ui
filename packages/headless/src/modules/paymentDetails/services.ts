@@ -47,7 +47,7 @@ async function load(
     isReady,
     ensureConfig,
   } = useBrand();
-  const { get: getRequest, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   await isReady().catch(error => Promise.reject(error));
 
@@ -72,7 +72,7 @@ async function load(
 
   // ---
 
-  const stored_payment_methods = getRequest({
+  const stored_payment_methods = getAsync<any>({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
@@ -92,7 +92,7 @@ async function load(
   });
 
   // ---
-  const gateways = getRequest({
+  const gateways = getAsync<any>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
       client_id: clientId,
@@ -108,7 +108,7 @@ async function load(
     ],
     withAccessToken: true,
   }).then(data => {
-    // Whitelist payment gateways if provided
+    // Allowlist payment gateways if provided
     if (whitelistGatewayProviders.length) {
       data = filter(data, ({ gateway }) => {
         return includes(

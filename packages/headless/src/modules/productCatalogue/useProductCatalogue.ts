@@ -1,10 +1,6 @@
 // --- internal
-import {
-  QueryObserver,
-  invalidateQueryByKey,
-  useQuerySubscription,
-} from "../query";
 import service from "./services";
+import { invalidateQueryByKey } from "../query";
 
 // --- utils
 import { useTime } from "../../utils";
@@ -13,29 +9,7 @@ import { find, filter, includes, isString, every, get } from "lodash-es";
 // --- types
 import type { Product } from "../product";
 import type { PaginatedParams } from "../query";
-import type { QueryCacheNotifyEvent, QueryKey } from "@tanstack/query-core";
-
-let observer: QueryObserver | undefined;
-
-/**
- * Subscribes to a query change event and attaches a callback function to handle updates.
- *
- * This method ensures a query observer is created if it does not already exist and uses it to monitor changes
- * in the associated query. The provided callback function will be invoked whenever the specified query emits
- * an update event.
- *
- * @param {function} callback - A function that will be called whenever the observed query updates. The callback
- *                              receives the updated query as its argument.
- * @returns {QueryObserver} - The observer instance that is used to monitor the query.
- */
-const subscribe = (
-  callback: (query: QueryCacheNotifyEvent["query"]) => void
-): QueryObserver => {
-  if (!observer) {
-    observer = useQuerySubscription(service.queryKey, callback);
-  }
-  return observer;
-};
+import type { QueryKey } from "@tanstack/query-core";
 
 /**
  * A function that provides access to and operations on the product catalogue.
@@ -49,12 +23,10 @@ export const useProductCatalogue = () => {
   /**
    * Retrieves all available data by invoking the service layer.
    *
-   * @param {Object} [options={}] - Optional configuration object.
-   * @param {boolean} [options.allowStale=true] - Flag indicating whether stale data is allowed.
    * @return {Promise<Product[]>} A promise that resolves with the retrieved data.
    */
-  async function getAll({ allowStale = true } = {}): Promise<Product[]> {
-    return service.loadAll({ allowStale });
+  async function getAll(): Promise<Product[]> {
+    return service.loadAll();
   }
 
   /**
@@ -120,16 +92,11 @@ export const useProductCatalogue = () => {
   /**
    * Retrieves a paginated list of products based on the provided pagination parameters.
    *
-   * @param {PaginatedParams} paginationParams - The parameters to control pagination such as page number, size, and filters.
-   * @param {Object} [options] - Optional settings for retrieving the paginated data.
-   * @param {boolean} [options.allowStale=true] - Whether to allow stale data to be returned.
+   * @param {PaginatedParams} params - The parameters to control pagination such as page number, size, and filters.
    * @return {Promise<Product[]>} A promise that resolves to an array of products for the requested page.
    */
-  async function getPaged(
-    paginationParams: PaginatedParams,
-    { allowStale = true }: { allowStale?: boolean } = {}
-  ): Promise<Product[]> {
-    return service.loadPaged(paginationParams, { allowStale });
+  async function getPaged(params: PaginatedParams): Promise<Product[]> {
+    return service.loadPaged(params);
   }
 
   /**
@@ -164,7 +131,6 @@ export const useProductCatalogue = () => {
       queryFn: getPaged,
       staleTime: useTime().DAY,
     },
-    subscribe,
     isReady,
     // getAll,
     getOne,

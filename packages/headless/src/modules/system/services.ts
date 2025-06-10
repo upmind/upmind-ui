@@ -2,21 +2,12 @@
 import { useQuery } from "../..";
 
 // --- utils
+import { useTime } from "../../utils";
 
 // --- types
-import type {
-  IBillingCycle,
-  ICountry,
-  ICurrency,
-  ILanguage,
-  IRegion,
-  ITicketDepartment,
-  IStatus,
-} from "@upmind-automation/types";
-
+import type { IRegion } from "@upmind-automation/types";
 import type { SystemContext } from "./types";
-import { AnyEventObject } from "xstate";
-import { useTime } from "../../utils";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 // ENUMS
@@ -31,9 +22,9 @@ async function fetchCurrencies(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("currencies", { limit: 0 }),
     queryKey: ["system", "currencies"],
     staleTime: useTime()?.DAY,
@@ -44,9 +35,9 @@ async function fetchBillingCycles(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("billing_cycles", { limit: 0 }),
     queryKey: ["system", "billing-cycles"],
     staleTime: useTime()?.DAY,
@@ -54,9 +45,9 @@ async function fetchBillingCycles(
 }
 
 async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
     staleTime: useTime()?.DAY,
@@ -67,10 +58,10 @@ async function fetchRegions(
   _context: SystemContext,
   { data: { code, id } }: any
 ) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   if (!code || !id) return Promise.reject(new Error("No code or id provided"));
-  return get({
+  return getAsync<any>({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
     staleTime: useTime()?.DAY,
@@ -78,9 +69,9 @@ async function fetchRegions(
 }
 
 async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("languages", { limit: 0 }),
     queryKey: ["system", "languages"],
     staleTime: useTime()?.DAY,
@@ -89,9 +80,9 @@ async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
 }
 
 async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync({
     url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
     staleTime: useTime()?.DAY,
@@ -102,9 +93,9 @@ async function fetchDepartments(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
-  return get({
+  return getAsync<any>({
     url: useUrl("tickets/departments", { limit: 0 }),
     queryKey: ["system", "departments"],
     staleTime: useTime()?.DAY,

@@ -69,7 +69,8 @@ export class QueryObserver {
 /**
  * Query Subscription - this is used by the other machines to listen for changes/messages from the query service
  * based on the query key. This allows stale data to be updated in the machine automatically
- * @param callback
+ * @param callback The callback function to be called when the query is ready/updated.
+ * @param onReceive The function to receive events from the machine.
  * @returns
  */
 export function useQueryHelper(callback: any, onReceive: any) {

@@ -1,10 +1,6 @@
 // --- internal
-import {
-  QueryObserver,
-  invalidateQueryByKey,
-  useQuerySubscription,
-} from "../query";
 import service from "./services";
+import { invalidateQueryByKey } from "../query";
 
 // --- utils
 import { useTime } from "../../utils";
@@ -13,29 +9,6 @@ import { find, filter, includes, isString, every, get } from "lodash-es";
 // --- types
 import type { Product } from "../product";
 import type { IProductCategory } from "@upmind-automation/types";
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-
-let observer: QueryObserver | undefined;
-
-/**
- * Subscribes to query updates using a callback function and returns an observer.
- *
- * When invoked, this function uses the provided callback to listen for updates
- * to a query and manages the creation of a query subscription observer if one
- * does not already exist. The observer is then returned to the caller.
- *
- * @param {function} callback - A function that will be executed whenever the
- * query updates. It receives a `query` object from the QueryCacheNotifyEvent.
- * @returns {QueryObserver} The observer used to track query updates.
- */
-const subscribe = (
-  callback: (query: QueryCacheNotifyEvent["query"]) => void
-): QueryObserver => {
-  if (!observer) {
-    observer = useQuerySubscription(service.queryKey, callback);
-  }
-  return observer;
-};
 
 /**
  * Provides utility functions and methods to interact with product categories.
@@ -50,14 +23,10 @@ export const useProductCategories = () => {
   /**
    * Retrieves all product categories from the service.
    *
-   * @param {Object} [options] - Optional configuration object.
-   * @param {boolean} [options.allowStale=true] - Whether to allow stale data to be returned.
    * @return {Promise<IProductCategory[]>} A promise that resolves to an array of product categories.
    */
-  async function getAll({
-    allowStale = true,
-  }: { allowStale?: boolean } = {}): Promise<IProductCategory[]> {
-    return service.loadAll({ allowStale });
+  async function getAll(): Promise<IProductCategory[]> {
+    return service.loadAll();
   }
 
   /**
@@ -135,7 +104,6 @@ export const useProductCategories = () => {
       queryFn: getAll,
       staleTime: useTime().DAY,
     },
-    subscribe,
     isReady,
     getAll,
     getOne,

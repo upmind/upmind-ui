@@ -17,7 +17,7 @@ import { EmailTypes } from "./types";
 import type { IEmail } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
-import type { QueryResponse, PaginatedParams } from "../..";
+import type { PaginatedParams } from "../..";
 import type { Email, EmailModel, EmailContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -26,44 +26,40 @@ const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
 async function loadAll() {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<QueryResponse<IEmail[]>, Email[]>({
+  return getAsync<IEmail[], Email[]>({
     url: useUrl(`clients/${client.id}/emails`, { limit: 0 }),
+    select: data => mapEmails(data ?? []),
     queryKey,
     staleTime: useTime().DAY,
     withAccessToken: true,
-    select: ({ data }) => mapEmails(data ?? []),
   });
 }
 
 async function loadPaged(params: PaginatedParams) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<QueryResponse<IEmail[]>, Email[]>({
+  return getAsync<IEmail[], Email[]>({
     url: useUrl(`clients/${client.id}/emails`, {
-      limit: params.pagination?.limit || 10,
-      offset: params.pagination?.offset || 0,
-      // sort: params.sort, // TODO: to be implemented
-      // filter: params.filters, // TODO: to be implemented
+      ...params,
     }),
+    select: data => mapEmails(data ?? []),
     queryKey: [...queryKey, params],
     staleTime: useTime().DAY,
     withAccessToken: true,
-    select: ({ data }) => mapEmails(data ?? []),
   });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedEmails =
-    queryClient.getQueryData<QueryResponse<Email[]>>(queryKey);
+  const cachedEmails = queryClient.getQueryData<Email[]>(queryKey);
   if (isNil(cachedEmails)) throw new CacheIsStaleError();
-  return cachedEmails.data;
+  return cachedEmails;
 }
 
 /**
@@ -103,7 +99,19 @@ async function add(data: EmailModel) {
   return post<IEmail>({
     url: useUrl(`clients/${clientId}/emails`),
     data: mapIEmail(data),
-    onSuccess: invalidateQueryByKey(queryKey),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error adding this email",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully added email");
+    },
     withAccessToken: true,
   });
 }
@@ -117,7 +125,19 @@ async function update(id: Email["id"], data: EmailModel) {
   return put<IEmail>({
     url: useUrl(`clients/${clientId}/emails/${id}`),
     data: mapIEmail(data),
-    onSuccess: invalidateQueryByKey(queryKey),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error updating this email",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully updated email");
+    },
     withAccessToken: true,
   });
 }
@@ -130,11 +150,7 @@ async function remove(emailId: Email["id"]) {
 
   return del<null>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
-    onSuccess: () => {
-      invalidateQueryByKey(queryKey);
-      addSuccess("Successfully removed email");
-    },
-    onError: (error: any) => {
+    onError(error: any) {
       addError({
         title: isString(error)
           ? error
@@ -142,6 +158,10 @@ async function remove(emailId: Email["id"]) {
         copy: error?.message,
         data: error?.data,
       });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey);
+      addSuccess("Successfully removed email");
     },
     withAccessToken: true,
   });
@@ -156,10 +176,6 @@ async function setDefault(emailId: Email["id"]) {
   return put<IEmail>({
     url: useUrl(`clients/${clientId}/emails/${emailId}`),
     data: { default: true },
-    onSuccess: () => {
-      invalidateQueryByKey(queryKey);
-      addSuccess("Successfully set email as default");
-    },
     onError(error: any) {
       addError({
         title: isString(error)
@@ -169,6 +185,10 @@ async function setDefault(emailId: Email["id"]) {
         copy: error?.message,
         data: error?.data,
       });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey);
+      addSuccess("Successfully set email as default");
     },
     withAccessToken: true,
   });
