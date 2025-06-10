@@ -11,7 +11,6 @@ import type {
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";
 import type {
-  BrandConfigKeys,
   IAddress,
   ICompany,
   ICountry,
@@ -54,9 +53,8 @@ export type CompanyDetailsModel = Omit<
   email?: EmailModel["email"];
 };
 
-export interface UnifiedAddressContext extends ClientItemContext {
-  model: UnifiedAddressModel;
-  baseModel: UnifiedAddressModel;
+export interface UnifiedAddressContext
+  extends ClientItemContext<UnifiedAddressModel, UnifiedAddress> {
   country?: ICountry;
   regions?: IRegion[];
   countries: ICountry[];
@@ -64,5 +62,4 @@ export interface UnifiedAddressContext extends ClientItemContext {
   companies: Company[];
   phones: Phone[];
   emails: Email[];
-  config?: Record<BrandConfigKeys, boolean>;
 }

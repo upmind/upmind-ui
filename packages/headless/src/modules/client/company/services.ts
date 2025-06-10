@@ -1,14 +1,15 @@
+// --- external
+import { ref } from "vue";
+
 // --- internal
-import { useClientPhones } from "../phone";
-import { useClientEmails } from "../email";
-import { useClientAddresses } from "../address";
-import { invalidateQueryByKey } from "../../query";
 import {
   useQuery,
   useSession,
-  useClientCompanies,
   useSystem,
   useFeedback,
+  useClientPhones,
+  useClientEmails,
+  useClientAddresses,
 } from "../..";
 
 // --- utils
@@ -16,63 +17,56 @@ import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
+  useTime,
+  UserIsNotAuthenticatedError,
 } from "../../../utils";
-import { get, set, isEmpty, isNil, isString } from "lodash-es";
+import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapICompany } from "./mappers";
-import { get, isNil, isEmpty, isString } from "lodash-es";
+import { get, isEmpty, isNil, isString } from "lodash-es";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
-import type { QueryKey } from "@tanstack/query-core";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
-import type { CompanyContext, Company } from "./types";
-import type { PaginatedParams, QueryResponse, CompanyModel } from "../..";
-import { parsePhoneNumber } from "libphonenumber-js";
-import { useSchema } from "./schemas";
+import type { QueryListParams } from "../..";
+import type { CompanyContext, Company, CompanyModel } from "./types";
 
 // -----------------------------------------------------------------------------
-// Queries
+// QUERIES
 
 const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
-async function loadAll() {
-  const { getAsync, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
+function loadList(params?: QueryListParams) {
+  const { get, useUrl } = useQuery();
+  const { meta, user } = useSession();
 
-  return getAsync<ICompany[], Company[]>({
-    url: useUrl(`clients/${client.id}/companies`, {
+  return get<ICompany[], Company[]>({
+    queryKey: [...queryKey, params],
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
+    url: useUrl(`clients/${user.value!.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
-      limit: 0,
+      ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
     }),
-    select: data => mapCompanies(data ?? []),
-    queryKey,
     withAccessToken: true,
+    // --- options
+    select: mapCompanies,
+    staleTime: useTime().DAY,
   });
 }
 
-async function loadPaged(params: PaginatedParams) {
-  const { getAsync, useUrl } = useQuery();
-  const { isAuthenticated } = useSession();
-  const client = await isAuthenticated().catch(error => Promise.reject(error));
-
-  return getAsync<ICompany[], Company[]>({
-    url: useUrl(`clients/${client.id}/companies`, {
-      with: ["address", "address.country", "address.region"].join(),
-      ...params,
-    }),
-    select: data => mapCompanies(data ?? []),
-    queryKey: [...queryKey, { ...params }],
-    withAccessToken: true,
-  });
-}
-
-function loadAllFromCache() {
+function loadCached() {
   const { queryClient } = useQuery();
-  const cachedCompanies = queryClient.getQueryData<Company[]>(queryKey);
-  if (isNil(cachedCompanies)) throw new CacheIsStaleError();
-  return cachedCompanies;
+  const cached = queryClient.getQueryData<Company[]>(queryKey);
+  if (isNil(cached)) throw new CacheIsStaleError();
+  return cached;
 }
 
 /**
@@ -84,31 +78,28 @@ async function loadLookups({
   model,
   schema,
 }: CompanyContext): Promise<CompanyContext> {
-  const { getAll: getPhones, getDefault: getDefaultPhone } = useClientPhones();
-  const { getAll: getEmails, getDefault: getDefaultEmail } = useClientEmails();
-  const { getAll: getCompanies } = useClientCompanies();
-  const { getAll: getAddresses, getDefault: getDefaultAddress } =
-    useClientAddresses();
+  const phones = useClientPhones();
+  const emails = useClientEmails();
+  const addresses = useClientAddresses();
 
   const { getCountry } = useSystem();
   const defaultCountry = getCountry();
 
-  const [phones, emails, addresses] = await Promise.all([
-    getPhones(),
-    getEmails(),
-    getAddresses(),
-    getCompanies(),
+  await Promise.allSettled([
+    phones.isReady(),
+    emails.isReady(),
+    addresses.isReady(),
   ]);
 
-  const defaultAddress = await getDefaultAddress();
-  const defaultPhone = await getDefaultPhone();
-  const defaultEmail = await getDefaultEmail();
+  const defaultAddress = addresses.getDefault();
+  const defaultPhone = phones.getDefault();
+  const defaultEmail = emails.getDefault();
 
   const baseModel: CompanyModel = {
     emailId: model?.emailId || defaultEmail?.id,
     addressId: model?.addressId || defaultAddress?.id,
     phoneId: model?.phoneId || defaultPhone?.id,
-    phone: model?.phone || defaultPhone?.phone,
+    phone: model?.phone ?? defaultPhone?.phone ?? undefined,
     default: model?.default ?? false,
     name: model?.name ?? "",
     regNumber: model?.regNumber ?? "",
@@ -119,15 +110,15 @@ async function loadLookups({
     allowExtraProps: false,
   });
 
-  return {
-    emails,
-    phones,
-    addresses,
+  return Promise.resolve({
+    emails: emails.data.value || [],
+    phones: phones.data.value || [],
+    addresses: addresses.data.value || [],
     country: defaultCountry,
     // ---
     model: safeModel,
     baseModel: safeModel,
-  } as CompanyContext;
+  } as CompanyContext);
 }
 
 // -----------------------------------------------------------------------------
@@ -242,13 +233,15 @@ async function setDefault(companyId: Company["id"]) {
 
 async function parse(
   { baseModel, schema }: CompanyContext,
-  { data }: AnyEventObject & { data: CompanyModel }
+  { data }: AnyEventObject
 ) {
-  const safeModel = useModelParser(
+  const safeModel = useModelParser<CompanyModel>(
     schema,
     get(data, "model", data),
     baseModel,
-    { allowExtraProps: false }
+    {
+      allowExtraProps: false,
+    }
   );
 
   // ---
@@ -257,13 +250,12 @@ async function parse(
 }
 
 async function validate({ schema, model }: Partial<CompanyContext>) {
-  // ---
+  if (!schema) return Promise.resolve(model);
 
   // Now validate the model as per normal
   const { validate } = useValidation();
 
   return new Promise((resolve, reject) => {
-    if (!schema) return resolve(model);
     const errors = validate(schema, model);
     if (errors?.length) {
       reject({ error: errors });
@@ -274,18 +266,14 @@ async function validate({ schema, model }: Partial<CompanyContext>) {
 }
 
 // -----------------------------------------------------------------------------
-// EXPORTS
 
 export default {
   queryKey,
   //--- queries
-  loadAll,
-  loadPaged,
-  refresh: loadAll,
+  loadList,
+  loadCached,
 
-  loadAllFromCache,
   //--- mutations
-
   remove,
   setDefault,
 };
@@ -307,6 +295,6 @@ export const useClientCompanyServices = () => {
     },
     parse,
     validate,
-    refresh: loadAll,
+    refresh: loadList,
   };
 };

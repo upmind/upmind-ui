@@ -26,7 +26,14 @@ import {
 } from "../../utils";
 
 // ---types
-import type { IAuthTransfer, SessionTransfer, User } from "./types";
+import type {
+  IAuthTransfer,
+  SessionContext,
+  SessionTransfer,
+  User,
+} from "./types";
+import { GuestContext } from "./guest/types";
+import { ClientContext } from "./client/types";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -168,32 +175,35 @@ export const useSession = () => {
    * Context object containing session-specific information such as current user,
    * authentication status, and other dynamic data.
    */
-  const context = useContext(state);
+  const context = useContext<SessionContext>(state);
 
   /**
    * User-specific information for the currently authenticated user, including profile and account data.
    */
-  const user = useContext(clientMachine, "user");
+  const user = useContext<ClientContext["user"]>(clientMachine, "user");
 
   /**
    * The underlying data model used in session-related forms such as login or registration.
    */
-  const model = useContext(guestMachine, "model");
+  const model = useContext<GuestContext["model"]>(guestMachine, "model");
 
   /**
    * JSON Schema used to define the structure of session-related forms, like login and registration.
    */
-  const schema = useContext(guestMachine, "schema");
+  const schema = useContext<GuestContext["schema"]>(guestMachine, "schema");
 
   /**
    * UI Schema used to configure the presentation and layout of session-related forms.
    */
-  const uischema = useContext(guestMachine, "uischema");
+  const uischema = useContext<GuestContext["uischema"]>(
+    guestMachine,
+    "uischema"
+  );
 
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
-  const errors = useContext(guestMachine, "error");
+  const errors = useContext<GuestContext["error"]>(guestMachine, "error");
 
   // --- methdos
 

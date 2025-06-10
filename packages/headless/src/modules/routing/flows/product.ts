@@ -19,6 +19,7 @@ import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { ActorRef } from "xstate";
 import { ProductProps } from "../../product";
+import { contextValue, stateMatches } from "src/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ export const useProductFlows = () => {
           (await getPendingProduct(productId)
             .then(
               basketItem =>
-                !["error", "complete"].some(basketItem.getSnapshot().matches)
+                !stateMatches(basketItem.state, ["error", "complete"])
             )
             .catch(() => false));
         return valid;
@@ -112,8 +113,7 @@ export const useProductFlows = () => {
 
         const valid = await getPendingProduct(productId, true)
           .then(
-            basketItem =>
-              !["error", "complete"].some(basketItem.getSnapshot().matches)
+            basketItem => !stateMatches(basketItem.state, ["error", "complete"])
           )
           .catch(() => false);
         return valid;
@@ -121,14 +121,15 @@ export const useProductFlows = () => {
       resolve: async (route: Route) => {
         const { productId } = useRouteQueryParams(route);
         const pendingProduct = await getPendingProduct(productId, true);
-        const pid = get(
-          pendingProduct?.getSnapshot(),
-          "context.model.productId",
+        const pid = contextValue<ProductProps["productId"]>(
+          pendingProduct.state,
+          "model.productId",
           productId
         );
+
         return {
           name: ROUTE.PRODUCT_ADD,
-          params: { pid },
+          params: { pid: pid ?? "" },
         };
       },
       targets: {

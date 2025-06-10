@@ -19,5 +19,4 @@ export interface BrandContext extends IBrandSettings {
   organisation?: OrgFeatureKeys;
   initialised?: boolean;
   error?: QueryResponseError;
-  queryHelper?: any; //TODO set the cotrect observable ype
 }

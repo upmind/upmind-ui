@@ -4,7 +4,6 @@ import { createMachine, assign, spawn } from "xstate";
 // --- internal
 import services from "./services";
 import { useSystemI18n } from "../system";
-import { useQueryHelper } from "../query";
 
 // --- utils
 import { defaultsDeep, startsWith } from "lodash-es";
@@ -22,7 +21,7 @@ export default createMachine(
     //tsTypes: {} as import("./brand.machine.typegen").Typegen0,
     id: "brandManager",
     predictableActionArguments: true,
-    initial: "subscribing",
+    initial: "loading",
     context: {
       initialised: false,
       modules: undefined,
@@ -69,10 +68,6 @@ export default createMachine(
     } as BrandContext,
 
     states: {
-      subscribing: {
-        entry: ["setQueryHelper"],
-        always: "loading",
-      },
       loading: {
         invoke: {
           src: "load",
@@ -111,39 +106,11 @@ export default createMachine(
         },
       },
     },
-    on: {
-      "QUERY.SUCCESS": {
-        actions: ["refreshContext"],
-      },
-    },
   },
   {
     actions: {
       setContext: assign((context: BrandContext, { data }: AnyEventObject) =>
         useBrandParser(data, context)
-      ),
-
-      refreshContext: assign(
-        (context: BrandContext, { data, queryKey }: AnyEventObject) => {
-          if (!context.initialised) return;
-
-          if (startsWith(queryKey, "brand,organisation,config")) {
-            return useBrandParser(data, context);
-          }
-
-          if (startsWith(queryKey, "brand,config")) {
-            return useBrandParser(data, context);
-          }
-
-          if (startsWith(queryKey, "brand,settings")) {
-            return useBrandParser(data, context);
-          }
-
-          if (startsWith(queryKey, "brand,modules")) {
-            return defaultsDeep(data, context);
-          }
-          // otherwsie do nothing
-        }
       ),
 
       setConfigKeys: assign({
@@ -162,24 +129,6 @@ export default createMachine(
 
       setInitialised: assign({
         initialised: true,
-      }),
-
-      setQueryHelper: assign({
-        queryHelper: (
-          { queryHelper }: BrandContext,
-          _event: AnyEventObject
-        ) => {
-          // spawn a new query helper and set up the filter to only listen to brand events
-          if (!queryHelper) {
-            queryHelper = spawn(useQueryHelper);
-
-            queryHelper.send({
-              type: "SET.QUERY_KEY",
-              data: ["brand"],
-            });
-          }
-          return queryHelper;
-        },
       }),
 
       setError: assign({

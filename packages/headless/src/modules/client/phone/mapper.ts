@@ -30,10 +30,10 @@ export function mapPhone(raw: IPhone): Phone {
       " | "
     ),
     phone: {
-      number: phone?.number,
-      country: phone?.country,
-      nationalNumber: phone?.nationalNumber,
-      countryCallingCode: phone?.countryCallingCode,
+      number: phone?.number ?? "",
+      country: phone?.country ?? "",
+      nationalNumber: phone?.nationalNumber ?? "",
+      countryCallingCode: phone?.countryCallingCode ?? "",
     },
     type: raw.type,
     // ---

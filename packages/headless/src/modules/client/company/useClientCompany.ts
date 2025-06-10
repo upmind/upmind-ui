@@ -237,4 +237,4 @@ export const useClientCompany = (
   };
 };
 
-export type UseClientCompanies = ReturnType<typeof useClientCompanies>;
+export type UseClientCompany = ReturnType<typeof useClientCompany>;

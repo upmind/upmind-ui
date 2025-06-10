@@ -10,7 +10,7 @@ import { useModelParser } from "../../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { CompanyContext } from "./types";
+import type { CompanyContext, CompanyModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ export const useClientCompanyActions = () => {
       model: (
         { schema, baseModel }: CompanyContext,
         { data }: AnyEventObject
-      ) => useModelParser(schema, data, baseModel),
+      ) => useModelParser<CompanyModel>(schema, data, baseModel),
     }),
   };
 };

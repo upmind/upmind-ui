@@ -35,12 +35,7 @@ export interface Phone {
   id: IPhone["id"];
   title: string;
   description?: string;
-  phone: {
-    number?: string;
-    country?: string;
-    nationalNumber?: string;
-    countryCallingCode?: string;
-  };
+  phone: PhoneModel["phone"];
   type: IPhone["type"];
   meta: {
     canDelete: boolean;
@@ -49,9 +44,7 @@ export interface Phone {
   };
 }
 
-export interface PhoneContext extends ClientItemContext {
+export interface PhoneContext extends ClientItemContext<PhoneModel, Phone> {
   country?: ICountry;
   types?: typeof PhoneTypes;
-  model?: PhoneModel;
-  baseModel?: PhoneModel;
 }

@@ -6,7 +6,7 @@ import { isNil } from "lodash-es";
 import { CacheIsStaleError } from "../../utils";
 
 // --- types
-import type { QueryKey } from "@tanstack/query-core";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { IProductCategory } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ async function loadAll() {
   });
 }
 
-function loadAllFromCache() {
+function loadCached() {
   const { queryClient } = useQuery();
   const cached = queryClient.getQueryData<IProductCategory[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
@@ -53,5 +53,5 @@ export default {
   //--- queries
   loadAll,
   refresh: loadAll,
-  loadAllFromCache,
+  loadCached,
 };

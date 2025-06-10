@@ -11,7 +11,7 @@ import { doFetch, refreshToken } from "./services";
 // --- utils
 import { useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { get, set, unset, isString } from "lodash-es";
+import { get, set, unset, isString, reject } from "lodash-es";
 import { parseData, canRetryAuthorization } from "./utils";
 
 // --- types
@@ -24,6 +24,8 @@ import type {
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
+import { isFunction } from "xstate/lib/utils";
+import { isPromise } from "util/types";
 
 // -----------------------------------------------------------------------------
 
@@ -122,7 +124,7 @@ export const useQuery = () => {
           }
         );
       },
-      ...(options as any), // TODO figure out why TS moans when we dont cast options to any
+      ...(options as any),
     });
   }
 
@@ -134,20 +136,25 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
-  async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+  function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     queryKey,
     url,
     init,
     withAccessToken,
+    guard,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>({
       queryKey,
-      queryFn: async () =>
-        request<TQueryFnData>({ url, init, withAccessToken }).then(
-          ({ data }) => data as TQueryFnData
-        ),
-      ...options,
+      queryFn: async () => {
+        const safeguard = isPromise(guard) ? guard() : Promise.resolve();
+        return safeguard.then(() =>
+          request<TQueryFnData>({ url, init, withAccessToken }).then(
+            response => response.data as TQueryFnData
+          )
+        );
+      },
+      ...(options as any),
     });
   }
 
@@ -339,7 +346,7 @@ export const useQuery = () => {
     useUrl,
     // ---
     getAsync: getAsyncRequest,
-    // get: getRequest, //TEMP
+    get: getRequest,
     del: deleteRequest,
     put: putRequest,
     post: postRequest,

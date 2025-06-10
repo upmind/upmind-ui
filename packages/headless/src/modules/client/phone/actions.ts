@@ -9,7 +9,7 @@ import { useModelParser } from "../../../utils";
 import { get, compact, isObject, toString } from "lodash-es";
 
 // --- types
-import type { PhoneContext } from "./types";
+import { Phone, PhoneModel, type PhoneContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ export const useClientPhoneActions = () => {
 
     setModel: assign({
       model: ({ schema, baseModel }: PhoneContext, { data }: AnyEventObject) =>
-        useModelParser(schema, data, baseModel),
+        useModelParser<PhoneModel, Phone>(schema, data, baseModel),
     }),
   };
 };

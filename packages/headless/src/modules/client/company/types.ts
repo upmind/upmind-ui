@@ -1,24 +1,13 @@
 // --- internal
-import { useClientCompany } from "./useClientCompany";
-import { useClientCompanies } from "./useClientCompanies";
 
 // --- types
+import type { ClientItemContext } from "../types";
 import type {
-  IRegion,
-  IAddress,
-  ICompany,
   ICountry,
+  ICompany,
   BrandConfigKeys,
 } from "@upmind-automation/types";
-import type {
-  Email,
-  Phone,
-  Address,
-  AddressModel,
-  PhoneModel,
-  EmailModel,
-} from "..";
-import type { ClientItemContext } from "../types";
+import type { Email, Phone, Address, PhoneModel } from "..";
 
 // -----------------------------------------------------------------------------
 
@@ -56,10 +45,10 @@ export interface Company {
   };
 }
 
-export interface CompanyContext extends ClientItemContext {
+export interface CompanyContext
+  extends ClientItemContext<CompanyModel, Company> {
   addresses: Address[];
   emails: Email[];
   phones: Phone[];
   country?: ICountry;
-  config?: Record<BrandConfigKeys, boolean>;
 }

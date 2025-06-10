@@ -1,11 +1,7 @@
 // --- internal
-import { usePlaces } from "../places";
-import { useClientAddress } from "./useClientAddress";
-import { useClientAddresses } from "./useClientAddresses";
 
 // --- types
 import type { ClientItemContext } from "../types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type {
   ICountry,
   IRegion,
@@ -56,13 +52,10 @@ export interface Address extends AddressModel {
   };
 }
 
-export interface AddressContext extends ClientItemContext {
+export interface AddressContext
+  extends ClientItemContext<AddressModel, Address> {
   types?: typeof AddressTypes;
-  model?: AddressModel;
-  id?: Address["id"];
   country?: ICountry;
   regions?: IRegion[];
-  config?: Record<BrandConfigKeys, boolean>;
   countries: ICountry[];
-  baseModel?: Address;
 }

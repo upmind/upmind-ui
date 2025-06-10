@@ -9,7 +9,7 @@ import { find, filter, includes, isString, every, get } from "lodash-es";
 // --- types
 import type { Product } from "../product";
 import type { PaginatedParams } from "../query";
-import type { QueryKey } from "@tanstack/query-core";
+import type { QueryKey } from "@tanstack/vue-query";
 
 /**
  * A function that provides access to and operations on the product catalogue.
@@ -34,8 +34,8 @@ export const useProductCatalogue = () => {
    *
    * @return {Product[]} An array of Product objects retrieved from the cache.
    */
-  function getAllFromCache(): Product[] {
-    return service.loadAllFromCache();
+  function getCached(): Product[] {
+    return service.loadCached();
   }
 
   /**
@@ -45,7 +45,7 @@ export const useProductCatalogue = () => {
    * @return {Product | undefined} The product matching the provided identifier if found, otherwise undefined.
    */
   function getOne(id: Product["id"]): Product | undefined {
-    const items = getAllFromCache();
+    const items = getCached();
     return find(items, ["id", id]);
   }
 
@@ -58,7 +58,7 @@ export const useProductCatalogue = () => {
    * @return {Product | undefined} The first matching product if found, otherwise undefined.
    */
   function findOne(mapping: string | Partial<Product>): Product | undefined {
-    const items = getAllFromCache();
+    const items = getCached();
     if (isString(mapping)) {
       return find(
         items,
@@ -96,7 +96,7 @@ export const useProductCatalogue = () => {
    * @return {Promise<Product[]>} A promise that resolves to an array of products for the requested page.
    */
   async function getPaged(params: PaginatedParams): Promise<Product[]> {
-    return service.loadPaged(params);
+    return service.load(params);
   }
 
   /**
@@ -106,7 +106,7 @@ export const useProductCatalogue = () => {
    * @return {Product[]} - An array of products that match the given search parameter.
    */
   function filterProducts(param: string): Product[] {
-    const items = getAllFromCache();
+    const items = getCached();
     return filter(
       items,
       item =>
@@ -137,7 +137,7 @@ export const useProductCatalogue = () => {
     filter: filterProducts,
     findOne,
     getPaged,
-    getAllFromCache,
+    getCached,
     invalidate: (key?: QueryKey) =>
       invalidateQueryByKey(key ?? service.queryKey),
   };
