@@ -7,6 +7,13 @@ import type { IPhone, ICountry } from "@upmind-automation/types";
 import type { ClientItemContext } from "../types";
 
 // -----------------------------------------------------------------------------
+
+export interface IPhoneData {
+  nationalNumber: string;
+  countryCallingCode: string;
+  country: string;
+}
+
 export const PhoneTypes = [
   { key: 1, value: "Mobile" },
   { key: 2, value: "Home" },

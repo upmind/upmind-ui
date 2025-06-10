@@ -58,6 +58,7 @@ export const useClientAddress = (
     // ---
     clear,
     input: debounce((model: AddressModel) => input(model), 300),
+    set: (model: AddressModel) => input(model),
     update,
     stop,
   };

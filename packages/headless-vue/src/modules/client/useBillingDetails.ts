@@ -28,17 +28,21 @@ export const useBillingDetails = () => {
     filter,
     getOne,
     findOne,
+    refresh,
+    meta: metaBillingDetails,
   } = useUpmindBillingDetails();
 
   const { error, meta, data } = useQuery<UnifiedAddress[]>(
     queryOptions.queryKey
   );
+
   // ---------------------------------------------------------------------------
   return {
     error,
     meta: computed(() => {
       return {
         ...meta.value,
+        ...metaBillingDetails(),
         isAvailable: sessionMeta.value.isAuthenticated,
       };
     }),
@@ -54,5 +58,6 @@ export const useBillingDetails = () => {
     getOne,
     findOne,
     invalidate,
+    refresh,
   };
 };

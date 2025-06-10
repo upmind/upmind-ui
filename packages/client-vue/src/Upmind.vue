@@ -15,7 +15,7 @@
         </Header>
       </slot>
 
-      <div class="w-full flex-1">
+      <main class="w-full flex-1">
         <RouterView v-slot="routerViewProps" :key="$route.fullPath">
           <slot v-bind="routerViewProps">
             <template v-if="routerViewProps.Component">
@@ -45,7 +45,7 @@
             </template>
           </slot>
         </RouterView>
-      </div>
+      </main>
 
       <slot name="footer"></slot>
     </div>

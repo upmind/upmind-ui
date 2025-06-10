@@ -24,7 +24,6 @@ import {
 // --- types
 import type { ActorRef, InterpreterFrom } from "xstate";
 import type { Product, ProductModel, ProductProps } from "../product";
-import { p } from "@tanstack/query-core/build/legacy/hydration-B_mC2U5v";
 
 // -----------------------------------------------------------------------------
 

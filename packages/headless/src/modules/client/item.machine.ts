@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, sendParent } from "xstate";
+import { createMachine, assign } from "xstate";
 
 // --- utils
 import { responseCodes } from "../../utils";
@@ -165,6 +165,9 @@ export default createMachine<ClientItemContext>(
       CLEAR: {
         target: "available.checking",
         actions: ["clearModel"],
+      },
+      REFRESH: {
+        target: "loading",
       },
     },
   },
