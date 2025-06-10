@@ -1,13 +1,17 @@
 // --- internal
 import { usePlaces } from "../places";
 import { useClientAddress } from "./useClientAddress";
+import { useClientAddresses } from "./useClientAddresses";
 
 // --- types
-import type { PaginatedParams } from "../../query";
 import type { ClientItemContext } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
-import { useClientAddresses } from "./useClientAddresses";
+import type {
+  ICountry,
+  IRegion,
+  IAddress,
+  BrandConfigKeys,
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -17,6 +21,13 @@ export const AddressTypes = [
   { key: 3, value: "Holiday" },
   { key: 4, value: "Company" },
 ];
+
+export const ADDRESS_TYPE_KEYS = {
+  HOME: AddressTypes[0].key,
+  OFFICE: AddressTypes[1].key,
+  HOLIDAY: AddressTypes[2].key,
+  COMPANY: AddressTypes[3].key,
+} as const;
 
 export interface AddressModel {
   address1: IAddress["address_1"];
@@ -51,6 +62,7 @@ export interface AddressContext extends ClientItemContext {
   id?: Address["id"];
   country?: ICountry;
   regions?: IRegion[];
+  config?: Record<BrandConfigKeys, boolean>;
   countries: ICountry[];
   baseModel?: Address;
 }

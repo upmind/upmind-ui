@@ -13,7 +13,7 @@ import {
 } from "./modules";
 
 // ---types
-import type { IApiPop } from "@upmind-automation/headless-vue";
+import type { IApiPop } from "@upmind-automation/headless";
 import { first } from "lodash-es";
 
 // ---

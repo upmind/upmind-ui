@@ -34,7 +34,6 @@ export const useQuery = <T = unknown>(
   const observer = useQuerySubscription(
     queryKey,
     (response: QueryCacheNotifyEvent["query"]) => {
-      console.debug("useQuery", "query", response);
       query.value = response.state;
 
       const paged = response.state.data

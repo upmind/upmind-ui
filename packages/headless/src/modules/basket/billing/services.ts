@@ -8,6 +8,7 @@ import {
   useSession,
   useClientAddresses,
   useClientCompanies,
+  useClientPhones,
 } from "../../..";
 import { find, isEmpty } from "lodash-es";
 
@@ -15,17 +16,13 @@ import { find, isEmpty } from "lodash-es";
 import { DetailedError, responseCodes, useValidation } from "../../../utils";
 
 // --- types
-import { BrandConfigKeys, IBasket } from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { BillingDetailsContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
 async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
-  const { data: addresses, isReady: isAddressesReady } = useClientAddresses();
-  const { getAll: getCompanies } = useClientCompanies();
-
-  const companies = getCompanies();
   const { ensureConfig } = useBrand();
   const { fetchCountries } = useSystem();
   const { isAuthenticated } = useSession();
@@ -41,11 +38,21 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
 
   await isAuthenticated().catch(error => Promise.reject(error));
 
-  return Promise.all([companies, isAddressesReady]).then(
-    ([companies]) => {
-      return [...companies, ...(addresses.value || [])];
-    } // we prioritize/return the companies first, so they are at the top of the list
-  );
+  const addresses = useClientAddresses();
+  const companies = useClientCompanies();
+  const phones = useClientPhones();
+
+  return Promise.all([
+    companies.isReady(),
+    addresses.isReady(),
+    phones.isReady(),
+  ]).then(() => {
+    return {
+      companies: companies.data.value,
+      addresses: addresses.data.value,
+      phones: phones.data.value,
+    };
+  });
 }
 
 async function update(
@@ -60,31 +67,36 @@ async function update(
     );
 
   // get returns a promise so we can pass it directly back to the machine
-  return put<IBasket>({
+  return put({
     url: useUrl(`/orders/${basketId}`),
     data: {
       address_id: model?.addressId,
       company_id: model?.companyId || null,
     },
     withAccessToken: true,
-  });
+  }).then(({ data }: any) => data);
 }
 
 async function parse(
-  { model, autoupdate, dirty, addresses }: BillingDetailsContext,
+  { model, autoupdate, dirty, addresses, phones }: BillingDetailsContext,
   _event: AnyEventObject
 ) {
-  const defaultAddress = find(addresses, "default");
+  const defaultAddress = find(addresses, "meta.isDefault");
+  const defaultPhone = find(phones, "meta.isDefault");
 
   // We should ALWAYS have an address set  ( if we have addresses )
   // if model is not set, set it to the default address
   if (!model?.addressId && !isEmpty(defaultAddress)) {
     model = {
-      addressId: defaultAddress.addressId,
+      addressId: defaultAddress.id,
       companyId: defaultAddress.companyId,
     };
     autoupdate = true;
     dirty = true;
+  }
+
+  if (model && !model?.phoneId && !isEmpty(defaultPhone)) {
+    model.phoneId = defaultPhone.id;
   }
 
   // ---
