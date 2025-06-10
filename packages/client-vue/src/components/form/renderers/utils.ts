@@ -1,5 +1,5 @@
 import { get, find } from "lodash-es";
-import type { FormComposable } from "@upmind-automation/headless-vue";
+import type { FormComposable } from "@upmind-automation/headless";
 
 export const useSchemaComposable = (control: any): FormComposable => {
   const matchingField = find(

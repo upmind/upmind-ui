@@ -56,9 +56,9 @@ import { debounce, find, get } from "lodash-es";
 // --- types
 import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
-import { usePlaces } from "@upmind-automation/headless-vue";
+import { usePlaces } from "@upmind-automation/headless";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
-import type { Address } from "@upmind-automation/headless-vue";
+import type { Address } from "@upmind-automation/headless";
 
 // ----------------------------------------------
 
