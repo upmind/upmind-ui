@@ -1,8 +1,10 @@
+// --- internal
+import { useQuery } from "./useQuery";
+
 // --- utils
 import { get } from "lodash-es";
 import { useUrl } from "../../utils";
-import { useQuery } from "./useQuery";
-import { getQueryClient, PAGINATION } from "./utils";
+import { PAGINATION } from "./utils";
 
 // --- types
 import type {
@@ -11,8 +13,6 @@ import type {
   PaginatedData,
   PaginatedParams,
 } from "./types";
-
-const queryClient = getQueryClient();
 
 // -----------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ export const useQueryPaginated = () => {
    * @param queryKey {string[]} The query key to use for the query.
    * @param pagination {IAPIPagination} The pagination options.
    * @param options Additional options to pass to TanStack query.
-   * @returns {Promise<PaginatedData>} A promise that resolves to the paginated data if the request was successful, or rejects with an error if the request failed.
+   * @returns A promise that resolves to the paginated data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
   async function getPaginatedRequest<T extends object = object>({
@@ -56,21 +56,19 @@ export const useQueryPaginated = () => {
     filters = [],
     pagination = {},
     ...options
-  }: PaginatedParams & QueryParams<QueryResponse<T>>): Promise<
-    PaginatedData<T>
-  > {
+  }: PaginatedParams & QueryParams<QueryResponse<T>>) {
     const { get: getRequest } = useQuery();
 
     let pageIndex = PAGINATION.pageIndex;
     let itemTotal = 0;
 
-    async function paginatedFetch({
-      sort,
-      filters,
-      pagination,
-    }: Pick<PaginatedParams, "sort" | "filters" | "pagination">): Promise<
-      QueryResponse<T>
-    > {
+    async function paginatedFetch(
+      paginatedParams: PaginatedParams & {
+        mapPaginatedData?: (response?: QueryResponse<T>) => PaginatedData<T>;
+      }
+    ): Promise<QueryResponse<T>> {
+      const { sort, filters, pagination, mapPaginatedData } = paginatedParams;
+
       url.searchParams.set(
         "limit",
         `${get(pagination, "limit", PAGINATION.pageSize)}`
@@ -83,12 +81,25 @@ export const useQueryPaginated = () => {
       if (filters) filters.reduce((_url, filter) => filter(_url), url);
 
       return getRequest<T>({
-        url,
-        queryKey: [...queryKey, { sort, filters, pagination }],
         ...options,
-      }).then(response => {
-        itemTotal = response.total || 0;
-        return response;
+        url,
+        mapPaginatedData,
+        queryKey: [
+          ...queryKey,
+          {
+            ...(sort ? { sort: sort.toString() } : {}),
+            ...(filters && {
+              filters: filters
+                .reduce((_url, filter) => filter(_url), url)
+                .searchParams.toString()
+                .split("&"),
+            }),
+            pagination: {
+              limit: pagination?.limit ?? PAGINATION.pageSize,
+              offset: pagination?.offset ?? PAGINATION.offset,
+            },
+          },
+        ],
       });
     }
 
@@ -115,25 +126,6 @@ export const useQueryPaginated = () => {
     }
 
     /**
-     * Returns the index of the first item on the current page.
-     * @returns {number} The index of the first item on the current page.
-     */
-    function itemFrom(): number {
-      if (!itemTotal) return 0;
-      return getPagination().limit * (pageIndex - 1) + 1;
-    }
-
-    /**
-     * Returns the index of the last item on the current page.
-     * @returns {number} The index of the last item on the current page.
-     */
-    function itemTo(): number {
-      const pagination = getPagination();
-      if (!pagination.limit) return itemTotal;
-      return Math.min(pagination.limit * pageIndex, itemTotal);
-    }
-
-    /**
      * Returns whether there is a previous page.
      * @returns {boolean} Whether there is a previous page.
      */
@@ -152,9 +144,10 @@ export const useQueryPaginated = () => {
     /**
      * Moves to the previous page.
      */
-    async function prevPage(): Promise<PaginatedData<T>> {
+    async function prevPage(): Promise<QueryResponse<T>> {
       pageIndex = Math.max(pageIndex - 1, 1);
       const pagination = getPagination();
+
       return paginatedFetch({
         sort,
         filters,
@@ -162,13 +155,13 @@ export const useQueryPaginated = () => {
           ...pagination,
           offset: pagination.limit * (pageIndex - 1),
         },
-      }).then(mapPaginatedData);
+      });
     }
 
     /**
      * Moves to the next page.
      */
-    async function nextPage(): Promise<PaginatedData<T>> {
+    async function nextPage(): Promise<QueryResponse<T>> {
       // let's add a guard to prevent going over the total number of pages
       if (pageIndex < pageTotal()) pageIndex += 1;
       const pagination = getPagination();
@@ -180,30 +173,28 @@ export const useQueryPaginated = () => {
           ...pagination,
           offset: pagination.limit * (pageIndex - 1),
         },
-      }).then(mapPaginatedData);
+      });
     }
 
     /**
      * Maps the paginated data to a more user-friendly format.
      * @param response The data to map.
-     * @returns {PaginatedData} The mapped data.
      */
-    function mapPaginatedData(response?: QueryResponse<T>): PaginatedData<T> {
+    function mapPaginatedData(response?: QueryResponse<T>) {
+      itemTotal = response?.total || 0;
+
       return {
         /** Returns the data for the current page. Warning: Might be undefined */
-        data: response?.data,
-        /** Returns the index of the last item on the current page. */
-        itemTo: itemTo(),
-        /** Returns the index of the first item on the current page. */
-        itemFrom: itemFrom(),
-        /** Returns the total number of items. */
-        itemTotal,
-        /** Returns the current page size. */
-        pageSize: getPagination().limit,
-        /** Returns the current page index. */
-        pageIndex,
-        /** Returns the total number of pages. */
-        pageTotal: pageTotal(),
+        data: response?.data ?? ([] as T),
+
+        pagination: {
+          current: pageIndex,
+          total: itemTotal,
+          pages: pageTotal(),
+          limit: getPagination().limit,
+          offset: getPagination().offset,
+        },
+
         /** Returns the total number of pages. */
         hasNextPage: hasNextPage(),
         /** Returns the index of the first item on the current page. */
@@ -223,6 +214,6 @@ export const useQueryPaginated = () => {
     // ---
     get: getPaginatedRequest,
     // ---
-    queryClient,
+    queryClient: useQuery().queryClient,
   };
 };

@@ -3,7 +3,8 @@ import { interpret } from "xstate";
 
 // --- internal
 import paymentDetailsMachine from "./paymentDetails.machine";
-
+export * from "./usePaymentDetails";
+export * from "./usePaymentDetailsGateway";
 // --- utils
 
 // --- types
@@ -16,10 +17,10 @@ import { PaymentDetailsArgs, PaymentDetailModel } from "./types";
 export const usePaymentDetails = (context: PaymentDetailsArgs) => {
   const service = interpret(paymentDetailsMachine.withContext(context), {
     devTools: false,
-  });
+  }).start();
 
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     // ---
     clear: () => service?.send({ type: "CLEAR" }),

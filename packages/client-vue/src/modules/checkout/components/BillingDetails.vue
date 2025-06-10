@@ -4,8 +4,7 @@
 
 <script setup lang="ts">
 // --- external
-import { ref } from "vue";
-import { useBillingDetails } from "@upmind-automation/headless-vue";
+import { useBillingDetails } from "@upmind-automation/headless";
 // --- components
 import Add from "../../client/components/billing/Add.vue";
 // -----------------------------------------------------------------------------

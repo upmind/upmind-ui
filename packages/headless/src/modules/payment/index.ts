@@ -3,7 +3,7 @@ import { interpret } from "xstate";
 
 // --- internal
 import paymentMachine from "./payment.machine";
-
+export * from "./usePayment";
 // --- utils
 
 // --- types
@@ -15,10 +15,10 @@ import { PaymentArgs, PaymentContext } from "./types";
 export const usePayment = (context: PaymentArgs) => {
   const service = interpret(paymentMachine.withContext(context), {
     devTools: false,
-  });
+  }).start();
 
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     // ---
     /**

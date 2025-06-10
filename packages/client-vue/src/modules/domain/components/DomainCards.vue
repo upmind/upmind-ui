@@ -81,7 +81,7 @@ import { includes, isArray, isNil, find, map } from "lodash-es";
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { DomainCardsProps } from "../types";
-import type { DomainProduct } from "@upmind-automation/headless-vue";
+import type { DomainProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 // const emit = defineEmits(["update:modelValue", "update:selected"]);

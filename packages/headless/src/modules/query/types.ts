@@ -1,31 +1,29 @@
-// --- types
-import type { EnsureQueryDataOptions } from "@tanstack/query-core";
+// --- utils
 import { responseCodes } from "src/utils";
+
+// --- types
+import type {
+  DefaultError,
+  QueryObserverOptions,
+  MutationObserverOptions,
+} from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 
-export interface ResponseError {
+export interface QueryResponseError {
   id: null;
   code: string | responseCodes | number;
   type: string | responseCodes | number;
   message: string;
-  data: null;
+  data: any | null;
   status: responseCodes | number;
 }
-export interface Response {
+export interface QueryResponse<TData = unknown> {
   status: number;
-  data: any | null;
+  data: TData | null;
   total: number | null;
-  error: ResponseError | null;
+  error: QueryResponseError | null;
   messages: string[] | null;
-}
-
-export interface PaginatedError {
-  id: null;
-  code: number;
-  data: null;
-  type: number;
-  message: string;
 }
 
 export interface RequestParams {
@@ -33,14 +31,27 @@ export interface RequestParams {
   data?: unknown;
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
-  transformResponse?: (response: unknown) => unknown;
 }
 
-export interface QueryParams<T extends unknown>
-  extends RequestParams,
-    Omit<EnsureQueryDataOptions<T>, "queryFn"> {
-  allowStale?: boolean;
-}
+export type QueryParams<
+  TQueryFnData = unknown,
+  TData = TQueryFnData,
+> = RequestParams &
+  Omit<
+    QueryObserverOptions<TQueryFnData, DefaultError, TData>,
+    "queryFn" | "initialData" | "placeholderData"
+  >;
+
+export type MutationParams<
+  TData = unknown,
+  TError = DefaultError,
+  TVariables = void,
+  TContext = unknown,
+> = RequestParams &
+  Omit<
+    MutationObserverOptions<TData, TError, TVariables, TContext>,
+    "mutationFn"
+  >;
 
 export interface PaginatedParams {
   sort?: [direction: ApiSortDirection, property: string];
@@ -48,41 +59,28 @@ export interface PaginatedParams {
   pagination?: IAPIPagination;
 }
 
-// Response Types
+// QueryResponse Types
 
-export interface QueryResponse<T extends unknown = unknown> {
-  data: T;
-  total: number | null;
-  status: ResponseStatus; // TODO: check if "ok" and "error" are the only possible values
-  errors: ResponseError | null;
-  messages: string | string[];
-}
-
-export interface PaginatedData<T extends unknown> {
-  // response related
-  data: T | null | undefined;
-  // item related
-  itemTo: number;
-  itemFrom: number;
-  itemTotal: number;
-  // page related
-  pageSize: number;
-  pageIndex: number;
-  pageTotal: number;
-  // pagination related
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  // function related
-  nextPage: () => Promise<PaginatedData<T>>;
-  prevPage: () => Promise<PaginatedData<T>>;
-}
+// export interface PaginatedData<T extends unknown> {
+//   // response related
+//   data: T | null | undefined;
+//   // pagination related
+//   pagination?: {
+//     total: number;
+//     pages: number;
+//     limit: number;
+//     offset: number;
+//     current: number;
+//   };
+//   // meta related
+//   hasNextPage: boolean;
+//   hasPrevPage: boolean;
+//   // function related
+//   nextPage: () => Promise<PaginatedData<T>>;
+//   prevPage: () => Promise<PaginatedData<T>>;
+// }
 
 // ---  ENUMS
-
-export enum ResponseStatus {
-  OK = "ok",
-  ERROR = "error",
-}
 
 export enum ApiSortDirection {
   ASC = "",

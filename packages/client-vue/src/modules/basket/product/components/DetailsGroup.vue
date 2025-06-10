@@ -38,7 +38,7 @@ import { some } from "lodash-es";
 import DetailsItem from "./DetailsItem.vue";
 
 // --- types
-import type { Product } from "@upmind-automation/headless-vue";
+import type { Product } from "@upmind-automation/headless";
 
 const props = defineProps<{
   id: string;

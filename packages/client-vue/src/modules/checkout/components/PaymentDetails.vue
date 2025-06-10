@@ -76,7 +76,7 @@
 import {
   useBasketPaymentDetails,
   useBasket,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 import config from "../checkout.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 

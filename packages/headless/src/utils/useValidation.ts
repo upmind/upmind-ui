@@ -1,6 +1,6 @@
 // --- external
-import { createAjv } from "@jsonforms/core";
 
+import { createAjv } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
 
 // --- internal

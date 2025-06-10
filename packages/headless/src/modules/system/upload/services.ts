@@ -12,6 +12,7 @@ import {
   ImageObjectTypes,
   ImageUploadTypes,
   BrandConfigKeys,
+  IImage,
 } from "@upmind-automation/types";
 import { AnyEventObject } from "xstate";
 
@@ -67,17 +68,17 @@ async function getImage({ field }: UploadContext, { data }: AnyEventObject) {
   if (!field?.field_type && !data.hash)
     return Promise.reject(new Error("No field type or hash provided"));
 
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   // const path = `${fieldPath({ field_type: field.field_type })}/${data.hash}`;
   const path = `images/${data.hash}`;
 
-  return get({
+  return getAsync<IImage>({
     url: useUrl(path),
     queryKey: ["images", data.hash],
     staleTime: useTime()?.DAY,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function check(_context: UploadContext, { data }: AnyEventObject) {
@@ -139,7 +140,7 @@ async function upload(
     url: useUrl(path),
     data: request,
     withAccessToken: true,
-  }).then(({ data }: any) => data);
+  });
 }
 
 // -----------------------------------------------------------------------------

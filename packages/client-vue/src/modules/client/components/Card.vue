@@ -48,7 +48,7 @@ import { Badge } from "@upmind-automation/upmind-ui";
 import { useClipboard } from "@vueuse/core";
 
 // ---types
-import type { ClientComposables } from "@upmind-automation/headless-vue";
+import type { ClientComposables } from "@upmind-automation/headless";
 import type {
   BadgeProps,
   DropdownMenuItemProps,

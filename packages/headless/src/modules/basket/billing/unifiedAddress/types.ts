@@ -22,7 +22,7 @@ import type {
 
 export type UnifiedAddress = UnifiedAddressModel & {
   id: string;
-  // --- computed
+  // --- context
   title: string;
   description: string;
   // --- meta info

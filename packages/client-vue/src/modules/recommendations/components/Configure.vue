@@ -51,7 +51,7 @@ import { useI18n } from "vue-i18n";
 import {
   useRecommendations,
   useBasketProductsPending,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
 

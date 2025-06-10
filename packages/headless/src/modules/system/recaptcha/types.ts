@@ -1,6 +1,6 @@
 // --- internal
 
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 
@@ -10,5 +10,5 @@ export interface RecaptchaContext {
   token?: string;
   created?: Date;
   // ---
-  error?: ResponseError;
+  error?: QueryResponseError;
 }

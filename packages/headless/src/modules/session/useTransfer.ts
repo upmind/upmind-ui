@@ -1,18 +1,22 @@
 // --- external
+import { isString } from "lodash-es";
 
 // --- internal
 import services from "./services";
 
 // --- utils
+import { isNil } from "lodash-es";
+
+// -----------------------------------------------------------------------------
 
 /**
  * Composable function to manage session-related logic using Vue.
  * It provides state, context and helpers for session, login and registration processes.
  *
- * @param {Function} [inspector] - Optional function that can inspect the session's state and context changes.
- * @returns {object} Session management API (see below for details)
+ * @returns {UseTransferReturn} Session management API (see below for details)
  */
-export const useTransfer = (inspector?: Function) => {
+export const useTransfer = () => {
+  // --- utils
   function isExternalURL(url: string): boolean {
     try {
       const parsed = new URL(url);
@@ -21,6 +25,7 @@ export const useTransfer = (inspector?: Function) => {
       return false;
     }
   }
+
   function parseInternalUrl(path: string): string {
     try {
       const url = new URL(path, window.location.origin);
@@ -30,7 +35,8 @@ export const useTransfer = (inspector?: Function) => {
     }
   }
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+  // --- methods
 
   /**
    * Session transfer function.
@@ -42,7 +48,7 @@ export const useTransfer = (inspector?: Function) => {
     const route = new URL(window.location.href);
     // Convert URLSearchParams to Record<string, any>
     const searchParams: Record<string, any> = {};
-    route.searchParams.forEach((value, key) => {
+    route.searchParams.forEach((value: string, key: string) => {
       searchParams[key] = value;
     });
 
@@ -73,8 +79,17 @@ export const useTransfer = (inspector?: Function) => {
     return transfer;
   }
 
-  // ---------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
   return {
+    /**
+     * Transfers the session and handles redirect logic.
+     * @returns {Promise<boolean>} A promise that resolves when the transfer is complete.
+     */
     transferFrom: transfer,
   };
 };
+
+/**
+ * The return type of useTransfer composable.
+ */
+export type UseTransfer = ReturnType<typeof useTransfer>;

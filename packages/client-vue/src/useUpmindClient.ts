@@ -1,7 +1,7 @@
 import Upmind, {
   type UpmindProps,
   UpmindStatus,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- alternative implementation ----------------------------------------------
 
@@ -11,13 +11,14 @@ import { useI18n } from "./modules/system/i18n";
 // ---types
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import type { Flow } from "@upmind-automation/headless-vue";
+import type { Flow } from "@upmind-automation/headless";
 import type { GlobbedFiles } from "./modules/system/i18n/types";
 
 // ---
 
 interface UpmindClientProps extends UpmindProps {
   router?: {
+    enabled?: boolean;
     provider: Router;
     flows?: Flow[];
   };
@@ -44,36 +45,48 @@ class UpmindClient {
   }
 
   init({
+    app,
+    mode,
     pop,
     router,
     i18n,
     recaptcha,
     analytics,
+    debug,
   }: UpmindClientProps): Promise<void> {
     // NB: Only initialise once
     if (this.status != UpmindStatus.notInitialised) return Promise.resolve();
 
     this.status = UpmindStatus.initialising;
-    this.pop = pop;
-    this.analytics = analytics;
-    this.recaptcha = recaptcha;
     this.router = router;
     this.i18n = i18n;
+
     this.initPlugins();
 
-    return Upmind.init({ pop, recaptcha, analytics }).then(() => {
-      return Promise.all([this.initRouter(), this.initI18n()]).then(() => {
-        this.status = UpmindStatus.initialised;
-      });
-    });
+    return Upmind.init({ app, mode, pop, recaptcha, analytics, debug }).then(
+      () => {
+        if (Upmind.mode == "express") {
+          this.status = UpmindStatus.initialised;
+          return Promise.resolve();
+        }
+
+        return Promise.allSettled([this.initRouter(), this.initI18n()]).then(
+          () => {
+            this.status = UpmindStatus.initialised;
+          }
+        );
+      }
+    );
   }
+
+  // --- initialise the router and i18n after Upmind has started
 
   private initPlugins() {
     this.plugins = Upmind.plugins ?? {};
   }
 
   private async initRouter() {
-    if (!this.router?.provider) return;
+    if (!this.router?.provider || !this.router.enabled) return;
     useRouting(this.router.provider, this.router.flows);
   }
 
@@ -95,7 +108,9 @@ class UpmindClient {
   isReady(): Promise<void> {
     return new Promise(resolve =>
       setTimeout(() => {
-        if (this.status == UpmindStatus.notInitialised) resolve();
+        if (this.status !== UpmindStatus.notInitialised) {
+          resolve();
+        }
       }, 100)
     );
   }

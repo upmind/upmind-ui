@@ -60,7 +60,7 @@ import { isNil, map, toNumber, find } from "lodash-es";
 // --- types
 import type { ComputedRef } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { TermDetails } from "@upmind-automation/headless-vue";
+import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);

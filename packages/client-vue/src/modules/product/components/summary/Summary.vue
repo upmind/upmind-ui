@@ -63,7 +63,7 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref, watch } from "vue";
-import { useProductConfig } from "@upmind-automation/headless-vue";
+import { useProductConfig } from "@upmind-automation/headless";
 import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
 

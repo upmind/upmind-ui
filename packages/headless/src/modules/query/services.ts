@@ -1,39 +1,39 @@
 // --- external
 
 // --- internal
-import { useSystemI18n } from "../system";
 import { useQuery } from ".";
 import { useSession } from "../session";
 import { useFeedback } from "../feedback";
+import { useSystemI18n } from "../system";
 const { add } = useFeedback();
 
 // --- utils
-import { responseCodes } from "../../utils";
-import {
-  getTokenFromStorage,
-  persistTokenToStorage,
-  dumpTokenFromStorage,
-} from "../session/utils";
 import {
   get,
-  includes,
-  isEmpty,
   map,
   set,
-  startsWith,
+  isEmpty,
+  includes,
   upperCase,
+  startsWith,
 } from "lodash-es";
+import {
+  getTokenFromStorage,
+  dumpTokenFromStorage,
+  persistTokenToStorage,
+} from "../session/utils";
+import { responseCodes } from "../../utils";
+import { messageDisplays, messageTypes } from "../feedback";
 
 // --- types
 import type { Token } from "../session/types";
 import { GrantTypes, Methods } from "@upmind-automation/types";
-import { RequestParams, ResponseError, Response } from "./types";
-import { messageDisplays, messageTypes } from "../feedback/types";
+import type { RequestParams, QueryResponse } from "./types";
 
 // -----------------------------------------------------------------------------
 function handleError(
-  status: Response["status"],
-  error: Response["error"]
+  status: QueryResponse["status"],
+  error: QueryResponse["error"]
 ): Promise<never> {
   // of we have a server error (5xx), we want to display a system message
   if (status >= 500 && status < 600) {
@@ -56,7 +56,6 @@ function handleError(
     error: {
       id: error?.id ?? null,
       type: error?.type ?? responseCodes.Service_Unavailable,
-      status,
       code: error?.code ?? null,
       message: error?.message || "Service temporarily unavailable",
       data: error?.data || null,
@@ -65,10 +64,10 @@ function handleError(
   });
 }
 
-async function doFetch<T extends object = object>({
+async function doFetch<T extends any = any>({
   url,
   init,
-}: RequestParams): Promise<T> {
+}: RequestParams): Promise<QueryResponse<T>> {
   init ??= {};
 
   if (!includes(map(Methods, upperCase), init?.method)) {
@@ -78,9 +77,9 @@ async function doFetch<T extends object = object>({
   if (!url) return Promise.reject(new Error("Invalid URL"));
 
   if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
-    const { getLocale } = useSystemI18n();
-    const locale = await getLocale();
-    if (!isEmpty(locale)) url.searchParams.set("lang", locale as string);
+    const { locale, isReady } = useSystemI18n();
+    if (!isEmpty(locale.value))
+      url.searchParams.set("lang", locale.value as string);
   }
 
   // do the fetch
@@ -94,7 +93,7 @@ async function doFetch<T extends object = object>({
 
       if (!ok) throw data;
 
-      return data as T;
+      return data as QueryResponse<T>;
     })
     .catch(response => {
       if (!response?.status) return Promise.reject();

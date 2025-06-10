@@ -45,10 +45,10 @@ async function loadAll({ allowStale = true } = {}) {
       limit: 0,
     }),
     queryKey,
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    revalidateIfStale: true,
-    transformResponse: (response: any) =>
+    //revalidateIfStale: true,
+    select: response =>
       set(response, "data", mapCompanies(response?.data ?? [])),
   }).then(({ data }) => data);
 }
@@ -66,11 +66,11 @@ async function loadPaged(
       with: ["address", "address.country", "address.region"].join(),
     }),
     queryKey: [...queryKey, { ...paginationParams }],
-    allowStale,
+    //allowStale,
     withAccessToken: true,
-    transformResponse: (response: any) =>
+    select: response =>
       set(response, "data", mapCompanies(response?.data ?? [])),
-    revalidateIfStale: true,
+    //revalidateIfStale: true,
     ...paginationParams,
   }).then(({ data }) => data);
 }

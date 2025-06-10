@@ -6,6 +6,9 @@ import { waitFor } from "xstate/lib/waitFor";
 import routingEngine from "./routingEngine.machine";
 export * from "./flows";
 export * from "./types";
+export * from "./useRoutingEngine";
+export * from "./useProductsRequiringAction";
+export * from "./useRouteQueryParams";
 
 // --- utils
 import { stopService } from "../../utils";
@@ -16,7 +19,7 @@ export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
 import type { InterpreterFrom } from "xstate";
 import type { ROUTE, Flow, Route, Target } from "./types";
 import { isEmpty, get, some } from "lodash-es";
-import { ResponseError } from "../query";
+import { QueryResponseError } from "../query";
 export type RouteQueryParams = typeof useRouteQueryParams;
 
 // -----------------------------------------------------------------------------
@@ -31,8 +34,10 @@ const service = interpret(routingEngine, { devTools: false });
 // -----------------------------------------------------------------------------
 
 export const useRoutingEngine = () => {
+  if (service.status == InterpreterStatus.NotStarted) service.start();
+
   return {
-    service: service.start(),
+    service,
     getSnapshot: () => service.getSnapshot(),
     isReady: async () =>
       waitFor(service, state => !["subscribing"].some(state.matches), {
@@ -68,9 +73,9 @@ export const useRoutingEngine = () => {
       const currentRoute = get(state, "context.currentRoute");
       return currentRoute;
     },
-    getErrors: (): ResponseError | undefined => {
+    getErrors: (): QueryResponseError | undefined => {
       const state = service.getSnapshot();
-      return get(state, "context.error", undefined) as ResponseError;
+      return get(state, "context.error", undefined) as QueryResponseError;
     },
     // --- methods
     register: (flows: Flow[]) => {

@@ -1,12 +1,12 @@
 // --- internal
 
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../query";
 import type { User, IAuthTransfer } from "../types";
 
 // -----------------------------------------------------------------------------
 
 export interface ClientContext {
   user?: User;
-  error?: ResponseError;
+  error?: QueryResponseError;
   transfer?: IAuthTransfer;
 }

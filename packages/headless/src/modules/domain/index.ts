@@ -5,6 +5,7 @@ import { interpret, InterpreterStatus } from "xstate";
 import domainMachine from "./domain.machine";
 import { DomainTypes } from "./types";
 export * from "./types";
+export * from "./useDomain";
 
 // --- utils
 import { stopService } from "../../utils";

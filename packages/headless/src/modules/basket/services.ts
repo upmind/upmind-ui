@@ -99,9 +99,9 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true,
-    revalidateIfStale: true,
+    //revalidateIfStale: true,
   })
-    .then(({ data }: any) => {
+    .then(data => {
       // generate a new basket if we don't have one;
       if (isEmpty(data)) return generate(context, { type: "GENERATE" });
       return data;
@@ -138,7 +138,7 @@ async function generate({ actors }: BasketContext, _event: AnyEventObject) {
     url: useUrl("orders"),
     withAccessToken: true,
     data,
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function convert(
@@ -169,7 +169,7 @@ async function convert(
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
     data: omitBy(data, isNil), // NB we need to remove any null values
-  }).then(({ data }: any) => data);
+  });
 }
 
 async function getProvisioningFieldsValues(basket: IBasket) {
@@ -184,9 +184,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   const checkPromise = patch({
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     withAccessToken: true,
-  })
-    .then(({ data }: any) => data)
-    .catch(({ error }) => error);
+  }).catch(({ error }) => error);
 
   provisioningPromises.push(checkPromise);
 
@@ -219,7 +217,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       withAccessToken: true,
       staleTime: 0, // disable cache, this may still return stale data while the request is in flight
       gcTime: 0, // force cache to be cleared immediately, to prevent stale data
-    }).then(({ data }: any) => {
+    }).then(data => {
       // update the product with the provisioning fields
       set(rawProduct, "provision_fields", data);
       return data;

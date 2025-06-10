@@ -14,7 +14,7 @@ import type {
 import { ErrorObject } from "ajv";
 import type { GatewayTypes } from "../types";
 import type { GatewayCtx, GatewayContext } from "../types";
-import { ResponseError } from "src/modules/query";
+import { QueryResponseError } from "../../../query";
 
 // -----------------------------------------------------------------------------
 
@@ -86,5 +86,5 @@ export interface StripeContext extends GatewayContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Stripe, as wel las any model data
   // ---
-  error?: ResponseError | ErrorObject[];
+  error?: QueryResponseError | ErrorObject[];
 }

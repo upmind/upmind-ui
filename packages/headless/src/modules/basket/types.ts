@@ -2,7 +2,7 @@
 import type { ActorRef } from "xstate";
 import type { IBasket, IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { ResponseError } from "../query/types";
+import type { QueryResponseError } from "../query/types";
 // -----------------------------------------------------------------------------
 
 export interface BasketContext {
@@ -11,7 +11,7 @@ export interface BasketContext {
   // ---
   products: BasketProduct[]; // Array of products in the basket
   // ---
-  error?: ResponseError;
+  error?: QueryResponseError;
   controller?: AbortController;
   summary?: any; //TODO: define summary type
   // --- SPAWNED ACTORS/MACHINES
