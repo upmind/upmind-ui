@@ -1,18 +1,20 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <FilePond
-      v-bind="appliedOptions"
-      :allow-multiple="false"
-      :accepted-file-types="fileTypes"
-      :max-files="1"
-      :max-file-size="'5MB'"
-      :label-idle="labelText"
-      :credits="false"
-      :class="styles.form.file"
-      stylePanelLayout="integrated"
-      @addfile="onAddFile"
-      @removefile="onRemoveFile"
-    />
+    <Loading :active="meta.isLoading">
+      <FilePond
+        v-bind="appliedOptions"
+        :allow-multiple="false"
+        :accepted-file-types="fileTypes"
+        :max-files="1"
+        :max-file-size="'5MB'"
+        :label-idle="labelText"
+        :credits="false"
+        :class="styles.form.file"
+        stylePanelLayout="integrated"
+        @addfile="onAddFile"
+        @removefile="onRemoveFile"
+      />
+    </Loading>
   </FormField>
 </template>
 
@@ -34,7 +36,7 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import config from "../form.config";
 
 // --- components
-import { FormField } from "@upmind-automation/upmind-ui";
+import { FormField, Loading } from "@upmind-automation/upmind-ui";
 import vueFilePond from "vue-filepond";
 
 // types
@@ -52,7 +54,7 @@ const { formFieldProps, appliedOptions, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 
-const { add, remove, stop } = useUpload(appliedOptions.value.field);
+const { add, remove, stop, meta } = useUpload(appliedOptions.value.field);
 
 const styles = useStyles(["form.file"], {}, config) as ComputedRef<{
   form: {
