@@ -42,10 +42,6 @@ export interface Phone {
   };
 }
 
-export type UseClientPhone = ReturnType<typeof useClientPhone>;
-
-export type UseClientPhones = ReturnType<typeof useClientPhones>;
-
 export interface PhoneContext extends ClientItemContext {
   country?: ICountry;
   types?: typeof PhoneTypes;
