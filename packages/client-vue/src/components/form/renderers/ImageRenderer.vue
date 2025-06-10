@@ -66,11 +66,11 @@ onBeforeUnmount(() => stop());
 
 async function onAddFile(error: any, file: any) {
   const data = await add(file.file);
-  onInput(data);
+  onInput(data, false);
 }
 
 async function onRemoveFile() {
-  onInput(null);
+  onInput(null, false);
   remove();
 }
 
