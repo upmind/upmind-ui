@@ -18,8 +18,8 @@ export function mapCompany(raw: ICompany): Company {
     addressId: raw.address_id,
     title: raw.name,
     description: compact([
-      get(raw, "address.address1"),
-      get(raw, "address.address2"),
+      get(raw, "address.address_1"),
+      get(raw, "address.address_2"),
       get(raw, "address.street"),
       get(raw, "address.city"),
       get(raw, "address.postcode"),
@@ -29,7 +29,7 @@ export function mapCompany(raw: ICompany): Company {
     name: raw.name,
     default: raw.default,
     regNumber: raw.reg_number,
-    vatNumber: raw.vat_percent,
+    vatNumber: raw.vat_number,
     vatPercent: raw.vat_percent,
     // ---
     meta: {

@@ -47,7 +47,7 @@ export class CacheIsStaleError extends Error {
   code: number;
   constructor() {
     super("The data is stale. Please make sure that you refresh the data.");
-    this.code = responseCodes.Conflict;
+    this.code = responseCodes.Unprocessable_Entity;
   }
 }
 

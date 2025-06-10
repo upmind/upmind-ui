@@ -7,9 +7,16 @@ import type {
   CompanyModel,
   PhoneModel,
   EmailModel,
+  Company,
 } from "../../../client";
 import type { ClientItemContext } from "../../../client/types";
-import type { ICompany, ICountry, IRegion } from "@upmind-automation/types";
+import type {
+  BrandConfigKeys,
+  IAddress,
+  ICompany,
+  ICountry,
+  IRegion,
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -26,16 +33,26 @@ export type UnifiedAddress = UnifiedAddressModel & {
   };
 };
 
-export type UnifiedAddressModel = AddressModel &
-  Omit<CompanyModel, "vatNumber" | "regNumber"> & {
-    companyDetails?: boolean;
-    companyId?: ICompany["id"];
-    companyName?: ICompany["name"];
-    regNumber?: ICompany["reg_number"];
-    vatNumber?: ICompany["vat_number"];
-    phone?: PhoneModel["phone"];
-    email?: EmailModel["email"];
-  };
+export type UnifiedAddressModel = {
+  addressId?: IAddress["id"];
+  companyId?: ICompany["id"];
+  address?: AddressModel;
+  company?: CompanyDetailsModel;
+  phone?: PhoneModel["phone"];
+  type: number;
+};
+
+export type CompanyDetailsModel = Omit<
+  CompanyModel,
+  "vatNumber" | "regNumber"
+> & {
+  addressId?: IAddress["id"];
+  companyId?: ICompany["id"];
+  companyName?: ICompany["name"];
+  regNumber?: ICompany["reg_number"];
+  vatNumber?: ICompany["vat_number"];
+  email?: EmailModel["email"];
+};
 
 export interface UnifiedAddressContext extends ClientItemContext {
   model: UnifiedAddressModel;
@@ -44,6 +61,8 @@ export interface UnifiedAddressContext extends ClientItemContext {
   regions?: IRegion[];
   countries: ICountry[];
   addresses: Address[];
+  companies: Company[];
   phones: Phone[];
   emails: Email[];
+  config?: Record<BrandConfigKeys, boolean>;
 }

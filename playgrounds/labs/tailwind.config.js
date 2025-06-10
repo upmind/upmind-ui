@@ -12,7 +12,7 @@ import theme from "./src/assets/theme";
 export default {
   darkMode: "media", // Honour the OS preference
   content: [
-    "./src/**/*.{html,vue,js,tsx}",
+    "./src/**/*.{html,vue,js,tsx,ts}",
     "../../packages/client-vue/src/**/*.{html,vue,js,tsx,ts}",
     "../../packages/ui/src/**/*.{html,vue,js,tsx,ts}",
     // "./node_modules/@ummind/ui/**/*.{vue,js,ts,jsx,tsx}", // Add this line
