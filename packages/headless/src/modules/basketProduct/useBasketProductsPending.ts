@@ -1,37 +1,35 @@
 // --- external
-import { computed, ref } from "vue";
-import { interpret, InterpreterStatus } from "xstate";
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
+import { computed } from "vue";
+import { InterpreterStatus } from "xstate";
 
 // --- internal
 import { useBasket } from "../basket";
 import { useBasketProductPending } from "./useBasketProductPending";
 
 // --- utils
-import { DetailedError, useSessionStorage } from "../../utils";
 import {
-  defaults,
-  find,
-  first,
-  forEach,
   get,
-  isEmpty,
-  isEqual,
-  isNil,
-  isString,
+  set,
+  find,
   keys,
   omit,
-  set,
+  first,
+  isNil,
   unset,
-  some,
-  isArray,
+  forEach,
+  isEmpty,
+  isEqual,
+  defaults,
+  isString,
 } from "lodash-es";
+import { DetailedError, useSessionStorage } from "../../utils";
 
 // --- types
-import type { ActorRef, State, Subscription } from "xstate";
-import type { ProductModel, ProductProps } from "../product";
 import { responseCodes, compactDeep } from "../../utils";
+import type { ProductModel, ProductProps } from "../product";
+import type { ActorRef, State, Subscription } from "xstate";
 
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 

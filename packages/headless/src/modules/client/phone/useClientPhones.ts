@@ -1,9 +1,5 @@
 // --- internal
-import {
-  QueryObserver,
-  invalidateQueryByKey,
-  useQuerySubscription,
-} from "../../query";
+import { invalidateQueryByKey } from "../../query";
 import service from "./services";
 import { useTime } from "../../../utils";
 import { useSession } from "../../session";
@@ -23,24 +19,6 @@ import {
 // --- types
 import type { Phone } from "./types";
 import type { PaginatedParams } from "../../query";
-import type { QueryCacheNotifyEvent } from "@tanstack/query-core";
-
-let observer: QueryObserver | undefined;
-
-/**
- * Subscribe to the client address query that are present in the cache.
- * This will trigger the callback function when the query is ready/updated.
- * @param callback The callback function to be called when the query is ready/updated.
- * @returns The unsubscribe function
- */
-const subscribe = (
-  callback: (query: QueryCacheNotifyEvent["query"]) => void
-): QueryObserver => {
-  if (!observer) {
-    observer = useQuerySubscription(service.queryKey, callback);
-  }
-  return observer;
-};
 
 export const useClientPhones = () => {
   const { addError, addSuccess } = useFeedback();
@@ -59,12 +37,11 @@ export const useClientPhones = () => {
 
   /**
    * Get all the phones for the current client.
-   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to an array of phones
    * @example getAll().then(phones => console.log(phones))
    */
-  async function getAll({ allowStale = true } = {}) {
-    return service.loadAll({ allowStale });
+  async function getAll() {
+    return service.loadAll();
   }
 
   /**
@@ -121,15 +98,11 @@ export const useClientPhones = () => {
   /**
    * Get phones in a paged format.
    * @param paginationParams The pagination parameters to use.
-   * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns A promise that resolves to an array of phones
    * @example getPaged({ page: 1, limit: 10 }).then(phones => console.log(phones))
    */
-  async function getPaged(
-    paginationParams: PaginatedParams,
-    { allowStale = true } = {}
-  ) {
-    return service.loadPaged(paginationParams, { allowStale });
+  async function getPaged(paginationParams: PaginatedParams) {
+    return service.loadPaged(paginationParams);
   }
 
   /**
@@ -210,7 +183,6 @@ export const useClientPhones = () => {
       queryFn: getAll,
       staleTime: useTime().DAY,
     },
-    subscribe,
     isReady,
     getOne,
     getAll,
@@ -224,3 +196,5 @@ export const useClientPhones = () => {
     invalidate: invalidateQueryByKey(service.queryKey),
   };
 };
+
+export type UseClientPhones = ReturnType<typeof useClientPhones>;

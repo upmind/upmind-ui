@@ -58,14 +58,14 @@ function submitViaForm({
 }
 
 async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
-  const { get, useUrl } = useQuery();
+  const { getAsync, useUrl } = useQuery();
 
   // if we already have the order, we don't need to load it again and we can return an empty object
   if (!isEmpty(orderId)) return Promise.resolve({ fields: [] });
 
   if (!data?.id) return Promise.reject({ title: "Invalid order", code: 400 });
 
-  return get({
+  return getAsync({
     url: useUrl(`order/${data.id}`),
     queryKey: ["order", { id: data.id }],
   }).then(data => ({ fields: data }));

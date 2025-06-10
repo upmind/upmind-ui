@@ -6,9 +6,9 @@ import { invalidateQueryByKey } from "../../query";
 import {
   useQuery,
   useSession,
-  useQueryPaginated,
   useClientCompanies,
   useSystem,
+  useFeedback,
 } from "../..";
 
 // --- utils
@@ -19,6 +19,7 @@ import {
 } from "../../../utils";
 import { get, set, isEmpty, isNil, isString } from "lodash-es";
 import { mapCompanies, mapICompany } from "./mappers";
+import { get, isNil, isEmpty, isString } from "lodash-es";
 
 // --- types
 import type { ICompany } from "@upmind-automation/types";
@@ -33,54 +34,45 @@ import { useSchema } from "./schemas";
 // Queries
 
 const queryKey: QueryKey = ["client", "companies"];
+const { addError, addSuccess } = useFeedback();
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Company[]>({
+  return getAsync<ICompany[], Company[]>({
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
       limit: 0,
     }),
+    select: data => mapCompanies(data ?? []),
     queryKey,
-    //allowStale,
     withAccessToken: true,
-    //revalidateIfStale: true,
-    select: response =>
-      set(response, "data", mapCompanies(response?.data ?? [])),
-  }).then(({ data }) => data);
+  });
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(params: PaginatedParams) {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<Company[]>({
+  return getAsync<ICompany[], Company[]>({
     url: useUrl(`clients/${client.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
+      ...params,
     }),
-    queryKey: [...queryKey, { ...paginationParams }],
-    //allowStale,
+    select: data => mapCompanies(data ?? []),
+    queryKey: [...queryKey, { ...params }],
     withAccessToken: true,
-    select: response =>
-      set(response, "data", mapCompanies(response?.data ?? [])),
-    //revalidateIfStale: true,
-    ...paginationParams,
-  }).then(({ data }) => data);
+  });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedCompanies =
-    queryClient.getQueryData<QueryResponse<Company[]>>(queryKey);
+  const cachedCompanies = queryClient.getQueryData<Company[]>(queryKey);
   if (isNil(cachedCompanies)) throw new CacheIsStaleError();
-  return cachedCompanies.data;
+  return cachedCompanies;
 }
 
 /**
@@ -151,7 +143,20 @@ async function add(data: CompanyModel) {
     url: useUrl(`clients/${clientId}/companies`),
     data: mapICompany(data),
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error adding this company",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully added company");
+    },
+  });
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
@@ -163,8 +168,21 @@ async function update(id: Company["id"], data: CompanyModel) {
   return put<ICompany>({
     url: useUrl(`clients/${clientId}/companies/${id}`),
     data: mapICompany(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error updating this company",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully updated company");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function remove(companyId: Company["id"]) {
@@ -175,8 +193,21 @@ async function remove(companyId: Company["id"]) {
 
   return del<null>({
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this company",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey)();
+      addSuccess("Successfully removed company");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function setDefault(companyId: Company["id"]) {
@@ -188,8 +219,22 @@ async function setDefault(companyId: Company["id"]) {
   return put<ICompany>({
     url: useUrl(`clients/${clientId}/companies/${companyId}`),
     data: { default: true },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this company as default",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully set company as default");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -236,7 +281,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -262,6 +307,6 @@ export const useClientCompanyServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };

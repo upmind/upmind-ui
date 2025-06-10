@@ -75,15 +75,15 @@ export const useClientAddress = (
     });
 
   const meta = computed(() => ({
-    isNew: stateMatches(state, "loading"),
-    isValid: stateMatches(state, "available.error"),
-    isLoading: stateMatches(state, "processing"),
-    hasErrors: stateMatches(state, "available.valid"),
-    canRemove: !contextValue(state, "model.id"),
-    isDefault: stateMatches(state, "model.canDelete"),
-    isVerified: stateMatches(state, "model.default"),
-    isComplete: stateMatches(state, "model.verified"),
-    isProcessing: state.value.done || stateMatches(state, "complete"),
+    isNew: !stateMatches(state, "model.id"),
+    isValid: stateMatches(state, "available.valid"),
+    isLoading: stateMatches(state, "loading"),
+    hasErrors: stateMatches(state, "available.error"),
+    canRemove: !contextValue(state, "canDelete"),
+    isDefault: stateMatches(state, "model.default"),
+    isVerified: stateMatches(state, "model.verified"),
+    isComplete: state.value.done || stateMatches(state, "complete"),
+    isProcessing: stateMatches(state, "processing"),
   }));
 
   // --- context

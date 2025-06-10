@@ -37,19 +37,22 @@ async function load(_context: BillingDetailsContext, _event: AnyEventObject) {
   ]);
 
   await isAuthenticated().catch(error => Promise.reject(error));
-  const { getAll: getAddresses } = useClientAddresses();
-  const { getAll: getCompanies } = useClientCompanies();
-  const { getAll: getPhones } = useClientPhones();
 
-  const addresses = getAddresses({ allowStale: false });
-  const companies = getCompanies({ allowStale: false });
-  const phones = getPhones({ allowStale: false });
+  const addresses = useClientAddresses();
+  const companies = useClientCompanies();
+  const phones = useClientPhones();
 
-  return Promise.all([companies, addresses, phones]).then(
-    ([companies, addresses, phones]) => {
-      return { companies, addresses, phones };
-    }
-  );
+  return Promise.all([
+    companies.isReady(),
+    addresses.isReady(),
+    phones.isReady(),
+  ]).then(() => {
+    return {
+      companies: companies.data.value,
+      addresses: addresses.data.value,
+      phones: phones.data.value,
+    };
+  });
 }
 
 async function update(

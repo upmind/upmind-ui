@@ -2,73 +2,68 @@
 import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 // --- internal
-import { useQuery, useSystem, useSession, useQueryPaginated } from "../..";
+import { useQuery, useSystem, useSession, useFeedback } from "../..";
 
 // --- utils
 import {
+  useTime,
   useValidation,
   useModelParser,
   CacheIsStaleError,
 } from "../../../utils";
 import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
-import { isString, isNil, get, set, first } from "lodash-es";
+import { isString, isNil, get, first } from "lodash-es";
 
 // --- types
 import { PhoneTypes } from "./types";
 import type { IPhone } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/query-core";
 import type { AnyEventObject } from "xstate";
-import type { QueryResponse, PaginatedParams } from "../..";
+import type { PaginatedParams } from "../..";
 import type { Phone, PhoneModel, PhoneContext } from "./types";
 
 // -----------------------------------------------------------------------------// QUERIES
 // QUERIES
 
 const queryKey: QueryKey = ["client", "phones"];
+const { addError, addSuccess } = useFeedback();
 
-async function loadAll({ allowStale = true } = {}) {
-  const { get, useUrl } = useQuery();
+async function loadAll() {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IPhone[], Phone[]>({
-    url: useUrl(`clients/${client.id}/phones`, {
-      limit: 0,
-    }),
-    queryKey,
-    //allowStale,
-    withAccessToken: true,
-    //revalidateIfStale: true,
+  return getAsync<IPhone[], Phone[]>({
+    url: useUrl(`clients/${client.id}/phones`, { limit: 0 }),
     select: data => mapPhones(data ?? []),
-  }).then(({ data }) => data);
+    queryKey,
+    staleTime: useTime().DAY,
+    withAccessToken: true,
+  });
 }
 
-async function loadPaged(
-  paginationParams: PaginatedParams,
-  { allowStale = true } = {}
-) {
-  const { get, useUrl } = useQueryPaginated();
+async function loadPaged(paginationParams: PaginatedParams) {
+  const { getAsync, useUrl } = useQuery();
   const { isAuthenticated } = useSession();
   const client = await isAuthenticated().catch(error => Promise.reject(error));
 
-  return get<IIPhone[], Phone[]>({
-    url: useUrl(`clients/${client.id}/phones`),
+  return getAsync<IPhone[], Phone[]>({
+    url: useUrl(`clients/${client.id}/phones`, {
+      ...paginationParams,
+    }),
+    select: data => mapPhones(data ?? []),
     queryKey: [...queryKey, { ...paginationParams }],
-    //allowStale,
+    staleTime: useTime().DAY,
     withAccessToken: true,
-    select: response => set(response, "data", mapPhones(response.data ?? [])),
-    //revalidateIfStale: true,
-    ...paginationParams,
-  }).then(({ data }) => data ?? []);
+  });
 }
 
 function loadAllFromCache() {
   const { queryClient } = useQuery();
-  const cachedPhones =
-    queryClient.getQueryData<QueryResponse<Phone[]>>(queryKey);
+  const cachedPhones = queryClient.getQueryData<Phone[]>(queryKey);
   if (isNil(cachedPhones)) throw new CacheIsStaleError();
-  return cachedPhones.data;
+  return cachedPhones;
 }
 
 /**
@@ -123,8 +118,21 @@ async function add(data: PhoneModel) {
   return post<IPhone>({
     url: useUrl(`clients/${clientId}/phones`),
     data: mapIPhone(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error adding this phone",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully added phone");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function update(id: Phone["id"], data: PhoneModel) {
@@ -136,8 +144,21 @@ async function update(id: Phone["id"], data: PhoneModel) {
   return put<IPhone>({
     url: useUrl(`clients/${clientId}/phones/${id}`),
     data: mapIPhone(data),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error updating this phone",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully updated phone");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function remove(phoneId: Phone["id"]) {
@@ -148,8 +169,21 @@ async function remove(phoneId: Phone["id"]) {
 
   return del<null>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title || "We experienced an error removing this phone",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess() {
+      invalidateQueryByKey(queryKey)();
+      addSuccess("Successfully removed phone");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 async function setDefault(phoneId: Phone["id"]) {
@@ -161,8 +195,22 @@ async function setDefault(phoneId: Phone["id"]) {
   return put<IPhone>({
     url: useUrl(`clients/${clientId}/phones/${phoneId}`),
     data: { default: true },
+    onError(error: any) {
+      addError({
+        title: isString(error)
+          ? error
+          : error?.title ||
+            "We experienced an error setting this phone as default",
+        copy: error?.message,
+        data: error?.data,
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey)(data);
+      addSuccess("Successfully set phone as default");
+    },
     withAccessToken: true,
-  }).then(invalidateQueryByKey(queryKey));
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -234,7 +282,7 @@ export default {
   //--- queries
   loadAll,
   loadPaged,
-  refresh: async () => loadAll({ allowStale: false }),
+  refresh: loadAll,
 
   loadAllFromCache,
   //--- mutations
@@ -260,6 +308,6 @@ export const useClientPhoneServices = () => {
     },
     parse,
     validate,
-    refresh: async () => loadAll({ allowStale: false }),
+    refresh: loadAll,
   };
 };
