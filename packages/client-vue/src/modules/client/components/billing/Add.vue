@@ -44,14 +44,14 @@ import { ref, computed } from "vue";
 
 // --- internal
 import {
+  useBillingDetail
   useBillingDetails,
   useClientAddresses,
   useClientCompanies,
-} from "@upmind-automation/headless-vue";
+} from "@upmind-automation/headless";
 
 // --- components
 import { UpmForm, formRenderers } from "../../../../components/form";
-import { useBillingDetail } from "@upmind-automation/headless-vue";
 import { Link, Button, Loading } from "@upmind-automation/upmind-ui";
 
 // utils

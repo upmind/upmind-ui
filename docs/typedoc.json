@@ -1,7 +1,7 @@
 {
   "$schema": "https://typedoc-plugin-markdown.org/schema.json",
   "name": "Upmind",
-  "entryPoints": ["../packages/headless", "../packages/headless-vue"],
+  "entryPoints": ["../packages/headless"],
   "entryPointStrategy": "packages",
   "outputFileStrategy": "members",
   "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
