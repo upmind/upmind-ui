@@ -6,10 +6,11 @@
         :allow-multiple="false"
         :accepted-file-types="fileTypes"
         :max-files="1"
-        :max-file-size="'5MB'"
         :label-idle="labelText"
         :credits="false"
         :class="styles.form.file"
+        max-file-size="5MB"
+        stylePanelAspectRatio="0.2"
         stylePanelLayout="integrated"
         @addfile="onAddFile"
         @removefile="onRemoveFile"
@@ -50,9 +51,8 @@ const FilePond = vueFilePond(
 const props = defineProps<RendererProps<ControlElement>>();
 const fileTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-const { formFieldProps, appliedOptions, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const { control, formFieldProps, appliedOptions, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
 
 const { add, remove, stop, meta } = useUpload(appliedOptions.value.field);
 
@@ -94,10 +94,14 @@ export const tester = {
 <style>
 .filepond--image-preview-wrapper {
   @apply rounded-lg !important;
-  border: 0 !important;
+  border: 0;
 }
 
 .filepond--image-preview {
-  background-color: transparent !important;
+  background-color: transparent;
+}
+
+.filepond--panel-root {
+  background-color: transparent;
 }
 </style>
