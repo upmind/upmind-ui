@@ -95,7 +95,6 @@ export function useSchema({
 
   // ensure we honor the brand config
   if (get(config, BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS)) {
-    debugger;
     schema.required.push("regionId");
   }
 

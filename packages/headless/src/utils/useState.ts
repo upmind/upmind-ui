@@ -198,22 +198,6 @@ export const contextValue = <T = unknown>(
   return get(context, props as PropertyPath, fallback);
 };
 
-export const childService = (
-  stateLike: StateLike,
-  prop?: string | number,
-  fallback?: ActorRef<any> | undefined
-): ActorRef<any> | undefined => {
-  const state = safeState(stateLike);
-
-  if (!state || isNil(prop)) return fallback;
-
-  const actor = state?.children[prop];
-
-  if (isNil(actor)) return fallback;
-
-  return actor;
-};
-
 export const childActor = (
   stateLike: StateLike,
   prop?: string | number,
@@ -313,10 +297,3 @@ export const useContextService = <T = unknown>(
   fallback?: any
 ): ComputedRef<ActorRef<any> | undefined> =>
   computed(() => contextService(stateLike, prop, fallback));
-
-export const useChildService = (
-  stateLike: StateLike,
-  prop?: string | number,
-  fallback?: any
-): ComputedRef<ActorRef<any> | undefined> =>
-  computed(() => childService(stateLike, prop, fallback));

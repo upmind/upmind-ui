@@ -38,7 +38,7 @@ function loadList(params?: QueryListParams) {
     queryKey: [...queryKey, params],
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
           reject(new UserIsNotAuthenticatedError());
