@@ -51,18 +51,16 @@ export const useRoutingEngine = () => {
   async function isReady(): Promise<boolean> {
     return waitFor(
       service,
-      state => !stateMatches(state, ["subscribing", "loading"]),
+      state => !stateMatches(state, ["subscribing", "loading"]) && !!router,
       { timeout: Infinity }
     )
       .then(state => {
-        debugger;
         if (stateMatches(state, "unavailable"))
           throw "Routing Engine is unavailable";
         return state;
       })
       .then(() => router.isReady().then(() => true))
       .catch(error => {
-        debugger;
         throw new DetailedError(
           "Routing Engine is unavailable",
           responseCodes.Service_Unavailable,
@@ -279,8 +277,8 @@ export const useRoutingEngine = () => {
     errors,
 
     //  --- methods
-    init: (provider: Router) => {
-      router ??= provider;
+    init: (instance: Router) => {
+      router ??= instance;
     },
     register,
     guard,

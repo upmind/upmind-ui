@@ -43,7 +43,6 @@ export interface UpmindProps {
   };
   router?: {
     instance: Router;
-    enabled?: boolean;
     flows?: Flow[];
   };
   i18n?: {
@@ -198,7 +197,7 @@ class Upmind {
   }
 
   private async initRouter() {
-    if (!this.router?.instance || !this.router?.enabled) return;
+    if (!this.router?.instance) return;
     useRouting(this.router.instance, this.router.flows);
   }
 
