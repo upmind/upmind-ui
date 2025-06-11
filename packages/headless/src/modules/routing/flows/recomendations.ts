@@ -15,14 +15,16 @@ import { ROUTE } from "../types";
 
 export const useRecommendationsFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts } = useBasket();
+  const { meta: basketMeta } = useBasket();
   const { hasRecommendations, isReady } = useRecommendationsEngine();
 
   let flows: Flow[] = [
     {
       name: ROUTE.RECOMMENDATIONS,
       guard: async (_route: Route) =>
-        isReady().then(() => hasProducts() && hasRecommendations()),
+        isReady().then(
+          () => basketMeta.value.hasProducts && hasRecommendations()
+        ),
       targets: {
         next: [ROUTE.CHECKOUT, ROUTE.SESSION_REGISTER, ROUTE.BASKET],
         back: [ROUTE.BASKET, ROUTE.EMPTY],

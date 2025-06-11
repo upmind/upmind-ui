@@ -1,6 +1,6 @@
 // --- internal
 import { useBasket, useBrand, useQuery, useSystem } from "../..";
-import { useSystemRecaptcha, useTracking } from "../../system/";
+import { useRecaptcha, useTracking } from "../../system/";
 import {
   BrandConfigKeys,
   GrantTypes,
@@ -65,7 +65,7 @@ async function loadUser() {
 
 async function authenticate({ model }: GuestContext<LoginModel>) {
   const { post, useUrl } = useQuery();
-  const { getCurrency } = useBasket();
+  const { currency } = useBasket();
 
   const data: any = {
     username: model.username,
@@ -76,8 +76,7 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   // Add.match the basket currency (if available)
   // to persist the currency when a client logs in and claims a basket
   // without it, the basket will revert to the default currency
-  const currency = getCurrency();
-  if (currency) data.currency_id = currency.id;
+  if (currency.value) data.currency_id = currency.value.id;
 
   return post({
     url: useUrl("access_token", {}, { context: "oauth" }),
@@ -139,9 +138,9 @@ async function verifyReCaptcha(
 }
 
 async function register({ model }: GuestContext<RegisterModel>) {
-  const { getCurrency } = useBasket();
+  const { currency } = useBasket();
   const { post, useUrl } = useQuery();
-  const recaptcha = useSystemRecaptcha();
+  const recaptcha = useRecaptcha();
   const { get: getCookie } = useCookies();
   const { get: getTracking } = useTracking();
 
@@ -163,8 +162,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
   // Add.match the basket currency (if available)
   // to persist the currency when a client registers and claims a basket
   // without it, the basket will revert to the default currency
-  const currency = getCurrency();
-  if (currency) data.currency_id = currency.id;
+  if (currency.value) data.currency_id = currency.value.id;
 
   // add recaptcha token if available
   await recaptcha
@@ -195,7 +193,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
 }
 
 async function recover({ model }: GuestContext<RecoverModel>) {
-  const recaptcha = useSystemRecaptcha();
+  const recaptcha = useRecaptcha();
   const { post, useUrl } = useQuery();
 
   const data: any = {

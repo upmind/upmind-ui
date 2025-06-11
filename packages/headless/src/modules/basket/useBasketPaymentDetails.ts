@@ -107,7 +107,7 @@ export const useBasketPaymentDetails = () => {
     }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      actor.value.service,
+      actor.value!.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },

@@ -97,7 +97,7 @@ export const useBasketPromotions = () => {
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      actor.value?.service,
+      actor.value!.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },
@@ -125,7 +125,7 @@ export const useBasketPromotions = () => {
   async function remove(value: PromotionModel) {
     actor.value?.send({ type: "REMOVE", data: toRaw(unref(value)) });
     return waitFor(
-      actor.value?.service,
+      actor.value!.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },

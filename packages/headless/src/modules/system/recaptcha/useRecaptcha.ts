@@ -32,7 +32,7 @@ let service = interpret(recaptchaMachine, { devTools: false });
 
 // -----------------------------------------------------------------------------
 
-export const useSystemRecaptcha = () => {
+export const useRecaptcha = () => {
   // --- state
   const { state } = useActor(service);
 
@@ -183,4 +183,4 @@ export const useSystemRecaptcha = () => {
 /**
  * The return type of useSystem composable.
  */
-export type UseSystemRecaptcha = ReturnType<typeof useSystemRecaptcha>;
+export type useRecaptcha = ReturnType<typeof useRecaptcha>;

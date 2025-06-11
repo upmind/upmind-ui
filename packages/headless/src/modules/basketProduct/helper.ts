@@ -61,21 +61,21 @@ export function basketSubscription(callback: any, onReceive: any) {
         .then(() => {
           callback({
             type: "REFRESH",
-            data: basket.getSnapshot()?.context?.basket,
+            data: basket.basket.value,
           });
         })
         .catch(() => {
           // console.error("basketHelper", "REFRESH", error);
           callback({
             type: "ERROR",
-            data: basket.getSnapshot()?.context?.error,
+            data: basket.errors?.value,
           });
         });
       return;
     }
     // --- from this point on we assume we have a basket
 
-    const rawBasket = basket.getBasket();
+    const rawBasket = basket.basket.value;
     let basketProduct: BasketProduct | undefined;
 
     if (!rawBasket) {
@@ -169,7 +169,7 @@ export function basketSubscription(callback: any, onReceive: any) {
               type: "ADDED",
               data: {
                 actor: instance.service,
-                basket: basket.getSnapshot(),
+                basket: basket.basket.value,
                 context: event.context,
               },
             });
@@ -179,7 +179,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             callback({ type: "ERROR", data: error });
             callback({
               type: "ADDED",
-              data: { basket: basket.getSnapshot(), context: event.context },
+              data: { basket: basket.basket.value, context: event.context },
             });
           });
         break;
@@ -298,8 +298,8 @@ export function basketSubscription(callback: any, onReceive: any) {
             return productServices
               .updateMany(
                 {
-                  basketId: basket.getBasketId(),
-                  basketProducts: basket.getProducts(),
+                  basketId: basket.basketId.value,
+                  basketProducts: basket.products.value,
                   promotions: event.context?.promotions,
                 },
                 { data: compact(instances) }
@@ -327,7 +327,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           .finally(() => {
             basket
               .refresh()
-              .then((rawBasket: IBasket) =>
+              .then((rawBasket?: IBasket) =>
                 callback({ type: "UPDATED", data: rawBasket })
               );
           });
@@ -365,7 +365,7 @@ export function basketSubscription(callback: any, onReceive: any) {
             return rawBasket;
           })
           .then(_rawBasket => {
-            return basket.refresh().then((rawBasket: IBasket) => {
+            return basket.refresh().then((rawBasket?: IBasket) => {
               callback({ type: "UPDATED", data: rawBasket });
               return rawBasket;
             });
@@ -407,7 +407,7 @@ export function basketSubscription(callback: any, onReceive: any) {
           .then(() => {
             basket
               .refresh()
-              .then((rawBasket: IBasket) =>
+              .then((rawBasket?: IBasket) =>
                 callback({ type: "REMOVED", data: rawBasket })
               );
           })

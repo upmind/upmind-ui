@@ -1,5 +1,4 @@
 // -----------------------------------------------------------------------------
-export * from "./i18n";
 
 // --- Export Views
 // NB: for views that are used in routes, we need to use defineAsyncComponent

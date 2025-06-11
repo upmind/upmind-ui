@@ -28,7 +28,12 @@
     "target": "esnext",
     "types": ["jsdom", "vite/client"]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "../headless/src/modules/routing/useRouting.ts",
+    "../headless/src/modules/system/i18n/useI18n.ts",
+    "../headless/src/modules/system/i18n/types.ts"
+  ],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.test.ts"],
   "references": [
     { "path": "../types" },

@@ -38,7 +38,7 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
   const query = service.loadList(queryParams);
 
   const meta = computed(() => ({
-    isLoading: query?.isFetching,
+    isLoading: query?.isFetching.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query?.data?.value),
     isAvailable: sessionMeta.value.isAuthenticated,
@@ -233,6 +233,13 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
      * @returns A promise that resolves when the company is set as default.
      */
     setDefault,
+
+    /**
+     * Refresh the query to get the latest data.
+     * This will refetch the data from the server and update the query state.
+     * @returns {void}
+     */
+    refresh: () => query.refetch(),
 
     /**
      * Go to the next page of items.

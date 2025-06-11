@@ -1,5 +1,5 @@
 // --- internal
-import { useBasket, useSystemI18n } from "../..";
+import { useBasket, useLocale } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
@@ -68,7 +68,7 @@ class TrackingEvent {
   }
 
   withPage(router?: PageRoute): TrackingEvent {
-    const { locale } = useSystemI18n();
+    const { locale } = useLocale();
     const { getPOP } = usePOP();
 
     const POP = getPOP();
@@ -111,8 +111,8 @@ class TrackingEvent {
   }
 
   withEcommerce(invoice?: IInvoice): TrackingEvent {
-    const { getBasket } = useBasket();
-    const safeBasket = invoice ?? (getBasket() as IBasket);
+    const { basket } = useBasket();
+    const safeBasket = invoice ?? basket.value;
 
     if (isEmpty(safeBasket)) {
       throw new Error("No Basket available");
@@ -154,13 +154,12 @@ class TrackingEvent {
       throw new Error("No Products available");
     }
 
-    const { getBasket } = useBasket();
-    const basket = getBasket() as IBasket;
+    const { basket } = useBasket();
     if (isEmpty(basket)) throw new Error("No Basket available");
 
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
-      currency: basket.currency.code,
+      currency: basket.value!.currency.code,
       value: sumBy(
         safeItems,
         ({ price }) =>

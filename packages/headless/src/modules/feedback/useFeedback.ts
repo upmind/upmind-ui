@@ -25,7 +25,7 @@ const service = interpret(feedbackMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
-export const useFeedback = (): any => {
+export const useFeedback = () => {
   if (service.status == InterpreterStatus.NotStarted) service.start();
   const { state } = useActor(service);
 

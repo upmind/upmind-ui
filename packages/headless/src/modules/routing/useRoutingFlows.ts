@@ -1,20 +1,20 @@
 // --- external
 
 // --- internal
-import { useRoutingEngine } from "..";
-import { useBasketFlows } from "./basket";
-import { useProductFlows } from "./product";
-import { useRecommendationsFlows } from "./recomendations";
-import { useSessionFlows } from "./session";
-import { useCheckoutFlows } from "./checkout";
-import { useOrderFlows } from "./order";
+import { useRoutingEngine } from ".";
+import { useBasketFlows } from "./flows/basket";
+import { useProductFlows } from "./flows/product";
+import { useRecommendationsFlows } from "./flows/recomendations";
+import { useSessionFlows } from "./flows/session";
+import { useCheckoutFlows } from "./flows/checkout";
+import { useOrderFlows } from "./flows/order";
 
 // --- utils
 import { uniqBy, concat } from "lodash-es";
 
 // --- types
-import type { Flow } from "../types";
-export * from "../types";
+import type { Flow } from "./types";
+export * from "./types";
 
 // -----------------------------------------------------------------------------
 

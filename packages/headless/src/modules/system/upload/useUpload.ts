@@ -28,7 +28,7 @@ import type { InterpreterFrom } from "xstate";
 // this is because we need to be able to have multiple uploads happening at once
 // and we need to be able to start and stop them individually
 
-export const useSystemUpload = (field?: object) => {
+export const useUpload = (field?: object) => {
   const context = {
     field,
   };
@@ -194,6 +194,6 @@ export const useSystemUpload = (field?: object) => {
 };
 
 /**
- * Return type for useSystemUpload composable.
+ * Return type for useUpload composable.
  */
-export type UseSystemUpload = ReturnType<typeof useSystemUpload>;
+export type useUpload = ReturnType<typeof useUpload>;

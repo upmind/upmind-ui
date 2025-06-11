@@ -4,7 +4,7 @@
 import { useQuery } from ".";
 import { useSession } from "../session";
 import { useFeedback } from "../feedback";
-import { useSystemI18n } from "../system";
+import { useLocale } from "../system";
 const { add } = useFeedback();
 
 // --- utils
@@ -77,7 +77,7 @@ async function doFetch<T extends any = any>({
   if (!url) return Promise.reject(new Error("Invalid URL"));
 
   if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
-    const { locale, isReady } = useSystemI18n();
+    const { locale, isReady } = useLocale();
     if (!isEmpty(locale.value))
       url.searchParams.set("lang", locale.value as string);
   }

@@ -23,7 +23,7 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-export const useSystemI18n = () => {
+export const useLocale = () => {
   const {
     validateLanguage,
     languages: supportedLocales,
@@ -211,4 +211,4 @@ export const useSystemI18n = () => {
 /**
  * The return type of useSystem composable.
  */
-export type UseSystemI18n = ReturnType<typeof useSystemI18n>;
+export type useLocale = ReturnType<typeof useLocale>;

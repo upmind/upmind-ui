@@ -20,8 +20,7 @@ import { compactDeep } from "../../../utils";
 
 export const useBasketFlows = () => {
   const routing = useRoutingEngine();
-  const { hasProducts, setCurrency, addPromotion, isReady, productExists } =
-    useBasket();
+  const { meta, setCurrency, addPromotion, isReady } = useBasket();
   const { addMany, isInBasket } = useBasketProductsPending();
 
   let flows: Flow[] = [
@@ -62,7 +61,8 @@ export const useBasketFlows = () => {
     },
     {
       name: ROUTE.EMPTY,
-      guard: async (_route: Route) => isReady().then(() => !hasProducts()),
+      guard: async (_route: Route) =>
+        isReady().then(() => !meta.value.hasProducts),
       targets: {
         next: [],
         back: [],
@@ -71,7 +71,8 @@ export const useBasketFlows = () => {
     },
     {
       name: ROUTE.BASKET,
-      guard: async (_route: Route) => isReady().then(() => hasProducts()),
+      guard: async (_route: Route) =>
+        isReady().then(() => meta.value.hasProducts),
       resolve: async (_route: Route) => {
         return { name: ROUTE.BASKET };
       },

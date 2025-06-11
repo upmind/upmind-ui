@@ -49,22 +49,88 @@ export default createMachine(
         },
       },
 
-      // ---
       available: {
         entry: ["clearError"],
-        on: {
-          NEXT: {
-            target: "calculating.next",
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              NEXT: {
+                target: "calculating.next",
+              },
+              BACK: {
+                target: "calculating.back",
+              },
+              RESOLVE: {
+                target: "resolving",
+              },
+              REGISTER: {
+                actions: ["setFlows"],
+              },
+            },
           },
-          BACK: {
-            target: "calculating.back",
+          // This is where we calculate the next/back/fallback state and then RESOLVE to it
+          calculating: {
+            id: "calculating",
+            initial: "next",
+            states: {
+              next: {
+                invoke: {
+                  src: "calculateNextRoute",
+                  onDone: {
+                    target: "#resolved",
+                    actions: "setResolved",
+                  },
+                  onError: {
+                    target: "#resolved",
+                    actions: "setResolved",
+                  },
+                },
+              },
+              back: {
+                invoke: {
+                  src: "calculateBackRoute",
+                  onDone: {
+                    target: "#resolved",
+                    actions: "setResolved",
+                  },
+                  onError: {
+                    target: "#resolved",
+                    actions: "setResolved",
+                  },
+                },
+              },
+            },
           },
-          RESOLVE: {
-            target: "resolving",
+
+          resolving: {
+            id: "resolving",
+            invoke: {
+              src: "resolve",
+              onDone: {
+                target: "#resolved",
+                actions: "setResolved",
+              },
+              onError: {
+                target: "#resolved",
+                actions: "setResolved",
+              },
+            },
+            on: {
+              NEXT: {
+                target: "calculating.next",
+              },
+              BACK: {
+                target: "calculating.back",
+              },
+            },
           },
-          REGISTER: {
-            target: "available",
-            actions: ["setFlows"],
+
+          resolved: {
+            id: "resolved",
+            after: {
+              wait: "idle",
+            },
           },
         },
       },
@@ -80,73 +146,9 @@ export default createMachine(
         },
       },
 
-      // ---
-      // This is where we calculate the next/back/fallback state and then RESOLVE to it
-      calculating: {
-        id: "calculating",
-        initial: "next",
-        states: {
-          next: {
-            invoke: {
-              src: "calculateNextRoute",
-              onDone: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-              onError: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-            },
-          },
-          back: {
-            invoke: {
-              src: "calculateBackRoute",
-              onDone: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-              onError: {
-                target: "#resolved",
-                actions: "setResolved",
-              },
-            },
-          },
-        },
+      complete: {
+        type: "final",
       },
-
-      resolving: {
-        id: "resolving",
-        invoke: {
-          src: "resolve",
-          onDone: {
-            target: "resolved",
-            actions: "setResolved",
-          },
-          onError: {
-            target: "resolved",
-            actions: "setResolved",
-          },
-        },
-        on: {
-          NEXT: {
-            target: "calculating.next",
-          },
-          BACK: {
-            target: "calculating.back",
-          },
-        },
-      },
-
-      resolved: {
-        id: "resolved",
-        after: {
-          wait: "available",
-        },
-      },
-
-      // ---
-      complete: {},
     },
     on: {
       REFRESH: [

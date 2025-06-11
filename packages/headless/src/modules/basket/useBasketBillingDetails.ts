@@ -55,18 +55,22 @@ export const useBasketBillingDetails = () => {
 
   async function getAll() {
     const { data: addresses } = useClientAddresses();
-    const { getAll: getCompanies } = useClientCompanies();
-    return Promise.all([getCompanies()]).then(([companies]) => {
-      const unifiedAddresses = [...companies, ...(addresses.value || [])];
-      queryClient.setQueryData(service.queryKey, {
-        data: unifiedAddresses,
-        meta: {
-          isStale: false,
-          isInvalid: false,
-        },
-      });
-      return unifiedAddresses;
+    const { data: companies } = useClientCompanies();
+
+    const unifiedAddresses = [
+      ...(companies.value ?? []),
+      ...(addresses.value ?? []),
+    ];
+
+    queryClient.setQueryData(service.queryKey, {
+      data: unifiedAddresses,
+      meta: {
+        isStale: false,
+        isInvalid: false,
+      },
     });
+
+    return unifiedAddresses;
   }
 
   function getCached() {
