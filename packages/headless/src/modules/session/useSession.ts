@@ -13,14 +13,12 @@ export * from "./useTransfer";
 import { get, isEmpty, values } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
 import {
-  useChildService,
   DetailedError,
   responseCodes,
   contextValue,
   stateMatches,
   useContext,
   useChildActor,
-  contextMatches,
 } from "../../utils";
 
 // ---types
@@ -162,14 +160,12 @@ export const useSession = () => {
   /**
    * Information about the authenticated client, if available. Represents the logged-in user.
    */
-  const client = useChildActor(state, "client");
-  const clientMachine = useChildService(state, "client");
+  const client = useChildActor(state, "clientMachine");
 
   /**
    * Information about the guest user, if available. Used to handle non-authenticated user interactions.
    */
-  const guest = useChildActor(state, "guest");
-  const guestMachine = useChildService(state, "guest");
+  const guest = useChildActor(state, "guestMachine");
 
   /**
    * Context object containing session-specific information such as current user,

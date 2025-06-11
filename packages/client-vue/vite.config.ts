@@ -25,6 +25,7 @@ export default defineConfig({
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter",
+          "vue-i18n": "VueI18n",
         },
       },
     },

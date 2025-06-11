@@ -21,30 +21,21 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ComputedRef, Ref } from "vue";
+import type { ComputedRef, MaybeRef, Ref } from "vue";
 import { InterpreterStatus } from "xstate";
 import type { ActorRef, AnyEventObject, InterpreterFrom, State } from "xstate";
 import { isString } from "xstate/lib/utils";
 
-type UndefinedLike = undefined | ComputedRef<undefined> | Ref<undefined>;
-
 type MachineLike =
-  | Actor
-  | ActorRef<any>
-  | ComputedRef<Actor>
-  | ComputedRef<ActorRef<any>>
-  | Ref<Actor>
-  | Ref<ActorRef<any>>
-  | UndefinedLike;
+  | MaybeRef<any>
+  | MaybeRef<Actor>
+  | MaybeRef<ActorRef<any>>
+  | MaybeRef<undefined>;
 
 type StateLike =
-  | ComputedRef<State<any>>
-  | ComputedRef<VueState>
-  | Ref<State<any>>
-  | Ref<VueState>
-  | State<any>
-  | VueState
-  | UndefinedLike;
+  | MaybeRef<State<any>>
+  | MaybeRef<VueState>
+  | MaybeRef<undefined>;
 
 export type Actor = {
   id: string | number | symbol;
@@ -218,30 +209,24 @@ export const childService = (
 
 export const childActor = (
   stateLike: StateLike,
-  prop?: string | number,
-  fallback?: Actor | undefined
+  prop?: string | number
 ): Actor | undefined => {
-  const state = safeState(stateLike);
+  const service = stateValue<ActorRef<any>>(stateLike, `children.${prop}`);
 
-  if (!state || isNil(prop)) return fallback;
+  if (isNil(service)) return undefined;
 
-  const context = state?.children[prop];
-
-  if (isNil(context)) return fallback;
-
-  return createActor(context);
+  return createActor(service);
 };
 
 export const contextActor = (
   stateLike: StateLike,
-  prop?: string | number,
-  fallback?: Actor | undefined
+  prop?: string | number
 ): Actor | undefined => {
-  if (isEmpty(prop)) return fallback;
+  if (isEmpty(prop)) return undefined;
 
   const context = contextValue<ActorRef<any>>(stateLike, prop);
 
-  if (isNil(context)) return fallback;
+  if (isNil(context)) return undefined;
 
   return createActor(context);
 };
@@ -261,7 +246,8 @@ export const contextService = (
 };
 
 export const createActor = (service: ActorRef<any>): Actor | undefined => {
-  if (!service || !service.id || isFunction(service?.getSnapshot))
+  service = unref(service);
+  if (!service || !service.id || !isFunction(service?.getSnapshot))
     return undefined;
 
   const actor = useActor(service);
@@ -290,24 +276,15 @@ export const useContext = <T = unknown>(
 
 export const useChildActor = (
   stateLike: StateLike,
-  prop?: string | number,
-  fallback?: any
+  prop?: string | number
 ): ComputedRef<Actor | undefined> =>
-  computed(() => childActor(stateLike, prop, fallback));
+  computed(() => childActor(stateLike, prop));
 
 export const useContextActor = (
   stateLike: StateLike,
-  prop?: string | number,
-  fallback?: any
+  prop?: string | number
 ): ComputedRef<Actor | undefined> =>
-  computed(() => contextActor(stateLike, prop, fallback));
-
-// export const useContextActors = <T = unknown>(
-//   stateLike: StateLike,
-//   props?: string | number | (string | number)[],
-//   fallback?: any
-// ): ComputedRef<Actor | undefined> =>
-//   computed(() => contextActor(stateLike, props, fallback));
+  computed(() => contextActor(stateLike, prop));
 
 export const useContextService = <T = unknown>(
   stateLike: StateLike,

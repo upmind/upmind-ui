@@ -32,8 +32,8 @@
     <Alert
       v-else-if="meta.hasError"
       color="error"
-      :title="error.title"
-      :message="error.message"
+      title="Error loading addresses"
+      :message="error?.message"
     />
 
     <Alert
@@ -84,18 +84,16 @@
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useClientAddresses } from "@upmind-automation/headless";
+import { useClientAddresses, useSession } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
+// -----------------------------------------------------------------------------
+
 const { data, meta, error, invalidate, remove, setDefault, refresh } =
   useClientAddresses();
-
-// --- types
-
-// -----------------------------------------------------------------------------
 
 const router = useRouter();
 

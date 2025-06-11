@@ -694,9 +694,6 @@ importers:
       '@vueuse/core':
         specifier: ^12.7.0
         version: 12.7.0(typescript@5.7.3)
-      '@xstate/vue':
-        specifier: ^2.0.0
-        version: 2.0.0(vue@3.5.13(typescript@5.7.3))(xstate@4.38.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -852,7 +849,7 @@ importers:
         specifier: ^11.0.5
         version: 11.1.0
       vue:
-        specifier: ^3.4.0
+        specifier: ^3.0.0
         version: 3.5.13(typescript@5.7.3)
       vue-i18n:
         specifier: ^11.1.5
