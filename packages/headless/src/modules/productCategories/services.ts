@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery } from "../..";
+import { QueryListParams, useQuery } from "../..";
 
 // --- utils
 import { isNil } from "lodash-es";
@@ -14,10 +14,11 @@ import type { IProductCategory } from "@upmind-automation/types";
 
 const queryKey: QueryKey = ["product", "categories"];
 
-async function loadAll() {
-  const { getAsync, useUrl } = useQuery();
+function loadList(params?: QueryListParams) {
+  const { get, useUrl } = useQuery();
 
-  return getAsync<IProductCategory[]>({
+  return get<IProductCategory[]>({
+    queryKey: [...queryKey, params],
     url: useUrl(`basket/products_categories`, {
       with: [
         "subcategories.image",
@@ -33,8 +34,8 @@ async function loadAll() {
       ].join(","),
       limit: 0,
     }),
-    queryKey,
     withAccessToken: true,
+    // --- options
   });
 }
 
@@ -51,7 +52,6 @@ function loadCached() {
 export default {
   queryKey,
   //--- queries
-  loadAll,
-  refresh: loadAll,
+  loadList,
   loadCached,
 };
