@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, unref } from "vue";
+import { ref, unref, computed } from "vue";
 
 // --- internal
 import service from "./services";
@@ -9,6 +9,7 @@ import { invalidateQueryByKey } from "../../query";
 // --- utils
 import {
   get,
+  add,
   find,
   every,
   filter,
@@ -16,17 +17,16 @@ import {
   includes,
   isString,
   isNumber,
-  add,
   subtract,
 } from "lodash-es";
 
 // --- types
-import type { Address } from "./types";
 import type {
-  QueryListParamsRaw,
-  QueryListParams,
   IAPIPagination,
+  QueryListParams,
+  QueryListParamsRaw,
 } from "../../query";
+import type { Address } from "./types";
 
 export const useClientAddresses = (initial?: QueryListParamsRaw) => {
   // --- state
