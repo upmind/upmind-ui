@@ -47,6 +47,7 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
   // NB: once the router is ready then need to force check the current route
   // This is beacudse on load the vue router resolves the route before the engine is ready
   router.isReady().then(async () => {
+    debugger;
     const route = router.currentRoute.value;
     const target = await guard(route);
 
@@ -58,6 +59,7 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
   // --- Route guards
 
   router.beforeEach(async (to, from) => {
+    debugger;
     const route = to;
     const target = await guard(route);
     //  only redirect if we have a target and it's not the same as the current routeName
@@ -68,6 +70,7 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
 
   // Route tracking
   router.afterEach((to, from) => {
+    debugger;
     dataLayer({ event: "page_view" })
       .withPage({
         to,
