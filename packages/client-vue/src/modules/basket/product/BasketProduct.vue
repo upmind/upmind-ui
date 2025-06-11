@@ -15,6 +15,7 @@
           :processing="meta.isProcessing"
           :edit-link="editLink"
           @update:quantity="doUpdateQuantity"
+          data-testid="basket-product-summary"
         >
           <slot
             :productDetails="props.productDetails"
