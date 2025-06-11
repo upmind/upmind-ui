@@ -79,7 +79,7 @@ export default createMachine(
               },
               onError: {
                 target: "#error",
-                actions: ["setError", "setFeedbackError"],
+                actions: ["setError"],
               },
             },
           },
@@ -365,23 +365,6 @@ export default createMachine(
       },
 
       // ---
-
-      setFeedbackError: ({ error }: PaymentDetailsContext, _event) => {
-        // dont show any unauthorized errors
-        if (
-          !error ||
-          error?.status == responseCodes.Unprocessable_Entity ||
-          error?.status == responseCodes.Unauthorized
-        )
-          return;
-
-        addError({
-          title:
-            "We experienced an error while processing your order. Please try again.",
-          copy: error?.message,
-          data: error?.data,
-        });
-      },
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {

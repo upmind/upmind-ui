@@ -9,7 +9,6 @@ import i18n from "./i18n";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { forEach } from "lodash-es";
-import useUpmind from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -17,12 +16,12 @@ const app = createApp(App);
 
 // ---
 UpmindClient.init({
+  debug: import.meta.env.DEV,
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
     region: import.meta.env.VITE_API_REGION,
   },
-  debug: import.meta.env.DEV,
   i18n: {
     instance: i18n as any,
     files: import.meta.env.DEV
