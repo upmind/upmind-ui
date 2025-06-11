@@ -44,7 +44,7 @@ function loadList(params?: QueryListParams) {
           reject(new UserIsNotAuthenticatedError());
         }
       }),
-    url: useUrl(`clients/${user.value!.id}/emails`, {
+    url: useUrl(`clients/${user.value?.id}/emails`, {
       ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
     }),
     withAccessToken: true,

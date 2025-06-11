@@ -1,5 +1,5 @@
 // --- utils
-import { responseCodes } from "src/utils";
+import { responseCodes } from "../../utils";
 
 // --- types
 import type {

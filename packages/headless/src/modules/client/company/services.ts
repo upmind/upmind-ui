@@ -51,7 +51,7 @@ function loadList(params?: QueryListParams) {
           reject(new UserIsNotAuthenticatedError());
         }
       }),
-    url: useUrl(`clients/${user.value!.id}/companies`, {
+    url: useUrl(`clients/${user.value?.id}/companies`, {
       with: ["address", "address.country", "address.region"].join(),
       ...(params || ref({ pagination: { limit: 0, offset: 0 } })),
     }),

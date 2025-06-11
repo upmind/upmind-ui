@@ -79,7 +79,7 @@ export const useSystemUpload = (field?: object) => {
         return Promise.reject(
           new DetailedError(
             error?.message ??
-              `[headless-vue] fetch on useUpload timed out while waiting for upload to complete`,
+              `[headless] fetch on useUpload timed out while waiting for upload to complete`,
             error?.type ?? responseCodes.Timeout,
             error
           )

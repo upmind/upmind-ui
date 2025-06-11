@@ -68,7 +68,7 @@ export function useLookup(lookup: Function) {
           timeout: 60_000,
         }).catch(() => {
           throw new DetailedError(
-            `[headless-vue] fetch on useLookup timed out while waiting for loading state to complete`,
+            `[headless] fetch on useLookup timed out while waiting for loading state to complete`,
             responseCodes.Timeout
           );
         });
