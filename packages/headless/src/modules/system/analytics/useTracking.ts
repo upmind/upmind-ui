@@ -117,7 +117,7 @@ export const useTracking = () => {
   function getTracking() {
     return new Promise((resolve, reject) => {
       const cookie = getCookie(UPM_TRACK_COOKIE);
-      if (!cookie) reject(new Error("No tracking cookie found"));
+      if (!cookie) return reject(new Error("No tracking cookie found"));
 
       const trackAtob = atob(`${cookie}`);
       const values = Object.freeze(
