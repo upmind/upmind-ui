@@ -6,10 +6,10 @@ import { useQuery, useSystem, useSession, useBrand, useFeedback } from "../..";
 
 // --- utils
 import {
+  useTime,
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  useTime,
   UserIsNotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
@@ -18,10 +18,10 @@ import { find, first, get, isEmpty, isNil, isString, some } from "lodash-es";
 
 // --- types
 import { AddressTypes } from "./types";
-import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { AnyEventObject } from "xstate";
 import type { QueryListParams } from "../..";
+import { BrandConfigKeys, type IAddress } from "@upmind-automation/types";
 import type { Address, AddressContext, AddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
