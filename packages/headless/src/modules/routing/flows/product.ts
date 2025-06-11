@@ -19,7 +19,7 @@ import { ROUTE } from "../types";
 import type { Flow, Route } from "../types";
 import { ActorRef } from "xstate";
 import { ProductProps } from "../../product";
-import { contextValue, stateMatches } from "src/utils";
+import { contextValue, stateMatches } from "../../../utils";
 
 // -----------------------------------------------------------------------------
 

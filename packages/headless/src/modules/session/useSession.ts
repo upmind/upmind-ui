@@ -505,7 +505,7 @@ export const useSession = () => {
     if (meta.value.showRecoverPasswordForm) return recover(model);
     return Promise.reject(
       new Error(
-        `[headless-vue] useSession: resolve() called but no form is available`
+        `[headless] useSession: resolve() called but no form is available`
       )
     );
   }

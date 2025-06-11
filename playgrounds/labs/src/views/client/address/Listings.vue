@@ -96,7 +96,7 @@ import { useClientAddresses } from "@upmind-automation/headless";
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
-const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
+const { data, meta, error, invalidate, remove, setDefault } =
   useClientAddresses();
 
 // --- types
@@ -112,6 +112,4 @@ function doEdit(id: string) {
 function doAdd() {
   router.push({ name: "client.addresses.add" });
 }
-
-await isReady().then(() => getAll());
 </script>

@@ -24,8 +24,7 @@ import type {
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
-import { isFunction } from "xstate/lib/utils";
-import { isPromise } from "util/types";
+import { isPromiseLike } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -147,7 +146,7 @@ export const useQuery = () => {
     return vueUseQuery<TQueryFnData, DefaultError, TData>({
       queryKey,
       queryFn: async () => {
-        const safeguard = isPromise(guard) ? guard() : Promise.resolve();
+        const safeguard = isPromiseLike(guard) ? guard() : Promise.resolve();
         return safeguard.then(() =>
           request<TQueryFnData>({ url, init, withAccessToken }).then(
             response => response.data as TQueryFnData

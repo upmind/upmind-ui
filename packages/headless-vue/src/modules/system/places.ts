@@ -1,3 +1,1 @@
-import { usePlaces } from "@upmind-automation/headless";
-
-export { usePlaces };
+export { usePlaces } from "@upmind-automation/headless";

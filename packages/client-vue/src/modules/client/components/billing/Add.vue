@@ -44,7 +44,7 @@ import { ref, computed } from "vue";
 
 // --- internal
 import {
-  useBillingDetail
+  useBillingDetail,
   useBillingDetails,
   useClientAddresses,
   useClientCompanies,

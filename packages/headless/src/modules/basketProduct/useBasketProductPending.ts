@@ -148,7 +148,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       .catch(() => {
         return Promise.reject(
           new Error(
-            "[headless-vue] update in useBasketProductPending not in a valid state"
+            "[headless] update in useBasketProductPending not in a valid state"
           )
         );
       });
