@@ -1,5 +1,5 @@
 // --- internal
-import { useQuery } from "../..";
+import { QueryListParams, useQuery } from "../..";
 
 // --- utils
 import { isNil, map } from "lodash-es";
@@ -9,18 +9,18 @@ import { CacheIsStaleError } from "../../utils";
 // --- types
 import type { Product } from "../product";
 import type { QueryKey } from "@tanstack/vue-query";
-import type { PaginatedParams } from "../..";
-import { IProduct } from "@upmind-automation/types";
+import type { IProduct } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["product", "catalogue"];
 
-async function loadAll() {
-  const { getAsync, useUrl } = useQuery();
+function loadList(params?: QueryListParams) {
+  const { get, useUrl } = useQuery();
 
-  return getAsync<IProduct[], Product[]>({
+  return get<IProduct[], Product[]>({
+    queryKey: [...queryKey, params],
     url: useUrl(`basket/products`, {
       with: [
         "image",
@@ -32,30 +32,9 @@ async function loadAll() {
       ].join(),
       limit: 0,
     }),
-    select: data => map(data ?? [], parseProduct),
-    queryKey,
     withAccessToken: true,
-  });
-}
-
-async function load(paginationParams: PaginatedParams) {
-  const { getAsync, useUrl } = useQuery();
-
-  return getAsync<IProduct[], Product[]>({
-    url: useUrl(`basket/products`, {
-      with: [
-        "image",
-        "prices",
-        "products_attributes",
-        "products_options",
-        "products_options.prices",
-        `category${".top_category".repeat(4)}`,
-      ].join(),
-      ...paginationParams,
-    }),
+    // --- options
     select: data => map(data ?? [], parseProduct),
-    queryKey,
-    withAccessToken: true,
   });
 }
 
@@ -72,8 +51,6 @@ function loadCached() {
 export default {
   queryKey,
   //--- queries
-  loadAll,
-  load,
-  refresh: loadAll,
+  loadList,
   loadCached,
 };
