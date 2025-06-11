@@ -1,3 +1,5 @@
+import { isFunction } from "lodash-es";
+
 export * from "./isDeepEmpty";
 export * from "./useCookies";
 export * from "./useError";
@@ -12,3 +14,7 @@ export * from "./useValidation";
 export * from "./useState";
 
 export const DEBOUNCE_DELAY = 350;
+
+export function isPromise(func: any): func is Promise<any> {
+  return func && func.constructor && func.constructor.name === "AsyncFunction";
+}

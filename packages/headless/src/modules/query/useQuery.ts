@@ -9,9 +9,9 @@ import {
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { useUrl } from "../../utils";
+import { isPromise, useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { get, set, unset, isString, reject } from "lodash-es";
+import { get, set, unset, isString, reject, isFunction } from "lodash-es";
 import { parseData, canRetryAuthorization } from "./utils";
 
 // --- types
@@ -143,18 +143,22 @@ export const useQuery = () => {
     guard,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
-    return vueUseQuery<TQueryFnData, DefaultError, TData>({
-      queryKey,
-      queryFn: async () => {
-        const safeguard = isPromiseLike(guard) ? guard() : Promise.resolve();
-        return safeguard.then(() =>
-          request<TQueryFnData>({ url, init, withAccessToken }).then(
-            response => response.data as TQueryFnData
-          )
-        );
+    return vueUseQuery<TQueryFnData, DefaultError, TData>(
+      {
+        queryKey,
+        queryFn: async () => {
+          const hasGuard = isPromise(guard);
+          const safeguard = hasGuard ? guard() : Promise.resolve();
+          return safeguard.then(() =>
+            request<TQueryFnData>({ url, init, withAccessToken }).then(
+              response => response.data as TQueryFnData
+            )
+          );
+        },
+        ...(options as any),
       },
-      ...(options as any),
-    });
+      queryClient
+    );
   }
 
   /**
@@ -190,10 +194,13 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation({
-      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-      ...options,
-    }).mutateAsync(data as TVariables);
+    return useMutation(
+      {
+        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+        ...options,
+      },
+      queryClient
+    ).mutateAsync(data as TVariables);
   }
 
   /**
@@ -228,10 +235,13 @@ export const useQuery = () => {
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation({
-      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-      ...options,
-    }).mutateAsync(data as TVariables);
+    return useMutation(
+      {
+        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+        ...options,
+      },
+      queryClient
+    ).mutateAsync(data as TVariables);
   }
 
   /**
@@ -266,10 +276,13 @@ export const useQuery = () => {
     set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation({
-      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-      ...options,
-    }).mutateAsync(data as TVariables);
+    return useMutation(
+      {
+        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+        ...options,
+      },
+      queryClient
+    ).mutateAsync(data as TVariables);
   }
 
   /**
@@ -304,10 +317,13 @@ export const useQuery = () => {
     set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation({
-      mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-      ...options,
-    }).mutateAsync(data as TVariables);
+    return useMutation(
+      {
+        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+        ...options,
+      },
+      queryClient
+    ).mutateAsync(data as TVariables);
   }
 
   /**

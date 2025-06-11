@@ -1,11 +1,11 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Addresses">
-    <div class="flex gap-2 pb-6">
+    <div class="flex gap-2 pb-6" v-show="meta.isAvailable">
       <Button
-        @click="getAll"
+        @click="refresh"
         size="sm"
         variant="tonal"
-        :disabled="meta.isLoading || !meta.isAvailable"
+        :disabled="meta.isLoading"
       >
         Load
       </Button>
@@ -13,18 +13,12 @@
         @click="invalidate"
         size="sm"
         variant="tonal"
-        :disabled="meta.isLoading || !meta.isAvailable"
+        :disabled="meta.isLoading"
       >
         Invalidate
       </Button>
 
-      <Button
-        @click="doAdd"
-        :loading="meta.isLoading"
-        :disabled="!meta.isAvailable"
-      >
-        New Address
-      </Button>
+      <Button @click="doAdd" :loading="meta.isLoading"> New Address </Button>
     </div>
 
     <Alert
@@ -36,7 +30,7 @@
     <Alert v-else-if="meta.isLoading" color="info" title="Loading..." />
 
     <Alert
-      v-else-if="meta.isError"
+      v-else-if="meta.hasError"
       color="error"
       :title="error.title"
       :message="error.message"
@@ -96,7 +90,7 @@ import { useClientAddresses } from "@upmind-automation/headless";
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
-const { data, meta, error, invalidate, remove, setDefault } =
+const { data, meta, error, invalidate, remove, setDefault, refresh } =
   useClientAddresses();
 
 // --- types
