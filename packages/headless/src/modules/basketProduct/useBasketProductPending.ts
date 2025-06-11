@@ -54,9 +54,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
   const silent = isProductProps(data) ? (data?.silent ?? false) : false;
   const bundle = isProductProps(data) ? data?.bundle : undefined;
-  const { getBasket } = useBasket();
-  const rawBasket = getBasket();
-  if (!rawBasket)
+  const { basket: rawBasket } = useBasket();
+  if (!rawBasket.value)
     throw new DetailedError(
       "[headless] getBasket on useBasketProductPending not found",
       responseCodes.Not_Found
@@ -75,10 +74,10 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     interpret(
       productMachine.withContext({
         id,
-        basketId: rawBasket.id,
-        clientId: rawBasket.client_id,
-        currencyId: rawBasket.currency_id,
-        promotions: rawBasket.promotions,
+        basketId: rawBasket.value.id,
+        clientId: rawBasket.value.client_id,
+        currencyId: rawBasket.value.currency_id,
+        promotions: rawBasket.value.promotions,
         subproducts,
         coupons,
         silent,

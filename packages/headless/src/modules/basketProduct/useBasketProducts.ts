@@ -31,7 +31,7 @@ export const useBasketProducts = () => {
     products,
     isReady,
     refresh,
-    getBasketId,
+    basketId,
     meta: basketMeta,
   } = useBasket();
 
@@ -45,9 +45,8 @@ export const useBasketProducts = () => {
     return isReady().then(() => findProduct({ id }));
   }
 
-  async function remove(id: string): Promise<IBasket> {
-    const basketId = getBasketId();
-    if (!basketId) {
+  async function remove(id: string): Promise<IBasket | undefined> {
+    if (!basketId.value) {
       throw new DetailedError("No Basket found", responseCodes.Not_Found);
     }
 
@@ -59,8 +58,8 @@ export const useBasketProducts = () => {
       );
     }
     return services
-      .remove({ basketId, bpid: id })
-      .then((rawBasket: IBasket) => {
+      .remove({ basketId: basketId.value, bpid: id })
+      .then((rawBasket: IBasket | undefined) => {
         dataLayer({ event: "remove_from_cart" })
           .withItems(basketProduct)
           .push();
@@ -68,16 +67,21 @@ export const useBasketProducts = () => {
       .then(() => refresh());
   }
 
-  async function resolve(id: string, data: ProductModel): Promise<IBasket> {
-    const basketId = getBasketId();
-    if (!basketId) {
+  async function resolve(
+    id: string,
+    data: ProductModel
+  ): Promise<IBasket | undefined> {
+    if (!basketId.value) {
       throw new DetailedError("No Basket found", responseCodes.Not_Found);
     }
 
     return services
-      .update({ basketId }, { data: { ...data, id } as ProductModel })
+      .update(
+        { basketId: basketId.value },
+        { data: { ...data, id } as ProductModel }
+      )
       .then(() => refresh())
-      .then((rawBasket: IBasket) => {
+      .then((rawBasket: IBasket | undefined) => {
         const basketProduct = findProduct({ id });
         if (!basketProduct) {
           throw new DetailedError(
@@ -91,10 +95,9 @@ export const useBasketProducts = () => {
       });
   }
   //  ---
-  async function incrementQuantity(id: string): Promise<IBasket> {
+  async function incrementQuantity(id: string): Promise<IBasket | undefined> {
     return isReady().then(() => {
-      const basketId = getBasketId();
-      if (!basketId) {
+      if (!basketId.value) {
         throw new DetailedError("No Basket found", responseCodes.Not_Found);
       }
       const basketProduct = findProduct({ id });
@@ -108,13 +111,13 @@ export const useBasketProducts = () => {
       return services
         .updateQuantity(
           {
-            basketId,
+            basketId: basketId.value,
             basketProduct,
           },
           { data: add(qty, basketProduct.productDetails.step || 1) }
         )
         .then(() => refresh())
-        .then((rawBasket: IBasket) => {
+        .then((rawBasket: IBasket | undefined) => {
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
@@ -129,10 +132,9 @@ export const useBasketProducts = () => {
     });
   }
 
-  async function decrementQuantity(id: string): Promise<IBasket> {
+  async function decrementQuantity(id: string): Promise<IBasket | undefined> {
     return isReady().then(() => {
-      const basketId = getBasketId();
-      if (!basketId) {
+      if (!basketId.value) {
         throw new DetailedError("No Basket found", responseCodes.Not_Found);
       }
 
@@ -148,13 +150,13 @@ export const useBasketProducts = () => {
       return services
         .updateQuantity(
           {
-            basketId,
+            basketId: basketId.value,
             basketProduct,
           },
           { data: subtract(qty, basketProduct.productDetails?.step || 1) }
         )
         .then(() => refresh())
-        .then((rawBasket: IBasket) => {
+        .then((rawBasket: IBasket | undefined) => {
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
@@ -174,10 +176,9 @@ export const useBasketProducts = () => {
   async function updateQuantity(
     id: string,
     quantity: number
-  ): Promise<IBasket> {
+  ): Promise<IBasket | undefined> {
     return isReady().then(() => {
-      const basketId = getBasketId();
-      if (!basketId) {
+      if (!basketId.value) {
         throw new DetailedError("No Basket found", responseCodes.Not_Found);
       }
 
@@ -189,9 +190,12 @@ export const useBasketProducts = () => {
         );
       }
       return services
-        .updateQuantity({ basketId, basketProduct }, { data: quantity })
+        .updateQuantity(
+          { basketId: basketId.value, basketProduct },
+          { data: quantity }
+        )
         .then(() => refresh())
-        .then((rawBasket: IBasket) => {
+        .then((rawBasket: IBasket | undefined) => {
           const basketProduct = findProduct({ id });
           if (!basketProduct) {
             throw new DetailedError(
@@ -218,7 +222,7 @@ export const useBasketProducts = () => {
    * });
    *  action("123");
    */
-  function action<T extends (...args: any[]) => Promise<IBasket>>(
+  function action<T extends (...args: any[]) => Promise<IBasket | undefined>>(
     action: T,
     delay = DEBOUNCE_DELAY
   ): (...args: Parameters<T>) => Promise<IBasket> {

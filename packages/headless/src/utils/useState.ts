@@ -24,6 +24,7 @@ import {
 import type { ComputedRef, Ref } from "vue";
 import { InterpreterStatus } from "xstate";
 import type { ActorRef, AnyEventObject, InterpreterFrom, State } from "xstate";
+import { isString } from "xstate/lib/utils";
 
 type UndefinedLike = undefined | ComputedRef<undefined> | Ref<undefined>;
 
@@ -138,11 +139,12 @@ export const contextMatches = (
     const propValue = get(context, prop);
 
     if (isNil(value))
-      return isArray(propValue) || isObject(propValue)
+      return isArray(propValue) || isObject(propValue) || isString(propValue)
         ? !isEmpty(propValue)
-        : !!propValue;
+        : !isNil(propValue);
 
-    if (isFunction(value)) return isEqual(propValue, value());
+    if (isFunction(value)) return value(propValue);
+
     return isEqual(propValue, value);
   });
 };
@@ -196,6 +198,22 @@ export const contextValue = <T = unknown>(
   if (isFunction(props)) return props(context) as T;
 
   return get(context, props as PropertyPath, fallback);
+};
+
+export const childService = (
+  stateLike: StateLike,
+  prop?: string | number,
+  fallback?: ActorRef<any> | undefined
+): ActorRef<any> | undefined => {
+  const state = safeState(stateLike);
+
+  if (!state || isNil(prop)) return fallback;
+
+  const actor = state?.children[prop];
+
+  if (isNil(actor)) return fallback;
+
+  return actor;
 };
 
 export const childActor = (
@@ -297,3 +315,10 @@ export const useContextService = <T = unknown>(
   fallback?: any
 ): ComputedRef<ActorRef<any> | undefined> =>
   computed(() => contextService(stateLike, prop, fallback));
+
+export const useChildService = (
+  stateLike: StateLike,
+  prop?: string | number,
+  fallback?: any
+): ComputedRef<ActorRef<any> | undefined> =>
+  computed(() => childService(stateLike, prop, fallback));

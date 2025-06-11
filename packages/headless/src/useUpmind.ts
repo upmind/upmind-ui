@@ -4,9 +4,14 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import { first } from "lodash-es";
 
 // --- internal
-import { useQuery } from "./modules";
+import { Flow, useQuery } from "./modules";
 import { useBrand, useSystem, useDataLayer, useTracking } from "./modules";
-import { useSystemRecaptcha } from "./modules/system";
+import {
+  GlobbedFiles,
+  useI18n,
+  useLocale,
+  useRecaptcha,
+} from "./modules/system";
 import { useSession } from "./modules/session";
 
 // --- utils
@@ -14,7 +19,9 @@ import { usePOP, useSessionStorage } from "./utils";
 
 // --- types
 import type { IApiPop } from "./utils/usePOP";
-import { App } from "vue";
+import { useRouting } from "./modules/routing/useRouting";
+import type { I18n } from "vue-i18n";
+import type { Router } from "vue-router";
 
 // ---
 export enum UpmindStatus {
@@ -24,7 +31,6 @@ export enum UpmindStatus {
 }
 
 export interface UpmindProps {
-  app: App;
   mode?: "default" | "express";
   pop?: IApiPop;
   debug?: boolean;
@@ -35,19 +41,30 @@ export interface UpmindProps {
     enabled?: boolean;
     debug?: boolean;
   };
+  router?: {
+    instance: Router;
+    enabled?: boolean;
+    flows?: Flow[];
+  };
+  i18n?: {
+    instance: I18n;
+    files: GlobbedFiles;
+    debug?: boolean;
+  };
 }
 
 // -----------------------------------------------------------------------------
 
 class Upmind {
   private status: UpmindStatus = UpmindStatus.notInitialised;
-  app!: App;
   debug: UpmindProps["debug"];
   mode: UpmindProps["mode"] = "default";
   pop: UpmindProps["pop"];
   plugins: UpmindProps["plugins"] = {};
   analytics: UpmindProps["analytics"];
   recaptcha: UpmindProps["recaptcha"];
+  i18n: UpmindProps["i18n"];
+  router: UpmindProps["router"];
   queryClient: QueryClient;
 
   constructor() {
@@ -55,24 +72,27 @@ class Upmind {
   }
 
   init({
-    app,
     mode,
     pop,
     analytics,
     recaptcha,
+    router,
+    i18n,
     debug,
   }: UpmindProps): Promise<void> {
     if (this.status != UpmindStatus.notInitialised)
       throw new Error(
         `[headless] Upmind has already been initialised, please use the isReady() method to check if Upmind is ready`
       );
-    this.app = app;
     this.status = UpmindStatus.initialising;
     this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;
     this.analytics = analytics;
     this.recaptcha = recaptcha;
+    this.router = router;
+    this.i18n = i18n;
+
     this.initPlugins();
     this.initDebugging();
 
@@ -83,6 +103,8 @@ class Upmind {
           await this.initHeadless().then(() => {
             this.initRecaptcha();
             this.initAnalytics();
+            this.initRouter();
+            this.initI18n();
           });
         }
 
@@ -140,7 +162,7 @@ class Upmind {
       this.mode == "express"
     )
       return;
-    const { init } = useSystemRecaptcha();
+    const { init } = useRecaptcha();
     init(this.recaptcha.siteKey);
   }
 
@@ -174,6 +196,26 @@ class Upmind {
     }
     dataLayer().withPage().withUser().push(false);
   }
+
+  private async initRouter() {
+    if (!this.router?.instance || !this.router?.enabled) return;
+    useRouting(this.router.instance, this.router.flows);
+  }
+
+  private async initI18n() {
+    if (!this.i18n?.instance) return;
+
+    const locale = useLocale().locale.value ?? "en"; //TODO: use brand or user locale
+
+    // then load our i18n messages from any provided files (globbed)
+    const { loadLocaleMessages, setLocale } = useI18n(
+      this.i18n.instance,
+      this.i18n.files
+    );
+    loadLocaleMessages(locale);
+    setLocale(locale);
+  }
+  // ---------------------------------------------------------------------------
 
   isReady(): Promise<void> {
     return new Promise(resolve =>

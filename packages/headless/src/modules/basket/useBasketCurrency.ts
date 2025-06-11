@@ -23,7 +23,7 @@ import { CurrencyContext, CurrencyModel } from "./currency/types";
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
 export const useBasketCurrency = () => {
-  const { actors, state } = useBasket();
+  const { actors } = useBasket();
   const actor = actors.currency;
 
   // --- state
@@ -91,7 +91,7 @@ export const useBasketCurrency = () => {
 
     // then wait for the paymentGateway actor to be updated
     return waitFor(
-      actor.value.service,
+      actor.value!.service,
       state => {
         return stateMatches(state, ["processed", "complete", "error"]);
       },

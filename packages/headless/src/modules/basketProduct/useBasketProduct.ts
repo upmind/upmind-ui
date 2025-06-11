@@ -1,5 +1,5 @@
 // --- external
-import { interpret, InterpreterStatus } from "xstate";
+import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -19,13 +19,11 @@ import type { Product } from "../product";
 // -----------------------------------------------------------------------------
 
 export const useBasketProduct = (bpid: string) => {
-  const { getBasket, getErrors } = useBasket();
-  const rawBasket = getBasket();
-  if (!rawBasket)
+  const { basket: rawBasket, errors } = useBasket();
+  if (!rawBasket.value)
     throw new DetailedError("No Basket found", responseCodes.Not_Found);
 
-  let rawBasketProduct = getBasketProduct(bpid, rawBasket);
-  let errors = getErrors();
+  let rawBasketProduct = getBasketProduct(bpid, rawBasket.value);
 
   if (isEmpty(rawBasketProduct))
     throw new DetailedError("No Basket Product found", responseCodes.Not_Found);
@@ -33,14 +31,14 @@ export const useBasketProduct = (bpid: string) => {
   let service = interpret(
     productMachine.withContext({
       id: bpid,
-      basketId: rawBasket.id,
-      clientId: rawBasket.client_id,
-      currencyId: rawBasket.currency_id,
-      promotions: rawBasket.promotions,
+      basketId: rawBasket.value.id,
+      clientId: rawBasket.value.client_id,
+      currencyId: rawBasket.value.currency_id,
+      promotions: rawBasket.value.promotions,
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(errors, bpid),
+      errorExternal: get(errors.value, bpid),
     }),
     {
       id: bpid,

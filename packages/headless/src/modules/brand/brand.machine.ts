@@ -3,7 +3,7 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { useSystemI18n } from "../system";
+import { useLocale } from "../system";
 
 // --- utils
 import { defaultsDeep, startsWith } from "lodash-es";
@@ -124,7 +124,7 @@ export default createMachine(
         { initialised }: BrandContext,
         _event: AnyEventObject
       ) => {
-        if (!initialised) useSystemI18n().setDefaultLocale();
+        if (!initialised) useLocale().setDefaultLocale();
       },
 
       setInitialised: assign({

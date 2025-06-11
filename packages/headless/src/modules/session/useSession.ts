@@ -12,11 +12,14 @@ export * from "./useTransfer";
 // --- utils
 import { get, isEmpty, values } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
-import { DetailedError, responseCodes, contextValue } from "../../utils";
 import {
+  useChildService,
+  DetailedError,
+  responseCodes,
+  contextValue,
+  stateMatches,
   useContext,
   useChildActor,
-  stateMatches,
   contextMatches,
 } from "../../utils";
 
@@ -29,6 +32,8 @@ import type {
 } from "./types";
 import { GuestContext } from "./guest/types";
 import { ClientContext } from "./client/types";
+import { ErrorObject } from "ajv";
+import { QueryResponseError } from "../query";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -111,7 +116,7 @@ export const useSession = () => {
   const meta = computed(() => ({
     isLoading:
       stateMatches(state, "checking") ||
-      stateMatches(client, [
+      stateMatches(guest, [
         "loading",
         "available.login.loading",
         "available.register.loading",
@@ -147,7 +152,7 @@ export const useSession = () => {
       "available.login.challenging",
       "available.login.verifying",
     ]),
-    canShowForms: stateMatches(guest, "available.idle"),
+    canShowForms: stateMatches(guest, "available"),
     showRegisterForm: stateMatches(guest, "available.register"),
     showRecoverPasswordForm: stateMatches(guest, "available.recover"),
   }));
@@ -158,11 +163,13 @@ export const useSession = () => {
    * Information about the authenticated client, if available. Represents the logged-in user.
    */
   const client = useChildActor(state, "client");
+  const clientMachine = useChildService(state, "client");
 
   /**
    * Information about the guest user, if available. Used to handle non-authenticated user interactions.
    */
   const guest = useChildActor(state, "guest");
+  const guestMachine = useChildService(state, "guest");
 
   /**
    * Context object containing session-specific information such as current user,
@@ -183,7 +190,10 @@ export const useSession = () => {
   /**
    * JSON Schema used to define the structure of session-related forms, like login and registration.
    */
-  const schema = useContext<GuestContext["schema"]>(guest, "schema");
+  const schema = useContext<GuestContext["schema"]>(
+    guest.value?.state,
+    "schema"
+  );
 
   /**
    * UI Schema used to configure the presentation and layout of session-related forms.
@@ -193,7 +203,11 @@ export const useSession = () => {
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
-  const errors = useContext<GuestContext["error"]>(guest, "error");
+  const errors = useContext<QueryResponseError["message"]>(
+    guest,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(guest, "error.data");
 
   // --- methdos
 
@@ -517,9 +531,11 @@ export const useSession = () => {
   // ---------------------------------------------------------------------------
   return {
     // --- state
-
-    subscribe: service.subscribe,
-
+    /**
+     * Subscribes to basket state changes.
+     * @see https://xstate.js.org/docs/guides/communication.html#service-subscribe
+     */
+    subscribe: service.subscribe.bind(service),
     /**
      * Promise that resolves when the session is ready to be used.
      * Typically used to wait for initialization and loading of session data.
@@ -561,9 +577,17 @@ export const useSession = () => {
     context,
 
     /**
-     * Any errors encountered during session management operations, such as login or registration failures.
+     * Any errors message(s) encountered during session management operations, such as login or registration failures.
      */
     errors,
+
+    /**
+     * Validation errors encountered during session management operations, such as login or registration failures.
+     * Typically contains an array of error objects with details about the validation issues.
+     * @type {ErrorObject[]}
+     * @see https://ajv.js.org/guide/validation-errors.html#validation-error-object
+     */
+    validationErrors,
 
     /**
      * Information about the guest user, if available. Used to handle non-authenticated user interactions.

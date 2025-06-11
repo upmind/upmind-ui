@@ -1,7 +1,6 @@
 import { get, find } from "lodash-es";
-import type { FormComposable } from "@upmind-automation/headless";
 
-export const useSchemaComposable = (control: any): FormComposable => {
+export const useSchemaComposable = (control: any) => {
   const matchingField = find(
     get(control.value.schema, "properties", {}),
     property =>
@@ -32,3 +31,5 @@ export const useSchemaComposable = (control: any): FormComposable => {
     uischema: () => null,
   };
 };
+
+export type FormComposable = ReturnType<typeof useSchemaComposable>;

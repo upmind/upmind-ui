@@ -10,7 +10,7 @@
       color="error"
       icon="alert-triangle"
       :title="t(`session.${modelValue}.error`)"
-      :description="errors?.message"
+      :description="errors"
     />
 
     <Form
@@ -20,7 +20,7 @@
       :model-value="model"
       :schema="schema"
       :uischema="uischema"
-      :additional-errors="errors?.data"
+      :additional-errors="validationErrors"
       :color="color"
       @reject="doReject"
       @resolve="doResolve"
@@ -90,6 +90,7 @@ const {
   isReady,
   meta,
   errors,
+  validationErrors,
   showLogin,
   showRegister,
   showRecoverPassword,
@@ -154,6 +155,8 @@ const authActions = computed(() => {
 
 function toggleForm(type: AuthProps["modelValue"]) {
   // if (meta.value.isAuthenticated) return;
+
+  if (!meta.value.canShowForms) return;
 
   switch (type) {
     case "login":

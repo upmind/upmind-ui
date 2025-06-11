@@ -50,6 +50,7 @@ import {
 } from "@upmind-automation/types";
 import { QueryResponseError } from "../query";
 import { BasketContext } from "./types";
+import { Product } from "../product";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
@@ -61,13 +62,11 @@ const service = interpret(basketMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
-export const useBasket = (): any => {
+export const useBasket = () => {
   const { includesTax } = useBrand();
   const { meta: sessionMeta } = useSession();
-
   if (service.status == InterpreterStatus.NotStarted) service.start();
-
-  const { state } = useActor(service);
+  const { state, send } = useActor(service);
 
   // --- state
 
@@ -115,10 +114,10 @@ export const useBasket = (): any => {
       // ---
       hasProducts: contextMatches(state, ["products"]),
 
-      // hasInvalidProducts: some(
-      //   contextValue(state, "products", []),
-      //   product => !isEmpty(product?.errors)
-      // ),
+      hasInvalidProducts: some(
+        contextValue<BasketProduct[]>(state, "products", []),
+        "product.meta.invalid"
+      ),
 
       hasTaxes: contextMatches(state, ["basket.taxes"]),
 
@@ -142,6 +141,7 @@ export const useBasket = (): any => {
         "converting",
         "paying",
       ]),
+
       hasTaxIncluded: includesTax.value,
 
       // ---
@@ -199,7 +199,7 @@ export const useBasket = (): any => {
   // --- context
 
   const basket = useContext<BasketContext["basket"]>(state, "basket");
-  const basketId = useContext<BasketContext["basket"]>(state, "basket.id");
+  const basketId = useContext<IBasket["id"]>(state, "basket.id");
   const context = useContext<BasketContext>(state);
   const currency = useContext<ICurrency>(state, "basket.currency");
   const errors = useContext<QueryResponseError>(state, "error");
@@ -216,15 +216,15 @@ export const useBasket = (): any => {
   // --- methods
 
   function clear() {
-    return service.send({ type: "CLEAR" });
+    return send({ type: "CLEAR" });
   }
 
   function checkout() {
-    return service.send({ type: "CHECKOUT" });
+    return send({ type: "CHECKOUT" });
   }
 
   async function refresh(data?: IBasket): Promise<IBasket | undefined> {
-    service.send({ type: "REFRESH", data });
+    send({ type: "REFRESH", data });
     return waitFor(
       service,
       state => stateMatches(state, ["shopping.refreshing.processed", "error"]),
@@ -337,7 +337,7 @@ export const useBasket = (): any => {
       });
     });
 
-    // return service.send({
+    // return send({
     //   type: "UPDATE_PROMOTIONS",
     //   data: { promodcode: coupon },
     // });
@@ -414,7 +414,7 @@ export const useBasket = (): any => {
      * Subscribes to basket state changes.
      * @see https://xstate.js.org/docs/guides/communication.html#service-subscribe
      */
-    subscribe: service.subscribe,
+    subscribe: service.subscribe.bind(service),
 
     // /**
     //  * The current state of the basket machine.
@@ -438,6 +438,7 @@ export const useBasket = (): any => {
      * @property {boolean} isAvailable - Indicates if the basket is available for operations.
      * @property {boolean} needsAuth - Indicates if authentication is required for the basket.
      * @property {boolean} hasProducts - Indicates if the basket has products.
+     * @property {boolean} hasInvalidProducts - Indicates if the basket has invalid products.
      * @property {boolean} hasTaxes - Indicates if the basket has taxes.
      * @property {boolean} hasPromotions - Indicates if the basket has promotions applied.
      * @property {boolean} hasBillingDetails - Indicates if the basket has billing details.

@@ -18,7 +18,6 @@ const app = createApp(App);
 // ---
 
 UpmindClient.init({
-  app,
   pop: {
     name: import.meta.env.VITE_API_NAME,
     apiUrl: import.meta.env.VITE_API_URL,
@@ -26,14 +25,14 @@ UpmindClient.init({
   },
   debug: import.meta.env.DEV,
   i18n: {
-    provider: i18n,
+    instance: i18n as any,
     files: import.meta.env.DEV
       ? import.meta.glob(`@/**/i18n/*-en.json`, { eager: true }) // 'en' only source messages
       : import.meta.glob("@/assets/locales/**/*.json", { eager: true }), // compiled messages
   },
   router: {
     enabled: false, // disable router by default, we will enable it later
-    provider: router,
+    instance: router,
     flows: [],
   },
   analytics: {
