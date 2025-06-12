@@ -10,7 +10,7 @@
       />
     </header>
 
-    <footer :class="styles.summary.footer">
+    <footer :class="styles.summary.footer" v-if="product?.productDetails">
       <NumberField
         v-if="product?.productDetails?.quantifiable"
         :min="product.productDetails.min"
@@ -52,6 +52,7 @@
   <SummaryList v-if="product?.productDetails" v-bind="product" />
 
   <Markdown
+    v-if="product?.productDetails"
     data-testid="slots:summary-append"
     :model-value="
       product.productDetails.uiMeta?.uischema?.config?.summary?.append ??
