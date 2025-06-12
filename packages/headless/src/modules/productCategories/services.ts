@@ -15,9 +15,9 @@ import type { IProductCategory } from "@upmind-automation/types";
 const queryKey: QueryKey = ["product", "categories"];
 
 function loadList(params?: QueryListParams) {
-  const { get, useUrl } = useQuery();
+  const { query, useUrl } = useQuery();
 
-  return get<IProductCategory[]>({
+  return query<IProductCategory[]>({
     queryKey: [...queryKey, params],
     url: useUrl(`basket/products_categories`, {
       with: [

@@ -47,7 +47,7 @@ async function load(
     isReady,
     ensureConfig,
   } = useBrand();
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   await isReady().catch(error => Promise.reject(error));
 
@@ -72,7 +72,7 @@ async function load(
 
   // ---
 
-  const stored_payment_methods = getAsync<any>({
+  const stored_payment_methods = get<any>({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
@@ -92,7 +92,7 @@ async function load(
   });
 
   // ---
-  const gateways = getAsync<any>({
+  const gateways = get<any>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
       client_id: clientId,

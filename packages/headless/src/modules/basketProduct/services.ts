@@ -70,7 +70,7 @@ async function fetch(
   ]);
 
   // ---
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
@@ -91,7 +91,7 @@ async function fetch(
   if (basketId) set(params, "basket_id", basketId);
   if (bpid) set(params, "basket_product_id", bpid);
 
-  return getAsync({
+  return get({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "basket",
@@ -139,7 +139,7 @@ async function fetchSelected(
   // let's ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -161,7 +161,7 @@ async function fetchSelected(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  return getAsync({
+  return get({
     url: useUrl(`basket/products/`, params),
     queryKey: [
       "basket",
@@ -217,7 +217,7 @@ async function fetchRelated(
   // lets ensure we have a valid currency > fallback to default
   const currency = await useBrand().validateCurrency({ id: currencyId });
   // ---
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -242,7 +242,7 @@ async function fetchRelated(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
 
-  return getAsync({
+  return get({
     url: useUrl(`basket/products/${productId}/related`, params),
     queryKey: [
       "basket",

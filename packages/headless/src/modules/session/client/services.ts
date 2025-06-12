@@ -18,9 +18,9 @@ async function load(_context: ClientContext, _event: any) {
   const token = getTokenFromStorage("client");
   if (isEmpty(token)) return Promise.reject(new Error("No token found"));
 
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("self", {
       with: [
         "actor",

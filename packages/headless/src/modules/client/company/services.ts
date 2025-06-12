@@ -38,10 +38,10 @@ const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params?: QueryListParams) {
-  const { get, useUrl } = useQuery();
+  const { query, useUrl } = useQuery();
   const { meta, user } = useSession();
 
-  return get<ICompany[], Company[]>({
+  return query<ICompany[], Company[]>({
     queryKey: [...queryKey, params],
     guard: async () =>
       new Promise((resolve, reject) => {

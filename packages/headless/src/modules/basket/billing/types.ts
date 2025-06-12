@@ -6,7 +6,7 @@ import { QueryResponseError } from "../../query";
 
 // -----------------------------------------------------------------------------
 
-export interface IBillingDetail {
+export interface BillingDetailsModel {
   addressId?: string;
   companyId?: string;
   phoneId?: string;
@@ -18,7 +18,7 @@ export interface BillingDetailsContext {
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: IBillingDetail;
+  model?: BillingDetailsModel;
   // ---
   addresses?: any[];
   companies?: any[];

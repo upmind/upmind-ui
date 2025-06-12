@@ -20,7 +20,7 @@ async function search({
   promotions,
   preferredCycle,
 }: DomainContext) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
   if (!search?.query?.length)
     return Promise.reject(new Error("No query provided"));
   const sld = parseSld(search.query);
@@ -44,7 +44,7 @@ async function search({
     isEmpty
   );
 
-  return getAsync<IProduct[], Promise<DomainProduct[]>>({
+  return get<IProduct[], Promise<DomainProduct[]>>({
     url: useUrl("modules/web_hosting/domains/search", params),
     init: { signal: controller?.signal },
     queryKey: [
@@ -61,9 +61,9 @@ async function search({
 }
 
 async function getClientDomains({ controller }: DomainContext) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync<any, (DomainModel | undefined)[]>({
+  return get<any, (DomainModel | undefined)[]>({
     url: useUrl("modules/web_hosting/domains/client_domains"),
     init: { signal: controller?.signal },
     queryKey: ["domain", "client-domains"],

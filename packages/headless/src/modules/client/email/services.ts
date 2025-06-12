@@ -34,7 +34,7 @@ function loadList(params?: QueryListParams) {
   const { get, useUrl } = useQuery();
   const { meta, user } = useSession();
 
-  return get<IEmail[], Email[]>({
+  return query<IEmail[], Email[]>({
     queryKey: [...queryKey, params],
     guard: async () =>
       new Promise((resolve, reject) => {
@@ -56,7 +56,7 @@ function loadList(params?: QueryListParams) {
 
 function loadCached() {
   const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<Email[]>(queryKey);
+  const cached = queryClient.queryQueryData<Email[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
   return cached;
 }

@@ -13,9 +13,9 @@ async function fetchOrganisationConfig(
   context: BrandContext,
   _event: AnyEventObject
 ) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("config/organisation/values", {
       keys: context.keys.organisation.join(),
     }),
@@ -28,9 +28,9 @@ async function fetchBrandSettings(
   _context: BrandContext,
   _event: AnyEventObject
 ) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("brand/settings", {}),
     queryKey: ["brand", "settings"],
     staleTime: useTime()?.DAY,
@@ -40,7 +40,7 @@ async function fetchBrandSettings(
 // brand config is slightly different because we can ask for more config fro mthe api
 // than what we initially requested, this allows us to only request config as we need it
 async function fetchBrandConfig(context: BrandContext, _event: AnyEventObject) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   // only request keys that are missing from the state, if any
   const missingKeys = filter(context.keys.config, key => !has(context, key));
@@ -48,7 +48,7 @@ async function fetchBrandConfig(context: BrandContext, _event: AnyEventObject) {
   // if we dont have any missing keys, we can return the current state
   if (!missingKeys.length) return Promise.resolve();
 
-  return getAsync({
+  return get({
     url: useUrl("config/brand/values", {
       keys: missingKeys.join(),
     }),
@@ -72,9 +72,9 @@ async function fetchBrandConfig(context: BrandContext, _event: AnyEventObject) {
 }
 
 async function fetchModules(_context: BrandContext, _event: AnyEventObject) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("org/modules", {}),
     queryKey: ["brand", "modules"],
     staleTime: useTime()?.DAY,
