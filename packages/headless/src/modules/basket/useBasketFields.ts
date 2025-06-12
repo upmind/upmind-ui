@@ -176,7 +176,7 @@ export const useBasketFields = () => {
      * @param {FieldsModel} value The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update: debounce((value: FieldsModel) => update(value), DEBOUNCE_DELAY),
+    update: debounce(update, DEBOUNCE_DELAY),
   };
 };
 
