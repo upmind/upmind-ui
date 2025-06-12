@@ -175,38 +175,36 @@ async function createAddElement(
     data: {
       client_id: clientId,
     },
-  })
-    .then(({ data }) => data)
-    .then(data => {
-      // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
-      const clientPaymentDetailsId = data?.client_payment_details?.id;
-      const clientSecret = data?.gateway_specific?.client_secret;
+  }).then(data => {
+    // Flow ref: https://stripe.com/docs/payments/save-and-reuse?platform=web&ui=elements#enable-payment-methods
+    const clientPaymentDetailsId = data?.client_payment_details?.id;
+    const clientSecret = data?.gateway_specific?.client_secret;
 
-      // --- create stripe elements
-      const elements = stripe.elements({
-        clientSecret,
-        locale: "auto", // TODO: add i18n local
-      });
+    // --- create stripe elements
+    const elements = stripe.elements({
+      clientSecret,
+      locale: "auto", // TODO: add i18n local
+    });
 
-      const element = elements?.create("payment", {
-        defaultValues: {
-          billingDetails: {
-            address: {
-              postal_code: address?.postcode,
-              country: address?.country?.code,
-            },
+    const element = elements?.create("payment", {
+      defaultValues: {
+        billingDetails: {
+          address: {
+            postal_code: address?.postcode,
+            country: address?.country?.code,
           },
         },
-      });
-      // ---
-
-      return {
-        elements,
-        element,
-        clientSecret,
-        clientPaymentDetailsId,
-      };
+      },
     });
+    // ---
+
+    return {
+      elements,
+      element,
+      clientSecret,
+      clientPaymentDetailsId,
+    };
+  });
 }
 
 /**

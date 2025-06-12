@@ -39,7 +39,7 @@ async function update(
     init: { signal: controller?.signal },
     data,
     withAccessToken: true,
-  }).then(({ data }) => data);
+  });
 }
 
 async function parse({ model }: FieldsContext, _event: AnyEventObject) {

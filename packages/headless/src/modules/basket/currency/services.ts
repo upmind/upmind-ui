@@ -39,7 +39,7 @@ async function update(
       currency_code: model?.code,
     },
     withAccessToken: true,
-  }).then(({ data }) => data);
+  });
 }
 
 async function parse({ model }: CurrencyContext, _event: AnyEventObject) {
