@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `hover:border-control-strong group rounded-lg border border-control bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} data-[state=checked]:bg-control-active-focus`,
+  `hover:border-control-strong border-control-border group rounded-lg border bg-control text-control-foreground shadow-sm transition-all duration-200 ${ringClasses} data-[state=checked]:bg-control-active-focus`,
   {
     variants: {
       width: {
@@ -36,7 +36,7 @@ export default {
       "m-0 flex h-full w-full min-w-0 cursor-pointer items-start rounded-lg py-3.5 pr-4 text-md font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
     ),
     input: cva(
-      `group-hover:border-control-strong ml-4 mt-[0.1rem] border-control leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
+      `group-hover:border-control-strong border-control-border ml-4 mt-[0.1rem] leading-normal ring-offset-2 [transition:border-color_200ms_ease-in-out] ${ringClasses}`
     ),
   },
 };

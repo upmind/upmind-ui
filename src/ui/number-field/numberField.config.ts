@@ -69,8 +69,8 @@ export const numberFieldVariants = cva(
 export const numberFieldInputVariants = cva("bg-control-background", {
   variants: {
     variant: {
-      flat: "hover:border-control-strong border border-control transition-all duration-200",
-      minimal: "rounded-lg border border-control p-0.5",
+      flat: "hover:border-control-strong border-control-border border transition-all duration-200",
+      minimal: "border-control-border rounded-lg border p-0.5",
     },
     height: {
       sm: "",

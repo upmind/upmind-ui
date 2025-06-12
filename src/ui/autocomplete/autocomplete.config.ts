@@ -18,7 +18,7 @@ export const rootVariants = cva("relative rounded-lg", {
 });
 
 export const anchorVariants = cva(
-  `${ringClasses} ${invalidRingClasses} hover:border-control-strong flex w-dropdown-2xs items-center justify-between rounded-lg border border-control pr-3 leading-none outline-none transition-all duration-200`,
+  `${ringClasses} ${invalidRingClasses} hover:border-control-strong border-control-border flex w-dropdown-2xs items-center justify-between rounded-lg border pr-3 leading-none outline-none transition-all duration-200`,
   {
     variants: {
       size: {
@@ -47,7 +47,7 @@ export const anchorVariants = cva(
 );
 
 export const contentVariants = cva(
-  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border border-control bg-base p-1 will-change-[opacity,transform] empty:hidden",
+  "data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade border-control-border absolute z-10 mt-2 max-h-96 min-w-full overflow-hidden rounded-lg border bg-base p-1 will-change-[opacity,transform] empty:hidden",
   {
     variants: {
       popoverWidth: {

@@ -13,7 +13,7 @@
     <span
       :class="
         cn(
-          'group-data-[state=checked]:text-control-active-foreground focus-visible:ring-ring absolute left-0 top-0 flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-control bg-control text-control-foreground ring-offset-background focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 group-disabled:cursor-not-allowed group-disabled:opacity-50 group-data-[state=checked]:bg-control-active',
+          'group-data-[state=checked]:text-control-active-foreground focus-visible:ring-ring border-control-border absolute left-0 top-0 flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm border bg-control text-control-foreground ring-offset-background focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 group-disabled:cursor-not-allowed group-disabled:opacity-50 group-data-[state=checked]:bg-control-active',
           props.class,
           props.noInput ? 'sr-only' : ''
         )

@@ -15,7 +15,7 @@ export const buttonVariants = cva(
         tonal: "border-transparent",
         inverse: "border-transparent",
         control:
-          "hover:!border-control-strong !border-control bg-control !text-control-foreground shadow-sm ring-offset-background",
+          "hover:!border-control-strong !border-control-border bg-control !text-control-foreground shadow-sm ring-offset-background",
       },
       focusable: {
         true: `${ringClasses} ${invalidRingClasses}`,
