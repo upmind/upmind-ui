@@ -215,6 +215,10 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   errors.value = newErrors ?? [];
   data ??= {};
   model.value ??= {};
+
+  const isValid = isEmpty(errors.value);
+  emits("valid", isValid);
+
   // finally check if the data has actually changed and emit the update event
   // this json parse/stringify is a hack to do a deep compare and ignore functions/reactivity
   const rawData = JSON.parse(JSON.stringify(data));
@@ -224,11 +228,10 @@ function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
     touched.value = true;
     model.value = data;
     emits("update:modelValue", model.value);
-  }
 
-  const isValid = isEmpty(errors.value);
-  emits("valid", isValid);
-  if (isValid && props.autosave) doSubmit();
+    // submit the form if it is valid and autosave is enabled
+    if (isValid && props.autosave) doSubmit();
+  }
 }
 
 function doAction(item: FormActionProps, $event: HTMLElementEventMap["click"]) {
