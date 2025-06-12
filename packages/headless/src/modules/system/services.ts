@@ -22,9 +22,9 @@ async function fetchCurrencies(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("currencies", { limit: 0 }),
     queryKey: ["system", "currencies"],
     staleTime: useTime()?.DAY,
@@ -35,9 +35,9 @@ async function fetchBillingCycles(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("billing_cycles", { limit: 0 }),
     queryKey: ["system", "billing-cycles"],
     staleTime: useTime()?.DAY,
@@ -45,9 +45,9 @@ async function fetchBillingCycles(
 }
 
 async function fetchCountries(_context: SystemContext, _event: AnyEventObject) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("countries", { limit: 0 }),
     queryKey: ["system", "countries"],
     staleTime: useTime()?.DAY,
@@ -58,10 +58,10 @@ async function fetchRegions(
   _context: SystemContext,
   { data: { code, id } }: any
 ) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
   if (!code || !id) return Promise.reject(new Error("No code or id provided"));
-  return getAsync<any>({
+  return get<any>({
     url: useUrl(`countries/${id}/regions`, { limit: 0 }),
     queryKey: ["system", "regions", code],
     staleTime: useTime()?.DAY,
@@ -69,9 +69,9 @@ async function fetchRegions(
 }
 
 async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("languages", { limit: 0 }),
     queryKey: ["system", "languages"],
     staleTime: useTime()?.DAY,
@@ -80,9 +80,9 @@ async function fetchLanguages(_context: SystemContext, _event: AnyEventObject) {
 }
 
 async function fetchStatuses(_context: SystemContext, _event: AnyEventObject) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync({
+  return get({
     url: useUrl("statuses", { limit: 0 }),
     queryKey: ["system", "statuses"],
     staleTime: useTime()?.DAY,
@@ -93,9 +93,9 @@ async function fetchDepartments(
   _context: SystemContext,
   _event: AnyEventObject
 ) {
-  const { getAsync, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return getAsync<any>({
+  return get<any>({
     url: useUrl("tickets/departments", { limit: 0 }),
     queryKey: ["system", "departments"],
     staleTime: useTime()?.DAY,

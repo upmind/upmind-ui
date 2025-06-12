@@ -97,35 +97,7 @@ export const useQuery = () => {
     });
   }
 
-  /**
-   * Syntax sugar for sending a GET request to the server with the given URL and options.
-   * @see {@link QueryParams}
-   * @param url The URL to send the request to.
-   * @param init The request options.
-   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param options Additional options to pass to TanStack query.
-   */
-  async function getAsyncRequest<TQueryFnData = unknown, TData = TQueryFnData>({
-    queryKey,
-    url,
-    init,
-    withAccessToken,
-    ...options
-  }: QueryParams<TQueryFnData, TData>): Promise<TData> {
-    // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
-
-    return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
-      queryKey,
-      queryFn: async () => {
-        return request<TQueryFnData>({ url, init, withAccessToken }).then(
-          response => {
-            return response.data as TQueryFnData;
-          }
-        );
-      },
-      ...(options as any),
-    });
-  }
+  // --- TanStack Query methods
 
   /**
    * Syntax sugar for sending a GET request to the server with the given URL and options.
@@ -135,7 +107,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
-  function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+  function query<TQueryFnData = unknown, TData = TQueryFnData>({
     queryKey,
     url,
     init,
@@ -170,23 +142,92 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack mutation.
    */
-  async function postRequest<
+  async function mutate<
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
     TContext = unknown,
-  >({
+  >(
+    method: Methods,
+    {
+      url,
+      init,
+      data,
+      withAccessToken,
+
+      ...options
+    }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
+  ) {
+    debugger;
+    // safeguard
+    init ??= {};
+
+    // Enforce method, header, parse body
+    set(init, "method", method.toUpperCase());
+    set(init, "body", parseData(data));
+
+    return useMutation(
+      {
+        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
+        ...options,
+      },
+      queryClient
+    );
+  }
+
+  // --- Async methods
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    queryKey,
+    url,
+    init,
+    withAccessToken,
+    ...options
+  }: QueryParams<TQueryFnData, TData>): Promise<TData> {
+    // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
+
+    return queryClient.fetchQuery<TQueryFnData, DefaultError, TData>({
+      queryKey,
+      queryFn: async () => {
+        return request<TQueryFnData>({ url, init, withAccessToken }).then(
+          response => {
+            return response.data as TQueryFnData;
+          }
+        );
+      },
+      ...(options as any),
+    });
+  }
+
+  /**
+   * Syntax sugar for sending a POST request to the server with the given URL and options.
+   * @see {@link RequestParams}
+   * @name postRequest
+   * @async
+   * @function
+   *
+   * @example postRequest({ url: "/orders", withAccessToken: true });
+   *
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param data The data to send with the request.
+   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   * @throws {Error} Might throw an error if the request fails.
+   */
+  async function postRequest<T = object>({
     url,
     init,
     data,
     withAccessToken,
-    ...options
-  }: MutationParams<
-    QueryResponse<TData>,
-    TError,
-    TVariables,
-    TContext
-  >): Promise<QueryResponse<TData>> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
@@ -194,136 +235,102 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation(
-      {
-        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options,
-      },
-      queryClient
-    ).mutateAsync(data as TVariables);
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
    * Syntax sugar for sending a PUT request to the server with the given URL and options.
+   * @see {@link RequestParams}
+   * @name putRequest
+   * @async
+   * @function
+   *
+   * @example putRequest({ url: "/orders", withAccessToken: true });
+   *
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param options Additional options to pass to TanStack mutation.
+   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   * @throws {Error} Might throw an error if the request fails.
    */
-  async function putRequest<
-    TData = unknown,
-    TError = DefaultError,
-    TVariables = void,
-    TContext = unknown,
-  >({
+  async function putRequest<T = object>({
     url,
     init,
     data,
     withAccessToken,
-    ...options
-  }: MutationParams<
-    QueryResponse<TData>,
-    TError,
-    TVariables,
-    TContext
-  >): Promise<QueryResponse<TData>> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PUT.toUpperCase());
-    set(init, "body", parseData(data));
+    set(init, "body", JSON.stringify(data));
 
-    return useMutation(
-      {
-        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options,
-      },
-      queryClient
-    ).mutateAsync(data as TVariables);
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
    * Syntax sugar for sending a PATCH request to the server with the given URL and options.
+   * @see {@link RequestParams}
+   * @name patchRequest
+   * @async
+   * @function
+   *
+   * @example patchRequest({ url: "/orders", withAccessToken: true });
+   *
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
-   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param options Additional options to pass to TanStack mutation.
+   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   * @throws {Error} Might throw an error if the request fails.
    */
-  async function patchRequest<
-    TData = unknown,
-    TError = DefaultError,
-    TVariables = void,
-    TContext = unknown,
-  >({
+  async function patchRequest<T = object>({
     url,
     init,
     data,
     withAccessToken,
-    ...options
-  }: MutationParams<
-    QueryResponse<TData>,
-    TError,
-    TVariables,
-    TContext
-  >): Promise<QueryResponse<TData>> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
-    set(init, "body", parseData(data));
-
-    return useMutation(
-      {
-        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options,
-      },
-      queryClient
-    ).mutateAsync(data as TVariables);
+    set(init, "body", JSON.stringify(data));
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
    * Syntax sugar for sending a DELETE request to the server with the given URL and options.
+   * @see {@link RequestParams}
+   * @name deleteRequest
+   * @async
+   * @function
+   *
+   * @example deleteRequest({ url: "/orders", withAccessToken: true });
+   *
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param data The data to send with the request (optional).
-   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
-   * @param options Additional options to pass to TanStack mutation.
+   * @param data The data to send with the request.
+   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
+   * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
+   * @throws {Error} Might throw an error if the request fails.
    */
-  async function deleteRequest<
-    TData = unknown,
-    TError = DefaultError,
-    TVariables = void,
-    TContext = unknown,
-  >({
+  async function deleteRequest<T = object>({
     url,
     init,
     data,
     withAccessToken,
-    ...options
-  }: MutationParams<
-    QueryResponse<TData>,
-    TError,
-    TVariables,
-    TContext
-  >): Promise<QueryResponse<TData>> {
+  }: RequestParams): Promise<QueryResponse<T>> {
     // safeguard
     init ??= {};
 
     // Enforce method, header, parse body
     set(init, "method", Methods.DELETE.toUpperCase());
-    set(init, "body", parseData(data));
+    set(init, "body", JSON.stringify(data));
 
-    return useMutation(
-      {
-        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options,
-      },
-      queryClient
-    ).mutateAsync(data as TVariables);
+    return request<T>({ url, init, withAccessToken });
   }
 
   /**
@@ -337,12 +344,12 @@ export const useQuery = () => {
    *
    * @param url The URL to send the request to.
    * @param init The request options.
-   * @param withAccessToken The access token to use for the request. It Can be a string or a boolean.
+   * @param withAccessToken The access token to use for the request. Can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function headRequest<T = any>({
+  async function headRequest<T = object>({
     url,
     init,
     withAccessToken,
@@ -350,23 +357,29 @@ export const useQuery = () => {
     // safeguard
     init ??= {};
 
-    // Enforce method and header
+    // Enforce method & header
     set(init, "method", Methods.GET.toUpperCase());
     set(init, "mode", "no-cors");
 
     return request<T>({ url, init, withAccessToken });
   }
 
+  // ---------------------------------------------------------------------------
+
   return {
+    // --- context
+    queryClient,
+    // --- utils
     useUrl,
-    // ---
-    getAsync: getAsyncRequest,
+    // --- tanstack query methods
+    query,
+    mutate,
+    // --- async methods
     get: getRequest,
     del: deleteRequest,
     put: putRequest,
     post: postRequest,
     head: headRequest,
     patch: patchRequest,
-    queryClient,
   };
 };
