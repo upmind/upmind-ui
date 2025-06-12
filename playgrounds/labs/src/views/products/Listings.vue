@@ -33,11 +33,11 @@
       v-for="product in data"
       :key="product.id"
     >
-      <UpmCard>
+      <UpmCard v-if="product?.productDetails">
         <h3>{{ product.productDetails.title }}</h3>
         <p>{{ product.productDetails.description }}</p>
         <Button
-          @click="goToProductDetail(product.id)"
+          @click="goToProductDetail(product.productDetails.id)"
           size="sm"
           variant="primary"
         >
