@@ -82,7 +82,7 @@ export const useBasketFields = () => {
     const model = contextValue<FieldsModel>(actor, "model");
 
     // if it has not then bail
-    if (!value || isEqual(model, value)) {
+    if (!isEqual(model, value)) {
       actor.value?.send({ type: "SET", data: value, update: true });
     } else {
       actor.value?.send({ type: "UPDATE" });
