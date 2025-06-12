@@ -7,15 +7,7 @@
         variant="tonal"
         :disabled="meta.isLoading"
       >
-        Load
-      </Button>
-      <Button
-        @click="invalidate"
-        size="sm"
-        variant="tonal"
-        :disabled="meta.isLoading"
-      >
-        Invalidate
+        Refetch Addresses
       </Button>
 
       <Button @click="doAdd" :loading="meta.isLoading"> New Address </Button>
@@ -84,7 +76,7 @@
 import { useRouter } from "vue-router";
 
 // --- internal
-import { useClientAddresses, useSession } from "@upmind-automation/headless";
+import { useClientAddresses } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
@@ -92,8 +84,7 @@ import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
-const { data, meta, error, invalidate, remove, setDefault, refresh } =
-  useClientAddresses();
+const { data, meta, error, remove, setDefault, refresh } = useClientAddresses();
 
 const router = useRouter();
 

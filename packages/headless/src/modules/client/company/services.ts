@@ -14,10 +14,10 @@ import {
 
 // --- utils
 import {
+  useTime,
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  useTime,
   UserIsNotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
@@ -125,65 +125,49 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: CompanyModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { post, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return post<ICompany>({
-    url: useUrl(`clients/${clientId}/companies`),
+    url: useUrl(`clients/${user.value?.id}/companies`),
     data: mapICompany(data),
     withAccessToken: true,
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error adding this company",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully added company");
-    },
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { put, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return put<ICompany>({
-    url: useUrl(`clients/${clientId}/companies/${id}`),
+    url: useUrl(`clients/${user.value?.id}/companies/${id}`),
     data: mapICompany(data),
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error updating this company",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully updated company");
-    },
     withAccessToken: true,
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function remove(companyId: Company["id"]) {
-  const { getUserId } = useSession();
-  const { del, useUrl } = useQuery();
+function remove(companyId: Company["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return del<null>({
-    url: useUrl(`clients/${clientId}/companies/${companyId}`),
+  return mutate<null>("DELETE", {
+    url: useUrl(`clients/${user.value?.id}/companies/${companyId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     onError(error: any) {
       addError({
         title: isString(error)
@@ -193,22 +177,28 @@ async function remove(companyId: Company["id"]) {
         data: error?.data,
       });
     },
-    onSuccess() {
-      invalidateQueryByKey(queryKey)();
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed company");
     },
     withAccessToken: true,
   });
 }
 
-async function setDefault(companyId: Company["id"]) {
-  const { getUserId } = useSession();
-  const { put, useUrl } = useQuery();
+function setDefault(companyId: Company["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return put<ICompany>({
-    url: useUrl(`clients/${clientId}/companies/${companyId}`),
+  return mutate<ICompany>("PUT", {
+    url: useUrl(`clients/${user.value?.id}/companies/${companyId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     data: { default: true },
     onError(error: any) {
       addError({
@@ -221,7 +211,7 @@ async function setDefault(companyId: Company["id"]) {
       });
     },
     onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set company as default");
     },
     withAccessToken: true,

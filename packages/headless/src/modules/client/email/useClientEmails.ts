@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, unref } from "vue";
+import { ref, unref, computed } from "vue";
 
 // --- internal
 import service from "./services";
@@ -9,6 +9,7 @@ import { invalidateQueryByKey } from "../../query";
 // --- utils
 import {
   get,
+  add,
   find,
   every,
   filter,
@@ -16,17 +17,16 @@ import {
   includes,
   isString,
   isNumber,
-  add,
   subtract,
 } from "lodash-es";
 
 // --- types
-import type { Email } from "./types";
 import type {
-  QueryListParamsRaw,
-  QueryListParams,
   IAPIPagination,
+  QueryListParams,
+  QueryListParamsRaw,
 } from "../../query";
+import type { Email } from "./types";
 
 export const useClientEmails = (initial?: QueryListParamsRaw) => {
   // --- state
@@ -94,16 +94,16 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
     );
   }
 
-  async function remove(id: Email["id"]) {
-    return service.remove(id);
+  function remove(id: Email["id"]) {
+    return service.remove(id).mutate();
   }
 
   function getDefault() {
     return find(query.data.value || [], "meta.isDefault") as Email | undefined;
   }
 
-  async function setDefault(id: Email["id"]) {
-    return service.setDefault(id);
+  function setDefault(id: Email["id"]) {
+    return service.setDefault(id).mutate();
   }
 
   function nextPage() {
@@ -237,7 +237,7 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: () => query.refetch(),
+    refresh: query.refetch,
 
     /**
      * Go to the next page of items.

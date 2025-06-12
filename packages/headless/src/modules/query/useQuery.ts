@@ -153,7 +153,7 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack mutation.
    */
-  async function mutate<
+  function mutate<
     TData = unknown,
     TError = DefaultError,
     TVariables = void,

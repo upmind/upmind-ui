@@ -94,8 +94,8 @@ export const useClientAddresses = (initial?: QueryListParamsRaw) => {
     );
   }
 
-  async function remove(id: Address["id"]) {
-    return service.remove(id);
+  function remove(id: Address["id"]) {
+    return service.remove(id).mutate();
   }
 
   function getDefault() {
@@ -104,8 +104,8 @@ export const useClientAddresses = (initial?: QueryListParamsRaw) => {
       | undefined;
   }
 
-  async function setDefault(id: Address["id"]) {
-    return service.setDefault(id);
+  function setDefault(id: Address["id"]) {
+    return service.setDefault(id).mutate();
   }
 
   function nextPage() {
@@ -239,7 +239,7 @@ export const useClientAddresses = (initial?: QueryListParamsRaw) => {
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: () => query.refetch(),
+    refresh: query.refetch,
 
     /**
      * Go to the next page of items.
