@@ -44,8 +44,9 @@ async function load(
 ) {
   const { meta, user } = useSession();
 
-  if (meta.value.isAuthenticated === false || !user.value?.id)
-    Promise.reject(new UserIsNotAuthenticatedError());
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   const {
     brandId,

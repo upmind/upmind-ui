@@ -9,6 +9,7 @@ import { invalidateQueryByKey } from "../../query";
 // --- utils
 import {
   get,
+  add,
   find,
   every,
   filter,
@@ -16,17 +17,16 @@ import {
   includes,
   isString,
   isNumber,
-  add,
   subtract,
 } from "lodash-es";
 
 // --- types
-import type { Phone } from "./types";
 import type {
-  QueryListParamsRaw,
-  QueryListParams,
   IAPIPagination,
+  QueryListParams,
+  QueryListParamsRaw,
 } from "../../query";
+import type { Phone } from "./types";
 
 export const useClientPhones = (initial?: QueryListParamsRaw) => {
   // --- state
@@ -94,16 +94,16 @@ export const useClientPhones = (initial?: QueryListParamsRaw) => {
     );
   }
 
-  async function remove(id: Phone["id"]) {
-    return service.remove(id);
+  function remove(id: Phone["id"]) {
+    return service.remove(id).mutate();
   }
 
   function getDefault() {
     return find(query.data.value || [], "meta.isDefault") as Phone | undefined;
   }
 
-  async function setDefault(id: Phone["id"]) {
-    return service.setDefault(id);
+  function setDefault(id: Phone["id"]) {
+    return service.setDefault(id).mutate();
   }
 
   function nextPage() {
@@ -237,7 +237,7 @@ export const useClientPhones = (initial?: QueryListParamsRaw) => {
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: () => query.refetch(),
+    refresh: query.refetch,
 
     /**
      * Go to the next page of items.

@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, unref } from "vue";
+import { ref, unref, computed } from "vue";
 
 // --- internal
 import service from "./services";
@@ -9,6 +9,7 @@ import { invalidateQueryByKey } from "../../query";
 // --- utils
 import {
   get,
+  add,
   find,
   every,
   filter,
@@ -16,17 +17,16 @@ import {
   includes,
   isString,
   isNumber,
-  add,
   subtract,
 } from "lodash-es";
 
 // --- types
-import type { Company } from "./types";
 import type {
-  QueryListParamsRaw,
-  QueryListParams,
   IAPIPagination,
+  QueryListParams,
+  QueryListParamsRaw,
 } from "../../query";
+import type { Company } from "./types";
 
 export const useClientCompanies = (initial?: QueryListParamsRaw) => {
   // --- state
@@ -94,8 +94,8 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
     );
   }
 
-  async function remove(id: Company["id"]) {
-    return service.remove(id);
+  function remove(id: Company["id"]) {
+    return service.remove(id).mutate();
   }
 
   function getDefault() {
@@ -104,8 +104,8 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
       | undefined;
   }
 
-  async function setDefault(id: Company["id"]) {
-    return service.setDefault(id);
+  function setDefault(id: Company["id"]) {
+    return service.setDefault(id).mutate();
   }
 
   function nextPage() {
@@ -239,7 +239,7 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
      * This will refetch the data from the server and update the query state.
      * @returns {void}
      */
-    refresh: () => query.refetch(),
+    refresh: query.refetch,
 
     /**
      * Go to the next page of items.

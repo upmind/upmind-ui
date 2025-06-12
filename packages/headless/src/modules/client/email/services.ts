@@ -6,10 +6,10 @@ import { useQuery, useSession, useFeedback } from "../..";
 
 // --- utils
 import {
+  useTime,
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  useTime,
   UserIsNotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
@@ -31,14 +31,14 @@ const queryKey: QueryKey = ["client", "emails"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params?: QueryListParams) {
-  const { get, useUrl } = useQuery();
+  const { query, useUrl } = useQuery();
   const { meta, user } = useSession();
 
   return query<IEmail[], Email[]>({
     queryKey: [...queryKey, params],
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
           reject(new UserIsNotAuthenticatedError());
@@ -56,7 +56,7 @@ function loadList(params?: QueryListParams) {
 
 function loadCached() {
   const { queryClient } = useQuery();
-  const cached = queryClient.queryQueryData<Email[]>(queryKey);
+  const cached = queryClient.getQueryData<Email[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
   return cached;
 }
@@ -90,65 +90,49 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: EmailModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { post, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return post<IEmail>({
-    url: useUrl(`clients/${clientId}/emails`),
+    url: useUrl(`clients/${user.value?.id}/emails`),
     data: mapIEmail(data),
     withAccessToken: true,
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error adding this email",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully added email");
-    },
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Email["id"], data: EmailModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { put, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return put<IEmail>({
-    url: useUrl(`clients/${clientId}/emails/${id}`),
+    url: useUrl(`clients/${user.value?.id}/emails/${id}`),
     data: mapIEmail(data),
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error updating this email",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully updated email");
-    },
     withAccessToken: true,
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function remove(emailId: Email["id"]) {
-  const { getUserId } = useSession();
-  const { del, useUrl } = useQuery();
+function remove(emailId: Email["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return del<null>({
-    url: useUrl(`clients/${clientId}/emails/${emailId}`),
+  return mutate<null>("DELETE", {
+    url: useUrl(`clients/${user.value?.id}/emails/${emailId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     onError(error: any) {
       addError({
         title: isString(error)
@@ -158,22 +142,28 @@ async function remove(emailId: Email["id"]) {
         data: error?.data,
       });
     },
-    onSuccess() {
-      invalidateQueryByKey(queryKey);
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed email");
     },
     withAccessToken: true,
   });
 }
 
-async function setDefault(emailId: Email["id"]) {
-  const { getUserId } = useSession();
-  const { put, useUrl } = useQuery();
+function setDefault(emailId: Email["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return put<IEmail>({
-    url: useUrl(`clients/${clientId}/emails/${emailId}`),
+  return mutate<IEmail>("PUT", {
+    url: useUrl(`clients/${user.value?.id}/emails/${emailId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     data: { default: true },
     onError(error: any) {
       addError({
@@ -186,7 +176,7 @@ async function setDefault(emailId: Email["id"]) {
       });
     },
     onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set email as default");
     },
     withAccessToken: true,

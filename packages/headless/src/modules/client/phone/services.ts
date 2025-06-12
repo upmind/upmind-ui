@@ -7,15 +7,15 @@ import { useQuery, useSystem, useSession, useFeedback } from "../..";
 
 // --- utils
 import {
+  useTime,
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  useTime,
   UserIsNotAuthenticatedError,
 } from "../../../utils";
-import { invalidateQueryByKey } from "../../query";
 import { mapIPhone, mapPhones } from "./mapper";
-import { get, isEmpty, isNil, isString, first } from "lodash-es";
+import { invalidateQueryByKey } from "../../query";
+import { get, isNil, isString, first } from "lodash-es";
 
 // --- types
 import { PhoneTypes } from "./types";
@@ -39,7 +39,7 @@ function loadList(params?: QueryListParams) {
     queryKey: [...queryKey, params],
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
           reject(new UserIsNotAuthenticatedError());
@@ -106,65 +106,49 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: PhoneModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { post, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return post<IPhone>({
-    url: useUrl(`clients/${clientId}/phones`),
+    url: useUrl(`clients/${user.value?.id}/phones`),
     data: mapIPhone(data),
     withAccessToken: true,
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error adding this phone",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully added phone");
-    },
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Phone["id"], data: PhoneModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { put, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return put<IPhone>({
-    url: useUrl(`clients/${clientId}/phones/${id}`),
+    url: useUrl(`clients/${user.value?.id}/phones/${id}`),
     data: mapIPhone(data),
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error updating this phone",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully updated phone");
-    },
     withAccessToken: true,
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function remove(phoneId: Phone["id"]) {
-  const { getUserId } = useSession();
-  const { del, useUrl } = useQuery();
+function remove(phoneId: Phone["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return del<null>({
-    url: useUrl(`clients/${clientId}/phones/${phoneId}`),
+  return mutate<null>("DELETE", {
+    url: useUrl(`clients/${user.value?.id}/phones/${phoneId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     onError(error: any) {
       addError({
         title: isString(error)
@@ -174,22 +158,28 @@ async function remove(phoneId: Phone["id"]) {
         data: error?.data,
       });
     },
-    onSuccess() {
-      invalidateQueryByKey(queryKey)();
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed phone");
     },
     withAccessToken: true,
   });
 }
 
-async function setDefault(phoneId: Phone["id"]) {
-  const { getUserId } = useSession();
-  const { put, useUrl } = useQuery();
+function setDefault(phoneId: Phone["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return put<IPhone>({
-    url: useUrl(`clients/${clientId}/phones/${phoneId}`),
+  return mutate<IPhone>("PUT", {
+    url: useUrl(`clients/${user.value?.id}/phones/${phoneId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     data: { default: true },
     onError(error: any) {
       addError({
@@ -202,7 +192,7 @@ async function setDefault(phoneId: Phone["id"]) {
       });
     },
     onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set phone as default");
     },
     withAccessToken: true,

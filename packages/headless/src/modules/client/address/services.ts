@@ -117,65 +117,49 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: AddressModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { post, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return post<IAddress>({
-    url: useUrl(`clients/${clientId}/addresses`),
+    url: useUrl(`clients/${user.value?.id}/addresses`),
     data: mapIAddress(data),
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error adding this address",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully added address");
-    },
     withAccessToken: true,
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Address["id"], data: AddressModel) {
-  const { getUserId } = useSession();
+  const { meta, user } = useSession();
   const { put, useUrl } = useQuery();
 
-  const clientId = await getUserId();
+  if (!meta.value.isAuthenticated || !user.value?.id) {
+    return Promise.reject(new UserIsNotAuthenticatedError());
+  }
 
   return put<IAddress>({
-    url: useUrl(`clients/${clientId}/addresses/${id}`),
+    url: useUrl(`clients/${user.value?.id}/addresses/${id}`),
     data: mapIAddress(data),
-    onError(error: any) {
-      addError({
-        title: isString(error)
-          ? error
-          : error?.title || "We experienced an error updating this address",
-        copy: error?.message,
-        data: error?.data,
-      });
-    },
-    onSuccess(data) {
-      invalidateQueryByKey(queryKey)(data);
-      addSuccess("Successfully updated address");
-    },
     withAccessToken: true,
-  });
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-async function remove(addressId: Address["id"]) {
-  const { getUserId } = useSession();
-  const { del, useUrl } = useQuery();
+function remove(addressId: Address["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return del<null>({
-    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
+  return mutate<null>("DELETE", {
+    url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     onError(error: any) {
       addError({
         title: isString(error)
@@ -185,22 +169,28 @@ async function remove(addressId: Address["id"]) {
         data: error?.data,
       });
     },
-    onSuccess() {
-      invalidateQueryByKey(queryKey);
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully removed address");
     },
     withAccessToken: true,
   });
 }
 
-async function setDefault(addressId: Address["id"]) {
-  const { getUserId } = useSession();
-  const { put, useUrl } = useQuery();
+function setDefault(addressId: Address["id"]) {
+  const { meta, user } = useSession();
+  const { mutate, useUrl } = useQuery();
 
-  const clientId = await getUserId();
-
-  return put<IAddress>({
-    url: useUrl(`clients/${clientId}/addresses/${addressId}`),
+  return mutate<IAddress>("PUT", {
+    url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !user.value?.id) {
+          resolve(true);
+        } else {
+          reject(new UserIsNotAuthenticatedError());
+        }
+      }),
     data: { default: true },
     onError(error: any) {
       addError({
@@ -212,8 +202,8 @@ async function setDefault(addressId: Address["id"]) {
         data: error?.data,
       });
     },
-    onSuccess() {
-      invalidateQueryByKey(queryKey);
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
       addSuccess("Successfully set address as default");
     },
     withAccessToken: true,
