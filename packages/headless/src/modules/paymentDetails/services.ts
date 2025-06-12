@@ -5,7 +5,12 @@ import { unref } from "vue";
 import { useQuery, useSession, useBrand } from "..";
 
 // --- utils
-import { DetailedError, responseCodes, useValidation } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  UserIsNotAuthenticatedError,
+  useValidation,
+} from "../../utils";
 import {
   unset,
   get,
@@ -37,9 +42,10 @@ async function load(
   { currency, address }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  const { isAuthenticated, getUserId } = useSession();
+  const { meta, user } = useSession();
 
-  await isAuthenticated().catch(error => Promise.reject(error));
+  if (meta.value.isAuthenticated === false || !user.value?.id)
+    Promise.reject(new UserIsNotAuthenticatedError());
 
   const {
     brandId,
@@ -47,14 +53,13 @@ async function load(
     isReady,
     ensureConfig,
   } = useBrand();
-  const { get, useUrl } = useQuery();
+  const { get: getRequest, useUrl } = useQuery();
 
   await isReady().catch(error => Promise.reject(error));
 
   // ---
 
-  const clientId = await getUserId();
-
+  const clientId = user.value!.id;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   await ensureConfig([
@@ -72,7 +77,7 @@ async function load(
 
   // ---
 
-  const stored_payment_methods = get<any>({
+  const stored_payment_methods = getRequest<any>({
     url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
@@ -92,7 +97,7 @@ async function load(
   });
 
   // ---
-  const gateways = get<any>({
+  const gateways = getRequest<any>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
       client_id: clientId,

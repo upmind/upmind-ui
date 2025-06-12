@@ -398,11 +398,12 @@ export const useSession = () => {
   }
 
   async function logout(): Promise<boolean> {
-    if (!client.value) return true; // were already logged out
-
+    debugger;
     service.send({
       type: "LOGOUT",
     });
+
+    if (!client.value?.service) return true; // were already logged out
 
     return await waitFor(
       client.value.service,
@@ -617,17 +618,17 @@ export const useSession = () => {
 
     // --- methods
 
-    /**
-     * Retrieves the user object of the currently authenticated user.
-     * @returns {Promise<User>} A promise that resolves with the user object if available, or throws an error if not authenticated.
-     */
-    getUser,
+    // /**
+    //  * Retrieves the user object of the currently authenticated user.
+    //  * @returns {Promise<User>} A promise that resolves with the user object if available, or throws an error if not authenticated.
+    //  */
+    // getUser,
 
-    /**
-     * Retrieves the user ID of the currently authenticated user.
-     * @returns {Promise<User["id"] | undefined>} A promise that resolves with the user ID if available, or undefined if not authenticated.
-     */
-    getUserId,
+    // /**
+    //  * Retrieves the user ID of the currently authenticated user.
+    //  * @returns {Promise<User["id"] | undefined>} A promise that resolves with the user ID if available, or undefined if not authenticated.
+    //  */
+    // getUserId,
 
     /**
      * Function to reject an ongoing authentication or registration request.

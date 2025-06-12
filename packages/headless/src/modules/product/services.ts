@@ -70,7 +70,7 @@ async function load(
   // lets ensure we parse our promotions correctly
   const promocodes = map(promotions, "promotion.code").join();
   // ---
-  const { get, useUrl } = useQuery();
+  const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
@@ -91,7 +91,7 @@ async function load(
   if (rawBasketProduct?.id)
     set(params, "basket_product_id", rawBasketProduct.id);
 
-  const productPromise = get({
+  const productPromise = getRequest({
     url: useUrl(`basket/products/${productId}`, params),
     queryKey: [
       "product",

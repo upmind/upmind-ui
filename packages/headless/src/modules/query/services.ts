@@ -74,7 +74,10 @@ async function doFetch<T extends any = any>({
     return Promise.reject(new Error(`Invalid method: ${init?.method}`));
   }
 
-  if (!url) return Promise.reject(new Error("Invalid URL"));
+  if (!url) {
+    debugger;
+    return Promise.reject(new Error("Invalid URL"));
+  }
 
   if (!url.searchParams.has("lang") && !startsWith(url.pathname, "/oauth/")) {
     const { locale, isReady } = useLocale();
