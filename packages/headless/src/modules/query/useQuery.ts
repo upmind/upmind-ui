@@ -237,7 +237,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -245,7 +245,9 @@ export const useQuery = () => {
     set(init, "method", Methods.POST.toUpperCase());
     set(init, "body", parseData(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken }).then(
+      response => response.data as T
+    );
   }
 
   /**
@@ -269,7 +271,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -277,7 +279,9 @@ export const useQuery = () => {
     set(init, "method", Methods.PUT.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken }).then(
+      response => response.data as T
+    );
   }
 
   /**
@@ -301,14 +305,17 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
     // Enforce method, header, parse body
     set(init, "method", Methods.PATCH.toUpperCase());
     set(init, "body", JSON.stringify(data));
-    return request<T>({ url, init, withAccessToken });
+
+    return request<T>({ url, init, withAccessToken }).then(
+      response => response.data as T
+    );
   }
 
   /**
@@ -332,7 +339,7 @@ export const useQuery = () => {
     init,
     data,
     withAccessToken,
-  }: RequestParams): Promise<QueryResponse<T>> {
+  }: RequestParams): Promise<T> {
     // safeguard
     init ??= {};
 
@@ -340,7 +347,9 @@ export const useQuery = () => {
     set(init, "method", Methods.DELETE.toUpperCase());
     set(init, "body", JSON.stringify(data));
 
-    return request<T>({ url, init, withAccessToken });
+    return request<T>({ url, init, withAccessToken }).then(
+      response => response.data as T
+    );
   }
 
   /**
