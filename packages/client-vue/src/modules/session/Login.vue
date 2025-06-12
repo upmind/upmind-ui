@@ -6,7 +6,7 @@
         class="relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
-        :label="t('navigation.back')"
+        :label="t('navigation.navigateBack')"
         @click.prevent="doReject"
       >
         <template #prepend>
@@ -64,7 +64,7 @@ import type { AuthProps } from "./components/types";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { next, back, navigate, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 
 await isResolved(ROUTE.SESSION_LOGIN);
 
@@ -79,12 +79,12 @@ function doUpdate(value: AuthProps["modelValue"]) {
 }
 
 function doReject() {
-  back();
+  navigateBack();
 }
 
 function doResolve() {
   // const redirectPath = route.query.redirect || "/";
   // router.push(redirectPath);
-  next();
+  navigateNext();
 }
 </script>

@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / BasketProductSummaryDetail
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / BasketProductSummaryDetail
 
 # BasketProductSummaryDetail
 
@@ -18,7 +18,7 @@
 category: string;
 ```
 
-***
+---
 
 ### currentAmount?
 
@@ -30,7 +30,7 @@ optional currentAmount: number;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentAmount`](../../headless/interfaces/Price.md#currentamount)
 
-***
+---
 
 ### currentPrice?
 
@@ -42,7 +42,7 @@ optional currentPrice: string;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentPrice`](../../headless/interfaces/Price.md#currentprice)
 
-***
+---
 
 ### currentSaving?
 
@@ -54,7 +54,7 @@ optional currentSaving: string;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentSaving`](../../headless/interfaces/Price.md#currentsaving)
 
-***
+---
 
 ### currentSavingAmount?
 
@@ -66,7 +66,7 @@ optional currentSavingAmount: number;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentSavingAmount`](../../headless/interfaces/Price.md#currentsavingamount)
 
-***
+---
 
 ### cycle?
 
@@ -74,7 +74,7 @@ optional currentSavingAmount: number;
 optional cycle: number;
 ```
 
-***
+---
 
 ### key
 
@@ -82,7 +82,7 @@ optional cycle: number;
 key: string;
 ```
 
-***
+---
 
 ### meta?
 
@@ -132,7 +132,7 @@ optional overrides: boolean;
 optional quantifiable: boolean;
 ```
 
-***
+---
 
 ### name
 
@@ -140,7 +140,7 @@ optional quantifiable: boolean;
 name: any;
 ```
 
-***
+---
 
 ### quantity?
 
@@ -148,7 +148,7 @@ name: any;
 optional quantity: number;
 ```
 
-***
+---
 
 ### regularAmount?
 
@@ -160,7 +160,7 @@ optional regularAmount: number;
 
 [`Price`](../../headless/interfaces/Price.md).[`regularAmount`](../../headless/interfaces/Price.md#regularamount)
 
-***
+---
 
 ### regularPrice?
 
@@ -172,7 +172,7 @@ optional regularPrice: string;
 
 [`Price`](../../headless/interfaces/Price.md).[`regularPrice`](../../headless/interfaces/Price.md#regularprice)
 
-***
+---
 
 ### serviceIdentifier?
 

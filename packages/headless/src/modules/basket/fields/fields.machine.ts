@@ -122,11 +122,6 @@ export default createMachine(
 
       error: {
         id: "error",
-        on: {
-          RETRY: {
-            target: "processing",
-          },
-        },
       },
     },
     on: {

@@ -167,7 +167,6 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
 
   // ---------------------------------------------------------------------------
   return {
-    service, // needed for waitFors down the line
     ...useProductConfig(service),
     id,
     product,

@@ -10,7 +10,7 @@
         :actions="[
           {
             color: 'secondary',
-            handler: back,
+            handler: navigateBack,
             prependIcon: {
               icon: 'arrow-left',
               size: '2xs',
@@ -47,6 +47,6 @@ import ContentSection from "../../components/content/ContentSection.vue";
 import SmartTitle from "../../components/content/SmartTitle.vue";
 
 // -----------------------------------------------------------------------------
-const { back } = useRoutingEngine();
+const { navigateBack } = useRoutingEngine();
 const { t } = useI18n();
 </script>

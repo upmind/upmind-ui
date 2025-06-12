@@ -11,7 +11,7 @@ Please refer to the full API reference on `useSession` [here](./functions/useSes
 To use the useSession composable in your Vue components, simply import it:
 
 ```js
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 ```
 
 ### Setup in a Vue component
@@ -47,7 +47,7 @@ import { useSession } from "@upmind-automation/headless-vue";
 
 <script setup>
   import { ref } from 'vue'
-  import { useSession } from '@upmind-automation/headless-vue';
+  import { useSession } from '@upmind-automation/headless';
 
   const { meta, resolve, reject } = useSession();
 
@@ -148,7 +148,7 @@ export default {
 
 <script setup>
 import { ref, watch } from "vue";
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 const { login, verify2fa, meta } = useSession();
 
@@ -170,7 +170,7 @@ const submit2fa = () => {
 </script>
 ```
 
-You'll notice that `meta.show2fa` will be automatically updated at the right time (after the user tries to login in). This is `@upmind-automation/headless-vue` doing the heavy lifting for a smooth developer experience.
+You'll notice that `meta.show2fa` will be automatically updated at the right time (after the user tries to login in). This is `@upmind-automation/headless` doing the heavy lifting for a smooth developer experience.
 
 ### Handling Errors
 
@@ -229,7 +229,7 @@ Here's a simple example on how to use them:
 <script setup>
 import { ref, computed } from "vue";
 import { JsonForms } from "@jsonforms/vue";
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 const { meta, schema, uischema, resolve, errors } = useSession();
 

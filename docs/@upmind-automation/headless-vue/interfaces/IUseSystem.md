@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseSystem
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / IUseSystem
 
 # IUseSystem
 
@@ -16,7 +16,7 @@ context: ComputedRef<any>;
 
 Computed property to the system's state machine context, containing fetched data.
 
-***
+---
 
 ### errors
 
@@ -26,7 +26,7 @@ errors: ComputedRef<any>;
 
 Computed property to any errors encountered during the system state machine's process.
 
-***
+---
 
 ### fetch()
 
@@ -52,7 +52,7 @@ Optional additional data for the fetch operation.
 
 A promise that resolves to the fetched data.
 
-***
+---
 
 ### meta
 
@@ -62,7 +62,7 @@ meta: ComputedRef<IUseSystemMeta>;
 
 Computed property to metadata flags about the system data such as `isLoading` and `isReady`.
 
-***
+---
 
 ### responses
 
@@ -72,7 +72,7 @@ responses: ComputedRef<any>;
 
 Computed property to the structured responses from the state machine context, excluding errors.
 
-***
+---
 
 ### send()
 
@@ -92,7 +92,7 @@ The event to send.
 
 `void`
 
-***
+---
 
 ### state
 

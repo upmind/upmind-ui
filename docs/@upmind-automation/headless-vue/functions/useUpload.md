@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useUpload
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useUpload
 
 # useUpload()
 
 ```ts
-function useUpload(field): object
+function useUpload(field): object;
 ```
 
 ## Parameters
@@ -17,7 +17,7 @@ function useUpload(field): object
 ### add()
 
 ```ts
-add: (value) => Promise<unknown>;
+add: value => Promise<unknown>;
 ```
 
 #### Parameters
@@ -37,7 +37,7 @@ created: ComputedRef<null | Date>;
 ### destroy()
 
 ```ts
-destroy: () => this = upload.destroy;
+destroy: () => (this = upload.destroy);
 ```
 
 Stops the interpreter and unsubscribe all listeners.
@@ -63,7 +63,19 @@ file: ComputedRef<any>;
 ### getImage()
 
 ```ts
-getImage: (type, typeId, isDefault) => State<any, AnyEventObject, any, object, ResolveTypegenMeta<TypegenDisabled, AnyEventObject, BaseActionObject, ServiceMap>>;
+getImage: (type, typeId, isDefault) =>
+  State<
+    any,
+    AnyEventObject,
+    any,
+    object,
+    ResolveTypegenMeta<
+      TypegenDisabled,
+      AnyEventObject,
+      BaseActionObject,
+      ServiceMap
+    >
+  >;
 ```
 
 #### Parameters

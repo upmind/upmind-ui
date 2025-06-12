@@ -1,52 +1,58 @@
-import { defineConfig } from 'vitepress'
-import typedocSidebar from '../@upmind-automation/typedoc-sidebar.json'
+import { defineConfig } from "vitepress";
+import typedocSidebar from "../@upmind-automation/typedoc-sidebar.json";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Upmind",
   description: "Upmind open-source libs documentation",
-  srcDir: './',
-  srcExclude: ['**/README.md'],
-  outDir: './dist',
-  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
+  srcDir: "./",
+  srcExclude: ["**/README.md"],
+  outDir: "./dist",
+  head: [["link", { rel: "icon", href: "/logo.svg" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    logo: '/logo.svg',
+    logo: "/logo.svg",
     nav: [
-      { text: 'Headless', link: '/@upmind-automation/headless' },
-      { text: 'Headless-vue', link: '/@upmind-automation/headless-vue' }
+      { text: "Headless", link: "/@upmind-automation/headless" },
+      { text: "Headless-vue", link: "/@upmind-automation/headless" },
     ],
     sidebar: {
-      '/@upmind-automation/headless/': [
+      "/@upmind-automation/headless/": [
         {
-          text: 'Guides',
+          text: "Guides",
           items: [
-            { text: 'Introduction', link: '/@upmind-automation/headless/' }
-          ]
+            { text: "Introduction", link: "/@upmind-automation/headless/" },
+          ],
         },
         {
-          text: 'API Reference',
-          items: typedocSidebar[0].items
-        }
+          text: "API Reference",
+          items: typedocSidebar[0].items,
+        },
       ],
-      '/@upmind-automation/headless-vue/': [
+      "/@upmind-automation/headless/": [
         {
-          text: 'Guides',
+          text: "Guides",
           items: [
-            { text: 'Introduction', link: '/@upmind-automation/headless-vue/' },
-            { text: 'Auth', link: '/@upmind-automation/headless-vue/auth-guide' },
-            { text: 'Brand', link: '/@upmind-automation/headless-vue/brand-guide' },
-            { text: 'System', link: '/@upmind-automation/headless-vue/system-guide' },
-          ]
+            { text: "Introduction", link: "/@upmind-automation/headless/" },
+            { text: "Auth", link: "/@upmind-automation/headless/auth-guide" },
+            { text: "Brand", link: "/@upmind-automation/headless/brand-guide" },
+            {
+              text: "System",
+              link: "/@upmind-automation/headless/system-guide",
+            },
+          ],
         },
         {
-          text: 'API Reference',
-          items: typedocSidebar[1].items
-        }
-      ]
+          text: "API Reference",
+          items: typedocSidebar[1].items,
+        },
+      ],
     },
     socialLinks: [
-      { icon: 'linkedin', link: 'https://www.linkedin.com/company/upmindautomation' }
-    ]
+      {
+        icon: "linkedin",
+        link: "https://www.linkedin.com/company/upmindautomation",
+      },
+    ],
   },
-})
+});

@@ -94,12 +94,14 @@ const close = () => {
     clear();
     isProcessing.value = false;
     onInput(null, false);
-  }, 300);
+  }, DEBOUNCE_DELAY);
 };
 </script>
 
 <script lang="ts">
 import { uiTypeIs, and } from "@jsonforms/core";
+import { utils } from "@upmind-automation/headless";
+const { DEBOUNCE_DELAY } = utils;
 
 export const tester = {
   rank: 4,

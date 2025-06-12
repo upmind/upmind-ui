@@ -94,7 +94,7 @@
             color="error"
             icon="alert-triangle"
             :title="t('checkout.errors.title')"
-            :description="errors.message"
+            :description="errors?.message"
           >
           </Alert>
         </aside>
@@ -165,7 +165,7 @@ const { t } = useI18n();
 
 const { meta: account, isAuthenticated } = useSession();
 const { state, meta, errors, isReady } = useBasket();
-const { next, back, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const props = withDefaults(defineProps<CheckoutProps>(), {
@@ -189,7 +189,7 @@ const styles = useStyles(["checkout"], meta, config) as ComputedRef<{
 
 // -----------------------------------------------------------------------------
 await isResolved(ROUTE.CHECKOUT);
-await isReady().then(() => isAuthenticated().catch(back));
+await isReady().then(() => isAuthenticated().catch(navigateBack));
 
 const { dataLayer } = useDataLayer();
 dataLayer({ event: "begin_checkout" }).withEcommerce().push();
@@ -279,7 +279,7 @@ watch(meta, (value, oldValue) => {
   }
 
   if (value.isComplete) {
-    next();
+    navigateNext();
     return;
   }
 });

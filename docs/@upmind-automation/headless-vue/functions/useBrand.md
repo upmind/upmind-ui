@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useBrand
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBrand
 
 # useBrand()
 
 ```ts
-function useBrand(): IUseBrand
+function useBrand(): IUseBrand;
 ```
 
 A composable that provides a simplified interface for interacting with the Brand API state machine.

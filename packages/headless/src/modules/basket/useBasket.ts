@@ -422,7 +422,7 @@ export const useBasket = () => {
     //  * @property {string} value - The current state value.
     //  * @property {Object} context - The current context of the basket machine.
     //  */
-    // state,
+    state,
 
     /**
      * The full basket context object.

@@ -78,7 +78,7 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 const { t } = useI18n();
 
 // --- basket setup
-const { next, isResolved } = useRoutingEngine();
+const { navigateNext, isResolved } = useRoutingEngine();
 const { productId } = useQueryParams();
 
 await isResolved(ROUTE.RECOMMENDATIONS);
@@ -103,6 +103,6 @@ function doAdd(value: string) {
 }
 function doClose() {
   seen();
-  next();
+  navigateNext();
 }
 </script>

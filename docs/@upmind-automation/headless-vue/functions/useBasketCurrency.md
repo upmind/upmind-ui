@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useBasketCurrency
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketCurrency
 
 # useBasketCurrency()
 
 ```ts
-function useBasketCurrency(actorRef?): object
+function useBasketCurrency(actorRef?): object;
 ```
 
 ## Parameters
@@ -45,7 +45,7 @@ errors: ComputedRef<any>;
 ### input()
 
 ```ts
-input: (model) => any;
+input: model => any;
 ```
 
 #### Parameters

@@ -7,7 +7,7 @@
     "playgrounds/*"
   ],
   "version": "0.0.1",
-  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core functionalities (Headless) and Vue.js implementations (Headless-vue), along with playgrounds demonstrating UI integration using",
+  "description": "This monorepo serves as the central hub for Upmind's second-generation UI components and business logic. It provides reusable packages for core Vue.js functionalities (Headless), along with playgrounds demonstrating UI integration using",
   "keywords": [
     "upmind",
     "billing",
