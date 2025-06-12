@@ -4,7 +4,7 @@ import { QueryListParams, useQuery } from "../..";
 // --- utils
 import { isNil, map } from "lodash-es";
 import { parseProduct } from "./mappers";
-import { CacheIsStaleError } from "../../utils";
+import { CacheIsStaleError, useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
@@ -34,6 +34,7 @@ function loadList(params?: QueryListParams) {
     }),
     withAccessToken: true,
     // --- options
+    staleTime: useTime().HOUR,
     select: data => map(data ?? [], parseProduct),
   });
 }
