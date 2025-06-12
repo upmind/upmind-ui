@@ -7,15 +7,7 @@
         variant="tonal"
         :disabled="meta.isLoading"
       >
-        Load
-      </Button>
-      <Button
-        @click="invalidate"
-        size="sm"
-        variant="tonal"
-        :disabled="meta.isLoading"
-      >
-        Invalidate
+        Refetch Products
       </Button>
     </div>
 
@@ -44,6 +36,13 @@
       <UpmCard>
         <h3>{{ product.productDetails.title }}</h3>
         <p>{{ product.productDetails.description }}</p>
+        <Button
+          @click="goToProductDetail(product.id)"
+          size="sm"
+          variant="primary"
+        >
+          View Details
+        </Button>
       </UpmCard>
     </section>
   </UpmContentSection>
@@ -52,6 +51,9 @@
 <script lang="ts" setup>
 // --- external
 // --- internal
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 import { useProductCatalogue } from "@upmind-automation/headless";
 
 // --- components
@@ -60,5 +62,9 @@ import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
-const { data, meta, error, invalidate, refresh } = useProductCatalogue();
+function goToProductDetail(productId: string) {
+  router.push({ name: "products.catalogue.detail", params: { id: productId } });
+}
+
+const { data, meta, error, refresh } = useProductCatalogue();
 </script>
