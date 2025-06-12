@@ -302,7 +302,7 @@ async function updateQuantity(
     data: product,
     withAccessToken: true,
   })
-    .then(({ data }) => {
+    .then(data => {
       if (isNil(data)) throw new Error("No data returned from the server");
       return data;
     })
@@ -351,7 +351,7 @@ async function update(
     data: product,
     withAccessToken: true,
   })
-    .then(({ data }) => {
+    .then(data => {
       if (isNil(data)) throw new Error("No data returned from the server");
       return data;
     })
@@ -435,7 +435,7 @@ async function updateMany(
     data: { products: concat(existingProducts, products) },
     withAccessToken: true,
   })
-    .then(({ data }) => {
+    .then(data => {
       forEach(validItems, item => item.send({ type: "UPDATED" }));
 
       if (isNil(data)) throw new Error("No data returned from the server");
@@ -471,7 +471,7 @@ async function remove({
   return del<IBasket>({
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true,
-  }).then(({ data }) => {
+  }).then(data => {
     if (isNil(data)) throw new Error("No data returned from the server");
     return data;
   });
