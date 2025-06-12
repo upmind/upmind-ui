@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { URLs } from "../support/constants/Urls";
+import { URLs } from "../support/constants/urls";
 import {
   getCurrentOrderId,
   addProductToOrder,
