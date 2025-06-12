@@ -35,7 +35,7 @@ export type RouteQueryParams = typeof useRouteQueryParams;
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(routingEngine, { devTools: false });
+const service = interpret(routingEngine, { devTools: true });
 let router: Router;
 // -----------------------------------------------------------------------------
 
@@ -57,7 +57,6 @@ export const useRoutingEngine = () => {
       .then(state => {
         if (stateMatches(state, "unavailable"))
           throw "Routing Engine is unavailable";
-        return state;
       })
       .then(() => router.isReady().then(() => true))
       .catch(error => {
@@ -73,18 +72,18 @@ export const useRoutingEngine = () => {
   }
 
   async function isResolved(route: ROUTE | string): Promise<boolean> {
-    await isReady();
-    const currentRoute = router?.currentRoute?.value;
+    return isReady().then(value => {
+      if (!value) return false;
 
-    return resolve(route, {
-      name: currentRoute?.name?.toString(),
-      params: currentRoute.params,
-      query: currentRoute.query,
-    })
-      .then(() => true)
-      .catch(() => {
-        return false;
-      });
+      const currentRoute = router?.currentRoute?.value;
+      return resolve(route, {
+        name: currentRoute?.name?.toString(),
+        params: currentRoute.params,
+        query: currentRoute.query,
+      })
+        .then(() => true)
+        .catch(() => false);
+    });
   }
 
   const meta = computed(() => ({
@@ -238,7 +237,7 @@ export const useRoutingEngine = () => {
   }
 
   async function resolve(name: ROUTE | string, route: Route, event?: any) {
-    send("RESOLVE", { data: { name, route, event } });
+    send({ type: "RESOLVE", data: { name, route, event } });
     return awaitResolved(service);
   }
 

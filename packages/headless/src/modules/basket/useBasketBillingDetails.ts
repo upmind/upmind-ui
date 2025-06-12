@@ -169,7 +169,6 @@ export const useBasketBillingDetails = () => {
     /**
      * Check if the user is authenticated and billing details are ready to be fetched.
      * @returns {Promise<boolean>} Resolves to true when the unified addresses are ready to be fetched.
-     * @example isReady().then(getAll).then(() => console.log("Details are ready"))
      */
     isReady,
 

@@ -32,6 +32,8 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
   init(router);
   register(flows);
 
+  // --- helpers
+
   function shouldRedirect(
     target: Route | RouteLocation | undefined,
     route: RouteLocation
@@ -44,29 +46,22 @@ export const useRouting = (router: Router, flows?: Flow[]): void => {
     return value;
   }
 
-  // NB: once the router is ready then need to force check the current route
-  // This is beacudse on load the vue router resolves the route before the engine is ready
-  router.isReady().then(async () => {
-    const route = router.currentRoute.value;
+  async function guardRoute(route: RouteLocation) {
     const target = await guard(route);
-
     //  NB: only redirect if we have a target and it's not the same as the current routeName
     if (shouldRedirect(target, route)) router.push(target);
-  });
+  }
 
   // ---------------------------------------------------------------------------
   // --- Route guards
 
-  router.beforeEach(async (to, from) => {
-    const route = to;
-    const target = await guard(route);
-    //  only redirect if we have a target and it's not the same as the current routeName
-    if (shouldRedirect(target, route)) {
-      return target;
-    }
-  });
+  // NB: once the router is ready then need to force check the current route
+  // This is beacudse on load the vue router resolves the route before the engine is ready
+  router.isReady().then(async () => guardRoute(router.currentRoute.value));
 
-  // Route tracking
+  router.beforeEach(async to => guardRoute(to));
+
+  // --- Route tracking
   router.afterEach((to, from) => {
     dataLayer({ event: "page_view" })
       .withPage({

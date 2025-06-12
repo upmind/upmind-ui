@@ -8,7 +8,6 @@ export function useSafeParse(value: any) {
   try {
     return JSON.parse(value);
   } catch (e) {
-    debugger;
     return value;
   }
 }
