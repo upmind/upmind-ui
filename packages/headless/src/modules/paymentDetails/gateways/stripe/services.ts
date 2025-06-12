@@ -6,7 +6,7 @@ import { useQuery, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
-import { useValidation } from "../../../../utils";
+import { UserIsNotAuthenticatedError, useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
 
@@ -161,14 +161,19 @@ async function createAddElement(
   _event: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();
-  const { getUserId } = useSession();
-  const client_id = await getUserId();
+
+  const { meta, user } = useSession();
+
+  if (meta.value.isAuthenticated === false || !user.value?.id)
+    Promise.reject(new UserIsNotAuthenticatedError());
+
+  const clientId = user.value!.id;
 
   return post<any>({
     url: useUrl(`gateway/frontend/tokenize-begin/${gateway?.id}`),
     withAccessToken: true,
     data: {
-      client_id,
+      client_id: clientId,
     },
   })
     .then(({ data }) => data)

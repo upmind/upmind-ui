@@ -75,7 +75,7 @@ export default createMachine(
               src: "load",
               onDone: {
                 target: "actors",
-                actions: ["setError", "updateBasket"],
+                actions: ["updateBasket"],
               },
               onError: [
                 {

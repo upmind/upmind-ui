@@ -95,7 +95,7 @@ export const useBasket = () => {
         ]) ||
         machineMatches(actors.promotions, ["processing"]),
 
-      needsUpdating:
+      isDirty:
         machineMatches(actors.currency, ["valid"]) ||
         machineMatches(actors.customFields, ["valid"]) ||
         machineMatches(actors.billingDetails, ["valid"]) ||
@@ -434,7 +434,7 @@ export const useBasket = () => {
      * @typedef {Object} BasketMeta
      * @property {boolean} isLoading - Indicates if the basket is currently loading.
      * @property {boolean} isProcessing - Indicates if the basket or any submodule is processing.
-     * @property {boolean} needsUpdating - Indicates if any submodule needs updating.
+     * @property {boolean} isDirty - Indicates  that one of the submodules has been changed and the basket needs to be saved.
      * @property {boolean} isAvailable - Indicates if the basket is available for operations.
      * @property {boolean} needsAuth - Indicates if authentication is required for the basket.
      * @property {boolean} hasProducts - Indicates if the basket has products.
