@@ -1,37 +1,45 @@
 // --- external
 import {
   useMutation,
-  useQuery as vueUseQuery,
   QueryClient,
+  useQuery as vueUseQuery,
 } from "@tanstack/vue-query";
 
 // --- internal
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
-import { isPromise, useUrl } from "../../utils";
+import { isPromise, useTime, useUrl } from "../../utils";
 import { getTokenFromStorage } from "../session/utils";
-import { get, set, unset, isString, reject, isFunction } from "lodash-es";
+import { get, set, unset, isString } from "lodash-es";
 import { parseData, canRetryAuthorization } from "./utils";
 
 // --- types
 import type {
-  QueryResponse,
   QueryParams,
-  QueryResponseError,
+  QueryResponse,
   RequestParams,
   MutationParams,
+  QueryResponseError,
 } from "./types";
 import { Methods } from "@upmind-automation/types";
 import type { DefaultError } from "@tanstack/vue-query";
-import { isPromiseLike } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
 // NB we need to create our query client here so that it can be used in the `useQuery` hook
 // and this will then be used in the `useUpmind` composable, which initializes the Upmind instance
-// BEFORE vue has an injectible for the query client
-const queryClient = new QueryClient({});
+// BEFORE vue has an injectable for the query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Default time for inactive data to be garbage collected
+      gcTime: useTime().MINUTE * 30,
+      // Default cache time for data to be considered "fresh"
+      staleTime: useTime().MINUTE * 5,
+    },
+  },
+});
 
 export const useQuery = () => {
   /**
@@ -104,15 +112,17 @@ export const useQuery = () => {
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
   function query<TQueryFnData = unknown, TData = TQueryFnData>({
-    queryKey,
     url,
     init,
-    withAccessToken,
     guard,
+    queryKey,
+    withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     return vueUseQuery<TQueryFnData, DefaultError, TData>(
@@ -136,6 +146,7 @@ export const useQuery = () => {
   /**
    * Syntax sugar for sending a POST request to the server with the given URL and options.
    * @see {@link MutationParams}
+   * @param method The HTTP method to use for the request (e.g., POST, PUT, PATCH, DELETE).
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -148,13 +159,12 @@ export const useQuery = () => {
     TVariables = void,
     TContext = unknown,
   >(
-    method: Methods,
+    method: Omit<Methods, "GET" | "HEAD">,
     {
       url,
       init,
       data,
       withAccessToken,
-
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
@@ -180,13 +190,14 @@ export const useQuery = () => {
    * @see {@link QueryParams}
    * @param url The URL to send the request to.
    * @param init The request options.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
   async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
-    queryKey,
     url,
     init,
+    queryKey,
     withAccessToken,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<TData> {
