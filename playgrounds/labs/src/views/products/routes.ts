@@ -2,7 +2,7 @@
 import { RouteRecordRaw } from "vue-router";
 
 // --- internal
-import ProductCatalogue from "./ProductCatalogue.vue";
+import ProductCatalogue from "./Listings.vue";
 
 const routes: RouteRecordRaw[] = [
   {

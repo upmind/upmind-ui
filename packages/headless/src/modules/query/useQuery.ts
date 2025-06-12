@@ -158,7 +158,6 @@ export const useQuery = () => {
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
-    debugger;
     // safeguard
     init ??= {};
 
