@@ -6,7 +6,7 @@
         class="relative -top-4 md:-top-6"
         size="sm"
         variant="tonal"
-        :label="t('navigation.back')"
+        :label="t('navigation.navigateBack')"
         @click.prevent="doReject"
       >
         <template #prepend>
@@ -92,19 +92,19 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { next, back, navigate, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 const { meta } = useSession();
 
 await isResolved(ROUTE.SESSION_REGISTER);
 
 function doReject() {
-  back();
+  navigateBack();
 }
 
 function doResolve() {
   // const redirectPath = route.query.redirect || "/";
   // router.push(redirectPath);
-  next();
+  navigateNext();
 }
 
 watch(meta, (newVal, oldVal) => {

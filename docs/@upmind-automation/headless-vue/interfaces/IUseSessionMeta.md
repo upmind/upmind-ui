@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseSessionMeta
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / IUseSessionMeta
 
 # IUseSessionMeta
 
@@ -16,7 +16,7 @@ canShowForms: boolean;
 
 Indicates whether any forms (login or register) can be shown to the user.
 
-***
+---
 
 ### hasExpired
 
@@ -26,7 +26,7 @@ hasExpired: boolean;
 
 Indicates whether the session has expired.
 
-***
+---
 
 ### isAuthenticated
 
@@ -36,7 +36,7 @@ isAuthenticated: boolean;
 
 Indicates whether the user is authenticated within the session.
 
-***
+---
 
 ### isLoading
 
@@ -46,7 +46,7 @@ isLoading: boolean;
 
 Indicates whether any part of the session (e.g., login, registration, etc.) is currently in a loading state.
 
-***
+---
 
 ### isProcessing
 
@@ -56,7 +56,7 @@ isProcessing: boolean;
 
 Indicates whether the session is currently processing an action, such as authentication or registration.
 
-***
+---
 
 ### isTransferring
 
@@ -66,7 +66,7 @@ isTransferring: boolean;
 
 Indicates whether the session is currently transferring data, such as during a guest-to-client transition.
 
-***
+---
 
 ### show2fa
 
@@ -76,7 +76,7 @@ show2fa: boolean;
 
 Indicates whether the two-factor authentication (2FA) challenge is required and should be shown.
 
-***
+---
 
 ### showLoginForm
 
@@ -86,7 +86,7 @@ showLoginForm: boolean;
 
 Indicates whether the login form should be displayed.
 
-***
+---
 
 ### showReCaptcha
 
@@ -96,7 +96,7 @@ showReCaptcha: boolean;
 
 Indicates whether the ReCaptcha challenge should be displayed, typically during registration.
 
-***
+---
 
 ### showRegisterForm
 

@@ -83,7 +83,7 @@ import type { AuthProps } from "./components/types";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { next, back, navigate, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, navigate, isResolved } = useRoutingEngine();
 
 await isResolved(ROUTE.SESSION_RECOVER_PASSWORD);
 
@@ -98,10 +98,10 @@ function doUpdate(value: AuthProps["modelValue"]) {
 }
 
 function doReject() {
-  back();
+  navigateBack();
 }
 
 function doResolve() {
-  next();
+  navigateNext();
 }
 </script>

@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useBasketFields
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketFields
 
 # useBasketFields()
 
 ```ts
-function useBasketFields(service?): object
+function useBasketFields(service?): object;
 ```
 
 ## Parameters
@@ -39,7 +39,7 @@ errors: ComputedRef<any>;
 ### input()
 
 ```ts
-input: (model) => any;
+input: model => any;
 ```
 
 #### Parameters

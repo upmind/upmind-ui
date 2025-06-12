@@ -34,7 +34,7 @@ import Home from "../views/index.vue";
 // -----------------------------------------------------
 // Dynamic Routes
 
-const importedRoutes = import.meta.glob<Object>("./views/**/routes.ts", {
+const importedRoutes = import.meta.glob<Object>("@/views/**/routes.ts", {
   import: "default",
   eager: true,
 });
@@ -56,9 +56,13 @@ const router: Router = createRouter({
     // --- Static Routes
     {
       path: "/",
-      name: ROUTE.LOADING,
-      alias: ["/loading"],
       component: Home,
+    },
+
+    {
+      path: "/loading",
+      name: ROUTE.LOADING,
+      component: () => UpmLoadingView,
     },
 
     {

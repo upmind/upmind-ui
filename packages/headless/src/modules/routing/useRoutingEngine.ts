@@ -196,8 +196,16 @@ export const useRoutingEngine = () => {
       });
   }
 
-  function navigateNext(route: Route, event?: any) {
-    next(route, event)
+  async function navigateNext(event?: any) {
+    const route = router.currentRoute.value;
+    return next(
+      {
+        name: route?.name?.toString(),
+        params: route.params,
+        query: route.query,
+      },
+      event
+    )
       .then((response: Route | undefined) => {
         if (response) {
           if (response?.meta?.replace) {
@@ -216,8 +224,16 @@ export const useRoutingEngine = () => {
       });
   }
 
-  function navigateBack(route: Route, event?: any) {
-    back(route, event)
+  async function navigateBack(event?: any) {
+    const route = router.currentRoute.value;
+    back(
+      {
+        name: route?.name?.toString(),
+        params: route.params,
+        query: route.query,
+      },
+      event
+    )
       .then((response: Route | undefined) => {
         if (response) {
           if (response?.meta?.replace) {
@@ -285,8 +301,11 @@ export const useRoutingEngine = () => {
     next,
     back,
     refresh: () => router.go(0), // = roload current route without cache
-    navigate,
     resolve,
     stop,
+    // --- navigation
+    navigate,
+    navigateNext,
+    navigateBack,
   };
 };

@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useProductConfig
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useProductConfig
 
 # useProductConfig()
 

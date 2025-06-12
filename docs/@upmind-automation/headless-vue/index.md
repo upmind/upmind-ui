@@ -1,4 +1,4 @@
-[Upmind](../packages.md) / @upmind-automation/headless-vue
+[Upmind](../packages.md) / @upmind-automation/headless
 
 # Getting Started
 
@@ -13,16 +13,16 @@
 ## Installation
 
 ```
-npm i @upmind-automation/headless-vue
+npm i @upmind-automation/headless
 ```
 
 ## Usage simple example
 
-Simply importing the composables (functions) you need from `@upmind-automation/headless-vue`.
+Simply importing the composables (functions) you need from `@upmind-automation/headless`.
 
 ```vue
 <script setup>
-import { useSession } from "@upmind-automation/headless-vue";
+import { useSession } from "@upmind-automation/headless";
 
 const { meta, errors, showLogin, verify2fa, resolve, reject } = useSession();
 

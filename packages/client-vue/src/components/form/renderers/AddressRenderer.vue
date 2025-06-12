@@ -102,7 +102,7 @@ const searchAddresses = debounce(async (query: string) => {
   );
 
   addresses.value = results;
-}, 300);
+}, DEBOUNCE_DELAY);
 
 const searchResults = computed(() => {
   if (!addresses.value) return null;
@@ -155,6 +155,9 @@ const setShowAddressFields = (value: boolean) => {
 
 <script lang="ts">
 import { and, isLayout, uiTypeIs } from "@jsonforms/core";
+import { utils } from "@upmind-automation/headless";
+const { DEBOUNCE_DELAY } = utils;
+
 export const tester = {
   rank: 2,
   controlType: and(isLayout, uiTypeIs("address")),

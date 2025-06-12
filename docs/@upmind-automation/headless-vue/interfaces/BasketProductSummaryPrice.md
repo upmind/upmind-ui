@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / BasketProductSummaryPrice
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / BasketProductSummaryPrice
 
 # BasketProductSummaryPrice
 
@@ -18,7 +18,7 @@ category: string;
 
 [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md).[`category`](BasketProductSummaryDetail.md#category)
 
-***
+---
 
 ### currentAmount?
 
@@ -30,7 +30,7 @@ optional currentAmount: number;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentAmount`](../../headless/interfaces/Price.md#currentamount)
 
-***
+---
 
 ### currentPrice?
 
@@ -42,7 +42,7 @@ optional currentPrice: string;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentPrice`](../../headless/interfaces/Price.md#currentprice)
 
-***
+---
 
 ### currentSaving?
 
@@ -54,7 +54,7 @@ optional currentSaving: string;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentSaving`](../../headless/interfaces/Price.md#currentsaving)
 
-***
+---
 
 ### currentSavingAmount?
 
@@ -66,7 +66,7 @@ optional currentSavingAmount: number;
 
 [`Price`](../../headless/interfaces/Price.md).[`currentSavingAmount`](../../headless/interfaces/Price.md#currentsavingamount)
 
-***
+---
 
 ### cycle?
 
@@ -78,7 +78,7 @@ optional cycle: number;
 
 [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md).[`cycle`](BasketProductSummaryDetail.md#cycle)
 
-***
+---
 
 ### key
 
@@ -90,7 +90,7 @@ key: string;
 
 [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md).[`key`](BasketProductSummaryDetail.md#key)
 
-***
+---
 
 ### meta?
 
@@ -144,7 +144,7 @@ optional quantifiable: boolean;
 
 [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md).[`meta`](BasketProductSummaryDetail.md#meta)
 
-***
+---
 
 ### name
 
@@ -156,7 +156,7 @@ name: any;
 
 [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md).[`name`](BasketProductSummaryDetail.md#name)
 
-***
+---
 
 ### quantity?
 
@@ -168,7 +168,7 @@ optional quantity: number;
 
 [`BasketProductSummaryDetail`](BasketProductSummaryDetail.md).[`quantity`](BasketProductSummaryDetail.md#quantity)
 
-***
+---
 
 ### regularAmount?
 
@@ -180,7 +180,7 @@ optional regularAmount: number;
 
 [`Price`](../../headless/interfaces/Price.md).[`regularAmount`](../../headless/interfaces/Price.md#regularamount)
 
-***
+---
 
 ### regularPrice?
 
@@ -192,7 +192,7 @@ optional regularPrice: string;
 
 [`Price`](../../headless/interfaces/Price.md).[`regularPrice`](../../headless/interfaces/Price.md#regularprice)
 
-***
+---
 
 ### selling?
 
@@ -200,7 +200,7 @@ optional regularPrice: string;
 optional selling: Price;
 ```
 
-***
+---
 
 ### serviceIdentifier?
 

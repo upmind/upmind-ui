@@ -1,4 +1,4 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / IUseSession
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / IUseSession
 
 # IUseSession
 
@@ -16,7 +16,7 @@ client: any;
 
 Information about the authenticated client, if available. Represents the logged-in user.
 
-***
+---
 
 ### context
 
@@ -27,7 +27,7 @@ context: any;
 Context object containing session-specific information such as current user,
 authentication status, and other dynamic data.
 
-***
+---
 
 ### errors
 
@@ -37,7 +37,7 @@ errors: any;
 
 Any errors encountered during session management operations, such as login or registration failures.
 
-***
+---
 
 ### guest
 
@@ -47,7 +47,7 @@ guest: any;
 
 Information about the guest user, if available. Used to handle non-authenticated user interactions.
 
-***
+---
 
 ### login
 
@@ -61,7 +61,7 @@ Initiates the login process for a user, typically used in conjunction with a for
 
 A promise that resolves when the login operation is completed.
 
-***
+---
 
 ### logout
 
@@ -75,7 +75,7 @@ Logs out the currently authenticated user.
 
 A promise that resolves when the logout operation is completed.
 
-***
+---
 
 ### meta
 
@@ -85,7 +85,7 @@ meta: ComputedRef<IUseSessionMeta>;
 
 Computed metadata related to the session's state, including loading, ready, and error flags.
 
-***
+---
 
 ### model
 
@@ -95,7 +95,7 @@ model: any;
 
 The underlying data model used in session-related forms such as login or registration.
 
-***
+---
 
 ### register
 
@@ -109,7 +109,7 @@ Registers a new user, typically used with a form and model data.
 
 A promise that resolves when the registration operation is completed.
 
-***
+---
 
 ### reject
 
@@ -119,7 +119,7 @@ reject: any;
 
 Function to reject an ongoing authentication or registration request.
 
-***
+---
 
 ### resolve
 
@@ -129,7 +129,7 @@ resolve: any;
 
 Function to resolve an ongoing authentication or registration request.
 
-***
+---
 
 ### schema
 
@@ -139,7 +139,7 @@ schema: any;
 
 JSON Schema used to define the structure of session-related forms, like login and registration.
 
-***
+---
 
 ### showLogin
 
@@ -149,7 +149,7 @@ showLogin: Function;
 
 Displays the login form for user authentication.
 
-***
+---
 
 ### showRegister
 
@@ -159,7 +159,7 @@ showRegister: Function;
 
 Displays the registration form for user sign-up.
 
-***
+---
 
 ### state
 
@@ -170,7 +170,7 @@ state: any;
 Current state of the session machine.
 Can include authentication, registration, and other session-related states.
 
-***
+---
 
 ### transfer
 
@@ -180,7 +180,7 @@ transfer: any;
 
 Transfer session data between different parts of the application, such as from guest to client.
 
-***
+---
 
 ### uischema
 
@@ -190,7 +190,7 @@ uischema: any;
 
 UI Schema used to configure the presentation and layout of session-related forms.
 
-***
+---
 
 ### user
 
@@ -200,7 +200,7 @@ user: any;
 
 User-specific information for the currently authenticated user, including profile and account data.
 
-***
+---
 
 ### verify2fa
 
@@ -218,7 +218,7 @@ The 2FA code entered by the user.
 
 A promise that resolves when the verification is successful.
 
-***
+---
 
 ### verifyReCaptcha
 

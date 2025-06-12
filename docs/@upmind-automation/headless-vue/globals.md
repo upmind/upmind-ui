@@ -1,42 +1,42 @@
-[Upmind](../packages.md) / @upmind-automation/headless-vue
+[Upmind](../packages.md) / @upmind-automation/headless
 
-# @upmind-automation/headless-vue
+# @upmind-automation/headless
 
 ## Interfaces
 
-| Interface | Description |
-| ------ | ------ |
-| [BasketProduct](interfaces/BasketProduct.md) | - |
-| [BasketProductSummaryDetail](interfaces/BasketProductSummaryDetail.md) | - |
-| [BasketProductSummaryPrice](interfaces/BasketProductSummaryPrice.md) | - |
-| [IUseBrand](interfaces/IUseBrand.md) | Interface for the `useBrand` composable. This interface provides various methods and properties for managing brand data and interacting with the brand state machine in the application. |
-| [IUseBrandMeta](interfaces/IUseBrandMeta.md) | Defines the structure of the metadata object returned from the `useBrand` composable. It contains various flags that represent the current state of the brand process. |
-| [IUseSession](interfaces/IUseSession.md) | Represents the session management composable interface in the application. Provides functionality for managing user sessions, including authentication, registration, 2FA, and ReCaptcha verification. |
-| [IUseSessionMeta](interfaces/IUseSessionMeta.md) | Represents the metadata for the session state, providing flags that reflect the current status of the session and its components such as forms, authentication, and processing states. |
-| [IUseSystem](interfaces/IUseSystem.md) | Interface for the `useSystem` composable. This interface provides various methods and properties for managing system data and interacting with the system state machine in the application. |
-| [IUseSystemMeta](interfaces/IUseSystemMeta.md) | Defines the structure of the metadata object returned from the `useSystem` composable. It contains various flags that represent the current state of the system process. |
-| [Recommendation](interfaces/Recommendation.md) | - |
+| Interface                                                              | Description                                                                                                                                                                                            |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [BasketProduct](interfaces/BasketProduct.md)                           | -                                                                                                                                                                                                      |
+| [BasketProductSummaryDetail](interfaces/BasketProductSummaryDetail.md) | -                                                                                                                                                                                                      |
+| [BasketProductSummaryPrice](interfaces/BasketProductSummaryPrice.md)   | -                                                                                                                                                                                                      |
+| [IUseBrand](interfaces/IUseBrand.md)                                   | Interface for the `useBrand` composable. This interface provides various methods and properties for managing brand data and interacting with the brand state machine in the application.               |
+| [IUseBrandMeta](interfaces/IUseBrandMeta.md)                           | Defines the structure of the metadata object returned from the `useBrand` composable. It contains various flags that represent the current state of the brand process.                                 |
+| [IUseSession](interfaces/IUseSession.md)                               | Represents the session management composable interface in the application. Provides functionality for managing user sessions, including authentication, registration, 2FA, and ReCaptcha verification. |
+| [IUseSessionMeta](interfaces/IUseSessionMeta.md)                       | Represents the metadata for the session state, providing flags that reflect the current status of the session and its components such as forms, authentication, and processing states.                 |
+| [IUseSystem](interfaces/IUseSystem.md)                                 | Interface for the `useSystem` composable. This interface provides various methods and properties for managing system data and interacting with the system state machine in the application.            |
+| [IUseSystemMeta](interfaces/IUseSystemMeta.md)                         | Defines the structure of the metadata object returned from the `useSystem` composable. It contains various flags that represent the current state of the system process.                               |
+| [Recommendation](interfaces/Recommendation.md)                         | -                                                                                                                                                                                                      |
 
 ## Type Aliases
 
-| Type alias | Description |
-| ------ | ------ |
-| [BasketProductDetails](type-aliases/BasketProductDetails.md) | - |
+| Type alias                                                   | Description |
+| ------------------------------------------------------------ | ----------- |
+| [BasketProductDetails](type-aliases/BasketProductDetails.md) | -           |
 
 ## Functions
 
-| Function | Description |
-| ------ | ------ |
-| [useBasketBillingDetails](functions/useBasketBillingDetails.md) | - |
-| [useBasketCurrency](functions/useBasketCurrency.md) | - |
-| [useBasketFields](functions/useBasketFields.md) | - |
-| [useBasketPaymentDetails](functions/useBasketPaymentDetails.md) | - |
-| [useBasketPaymentGateway](functions/useBasketPaymentGateway.md) | - |
-| [useBasketProduct](functions/useBasketProduct.md) | - |
-| [useBasketProductConfig](functions/useBasketProductConfig.md) | - |
-| [useBasketPromotions](functions/useBasketPromotions.md) | - |
-| [useBrand](functions/useBrand.md) | A composable that provides a simplified interface for interacting with the Brand API state machine. It uses the `useUpmindBrand` composable to access the state machine service and provides helpers for managing state, sending events, and accessing context data and errors. |
-| [useProductConfig](functions/useProductConfig.md) | - |
-| [useSession](functions/useSession.md) | Composable function to manage session-related logic using Vue. It provides state, context and helpers for session, login and registration processes. |
-| [useSystem](functions/useSystem.md) | The `useSystem` composable provides a simple interface to interact with the system API through a state machine and includes utility methods for fetching data. |
-| [useUpload](functions/useUpload.md) | - |
+| Function                                                        | Description                                                                                                                                                                                                                                                                     |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [useBasketBillingDetails](functions/useBasketBillingDetails.md) | -                                                                                                                                                                                                                                                                               |
+| [useBasketCurrency](functions/useBasketCurrency.md)             | -                                                                                                                                                                                                                                                                               |
+| [useBasketFields](functions/useBasketFields.md)                 | -                                                                                                                                                                                                                                                                               |
+| [useBasketPaymentDetails](functions/useBasketPaymentDetails.md) | -                                                                                                                                                                                                                                                                               |
+| [useBasketPaymentGateway](functions/useBasketPaymentGateway.md) | -                                                                                                                                                                                                                                                                               |
+| [useBasketProduct](functions/useBasketProduct.md)               | -                                                                                                                                                                                                                                                                               |
+| [useBasketProductConfig](functions/useBasketProductConfig.md)   | -                                                                                                                                                                                                                                                                               |
+| [useBasketPromotions](functions/useBasketPromotions.md)         | -                                                                                                                                                                                                                                                                               |
+| [useBrand](functions/useBrand.md)                               | A composable that provides a simplified interface for interacting with the Brand API state machine. It uses the `useUpmindBrand` composable to access the state machine service and provides helpers for managing state, sending events, and accessing context data and errors. |
+| [useProductConfig](functions/useProductConfig.md)               | -                                                                                                                                                                                                                                                                               |
+| [useSession](functions/useSession.md)                           | Composable function to manage session-related logic using Vue. It provides state, context and helpers for session, login and registration processes.                                                                                                                            |
+| [useSystem](functions/useSystem.md)                             | The `useSystem` composable provides a simple interface to interact with the system API through a state machine and includes utility methods for fetching data.                                                                                                                  |
+| [useUpload](functions/useUpload.md)                             | -                                                                                                                                                                                                                                                                               |

@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless-vue](../index.md) / useBasketPaymentGateway
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketPaymentGateway
 
 # useBasketPaymentGateway()
 
 ```ts
-function useBasketPaymentGateway(): object
+function useBasketPaymentGateway(): object;
 ```
 
 ## Returns
@@ -41,7 +41,7 @@ errors: ComputedRef<any>;
 ### input()
 
 ```ts
-input: (model) => any;
+input: model => any;
 ```
 
 #### Parameters

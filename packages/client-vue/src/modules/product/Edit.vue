@@ -8,7 +8,7 @@
           class="relative -top-4 mb-6 md:-top-6 md:mb-0"
           size="sm"
           variant="tonal"
-          :label="t('navigation.back')"
+          :label="t('navigation.navigateBack')"
           @click.prevent="doReject"
         >
           <template #prepend><Icon icon="arrow-left" size="2xs" /></template>
@@ -101,7 +101,7 @@ import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 // -----------------------------------------------------------------------------
 const { t, tm } = useI18n();
 
-const { back, next, isResolved } = useRoutingEngine();
+const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
 const { meta: basketMeta, isReady } = useBasket();
 const { basketProductId } = useQueryParams();
 const { configure } = useBasketProducts();
@@ -117,7 +117,7 @@ const {
 
 async function doResolve() {
   update()
-    .then(() => next(basketProduct))
+    .then(() => navigateNext(basketProduct))
     .catch(() => {
       // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
       // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
@@ -125,7 +125,7 @@ async function doResolve() {
       watch(
         meta,
         ({ isDone }) => {
-          if (isDone) next(basketProduct);
+          if (isDone) navigateNext(basketProduct);
         },
         {
           immediate: true,
@@ -136,6 +136,6 @@ async function doResolve() {
 
 function doReject() {
   stop();
-  back();
+  navigateBack();
 }
 </script>

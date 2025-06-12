@@ -318,6 +318,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
   return {
     id,
     state,
+    service,
     // context,
     errors,
     additionalErrors,

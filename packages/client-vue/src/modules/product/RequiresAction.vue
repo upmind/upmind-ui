@@ -15,13 +15,13 @@
           {
             color: 'primary',
             variant: 'ghost',
-            handler: back,
+            handler: navigateBack,
             prependIcon: { icon: 'arrow-left', size: '2xs' },
-            label: t('basket.requiresAction.actions.back'),
+            label: t('basket.requiresAction.actions.navigateBack'),
           },
           {
             color: 'secondary',
-            handler: next,
+            handler: navigateNext,
             appendIcon: { icon: 'arrow-right', size: '2xs' },
             label: t('basket.requiresAction.actions.continue'),
           },
@@ -70,7 +70,7 @@ import SmartTitle from "../../components/content/SmartTitle.vue";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const { next, back, isResolved } = useRoutingEngine();
+const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
 const { products, isReady } = useProductsRequiringAction();
 
 await isResolved(ROUTE.PRODUCT_REQUIRES_ACTION);

@@ -9,7 +9,7 @@ Please refer to the full API reference on `useSystem` [here](./functions/useSyst
 ## Usage
 
 ```js
-import { useSystem } from "@upmind-automation/headless-vue";
+import { useSystem } from "@upmind-automation/headless";
 ```
 
 ### Setup in a Vue component
@@ -18,7 +18,7 @@ The following example is describing the most common use case for `useSystem` - u
 
 ```vue
 <script setup>
-import { useSystem } from "@upmind-automation/headless-vue";
+import { useSystem } from "@upmind-automation/headless";
 
 const { fetch } = useSystem();
 const countries = ref();
