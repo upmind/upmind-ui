@@ -14,7 +14,7 @@ export const URLs = {
 
   /* ADD PRODUCT URLS */
   devBlocks: `http://collabstudio.local:5173/product/add/3de78642-de53-9714-542c-21208469530d`,
-  starterHosting: `http://collabstudio.local:5173/product/add/5d085e69-d562-3719-7d6f-218e940d4237`,
+  starterHosting: `${baseUrl}product/add/3de78642-de53-9714-76df-21208469530d`,
   logoDesign: `http://collabstudio.local:5173/product/add/47d73824-8507-9315-345f-81e642d59e06`,
   developerRetainer: `http://collabstudio.local:5173/product/add/8d632507-9806-5d1e-572f-8174e234e98d`,
   meeting: `http://collabstudio.local:5173/product/add/47d73824-8507-9315-385b-81e642d59e06`,
