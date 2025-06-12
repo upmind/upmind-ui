@@ -398,7 +398,6 @@ export const useSession = () => {
   }
 
   async function logout(): Promise<boolean> {
-    debugger;
     service.send({
       type: "LOGOUT",
     });

@@ -32,7 +32,6 @@ export const useBillingDetails = () => {
   /**
    * Check if the unified addresses are loaded and ready
    * @returns A promise that resolves to true when the unified addresses are ready to be fetched.
-   * @example isReady().then(getAll).then(() => console.log("Details are ready"))
    */
   async function isReady(): Promise<boolean> {
     await ensureConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE);
@@ -47,7 +46,6 @@ export const useBillingDetails = () => {
    * Get all the unified addresses.
    * @param allowStale Whether to allow stale data. Defaults to true.
    * @returns An array of parsed unified addresses if found, otherwise an empty array.
-   * @example getAll().then(address => console.log(address))
    */
   async function getAll({ allowStale = true } = {}) {
     const { getAll: getAddresses } = useClientAddresses();
@@ -79,7 +77,6 @@ export const useBillingDetails = () => {
   /**
    * Get all the unified addresses from the cache.
    * @returns An array of parsed unified addresses if found, otherwise an empty array.
-   * @example getCached().then((addresses) => console.log(addresses))
    */
   function getCached() {
     const unifiedAddressesQuery = queryClient.getQueryData<{
@@ -92,7 +89,6 @@ export const useBillingDetails = () => {
    * Get a single unified address by id.
    * @param id The id of the unified address to get.
    * @returns The unified address object if found, otherwise undefined.
-   * @example getOne("123").then((address) => console.log(address))
    */
   function getOne(id: string) {
     const unifiedAddresses = getCached();
@@ -103,7 +99,6 @@ export const useBillingDetails = () => {
    * Find a single unified address based on the given param. The param is matched against the title and description.
    * @param mapping The filter to match against the unified address title and description.
    * @returns The unified address object if found, otherwise undefined.
-   * @example findOne("home").then((address) => console.log(address))
    */
   function findOne(mapping: string | Partial<UnifiedAddress>) {
     const unifiedAddresses = getCached();
@@ -131,7 +126,6 @@ export const useBillingDetails = () => {
    * Filters the unified addresses by name or description.
    * @param param The filter string to filter the unified addresses with.
    * @returns An array of unified addresses that match the filter.
-   * @example filter("home").then((addresses) => console.log(addresses))
    */
   function filterUnifiedAddresses(param: string) {
     const addresses = getCached();
@@ -146,7 +140,6 @@ export const useBillingDetails = () => {
   /**
    * Get the default address for the current client.
    * @returns The default address if found, otherwise undefined.
-   * @example getDefault().then((address) => console.log(address))
    */
   async function getDefault() {
     return getAll().then(items => find(items, "meta.isDefault"));
@@ -160,7 +153,6 @@ export const useBillingDetails = () => {
    * Remove a unified address by id.
    * @param id The id of the unified address to remove.
    * @returns A promise that resolves when the unified address is removed.
-   * @example remove("123").then(() => console.log("Address removed"))
    */
   async function remove(id: string) {
     const { remove: removeAddress } = useClientAddresses();
@@ -187,7 +179,6 @@ export const useBillingDetails = () => {
    * Set an address as default.
    * @param id The id of the address to set as default.
    * @returns A promise that resolves when the address is set as default.
-   * @example setDefault("123").then(() => console.log("Address set as default"))
    */
   async function setDefault(id: string) {
     const { setDefault: setAddressAsDefault } = useClientAddresses();

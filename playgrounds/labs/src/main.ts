@@ -9,12 +9,12 @@ import i18n from "./i18n";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { forEach } from "lodash-es";
-
 // -----------------------------------------------------------------------------
 
 const app = createApp(App);
 
 // ---
+
 UpmindClient.init({
   debug: import.meta.env.DEV,
   pop: {
@@ -32,12 +32,17 @@ UpmindClient.init({
     instance: router,
     flows: [],
   },
+  recaptcha: {
+    siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
+    enabled: true,
+  },
   analytics: {
     enabled: false,
   },
 });
 
 // ---
+
 app.use(router);
 app.use(i18n);
 

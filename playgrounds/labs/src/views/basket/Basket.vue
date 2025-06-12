@@ -10,6 +10,8 @@
         @click.prevent="router.push({ name: 'basket.billing' })"
       >
       </Button>
+
+      <pre>{{ meta }}</pre>
     </UpmContentSection>
 
     <RouterView v-slot="{ Component }" :key="$route.fullPath">
@@ -43,6 +45,7 @@
 import { useRouter } from "vue-router";
 
 // --- internal
+import { useBasket } from "@upmind-automation/client-vue";
 
 // --- components
 import {
@@ -57,4 +60,5 @@ import { Button } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
+const { meta } = useBasket();
 </script>

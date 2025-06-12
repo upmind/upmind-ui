@@ -6,7 +6,12 @@ import { useBasket } from "../basket";
 import { useBasketProductsPending } from "../basketProduct";
 
 // --- utils
-import { DetailedError, responseCodes, useSafeParse } from "../../utils";
+import {
+  DetailedError,
+  responseCodes,
+  stateMatches,
+  useSafeParse,
+} from "../../utils";
 import {
   compact,
   concat,
@@ -35,10 +40,12 @@ import { REQUIRES_ACTION, type Route } from "./types";
 // -----------------------------------------------------------------------------
 
 export async function awaitResolved(service: ActorRef<any>) {
-  return waitFor(service, state => ["resolved"].some(state.matches), {
+  return waitFor(service, state => stateMatches(state, "available.resolved"), {
     timeout: 60_000,
   })
-    .then(state => get(state, "context.currentRoute"))
+    .then(state => {
+      return get(state, "context.currentRoute");
+    })
     .catch(() => {
       throw new DetailedError(
         "[headless] awaitResolved on routing/utils timed out",

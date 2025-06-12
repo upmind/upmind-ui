@@ -132,9 +132,13 @@ async function resolve(
 ) {
   // ---
   const route = data.route as Route;
+
   const name = data.name as ROUTE;
+
   const flow = data?.flow as Flow;
+
   const event = data?.event;
+
   const target = flow || find(flows, ["name", name]) || currentFlow;
 
   if (!target) return Promise.reject();
