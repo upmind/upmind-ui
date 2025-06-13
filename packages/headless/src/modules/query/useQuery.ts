@@ -246,7 +246,7 @@ export const useQuery = () => {
     set(init, "body", parseData(data));
 
     return request<T>({ url, init, withAccessToken }).then(
-      response => response.data as T
+      response => (response?.data || response) as T
     );
   }
 
@@ -280,7 +280,7 @@ export const useQuery = () => {
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken }).then(
-      response => response.data as T
+      response => (response?.data || response) as T
     );
   }
 
@@ -314,7 +314,7 @@ export const useQuery = () => {
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken }).then(
-      response => response.data as T
+      response => (response?.data || response) as T
     );
   }
 
@@ -348,7 +348,7 @@ export const useQuery = () => {
     set(init, "body", JSON.stringify(data));
 
     return request<T>({ url, init, withAccessToken }).then(
-      response => response.data as T
+      response => (response?.data || response) as T
     );
   }
 
