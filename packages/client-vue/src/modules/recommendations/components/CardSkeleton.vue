@@ -107,7 +107,7 @@ import { Skeleton } from "@upmind-automation/upmind-ui";
 import type { ComputedRef } from "vue";
 import type { RecommendationItemProps } from "./types";
 
-const props = defineProps<RecommendationItemProps>();
+const props = defineProps<Partial<RecommendationItemProps>>();
 
 const styles = useStyles(
   [

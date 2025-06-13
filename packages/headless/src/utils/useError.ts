@@ -16,9 +16,22 @@ export enum responseCodes {
   "Conflict" = 409,
   "Too_Many_Requests" = 429,
   "Unprocessable_Entity" = 422,
+  // ---
+  "Internal_Server_Error" = 500,
+  "Bad_Gateway" = 502,
+  "Service_Unavailable" = 503,
+  "Gateway_Timeout" = 504,
+  // ---
 }
 
 // -----------------------------------------------------------------------------
+export class UnavailableError extends Error {
+  code: responseCodes;
+  constructor() {
+    super("The service is temprarily unavailable.");
+    this.code = responseCodes.Service_Unavailable;
+  }
+}
 
 export class DetailedError extends Error {
   code: number;

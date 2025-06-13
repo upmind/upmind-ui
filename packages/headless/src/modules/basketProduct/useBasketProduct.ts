@@ -55,11 +55,6 @@ export const useBasketProduct = (bpid: string) => {
     }).then(() => {});
   }
 
-  // refresh: async (newBasket: IBasket) => {
-  //   service.send({ type: "REFRESH", rawBasket });
-  //   return waitFor(service, state => state.matches("available"));
-  // },
-
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
       const product = get(service.getSnapshot(), "context.product") as Product;

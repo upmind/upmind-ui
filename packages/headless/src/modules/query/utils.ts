@@ -15,7 +15,7 @@ import {
 } from "lodash-es";
 
 // ---types
-import { RequestError } from "./types";
+import { ResponseError } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ export function parseData(data: any) {
 
 export function canRetryAuthorization(
   url: URL,
-  error: RequestError,
+  error: ResponseError,
   {
     attempts,
     max,
@@ -112,7 +112,7 @@ export function canRetryAuthorization(
   }
 ): boolean {
   const isAuth = includes(url?.pathname, "oauth");
-  const isUnauthorized = error?.status === responseCodes.Unauthorized;
+  const isUnauthorized = error?.status == responseCodes.Unauthorized;
   const value =
     !isAuth &&
     isUnauthorized &&

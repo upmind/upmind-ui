@@ -1,5 +1,7 @@
 // --- internal
 
+import { ResponseError } from "src/modules/query";
+
 // -----------------------------------------------------------------------------
 
 export interface RecaptchaContext {
@@ -8,7 +10,5 @@ export interface RecaptchaContext {
   token?: string;
   created?: Date;
   // ---
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+  error?: ResponseError;
 }

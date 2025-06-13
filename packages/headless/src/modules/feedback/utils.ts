@@ -29,12 +29,12 @@ export const useMessageParser = (data?: object) => {
     delay: 0,
     maxAge: 0,
     created: Date.now(),
+    i18nKey: null,
   };
   // TODO: pars einto a message format
   const message = defaultsDeep(data, defaultMessage);
   message.scheduled = Date.now() + (message?.delay || 0);
 
   unset(message, "id");
-
   return message;
 };

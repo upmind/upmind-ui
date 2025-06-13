@@ -4,6 +4,8 @@ import { IClient } from "@upmind-automation/types";
 
 // --- internal
 import type { ActorRef } from "xstate";
+import { ResponseError } from "../query";
+import { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 // Contexts
 
@@ -15,12 +17,12 @@ export interface ClientItemContext {
   uischema?: UISchemaElement;
   baseModel?: any;
   model?: any;
-  error?: any;
+  error?: ResponseError | ErrorObject[];
 }
 
 export interface ClientListingsContext {
   selected?: ActorRef<any | any> | any;
-  error?: any;
+  error?: ResponseError | ErrorObject[];
   initial?: string;
   filters?: any;
   items?: ActorRef<any | any>[]; //IAddress[] | ICompany[] | IEmail[] | IPhone[];

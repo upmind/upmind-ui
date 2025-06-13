@@ -7,7 +7,7 @@ import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 
 // --- utils
-import { useTime } from "../../utils";
+import { responseCodes, useTime } from "../../utils";
 import { parseDomain, parseValue, parseSld } from "./utils";
 import {
   cloneDeep,
@@ -41,6 +41,7 @@ import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import type { ProductModel, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -448,7 +449,7 @@ export default createMachine(
 
       setType: assign({
         type: (_context, { data }: AnyEventObject) => data,
-        error: null,
+        error: undefined,
       }),
 
       setCurrency: assign({
@@ -556,7 +557,7 @@ export default createMachine(
                 ? context.parseProductModel(product)
                 : undefined;
               if (model) {
-                model.skipValidation = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
+                model.silent = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this
                 result.push(model);
               }
             }
@@ -851,12 +852,18 @@ export default createMachine(
       }),
 
       setErrorInvalidDomain: assign({
-        error: (_context, { data }: AnyEventObject) => {
-          return "Invalid Domain";
+        error: (_context: DomainContext, { data }: AnyEventObject) => {
+          return {
+            id: null,
+            code: "invalid_domain",
+            type: responseCodes.Unprocessable_Entity,
+            message: "Invalid domain",
+            data: null,
+          } as ResponseError;
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {

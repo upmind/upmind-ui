@@ -8,6 +8,7 @@ import { useTime, useValidationParser } from "../../utils";
 import type { AnyEventObject } from "xstate";
 import type { ClientItemContext } from "./types";
 import { responseCodes } from "../../utils";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -233,7 +234,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -243,7 +244,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
     guards: {
       isNew: ({ model }: ClientItemContext, _event: AnyEventObject) =>

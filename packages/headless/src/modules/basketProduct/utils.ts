@@ -20,8 +20,11 @@ import {
 import {
   concat,
   find,
+  findLast,
+  first,
   forEach,
   get,
+  has,
   isEmpty,
   isObject,
   map,
@@ -58,6 +61,7 @@ import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
   PriceDetail,
+  ExternalError,
 } from "../product/types";
 
 // -----------------------------------------------------------------------------
@@ -272,7 +276,7 @@ export function parseTermSummary(
 export function parseProvisionFieldSummary(
   key: string,
   data: any,
-  hasError?: any
+  error?: ExternalError["provisionFields"]
 ): ProductSummaryDetail {
   const title = get(data, key, data); // just in case its an object > unti lwe have types
 
@@ -281,7 +285,7 @@ export function parseProvisionFieldSummary(
     category: key,
     title,
     meta: {
-      invalid: hasError,
+      invalid: !!error,
     },
   };
 }
@@ -387,4 +391,37 @@ export function parseBasketProductError(
     ),
   };
   return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
+}
+
+/**
+ * This allows us to dynamically inject values from our basket products
+ * into the product model ( currently only provision fields) based on
+ * template literals, eg  {{ service_identifier}} or {{provisioning_fields.someProperty}}
+ * eg:
+ *    This is epecially useful for setting things like the domain name for a hosting product based on a domain product
+ * @param model
+ * @param products  // The basket products that we can use to resolve dynamic values
+ * @returns ProductModel | undefined
+ */
+export function transformProductDynamicValues(
+  model: ProductModel,
+  products: IBasketProduct[]
+): ProductModel | undefined {
+  if (!model || !model?.productId) return undefined;
+
+  model.provisionFields = mapValues(
+    model?.provisionFields ?? {},
+    (value: any) => {
+      // get any dynamic properties that we need to resolve
+      const dynamicProperty: string = first(value.match(/(?<=\$\{).+?(?=\})/));
+      const product = findLast(products, product =>
+        has(product, dynamicProperty)
+      );
+      if (dynamicProperty && product) {
+        return get(product, dynamicProperty, null);
+      }
+      return value;
+    }
+  );
+  return model;
 }

@@ -47,7 +47,6 @@
           >
             <AccordionContent :class="styles.checkout.accordion.content">
               <GatewayContent
-                v-if="!!item?.id && !!gateway?.id"
                 :item="item"
                 :gateway="gateway"
                 :model="model"

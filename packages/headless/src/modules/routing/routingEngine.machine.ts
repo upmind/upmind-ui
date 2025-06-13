@@ -44,12 +44,14 @@ export default createMachine(
           ],
           ERROR: {
             target: "unavailable",
+            actions: ["setError"],
           },
         },
       },
 
       // ---
       available: {
+        entry: ["clearError"],
         on: {
           NEXT: {
             target: "calculating.next",
@@ -211,6 +213,17 @@ export default createMachine(
         return sendTo(basketHelper, {
           type: "INIT",
         });
+      }),
+
+      // ---
+      setError: assign({
+        error: (_context: RoutingEngineContext, { data }: AnyEventObject) => {
+          const error = get(data, "error", data);
+          return error;
+        },
+      }),
+      clearError: assign({
+        error: (_context, _event) => undefined,
       }),
     },
 

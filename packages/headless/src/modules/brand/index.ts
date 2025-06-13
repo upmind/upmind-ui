@@ -6,7 +6,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import brandMachine from "./brand.machine";
 
 // --- utils
-import { DetailedError, responseCodes } from "../../utils";
+import { DetailedError, UnavailableError, responseCodes } from "../../utils";
 import { get, pick, isArray, find, some, first, isEmpty } from "lodash-es";
 
 // --- types
@@ -53,13 +53,18 @@ export const useBrand = () => {
         timeout: Infinity,
       }
     ).then(state => {
-      if (["error"].some(state.matches))
+      if (["error"].some(state.matches)) {
+        if (state.context.error?.status == responseCodes.Service_Unavailable) {
+          return Promise.reject(new UnavailableError());
+        }
+
         return Promise.reject(
           new DetailedError("Brand not ready", responseCodes.Timeout, {
             state: state.value,
             errors: state.context.error,
           })
         );
+      }
 
       return state;
     });

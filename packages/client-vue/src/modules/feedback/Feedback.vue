@@ -1,24 +1,14 @@
 <template>
   <div class="feedback" :class="styles.feedback.root">
-    <aside :class="styles.feedback.banners">
-      <transition-group
-        :enter-active-class="styles.feedback.transitions.banner.enter.active"
-        :enter-from-class="styles.feedback.transitions.banner.enter.from"
-        :enter-to-class="styles.feedback.transitions.banner.enter.to"
-        :leave-active-class="styles.feedback.transitions.banner.leave.active"
-        :leave-from-class="styles.feedback.transitions.banner.leave.from"
-        :leave-to-class="styles.feedback.transitions.banner.leave.to"
-        appear
-      >
-        <Message
-          v-for="notification in notifications"
-          :key="notification.id"
-          :item="notification"
-          :scheduled="scheduled"
-          block
-          variant="stacked"
-        />
-      </transition-group>
+    <aside :class="styles.feedback.banners" v-auto-animate>
+      <Message
+        v-for="(notification, index) in notifications"
+        :key="`error-notification-${index}`"
+        :item="notification"
+        :scheduled="scheduled"
+        block
+        variant="stacked"
+      />
     </aside>
 
     <Sonner
@@ -28,13 +18,24 @@
       :visible-toasts="6"
     />
 
-    <TrackEvent v-for="event in events" :key="event.id" :item="event" />
+    <Error
+      v-for="error in system"
+      :key="error.id"
+      :i18nKey="error?.message.value.i18nKey"
+      :status="error?.message.value?.data?.type"
+      :action="
+        (error?.message.value?.data?.type ?? 0) >= 500 ? 'refresh' : 'store'
+      "
+      :open="error.meta.value.isActive"
+      modal
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { watch, ref, type ComputedRef } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useFeedback, useMessage } from "@upmind-automation/headless-vue";
@@ -44,7 +45,7 @@ import config from "./feedback.config";
 // --- components
 import { Sonner } from "@upmind-automation/upmind-ui";
 import Message from "./components/Message.vue";
-import TrackEvent from "./components/TrackEvent.vue";
+import Error from "../system/Error.vue";
 
 // --- utils
 import { forEach, some } from "lodash-es";
@@ -54,38 +55,14 @@ const props = defineProps<{
   scheduled?: boolean;
 }>();
 
-const styles = useStyles(
-  [
-    "feedback",
-    "feedback.transitions.banner.enter",
-    "feedback.transitions.banner.leave",
-    "feedback.transitions.toasts.enter",
-    "feedback.transitions.toasts.leave",
-  ],
-  props,
-  config
-) as ComputedRef<{
+const styles = useStyles(["feedback"], props, config) as ComputedRef<{
   feedback: {
     root: string;
     banners: string;
-    transitions: {
-      banner: {
-        enter: {
-          active: string;
-          from: string;
-          to: string;
-        };
-        leave: {
-          active: string;
-          from: string;
-          to: string;
-        };
-      };
-    };
   };
 }>;
 
-const { notifications, toasts, dismiss, events } = useFeedback();
+const { notifications, toasts, dismiss, system, meta } = useFeedback();
 const activeToasts = ref<(string | number)[]>([]);
 
 function dismissToast(id: string) {

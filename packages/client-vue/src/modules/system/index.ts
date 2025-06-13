@@ -6,7 +6,6 @@ export * from "./i18n";
 // to avoid circular dependencies. and to be able to lazy load them.
 
 export const Upm404View = import("./404.vue");
-export const UpmErrorView = import("./Error.vue");
 export const UpmEmptyView = import("./Empty.vue");
 export const UpmLoadingView = import("./Loading.vue");
 

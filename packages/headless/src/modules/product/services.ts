@@ -196,7 +196,7 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
 
   // We may opt to skip validation to allow the backend to do the validation
   //  especially usefull when adding bulk products, recommendations etc.
-  if (context.skipValidation) return Promise.resolve(context.model);
+  if (context.silent) return Promise.resolve(context.model);
 
   // TODO: validate the model as per normal using the schema
   // const { validate } = useValidation();
