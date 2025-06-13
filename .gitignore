@@ -12,7 +12,7 @@ bin/pnpx
 tsconfig.tsbuildinfo
 
 # Playwright
-tests/Playwright/test-results/
-tests/Playwright/playwright-report/
+tests/Playwright/e2e/test-output/
+tests/Playwright/e2e/reports/
 tests/Playwright/blob-report/
 tests/Playwright/playwright/.cache/
