@@ -1,6 +1,6 @@
 // ---  external
 import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
-import { set } from "lodash-es";
+import { isEmpty, set } from "lodash-es";
 
 // --- types
 declare interface CookieOptions {
@@ -18,6 +18,7 @@ declare type Encoder<T> = (value: T) => string;
 // --------------------------------------------------------
 
 export function useCookies() {
+  const domain = window.location.hostname;
   const topLevelDomain = getTopLevelDomain(window.location.href);
 
   function getTopLevelDomain(url: string) {
@@ -50,14 +51,26 @@ export function useCookies() {
       options?: CookieOptions,
       encoder: Encoder<any> = defaultEncoder
     ) => {
+      // NB we always set the cookie for both the current domain and the top-level domain
+      // this is to ensure that the cookie is available if the top-level domain fails to set the cookie
       options ??= {};
+
       set(options, "domain", topLevelDomain);
       setCookie(key, value, encoder, options);
+
+      const success = getCookie(key, encoder);
+      if (isEmpty(success)) {
+        set(options, "domain", domain);
+        setCookie(key, value, encoder, options);
+      }
     },
     remove: removeCookie,
     removeTopLevel: (key: string, options?: CookieOptions) => {
+      // NB we always remove the cookie for both the current domain and the top-level domain
       options ??= {};
       set(options, "domain", topLevelDomain);
+      removeCookie(key, options);
+      set(options, "domain", domain);
       removeCookie(key, options);
     },
     isEnabled,

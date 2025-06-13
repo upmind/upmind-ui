@@ -116,7 +116,6 @@ import config from "./client.config";
 
 // --- components
 import Section from "../../components/content/ContentSection.vue";
-import Auth from "../session/components/AuthTabs.vue";
 import Empty from "./components/Empty.vue";
 import Card from "./components/Card.vue";
 import Item from "./components/Item.vue";

@@ -81,7 +81,7 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./components/session.config";
 
 // --- components
-import Auth from "./components/AuthTabs.vue";
+import Auth from "./components/Auth.vue";
 
 // --- custom elements
 import { Button } from "@upmind-automation/upmind-ui";

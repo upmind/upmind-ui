@@ -11,8 +11,10 @@ import type {
   IPaymentDetail,
   IOrder,
 } from "@upmind-automation/types";
+import { ErrorObject } from "ajv";
 import type { GatewayTypes } from "../types";
 import type { GatewayCtx, GatewayContext } from "../types";
+import { ResponseError } from "src/modules/query";
 
 // -----------------------------------------------------------------------------
 
@@ -84,7 +86,5 @@ export interface StripeContext extends GatewayContext {
   // --- Output
   paymentDetails?: any; // will contain the response from Stripe, as wel las any model data
   // ---
-  // TODO:
-  // error?: RequestError;
-  error?: any;
+  error?: ResponseError | ErrorObject[];
 }

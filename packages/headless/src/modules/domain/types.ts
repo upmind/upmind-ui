@@ -5,6 +5,7 @@ import type { ActorRef } from "xstate";
 import { IBasketPromotion } from "@upmind-automation/types";
 import type { Product, ProductSummaryDetail } from "../product";
 import type { BasketHelperContext } from "../basketProduct";
+import { ResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ export type DomainContext = BasketHelperContext<DomainProduct> & {
   controller?: AbortController;
   tlds?: string[];
   // ---
-  error?: any;
+  error?: ResponseError;
   // ---
   authHelper?: ActorRef<any>;
   basketHelper?: ActorRef<any>;

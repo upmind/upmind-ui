@@ -29,7 +29,6 @@
                   v-if="basketProduct && !meta?.isLoading"
                   :item="basketProduct"
                   :model-value="basketProduct?.id"
-                  :processing="meta?.isProcessing"
                   :no-footer="true"
                   as="div"
                   @resolve="doResolve"
@@ -73,6 +72,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -119,7 +119,18 @@ async function doResolve() {
   update()
     .then(() => next(basketProduct))
     .catch(() => {
-      // do nothing as its handled by the components
+      // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
+      // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
+      // if the product is successfully added to the basket ( onDone = success)
+      watch(
+        meta,
+        ({ isDone }) => {
+          if (isDone) next(basketProduct);
+        },
+        {
+          immediate: true,
+        }
+      );
     });
 }
 

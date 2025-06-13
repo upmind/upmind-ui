@@ -38,14 +38,15 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         "promotions",
         "coupons",
         "subproducts",
-        "skipValidation",
+        "silent",
+        "bundle",
       ]) as ProductModel)
     : undefined;
 
   const coupons = isProductProps(data) ? (data?.coupons ?? []) : [];
   const subproducts = isProductProps(data) ? (data?.subproducts ?? []) : [];
-  const skipValidation = isProductProps(data) ? data?.skipValidation : false;
-
+  const silent = isProductProps(data) ? (data?.silent ?? false) : false;
+  const bundle = isProductProps(data) ? data?.bundle : undefined;
   const { getBasket } = useBasket();
   const rawBasket = getBasket();
   if (!rawBasket)
@@ -73,7 +74,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
         promotions: rawBasket.promotions,
         subproducts,
         coupons,
-        skipValidation,
+        silent,
+        bundle,
         // ---
         model,
       }),

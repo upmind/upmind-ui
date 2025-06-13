@@ -27,7 +27,7 @@ export const ListingActions = {
         return found;
       }) as ActorRef<any>[];
     },
-    error: null,
+    error: undefined,
   }),
 };
 

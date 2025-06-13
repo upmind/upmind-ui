@@ -8,6 +8,10 @@ export enum messageDisplays {
   TOAST = "toast",
   NOTIFICATION = "notification",
   SNACKBAR = "snackbar",
+  MODAL = "modal",
+  SYSTEM = "system",
+  AUTH = "auth",
+
   // CONSOLE = "console"
 }
 
@@ -17,9 +21,6 @@ export enum messageTypes {
   INFO = "info",
   SUCCESS = "success",
   WARNING = "warning",
-  // ---
-  AUTH = "auth",
-  EVENT = "event",
 }
 
 export interface Message {
@@ -27,6 +28,7 @@ export interface Message {
   display: messageDisplays;
   type: messageTypes;
   // ---
+  i18nKey?: string; // i18n key for the message
   title?: string;
   copy?: string;
   data?: any;

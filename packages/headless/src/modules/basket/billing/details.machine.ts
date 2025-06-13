@@ -22,18 +22,7 @@ export default createMachine(
     id: "billingDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      basketId: undefined,
-      clientId: undefined,
-      // ---
-      schema: undefined,
-      uischema: undefined,
-      model: undefined,
-      // ---
-      dirty: false,
-      error: null,
-      autoupdate: false,
-    } as BillingDetailsContext,
+    context: {} as BillingDetailsContext,
     states: {
       // Subscribe to basket changes and listen for a valid basket client,
       subscribing: {
@@ -240,14 +229,13 @@ export default createMachine(
         // dont show any unauthorized errors
         if (
           !error ||
-          error?.code == responseCodes.Unprocessable_Entity ||
-          error?.code == responseCodes.Unauthorized
+          error?.status == responseCodes.Unprocessable_Entity ||
+          error?.status == responseCodes.Unauthorized
         )
           return;
 
         addError({
-          title:
-            error?.title || "We experienced an error updating billing details",
+          title: "We experienced an error updating billing details",
           copy: error?.message,
           data: error?.data,
         });
@@ -256,7 +244,7 @@ export default createMachine(
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
           let error = data?.error;
-          if (error?.code == responseCodes.Unprocessable_Entity) {
+          if (data?.status == responseCodes.Unprocessable_Entity) {
             // lets parse/override our error message and data
             // this is to generate valid json schema validation errors
             error = useValidationParser(error);
@@ -266,7 +254,7 @@ export default createMachine(
         },
       }),
 
-      clearError: assign({ error: null }),
+      clearError: assign({ error: undefined }),
     },
 
     guards: {
