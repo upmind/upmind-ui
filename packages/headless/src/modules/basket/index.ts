@@ -83,7 +83,7 @@ export const useBasket = () => {
       actorState => ["complete", "error"].some(actorState.matches),
       { timeout: 60_000 }
     )
-      .then(actorState => state.matches("complete"))
+      .then(actorState => actorState.matches("complete"))
       .catch(() => false);
   }
 
@@ -121,7 +121,7 @@ export const useBasket = () => {
     debugger;
     return waitFor(
       customFields as ActorRef<any>,
-      state => ["complete", "error"].some(state.matches),
+      actorState => ["complete", "error"].some(actorState.matches),
       { timeout: 60_000 }
     )
       .then(actorState => actorState.matches("complete"))
