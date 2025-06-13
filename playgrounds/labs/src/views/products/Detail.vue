@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
 import { Button } from "@upmind-automation/upmind-ui";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 

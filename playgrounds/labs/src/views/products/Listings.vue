@@ -53,7 +53,6 @@
 // --- internal
 import { useRouter } from "vue-router";
 
-const router = useRouter();
 import { useProductCatalogue } from "@upmind-automation/headless";
 
 // --- components
@@ -61,6 +60,8 @@ import { Button, Alert } from "@upmind-automation/upmind-ui";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
+
+const router = useRouter();
 
 function goToProductDetail(productId: string) {
   router.push({ name: "products.catalogue.detail", params: { id: productId } });

@@ -3,14 +3,14 @@ import { RouteRecordRaw } from "vue-router";
 
 // --- internal
 import Detail from "./Detail.vue";
-import ProductCatalogue from "./Listings.vue";
+import Listings from "./Listings.vue";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/products-catalogue",
     name: "products.catalogue",
     alias: "/products",
-    component: ProductCatalogue,
+    component: Listings,
     meta: {
       title: "Products Catalogue",
     },
