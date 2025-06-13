@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../../../support/constants/urls";
-import { Checkout } from "../../../../../support/page-objects/templates/Checkout";
+import { ProductConfig } from "../../../../../support/page-objects/templates/ProductConfig";
 import { cozaDomain } from "../../../../../support/constants/checkout/test-cases/webcentral/domains/Co.za";
-let checkout: Checkout;
+let productConfig: ProductConfig;
 let testCases = cozaDomain;
 
 test.beforeEach(async ({ page }) => {
-  checkout = new Checkout(page);
+  productConfig = new ProductConfig(page);
   await page.goto(URLs.cozaDomain);
-  await checkout.optionsContainer.waitFor();
+  await productConfig.optionsContainer.waitFor();
 });
 
 test.describe("Product Config - Happy Paths - Domain (.co.za)", async () => {
@@ -24,18 +24,18 @@ test.describe("Product Config - Happy Paths - Domain (.co.za)", async () => {
       /* PRODUCT OPTIONS */
       /* Make product selections */
       for (const [radioGroupIndex, radioOptionIndex] of radioSelection) {
-        await checkout.radioButtons.clickRadioButton(
+        await productConfig.radioButtons.clickRadioButton(
           radioGroupIndex,
           radioOptionIndex
         );
       }
-      await checkout.enterSld(sldValue);
+      await productConfig.enterSld(sldValue);
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
-      await expect(checkout.totalValue).toContainText(total);
-      await expect(checkout.billingCycle).toContainText(billingCycle);
-      await expect(checkout.tldValue).toContainText(tldValue);
+      await expect(productConfig.totalValue).toContainText(total);
+      await expect(productConfig.billingCycle).toContainText(billingCycle);
+      await expect(productConfig.tldValue).toContainText(tldValue);
       //await expect(page).toHaveScreenshot(name);
     });
   }
