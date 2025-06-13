@@ -453,7 +453,7 @@ export default createMachine(
           lookups ??= {};
           lookups.options = parseSubproductDetails(
             rawProduct?.products_options,
-            data.term
+            data.model?.term
           );
 
           lookups.prices = data.prices;
