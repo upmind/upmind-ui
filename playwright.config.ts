@@ -11,10 +11,11 @@ export default defineConfig({
   },
 
   /*Filepaths*/
-  testDir: "./e2e/e2e-tests",
-  outputDir: "./e2e/e2e-tests/test-results",
+  testDir: "./tests/Playwright/e2e/e2e-tests",
+  outputDir: "./tests/Playwright/e2e/test-output/test-results",
   testMatch: "**/*.spec.ts",
-  snapshotPathTemplate: "./e2e/snapshots/{testFileDir}/{arg}-{projectName}.png",
+  snapshotPathTemplate:
+    "./tests/Playwright/e2e/snapshots/{arg}-{projectName}.png",
 
   /*Set number of retries on a failed test*/
   //retries: 2,
@@ -23,7 +24,7 @@ export default defineConfig({
   fullyParallel: false,
 
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html", { outputFolder: "./e2e/e2e-tests/playwright-report" }]],
+  reporter: [["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }]],
 
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
