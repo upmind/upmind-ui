@@ -1,5 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { URLs } from "../../constants/Urls";
+import { URLs } from "../../constants/urls";
 import { TextInput } from "../components/TextInput";
 import { Checkboxes } from "../components/Checkboxes";
 import { RadioButtons } from "../components/RadioButtons";
@@ -66,6 +66,9 @@ export class ProductConfig {
   readonly confirmAndProceed: Locator;
   readonly engagementTypes: Locator;
   readonly outcomes: Locator;
+
+  /* Meta Slots*/
+  readonly summaryMetaSlot: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -155,9 +158,12 @@ export class ProductConfig {
     this.engagementTypes = page.getByTestId("summary-value-engagement-types");
     this.outcomes = page.getByTestId("summary-value-outcomes");
     this.confirmAndProceed = page.getByTestId("button-confirm-and-proceed");
+
+    /* Meta Slots */
+    this.summaryMetaSlot = page.getByTestId("slots:summary-append");
   }
 
-  /* Checkout Functions */
+  /* Product Functions */
   async checkoutWithProduct(productId: string) {
     await this.page.goto(`${URLs.baseUrl}product/add/${productId}`);
   }
