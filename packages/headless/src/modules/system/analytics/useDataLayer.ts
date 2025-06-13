@@ -75,14 +75,24 @@ class TrackingEvent {
     const POP = getPOP();
     const version = packageJson?.version; // TODO: Come up with a relevant version number: which Pkg should provide this?
 
+    const current_url = window.location.href;
+
+    //  nb: we use the router to get the current URL, but if it is not available, we fallback to the window location.
+    //      also if the referreer is an empty string we return undefined so it does not get sent to the data layer.
+    let previous_url = router?.from
+      ? `${window.location.origin}${router?.from?.fullPath}`
+      : undefined;
+    if (previous_url === current_url)
+      previous_url = window.document?.referrer || undefined;
+
     const payload: DataLayerPage = omitBy(
       {
         page_type: router?.to?.name,
         environment: POP.name,
         version,
         language: locale?.toLocaleUpperCase(),
-        current_url: router?.to?.fullPath,
-        previous_url: router?.from?.fullPath,
+        current_url,
+        previous_url,
       },
       isNil
     );

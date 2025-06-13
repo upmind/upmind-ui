@@ -137,6 +137,14 @@ function mapLaravelRuleToJSONSchema(
         format: "may only contain letters and numbers",
       },
     };
+  } else if (rule === "alpha-dash-dot") {
+    return {
+      type: "string",
+      pattern: "^[a-zA-Z.-]+$",
+      errorMessage: {
+        pattern: "may only contain letters, dots and dashes",
+      },
+    };
   }
 
   // 3. Custom Formats (Patterns and Enums)
@@ -291,7 +299,10 @@ function mapLaravelRuleToJSONSchema(
   }
   // 6. Default
   // For any rule we haven't explicitly mapped, we'll return it as a custom keyword
-  return { [rule]: true };
+  return {
+    type: "string", // Default to string type for unknown rules
+    [rule]: true,
+  };
 }
 
 function mapLaravelConditionalRuleToJSONSchema(
