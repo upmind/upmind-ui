@@ -80,10 +80,10 @@ export const useBasket = () => {
     if (!promotions) return false;
     return waitFor(
       promotions as ActorRef<any>,
-      state => ["complete", "error"].some(state.matches),
+      actorState => ["complete", "error"].some(actorState.matches),
       { timeout: 60_000 }
     )
-      .then(() => state.matches("complete"))
+      .then(actorState => state.matches("complete"))
       .catch(() => false);
   }
 
@@ -93,10 +93,10 @@ export const useBasket = () => {
     if (!billingDetails) return false;
     return waitFor(
       billingDetails as ActorRef<any>,
-      state => ["complete", "error"].some(state.matches),
+      actorState => ["complete", "error"].some(actorState.matches),
       { timeout: 60_000 }
     )
-      .then(() => state.matches("complete"))
+      .then(actorState => actorState.matches("complete"))
       .catch(() => false);
   }
 
@@ -106,23 +106,25 @@ export const useBasket = () => {
     if (!currency) return false;
     return waitFor(
       currency as ActorRef<any>,
-      state => ["complete", "error"].some(state.matches),
+      actorState => ["complete", "error"].some(actorState.matches),
       { timeout: 60_000 }
     )
-      .then(() => state.matches("complete"))
+      .then(actorState => actorState.matches("complete"))
       .catch(() => false);
   }
 
   async function hasFields(): Promise<boolean> {
     const state = service.getSnapshot();
     const customFields = get(state, "context.actors.customFields");
+    debugger;
     if (!customFields) return false;
+    debugger;
     return waitFor(
       customFields as ActorRef<any>,
       state => ["complete", "error"].some(state.matches),
       { timeout: 60_000 }
     )
-      .then(() => state.matches("complete"))
+      .then(actorState => actorState.matches("complete"))
       .catch(() => false);
   }
 
