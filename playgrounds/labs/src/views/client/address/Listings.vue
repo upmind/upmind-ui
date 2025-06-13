@@ -10,7 +10,7 @@
         Refetch Addresses
       </Button>
 
-      <Button @click="doAdd" :loading="meta.isLoading"> New Address </Button>
+      <Button @click="doAdd" :loading="meta.isLoading">New Address</Button>
     </div>
 
     <Alert

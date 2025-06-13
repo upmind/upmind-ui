@@ -20,9 +20,9 @@ export interface Email extends EmailModel {
   description: string;
   // --- meta info
   meta: {
-    isDefault: IEmail["default"];
-    canDelete: IEmail["can_delete"];
-    isVerified: IEmail["verified"];
+    isDefault: boolean;
+    canDelete: boolean;
+    isVerified: boolean;
   };
 }
 

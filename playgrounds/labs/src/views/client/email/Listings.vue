@@ -1,30 +1,16 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Emails">
-    <div class="flex gap-2 pb-6">
+    <div class="flex gap-2 pb-6" v-show="meta.isAvailable">
       <Button
-        @click="getAll"
+        @click="refresh"
         size="sm"
         variant="tonal"
-        :disabled="meta.isLoading || !meta.isAvailable"
+        :disabled="meta.isLoading"
       >
         Load
       </Button>
-      <Button
-        @click="invalidate"
-        size="sm"
-        variant="tonal"
-        :disabled="meta.isLoading || !meta.isAvailable"
-      >
-        Invalidate
-      </Button>
 
-      <Button
-        @click="doAdd"
-        :loading="meta.isLoading"
-        :disabled="!meta.isAvailable"
-      >
-        New Email
-      </Button>
+      <Button @click="doAdd" :loading="meta.isLoading">New Email</Button>
     </div>
 
     <Alert
@@ -36,10 +22,10 @@
     <Alert v-else-if="meta.isLoading" color="info" title="Loading..." />
 
     <Alert
-      v-else-if="meta.isError"
+      v-else-if="meta.hasError"
       color="error"
-      :title="error.title"
-      :message="error.message"
+      title="Error loading emails"
+      :message="error?.message"
     />
 
     <Alert
@@ -91,12 +77,9 @@ import { useClientEmails } from "@upmind-automation/headless";
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
-const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
-  useClientEmails();
-
-// --- types
-
 // -----------------------------------------------------------------------------
+
+const { data, meta, error, remove, setDefault, refresh } = useClientEmails();
 
 const router = useRouter();
 
@@ -107,6 +90,4 @@ function doEdit(id: string) {
 function doAdd() {
   router.push({ name: "client.emails.add" });
 }
-
-await isReady().then(() => getAll());
 </script>
