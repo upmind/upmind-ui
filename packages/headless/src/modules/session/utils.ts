@@ -1,5 +1,5 @@
 // --- utils
-import { useCookies } from "../../utils";
+import { DetailedError, responseCodes, useCookies } from "../../utils";
 import {
   toNumber,
   isBoolean,
@@ -15,6 +15,7 @@ import {
 // --- types
 import type { Token, User } from "./types";
 import type { IUser } from "@upmind-automation/types";
+import { t } from "xstate";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -48,19 +49,18 @@ function convertToCookie() {
 
 export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   const { get: getCookie } = useCookies();
-
   // convert localStorage tokens to cookies if they exist
   // this is a one-time operation to migrate from localStorage to cookies
   convertToCookie();
 
-  const clientCookie = getCookie("upm_client_session", value => atob(value)) as
-    | string
-    | undefined;
+  const clientCookie = getCookie("upm_client_session", value => {
+    return atob(value);
+  }) as string | undefined;
 
   // const guestToken = localStorage.getItem(`guest/auth/token`);
-  const guestCookie = getCookie("upm_guest_session", value => atob(value)) as
-    | string
-    | undefined;
+  const guestCookie = getCookie("upm_guest_session", value => {
+    return atob(value);
+  }) as string | undefined;
 
   let token: string | Token;
 
@@ -77,6 +77,13 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
 
 export function persistTokenToStorage(token: Token) {
   const { setTopLevel: setCookie } = useCookies();
+
+  if (!token || !token.access_token)
+    throw new DetailedError(
+      "[headless] persistTokenToStorage token is invalid or missing the access_token property.",
+      responseCodes.Unprocessable_Entity,
+      token
+    );
 
   if (!localStorage)
     return Promise.reject(new Error("No localStorage available"));
