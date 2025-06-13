@@ -1,30 +1,16 @@
 <template>
   <UpmContentSection class="mx-auto max-w-app" title="Companies">
-    <div class="flex gap-2 pb-6">
+    <div class="flex gap-2 pb-6" v-show="meta.isAvailable">
       <Button
-        @click="getAll"
+        @click="refresh"
         size="sm"
         variant="tonal"
-        :disabled="meta.isLoading || !meta.isAvailable"
+        :disabled="meta.isLoading"
       >
-        Load
-      </Button>
-      <Button
-        @click="invalidate"
-        size="sm"
-        variant="tonal"
-        :disabled="meta.isLoading || !meta.isAvailable"
-      >
-        Invalidate
+        Refetch Companies
       </Button>
 
-      <Button
-        @click="doAdd"
-        :loading="meta.isLoading"
-        :disabled="!meta.isAvailable"
-      >
-        New Company
-      </Button>
+      <Button @click="doAdd" :loading="meta.isLoading">New Company</Button>
     </div>
 
     <Alert
@@ -36,17 +22,17 @@
     <Alert v-else-if="meta.isLoading" color="info" title="Loading..." />
 
     <Alert
-      v-else-if="meta.isError"
+      v-else-if="meta.hasError"
       color="error"
-      :title="error.title"
-      :message="error.message"
+      title="Error loading companies"
+      :message="error?.message"
     />
 
     <Alert
       v-else-if="meta.isEmpty"
       color="info"
       title="No companies found"
-      message="Please add an company to get started."
+      message="Please add a company to get started."
     />
 
     <section
@@ -96,12 +82,9 @@ import { useClientCompanies } from "@upmind-automation/headless";
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 import { UpmCard, UpmContentSection } from "@upmind-automation/client-vue";
 
-const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
-  useClientCompanies();
-
-// --- types
-
 // -----------------------------------------------------------------------------
+
+const { data, meta, error, remove, setDefault, refresh } = useClientCompanies();
 
 const router = useRouter();
 
@@ -112,6 +95,4 @@ function doEdit(id: string) {
 function doAdd() {
   router.push({ name: "client.companies.add" });
 }
-
-await isReady().then(() => getAll());
 </script>
