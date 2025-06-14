@@ -16,7 +16,7 @@ export interface BasketContext {
   summary?: any; //TODO: define summary type
   // --- SPAWNED ACTORS/MACHINES
   actors?: {
-    billingDetails: ActorRef<any>;
+    billing: ActorRef<any>;
     currency: ActorRef<any>;
     customFields: ActorRef<any>;
     paymentDetails: ActorRef<any>;

@@ -272,8 +272,8 @@
         "collapsed": true,
         "items": [
           {
-            "text": "useBasketBillingDetails",
-            "link": "/@upmind-automation/headless/functions/useBasketBillingDetails.md"
+            "text": "useBasketBilling",
+            "link": "/@upmind-automation/headless/functions/useBasketBilling.md"
           },
           {
             "text": "useBasketCurrency",

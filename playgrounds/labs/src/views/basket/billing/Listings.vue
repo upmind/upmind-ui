@@ -93,14 +93,14 @@ import { useRouter } from "vue-router";
 import {
   UpmCard,
   UpmContentSection,
-  useBasketBillingDetails,
+  useBasketBilling,
 } from "@upmind-automation/client-vue";
 
 // --- components
 import { Button, Alert, Icon } from "@upmind-automation/upmind-ui";
 
 const { isReady, getAll, data, meta, error, invalidate, remove, setDefault } =
-  useBasketBillingDetails();
+  useBasketBilling();
 
 // --- types
 

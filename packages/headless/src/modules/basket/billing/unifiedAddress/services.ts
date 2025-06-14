@@ -111,9 +111,12 @@ async function loadLookups({
     return Promise.reject("Failed to load countries and regions");
   }
 
+  const needsPhone = get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE);
+
   const baseModel: UnifiedAddressModel = {
     addressId: defaultAddress.value?.id,
     companyId: defaultCompany.value?.id,
+    phoneId: needsPhone ? defaultPhone.value?.id : undefined,
     address: {
       city: null,
       address1: null,
@@ -124,10 +127,9 @@ async function loadLookups({
     company: {
       addressId: defaultAddress.value?.id,
       name: "",
-      default: true,
     },
     phone:
-      defaultPhone && get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)
+      needsPhone && defaultPhone.value
         ? {
             number: defaultPhone.value?.phone.number ?? "",
             nationalNumber: defaultPhone.value?.phone.nationalNumber ?? "",

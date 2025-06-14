@@ -71,7 +71,7 @@ export const useUischema = ({ config }: BillingContext) => {
       {
         type: "Control",
         scope: "#/properties/addressId",
-        i18n: "basket.billingDetails.addressId",
+        i18n: "basket.billing.addressId",
         options: {
           autoFocus: true,
           autocomplete: "off",
@@ -80,7 +80,7 @@ export const useUischema = ({ config }: BillingContext) => {
       {
         type: "Control",
         scope: "#/properties/companyId",
-        i18n: "basket.billingDetails.companyId",
+        i18n: "basket.billing.companyId",
         options: {
           autoFocus: true,
           autocomplete: "off",

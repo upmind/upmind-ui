@@ -89,7 +89,7 @@ export const useBasket = () => {
         stateMatches(state, ["shopping.refreshing.processing"]) ||
         machineMatches(actors.currency, ["processing"]) ||
         machineMatches(actors.customFields, ["processing"]) ||
-        machineMatches(actors.billingDetails, [
+        machineMatches(actors.billing, [
           "processing",
           "available.processing",
         ]) ||
@@ -98,7 +98,7 @@ export const useBasket = () => {
       isDirty:
         machineMatches(actors.currency, ["valid"]) ||
         machineMatches(actors.customFields, ["valid"]) ||
-        machineMatches(actors.billingDetails, ["valid"]) ||
+        machineMatches(actors.billing, ["valid"]) ||
         machineMatches(actors.promotions, ["valid"]),
 
       // ---
@@ -123,7 +123,7 @@ export const useBasket = () => {
 
       hasPromotions: machineMatches(actors.promotions, ["complete"]),
 
-      hasBillingDetails: machineMatches(actors.billingDetails, ["complete"]),
+      hasBillingDetails: machineMatches(actors.billing, ["complete"]),
 
       hasCurrency: machineMatches(actors.currency, ["complete"]),
 
@@ -153,7 +153,7 @@ export const useBasket = () => {
           "shopping.promotions.complete",
           "shopping.account.complete",
           "shopping.currency.complete",
-          "shopping.billingDetails.complete",
+          "shopping.billing.complete",
           "shopping.customFields.complete",
           "shopping.paymentDetails.available",
         ],
@@ -183,13 +183,13 @@ export const useBasket = () => {
   const actors: {
     customFields: ComputedRef<Actor | undefined>;
     paymentDetails: ComputedRef<Actor | undefined>;
-    billingDetails: ComputedRef<Actor | undefined>;
+    billing: ComputedRef<Actor | undefined>;
     currency: ComputedRef<Actor | undefined>;
     promotions: ComputedRef<Actor | undefined>;
   } = {
     customFields: useContextActor(state, "actors.customFields"),
     paymentDetails: useContextActor(state, "actors.paymentDetails"),
-    billingDetails: useContextActor(state, "actors.billingDetails"),
+    billing: useContextActor(state, "actors.billing"),
     currency: useContextActor(state, "actors.currency"),
     promotions: useContextActor(state, "actors.promotions"),
   };

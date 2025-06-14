@@ -49,11 +49,11 @@ import {
   RadioCardsCollapsible,
   Link,
 } from "@upmind-automation/upmind-ui";
-import Item from "../../../modules/client/components/billing/Item.vue";
+import Item from "./ModelListRendererItem.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { find, lowerCase, map, get, flatMap } from "lodash-es";
+import { find, lowerCase, map, get, flatMap, has } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -70,6 +70,8 @@ const { control, formFieldProps, onInput, handleChange } =
 
 const open = ref(false);
 const selectedItem = ref<string>("");
+
+const useComposable = get(control.value, "schema.use");
 
 onMounted(() => {
   selectedDefaultItem();
@@ -109,7 +111,9 @@ const parsedValues = computed(() => {
 });
 
 const selectItem = async (value: string) => {
+  debugger;
   onInput(value, false);
+  debugger;
   selectedItem.value = value;
 };
 
@@ -166,10 +170,13 @@ const selectedDefaultItem = () => {
 </script>
 
 <script lang="ts">
-import { uiTypeIs, and } from "@jsonforms/core";
+import { uiTypeIs, and, schemaMatches } from "@jsonforms/core";
 
 export const tester = {
   rank: 4,
-  controlType: and(uiTypeIs("ModelList")),
+  controlType: and(
+    uiTypeIs("ModelList"),
+    schemaMatches(schema => has(schema, "use"))
+  ),
 };
 </script>

@@ -24,9 +24,9 @@ import { BillingContext, BillingModel } from "./billing/types";
 
 // -----------------------------------------------------------------------------
 
-export const useBasketBillingDetails = () => {
+export const useBasketBilling = () => {
   const { actors } = useBasket();
-  const actor = actors.currency;
+  const actor = actors.billing;
 
   // --- state
 
@@ -130,28 +130,27 @@ export const useBasketBillingDetails = () => {
     // --- state
 
     /**
-     * Waits for the currency actor to be ready (not loading or error state).
+     * Waits for the billing actor to be ready (not loading or error state).
      * @returns {Promise<boolean>} Resolves true if ready, false if error.
      */
     isReady,
 
     /**
-     * Meta information about the basket currency state.
-     * @typedef {Object} BasketCurrencyMeta
-     * @property {boolean} isAvailable - Indicates if the currency actor is available.
-     * @property {boolean} isLoading - Indicates if the currency actor is loading.
-     * @property {boolean} hasCurrency - Indicates if a currency is set.
+     * Meta information about the basket billing state.
+     * @typedef {Object} BasketBillingMeta
+     * @property {boolean} isAvailable - Indicates if the billing actor is available.
+     * @property {boolean} isLoading - Indicates if the billing actor is loading.
      * @property {boolean} hasErrors - Indicates if there are errors.
-     * @property {boolean} isProcessing - Indicates if the currency is processing.
-     * @property {boolean} isValid - Indicates if the currency is valid.
-     * @property {boolean} isDirty - Indicates if the currency is dirty.
-     * @property {boolean} isComplete - Indicates if the currency is complete.
+     * @property {boolean} isProcessing - Indicates if the billing is processing.
+     * @property {boolean} isValid - Indicates if the billing is valid.
+     * @property {boolean} isDirty - Indicates if the billing is dirty.
+     * @property {boolean} isComplete - Indicates if the billing is complete.
      */
     meta,
 
     // --- context
 
-    /** The full currency context object. */
+    /** The full billing context object. */
     context,
 
     // /** The list of available addresses. */
@@ -163,33 +162,33 @@ export const useBasketBillingDetails = () => {
     // /** The list of available phone numbers. */
     // phones,
 
-    /** Any error returned by the currency actor. */
+    /** Any error returned by the billing actor. */
     errors,
 
-    /** The current currency model. */
+    /** The current billing model. */
     model,
 
-    /** The currency schema. */
+    /** The billing schema. */
     schema,
 
-    /** The currency UI schema. */
+    /** The billing UI schema. */
     uischema,
 
     // --- methods
 
-    /** Clears the currency state. */
+    /** Clears the billing state. */
     clear,
 
     /**
-     * Sends a SET event to update the currency model.
-     * @param {BillingModel} value The currency model to set.
+     * Sends a SET event to update the billing model.
+     * @param {BillingModel} value The billing model to set.
      * @returns {void} Does not return anything.
      */
     input,
 
     /**
-     * Updates the currency if the code has changed.
-     * @param {BillingModel} value The new currency model to set.
+     * Updates the billing if the code has changed.
+     * @param {BillingModel} value The new billing model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     update,
@@ -204,8 +203,6 @@ export const useBasketBillingDetails = () => {
 };
 
 /**
- * The return type of useBasketCurrency composable.
+ * The return type of composable.
  */
-export type UseBasketBillingDetails = ReturnType<
-  typeof useBasketBillingDetails
->;
+export type UseBasketBilling = ReturnType<typeof useBasketBilling>;

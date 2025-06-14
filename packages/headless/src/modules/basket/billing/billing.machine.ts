@@ -19,7 +19,7 @@ import { responseCodes } from "../../../utils";
 export default createMachine(
   {
     // tsTypes: {} as import("./details.machine.typegen").Typegen0,
-    id: "billingDetailsManager",
+    id: "billingManager",
     predictableActionArguments: true,
     initial: "subscribing",
     context: {} as BillingContext,

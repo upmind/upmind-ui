@@ -26,18 +26,18 @@ import {
   UpmForm,
   UpmCard,
   UpmContentSection,
-  useBasketBillingDetail,
-  useBasketBillingDetails,
+  useBillingDetail,
+  useBillingDetails,
   type UnifiedAddressModel,
 } from "@upmind-automation/client-vue";
 import { useRouter } from "vue-router";
 
-const { isReady } = useBasketBillingDetails();
+const { isReady } = useBillingDetails();
 await isReady().catch(() => router.push({ name: "basket.billing" }));
 
 const router = useRouter();
 const { update, input, model, meta, schema, uischema, stop } =
-  useBasketBillingDetail();
+  useBillingDetail();
 
 // --- METHODS
 

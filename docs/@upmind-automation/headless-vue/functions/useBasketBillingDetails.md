@@ -1,9 +1,9 @@
-[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketBillingDetails
+[Upmind](../../packages.md) / [@upmind-automation/headless](../index.md) / useBasketBilling
 
-# useBasketBillingDetails()
+# useBasketBilling()
 
 ```ts
-function useBasketBillingDetails(service?): object;
+function useBasketBilling(service?): object;
 ```
 
 ## Parameters
