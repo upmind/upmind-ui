@@ -3,26 +3,28 @@ import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBasket } from "./";
+import { useBasket } from ".";
+import { useUnifiedAddress } from "./billing/unifiedAddress/useUnifiedAddress";
 
 // --- utils
-import { DetailedError, responseCodes, useContext } from "../../utils";
 import {
+  DetailedError,
+  responseCodes,
+  useContext,
   contextMatches,
   stateMatches,
   stateValue,
   contextValue,
 } from "../../utils";
-import { get, isNil } from "lodash-es";
+import { isEqual, isNil } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { CurrencyContext, CurrencyModel } from "./currency/types";
+import { BillingContext, BillingModel } from "./billing/types";
 
 // -----------------------------------------------------------------------------
-// We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
 
-export const useBasketCurrency = () => {
+export const useBasketBillingDetails = () => {
   const { actors } = useBasket();
   const actor = actors.currency;
 
@@ -50,7 +52,6 @@ export const useBasketCurrency = () => {
   const meta = computed(() => ({
     isAvailable: !!actor.value,
     isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    hasCurrency: contextMatches(actor, ["currency"]),
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["valid"]),
@@ -62,49 +63,44 @@ export const useBasketCurrency = () => {
 
   // --- context
 
-  const context = useContext<CurrencyContext>(actor);
-  const currencies = useContext<CurrencyContext["currencies"]>(
-    actor,
-    "currencies"
-  );
-  const errors = useContext<CurrencyContext["error"]>(actor, "error");
-  const model = useContext<CurrencyContext["model"]>(actor, "model");
-  const schema = useContext<CurrencyContext["schema"]>(actor, "schema");
-  const uischema = useContext<CurrencyContext["uischema"]>(actor, "uischema");
+  const context = useContext<BillingContext>(actor);
+
+  // const addresses = useContext<BillingContext["addresses"]>(
+  //   actor,
+  //   "addresses"
+  // );
+  // const companies = useContext<BillingContext["companies"]>(
+  //   actor,
+  //   "companies"
+  // );
+  // const phones = useContext<BillingContext["phones"]>(actor, "phones");
+
+  const errors = useContext<BillingContext["error"]>(actor, "error");
+  const model = useContext<BillingContext["model"]>(actor, "model");
+  const schema = useContext<BillingContext["schema"]>(actor, "schema");
+  const uischema = useContext<BillingContext["uischema"]>(actor, "uischema");
 
   // --- methods
 
-  function input(value: CurrencyModel) {
-    actor.value!.send({ type: "SET", data: toRaw(unref(value)) });
-    return waitFor(actor.value!.service, state =>
-      ["available.valid", "available.invalid"].some(state.matches)
-    )
-      .then(state => get(state, "context.model") as CurrencyModel)
-
-      .catch(() => {
-        return Promise.reject(
-          new DetailedError("Input not available", responseCodes.Forbidden)
-        );
-      });
+  function input(value: BillingModel) {
+    actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
-  async function update(value: CurrencyModel): Promise<void> {
-    // first check if our currency has change, ie: model.code has changed
-
-    const code = toRaw(unref(value))?.code?.toUpperCase();
-    const model = contextValue<CurrencyModel>(actor, "model");
+  async function update(value: BillingModel): Promise<void> {
+    // first check if our fields have change, ie: model.code has changed
+    value = toRaw(unref(value));
+    const model = contextValue<BillingModel>(actor, "model");
 
     // if it has not then bail
-    if (!code || code == model?.code) return Promise.resolve();
-
-    actor.value?.send({ type: "SET", data: { code }, update: true });
-
+    if (!value || isEqual(model, value)) {
+      actor.value?.send({ type: "SET", data: value, update: true });
+    } else {
+      actor.value?.send({ type: "UPDATE" });
+    }
     // then wait for the paymentGateway actor to be updated
     return waitFor(
       actor.value!.service,
-      state => {
-        return stateMatches(state, ["processed", "complete", "error"]);
-      },
+      state => stateMatches(state, ["processed", "complete", "error"]),
       { timeout: 60_000 }
     )
       .then(state => {
@@ -115,7 +111,7 @@ export const useBasketCurrency = () => {
       .catch(error => {
         return Promise.reject(
           new DetailedError(
-            "[headless] update Currency on basket failed",
+            "[headless] update Billing Details on basket failed",
             error?.status ?? responseCodes.Timeout,
             {
               error,
@@ -158,8 +154,14 @@ export const useBasketCurrency = () => {
     /** The full currency context object. */
     context,
 
-    /** The list of available currencies. */
-    currencies,
+    // /** The list of available addresses. */
+    // addresses,
+
+    // /** The list of available companies. */
+    // companies,
+
+    // /** The list of available phone numbers. */
+    // phones,
 
     /** Any error returned by the currency actor. */
     errors,
@@ -180,21 +182,30 @@ export const useBasketCurrency = () => {
 
     /**
      * Sends a SET event to update the currency model.
-     * @param {CurrencyModel} value The currency model to set.
+     * @param {BillingModel} value The currency model to set.
      * @returns {void} Does not return anything.
      */
     input,
 
     /**
      * Updates the currency if the code has changed.
-     * @param {CurrencyModel} value The new currency model to set.
+     * @param {BillingModel} value The new currency model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
     update,
+
+    /**
+     * Returns the unified address composable for billing details.
+     * @returns {ReturnType<typeof useUnifiedAddress>} The unified address composable.
+     *
+     */
+    useBillingDetail: useUnifiedAddress,
   };
 };
 
 /**
  * The return type of useBasketCurrency composable.
  */
-export type UseBasketCurrency = ReturnType<typeof useBasketCurrency>;
+export type UseBasketBillingDetails = ReturnType<
+  typeof useBasketBillingDetails
+>;

@@ -1,34 +1,15 @@
 // --- internal
-import { useBrand } from "../../brand";
 
 // --- utils
-import { get, isEmpty, remove } from "lodash-es";
+import { isEmpty, remove } from "lodash-es";
 
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
-import type { BillingDetailsContext } from "./types";
+import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
-export const useSchema = (_context: BillingDetailsContext) => {
-  const { getConfig } = useBrand();
-
-  const phoneRequiredOnCheckout = get(
-    getConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE),
-    BrandConfigKeys.CHECKOUT_REQUIRE_PHONE
-  );
-
-  const companyRequiredOnCheckout = get(
-    getConfig(BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS),
-    BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS
-  );
-
-  const addressRequiredOnCheckout = get(
-    getConfig(BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS),
-    BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS
-  );
-
+export const useSchema = ({ config }: BillingContext) => {
   const schema: JsonSchema = {
     type: "object",
     title: "BillingDetails",
@@ -48,7 +29,7 @@ export const useSchema = (_context: BillingDetailsContext) => {
 
   const anyOfSchemas = [];
 
-  if (addressRequiredOnCheckout && !companyRequiredOnCheckout) {
+  if (config?.requiresAddress && !config.requiresCompany) {
     anyOfSchemas.push({
       type: "object",
       required: ["addressId"],
@@ -60,7 +41,7 @@ export const useSchema = (_context: BillingDetailsContext) => {
     });
   }
 
-  if (companyRequiredOnCheckout) {
+  if (config?.requiresCompany) {
     anyOfSchemas.push({
       type: "object",
       required: ["companyId"],
@@ -76,31 +57,14 @@ export const useSchema = (_context: BillingDetailsContext) => {
     schema.anyOf = anyOfSchemas;
   }
 
-  if (phoneRequiredOnCheckout) {
+  if (config?.requiresPhone) {
     schema.required?.push("phoneId");
   }
 
   return schema as unknown as JsonSchema;
 };
 
-export const useUischema = (_context: BillingDetailsContext) => {
-  const { getConfig } = useBrand();
-
-  const phoneRequiredOnCheckout = get(
-    getConfig(BrandConfigKeys.CHECKOUT_REQUIRE_PHONE),
-    BrandConfigKeys.CHECKOUT_REQUIRE_PHONE
-  );
-
-  const companyRequiredOnCheckout = get(
-    getConfig(BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS),
-    BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS
-  );
-
-  const addressRequiredOnCheckout = get(
-    getConfig(BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS),
-    BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS
-  );
-
+export const useUischema = ({ config }: BillingContext) => {
   const schema = {
     type: "VerticalLayout",
     elements: [
@@ -124,28 +88,18 @@ export const useUischema = (_context: BillingDetailsContext) => {
       },
       {
         type: "Control",
-        scope: "#/properties/phone",
+        scope: "#/properties/phoneId",
         i18n: "client.unified.form.fields.phone",
         options: {
-          autocomplete: "tel",
-          suggestions: true,
-          itemLabel: "number",
-          itemValue: "number",
-          align: "start",
-          side: "bottom",
+          autoFocus: true,
+          autocomplete: "off",
         },
       },
     ],
   };
 
-  if (!phoneRequiredOnCheckout) {
+  if (!config?.requiresPhone) {
     remove(schema.elements, ["scope", "#/properties/phone"]);
-  }
-  if (!companyRequiredOnCheckout) {
-    remove(schema.elements, ["scope", "#/properties/companyId"]);
-  }
-  if (!addressRequiredOnCheckout) {
-    remove(schema.elements, ["scope", "#/properties/addressId"]);
   }
 
   return schema as UISchemaElement;

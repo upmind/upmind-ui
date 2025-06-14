@@ -12,7 +12,7 @@ import { useSchema, useUischema } from "./utils";
 import { useTime, useValidationParser, useModelParser } from "../../../utils";
 
 // --- types
-import type { BillingDetailsContext } from "./types";
+import type { BillingContext } from "./types";
 import { responseCodes } from "../../../utils";
 
 // -----------------------------------------------------------------------------
@@ -22,11 +22,11 @@ export default createMachine(
     id: "billingDetailsManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {} as BillingDetailsContext,
+    context: {} as BillingContext,
     states: {
       // Subscribe to basket changes and listen for a valid basket client,
       subscribing: {
-        always: { target: "available", cond: "hasClient" },
+        always: { target: "loading", cond: "hasClient" },
         on: {
           REFRESH: {
             actions: ["refreshContext"],
@@ -35,32 +35,32 @@ export default createMachine(
           SET: {
             actions: ["setModel", "setDirty", "setAutoUpdate"],
           },
+
           CLEAR: {
             actions: ["clearModel", "clearDirty"],
           },
         },
       },
 
-      available: {
-        initial: "loading",
-        states: {
-          loading: {
-            id: "loading",
-            entry: ["clearError"],
-            invoke: {
-              src: "load",
-              onDone: {
-                target: "checking",
-                actions: ["setLookups", "setSchemas"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
-              },
-            },
+      loading: {
+        id: "loading",
+        entry: ["clearError"],
+        invoke: {
+          src: "loadLookups",
+          onDone: {
+            target: "available",
+            actions: ["setContext", "setSchemas"],
           },
-          // ---
+          onError: {
+            target: "unavailable",
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
+      },
 
+      available: {
+        initial: "checking",
+        states: {
           checking: {
             entry: ["clearError"],
             initial: "parsing",
@@ -97,11 +97,14 @@ export default createMachine(
 
           valid: {
             id: "valid",
-            always: { target: "processing", cond: "shouldUpdate" },
-
+            always: { target: "#processing", cond: "shouldUpdate" },
             on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"],
+              },
               UPDATE: {
-                target: "processing",
+                target: "#processing",
                 cond: "hasBasket",
               },
             },
@@ -109,39 +112,54 @@ export default createMachine(
 
           invalid: {
             id: "invalid",
-          },
-
-          processing: {
-            id: "processing",
-            entry: ["clearError"],
-
-            invoke: {
-              src: "update",
-              onDone: {
-                target: "processed",
-                actions: ["setModel", "clearDirty", "clearAutoUpdate"],
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"],
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"],
               },
             },
           },
 
-          processed: {
-            id: "processed",
-            entry: sendParent({ type: "REFRESH" }),
-            after: {
-              wait: {
-                target: "#complete",
+          error: {
+            id: "error",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setAutoUpdate"],
               },
             },
           },
         },
       },
 
-      // ---
-      error: { id: "error" },
+      unavailable: {},
+
+      processing: {
+        id: "processing",
+        entry: ["clearError"],
+
+        invoke: {
+          src: "update",
+          onDone: {
+            target: "processed",
+            actions: ["setModel", "clearDirty", "clearAutoUpdate"],
+          },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError"],
+          },
+        },
+      },
+
+      processed: {
+        id: "processed",
+        entry: sendParent({ type: "REFRESH" }),
+        after: {
+          wait: {
+            target: "complete",
+          },
+        },
+      },
 
       complete: {
         id: "complete",
@@ -152,10 +170,6 @@ export default createMachine(
         target: "available.checking",
         actions: ["clearModel", "setDirty"],
       },
-      SET: {
-        target: "available.checking",
-        actions: ["setModel", "setDirty", "setAutoUpdate"],
-      },
       REFRESH: {
         target: "available.checking",
         actions: ["refreshContext", "setSchemas"],
@@ -165,8 +179,12 @@ export default createMachine(
   },
   {
     actions: {
+      setContext: assign(
+        (_context: BillingContext, { data }: AnyEventObject) => data
+      ),
+
       refreshContext: assign(
-        (_context: BillingDetailsContext, { data }: AnyEventObject) => {
+        (_context: BillingContext, { data }: AnyEventObject) => {
           return {
             basketId: data?.id,
             clientId: data?.client_id,
@@ -180,15 +198,10 @@ export default createMachine(
         dirty: (_context, { data }: AnyEventObject) => data.dirty,
       }),
 
-      setLookups: assign({
-        addresses: (_context, { data }: AnyEventObject) => data.addresses,
-        phones: (_context, { data }: AnyEventObject) => data.phones,
-      }),
-
       setSchemas: assign({
         schema: context => useSchema(context),
         uischema: context => useUischema(context),
-        model: ({ schema, model }: BillingDetailsContext) => {
+        model: ({ schema, model }: BillingContext) => {
           if (!schema) return model;
           return useModelParser(schema, model);
         },
@@ -196,7 +209,7 @@ export default createMachine(
 
       setModel: assign({
         model: (
-          { schema, model }: BillingDetailsContext,
+          { schema, model }: BillingContext,
           { data }: AnyEventObject
         ) => {
           if (!schema) return data ?? model;
@@ -226,7 +239,7 @@ export default createMachine(
 
       // ---
 
-      setFeedbackError: ({ error }: BillingDetailsContext, _event) => {
+      setFeedbackError: ({ error }: BillingContext, _event) => {
         // dont show any unauthorized errors
         if (
           !error ||

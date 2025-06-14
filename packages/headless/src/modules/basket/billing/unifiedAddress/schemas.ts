@@ -32,14 +32,14 @@ export const useSchema = ({
     properties: {
       addressId: {
         type: ["string", "null"],
-        default: baseModel.addressId || null,
+        default: baseModel?.addressId || null,
         use: useClientAddress,
         update: "updateAddressId",
         create: !isEmpty(addresses) ? "newAddressDialog" : null,
       } as any,
       companyId: {
         type: ["string", "null"],
-        default: baseModel.companyId || null,
+        default: baseModel?.companyId || null,
         use: useClientCompany,
         update: "updateCompanyId",
       } as any,
@@ -143,7 +143,7 @@ export const useSchema = ({
         properties: {
           addressId: {
             type: ["string", "null"],
-            default: model?.addressId || baseModel.addressId,
+            default: (model?.addressId || baseModel?.addressId) ?? null,
             use: useClientAddress,
             update: "updateAddressId",
             create: !isEmpty(addresses) ? "newAddressDialog" : null,

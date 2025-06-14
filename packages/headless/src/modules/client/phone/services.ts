@@ -11,7 +11,7 @@ import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  UserIsNotAuthenticatedError,
+  NotAuthenticatedError,
 } from "../../../utils";
 import { mapIPhone, mapPhones } from "./mapper";
 import { invalidateQueryByKey } from "../../query";
@@ -42,7 +42,7 @@ function loadList(params?: QueryListParams) {
         if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     url: useUrl(`clients/${user.value?.id}/emails`, {
@@ -110,7 +110,7 @@ async function add(data: PhoneModel) {
   const { post, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return post<IPhone>({
@@ -125,7 +125,7 @@ async function update(id: Phone["id"], data: PhoneModel) {
   const { put, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IPhone>({
@@ -146,7 +146,7 @@ function remove(phoneId: Phone["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     onError(error: any) {
@@ -177,7 +177,7 @@ function setDefault(phoneId: Phone["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     data: { default: true },

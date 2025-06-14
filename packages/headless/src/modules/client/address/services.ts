@@ -10,7 +10,7 @@ import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  UserIsNotAuthenticatedError,
+  NotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddresses, mapIAddress } from "./mappers";
@@ -41,7 +41,7 @@ function loadList(params?: QueryListParams) {
         if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     url: useUrl(`clients/${user.value?.id}/addresses`, {
@@ -121,7 +121,7 @@ async function add(data: AddressModel) {
   const { post, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return post<IAddress>({
@@ -136,7 +136,7 @@ async function update(id: Address["id"], data: AddressModel) {
   const { put, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IAddress>({
@@ -157,7 +157,7 @@ function remove(addressId: Address["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     onError(error: any) {
@@ -188,7 +188,7 @@ function setDefault(addressId: Address["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     data: { default: true },
@@ -226,9 +226,7 @@ async function parse(
     schema,
     get(data, "model", data),
     baseModel,
-    {
-      allowExtraProps: false,
-    }
+    { allowExtraProps: false }
   );
 
   // ---

@@ -7,7 +7,7 @@ import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
 import currencyMachine from "./currency/currency.machine";
-import billingDetailsMachine from "./billing/details.machine";
+import billingDetailsMachine from "./billing/billing.machine";
 
 // --- utils
 import { parseBasketProduct } from "../basketProduct/utils";

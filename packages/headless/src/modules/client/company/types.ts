@@ -13,13 +13,13 @@ import type { Email, Phone, Address, PhoneModel } from "..";
 
 export interface CompanyModel {
   addressId?: ICompany["address_id"];
-  default: ICompany["default"];
+  default?: ICompany["default"];
   emailId?: ICompany["email_id"];
   phone?: PhoneModel["phone"];
   name: ICompany["name"];
   phoneId?: ICompany["phone_id"];
-  regNumber: ICompany["reg_number"];
-  vatNumber: ICompany["vat_number"];
+  regNumber?: ICompany["reg_number"];
+  vatNumber?: ICompany["vat_number"];
 }
 
 export interface Company {

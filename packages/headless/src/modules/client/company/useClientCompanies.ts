@@ -59,7 +59,8 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
 
   // --- methods
 
-  function getOne(id: Company["id"]) {
+  function getOne(id?: Company["id"]) {
+    if (isEmpty(id)) return undefined;
     return find(service.loadCached(), ["id", id]);
   }
 
@@ -185,6 +186,13 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
       (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
     ),
 
+    /**
+     * The default item for the current client.
+     * This is the company that is set as default for the current client.
+     * @returns {Company} The default company if found, is otherwise undefined.
+     */
+    default: computed(() => getDefault()),
+
     // --- methods
 
     /**
@@ -220,12 +228,6 @@ export const useClientCompanies = (initial?: QueryListParamsRaw) => {
      * @returns A promise that resolves when the company is removed.
      */
     remove,
-
-    /**
-     * Get the default company for the current client.
-     * @returns The default company if found, is otherwise undefined.
-     */
-    getDefault,
 
     /**
      * Set an company as default.

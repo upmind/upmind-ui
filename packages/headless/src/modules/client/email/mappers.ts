@@ -19,8 +19,8 @@ export const mapEmail = (raw: IEmail): Email => {
     description: raw.verified ? "Verified" : "Unverified",
     // ---
     meta: {
-      isDefault: raw.default,
-      isVerified: raw.verified,
+      isDefault: !!raw.default,
+      isVerified: !!raw.verified,
       canDelete: raw.can_delete,
     },
   };
