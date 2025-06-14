@@ -105,8 +105,8 @@ const props = withDefaults(defineProps<FormProps>(), {
 const emits = defineEmits<{
   reject: [];
   resolve: [Object];
-  "update:modelValue": [Object];
-  "update:uischema": [Object];
+  "update:modelValue": [any];
+  "update:uischema": [any];
   "update:touched": [boolean];
   valid: [boolean];
   click: [{ model: object; meta: object }];
