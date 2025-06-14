@@ -1,8 +1,8 @@
 // --- external
 
-import { interpret, InterpreterStatus } from "xstate";
-import { waitFor } from "xstate/lib/waitFor";
 import { computed } from "vue";
+import { interpret } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
@@ -11,8 +11,10 @@ import brandMachine from "./brand.machine";
 
 // --- utils
 
-import { DetailedError, UnavailableError, responseCodes } from "../../utils";
 import {
+  DetailedError,
+  UnavailableError,
+  responseCodes,
   useContext,
   contextValue,
   contextMatches,

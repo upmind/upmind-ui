@@ -6,7 +6,7 @@ import { useQuery, useSession } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
-import { UserIsNotAuthenticatedError, useValidation } from "../../../../utils";
+import { NotAuthenticatedError, useValidation } from "../../../../utils";
 import { getSupportedPaymentMethods, getPublicKey } from "./utils";
 import { reject, set } from "lodash-es";
 
@@ -165,7 +165,7 @@ async function createAddElement(
   const { meta, user } = useSession();
 
   if (meta.value.isAuthenticated === false || !user.value?.id)
-    Promise.reject(new UserIsNotAuthenticatedError());
+    Promise.reject(new NotAuthenticatedError());
 
   const clientId = user.value!.id;
 

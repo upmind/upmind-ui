@@ -120,7 +120,7 @@ export default createMachine<ClientItemContext>(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"],
+                actions: ["setModel", "clearAutoUpdate"],
               },
               onError: {
                 target: "#error",
@@ -133,7 +133,7 @@ export default createMachine<ClientItemContext>(
               src: "update",
               onDone: {
                 target: "#processed",
-                actions: ["setModel"],
+                actions: ["setModel", "clearAutoUpdate"],
               },
               onError: {
                 target: "#error",
@@ -150,6 +150,7 @@ export default createMachine<ClientItemContext>(
           wait: [
             {
               target: "available",
+              cond: "continueEditing",
             },
             {
               target: "complete",
@@ -157,6 +158,7 @@ export default createMachine<ClientItemContext>(
           ],
         },
       },
+
       complete: {
         type: "final",
       },

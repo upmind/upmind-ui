@@ -1,28 +1,32 @@
 // --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import { QueryResponseError } from "../../query";
+import { BrandConfigKeys, IBasket } from "@upmind-automation/types";
 
 // --- internal
 
 // -----------------------------------------------------------------------------
 
-export interface BillingDetailsModel {
-  addressId?: string;
-  companyId?: string;
-  phoneId?: string;
+export interface BillingModel {
+  addressId?: IBasket["address_id"];
+  companyId?: IBasket["company_id"];
+  phoneId?: IBasket["phone_id"];
 }
 
-export interface BillingDetailsContext {
+export interface BillingContext {
   basketId?: string;
   clientId?: string;
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-  model?: BillingDetailsModel;
+  model?: BillingModel;
+  baseModel?: BillingModel;
   // ---
-  addresses?: any[];
-  companies?: any[];
-  phones?: any[];
+  config?: {
+    requiresPhone: BrandConfigKeys.CHECKOUT_REQUIRE_PHONE;
+    requiresCompany: BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS;
+    requiresAddress: BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS;
+  };
   // ---
   autoupdate?: boolean;
   dirty?: boolean;

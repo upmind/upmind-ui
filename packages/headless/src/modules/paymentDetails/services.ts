@@ -8,7 +8,7 @@ import { useQuery, useSession, useBrand } from "..";
 import {
   DetailedError,
   responseCodes,
-  UserIsNotAuthenticatedError,
+  NotAuthenticatedError,
   useValidation,
 } from "../../utils";
 import {
@@ -45,7 +45,7 @@ async function load(
   const { meta, user } = useSession();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   const {

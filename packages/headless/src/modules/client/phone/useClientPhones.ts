@@ -59,7 +59,8 @@ export const useClientPhones = (initial?: QueryListParamsRaw) => {
 
   // --- methods
 
-  function getOne(id: Phone["id"]) {
+  function getOne(id?: Phone["id"]) {
+    if (isEmpty(id)) return undefined;
     return find(service.loadCached(), ["id", id]);
   }
 
@@ -183,6 +184,12 @@ export const useClientPhones = (initial?: QueryListParamsRaw) => {
       (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
     ),
 
+    /**
+     * The default item for the current client.
+     * This is the phone that is set as default for the current client.
+     * @returns {Phone} The default phone if found, is otherwise undefined.
+     */
+    default: computed(() => getDefault()),
     // --- methods
 
     /**
@@ -218,12 +225,6 @@ export const useClientPhones = (initial?: QueryListParamsRaw) => {
      * @returns A promise that resolves when the phone is removed.
      */
     remove,
-
-    /**
-     * Get the default phone for the current client.
-     * @returns The default phone if found, is otherwise undefined.
-     */
-    getDefault,
 
     /**
      * Set an phone as default.

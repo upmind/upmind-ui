@@ -18,7 +18,7 @@ import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  UserIsNotAuthenticatedError,
+  NotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapICompany } from "./mappers";
@@ -48,7 +48,7 @@ function loadList(params?: QueryListParams) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     url: useUrl(`clients/${user.value?.id}/companies`, {
@@ -91,15 +91,11 @@ async function loadLookups({
     addresses.isReady(),
   ]);
 
-  const defaultAddress = addresses.getDefault();
-  const defaultPhone = phones.getDefault();
-  const defaultEmail = emails.getDefault();
-
   const baseModel: CompanyModel = {
-    emailId: model?.emailId || defaultEmail?.id,
-    addressId: model?.addressId || defaultAddress?.id,
-    phoneId: model?.phoneId || defaultPhone?.id,
-    phone: model?.phone ?? defaultPhone?.phone ?? undefined,
+    emailId: model?.emailId || emails.default.value?.id,
+    addressId: model?.addressId || addresses.default.value?.id,
+    phoneId: model?.phoneId || phones.default.value?.id,
+    phone: model?.phone ?? phones.default.value?.phone ?? undefined,
     default: model?.default ?? false,
     name: model?.name ?? "",
     regNumber: model?.regNumber ?? "",
@@ -129,7 +125,7 @@ async function add(data: CompanyModel) {
   const { post, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return post<ICompany>({
@@ -144,7 +140,7 @@ async function update(id: Company["id"], data: CompanyModel) {
   const { put, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<ICompany>({
@@ -165,7 +161,7 @@ function remove(companyId: Company["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     onError(error: any) {
@@ -196,7 +192,7 @@ function setDefault(companyId: Company["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     data: { default: true },
@@ -229,9 +225,7 @@ async function parse(
     schema,
     get(data, "model", data),
     baseModel,
-    {
-      allowExtraProps: false,
-    }
+    { allowExtraProps: false }
   );
 
   // ---

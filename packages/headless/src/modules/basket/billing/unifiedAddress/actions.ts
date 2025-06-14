@@ -13,7 +13,7 @@ import type { UnifiedAddressContext, UnifiedAddressModel } from "./types";
 
 // -----------------------------------------------------------------------------
 
-export const useBillingDetailsActions = () => {
+export const useUnifiedAddressActions = () => {
   return {
     setMeta: assign({
       title: ({ model }: UnifiedAddressContext) =>

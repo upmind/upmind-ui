@@ -59,7 +59,8 @@ export const useClientAddresses = (initial?: QueryListParamsRaw) => {
 
   // --- methods
 
-  function getOne(id: Address["id"]) {
+  function getOne(id?: Address["id"]) {
+    if (isEmpty(id)) return undefined;
     return find(service.loadCached(), ["id", id]);
   }
 
@@ -185,6 +186,12 @@ export const useClientAddresses = (initial?: QueryListParamsRaw) => {
       (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
     ),
 
+    /**
+     * The default item for the current client.
+     * This is the company that is set as default for the current client.
+     * @returns {Address} The default address if found, is otherwise undefined.
+     */
+    default: computed(() => getDefault()),
     // --- methods
 
     /**
@@ -220,12 +227,6 @@ export const useClientAddresses = (initial?: QueryListParamsRaw) => {
      * @returns A promise that resolves when the address is removed.
      */
     remove,
-
-    /**
-     * Get the default address for the current client.
-     * @returns The default address if found, is otherwise undefined.
-     */
-    getDefault,
 
     /**
      * Set an address as default.

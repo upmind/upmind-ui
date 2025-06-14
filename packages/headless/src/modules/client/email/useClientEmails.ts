@@ -59,7 +59,8 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
 
   // --- methods
 
-  function getOne(id: Email["id"]) {
+  function getOne(id?: Email["id"]) {
+    if (isEmpty(id)) return undefined;
     return find(service.loadCached(), ["id", id]);
   }
 
@@ -183,6 +184,13 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
       (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
     ),
 
+    /**
+     * The default item for the current client.
+     * This is the email that is set as default for the current client.
+     * @returns {Email} The default email if found, is otherwise undefined.
+     */
+    default: computed(() => getDefault()),
+
     // --- methods
 
     /**
@@ -218,12 +226,6 @@ export const useClientEmails = (initial?: QueryListParamsRaw) => {
      * @returns A promise that resolves when the email is removed.
      */
     remove,
-
-    /**
-     * Get the default email for the current client.
-     * @returns The default email if found, is otherwise undefined.
-     */
-    getDefault,
 
     /**
      * Set an email as default.

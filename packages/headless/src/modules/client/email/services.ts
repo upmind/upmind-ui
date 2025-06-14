@@ -10,7 +10,7 @@ import {
   useValidation,
   useModelParser,
   CacheIsStaleError,
-  UserIsNotAuthenticatedError,
+  NotAuthenticatedError,
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmails, mapIEmail } from "./mappers";
@@ -41,7 +41,7 @@ function loadList(params?: QueryListParams) {
         if (meta.value.isAuthenticated && !!user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     url: useUrl(`clients/${user.value?.id}/emails`, {
@@ -94,7 +94,7 @@ async function add(data: EmailModel) {
   const { post, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return post<IEmail>({
@@ -109,7 +109,7 @@ async function update(id: Email["id"], data: EmailModel) {
   const { put, useUrl } = useQuery();
 
   if (!meta.value.isAuthenticated || !user.value?.id) {
-    return Promise.reject(new UserIsNotAuthenticatedError());
+    return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IEmail>({
@@ -130,7 +130,7 @@ function remove(emailId: Email["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     onError(error: any) {
@@ -161,7 +161,7 @@ function setDefault(emailId: Email["id"]) {
         if (meta.value.isAuthenticated || !user.value?.id) {
           resolve(true);
         } else {
-          reject(new UserIsNotAuthenticatedError());
+          reject(new NotAuthenticatedError());
         }
       }),
     data: { default: true },
