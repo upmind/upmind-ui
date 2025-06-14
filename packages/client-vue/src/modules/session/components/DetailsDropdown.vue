@@ -2,7 +2,7 @@
 <template>
   <DropdownMenu :items="items" itemClass="!px-5 !py-4" popoverClass="mt-8">
     <template #trigger>
-      <slot />
+      <slot></slot>
     </template>
 
     <template #label>

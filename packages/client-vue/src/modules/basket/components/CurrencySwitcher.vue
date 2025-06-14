@@ -70,7 +70,7 @@ const items = computed(() => {
       label: currency.code,
       selectedLabel: currency.code,
       value: currency.code,
-      selected: currency.code === model.value.code,
+      selected: currency.code === model.value?.code,
     };
   }) as ComboboxItemProps[];
 });

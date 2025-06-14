@@ -14,6 +14,7 @@ import type {
   IAddress,
   ICompany,
   ICountry,
+  IPhone,
   IRegion,
 } from "@upmind-automation/types";
 
@@ -35,6 +36,7 @@ export type UnifiedAddress = UnifiedAddressModel & {
 export type UnifiedAddressModel = {
   addressId?: IAddress["id"];
   companyId?: ICompany["id"];
+  phoneId?: IPhone["id"];
   address?: AddressModel;
   company?: CompanyDetailsModel;
   phone?: PhoneModel["phone"];

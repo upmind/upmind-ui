@@ -40,7 +40,7 @@
             </template>
             <component :is="props.cardComponent">
               <slot name="billing-details">
-                <BillingDetails />
+                <Billing />
               </slot>
             </component>
           </component>
@@ -134,7 +134,6 @@ import { useI18n } from "vue-i18n";
 import {
   useSession,
   useBasket,
-  useBasketBillingDetails,
   useBasketPaymentDetails,
   useRoutingEngine,
   ROUTE,
@@ -146,7 +145,7 @@ import { useStyles, Interstitial, Alert } from "@upmind-automation/upmind-ui";
 
 // -- components
 import Session from "../session/Session.vue";
-import BillingDetails from "./components/BillingDetails.vue";
+import Billing from "./components/Billing.vue";
 import PaymentDetails from "./components/PaymentDetails.vue";
 import Summary from "../basket/components/Summary.vue";
 import Card from "../../components/content/Card.vue";

@@ -4,8 +4,6 @@
 
 ## Prerequisites
 
-`headless-vue` is a collection of Vue 3 composables.
-
 - If you don't have a Vue 3 app, have a look at Vue [Quick Start](https://vuejs.org/guide/quick-start.html) guide.
 
 - We also assume that you are familiar with the basic concepts of the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).

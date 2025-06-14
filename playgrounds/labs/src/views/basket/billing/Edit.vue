@@ -26,14 +26,14 @@ import {
   UpmCard,
   UpmForm,
   UpmContentSection,
-  useBasketBillingDetail,
-  useBasketBillingDetails,
+  useBillingDetail,
+  useBillingDetails,
   type UnifiedAddressModel,
 } from "@upmind-automation/client-vue";
 import { debounce } from "lodash-es";
 import { useRoute, useRouter } from "vue-router";
 
-const { isReady, getAll } = useBasketBillingDetails();
+const { isReady, getAll } = useBillingDetails();
 await isReady()
   .then(() => getAll())
   .catch(() => router.push({ name: "basket.billing" }));
@@ -41,7 +41,7 @@ await isReady()
 const router = useRouter();
 const { params } = useRoute();
 const { update, input, model, meta, title, schema, uischema, stop } =
-  useBasketBillingDetail(params.id as string);
+  useBillingDetail(params.id as string);
 
 // --- METHODS
 

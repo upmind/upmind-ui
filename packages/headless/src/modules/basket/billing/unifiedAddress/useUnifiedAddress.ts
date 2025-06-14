@@ -25,15 +25,19 @@ import { get, isEqual } from "lodash-es";
 // --- types
 import type { UnifiedAddressModel, UnifiedAddressContext } from "./types";
 import { QueryResponseError } from "../../../query";
+import { BillingModel } from "../types";
 
 // -----------------------------------------------------------------------------
 
 export const useUnifiedAddress = (
-  id?: string,
+  { addressId, companyId, phoneId }: BillingModel = {
+    addressId: undefined,
+    companyId: undefined,
+    phoneId: undefined,
+  },
   { allowMultipleEdits }: { allowMultipleEdits?: boolean } = {}
 ) => {
-  const { getOne: getCompany } = useClientCompanies();
-  const { getOne: getAddress } = useClientAddresses();
+  const id = companyId ?? addressId;
 
   // --- state
   const service = interpret(
@@ -43,13 +47,17 @@ export const useUnifiedAddress = (
         services: useUnifiedAddressServices() as any,
       })
       .withContext(() => {
-        if (!id) return { model: undefined } as Partial<UnifiedAddressContext>;
-
+        if (!id) return { model: undefined };
         return {
           id,
-          model: getCompany(id) ?? getAddress(id),
+          model: {
+            id,
+            addressId,
+            companyId,
+            phoneId,
+          },
           allowMultipleEdits,
-        } as Partial<UnifiedAddressContext>;
+        };
       }),
     {
       id: id ?? "new-billing-detail",
@@ -121,7 +129,7 @@ export const useUnifiedAddress = (
       });
   }
 
-  async function update(value: UnifiedAddressModel): Promise<void> {
+  async function update(value?: UnifiedAddressModel): Promise<void> {
     // first check if our unified address has changed, ie: model.code has changed
 
     const model = contextValue<UnifiedAddressModel>(state, "model");

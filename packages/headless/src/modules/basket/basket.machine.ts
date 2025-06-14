@@ -222,7 +222,7 @@ export default createMachine(
             },
           },
 
-          billingDetails: {
+          billing: {
             initial: "configuring",
             states: {
               configuring: {
@@ -457,7 +457,7 @@ export default createMachine(
         actors: ({ actors, basket }: BasketContext) => {
           // only spawn if we have not already spawned
           actors ??= {
-            billingDetails: spawnBillingDetails(basket),
+            billing: spawnBillingDetails(basket),
             currency: spawnCurrency(basket),
             customFields: spawnCustomFields(basket),
             paymentDetails: spawnPaymentDetails(basket),
@@ -592,11 +592,11 @@ export default createMachine(
       },
 
       billingComplete: ({ actors }: BasketContext) => {
-        return actors?.billingDetails?.getSnapshot()?.matches("complete");
+        return actors?.billing?.getSnapshot()?.matches("complete");
       },
 
       billingConfiguring: ({ actors }: BasketContext) => {
-        return !actors?.billingDetails?.getSnapshot()?.matches("complete");
+        return !actors?.billing?.getSnapshot()?.matches("complete");
       },
 
       paymentDetailsValid: ({ actors }: BasketContext) => {

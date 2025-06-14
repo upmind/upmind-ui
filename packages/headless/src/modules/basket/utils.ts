@@ -7,7 +7,7 @@ import paymentDetailsMachine from "../paymentDetails/paymentDetails.machine";
 import customFieldsMachine from "./fields/fields.machine";
 import promotionsMachine from "./promotions/promotions.machine";
 import currencyMachine from "./currency/currency.machine";
-import billingDetailsMachine from "./billing/billing.machine";
+import billingMachine from "./billing/billing.machine";
 
 // --- utils
 import { parseBasketProduct } from "../basketProduct/utils";
@@ -26,7 +26,7 @@ import { PaymentDetailsContext } from "../paymentDetails";
 
 export function spawnBillingDetails(basket?: IBasket) {
   return spawn(
-    billingDetailsMachine.withContext({
+    billingMachine.withContext({
       basketId: basket?.id,
       clientId: basket?.client_id,
       model: {
@@ -34,7 +34,7 @@ export function spawnBillingDetails(basket?: IBasket) {
         companyId: basket?.company_id || undefined,
       },
     }),
-    { name: "billingDetails", sync: true }
+    { name: "billing", sync: true }
   );
 }
 
