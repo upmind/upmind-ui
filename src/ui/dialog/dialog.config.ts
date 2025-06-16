@@ -51,11 +51,11 @@ export const containerVariant = cva("", {
 export const overlayVariant = cva("", {
   variants: {
     skrim: {
-      dark: "bg-base-foreground/75",
-      light: "bg-base-foreground/20",
-      primary: "bg-primary-950/90",
-      secondary: "bg-secondary-950/90",
-      accent: "bg-accent-950/90",
+      dark: "bg-black/50",
+      light: "bg-black/20",
+      primary: "bg-primary/20",
+      secondary: "bg-secondary/20",
+      accent: "bg-accent/20",
     },
     defaultVariants: {
       skrim: "dark",

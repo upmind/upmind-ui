@@ -4,7 +4,7 @@ import { invalidRingClasses, ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const buttonVariants = cva(
-  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
+  `relative inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-transparent bg-clip-padding font-medium no-underline ring-offset-background transition-all duration-300 disabled:pointer-events-none disabled:cursor-not-allowed disabled:!opacity-50`,
   {
     variants: {
       variant: {
@@ -60,7 +60,8 @@ export const buttonVariants = cva(
       {
         color: "primary",
         variant: "flat",
-        class: "bg-primary text-primary-foreground",
+        class:
+          "hover:bg-primary-background-hover bg-primary text-primary-foreground [transition:background-image_0.3s] hover:[background-image:none]",
       },
       {
         color: "secondary",
@@ -104,7 +105,7 @@ export const buttonVariants = cva(
         color: "base",
         variant: "outline",
         class:
-          "hover:bg-base-muted border-base-foreground text-base-foreground !ring-base",
+          "hover:bg-base-muted border-base-foreground text-foreground !ring-base",
       },
       {
         color: "primary",
@@ -157,125 +158,124 @@ export const buttonVariants = cva(
         color: "base",
         variant: "tonal",
         class:
-          "bg-base-muted hover:bg-base-muted-active text-base-muted-foreground !ring-base-muted-active",
+          "bg-base-muted text-base-muted-foreground hover:bg-base-muted-hover hover:text-base-muted-hover-foreground !ring-base-muted-hover",
       },
       {
         color: "primary",
         variant: "tonal",
         class:
-          "bg-primary-muted hover:bg-primary-muted-active text-primary-muted-foreground !ring-primary-muted-active",
+          "bg-primary-muted text-primary-muted-foreground hover:bg-primary-muted-hover hover:text-primary-muted-hover-foreground !ring-primary-muted-hover",
       },
       {
         color: "secondary",
         variant: "tonal",
         class:
-          "bg-secondary-muted hover:bg-secondary-muted-active text-secondary-muted-foreground !ring-secondary-muted-active",
+          "bg-secondary-muted text-secondary-muted-foreground hover:bg-secondary-muted-hover hover:text-secondary-muted-hover-foreground !ring-secondary-muted-hover",
       },
       {
         color: "accent",
         variant: "tonal",
         class:
-          "bg-accent-muted hover:bg-accent-muted-active text-accent-muted-foreground !ring-accent-muted-active",
+          "bg-accent-muted text-accent-muted-foreground hover:bg-accent-muted-hover hover:text-accent-muted-hover-foreground !ring-accent-muted-hover",
       },
       {
         color: "promotion",
         variant: "tonal",
         class:
-          "bg-promotion-muted hover:bg-promotion-muted-active text-promotion-muted-foreground !ring-promotion-muted-active",
+          "bg-promotion-muted text-promotion-muted-foreground hover:bg-promotion-muted-hover hover:text-promotion-muted-hover-foreground !ring-promotion-muted-hover",
       },
       {
         color: "destructive",
         variant: "tonal",
         class:
-          "bg-destructive-muted hover:bg-destructive-muted-active text-destructive-muted-foreground !ring-destructive-muted-active",
+          "bg-destructive-muted text-destructive-muted-foreground hover:bg-destructive-muted-hover hover:text-destructive-muted-hover-foreground !ring-destructive-muted-hover",
       },
       {
         color: "success",
         variant: "tonal",
         class:
-          "bg-success-muted hover:bg-success-muted-active text-success-muted-foreground !ring-success-muted-active",
+          "bg-success-muted text-success-muted-foreground hover:bg-success-muted-hover hover:text-success-muted-hover-foreground !ring-success-muted-hover",
       },
       {
         color: "info",
         variant: "tonal",
         class:
-          "bg-info-muted hover:bg-info-muted-active text-info-muted-foreground !ring-info-muted-active",
+          "bg-info-muted text-info-muted-foreground hover:bg-info-muted-hover hover:text-info-muted-hover-foreground !ring-info-muted-hover",
       },
       {
         color: "error",
         variant: "tonal",
         class:
-          "bg-error-muted hover:bg-error-muted-active text-error-muted-foreground !ring-error-muted-active",
+          "bg-error-muted text-error-muted-foreground hover:bg-error-muted-hover hover:text-error-muted-hover-foreground !ring-error-muted-hover",
       },
       {
         color: "warning",
         variant: "tonal",
         class:
-          "bg-warning-muted hover:bg-warning-muted-active text-warning-muted-foreground !ring-warning-muted-active",
+          "bg-warning-muted text-warning-muted-foreground hover:bg-warning-muted-hover hover:text-warning-muted-hover-foreground !ring-warning-muted-hover",
       },
 
       // --- ghost
       {
         color: "base",
         variant: "ghost",
-        class:
-          "hover:bg-base-muted ring-base-muted-active text-base-foreground",
+        class: "hover:bg-base-muted ring-base-muted-hover text-base-foreground",
       },
       {
         color: "primary",
         variant: "ghost",
-        class: "hover:bg-primary-muted !ring-primary-muted-active text-primary",
+        class: "hover:bg-primary-muted !ring-primary-muted-hover text-primary",
       },
       {
         color: "secondary",
         variant: "ghost",
         class:
-          "hover:bg-secondary-muted !ring-secondary-muted-active text-secondary",
+          "hover:bg-secondary-muted !ring-secondary-muted-hover text-secondary",
       },
       {
         color: "accent",
         variant: "ghost",
-        class: "hover:bg-accent-muted !ring-accent-muted-active text-accent",
+        class: "hover:bg-accent-muted !ring-accent-muted-hover text-accent",
       },
       {
         color: "promotion",
         variant: "ghost",
         class:
-          "hover:bg-promotion-muted !ring-promotion-muted-active text-promotion",
+          "hover:bg-promotion-muted !ring-promotion-muted-hover text-promotion",
       },
       {
         color: "destructive",
         variant: "ghost",
         class:
-          "hover:bg-destructive-muted !ring-destructive-muted-active text-destructive",
+          "hover:bg-destructive-muted !ring-destructive-muted-hover text-destructive",
       },
 
       {
         color: "success",
         variant: "ghost",
-        class: "hover:bg-success-muted !ring-success-muted-active text-success",
+        class: "hover:bg-success-muted !ring-success-muted-hover text-success",
       },
       {
         color: "info",
         variant: "ghost",
-        class: "hover:bg-info-muted !ring-info-muted-active text-info",
+        class: "hover:bg-info-muted !ring-info-muted-hover text-info",
       },
       {
         color: "error",
         variant: "ghost",
-        class: "hover:bg-error-muted !ring-error-muted-active text-error",
+        class: "hover:bg-error-muted !ring-error-muted-hover text-error",
       },
       {
         color: "warning",
         variant: "ghost",
-        class: "hover:bg-warning-muted !ring-warning-muted-active text-warning",
+        class: "hover:bg-warning-muted !ring-warning-muted-hover text-warning",
       },
 
       // --- link
       {
         color: "base",
         variant: "link",
-        class: "bg-transparent text-base-foreground !ring-transparent",
+        class: "bg-transparent text-foreground !ring-transparent",
       },
       {
         color: "primary",

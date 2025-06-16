@@ -29,7 +29,7 @@ export const numberFieldVariants = cva(
   {
     variants: {
       variant: {
-        flat: "border border-control",
+        flat: "border-control-border border",
         minimal: "!border-none",
       },
       height: {
