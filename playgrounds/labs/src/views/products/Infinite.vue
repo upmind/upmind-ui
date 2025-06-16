@@ -3,6 +3,8 @@
     class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
     :class="props.class"
   >
+    <pre>{{ JSON.stringify(meta, null, 2) }}</pre>
+    <pre>{{ JSON.stringify(pagination, null, 2) }}</pre>
     <Loading :active="meta.isLoading" class="w-full">
       <div
         class="grid w-full grid-cols-[repeat(auto-fill,_minmax(18rem,_1fr))] gap-6"
@@ -30,7 +32,7 @@
       </div>
     </Loading>
 
-    <template v-if="meta.hasPrevPage || meta.hasNextPage">
+    <template v-if="meta.hasNextPage">
       <div class="flex w-full items-center justify-between">
         <Button
           class="is-primary px-6 py-3"
@@ -46,14 +48,13 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
-import { useProductCatalogue } from "@upmind-automation/headless";
+import { useInfiniteProductCatalogue } from "@upmind-automation/headless";
 import {
   IProductCategory,
   type ISO_4217_CURRENCY_CODE,
 } from "@upmind-automation/types";
-import { UpmCard } from "@upmind-automation/client-vue";
-import { Button, Loading } from "@upmind-automation/upmind-ui";
 import { HtmlHTMLAttributes } from "vue";
+import { Button, Loading } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(
   defineProps<{
@@ -67,8 +68,8 @@ const props = withDefaults(
   { skeletonCount: 4, limit: 6 }
 );
 
-const { data, filters, meta, pagination, nextPage, prevPage } =
-  useProductCatalogue({
+const { data, filters, meta, pagination, nextPage } =
+  useInfiniteProductCatalogue({
     pagination: {
       limit: props.limit,
     },
