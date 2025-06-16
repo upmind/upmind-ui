@@ -34,7 +34,7 @@ export interface RequestParams {
   init?: RequestInit;
   withAccessToken?: boolean | string | null;
   sort?: [direction: RequestSortDirection, property: string];
-  filters?: RequestFilter[];
+  filters?: RequestFilters;
   pagination?: RequestPagination;
 }
 
@@ -65,9 +65,7 @@ export enum RequestSortDirection {
   DESC = "-",
 }
 
-export interface RequestFilter {
-  (url: URL): URL;
-}
+export interface RequestFilters extends Record<string, unknown> {}
 
 export interface RequestPagination {
   limit?: number;

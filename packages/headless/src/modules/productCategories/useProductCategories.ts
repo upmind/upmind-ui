@@ -1,5 +1,5 @@
 // --- external
-import { ref, unref, computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import service from "./services";
@@ -8,31 +8,24 @@ import { invalidateQueryByKey } from "../query";
 // --- utils
 import {
   get,
-  add,
   find,
   every,
   filter,
   isEmpty,
   includes,
   isString,
-  isNumber,
-  subtract,
+  set,
 } from "lodash-es";
 
 // --- types
-import type {
-  IAPIPagination,
-  QueryListParams,
-  QueryListParamsRaw,
-} from "../query";
-import type { IProductCategory } from "@upmind-automation/types";
+import type { QueryParams, RequestFilters } from "../query";
+import type { ProductCategory } from "./types";
+import { ICurrency } from "@upmind-automation/types";
 
-export const useProductCategories = (initial?: QueryListParamsRaw) => {
+export const useProductCategories = (initial?: QueryParams) => {
   // --- state
 
-  const queryParams = ref<QueryListParams>(unref(initial ?? {}));
-
-  const query = service.loadList(queryParams);
+  const query = service.loadList(initial);
 
   const meta = computed(() => ({
     isLoading: query?.isFetching.value,
@@ -51,21 +44,19 @@ export const useProductCategories = (initial?: QueryListParamsRaw) => {
 
   // --- methods
 
-  function getOne(id: IProductCategory["id"]): IProductCategory | undefined {
+  function getOne(id: ProductCategory["id"]) {
     return find(service.loadCached(), ["id", id]);
   }
 
-  function findOne(
-    mapping: string | Partial<IProductCategory>
-  ): IProductCategory | undefined {
+  function findOne(mapping: string | Partial<ProductCategory>) {
     const items = service.loadCached();
     if (isString(mapping)) {
       return find(
         items,
         item =>
-          includes(item.id.toLowerCase(), mapping.toLowerCase()) ||
-          includes(item.name.toLowerCase(), mapping.toLowerCase()) ||
-          includes(item.description?.toLowerCase(), mapping.toLowerCase())
+          includes(item.title.toLowerCase(), mapping.toLowerCase()) ||
+          includes(item?.description?.toLowerCase(), mapping.toLowerCase()) ||
+          includes(item?.excerpt?.toLowerCase(), mapping.toLowerCase())
       );
     }
 
@@ -80,47 +71,15 @@ export const useProductCategories = (initial?: QueryListParamsRaw) => {
     );
   }
 
-  function filterAll(param: string): IProductCategory[] {
+  function filterAll(param: string) {
     return filter(
       service.loadCached(),
       item =>
-        includes(item.id.toLowerCase(), param.toLowerCase()) ||
-        includes(item.name.toLowerCase(), param.toLowerCase()) ||
-        includes(item.description?.toLowerCase(), param.toLowerCase())
+        includes(item.title.toLowerCase(), param.toLowerCase()) ||
+        includes(item?.description?.toLowerCase(), param.toLowerCase()) ||
+        includes(item?.excerpt?.toLowerCase(), param.toLowerCase())
     );
   }
-
-  function nextPage() {
-    const limit = queryParams.value?.pagination?.limit;
-    const offset = queryParams.value?.pagination?.offset ?? 0;
-
-    if (isNumber(limit)) {
-      queryParams.value.pagination = {
-        ...(queryParams.value?.pagination ?? {}),
-        offset: add(offset, limit),
-      };
-    }
-  }
-
-  function prevPage() {
-    const limit = queryParams.value?.pagination?.limit;
-    const offset = queryParams.value?.pagination?.offset ?? 0;
-
-    if (isNumber(limit) && offset >= limit) {
-      queryParams.value.pagination = {
-        ...(queryParams.value?.pagination ?? {}),
-        offset: subtract(offset, limit),
-      };
-    }
-  }
-
-  function setPagination(value: IAPIPagination) {
-    queryParams.value.pagination = {
-      ...(queryParams.value?.pagination ?? {}),
-      ...value,
-    };
-  }
-
   // ---------------------------------------------------------------------------
 
   return {
@@ -155,16 +114,6 @@ export const useProductCategories = (initial?: QueryListParamsRaw) => {
      * This will be populated if the query fails to fetch data.
      */
     error: query.error,
-
-    /**
-     * Indicates if pagination is available
-     * If pagination is not set, it defaults to false.
-     * Otherwise, it returns the pagination object from the query parameters.
-     * @return {boolean|IAPIPagination} The pagination object if available, otherwise false.
-     */
-    pagination: computed(
-      (): boolean | IAPIPagination => queryParams.value?.pagination ?? false
-    ),
 
     // --- methods
 
@@ -201,32 +150,6 @@ export const useProductCategories = (initial?: QueryListParamsRaw) => {
      * @returns {void}
      */
     refresh: query.refetch,
-
-    /**
-     * Go to the next page of items.
-     * Increments the page number by 1 if pagination is enabled and the current offset is less than the total number of items.
-     * This will only work if the current offset is less than the total number of items.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    nextPage,
-
-    /**
-     * Go to the previous page of items.
-     * Decrements the page number by 1 if pagination is enabled and the current offset is greater than or equal to the limit.
-     * This will only work if the current offset is greater than or equal to the limit.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    prevPage,
-
-    /**
-     * Set the pagination parameters.
-     * This updates the current pagination state with the provided values.
-     * @param value The new pagination parameters to set.
-     * @return {void}
-     */
-    setPagination,
 
     /**
      * Invalidate the query cache for client items.

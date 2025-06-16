@@ -1,11 +1,13 @@
 // --- internal
-import { QueryListParams, useQuery } from "../..";
+import { QueryParams, useQuery } from "../..";
 
 // --- utils
-import { isNil } from "lodash-es";
-import { CacheIsStaleError } from "../../utils";
+import { isNil, map } from "lodash-es";
+import { parseProductCategory } from "./mappers";
+import { CacheIsStaleError, useTime } from "../../utils";
 
 // --- types
+import { ProductCategory } from "./types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IProductCategory } from "@upmind-automation/types";
 
@@ -14,11 +16,12 @@ import type { IProductCategory } from "@upmind-automation/types";
 
 const queryKey: QueryKey = ["product", "categories"];
 
-function loadList(params?: QueryListParams) {
-  const { query, useUrl } = useQuery();
+function loadList(params?: Omit<QueryParams, "pagination" | "filters">) {
+  const { list, useUrl } = useQuery();
 
-  return query<IProductCategory[]>({
-    queryKey: [...queryKey, params],
+  return list<IProductCategory[], ProductCategory[]>({
+    ...(params as any),
+    queryKey,
     url: useUrl(`basket/products_categories`, {
       with: [
         "subcategories.image",
@@ -32,16 +35,18 @@ function loadList(params?: QueryListParams) {
         "subcategories.subcategories.subcategories.products",
         "subcategories.subcategories.subcategories.subcategories.products",
       ].join(","),
-      limit: 0,
     }),
+    limit: 0,
     withAccessToken: true,
     // --- options
+    staleTime: useTime().HOUR,
+    select: data => map(data ?? [], parseProductCategory),
   });
 }
 
 function loadCached() {
   const { queryClient } = useQuery();
-  const cached = queryClient.getQueryData<IProductCategory[]>(queryKey);
+  const cached = queryClient.getQueryData<ProductCategory[]>(queryKey);
   if (isNil(cached)) throw new CacheIsStaleError();
   return cached;
 }
