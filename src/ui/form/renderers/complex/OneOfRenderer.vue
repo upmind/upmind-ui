@@ -9,6 +9,7 @@
     />
 
     <DispatchRenderer
+      :key="selectedIndex"
       :schema="formData[selectedIndex].schema"
       :uischema="formData[selectedIndex].uischema"
       :path="control.path"
