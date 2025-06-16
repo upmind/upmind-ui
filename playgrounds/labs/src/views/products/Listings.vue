@@ -1,20 +1,28 @@
 <template>
-  <div class="flex gap-2">
-    <ProductCategories class="w-1/3" v-model="modelValue" />
-    <InfiniteProducts
-      v-if="!modelValue"
-      class="w-2/3"
-      :skeletonCount="4"
-      :limit="4"
-      :categoryId="modelValue"
-    />
+  <div class="flex flex-col">
+    <label>
+      <span>Mode:</span>
+      <select class="mb-4" v-model="mode">
+        <option value="infinite">Infinite</option>
+        <option value="paginated">Paginated</option>
+      </select>
+    </label>
+    <div class="flex gap-2">
+      <ProductCategories class="w-1/4" v-model="modelValue" />
+      <InfiniteProducts
+        v-if="mode === 'infinite'"
+        class="w-3/4"
+        :limit="4"
+        :categoryId="modelValue"
+      />
 
-    <!-- <PaginatedProducts
-      :limit="4"
-      class="w-2/3"
-      :categoryId="modelValue"
-      :skeletonCount="4"
-    /> -->
+      <PaginatedProducts
+        class="w-3/4"
+        v-else-if="mode === 'paginated'"
+        :limit="4"
+        :categoryId="modelValue"
+      />
+    </div>
   </div>
 </template>
 
@@ -25,5 +33,6 @@ import PaginatedProducts from "./Paginated.vue";
 import InfiniteProducts from "./Infinite.vue";
 import ProductCategories from "./Categories.vue";
 
+const mode = ref<"infinite" | "paginated">("paginated");
 const modelValue = ref("");
 </script>
