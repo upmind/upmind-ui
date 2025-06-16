@@ -1,11 +1,11 @@
 export type ModelListRendererItemProps = {
-  id: string;
+  id?: string;
   title: string;
   description: string;
-  regNumber: string;
-  vatNumber: string;
-  isSelected: boolean;
-  allowEdit: boolean;
+  regNumber?: string;
+  vatNumber?: string;
+  isSelected?: boolean;
+  allowEdit?: boolean;
 };
 
 export type ModelRendererProps = {
