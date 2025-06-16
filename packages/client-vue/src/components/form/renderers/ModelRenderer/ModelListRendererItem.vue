@@ -37,15 +37,10 @@
 // --- components
 import { Link, Badge } from "@upmind-automation/upmind-ui";
 
-const props = defineProps<{
-  id: string;
-  title: string;
-  description: string;
-  regNumber: string;
-  vatNumber: string;
-  isSelected: boolean;
-  allowEdit: boolean;
-}>();
+// --- types
+import type { ModelListRendererItemProps } from "./types";
+
+const props = defineProps<ModelListRendererItemProps>();
 
 const emit = defineEmits<{
   (e: "edit", id: string): void;

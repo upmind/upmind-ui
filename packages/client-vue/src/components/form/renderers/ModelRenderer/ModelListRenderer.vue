@@ -1,6 +1,6 @@
 <template>
   <ModelListRendererContent
-    v-if="formFieldProps.visible && hasComposable"
+    v-if="formFieldProps.visible && (hasComposable || selectOnly)"
     v-bind="props"
   />
 </template>
@@ -29,6 +29,10 @@ const { formFieldProps, control } = useUpmindUIRenderer(
 
 const hasComposable = computed(() => {
   return isFunction(get(control.value.uischema, "options.use"));
+});
+
+const selectOnly = computed(() => {
+  return get(control.value.uischema, "options.selectOnly");
 });
 </script>
 
