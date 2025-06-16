@@ -30,6 +30,24 @@
           </template>
         </RadioCardItem>
 
+        <template v-else>
+          <Skeleton>
+            <RadioCardItem
+              :item="{
+                title: 'Loading...',
+                description: 'Loading...',
+              }"
+              :index="-1"
+              :model-value="modelValue"
+              value="-1"
+            >
+              <template #item="slotProps">
+                <slot name="item" v-bind="slotProps" />
+              </template>
+            </RadioCardItem>
+          </Skeleton>
+        </template>
+
         <CollapsibleContent class="flex w-full flex-col overflow-visible">
           <template
             v-for="(option, index) in unselectedItems"
@@ -86,6 +104,7 @@ import config from "./radioCards.config";
 import { RadioGroup } from "../radio-group";
 import { Collapsible, CollapsibleContent } from "../collapsible";
 import { Link } from "../link";
+import { Skeleton } from "../skeleton";
 import RadioCardItem from "./RadioCardItem.vue";
 
 // --- types
