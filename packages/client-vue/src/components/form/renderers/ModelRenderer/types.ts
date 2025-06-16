@@ -1,14 +1,15 @@
 export type ModelListRendererItemProps = {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   regNumber?: string;
   vatNumber?: string;
-  isSelected?: boolean;
+  isDefault?: boolean;
   allowEdit?: boolean;
 };
 
 export type ModelRendererProps = {
+  is: string;
   id: string;
   label: string;
   composable: any;

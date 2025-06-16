@@ -1,6 +1,7 @@
 <template>
   <FormField v-bind="formFieldProps" required label="">
     <RadioCardsCollapsible
+      v-if="!meta.isLoading && !isEmpty(parsedValues)"
       v-model:open="open"
       v-model="selectedItem"
       :items="parsedValues"
@@ -8,10 +9,10 @@
       list
       required
     >
-      <template #item="{ item, isSelected }">
+      <template #item="{ item }">
         <Item
           v-bind="item"
-          :is-selected="isSelected && !selectOnly"
+          :is-default="item?.meta?.isDefault || false"
           :allow-edit="!selectOnly"
           @edit="editItem"
         />
@@ -37,7 +38,11 @@
     </RadioCardsCollapsible>
 
     <ModelRenderer
-      v-if="openModel"
+      v-if="
+        (!meta.isLoading && isEmpty(parsedValues) && hasModifyComposable) ||
+        openModel
+      "
+      :is="isEmpty(parsedValues) ? 'section' : 'Dialog'"
       :id="editId"
       :label="formFieldProps.label"
       :composable="get(control.uischema, 'options.modify')"
@@ -62,7 +67,7 @@ import ModelRenderer from "./ModelRenderer.vue";
 
 // --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { find, lowerCase, map, get, flatMap, has } from "lodash-es";
+import { lowerCase, map, get, isEmpty, isFunction } from "lodash-es";
 
 // --- types
 import type { ControlElement } from "@jsonforms/core";
@@ -82,10 +87,15 @@ const openModel = ref(false);
 const editId = ref<string>("");
 const selectedItem = ref<string>("");
 
-const { data, default: defaultItem } = get(
-  control.value.uischema,
-  "options.use"
-)();
+const {
+  data,
+  default: defaultItem,
+  meta,
+} = get(control.value.uischema, "options.use")();
+
+const hasModifyComposable = computed(() => {
+  return isFunction(get(control.value.uischema, "options.modify"));
+});
 
 onMounted(() => {
   selectedDefaultItem();

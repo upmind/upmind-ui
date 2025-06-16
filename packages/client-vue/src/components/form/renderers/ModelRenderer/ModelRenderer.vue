@@ -1,5 +1,6 @@
 <template>
-  <Dialog
+  <component
+    :is="is === 'Dialog' ? Dialog : is"
     v-model:open="open"
     size="3xl"
     :title="`${id ? 'Edit' : 'New'} ${label}`"
@@ -28,7 +29,7 @@
         />
       </template>
     </UpmForm>
-  </Dialog>
+  </component>
 </template>
 
 <script setup lang="ts">
