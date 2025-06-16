@@ -4,45 +4,39 @@
     class="flex flex-col items-center gap-y-12"
     :class="props.class"
   >
-    <div class="flex max-h-full flex-col overflow-auto">
-      <a
-        href="javascript:void(0);"
-        @click="() => selectCategory('')"
-        class="flex items-end border-b border-primary bg-gradient-to-r from-primary to-primary bg-[length:0%_4px] bg-left-bottom bg-no-repeat px-6 py-5 text-xl transition-all duration-300 ease-in-out"
-        :class="{
-          'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
-            modelValue !== '',
-          'border-b-primary bg-[length:100%_4px] text-primary':
-            modelValue === '',
-        }"
-      >
-        <span class="font-bold md:text-2xl">All</span>
-      </a>
-
-      <template
-        v-if="meta.isLoading || meta.hasError"
-        v-for="i in skeletonCount"
-      >
-        <UpmCard>
-          <Loading />
-        </UpmCard>
-      </template>
-
-      <template v-for="category in categories" :key="category.id">
-        <a
-          @click="() => selectCategory(category.id)"
-          class="flex items-end border-b border-primary bg-gradient-to-r from-primary to-primary bg-[length:0%_4px] bg-left-bottom bg-no-repeat px-6 py-5 text-xl transition-all duration-300 ease-in-out"
+    <ul class="flex max-h-full flex-col overflow-auto">
+      <Loading :active="meta.isLoading" class="w-full">
+        <UpmCard
+          as="li"
+          @click="() => selectCategory('')"
+          class="flex items-end rounded-none border-b border-primary bg-gradient-to-r from-primary to-primary bg-[length:0%_4px] bg-left-bottom bg-no-repeat px-6 py-5 text-xl transition-all duration-300 ease-in-out"
           :class="{
             'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
-              modelValue !== category.id,
+              modelValue !== '',
             'border-b-primary bg-[length:100%_4px] text-primary':
-              modelValue === category.id,
+              modelValue === '',
           }"
         >
-          <span class="font-bold md:text-2xl">{{ category.name }}</span>
-        </a>
-      </template>
-    </div>
+          <span class="font-bold md:text-2xl">All</span>
+        </UpmCard>
+
+        <template v-for="category in categories" :key="category.id">
+          <UpmCard
+            as="li"
+            @click="() => selectCategory(category.id)"
+            class="flex items-end rounded-none border-b border-primary bg-gradient-to-r from-primary to-primary bg-[length:0%_4px] bg-left-bottom bg-no-repeat px-6 py-5 text-xl transition-all duration-300 ease-in-out"
+            :class="{
+              'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
+                modelValue !== category.id,
+              'border-b-primary bg-[length:100%_4px] text-primary':
+                modelValue === category.id,
+            }"
+          >
+            <span class="font-bold md:text-2xl">{{ category.name }}</span>
+          </UpmCard>
+        </template>
+      </Loading>
+    </ul>
   </div>
 </template>
 
